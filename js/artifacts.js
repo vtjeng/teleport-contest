@@ -231,7 +231,7 @@ import { next_to_u } from './apply_next_to_u.js';
 import { do_blinding_ray } from './apply.js';
 import { glyph_at, glyph_is_trap, newsym, shieldeff, see_monsters } from './display.js';
 import { invocation_pos, losehp, nomul, spoteffects } from './hack.js';
-import { float_down, float_up, t_at } from './trap.js';
+import { float_down, float_up, t_at, untrap } from './trap.js';
 import { level_tele } from './teleport.js';
 import { align_str, enlightenment } from './insight.js';
 import { carried, Is_dragon_armor, Is_dragon_mail, mksobj, objectType, weight } from './obj.js';
@@ -2406,12 +2406,13 @@ async function invoke_energy_boost(obj, state) {
     return ECMD_TIME;
 }
 
-// C ref: artifact.c invoke_untrap() (1837-1845).
+// C ref: artifact.c invoke_untrap() (1838-1846).
 async function invoke_untrap(obj, state) {
-    // untrap() is a large interactive function in trap.c, not yet ported.
-    note_unported('trap.c untrap');
-    obj.age = 0;
-    return ECMD_CANCEL;
+    if (!await untrap(true, 0, 0, null, state)) {
+        obj.age = 0; // C does not charge for changing one's mind.
+        return ECMD_CANCEL;
+    }
+    return ECMD_TIME;
 }
 
 // C ref: artifact.c invoke_charge_obj() (1847-1864).

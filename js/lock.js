@@ -778,7 +778,7 @@ export async function pick_lock(pick, rx, ry, container, state = game, env = {})
             else if (picktyp !== LOCK_PICK) { verb = 'unlock'; it = true; }
             else verb = 'pick';
             if (autounlock && (state.flags.autounlock & AUTOUNLOCK_UNTRAP)
-                && could_untrap(false, true, state)
+                && await could_untrap(false, true, state)
                 && (c = otmp.tknown ? (otmp.otrapped ? yes : no)
                     : await ask(safe_qbuf('Check ', ' for a trap?', otmp,
                         yname, ysimple_name, 'this', state))) !== no) {
@@ -869,7 +869,7 @@ export async function pick_lock(pick, rx, ry, container, state = game, env = {})
             return PICKLOCK_LEARNED_SOMETHING;
         default: {
             let c;
-            if ((state.flags.autounlock & AUTOUNLOCK_UNTRAP) && could_untrap(false, false, state)
+            if ((state.flags.autounlock & AUTOUNLOCK_UNTRAP) && await could_untrap(false, false, state)
                 && (c = await ask('Check this door for a trap?')) !== no) {
                 if (c === quit) return PICKLOCK_DID_NOTHING;
                 await untrap(false, cc.x, cc.y, null, state);
@@ -1138,7 +1138,7 @@ export async function doopen_indir(x, y, state = game, env = {}) {
     }
 
     // lock.c:820-821. Door mimic check.
-    if (stumble_on_door_mimic(cc.x, cc.y, state))
+    if (await stumble_on_door_mimic(cc.x, cc.y, state))
         return ECMD_TIME;
 
     // lock.c:825-826. When choosing a direction is impaired, use a turn
@@ -1259,18 +1259,13 @@ export async function doopen_indir(x, y, state = game, env = {}) {
     return ECMD_TIME;
 }
 
-// C ref: lock.c stumble_on_door_mimic() (759-769). Checks whether a monster
-// at (x,y) is a door mimic and, if so, forces the hero to interact with it.
-// stumble_onto_mimic() is unported, so this function throws when the mimic
-// condition is met. In normal play the condition requires a shapechanger
-// mimicking a closed door, which is rare enough that the throw is acceptable.
-export function stumble_on_door_mimic(x, y, state = game) {
+// C ref: lock.c stumble_on_door_mimic() (759-769).
+export async function stumble_on_door_mimic(x, y, state = game) {
     const mtmp = m_at(x, y, state);
     if (mtmp && is_door_mappear(mtmp)
         && !Protection_from_shape_changers(state)) {
-        throw new UnsupportedLockError(
-            'stumble_onto_mimic() in stumble_on_door_mimic()',
-        );
+        await stumble_onto_mimic(mtmp, state, { state, pline: ttyPline });
+        return true;
     }
     return false;
 }
@@ -1552,9 +1547,9 @@ function Stunned(state) {
 // D_BROKEN, already closed/locked), the verysmall refusal, the rn2(25) close
 // roll with both outcomes, and the exercise/resist path.
 //
-// Not covered, each throwing: stumble_on_door_mimic (mimic path),
-// Confusion/Stunned (confdir throws first), and obstructed's visible-monster
-// arm.
+// Not covered, each throwing: Confusion/Stunned (confdir throws first),
+// and obstructed's visible-monster arm. The source door-mimic check calls
+// the canonical reveal owner before it consumes a turn.
 export async function doclose(state = game) {
     const u = state.u;
 
@@ -1594,8 +1589,8 @@ export async function doclose(state = game) {
         return res;
     }
 
-    // lock.c:987-988. stumble_on_door_mimic throws for the mimic path.
-    if (stumble_on_door_mimic(x, y, state))
+    // lock.c:987-988. Revealing a door mimic consumes a turn.
+    if (await stumble_on_door_mimic(x, y, state))
         return ECMD_TIME;
 
     // lock.c:992-993. Unreachable in this port: getdir() calls confdir(), which

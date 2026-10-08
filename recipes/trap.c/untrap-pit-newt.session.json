@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first untrap recipe. Inputs fixed before C observation or JS comparison. Initial C-only setup: observe the adjacent newt position before creating a pit under the hero and luring it through that square. C-only command correction: the current upstream extended command is #wizgenesis, not the older #genesis spelling. C-only position observation: the newt is south of the hero at creation. Make a pit at the current hero square, move north to lure it over the pit, then attempt to rescue it southward. C-only setup correction: the first north square was a wall and the wished pit was unseen. Start one square south in the room, map the pit, then move north to lure the newt into it. In the corrected C-only setup the newt spawns north of the hero; move south and rescue northward rather than attacking it. The C newt falls into the pit only after one subsequent wait; wait before rescue and allow three ordinary source chance attempts.",
+  "segments": [
+    {
+      "seed": 1442912,
+      "datetime": "20580409103011",
+      "nethackrc": "OPTIONS=name:Untrap1442912,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,time\n",
+      "moves": " lj#wizgenesis\nhostile newt\n\u0017pit trap\n \u0006j. #untrap\nk    #untrap\nk    #untrap\nk    ."
+    }
+  ]
+}

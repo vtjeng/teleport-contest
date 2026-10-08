@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first untrap recipe. Inputs fixed before C observation or JS comparison. Cheap active-caller variation: close rather than untrap the same independently constructed door-mimic state. C-only command correction: the current upstream extended command is #wizgenesis, not the older #genesis spelling. C-only window correction: acknowledge all three creation More pages before issuing the chosen caller command. Eight-mimic setup is blocked by the existing makemon.c:set_mimic_sym statue temporary-object missing monsterObject hook. Five creations retain the independently observed closed-door fifth mimic and avoid the unrelated statue branch. Blocked eight-mimic variant; do not cite for completion.",
+  "segments": [
+    {
+      "seed": 1442907,
+      "datetime": "20580409103011",
+      "nethackrc": "OPTIONS=name:Untrap1442907,role:Ranger,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,time\n",
+      "moves": " h#wizgenesis\n8 sleeping small mimic\n    ch       ."
+    }
+  ]
+}

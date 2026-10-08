@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first magic-opening caller of reward_untrap: lure a hostile newt into a wished web, then zap opening toward it while adjacent. No broader openholdingtrap or zap credit. This C variation releases the newt but openholdingtrap rn2(2) takes the no-reward arm; kept as a matching cheap variation, not proof that reward_untrap executes.",
+  "segments": [
+    {
+      "seed": 1442912,
+      "datetime": "20580409103011",
+      "nethackrc": "OPTIONS=name:Untrap1442912,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,time\n",
+      "moves": " lj#wizgenesis\nhostile newt\n\u0017web\n \u0006j. \u0017wand of opening\n  zek       ."
+    }
+  ]
+}

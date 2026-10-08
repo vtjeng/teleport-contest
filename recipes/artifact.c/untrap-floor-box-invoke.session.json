@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first untrap recipe. Unsearched inputs fixed before C observation or JS comparison. Source force TRUE Master Key route must see and successfully clear the floor-container trap. C-only prompt correction: the trap-discovery line waits at More before Disarm it?, so acknowledge with space before answering the disarm query. C map observation showed the first eastward square is a fountain; a second eastward move selects ordinary room terrain for the passing container route.",
+  "segments": [
+    {
+      "seed": 1442909,
+      "datetime": "20580409103011",
+      "nethackrc": "OPTIONS=name:Untrap1442909,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,time\n",
+      "moves": " ll\u0017blessed Master Key of Thievery\n   \u0017unlocked trapped large box\n  dh   #invoke\ng>y y    ."
+    }
+  ]
+}

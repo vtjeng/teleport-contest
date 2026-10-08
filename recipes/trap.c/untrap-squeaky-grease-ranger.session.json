@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first untrap recipe. Inputs fixed before C observation or JS comparison. Different source-role chance for the greedy-board repair route; source Ranger difficulty reduction is a cheap variation. C-first chance variation: retry the still-present board up to five times. Stop the final regression input after C first reports its source repair branch; retain earlier failure effects as source evidence. C observation reached repair on the second attempt; truncate subsequent no-trap attempts and retain that repair with one settling wait.",
+  "segments": [
+    {
+      "seed": 1442914,
+      "datetime": "20580409103011",
+      "nethackrc": "OPTIONS=name:Untrap1442914,role:Ranger,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,time\n",
+      "moves": " l\u0017uncursed can of grease (5)\n   \u0017squeaky board\n  \u0006#untrap\n>g    #untrap\n>g ."
+    }
+  ]
+}

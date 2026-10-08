@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first two-container variation: decline the newest chest, then select the older large box. trap.c untrap must walk nexthere and check at most one accepted container per turn, leaving the declined chest trapped. C-only inventory correction: after dropping h, the next wish assigns chest letter i rather than recycling h.",
+  "segments": [
+    {
+      "seed": 1442909,
+      "datetime": "20580409103011",
+      "nethackrc": "OPTIONS=name:Untrap1442909,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,time\n",
+      "moves": " ll\u0017blessed Master Key of Thievery\n   \u0017unlocked trapped large box\n  dh   \u0017unlocked trapped chest\n  di   #invoke\ng>ny y    ."
+    }
+  ]
+}

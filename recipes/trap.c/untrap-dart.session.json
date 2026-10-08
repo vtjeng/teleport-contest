@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first untrap recipe. Unsearched seed and inputs chosen before C observation or JS comparison. Cheap shooting-trap variation: dart trap preserves poison-capable object generation. C-only setup correction: wizard trap wishes create an unseen trap. The source wiz_map command (control-F) reveals it before #untrap; bear traps also require the trapped prefix to avoid the disarmed beartrap object.",
+  "segments": [
+    {
+      "seed": 1442906,
+      "datetime": "20580409103011",
+      "nethackrc": "OPTIONS=name:Untrap1442906,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,time\n",
+      "moves": " l\u0017dart trap\n  \u0006#untrap\n>     ."
+    }
+  ]
+}
