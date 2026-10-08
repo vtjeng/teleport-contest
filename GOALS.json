@@ -220593,7 +220593,7 @@
     {
       "id": "port-mcastu-touch-of-death-family-v32-20261008",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port Death touch and its monster spell caller family",
       "cFile": "mcastu.c",
       "sessions": [
@@ -220601,8 +220601,12 @@
       ],
       "selectionReason": "A175 seed now entirely matches. Highest unreserved independent v32 case is death-touch with 55 screens; first RNG difference at step 106 is missing touch_of_death. Complete coherent C family with canonical consumed helpers; C154 timeout-expiry sources are disjoint.",
       "detail": "Whole mcastu.c lines 323-408 family, including existing pure death formatter, and both production callers. Preserve exact RNG, HP, killer, message, and clone/live terminal order, retaining downstream owner limits.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "3d63c513dd6481e2852d05dde9462104f5459c1e",
+      "openStanding": {
+        "sha": "1e473520110f60b4e3643c68dee6672850378ead",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -220645,7 +220649,232 @@
           "evaluationPath": "challenges/evaluations/accepted-1e473520110f60b4e3643c68dee6672850378ead-v32.json",
           "evaluationCommit": "1e473520110f60b4e3643c68dee6672850378ead"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "1e473520110f60b4e3643c68dee6672850378ead",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-death-touch",
+          "session": "synthetic/v32/v32-death-touch",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recording": "challenges/cases/v32/v32-death-touch.session.json",
+          "recordingPath": "challenges/cases/v32/v32-death-touch.session.json",
+          "recordingSha256": "fc467065cde4cf3309090a928b89dd116b21ec970cdb2a5cec9e4cf13beb9497",
+          "recipe": "challenges/cases/v32/v32-death-touch.recipe.session.json",
+          "recipeSha256": "7720e0cf788e06028466622bf40800fd36bda703d26e4faf5120774ba120d461",
+          "replayInputSha256": "9489f005333e0d603372bbd6fcb5c43c0f690d6d50ba652345fda472ad6e1156",
+          "evaluationPath": "challenges/evaluations/accepted-1e473520110f60b4e3643c68dee6672850378ead-v32.json",
+          "evaluationCommit": "1e473520110f60b4e3643c68dee6672850378ead",
+          "evaluationArtifact": "challenges/evaluations/accepted-1e473520110f60b4e3643c68dee6672850378ead-v32.json",
+          "evaluationUtc": "2026-10-08T23:50:12.459Z",
+          "remainingScreens": 55,
+          "recordedSteps": 161,
+          "previousScreensMatched": 106,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 106,
+              "total": 161
+            },
+            "rng": {
+              "matched": 3001,
+              "total": 3080
+            },
+            "cursors": {
+              "matched": 122,
+              "total": 161
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 106,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 106,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 40,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2999,
+              "cEntry": "d(8,6)=34",
+              "cCaller": "touch_of_death(mcastu.c:326)",
+              "jsEntry": "rn2(3)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 106,
+                "key": "."
+              },
+              "stepIndex": 106
+            },
+            "cursor": {
+              "index": 106,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 106,
+                "key": "."
+              },
+              "cCursor": [
+                69,
+                0,
+                1
+              ],
+              "jsCursor": [
+                48,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 106,
+          "kind": "rng",
+          "sourceFile": "mcastu.c",
+          "function": "touch_of_death",
+          "message": null,
+          "cFile": "mcastu.c",
+          "luaFile": null,
+          "line": 326,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v32/v32-death-touch.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v32",
+              "caseId": "v32-death-touch",
+              "session": "synthetic/v32/v32-death-touch",
+              "manifestPath": "challenges/manifests/v32.json",
+              "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+              "recordingPath": "challenges/cases/v32/v32-death-touch.session.json",
+              "recording": "challenges/cases/v32/v32-death-touch.session.json",
+              "recordingSha256": "fc467065cde4cf3309090a928b89dd116b21ec970cdb2a5cec9e4cf13beb9497",
+              "evaluationPath": "challenges/evaluations/accepted-86e7e4196de994d52bfa413ac89fdb28afd3bd84-v32.json",
+              "evaluationCommit": "86e7e4196de994d52bfa413ac89fdb28afd3bd84",
+              "remainingScreens": 55,
+              "recordedSteps": 161,
+              "passed": false,
+              "metrics": {
+                "screens": {
+                  "matched": 106,
+                  "total": 161
+                },
+                "rng": {
+                  "matched": 3001,
+                  "total": 3080
+                },
+                "cursors": {
+                  "matched": 122,
+                  "total": 161
+                }
+              },
+              "error": null,
+              "firstMismatch": {
+                "kind": "rng",
+                "step": 106,
+                "cEntry": "d(8,6)=34",
+                "jsEntry": "rn2(3)=2"
+              },
+              "step": 106,
+              "kind": "rng",
+              "sourceFile": "mcastu.c",
+              "function": "touch_of_death",
+              "status": "complete",
+              "commit": "134255d313816fede867602f00a1d4da2b5d0a6a",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v32",
+                "caseId": "v32-death-touch",
+                "session": "synthetic/v32/v32-death-touch",
+                "manifestPath": "challenges/manifests/v32.json",
+                "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+                "recordingPath": "challenges/cases/v32/v32-death-touch.session.json",
+                "recording": "challenges/cases/v32/v32-death-touch.session.json",
+                "recordingSha256": "fc467065cde4cf3309090a928b89dd116b21ec970cdb2a5cec9e4cf13beb9497",
+                "evaluationPath": "challenges/evaluations/accepted-86e7e4196de994d52bfa413ac89fdb28afd3bd84-v32.json",
+                "evaluationCommit": "86e7e4196de994d52bfa413ac89fdb28afd3bd84",
+                "remainingScreens": 55,
+                "recordedSteps": 161,
+                "passed": false,
+                "metrics": {
+                  "screens": {
+                    "matched": 106,
+                    "total": 161
+                  },
+                  "rng": {
+                    "matched": 3001,
+                    "total": 3080
+                  },
+                  "cursors": {
+                    "matched": 122,
+                    "total": 161
+                  }
+                },
+                "error": null,
+                "firstMismatch": {
+                  "kind": "rng",
+                  "step": 106,
+                  "cEntry": "d(8,6)=34",
+                  "jsEntry": "rn2(3)=2"
+                },
+                "step": 106,
+                "kind": "rng",
+                "sourceFile": "mcastu.c",
+                "function": "touch_of_death"
+              },
+              "summary": "Death’s successful deadly touch skips mcastu.c touch_of_death in JavaScript, omitting its d(8,6) damage draw, HP drain and death/reversion handling.",
+              "source": {
+                "file": "mcastu.c",
+                "branch": "Death attacks the living non-Antimagic hero; uhitm.c mhitm_ad_deth selects rn2(20)17–19 and calls touch_of_death. The same helper is required by the successful monster death-touch spell.",
+                "functions": [
+                  "touch_of_death",
+                  "death_inflicted_by",
+                  "mcast_death_touch"
+                ],
+                "callers": [
+                  "uhitm.c3863 mhitm_ad_deth -> touch_of_death; mhitu.c hitmu -> mhitm_adtyping AD_DETH reaches it through ordinary monster turns.",
+                  "mcastu.c398 mcast_death_touch -> touch_of_death; mcast_spell817 -> mcast_death_touch; castmu298 -> mcast_spell.",
+                  "zap.c4574 buzz -> death_inflicted_by; current pure formatter and that caller already canonical."
+                ],
+                "dependencies": [
+                  "Canonical pure death_inflicted_by formatter exists and has source-pinned complete tests; retain its one returned-string owner.",
+                  "Consumed minuhpmax/adjuhploss and setuhpmax canonical attrib owners already exist. Preserve 50+d(8,6), integer half drain, saved olduhp before setuhpmax, adjusted remaining losehp and final killer-name clear.",
+                  "Reuse existing rehumanize/losehp/done owners. Clone planning must forward message/RNG/state and stop at existing fatal handoff before live death/recovery input; existing rehumanize planning env and losehp HeroDeathPlanningError provide that contract.",
+                  "mcast_death_touch uses existing nonliving/is_demon, mhe, property, shield and resistance observers; no consumed placeholder. Other monster spell effects remain explicit gaps outside this family.",
+                  "C154 timeout slimed_to_death/done_timeout ownership is disjoint; this family calls existing end done directly or through existing losehp/rehumanize, with no timeout edits."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved accepted-B167 v32 evaluation has106/161 matching screens and55 remaining. Current single-case replay .cache/A176/selected.json reproduces the first boundary at106, C d(8,6)=34 from touch_of_death326 versus JS rn2(3)=2; no refusal, and first screen difference at row0,column40 because the drained line is absent.",
+                "Read complete mcastu.c touch_of_death323–354, death_inflicted_by358–382, mcast_death_touch389–408, dispatcher800–820 and uhitm.c mhitm_ad_deth3837–3893. JS uhitm6459–6463 records note_unported touch_of_death; mcast_spell likewise skips mcast_death_touch. Whole coherent family plus bounded production caller wiring is actionable.",
+                "Required source order: damage draw, drained message, killer text, polymorphed reversion or human direct death/HP-max drain, then killer-name clear if the call returns. Casting wrapper preserves nonliving/demon immunity, Antimagic short circuit, hallucination and seen-resistance ordering.",
+                "Validation plan: source-pinned branch/RNG/state/callback tests, clone-only fatal input handoff, selected admitted range, independent C-first Death human primary and cheap HP/role variation, polymorph and spellcaster caller routes. Keep any source-owned downstream blocker as a named recipe/evidence limit; do not substitute another spell or claim end/polyself completion."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
