@@ -304,6 +304,7 @@ import {
     SCR_LIGHT,
     SCR_MAGIC_MAPPING,
     SCR_PUNISHMENT,
+    HEAVY_IRON_BALL,
     SCR_REMOVE_CURSE,
     SCR_TELEPORTATION,
     SPE_CAUSE_FEAR,
@@ -358,7 +359,8 @@ import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import {
     cmap_to_glyph, map_invisible, newsym, shieldeff, tmp_at,
 } from './display.js';
-import { flooreffects, trycall } from './do.js';
+import { dropCommandEnv, dropy, flooreffects, trycall } from './do.js';
+import { placebc } from './ball.js';
 import { y_n } from './cmd.js';
 import {
     study_book,
@@ -1114,82 +1116,43 @@ export async function seffect_taming(scroll, state = game) {
     }
 }
 
-function solidPunishmentTarget(state) {
-    const species = state.youmonst?.data;
-    // read.c:3036-3044 has separate amorphous, whirly and unsolid fall-away
-    // arms. They are outside this divergence, as is placement while swallowed;
-    // admit only the solid, visible first-read arm here. A previously attached
-    // ball is handled by punish() before these checks and needs no species test.
-    return !propertyActive(BLINDED, state)
-        && !state.u?.uswallow
-        && species
-        && !amorphous(species)
-        && !is_whirly(species)
-        && !unsolid(species);
-}
-
-function punishmentReadAdmitted(scroll, confused, state) {
-    if (scroll.oclass !== SCROLL_CLASS || scroll.otyp !== SCR_PUNISHMENT)
-        return false;
-    // doread()'s blind guard at read.c:561-575 allows a scroll only after its
-    // description has been seen. The guilty and repeated-ball arms do not
-    // need the blind ball-and-chain display setup; the first creation arm
-    // remains sighted.
-    if (propertyActive(BLINDED, state)
-        && !confused && !scroll.blessed && !state.uball) return false;
-    if (confused || scroll.blessed || state.uball) return true;
-    return solidPunishmentTarget(state);
-}
-
-// C ref: read.c punish() (3019-3062), plus the solid, non-swallowed
-// placebc_core() arm required by its scroll caller. Reuse-ball, fall-away,
-// swallowed and blind display branches remain outside this divergence.
-export async function punish(scroll, state = game) {
-    const cursedLevy = scroll?.cursed ? 1 : 0;
-
-    await ttyPline('You are being punished for your misbehavior!', state);
+// C ref: read.c punish() (3019-3062). A heavy iron ball argument reuses
+// the unearthed object and suppresses the ordinary punishment announcement.
+export async function punish(sobj, state = game, rawEnv = {}) {
+    const reuseBall = sobj?.otyp === HEAVY_IRON_BALL ? sobj : null;
+    const cursedLevy = sobj?.cursed ? 1 : 0;
+    const message = rawEnv.message ?? ttyPline;
+    if (!reuseBall)
+        await message('You are being punished for your misbehavior!', state);
     if (state.uball) {
-        await ttyPline('Your iron ball gets heavier.', state);
+        await message('Your iron ball gets heavier.', state);
         state.uball.owt += WT_IRON_BALL_INCR * (1 + cursedLevy);
         return;
     }
 
-    if (!solidPunishmentTarget(state)) {
-        throw new UnsupportedReadError(
-            'punish() fall-away, swallowed, or blind branch',
-        );
+    const env = { ...rawEnv, state };
+    const species = state.youmonst.data;
+    if (amorphous(species) || is_whirly(species) || unsolid(species)) {
+        if (!reuseBall)
+            await message('A ball and chain appears, then falls away.', state);
+        await dropy(reuseBall ?? mkobj(BALL_CLASS, true, env),
+            dropCommandEnv(state, env));
+        return;
     }
 
     // C makes and wears the chain before making and wearing the ball. mkobj()
     // owns the exact rnd(1000), next_ident() and erosion draw sequence for each
     // generic class; setworn() owns the state.uball/state.uchain pointers.
-    const chain = mkobj(CHAIN_CLASS, true, { state });
+    const chain = mkobj(CHAIN_CLASS, true, env);
     await setworn(chain, W_CHAIN, setwornEnv(state));
-    const ball = mkobj(BALL_CLASS, true, { state });
+    const ball = reuseBall ?? mkobj(BALL_CLASS, true, env);
     await setworn(ball, W_BALL, setwornEnv(state));
 
-    // placebc_core(): ball first establishes BCPOS_CHAIN, then chain is placed
-    // above it. The source checks floor effects before either object is placed;
-    // the existing ordinary-floor implementation covers this witness and
-    // fails closed on its other square-specific arms.
-    const floorEffects = {
-        state,
-        unsupported: (reason) => {
-            throw new UnsupportedReadError(`punish() floor effect: ${reason}`);
-        },
-    };
-    await flooreffects(chain, state.u.ux, state.u.uy, '', floorEffects);
-    await flooreffects(ball, state.u.ux, state.u.uy, '', floorEffects);
-    // The glyph is sampled before newsym() paints the objects.
-    place_object(ball, state.u.ux, state.u.uy, { state });
-    state.u.bc_order = 1; // BCPOS_CHAIN from ball.c:108.
-    place_object(chain, state.u.ux, state.u.uy, { state });
-    const glyph = state.level.at(state.u.ux, state.u.uy).glyph;
-    state.u.bglyph = glyph;
-    state.u.cglyph = glyph;
-    newsym(state.u.ux, state.u.uy);
-    // punish() calls newsym() again after placebc(); preserve that source call.
-    newsym(state.u.ux, state.u.uy);
+    if (!state.u.uswallow) {
+        await placebc(state, env);
+        if (propertyActive(BLINDED, state)) note_unported('ball.c set_bc');
+        (rawEnv.redraw ?? newsym)(state.u.ux, state.u.uy, state);
+    }
 }
 
 // C ref: read.c seffect_punishment() (1976-1988). The effect is known as soon
@@ -3365,10 +3328,7 @@ export async function seffects(scroll, state = game, env = {}) {
         await seffect_earth(scroll, state);
         break;
     case SCR_PUNISHMENT:
-        if (punishmentReadAdmitted(scroll, confused, state))
-            await seffect_punishment(scroll, state);
-        else
-            note_unported('read.c seffect_punishment');
+        await seffect_punishment(scroll, state);
         break;
     case SCR_STINKING_CLOUD:
         await seffect_stinking_cloud(scroll, state);

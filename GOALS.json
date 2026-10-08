@@ -200087,7 +200087,7 @@
     {
       "id": "port-dig-buried-ball-punishment-v28-20261008",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Restore buried-ball punishment with same-object reuse and ordered unearthing",
       "cFile": "dig.c",
       "sessions": [
@@ -200095,8 +200095,12 @@
       ],
       "selectionReason": "Independent admitted case synthetic/v28/v28-buried-ball-unearth has nine remaining screens at digactualhole -> buried_ball_to_punishment before maketrap. The complete investigation traces the required whole punish and unearth owners plus active caller frontiers.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "6bdd9ebdc01362909344a372e1cc0064f0754f32",
+      "openStanding": {
+        "sha": "7727bdc5c54b8c8c34b8d3acf281bc4ef821f1d2",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -200104,7 +200108,7 @@
           "name": "buried_ball_to_punishment",
           "line": 1935,
           "endLine": 1957,
-          "declared": false,
+          "declared": true,
           "complete": false
         }
       ],
@@ -200119,7 +200123,7 @@
           "endLine": 3065,
           "declared": true,
           "sourceFile": "read.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "unearth_objs",
@@ -200127,7 +200131,7 @@
           "endLine": 2124,
           "declared": true,
           "sourceFile": "dig.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -200143,7 +200147,460 @@
           "evaluationPath": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
           "evaluationCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "7727bdc5c54b8c8c34b8d3acf281bc4ef821f1d2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-buried-ball-unearth",
+          "session": "synthetic/v28/v28-buried-ball-unearth",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recording": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
+          "recordingPath": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
+          "recordingSha256": "1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54",
+          "recipe": "challenges/cases/v28/v28-buried-ball-unearth.recipe.session.json",
+          "recipeSha256": "505cf79f34642043283b2ed784ae9fc90eca1e54902450267841adc49b5b417a",
+          "replayInputSha256": "ddda6cad7367767e34d25979564f09fd87f00c1a4f1c298c61575b00895612a8",
+          "evaluationPath": "challenges/evaluations/accepted-29d45c37f0d1dd9c0f472cd3b2a18b8a0b659a2c-v28.json",
+          "evaluationCommit": "29d45c37f0d1dd9c0f472cd3b2a18b8a0b659a2c",
+          "evaluationArtifact": "challenges/evaluations/accepted-29d45c37f0d1dd9c0f472cd3b2a18b8a0b659a2c-v28.json",
+          "evaluationUtc": "2026-10-08T04:48:11.499Z",
+          "remainingScreens": 9,
+          "recordedSteps": 85,
+          "previousScreensMatched": 76,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 76,
+              "total": 85
+            },
+            "rng": {
+              "matched": 4668,
+              "total": 7218
+            },
+            "cursors": {
+              "matched": 76,
+              "total": 85
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "burial requires buried_ball_to_punishment for otyp 477",
+            "step": 76
+          },
+          "step": 76,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "burial requires buried_ball_to_punishment for otyp 477",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v28/v28-buried-ball-unearth.json",
+            "result": {
+              "session": "synthetic/v28/v28-buried-ball-unearth",
+              "corpus": "synthetic",
+              "batch": "v28",
+              "caseId": "v28-buried-ball-unearth",
+              "manifestPath": "challenges/manifests/v28.json",
+              "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+              "recordingPath": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
+              "recordingSha256": "1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54",
+              "evaluationPath": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
+              "evaluationCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+              "evaluationUtc": "2026-10-08T04:24:32.322Z",
+              "remainingScreens": 9,
+              "recordedSteps": 85,
+              "metrics": {
+                "screens": {
+                  "matched": 76,
+                  "total": 85
+                },
+                "rng": {
+                  "matched": 4668,
+                  "total": 7218
+                },
+                "cursors": {
+                  "matched": 76,
+                  "total": 85
+                }
+              },
+              "passed": false,
+              "step": 76,
+              "kind": "refusal",
+              "message": "burial requires buried_ball_to_punishment for otyp 477",
+              "status": "complete",
+              "commit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+              "mismatch": {
+                "session": "synthetic/v28/v28-buried-ball-unearth",
+                "corpus": "synthetic",
+                "batch": "v28",
+                "caseId": "v28-buried-ball-unearth",
+                "manifestPath": "challenges/manifests/v28.json",
+                "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+                "recordingPath": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
+                "recordingSha256": "1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54",
+                "evaluationPath": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
+                "evaluationCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+                "evaluationUtc": "2026-10-08T04:24:32.322Z",
+                "remainingScreens": 9,
+                "recordedSteps": 85,
+                "metrics": {
+                  "screens": {
+                    "matched": 76,
+                    "total": 85
+                  },
+                  "rng": {
+                    "matched": 4668,
+                    "total": 7218
+                  },
+                  "cursors": {
+                    "matched": 76,
+                    "total": 85
+                  }
+                },
+                "passed": false,
+                "step": 76,
+                "kind": "refusal",
+                "message": "burial requires buried_ball_to_punishment for otyp 477",
+                "evaluationArtifact": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json"
+              },
+              "goalKind": "file-port",
+              "summary": "Missing dig.c:buried_ball_to_punishment leaves the buried tether unchanged before downward digging; maketrap then reaches unearth_objs and refuses the same restoration. Port whole punishment restoration with source-required read.c:punish reuse-ball behavior and whole unearth_objs, preserving awaited ordering and every active caller frontier.",
+              "source": {
+                "file": "dig.c",
+                "branch": "A downward digging action at a hero tethered by TT_BURIEDBALL calls buried_ball_to_punishment before maketrap. The helper finds a buried iron ball at the hero square or nearby, reuses that same ball with a new chain, clears the tether silently and redraws its old square.",
+                "functions": [
+                  "buried_ball_to_punishment",
+                  "unearth_objs"
+                ],
+                "callers": [
+                  "dig.c:digactualhole656 before furniture handling/maketrap; JS currently note_unported",
+                  "dig.c:unearth_objs2100 after consumed buried_ball and before its loop continues; JS bury.js currently refuses/injects this operation",
+                  "do.c:goto_level1595 before old-level save; JS note_unported",
+                  "hack.c:trapmove1679 TT_BURIEDBALL anchored wriggle_free; JS trapmove currently refuses all held types except PIT/BEARTRAP",
+                  "teleport.c:teleds458 before ball_active calculation; JS currently refuses buried-ball path",
+                  "teleport.c:level_tele1302 before next_to_u; JS note_unported",
+                  "teleport.c:domagicportal1451 before next_to_u; the production owner is absent in JS",
+                  "mklev.c:mkinvokearea2461 before reset_utrap and invocation transmutation; JS spell.deadbook currently note_unported for the whole owner"
+                ],
+                "dependencies": [
+                  "Consumed dig.c:buried_ball1885-1930 is fully implemented in js/dig.js; verify complete exact-first, nearest squared distance<=8, first-on-ties, trap eligibility and caller-coordinate mutation. Current unearth_objs duplicates only exact-square lookup and must call canonical finder.",
+                  "read.c:punish3019-3062 receives the extracted heavy iron ball as reuse flag. JS punish is partial: unconditional misbehavior/new-ball behavior, rejects unsolid/blind/swallowed. Whole source audit is required; no substitute RNG/state/message for the reuse branch.",
+                  "Existing canonical obj_extract_self OBJ_BURIED->OBJ_FREE, setworn W_CHAIN/W_BALL, mkobj, ball.c placebc, reset_utrap(FALSE), del_engr_at and newsym owners are reusable. set_bc is absent: this discarded void call must remain named unless separately ported; no invented blind state.",
+                  "unearth_objs active callers: dig.c:liquid_flow862, trap.c:maketrap563, zap.c:melt_ice5058. Existing JS unearth/pitTerrain are synchronous; maketrap already supports conditional Promise return for runtime statue creation. Preserve synchronous no-punishment generation while awaiting any restoration continuation before block recomputation/linking/next caller effect.",
+                  "Audit live PIT/HOLE maketrap consumers in zap.c/muse.c/apply.c and the existing awaited dig/music paths before widening async admission. Do not globally change generation contracts or claim these caller functions complete.",
+                  "domagicportal and mkinvokearea are active C caller entries with absent JS production owners. TT_BURIEDBALL trapmove branch is also unported. Reserve bounded admissions where possible; otherwise retain source-named blocked recipes and incomplete closure, rather than omitting active callers."
+                ]
+              },
+              "evidence": [
+                "Exact accepted-main evaluation challenges/evaluations/accepted-e0d0dcd2de84273a7db3e7676a895db314cb98d2-v28.json at e0d0dcd2de84273a7db3e7676a895db314cb98d2 reports76/85 screens and cursors,4668/7218 RNG; nine remaining screens. Its hosted origin is .git/checkpoint-results/e0d0dcd2de84273a7db3e7676a895db314cb98d2/run-hosted-vu7J4n/synthetic/ci-v28.json. Manifest corpus digest394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039 and recording hash1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54 verified against both saved evaluation and recording bytes.",
+                "Read-only single-case replay .cache/C142-buried-ball-unearth-accepted-scan.json at ccc19e7876bac50f265d456eca0c7ee87a543f01, whose tracked tree exactly equals accepted e0d0dcd2de84273a7db3e7676a895db314cb98d2, reproduces step76 key> refusal burial requires buried_ball_to_punishment for otyp477 with76 emitted screens. C recording key> emits You dig a hole through the floor / You fall through, then generates a destination level. Earlier prepared .cache/v28-runs/v28-buried-ball-unearth.boundary.json pins stack dozap -> weffects -> zap_dig -> dighole -> digactualhole -> maketrap -> pitTerrain -> unearth_objs; the refreshed scan agrees with that first stop/count.",
+                "The first missing source effect precedes the thrown refusal: digactualhole C656 restores punishment before maketrap, while js/dig.js records note_unported. A repaired first call clears TT_BURIEDBALL before the later unearth loop; the refusal is a downstream manifestation, not the earliest owner.",
+                "Whole dig.c1935-1955: capture hero coordinates, consume buried_ball, no-ball no-op, extract same ball, punish(ball), reset_utrap(FALSE), delete engraving at selected ball coordinates, newsym there. Source #if0 rust timer is inactive. Whole unearth_objs2086-2116 consumes buried_ball, preserves next pointer before mutations, uses punishment restoration only for tethered selected ball, otherwise extraction/ROT_ORGANIC stop/placement/stack, then deletes engraving and redraws.",
+                "Whole read.c punish3019-3062: reuse flag suppresses misbehavior and new-ball allocation. Existing JS always emits misbehavior and mkobj(BALL_CLASS), so merely wiring the helper would invent an extra ball and RNG calls. Preserve chain-first allocation, reused identity, heavier existing-punishment branch, unsolid drop path and swallowed/blind display ordering from source.",
+                "Source search rg buried_ball_to_punishment nethack-c/upstream/src finds eight direct active calls, listed above. No build exclusion makes absent domagicportal or invocation inactive. Compile-disabled Rust timer is the only selected #if0 branch.",
+                "Existing maketrap JS931-1011 returns Promise only for a runtime statue tail, and its selected digging caller already awaits it. Reuse this supported continuation mechanism for restoration; .cache/C142-maketrap-callers.txt records27 textual sites for the bounded live-consumer audit. Do not infer that every unawaited call is unsafe: WEB/MAGIC_PORTAL and no-tether generation paths cannot enter unearth punishment.",
+                "Independent evidence plan: digging-unearth role/object variation, release by adjacent teleport, level teleport, ordinary goto_level, tether movement expiry, and a direct terrain-unearth variation that actually executes the unearth punishment arm. Reuse-ball identity and chain-only RNG allocation need production post-state assertions. Preserve portal/invocation loader/owner blockers if those callers cannot be admitted safely. No C recording or source edit was made during this investigation.",
+                "Accepted-tree source recheck: dig.c helper/finder/unearth and read.c punish bodies are unchanged. The intervening do.js diff only adds THRONE dry-floor admission in preflight_dropx; goto_level buried-ball placeholder remains. The proposal still needs same-object punishment reuse, canonical finder, ordered conditional unearth continuation and active caller frontiers; no game or recording edits were made."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "punish",
+            "implementation": "js/read.js",
+            "symbol": "punish",
+            "sourceReview": "Read whole read.c3019-3062 and every direct caller. Preserve reuse-ball identity and suppressed announcement, guarded cursed levy, already-punished weight increment, amorphous/whirly/unsolid dropy return, chain mkobj/setworn before new-or-reused ball, swallowed placement suppression, placebc then Blind set_bc then newsym. Existing canonical mkobj/setworn/placebc/dropy owners are reused. Removed solid/blind/swallowed admission gates and duplicated placement substitute. ball.c:set_bc(1) is an unported discarded void callee, precisely note_unported at its source site; no blind ball-memory completion is claimed. The source function is impure: object RNG, messages and equipment mutation.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_punishment",
+                "source": "read.c1987 ordinary punishment scroll calls punish(sobj)."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "buried_ball_to_punishment",
+                "source": "dig.c1950 passes the extracted existing ball to punish(ball)."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "angrygods",
+                "source": "pray.c746-748 case6 gods_angry -> punish(NULL) -> break; Punished case6 falls through curse4/5. Bounded caller restoration, no whole angrygods credit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dig-buried-ball.test.mjs",
+              "scripts/read-command.test.mjs",
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/punish-cursed-weight.session.json",
+              "recordings/read.c/punish-unsolid-air-elemental-scroll.session.json",
+              "recordings/read.c/punish-anger-six.session.json",
+              "recordings/dig.c/punishment-unearth-pit.session.json",
+              "recordings/dig.c/punishment-unearth-spiked-pit.session.json",
+              "recordings/dig.c/punishment-level-teleport.session.json",
+              "recordings/dig.c/punishment-same-level-teleport.session.json",
+              "recordings/dig.c/punishment-movement-tether.session.json",
+              "recordings/dig.c/punishment-downstairs.session.json",
+              "recordings/dig.c/punishment-dig-levitating.session.json"
+            ],
+            "sourceFile": "read.c",
+            "synthetic": [
+              {
+                "batch": "v28",
+                "caseId": "v28-buried-ball-unearth",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 38,
+                "source": "cmd.c read dispatch -> read.c doread/seffects/seffect_punishment -> punish; ordinary ball/chain creation before wizard burial."
+              }
+            ],
+            "checkedAt": "1cf15831c237fc4d910c6a10ae138e75c4ab5939"
+          },
+          {
+            "name": "unearth_objs",
+            "implementation": "js/dig.js",
+            "symbol": "unearth_objs",
+            "sourceReview": "Read whole dig.c2086-2116. Read canonical buried_ball finder and object extraction, ROT_ORGANIC stop_timer, place_object and stackobj owners. Preserve cc lookup, saved next before extraction, coordinate filter, bball identity plus utrap/type branch, awaited restoration before resuming saved next, timer stop before placement/stack, then engraving deletion and newsym. Deleted old bury.js injected restoration hook/refusal and its last UnsupportedBurialError class; moved owner to same-source dig.js without reexport. Ordinary exposure remains synchronous, while the existing maketrap trap-or-Promise admission admits the live awaited tail: pitTerrain recalc and trap linkage wait for restoration. Awaited liquid_flow and melt_ice direct callers and runtime PIT/HOLE maketrap callers in zap_over_floor/use_defensive. Generation/no-restoration creation and WEB/MAGIC_PORTAL paths remain synchronous. No source credit for these caller bodies.",
+            "callers": [
+              {
+                "path": "js/dig.js",
+                "symbol": "liquid_flow",
+                "source": "dig.c862 liquid_flow -> unearth_objs before floor object liquid damage."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "pitTerrain",
+                "source": "trap.c563 maketrap PIT/HOLE terrain -> unearth_objs before recalc_block_point/trap linking."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "melt_ice",
+                "source": "zap.c5058 melt_ice -> unearth_objs before trap_ice_effects."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dig-buried-ball.test.mjs",
+              "scripts/bury.test.mjs",
+              "scripts/trap-generation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dig.c/punishment-unearth-pit.session.json",
+              "recordings/dig.c/punishment-unearth-spiked-pit.session.json",
+              "recordings/apply.c/b103-do-break-wand-liquid-flow-valkyrie-two-mores-cfirst.session.json",
+              "recordings/zap.c/a83-melting-ice-timer-flying-slow-digestion-callback-cfirst.session.json"
+            ],
+            "sourceFile": "dig.c",
+            "synthetic": [],
+            "checkedAt": "1cf15831c237fc4d910c6a10ae138e75c4ab5939"
+          }
+        ],
+        "entryPointReview": "Enumerated all eight direct active buried_ball_to_punishment callers: digactualhole656, unearth_objs2100, goto_level1595, trapmove1679, teleds458, level_tele1302, domagicportal1451, mkinvokearea2461. First six are source-wired/awaited with matching independent production recordings. Portal and invocation remain active blockers, so the main helper is incomplete and this goal cannot close. All three active punish caller families (scroll, buried restoration, deity case6) and all three direct unearth caller families (maketrap, liquid_flow, melt_ice) have exact evidence. Supporting hack.c TT_BURIEDBALL branch covers within-chain distance<=2 and anchored countdown/free messages; TT_WEB/LAVA/INFLOOR and mounted bear remain outside credit. do.c/teleport.c/muse.c/zap.c caller changes are bounded and earn no whole source credit. The C #if0 RUST_METAL timer is inactive. The later ballfall source gap is preserved in independent downward-dig recipe; the matching levitating variation reaches digactualhole without landing. No score, aggregate scan, central record, or challenge mutation was performed.",
+        "entryPoints": [
+          {
+            "name": "punishment scroll read dispatch",
+            "functions": [
+              {
+                "sourceFile": "read.c",
+                "name": "punish"
+              }
+            ],
+            "recordings": [
+              "recordings/read.c/punish-cursed-weight.session.json",
+              "recordings/read.c/punish-unsolid-air-elemental-scroll.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v28",
+                "caseId": "v28-buried-ball-unearth",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 38,
+                "source": "cmd.c read dispatch -> read.c doread/seffects/seffect_punishment -> punish; ordinary ball/chain creation before wizard burial."
+              }
+            ]
+          },
+          {
+            "name": "deity case6 production prayer",
+            "functions": [
+              {
+                "sourceFile": "read.c",
+                "name": "punish"
+              }
+            ],
+            "recordings": [
+              "recordings/read.c/punish-anger-six.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "digactualhole restores buried punishment",
+            "functions": [
+              {
+                "sourceFile": "dig.c",
+                "name": "buried_ball_to_punishment"
+              },
+              {
+                "sourceFile": "read.c",
+                "name": "punish"
+              }
+            ],
+            "recordings": [
+              "recordings/dig.c/punishment-dig-levitating.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "maketrap unearth restoration",
+            "functions": [
+              {
+                "sourceFile": "dig.c",
+                "name": "unearth_objs"
+              },
+              {
+                "sourceFile": "dig.c",
+                "name": "buried_ball_to_punishment"
+              },
+              {
+                "sourceFile": "read.c",
+                "name": "punish"
+              }
+            ],
+            "recordings": [
+              "recordings/dig.c/punishment-unearth-pit.session.json",
+              "recordings/dig.c/punishment-unearth-spiked-pit.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "goto_level downstairs restoration",
+            "functions": [
+              {
+                "sourceFile": "dig.c",
+                "name": "buried_ball_to_punishment"
+              }
+            ],
+            "recordings": [
+              "recordings/dig.c/punishment-downstairs.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "trapmove anchored countdown restoration",
+            "functions": [
+              {
+                "sourceFile": "dig.c",
+                "name": "buried_ball_to_punishment"
+              }
+            ],
+            "recordings": [
+              "recordings/dig.c/punishment-movement-tether.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "teleds same-level restoration",
+            "functions": [
+              {
+                "sourceFile": "dig.c",
+                "name": "buried_ball_to_punishment"
+              }
+            ],
+            "recordings": [
+              "recordings/dig.c/punishment-same-level-teleport.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "level_tele restoration",
+            "functions": [
+              {
+                "sourceFile": "dig.c",
+                "name": "buried_ball_to_punishment"
+              }
+            ],
+            "recordings": [
+              "recordings/dig.c/punishment-level-teleport.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "liquid_flow unearth caller",
+            "functions": [
+              {
+                "sourceFile": "dig.c",
+                "name": "unearth_objs"
+              }
+            ],
+            "recordings": [
+              "recordings/apply.c/b103-do-break-wand-liquid-flow-valkyrie-two-mores-cfirst.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "melt_ice unearth caller",
+            "functions": [
+              {
+                "sourceFile": "dig.c",
+                "name": "unearth_objs"
+              }
+            ],
+            "recordings": [
+              "recordings/zap.c/a83-melting-ice-timer-flying-slow-digestion-callback-cfirst.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "domagicportal active caller blocked",
+            "functions": [
+              {
+                "sourceFile": "dig.c",
+                "name": "buried_ball_to_punishment"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "mkinvokearea active caller blocked",
+            "functions": [
+              {
+                "sourceFile": "dig.c",
+                "name": "buried_ball_to_punishment"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "1cf15831c237fc4d910c6a10ae138e75c4ab5939",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Two active callers remain blocked because teleport.c:domagicportal and mklev.c:mkinvokearea have no running-game production owners; C142 verified the whole helper body and all six available caller routes."
     },
     {
       "id": "port-wizcmds-wiz-makemap-v28-20261008",
@@ -200467,7 +200924,7 @@
     {
       "id": "port-eat-eatmdone-mimic-restoration-v29-20261008",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Restore temporary mimic disguise after eating",
       "cFile": "eat.c",
       "sessions": [
@@ -200475,8 +200932,12 @@
       ],
       "selectionReason": "The complete v29 investigation investigations/synthetic/v29/v29-eat-small-mimic-tin.json identifies eat.c:eatmdone as the highest-priority free source owner: 102 screens remain after the temporary small-mimic disguise fails to clear.",
       "detail": "Port whole eat.c eatmdone and wire both existing cpostfx cleanup and delayed ga.afternmv dispatch. Preserve the separately named windows.c display_nhwindow blocking-map gap and do not claim whole cpostfx completion.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "2e0f5529f5f95dc6aea5fccbe241deab6bcb19da",
+      "openStanding": {
+        "sha": "1cf15831c237fc4d910c6a10ae138e75c4ab5939",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -200505,7 +200966,228 @@
           "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
           "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "1cf15831c237fc4d910c6a10ae138e75c4ab5939",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-eat-small-mimic-tin",
+          "session": "synthetic/v29/v29-eat-small-mimic-tin",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recording": "challenges/cases/v29/v29-eat-small-mimic-tin.session.json",
+          "recordingPath": "challenges/cases/v29/v29-eat-small-mimic-tin.session.json",
+          "recordingSha256": "1f6ebc359511986856842725ed7764b5e51a012d5580c9506fcf4a88b0a6e8d6",
+          "recipe": "challenges/cases/v29/v29-eat-small-mimic-tin.recipe.session.json",
+          "recipeSha256": "9b17af5db0b3447752d8f598869859e48e9c7377670afc13c95eabdc5454fa0c",
+          "replayInputSha256": "2f716c76481f10782274c998b90b8a1bd1e9ed0b7ea820e14a2f83d02b834acb",
+          "evaluationPath": "challenges/evaluations/accepted-1cf15831c237fc4d910c6a10ae138e75c4ab5939-v29.json",
+          "evaluationCommit": "1cf15831c237fc4d910c6a10ae138e75c4ab5939",
+          "evaluationArtifact": "challenges/evaluations/accepted-1cf15831c237fc4d910c6a10ae138e75c4ab5939-v29.json",
+          "evaluationUtc": "2026-10-08T05:21:34.693Z",
+          "remainingScreens": 102,
+          "recordedSteps": 143,
+          "previousScreensMatched": 41,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 41,
+              "total": 143
+            },
+            "rng": {
+              "matched": 2846,
+              "total": 3110
+            },
+            "cursors": {
+              "matched": 143,
+              "total": 143
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 41,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 41,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 12,
+              "column": 17,
+              "cCell": {
+                "ch": "@",
+                "color": 15,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "$",
+                "color": 11,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2804,
+              "cEntry": "rn2(5)=4",
+              "cCaller": "distfleeck(monmove.c:538)",
+              "jsEntry": "rn2(1)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 45,
+                "key": "."
+              },
+              "stepIndex": 45
+            },
+            "cursor": null
+          },
+          "step": 41,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v29/v29-eat-small-mimic-tin.json",
+            "result": {
+              "session": "synthetic/v29/v29-eat-small-mimic-tin",
+              "corpus": "synthetic",
+              "batch": "v29",
+              "caseId": "v29-eat-small-mimic-tin",
+              "remainingScreens": 102,
+              "recordedSteps": 143,
+              "status": "complete",
+              "commit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v29",
+                "caseId": "v29-eat-small-mimic-tin",
+                "session": "synthetic/v29/v29-eat-small-mimic-tin",
+                "manifestPath": "challenges/manifests/v29.json",
+                "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+                "recording": "challenges/cases/v29/v29-eat-small-mimic-tin.session.json",
+                "recordingPath": "challenges/cases/v29/v29-eat-small-mimic-tin.session.json",
+                "recordingSha256": "1f6ebc359511986856842725ed7764b5e51a012d5580c9506fcf4a88b0a6e8d6",
+                "recipe": "challenges/cases/v29/v29-eat-small-mimic-tin.recipe.session.json",
+                "recipeSha256": "9b17af5db0b3447752d8f598869859e48e9c7377670afc13c95eabdc5454fa0c",
+                "replayInputSha256": "e5f00e598a85ca13d8684094f15ff96b4fa92b3f2a1f80b1b65b10b36ca16403",
+                "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+                "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+                "evaluationArtifact": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+                "evaluationUtc": "2026-10-08T05:02:17.323Z",
+                "remainingScreens": 102,
+                "recordedSteps": 143,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 41,
+                    "total": 143
+                  },
+                  "rng": {
+                    "matched": 2846,
+                    "total": 3110
+                  },
+                  "cursors": {
+                    "matched": 143,
+                    "total": 143
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 41,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 41,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 12,
+                    "column": 17,
+                    "cCell": {
+                      "ch": "@",
+                      "color": 15,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "$",
+                      "color": 11,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2804,
+                    "cEntry": "rn2(5)=4",
+                    "cCaller": "distfleeck(monmove.c:538)",
+                    "jsEntry": "rn2(1)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 45,
+                      "key": "."
+                    },
+                    "stepIndex": 45
+                  },
+                  "cursor": null
+                },
+                "step": 41,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The source owner is eat.c. cpostfx(PM_SMALL_MIMIC) starts the temporary gold disguise, schedules eatmdone to restore the hero glyph, and blocks on display_nhwindow(WIN_MAP, TRUE). JavaScript leaves both eatmdone and the map display as note_unported gaps. The saved comparison first differs in animation grouping at step 40 (C 0 frames, JavaScript 3), then in the first scored screen at step 41: C shows @ and JavaScript shows $ at row 12, column 17. RNG first diverges later at step 45 in distfleeck().",
+              "source": {
+                "file": "eat.c",
+                "branch": "After consuming a tin containing PM_SMALL_MIMIC, when the hero is not a mimic and lacks Unchanging, cpostfx() applies a 20-turn object disguise as gold (or an orange while hallucinating), stores the restoration message, and schedules eatmdone() to clear the disguise when the multi ends or stale mimic state is cleaned up.",
+                "functions": [
+                  "cpostfx",
+                  "eatmdone"
+                ],
+                "callers": [
+                  "consume_tin() (eat.c:1610-1614) calls cpostfx() after cprefx() while the tin remains in context; the assigned case reaches it through doeat() -> start_tin() -> opentin().",
+                  "done_eating() (eat.c:562-565) calls cpostfx() for corpse and globby meals; the JavaScript caller is js/eat.js:3445-3448.",
+                  "Finish_digestion() (eat.c:3958-3967) calls cpostfx() after digesting a corpse; the JavaScript caller is js/eat.js:2798-2804.",
+                  "cpostfx() (eat.c:1135-1138) calls eatmdone() to clean up an existing disguise, and (eat.c:1217) assigns it to ga.afternmv; hack.c:unmul() (4200-4205) dispatches that callback after the multi ends."
+                ],
+                "dependencies": [
+                  "windows.c display_nhwindow: cpostfx() calls display_nhwindow(WIN_MAP, TRUE) at eat.c:1224 to flush and wait for the gold disguise; js/eat.js:2668 currently records note_unported('windows.c display_nhwindow'), matching the separate step-40 animation-frame discrepancy."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "C source at nethack-c/upstream/src/eat.c:1610-1614 wires consume_tin() to cpostfx() after cprefx(); the recorded case opens and consumes a blessed small-mimic-meat tin.",
+                "C source at nethack-c/upstream/src/eat.c:1135-1138 calls eatmdone() when ge.eatmbuf is already set. At :1195-1224, the PM_SMALL_MIMIC branch sets a 20-turn multi, saves ge.eatmbuf/gn.nomovemsg, assigns ga.afternmv=eatmdone, sets M_AP_OBJECT/GOLD_PIECE, redraws the hero, positions the cursor, and calls display_nhwindow(WIN_MAP, TRUE).",
+                "C source at nethack-c/upstream/src/eat.c:163-176 defines eatmdone(): it releases ge.eatmbuf, clears gn.nomovemsg when it points to that buffer, resets m_ap_type to M_AP_NOTHING when needed, and redraws the hero. JavaScript has no eatmdone() implementation: js/eat.js:2550-2552 and :2663 retain note_unported('eat.c eatmdone') at the cleanup and delayed-callback sites.",
+                "JavaScript source at js/eat.js:1127 wires the tin path to cpostfx(). Its PM_SMALL_MIMIC branch at :2661-2668 sets the same disguise and callback but substitutes note_unported() for both eatmdone and windows.c display_nhwindow.",
+                "Saved C/JavaScript diagnostic: challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json, case v29-eat-small-mimic-tin, records 41/143 matching screens and first screen mismatch at segment 0 step 41, key space, row 12 column 17 (C @, JS $); first RNG divergence at step 45 is rn2(5)=4 vs rn2(1)=0 at distfleeck(monmove.c:538). The case source trace distinguishes the earlier animation grouping difference at step 40 (C 0 frames, JS 3) from the scored screen mismatch.",
+                "Archived single-case comparison at /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-eat-small-mimic-tin.comparison.json confirms the step-40 animation mismatch, step-41 screen mismatch, step-45 RNG mismatch, and equal 143-screen/143-cursor lengths. This artifact is diagnostic evidence only; no other session was replayed."
+              ],
+              "manifestPath": "challenges/manifests/v29.json",
+              "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+              "recordingSha256": "1f6ebc359511986856842725ed7764b5e51a012d5580c9506fcf4a88b0a6e8d6",
+              "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+              "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0"
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-wizcmds-wiz-kill-v29-20261008",
@@ -200547,6 +201229,49 @@
           "recordingSha256": "0d4fc84b0d0a5fe91664646e7ac7a24fe75dd4787e9c6c350cb9025ad4ab0ede",
           "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
           "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0"
+        }
+      }
+    },
+    {
+      "id": "port-ball-ballfall-v28-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port punishment ball impacts during shaft and pit falls",
+      "cFile": "ball.c",
+      "sessions": [
+        "synthetic/v28/v28-buried-ball-unearth"
+      ],
+      "selectionReason": "Continue the accepted C142 buried-ball seed: whole ball.c:ballfall is skipped by goto_level and trapeffect_pit. Accepted checkpoint 1cf15831 leaves 8 of 85 screens unmatched; investigation investigations/synthetic/v28/v28-buried-ball-unearth.json traces the first remaining RNG mismatch to ball.c:ballfall.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "ballfall",
+          "line": 43,
+          "endLine": 119,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 43,
+        "to": 119
+      },
+      "syntheticProvenance": {
+        "synthetic/v28/v28-buried-ball-unearth": {
+          "session": "synthetic/v28/v28-buried-ball-unearth",
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-buried-ball-unearth",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recordingPath": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
+          "recordingSha256": "1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54",
+          "evaluationPath": "challenges/evaluations/accepted-1cf15831c237fc4d910c6a10ae138e75c4ab5939-v28.json",
+          "evaluationCommit": "1cf15831c237fc4d910c6a10ae138e75c4ab5939"
         }
       }
     }

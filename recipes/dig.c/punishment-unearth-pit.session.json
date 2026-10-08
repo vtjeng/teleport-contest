@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C142 independent C-first punishment-unearth-pit; unsearched seed chosen before recording. No challenge inputs are copied; the shared wish setup follows source punishment and wizard burial commands. Setup correction: move east off the starting stairs before burial; trap creation excludes stairs by source.",
+  "segments": [
+    {
+      "seed": 1422801,
+      "datetime": "20541113101519",
+      "nethackrc": "OPTIONS=name:Buried1422801,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " l\u0017uncursed scroll of punishment\nre    #wizbury\n  \u0017pit trap\n       ."
+    }
+  ]
+}

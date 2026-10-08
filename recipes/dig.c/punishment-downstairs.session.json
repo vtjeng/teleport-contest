@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent unsearched source do.c:goto_level buried-ball caller: wizard-controlled selection of the downstairs precedes punishment and burial; descending restores the tether before saving the old level. C-first getpos setup correction: disable tips, reveal the map, dismiss the teleport line before selecting downstairs.",
+  "segments": [
+    {
+      "seed": 1422806,
+      "datetime": "20541113101519",
+      "nethackrc": "OPTIONS=name:StairBall1422806,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!tips\n",
+      "moves": "  #wizmap\n \u0014 >.       \u0017uncursed scroll of punishment\nre     #wizbury\n    >        ."
+    }
+  ]
+}

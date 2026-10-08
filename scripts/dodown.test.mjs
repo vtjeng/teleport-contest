@@ -954,9 +954,9 @@ test('goto_level lets a hero with the quest leave the quest start', async () => 
         'A mysterious force prevents you from descending.');
 });
 
-test('goto_level records a tethered buried-ball gap and continues', async () => {
-    // do.c:1593-1595. buried_ball_to_punishment() is unported, but its
-    // discarded result does not stop the surrounding level transition.
+test('goto_level runs the absent buried-ball finder and continues', async () => {
+    // do.c:1593-1595 calls the canonical helper. dig.c does nothing when no
+    // ball is found, then the surrounding level transition continues.
     const state = await descendTo('>');
     quiet(state);
     state.u.utrap = 3;
@@ -965,7 +965,7 @@ test('goto_level records a tethered buried-ball gap and continues', async () => 
     destinationAlreadyVisited(state);
 
     await assert.rejects(dodown(state), DESTINATION_REFUSAL);
-    assert.ok(state.unported?.has('dig.c buried_ball_to_punishment'));
+    assert.equal(state.unported?.has('dig.c buried_ball_to_punishment') ?? false, false);
 });
 
 test('goto_level carries a punished hero through the leaving phase', async () => {

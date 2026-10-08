@@ -30,9 +30,6 @@ import {
 import { wiz_where } from '../js/wizcmds.js';
 import { ADMITTED_COMMANDS } from '../js/cmd.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
-import {
-    UnsupportedLevelChangeError,
-} from '../js/do.js';
 import { GameDisplay } from '../js/game_display.js';
 import { resetGame } from '../js/gstate.js';
 import { objects_globals_init } from '../js/objects.js';
@@ -555,12 +552,12 @@ test('level_tele "?" endgame selection equips the Amulet and schedules', async (
     assert.deepEqual(state.u.utolev, { dnum: 1, dlevel: 3 });
 });
 
-// C: teleport.c:1301-1302 runs buried_ball_to_punishment() unconditionally
-// before schedule_goto. The '?' path must throw UnsupportedLevelChangeError
-// for a hero tethered to a buried ball, matching the non-'?' guard at
-// js/teleport.js:1318-1321.
-test('level_tele "?" with buried ball throws', async () => {
+// C: teleport.c:1301-1302 restores a buried ball before schedule_goto.
+// dig.c:buried_ball_to_punishment leaves state unchanged if its finder sees
+// no ball, even if the trap counter still describes a buried tether.
+test('level_tele "?" with no buried ball schedules after the finder no-op', async () => {
     const state = printDungeonState({ selectIndex: 1 });
+    state.level = { buriedobjlist: null }; // initialized source level, with no ball.
     state.u.uz0 = { dnum: 0, dlevel: 1 };
     state.u.utolev = { dnum: 0, dlevel: 1 };
     state.u.utotype = UTOTYPE_NONE;
@@ -579,18 +576,11 @@ test('level_tele "?" with buried ball throws', async () => {
 
     initRng(42);
     enableRngLog();
-    // Broke: removed the buried-ball guard before schedule_goto in the '?'
-    // path at js/teleport.js:1283-1287; test failed because schedule_goto
-    // fired instead of throwing.
-    await assert.rejects(
-        () => level_tele(state),
-        (error) => {
-            assert.ok(error instanceof UnsupportedLevelChangeError);
-            return true;
-        },
-    );
-    // schedule_goto did not fire.
-    assert.equal(state.u.utotype, UTOTYPE_NONE);
+    await level_tele(state);
+    assert.equal(state.u.utrap, 1); // no ball means the helper does not reset.
+    assert.equal(state.u.utraptype, TT_BURIEDBALL);
+    assert.equal(state.u.utotype, UTOTYPE_DEFERRED);
+    assert.deepEqual(state.u.utolev, { dnum: 0, dlevel: 5 });
 });
 
 // C: teleport.c:1301 buried_ball_to_punishment() fires only for

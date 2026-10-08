@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C142 independent C-first punishment-same-level-teleport; unsearched seed chosen before recording. No challenge inputs are copied; the shared wish setup follows source punishment and wizard burial commands. Setup correction: move east off the starting stairs before burial; trap creation excludes stairs by source. Ctrl-T @ selects the current square through teleds, forcing the restoration before its ball-active test.",
+  "segments": [
+    {
+      "seed": 1422803,
+      "datetime": "20541113101519",
+      "nethackrc": "OPTIONS=name:Buried1422803,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " l\u0017uncursed scroll of punishment\nre    #wizbury\n  \u0014@    ."
+    }
+  ]
+}

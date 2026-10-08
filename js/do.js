@@ -153,7 +153,7 @@ import {
 import { reset_trapset } from './apply.js';
 import { bones_include_name } from './bones.js';
 import { obj_resists } from './bury.js';
-import { bury_objs, use_pick_axe2 } from './dig.js';
+import { buried_ball_to_punishment, bury_objs, use_pick_axe2 } from './dig.js';
 import { ballrelease, drag_down, placebc, unplacebc } from './ball.js';
 import { next_to_u } from './apply_next_to_u.js';
 import {
@@ -2616,11 +2616,9 @@ export async function goto_level(
     // nethack-c/upstream/dat/ registers one, so nhcb_counts[] is zero for
     // every level this port loads and the block is dead.
 
-    // do.c:1593-1595, tethered movement. The call's result is discarded;
-    // dig.c remains outside this source span, so record its unavailable
-    // transition and continue with the level save.
+    // do.c:1593-1595 restores punishment before saving the old level.
     if (u.utrap && u.utraptype === TT_BURIEDBALL) {
-        note_unported('dig.c buried_ball_to_punishment');
+        await buried_ball_to_punishment(state);
     }
 
     // do.c:1597-1599 calls currentlevel_rewrite(), whose two operations have
