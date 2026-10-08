@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T04:19:35.278Z",
+  "capturedAt": "2026-10-08T04:37:45.948Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -26259,12 +26259,71 @@
         "type": "accepted",
         "at": "2026-10-08T04:19:27.579Z",
         "task": "A145"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A145-855784a645ea",
+        "type": "published",
+        "at": "2026-10-08T04:20:43.247Z",
+        "task": "A145",
+        "commit": "855784a645eae57f5b60228656d47487d2d68b7d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B145-2c315a82761f",
+        "type": "received",
+        "at": "2026-10-08T04:21:02.799Z",
+        "task": "B145",
+        "delivery": "2c315a82761f9e8728643f1b814681084bd14f29"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B145-e90b92783bbf-v2",
+        "type": "integrating",
+        "at": "2026-10-08T04:21:23.866Z",
+        "task": "B145",
+        "integration": "e90b92783bbf7e1c5c09b0346908c3f44006131b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B145-e90b92783bbf7e1c5c09b0346908c3f44006131b-validated",
+        "type": "validated",
+        "at": "2026-10-08T04:31:43.729Z",
+        "task": "B145",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B145-e90b92783bbf7e1c5c09b0346908c3f44006131b-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T04:33:00.247Z",
+        "task": "B145"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C142-port-dig-buried-ball-punishment-v28-20261008-v2",
+        "type": "assign",
+        "at": "2026-10-08T04:34:46.902Z",
+        "task": "C142",
+        "worker": "C",
+        "goal": "port-dig-buried-ball-punishment-v28-20261008",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B146-port-wizcmds-wiz-makemap-v28-20261008",
+        "type": "assign",
+        "at": "2026-10-08T04:36:02.539Z",
+        "task": "B146",
+        "worker": "B",
+        "goal": "port-wizcmds-wiz-makemap-v28-20261008",
+        "kind": "implementation"
       }
     ]
   },
   "development": {
-    "executionCommit": "ce4c30bab8acdfdfeafc52afadea090164b65a59",
-    "measuredAt": "2026-10-08T04:11:48.605Z",
+    "executionCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+    "measuredAt": "2026-10-08T04:26:20.446Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
