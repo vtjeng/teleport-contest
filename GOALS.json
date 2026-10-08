@@ -200463,6 +200463,92 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-eat-eatmdone-mimic-restoration-v29-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Restore temporary mimic disguise after eating",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v29/v29-eat-small-mimic-tin"
+      ],
+      "selectionReason": "The complete v29 investigation investigations/synthetic/v29/v29-eat-small-mimic-tin.json identifies eat.c:eatmdone as the highest-priority free source owner: 102 screens remain after the temporary small-mimic disguise fails to clear.",
+      "detail": "Port whole eat.c eatmdone and wire both existing cpostfx cleanup and delayed ga.afternmv dispatch. Preserve the separately named windows.c display_nhwindow blocking-map gap and do not claim whole cpostfx completion.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "eatmdone",
+          "line": 163,
+          "endLine": 180,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 163,
+        "to": 180
+      },
+      "syntheticProvenance": {
+        "synthetic/v29/v29-eat-small-mimic-tin": {
+          "session": "synthetic/v29/v29-eat-small-mimic-tin",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-eat-small-mimic-tin",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-eat-small-mimic-tin.session.json",
+          "recordingSha256": "1f6ebc359511986856842725ed7764b5e51a012d5580c9506fcf4a88b0a6e8d6",
+          "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+          "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0"
+        }
+      }
+    },
+    {
+      "id": "port-wizcmds-wiz-kill-v29-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port wizard monster selection and kill command",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v29/v29-quantum-mechanic-box"
+      ],
+      "selectionReason": "The complete v29 investigation investigations/synthetic/v29/v29-quantum-mechanic-box.json identifies the next highest independent owner: 30 screens remain because wizcmds.c:wiz_kill has no production dispatcher.",
+      "detail": "Port whole wizcmds.c wiz_kill and wire interactive doextcmd dispatch. Preserve mount, swallowed, suicide, m-prefix monkilled, level-change and dmonsfree branches in source order; verify selected and independent entry paths.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_kill",
+          "line": 243,
+          "endLine": 352,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 243,
+        "to": 352
+      },
+      "syntheticProvenance": {
+        "synthetic/v29/v29-quantum-mechanic-box": {
+          "session": "synthetic/v29/v29-quantum-mechanic-box",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-quantum-mechanic-box",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-quantum-mechanic-box.session.json",
+          "recordingSha256": "0d4fc84b0d0a5fe91664646e7ac7a24fe75dd4787e9c6c350cb9025ad4ab0ede",
+          "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+          "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0"
+        }
+      }
     }
   ]
 }
