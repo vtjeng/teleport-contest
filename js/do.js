@@ -2898,8 +2898,13 @@ export async function goto_level(
             state,
         );
         if (falling) {
-            if (Punished(state) && !welded(state.uball, state))
+            if (Punished(state) && !welded(state.uball, state)) {
                 await ballfall(state);
+                // C losehp() does not return after an accepted death. JS
+                // finalization marks gameover and unwinds asynchronously, so
+                // stop before self-touch and the rest of level arrival.
+                if (state.program_state?.gameover) return;
+            }
             note_unported('trap.c selftouch');
             do_fall_dmg = true;
         }

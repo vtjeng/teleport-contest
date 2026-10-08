@@ -1602,6 +1602,10 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
             if (Punished(state) && !carried(state.uball)) {
                 unplacebc(state);
                 await ballfall(state, env);
+                // A final death is NORETURN in C. Life-saving and a refused
+                // debug death leave gameover clear and continue normally.
+                if (state.program_state?.gameover)
+                    return Trap_Effect_Finished;
                 await placebc(state);
             }
             if (!conjPit) note_unported('trap.c selftouch');
