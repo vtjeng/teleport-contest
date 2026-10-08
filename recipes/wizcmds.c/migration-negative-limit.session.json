@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9248105,
+      "datetime": "20370312121700",
+      "nethackrc": "OPTIONS=name:MigrationProbe,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,pettype:none,!debug_mongen,playmode:debug\n",
+      "moves": ".\u0007peaceful newt\n#migratemons\n -2000\n#migratemons\n n  \n"
+    }
+  ],
+  "comment": "Independent C-first negative-count variation just beyond source (COLNO-1)*ROWNO limit: all live ordinary monsters then empty fmon iterations; focused tests pin exact clamp."
+}
