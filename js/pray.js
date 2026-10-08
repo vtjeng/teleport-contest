@@ -17,6 +17,7 @@
 // the unported angrygods() cases remain source gaps. pleased() is ported below;
 // its calls to helpers without a running-game owner use note_unported().
 
+import { buried_ball_to_freedom } from './dig.js';
 import {
     A_CHAOTIC,
     A_CURRENT,
@@ -1385,7 +1386,7 @@ export async function fix_worst_trouble(trouble, state = game) {
     case TROUBLE_PUNISHED:
         await ttyPline('Your chain disappears.', state);
         if (state.u.utrap && state.u.utraptype === TT_BURIEDBALL)
-            note_unported('dig.c buried_ball_to_freedom');
+            await buried_ball_to_freedom(state);
         else
             unpunish(state);
         break;
