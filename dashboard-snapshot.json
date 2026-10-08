@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T20:05:48.968Z",
+  "capturedAt": "2026-10-08T20:18:27.370Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -66649,12 +66649,61 @@
         "type": "accepted",
         "at": "2026-10-08T20:05:22.638Z",
         "task": "A167"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A167-published-78698c5d-20261008",
+        "type": "published",
+        "at": "2026-10-08T20:06:30.934Z",
+        "task": "A167",
+        "commit": "78698c5d57812cef9461b5c4a9c36c4274bad4ae"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B165-review-start-20261008",
+        "type": "activity",
+        "at": "2026-10-08T20:06:47.276Z",
+        "task": "B165",
+        "phase": "review",
+        "reason": "Reviewing the immutable B165 tinning-kit delivery against accepted A167 main before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B165-integrating-4f7e4d0d-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T20:11:22.982Z",
+        "task": "B165",
+        "integration": "4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A168-review-preview-start-20261008",
+        "type": "activity",
+        "at": "2026-10-08T20:12:06.518Z",
+        "task": "A168",
+        "phase": "review",
+        "reason": "Previewing the immutable A168 monster-difficulty delivery while the B165 hosted checkpoint runs."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B165-validated-4f7e4d0d-20261008",
+        "type": "validated",
+        "at": "2026-10-08T20:15:58.305Z",
+        "task": "B165",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B165-4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T20:18:07.591Z",
+        "task": "B165"
       }
     ]
   },
   "development": {
-    "executionCommit": "9d688c3a63ebe0866f9d712ead2c4245af4a90ca",
-    "measuredAt": "2026-10-08T20:01:34.469Z",
+    "executionCommit": "4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d",
+    "measuredAt": "2026-10-08T20:15:25.675Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

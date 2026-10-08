@@ -214780,7 +214780,7 @@
     {
       "id": "port-apply-use-tinning-kit-v31-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port whole tinning-kit conversion and petrification ordering",
       "cFile": "apply.c",
       "sessions": [
@@ -214794,8 +214794,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "use_tinning_kit",
@@ -215162,6 +215165,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
