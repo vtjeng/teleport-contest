@@ -74,7 +74,7 @@ import { make_blinded } from './potion.js';
 import { note_unported } from './unported.js';
 import { wand_explode } from './read.js';
 import { check_unpaid } from './shk.js';
-import { learnwand, zappable } from './zap.js';
+import { learnwand, zappable, zapnodir } from './zap.js';
 import {
     is_blade, is_boots, is_wet_towel, objectType, splitobj, } from './obj.js';
 
@@ -379,9 +379,8 @@ export async function u_can_engrave(
     return true;
 }
 
-// C ref: engrave.c doengrave_sfx_item_WAN(). `zapnodir()` has a narrower
-// source port than this caller, and C discards its result, so the call is
-// recorded as an explicit gap and skipped as required by the port contract.
+// C ref: engrave.c doengrave_sfx_item_WAN(). NODIR effects finish before
+// doengrave() prompts for text; their shared owner also handles discovery.
 export async function doengrave_sfx_item_WAN(de, state = game, env = {}) {
     const otmp = de.otmp;
     const typ = otmp.otyp;
@@ -398,7 +397,8 @@ export async function doengrave_sfx_item_WAN(de, state = game, env = {}) {
     case WAN_CREATE_MONSTER:
     case WAN_WISHING:
     case WAN_ENLIGHTENMENT:
-        note_unported('zap.c zapnodir');
+        // The E-command supplies a partial RNG; zapnodir also consumes rn1.
+        await zapnodir(otmp, state, { rn1, rn2, ...env.random });
         break;
     case WAN_STRIKING:
         setPost('The wand unsuccessfully fights your attempt to write!');
