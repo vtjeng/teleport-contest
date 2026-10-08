@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T15:30:29.372Z",
+  "capturedAt": "2026-10-08T15:42:17.272Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -28324,12 +28324,51 @@
         "task": "A158",
         "worker": "A2",
         "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A157-f3320ce3-20261008",
+        "type": "published",
+        "at": "2026-10-08T15:33:50.618Z",
+        "task": "A157",
+        "commit": "f3320ce3667f322f7a0fb09c686a3ade2468e4e4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B160-60cfdf72-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T15:34:22.911Z",
+        "task": "B160",
+        "integration": "60cfdf72acbaf0b1eef2b7535f81dac356565c02"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A158-newuhs-273c223b",
+        "type": "implement",
+        "at": "2026-10-08T15:39:49.454Z",
+        "task": "A158",
+        "goal": "port-eat-newuhs-fainting-starvation-v30-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B160-60cfdf72acbaf0b1eef2b7535f81dac356565c02-validated",
+        "type": "validated",
+        "at": "2026-10-08T15:41:04.181Z",
+        "task": "B160",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B160-60cfdf72acbaf0b1eef2b7535f81dac356565c02-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T15:41:05.267Z",
+        "task": "B160"
       }
     ]
   },
   "development": {
-    "executionCommit": "f5e0576f9dbaed8f436935876e8315f4b977c325",
-    "measuredAt": "2026-10-08T15:24:51.576Z",
+    "executionCommit": "60cfdf72acbaf0b1eef2b7535f81dac356565c02",
+    "measuredAt": "2026-10-08T15:40:25.810Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
