@@ -211,9 +211,9 @@ export function runCheckpointChecks(commands, {
     run = spawnSync,
     output = console.log,
     verbose = false,
+    failureLogDirectory,
 } = {}) {
     const results = [];
-    let failureLogDirectory;
     for (const {
         label,
         command,
@@ -242,6 +242,7 @@ export function runCheckpointChecks(commands, {
                 // Concurrent worktrees must retain their own failure output.
                 // Passing runs do not need a temporary log directory.
                 failureLogDirectory ??= mkdtempSync(join(tmpdir(), 'teleport-checkpoint-'));
+                mkdirSync(failureLogDirectory, { recursive: true });
                 logPath = join(failureLogDirectory, `${slug}.log`);
                 writeFileSync(logPath, full + '\n');
                 const TAIL = 20;

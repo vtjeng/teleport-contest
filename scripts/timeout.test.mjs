@@ -3340,3 +3340,22 @@ test('slime_dialogue follows timeout.c countdown order through nh_timeout',
         assert.equal(final.u.aexe[A_DEX], -1);
         assert.equal(final.u.uprops[SLIMED].intrinsic, 0);
     });
+
+test('vomiting crossing HUNGRY retains callbacks and fills missing endRunning', async () => {
+    const { HUNGRY } = await import('../js/const.js');
+    const state = vomitingTimeoutState(1); // C case0 subtracts20 nutrition before vomit.
+    state.u.uhunger = 160; // Source flat20 reaches the HUNGRY band at140.
+    state.context ??= {};
+    state.context.run = 1;
+    const calls = vomitingRandom(), messages = [], status = [];
+    await nh_timeout(state, {
+        random: calls.random, message: async text => messages.push(text),
+        statusRefresh: () => status.push(state.u.uhs),
+    });
+    assert.equal(state.u.uhunger, 140);
+    assert.equal(state.u.uhs, HUNGRY);
+    assert.equal(state.context.run, 0);
+    assert.deepEqual(messages, ['You feel hungry.', 'You vomit!']);
+    assert.deepEqual(calls.bounds, [2], 'source CON exercise is the only draw');
+    assert.ok(status.includes(HUNGRY), 'the supplied status callback is retained');
+});

@@ -1,0 +1,91 @@
+{
+  "session": "synthetic/v30/v30-seen-vectors",
+  "corpus": "synthetic",
+  "batch": "v30",
+  "caseId": "v30-seen-vectors",
+  "manifestPath": "challenges/manifests/v30.json",
+  "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+  "recordingSha256": "72dddcff51242423e8fff5013b49ff5eda999ce181aabfcc5a1ff58654702120",
+  "evaluationPath": "challenges/evaluations/accepted-ae843893a0f02c2480f0ea10fc280b5c2fd9b895-v30.json",
+  "evaluationCommit": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895",
+  "remainingScreens": 5,
+  "recordedSteps": 20,
+  "status": "complete",
+  "commit": "d5108aa213aa0a74392278a143d2bdc9b1aee752",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v30",
+    "caseId": "v30-seen-vectors",
+    "session": "synthetic/v30/v30-seen-vectors",
+    "manifestPath": "challenges/manifests/v30.json",
+    "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+    "recording": "challenges/cases/v30/v30-seen-vectors.session.json",
+    "recordingPath": "challenges/cases/v30/v30-seen-vectors.session.json",
+    "recordingSha256": "72dddcff51242423e8fff5013b49ff5eda999ce181aabfcc5a1ff58654702120",
+    "recipe": "challenges/cases/v30/v30-seen-vectors.recipe.session.json",
+    "recipeSha256": "ad7f8c8e9beda407ac6538ae3d1d1e8efb00f8489ec0137ca106748d1091e105",
+    "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
+    "evaluationPath": "challenges/evaluations/accepted-ae843893a0f02c2480f0ea10fc280b5c2fd9b895-v30.json",
+    "evaluationCommit": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895",
+    "evaluationArtifact": "challenges/evaluations/accepted-ae843893a0f02c2480f0ea10fc280b5c2fd9b895-v30.json",
+    "evaluationUtc": "2026-10-08T17:55:25.491Z",
+    "remainingScreens": 5,
+    "recordedSteps": 20,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 15,
+        "total": 20
+      },
+      "rng": {
+        "matched": 2475,
+        "total": 2475
+      },
+      "cursors": {
+        "matched": 15,
+        "total": 20
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: wiz_show_seenv() for the extended command 'wizseenv' is not ported",
+      "step": 15
+    },
+    "step": 15,
+    "kind": "stop",
+    "sourceFile": "wizcmds.c",
+    "function": "wiz_show_seenv",
+    "message": "unsupported hero command: wiz_show_seenv() for the extended command 'wizseenv' is not ported",
+    "cFile": "wizcmds.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The #wizseenv dispatcher refuses the missing wizcmds.c:wiz_show_seenv command. The existing canonical per-cell seenv bytes already reproduce the C hex map at the first stop.",
+  "source": {
+    "file": "wizcmds.c",
+    "branch": "Wizard #wizseenv after room movement; display two lowercase hex digits per seen-vector byte, centered around the hero and clipped at map edges.",
+    "functions": [
+      "wiz_show_seenv"
+    ],
+    "callers": [
+      "cmd.c:extcmdlist wizseenv row1990-1991 -> doextcmd -> rhack"
+    ],
+    "dependencies": [
+      "Existing game.level.at(x,y).seenv owned by display/vision updates",
+      "Existing u_at macro and COLNO/ROWNO constants",
+      "Existing tty_menu.js:displayTtyTextWindow blocking NHW_TEXT lifecycle"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Bounded run-Drh1eP at d5108aa2 replays only this assigned session: 15/20 screens/cursors and all2475 RNG match. First missing screen is zero-based step15 newline at cmd.js:doextcmd5313, UnsupportedHeroCommandBoundaryError naming wiz_show_seenv. Artifacts .cache/A160/replay.json and replay.log.",
+    "C wizcmds.c:wiz_show_seenv576-617 creates NHW_TEXT, computes startx=max(1,ux-COLNO/4), stopx=min(startx+COLNO/2,COLNO), then increments startx only for a full COLNO/2 span to avoid an 80-byte row. Iterate all y0..ROWNO-1 and x in [startx,stopx); hero uses @@; other cells mask seenv with0xff, zero emits two spaces and nonzero uses lowercase %02x. Trim trailing spaces only, retain empty rows, display blocking, destroy and return ECMD_OK. No RNG or game-state writes.",
+    "At the stop hero74,5 crops x54..79. Applying the exact C formatting to the JS snapshot reproduces the C step15 rows: 1010...2040, 1818...ffc0, 1c1c...ffc1, 0c0c...@@81 and three0404...0201 rows, including sixteen leading spaces. The missing command is the first cause; no vision or seen-vector state fix is indicated. Source-derived rows are .cache/A160/source-rows.json.",
+    "Production caller search rg wiz_show_seenv upstream src/include and JS finds only the definition, extern.h3875, cmd.c1991 extcmdlist, and generated JS extcmdlist_data.js175. Add the bounded cmd.js:doextcmd import/branch; existing rhack consumes ECMD_OK and generated command registry already carries IFBURIED|AUTOCOMPLETE|WIZMODECMD.",
+    "Actionable whole-source scope is wizcmds.c:wiz_show_seenv with bounded cmd.c:doextcmd caller. Reserve source:wizcmds.c:wiz_show_seenv, source:cmd.c:doextcmd and contract:wizard-seenv-text-window; edit js/wizcmds.js/js/cmd.js, exact source-pinned tests and fresh runner, recipes/wizcmds.c and recordings/wizcmds.c. A159 owns another bounded doextcmd branch in the same worker; preserve its immutable delivery and declare its ancestor dependency.",
+    "No consumed-return unported dependency: existing text-window wrapper owns the C winid lifecycle and returns after dismissal; u_at and integer min/max are pure existing operations. Source-pinned tests must cover left/full/right cropping, byte masking/lowercase hex/zero/@@, row count/trailing trim and await-before-ECMD_OK. Independent C-first ordinary and blind variations should repeat the command after a turn and verify map restoration. Whole doextcmd/rhack, vision_recalc and text-window owners remain excluded."
+  ]
+}
