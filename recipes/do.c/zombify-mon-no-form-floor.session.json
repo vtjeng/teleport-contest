@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first no-form fallback variation. A lichen corpse has no ordinary rot timer; C readobjnam truth-tests NON_PM (-1), so zombifying still creates a zombie timer. Drop the light corpse before controlled rests; do.c zombify_mon dispatches canonical floor rot without conversion.",
+  "segments": [
+    {
+      "seed": 15741003,
+      "datetime": "20510319101300",
+      "nethackrc": "OPTIONS=name:ZombieFallback,role:Knight,race:human,gender:male,align:lawful,playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": "\u0017zombifying lichen corpse\n  da   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   "
+    }
+  ]
+}

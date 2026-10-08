@@ -36,7 +36,6 @@ import {
 import {
     G_NOCORPSE, G_UNIQ, MS_GUARDIAN, PM_BLACK_PUDDING, PM_GRAY_DRAGON, PM_GRAY_OOZE, PM_LONG_WORM, PM_LONG_WORM_TAIL, PM_MAIL_DAEMON, PM_YELLOW_DRAGON, S_PUDDING, } from './monsters.js';
 import { counter_were, genus, zombie_form } from './mon.js';
-import { obj_to_any } from './hack.js';
 import { JAPANESE_ITEMS } from './objnam_data.js';
 import {
     curse, is_ammo, isBox, isCandle, isCorrodeable, isCrackable, isDamageable, is_flammable, is_missile, isMultigen, is_rottable, isRustprone, is_weptool, mkobj, mksobj, objectType, place_object, rnd_class, set_corpsenm, weight, } from './obj.js';
@@ -2312,7 +2311,7 @@ function readobjnam_typfnd_finish(d, normalized) {
             if (d.zombify && zombie_form(state.mons[d.mntmp])) {
                 start_timer(
                     random.rn1(5, 10), TIMER_OBJECT, ZOMBIFY_MON,
-                    obj_to_any(d.otmp, state), state,
+                    d.otmp, state,
                 );
             }
             break;
