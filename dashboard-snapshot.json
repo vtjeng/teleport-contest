@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T09:41:31.646Z",
+  "capturedAt": "2026-10-08T09:52:42.848Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -27228,12 +27228,51 @@
         "type": "resume",
         "at": "2026-10-08T09:40:03.409Z",
         "task": "C146"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C145-f770823f8",
+        "type": "published",
+        "at": "2026-10-08T09:42:24.734Z",
+        "task": "C145",
+        "commit": "f770823f89bb2ee32116ef40827d0b8939b220eb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C146-kick-steed-family-20261008",
+        "type": "implement",
+        "at": "2026-10-08T09:43:18.595Z",
+        "task": "C146",
+        "goal": "port-dokick-command-steed-family-v29-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B150-7fd6fc56",
+        "type": "integrating",
+        "at": "2026-10-08T09:43:54.797Z",
+        "task": "B150",
+        "integration": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B150-7fd6fc56",
+        "type": "validated",
+        "at": "2026-10-08T09:48:34.087Z",
+        "task": "B150",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B150-7fd6fc56bec3f59571bef99c466c6d95f54dffe8-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T09:50:29.294Z",
+        "task": "B150"
       }
     ]
   },
   "development": {
-    "executionCommit": "e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833",
-    "measuredAt": "2026-10-08T09:35:28.116Z",
+    "executionCommit": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8",
+    "measuredAt": "2026-10-08T09:48:03.370Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
