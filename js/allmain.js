@@ -161,7 +161,6 @@ import {
     maybe_finished_meal,
     preflightGetHungry,
     reset_eat,
-    UnsupportedHungerTransitionError,
 } from './eat.js';
 import { UnsupportedEndOfGameError } from './end.js';
 import { UnsupportedEnlightenmentError } from './insight.js';
@@ -1108,15 +1107,33 @@ async function finishElapsedTurnAfterTimeout(
         random: random.rn2,
         pline: turnMessage,
     });
-    await gethungry(state, {
-        random,
-        // eat.c gethungry() calls near_capacity() live at its accessory-time
-        // branch, before newuhs() can lower capacity.
+    const hungerEnv = {
+        random, planning,
+        // C reads capacity before newuhs can change temporary strength.
         nearCapacity: () => near_capacity(state),
-        message: turnMessage,
-        endRunning,
-        statusRefresh: turnStatusRefresh,
-    });
+        message: turnMessage, endRunning, statusRefresh: turnStatusRefresh,
+    };
+    const liveHunger = preflightGetHungry(state, hungerEnv).requiresLiveState;
+    if (planning && liveHunger) return { beforeHunger: true };
+    await gethungry(state, hungerEnv);
+    if (state.program_state?.gameover) return { afterHunger: liveHunger };
+    if (liveHunger) {
+        const tailPlan = await preflightElapsedTurnTail(state,
+            (planned, planningRandom) => finishElapsedTurnAfterHunger(
+                planned, planningRandom, { planning: true },
+            ));
+        const result = await finishElapsedTurnAfterHunger(state, random);
+        if (tailPlan?.beforeUnmul && !result?.afterUnmul)
+            throw new Error('elapsed-turn hunger tail disagreed with live delayed action');
+        return { ...result, afterHunger: true };
+    }
+    return finishElapsedTurnAfterHunger(state, random, { planning });
+}
+
+// C ref: allmain.c moveloop_core(), upkeep after gethungry(). Fainting and
+// done(STARVING) run live before this tail is planned from their real result.
+async function finishElapsedTurnAfterHunger(state, random, { planning = false } = {}) {
+    const turnMessage = planning ? async () => {} : ttyPline;
     age_spells(state);
     // C ref: allmain.c moveloop_core() calls exerchk() here, before invault()
     // and engraving wear.
@@ -1188,17 +1205,14 @@ function unavailableElapsedTurnOperation(operation) {
 // treats that class as a segment boundary. A refusal class that is neither in
 // this list nor already an UnsupportedTurnBoundaryError escapes runSegment()
 // as a hard failure, so a newly invented one belongs here.
-// Built per call rather than at module scope. js/eat.js now imports what the
-// #eat command needs, which makes this file part of an import cycle with it,
-// and a module-scope read of a class js/eat.js exports would run while that
-// module is still initializing. This list is consulted only on the error path
-// below, so rebuilding it costs nothing a turn pays.
+// Resolve classes when called, after the mutually importing game owners
+// have initialized. A module-scope array could read these bindings before
+// their declarations execute.
 function elapsedTurnPlanningRefusals() {
     return [
         UnsupportedSimpleMonsterActionError,
         UnsupportedHideError,
         UnsupportedHeroTimeoutBoundaryError,
-        UnsupportedHungerTransitionError,
         UnsupportedMonsterCreationError,
         // Both pickup arms -- dogmove.c dog_invent()'s and mon.c
         // mpickstuff()'s -- call distant_name(), splitobj() and mpickobj()
@@ -1313,7 +1327,7 @@ async function planElapsedTurn(state, {
     } catch (error) {
         // The planning round runs the whole once-per-turn block on the clone,
         // so any owner it reaches can refuse: monster distress, the timeout
-        // preflight, the hunger transition, and random monster generation all
+        // preflight and random monster generation all
         // raise their own class. js/jsmain.js breaks the segment only for the
         // three boundary types, so a class that is neither converted here nor
         // already one of those escapes as a hard failure and discards the
@@ -1347,20 +1361,10 @@ async function planElapsedTurn(state, {
     if (reachesTurnLimit)
         elapsedTurnBoundary('game end through done(ESCAPED)');
     if (preflight.runsOncePerTurnUpkeep && !preflight.beforeTimeout) {
-        try {
-            preflightGetHungry(state, {
-                nearCapacity: () => initialCapacity,
-                message: ttyPline,
-                endRunning,
-                statusRefresh: () => bot(),
-            });
-        } catch (error) {
-            if (!(error instanceof UnsupportedHungerTransitionError))
-                throw error;
-            const boundary = new UnsupportedTurnBoundaryError(error.message);
-            boundary.reason = error.reason;
-            throw boundary;
-        }
+        preflightGetHungry(state, {
+            nearCapacity: () => initialCapacity,
+            message: ttyPline, endRunning, statusRefresh: () => bot(),
+        });
         try {
             // C runs the per-turn timeouts against the turn it is entering.
             preflight_nh_timeout_elapsed_turn({
@@ -1502,7 +1506,7 @@ async function advanceElapsedTurn(state) {
                 UnsupportedEnlightenmentError,
                 UnsupportedShopError,
                 UnsupportedVaultGuardError,
-                UnsupportedMonsterCreationError,
+            UnsupportedMonsterCreationError,
             ];
             if (!liveScanRefusals.some((type) => error instanceof type))
                 throw error;
@@ -1525,10 +1529,12 @@ async function advanceElapsedTurn(state) {
             ++upkeepCount;
             let afterUnmul;
             let afterTimeout;
+            let afterHunger;
             try {
                 const result = await finishElapsedTurn(state, random);
                 afterUnmul = result?.afterUnmul;
                 afterTimeout = result?.afterTimeout;
+                afterHunger = result?.afterHunger;
             } catch (error) {
                 // A live-only timeout and its fresh tail can reach existing
                 // command or upkeep refusals after the prefix has completed.
@@ -1557,8 +1563,12 @@ async function advanceElapsedTurn(state) {
                     'elapsed-turn preflight disagreed with live timeout',
                 );
             }
+            if (preflight.beforeHunger
+                && upkeepCount === preflight.upkeepCount && !afterHunger) {
+                throw new Error('elapsed-turn preflight disagreed with live hunger');
+            }
             if (!pendingDeathReplan
-                && (afterUnmul || afterTimeout)
+                && (afterUnmul || afterTimeout || afterHunger)
                 && state.u.umovement < NORMAL_SPEED) {
                 preflight = await planElapsedTurn(state, {
                     consumeHeroRation: false,

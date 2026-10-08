@@ -210,7 +210,6 @@ import { UnsupportedHeroTimeoutBoundaryError } from './timeout.js';
 import {
     doeat,
     morehungry,
-    UnsupportedHungerTransitionError,
 } from './eat.js';
 import {
     can_reach_floor,
@@ -375,7 +374,7 @@ import {
     dopoly, doremove, dospinweb, dospit, dosummon,
 } from './polyself.js';
 import {
-    wiz_detect, wiz_flip_level, wiz_genesis, wiz_identify, wiz_intrinsic, wiz_level_change, wiz_kill, wiz_smell,
+    wiz_detect, wiz_flip_level, wiz_genesis, wiz_identify, wiz_intrinsic, wiz_level_change, wiz_kill, wiz_smell, wiz_show_seenv, wiz_show_vision,
     wiz_level_tele, wiz_makemap, wiz_map, wiz_polyself, wiz_wish, wiz_where, wiz_rumor_check,
 } from './wizcmds.js';
 import {
@@ -2863,9 +2862,6 @@ export function failClosedCommandRefusals() {
         // set_wear() raises it too, from moveloop_preamble() rather than from
         // a command, which is the raiser the startup reader above converts.
         UnsupportedWearError,
-        // eat.c newuhs() is shared: gethungry() calls it from the turn loop,
-        // and done_eating() and lesshungry() call it from doeat().
-        UnsupportedHungerTransitionError,
         // read.c doread() raises this after getobj() returns an object and
         // before pickup_prev or any reading effect changes state. Cancellation
         // completes normally, so only selected objects reach this refusal.
@@ -5274,6 +5270,10 @@ async function doextcmd(key, state) {
         return await wiz_rumor_check(state);
     case 'wiz_smell':
         return await runSmellCommand(key, state);
+    case 'wiz_show_seenv':
+        return await wiz_show_seenv(state);
+    case 'wiz_show_vision':
+        return await wiz_show_vision(state);
     case 'wiz_intrinsic':
         return await runIntrinsicCommand(key, state);
     case 'wiz_polyself':
@@ -6325,7 +6325,11 @@ export async function rhack(key, state = game) {
                     resetCommandVars(state);
                     return;
                 }
-                await morehungry(100, state);
+                await morehungry(100, state, {
+                    message: ttyPline,
+                    statusRefresh: () => bot(),
+                    endRunning: (s) => end_running(true, s),
+                });
                 resetCommandVars(state);
                 // C ref: teleport.c dotelecmd() returns ECMD_TIME after
                 // dotele(TRUE) succeeds; rhack() restores context.move
@@ -6364,7 +6368,11 @@ export async function rhack(key, state = game) {
                     resetCommandVars(state);
                     return;
                 }
-                await morehungry(100, state);
+                await morehungry(100, state, {
+                    message: ttyPline,
+                    statusRefresh: () => bot(),
+                    endRunning: (s) => end_running(true, s),
+                });
                 resetCommandVars(state);
                 // C ref: dotele(FALSE) returns 1 after an intrinsic
                 // teleport, which dotelecmd() turns into ECMD_TIME.

@@ -65,3 +65,57 @@ test('get_valid_jump_position keeps the Knight distance and accessibility rules'
     state.level.at(11, 10).horizontal = true;
     assert.equal(await get_valid_jump_position(11, 10, state), false);
 });
+
+test('trapped jump crossing HUNGRY uses canonical hunger operations', async () => {
+    const { runSegment } = await import('../js/jsmain.js');
+    const gstate = await import('../js/gstate.js');
+    const { dojump } = await import('../js/apply.js');
+    const { FROMOUTSIDE, HUNGRY, NOT_HUNGRY, TIP_GETPOS, TT_PIT } = await import('../js/const.js');
+    // Fixed independent startup; no pet or monster movement is needed by jump.
+    await runSegment({ seed: 15840211, datetime: '20521018093000',
+        nethackrc: 'OPTIONS=name:JumpHunger,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!debug_mongen,!acoustics', moves: '' });
+    const { game } = gstate;
+    const { clearTtyMessageWindow } = await import('../js/tty_message.js');
+    clearTtyMessageWindow(game);
+    game.u.uprops[JUMPING].intrinsic = FROMOUTSIDE;
+    game.u.uprops[JUMPING].extrinsic = 1; // Avoid Knight's intrinsic-only distance rule.
+    game.u.uhunger = 151; // Any source rnd(10) crosses the <=150 HUNGRY bound.
+    game.u.uhs = NOT_HUNGRY;
+    game.u.utrap = 3; // Positive trapped duration; type selects the source pit arm.
+    game.u.utraptype = TT_PIT;
+    game.context.tips = (game.context.tips ?? 0) | (1 << TIP_GETPOS); // Tip already viewed.
+    game.nhDisplay.pushKey('.'.charCodeAt(0)); // Select current square after freeing from pit.
+    game.nhDisplay.pushKey(32); // Allow a source More prompt between jump and hunger output.
+    await dojump(game);
+    assert.equal(game.u.uhs, HUNGRY);
+    assert.ok(game.u.uhunger >= 141 && game.u.uhunger <= 150, 'exact source rnd(10) cost');
+    assert.equal(game.u.utrap, 0);
+});
+
+test('jump forwards the supplied hunger callbacks and random source at the trapped caller', async () => {
+    const { runSegment } = await import('../js/jsmain.js');
+    const gstate = await import('../js/gstate.js');
+    const { jump } = await import('../js/apply.js');
+    const { HUNGRY, WEAK, TIP_GETPOS, TT_PIT } = await import('../js/const.js');
+    const { clearTtyMessageWindow } = await import('../js/tty_message.js');
+    await runSegment({ seed: 15840224, datetime: '20521018130000',
+        nethackrc: 'OPTIONS=name:JumpCallbacks,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!debug_mongen,!acoustics', moves: '' });
+    const { game } = gstate;
+    clearTtyMessageWindow(game);
+    game.u.uhunger = 51; // Any positive rnd(10) crosses WEAK; magic bypasses physical hunger guard.
+    game.u.uhs = HUNGRY;
+    game.u.utrap = 3;
+    game.u.utraptype = TT_PIT;
+    game.context.tips = (game.context.tips ?? 0) | (1 << TIP_GETPOS);
+    game.nhDisplay.pushKey(46); // Source current-square target after leaving pit.
+    const events = [];
+    await jump(1, game, {
+        random: { rnd: bound => { events.push(['rnd', bound]); return 1; } },
+        message: async text => events.push(['message', text]),
+        endRunning: s => events.push(['run', s === game]),
+        statusRefresh: s => events.push(['bot', s === game]),
+    });
+    assert.equal(game.u.uhunger, 50);
+    assert.equal(game.u.uhs, WEAK);
+    assert.deepEqual(events, [['rnd', 10], ['message', 'You are beginning to feel weak.'], ['run', true], ['bot', true]]);
+});

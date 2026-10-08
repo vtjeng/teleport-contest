@@ -29,7 +29,6 @@ import {
     UnsupportedHeroCommandBranchBoundaryError,
 } from '../js/cmd.js';
 import {
-    UnsupportedHungerTransitionError,
 } from '../js/eat.js';
 import { getobj } from '../js/invent.js';
 import { itemactions } from '../js/iactions.js';
@@ -5068,15 +5067,9 @@ test('a blind search feels adjacent squares at the `s` key', async () => {
     assert.equal(game.context.pendingCommand, undefined);
 });
 
-test('eat hunger transition stops convert at the command seam', () => {
-    // js/cmd.js runEatCommand() wraps doeat() in failClosedCommand(), and
-    // js/jsmain.js breaks a segment only for the three boundary classes, so a
-    // class doeat() can raise that the wrapper does not list escapes as a hard
-    // failure and discards the segment's matching prefix instead of stopping
-    // on it. UnsupportedHungerTransitionError comes from newuhs(), which
-    // done_eating() and lesshungry() both call on the doeat() path.
-    const converted = failClosedCommandRefusals();
-    assert.ok(converted.includes(UnsupportedHungerTransitionError));
+test('ported hunger transitions no longer register a command refusal', () => {
+    assert.equal(failClosedCommandRefusals().some(
+        (type) => type.name === 'UnsupportedHungerTransitionError'), false);
 });
 
 // The '>' handler routes dodown() through failClosedCommand() (js/cmd.js), and
@@ -5184,3 +5177,29 @@ test('count_bind_keys counts moved commands and orphaned default keys',
             count_bind_keys(stateFor('BINDINGS=^X:toggle(showexp)\n')), 1,
         );
     });
+
+test('wizard and intrinsic teleport crossing hunger status supply canonical operations', async () => {
+    const { runSegment } = await import('../js/jsmain.js');
+    const { TELEPORT, FROMOUTSIDE, HUNGRY, NOT_HUNGRY, TIP_GETPOS } = await import('../js/const.js');
+    for (const wizard of [true, false]) {
+        // Separate startup per branch; teleport is tested through its real rhack binding.
+        await runSegment({ seed: wizard ? 15840212 : 15840213, datetime: '20521018100000',
+            nethackrc: 'OPTIONS=name:TeleportHunger,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!debug_mongen,!acoustics', moves: '' });
+        clearTtyMessageWindow(game);
+        resetCommandVars(game);
+        game.wizard = wizard;
+        game.u.ulevel = 12; // C intrinsic teleport level gate for a non-Wizard role.
+        game.u.uen = 100; // More than the source spell-energy cost.
+        game.u.uprops[TELEPORT].intrinsic = FROMOUTSIDE;
+        game.u.uhunger = 250; // Source flat100 cost reaches HUNGRY exactly150.
+        game.u.uhs = NOT_HUNGRY;
+        game.context.tips = (game.context.tips ?? 0) | (1 << TIP_GETPOS); // Already viewed.
+        game.nhDisplay.pushKey(20); // C('t') binding to dotelecmd.
+        if (wizard) game.nhDisplay.pushKey(46); // Controlled wizard target: current square.
+        game.nhDisplay.pushKey(32); // Allow source teleport/hunger More prompt.
+        await rhack(0, game);
+        assert.equal(game.u.uhunger, 150);
+        assert.equal(game.u.uhs, HUNGRY);
+        assert.equal(game.context.move, 1, 'source successful dotelecmd consumes a turn');
+    }
+});

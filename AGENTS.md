@@ -47,7 +47,8 @@ special-case a session or its seed, inputs, expected output, or replay position.
 
 The current operating mode prioritizes synthetic local holdout mismatches;
 `.agents/selection.md` defines selection and automatic generation of a new
-batch when no unmatched synthetic screens remain. Keep the 44-session fixed
+batch before the available queue empties and admission at safe integration
+boundaries. Keep the 44-session fixed
 workload as a regression check. The current `challenges/manifest.json` remains
 frozen as batch `v1`; new batches use new versioned manifests and retain every
 previous batch and its evaluation history. Synthetic results remain separate
@@ -77,9 +78,9 @@ selection or closure. Existing spans and slices remain historical records. A
 **challenge preparation task** creates the next batch's C recipes and
 recordings without admitting or scoring it.
 
-The loop uses one main orchestrator and up to three persistent workers, each
-in its own Git worktree. Two normally work on implementation tasks; the third
-may prepare a future challenge batch or take an independent implementation task.
+The loop uses one main orchestrator and up to four persistent workers, each
+in its own Git worktree. A, B, and C implement source tasks; the dedicated
+Prep worker prepares future challenge batches.
 Workers notify the orchestrator when a task is ready to merge; only the
 orchestrator integrates, runs combined validation, admits batches, and
 publishes. Implementation workers own a selected session's investigation through

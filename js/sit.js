@@ -745,7 +745,15 @@ export async function lay_an_egg(state = game, rawEnv = {}) {
     const { stackobj } = await import('./invent.js');
     stackobj(egg, objectEnv);
     const { morehungry } = await import('./eat.js');
-    await morehungry(eggType.oc_nutrition, state, { ...rawEnv, random });
+    const { endRunning } = await import('./hack.js');
+    const { bot } = await import('./display.js');
+    await morehungry(eggType.oc_nutrition, state, {
+        ...rawEnv,
+        random,
+        message,
+        endRunning: rawEnv.endRunning ?? endRunning,
+        statusRefresh: rawEnv.statusRefresh ?? (() => bot()),
+    });
     return ECMD_TIME;
 }
 

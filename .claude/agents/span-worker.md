@@ -100,6 +100,9 @@ Use the orchestrator's absolute shared-ledger path with
 `scripts/worker-state.mjs --file`. Read `--help` for event fields and command
 syntax. Record your connection, turn state, task, scope changes, and delivery
 as they happen; do not edit the ledger JSON by hand.
+For idle or blocked turns, include a public `summary` naming the dependency
+or next action and its owner. Keep private details in `reason`; the dashboard
+publishes only `summary`. Record an active turn when work resumes.
 
 Before investigating an unresolved session, claim it with an `assign` event
 using `kind: "investigation"`, its canonical session ID as `seed`, exactly
