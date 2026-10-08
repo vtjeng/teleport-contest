@@ -374,7 +374,7 @@ import {
     dopoly, doremove, dospinweb, dospit, dosummon,
 } from './polyself.js';
 import {
-    wiz_detect, wiz_flip_level, wiz_genesis, wiz_identify, wiz_intrinsic, wiz_level_change, wiz_kill, wiz_smell,
+    wiz_detect, wiz_flip_level, wiz_genesis, wiz_identify, wiz_intrinsic, wiz_level_change, wiz_kill, wiz_smell, wiz_show_vision,
     wiz_level_tele, wiz_makemap, wiz_map, wiz_polyself, wiz_wish, wiz_where,
 } from './wizcmds.js';
 import {
@@ -5268,6 +5268,8 @@ async function doextcmd(key, state) {
         return await runKillCommand(key, state);
     case 'wiz_smell':
         return await runSmellCommand(key, state);
+    case 'wiz_show_vision':
+        return await wiz_show_vision(state);
     case 'wiz_intrinsic':
         return await runIntrinsicCommand(key, state);
     case 'wiz_polyself':
