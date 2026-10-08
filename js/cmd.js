@@ -6564,6 +6564,19 @@ export async function rhack(key, state = game) {
             resetCommandVars(state, state.multi < 0);
             return;
         }
+        // C ref: cmd.c rhack() invokes the registered inventory handler,
+        // then resets ECMD_OK without spending time (3810-3825). These
+        // direct keys use the same canonical display as their #commands.
+        if (command === 'seetools') {
+            await failClosedCommand(key, state, () => doprtool(state, inventoryMenuHooks(state)));
+            resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === 'seeall') {
+            await failClosedCommand(key, state, () => doprinuse(state, inventoryMenuHooks(state)));
+            resetCommandVars(state, state.multi < 0);
+            return;
+        }
         if (command === 'dip') {
             // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
             // three tests the quaff arm applies. dodip() reaches all three:

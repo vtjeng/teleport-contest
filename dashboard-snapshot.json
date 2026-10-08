@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T22:25:51.453Z",
+  "capturedAt": "2026-10-08T22:38:41.929Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -68103,12 +68103,117 @@
         "worker": "A2",
         "state": "active",
         "reason": "Investigate the remaining lycanthropy prayer mismatch; preserve A175 caller ownership until acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B169-published-fd7871f7",
+        "type": "published",
+        "at": "2026-10-08T22:26:23.367Z",
+        "task": "B169",
+        "commit": "fd7871f76b24e36037fb55352bbfe2c67fd7e13b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B175-after-B169-20261008",
+        "type": "resume",
+        "at": "2026-10-08T22:26:32.398Z",
+        "task": "B175"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B175-pool-scroll-audit-20261008",
+        "type": "turn",
+        "at": "2026-10-08T22:26:33.576Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Resume pool-scroll drop after its source dependency was accepted."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B175-pool-scroll-after-B169-20261008",
+        "type": "implement",
+        "at": "2026-10-08T22:27:32.295Z",
+        "task": "B175",
+        "goal": "fix-do-dropx-pool-scroll-admission-v32-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A177-prayer-lycanthropy-A175-20261008",
+        "type": "park",
+        "at": "2026-10-08T22:29:11.245Z",
+        "task": "A177"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A177-idle-A175-20261008",
+        "type": "turn",
+        "at": "2026-10-08T22:29:12.397Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Lycanthropy prayer report is complete; full cure awaits acceptance of A175’s prayer caller reservation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A173-f8eb15e4",
+        "type": "integrating",
+        "at": "2026-10-08T22:30:20.360Z",
+        "task": "A173",
+        "integration": "f8eb15e4cc2b0df9b7e7335c1f624597ae0951e9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B170-f92e5336",
+        "type": "received",
+        "at": "2026-10-08T22:31:31.171Z",
+        "task": "B170",
+        "delivery": "f92e53362d8bb9bd87835e588806457ab6f85887"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-B170-review-f92e5336",
+        "type": "activity",
+        "at": "2026-10-08T22:31:39.221Z",
+        "task": "B170",
+        "phase": "review",
+        "reason": "Previewing the immutable B170 direct command-dispatch delivery while A173 completes hosted validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A173-f8eb15e4cc2b0df9b7e7335c1f624597ae0951e9-validated",
+        "type": "validated",
+        "at": "2026-10-08T22:35:53.049Z",
+        "task": "A173",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-decb8ee6cbed726018ffccdf0060a5dc7f1a976d",
+        "type": "ready",
+        "at": "2026-10-08T22:36:14.086Z",
+        "task": "B175",
+        "delivery": "decb8ee6cbed726018ffccdf0060a5dc7f1a976d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B175-delivered-independent-availability-20261008",
+        "type": "turn",
+        "at": "2026-10-08T22:37:28.329Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B175 delivered; next source work waits on accepted cmd dispatch owners or native-pointer/build-host contracts."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A173-f8eb15e4cc2b0df9b7e7335c1f624597ae0951e9-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T22:38:16.838Z",
+        "task": "A173"
       }
     ]
   },
   "development": {
-    "executionCommit": "02094146bef512055a829bb70fc3927ad70b441f",
-    "measuredAt": "2026-10-08T22:22:23.972Z",
+    "executionCommit": "f8eb15e4cc2b0df9b7e7335c1f624597ae0951e9",
+    "measuredAt": "2026-10-08T22:34:51.355Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

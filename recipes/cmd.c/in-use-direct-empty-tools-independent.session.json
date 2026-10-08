@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first direct inventory-in-use keys: source cmd.c rhack selects doprtool/doprinuse. New seed/clock and empty tools branch; no time for the ( command.",
+  "segments": [
+    {
+      "seed": 17032031,
+      "datetime": "20490719140217",
+      "nethackrc": "OPTIONS=name:InUseKeys,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips,!debug_mongen\n",
+      "moves": "  (  ."
+    }
+  ]
+}
