@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T18:46:40.599Z",
+  "capturedAt": "2026-10-08T18:59:35.190Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -66066,12 +66066,94 @@
         "at": "2026-10-08T18:46:28.106Z",
         "worker": "C",
         "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A164-ready-dispatcher-priority-20261008",
+        "type": "turn",
+        "at": "2026-10-08T18:47:11.312Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Memory statistics is ready for integration. Wall-modes and object-probabilities reports remain parked until the older statistics dispatcher handoff completes; C owns birth statistics and B owns pyrolisk. Ready to resume the parked diagnostic work after acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C151-3ae99b1b5-20261008",
+        "type": "published",
+        "at": "2026-10-08T18:47:25.390Z",
+        "task": "C151",
+        "commit": "3ae99b1b5c2417bfc29eb8153af18db4d72bc0bd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A164-1de6a25e9-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T18:50:25.314Z",
+        "task": "A164",
+        "integration": "1de6a25e9e125a812173a56f88d2ecbda2314b15"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A164-8a1c6bca0-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T18:51:36.134Z",
+        "task": "A164",
+        "integration": "8a1c6bca0b99c51a199a18424976a9182a40d67f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b235917a0114e60f3dfa4dea6285afe51d3486dd",
+        "type": "ready",
+        "at": "2026-10-08T18:51:46.281Z",
+        "task": "B163",
+        "delivery": "b235917a0114e60f3dfa4dea6285afe51d3486dd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B163-b235917a-20261008",
+        "type": "received",
+        "at": "2026-10-08T18:52:18.553Z",
+        "task": "B163",
+        "delivery": "b235917a0114e60f3dfa4dea6285afe51d3486dd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B163-ready-idle-20261008",
+        "type": "turn",
+        "at": "2026-10-08T18:52:25.559Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Corpse RNG correction is ready for integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C152-investigation-central-queue-idle-20261008",
+        "type": "turn",
+        "at": "2026-10-08T18:52:41.010Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Migration investigation is complete. C is waiting for the coordinator to queue the implementation after A164 validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A164-8a1c6bca0b99c51a199a18424976a9182a40d67f-validated",
+        "type": "validated",
+        "at": "2026-10-08T18:57:15.199Z",
+        "task": "A164",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A164-8a1c6bca0b99c51a199a18424976a9182a40d67f-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T18:59:20.963Z",
+        "task": "A164"
       }
     ]
   },
   "development": {
-    "executionCommit": "3a956a911cc52a3104f718e1eb4d76d2c854af32",
-    "measuredAt": "2026-10-08T18:42:24.888Z",
+    "executionCommit": "8a1c6bca0b99c51a199a18424976a9182a40d67f",
+    "measuredAt": "2026-10-08T18:56:04.816Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

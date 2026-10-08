@@ -667,7 +667,7 @@ import {
 } from './worn.js';
 import { end_burn } from './timeout.js';
 import { migrate_to_level } from './dog.js';
-import { d, rn1, rn2, rnd, rne, rnl } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import { heroIsBlind, messageAt } from './startup_a11y.js';
 import {
     mdrop_special_objs,
@@ -5350,7 +5350,7 @@ async function make_corpse(mtmp, corpseflags, state, env) {
     // C's global RNG exposes every draw primitive. Caller environments can
     // carry only the subset their own function uses, so fill this source
     // function's defaults before honoring supplied overrides.
-    const random = { d, rn1, rn2, rnd, rne, rnl, ...(env.random ?? {}) };
+    const random = { d, rn1, rn2, rnd, rne, rnl, rnz, ...(env.random ?? {}) };
     const objectEnv = { ...env, state, random };
     const message = env.message ?? ttyPline;
     const mdat = mtmp.data;
