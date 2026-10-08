@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first engraving caller evidence: engrave.c:589-599 -> zap.c:zapnodir. E-command charged stasis effect before text, with source ordered discovery. Repeated stasis retains maximum deadline; canceled text still spends charge.. Fixed source-designed seed before recorder observation; no challenge inputs copied.",
+  "segments": [
+    {
+      "seed": 1402808,
+      "datetime": "20491112131415",
+      "nethackrc": "OPTIONS=name:Engrave1402808,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".\u0017uncursed wand of stasis (0:3)\nEe\u001b\n    Ee\u001b\n    ."
+    }
+  ]
+}

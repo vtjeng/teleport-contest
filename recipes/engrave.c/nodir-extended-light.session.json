@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent #engrave command alias evidence through cmd.c doextcmd -> engrave.c doengrave -> doengrave_sfx_item_WAN -> zapnodir; seed 1402810 chosen before C recording.",
+  "segments": [
+    {
+      "seed": 1402810,
+      "datetime": "20491112131415",
+      "nethackrc": "OPTIONS=name:Engrave1402810,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".\u0017uncursed wand of light (0:3)\n#engrave\ne      Alias\n    ."
+    }
+  ]
+}
