@@ -2429,6 +2429,7 @@ test('planned distant potion hits hand naming input to the live pass', async () 
     game.objects[obj.otyp].oc_uname = null;
     const liveScreen = game.nhDisplay.serialize();
     const liveDisco = [...game.svd.disco];
+    const liveRngLength = getRngLog().length;
     const planned = planningState(game);
     const x = planned.u.ux > 2 ? planned.u.ux - 2 : planned.u.ux + 2;
     const y = planned.u.uy;
@@ -2446,6 +2447,7 @@ test('planned distant potion hits hand naming input to the live pass', async () 
         planning: true,
         state: planned,
         message: async () => {},
+        random: { rn2: bound => Math.max(0, bound - 1) },
         requestPlanningInput(operation) {
             assert.equal(operation, 'do.c trycall');
             throw marker;
@@ -2458,6 +2460,7 @@ test('planned distant potion hits hand naming input to the live pass', async () 
     assert.equal(game.nhDisplay.serialize(), liveScreen);
     assert.equal(game.objects[obj.otyp].oc_uname, null);
     assert.deepEqual(game.svd.disco, liveDisco);
+    assert.equal(getRngLog().length, liveRngLength);
     assert.equal(planned.objects[obj.otyp].oc_uname, null);
 });
 
