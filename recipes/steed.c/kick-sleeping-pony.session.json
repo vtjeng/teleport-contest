@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mounted sleeping-potion -> kick_steed helpless path. Potion inventory letter i follows Knight startup inventory; C records the actual route. Cheap seed variation uses independently observed seed1462911 east pony; the initial seed1462912 route is blocked after the kick by monster attacks on a helpless steed.",
+  "segments": [
+    {
+      "seed": 1462911,
+      "datetime": "20910617121314",
+      "nethackrc": "OPTIONS=name:KickFamily,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!verbose,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #ride\nly     \u0017potion of sleeping\n     ti>    \u0004y     ."
+    }
+  ]
+}

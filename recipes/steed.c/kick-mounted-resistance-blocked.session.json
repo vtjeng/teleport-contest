@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "steed.c:dismount_steed(DISMOUNT_THROWN) is a discarded unported caller; not completion evidence. Independent C-first kick-mounted-pony; source dokick.c guard/steed family. Seed and clock chosen before recording without JS search.",
+  "segments": [
+    {
+      "seed": 1462911,
+      "datetime": "20910617121314",
+      "nethackrc": "OPTIONS=name:KickFamily,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!verbose,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #ride\nly     \u0004n  \u0004y     ."
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 // steed.js -- Riding a saddled monster.
 // C ref: steed.c -- rider_cant_reach(), can_saddle(), use_saddle(), put_saddle_on_mon(),
-// can_ride(), mount_steed(), exercise_steed(),
+// can_ride(), mount_steed(), exercise_steed(), kick_steed(),
 // landing_spot(), dismount_steed(), maybewakesteed(), stucksteed() and
 // doride().
 
@@ -83,6 +83,7 @@ import {
     hliquid,
     monsterCommonName,
     mon_nam,
+    monverbself,
     pmname,
     x_monnam,
     y_monnam,
@@ -95,7 +96,7 @@ import {
     test_move,
     u_locomotion,
 } from './hack.js';
-import { dist2 } from './hacklib.js';
+import { dist2, upstart } from './hacklib.js';
 import {
     bigmonst,
     gender,
@@ -701,6 +702,45 @@ export function exercise_steed(state = game) {
         u.urideturns = 0;
         use_skill(P_RIDING, 1, state);
     }
+}
+
+// C ref: steed.c:kick_steed (402-450). Both the kick command and a
+// downward bullwhip stroke reach this owner after printing their hit message.
+export async function kick_steed(state = game) {
+    const u = state.u;
+    const steed = u.usteed;
+    if (!steed) return;
+    if (helpless(steed)) {
+        const He = upstart(mhe(steed, { state, canSpotMonster: canspotmon }));
+        if ((steed.mcanmove || steed.mfrozen) && !rn2(2)) {
+            if (steed.mcanmove)
+                steed.msleeping = 0;
+            else if (steed.mfrozen > 2)
+                steed.mfrozen -= 2;
+            else {
+                steed.mfrozen = 0;
+                steed.mcanmove = 1;
+            }
+            await ttyPline(helpless(steed) ? `${He} stirs.`
+                : `${monverbself(steed, He, 'rouse', null, state,
+                    { canSpotMonster: canspotmon })}!`, state);
+        } else {
+            await ttyPline(`${He} does not respond.`, state);
+        }
+        return;
+    }
+    if (steed.mtame) --steed.mtame;
+    if (!steed.mtame && steed.mleashed)
+        note_unported('apply.c m_unleash');
+    if (!steed.mtame || u.ulevel + steed.mtame < rnd(MAXULEV / 2 + 5)) {
+        newsym(steed.mx, steed.my, state);
+        // The discarded thrown-dismount caller remains outside this port;
+        // the existing dismount owner refuses that reason.
+        note_unported('steed.c dismount_steed');
+        return;
+    }
+    await ttyPline(`${Monnam(steed, state)} gallops!`, state);
+    u.ugallop += rn1(20, 30);
 }
 
 // C ref: steed.c landing_spot() (459-566). Chooses a square beside the hero

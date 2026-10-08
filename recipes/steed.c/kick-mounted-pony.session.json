@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mounted-kick cheap seed variation 12; records yes/no steed prompt and gallop or the named thrown-dismount frontier. C-only setup correction: startup map shows pony west, so the mounting direction is h.",
+  "segments": [
+    {
+      "seed": 1462912,
+      "datetime": "20910617121314",
+      "nethackrc": "OPTIONS=name:KickFamily,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!verbose,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #ride\nhy     \u0004n  \u0004y     ."
+    }
+  ]
+}
