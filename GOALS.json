@@ -211364,7 +211364,7 @@
     {
       "id": "port-wizcmds-wiz-show-vision-v30-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the wizard vision text window",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -211378,8 +211378,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_show_vision",
@@ -211621,6 +211624,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

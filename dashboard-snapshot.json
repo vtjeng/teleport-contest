@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T17:44:38.765Z",
+  "capturedAt": "2026-10-08T18:00:24.909Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -65724,12 +65724,77 @@
         "type": "accepted",
         "at": "2026-10-08T17:44:06.447Z",
         "task": "A158"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A158-b7b43442-20261008",
+        "type": "published",
+        "at": "2026-10-08T17:45:49.579Z",
+        "task": "A158",
+        "commit": "b7b43442f1cd7263558ec5b4748e017760073133"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A159-4d32089b-20261008",
+        "type": "received",
+        "at": "2026-10-08T17:46:57.569Z",
+        "task": "A159",
+        "delivery": "4d32089b9a7aa51c4720b3a60616532cd17a2244"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A159-eee02138-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T17:50:35.816Z",
+        "task": "A159",
+        "integration": "eee0213825499b127cfda2990cedaacbe26ad277"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A159-ae843893-evidence-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T17:52:56.174Z",
+        "task": "A159",
+        "integration": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-A160-preview-review-20261008",
+        "type": "activity",
+        "at": "2026-10-08T17:54:04.223Z",
+        "task": "A160",
+        "phase": "review",
+        "reason": "Reviewing the queued wizard seen-vector delivery, source range, caller wiring, and replay evidence during A159 hosted validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A159-ae843893a0f02c2480f0ea10fc280b5c2fd9b895-validated",
+        "type": "validated",
+        "at": "2026-10-08T17:58:11.212Z",
+        "task": "A159",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A159-ae843893a0f02c2480f0ea10fc280b5c2fd9b895-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T17:59:59.544Z",
+        "task": "A159"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep1-reduced-v37-decision-20261008",
+        "type": "activity",
+        "at": "2026-10-08T18:00:23.882Z",
+        "task": "Prep1",
+        "phase": "review",
+        "reason": "Approved a reduced 10-case v37 preparation after an extensive distinct-candidate search produced 10 qualifying mismatches; final replay and overlap packaging is in progress."
       }
     ]
   },
   "development": {
-    "executionCommit": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac",
-    "measuredAt": "2026-10-08T17:40:25.496Z",
+    "executionCommit": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895",
+    "measuredAt": "2026-10-08T17:56:52.690Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
