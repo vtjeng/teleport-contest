@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first wizcmds.c:wiz_custom1934–1984 and callback1987–2027 route: ordinary. New seed/date/character and symbol options chosen before JavaScript comparison. Escape dismisses the source diagnostic menu; ordinary play rejects the wizard command.",
+  "segments": [
+    {
+      "seed": 17270014,
+      "datetime": "20610112140500",
+      "nethackrc": "OPTIONS=name:Glyphordinary,role:Monk,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizcustom\n\u001b "
+    }
+  ]
+}

@@ -3,6 +3,7 @@
 // wiz_level_tele(), wiz_wish(), wiz_identify(), wiz_polyself(),
 // wiz_intrinsic(), wiz_kill(), and wiz_makemap(), among the rows cmd.c dispatches here.
 
+import { NO_COLOR } from './terminal.js';
 import { engr_stats } from './engrave.js';
 import { light_stats } from './light.js';
 import { timer_stats } from './timeout.js';
@@ -11,7 +12,8 @@ import { size_wseg } from './worm.js';
 import { FIRST_OBJECT, NUM_OBJECTS, MAXOCLASSES, OBJ_NAME } from './objects.js';
 import { MAX_GLYPH } from './glyph_offsets.js';
 import { NUMMONS } from './monsters.js';
-import { MAXPCHARS, S_vbeam, S_rslant } from './symbols.js';
+import { MAXPCHARS, S_vbeam, S_rslant, known_handling } from './symbols.js';
+import { fill_glyphid_cache, free_glyphid_cache, glyphid_cache_status, wizcustom_glyphids } from './glyphs.js';
 import { mstrength } from './mondata.js';
 import { memoryLayout } from './wizcmds_data.js';
 import {
@@ -60,7 +62,7 @@ import {
     MAGICAL_BREATHING,
     MAXULEV,
     PASSES_WALLS,
-    PICK_ANY,
+    PICK_ANY, PICK_NONE, PRIMARYSET,
     POLY_CONTROLLED,
     POLYMORPH,
     POLYMORPH_CONTROL,
@@ -106,7 +108,7 @@ import { losexp, pluslvl } from './exper.js';
 import { rumor_check } from './rumors.js';
 import { body_part, float_vs_flight, polyself } from './polyself.js';
 import { create_particular } from './read.js';
-import { getlin, select_menu } from './windows.js';
+import { getlin, select_menu, add_menu_heading } from './windows.js';
 import { game } from './gstate.js';
 import { done } from './end.js';
 import { mon_nam, x_monnam } from './do_name.js';
@@ -129,7 +131,7 @@ import { displayTtyTextWindow } from './tty_menu.js';
 import { makewish } from './zap.js';
 import { canspotmon, docrt, glyph_at, glyph_is_invisible, glyph_is_monster,
     glyph_is_cmap, glyph_is_cmap_zap, glyph_to_cmap, glyph_to_mon, glyph_is_object, glyph_to_obj, NO_GLYPH,
-    map_engraving, map_invisible, map_trap, unmap_invisible } from './display.js';
+    glyphmap_base_fields, map_engraving, map_invisible, map_trap, unmap_invisible } from './display.js';
 import { do_mapping, findit } from './detect.js';
 import { overview_stats, In_W_tower, on_level, print_dungeon } from './dungeon.js';
 import { mklev } from './mklev.js';
@@ -1147,5 +1149,51 @@ export async function wiz_objprobs(state = game, env = {}) {
         rows.push({ text: truncateByteString(row, BUFSZ - 1) });
     }
     await (env.window ?? displayTtyTextWindow)(state, rows);
+    return ECMD_OK;
+}
+
+// C refs: wizcmds.c wiz_custom1934-1984 and wizcustom_callback1987-2027.
+// A rows array represents the source winid during construction; select_menu
+// owns create/start/add/end/select(PICK_NONE)/destroy and its input handoff.
+export function wizcustom_callback(items, glyphnum, id, state = game) {
+    if (!items || id === null) return;
+    const custom = state.gg?.glyph_customizations?.[glyphnum];
+    const base = glyphmap_base_fields(glyphnum, state);
+    const unicode = custom?.displayCh ?? base.unicode;
+    if (!unicode && !custom?.nhcolor) return;
+    const bufa = `[${String(glyphnum).padStart(4, '0')}] ${id.padEnd(44)}`;
+    const bufb = `'\\${String(base.ttychar).padStart(3, '0')}' ${String(base.color).padStart(2, '0')}`;
+    const bufc = ((custom?.nhcolor ?? 0) >>> 0).toString(16).padStart(11, '0');
+    let bufu = '';
+    if (unicode) {
+        bufu = `U+${unicode.codePointAt(0).toString(16).padStart(4, '0')}`;
+        for (const byte of new TextEncoder().encode(unicode)) {
+            if (!byte) break;
+            bufu += ` <${byte}>`;
+        }
+    }
+    items.push({ value: glyphnum + 1,
+        label: truncateByteString(`${bufa} ${bufb} ${bufc} ${bufu}`, BUFSZ - 1),
+        color: NO_COLOR, attr: 0 });
+}
+
+export async function wiz_custom(state = game, env = {}) {
+    if (!state.wizard) {
+        await (env.message ?? ttyPline)("Unavailable command 'wizcustom'.", state);
+        return ECMD_OK;
+    }
+    if (!glyphid_cache_status(state)) fill_glyphid_cache(state);
+    const items = [add_menu_heading(
+        '    glyph  glyph identifier                             sym   clr customcolor unicode utf8', state,
+    )];
+    const primary = state.gs?.symset?.[PRIMARYSET] ?? {};
+    // The current tty backend reports the recorder's 256-color capability.
+    let title = `#wizcustom: colorcount=${state.iflags?.colorcount ?? 256} ${primary.name || 'default'}`;
+    if (state.gc?.currentgraphics === PRIMARYSET && primary.name) title += ', active';
+    if (primary.handling) title += `, handler=${known_handling[primary.handling]}`;
+    wizcustom_glyphids(items, wizcustom_callback, state);
+    await (env.menu ?? select_menu)(state, { title, how: PICK_NONE, items, cancelValue: null });
+    if (glyphid_cache_status(state)) free_glyphid_cache(state);
+    (env.redraw ?? docrt)(state);
     return ECMD_OK;
 }
