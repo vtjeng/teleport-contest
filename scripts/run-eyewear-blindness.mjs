@@ -19,6 +19,7 @@ const CASES = [
     ['eyewear-takeoffall', 'You finish disrobing.'],
     ['eyewear-cursed-towel-removal', 'You push your blindfold off.'],
     ['eyewear-nymph-forced-removal', 'The water nymph stole a blindfold.'],
+    ['eyewear-headless-polymorph', 'Your blindfold falls off!'],
 ];
 const witnesses = CASES.map(([label, message]) => ({ label, message,
     recipe: JSON.parse(readFileSync(new URL(
@@ -58,7 +59,8 @@ export async function runEyewearBlindnessMatrix() {
                 || witness.label === 'eyewear-apply-blindfold'
                 || witness.label === 'eyewear-takeoffall'
                 || witness.label === 'eyewear-cursed-towel-removal'
-                || witness.label === 'eyewear-nymph-forced-removal')
+                || witness.label === 'eyewear-nymph-forced-removal'
+                || witness.label === 'eyewear-headless-polymorph')
                 assert.equal(game.ublindf, null, 'the removal command completes Blindf_off');
         },
     });

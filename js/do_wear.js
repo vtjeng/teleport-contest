@@ -4293,6 +4293,7 @@ export const _doWearInternals = Object.freeze({
     Amulet_on,
     Amulet_off,
     Blindf_on,
+    Blindf_off,
     Armor_off,
     Armor_on,
     Armor_gone,

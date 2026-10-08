@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Blindf_off production-caller witness with fixed new seed/clock; C setup and menu/pager observations are preserved before comparison.",
+  "segments": [
+    {
+      "seed": 1502910,
+      "datetime": "20590723123941",
+      "nethackrc": "OPTIONS=name:EyewearCaller,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,!safe_wait\n",
+      "moves": "   \u0017uncursed blindfold\nPe    #polyself\nbrown mold\n       ."
+    }
+  ]
+}
