@@ -5,13 +5,21 @@ export function activityTimeline(activity, capturedAt) {
   const segments = [];
   const events = [...(activity?.events ?? [])].sort((a, b) => a.at.localeCompare(b.at));
   const end = capturedAt ?? events.at(-1)?.at ?? null;
+  const coordinator = new Map();
 
-  function close(task, phase, at) {
+  function closeCoordinator(id, at, ongoing = false) {
+    const stage = coordinator.get(id);
+    if (stage && Date.parse(at) >= Date.parse(stage.start))
+      segments.push({ ...stage, end: at, ...(ongoing ? { ongoing: true } : {}) });
+    coordinator.delete(id);
+  }
+
+  function close(task, phase, at, ongoing = false) {
     const start = task.starts[phase];
     if (start && Date.parse(at) >= Date.parse(start)) {
       segments.push({ task: task.id, goal: task.goal, worker: task.worker,
-        kind: task.kind, phase, start, end: at,
-        lane: ['working', 'queued'].includes(phase) ? task.worker : 'Main' });
+        kind: task.kind, phase, start, end: at, ...(ongoing ? { ongoing: true } : {}),
+        lane: ['working', 'rework', 'queued'].includes(phase) ? task.worker : 'Main' });
     }
     task.starts[phase] = null;
   }
@@ -30,6 +38,24 @@ export function activityTimeline(activity, capturedAt) {
     }
     const task = tasks.get(taskId);
     if (!task) continue;
+    if (event.type === 'activity') {
+      closeCoordinator(taskId, event.at);
+      if (event.phase !== 'done' && task.starts.publication) {
+        close(task, 'publication', event.at);
+        task.resumePublication = true;
+      }
+      if (event.phase === 'done' && task.resumePublication) {
+        begin(task, 'publication', event.at);
+        task.resumePublication = false;
+      }
+      if (event.phase !== 'done') coordinator.set(taskId, {
+        task: taskId, worker: task.worker, kind: task.kind, goal: task.goal,
+        lane: 'Main', phase: event.phase, reason: event.reason, start: event.at,
+      });
+      continue;
+    }
+    if (['integrating', 'feedback', 'validated', 'accepted', 'published', 'park'].includes(event.type))
+      closeCoordinator(taskId, event.at);
     switch (event.type) {
       case 'implement':
         task.kind = 'implementation';
@@ -37,6 +63,7 @@ export function activityTimeline(activity, capturedAt) {
         break;
       case 'ready':
         close(task, 'working', event.at);
+        close(task, 'rework', event.at);
         begin(task, 'queued', event.at);
         task.status = 'ready';
         break;
@@ -44,9 +71,10 @@ export function activityTimeline(activity, capturedAt) {
         close(task, 'queued', event.at);
         close(task, 'integrating', event.at);
         task.status = 'changes-required';
+        task.rework = true;
         break;
       case 'resume':
-        begin(task, 'working', event.at);
+        begin(task, task.rework ? 'rework' : 'working', event.at);
         task.status = 'working';
         break;
       case 'integrating':
@@ -78,13 +106,54 @@ export function activityTimeline(activity, capturedAt) {
   }
   if (end) for (const task of tasks.values()) {
     for (const phase of Object.keys(task.starts)) {
-      if (task.starts[phase]) close(task, phase, end);
+      if (task.starts[phase]) close(task, phase, end, true);
     }
+  }
+  if (end) for (const id of coordinator.keys()) closeCoordinator(id, end, true);
+  // Fill only gaps in recorded lanes, never invent work or infer idleness from
+  // silence. Worker turn reasons explain otherwise unassigned intervals.
+  const observed = [...segments];
+  for (const lane of new Set(observed.map(row => row.lane))) {
+    const occupied = observed.filter(row => row.lane === lane)
+      .sort((a, b) => a.start.localeCompare(b.start));
+    const turns = lane === 'Main' ? [] : events.filter(event =>
+      event.type === 'turn' && event.worker === lane);
+    const ownership = events.filter(event => event.worker === lane
+      && ['register', 'observe'].includes(event.type));
+    const gap = (start, finish) => {
+      const boundaries = [...new Set([start, ...[...turns, ...ownership].map(row => row.at)
+        .filter(at => at > start && at < finish), finish])].sort();
+      for (let index = 0; index < boundaries.length - 1; index++) {
+        const a = boundaries[index], b = boundaries[index + 1];
+        if (Date.parse(b) <= Date.parse(a)) continue;
+        if (ownership.filter(row => row.at <= a).at(-1)?.live === false) continue;
+        const turn = turns.filter(row => row.at <= a).at(-1);
+        // A new assignment ends the previous idle report, even if the worker
+        // did not emit a subsequent active-turn event.
+        const assignment = events.filter(row => row.type === 'assign'
+          && row.worker === lane && row.at <= a).at(-1);
+        const waiting = turn && turn.at >= (assignment?.at ?? '')
+          && ['idle', 'blocked'].includes(turn.state);
+        segments.push({ task: `gap:${lane}:${a}`, label: lane,
+          worker: lane, lane, phase: waiting ? 'waiting' : 'unrecorded',
+          start: a, end: b, ...(b === end ? { ongoing: true } : {}), reason: waiting
+            ? turn.reason ?? `Worker reported ${turn.state}; no public reason was recorded.`
+            : 'No activity recorded. This is not evidence of idleness.' });
+      }
+    };
+    let cursor = occupied[0].start;
+    for (const row of occupied) {
+      if (row.start > cursor) gap(cursor, row.start);
+      if (row.end > cursor) cursor = row.end;
+    }
+    // Without ownership/turn evidence, a retired historical worker must not
+    // acquire an invented multi-day wait extending to today's snapshot.
+    if (end && end > cursor && (lane === 'Main' || turns.length || ownership.length)) gap(cursor, end);
   }
   return {
     runId: activity?.runId ?? null,
     capturedAt: end,
-    tasks: [...tasks.values()].map(({ starts, ...task }) => task),
+    tasks: [...tasks.values()].map(({ starts, resumePublication: _resumePublication, ...task }) => task),
     segments,
   };
 }

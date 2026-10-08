@@ -242,6 +242,7 @@ import { game } from './gstate.js';
 import { make_familiar } from './dog.js';
 import {
     check_capacity,
+    endRunning,
     invocation_pos,
     losehp,
     may_passwall,
@@ -2820,15 +2821,23 @@ async function jumpLandingPath(target, state) {
 }
 
 // C ref: apply.c dojump() (1847-1851).
-export async function dojump(state = game) {
-    return jump(0, state);
+export async function dojump(state = game, env = {}) {
+    return jump(0, state, env);
 }
 
 // C ref: apply.c jump() (1988-2163).
-export async function jump(magic = 0, state = game) {
+export async function jump(magic = 0, state = game, env = {}) {
+    // apply.c's morehungry calls reach newuhs's pline/end_running/bot.
+    // Preserve supplied operations when this caller uses a cloned state.
+    const hungerEnv = {
+        ...env,
+        message: env.message ?? ttyPline,
+        endRunning: env.endRunning ?? endRunning,
+        statusRefresh: env.statusRefresh ?? (() => bot()),
+    };
     if (!magic && !jumpProperty(state, JUMPING)
         && known_spell(SPE_JUMPING, state) >= spe_Fresh)
-        return spelleffects(SPE_JUMPING, false, false, state);
+        return spelleffects(SPE_JUMPING, false, false, state, hungerEnv);
 
     const species = state.youmonst?.data;
     if (!magic && (nolimbs(species) || slithy(species))) {
@@ -2953,7 +2962,7 @@ export async function jump(magic = 0, state = game) {
     if (u_at(target.x, target.y, state)) {
         const trap = t_at(target.x, target.y, state);
         if (wasTrapped) {
-            await morehungry(rnd(10), state);
+            await morehungry((env.random?.rnd ?? rnd)(10), state, hungerEnv);
             return ECMD_TIME;
         }
         if (trap) {
@@ -2975,7 +2984,7 @@ export async function jump(magic = 0, state = game) {
     nomul(-1, state);
     state.multi_reason = 'jumping around';
     state.nomovemsg = '';
-    await morehungry(rnd(25), state);
+    await morehungry((env.random?.rnd ?? rnd)(25), state, hungerEnv);
     return ECMD_TIME;
 }
 

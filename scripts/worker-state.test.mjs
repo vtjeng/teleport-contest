@@ -300,12 +300,30 @@ test('receipts drain superseded deliveries without changing the accepted repair'
     assert.throws(() => f.send({ type: 'received', task: 'one', delivery: FIRST }), /already received/);
 });
 
-test('a third worker can register, but a fourth live owner cannot', () => {
+test('three implementation workers and Prep can register, but a fifth cannot', () => {
     const f = fixture();
     f.send({ type: 'register', worker: 'C', worktree: `${ROOT}/C`,
         branch: 'worker/C', base: BASE, handle: 'handle-C' });
+    f.send({ type: 'register', worker: 'Prep', worktree: `${ROOT}/Prep`,
+        branch: 'worker/Prep', base: BASE, handle: 'handle-Prep' });
     assert.throws(() => f.send({ type: 'register', worker: 'D', worktree: `${ROOT}/D`,
-        branch: 'worker/D', base: BASE, handle: 'handle-D' }), /three workers/);
+        branch: 'worker/D', base: BASE, handle: 'handle-D' }), /four workers/);
+});
+
+test('coordinator activity records review without granting integration or acceptance', () => {
+    const f = fixture();
+    f.assign(); f.ready();
+    const state = f.send({ type: 'activity', task: 'one', phase: 'review',
+        reason: 'Checking asynchronous caller results.' });
+    assert.equal(state.tasks.one.status, 'ready');
+    assert.equal(state.tasks.one.activity.phase, 'review');
+    assert.throws(() => f.send({ type: 'accepted', task: 'one' }), /validated/);
+    assert.throws(() => f.send({ type: 'activity', task: 'one', phase: 'baseline',
+        reason: 'Not a preparation task.' }), /accepted preparation/);
+    assert.throws(() => f.send({ type: 'activity', task: 'one', phase: 'invented',
+        reason: 'Invalid phase.' }), /activity phase/);
+    f.send({ type: 'activity', task: 'one', phase: 'done', reason: 'Review complete.' });
+    assert.equal(f.accept().tasks.one.status, 'accepted');
 });
 
 test('prepared batch identities stay unique while accepted batches wait for admission', () => {
@@ -338,7 +356,7 @@ test('a parked preparation task keeps its version until resumed and accepted', (
     assert.equal(f.send({ type: 'resume', task: 'batch-v2' }).tasks['batch-v2'].status, 'working');
 });
 
-test('recovery cannot reactivate a fourth owner or inherit another handle’s connection', () => {
+test('recovery cannot reactivate a fifth owner or inherit another handle’s connection', () => {
     const f = fixture();
     f.send({ type: 'connect', worker: 'A', handle: 'handle-A' });
     f.send({ type: 'connected', worker: 'A', handle: 'handle-A' });
@@ -346,6 +364,7 @@ test('recovery cannot reactivate a fourth owner or inherit another handle’s co
     assert.equal(released.workers.A.connectedAt, undefined);
     f.send({ type: 'register', worker: 'C', worktree: `${ROOT}/C`, branch: 'worker/C', base: BASE, handle: 'handle-C' });
     f.send({ type: 'register', worker: 'D', worktree: `${ROOT}/D`, branch: 'worker/D', base: BASE, handle: 'handle-D' });
-    assert.throws(() => f.send({ type: 'observe', worker: 'A', handle: 'handle-A', processes: [] }), /three workers/);
+    f.send({ type: 'register', worker: 'Prep', worktree: `${ROOT}/Prep`, branch: 'worker/Prep', base: BASE, handle: 'handle-Prep' });
+    assert.throws(() => f.send({ type: 'observe', worker: 'A', handle: 'handle-A', processes: [] }), /four workers/);
     assert.throws(() => f.send({ type: 'turn', worker: '__proto__', state: 'idle', reason: null, processes: [] }), /unknown worker/);
 });

@@ -49,7 +49,11 @@ If repeated, meaningfully different candidate behaviors find no new qualifying
 first mismatches, park the task and report the search attempts and source or
 recorder blockers alongside the valid recordings already made. The
 orchestrator decides whether to accept a smaller batch or provide new targets.
-Do not inspect implementation-worker assignments or statuses. Keep reached,
+Do not inspect implementation-worker assignments or statuses. The orchestrator
+owns the preparation trigger and admission. After submitting a batch, wait
+for its admission and the next assignment rather than preparing another
+unadmitted reserve. Record idle or blocked turns with a public `summary`
+naming the dependency and owner; keep private details in `reason`. Keep reached,
 missed, and deferred targets and the remaining candidate list in `missionPlan`
 for that decision.
 Choose further candidate behaviors from the C source and coverage gaps; do not

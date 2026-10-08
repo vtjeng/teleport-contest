@@ -51,7 +51,7 @@ test('worker assignment overlaps another task waiting for integration', () => {
   assert.deepEqual(timeline.segments.find(row => row.task === 'A2'),
     { task: 'A2', goal: 'second', worker: 'A', kind: 'implementation',
       phase: 'working', start: '2026-09-25T10:21:00Z',
-      end: '2026-09-25T10:40:00Z', lane: 'A' });
+      end: '2026-09-25T10:40:00Z', lane: 'A', ongoing: true });
 });
 
 test('a correction has its own worker interval', () => {
@@ -62,9 +62,68 @@ test('a correction has its own worker interval', () => {
     ...(type === 'assign' ? { worker: 'A', goal: 'source' } : {}),
   }));
   const segments = activityTimeline({ events }, at(25)).segments;
-  assert.deepEqual(segments.map(row => row.phase), ['working', 'queued', 'working', 'queued']);
+  assert.deepEqual(segments.filter(row => row.task === 'A1').map(row => row.phase),
+    ['working', 'queued', 'rework', 'queued']);
   assert.equal(segments[2].start, at(15));
   assert.equal(segments[2].end, at(20));
+});
+
+test('pre-merge review, corrections and batch admission occupy explicit lanes', () => {
+  // Minutes separate receipt from review and review from the actual merge.
+  const at = minute => `2026-09-25T10:${String(minute).padStart(2, '0')}:00Z`;
+  const events = [
+    { type: 'assign', task: 'C1', worker: 'C', at: at(0) },
+    { type: 'ready', task: 'C1', at: at(5) },
+    { type: 'received', task: 'C1', at: at(6) },
+    { type: 'activity', task: 'C1', phase: 'review', reason: 'Check callers.', at: at(8) },
+    { type: 'feedback', task: 'C1', at: at(10) },
+    { type: 'resume', task: 'C1', at: at(11) },
+    { type: 'ready', task: 'C1', at: at(15) },
+    { type: 'activity', task: 'C1', phase: 'review', reason: 'Verify correction.', at: at(16) },
+    { type: 'integrating', task: 'C1', at: at(18) },
+    { type: 'assign', task: 'P1', worker: 'Prep', kind: 'challenge-preparation', at: at(0) },
+    { type: 'ready', task: 'P1', at: at(3) },
+    { type: 'integrating', task: 'P1', at: at(4) },
+    { type: 'validated', task: 'P1', passed: true, at: at(5) },
+    { type: 'accepted', task: 'P1', at: at(6) },
+    { type: 'activity', task: 'P1', phase: 'admission', reason: 'Verify manifest.', at: at(9) },
+    { type: 'activity', task: 'P1', phase: 'baseline', reason: 'Evaluate admitted cases.', at: at(12) },
+    { type: 'activity', task: 'P1', phase: 'done', reason: 'Cases available.', at: at(17) },
+    { type: 'published', task: 'P1', at: at(19) },
+  ];
+  const { segments } = activityTimeline({ events }, at(20));
+  assert.deepEqual(segments.filter(row => row.phase === 'review').map(row => [row.start, row.end]),
+    [[at(8), at(10)], [at(16), at(18)]]);
+  assert.equal(segments.find(row => row.phase === 'rework').lane, 'C');
+  assert.equal(segments.find(row => row.phase === 'admission').lane, 'Main');
+  assert.equal(segments.find(row => row.phase === 'baseline').end, at(17));
+  assert.deepEqual(segments.filter(row => row.task === 'P1' && row.phase === 'publication')
+    .map(row => [row.start, row.end]), [[at(6), at(9)], [at(17), at(19)]]);
+  assert.ok(segments.some(row => row.lane === 'Prep'));
+});
+
+test('reported waits fill unassigned time without hiding other work or inventing historical reasons', () => {
+  // Two tasks bracket a wait; a late active turn deliberately leaves unknown time.
+  const at = minute => `2026-09-25T10:${String(minute).padStart(2, '0')}:00Z`;
+  const events = [
+    { type: 'register', worker: 'C', live: true, at: at(0) },
+    { type: 'assign', task: 'C1', worker: 'C', at: at(0) },
+    { type: 'ready', task: 'C1', at: at(5) },
+    { type: 'turn', worker: 'C', state: 'blocked', reason: 'Awaiting Prep admission.', at: at(6) },
+    { type: 'integrating', task: 'C1', at: at(8) },
+    { type: 'assign', task: 'C2', worker: 'C', at: at(15) },
+    { type: 'ready', task: 'C2', at: at(17) },
+    { type: 'integrating', task: 'C2', at: at(18) },
+  ];
+  const { segments } = activityTimeline({ events }, at(20));
+  const waits = segments.filter(row => row.phase === 'waiting');
+  assert.deepEqual(waits.map(row => [row.start, row.end, row.reason]),
+    [[at(8), at(15), 'Awaiting Prep admission.']]);
+  assert.ok(segments.some(row => row.lane === 'C' && row.phase === 'unrecorded'
+    && row.start === at(18))); // The old blocked turn cannot leak across C2's assignment.
+  const released = activityTimeline({ events: [...events,
+    { type: 'observe', worker: 'C', live: false, at: at(19) }] }, at(30));
+  assert.ok(released.segments.filter(row => row.lane === 'C').every(row => row.end <= at(19)));
 });
 
 test('synthetic gain excludes newly admitted cases and shows losses', () => {
@@ -93,11 +152,15 @@ test('published activity omits worktree paths and process handles', () => {
       worker: 'A', goal: 'source', worktree: '/private/path',
       handle: 'private-process' },
     { id: 'b', type: 'turn', at: '2026-09-25T10:01:00Z',
-      worker: 'A', reason: 'private prose' },
+      worker: 'A', state: 'blocked', reason: 'private prose',
+      summary: 'Waiting for Prep to finish the next batch.', processes: ['private-process'] },
   ] });
   assert.deepEqual(activity.events, [{
     runId: 'loop-20260925', id: 'a', type: 'assign', at: '2026-09-25T10:00:00Z',
     task: 'A1', worker: 'A', goal: 'source',
+  }, {
+    runId: 'loop-20260925', id: 'b', type: 'turn', at: '2026-09-25T10:01:00Z',
+    worker: 'A', state: 'blocked', reason: 'Waiting for Prep to finish the next batch.',
   }]);
 });
 

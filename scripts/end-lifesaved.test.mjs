@@ -61,6 +61,7 @@ test('end.c life-saving arm keeps its source order', () => {
         'pline("But wait...")',
         'makeknown(AMULET_OF_LIFE_SAVING)',
         'Your("medallion %s!"',
+        'You_feel("much better!")',
         'useup(uamul)',
         'adjattrib(A_CON, -1, TRUE)',
         'savelife(how)',
@@ -131,4 +132,42 @@ test('the blind message is selected before the life-saving glow', async () => {
     )));
     assert.match(game._ttyToplines, /medallion crumbles to dust/u);
     assert.equal(game.uamul, null);
+});
+
+test('life-saving You_feel observes Unaware before savelife clears a faint', async () => {
+    // pline.c You_feel() uses Unaware before end.c savelife() clears
+    // negative multi and hunger. STARVED still counts as unconscious through
+    // the pending regain-consciousness message in trap.c unconscious().
+    const { FAINTED, STARVED, STARVING, NOT_HUNGRY } = await import('../js/const.js');
+    for (const [status, multi, nomovemsg, dreamed] of [
+        [FAINTED, -2, null, true],
+        [STARVED, -2, 'You regain consciousness.', true],
+        [NOT_HUNGRY, 0, null, false],
+    ]) {
+        await freshHero();
+        dismissMore();
+        const amulet = mksobj(AMULET_OF_LIFE_SAVING, false, false, { state: game });
+        addinv(amulet, { state: game });
+        await Amulet_on(amulet, game);
+        game.u.uhs = status;
+        game.u.uhunger = 0; // savelife resets this depleted nutrition below 500.
+        game.multi = multi;
+        game.nomovemsg = nomovemsg;
+        game.killer = { name: 'starvation', format: 1 };
+        dismissMore();
+        const observed = [];
+        const display = game.nhDisplay, original = display.setCell.bind(display);
+        display.setCell = (column, row, ch, color, attr) => {
+            if (row === 0 && column === 0 && game._pending_message)
+                observed.push(game._pending_message);
+            return original(column, row, ch, color, attr);
+        };
+        try { await done(STARVING, game); }
+        finally { display.setCell = original; }
+        assert.ok(observed.some(message => message.includes(
+            dreamed ? 'You dream that you feel much better!' : 'You feel much better!')),
+        `status ${status}, multi ${multi}`);
+        assert.equal(game.uamul, null);
+        assert.equal(game.u.uhs, NOT_HUNGRY);
+    }
 });

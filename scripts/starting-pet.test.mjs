@@ -346,7 +346,7 @@ test('fixed Caveman dog skips selection draw and receives source default name', 
     assert.equal(monster.mextra.mgivenname, 'Slasher');
 });
 
-test('starting pony creates and equips a separately identified saddle', async () => {
+test('starting pony equips a saddle after unseen pickup clears individual knowledge', async () => {
     const state = startingPetState({
         petnum: PM_PONY,
         role: PM_KNIGHT,
@@ -374,9 +374,12 @@ test('starting pony creates and equips a separately identified saddle', async ()
     assert.equal(saddle.leashmon, monster.m_id);
     assert.equal(monster.misc_worn_check, W_SADDLE);
     assert.equal(saddle.known, true);
-    assert.equal(saddle.dknown, true);
-    assert.equal(saddle.bknown, true);
-    assert.equal(saddle.rknown, true);
+    assert.equal(saddle.dknown, false);
+    // steed.c identifies the fresh object, then unseen mpickobj clears
+    // individual description/BUC/erosion knowledge before dog.c initedog makes it tame.
+    // Global type discovery and the non-charge known flag survive.
+    assert.equal(saddle.bknown, false);
+    assert.equal(saddle.rknown, false);
     assert.equal(state.objects[SADDLE].oc_name_known, 1);
     assert.equal(state.objects[SADDLE].oc_encountered, 1);
     assert.deepEqual(

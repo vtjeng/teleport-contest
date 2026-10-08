@@ -8,19 +8,18 @@ in `.claude/agents/span-worker.md`.
 
 Complete source behavior exposed by synthetic local holdout mismatches while
 preserving accepted fixed-workload and regression-recording matches. Prepare a
-new versioned batch as assignable work runs low; admit and baseline the oldest
-prepared batch at screen parity or when implementation workers would otherwise
-run short of independent tasks. Follow
+new versioned batch before assignable work runs out; admit and baseline the
+oldest ready batch at the next safe integration boundary without delaying a
+ready implementation delivery. Follow
 `.agents/selection.md` for task choice, batch generation, and required tooling
 support; `.agents/scoring.md` owns measurement and historical comparisons.
 An empty fixed-workload queue does not mean there is no implementation work.
 
-Run up to three persistent workers, each in its own Git worktree. Normally two
-work on implementation tasks while the third prepares future synthetic
-batches. The third may instead take an independent implementation task that
-helps clear the current mismatch queue. Finish or park its current task before
-switching; use fewer workers when work or resources cannot support three. Ask
-before adding a fourth worker. Run workers on `gpt-6-luna`, as the project
+Run up to four persistent workers, each in its own Git worktree: A, B, and C
+implement source tasks; Prep prepares synthetic batches. Keep Prep dedicated
+to preparation. Finish an existing preparation assignment before transferring
+that role to Prep. Use fewer workers when work or resources cannot support
+four; ask before adding a fifth. Run workers on `gpt-6-luna`, as the project
 `.codex/config.toml` specifies for subagents. Workers test and submit commits;
 you review them, integrate accepted work into local `main`, run combined checks, and
 publish. A worker may start independent work after submitting a task without
@@ -69,6 +68,22 @@ connections, turns, tasks, scope changes, and submissions. You record receipt,
 integration, validation, acceptance, and publication. Keep accepted
 source-completion evidence in `GOALS.json`.
 
+Record coordinator work before it starts with an `activity` event containing
+`task`, `phase` (`review`, `admission`, `baseline`, or `waiting`), and a short
+public `reason`. Use `review` for pre-merge review and correction verification,
+not `received`: receipt alone does not mean work has begun. Start a new phase
+when the work changes; use `phase: done` when it ends without a normal task
+transition. Integration, feedback, validation, acceptance, publication, and
+parking close that task's activity interval automatically. These observations
+do not change ownership or satisfy validation gates.
+
+On an idle or blocked `turn`, workers include a public `summary` explaining
+the missing dependency or next action and its owner. Keep private paths,
+process handles, and internal notes in `reason`, which is not published.
+Update the turn when work resumes. The dashboard distinguishes these reported
+waits from unrecorded time; neither assignment nor a blank interval measures
+CPU use. Include Prep in the shared ledger and snapshot like the other workers.
+
 Use `next` for routine coordination and `status` when the full ownership
 state is needed. Event and submission commands currently print the full
 state: capture stdout in one reusable worktree-local `.cache/` file, keep
@@ -87,21 +102,20 @@ of central records.
 Keep one unaccepted preparation task at a time. Resume a parked batch before
 starting a later version. Reserve each batch-qualified identity in the ledger
 so no other worker creates the same batch. After a
-preparation delivery is accepted, its worker may prepare the next unreserved
-batch or switch to implementation while earlier batches wait for admission.
+preparation delivery is admitted, its worker checks the preparation trigger
+in `.agents/selection.md` before starting the next batch. Do not accumulate
+unadmitted reserve batches.
 Keep each prepared manifest with its immutable delivery evidence. Merge
 accepted main at the clean task boundary before the next task so its delivery
 does not include pending work.
 
-At each handoff, use the current combined queue, investigations, and ledger
-reservations to count independently assignable source tasks as
-`.agents/selection.md` specifies. When that count falls below one more than
-the number of implementation-capable workers, request the next batch from the
-preparation worker if no preparation is in progress. When the count falls
-below the implementation worker count and a batch is ready, integrate and
-admit the oldest prepared batch after the required validation and evaluation
-gates. Continue assigning source-traced fixes from older batches; the new batch
-adds work without displacing those mismatches.
+At each evaluation and handoff, apply `.agents/selection.md`'s preparation
+trigger: at most 12 unmatched sessions across admitted batches, or too few
+selectable investigations and source tasks for the implementation workers.
+Admit a ready batch at the next safe integration boundary, immediately when main has no ready
+implementation delivery. Do not hold it for a lower mismatch count or delay
+a ready implementation delivery to admit it. Preserve validation and baseline
+requirements. Continue assigning fixes from older batches.
 The preparation worker does not monitor implementation assignments. If it
 reports that it cannot find 12 locally mismatching sessions with distinct
 source-traced first mismatch behaviors after switching to other plausible
@@ -151,7 +165,10 @@ Recheck later work affected by a correction. Other workers continue.
 Keep a task's reservations until it is accepted or parked. If a worker has
 already started a second task, accepting its first task releases only the
 first task's reservations. After an integration passes combined validation, notify every implementation worker of the accepted main SHA and have each merge it into its worktree at the next clean task boundary, before selecting new work, preserving pending work and submitted commits.
-Workers report the resulting HEAD and rerun focused checks affected by the merge; never rebase or amend submitted delivery commits.
+Workers report the resulting HEAD. Reuse accepted validation after a clean
+merge; run focused checks only for conflict resolutions or pending changes
+combined with accepted code that have not been tested together. Never rebase
+or amend submitted delivery commits.
 
 ## Integration and publication
 

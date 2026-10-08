@@ -20,6 +20,7 @@ import {
     HALLUC,
     HUNGER,
     HUNGRY,
+    LEVITATION,
     MOD_ENCUMBER,
     NOT_HUNGRY,
     OBJ_FLOOR,
@@ -691,30 +692,26 @@ test('gethungry burns nutrition slowly for an Unaware hero and not for a merely 
     assert.deepEqual(freedDraws, [20]);
     assert.equal(freed.u.uhunger, 899);
 
-    // eat.c is_fainted() is Unaware's other half, and no hero can reach the
-    // slow rate through it: newuhs()'s FAINTING arm is unported, so a hero
-    // already at FAINTED stops at the status guard before any draw whether or
-    // not gm.multi is negative.
+    // FAINTED is a valid hysteresis status. Negative multi takes the
+    // Unaware metabolic draw before the accessory-time draw.
     for (const multi of [0, -1]) {
         const fainted = hungerState();
         fainted.multi = multi;
         fainted.u.uhs = FAINTED;
-        const faintedDraws = [];
-        await assert.rejects(
-            gethungry(fainted, {
-                random: {
-                    rn2: (bound) => { faintedDraws.push(bound); return 2; },
-                },
-                nearCapacity: () => UNENCUMBERED,
-            }),
-            /unported hunger-status transition/u,
-            `multi ${multi}`,
-        );
-        assert.deepEqual(faintedDraws, [], `multi ${multi}`);
+        fainted.u.uhunger = -5; // Rounded quotient -1 gives the d21 faint gate.
+        const draws = [];
+        await gethungry(fainted, {
+            random: { rn2: (bound) => { draws.push(bound); return 19; } },
+            nearCapacity: () => UNENCUMBERED,
+            statusRefresh: async () => {},
+        });
+        assert.deepEqual(draws, multi < 0 ? [10, 20, 21] : [20, 21]);
+        assert.equal(fainted.u.uhs, FAINTED);
     }
+
 });
 
-test('gethungry fails closed at unported ring and status boundaries',
+test('gethungry validates ring data and hunger callbacks before RNG',
     async () => {
     const missingRing = hungerState();
     missingRing.uleft = { otyp: RIN_ADORNMENT, spe: 1 };
@@ -991,7 +988,7 @@ test('weakness messages preserve hallucination, role, and race branches',
         }
     });
 
-test('gethungry preflights only unsupported reachable transitions',
+test('gethungry admits low-loss ticks and reaches fainting after larger losses',
     async () => {
     const lowLoss = hungerState();
     lowLoss.u.uhunger = 152;
@@ -1011,20 +1008,21 @@ test('gethungry preflights only unsupported reachable transitions',
     assert.equal(lowLoss.u.uhs, NOT_HUNGRY);
 
     const fainting = hungerState();
-    fainting.u.uhunger = 2;
+    fainting.context = {};
+    property(fainting, LEVITATION); // LEVITATION is inactive in this source fixture.
+    fainting.u.uhunger = 2; // Ordinary + regeneration + burden crosses zero.
     fainting.u.uhs = WEAK;
     property(fainting, REGENERATION).intrinsic = FROMOUTSIDE;
-    await assert.rejects(
-        gethungry(fainting, {
-            random: {
-                rn2: () => assert.fail('fainting transition preflights'),
-            },
-            nearCapacity: () => MOD_ENCUMBER,
-        }),
-        /unported hunger-status transition/u,
-    );
-    assert.equal(fainting.u.uhunger, 2);
-    assert.equal(fainting.u.uhs, WEAK);
+    const faintDraws = [];
+    await gethungry(fainting, {
+        random: { rn2: (bound) => { faintDraws.push(bound); return 1; } },
+        nearCapacity: () => MOD_ENCUMBER,
+        message: async () => {}, statusRefresh: async () => {},
+    });
+    assert.deepEqual(faintDraws, [20], 'first faint skips the newuhs gate');
+    assert.equal(fainting.u.uhunger, -1);
+    assert.equal(fainting.u.uhs, FAINTED);
+
 });
 
 test('spinach tins clear species and do not draw', () => {

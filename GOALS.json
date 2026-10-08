@@ -210806,16 +210806,23 @@
     {
       "id": "fix-steed-saddle-pickup-visibility-v30-20261008",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Use current monster visibility when identifying saddles acquired by monsters",
       "cFile": "steed.c",
       "sessions": [],
       "selectionReason": "C149 rumor seed now matches; continue with unreserved v30-looted-saddle, whose wrong inherited saddle identification traces to steed.c put_saddle_on_mon visibility delegation. Investigation investigations/synthetic/v30/v30-looted-saddle.json. Existing display/steal/object owners are reused read-only.",
       "detail": "C step9 says You take the saddle off of the pony.  i - a saddle.--More--; JS says i - an uncursed saddle. Cache .cache/C150-state-trace.json confirms known/dknown/bknown/rknown already true in startup pony inventory before the #loot prompt and remain true when transferred. The later naming is consistent with that wrong bknown; do not repair loot_mon or globally suppress uncursed names. allmain.c:809-818 orders vision_reset, then makedog, then docrt; vision.c:211-222 points viz_array at cleared could_see. dog.c:251-267 calls makemon(MM_EDOG|NO_MINVENT), creates/equips pony saddle, and calls initedog only at293. Thus mpickobj sees mtame==0 and no current IN_SIGHT/COULD_SEE bit at startup. steed.c:142-164 orders can_saddle/which_armor guard, fresh mksobj, fully_identify_obj, then mpickobj, then worn/leash/extrinsic state. steal.c:655-664 uses !mtame && !canseemon && monster!=u.ustuck to call unknow_object. mkobj.c:854-865 clears bknown/rknown/etc while keeping per-type known behavior. display.h:116-120 canseemon requires current cansee/infrared and mon_visible, not adjacency. js/steed.js:209-216 canSeeStartingPet default bypasses canonical vision with !Blind && !minvis, injected into mpickobj at280. Existing js/display.js:383 canseemon and js/obj.js:1533 unknow_object have the required predicates/state changes. Correct only the default visibility delegation, retain source-valid explicit special-level adapter and unchanged source order; no whole steed, steal, dog, vision or loot owner credit.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "b0b76e575b2dd8563b0d1c6cc058f9aa813dfb77",
+      "openStanding": {
+        "sha": "b0b76e575b2dd8563b0d1c6cc058f9aa813dfb77",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "b0b76e575b2dd8563b0d1c6cc058f9aa813dfb77",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "put_saddle_on_mon",
       "session": "synthetic/v30/v30-looted-saddle",
       "step": 9,
@@ -210832,6 +210839,18 @@
           "evaluationPath": "challenges/evaluations/accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json",
           "evaluationCommit": "5d732fba68778b565d95c0f11dfe245afa3d89af"
         }
+      },
+      "activeStanding": {
+        "sha": "b0b76e575b2dd8563b0d1c6cc058f9aa813dfb77",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b0b76e575b2dd8563b0d1c6cc058f9aa813dfb77",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -210981,6 +211000,950 @@
           "recordingSha256": "c7c4a1186f950f62bea581198a4aef1c7cba2c6189870267a7ccd882ab36cae6",
           "evaluationPath": "challenges/evaluations/accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json",
           "evaluationCommit": "5d732fba68778b565d95c0f11dfe245afa3d89af"
+        }
+      }
+    },
+    {
+      "id": "port-eat-newuhs-fainting-starvation-v30-20261008",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port hunger fainting, delayed wakeup, and starvation",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v30/v30-hunger-faint"
+      ],
+      "selectionReason": "After the verified zombie timer prefix, v30 hunger-faint stops at eat.c newuhs before the next FAINTING transition; the source-traced investigation selects whole newuhs with required unfaint and its production hunger callers.",
+      "detail": "Port source-ordered FAINTING and FAINTED hysteresis, signed hunger rounding, faint RNG, delayed unfaint callback, starvation and lifesaving, with live elapsed-turn handoff. Reuse canonical hunger predicates and end-state owners; retain the explicit unported trap.c selftouch result gap.",
+      "openedAt": "f55897d4b9110933a525bd4bfdeae3eb01ac4563",
+      "openStanding": {
+        "sha": "b0b76e575b2dd8563b0d1c6cc058f9aa813dfb77",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "newuhs",
+          "line": 3362,
+          "endLine": 3516,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3362,
+        "to": 3516
+      },
+      "requiredFunctions": [
+        {
+          "name": "unfaint",
+          "line": 3336,
+          "endLine": 3346,
+          "declared": true,
+          "sourceFile": "eat.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v30/v30-hunger-faint": {
+          "session": "synthetic/v30/v30-hunger-faint",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-hunger-faint",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-hunger-faint.session.json",
+          "recordingSha256": "069348e0501d1d5433897c94608ddd8b0d9065d65495997a446e342cd1daac9b",
+          "evaluationPath": "challenges/evaluations/accepted-b0b76e575b2dd8563b0d1c6cc058f9aa813dfb77-v30.json",
+          "evaluationCommit": "b0b76e575b2dd8563b0d1c6cc058f9aa813dfb77"
+        }
+      },
+      "activeStanding": {
+        "sha": "b0b76e575b2dd8563b0d1c6cc058f9aa813dfb77",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-hunger-faint",
+          "session": "synthetic/v30/v30-hunger-faint",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recording": "challenges/cases/v30/v30-hunger-faint.session.json",
+          "recordingPath": "challenges/cases/v30/v30-hunger-faint.session.json",
+          "recordingSha256": "069348e0501d1d5433897c94608ddd8b0d9065d65495997a446e342cd1daac9b",
+          "recipe": "challenges/cases/v30/v30-hunger-faint.recipe.session.json",
+          "recipeSha256": "a16896b9ccf53913e9c67772be651a8a7e917136aff5de90f0b13a87d4300d5c",
+          "replayInputSha256": "1b8d29a4f92f88e8523c92f3c9cd083214b7d7b6ef01bb6849376c471f5840e5",
+          "evaluationPath": "challenges/evaluations/accepted-b0b76e575b2dd8563b0d1c6cc058f9aa813dfb77-v30.json",
+          "evaluationCommit": "b0b76e575b2dd8563b0d1c6cc058f9aa813dfb77",
+          "evaluationArtifact": "challenges/evaluations/accepted-b0b76e575b2dd8563b0d1c6cc058f9aa813dfb77-v30.json",
+          "evaluationUtc": "2026-10-08T17:10:15.541Z",
+          "remainingScreens": 718,
+          "recordedSteps": 2532,
+          "previousScreensMatched": 1814,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 1814,
+              "total": 2532
+            },
+            "rng": {
+              "matched": 26838,
+              "total": 27304
+            },
+            "cursors": {
+              "matched": 1814,
+              "total": 2532
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "the hunger clock reached unported hunger-status transition",
+            "step": 1814
+          },
+          "step": 1814,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "the hunger clock reached unported hunger-status transition",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v30/v30-hunger-faint.json",
+            "result": {
+              "session": "synthetic/v30/v30-hunger-faint",
+              "corpus": "synthetic",
+              "batch": "v30",
+              "caseId": "v30-hunger-faint",
+              "manifestPath": "challenges/manifests/v30.json",
+              "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+              "recordingSha256": "069348e0501d1d5433897c94608ddd8b0d9065d65495997a446e342cd1daac9b",
+              "evaluationPath": "challenges/evaluations/accepted-f5e0576f9dbaed8f436935876e8315f4b977c325-v30.json",
+              "evaluationCommit": "f5e0576f9dbaed8f436935876e8315f4b977c325",
+              "remainingScreens": 718,
+              "recordedSteps": 2532,
+              "status": "complete",
+              "commit": "bd16ad744b6750f92cb55ced1cd65e13f0cfa7f2",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v30",
+                "caseId": "v30-hunger-faint",
+                "session": "synthetic/v30/v30-hunger-faint",
+                "manifestPath": "challenges/manifests/v30.json",
+                "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+                "recording": "challenges/cases/v30/v30-hunger-faint.session.json",
+                "recordingPath": "challenges/cases/v30/v30-hunger-faint.session.json",
+                "recordingSha256": "069348e0501d1d5433897c94608ddd8b0d9065d65495997a446e342cd1daac9b",
+                "recipe": "challenges/cases/v30/v30-hunger-faint.recipe.session.json",
+                "recipeSha256": "a16896b9ccf53913e9c67772be651a8a7e917136aff5de90f0b13a87d4300d5c",
+                "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
+                "evaluationPath": "challenges/evaluations/accepted-f5e0576f9dbaed8f436935876e8315f4b977c325-v30.json",
+                "evaluationCommit": "f5e0576f9dbaed8f436935876e8315f4b977c325",
+                "evaluationArtifact": "challenges/evaluations/accepted-f5e0576f9dbaed8f436935876e8315f4b977c325-v30.json",
+                "evaluationUtc": "2026-10-08T15:23:15.213Z",
+                "remainingScreens": 718,
+                "recordedSteps": 2532,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 1814,
+                    "total": 2532
+                  },
+                  "rng": {
+                    "matched": 26838,
+                    "total": 27304
+                  },
+                  "cursors": {
+                    "matched": 1814,
+                    "total": 2532
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "step": 1814,
+                  "message": "the hunger clock reached unported hunger-status transition"
+                },
+                "step": 1814,
+                "kind": "stop",
+                "sourceFile": "eat.c",
+                "function": "newuhs",
+                "message": "the hunger clock reached unported hunger-status transition",
+                "cFile": "eat.c",
+                "luaFile": null,
+                "line": 3362
+              },
+              "summary": "After the verified zombie timer prefix, zero-based step1814 stops before allocating the elapsed turn because the hero has nutrition1/statusWEAK and preflightGetHungry refuses the next FAINTING transition. C eat.c:newuhs handles fainting, delayed unfaint and starvation; JavaScript still throws on those branches. Port whole newuhs/unfaint and remove the source-disconnected hunger refusals, preserving rounded negative hunger, wake-up RNG and live fatal-input handoff.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "eat.c",
+                "branch": "newuhs computes FAINTING for uhunger<=0 outside eatfood/force_save_hs: source FAINTED hysteresis, rounded signed hunger division, first faint versus probabilistic repeated faint/starvation, delayed callback and hunger/exhaustion deaths.",
+                "functions": [
+                  "newuhs",
+                  "unfaint"
+                ],
+                "callers": [
+                  "allmain.c moveloop_core -> eat.c gethungry3276 -> newuhs; hack.c domove melee -> gethungry",
+                  "eat.c do_reset_eat446/done_eating550/morehungry3284/lesshungry3332/doeat3910 -> newuhs",
+                  "fountain.c drinking282, potion.c nutrition722/785/858, polyself.c newman431/436, uhitm.c digestion5056 -> newuhs",
+                  "newuhs3428 assigns ga.afternmv=unfaint -> hack.c unmul4206 delayed callback"
+                ],
+                "dependencies": [
+                  "Consumed is_fainted/acurr source predicates are already canonical; reuse their pure tests. Unfaint calls existing Hear_again then stop_occupation; forward clone RNG and message/state env at that supporting helper seam.",
+                  "Reuse incr_itimeout/nomul/HDeaf/stop_occupation/done(STARVING), bot status and end_running. Canonical done must run live because life saving/wizard recovery reads input; add bounded elapsed-turn hunger handoff and planning continuation.",
+                  "C discards trap.c selftouch result; canonical hero selftouch is absent. Record note_unported and keep independent petrifying-corpse falling witness as a named downstream limit; no trap ownership.",
+                  "reset_faint is separate discarded-void caller in minion/trap/vault and remains unported outside selected newuhs/unfaint scope. No invented state._unfaint alias."
+                ]
+              },
+              "evidence": [
+                "Accepted f5e0576f v30 evaluation:1814/2532 screens/cursors and26838/27304 RNG, remainingScreens718. Replay .cache/A158/replay.log at examined bd16ad74 confirms the same stop before zero-based1814 keydot, game.moves900, uhunger1, uhs3WEAK, multi0.",
+                "C step1814 retains successive rn2(20) draws in gethungry3191, sleeping rn2(10) at3174 and repeated newuhs3416 rn2(20). The first faint short-circuits the newuhs random gate because prior status<=WEAK. JS preflight predicts this later source transition and refuses before C monster-tail distfleeck draws; those earlier functions are not the cause.",
+                "Read whole eat.c:newuhs3362–3511, unfaint3336–3344 and Hear_again1801–1810. C uses signed rounded integer division sgn(hunger)*((abs(hunger)+5)/10); first faint stops occupation before message, increments timed deafness, sets multi/reason/nomovemsg/afternmv, then discarded selftouch unless levitating. Repeated faint/stateFAINTED suppresses duplicate faint effects but retains source RNG ordering. Starvation checks -(100+10*ACURR(CON)), sets STARVED/status/killer and calls done, returning after life saving.",
+                "Existing js/eat.js preflightGetHungry511–515/590, gethungry674 and newuhs1818/1858 reject these paths; common HUNGRY/WEAK code also omits active non-eating occupation interruption and checks uhp instead of the source Upolyd-selected mh. Remove UnsupportedHungerTransitionError only after every throw site is replaced; reconcile its cmd/allmain registry tests.",
+                "Existing newuhs callers already await the canonical owner and forward state/env in eat.js, potion.js, fountain.js, polyself.js and uhitm.js. Reconcile source-ordered helper operations and gethungry/allmain live handoff, not whole surrounding owners. hack.js unmul already clears afternmv before awaiting f(state,env).",
+                "Independent validation: ordinary starting hero long controlled starvation wait, cheap role/property variation, eating recovery, FAINTED wake-up and death/life-saving choices through production callers. Use source-pinned tests for negative-hunger rounding, exact wake/faint draw sequence, occupation interruption, Upolyd exhaustion and starvation-return order. Preserve the selected source prefix and downstream named void gaps."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "unfaint",
+            "implementation": "js/eat.js",
+            "symbol": "unfaint",
+            "sourceReview": "Whole eat.c3336-3344: await existing Hear_again before status clamp (>FAINTING only), canonical awaited stop_occupation then disp.botl and return0. Hear_again is bounded env/RNG reconciliation only; its rn2(2) and make_deaf remain source ordered. is_fainted and hack nomul/unmul owners are reused, no _unfaint alias.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "newuhs",
+                "source": "eat.c3429 ga.afternmv=unfaint; js state.afternmv points to the source helper."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "unmul",
+                "source": "hack.c4207 afternmv callback invocation after release message and pointer clear; awaited f(state,env) passes clone/live operations canonically. reset_faint pointer-comparison owner remains a separate discarded-return frontier."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hunger-faint.test.mjs",
+              "scripts/allmain-turn.test.mjs",
+              "scripts/hack.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/hunger-faint-starvation-lifesaving.session.json",
+              "recordings/eat.c/hunger-faint-starvation-valkyrie.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-hunger-faint",
+                "segment": 0,
+                "fromStep": 1814,
+                "throughStep": 2531,
+                "source": "allmain.c moveloop_core gethungry -> eat.c newuhs3362-3513 first faint -> negative multi -> hack.c unmul -> eat.c unfaint3336-3344/Hear_again. The full2532-screen replay matches27304RNG and2animations, including the prior1814 hunger refusal and delayed wakeup."
+              }
+            ],
+            "checkedAt": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac"
+          },
+          {
+            "name": "newuhs",
+            "implementation": "js/eat.js",
+            "symbol": "newuhs",
+            "sourceReview": "Read complete eat.c3362-3513. Preserve saved_hs/save_hs statics on state; source short-circuit first faint, signed rounded integer quotient, repeated FAINTED hysteresis and rn2 bound, stop_occupation before faint message, timed deafness/nomul/reason/release/callback state, and source-discarded trap.c:selftouch note unless levitating. Starvation gate is strictly below -(100+10*ACURR(CON)), status/bot/message/killer/done(STARVING) order is exact, with immediate return after lifesaving. Common temporary strength, role/race/hallucination words, non-food/non-tin occupation stop, end_running, status/bot and active polymorph HP exhaustion are source aligned. Canonical acurr/incr_itimeout/nomul/stop_occupation/done reused; planning never executes live done/input and hunger tails replan from the real faint/death result. Delete UnsupportedHungerTransitionError and its command/upkeep registries. Retain separate cant_finish_meal/revive-during-meal and reset_faint frontiers; these surrounding unported owners receive no completion credit.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "do_reset_eat",
+                "source": "eat.c446 newuhs(FALSE), awaited after canonical meal reset; existing env preserved."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "done_eating",
+                "source": "eat.c550 after go.occupation=0; await newuhs(FALSE) restores saved meal status before remaining meal effects."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "gethungry",
+                "source": "eat.c3276 newuhs(TRUE) after source metabolic/accessory nutrition decrements; allmain moveloop_core reaches it through the live/planning handoff."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "morehungry",
+                "source": "eat.c3284 newuhs(TRUE) after hunger subtraction; canonical state/env await retained."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "lesshungry",
+                "source": "eat.c3332 newuhs(FALSE) after source nutrition/choke/delayed-hunger logic; canonical state/env await retained."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_water",
+                "source": "potion.c722 neutral water nutrition -> await newuhs(FALSE); effect env retains random/planning/message/status callbacks."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_booze",
+                "source": "potion.c785 nutrition -> await newuhs(FALSE) with live tty/endRunning/bot operations; surrounding booze owner remains live-only."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_see_invisible",
+                "source": "potion.c858 fruit-juice arm -> await newuhs(FALSE), forwarded source effect env."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "drinkfountain",
+                "source": "C fountain.c279–284 fate<10 refreshing draught: message, rnd(10) nutrition increase, newuhs(FALSE), then blessed-fountain early return. Exact f363b446a caller preserves env/random and supplied message/endRunning/statusRefresh, fills missing canonical hunger operations, awaits newuhs before the existing tail. C potion.c546 dodrink dispatch reaches drinkfountain after the fountain prompt; no surrounding owner completion credit."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "newman",
+                "source": "polyself.c431 lifesaving return and436 normal path -> await newuhs(FALSE), hungerEnv forwards planning/random and silent callbacks."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_dgst",
+                "source": "uhitm.c5056 nutrition update after hero digestion -> await newuhs(FALSE), canonical attack env forwarded."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hunger-faint.test.mjs",
+              "scripts/eat.test.mjs",
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/eat-occupation.test.mjs",
+              "scripts/allmain-turn.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/end-lifesaved.test.mjs",
+              "scripts/fountain.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/hunger-faint-starvation-lifesaving.session.json",
+              "recordings/eat.c/hunger-faint-starvation-valkyrie.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-hunger-faint",
+                "segment": 0,
+                "fromStep": 1814,
+                "throughStep": 2531,
+                "source": "allmain.c moveloop_core gethungry -> eat.c newuhs3362-3513 first faint -> negative multi -> hack.c unmul -> eat.c unfaint3336-3344/Hear_again. The full2532-screen replay matches27304RNG and2animations, including the prior1814 hunger refusal and delayed wakeup."
+              }
+            ],
+            "checkedAt": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac"
+          }
+        ],
+        "entryPointReview": "Helper/callback range; no new command dispatcher is implemented. Every implemented C newuhs caller and the afternmv production callback are mapped above; existing callers retain source-ordered awaits and canonical env. Matching admitted elapsed-hunger/wakeup and independent hunger-ring starvation/lifesaving witnesses establish the new impure behavior. Existing meal/nutrition/form caller arms remain covered by affected focused tests and ancestor recordings, and surrounding owners gain no credit. C eat.c:cant_finish_meal3910 is explicitly unported at zap.c:revive/js/zap.js572, so revive-during-meal remains outside this helper task per coordinator decision; reset_faint/minion/trap/vault remains a separate void caller frontier.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-wizcmds-wiz-show-vision-v30-20261008",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port the wizard vision text window",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v30/v30-vision-display"
+      ],
+      "selectionReason": "The admitted v30 vision case stops at the missing wizard vision command after 13 of 18 screens; the ready delivery predates the queued memory-statistics port and owns the shared dispatcher first.",
+      "detail": "Port whole wizcmds.c:wiz_show_vision lines 621-653 and its bounded cmd.c:doextcmd dispatcher arm. Preserve source dimensions, vision-bit rendering, hero override, trailing-space trimming, blocking text dismissal, map restoration, and ECMD_OK.",
+      "openedAt": "0d1afe59181aedabe2e5f5660b6be1ffb9d18827",
+      "openStanding": {
+        "sha": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "wiz_show_vision",
+          "line": 621,
+          "endLine": 656,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 621,
+        "to": 656
+      },
+      "syntheticProvenance": {
+        "synthetic/v30/v30-vision-display": {
+          "session": "synthetic/v30/v30-vision-display",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-vision-display",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-vision-display.session.json",
+          "recordingSha256": "ad21b263bf7255ad8290108442f3dc00de016c0938be40fd0fd7d770da084a43",
+          "evaluationPath": "challenges/evaluations/accepted-61ed127bc2ffb5432a7b6256015398cc6f0dd2ac-v30.json",
+          "evaluationCommit": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac"
+        }
+      },
+      "activeStanding": {
+        "sha": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-vision-display",
+          "session": "synthetic/v30/v30-vision-display",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recording": "challenges/cases/v30/v30-vision-display.session.json",
+          "recordingPath": "challenges/cases/v30/v30-vision-display.session.json",
+          "recordingSha256": "ad21b263bf7255ad8290108442f3dc00de016c0938be40fd0fd7d770da084a43",
+          "recipe": "challenges/cases/v30/v30-vision-display.recipe.session.json",
+          "recipeSha256": "ac5b67efc79fdb2a79009043848218ad1436fb5f65e1af2179add2b126dec8b9",
+          "replayInputSha256": "d9a8a854fa77f26a388dac63f2975815cf69453a12e8898f63ca466392799c3f",
+          "evaluationPath": "challenges/evaluations/accepted-61ed127bc2ffb5432a7b6256015398cc6f0dd2ac-v30.json",
+          "evaluationCommit": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac",
+          "evaluationArtifact": "challenges/evaluations/accepted-61ed127bc2ffb5432a7b6256015398cc6f0dd2ac-v30.json",
+          "evaluationUtc": "2026-10-08T17:38:42.882Z",
+          "remainingScreens": 5,
+          "recordedSteps": 18,
+          "previousScreensMatched": 13,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 13,
+              "total": 18
+            },
+            "rng": {
+              "matched": 2338,
+              "total": 2338
+            },
+            "cursors": {
+              "matched": 13,
+              "total": 18
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_show_vision() for the extended command 'vision' is not ported",
+            "step": 13
+          },
+          "step": 13,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_show_vision",
+          "message": "unsupported hero command: wiz_show_vision() for the extended command 'vision' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v30/v30-vision-display.json",
+            "result": {
+              "session": "synthetic/v30/v30-vision-display",
+              "corpus": "synthetic",
+              "batch": "v30",
+              "caseId": "v30-vision-display",
+              "manifestPath": "challenges/manifests/v30.json",
+              "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+              "recordingSha256": "ad21b263bf7255ad8290108442f3dc00de016c0938be40fd0fd7d770da084a43",
+              "evaluationPath": "challenges/evaluations/accepted-61ed127bc2ffb5432a7b6256015398cc6f0dd2ac-v30.json",
+              "evaluationCommit": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac",
+              "remainingScreens": 5,
+              "recordedSteps": 18,
+              "status": "complete",
+              "commit": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v30",
+                "caseId": "v30-vision-display",
+                "session": "synthetic/v30/v30-vision-display",
+                "manifestPath": "challenges/manifests/v30.json",
+                "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+                "recording": "challenges/cases/v30/v30-vision-display.session.json",
+                "recordingPath": "challenges/cases/v30/v30-vision-display.session.json",
+                "recordingSha256": "ad21b263bf7255ad8290108442f3dc00de016c0938be40fd0fd7d770da084a43",
+                "recipe": "challenges/cases/v30/v30-vision-display.recipe.session.json",
+                "recipeSha256": "ac5b67efc79fdb2a79009043848218ad1436fb5f65e1af2179add2b126dec8b9",
+                "replayInputSha256": "d9a8a854fa77f26a388dac63f2975815cf69453a12e8898f63ca466392799c3f",
+                "evaluationPath": "challenges/evaluations/accepted-61ed127bc2ffb5432a7b6256015398cc6f0dd2ac-v30.json",
+                "evaluationCommit": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac",
+                "evaluationArtifact": "challenges/evaluations/accepted-61ed127bc2ffb5432a7b6256015398cc6f0dd2ac-v30.json",
+                "evaluationUtc": "2026-10-08T17:38:42.882Z",
+                "remainingScreens": 5,
+                "recordedSteps": 18,
+                "previousScreensMatched": 13,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 13,
+                    "total": 18
+                  },
+                  "rng": {
+                    "matched": 2338,
+                    "total": 2338
+                  },
+                  "cursors": {
+                    "matched": 13,
+                    "total": 18
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: wiz_show_vision() for the extended command 'vision' is not ported",
+                  "step": 13
+                },
+                "step": 13,
+                "kind": "stop",
+                "sourceFile": "wizcmds.c",
+                "function": "wiz_show_vision",
+                "message": "unsupported hero command: wiz_show_vision() for the extended command 'vision' is not ported",
+                "cFile": "wizcmds.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The #vision dispatcher refuses wizcmds.c:wiz_show_vision instead of displaying the canonical vision bits in a text window. The existing JS vision array already reproduces the C map at the first stop.",
+              "source": {
+                "file": "wizcmds.c",
+                "branch": "Wizard extended command #vision after ordinary movement; canonical viz_array contains COULD_SEE/IN_SIGHT/TEMP_LIT bits.",
+                "functions": [
+                  "wiz_show_vision"
+                ],
+                "callers": [
+                  "cmd.c:extcmdlist vision row1928-1929 -> doextcmd -> rhack"
+                ],
+                "dependencies": [
+                  "Existing state.viz_array (vision.c:vision_recalc)",
+                  "Existing u_at macro, COLNO/ROWNO and COULD_SEE/IN_SIGHT/TEMP_LIT constants",
+                  "Existing tty_menu.js:displayTtyTextWindow for blocking NHW_TEXT and restoration"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Bounded run-kyIMVj /tmp/teleport-validation-1000/run-kyIMVj/receipt.json at6d0f3c11:13/18 screens/cursors and all2338 RNG match; missing JS screen at zero-based step13 newline, UnsupportedHeroCommandBoundaryError in cmd.js:doextcmd5311. Artifact .cache/A159/replay.json.",
+                "C wizcmds.c:wiz_show_vision621-653 creates NHW_TEXT, writes Flags header then blank line, iterates y0..ROWNO-1 and x1..COLNO-1; hero @ overrides bits, zero becomes space and nonzero becomes 0+v; trim only trailing spaces, display blocking then destroy, return ECMD_OK. No RNG or game state changes in the source function.",
+                "The replay snapshot hero44,14 and all existing viz_array rows yield the exact C step13 digit layout (3333333 room and 113333@33 lower edge); first cause is missing command, not a vision_recalc defect. Whole vision_recalc and tty text owner remain excluded.",
+                "All production callers: rg wiz_show_vision upstream *.[ch] finds only extcmdlist row cmd.c1929 and declaration/definition; generated JS extcmdlist_data row149 already points to the missing function. Wire only bounded cmd.js:doextcmd branch/import; existing rhack dispatcher already handles ECMD_OK.",
+                "Implement whole function in js/wizcmds.js and bound source:cmd.c:doextcmd wiring. Use existing displayTtyTextWindow to preserve blocking input/map restore and canonical state.viz_array (no duplicate cached map). Tests pin header, dimensions, column-zero exclusion, hero override, zero/combined-bit rows and trailing-space-only removal; selected prefix plus independent C-first ordinary and blind variation verify active #vision entry and window restoration.",
+                "No consumed-return unported dependency found: NHW_TEXT window ID lifecycle is represented by the existing canonical displayTtyTextWindow wrapper; u_at is pure existing source macro. Shared contract wizard-vision-text-window; no changes to vision.c or global vision reset."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_show_vision",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_show_vision",
+            "sourceReview": "Whole wizcmds.c621–653: header source constants and empty row; y0..ROWNO-1, x1..COLNO-1; hero @ overrides canonical viz_array, zero is space else byte 0+v, remove only trailing spaces; retain empty rows. Existing displayTtyTextWindow represents create/putstr/display(TRUE)/destroy and is awaited before ECMD_OK. No source RNG, nutrition, turn or vision mutations. No missing consumed-return callee.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "C cmd.c1928–1929 extcmdlist vision points to wiz_show_vision; bounded JS case/import awaits complete helper and returns ECMD_OK. Existing WIZMODECMD gate, rhack/ECMD_OK and generated extcmd row are reused unchanged; upstream search has no other production call sites."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-vision.test.mjs",
+              "scripts/wizcmds.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-vision-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-vision-blind.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-vision-display",
+                "segment": 0,
+                "fromStep": 13,
+                "throughStep": 17,
+                "source": "cmd.c extcmdlist vision -> doextcmd -> wizcmds.c wiz_show_vision621–653; blocking NHW_TEXT displays canonical bits then input dismissal restores the map, ECMD_OK spends no turn."
+              }
+            ],
+            "checkedAt": "eee0213825499b127cfda2990cedaacbe26ad277"
+          }
+        ],
+        "entryPointReview": "One command entry #vision. The admitted case reaches after movement and restores its map; independent Barbarian ordinary and Valkyrie blindfold cases reach the text window twice each and dismiss both. Blind variation reads COULD_SEE without IN_SIGHT, ordinary reads combined bits; synthetic data is unchanged and independent recipes use new source-selected states/seeds/clocks.",
+        "entryPoints": [
+          {
+            "name": "wizard #vision",
+            "functions": [
+              "wiz_show_vision"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-vision-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-vision-blind.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-vision-display",
+                "segment": 0,
+                "fromStep": 13,
+                "throughStep": 17,
+                "source": "cmd.c extcmdlist vision -> doextcmd -> wizcmds.c wiz_show_vision621–653; blocking NHW_TEXT displays canonical bits then input dismissal restores the map, ECMD_OK spends no turn."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-wizcmds-wiz-show-seenv-v30-20261008",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port the wizard seen-vector text window",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v30/v30-seen-vectors"
+      ],
+      "selectionReason": "The current accepted v30-seen-vectors evaluation has five unmatched screens from the step-15 command refusal. investigations/synthetic/v30/v30-seen-vectors.json traces the missing behavior to whole wizcmds.c:wiz_show_seenv with the bounded cmd.c:doextcmd caller; its A159 dispatcher dependency is accepted.",
+      "detail": "",
+      "openedAt": "521b19bf2a1ff300ecbf852efa8bcd765b22760f",
+      "openStanding": {
+        "sha": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "fd0c960c3088c7db9177d7fdac93295af563489a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "wiz_show_seenv",
+          "line": 576,
+          "endLine": 620,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 576,
+        "to": 620
+      },
+      "syntheticProvenance": {
+        "synthetic/v30/v30-seen-vectors": {
+          "session": "synthetic/v30/v30-seen-vectors",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-seen-vectors",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-seen-vectors.session.json",
+          "recordingSha256": "72dddcff51242423e8fff5013b49ff5eda999ce181aabfcc5a1ff58654702120",
+          "evaluationPath": "challenges/evaluations/accepted-ae843893a0f02c2480f0ea10fc280b5c2fd9b895-v30.json",
+          "evaluationCommit": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895"
+        }
+      },
+      "activeStanding": {
+        "sha": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-seen-vectors",
+          "session": "synthetic/v30/v30-seen-vectors",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recording": "challenges/cases/v30/v30-seen-vectors.session.json",
+          "recordingPath": "challenges/cases/v30/v30-seen-vectors.session.json",
+          "recordingSha256": "72dddcff51242423e8fff5013b49ff5eda999ce181aabfcc5a1ff58654702120",
+          "recipe": "challenges/cases/v30/v30-seen-vectors.recipe.session.json",
+          "recipeSha256": "ad7f8c8e9beda407ac6538ae3d1d1e8efb00f8489ec0137ca106748d1091e105",
+          "replayInputSha256": "8854fdd176221758d986d8949078f5642774dd95f6e0282491814f2bc600b35c",
+          "evaluationPath": "challenges/evaluations/accepted-ae843893a0f02c2480f0ea10fc280b5c2fd9b895-v30.json",
+          "evaluationCommit": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895",
+          "evaluationArtifact": "challenges/evaluations/accepted-ae843893a0f02c2480f0ea10fc280b5c2fd9b895-v30.json",
+          "evaluationUtc": "2026-10-08T17:55:25.491Z",
+          "remainingScreens": 5,
+          "recordedSteps": 20,
+          "previousScreensMatched": 15,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 15,
+              "total": 20
+            },
+            "rng": {
+              "matched": 2475,
+              "total": 2475
+            },
+            "cursors": {
+              "matched": 15,
+              "total": 20
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_show_seenv() for the extended command 'wizseenv' is not ported",
+            "step": 15
+          },
+          "step": 15,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_show_seenv",
+          "message": "unsupported hero command: wiz_show_seenv() for the extended command 'wizseenv' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v30/v30-seen-vectors.json",
+            "result": {
+              "session": "synthetic/v30/v30-seen-vectors",
+              "corpus": "synthetic",
+              "batch": "v30",
+              "caseId": "v30-seen-vectors",
+              "manifestPath": "challenges/manifests/v30.json",
+              "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+              "recordingSha256": "72dddcff51242423e8fff5013b49ff5eda999ce181aabfcc5a1ff58654702120",
+              "evaluationPath": "challenges/evaluations/accepted-ae843893a0f02c2480f0ea10fc280b5c2fd9b895-v30.json",
+              "evaluationCommit": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895",
+              "remainingScreens": 5,
+              "recordedSteps": 20,
+              "status": "complete",
+              "commit": "d5108aa213aa0a74392278a143d2bdc9b1aee752",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v30",
+                "caseId": "v30-seen-vectors",
+                "session": "synthetic/v30/v30-seen-vectors",
+                "manifestPath": "challenges/manifests/v30.json",
+                "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+                "recording": "challenges/cases/v30/v30-seen-vectors.session.json",
+                "recordingPath": "challenges/cases/v30/v30-seen-vectors.session.json",
+                "recordingSha256": "72dddcff51242423e8fff5013b49ff5eda999ce181aabfcc5a1ff58654702120",
+                "recipe": "challenges/cases/v30/v30-seen-vectors.recipe.session.json",
+                "recipeSha256": "ad7f8c8e9beda407ac6538ae3d1d1e8efb00f8489ec0137ca106748d1091e105",
+                "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
+                "evaluationPath": "challenges/evaluations/accepted-ae843893a0f02c2480f0ea10fc280b5c2fd9b895-v30.json",
+                "evaluationCommit": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895",
+                "evaluationArtifact": "challenges/evaluations/accepted-ae843893a0f02c2480f0ea10fc280b5c2fd9b895-v30.json",
+                "evaluationUtc": "2026-10-08T17:55:25.491Z",
+                "remainingScreens": 5,
+                "recordedSteps": 20,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 15,
+                    "total": 20
+                  },
+                  "rng": {
+                    "matched": 2475,
+                    "total": 2475
+                  },
+                  "cursors": {
+                    "matched": 15,
+                    "total": 20
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: wiz_show_seenv() for the extended command 'wizseenv' is not ported",
+                  "step": 15
+                },
+                "step": 15,
+                "kind": "stop",
+                "sourceFile": "wizcmds.c",
+                "function": "wiz_show_seenv",
+                "message": "unsupported hero command: wiz_show_seenv() for the extended command 'wizseenv' is not ported",
+                "cFile": "wizcmds.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The #wizseenv dispatcher refuses the missing wizcmds.c:wiz_show_seenv command. The existing canonical per-cell seenv bytes already reproduce the C hex map at the first stop.",
+              "source": {
+                "file": "wizcmds.c",
+                "branch": "Wizard #wizseenv after room movement; display two lowercase hex digits per seen-vector byte, centered around the hero and clipped at map edges.",
+                "functions": [
+                  "wiz_show_seenv"
+                ],
+                "callers": [
+                  "cmd.c:extcmdlist wizseenv row1990-1991 -> doextcmd -> rhack"
+                ],
+                "dependencies": [
+                  "Existing game.level.at(x,y).seenv owned by display/vision updates",
+                  "Existing u_at macro and COLNO/ROWNO constants",
+                  "Existing tty_menu.js:displayTtyTextWindow blocking NHW_TEXT lifecycle"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Bounded run-Drh1eP at d5108aa2 replays only this assigned session: 15/20 screens/cursors and all2475 RNG match. First missing screen is zero-based step15 newline at cmd.js:doextcmd5313, UnsupportedHeroCommandBoundaryError naming wiz_show_seenv. Artifacts .cache/A160/replay.json and replay.log.",
+                "C wizcmds.c:wiz_show_seenv576-617 creates NHW_TEXT, computes startx=max(1,ux-COLNO/4), stopx=min(startx+COLNO/2,COLNO), then increments startx only for a full COLNO/2 span to avoid an 80-byte row. Iterate all y0..ROWNO-1 and x in [startx,stopx); hero uses @@; other cells mask seenv with0xff, zero emits two spaces and nonzero uses lowercase %02x. Trim trailing spaces only, retain empty rows, display blocking, destroy and return ECMD_OK. No RNG or game-state writes.",
+                "At the stop hero74,5 crops x54..79. Applying the exact C formatting to the JS snapshot reproduces the C step15 rows: 1010...2040, 1818...ffc0, 1c1c...ffc1, 0c0c...@@81 and three0404...0201 rows, including sixteen leading spaces. The missing command is the first cause; no vision or seen-vector state fix is indicated. Source-derived rows are .cache/A160/source-rows.json.",
+                "Production caller search rg wiz_show_seenv upstream src/include and JS finds only the definition, extern.h3875, cmd.c1991 extcmdlist, and generated JS extcmdlist_data.js175. Add the bounded cmd.js:doextcmd import/branch; existing rhack consumes ECMD_OK and generated command registry already carries IFBURIED|AUTOCOMPLETE|WIZMODECMD.",
+                "Actionable whole-source scope is wizcmds.c:wiz_show_seenv with bounded cmd.c:doextcmd caller. Reserve source:wizcmds.c:wiz_show_seenv, source:cmd.c:doextcmd and contract:wizard-seenv-text-window; edit js/wizcmds.js/js/cmd.js, exact source-pinned tests and fresh runner, recipes/wizcmds.c and recordings/wizcmds.c. A159 owns another bounded doextcmd branch in the same worker; preserve its immutable delivery and declare its ancestor dependency.",
+                "No consumed-return unported dependency: existing text-window wrapper owns the C winid lifecycle and returns after dismissal; u_at and integer min/max are pure existing operations. Source-pinned tests must cover left/full/right cropping, byte masking/lowercase hex/zero/@@, row count/trailing trim and await-before-ECMD_OK. Independent C-first ordinary and blind variations should repeat the command after a turn and verify map restoration. Whole doextcmd/rhack, vision_recalc and text-window owners remain excluded."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_show_seenv",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_show_seenv",
+            "sourceReview": "Whole wizcmds.c576–617: source integer startx/stopx clamp and full-span adjustment; all y rows and half-open x crop; u_at overrides byte with @@, seenv &0xff before zero branch, lowercase zero-padded hex otherwise. Only trailing spaces removed, empty rows retained. Existing canonical displayTtyTextWindow owns create/putstr/display(TRUE)/destroy and is awaited before ECMD_OK. No RNG, turn or map-state changes; all source return dependencies are existing canonical operations. No gap or refusal remains for this command.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "C cmd.c1990–1991 extcmdlist wizseenv row points to wiz_show_seenv. Bounded JS case/import awaits the whole helper and returns its ECMD_OK. Existing generated registry, wizard/buried flags, rhack and text-window dispatch are reused unchanged. Source search finds no other production caller."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-seenv.test.mjs",
+              "scripts/wiz-vision.test.mjs",
+              "scripts/wizcmds.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-seenv-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-seenv-blind.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-seen-vectors",
+                "segment": 0,
+                "fromStep": 15,
+                "throughStep": 19,
+                "source": "cmd.c extcmdlist wizseenv -> doextcmd -> wizcmds.c:wiz_show_seenv576–617; blocking NHW_TEXT shows the seen-vector bytes then dismissal restores the map and returns ECMD_OK."
+              }
+            ],
+            "checkedAt": "f93c4e5e3bebe7454755e07745e9e03d7f7e85a0"
+          }
+        ],
+        "entryPointReview": "Only active entry is wizard #wizseenv via extcmdlist/doextcmd. The admitted case reaches the right-clipped crop after room movement. Independent C-first Barbarian ordinary and Valkyrie blindfold variants display and dismiss two windows apiece: room movement changes seenv bytes, while the blind wait retains previously seen bytes. Source tests cover full-span left/center crops, right crop, hero excluded at ux1, masking/lowercase/zero/hero formatting and await/ECMD_OK order. Independent seeds/clocks and source routes were chosen before recording/JS comparison; both valid first recordings reached the mission without a seed search.",
+        "entryPoints": [
+          {
+            "name": "wizard #wizseenv",
+            "functions": [
+              "wiz_show_seenv"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-seenv-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-seenv-blind.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-seen-vectors",
+                "segment": 0,
+                "fromStep": 15,
+                "throughStep": 19,
+                "source": "cmd.c extcmdlist wizseenv -> doextcmd -> wizcmds.c:wiz_show_seenv576–617; blocking NHW_TEXT shows the seen-vector bytes then dismissal restores the map and returns ECMD_OK."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "fd0c960c3088c7db9177d7fdac93295af563489a",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-insight-doborn-v30-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Display source monster birth and death statistics through #wizborn",
+      "cFile": "insight.c",
+      "sessions": [
+        "synthetic/v30/v30-birth-statistics"
+      ],
+      "selectionReason": "Accepted A159/A160 dispatcher prerequisites leave the distinct #wizborn arm independent of the older queued B162 statistics arm. The current complete investigation attributes the remaining five v30-birth-statistics screens to whole insight.c doborn and its bounded production caller.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "doborn",
+          "line": 3145,
+          "endLine": 3186,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3145,
+        "to": 3186
+      },
+      "syntheticProvenance": {
+        "synthetic/v30/v30-birth-statistics": {
+          "session": "synthetic/v30/v30-birth-statistics",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-birth-statistics",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-birth-statistics.session.json",
+          "recordingSha256": "f78495918122ab7f305cb8832e16095a5c151b56736eb2e4d7fcae1df94753a5",
+          "evaluationPath": "challenges/evaluations/accepted-fd0c960c3088c7db9177d7fdac93295af563489a-v30.json",
+          "evaluationCommit": "fd0c960c3088c7db9177d7fdac93295af563489a"
         }
       }
     }
