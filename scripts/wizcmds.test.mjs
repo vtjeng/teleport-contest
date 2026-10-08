@@ -322,3 +322,24 @@ test('wiz_smell marks an unseen monster and clears the stale marker after remova
     assert.equal(glyph_is_invisible(glyph_at(x, y, state)), false);
     assert.equal(glyph_is_invisible(state.level.at(x, y).remembered_glyph.glyph), false);
 });
+
+// C wiz_makemap156-173 snapshots the tower before replacing the level and
+// returns ECMD_OK after both helper calls; no command-level draw is present.
+test('wiz_makemap preserves tower snapshot, pre/generation/post order and result', async () => {
+    const c = readFileSync('nethack-c/upstream/src/wizcmds.c', 'utf8');
+    const source = c.slice(c.indexOf('wiz_makemap(void)'), c.indexOf('wiz_map(void)'));
+    assert.match(source, /was_in_W_tower = In_W_tower[\s\S]*makemap_prepost\(TRUE, was_in_W_tower\);[\s\S]*mklev\(\);[\s\S]*makemap_prepost\(FALSE, was_in_W_tower\);[\s\S]*return ECMD_OK;/u);
+    const { wiz_makemap } = await import('../js/wizcmds.js');
+    assert.equal(typeof wiz_makemap, 'function');
+    const js = readFileSync('js/wizcmds.js', 'utf8');
+    const body = js.slice(js.indexOf('export async function wiz_makemap('), js.indexOf('export async function wiz_map('));
+    assert.match(body, /was_in_W_tower = In_W_tower[\s\S]*await makemap_prepost\(true, was_in_W_tower, state\);[\s\S]*await mklev\(\);[\s\S]*await makemap_prepost\(false, was_in_W_tower, state\);[\s\S]*return ECMD_OK;/u);
+    assert.match(body, /Unavailable command 'wizmakemap'\./u);
+    assert.doesNotMatch(body, /\brn[2d]\(/u, 'level generation owns its source draws');
+});
+
+test('wiz_makemap has awaited interactive and queued command dispatch', () => {
+    const js = readFileSync('js/cmd.js', 'utf8');
+    assert.match(js, /case 'wiz_makemap':\s*(?:\/\/[^\n]*\n\s*)*return await wiz_makemap\(state\);/u);
+    assert.match(js, /queuedExtcmdEntry\?\.ef_funct === 'wiz_makemap'[\s\S]*?const res = await wiz_makemap\(state\);[\s\S]*?resetCommandVars\(state, state.multi < 0\);/u);
+});

@@ -361,8 +361,8 @@ async function savelife(how, state = game) {
 // before done() initializes the killer or mortality fields.  It is a
 // return-valued source helper: TRUE returns from done(), while FALSE lets the
 // ordinary death path continue.  peffects() has a discarded result here and
-// remains a named gap; wiz_makemap() has an unported callback, but its
-// source-required command-queue mutation is retained below.
+// remains a named gap. The source-required wiz_makemap command-queue mutation
+// below reaches cmd.c's queued callback without reading another command.
 async function fuzzer_savelife(how, state = game, source = {}) {
     const programState = state.program_state ?? {};
     if (programState.panicking || how === PANICKED || how === TRICKED)

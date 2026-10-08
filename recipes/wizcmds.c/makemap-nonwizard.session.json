@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first wizcmds.c:wiz_makemap command witness; inputs fixed before C recording or JavaScript comparison. Ordinary registry rejects WIZMODECMD before the function.",
+  "segments": [
+    {
+      "seed": 1464603,
+      "datetime": "20520707101500",
+      "nethackrc": "OPTIONS=name:Remap1464603,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup\n",
+      "moves": ".#wizmakemap\n."
+    }
+  ]
+}
