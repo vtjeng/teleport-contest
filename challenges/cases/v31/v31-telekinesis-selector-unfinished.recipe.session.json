@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B156 C-first candidate: wizcmds.c:wiz_telekinesis494-531. Create peaceful newt; select it for directional monster hurtle. Required C observation: Pick a monster; monster hurtles or target miss/cancel recorded. Seed and clock fixed before any JavaScript comparison; no seed search.",
+  "segments": [
+    {
+      "seed": 15631003,
+      "datetime": "20340621113542",
+      "nethackrc": "OPTIONS=name:Probe15631003,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0007peaceful newt\n#wiztelekinesis\nm.l\u001b      "
+    }
+  ]
+}

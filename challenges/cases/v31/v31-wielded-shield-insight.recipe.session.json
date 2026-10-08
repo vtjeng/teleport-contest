@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B156 C-first candidate: insight.c:weapon_insight1268-1340. Wield silver shield then request detailed characteristics. Required C observation: Wielding shield text uses shield_simple_name. Seed and clock fixed before any JavaScript comparison; no seed search.",
+  "segments": [
+    {
+      "seed": 15631006,
+      "datetime": "20340621113542",
+      "nethackrc": "OPTIONS=name:Probe15631006,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed shield of reflection\nwe#attributes\n             "
+    }
+  ]
+}

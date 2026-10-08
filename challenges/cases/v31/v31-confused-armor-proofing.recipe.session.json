@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B156 C-first candidate: read.c:seffect_destroy_armor1324-1396. Drink confusion and read cursed destroy-armor scroll. Required C observation: Armor glows purple and becomes erosionproof. Seed and clock fixed before any JavaScript comparison; no seed search.",
+  "segments": [
+    {
+      "seed": 15631019,
+      "datetime": "20340621113542",
+      "nethackrc": "OPTIONS=name:Probe15631019,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017potion of confusion\n\u0017cursed scroll of destroy armor\nqe    rf            "
+    }
+  ]
+}
