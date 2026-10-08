@@ -202293,7 +202293,7 @@
     {
       "id": "fix-apply-use-mirror-medusa-v28-20261008",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Wire canonical reflected Medusa petrification from use_mirror",
       "cFile": "apply.c",
       "sessions": [],
@@ -202305,8 +202305,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c78a4462405df8f3fdd065a619f8a07678f632cd",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "use_mirror",
       "session": "synthetic/v28/v28-mirror-medusa",
       "step": 45,
@@ -202567,7 +202570,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c78a4462405df8f3fdd065a619f8a07678f632cd",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-artifact-invoke-untrap-family-v29-20261008",
@@ -202763,6 +202772,72 @@
           "recordingSha256": "989017009bc0da16807b96e50a1d738c20d5906d80ae52ecbadb724b5723a067",
           "evaluationPath": "challenges/evaluations/accepted-2becf24bebd527647f267e1f6cd7507291e3df46-v29.json",
           "evaluationCommit": "2becf24bebd527647f267e1f6cd7507291e3df46"
+        }
+      }
+    },
+    {
+      "id": "port-do-wear-amulet-on-v29-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete amulet wearing callback",
+      "cFile": "do_wear.c",
+      "sessions": [
+        "synthetic/v29/v29-amulet-change",
+        "synthetic/v29/v29-amulet-breathing"
+      ],
+      "selectionReason": "The two current v29 Amulet_on refusals share the complete do_wear.c callback; accepted c78a4462 leaves 7 and 6 unmatched screens, with source scope disjoint from C144.",
+      "detail": "Port whole Amulet_on and wire the existing accessory and bounded set_wear callers. Verify consumed pure poly_gender and region_danger behavior. Keep non-ring poly_obj and broader startup/restore dispatch outside this task.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Amulet_on",
+          "line": 963,
+          "endLine": 1089,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 963,
+        "to": 1089
+      },
+      "requiredFunctions": [
+        {
+          "name": "poly_gender",
+          "line": 2149,
+          "endLine": 2159,
+          "declared": true,
+          "sourceFile": "polyself.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v29/v29-amulet-change": {
+          "session": "synthetic/v29/v29-amulet-change",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-amulet-change",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-amulet-change.session.json",
+          "recordingSha256": "cdb881cba7268f305121728b8de1c0d6e5d5ed253e26903f824ef943e5bdb0c0",
+          "evaluationPath": "challenges/evaluations/accepted-c78a4462405df8f3fdd065a619f8a07678f632cd-v29.json",
+          "evaluationCommit": "c78a4462405df8f3fdd065a619f8a07678f632cd"
+        },
+        "synthetic/v29/v29-amulet-breathing": {
+          "session": "synthetic/v29/v29-amulet-breathing",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-amulet-breathing",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-amulet-breathing.session.json",
+          "recordingSha256": "b404b5884c332ef3eab8c433134e40a8ec769e9dd3b41177e487fac071ea9f8c",
+          "evaluationPath": "challenges/evaluations/accepted-c78a4462405df8f3fdd065a619f8a07678f632cd-v29.json",
+          "evaluationCommit": "c78a4462405df8f3fdd065a619f8a07678f632cd"
         }
       }
     }
