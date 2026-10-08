@@ -1,0 +1,163 @@
+{
+  "session": "synthetic/v29/v29-eat-chameleon-tin",
+  "corpus": "synthetic",
+  "batch": "v29",
+  "caseId": "v29-eat-chameleon-tin",
+  "manifestPath": "challenges/manifests/v29.json",
+  "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+  "recordingSha256": "238db4fb3be6fc6c4706076385032a868eab92d6ed129f25d9f1ca28f7ee19b2",
+  "evaluationPath": "challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json",
+  "evaluationCommit": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
+  "remainingScreens": 9,
+  "recordedSteps": 46,
+  "status": "complete",
+  "commit": "27b02bc5686ab15f3ad0243904d34884379a822f",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v29",
+    "caseId": "v29-eat-chameleon-tin",
+    "session": "synthetic/v29/v29-eat-chameleon-tin",
+    "manifestPath": "challenges/manifests/v29.json",
+    "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+    "recording": "challenges/cases/v29/v29-eat-chameleon-tin.session.json",
+    "recordingPath": "challenges/cases/v29/v29-eat-chameleon-tin.session.json",
+    "recordingSha256": "238db4fb3be6fc6c4706076385032a868eab92d6ed129f25d9f1ca28f7ee19b2",
+    "recipe": "challenges/cases/v29/v29-eat-chameleon-tin.recipe.session.json",
+    "recipeSha256": "7efdd869db6b0380fd04c3a55aec01785631d38f98a4b3917450ed9f79eb90cf",
+    "replayInputSha256": "3865bfa70706ac84f88c5d02b0e141e247b55ae3bf7a129b0a7a8b83e995245d",
+    "evaluationPath": "challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json",
+    "evaluationCommit": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
+    "evaluationArtifact": "challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json",
+    "evaluationUtc": "2026-10-08T08:02:48.939Z",
+    "remainingScreens": 9,
+    "recordedSteps": 46,
+    "previousScreensMatched": 37,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 37,
+        "total": 46
+      },
+      "rng": {
+        "matched": 2662,
+        "total": 2705
+      },
+      "cursors": {
+        "matched": 43,
+        "total": 46
+      }
+    },
+    "firstMismatch": {
+      "passed": false,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2705,
+          "js": 2676
+        },
+        "screens": {
+          "c": 46,
+          "js": 46
+        },
+        "cursors": {
+          "c": 46,
+          "js": 46
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": {
+        "index": 2661,
+        "cEntry": "rn2(20)=6",
+        "cCaller": "polyself(polyself.c:490)",
+        "jsEntry": "rn2(5)=1",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 37,
+          "key": "y"
+        }
+      },
+      "screenMismatch": {
+        "index": 37,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 37,
+          "key": "y"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 69,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "cursorMismatch": {
+        "index": 37,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 37,
+          "key": "y"
+        },
+        "cCursor": [
+          77,
+          0,
+          1
+        ],
+        "jsCursor": [
+          53,
+          17,
+          1
+        ]
+      },
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "step": 37,
+    "kind": "rng",
+    "sourceFile": "eat.c",
+    "function": "cpostfx",
+    "message": null,
+    "cFile": "eat.c",
+    "luaFile": null,
+    "line": 1262
+  },
+  "summary": "The chameleon tin is consumed early and grants its fixed nutrition, but eat.c:cpostfx skips the subsequent canonical polyself(POLY_NOFLAGS) call. At step37 C begins polymorph system-shock RNG and becomes a male rothe; JavaScript records a polyself gap and continues in human form. Wire that single shared corpse/tin/digestion caller after the source message, preserving early tin lifetime and both random/controlled polymorph source behavior.",
+  "source": {
+    "file": "eat.c",
+    "branch": "PM_CHAMELEON, PM_DOPPELGANGER, PM_SANDESTIN or PM_GENETIC_ENGINEER with !Unchanging: use_up_tin and lesshungry precede the metamorphosis message and polyself(POLY_NOFLAGS). Unchanging bypasses those early effects and preserves ordinary tin consumption tail.",
+    "functions": [
+      "cpostfx() bounded polymorph caller at1251-1263; no whole cpostfx credit"
+    ],
+    "callers": [
+      "eat.c:consume_tin1611-1613 -> cpostfx after cprefx and early tin guard, through cmd.c doeat command and start_tin occupation. JS eat.js consume_tin1128 already awaits shared cpostfx.",
+      "eat.c:done_eating563 -> cpostfx after completed corpse meal, and Finish_digestion3964 -> cpostfx from hack.c unmul delayed digestion. Existing shared caller function ensures the same source correction reaches all three."
+    ],
+    "dependencies": [
+      "Canonical polyself.c:polyself469-731 / js/polyself.js1703-2004 already implements POLY_NOFLAGS shock, random/controlled selection, polymon/newman and light tail; reuse it without whole completion credit. C discards its return.",
+      "Existing eat.c:use_up_tin1516-1527 / js/eat.js1030 clears tin pointer and o_id before potentially fatal polymorph; canonical lesshungry preserves source200 plus metallivorous5 nutrition.",
+      "Consumed-return helpers in complete cpostfx1129-1329 (corpse_intrinsic, attack/damage/property/race checks) already have canonical owners; this bounded divergence adds no new return-valued dependency. Source-discarded mimic dismount/display and lycanthropy retouch gaps remain excluded.",
+      "Canonical polymon body/equipment owners handle selected male rothe, shield removal and spear drop. Independent variations must cover transformed food consumption and Unchanging immediately outside the caller guard; record source-valid remaining limits rather than broadening unrelated polymorph owners."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Read whole upstream eat.c:cpostfx1129-1329 and JS eat.js2558-2808; the four polymorph-food species share the exact source branch1251-1263. JS already reproduces early use_up_tin/lesshungry/message but uses note_unported(polyself.c polyself) instead of the existing canonical async function. Whole caller source review finds no source flag conditional that permits skipping this call.",
+    "Read whole upstream polyself.c:polyself469-731 and JS polyself.js1703-2004. Same live hero-state signature is already used for trap.c polymorph and potion.c peffect_polymorph callers, so the bounded correction needs import POLY_NOFLAGS/polyself and await polyself(POLY_NOFLAGS,state), without changing polyself or other owners.",
+    "Current saved accepted8b31f4af v29 evaluation has37/46 screens and nine remaining. Read-only replay at examined27b02bc5 reproduces the exact first RNG mismatch: C rn2(20)=6 at polyself.c490 versus JS rn2(5)=1 at zero-basedstep37, after the consume/change message; no refusal occurs. Artifact .cache/A151/before-replay.log and selected-replay.json preserve all outputs and final cleared tin pointer/o_id.",
+    "Immutable C steps37-39 show system-shock test, random candidate rn2(330)=81, newman gate rn2(5)=2, polymon sex draw rn2(10)=0, then male rothe/shield removal/spear drop. JS stays human with polyselfs0; early nutrition/tin clearing are already correct and must precede the added call.",
+    "Scope is a bounded divergence in the existing source owner cpostfx; reserve source:eat.c:cpostfx and contract:tin-polymorph-consumption. Edit js/eat.js, focused eat-tin/corpse tests and dedicated food-polymorph runner, independent recipes/eat.c and recordings/eat.c. No whole cpostfx/polyself/polymon credit. Active command/tin occupation, corpse meal and delayed digestion callers require admitted or independent evidence as reachable; any helper setup blocker must remain explicit."
+  ]
+}
