@@ -211002,6 +211002,221 @@
           "evaluationCommit": "5d732fba68778b565d95c0f11dfe245afa3d89af"
         }
       }
+    },
+    {
+      "id": "port-eat-newuhs-fainting-starvation-v30-20261008",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port hunger fainting, delayed wakeup, and starvation",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v30/v30-hunger-faint"
+      ],
+      "selectionReason": "After the verified zombie timer prefix, v30 hunger-faint stops at eat.c newuhs before the next FAINTING transition; the source-traced investigation selects whole newuhs with required unfaint and its production hunger callers.",
+      "detail": "Port source-ordered FAINTING and FAINTED hysteresis, signed hunger rounding, faint RNG, delayed unfaint callback, starvation and lifesaving, with live elapsed-turn handoff. Reuse canonical hunger predicates and end-state owners; retain the explicit unported trap.c selftouch result gap.",
+      "openedAt": "f55897d4b9110933a525bd4bfdeae3eb01ac4563",
+      "openStanding": {
+        "sha": "b0b76e575b2dd8563b0d1c6cc058f9aa813dfb77",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "newuhs",
+          "line": 3362,
+          "endLine": 3516,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3362,
+        "to": 3516
+      },
+      "requiredFunctions": [
+        {
+          "name": "unfaint",
+          "line": 3336,
+          "endLine": 3346,
+          "declared": false,
+          "sourceFile": "eat.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v30/v30-hunger-faint": {
+          "session": "synthetic/v30/v30-hunger-faint",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-hunger-faint",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-hunger-faint.session.json",
+          "recordingSha256": "069348e0501d1d5433897c94608ddd8b0d9065d65495997a446e342cd1daac9b",
+          "evaluationPath": "challenges/evaluations/accepted-b0b76e575b2dd8563b0d1c6cc058f9aa813dfb77-v30.json",
+          "evaluationCommit": "b0b76e575b2dd8563b0d1c6cc058f9aa813dfb77"
+        }
+      },
+      "activeStanding": {
+        "sha": "b0b76e575b2dd8563b0d1c6cc058f9aa813dfb77",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-hunger-faint",
+          "session": "synthetic/v30/v30-hunger-faint",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recording": "challenges/cases/v30/v30-hunger-faint.session.json",
+          "recordingPath": "challenges/cases/v30/v30-hunger-faint.session.json",
+          "recordingSha256": "069348e0501d1d5433897c94608ddd8b0d9065d65495997a446e342cd1daac9b",
+          "recipe": "challenges/cases/v30/v30-hunger-faint.recipe.session.json",
+          "recipeSha256": "a16896b9ccf53913e9c67772be651a8a7e917136aff5de90f0b13a87d4300d5c",
+          "replayInputSha256": "1b8d29a4f92f88e8523c92f3c9cd083214b7d7b6ef01bb6849376c471f5840e5",
+          "evaluationPath": "challenges/evaluations/accepted-b0b76e575b2dd8563b0d1c6cc058f9aa813dfb77-v30.json",
+          "evaluationCommit": "b0b76e575b2dd8563b0d1c6cc058f9aa813dfb77",
+          "evaluationArtifact": "challenges/evaluations/accepted-b0b76e575b2dd8563b0d1c6cc058f9aa813dfb77-v30.json",
+          "evaluationUtc": "2026-10-08T17:10:15.541Z",
+          "remainingScreens": 718,
+          "recordedSteps": 2532,
+          "previousScreensMatched": 1814,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 1814,
+              "total": 2532
+            },
+            "rng": {
+              "matched": 26838,
+              "total": 27304
+            },
+            "cursors": {
+              "matched": 1814,
+              "total": 2532
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "the hunger clock reached unported hunger-status transition",
+            "step": 1814
+          },
+          "step": 1814,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "the hunger clock reached unported hunger-status transition",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v30/v30-hunger-faint.json",
+            "result": {
+              "session": "synthetic/v30/v30-hunger-faint",
+              "corpus": "synthetic",
+              "batch": "v30",
+              "caseId": "v30-hunger-faint",
+              "manifestPath": "challenges/manifests/v30.json",
+              "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+              "recordingSha256": "069348e0501d1d5433897c94608ddd8b0d9065d65495997a446e342cd1daac9b",
+              "evaluationPath": "challenges/evaluations/accepted-f5e0576f9dbaed8f436935876e8315f4b977c325-v30.json",
+              "evaluationCommit": "f5e0576f9dbaed8f436935876e8315f4b977c325",
+              "remainingScreens": 718,
+              "recordedSteps": 2532,
+              "status": "complete",
+              "commit": "bd16ad744b6750f92cb55ced1cd65e13f0cfa7f2",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v30",
+                "caseId": "v30-hunger-faint",
+                "session": "synthetic/v30/v30-hunger-faint",
+                "manifestPath": "challenges/manifests/v30.json",
+                "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+                "recording": "challenges/cases/v30/v30-hunger-faint.session.json",
+                "recordingPath": "challenges/cases/v30/v30-hunger-faint.session.json",
+                "recordingSha256": "069348e0501d1d5433897c94608ddd8b0d9065d65495997a446e342cd1daac9b",
+                "recipe": "challenges/cases/v30/v30-hunger-faint.recipe.session.json",
+                "recipeSha256": "a16896b9ccf53913e9c67772be651a8a7e917136aff5de90f0b13a87d4300d5c",
+                "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
+                "evaluationPath": "challenges/evaluations/accepted-f5e0576f9dbaed8f436935876e8315f4b977c325-v30.json",
+                "evaluationCommit": "f5e0576f9dbaed8f436935876e8315f4b977c325",
+                "evaluationArtifact": "challenges/evaluations/accepted-f5e0576f9dbaed8f436935876e8315f4b977c325-v30.json",
+                "evaluationUtc": "2026-10-08T15:23:15.213Z",
+                "remainingScreens": 718,
+                "recordedSteps": 2532,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 1814,
+                    "total": 2532
+                  },
+                  "rng": {
+                    "matched": 26838,
+                    "total": 27304
+                  },
+                  "cursors": {
+                    "matched": 1814,
+                    "total": 2532
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "step": 1814,
+                  "message": "the hunger clock reached unported hunger-status transition"
+                },
+                "step": 1814,
+                "kind": "stop",
+                "sourceFile": "eat.c",
+                "function": "newuhs",
+                "message": "the hunger clock reached unported hunger-status transition",
+                "cFile": "eat.c",
+                "luaFile": null,
+                "line": 3362
+              },
+              "summary": "After the verified zombie timer prefix, zero-based step1814 stops before allocating the elapsed turn because the hero has nutrition1/statusWEAK and preflightGetHungry refuses the next FAINTING transition. C eat.c:newuhs handles fainting, delayed unfaint and starvation; JavaScript still throws on those branches. Port whole newuhs/unfaint and remove the source-disconnected hunger refusals, preserving rounded negative hunger, wake-up RNG and live fatal-input handoff.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "eat.c",
+                "branch": "newuhs computes FAINTING for uhunger<=0 outside eatfood/force_save_hs: source FAINTED hysteresis, rounded signed hunger division, first faint versus probabilistic repeated faint/starvation, delayed callback and hunger/exhaustion deaths.",
+                "functions": [
+                  "newuhs",
+                  "unfaint"
+                ],
+                "callers": [
+                  "allmain.c moveloop_core -> eat.c gethungry3276 -> newuhs; hack.c domove melee -> gethungry",
+                  "eat.c do_reset_eat446/done_eating550/morehungry3284/lesshungry3332/doeat3910 -> newuhs",
+                  "fountain.c drinking282, potion.c nutrition722/785/858, polyself.c newman431/436, uhitm.c digestion5056 -> newuhs",
+                  "newuhs3428 assigns ga.afternmv=unfaint -> hack.c unmul4206 delayed callback"
+                ],
+                "dependencies": [
+                  "Consumed is_fainted/acurr source predicates are already canonical; reuse their pure tests. Unfaint calls existing Hear_again then stop_occupation; forward clone RNG and message/state env at that supporting helper seam.",
+                  "Reuse incr_itimeout/nomul/HDeaf/stop_occupation/done(STARVING), bot status and end_running. Canonical done must run live because life saving/wizard recovery reads input; add bounded elapsed-turn hunger handoff and planning continuation.",
+                  "C discards trap.c selftouch result; canonical hero selftouch is absent. Record note_unported and keep independent petrifying-corpse falling witness as a named downstream limit; no trap ownership.",
+                  "reset_faint is separate discarded-void caller in minion/trap/vault and remains unported outside selected newuhs/unfaint scope. No invented state._unfaint alias."
+                ]
+              },
+              "evidence": [
+                "Accepted f5e0576f v30 evaluation:1814/2532 screens/cursors and26838/27304 RNG, remainingScreens718. Replay .cache/A158/replay.log at examined bd16ad74 confirms the same stop before zero-based1814 keydot, game.moves900, uhunger1, uhs3WEAK, multi0.",
+                "C step1814 retains successive rn2(20) draws in gethungry3191, sleeping rn2(10) at3174 and repeated newuhs3416 rn2(20). The first faint short-circuits the newuhs random gate because prior status<=WEAK. JS preflight predicts this later source transition and refuses before C monster-tail distfleeck draws; those earlier functions are not the cause.",
+                "Read whole eat.c:newuhs3362–3511, unfaint3336–3344 and Hear_again1801–1810. C uses signed rounded integer division sgn(hunger)*((abs(hunger)+5)/10); first faint stops occupation before message, increments timed deafness, sets multi/reason/nomovemsg/afternmv, then discarded selftouch unless levitating. Repeated faint/stateFAINTED suppresses duplicate faint effects but retains source RNG ordering. Starvation checks -(100+10*ACURR(CON)), sets STARVED/status/killer and calls done, returning after life saving.",
+                "Existing js/eat.js preflightGetHungry511–515/590, gethungry674 and newuhs1818/1858 reject these paths; common HUNGRY/WEAK code also omits active non-eating occupation interruption and checks uhp instead of the source Upolyd-selected mh. Remove UnsupportedHungerTransitionError only after every throw site is replaced; reconcile its cmd/allmain registry tests.",
+                "Existing newuhs callers already await the canonical owner and forward state/env in eat.js, potion.js, fountain.js, polyself.js and uhitm.js. Reconcile source-ordered helper operations and gethungry/allmain live handoff, not whole surrounding owners. hack.js unmul already clears afternmv before awaiting f(state,env).",
+                "Independent validation: ordinary starting hero long controlled starvation wait, cheap role/property variation, eating recovery, FAINTED wake-up and death/life-saving choices through production callers. Use source-pinned tests for negative-hunger rounding, exact wake/faint draw sequence, occupation interruption, Upolyd exhaustion and starvation-return order. Preserve the selected source prefix and downstream named void gaps."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
