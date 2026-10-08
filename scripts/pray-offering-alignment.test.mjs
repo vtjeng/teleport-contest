@@ -18,7 +18,7 @@ import {
 import { ALIGNLIM } from '../js/attrib.js';
 import { cmdq_add_key } from '../js/cmd.js';
 import { game } from '../js/gstate.js';
-import { PM_ORC } from '../js/monsters.js';
+import { PM_ORC, PM_WATER_ELEMENTAL } from '../js/monsters.js';
 import {
     enableRngLog,
     getRngLog,
@@ -231,7 +231,7 @@ test('cross-aligned altar success keeps the late minion gates and draw order',
     // The no-move fixture leaves ALIGNLIM at its source base of 10.
     assert.equal(ALIGNLIM(state), 10);
     assert.equal(command, ECMD_TIME);
-    assert.deepEqual(rng, [
+    assert.deepEqual(rng.slice(0, 6), [
         'rn2(19)=4',
         'rn2(38)=30',
         'rn2(19)=15',
@@ -239,9 +239,19 @@ test('cross-aligned altar success keeps the late minion gates and draw order',
         'rnl(30)=18',
         'rnd(10)=10',
     ]);
-    assert.ok(state.unported.has('minion.c summon_minion'));
+    // The gate now continues through minion.c:208's four-entry elemental
+    // table; index 3 selects water before canonical placement/HP RNG.
+    assert.equal(rng[6], 'rn2(4)=3');
+    assert.equal(state.unported.has('minion.c summon_minion'), false);
+    const minion = state.level.monsters.flat().find(mon =>
+        mon?.isminion && mon.data === state.mons[PM_WATER_ELEMENTAL]);
+    assert.ok(minion);
+    assert.equal(minion.mextra.emin.min_align, A_NEUTRAL);
+    assert.equal(minion.mextra.emin.renegade, false);
+    assert.equal(minion.mpeaceful, false);
     assert.equal(altar.flags, Align2amask(A_LAWFUL));
-    assert.match(state._ttyToplines, /feel the power of .* increase/u);
+    // minion.c:247 now owns the final visible message after the power line.
+    assert.match(state._ttyToplines, /water elemental .* appears before you/u);
 });
 
 test('cross-aligned altar failure uses its stricter late minion threshold',
@@ -255,7 +265,7 @@ test('cross-aligned altar failure uses its stricter late minion threshold',
         /rnd\(u\.ualign\.record\) > Math\.trunc\(7 \* ALIGNLIM\(state\) \/ 8\)/u);
     assert.equal(ALIGNLIM(state), 10);
     assert.equal(command, ECMD_TIME);
-    assert.deepEqual(rng, [
+    assert.deepEqual(rng.slice(0, 6), [
         'rn2(19)=6',
         'rn2(38)=4',
         'rn2(2)=0',
@@ -263,7 +273,17 @@ test('cross-aligned altar failure uses its stricter late minion threshold',
         'rnl(30)=19',
         'rnd(10)=10',
     ]);
-    assert.ok(state.unported.has('minion.c summon_minion'));
+    // The gate now continues through minion.c:208's four-entry elemental
+    // table; index 3 selects water before canonical placement/HP RNG.
+    assert.equal(rng[6], 'rn2(4)=3');
+    assert.equal(state.unported.has('minion.c summon_minion'), false);
+    const minion = state.level.monsters.flat().find(mon =>
+        mon?.isminion && mon.data === state.mons[PM_WATER_ELEMENTAL]);
+    assert.ok(minion);
+    assert.equal(minion.mextra.emin.min_align, A_NEUTRAL);
+    assert.equal(minion.mextra.emin.renegade, false);
+    assert.equal(minion.mpeaceful, false);
     assert.equal(altar.flags, Align2amask(A_NEUTRAL));
-    assert.match(state._ttyToplines, /feel the power of .* decrease/u);
+    // The failed conversion can still summon; its appearance is the last line.
+    assert.match(state._ttyToplines, /water elemental .* appears before you/u);
 });

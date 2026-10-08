@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first eat.c cpostfx polymorph-food corpse route. Newly chosen seed/clock and source-valid food/setup; C inventory prompts determined selections before JS comparison.",
+  "segments": [
+    {
+      "seed": 15129014,
+      "datetime": "20681223171100",
+      "nethackrc": "OPTIONS=name:Foodcorpse,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none\n",
+      "moves": " m#wizkill\nm.\u001b \u0017chameleon corpse\nee            ............i "
+    }
+  ]
+}

@@ -23,7 +23,7 @@ import { flush_screen, map_invisible, newsym } from './display.js';
 import { In_hell } from './dungeon.js';
 import { is_fainted } from './eat.js';
 import { game } from './gstate.js';
-import { sgn } from './hacklib.js';
+import { sgn, s_suffix } from './hacklib.js';
 import { nomul, unmul } from './hack.js';
 import { stop_occupation } from './allmain.js';
 import { money_cnt, currency } from './invent.js';
@@ -50,6 +50,8 @@ import { rloc, tele_restrict } from './teleport.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { vision_recalc } from './vision.js';
 import { livelog_printf, verbalize } from './pline.js';
+import { align_gname } from './pray.js';
+import { set_voice } from './sounds.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { canseemon, canspotmon } from './display.js';
@@ -77,6 +79,59 @@ function heroDeaf(state) {
     const deaf = state.u?.uprops?.[DEAF];
     return Boolean(deaf?.intrinsic || deaf?.extrinsic
         || state.u?.uroleplay?.deaf);
+}
+
+// C ref: minion.c summon_minion() (198-255). The deity creates a hostile
+// minion without recomputing malign after overriding its initial peacefulness.
+export async function summon_minion(alignment, talk, state = game, rawEnv = {}) {
+    const random = summonRandom(rawEnv);
+    const message = rawEnv.message ?? ttyPline;
+    const env = { ...rawEnv, state, random, message };
+    let mnum;
+    switch (alignment) {
+    case A_LAWFUL:
+        mnum = lminion(state, random);
+        break;
+    case A_NEUTRAL: {
+        // minion.c:11-14 deliberately preserves this order, independent of
+        // the order of the E-class species table.
+        const elementals = [M.PM_AIR_ELEMENTAL, M.PM_FIRE_ELEMENTAL,
+            M.PM_EARTH_ELEMENTAL, M.PM_WATER_ELEMENTAL];
+        mnum = elementals[random.rn2(elementals.length)];
+        break;
+    }
+    case A_CHAOTIC:
+    case A_NONE:
+        mnum = ndemon(alignment, state, random);
+        break;
+    default:
+        note_unported('pline.c impossible');
+        mnum = ndemon(A_NONE, state, random);
+        break;
+    }
+    if (mnum === M.NON_PM) return;
+    const needsMinion = mnum === M.PM_ANGEL
+        || ![M.PM_SHOPKEEPER, M.PM_GUARD, M.PM_ALIGNED_CLERIC, M.PM_HIGH_CLERIC].includes(mnum);
+    const mon = await makemon_runtime(state.mons[mnum], state.u.ux, state.u.uy,
+        MM_NOMSG | (needsMinion ? MM_EMIN : 0), { ...env, _summon_minion: true });
+    if (!mon) return;
+    if (needsMinion) {
+        mon.isminion = true;
+        mon.mextra.emin.min_align = alignment;
+        mon.mextra.emin.renegade = false;
+    }
+    if (talk) {
+        const deity = align_gname(alignment, state);
+        await message(heroDeaf(state)
+            ? `You feel ${s_suffix(deity)} booming voice:`
+            : `The voice of ${deity} booms:`, state);
+        set_voice(mon, 0, 80, 0, state);
+        await verbalize('Thou shalt pay for thine indiscretion!', state, env);
+        if (canspotmon(mon, state))
+            await message(`${Amonnam(mon, state, env)} appears before you.`, state);
+        mon.mstrategy &= ~STRAT_APPEARMSG;
+    }
+    mon.mpeaceful = false;
 }
 
 // C ref: minion.c demon_talk() (263-359). sounds.c:1140 discards this

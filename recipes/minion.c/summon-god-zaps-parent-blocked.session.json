@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked outside A150: repeated delayed prayers reach angrygods default then unported pray.c god_zaps_you (630-699). C first draws rn2(15)=9 at step83 and emits lightning at85. This parent also owns all three high-altar summon_minion(FALSE) callers at684-686, so those callers cannot be wired or credited until the parent is ported. The recipe supplies no passing recording or evidence beyond that named parent boundary.",
+  "segments": [
+    {
+      "seed": 15029019,
+      "datetime": "20671021154900",
+      "nethackrc": "OPTIONS=name:Wrathprayer,role:Ranger,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none\n",
+      "moves": " #pray\nyn          #pray\nyn          #pray\nyn          #pray\nyn          #pray\nyn          #pray"
+    }
+  ]
+}

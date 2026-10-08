@@ -6,6 +6,7 @@
 //         and vomit().
 
 import {
+    POLY_NOFLAGS,
     ACID_RES,
     AGGRAVATE_MONSTER,
     A_CHA,
@@ -198,7 +199,7 @@ import {
     discover_object, observe_object, objdescr_is, } from './o_init.js';
 import { encumber_msg } from './pickup.js';
 import {
-    body_part, change_sex, polymon, rehumanize, } from './polyself.js';
+    body_part, change_sex, polymon, polyself, rehumanize, } from './polyself.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { fingers_or_gloves, toggle_displacement } from './do_wear.js';
 import { d, rn1, rn2, rne, rnl, rnd } from './rng.js';
@@ -2711,8 +2712,11 @@ async function cpostfx(pm, state, env = {}) {
         if (propertyActive(state, UNCHANGING)) {
             await ttyPline('You feel momentarily different.', state);
         } else {
-            if (state.context.tin.tin) {
-                await use_up_tin(state.context.tin.tin, state);
+            // C's tin context exists and holds NULL even when this call
+            // comes from a corpse meal or Finish_digestion rather than a tin.
+            const tin = tinContext(state).tin;
+            if (tin) {
+                await use_up_tin(tin, state);
                 await lesshungry(
                     200 + (metallivorous(state.youmonst.data) ? 5 : 0),
                     state,
@@ -2725,7 +2729,7 @@ async function cpostfx(pm, state, env = {}) {
                     : 'You feel a change coming over you.',
                 state,
             );
-            note_unported('polyself.c polyself');
+            await polyself(POLY_NOFLAGS, state, env);
         }
         break;
     case PM_DISPLACER_BEAST: {

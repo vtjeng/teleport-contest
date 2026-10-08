@@ -7,6 +7,10 @@
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
+import { initRng } from '../js/rng.js';
 
 import {
     monst_globals_init,
@@ -30,13 +34,13 @@ import {
     resists_drli,
 } from '../js/mondata.js';
 import { aligns, character_race, roles } from '../js/roles.js';
-import { uasmon_maxStr, set_uasmon } from '../js/polyself.js';
+import { uasmon_maxStr, set_uasmon, newman } from '../js/polyself.js';
 import { init_artifacts } from '../js/artifacts.js';
 import { set_mon_data } from '../js/makemon_create.js';
 import { make_glib } from '../js/potion.js';
 import { uwepgone, uswapwepgone } from '../js/wield.js';
 import { objects_globals_init } from '../js/objects.js';
-import { GLIB, W_WEP, W_SWAPWEP } from '../js/const.js';
+import { GLIB, W_WEP, W_SWAPWEP, SATIATED, NOT_HUNGRY } from '../js/const.js';
 import { weight_cap } from '../js/hack.js';
 
 // C role_init's Wizard row and neutral alignment let init_artifacts() build
@@ -522,4 +526,40 @@ test('dragon HP formula: 4*mlvl + d(mlvl,4) outside the endgame', () => {
         'deterministic component 4*mlvl = 60 (polyself.c:861)');
     assert.equal(mlvl, 15,
         'd() uses mlvl=15 dice (polyself.c:861)');
+});
+
+// C newman:433,437 calls newuhs(FALSE) after assigning rn1(500,500)
+// hunger. These tests cover only the forwarded hunger callback contract;
+// other newman output still belongs to its existing source owners.
+test('newman preserves live and planning hunger callback overrides', async () => {
+    const c = readFileSync(new URL('../nethack-c/upstream/src/polyself.c', import.meta.url), 'utf8');
+    const body = c.slice(c.indexOf('newman(void)\n{'), c.indexOf('\nvoid\npolyself'));
+    assert.match(body, /u\.uhunger = rn1\(500, 500\)/u);
+    assert.equal((body.match(/newuhs\(FALSE\)/gu) ?? []).length, 2);
+    for (const planning of [false, true]) {
+        await runSegment({ seed: 15129021, datetime: '20681223171100', moves: '',
+            nethackrc: 'OPTIONS=name:HungerCallbacks,role:Ranger,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n' });
+        // Enough levels to avoid newman's -2 lower bound reaching death.
+        Object.assign(game.u, { ulevel: 3, ulevelmax: 3, uhp: 100, uhpmax: 100,
+            uen: 100, uenmax: 100, uhunger: 1100, uhs: SATIATED });
+        game.u.uhpinc.fill(0);
+        game.u.ueninc.fill(0);
+        game.nhDisplay.readKey = async () => 32;
+        initRng(15129021);
+        let refreshes = 0;
+        await newman(game, { planning, statusRefresh: state => {
+            assert.equal(state, game);
+            assert.equal(state.u.uhs, NOT_HUNGRY);
+            refreshes++;
+        } });
+        assert.equal(refreshes, 1);
+        assert.ok(game.u.uhunger >= 500 && game.u.uhunger <= 999);
+    }
+});
+
+test('polyself forwards both newman calls and planning supplies a silent hunger refresh', () => {
+    const js = readFileSync(new URL('../js/polyself.js', import.meta.url), 'utf8');
+    assert.equal((js.match(/await newman\(state, env\)/gu) ?? []).length, 2);
+    assert.equal((js.match(/await newuhs\(false, state, hungerEnv\)/gu) ?? []).length, 2);
+    assert.match(js, /statusRefresh: env\.statusRefresh \?\? \(env\.planning \? \(\) => \{\} : \(\) => bot\(\)\)/u);
 });
