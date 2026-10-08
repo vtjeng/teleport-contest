@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first upward fruit juice throw: the potion hits the ceiling and shatters, reaching dothrow.c:breakobj -> potionbreathe -> trycall. Unknown unnamed type offers docall after the source vapor message. Independent seed and clock chosen before comparison.",
+  "segments": [
+    {
+      "seed": 14029011,
+      "datetime": "20510604101112",
+      "nethackrc": "OPTIONS=name:NamingProbe,role:Barbarian,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,!acoustics,rest_on_space,!safe_wait\n",
+      "moves": " \u0017potion of fruit juice\nte<     \u001b"
+    }
+  ]
+}
