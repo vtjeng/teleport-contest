@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B156 C-first candidate: wizcmds.c:wiz_mon_diff1790-1830. Review calculated and hardcoded creature strengths. Required C observation: Review of monster difficulty ratings or no discrepancies. Seed and clock fixed before any JavaScript comparison; no seed search.",
+  "segments": [
+    {
+      "seed": 15631001,
+      "datetime": "20340621113542",
+      "nethackrc": "OPTIONS=name:Probe15631001,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizmondiff\n                "
+    }
+  ]
+}

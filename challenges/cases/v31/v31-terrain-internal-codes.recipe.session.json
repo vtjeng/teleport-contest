@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B156 extension planned from C before its JS comparison: wizcmds.c:wiz_map_levltyp693-839/cmd.c:doterrain case5. Choose terrain menu fifth option to inspect base-36 terrain-type codes and level flags. Required observation: Internal terrain dump including unseen cells and D:0,L:1 label. Independent seed/clock fixed without a seed search.",
+  "segments": [
+    {
+      "seed": 15631101,
+      "datetime": "20340621113542",
+      "nethackrc": "OPTIONS=name:Probe15631101,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#terrain\ne                  "
+    }
+  ]
+}

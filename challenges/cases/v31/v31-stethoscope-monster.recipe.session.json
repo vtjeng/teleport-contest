@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B156 C-first candidate: apply.c:use_stethoscope318+. Create peaceful newt then use stethoscope directional. Required C observation: Creature hit points and condition display or empty direction outcome. Seed and clock fixed before any JavaScript comparison; no seed search.",
+  "segments": [
+    {
+      "seed": 15631021,
+      "datetime": "20340621113542",
+      "nethackrc": "OPTIONS=name:Probe15631021,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed stethoscope\n\u0007peaceful newt\naehlj\u001b       "
+    }
+  ]
+}
