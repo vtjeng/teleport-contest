@@ -676,7 +676,7 @@ test('publication accepts a later passing checkpoint for changed inputs', t => {
     assert.equal(state.deliveries[f.delivered].supplementalCheckpoint, supplementalCheckpoint);
 });
 
-test('publication rejects an earlier challenge result after game inputs change', t => {
+test('publication preserves an intermediate result without relabeling it as current evidence', t => {
     const f = reportPublication(t);
     f.save('js/sample.js', 'export const changed = true;\n');
     f.git(f.root, 'commit', '-qm', 'new game input fixture');
@@ -687,8 +687,11 @@ test('publication rejects an earlier challenge result after game inputs change',
     f.git(f.root, 'commit', '-qm', 'post-checkpoint fixture');
     const commit = f.git(f.root, 'rev-parse', 'HEAD');
     f.git(f.root, 'push', '-q', 'origin', 'main');
-    assert.throws(() => f.event({ type: 'published', task: 'A-1', commit, supplementalCheckpoint }),
-        /challenge evaluation inputs changed/i);
+    const state = f.event({ type: 'published', task: 'A-1', commit, supplementalCheckpoint });
+    assert.ok(state.deliveries[f.delivered].publishedAt);
+    assert.equal(JSON.parse(readFileSync(join(f.root,
+        'challenges/evaluations/after-checkpoint.json'), 'utf8')).sha, f.tested);
+    assert.equal(readFileSync(f.summary, 'utf8'), f.receipt);
 });
 
 test('publication permits refreshing an existing investigation while preserving old evaluations', (t) => {
@@ -768,7 +771,8 @@ test('publication rejects unsafe report changes and every other post-checkpoint 
             const child = f.git(f.root, 'commit-tree', `${f.tested}^{tree}`, '-p', f.tested, '-m', 'unaccepted source');
             f.save('investigations/fixed.json', { ...f.investigation, commit: child });
         }, /tested history/i],
-        ['wrong measured commit', f => f.save('challenges/evaluations/new.json', { ...f.evaluation, sha: f.base }), /tested|integration|inputs changed/i],
+        ['measurement predates batch admission', f => f.save('challenges/evaluations/new.json',
+            { ...f.evaluation, sha: f.base }), /manifest\.json.*not in/i],
         ['invalid totals', f => f.save('challenges/evaluations/new.json', { ...f.evaluation, totals: {} }), /totals/i],
         ['different challenge membership', f => f.save('challenges/evaluations/new.json', {
             ...f.evaluation, cases: [], manifestSha256: corpusDigest([]), totals: {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap source-affecting male Barbarian variation reverses the displayed gender feedback and role title. Use extended #puton to establish its command-registry caller separately from the P key, preserving the original P variation in cache.",
+  "segments": [
+    {
+      "seed": 1492902,
+      "datetime": "20660819141722",
+      "nethackrc": "OPTIONS=name:AmuletWitness,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "   \u0017uncursed amulet of change\n#puton\ne      ."
+    }
+  ]
+}

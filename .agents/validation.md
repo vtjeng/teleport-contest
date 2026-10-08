@@ -65,7 +65,11 @@ competition holdout is outside this workspace.
   sandbox. It requires a successful run from this repository's checkpoint
   workflow whose commit equals local HEAD, verifies the downloaded summary's
   commit and run identity, and installs its evidence in the shared checkpoint
-  archive. Trust the CI combine steps; do not rerun their checks locally.
+  archive. Import permits uncommitted regular closure reports, not changed
+  execution inputs. The imported verdict covers only the committed candidate.
+  The importer does not validate report contents; applicable closure and
+  publication checks remain separate. Trust the CI combine steps; do not rerun
+  their checks locally.
   Keep HEAD at the candidate until import and closure finish. The hosted
   summary retains its actual GitHub run and per-stage attempts. Hosted runners
   use job timeouts and isolation rather than the local systemd wrapper.
@@ -96,8 +100,11 @@ competition holdout is outside this workspace.
 - Finish closure commands at the tested HEAD before committing report-only
   updates. The worker tracker's publication check permits regular JSON
   investigation files and newly added challenge evaluations after acceptance.
-  It checks their format and source commits; challenge evaluations must match
-  the tested commit and its manifest. This does not change checkpoint caching
+  It checks their format and source commits; historical challenge evaluations
+  must name an ancestor of the tested commit and match that source commit's
+  manifest. Publishing history does not make it current acceptance evidence:
+  acceptance still requires evaluations of the exact candidate and inputs.
+  This does not change checkpoint caching
   or authorize changes to code, tests, recipes, recordings, or challenge inputs.
 - Use the tested commit's shared summary and its `artifacts` directory. Its
   development figures replace a separate score-development run for that
@@ -175,9 +182,14 @@ when the source trace shows that each executes there.
 `record-evidence` checks the schema, source and implementation declarations,
 and that caller, test, and recording references exist. The orchestrator
 verifies runtime reachability and that the cited evidence executes the claimed
-functions. At evidence recording and again before closure, it replays admitted
-synthetic cases through the last cited step, including earlier
-segments. Every screen, cursor, RNG call, and input boundary must match through
+functions. At evidence recording and again before closure, it verifies admitted
+synthetic cases through the last cited step, including earlier segments.
+Successful prefix replays have worktree-local receipts under
+`.cache/synthetic-prefix-receipts/`. A receipt is reused only for the same
+cited boundary, execution tree used by checkpoint reuse, and runtime
+environment, with no uncommitted execution inputs. Missing or invalid receipts
+trigger replay; changed inputs never reuse an earlier pass. Every screen,
+cursor, RNG call, and input boundary must match through
 that step. A later mismatch does not invalidate the citation. Saved challenge
 evaluations report case totals, so they cannot by themselves prove a step range.
 Evidence references use regular files within their declared evidence roots and

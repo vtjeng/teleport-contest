@@ -182,13 +182,17 @@ separately from other goals.
    integrate only the case recipes and C recordings. Retain the prepared
    manifest in immutable delivery evidence, outside admitted manifests.
    Commit the combined candidate.
-4. Run `worker-state.mjs preflight --task <id>` before broad focused testing.
-   Resolve its omissions. For implementation work, run its listed checks,
-   affected focused tests, `npm run lint`, and `npm run quality`. For a
-   preparation-only delivery containing only challenge case files, verify its
-   independent C replay checks; skip separate focused game tests, lint, and
-   quality. Run them if the delivery changes executable files or a prior
-   failure calls for them. Follow `.agents/review.md` to decide whether
+4. Run `worker-state.mjs preflight --task <id>` and resolve its omissions.
+   Review the saved worker check logs and source evidence. Its `focusedTests`
+   list identifies affected tests, not a mandatory second local test run.
+   Run affected focused tests or fresh replays for integration edits, merge
+   conflicts, suspect evidence, or a prior failure; use the combined hosted checkpoint for the full test
+   suite. Run `npm run lint` and `npm run quality` on a combined candidate with
+   executable changes; the checkpoint does not enforce both. For preparation-only
+   deliveries, verify
+   the saved independent C replay results and committed manifest hashes.
+   Rerun the C replay only when its inputs changed or the saved result is missing
+   or suspect. Follow `.agents/review.md` to decide whether
    review is needed. For a retry, pass the failed summary with
    `--previous-checkpoint` and address every failure. If corrections change
    the candidate, commit them and rerun preflight before testing it.

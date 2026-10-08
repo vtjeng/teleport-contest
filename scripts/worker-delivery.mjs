@@ -369,15 +369,12 @@ function verifyPublicationChanges(root, tested, published) {
             const manifestPath = batch === 'v1' ? 'challenges/manifest.json' : `challenges/manifests/${batch}.json`;
             check((report.manifestPath ?? 'challenges/manifest.json') === manifestPath,
                 `challenge evaluation path differs from its batch: ${path}`);
-            const manifest = json(root, tested, manifestPath);
+            // A report may describe an intermediate candidate, not the final one.
+            // Publication preserves that history; acceptance separately requires
+            // complete evaluations whose SHA and inputs match its exact candidate.
+            const manifest = json(root, report.sha, manifestPath);
             check(corpusDigest(manifest.cases) === report.manifestSha256,
-                `challenge evaluation membership differs from the tested manifest: ${path}`);
-            const inputs = ['js', 'frozen', 'package.json', 'package-lock.json',
-                'scripts/challenge-results.mjs', 'scripts/score-challenges.mjs',
-                'scripts/scoring-workspace.mjs', manifestPath,
-                ...manifest.cases.flatMap(entry => [entry.recipe, entry.recording])];
-            check(!git(root, 'diff', '--name-only', '--no-renames', report.sha, tested, '--', ...inputs),
-                `challenge evaluation inputs changed after measurement: ${path}`);
+                `challenge evaluation membership differs from its source manifest: ${path}`);
         }
     }
 }
@@ -524,10 +521,10 @@ export function preflightDelivery({ root, state, taskId, commit = 'HEAD', previo
         issues, focusedTests: [...focused].sort(), previousFailures,
         manualReview: task.kind === 'challenge-preparation'
             ? ['Verify the mission plan was fixed before inspecting JavaScript results.',
-                'Rerun the independent C replays and compare every committed case with its manifest hashes.',
+                'Verify saved independent C replay results and committed manifest hashes; rerun only for changed inputs or missing or suspect evidence.',
                 'Keep the manifest outside admitted manifests until the batch admission gate passes.']
             : ['Compare whole source and production caller paths.',
                 'Verify cited synthetic ranges reach the claimed source paths and replay through their last cited steps.',
                 'Verify new recordings reach uncovered entry points and inputs were independently chosen.',
-                'Address every previous failure, then run affected focused tests and lint before checkpoint.'] };
+                'Address previous failures; run local checks for integration edits, conflicts or suspect evidence. Use the combined hosted checkpoint for full validation.'] };
 }

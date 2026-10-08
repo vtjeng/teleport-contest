@@ -1,14 +1,32 @@
 #!/usr/bin/env node
 // Trust the hosted verdict, verify its candidate identity, and archive its evidence.
 import { execFileSync } from 'node:child_process';
-import { copyFileSync, cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { copyFileSync, cpSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
-import { requireCleanCheckpointTree } from './checkpoint-checks.mjs';
 import { PROJECT_ROOT } from './scoring-workspace.mjs';
 import { checkpointResultsDirectory } from './checkpoint-results.mjs';
-import { digest } from './checkpoint-reuse.mjs';
+import { BOOKKEEPING_FILES, digest } from './checkpoint-reuse.mjs';
+
+// Import certifies the committed candidate, not its later closure reports.
+// This guard checks paths and file types, not report contents.
+export function requireReportOnlyImportTree(root) {
+    const entries = execFileSync('git', ['status', '--porcelain', '-z',
+        '--untracked-files=all', '--ignore-submodules=none'], { cwd: root, encoding: 'utf8' })
+        .split('\0').filter(Boolean);
+    for (const entry of entries) {
+        const path = entry.slice(3);
+        const report = BOOKKEEPING_FILES.includes(path)
+            || /^investigations\/(?:synthetic\/v[1-9][0-9]*\/[a-z0-9][a-z0-9-]*|(?:holdout\/)?[A-Za-z0-9][A-Za-z0-9_.-]*)\.json$/u.test(path)
+            || /^challenges\/evaluations\/[a-z0-9][a-z0-9.-]*\.json$/u.test(path);
+        // Reject renames, deletions and unresolved merges, not just their names.
+        const stat = lstatSync(join(root, path), { throwIfNoEntry: false });
+        if (!['??', ' M', 'M ', 'MM', 'A ', 'AM'].includes(entry.slice(0, 2)) || !report
+            || path.includes('..') || !stat?.isFile() || (stat.mode & 0o111))
+            throw new Error(`hosted import has an uncommitted change outside regular reports: ${entry}`);
+    }
+}
 
 export function archiveHostedCheckpoint(root, output, summary) {
     const directory = checkpointResultsDirectory(root);
@@ -52,34 +70,35 @@ export function verifyHostedRun(run, repository, commit) {
     return { provider: 'github', repository, id: String(run.id), attempt: String(run.run_attempt) };
 }
 
-function gh(args) {
-    return execFileSync('gh', args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+function gh(args, cwd) {
+    return execFileSync('gh', args, { cwd, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 }
 
-export function fetchHostedCheckpoint(id) {
+export function fetchHostedCheckpoint(id, { root = PROJECT_ROOT, runGh = gh } = {}) {
     if (!/^[1-9]\d*$/u.test(id)) throw new Error('expected a GitHub workflow run ID');
-    process.chdir(PROJECT_ROOT);
-    requireCleanCheckpointTree();
-    const commit = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
-    const repository = gh(['repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner']).trim();
-    const metadata = JSON.parse(gh(['api', `repos/${repository}/actions/runs/${id}`]));
+    requireReportOnlyImportTree(root);
+    const head = () => execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+    const commit = head();
+    const github = args => runGh(args, root);
+    const repository = github(['repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner']).trim();
+    const metadata = JSON.parse(github(['api', `repos/${repository}/actions/runs/${id}`]));
     const run = verifyHostedRun(metadata, repository, commit);
-    const cache = join(PROJECT_ROOT, '.cache', 'hosted-checkpoints');
+    const cache = join(root, '.cache', 'hosted-checkpoints');
     mkdirSync(cache, { recursive: true });
     const output = mkdtempSync(join(cache, `${id}-`));
-    gh(['run', 'download', id, '--repo', repository, '--name', 'parallel-checkpoint', '--dir', output]);
+    github(['run', 'download', id, '--repo', repository, '--name', 'parallel-checkpoint', '--dir', output]);
     const summary = JSON.parse(readFileSync(join(output, 'summary.json'), 'utf8'));
     if (summary.commit !== commit || summary.allPassed !== true || !isDeepStrictEqual(summary.hostedRun, run))
         throw new Error('downloaded summary does not identify this successful candidate run');
     const synthetic = join(output, 'synthetic');
-    gh(['run', 'download', id, '--repo', repository, '--name', 'synthetic-evaluations', '--dir', synthetic]);
+    github(['run', 'download', id, '--repo', repository, '--name', 'synthetic-evaluations', '--dir', synthetic]);
     // A concurrent rerun or checkout must not change what this import claims.
-    const after = verifyHostedRun(JSON.parse(gh(['api', `repos/${repository}/actions/runs/${id}`])), repository, commit);
+    const after = verifyHostedRun(JSON.parse(github(['api', `repos/${repository}/actions/runs/${id}`])), repository, commit);
     if (!isDeepStrictEqual(after, run)) throw new Error('workflow attempt changed while fetching evidence');
-    requireCleanCheckpointTree();
-    if (execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim() !== commit)
+    requireReportOnlyImportTree(root);
+    if (head() !== commit)
         throw new Error('HEAD changed while fetching evidence');
-    const result = archiveHostedCheckpoint(PROJECT_ROOT, output, summary);
+    const result = archiveHostedCheckpoint(root, output, summary);
     console.log(`Results: ${result}`);
     const savedSynthetic = join(resolve(result, '..'), 'synthetic');
     console.log(`Synthetic evaluations: ${savedSynthetic}`);

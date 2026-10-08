@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T07:25:29.317Z",
+  "capturedAt": "2026-10-08T08:16:47.565Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -26747,12 +26747,142 @@
         "type": "accepted",
         "at": "2026-10-08T07:24:17.283Z",
         "task": "B148"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B148-c1765b9b",
+        "type": "published",
+        "at": "2026-10-08T07:28:13.635Z",
+        "task": "B148",
+        "commit": "c1765b9b85a7b62c2e73153fc988102324e1122d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A149-c78a4462",
+        "type": "integrating",
+        "at": "2026-10-08T07:31:55.050Z",
+        "task": "A149",
+        "integration": "c78a4462405df8f3fdd065a619f8a07678f632cd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A149-c78a4462405df8f3fdd065a619f8a07678f632cd-validated",
+        "type": "validated",
+        "at": "2026-10-08T07:36:56.403Z",
+        "task": "A149",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A149-c78a4462405df8f3fdd065a619f8a07678f632cd-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T07:38:37.175Z",
+        "task": "A149"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A150-sacrifice-investigation-5ecdef9c",
+        "type": "assign",
+        "at": "2026-10-08T07:40:12.186Z",
+        "task": "A150",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B149-amulet-on-c78a4462",
+        "type": "assign",
+        "at": "2026-10-08T07:42:30.237Z",
+        "task": "B149",
+        "worker": "B",
+        "goal": "port-do-wear-amulet-on-v29-20261008",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A150-angrygods-summon-minion-20261008",
+        "type": "implement",
+        "at": "2026-10-08T07:44:20.326Z",
+        "task": "A150",
+        "goal": "port-pray-angrygods-summon-minion-v29-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A149-61dfc2b2",
+        "type": "published",
+        "at": "2026-10-08T07:44:39.095Z",
+        "task": "A149",
+        "commit": "61dfc2b277278b65cc812eec3a217ff503d2b55c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-26964c14650010b626c7845b2815fa2de2b94c33",
+        "type": "ready",
+        "at": "2026-10-08T07:58:40.630Z",
+        "task": "B149",
+        "delivery": "26964c14650010b626c7845b2815fa2de2b94c33"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B149-26964c14",
+        "type": "received",
+        "at": "2026-10-08T07:59:18.853Z",
+        "task": "B149",
+        "delivery": "26964c14650010b626c7845b2815fa2de2b94c33"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B149-8b31f4af",
+        "type": "integrating",
+        "at": "2026-10-08T08:00:16.982Z",
+        "task": "B149",
+        "integration": "8b31f4af8514f59efa2a37b307822b1a00bf6908"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B150-eyes-investigation-26964c14-20261008",
+        "type": "assign",
+        "at": "2026-10-08T08:01:06.185Z",
+        "task": "B150",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B149-8b31f4af",
+        "type": "validated",
+        "at": "2026-10-08T08:05:46.895Z",
+        "task": "B149",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B149-8b31f4af8514f59efa2a37b307822b1a00bf6908-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T08:14:34.624Z",
+        "task": "B149"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c873065a8cc9e5018f54c5fe36b102171de9aa49",
+        "type": "ready",
+        "at": "2026-10-08T08:15:29.636Z",
+        "task": "C144",
+        "delivery": "c873065a8cc9e5018f54c5fe36b102171de9aa49"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-494c9990181a7f23d450f5612d037186a5126af3",
+        "type": "ready",
+        "at": "2026-10-08T08:16:04.069Z",
+        "task": "A150",
+        "delivery": "494c9990181a7f23d450f5612d037186a5126af3"
       }
     ]
   },
   "development": {
-    "executionCommit": "a75591960ab239110110cb1ef93bfa06ac3a07e4",
-    "measuredAt": "2026-10-08T07:20:52.880Z",
+    "executionCommit": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
+    "measuredAt": "2026-10-08T08:04:41.454Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
