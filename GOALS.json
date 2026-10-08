@@ -202778,7 +202778,7 @@
     {
       "id": "port-do-wear-amulet-on-v29-20261008",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port complete amulet wearing callback",
       "cFile": "do_wear.c",
       "sessions": [
@@ -202787,17 +202787,24 @@
       ],
       "selectionReason": "The two current v29 Amulet_on refusals share the complete do_wear.c callback; accepted c78a4462 leaves 7 and 6 unmatched screens, with source scope disjoint from C144.",
       "detail": "Port whole Amulet_on and wire the existing accessory and bounded set_wear callers. Verify consumed pure poly_gender and region_danger behavior. Keep non-ring poly_obj and broader startup/restore dispatch outside this task.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "61dfc2b277278b65cc812eec3a217ff503d2b55c",
+      "openStanding": {
+        "sha": "c78a4462405df8f3fdd065a619f8a07678f632cd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Amulet_on",
           "line": 963,
           "endLine": 1089,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -202811,7 +202818,7 @@
           "endLine": 2159,
           "declared": true,
           "sourceFile": "polyself.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -202839,6 +202846,429 @@
           "evaluationPath": "challenges/evaluations/accepted-c78a4462405df8f3fdd065a619f8a07678f632cd-v29.json",
           "evaluationCommit": "c78a4462405df8f3fdd065a619f8a07678f632cd"
         }
+      },
+      "activeStanding": {
+        "sha": "c78a4462405df8f3fdd065a619f8a07678f632cd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-amulet-change",
+          "session": "synthetic/v29/v29-amulet-change",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recording": "challenges/cases/v29/v29-amulet-change.session.json",
+          "recordingPath": "challenges/cases/v29/v29-amulet-change.session.json",
+          "recordingSha256": "cdb881cba7268f305121728b8de1c0d6e5d5ed253e26903f824ef943e5bdb0c0",
+          "recipe": "challenges/cases/v29/v29-amulet-change.recipe.session.json",
+          "recipeSha256": "826c833092e9ad5608e18e7f68473d265594f5672f2c69dacff6600468543733",
+          "replayInputSha256": "3865bfa70706ac84f88c5d02b0e141e247b55ae3bf7a129b0a7a8b83e995245d",
+          "evaluationPath": "challenges/evaluations/accepted-c78a4462405df8f3fdd065a619f8a07678f632cd-v29.json",
+          "evaluationCommit": "c78a4462405df8f3fdd065a619f8a07678f632cd",
+          "evaluationArtifact": "challenges/evaluations/accepted-c78a4462405df8f3fdd065a619f8a07678f632cd-v29.json",
+          "evaluationUtc": "2026-10-08T07:34:20.597Z",
+          "remainingScreens": 7,
+          "recordedSteps": 37,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 30,
+              "total": 37
+            },
+            "rng": {
+              "matched": 2389,
+              "total": 2396
+            },
+            "cursors": {
+              "matched": 30,
+              "total": 37
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: accessory on reached an unported branch: AMULET_OF_CHANGE (needs change_sex, livelog_newform, useup, trycall)",
+            "step": 30
+          },
+          "step": 30,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: accessory on reached an unported branch: AMULET_OF_CHANGE (needs change_sex, livelog_newform, useup, trycall)",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v29/v29-amulet-change.json",
+            "result": {
+              "session": "synthetic/v29/v29-amulet-change",
+              "corpus": "synthetic",
+              "batch": "v29",
+              "caseId": "v29-amulet-change",
+              "manifestPath": "challenges/manifests/v29.json",
+              "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+              "recordingSha256": "cdb881cba7268f305121728b8de1c0d6e5d5ed253e26903f824ef943e5bdb0c0",
+              "evaluationPath": "challenges/evaluations/accepted-c78a4462405df8f3fdd065a619f8a07678f632cd-v29.json",
+              "evaluationCommit": "c78a4462405df8f3fdd065a619f8a07678f632cd",
+              "remainingScreens": 7,
+              "recordedSteps": 37,
+              "status": "complete",
+              "commit": "c78a4462405df8f3fdd065a619f8a07678f632cd",
+              "mismatch": {
+                "session": "synthetic/v29/v29-amulet-change",
+                "corpus": "synthetic",
+                "batch": "v29",
+                "caseId": "v29-amulet-change",
+                "manifestPath": "challenges/manifests/v29.json",
+                "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+                "recording": "challenges/cases/v29/v29-amulet-change.session.json",
+                "recordingPath": "challenges/cases/v29/v29-amulet-change.session.json",
+                "recordingSha256": "cdb881cba7268f305121728b8de1c0d6e5d5ed253e26903f824ef943e5bdb0c0",
+                "recipe": "challenges/cases/v29/v29-amulet-change.recipe.session.json",
+                "recipeSha256": "826c833092e9ad5608e18e7f68473d265594f5672f2c69dacff6600468543733",
+                "evaluationPath": "challenges/evaluations/accepted-c78a4462405df8f3fdd065a619f8a07678f632cd-v29.json",
+                "evaluationCommit": "c78a4462405df8f3fdd065a619f8a07678f632cd",
+                "evaluationArtifact": "challenges/evaluations/accepted-c78a4462405df8f3fdd065a619f8a07678f632cd-v29.json",
+                "evaluationUtc": "2026-10-08T07:34:20.597Z",
+                "remainingScreens": 7,
+                "recordedSteps": 37,
+                "metrics": {
+                  "screens": {
+                    "matched": 30,
+                    "total": 37
+                  },
+                  "rng": {
+                    "matched": 2389,
+                    "total": 2396
+                  },
+                  "cursors": {
+                    "matched": 30,
+                    "total": 37
+                  }
+                },
+                "passed": false,
+                "error": null,
+                "regression": false,
+                "step": 30,
+                "kind": "stop",
+                "sourceFile": "do_wear.c",
+                "cFile": "do_wear.c",
+                "function": "Amulet_on",
+                "message": "unsupported hero command: an unported branch of this command: accessory on reached an unported branch: AMULET_OF_CHANGE (needs change_sex, livelog_newform, useup, trycall)",
+                "firstMismatch": {
+                  "kind": "stop",
+                  "step": 30,
+                  "message": "unsupported hero command: an unported branch of this command: accessory on reached an unported branch: AMULET_OF_CHANGE (needs change_sex, livelog_newform, useup, trycall)"
+                }
+              },
+              "summary": "Putting on an amulet of change stops in partial do_wear.c:Amulet_on before the gender transition, identification/on message, newform event and consumption. Whole Amulet_on also owns the related magical-breathing refusal; existing canonical dependency owners now make this an independent bounded function port.",
+              "source": {
+                "file": "do_wear.c",
+                "branch": "C Amulet_on963-1087 first remove_worn_item(amul,FALSE), then setworn(W_AMUL), then branches on the canonical uamul type. Change consumes poly_gender before/after conditional change_sex, identifies only if the displayed gender changed, prints on_msg before gender feedback, logs newform before disintegration, optionally trycall then useup; breathing temporarily clears only W_AMUL around region_danger, restores it before identification/on_msg/poison-gas relief. Complete all remaining ESP/lifesaving/poison/reflection/fake/unchanging/strangulation/restful sleep/flying/guarding/Yendor arms and common on_msg tail.",
+                "functions": [
+                  "Amulet_on"
+                ],
+                "callers": [
+                  "do_wear.c:accessory_or_armor_on2417-2418 -> Amulet_on(obj); production cmd.c puton/#puton -> doputon -> accessory_or_armor_on. JS do_wear.js3871-3872 already awaits Amulet_on from this caller.",
+                  "do_wear.c:set_wear1550-1551 -> Amulet_on(uamul); JS do_wear.js2735-2736 still records this as unported. Existing moveloop_preamble.js72 awaits set_wear for new-game startup. zap.c:poly_obj1946-1948 also uses targeted set_wear; current JS intentionally admits only its worn-ring path, so non-ring transformation remains an explicit outside-limit caller frontier."
+                ],
+                "dependencies": [
+                  "Consumed pure polyself.c:poly_gender2149-2158 already translates whole in js/polyself.js2852; add explicit source-pinned pure-result verification for humanoid male/female versus neuter/nonhumanoid. No polyself code change or broader gender port needed.",
+                  "Consumed pure region.c:region_danger1341-1362 already translates whole in js/region.js833 and scripts/region.test.mjs840 onward pins region membership, gas callback, nonliving/breathlessness/magical-breathing and poison-resistance. Source youprop.h48/276 confirms the macro fields; no new region behavior needed.",
+                  "Existing polyself.js:change_sex1493 and livelog_newform1525 match polyself.c271-333; canonical do.js:trycall1167 and obj.js:useup supply naming/consumption. remove_worn_item/setqworn canonical helpers now cover the formerly refused wielded/alternate/quivered amulet removal. Forward normal state/env and await where required; inspect full consumed and active branches during implementation.",
+                  "Existing make_slimed, can_be_strangled, float_vs_flight, find_ac, discover_object/on_msg/newsym and property macros support other whole Amulet_on arms. Preserve source restful-sleep rnd(98)+2 and flying W_AMUL clear/restore; no invented dependency results."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Latest accepted-a7559196 v29 evaluation retains 30/37 screens and 2389/2396 RNG; 7 screens remain. Current independent worker replay .cache/v29-amulet-on/post-B148-replay.log confirms the same refusal at step30 on immutable worker bf3c882c68f26335cee0c00e225f0e6446e216d4.",
+                "Source do_wear.c963-1087 is the complete127-line callback; JS do_wear.js1182-1279 still refuses held amulets, magical breathing and amulet of change. Missing behavior follows setworn, before source identification/message/consumption. For change, the first skipped C draw is exercise rn2(19)=0 at step30; for breathing the skipped turn next reaches monmove distfleeck after step41. Those subsequent draws are effects of the skipped callback/turn, not substitute RNG to add.",
+                "C recorded change step30 displays the identified worn amulet and More; step31 prints masculine feedback then disintegration. C breathing step41 displays its worn square amulet and continues. These two admitted traces exercise one shared whole function and justify grouping; they are not duplicated regression recipes.",
+                "All direct source Amulet_on callers are in do_wear.c at1551 and2418. Wire the existing set_wear arm in source order and retain broader startup/restore/polymorph dispatch limits explicitly. No whole set_wear, accessory_or_armor_on, doputon or poly_obj credit.",
+                "Independent runtime plan: C-first gender-changing amulet variation with a different role/base sex; magical breathing while inside a poison cloud and an unchanged intrinsic/other breathing source variation; held-amulet removal, normal restful-sleep/flying/guarding source branches as cheap probes; an Unchanging or fixed-gender polymorph change-amulet witness reaches trycall without identifying. Do not copy admitted recipe inputs. Explicitly retain non-ring zap.c:poly_obj transformation as an outside-limit recipe rather than growing the broad transformation owner."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-amulet-breathing",
+          "session": "synthetic/v29/v29-amulet-breathing",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recording": "challenges/cases/v29/v29-amulet-breathing.session.json",
+          "recordingPath": "challenges/cases/v29/v29-amulet-breathing.session.json",
+          "recordingSha256": "b404b5884c332ef3eab8c433134e40a8ec769e9dd3b41177e487fac071ea9f8c",
+          "recipe": "challenges/cases/v29/v29-amulet-breathing.recipe.session.json",
+          "recipeSha256": "0577f3923ba324368b4fb96594ff5861fa2ae04a9d3435767332292011469ef7",
+          "replayInputSha256": "3865bfa70706ac84f88c5d02b0e141e247b55ae3bf7a129b0a7a8b83e995245d",
+          "evaluationPath": "challenges/evaluations/accepted-c78a4462405df8f3fdd065a619f8a07678f632cd-v29.json",
+          "evaluationCommit": "c78a4462405df8f3fdd065a619f8a07678f632cd",
+          "evaluationArtifact": "challenges/evaluations/accepted-c78a4462405df8f3fdd065a619f8a07678f632cd-v29.json",
+          "evaluationUtc": "2026-10-08T07:34:20.597Z",
+          "remainingScreens": 6,
+          "recordedSteps": 47,
+          "previousScreensMatched": 41,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 41,
+              "total": 47
+            },
+            "rng": {
+              "matched": 2720,
+              "total": 2748
+            },
+            "cursors": {
+              "matched": 41,
+              "total": 47
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: accessory on reached an unported branch: AMULET_OF_MAGICAL_BREATHING (needs region_danger integration)",
+            "step": 41
+          },
+          "step": 41,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: accessory on reached an unported branch: AMULET_OF_MAGICAL_BREATHING (needs region_danger integration)",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v29/v29-amulet-breathing.json",
+            "result": {
+              "session": "synthetic/v29/v29-amulet-breathing",
+              "corpus": "synthetic",
+              "batch": "v29",
+              "caseId": "v29-amulet-breathing",
+              "manifestPath": "challenges/manifests/v29.json",
+              "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+              "recordingSha256": "b404b5884c332ef3eab8c433134e40a8ec769e9dd3b41177e487fac071ea9f8c",
+              "evaluationPath": "challenges/evaluations/accepted-c78a4462405df8f3fdd065a619f8a07678f632cd-v29.json",
+              "evaluationCommit": "c78a4462405df8f3fdd065a619f8a07678f632cd",
+              "remainingScreens": 6,
+              "recordedSteps": 47,
+              "status": "complete",
+              "commit": "c78a4462405df8f3fdd065a619f8a07678f632cd",
+              "mismatch": {
+                "session": "synthetic/v29/v29-amulet-breathing",
+                "corpus": "synthetic",
+                "batch": "v29",
+                "caseId": "v29-amulet-breathing",
+                "manifestPath": "challenges/manifests/v29.json",
+                "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+                "recording": "challenges/cases/v29/v29-amulet-breathing.session.json",
+                "recordingPath": "challenges/cases/v29/v29-amulet-breathing.session.json",
+                "recordingSha256": "b404b5884c332ef3eab8c433134e40a8ec769e9dd3b41177e487fac071ea9f8c",
+                "recipe": "challenges/cases/v29/v29-amulet-breathing.recipe.session.json",
+                "recipeSha256": "0577f3923ba324368b4fb96594ff5861fa2ae04a9d3435767332292011469ef7",
+                "evaluationPath": "challenges/evaluations/accepted-c78a4462405df8f3fdd065a619f8a07678f632cd-v29.json",
+                "evaluationCommit": "c78a4462405df8f3fdd065a619f8a07678f632cd",
+                "evaluationArtifact": "challenges/evaluations/accepted-c78a4462405df8f3fdd065a619f8a07678f632cd-v29.json",
+                "evaluationUtc": "2026-10-08T07:34:20.597Z",
+                "remainingScreens": 6,
+                "recordedSteps": 47,
+                "metrics": {
+                  "screens": {
+                    "matched": 41,
+                    "total": 47
+                  },
+                  "rng": {
+                    "matched": 2720,
+                    "total": 2748
+                  },
+                  "cursors": {
+                    "matched": 41,
+                    "total": 47
+                  }
+                },
+                "passed": false,
+                "error": null,
+                "regression": false,
+                "step": 41,
+                "kind": "stop",
+                "sourceFile": "do_wear.c",
+                "cFile": "do_wear.c",
+                "function": "Amulet_on",
+                "message": "unsupported hero command: an unported branch of this command: accessory on reached an unported branch: AMULET_OF_MAGICAL_BREATHING (needs region_danger integration)",
+                "firstMismatch": {
+                  "kind": "stop",
+                  "step": 41,
+                  "message": "unsupported hero command: an unported branch of this command: accessory on reached an unported branch: AMULET_OF_MAGICAL_BREATHING (needs region_danger integration)"
+                }
+              },
+              "summary": "Putting on an amulet of magical breathing stops in partial do_wear.c:Amulet_on before region_danger is evaluated with W_AMUL temporarily removed. Whole Amulet_on also owns the related change-amulet refusal; region_danger is already source-pinned and all ordinary worn/callback owners exist.",
+              "source": {
+                "file": "do_wear.c",
+                "branch": "C Amulet_on963-1087 first remove_worn_item(amul,FALSE), then setworn(W_AMUL), then branches on the canonical uamul type. Change consumes poly_gender before/after conditional change_sex, identifies only if the displayed gender changed, prints on_msg before gender feedback, logs newform before disintegration, optionally trycall then useup; breathing temporarily clears only W_AMUL around region_danger, restores it before identification/on_msg/poison-gas relief. Complete all remaining ESP/lifesaving/poison/reflection/fake/unchanging/strangulation/restful sleep/flying/guarding/Yendor arms and common on_msg tail.",
+                "functions": [
+                  "Amulet_on"
+                ],
+                "callers": [
+                  "do_wear.c:accessory_or_armor_on2417-2418 -> Amulet_on(obj); production cmd.c puton/#puton -> doputon -> accessory_or_armor_on. JS do_wear.js3871-3872 already awaits Amulet_on from this caller.",
+                  "do_wear.c:set_wear1550-1551 -> Amulet_on(uamul); JS do_wear.js2735-2736 still records this as unported. Existing moveloop_preamble.js72 awaits set_wear for new-game startup. zap.c:poly_obj1946-1948 also uses targeted set_wear; current JS intentionally admits only its worn-ring path, so non-ring transformation remains an explicit outside-limit caller frontier."
+                ],
+                "dependencies": [
+                  "Consumed pure polyself.c:poly_gender2149-2158 already translates whole in js/polyself.js2852; add explicit source-pinned pure-result verification for humanoid male/female versus neuter/nonhumanoid. No polyself code change or broader gender port needed.",
+                  "Consumed pure region.c:region_danger1341-1362 already translates whole in js/region.js833 and scripts/region.test.mjs840 onward pins region membership, gas callback, nonliving/breathlessness/magical-breathing and poison-resistance. Source youprop.h48/276 confirms the macro fields; no new region behavior needed.",
+                  "Existing polyself.js:change_sex1493 and livelog_newform1525 match polyself.c271-333; canonical do.js:trycall1167 and obj.js:useup supply naming/consumption. remove_worn_item/setqworn canonical helpers now cover the formerly refused wielded/alternate/quivered amulet removal. Forward normal state/env and await where required; inspect full consumed and active branches during implementation.",
+                  "Existing make_slimed, can_be_strangled, float_vs_flight, find_ac, discover_object/on_msg/newsym and property macros support other whole Amulet_on arms. Preserve source restful-sleep rnd(98)+2 and flying W_AMUL clear/restore; no invented dependency results."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Latest accepted-a7559196 v29 evaluation retains 41/47 screens and 2720/2748 RNG; 6 screens remain. Current independent worker replay .cache/v29-amulet-on/post-B148-replay.log confirms the same refusal at step41 on immutable worker bf3c882c68f26335cee0c00e225f0e6446e216d4.",
+                "Source do_wear.c963-1087 is the complete127-line callback; JS do_wear.js1182-1279 still refuses held amulets, magical breathing and amulet of change. Missing behavior follows setworn, before source identification/message/consumption. For change, the first skipped C draw is exercise rn2(19)=0 at step30; for breathing the skipped turn next reaches monmove distfleeck after step41. Those subsequent draws are effects of the skipped callback/turn, not substitute RNG to add.",
+                "C recorded change step30 displays the identified worn amulet and More; step31 prints masculine feedback then disintegration. C breathing step41 displays its worn square amulet and continues. These two admitted traces exercise one shared whole function and justify grouping; they are not duplicated regression recipes.",
+                "All direct source Amulet_on callers are in do_wear.c at1551 and2418. Wire the existing set_wear arm in source order and retain broader startup/restore/polymorph dispatch limits explicitly. No whole set_wear, accessory_or_armor_on, doputon or poly_obj credit.",
+                "Independent runtime plan: C-first gender-changing amulet variation with a different role/base sex; magical breathing while inside a poison cloud and an unchanged intrinsic/other breathing source variation; held-amulet removal, normal restful-sleep/flying/guarding source branches as cheap probes; an Unchanging or fixed-gender polymorph change-amulet witness reaches trycall without identifying. Do not copy admitted recipe inputs. Explicitly retain non-ring zap.c:poly_obj transformation as an outside-limit recipe rather than growing the broad transformation owner."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Amulet_on",
+            "implementation": "js/do_wear.js",
+            "symbol": "Amulet_on",
+            "sourceReview": "Read whole do_wear.c963-1089 in source definition order, including every ESP/life-saving/poison/reflection/fake/real Yendor no-op arm, magical-breathing temporary W_AMUL clear/region_danger/restore, Unchanging slime cure, complete change-sex/identify/on_msg/redraw/status/newform/disintegration/trycall/useup order, strangulation guard/countdown6, restful sleep rnd(98)+2 with existing timeout/FROMOUTSIDE preservation, flying float_vs_flight/temporary source comparison/restore/feedback, guarding discovery/AC and shared message tail. Replace all three selected refusals, including held-amulet cleanup, with canonical source owners. remove_worn_item runs before setworn; worn change consumption supplies canonical setnotworn/setwornEnv hooks and is awaited. Kept UnsupportedAccessoryOnError only for remaining Blindf_on throws; no selected placeholder remains. Consumed poly_gender and region_danger read fully from C and JS; pure poly_gender test pins all results and region.test.mjs pins membership, callback, nonliving/Breathless and poison-resistance guards. Existing change_sex/livelog_newform/trycall/useup/remove_worn_item/setworn/make_slimed/can_be_strangled/float_vs_flight/find_ac/on_msg/discovery/newsym owners inspected; no invented return or RNG/output substitute.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "accessory_or_armor_on",
+                "source": "do_wear.c2418, existing awaited Amulet_on from doputon for P and extended #puton. Both live command routes covered independently."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "set_wear",
+                "source": "do_wear.c1551 bounded awaited Amulet_on callback replaces note_unported in existing source slot order. Source-pinned target/startup dispatch tests; no whole set_wear credit. allmain.c73 startup dispatch is awaited by moveloop_preamble.js; no ordinary u_init starting amulet. Non-ring zap.c:poly_obj1946-1948 remains an explicit outside-limit caller."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/amulet-on.test.mjs",
+              "scripts/amulet-off.test.mjs",
+              "scripts/wear-armor.test.mjs",
+              "scripts/region.test.mjs",
+              "scripts/polyself-transform.test.mjs",
+              "scripts/inventory-substrate.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/amulet-change-female.session.json",
+              "recordings/do_wear.c/amulet-change-male.session.json",
+              "recordings/do_wear.c/amulet-held-guarding.session.json",
+              "recordings/do_wear.c/amulet-restful-sleep.session.json",
+              "recordings/do_wear.c/amulet-flying.session.json",
+              "recordings/do_wear.c/amulet-breathing-gas.session.json",
+              "recordings/do_wear.c/amulet-change-unchanging.session.json"
+            ],
+            "sourceFile": "do_wear.c",
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-amulet-change",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 36,
+                "source": "cmd.c P/doputon -> do_wear.c:accessory_or_armor_on2418 -> Amulet_on1000-1033; on_msg, gender transition, identification, newform log and consumed worn object. All37screens and2396 RNG match."
+              },
+              {
+                "batch": "v29",
+                "caseId": "v29-amulet-breathing",
+                "segment": 0,
+                "fromStep": 41,
+                "throughStep": 46,
+                "source": "cmd.c P/doputon -> do_wear.c:accessory_or_armor_on2418 -> Amulet_on978-997; temporary W_AMUL clear, canonical region_danger, restore and common on_msg. All47screens and2748 RNG match."
+              }
+            ],
+            "checkedAt": "8b31f4af8514f59efa2a37b307822b1a00bf6908"
+          },
+          {
+            "name": "poly_gender",
+            "implementation": "js/polyself.js",
+            "symbol": "poly_gender",
+            "sourceReview": "Read complete polyself.c2149-2159: if is_neuter(youmonst.data) or not humanoid return2; otherwise return flags.female, numerically0/1. No RNG, output or state mutation. Existing JS function already matches whole source and remains unchanged. Added source-pinned result table for male/female humanoids, neuter humanoid and nonhumanoid regardless of base sex. This is required pure dependency verification, not broader polyself credit.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Amulet_on",
+                "source": "do_wear.c1002 and1010 consume before/after gender in source order."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "newman",
+                "source": "polyself.c360 and445 already consume old/new gender through the canonical helper."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/amulet-on.test.mjs",
+              "scripts/polyself-transform.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "polyself.c",
+            "synthetic": [],
+            "checkedAt": "8b31f4af8514f59efa2a37b307822b1a00bf6908"
+          }
+        ],
+        "entryPointReview": "Active Amulet_on command family is P/#puton through existing doputon/accessory_or_armor_on, separately verified by female P and male extended-command recipes plus both admitted v29 traces. set_wear bounded caller now awaits in source slot order, tested for selected-target and startup-list dispatch. allmain.c73 startup can call set_wear, but source u_init.c has no AMULET/uamul/W_AMUL and ordinary starting gear has no amulet; no artificial initial inventory or new startup route invented. The other set_wear producer zap.c:poly_obj1946-1948 is a named outside-limit non-ring caller. A C-first dip_into worn-amulet probe proves that route; JS first stops at poly_obj missing cancelDoff and then still excludes its non-ring callback. No whole set_wear/poly_obj/startup/restore completion credit. Existing pure poly_gender callers in newman, apply mirror/self-view, detect crystal ball, dokick sink, sounds pet-chat and mhitu seduction already use the shared helper; no unrelated caller changes. Their owners remain outside this task.",
+        "entryPoints": [
+          {
+            "name": "P and extended #puton amulet callbacks",
+            "functions": [
+              "Amulet_on"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/amulet-change-female.session.json",
+              "recordings/do_wear.c/amulet-change-male.session.json",
+              "recordings/do_wear.c/amulet-held-guarding.session.json",
+              "recordings/do_wear.c/amulet-restful-sleep.session.json",
+              "recordings/do_wear.c/amulet-flying.session.json",
+              "recordings/do_wear.c/amulet-breathing-gas.session.json",
+              "recordings/do_wear.c/amulet-change-unchanging.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-amulet-change",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 36,
+                "source": "cmd.c P/doputon -> do_wear.c:accessory_or_armor_on2418 -> Amulet_on1000-1033; on_msg, gender transition, identification, newform log and consumed worn object. All37screens and2396 RNG match."
+              },
+              {
+                "batch": "v29",
+                "caseId": "v29-amulet-breathing",
+                "segment": 0,
+                "fromStep": 41,
+                "throughStep": 46,
+                "source": "cmd.c P/doputon -> do_wear.c:accessory_or_armor_on2418 -> Amulet_on978-997; temporary W_AMUL clear, canonical region_danger, restore and common on_msg. All47screens and2748 RNG match."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
