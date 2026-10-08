@@ -211006,7 +211006,7 @@
     {
       "id": "port-eat-newuhs-fainting-starvation-v30-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port hunger fainting, delayed wakeup, and starvation",
       "cFile": "eat.c",
       "sessions": [
@@ -211020,15 +211020,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "newuhs",
           "line": 3362,
           "endLine": 3516,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -211040,9 +211043,9 @@
           "name": "unfaint",
           "line": 3336,
           "endLine": 3346,
-          "declared": false,
+          "declared": true,
           "sourceFile": "eat.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -211216,7 +211219,147 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "unfaint",
+            "implementation": "js/eat.js",
+            "symbol": "unfaint",
+            "sourceReview": "Whole eat.c3336-3344: await existing Hear_again before status clamp (>FAINTING only), canonical awaited stop_occupation then disp.botl and return0. Hear_again is bounded env/RNG reconciliation only; its rn2(2) and make_deaf remain source ordered. is_fainted and hack nomul/unmul owners are reused, no _unfaint alias.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "newuhs",
+                "source": "eat.c3429 ga.afternmv=unfaint; js state.afternmv points to the source helper."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "unmul",
+                "source": "hack.c4207 afternmv callback invocation after release message and pointer clear; awaited f(state,env) passes clone/live operations canonically. reset_faint pointer-comparison owner remains a separate discarded-return frontier."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hunger-faint.test.mjs",
+              "scripts/allmain-turn.test.mjs",
+              "scripts/hack.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/hunger-faint-starvation-lifesaving.session.json",
+              "recordings/eat.c/hunger-faint-starvation-valkyrie.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-hunger-faint",
+                "segment": 0,
+                "fromStep": 1814,
+                "throughStep": 2531,
+                "source": "allmain.c moveloop_core gethungry -> eat.c newuhs3362-3513 first faint -> negative multi -> hack.c unmul -> eat.c unfaint3336-3344/Hear_again. The full2532-screen replay matches27304RNG and2animations, including the prior1814 hunger refusal and delayed wakeup."
+              }
+            ],
+            "checkedAt": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac"
+          },
+          {
+            "name": "newuhs",
+            "implementation": "js/eat.js",
+            "symbol": "newuhs",
+            "sourceReview": "Read complete eat.c3362-3513. Preserve saved_hs/save_hs statics on state; source short-circuit first faint, signed rounded integer quotient, repeated FAINTED hysteresis and rn2 bound, stop_occupation before faint message, timed deafness/nomul/reason/release/callback state, and source-discarded trap.c:selftouch note unless levitating. Starvation gate is strictly below -(100+10*ACURR(CON)), status/bot/message/killer/done(STARVING) order is exact, with immediate return after lifesaving. Common temporary strength, role/race/hallucination words, non-food/non-tin occupation stop, end_running, status/bot and active polymorph HP exhaustion are source aligned. Canonical acurr/incr_itimeout/nomul/stop_occupation/done reused; planning never executes live done/input and hunger tails replan from the real faint/death result. Delete UnsupportedHungerTransitionError and its command/upkeep registries. Retain separate cant_finish_meal/revive-during-meal and reset_faint frontiers; these surrounding unported owners receive no completion credit.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "do_reset_eat",
+                "source": "eat.c446 newuhs(FALSE), awaited after canonical meal reset; existing env preserved."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "done_eating",
+                "source": "eat.c550 after go.occupation=0; await newuhs(FALSE) restores saved meal status before remaining meal effects."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "gethungry",
+                "source": "eat.c3276 newuhs(TRUE) after source metabolic/accessory nutrition decrements; allmain moveloop_core reaches it through the live/planning handoff."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "morehungry",
+                "source": "eat.c3284 newuhs(TRUE) after hunger subtraction; canonical state/env await retained."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "lesshungry",
+                "source": "eat.c3332 newuhs(FALSE) after source nutrition/choke/delayed-hunger logic; canonical state/env await retained."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_water",
+                "source": "potion.c722 neutral water nutrition -> await newuhs(FALSE); effect env retains random/planning/message/status callbacks."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_booze",
+                "source": "potion.c785 nutrition -> await newuhs(FALSE) with live tty/endRunning/bot operations; surrounding booze owner remains live-only."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_see_invisible",
+                "source": "potion.c858 fruit-juice arm -> await newuhs(FALSE), forwarded source effect env."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "drinkfountain",
+                "source": "C fountain.c279–284 fate<10 refreshing draught: message, rnd(10) nutrition increase, newuhs(FALSE), then blessed-fountain early return. Exact f363b446a caller preserves env/random and supplied message/endRunning/statusRefresh, fills missing canonical hunger operations, awaits newuhs before the existing tail. C potion.c546 dodrink dispatch reaches drinkfountain after the fountain prompt; no surrounding owner completion credit."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "newman",
+                "source": "polyself.c431 lifesaving return and436 normal path -> await newuhs(FALSE), hungerEnv forwards planning/random and silent callbacks."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_dgst",
+                "source": "uhitm.c5056 nutrition update after hero digestion -> await newuhs(FALSE), canonical attack env forwarded."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hunger-faint.test.mjs",
+              "scripts/eat.test.mjs",
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/eat-occupation.test.mjs",
+              "scripts/allmain-turn.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/end-lifesaved.test.mjs",
+              "scripts/fountain.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/hunger-faint-starvation-lifesaving.session.json",
+              "recordings/eat.c/hunger-faint-starvation-valkyrie.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-hunger-faint",
+                "segment": 0,
+                "fromStep": 1814,
+                "throughStep": 2531,
+                "source": "allmain.c moveloop_core gethungry -> eat.c newuhs3362-3513 first faint -> negative multi -> hack.c unmul -> eat.c unfaint3336-3344/Hear_again. The full2532-screen replay matches27304RNG and2animations, including the prior1814 hunger refusal and delayed wakeup."
+              }
+            ],
+            "checkedAt": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac"
+          }
+        ],
+        "entryPointReview": "Helper/callback range; no new command dispatcher is implemented. Every implemented C newuhs caller and the afternmv production callback are mapped above; existing callers retain source-ordered awaits and canonical env. Matching admitted elapsed-hunger/wakeup and independent hunger-ring starvation/lifesaving witnesses establish the new impure behavior. Existing meal/nutrition/form caller arms remain covered by affected focused tests and ancestor recordings, and surrounding owners gain no credit. C eat.c:cant_finish_meal3910 is explicitly unported at zap.c:revive/js/zap.js572, so revive-during-meal remains outside this helper task per coordinator decision; reset_faint/minion/trap/vault remains a separate void caller frontier.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
