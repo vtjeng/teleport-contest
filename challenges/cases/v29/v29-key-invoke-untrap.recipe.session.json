@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v29 candidate: artifact.c:invoke_untrap -> trap.c:untrap. Chaotic Rogue invokes Master Key near a wished bear trap; verify direction/disarming prompts. Fixed unsearched seed and independent clock; C-only setup corrections precede JS comparison. C-only correction from recorded inventory/pager/setup prerequisites before comparison; original attempts preserved.",
+  "segments": [
+    {
+      "seed": 1392906,
+      "datetime": "20480506070809",
+      "nethackrc": "OPTIONS=name:Probe1392906,role:Rogue,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".l\u0017bear trap trap\nl\u0017uncursed The Master Key of Thievery\n     #invoke\ngh y     ."
+    }
+  ]
+}
