@@ -1343,7 +1343,8 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !randomCoordinates
         && Boolean(mmflags & MM_NOMSG)
         && !(mmflags & ~(MM_NOMSG | MM_ANGRY | MM_MALE | MM_FEMALE));
-    if (tutorialLevel && !runtimeExplicitRandomCall && !runtimeGroupCall
+    if (tutorialLevel && !runtimeRandomNoMsgCall
+        && !runtimeExplicitRandomCall && !runtimeGroupCall
         && !wereSummonCall && !explicitCoordinateNoFlagsRuntimeCall
         && !explicitCoordinateNoMinventRuntimeCall
         && !explicitInventorylessHeroCall && !hatchEggCall

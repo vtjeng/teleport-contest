@@ -7704,3 +7704,45 @@ test('makemon runtime MM_NOMSG random coordinates preserve the source placement 
             message: async () => {}, norepMessage: async () => {} }), /random coordinates outside mklev/u);
     assert.deepEqual(random.calls, [], 'other flag shapes retain their original refusal');
 });
+
+test('makemon admits migratemons random-coordinate MM_NOMSG calls on tutorial levels', async () => {
+    const cmdSource = readFileSync('nethack-c/upstream/src/cmd.c', 'utf8');
+    const wizardSource = readFileSync('nethack-c/upstream/src/wizcmds.c', 'utf8');
+    const allmainSource = readFileSync('nethack-c/upstream/src/allmain.c', 'utf8');
+    const tutorialEntry = allmainSource.slice(allmainSource.indexOf('\nmaybe_do_tutorial(void)'),
+        allmainSource.indexOf('\nvoid\nmoveloop(boolean'));
+    // C keeps wizard mode when entering tut-1; migratemons has only the
+    // ordinary WIZMODECMD gate, and its makemon call has no tutorial guard.
+    assert.match(tutorialEntry, /if \(ask_do_tutorial\(\)\)/u);
+    assert.doesNotMatch(tutorialEntry, /wizard/u);
+    assert.match(cmdSource, /"migratemons",[\s\S]*?wiz_migrate_mons, IFBURIED \| AUTOCOMPLETE \| WIZMODECMD/u);
+    assert.match(wizardSource, /ptr = rndmonst\(\);\s*mtmp = makemon\(ptr, 0, 0, MM_NOMSG\);/u);
+    assert.match(MAKEMON_C_SOURCE, /if \(x == 0 && y == 0\) \{\s*fakemon.data = ptr;[^\n]*\n\s*if \(!makemon_rnd_goodpos\(ptr \? &fakemon : \(struct monst \*\) 0,/u);
+
+    for (const ptrPresent of [true, false]) {
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.wizard = true;
+        state.tutorial_dnum = 2;
+        state.u.uz = { dnum: state.tutorial_dnum, dlevel: 1 };
+        state.dungeons[state.tutorial_dnum] = { ...state.dungeons[0] };
+        state.viz_array = Array.from({ length: ROWNO }, () => new Uint8Array(COLNO));
+        const random = recordingRandom();
+        const messages = [];
+        const monster = await makemon_runtime(ptrPresent ? state.mons[PM_NEWT] : null,
+            0, 0, MM_NOMSG, { state, random: random.random,
+                message: async text => messages.push(text),
+                norepMessage: async text => messages.push(text) });
+        assert.ok(monster, 'tutorial admission supports both source species shapes');
+        assert.equal(state.level.monlist, monster);
+        assert.deepEqual(random.calls.slice(0, 2).map(({ kind, args }) => [kind, ...args]),
+            [['rn1', COLNO - 3, 2], ['rn2', ROWNO]], 'source placement draws still precede species/construction');
+        assert.deepEqual(messages, [], 'MM_NOMSG remains silent on tutorial levels');
+
+        random.calls.length = 0;
+        await assert.rejects(makemon_runtime(state.mons[PM_NEWT], 0, 0,
+            MM_NOMSG | MM_NOCOUNTBIRTH, { state, random: random.random }),
+        /unsupported tutorial monster creation/u);
+        assert.deepEqual(random.calls, [], 'other flag shapes retain tutorial refusal before RNG');
+    }
+});
