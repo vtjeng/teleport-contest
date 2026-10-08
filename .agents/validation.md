@@ -182,9 +182,14 @@ when the source trace shows that each executes there.
 `record-evidence` checks the schema, source and implementation declarations,
 and that caller, test, and recording references exist. The orchestrator
 verifies runtime reachability and that the cited evidence executes the claimed
-functions. At evidence recording and again before closure, it replays admitted
-synthetic cases through the last cited step, including earlier
-segments. Every screen, cursor, RNG call, and input boundary must match through
+functions. At evidence recording and again before closure, it verifies admitted
+synthetic cases through the last cited step, including earlier segments.
+Successful prefix replays have worktree-local receipts under
+`.cache/synthetic-prefix-receipts/`. A receipt is reused only for the same
+cited boundary, execution tree used by checkpoint reuse, and runtime
+environment, with no uncommitted execution inputs. Missing or invalid receipts
+trigger replay; changed inputs never reuse an earlier pass. Every screen,
+cursor, RNG call, and input boundary must match through
 that step. A later mismatch does not invalidate the citation. Saved challenge
 evaluations report case totals, so they cannot by themselves prove a step range.
 Evidence references use regular files within their declared evidence roots and

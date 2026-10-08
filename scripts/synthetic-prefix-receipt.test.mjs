@@ -48,4 +48,15 @@ test('prefix receipts reuse only successful unchanged inputs and the exact bound
         }), /mismatch/);
     await verifyWithPrefixReceipt(root, failed, replay);
     assert.equal(replays, 7); // A failed replay never supplies the retry's receipt.
+    const previous = process.env.TELEPORT_PREFIX_RECEIPT_TEST;
+    try {
+        process.env.TELEPORT_PREFIX_RECEIPT_TEST = 'changed runtime environment';
+        await verifyWithPrefixReceipt(root, failed, replay);
+        assert.equal(replays, 8);
+    } finally {
+        if (previous === undefined) delete process.env.TELEPORT_PREFIX_RECEIPT_TEST;
+        else process.env.TELEPORT_PREFIX_RECEIPT_TEST = previous;
+    }
+    await verifyWithPrefixReceipt(root, failed, replay);
+    assert.equal(replays, 8); // Restoring the runtime may reuse its original receipt.
 });
