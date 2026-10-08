@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: apply.c:use_bell ordinary cursed branch. Apply cursed ordinary bell distinct from invocation bell. Required C observation: Shrill ringing and possible nymph summon. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 16035035,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035035,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed bell\nae                           "
+    }
+  ]
+}

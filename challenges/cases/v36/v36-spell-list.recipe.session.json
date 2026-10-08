@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B161 C-first mission: spell.c:dovspell. Open learned spell list as Wizard and cancel. Required C observation: Spell memory, level, category and failure presentation. Fixed before own JavaScript comparison; C-only prompt/inventory correction permitted, no seed search. C-only correction before own JS: Mission needs learned spells; use Wizard starting force-bolt book/spells instead of Barbarian no-spells response.",
+  "segments": [
+    {
+      "seed": 16136045,
+      "datetime": "20390609110721",
+      "nethackrc": "OPTIONS=name:Probe16136045,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".+\u001b                "
+    }
+  ]
+}

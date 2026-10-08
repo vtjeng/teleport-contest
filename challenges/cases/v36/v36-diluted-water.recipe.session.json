@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B161 C-first mission: potion.c:peffect_water. Drink diluted uncursed water. Required C observation: Dilution/water taste, no acid mixing. Fixed before own JavaScript comparison; C-only prompt/inventory correction permitted, no seed search.",
+  "segments": [
+    {
+      "seed": 16136054,
+      "datetime": "20390609110721",
+      "nethackrc": "OPTIONS=name:Probe16136054,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed diluted potion of water\nqe                "
+    }
+  ]
+}

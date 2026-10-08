@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B161 C-first mission: wizcmds.c:wiz_telekinesis -> dothrow.c:hurtle. Wizard selects own square for telekinesis and hurts self west. Required C observation: Self-selection invokes hurtle six-square branch or obstacle refusal. Fixed before own JavaScript comparison; C-only prompt/inventory correction permitted, no seed search. C-only correction before own JS: C target description More precedes direction query; dismiss it before h. Further source/C-only correction before any JS: Three native message/Tip dismissal spaces precede own-square dot and hurtle direction h.",
+  "segments": [
+    {
+      "seed": 16136042,
+      "datetime": "20390609110721",
+      "nethackrc": "OPTIONS=name:Probe16136042,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wiztelekinesis\n   .h                  \u001b                  "
+    }
+  ]
+}

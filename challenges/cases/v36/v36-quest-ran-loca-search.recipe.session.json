@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B161 C-first mission: dat/Ran-loca.lua. Ranger uses wizard destination menu to enter Ran-loca, then maps that quest level. Required C observation: Ran-loca quest terrain, arrival and generation; map reveals source layout and role-specific inhabitants. This is forced arrival rather than earning quest permission.. Fixed before own JavaScript comparison; C-only prompt/inventory correction permitted, no seed search.",
+  "segments": [
+    {
+      "seed": 16136022,
+      "datetime": "20390609110721",
+      "nethackrc": "OPTIONS=name:Probe16136022,role:Ranger,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizlevelport\n?\n:Ran-loca\n                #wizmap\n                "
+    }
+  ]
+}

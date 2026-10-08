@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: insight.c:do_gamelog2532-2543. Request journal after gaining level. Required C observation: Major-event text chronological report. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 16035023,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035023,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#levelchange\n3\n                              #chronicle\n                      "
+    }
+  ]
+}

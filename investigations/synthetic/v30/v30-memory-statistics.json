@@ -1,0 +1,364 @@
+{
+  "session": "synthetic/v30/v30-memory-statistics",
+  "corpus": "synthetic",
+  "batch": "v30",
+  "caseId": "v30-memory-statistics",
+  "manifestPath": "challenges/manifests/v30.json",
+  "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+  "recordingSha256": "c7c4a1186f950f62bea581198a4aef1c7cba2c6189870267a7ccd882ab36cae6",
+  "evaluationPath": "challenges/evaluations/accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json",
+  "evaluationCommit": "5d732fba68778b565d95c0f11dfe245afa3d89af",
+  "remainingScreens": 6,
+  "recordedSteps": 32,
+  "status": "complete",
+  "commit": "09539b327ab3aab8460318bf341b081d64730dd4",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v30",
+    "caseId": "v30-memory-statistics",
+    "session": "synthetic/v30/v30-memory-statistics",
+    "manifestPath": "challenges/manifests/v30.json",
+    "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+    "recording": "challenges/cases/v30/v30-memory-statistics.session.json",
+    "recordingPath": "challenges/cases/v30/v30-memory-statistics.session.json",
+    "recordingSha256": "c7c4a1186f950f62bea581198a4aef1c7cba2c6189870267a7ccd882ab36cae6",
+    "recipe": "challenges/cases/v30/v30-memory-statistics.recipe.session.json",
+    "recipeSha256": "a565920811711ec26f581c178def5b3d8620dea0134be1bcc414935d8d34dbb0",
+    "replayInputSha256": "8caab30cf246691d1a768ca957d2a6c4de6b50ca08ab6a6896399970610f17af",
+    "evaluationPath": "challenges/evaluations/accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json",
+    "evaluationCommit": "5d732fba68778b565d95c0f11dfe245afa3d89af",
+    "evaluationArtifact": "challenges/evaluations/accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json",
+    "evaluationUtc": "2026-10-08T16:21:35.676Z",
+    "remainingScreens": 6,
+    "recordedSteps": 32,
+    "previousScreensMatched": 26,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 26,
+        "total": 32
+      },
+      "rng": {
+        "matched": 3238,
+        "total": 3238
+      },
+      "cursors": {
+        "matched": 26,
+        "total": 32
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: wiz_show_stats() for the extended command 'stats' is not ported",
+      "step": 26
+    },
+    "step": 26,
+    "kind": "stop",
+    "sourceFile": "wizcmds.c",
+    "function": "wiz_show_stats",
+    "message": "unsupported hero command: wiz_show_stats() for the extended command 'stats' is not ported",
+    "cFile": "wizcmds.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The wizard #stats row reaches the default unsupported-command refusal before wizcmds.c:wiz_show_stats can produce its paginated memory report. The whole owner requires the object/monster traversal family, consumed allocation-statistics helpers, source-generated C structure sizes, and bounded region capacity bookkeeping. The #stats dispatcher arm overlaps the active doextcmd reservation; implementation needs that caller coordination.",
+  "goalKind": "file-port",
+  "source": {
+    "file": "wizcmds.c",
+    "branch": "Wizard mode; #stats selects the existing WIZMODECMD extcmdlist row. The diagnostic reports current object and monster allocations, overview records and miscellaneous allocations, pages an NHW_TEXT window, and returns ECMD_OK without consuming a turn.",
+    "functions": [
+      "size_obj",
+      "count_obj",
+      "obj_chain",
+      "mon_invent_chain",
+      "contained_stats",
+      "size_monst",
+      "mon_chain",
+      "misc_stats",
+      "wiz_show_stats"
+    ],
+    "callers": [
+      "cmd.c:extcmdlist stats row 1876-1877 -> wiz_show_stats; IFBURIED | AUTOCOMPLETE | WIZMODECMD. cmd.c:doextcmd 493 onwards calls the selected ef_funct and consumes its ECMD_OK result. js/extcmdlist_data.js:129 already contains this row; js/cmd.js:doextcmd has no wiz_show_stats case and its default refusal at 5315-5320 stops the command.",
+      "The existing cmd.c rhack extended-command and queued-command routes both use the command dispatcher. Add one awaited #stats dispatcher case; preserve existing wizard admission, command repeat/queue handling and the no-turn result. No whole cmd.c completion claim is required."
+    ],
+    "dependencies": [
+      "Consumed statistics results must be implemented, including output-parameter results: dungeon.c:overview_stats 2761-2801, engrave.c:engr_stats 1626-1640, light.c:light_stats 501-511, timeout.c:timer_stats 2735-2745, region.c:region_stats 899-922 and worm.c:size_wseg 827-830. These are direct helper calls from the selected family; their only active callers are this report family.",
+      "Verify existing worm.c:count_wsegs 836-846 against js/worm.js:count_wsegs 101-105 before using size_wseg. C skips the first tail-chain node; JS subtracts the final hidden-head node. Both count the visible segment count, including zero-segment/zero-wormno cases. size_monst includes these bytes only for the fmon label; saved monster traits and migrating/mydogs entries omit them.",
+      "Generate fixed sizeof values from pinned source headers and the recorder target ABI. The C source uses struct obj/oextra/monst/mextra/egd/epri/eshk/emin/edog/ebones/wseg/trap/engr/damage/kinfo/cemetery, light_source, timer_element, NhRegion, NhRect, unsigned and mapseen. Preserve source sizeof(NhRegion) for max_regions even though add_region allocates an array of pointers; correcting that C expression would change the report.",
+      "Region capacity bookkeeping is missing: region.c:create_region 79-126 initializes max_monst=0; add_mon_to_reg 161-187 grows by MONST_INC=5; add_region 284-337 grows max_regions by 10. Removal retains capacity. clear_regions 394-405 resets it. rest_regions 799-892 resets capacity to the restored live counts before removing expired regions. JS currently stores only arrays and their live lengths. Add the corresponding canonical allocation fields and bounded metadata reconciliation at current level initialization/restoration/bones restoration, without claiming whole region save/restore behavior.",
+      "Canonical traversal inputs already exist: invent, level.objlist/buriedobjlist/monlist, gm.migrating_objs/migrating_mons/mydogs, gb.billobjs, obj.cobj/oextra, monster.mextra, svm.mapseenchn/custom_lth/final_resting_place, head_engr/engr_alloc, gl.light_base, gt.timer_base, level.traps/damagelist/bonesinfo, svk.killer.next, and per-game objects[].oc_uname. Use those source values rather than JS allocation counts or screen constants.",
+      "The existing tty_menu.js:displayTtyTextWindow supplies paginated NHW_TEXT behavior and redraw. Keep pending message dismissal, ESC cancellation and final redraw; no new window owner is needed. __BORLANDC__ && !_WIN32 show_borlandc_stats is compile-time inactive for the Linux recorder and remains an explicit inactive source call.",
+      "Live ownership overlap: A159 reserves source:cmd.c:doextcmd for wiz_show_vision. wizcmds.c statistics functions and their data helpers are unreserved, but the single #stats dispatcher arm requires coordinator-approved disjoint caller edits or acceptance/merge of A159 first. A158 hunger and C150 saddle reservations do not own the diagnostic family."
+    ]
+  },
+  "sourceUnits": [
+    {
+      "file": "wizcmds.c",
+      "name": "size_obj",
+      "start": 1117,
+      "end": 1132
+    },
+    {
+      "file": "wizcmds.c",
+      "name": "count_obj",
+      "start": 1135,
+      "end": 1151
+    },
+    {
+      "file": "wizcmds.c",
+      "name": "obj_chain",
+      "start": 1156,
+      "end": 1174
+    },
+    {
+      "file": "wizcmds.c",
+      "name": "mon_invent_chain",
+      "start": 1177,
+      "end": 1196
+    },
+    {
+      "file": "wizcmds.c",
+      "name": "contained_stats",
+      "start": 1199,
+      "end": 1225
+    },
+    {
+      "file": "wizcmds.c",
+      "name": "size_monst",
+      "start": 1228,
+      "end": 1254
+    },
+    {
+      "file": "wizcmds.c",
+      "name": "mon_chain",
+      "start": 1257,
+      "end": 1281
+    },
+    {
+      "file": "wizcmds.c",
+      "name": "misc_stats",
+      "start": 1284,
+      "end": 1399
+    },
+    {
+      "file": "wizcmds.c",
+      "name": "wiz_show_stats",
+      "start": 1616,
+      "end": 1697
+    },
+    {
+      "file": "dungeon.c",
+      "name": "overview_stats",
+      "start": 2761,
+      "end": 2801
+    },
+    {
+      "file": "engrave.c",
+      "name": "engr_stats",
+      "start": 1626,
+      "end": 1640
+    },
+    {
+      "file": "light.c",
+      "name": "light_stats",
+      "start": 501,
+      "end": 511
+    },
+    {
+      "file": "timeout.c",
+      "name": "timer_stats",
+      "start": 2735,
+      "end": 2745
+    },
+    {
+      "file": "region.c",
+      "name": "region_stats",
+      "start": 899,
+      "end": 922
+    },
+    {
+      "file": "worm.c",
+      "name": "size_wseg",
+      "start": 827,
+      "end": 830
+    }
+  ],
+  "evidence": [
+    "Queue run-8ITJ07 at examined commit 13cca73205a3daa95a24ecdb7d7c87277ff05019 carries accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json: screens26/32, cursors26/32, RNG3238/3238, first stop segment0 step26. Preserve queue manifest digest bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007; it is the corpus identity, not sha256sum of the raw manifest.",
+    "A selected-case replay on the examined commit reproduced the same refusal and 26 emitted screens: bounded run-hs6DN8, node scripts/scan-sessions.mjs --json --synthetic v30/v30-memory-statistics. Diagnostic .cache/B162/focused-scan.log records the wizard #stats command, not an unsupported terrain or movement branch. No aggregate scan or new C game was run.",
+    "The admitted recipe independently records a Barbarian with no pet, one wait and an uncursed diamond wish before #stats. C step26 begins Current memory statistics, step27 shows the remaining totals, and step28 restores the map. Counts reflect objects allocated on the generated level, including contained objects, buried objects, four monsters, one overview entry and one engraving. The six missing screens follow the command refusal; there is no RNG debt before it.",
+    "Read complete wizcmds.c:size_obj/count_obj/obj_chain/mon_invent_chain/contained_stats/size_monst/mon_chain/misc_stats and wiz_show_stats at upstream 16ff59115315917b93185d026aeefea06db9b0f4. Nonadjacent units exclude intervening sanity-check and migration-debug functions. Count object structs rather than quan; top-level chains and recursive cobj accounting are separate; mon_chain includes dead list nodes as C does. Each conditional row contributes to totals only where C emits it.",
+    "Search rg -n \"wiz_show_stats|size_obj|count_obj|contained_stats|size_monst|misc_stats|overview_stats|engr_stats|region_stats|light_stats|timer_stats|size_wseg\" js scripts finds only the extcmd row for this family, with no implementation or generated memory-size table. Existing count_wsegs and the canonical state producers were inspected separately.",
+    "A development-only sizeof probe compiled pinned hack.h plus the wseg declaration extracted from worm.c using clang -std=c99 -DCROSSCOMPILE. CROSSCOMPILE omits the generated Lua include/prototypes on this Unix target; the inspected conditional branches do not change these structures. .cache/B162/sizeof-probe.c and sizeof-probe.log establish a feasible source-derived exporter: obj112, oextra32, monst192, mextra64, egd640, epri56, eshk4960, emin8, edog64, ebones28, wseg16, trap32, engr64, light_source32, timer_element48, damage32, NhRegion96, NhRect8, unsigned4, kinfo272, cemetery184, mapseen384. These values came from source compilation, not the session screen. Implementation must commit a deterministic generator and checked generated table, following scripts/generate-monsters.mjs.",
+    "Source inspection confirms the accounting helpers make no RNG calls and do not change game state; size_obj/size_monst/count_obj/size_wseg/engr_stats/light_stats/timer_stats/region_stats require source-pinned result tests. overview_stats and the row-output helpers write text and need #stats runtime evidence. Pointer output parameters are consumed data, so note_unported cannot substitute for their results.",
+    "Counter-evidence: engraving allocation metadata is already canonical. js/engrave.js:make_engr_at 163-204 records engr_alloc as three allocated byte strings, matching engrave.c:make_engr_at 408-464. No new engraving-producer port is needed. Object oextra and monster mextra also retain source allocation presence, so the size helpers can inspect them directly.",
+    "Counter-evidence: regions.length and region.monsters.length cannot stand in for allocated capacity. C region_stats includes retained max_regions even when live count is zero and includes max_monst after members leave. Restored regions deliberately shrink capacity to their serialized live count. Source-order tests must pin growth/removal/restoration independently of the selected no-region recording."
+  ],
+  "proposal": {
+    "goalId": "port-wizcmds-wiz-show-stats-v30-20261008",
+    "summary": "Port the complete wizard memory-statistics diagnostic and its consumed source accounting helpers.",
+    "selectionReason": "The oldest unreserved actionable synthetic case has six remaining screens and stops before the existing #stats extcmd row can invoke its missing C owner. Other higher-debt cases are reserved. Source tracing establishes a coherent diagnostic family with no gameplay RNG changes.",
+    "detail": "Whole nonadjacent wizcmds.c statistics family plus complete consumed accounting helpers, a generated C ABI structure-size table, bounded region allocation metadata and one production #stats dispatcher arm. Preserve source traversal/row/total order, NHW_TEXT paging and ECMD_OK. Broad allocation producers and general save/restore behavior receive no completion credit.",
+    "sourceUnits": [
+      {
+        "file": "wizcmds.c",
+        "name": "size_obj",
+        "start": 1117,
+        "end": 1132
+      },
+      {
+        "file": "wizcmds.c",
+        "name": "count_obj",
+        "start": 1135,
+        "end": 1151
+      },
+      {
+        "file": "wizcmds.c",
+        "name": "obj_chain",
+        "start": 1156,
+        "end": 1174
+      },
+      {
+        "file": "wizcmds.c",
+        "name": "mon_invent_chain",
+        "start": 1177,
+        "end": 1196
+      },
+      {
+        "file": "wizcmds.c",
+        "name": "contained_stats",
+        "start": 1199,
+        "end": 1225
+      },
+      {
+        "file": "wizcmds.c",
+        "name": "size_monst",
+        "start": 1228,
+        "end": 1254
+      },
+      {
+        "file": "wizcmds.c",
+        "name": "mon_chain",
+        "start": 1257,
+        "end": 1281
+      },
+      {
+        "file": "wizcmds.c",
+        "name": "misc_stats",
+        "start": 1284,
+        "end": 1399
+      },
+      {
+        "file": "wizcmds.c",
+        "name": "wiz_show_stats",
+        "start": 1616,
+        "end": 1697
+      },
+      {
+        "file": "dungeon.c",
+        "name": "overview_stats",
+        "start": 2761,
+        "end": 2801
+      },
+      {
+        "file": "engrave.c",
+        "name": "engr_stats",
+        "start": 1626,
+        "end": 1640
+      },
+      {
+        "file": "light.c",
+        "name": "light_stats",
+        "start": 501,
+        "end": 511
+      },
+      {
+        "file": "timeout.c",
+        "name": "timer_stats",
+        "start": 2735,
+        "end": 2745
+      },
+      {
+        "file": "region.c",
+        "name": "region_stats",
+        "start": 899,
+        "end": 922
+      },
+      {
+        "file": "worm.c",
+        "name": "size_wseg",
+        "start": 827,
+        "end": 830
+      }
+    ],
+    "supportingScope": [
+      "region.c:create_region/add_mon_to_reg/add_region/remove_region/clear_regions/rest_regions allocation fields only; no whole producer credit",
+      "Existing level initialization and restore/bones entry sites for capacity reset and restoration; no whole save/restore/bones credit",
+      "cmd.c:doextcmd #stats arm only; coordinate A159 before touching it"
+    ],
+    "reservations": [
+      "session:synthetic/v30/v30-memory-statistics",
+      "source:wizcmds.c:size_obj",
+      "source:wizcmds.c:count_obj",
+      "source:wizcmds.c:obj_chain",
+      "source:wizcmds.c:mon_invent_chain",
+      "source:wizcmds.c:contained_stats",
+      "source:wizcmds.c:size_monst",
+      "source:wizcmds.c:mon_chain",
+      "source:wizcmds.c:misc_stats",
+      "source:wizcmds.c:wiz_show_stats",
+      "source:dungeon.c:overview_stats",
+      "source:engrave.c:engr_stats",
+      "source:light.c:light_stats",
+      "source:timeout.c:timer_stats",
+      "source:region.c:region_stats",
+      "source:worm.c:size_wseg",
+      "contract:wizard-memory-statistics",
+      "contract:region-allocation-capacity-accounting",
+      "source:cmd.c:doextcmd",
+      "source:region.c:create_region",
+      "source:region.c:add_mon_to_reg",
+      "source:region.c:add_region",
+      "source:region.c:rest_regions"
+    ],
+    "allowedPaths": [
+      "investigations/synthetic/v30/v30-memory-statistics.json",
+      "js/wizcmds.js",
+      "js/wizcmds_data.js",
+      "js/cmd.js",
+      "js/dungeon.js",
+      "js/engrave.js",
+      "js/light.js",
+      "js/timeout.js",
+      "js/region.js",
+      "js/worm.js",
+      "js/game.js",
+      "js/restore.js",
+      "js/bones.js",
+      "scripts/generate-wizcmds-memory-layout.mjs",
+      "scripts/wizcmds*.test.mjs",
+      "scripts/cmd*.test.mjs",
+      "scripts/dungeon*.test.mjs",
+      "scripts/engrave*.test.mjs",
+      "scripts/light*.test.mjs",
+      "scripts/timeout*.test.mjs",
+      "scripts/region*.test.mjs",
+      "scripts/worm*.test.mjs",
+      "scripts/restore*.test.mjs",
+      "scripts/bones*.test.mjs",
+      "scripts/run-memory-statistics.mjs",
+      "recipes/wizcmds.c/",
+      "recordings/wizcmds.c/",
+      ".cache/"
+    ],
+    "runtimeEvidencePlan": [
+      "Admitted v30-memory-statistics segment0 steps26-31 for full production #stats paging and return; independently verify the prefix and complete case after implementation.",
+      "Independent C-first #stats recipe plus a cheap different-role variation; add a named object, a named monster or tame pet, nested container contents, a lit lamp/timer and a level annotation to exercise optional rows and extra allocations. Keep inputs independently chosen, and use smaller recipes if an unrelated operation blocks that combination.",
+      "Independent gas-cloud #stats variation for live-region bytes and retained capacity after cloud expiration/removal; source-pinned tests cover capacity increments and zero-live retained capacity.",
+      "Independent save/restore or leave/return variation with an existing region for restored-capacity normalization, and outside-limit nonwizard #stats admission refusal. Keep unrelated blocked entry recipes as named source gaps rather than count them as passing runtime evidence."
+    ],
+    "implementationGate": "Coordinate the A159 doextcmd reservation before an implementation claim. Confirm exact supporting level/restore/bones producer paths in the central task context; the investigation has not changed game code or reserved source functions."
+  }
+}

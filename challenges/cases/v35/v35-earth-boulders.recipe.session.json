@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 supplemental C-first behavior: read.c:seffect_earth1919-1973. Read blessed earth scroll in ordinary room. Required C observation: Boulders materialize around hero, excluding center. Planned before this case's JS comparison; original cases remain unchanged.",
+  "segments": [
+    {
+      "seed": 16035113,
+      "datetime": "20380507152302",
+      "nethackrc": "OPTIONS=name:Supplement16035113,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017blessed scroll of earth\nre                     "
+    }
+  ]
+}

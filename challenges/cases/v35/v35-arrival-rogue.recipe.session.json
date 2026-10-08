@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: teleport.c:level_tele -> mklev.c:makelevel -> dat/mklev.c:makeroguerooms. Wizard levelports to named rogue and maps level. Required C observation: Named special level terrain, inhabitants and arrival. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 16035002,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035002,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizlevelport\nrogue\n                        #wizmap\n       "
+    }
+  ]
+}

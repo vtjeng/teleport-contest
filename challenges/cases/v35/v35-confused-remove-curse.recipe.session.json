@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 supplemental C-first behavior: read.c:seffect_remove_curse1489-1605. Read blessed remove curse while confused with equipment. Required C observation: Disordered curse state assignment and magical aura. Planned before this case's JS comparison; original cases remain unchanged.",
+  "segments": [
+    {
+      "seed": 16035117,
+      "datetime": "20380507152302",
+      "nethackrc": "OPTIONS=name:Supplement16035117,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed potion of confusion\nqe        \u0017blessed scroll of remove curse\nrf                     "
+    }
+  ]
+}

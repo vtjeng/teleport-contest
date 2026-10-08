@@ -1,0 +1,1050 @@
+{
+  "version": 1,
+  "batch": "v9",
+  "manifestPath": "challenges/manifests/v9.json",
+  "sha": "b0b76e575b2dd8563b0d1c6cc058f9aa813dfb77",
+  "utc": "2026-10-08T17:08:55.582Z",
+  "status": "complete",
+  "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "fedfbef1bda56d3b316a9341cbb97ca8967c227961b6a13bad785531ba078a56",
+  "inputFiles": [
+    "challenges/cases/v9/acid-potion-quaff-damages-hero.recipe.session.json",
+    "challenges/cases/v9/acid-potion-quaff-damages-hero.session.json",
+    "challenges/cases/v9/apply-blessed-horn-clears-timed-blindness.recipe.session.json",
+    "challenges/cases/v9/apply-blessed-horn-clears-timed-blindness.session.json",
+    "challenges/cases/v9/archeologist-pickaxe-finds-hidden-door.recipe.session.json",
+    "challenges/cases/v9/archeologist-pickaxe-finds-hidden-door.session.json",
+    "challenges/cases/v9/blessed-gain-ability-potion.recipe.session.json",
+    "challenges/cases/v9/blessed-gain-ability-potion.session.json",
+    "challenges/cases/v9/blessed-identify-scroll-identifies-pack.recipe.session.json",
+    "challenges/cases/v9/blessed-identify-scroll-identifies-pack.session.json",
+    "challenges/cases/v9/blessed-water-potion-awe.recipe.session.json",
+    "challenges/cases/v9/blessed-water-potion-awe.session.json",
+    "challenges/cases/v9/blindness-potion-blinds-hero.recipe.session.json",
+    "challenges/cases/v9/blindness-potion-blinds-hero.session.json",
+    "challenges/cases/v9/booze-potion-confuses-and-feeds.recipe.session.json",
+    "challenges/cases/v9/booze-potion-confuses-and-feeds.session.json",
+    "challenges/cases/v9/charging-scroll-recharges-wizard-wand.recipe.session.json",
+    "challenges/cases/v9/charging-scroll-recharges-wizard-wand.session.json",
+    "challenges/cases/v9/cursed-teleport-scroll-level-teleport.recipe.session.json",
+    "challenges/cases/v9/cursed-teleport-scroll-level-teleport.session.json",
+    "challenges/cases/v9/earth-scroll-blessed-boulder-fall.recipe.session.json",
+    "challenges/cases/v9/earth-scroll-blessed-boulder-fall.session.json",
+    "challenges/cases/v9/eat-lichen-corpse-nutrition.recipe.session.json",
+    "challenges/cases/v9/eat-lichen-corpse-nutrition.session.json",
+    "challenges/cases/v9/fire-wand-self-zap-burns-hero.recipe.session.json",
+    "challenges/cases/v9/fire-wand-self-zap-burns-hero.session.json",
+    "challenges/cases/v9/food-detection-scroll-maps-floor-ration.recipe.session.json",
+    "challenges/cases/v9/food-detection-scroll-maps-floor-ration.session.json",
+    "challenges/cases/v9/gain-energy-potion-restores-energy.recipe.session.json",
+    "challenges/cases/v9/gain-energy-potion-restores-energy.session.json",
+    "challenges/cases/v9/genocide-scroll-selects-species.recipe.session.json",
+    "challenges/cases/v9/genocide-scroll-selects-species.session.json",
+    "challenges/cases/v9/gold-detection-scroll-maps-floor-gold.recipe.session.json",
+    "challenges/cases/v9/gold-detection-scroll-maps-floor-gold.session.json",
+    "challenges/cases/v9/hallucination-potion-starts-hallucination.recipe.session.json",
+    "challenges/cases/v9/hallucination-potion-starts-hallucination.session.json",
+    "challenges/cases/v9/healing-potion-restores-hit-points.recipe.session.json",
+    "challenges/cases/v9/healing-potion-restores-hit-points.session.json",
+    "challenges/cases/v9/kick-closed-door.recipe.session.json",
+    "challenges/cases/v9/kick-closed-door.session.json",
+    "challenges/cases/v9/light-scroll-illuminates-room.recipe.session.json",
+    "challenges/cases/v9/light-scroll-illuminates-room.session.json",
+    "challenges/cases/v9/magic-mapping-scroll-reveals-map.recipe.session.json",
+    "challenges/cases/v9/magic-mapping-scroll-reveals-map.session.json",
+    "challenges/cases/v9/marker-engraves-custom-text.recipe.session.json",
+    "challenges/cases/v9/marker-engraves-custom-text.session.json",
+    "challenges/cases/v9/oil-lamp-ignites.recipe.session.json",
+    "challenges/cases/v9/oil-lamp-ignites.session.json",
+    "challenges/cases/v9/paralysis-potion-freezes-hero.recipe.session.json",
+    "challenges/cases/v9/paralysis-potion-freezes-hero.session.json",
+    "challenges/cases/v9/punishment-scroll-adds-ball-chain.recipe.session.json",
+    "challenges/cases/v9/punishment-scroll-adds-ball-chain.session.json",
+    "challenges/cases/v9/read-amnesia-forgets-known-spells.recipe.session.json",
+    "challenges/cases/v9/read-amnesia-forgets-known-spells.session.json",
+    "challenges/cases/v9/restore-ability-potion-recovers-stats.recipe.session.json",
+    "challenges/cases/v9/restore-ability-potion-recovers-stats.session.json",
+    "challenges/cases/v9/rogue-throws-dagger-into-wall.recipe.session.json",
+    "challenges/cases/v9/rogue-throws-dagger-into-wall.session.json",
+    "challenges/cases/v9/sickness-potion-poisons-hero.recipe.session.json",
+    "challenges/cases/v9/sickness-potion-poisons-hero.session.json",
+    "challenges/cases/v9/sleeping-potion-falls-asleep.recipe.session.json",
+    "challenges/cases/v9/sleeping-potion-falls-asleep.session.json",
+    "challenges/cases/v9/speed-potion-grants-intrinsic.recipe.session.json",
+    "challenges/cases/v9/speed-potion-grants-intrinsic.session.json",
+    "challenges/cases/v9/stinking-cloud-scroll-targets-floor.recipe.session.json",
+    "challenges/cases/v9/stinking-cloud-scroll-targets-floor.session.json",
+    "challenges/cases/v9/valkyrie-opens-spinach-tin-with-tin-opener.recipe.session.json",
+    "challenges/cases/v9/valkyrie-opens-spinach-tin-with-tin-opener.session.json",
+    "challenges/cases/v9/zap-sleep-wand-at-hostile-newt.recipe.session.json",
+    "challenges/cases/v9/zap-sleep-wand-at-hostile-newt.session.json",
+    "challenges/manifests/v9.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd_isok.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkobj_hornoplenty.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself_bodyparts.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read_text_data.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rng.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/rumors.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/sp_lev.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/strutil.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout.js",
+    "js/topten.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "earth-scroll-blessed-boulder-fall",
+      "recordingSha256": "91c8a067627112628457bc488ad3ff918516a38a51deda1f44ebc92591370604",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 30,
+          "total": 30
+        },
+        "rng": {
+          "matched": 4496,
+          "total": 4496
+        },
+        "cursors": {
+          "matched": 30,
+          "total": 30
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "charging-scroll-recharges-wand",
+      "recordingSha256": "7fd5daa16ea94909d338d09598f4c367cc62eef033928f2c82be9b4e935c1c77",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 36,
+          "total": 36
+        },
+        "rng": {
+          "matched": 2864,
+          "total": 2864
+        },
+        "cursors": {
+          "matched": 36,
+          "total": 36
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "genocide-scroll-selects-species",
+      "recordingSha256": "21687dcc3c3fadea446d1518d74ee03018f8370763bbd9ca9c801c40ff8fae07",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 31,
+          "total": 31
+        },
+        "rng": {
+          "matched": 3298,
+          "total": 3298
+        },
+        "cursors": {
+          "matched": 31,
+          "total": 31
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "light-scroll-illuminates-room",
+      "recordingSha256": "b03d12dfd6f5df4adf00afa280fbf708151e4b522f3fe9c717d23847df7347b1",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 21,
+          "total": 21
+        },
+        "rng": {
+          "matched": 2365,
+          "total": 2365
+        },
+        "cursors": {
+          "matched": 21,
+          "total": 21
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "punishment-scroll-adds-ball-chain",
+      "recordingSha256": "37ff6aa871803dbd7846a458fec0763e03d0b72172486232917c03f08a4336bf",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 27,
+          "total": 27
+        },
+        "rng": {
+          "matched": 2739,
+          "total": 2739
+        },
+        "cursors": {
+          "matched": 27,
+          "total": 27
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "stinking-cloud-scroll-targets-floor",
+      "recordingSha256": "30f21674ec8e7fe7965fdf526cb0933ae59855cee2b0d2ba83d659cc85bd1fbc",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 2626,
+          "total": 2626
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "cursed-teleport-scroll-level-teleport",
+      "recordingSha256": "23d0a7164b0e0fa8faf76e75af6ebbecd5681843253f8dd9cb874bd6b170d98b",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 39,
+          "total": 39
+        },
+        "rng": {
+          "matched": 6487,
+          "total": 6487
+        },
+        "cursors": {
+          "matched": 39,
+          "total": 39
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "gold-detection-scroll-maps-floor-gold",
+      "recordingSha256": "5056952a917d4eda93011951acd0b5e2eac09324deb385b0e8f89ca2bc911fad",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 31,
+          "total": 31
+        },
+        "rng": {
+          "matched": 2746,
+          "total": 2746
+        },
+        "cursors": {
+          "matched": 31,
+          "total": 31
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "food-detection-scroll-smells-ration",
+      "recordingSha256": "51b904213bb51ac8bb79bbe9ed1ab8aff746ab6d6e6ec0be08efd46604e01d8e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 47,
+          "total": 47
+        },
+        "rng": {
+          "matched": 2927,
+          "total": 2927
+        },
+        "cursors": {
+          "matched": 47,
+          "total": 47
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "blessed-identify-scroll-identifies-pack",
+      "recordingSha256": "788c914acfafe8bed7dc652d24b797b03359f16945e878fc0013e3c88c2377c2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 52,
+          "total": 52
+        },
+        "rng": {
+          "matched": 2160,
+          "total": 2160
+        },
+        "cursors": {
+          "matched": 52,
+          "total": 52
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "blessed-gain-ability-potion",
+      "recordingSha256": "11d8bb37824e602a8ac346f034f0303419ebb66d53d7d57e7870c9f2961d92a6",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 37,
+          "total": 37
+        },
+        "rng": {
+          "matched": 2776,
+          "total": 2776
+        },
+        "cursors": {
+          "matched": 37,
+          "total": 37
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "speed-potion-grants-intrinsic",
+      "recordingSha256": "a481afc87fe1d3198a6c41bbdb210b403a44154d2430202d0a9c9af1a3296b66",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 22,
+          "total": 22
+        },
+        "rng": {
+          "matched": 2748,
+          "total": 2748
+        },
+        "cursors": {
+          "matched": 22,
+          "total": 22
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "healing-potion-restores-hit-points",
+      "recordingSha256": "d163c28ed6d1b8d8419dd7b48e57c9e6c01c1a54461a9dccf474efd004e91cc1",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 23,
+          "total": 23
+        },
+        "rng": {
+          "matched": 3043,
+          "total": 3043
+        },
+        "cursors": {
+          "matched": 23,
+          "total": 23
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "booze-potion-confuses-and-feeds",
+      "recordingSha256": "90caa45cdcd7dd609bf2000eaa48e637d0dc348a5f0bd7a9fe490db97ab0fbdf",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 28,
+          "total": 28
+        },
+        "rng": {
+          "matched": 2001,
+          "total": 2001
+        },
+        "cursors": {
+          "matched": 28,
+          "total": 28
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "acid-potion-quaff-damages-hero",
+      "recordingSha256": "172af1fe72e3c7f0506154961c6656d27a2fe0d423bf076ff674b0a49d51fd86",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 29,
+          "total": 29
+        },
+        "rng": {
+          "matched": 2428,
+          "total": 2428
+        },
+        "cursors": {
+          "matched": 29,
+          "total": 29
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "blessed-water-potion-awe",
+      "recordingSha256": "a15e584bd6b124d04ecea3b33074ba3d02e22f7a94b9a27a6dd6c24d217395f8",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 29,
+          "total": 29
+        },
+        "rng": {
+          "matched": 2705,
+          "total": 2705
+        },
+        "cursors": {
+          "matched": 29,
+          "total": 29
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "marker-engraves-custom-text",
+      "recordingSha256": "140d64eebabe3b7bbe8ef274aa5bff359d0c87ea956c9f911b510f71e1f01fe6",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 29,
+          "total": 29
+        },
+        "rng": {
+          "matched": 2076,
+          "total": 2076
+        },
+        "cursors": {
+          "matched": 29,
+          "total": 29
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "oil-lamp-ignites",
+      "recordingSha256": "171cba7e86429311e206998e9c0d045fde853f94093d7d5079d2403c5880e66e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 14,
+          "total": 14
+        },
+        "rng": {
+          "matched": 2759,
+          "total": 2759
+        },
+        "cursors": {
+          "matched": 14,
+          "total": 14
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "kick-closed-door",
+      "recordingSha256": "cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 9,
+          "total": 9
+        },
+        "rng": {
+          "matched": 2840,
+          "total": 2840
+        },
+        "cursors": {
+          "matched": 9,
+          "total": 9
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "eat-lichen-corpse-nutrition",
+      "recordingSha256": "5d95479791a819dcde1badd229270660bddda8a69d71ebe0f33ab93d1bea8dac",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 19,
+          "total": 19
+        },
+        "rng": {
+          "matched": 3426,
+          "total": 3426
+        },
+        "cursors": {
+          "matched": 19,
+          "total": 19
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "archeologist-pickaxe-finds-hidden-door",
+      "recordingSha256": "7505e982c1063945de906b2b2d70b803848a41972c0694cc772b905062a8ced5",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 7,
+          "total": 7
+        },
+        "rng": {
+          "matched": 3381,
+          "total": 3381
+        },
+        "cursors": {
+          "matched": 7,
+          "total": 7
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "read-amnesia-forgets-known-spells",
+      "recordingSha256": "481f4e372c6513cf0f2e00e7b286c7a3c932884f9092ec9c0cee0293c76ac335",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 24,
+          "total": 24
+        },
+        "rng": {
+          "matched": 3145,
+          "total": 3145
+        },
+        "cursors": {
+          "matched": 24,
+          "total": 24
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "gain-energy-potion-restores-energy",
+      "recordingSha256": "b8b34f66e98b05d3691ad60ce73d294e9a678a96ad77bec6cb07df505c3fd8e8",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 36,
+          "total": 36
+        },
+        "rng": {
+          "matched": 3005,
+          "total": 3005
+        },
+        "cursors": {
+          "matched": 36,
+          "total": 36
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "paralysis-potion-freezes-hero",
+      "recordingSha256": "0e3dff08349dd46cc6f5e656cff5bf3c82c3da72cc4462de2426fab32eba241d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 2574,
+          "total": 2574
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "hallucination-potion-starts-hallucination",
+      "recordingSha256": "bf7537070332a4ee8a643904f156e48dd0d2848e613b7222eb72bcc43d788761",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 38,
+          "total": 38
+        },
+        "rng": {
+          "matched": 2609,
+          "total": 2609
+        },
+        "cursors": {
+          "matched": 38,
+          "total": 38
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "magic-mapping-scroll-reveals-map",
+      "recordingSha256": "177d97f843eab910b5cad4d6cc035dbefaaabc40b61233d4f6ab99659f56eb61",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 30,
+          "total": 30
+        },
+        "rng": {
+          "matched": 2891,
+          "total": 2891
+        },
+        "cursors": {
+          "matched": 30,
+          "total": 30
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "blindness-potion-blinds-hero",
+      "recordingSha256": "e23df0d0b8bc6131d90b9b413dfd21538b36b614e164b50ac57060389b0d85ae",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 2287,
+          "total": 2287
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "sleeping-potion-falls-asleep",
+      "recordingSha256": "f82a3636cfc6f7b926fe8da5ba3259b04aa8793e1eb729df1c8e8a5c0e63154f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 33,
+          "total": 33
+        },
+        "rng": {
+          "matched": 1952,
+          "total": 1952
+        },
+        "cursors": {
+          "matched": 33,
+          "total": 33
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "sickness-potion-poisons-hero",
+      "recordingSha256": "6e6163336cdb9ef55801c27e97bfe68f038be6334737394d663d1e0dad81b7fc",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 33,
+          "total": 33
+        },
+        "rng": {
+          "matched": 2709,
+          "total": 2709
+        },
+        "cursors": {
+          "matched": 33,
+          "total": 33
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "restore-ability-potion-recovers-stats",
+      "recordingSha256": "15e358379aafa24a7c3f1a5e2bfa50ff7a45aec0331c8fb49580da59f6c869b4",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 40,
+          "total": 40
+        },
+        "rng": {
+          "matched": 2430,
+          "total": 2430
+        },
+        "cursors": {
+          "matched": 40,
+          "total": 40
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "zap-sleep-wand-at-hostile-newt",
+      "recordingSha256": "6c4faa83a4d35856bdfa2a34d7397c1f87e9b0ecda3e56e0479f43cd5c95bdce",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 2137,
+          "total": 2137
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "apply-blessed-horn-clears-timed-blindness",
+      "recordingSha256": "5676ae9a0fc334b910095d65b6e60a0b26254819ab97309d387f2b252efab4ff",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 2428,
+          "total": 2428
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "rogue-throws-dagger-into-wall",
+      "recordingSha256": "40034a839f50767619185e2599504db44ad49f4a86c073e5367c13fb14126dc1",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 13,
+          "total": 13
+        },
+        "rng": {
+          "matched": 2847,
+          "total": 2847
+        },
+        "cursors": {
+          "matched": 13,
+          "total": 13
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "valkyrie-opens-spinach-tin-with-tin-opener",
+      "recordingSha256": "2ea0bb0a2276f5414486adf9d192304f18097e739d35f820f6e271332b9d6a34",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 56,
+          "total": 56
+        },
+        "rng": {
+          "matched": 2701,
+          "total": 2701
+        },
+        "cursors": {
+          "matched": 56,
+          "total": 56
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "fire-wand-self-zap-burns-hero",
+      "recordingSha256": "21b51d2875813149cd92cf08c5ba4c726607a84b8eb404cea4154186b6025bdf",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 19,
+          "total": 19
+        },
+        "rng": {
+          "matched": 2320,
+          "total": 2320
+        },
+        "cursors": {
+          "matched": 19,
+          "total": 19
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 35,
+      "total": 35
+    },
+    "screens": {
+      "matched": 1079,
+      "total": 1079
+    },
+    "rng": {
+      "matched": 98926,
+      "total": 98926
+    },
+    "cursors": {
+      "matched": 1079,
+      "total": 1079
+    }
+  }
+}

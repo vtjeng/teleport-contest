@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B161 C-first mission: do_wear.c:Ring_on; potion.c:peffect_paralysis. Wear free action then drink paralysis. Required C observation: Momentary stiffness instead of helpless turns. Fixed before own JavaScript comparison; C-only prompt/inventory correction permitted, no seed search. C-only correction before own JS: C wish output assigns ring f and potion g because generated black onyx ring occupies e. Further source/C-only correction before any JS: Explicit right finger r required to put on the ring before potion.",
+  "segments": [
+    {
+      "seed": 16136049,
+      "datetime": "20390609110721",
+      "nethackrc": "OPTIONS=name:Probe16136049,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed ring of free action\nPfr                  \u0017uncursed potion of paralysis\nqg                  "
+    }
+  ]
+}

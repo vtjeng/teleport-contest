@@ -91,6 +91,7 @@ import {
     u_at,
 } from './const.js';
 import { losexp, pluslvl } from './exper.js';
+import { rumor_check } from './rumors.js';
 import { body_part, float_vs_flight, polyself } from './polyself.js';
 import { create_particular } from './read.js';
 import { getlin, select_menu } from './windows.js';
@@ -824,5 +825,11 @@ export async function wiz_kill(state = game, env = {}) {
         }
     }
     dmonsfree(state);
+    return ECMD_OK;
+}
+
+// C ref: wizcmds.c wiz_rumor_check() (1102-1106). cmd.c gates wizard mode.
+export async function wiz_rumor_check(state = game, env = {}) {
+    await rumor_check(state, env);
     return ECMD_OK;
 }

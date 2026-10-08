@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: light.c:wiz_light_sources935-977. Display light chain with no mobile light source. Required C observation: Hero coordinates and none placeholder. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 16035015,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035015,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#lightsources\n                  "
+    }
+  ]
+}

@@ -6,6 +6,7 @@ import test from 'node:test';
 import {
     A_WIS,
     BLINDED,
+    BUFSZ,
     BY_COOKIE,
     BY_ORACLE,
     BY_PAPER,
@@ -15,6 +16,7 @@ import {
     NOT_HUNGRY,
     NUM_MGENDERS,
 } from '../js/const.js';
+import { init_rumors } from '../js/rumors.js';
 import { random_engraving } from '../js/random_engraving.js';
 import {
     HCOLORS,
@@ -28,7 +30,6 @@ import {
     get_rnd_line,
     getrumor,
     outrumor,
-    parseRumorHeader,
     xcrypt,
 } from '../js/random_text.js';
 import {
@@ -211,17 +212,15 @@ test('hliquid preserves its preferred value or consumes one display draw', () =>
 });
 
 test('rumor header retains the generated section offsets and byte bounds', () => {
-    assert.deepEqual(parseRumorHeader(RANDOM_TEXT_FILES.rumors), {
-        // 109 is the byte immediately after the two generated header records.
-        trueCount: 390,
-        trueSize: 24924,
-        trueStart: 109,
-        falseCount: 397,
-        falseSize: 25762,
-        falseStart: 25033,
-        eof: 50795,
-        trueEnd: 25033,
-        falseEnd: 50795,
+    const state = {};
+    init_rumors({ data: RANDOM_TEXT_FILES.rumors, position: 0 }, state);
+    assert.deepEqual(state.gt, {
+        // C's true section starts after the generated two-line header.
+        true_rumor_size: 24924, true_rumor_start: 109, true_rumor_end: 25033,
+    });
+    assert.deepEqual(state.gf, {
+        // C's false section ends at the generated file's byte50795.
+        false_rumor_size: 25762, false_rumor_start: 25033, false_rumor_end: 50795,
     });
     // The random-access files have one 60-byte generated comment record.
     assert.equal(RANDOM_TEXT_FILES.engrave.length - 60, 2894);
@@ -542,4 +541,64 @@ test('outrumor Oracle wording draws after getrumor and quotes the line', async (
         'True to her word, the Oracle offhandedly says: ',
         '"A candelabrum affixed with seven candles shows the way with a magical light."',
     ]);
+});
+
+test('getrumor uses the shared source cache and remembers failed initialization', () => {
+    const state = { in_mklev: true }; // Avoid the unrelated Wisdom exercise.
+    const random = scriptedRandom([
+        { bound: 2, result: 1 }, { bound: 24924, result: 0 },
+        { bound: 2, result: 1 }, { bound: 24924, result: 0 },
+    ]); // Same source true-section selection on both calls.
+    const env = { state, random };
+    const first = getrumor(0, true, env);
+    assert.equal(state.gt.true_rumor_size, 24924);
+    const cache = structuredClone({ gt: state.gt, gf: state.gf });
+    // A damaged header would fail init; existing offsets make it irrelevant.
+    const files = { ...RANDOM_TEXT_FILES, rumors: RANDOM_TEXT_FILES.rumors.replace(/390/u, 'bad') };
+    assert.equal(getrumor(0, true, { ...env, files }), first);
+    assert.deepEqual({ gt: state.gt, gf: state.gf }, cache);
+    random.done();
+    const failed = { in_mklev: true };
+    const noDraw = { rn2: () => assert.fail('failed initialization cannot draw') };
+    assert.equal(getrumor(1, true, { state: failed, random: noDraw, files: { rumors: '# comment\nbad\n' } }),
+        'Error reading "rumors".');
+    assert.equal(failed.gt.true_rumor_size, -1);
+    const inaccessible = { get rumors() { assert.fail('failed cache must guard before file access'); } };
+    assert.equal(getrumor(1, true, { state: failed, random: noDraw, files: inaccessible }), '');
+});
+
+test('getrumor subtracts accepted wide LP64 offsets before passing the bounded chunk to RNG', () => {
+    const source = readFileSync(new URL('../nethack-c/upstream/src/rumors.c', import.meta.url), 'utf8');
+    assert.match(source, /filechunksize = endpos - startpos;/u);
+    assert.match(source, /chunkoffset = \(long\) \(\*rng\)\(\(int\) filechunksize\);/u);
+    // Reviewer counterexample: both offsets round to 2^53+4 as Numbers,
+    // although C's exact start 2^53+3 leaves a one-byte positive chunk.
+    const state = { in_mklev: true };
+    const random = scriptedRandom([{ bound: 2, result: 1 }, { bound: 1, result: 0 }]);
+    assert.equal(getrumor(0, true, { state, random,
+        files: { rumors: '# generated\n1,1,20000000000003;1,1,30;0,0,90\n' },
+    }), '', 'the byte-file adapter accepts positive seeks beyond EOF; reads leave the initialized output empty');
+    assert.equal(state.gt.true_rumor_start, 0x20000000000003n);
+    assert.equal(state.gt.true_rumor_end, 0x20000000000004n);
+    random.done(); // Must observe rn2(1), despite both reads reaching EOF.
+});
+
+test('get_rnd_line retains stdio cursor and buffer when source seeks or reads fail', () => {
+    // A negative signed seek fails without moving the already-open cursor.
+    // The successful first read must survive the second failed read at EOF.
+    const file = { position: 0 };
+    const data = `${xcrypt('retained')}\n`;
+    const random = scriptedRandom([{ bound: 4, result: 0 }]);
+    assert.equal(get_rnd_line(data, random, -16n, -12n, 0, BUFSZ, file), 'retained');
+    assert.equal(file.position, BigInt(data.length));
+    random.done();
+
+    // A positive seek past EOF succeeds at its exact LP64 position. Neither
+    // failed fgets replaces the initially empty buffer or rounds the cursor.
+    const wideFile = { position: 0 };
+    const wideRandom = scriptedRandom([{ bound: 1, result: 0 }]);
+    assert.equal(get_rnd_line(data, wideRandom, 0x20000000000003n,
+        0x20000000000004n, 0, BUFSZ, wideFile), '');
+    assert.equal(wideFile.position, 0x20000000000003n);
+    wideRandom.done();
 });

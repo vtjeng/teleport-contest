@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 supplemental C-first behavior: pager.c:dohelp -> dispfile_license. Choose NetHack license from help menu. Required C observation: License text window. Planned before this case's JS comparison; original cases remain unchanged.",
+  "segments": [
+    {
+      "seed": 16035105,
+      "datetime": "20380507152302",
+      "nethackrc": "OPTIONS=name:Supplement16035105,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#help\nn                        "
+    }
+  ]
+}

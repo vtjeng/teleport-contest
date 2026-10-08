@@ -1,0 +1,128 @@
+{
+  "session": "synthetic/v30/v30-looted-saddle",
+  "corpus": "synthetic",
+  "batch": "v30",
+  "caseId": "v30-looted-saddle",
+  "manifestPath": "challenges/manifests/v30.json",
+  "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+  "recordingSha256": "1b15b14f9a8c02f0aa8d76716b4cf7e5492832a28b37cf8c326e1e1fa24dac94",
+  "evaluationPath": "challenges/evaluations/accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json",
+  "evaluationCommit": "5d732fba68778b565d95c0f11dfe245afa3d89af",
+  "remainingScreens": 1,
+  "recordedSteps": 17,
+  "status": "complete",
+  "commit": "5d732fba68778b565d95c0f11dfe245afa3d89af",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v30",
+    "caseId": "v30-looted-saddle",
+    "session": "synthetic/v30/v30-looted-saddle",
+    "manifestPath": "challenges/manifests/v30.json",
+    "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+    "recording": "challenges/cases/v30/v30-looted-saddle.session.json",
+    "recordingPath": "challenges/cases/v30/v30-looted-saddle.session.json",
+    "recordingSha256": "1b15b14f9a8c02f0aa8d76716b4cf7e5492832a28b37cf8c326e1e1fa24dac94",
+    "recipe": "challenges/cases/v30/v30-looted-saddle.recipe.session.json",
+    "recipeSha256": "97bf7e15ace84f20c52d59cd109d78dffe7372bedffd1e1795b6bc80d298762e",
+    "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
+    "evaluationPath": "challenges/evaluations/accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json",
+    "evaluationCommit": "5d732fba68778b565d95c0f11dfe245afa3d89af",
+    "evaluationArtifact": "challenges/evaluations/accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json",
+    "evaluationUtc": "2026-10-08T16:21:35.676Z",
+    "remainingScreens": 1,
+    "recordedSteps": 17,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 16,
+        "total": 17
+      },
+      "rng": {
+        "matched": 2588,
+        "total": 2588
+      },
+      "cursors": {
+        "matched": 16,
+        "total": 17
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 9,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 9,
+          "key": "y"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 43,
+        "cCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "n",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 9,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 9,
+          "key": "y"
+        },
+        "cCursor": [
+          59,
+          0,
+          1
+        ],
+        "jsCursor": [
+          69,
+          0,
+          1
+        ]
+      }
+    },
+    "step": 9,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The saddle pickup visibility adapter treats an adjacent starting pony as visible before vision is recalculated, preserving identification that C mpickobj clears. Reuse canonical canseemon for its default visibility predicate.",
+  "source": {
+    "file": "steed.c",
+    "functions": [
+      "put_saddle_on_mon"
+    ],
+    "branch": "A non-tame monster receives a fully identified freshly created saddle while its square is not in the current vision array (Knight startup occurs before initedog and docrt). JS non-blind/non-invisible shortcut reports visibility despite canseemon being false.",
+    "callers": [
+      "dog.c:makedog -> steed.c:put_saddle_on_mon -> steal.c:mpickobj -> mkobj.c:unknow_object",
+      "pickup.c:doloot_core -> loot_mon -> invent.c:hold_another_object -> prinv exposes inherited bknown",
+      "Other put_saddle_on_mon source sites: steed.c:use_saddle135, makemon.c:1451, read.c:3334, sp_lev.c:2319"
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Authoritative accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json: 16/17 screens, 2588/2588 RNG, 16/17 cursors. Selected focused replay .cache/C150-looted-saddle-scan.json at worker 5f38aba358a2d119c6f0dc2fd175cbb0139aac9d reproduces first screen/cursor mismatch at segment0 step9 key y, row0 column43; no RNG divergence/refusal/gap.",
+    "C step9 says You take the saddle off of the pony.  i - a saddle.--More--; JS says i - an uncursed saddle. Cache .cache/C150-state-trace.json confirms known/dknown/bknown/rknown already true in startup pony inventory before the #loot prompt and remain true when transferred. The later naming is consistent with that wrong bknown; do not repair loot_mon or globally suppress uncursed names.",
+    "allmain.c:809-818 orders vision_reset, then makedog, then docrt; vision.c:211-222 points viz_array at cleared could_see. dog.c:251-267 calls makemon(MM_EDOG|NO_MINVENT), creates/equips pony saddle, and calls initedog only at282. Thus mpickobj sees mtame==0 and no current IN_SIGHT/COULD_SEE bit at startup.",
+    "steed.c:142-164 orders can_saddle/which_armor guard, fresh mksobj, fully_identify_obj, then mpickobj, then worn/leash/extrinsic state. steal.c:655-664 uses !mtame && !canseemon && monster!=u.ustuck to call unknow_object. mkobj.c:854-865 clears bknown/rknown/etc while keeping per-type known behavior. display.h:116-120 canseemon requires current cansee/infrared and mon_visible, not adjacency.",
+    "js/steed.js:209-216 canSeeStartingPet default bypasses canonical vision with !Blind && !minvis, injected into mpickobj at280. Existing js/display.js:383 canseemon and js/obj.js:1533 unknow_object have the required predicates/state changes. Correct only the default visibility delegation, retain source-valid explicit special-level adapter and unchanged source order; no whole steed, steal, dog, vision or loot owner credit.",
+    "Proposed focused checks pin adjacent-but-unseen, visible, tame, stuck, blind/invisible cases and source identification changes without RNG changes. Runtime evidence uses selected admitted range plus independently chosen C-first Knight saddle-removal variation and ordinary visible applied-saddle control; keep startup pet init ordering, swallowed pickup and other caller bodies read-only."
+  ]
+}

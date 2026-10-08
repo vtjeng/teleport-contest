@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: insight.c:doconduct/show_conduct. Eat lichen corpse and display conduct achievements. Required C observation: Vegetarian/foodless conduct accounting in report. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 16035022,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035022,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017lichen corpse\nee y        #conduct\n                    "
+    }
+  ]
+}

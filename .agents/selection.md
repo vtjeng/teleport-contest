@@ -118,27 +118,28 @@ Whole-source completion and caller evidence remain required for every port.
 
 ## Generating the next synthetic batch
 
-One worker may prepare new batches while implementation workers repair current
-mismatches. Give each preparation task the next unused version number. Keep one
+The dedicated Prep worker prepares new batches while implementation workers
+repair current mismatches. Give each preparation task the next unused version number. Keep one
 unaccepted preparation task at a time, and resume a parked batch before
-starting a later version. Accepted batches may wait for admission while the
-worker prepares another. Preparation does not require the current
+starting a later version. Keep at most one unadmitted prepared batch; after
+admission, recheck the preparation trigger before starting another.
+Preparation does not require the current
 batch to match.
 
-After each current evaluation and worker handoff, count the independently
-assignable, source-traced implementation tasks in the combined work queue.
-Count a completed, valid investigation only when its source functions and
-shared-state contracts are free of ledger reservations and pending deliveries.
-Count overlapping investigations as one task, even when several sessions point
-to them. Do not count a raw session, an unresolved source owner, or a task
-already assigned to a worker as another available task. Workers may investigate
-unclaimed sessions while preparation runs; an investigation claim is not yet
-an independently assignable source task.
-Let `implementationSlots` be the number of workers that can take implementation
-tasks next, normally two and at most three. Request or resume preparation when
-the assignable task count falls below `implementationSlots + 1`; keep the one
-unaccepted preparation-task limit. This gives preparation a chance to finish
-before an implementation worker runs out of work.
+After each current evaluation and worker handoff, check the combined queue and
+reservations for selectable investigations and independent source tasks.
+Exclude claimed or blocked work and group known shared causes. An unclaimed
+session may provide investigation work before its source owner is known; do
+not require a new grouping investigation just to count it. This provisional
+availability count does not establish source independence or authorize edits.
+Request or resume preparation when at most 12 sessions have unmatched screens
+across all admitted batches, or when selectable investigations and independent
+source tasks fall below the number of implementation workers (normally three).
+Use current complete saved evaluations; count each batch-qualified session once, including
+assigned sessions. Missing or stale evidence is not a zero count: refresh it
+before deciding. Keep one preparation task and no second unadmitted reserve.
+Twelve is a starting threshold; record queue starvation in the friction log
+so it can be adjusted from observed preparation and consumption times.
 
 Plan at least 12 new, independently designed C behavior candidates per batch
 before comparing their JavaScript results. For each candidate, name the source
@@ -187,11 +188,9 @@ first saved evaluation after admission is authoritative and may find fewer than
 
 After a batch's first saved evaluation, fully matching cases remain in its
 manifest but do not count toward a runway of 12 cases with a mismatch.
-If fewer than 12 cases in that batch have a mismatch, request preparation of
-the next version from different under-exercised behavior, subject to the one
-unaccepted preparation-task limit. This runway is not an admission requirement.
-Continue to use independently assignable source tasks, not raw case counts,
-for worker scheduling and early admission. Do not filter, replace, or extend
+Use the total across admitted batches and the independent-task fallback above
+to decide when to prepare the next version. The per-batch target is not an
+admission requirement. Do not filter, replace, or extend
 an admitted batch to fill the target.
 
 The worker submits case recipes and C recordings under
@@ -215,12 +214,12 @@ admission; require a corrected delivery if a submitted manifest includes
 an overlapping case. Until admission, the cases do not enter synthetic scoring, the mismatch
 queue, or the dashboard.
 
-Admit the oldest prepared batch when current, complete evaluations of every
-admitted batch show zero unmatched screens, or when the assignable task count
-falls below `implementationSlots`. Prepare a batch if none is ready. Early
-admission uses the same fresh, complete evaluations and passing fixed-workload
-checkpoint as admission at screen parity. Missing, failed, or stale evaluations
-block both paths. Continue investigating and scheduling older unmatched cases;
+Admit the oldest ready batch at the next safe integration boundary. If main
+has no ready implementation delivery, start immediately; otherwise give the
+implementation delivery priority. Do not wait for screen parity or a queue
+threshold. Admission still requires current, complete evaluations and a passing
+fixed-workload checkpoint. Missing, failed, or stale evaluations block admission.
+Continue investigating and scheduling older unmatched cases;
 admission does not close or suppress them. Keep outstanding RNG or cursor
 defects visible across the transition. Preserve `v1` at
 `challenges/manifest.json`; admit later
@@ -231,11 +230,9 @@ After a passing HEAD checkpoint, run
 `node scripts/admit-challenge-batch.mjs --delivery <accepted-packet.json>`.
 The command reads the prepared manifest from the immutable delivery packet,
 checks the evaluation gate, input hashes, recipe/recording consistency, and the
-next version number before creating the admitted manifest. For early admission
-with unmatched screens, append `--ready-tasks <count> --implementation-slots
-<count>` using the count above, and record that count and the ledger
-reservations in the integration handoff. The command requires the ready-task
-count to be lower than the implementation-slot count. It does not filter cases
+next version number before creating the admitted manifest. Admit at the tested
+HEAD before committing dashboard-only publication records, so those records
+do not force another admission checkpoint. It does not filter cases
 by JavaScript results. Commit the manifest and save the batch's first
 evaluation at that committed implementation before selecting its failures.
 Publish that baseline and resume selection from admitted cases. If the batch

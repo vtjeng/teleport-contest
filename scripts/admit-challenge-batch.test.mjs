@@ -90,39 +90,29 @@ test('admission reads the hash-verified preparation delivery packet', t => {
     assert.throws(() => preparedFromDelivery(path), /packet hash differs/);
 });
 
-test('early admission needs fewer unreserved tasks than implementation slots', t => {
+test('ready batches can be admitted while earlier sessions still mismatch', t => {
     const f = fixture(t, { unmatched: true });
-    assert.throws(() => admitChallengeBatch(f.root, f.prepared), /unmatched screens/);
-    assert.throws(() => admitChallengeBatch(f.root, f.prepared,
-        { readyTasks: 2, implementationSlots: 2 }), /unmatched screens/);
-    assert.throws(() => admitChallengeBatch(f.root, f.prepared,
-        { readyTasks: -1, implementationSlots: 2 }), /unmatched screens/);
-    assert.throws(() => admitChallengeBatch(f.root, f.prepared,
-        { readyTasks: 1, implementationSlots: 4 }), /unmatched screens/);
-    assert.equal(admitChallengeBatch(f.root, f.prepared,
-        { readyTasks: 1, implementationSlots: 2 }).batch, 'v2');
+    assert.equal(admitChallengeBatch(f.root, f.prepared).batch, 'v2');
 });
 
-test('CLI accepts the explicit early-admission task count', t => {
+test('CLI admits a ready batch without a queue-depth attestation', t => {
     const f = fixture(t, { unmatched: true });
     f.save('prepared.json', f.prepared);
     const output = execFileSync(process.execPath, [
         fileURLToPath(new URL('./admit-challenge-batch.mjs', import.meta.url)),
         '--manifest', join(f.root, 'prepared.json'),
-        '--ready-tasks', '1', '--implementation-slots', '2',
     ], { cwd: f.root, encoding: 'utf8' });
     assert.equal(JSON.parse(output).batch, 'v2');
 });
 
 test('early admission still rejects stale evaluations and fixed regressions', t => {
     const f = fixture(t, { unmatched: true });
-    const options = { readyTasks: 0, implementationSlots: 3 };
     f.save('js/game.js', 'export const fixture = false;\n');
-    assert.throws(() => admitChallengeBatch(f.root, f.prepared, options), /current complete measurements/);
+    assert.throws(() => admitChallengeBatch(f.root, f.prepared), /current complete measurements/);
     f.save('js/game.js', 'export const fixture = true;\n');
     f.save(`.git/checkpoint-results/${f.head}/latest.json`, { commit: f.head, allPassed: false,
         recordings: { passed: true }, score: { screensMatched: 0, screensTotal: 1 } });
-    assert.throws(() => admitChallengeBatch(f.root, f.prepared, options), /passing checkpoint/);
+    assert.throws(() => admitChallengeBatch(f.root, f.prepared), /passing checkpoint/);
 });
 
 test('admission rejects stale measurements and fixed checkpoint failures', async t => {

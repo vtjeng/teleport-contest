@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B161 C-first mission: spell.c:dowizcast. Open all-spells wizard cast selector and cancel. Required C observation: Complete spell object names and cancellation with no effect. Fixed before own JavaScript comparison; C-only prompt/inventory correction permitted, no seed search.",
+  "segments": [
+    {
+      "seed": 16136041,
+      "datetime": "20390609110721",
+      "nethackrc": "OPTIONS=name:Probe16136041,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizcast\n\u001b                "
+    }
+  ]
+}

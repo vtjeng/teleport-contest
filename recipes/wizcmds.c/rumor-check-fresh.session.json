@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9187401,
+      "datetime": "20361107112000",
+      "moves": ".#wizrumorcheck\n  ",
+      "nethackrc": "OPTIONS=name:BoundaryReader,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,pettype:none,playmode:debug\n"
+    }
+  ],
+  "comment": "Independent C-first rumor diagnostic variation: fresh"
+}

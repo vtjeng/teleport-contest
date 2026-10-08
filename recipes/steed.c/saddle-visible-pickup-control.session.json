@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Samurai seed9187503/date20361112124500. C-only prefix confirms wished saddle slot f and visible tame pony northwest. Apply then remove it through #loot; tame transfer must preserve existing identification, providing a cheap source-valid control without claiming whole apply/loot owners.",
+  "segments": [
+    {
+      "seed": 9187503,
+      "datetime": "20361112124500",
+      "nethackrc": "OPTIONS=name:SaddleVisibility,role:Samurai,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,pettype:none,time\n",
+      "moves": ".#levelchange\n12\n               \u0017uncursed saddle\n\u0007tame pony\n   afy   #loot\nyy   ."
+    }
+  ]
+}

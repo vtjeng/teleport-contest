@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B161 C-first mission: potion.c:potion_dip POT_SICKNESS. Dip wielded two-handed sword into sickness potion. Required C observation: Poison coating rather than potion mixture. Fixed before own JavaScript comparison; C-only prompt/inventory correction permitted, no seed search. C-only correction before own JS: Object selectors are immediate single keys; remove separator space that C interprets as cancellation.",
+  "segments": [
+    {
+      "seed": 16136053,
+      "datetime": "20390609110721",
+      "nethackrc": "OPTIONS=name:Probe16136053,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed potion of sickness\n#dip\nae                "
+    }
+  ]
+}
