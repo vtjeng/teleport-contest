@@ -217467,6 +217467,138 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-wizcmds-wiz-custom-v31-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port wizard glyph customization diagnostics and ID cache",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v31/v31-custom-glyphs"
+      ],
+      "selectionReason": "The admitted v31 custom-glyph case reaches missing wizcmds.c wizard diagnostics and its consumed glyphs.c ID cache/parser family.",
+      "detail": "Port complete wiz_custom and wizcustom_callback, the required glyph ID cache/parser functions, and bounded existing lifecycle/dispatcher support without whole options, symbols, display, or cmd ownership.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_custom",
+          "line": 1934,
+          "endLine": 1986,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "wizcustom_callback",
+          "line": 1987,
+          "endLine": 2030,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1934,
+        "to": 2030
+      },
+      "requiredFunctions": [
+        {
+          "name": "fill_glyphid_cache",
+          "line": 303,
+          "endLine": 333,
+          "declared": false,
+          "sourceFile": "glyphs.c",
+          "complete": false
+        },
+        {
+          "name": "init_glyph_cache",
+          "line": 334,
+          "endLine": 354,
+          "declared": false,
+          "sourceFile": "glyphs.c",
+          "complete": false
+        },
+        {
+          "name": "free_glyphid_cache",
+          "line": 355,
+          "endLine": 371,
+          "declared": false,
+          "sourceFile": "glyphs.c",
+          "complete": false
+        },
+        {
+          "name": "add_glyph_to_cache",
+          "line": 372,
+          "endLine": 394,
+          "declared": false,
+          "sourceFile": "glyphs.c",
+          "complete": false
+        },
+        {
+          "name": "find_glyph_in_cache",
+          "line": 395,
+          "endLine": 417,
+          "declared": false,
+          "sourceFile": "glyphs.c",
+          "complete": false
+        },
+        {
+          "name": "find_glyphid_in_cache_by_glyphnum",
+          "line": 418,
+          "endLine": 434,
+          "declared": false,
+          "sourceFile": "glyphs.c",
+          "complete": false
+        },
+        {
+          "name": "glyph_hash",
+          "line": 435,
+          "endLine": 451,
+          "declared": false,
+          "sourceFile": "glyphs.c",
+          "complete": false
+        },
+        {
+          "name": "glyphid_cache_status",
+          "line": 452,
+          "endLine": 457,
+          "declared": false,
+          "sourceFile": "glyphs.c",
+          "complete": false
+        },
+        {
+          "name": "wizcustom_glyphids",
+          "line": 808,
+          "endLine": 823,
+          "declared": false,
+          "sourceFile": "glyphs.c",
+          "complete": false
+        },
+        {
+          "name": "parse_id",
+          "line": 824,
+          "endLine": 1166,
+          "declared": false,
+          "sourceFile": "glyphs.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v31/v31-custom-glyphs": {
+          "session": "synthetic/v31/v31-custom-glyphs",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-custom-glyphs",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-custom-glyphs.session.json",
+          "recordingSha256": "4c1cfd00fa5a2a84295174dffe5f42ac5d3ddd83a2485e6630b0114d1455026a",
+          "evaluationPath": "challenges/evaluations/accepted-e0af258f80b5a632caf9419b124b7f4046d63e78-v31.json",
+          "evaluationCommit": "e0af258f80b5a632caf9419b124b7f4046d63e78"
+        }
+      }
     }
   ]
 }
