@@ -213967,22 +213967,22 @@
           "name": "cinv_doname",
           "line": 5391,
           "endLine": 5422,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "cinv_ansimpleoname",
           "line": 5423,
           "endLine": 5445,
-          "declared": false,
+          "declared": true,
           "complete": false
         },
         {
           "name": "display_cinventory",
           "line": 5446,
           "endLine": 5476,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -214289,7 +214289,100 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "cinv_doname",
+            "implementation": "js/invent.js",
+            "symbol": "cinv_doname",
+            "sourceReview": "Read whole invent.c5391-5419. Use canonical donameFresh (source doname/zero flags), C byte-length plus sizeof trapped including NUL guard, case-insensitive locked/unlocked searches, source first-match pointer comparison, case-sensitive substitution on the selected suffix, then an trapped article replacement. Keep source duplicated trapped when modern doname already includes known trap; independent C trapped-box menu says a trapped trapped unlocked large box. No state/RNG surrogate or naming-owner changes.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "display_cinventory",
+                "source": "invent.c5452-5457 safe_qbuf main formatting callback; objnam.c short_oname invokes callback while preserving/restoring temporary shortened names"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/invent-display-span.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/probing-chest-valkyrie-independent.session.json",
+              "recordings/invent.c/probing-trapped-box-valkyrie-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-container-probing",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 62,
+                "source": "zap.c:dozap/weffects -> zap_updown downward WAN_PROBING -> bhitpile -> bhito2252-2255 -> invent.c:display_cinventory5446-5473 -> safe_qbuf/cinv_doname5391-5419 and query_objlist INVORDER_SORT/PICK_NONE; menu acknowledgement before staircase/probe continuation"
+              }
+            ],
+            "checkedAt": "1dbabc453aff8caab336e2f171f1c30fe991e5b5"
+          },
+          {
+            "name": "display_cinventory",
+            "implementation": "js/invent.js",
+            "symbol": "display_cinventory",
+            "sourceReview": "Read whole invent.c5446-5473. Canonical safe_qbuf Contents of / colon heading and two naming callbacks; nonempty query_objlist consumes INVORDER_SORT/PICK_NONE and allow_all, empty invdisp_nothing heading/blank/(empty)/acknowledgement; n>0 selects first pick_list object, otherwise null; cknown is assigned after menu finishes. Free/select buffer ownership remains canonical menu implementation. Existing invdisp_nothing source implementation verified rather than duplicated. Replaced and removed the sole production note_unported marker with awaited display_cinventory after every direct child observation in bhito. No injected query surrogate or broader bhito completion credit.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhito",
+                "source": "zap.c2252-2255, WAN_PROBING nonempty container/statue branch; observe every direct child, then discarded display_cinventory result; C outer ray and post-probe continuation follow menu acknowledgement"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/invent-display-span.test.mjs",
+              "scripts/zap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/probing-chest-valkyrie-independent.session.json",
+              "recordings/invent.c/probing-trapped-box-valkyrie-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-container-probing",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 62,
+                "source": "zap.c:dozap/weffects -> zap_updown downward WAN_PROBING -> bhitpile -> bhito2252-2255 -> invent.c:display_cinventory5446-5473 -> safe_qbuf/cinv_doname5391-5419 and query_objlist INVORDER_SORT/PICK_NONE; menu acknowledgement before staircase/probe continuation"
+              }
+            ],
+            "checkedAt": "1dbabc453aff8caab336e2f171f1c30fe991e5b5"
+          }
+        ],
+        "entryPointReview": "Only active source entry is zap.c:bhito2255 for nonempty probed containers/statues, excluding Schroedinger box. Both vertical zap_updown/bhitpile and lateral bhit converge on this same object-effect callback. Existing production dispatch remains unchanged; selected downward C case establishes display caller and menu acknowledgement before the outer map/staircase continuation. Independent ordinary chest and known trapped large-box variations cover grouping, contents observation and trap-heading source duplication. display_cinventory empty arm has no current external C entry: bhito emits its own empty message and does not call it; focused test preserves that internal branch and post-acknowledgement cknown tail without labeling a build-inactive function. Positive PICK_NONE selection is likewise unreachable with the reference menu port but source return handling is translated. No new build-inactive function or omitted callee is declared. cinv_ansimpleoname is an impure conditional alternate callback because existing minimal_xname temporarily mutates/restores catalog fields. Source-pinned results do not establish its production execution. A separate C-only long-named trapped box reached a main-formatter menu atstep123, retaining named text; it failed to reach the alternate. Preserve that callback as incomplete with its blocked recipe rather than declaring it inactive or pure.",
+        "entryPoints": [
+          {
+            "name": "Probe nonempty container or statue inventory-style contents",
+            "functions": [
+              "cinv_doname",
+              "display_cinventory"
+            ],
+            "recordings": [
+              "recordings/invent.c/probing-chest-valkyrie-independent.session.json",
+              "recordings/invent.c/probing-trapped-box-valkyrie-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-container-probing",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 62,
+                "source": "zap.c:dozap/weffects -> zap_updown downward WAN_PROBING -> bhitpile -> bhito2252-2255 -> invent.c:display_cinventory5446-5473 -> safe_qbuf/cinv_doname5391-5419 and query_objlist INVORDER_SORT/PICK_NONE; menu acknowledgement before staircase/probe continuation"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
