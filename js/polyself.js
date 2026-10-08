@@ -171,7 +171,7 @@ import {
     cloak_simple_name, cxname, helm_simple_name, otense, simpleonames, an, the, vtense, yname, the_unique_pm, } from './objnam.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { max_rank_sz } from './u_init.js';
-import { newsym, rank_of, see_monsters } from './display.js';
+import { bot, newsym, rank_of, see_monsters } from './display.js';
 import { encumber_msg } from './pickup.js';
 import { useup, update_inventory } from './invent.js';
 import { dropx, canletgo } from './do.js';
@@ -1557,7 +1557,13 @@ export function livelog_newform(viapoly, oldgend, newgend, state = game) {
 // pline.c livelog_printf() appends to the in-memory chronicle and an external
 // live log; only the former is owned here. The `dead` flag stands for C's `goto dead`
 // into the middle of the u.uhp <= 0 arm.
-export async function newman(state = game) {
+export async function newman(state = game, env = {}) {
+    // C's newuhs(FALSE) refreshes hunger through bot(). Planning callers
+    // supply their own status operation, or suppress that live redraw.
+    const hungerEnv = {
+        ...env,
+        statusRefresh: env.statusRefresh ?? (env.planning ? () => {} : () => bot()),
+    };
     const u = state.u;
     let i, oldgend;
     const oldlvl = u.ulevel;
@@ -1651,11 +1657,11 @@ export async function newman(state = game) {
         state.killer.name = 'unsuccessful polymorph';
         await done(DIED, state);
         /* must have been life-saved to get here */
-        await newuhs(false, state);
+        await newuhs(false, state, hungerEnv);
         await encumber_msg(state); /* used to be done by redist_attr() */
         return; /* lifesaved */
     }
-    await newuhs(false, state);
+    await newuhs(false, state, hungerEnv);
     /* use saved gender we're about to revert to, not current */
     const newform = ((Upolyd(u) ? u.mfemale : state.flags.female)
                      && state.urace.individual.f)
@@ -1700,7 +1706,7 @@ export async function newman(state = game) {
 // input or random numbers before the next candidate is considered.  The
 // actual body transition remains in the existing polymon/newman owners; their
 // still-unported branches are recorded at those discarded-call boundaries.
-export async function polyself(psflags, state = game) {
+export async function polyself(psflags, state = game, env = {}) {
     const u = state.u;
     let forcecontrol = (psflags & POLY_CONTROLLED) !== 0;
     const low_control = (psflags & POLY_LOW_CTRL) !== 0;
@@ -1947,7 +1953,7 @@ export async function polyself(psflags, state = game) {
             }
         }
         if (mntmp === M.PM_HUMAN)
-            await newman(state);
+            await newman(state, env);
         else
             await polymon(mntmp, state);
         made_change = true;
@@ -1970,7 +1976,7 @@ export async function polyself(psflags, state = game) {
         state.gs.sex_change_ok = (state.gs.sex_change_ok || 0) + 1;
         if (!polyok(state.mons[mntmp]) || (!forcecontrol && !rn2(5))
             || your_race(state.mons[mntmp], state))
-            await newman(state);
+            await newman(state, env);
         else
             await polymon(mntmp, state);
         state.gs.sex_change_ok--;

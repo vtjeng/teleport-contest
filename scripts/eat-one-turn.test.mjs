@@ -691,10 +691,12 @@ test('consume_tin passes the corpse number to cpostfx for tin effects',
         // that value to cpostfx(); the resulting PM_CHAMELEON arm reaches
         // polyself after lesshungry() consumes the tin.
         const replay = await runSegment(chameleonTinRecipe.segments[0]);
-        assert.ok(
-            replay.getUnported().includes('polyself.c polyself'),
-            'the PM_CHAMELEON cpostfx arm must be reached',
-        );
+        assert.equal(replay.getUnported().includes('polyself.c polyself'), false);
+        assert.equal(game.u.uconduct.polyselfs, 1,
+            'the PM_CHAMELEON arm invokes canonical polyself');
+        assert.equal(game.context.tin.tin, null,
+            'the tin is consumed before the potentially fatal transformation');
+        assert.equal(game.context.tin.o_id, 0);
     });
 
 // Locate a segment by the keys it types, so reordering the matrix cannot

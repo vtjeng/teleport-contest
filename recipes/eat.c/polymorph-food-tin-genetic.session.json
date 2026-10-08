@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first eat.c cpostfx polymorph-food tin-genetic route. Newly chosen seed/clock and source-valid food/setup; C inventory prompts determined selections before JS comparison.",
+  "segments": [
+    {
+      "seed": 15129012,
+      "datetime": "20681223171100",
+      "nethackrc": "OPTIONS=name:Foodtin-genetic,role:Ranger,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none\n",
+      "moves": " \u0017blessed tin of genetic engineer meat\neg  y            i "
+    }
+  ]
+}
