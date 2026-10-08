@@ -196233,6 +196233,49 @@
           "evaluationCommit": "0f20a29cbe7f6c70692b156a02817310c5bfa0ec"
         }
       }
+    },
+    {
+      "id": "port-engrave-rloc-engr-v28-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port engraving relocation and its production callers",
+      "cFile": "engrave.c",
+      "sessions": [
+        "synthetic/v28/v28-engrave-teleport-text"
+      ],
+      "selectionReason": "After the v28 screen mismatches assigned to A141 and B141, the engraving teleport case retains an exact screen match but misses the source relocation RNG sequence; B142 is the already delivered dependent repair.",
+      "detail": "Port whole engrave.c rloc_engr at lines 1667-1681, including its 200-attempt coordinate loop, goodpos rejection, coordinate mutation, and destination redraw. Wire doengrave and zap_map callers without granting whole caller credit. The selected case matches all 55 screens and cursors but first diverges in RNG at step 45; five independent C recordings cover engraving wand, downward wand, downward spell, and variations.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "rloc_engr",
+          "line": 1667,
+          "endLine": 1686,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1667,
+        "to": 1686
+      },
+      "syntheticProvenance": {
+        "synthetic/v28/v28-engrave-teleport-text": {
+          "session": "synthetic/v28/v28-engrave-teleport-text",
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-engrave-teleport-text",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recordingPath": "challenges/cases/v28/v28-engrave-teleport-text.session.json",
+          "recordingSha256": "da2f4d4e7bf61297fa64478afcd57e083a446ea8721c7f7fe03659396b22cf3b",
+          "evaluationPath": "challenges/evaluations/accepted-0f20a29cbe7f6c70692b156a02817310c5bfa0ec-v28.json",
+          "evaluationCommit": "0f20a29cbe7f6c70692b156a02817310c5bfa0ec"
+        }
+      }
     }
   ]
 }

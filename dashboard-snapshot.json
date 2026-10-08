@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T01:35:00.748Z",
+  "capturedAt": "2026-10-08T01:40:44.877Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -25597,12 +25597,20 @@
         "worker": "A2",
         "goal": "fix-dig-treefruit-caller-v28-20261007",
         "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A140-b4416c4c",
+        "type": "published",
+        "at": "2026-10-08T01:40:13.625Z",
+        "task": "A140",
+        "commit": "b4416c4c82a8e823197812dfa8f735d00185954e"
       }
     ]
   },
   "development": {
-    "executionCommit": "0f20a29cbe7f6c70692b156a02817310c5bfa0ec",
-    "measuredAt": "2026-10-08T01:17:43.386Z",
+    "executionCommit": "b4416c4c82a8e823197812dfa8f735d00185954e",
+    "measuredAt": "2026-10-08T01:39:49.832Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
