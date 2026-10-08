@@ -1,0 +1,86 @@
+{
+  "session": "synthetic/v31/v31-custom-glyphs",
+  "corpus": "synthetic",
+  "batch": "v31",
+  "caseId": "v31-custom-glyphs",
+  "manifestPath": "challenges/manifests/v31.json",
+  "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+  "recordingSha256": "4c1cfd00fa5a2a84295174dffe5f42ac5d3ddd83a2485e6630b0114d1455026a",
+  "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+  "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+  "remainingScreens": 17,
+  "recordedSteps": 29,
+  "status": "complete",
+  "commit": "4dab0fd59aee626e173d7272974a4f0e6d92e531",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v31",
+    "caseId": "v31-custom-glyphs",
+    "session": "synthetic/v31/v31-custom-glyphs",
+    "manifestPath": "challenges/manifests/v31.json",
+    "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+    "recordingPath": "challenges/cases/v31/v31-custom-glyphs.session.json",
+    "recording": "challenges/cases/v31/v31-custom-glyphs.session.json",
+    "recordingSha256": "4c1cfd00fa5a2a84295174dffe5f42ac5d3ddd83a2485e6630b0114d1455026a",
+    "recipe": "challenges/cases/v31/v31-custom-glyphs.recipe.session.json",
+    "recipeSha256": "c692252e993c3e4d4c6c5d855763e5e0b07913e2bbb6011ddda85d55b05ef458",
+    "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+    "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+    "evaluationUtc": "2026-10-08T20:27:01.083Z",
+    "remainingScreens": 17,
+    "recordedSteps": 29,
+    "passed": false,
+    "metrics": {
+      "screens": {
+        "matched": 12,
+        "total": 29
+      },
+      "rng": {
+        "matched": 2336,
+        "total": 2336
+      },
+      "cursors": {
+        "matched": 12,
+        "total": 29
+      }
+    },
+    "error": null,
+    "firstMismatch": {
+      "kind": "stop",
+      "step": 12,
+      "message": "unsupported hero command: wiz_custom() for the extended command 'wizcustom' is not ported"
+    },
+    "step": 12,
+    "kind": "stop",
+    "sourceFile": "wizcmds.c",
+    "function": "wiz_custom"
+  },
+  "summary": "The wizard customization command stops at step 12 because wiz_custom is absent. Port its complete glyph diagnostic menu, including glyph ID cache lifecycle and configured Unicode/color rows from raw glyphmap fields.",
+  "goalKind": "file-port",
+  "source": {
+    "file": "wizcmds.c",
+    "branch": "Wizard #wizcustom fills the glyph ID cache, lists glyphs with active Unicode or color customizations in glyph order, formats the selected primary symbol-set title, waits for PICK_NONE dismissal, frees the cache and redraws. Ordinary play prints the unavailable-command message.",
+    "functions": [
+      "wiz_custom",
+      "wizcustom_callback"
+    ],
+    "callers": [
+      "cmd.c:doextcmd -> wizcmds.c:wiz_custom; JS cmd dispatcher currently rejects this declared command.",
+      "glyphs.c:wizcustom_glyphids808\u2013821 -> wizcustom_callback1987\u20132027 once per cached glyph ID; only active raw glyphmap customizations become rows."
+    ],
+    "dependencies": [
+      "Required glyphs.c:fill_glyphid_cache303\u2013321/init_glyph_cache334\u2013352/free_glyphid_cache355\u2013369/add_glyph_to_cache372\u2013392/find_glyph_in_cache395\u2013415/find_glyphid_in_cache_by_glyphnum418\u2013432/glyph_hash435\u2013449/glyphid_cache_status452\u2013455/wizcustom_glyphids808\u2013821/parse_id824\u20131162. The existing generated SOURCE_GLYPH_IDS and symbol ID tables equal the C catalog and preserve duplicate IDs and holes; reuse them for parse_id rather than copying fixed glyph tables.",
+      "Bounded display.c:reset_glyphmap raw base symbol/color/Unicode reader from the existing lazy resolver. Combine existing symbol-owned S_* Unicode with canonical gg.glyph_customizations for applied G_* overrides/raw nhcolor; presentation color or CP437 browser glyph cannot substitute for raw fields. Preserve one owner for each customization.",
+      "Relocate source symbols.c known_handling into symbols.js and reuse it from options.js; bounded options/symbols cache lifecycle callers and glyph_find parsing reconciliation. Earlyarg dump output and unported options/save lifecycle owners remain explicit outside gameplay ownership."
+    ]
+  },
+  "evidence": [
+    "Accepted0416a19e saved evaluation: 12/29 screens/cursors, full2336 RNG, 17 remaining. Focused claimed-case replay .cache/A172/selected-before.log (run-tRRKV4) at immutable4dab0fd confirms missing wiz_custom at zero-based step12, before default colorcount=256 title. No earlier RNG or screen divergence.",
+    "Complete wizcmds.c:wiz_custom1934\u20131984 source: fill cache if absent, create standard menu, add literal header, build primary name/default plus active and known_handling title, enumerate cached glyph IDs, end/select PICK_NONE/destroy, free cache if present, docrt; nonwizard unavailcmd branch and ECMD_OK. Callback1987\u20132027 emits only customcolor!=0 or Unicode pointer, using glyphnum+1, [four-digit glyph] plus minimum44 ID width, quoted decimal-backslash byte, two-digit raw base color, minimum11 unsigned hexadecimal customcolor, U+minimum4 codepoint and each nonzero UTF8 byte in decimal; truncate final row to BUFSZ-1.",
+    "Read full required parse_id824\u20131162 and all cache functions. Source fills double-hash table with uint32 lowercased rotate/xor hash and odd second probe, preserves insertion order for duplicate generic IDs, and scans cache by glyph number for diagnostic ordering. parse_id consumes cached lookups and supports no-cache G_ lookup, S_ cmap/object/monster classes including the inclusive S_nothing fencepost, fill and explicit dump sink modes. Existing glyph-id-reference.txt.gz comparison pins every source-generated ID/hole; no seed-specific lookup is needed.",
+    "Existing glyphs.js combines glyph_find_core/parse_id through sourceGlyphNumber/sourceSymbolIndex and stores applied customizations only in gg.glyph_customizations. Wire the new source-owned parser/cache to this active startup/configuration route. Source cache callers are symbols.c do_symset1072\u20131077, options.c optfn_symset4226\u20134230 and initoptions7154\u20137155/7377\u20137378, wiz_custom, and save.c freedynamicdata1178\u20131179. Bound caller reconciliation to cache lifecycle; retain whole options/symbols/save exclusions and inactive earlyarg dump interface.",
+    "Raw diagnostic values differ from rendered glyph presentation: display.c reset_glyphmap2739\u20133086 fixes base symidx/color before map_glyphinfo adds coordinate hero overrides and glyphPresentation applies custom Unicode/basic color/RGB. Reuse its existing resolver before those presentation effects, with no second glyph map. Supporting raw-field contract and canonical known_handling relocation authorized by root; no whole display owner credit.",
+    "Independent runtime plan: wizard default menu/cache release; named IBM/DEC title/handler; Enhanced named UTF8 symbol set with explicit glyph RGB/basic color and non-ASCII Unicode rows; ordinary-play refusal. Source-pinned tests cover hash/probe/order, parser early returns/class fences/cache lifecycle and exact diagnostic row formats. Existing glyph customization/source-catalog, symbol and option focused tests provide regression evidence. Admitted default case alone cannot prove configured-row behavior.",
+    "Configured C witness confirms S_* Unicode rows exist even without a concrete gg.glyph_customizations entry: main walls3930\u20133940 precede Mines walls3941. Supporting raw accessor forwards existing symbol-owned Unicode before accessibility base-symbol replacement, then concrete G_* override wins. IBM CP437 browser presentation does not set raw Unicode. Complete parse_id dump sink equals all9578 lines of the existing compiled C reference, including the venom empty row and skipped unnamed objects."
+  ]
+}

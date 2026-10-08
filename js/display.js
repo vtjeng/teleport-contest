@@ -52,7 +52,7 @@ import {
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
     ACCESSIBLE, BLINDED, BOLT_LIM, CONFUSION, DEAF, DETECT_MONSTERS, FLYING,
     HALLUC, HALLUC_RES, INFRAVISION, SEE_INVIS,
-    H_IBM, ROGUESET,
+    H_IBM, H_UTF8, PRIMARYSET, ROGUESET,
     CORPSTAT_FEMALE, CORPSTAT_GENDER,
     HL_BOLD, HL_INVERSE, HL_ULINE, HL_UNDEF,
     LEVITATION, NOT_HUNGRY, SICK, SICK_NONVOMITABLE, SICK_VOMITABLE,
@@ -2178,7 +2178,11 @@ function configuredPetOverride(state) {
  * state.
  */
 export function map_glyphinfo(glyph, state = game, options = undefined) {
-    if (!mapGlyphinfoResolves(glyph)) {
+    // reset_glyphmap also initializes the enum hole for piletop venom,
+    // although glyph_is_object excludes it from gameplay classification.
+    const rawEnumGlyph = options?.rawGlyphmap && Number.isInteger(glyph)
+        && glyph >= 0 && glyph < MAX_GLYPH;
+    if (!mapGlyphinfoResolves(glyph) && !rawEnumGlyph) {
         throw new TypeError(
             `map_glyphinfo() has no arm for glyph ${glyph}`,
         );
@@ -2205,7 +2209,9 @@ export function map_glyphinfo(glyph, state = game, options = undefined) {
     } else if (glyph === GLYPH_UNEXPLORED_OFF) {
         // display.c:2778-2782. The unexplored sentinel uses the active
         // SYM_UNEXPLORED byte and no color, just like the C glyph map entry.
-        return unexploredGlyphInfo(state);
+        if (!options?.rawGlyphmap) return unexploredGlyphInfo(state);
+        symbol = misc_symbol(SYM_UNEXPLORED, state);
+        color = NO_COLOR;
     } else if (glyph_is_monster(glyph)) {
         // display.c:2986-3065. The glyph number already contains the
         // species, gender, and presentation family; derive the symbol from
@@ -2386,6 +2392,14 @@ export function map_glyphinfo(glyph, state = game, options = undefined) {
     if (state.iflags?.wc_color === false
         || (isRogueLevelForState(state) && !rogueColor)) color = NO_COLOR;
 
+    // Symbol-set S_* Unicode belongs to the glyph before accessibility
+    // replaces its base symbol. Concrete G_* customizations override it.
+    const activeHandling = state.gs?.symset?.[
+        state.gc?.currentgraphics ?? PRIMARYSET
+    ]?.handling;
+    const symbolUnicode = activeHandling === H_UTF8
+        ? symbol.displayCh : undefined;
+
     // reset_glyphmap() installs the pet override in the stored glyph map
     // before map_glyphinfo() applies coordinate-dependent hero handling.
     if (accessibilityOverridesEnabled(state) && glyph_is_pet(glyph)) {
@@ -2423,6 +2437,15 @@ export function map_glyphinfo(glyph, state = game, options = undefined) {
         // recovered from the stored glyph species, never from m_at().
         symbol = monster_class_symbol(speciesForGlyph(glyph, state).mlet, state);
     }
+
+    // #wizcustom reads reset_glyphmap's stored fields before Unicode or
+    // custom colors are applied to presentation. Resolve them from the same
+    // source branch; no coordinate-specific hero override is requested.
+    if (options?.rawGlyphmap) return {
+        ttychar: symbol.ttychar ?? symbol.ch.charCodeAt(0),
+        color: state.iflags?.use_color === false ? NO_COLOR : color,
+        unicode: symbolUnicode,
+    };
 
     const presentation = glyphPresentation(
         symbol,
@@ -6355,4 +6378,9 @@ function _refreshTimeField(layout) {
     const hungerX = layout.hungerX ?? null;
     const { row } = _renderStatusFields(fields, hungerX);
     return { ...row.finish(), fields, hungerX };
+}
+
+// Bounded display.c reset_glyphmap field access for wizcmds.c diagnostics.
+export function glyphmap_base_fields(glyph, state = game) {
+    return map_glyphinfo(glyph, state, { rawGlyphmap: true });
 }

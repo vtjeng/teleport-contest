@@ -265,6 +265,7 @@ import {
 import { escapes } from './options_escapes.js';
 import {
     assign_graphics,
+    known_handling,
     finish_boulder_symbol,
     MAXMCLASSES,
     switch_symbols,
@@ -272,6 +273,7 @@ import {
 import {
     apply_customizations,
     glyphrep_to_custom_map_entries,
+    fill_glyphid_cache, free_glyphid_cache, glyphid_cache_status,
     inspect_glyphrep,
 } from './glyphs.js';
 import { choose_classes_menu, getlin, select_menu } from './windows.js';
@@ -6756,6 +6758,8 @@ export function hide_unhide_msgtypes(hide, hide_mask, state = game) {
 export function parseNethackrc(rc, random = rn2) {
     const result = defaultResult();
     if (!rc) return result;
+    // C initoptions7154 fills before configuration parsing.
+    if (!glyphid_cache_status(result)) fill_glyphid_cache(result);
     const optionState = {
         seen: new Set(),
         values: {
@@ -6936,6 +6940,7 @@ export function parseNethackrc(rc, random = rn2) {
     }
 
     free_config_sections(result);
+    if (glyphid_cache_status(result)) free_glyphid_cache(result);
     return result;
 }
 
@@ -7180,6 +7185,7 @@ export function finishStartupBooleanOptions(state) {
 export function initoptions_finish(parsedOptions = {}, state = game, env = {}) {
     finish_fruit_option(parsedOptions, state, env);
     finish_boulder_symbol(state);
+    if (glyphid_cache_status(state)) free_glyphid_cache(state);
     apply_customizations(state.gc?.currentgraphics ?? PRIMARYSET, state);
     reglyph_darkroom(state);
     finishStartupBooleanOptions(state);
@@ -7326,9 +7332,6 @@ const disco_orders_descr = Object.freeze([
     'alphabetical across all classes',
 ]);
 const disclosure_options = 'iavgco';
-const known_handling = Object.freeze([
-    'UNKNOWN', 'IBM', 'DEC', 'CURS', 'MAC', 'UTF8',
-]);
 // C ref: options.c paranoia[].  The setter walks all fifteen rows, including
 // the two config-only choices at the end.  The value getter stops at "none",
 // the first zero mask, so neither config-only choice is ever printed.

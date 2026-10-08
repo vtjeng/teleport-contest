@@ -375,7 +375,7 @@ import {
     dopoly, doremove, dospinweb, dospit, dosummon,
 } from './polyself.js';
 import {
-    wiz_detect, wiz_flip_level, wiz_genesis, wiz_identify, wiz_intrinsic, wiz_level_change, wiz_kill, wiz_smell, wiz_show_seenv, wiz_show_vision, wiz_show_stats, wiz_show_wmodes, wiz_objprobs, wiz_display_macros, wiz_mon_diff, wiz_telekinesis,
+    wiz_detect, wiz_flip_level, wiz_genesis, wiz_identify, wiz_intrinsic, wiz_level_change, wiz_kill, wiz_smell, wiz_show_seenv, wiz_show_vision, wiz_show_stats, wiz_show_wmodes, wiz_objprobs, wiz_display_macros, wiz_mon_diff, wiz_telekinesis, wiz_custom,
     wiz_level_tele, wiz_makemap, wiz_map, wiz_polyself, wiz_wish, wiz_where, wiz_rumor_check, wiz_migrate_mons,
     wiz_map_levltyp, wiz_levltyp_legend,
 } from './wizcmds.js';
@@ -5280,6 +5280,8 @@ async function doextcmd(key, state) {
         return await wiz_display_macros(state);
     case 'wiz_mon_diff':
         return await wiz_mon_diff(state);
+    case 'wiz_custom':
+        return await wiz_custom(state);
     case 'wiz_telekinesis':
         return await wiz_telekinesis(state);
     case 'wiz_objprobs':
