@@ -110,6 +110,7 @@ import {
     make_stoned, make_vomiting,
 } from './potion.js';
 import { rn2 } from './rng.js';
+import { flip_level, flip_level_rnd } from './sp_lev.js';
 import { vision_recalc } from './vision.js';
 import { PM_GRID_BUG } from './monsters.js';
 import { getpos } from './getpos.js';
@@ -526,6 +527,31 @@ export function scanLevelArgument(buf) {
         count: buf.length > match[0].length ? 2 : 1,
         value: Number(BigInt.asIntN(32, wide)),
     };
+}
+
+// C ref: wizcmds.c wiz_flip_level() (412-442). The live flip finishes
+// before docrt; ECMD_OK means the query and transposition consume no turn.
+export async function wiz_flip_level(state = game, env = {}) {
+    if (state.wizard) {
+        const query = env.query ?? (async (...args) => {
+            const { yn_function } = await import('./cmd.js');
+            return yn_function(...args, state);
+        });
+        const choices = '0123';
+        const c = await query(
+            'Flip 0=randomly, 1=vertically, 2=horizontally, 3=both:',
+            choices, 0, true);
+        if (c && choices.includes(String.fromCharCode(c))) {
+            const mask = c - '0'.charCodeAt(0);
+            if (!mask) await flip_level_rnd(3, true, state, env);
+            else await flip_level(mask, true, state);
+            if (env.redraw) await env.redraw(state);
+            else await docrt();
+        } else {
+            await (env.message ?? ttyPline)('Never mind.', state);
+        }
+    }
+    return ECMD_OK;
 }
 
 // C ref: wizcmds.c wiz_level_change(), the #levelchange command.

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked active production entry: sp_lev.c lspo_finalize_level(L non-NULL) -> flip_level_rnd(gc.coder->allow_flips,FALSE). A Lua script calling des.finalize_level() must run through wizcmds.c wiz_load_splua/#wizloaddes with supported Lua state. JavaScript has the existing des.finalize_level callback in createSpecialLevelApi, but the #wizloaddes loader is unported; isolated callback tests do not provide matching production evidence. Independent seed1412811 identifies this separate frontier; no whole loader or flip_level_rnd completion claim.",
+  "segments": [
+    {
+      "seed": 1412811,
+      "datetime": "20510506171819",
+      "nethackrc": "OPTIONS=name:FlipLuaFrontier,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": ".#wizloaddes\nflip-finalize.lua\n"
+    }
+  ]
+}

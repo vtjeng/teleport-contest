@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source limit witness: ordinary nonwizard #wizfliplevel is unavailable in the command registry, before wizcmds.c wiz_flip_level. Seed1412809 selected before recording.",
+  "segments": [
+    {
+      "seed": 1412809,
+      "datetime": "20510506171819",
+      "nethackrc": "OPTIONS=name:FlipOrdinary,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup\n",
+      "moves": ".#wizfliplevel\n."
+    }
+  ]
+}

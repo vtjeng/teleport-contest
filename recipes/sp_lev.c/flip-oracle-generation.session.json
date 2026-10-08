@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Oracle generation caller: load_special -> flip_level_rnd with zero allowed mask (oracle.lua noflip), plus ordinary special-level bounds/fixup. Live nonzero transposition has separate wizard-command evidence. Seed1412808 fixed before recording.",
+  "segments": [
+    {
+      "seed": 1412808,
+      "datetime": "20510405161718",
+      "nethackrc": "OPTIONS=name:FlipGeneration,role:Archeologist,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".\u0016oracle\n     ."
+    }
+  ]
+}

@@ -37,6 +37,7 @@ import {
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { swapbits } from '../js/hacklib.js';
+import { flip_encoded_dir_bits } from '../js/sp_lev.js';
 import {
     selection_floodfill,
     ThemeroomSelection,
@@ -44,7 +45,6 @@ import {
 import {
     cvt_to_abscoord,
     cvt_to_relcoord,
-    flip_encoded_dir_bits,
     floodfillchk_match_accessible,
     floodfillchk_match_under,
     get_mkroom_name,
