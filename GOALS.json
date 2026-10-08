@@ -196494,7 +196494,7 @@
     {
       "id": "port-engrave-rloc-engr-v28-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port engraving relocation and its production callers",
       "cFile": "engrave.c",
       "sessions": [
@@ -196508,15 +196508,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "63ae9f774b239bc0b3676ee4f8f0274d7f98f485",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "rloc_engr",
           "line": 1667,
           "endLine": 1686,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -196681,7 +196684,191 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "rloc_engr",
+            "implementation": "js/engrave.js",
+            "symbol": "rloc_engr",
+            "sourceReview": "Read the entire engrave.c1667-1681 definition and both direct calls in doengrave1060 and zap_map3665. Preserves predecrement tryct200 exhaustion, exact rn1(COLNO-3,2) arithmetic (rn2 plus base) before rn2(ROWNO), short-circuit engr_at then goodpos(NULL,0), both canonical coordinate stores, and destination-only newsym after success. No draw, state update or redraw after exhaustion. Reads the original linked state.head_engr chain without duplicating location/text. Reviewed complete teleport.c:goodpos86-194 and its current JavaScript owner; accepted completion evidence in port-hack-pooleffects-spoteffects-recursive-ice-v17-20261002 covers the consumed return. With null monster/flags0, rejects the hero position, inaccessible terrain and boulder; monster species/eel/scary gates do not apply. Existing engr_at/display.newsym are canonical. Both source callers run the new helper in source order; doengrave clears eread/erevealed only afterward, and downward zap_map preserves its headstone guard. Existing probing/polymorph zap_map behavior retained, no broader zap_map or doengrave completion claimed. Deleted the selected rloc_engr gap.",
+            "callers": [
+              {
+                "path": "js/engrave.js",
+                "symbol": "doengrave",
+                "source": "engrave.c1060: after wand identification, before eread/erevealed clearing and original-square refresh."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_map",
+                "source": "zap.c3663-3666: downward WAN_TELEPORTATION/SPE_TELEPORT_AWAY, after the existing non-headstone guard; source helper owns destination redraw."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/engrave-rloc-engr.test.mjs",
+              "scripts/engrave-command.test.mjs",
+              "scripts/zap-command.test.mjs",
+              "scripts/teleport.test.mjs"
+            ],
+            "recordings": [
+              "recordings/engrave.c/relocate-dust-with-engraving-wand.session.json",
+              "recordings/engrave.c/relocate-dust-with-downward-wand.session.json",
+              "recordings/engrave.c/relocate-dust-with-engraving-wand-variation.session.json",
+              "recordings/engrave.c/relocate-dust-with-downward-wand-variation.session.json",
+              "recordings/engrave.c/relocate-dust-with-downward-spell.session.json"
+            ],
+            "sourceFile": "engrave.c",
+            "synthetic": [
+              {
+                "batch": "v28",
+                "caseId": "v28-engrave-teleport-text",
+                "segment": 0,
+                "fromStep": 44,
+                "throughStep": 54,
+                "source": "cmd.c E -> engrave.c:doengrave; selected teleportation wand sets teleengr, doengrave1060 -> rloc_engr; caller clears read/revealed flags and accepts new text afterward."
+              }
+            ],
+            "checkedAt": "63ae9f774b239bc0b3676ee4f8f0274d7f98f485"
+          }
+        ],
+        "entryPointReview": "Two direct source caller families, doengrave and zap_map, are both recorded. E with teleportation wand is covered by admitted source range44-54 and two independent C recordings. Downward wand has two independent recordings; downward SPE_TELEPORT_AWAY uses existing spell.c:dowizcast/spelleffects and reaches the same production weffects/zap_updown/zap_map dispatch. C traces show2,3,4,8 and20 coordinate-attempt sequences, while source-pinned tests cover200 failures and short-circuit collision/hero/terrain gates. The protected HEADSTONE boundary has passing source-contract tests for both wand and spell. No new state storage, injected callee operation, startup, Lua or broader caller completion belongs to this source unit.",
+        "entryPoints": [
+          {
+            "name": "E engraving implement teleports existing text",
+            "functions": [
+              "rloc_engr"
+            ],
+            "recordings": [
+              "recordings/engrave.c/relocate-dust-with-engraving-wand.session.json",
+              "recordings/engrave.c/relocate-dust-with-engraving-wand-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v28",
+                "caseId": "v28-engrave-teleport-text",
+                "segment": 0,
+                "fromStep": 44,
+                "throughStep": 54,
+                "source": "cmd.c E -> engrave.c:doengrave; selected teleportation wand sets teleengr, doengrave1060 -> rloc_engr; caller clears read/revealed flags and accepts new text afterward."
+              }
+            ]
+          },
+          {
+            "name": "downward teleportation wand on floor text",
+            "functions": [
+              "rloc_engr"
+            ],
+            "recordings": [
+              "recordings/engrave.c/relocate-dust-with-downward-wand.session.json",
+              "recordings/engrave.c/relocate-dust-with-downward-wand-variation.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "downward teleport-away spell through production wizard spell command",
+            "functions": [
+              "rloc_engr"
+            ],
+            "recordings": [
+              "recordings/engrave.c/relocate-dust-with-downward-spell.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "63ae9f774b239bc0b3676ee4f8f0274d7f98f485",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-dig-buried-ball-to-freedom-v28-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port buried-ball freedom release and wire its production callers",
+      "cFile": "dig.c",
+      "sessions": [
+        "synthetic/v28/v28-buried-ball-release"
+      ],
+      "selectionReason": "The admitted v28 buried-ball case retains three screens; source tracing identifies missing dig.c buried_ball_to_freedom and its five direct production callers.",
+      "detail": "Port the whole dig.c buried_ball_to_freedom function and wire seffect_remove_curse, use_bell, fix_worst_trouble, and both polymon branches. Verify the existing buried_ball helper; punishment restoration remains a separate scope.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "buried_ball_to_freedom",
+          "line": 1958,
+          "endLine": 1983,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1958,
+        "to": 1983
+      },
+      "syntheticProvenance": {
+        "synthetic/v28/v28-buried-ball-release": {
+          "session": "synthetic/v28/v28-buried-ball-release",
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-buried-ball-release",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recordingPath": "challenges/cases/v28/v28-buried-ball-release.session.json",
+          "recordingSha256": "59021abf38da97dedefb59d6f72d1a429e7fe54efea3fc11c02160feb706deb4",
+          "evaluationPath": "challenges/evaluations/accepted-63ae9f774b239bc0b3676ee4f8f0274d7f98f485-v28.json",
+          "evaluationCommit": "63ae9f774b239bc0b3676ee4f8f0274d7f98f485"
+        }
+      }
+    },
+    {
+      "id": "port-wizcmds-wiz-smell-v28-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the wizard smell selection command and its dispatchers",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v28/v28-wiz-smell-self"
+      ],
+      "selectionReason": "The admitted v28 wizard-smell case retains ten screens after A141; source tracing identifies the missing whole wizcmds.c wiz_smell command and its dispatch path.",
+      "detail": "Port whole wiz_smell with selection, olfaction, steed, monster, invisible-marker, and return-code behavior, then reconcile bounded doextcmd and rhack production dispatch without claiming those callers complete.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_smell",
+          "line": 885,
+          "endLine": 948,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 885,
+        "to": 948
+      },
+      "syntheticProvenance": {
+        "synthetic/v28/v28-wiz-smell-self": {
+          "session": "synthetic/v28/v28-wiz-smell-self",
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-wiz-smell-self",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recordingPath": "challenges/cases/v28/v28-wiz-smell-self.session.json",
+          "recordingSha256": "e170d701d41f1a8c15b7323cf97c5d2c37a0aa98f9408483d76e83d6c79d0bda",
+          "evaluationPath": "challenges/evaluations/accepted-63ae9f774b239bc0b3676ee4f8f0274d7f98f485-v28.json",
+          "evaluationCommit": "63ae9f774b239bc0b3676ee4f8f0274d7f98f485"
+        }
+      }
     }
   ]
 }

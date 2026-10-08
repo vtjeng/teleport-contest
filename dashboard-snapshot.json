@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T01:51:01.637Z",
+  "capturedAt": "2026-10-08T02:03:29.306Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -25644,12 +25644,71 @@
         "type": "accepted",
         "at": "2026-10-08T01:49:47.111Z",
         "task": "B141"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B141-fd313603",
+        "type": "published",
+        "at": "2026-10-08T01:51:32.190Z",
+        "task": "B141",
+        "commit": "fd31360358f6ebcaa1ed472927ea61a7c5debba8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B142-da304324",
+        "type": "received",
+        "at": "2026-10-08T01:51:45.871Z",
+        "task": "B142",
+        "delivery": "da30432498c30c1cde6a3a9474e0d2ac22bb7215"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B142-63ae9f77",
+        "type": "integrating",
+        "at": "2026-10-08T01:52:58.273Z",
+        "task": "B142",
+        "integration": "63ae9f774b239bc0b3676ee4f8f0274d7f98f485"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B142-run-37715197902",
+        "type": "validated",
+        "at": "2026-10-08T02:00:10.353Z",
+        "task": "B142",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B142-63ae9f774b239bc0b3676ee4f8f0274d7f98f485-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T02:00:44.338Z",
+        "task": "B142"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B143-da304324",
+        "type": "assign",
+        "at": "2026-10-08T02:02:26.346Z",
+        "task": "B143",
+        "worker": "B",
+        "goal": "port-dig-buried-ball-to-freedom-v28-20261008",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A142-541cea0a",
+        "type": "assign",
+        "at": "2026-10-08T02:03:19.216Z",
+        "task": "A142",
+        "worker": "A2",
+        "goal": "port-wizcmds-wiz-smell-v28-20261007",
+        "kind": "implementation"
       }
     ]
   },
   "development": {
-    "executionCommit": "d6683ff41482c0da2412f4c019c8d581e668778a",
-    "measuredAt": "2026-10-08T01:46:52.566Z",
+    "executionCommit": "63ae9f774b239bc0b3676ee4f8f0274d7f98f485",
+    "measuredAt": "2026-10-08T01:57:10.026Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
