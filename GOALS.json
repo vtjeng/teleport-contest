@@ -216509,7 +216509,7 @@
     {
       "id": "fix-weapon-menu-tab-columns-v31-20261008",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Restore source tab-separated ordinary and wizard skill menu rows",
       "cFile": "weapon.c",
       "sessions": [
@@ -216517,8 +216517,12 @@
       ],
       "selectionReason": "Independent source-traced skill-column divergence after telekinesis: valid menu_tab_sep reaches an obsolete refusal and the ordinary row lacks the source tab branch.",
       "detail": "Reconcile weapon.c add_skills_to_menu lines 1278-1296 while preserving the existing menu byte-capture behavior; no whole-function completion claim.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "8cca8282946a19fd611389403ee29c8c2e21fa29",
+      "openStanding": {
+        "sha": "df3f88e14504c6bd2b05c427cee310320c4f74a8",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "add_skills_to_menu",
@@ -216537,7 +216541,152 @@
           "evaluationPath": "challenges/evaluations/accepted-df3f88e14504c6bd2b05c427cee310320c4f74a8-v31.json",
           "evaluationCommit": "df3f88e14504c6bd2b05c427cee310320c4f74a8"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "df3f88e14504c6bd2b05c427cee310320c4f74a8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-skill-tab-columns",
+          "session": "synthetic/v31/v31-skill-tab-columns",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recording": "challenges/cases/v31/v31-skill-tab-columns.session.json",
+          "recordingPath": "challenges/cases/v31/v31-skill-tab-columns.session.json",
+          "recordingSha256": "a397ae69d8a7f24083a4ceae577431b0ef7f174e7b3675c0451d7a4ef7e1bc93",
+          "recipe": "challenges/cases/v31/v31-skill-tab-columns.recipe.session.json",
+          "recipeSha256": "b26b3d5e45cba095c4fed5bde917df7f7d34d0fc10d18e984d6e9eddfaa62578",
+          "replayInputSha256": "ae1fa766e75fe894b5dc9eae207889f69eef422fd85892a2422a98dbbf26fbba",
+          "evaluationPath": "challenges/evaluations/accepted-df3f88e14504c6bd2b05c427cee310320c4f74a8-v31.json",
+          "evaluationCommit": "df3f88e14504c6bd2b05c427cee310320c4f74a8",
+          "evaluationArtifact": "challenges/evaluations/accepted-df3f88e14504c6bd2b05c427cee310320c4f74a8-v31.json",
+          "evaluationUtc": "2026-10-08T21:05:40.851Z",
+          "remainingScreens": 12,
+          "recordedSteps": 23,
+          "previousScreensMatched": 11,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 11,
+              "total": 23
+            },
+            "rng": {
+              "matched": 2641,
+              "total": 2641
+            },
+            "cursors": {
+              "matched": 11,
+              "total": 23
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: weapon skill handling requires menu_tab_sep columns",
+            "step": 11
+          },
+          "step": 11,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: weapon skill handling requires menu_tab_sep columns",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v31/v31-skill-tab-columns.json",
+            "result": {
+              "session": "synthetic/v31/v31-skill-tab-columns",
+              "corpus": "synthetic",
+              "batch": "v31",
+              "caseId": "v31-skill-tab-columns",
+              "manifestPath": "challenges/manifests/v31.json",
+              "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+              "recordingSha256": "a397ae69d8a7f24083a4ceae577431b0ef7f174e7b3675c0451d7a4ef7e1bc93",
+              "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+              "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+              "remainingScreens": 12,
+              "recordedSteps": 23,
+              "status": "complete",
+              "commit": "06fea9a4fbc262b29bbf41e1f3247279b8701a86",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v31",
+                "caseId": "v31-skill-tab-columns",
+                "session": "synthetic/v31/v31-skill-tab-columns",
+                "manifestPath": "challenges/manifests/v31.json",
+                "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+                "recordingPath": "challenges/cases/v31/v31-skill-tab-columns.session.json",
+                "recording": "challenges/cases/v31/v31-skill-tab-columns.session.json",
+                "recordingSha256": "a397ae69d8a7f24083a4ceae577431b0ef7f174e7b3675c0451d7a4ef7e1bc93",
+                "recipe": "challenges/cases/v31/v31-skill-tab-columns.recipe.session.json",
+                "recipeSha256": "b26b3d5e45cba095c4fed5bde917df7f7d34d0fc10d18e984d6e9eddfaa62578",
+                "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+                "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+                "evaluationUtc": "2026-10-08T20:27:01.083Z",
+                "remainingScreens": 12,
+                "recordedSteps": 23,
+                "passed": false,
+                "metrics": {
+                  "screens": {
+                    "matched": 11,
+                    "total": 23
+                  },
+                  "rng": {
+                    "matched": 2641,
+                    "total": 2641
+                  },
+                  "cursors": {
+                    "matched": 11,
+                    "total": 23
+                  }
+                },
+                "error": null,
+                "firstMismatch": {
+                  "kind": "stop",
+                  "step": 11,
+                  "message": "weapon skill handling requires menu_tab_sep columns"
+                },
+                "step": 11,
+                "kind": "stop",
+                "sourceFile": "weapon.c",
+                "function": "add_skills_to_menu"
+              },
+              "summary": "Skill menu stops at step 11 because add_skills_to_menu rejects a valid menu_tab_sep option before its existing wizard tab formatter. Remove the obsolete refusal and implement C ordinary tab formatting; preserve source prefixes, widths, table order and current TTY tab-byte capture.",
+              "goalKind": "divergence-fix",
+              "source": {
+                "file": "weapon.c",
+                "branch": "menu_tab_sep is true from valid startup options. Wizard rows use name-tab-level-tab-practice(required); ordinary rows use name-tab-bracketed level. Both use existing selectable/advance/peak prefix decisions and source menu return values.",
+                "functions": [
+                  "add_skills_to_menu"
+                ],
+                "callers": [
+                  "weapon.c:enhance_weapon_skill1329–1407 -> add_skills_to_menu1378–1379 -> cmd.c enhance dispatcher",
+                  "weapon.c:show_skills1306–1319 -> same formatter; DUMPLOG-only end.c caller excluded from live gameplay scope"
+                ],
+                "dependencies": [
+                  "Canonical existing P_NAME/P_RESTRICTED/P_SKILL/P_ADVANCE, skill_level_name, can_advance/could_advance/peaked_skill and practice_needed_to_advance return owners, source-read and source-pinned tests already present.",
+                  "Existing windows.js/select_menu -> tty_menu.js layout and byte writer; tabs count one source byte for width/cursor but recorder ignores control glyphs.",
+                  "Existing startup boolean option handler sets iflags.menu_tab_sep; unrelated options.c doset refusal remains outside the fix."
+                ]
+              },
+              "evidence": [
+                "Accepted0416a19e evaluation preserves 11/23 screens/cursors and full2641 RNG; 12 remaining. Claimed-case focused replay .cache/A171/selected-before.log, receipt run-UtkilA, stops exactly before step11 Current skills menu. The queue annotated enhance_weapon_skill, but the actual refusing owner is add_skills_to_menu in weapon.js1627–1629.",
+                "Read complete source add_skills_to_menu1229–1302 and both callers. Existing JS already formats wizard tab columns at1665–1670 but unreachable guard rejects all menu_tab_sep states. Ordinary branch always formats padded name and lacks source1289–1296 tab alternative. C ordinary tab label is leading space + prefix + unpadded skill name + TAB + bracketed level; padded branch has one additional space before skill name. Keep current prefix/advancement/speedy ordering and value=i+1 selections unchanged.",
+                "Read return dependencies at weapon.c P_NAME63–68, skill_level_name1092–1122, slots_required1134–1152, can_advance1156–1170, could_advance1173–1183, peaked_skill1187–1195 and skills.h practice formula level*level*20. Corresponding canonical implementations and source-pinned weapon/enhance tests exist; no new dependency owner edits are required.",
+                "Read wintty.c tty_add_menu2559–2632 and process_menu_window1456–1490 plus patch006 nomux_putch and existing writeStyledText. Menus preserve the tab byte; ttyDisplay advances one byte, recorder ignores chars<32 leaving a blank cell. Existing JS byte writer likewise skips the control glyph but preserves its column. Do not expand tabs to tabstops or replace them in the skill helper, which would change captured rows and window widths.",
+                "Bounded divergence scope: weapon.c:add_skills_to_menu menu_tab_sep eligibility and ordinary/wizard row formats, js/weapon.js, exact enhance and weapon tests plus independent tab menu runner/weapon recipes/recordings. Keep UnsupportedWeaponSkillError because give_may_advance_msg(P_NONE) still throws it. No whole add_skills/enhance/show_skills/options/TTY completion credit. Wizard practice-count, normal tab row and selectable speedy wizard variation can produce independent C matching evidence; existing non-tab matrix is the outside-boundary regression check. DUMPLOG file output is a separate portable interface exclusion, not a new gameplay caller stub."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
