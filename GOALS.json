@@ -211907,16 +211907,20 @@
     {
       "id": "port-insight-doborn-v30-20261008",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Display source monster birth and death statistics through #wizborn",
       "cFile": "insight.c",
       "sessions": [
         "synthetic/v30/v30-birth-statistics"
       ],
-      "selectionReason": "Accepted A159/A160 dispatcher prerequisites leave the distinct #wizborn arm independent of the older queued B162 statistics arm. The current complete investigation attributes the remaining five v30-birth-statistics screens to whole insight.c doborn and its bounded production caller.",
+      "selectionReason": "C151 is the next dependency-ready reviewed delivery. Its distinct #wizborn dispatcher arm is independent of A164 memory statistics and B163 pyrolisk work; accepted v30 evidence has five remaining birth-statistics screens.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "5fb721bbb9adb447f56f4c2cb7c92696803ecd96",
+      "openStanding": {
+        "sha": "f34b741b3964f0663fc7b7e21a8e2fe840c9d7cd",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -211945,7 +211949,160 @@
           "evaluationPath": "challenges/evaluations/accepted-fd0c960c3088c7db9177d7fdac93295af563489a-v30.json",
           "evaluationCommit": "fd0c960c3088c7db9177d7fdac93295af563489a"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "f34b741b3964f0663fc7b7e21a8e2fe840c9d7cd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-birth-statistics",
+          "session": "synthetic/v30/v30-birth-statistics",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recording": "challenges/cases/v30/v30-birth-statistics.session.json",
+          "recordingPath": "challenges/cases/v30/v30-birth-statistics.session.json",
+          "recordingSha256": "f78495918122ab7f305cb8832e16095a5c151b56736eb2e4d7fcae1df94753a5",
+          "recipe": "challenges/cases/v30/v30-birth-statistics.recipe.session.json",
+          "recipeSha256": "4bc84113996f9593e2ee715913fb700e72165bb7cb3ad7f43257f109d744dd2e",
+          "replayInputSha256": "9c2ea2e32cc19b4d706e4e276395cb908d6e7e2e75e68260e271d0ee10892642",
+          "evaluationPath": "challenges/evaluations/accepted-fd0c960c3088c7db9177d7fdac93295af563489a-v30.json",
+          "evaluationCommit": "fd0c960c3088c7db9177d7fdac93295af563489a",
+          "evaluationArtifact": "challenges/evaluations/accepted-fd0c960c3088c7db9177d7fdac93295af563489a-v30.json",
+          "evaluationUtc": "2026-10-08T18:09:48.872Z",
+          "remainingScreens": 5,
+          "recordedSteps": 32,
+          "previousScreensMatched": 27,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 27,
+              "total": 32
+            },
+            "rng": {
+              "matched": 3057,
+              "total": 3057
+            },
+            "cursors": {
+              "matched": 27,
+              "total": 32
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: doborn() for the extended command 'wizborn' is not ported",
+            "step": 27
+          },
+          "step": 27,
+          "kind": "stop",
+          "sourceFile": "insight.c",
+          "function": "doborn",
+          "message": "unsupported hero command: doborn() for the extended command 'wizborn' is not ported",
+          "cFile": "insight.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v30/v30-birth-statistics.json",
+            "result": {
+              "session": "synthetic/v30/v30-birth-statistics",
+              "corpus": "synthetic",
+              "batch": "v30",
+              "caseId": "v30-birth-statistics",
+              "manifestPath": "challenges/manifests/v30.json",
+              "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+              "recordingSha256": "f78495918122ab7f305cb8832e16095a5c151b56736eb2e4d7fcae1df94753a5",
+              "evaluationPath": "challenges/evaluations/accepted-ae843893a0f02c2480f0ea10fc280b5c2fd9b895-v30.json",
+              "evaluationCommit": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895",
+              "remainingScreens": 5,
+              "recordedSteps": 32,
+              "status": "complete",
+              "commit": "737b748059ea419aa3a3651a0f19924b8c5bcfcf",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v30",
+                "caseId": "v30-birth-statistics",
+                "session": "synthetic/v30/v30-birth-statistics",
+                "manifestPath": "challenges/manifests/v30.json",
+                "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+                "recording": "challenges/cases/v30/v30-birth-statistics.session.json",
+                "recordingPath": "challenges/cases/v30/v30-birth-statistics.session.json",
+                "recordingSha256": "f78495918122ab7f305cb8832e16095a5c151b56736eb2e4d7fcae1df94753a5",
+                "recipe": "challenges/cases/v30/v30-birth-statistics.recipe.session.json",
+                "recipeSha256": "4bc84113996f9593e2ee715913fb700e72165bb7cb3ad7f43257f109d744dd2e",
+                "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
+                "evaluationPath": "challenges/evaluations/accepted-ae843893a0f02c2480f0ea10fc280b5c2fd9b895-v30.json",
+                "evaluationCommit": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895",
+                "evaluationArtifact": "challenges/evaluations/accepted-ae843893a0f02c2480f0ea10fc280b5c2fd9b895-v30.json",
+                "evaluationUtc": "2026-10-08T17:55:25.491Z",
+                "remainingScreens": 5,
+                "recordedSteps": 32,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 27,
+                    "total": 32
+                  },
+                  "rng": {
+                    "matched": 3057,
+                    "total": 3057
+                  },
+                  "cursors": {
+                    "matched": 27,
+                    "total": 32
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: doborn() for the extended command 'wizborn' is not ported",
+                  "step": 27
+                },
+                "step": 27,
+                "kind": "stop",
+                "sourceFile": "insight.c",
+                "function": "doborn",
+                "message": "unsupported hero command: doborn() for the extended command 'wizborn' is not ported",
+                "cFile": "insight.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The #wizborn row names insight.c doborn, but the JS owner and command switch arm are missing. Port the whole monster-birth diagnostic window with exact G_GONE markers and source row formatting; accepted dispatcher prerequisites are present, and only the bounded birth-statistics arm/import need wiring.",
+              "source": {
+                "file": "insight.c",
+                "functions": [
+                  "doborn"
+                ],
+                "branch": "Debug #wizborn WIZMODECMD entry walks LOW_PM..NUMMONS and includes species with nonzero born/died or G_GONE flags. Render died/born columns, neutral name and E/G/X/blank marker; display NHW_TEXT without time use or RNG.",
+                "callers": [
+                  "cmd.c:1942-1943 extcmdlist wizborn/doborn WIZMODECMD -> doextcmd/rhack"
+                ],
+                "dependencies": [
+                  "Canonical tty NHW_TEXT lifecycle and neutral species catalog are implemented; reuse without completion credit.",
+                  "Accepted doextcmd owner is complete. Wire only the distinct doborn switch arm/import under contract:wizard-birth-statistics-dispatch; B162 owns its separate statistics dispatcher arm."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current challenges/evaluations/accepted-ae843893a0f02c2480f0ea10fc280b5c2fd9b895-v30.json retains 27/32 screens,3057/3057 RNG,27/32 cursors. The exact original refusal .cache/C151-before.json is retained. At accepted-main merge 737b748059ea419aa3a3651a0f19924b8c5bcfcf, the entire insight.c doborn function and cmd.js switch arm remain absent; the extcmdlist wizard admission/prerequisites are accepted. Count/recording identity unchanged.",
+                "Whole insight.c3145-3182 (planner3145-3186) creates NHW_TEXT, puts header died born, iterates source declaration order LOW_PM..<NUMMONS, and includes any born/died or G_GONE state. fmt=%4i %4i %c %-30s; first column died,second born, neutral pmname. Mask equality selects E for only extinct, G for only genocide, X for both, otherwise space. Accumulate nborn/ndied, put one blank line, then format totals into buf WITHOUT putstr; source does not show totals. Preserve this unused formatting effect rather than invent a totals row.",
+                "Function calls display_nhwindow(datawin,FALSE) then destroy_nhwindow and returns ECMD_OK. Reuse canonical tty text-window lifecycle with awaited production display/dismiss ordering. No turn/RNG, no game-state mutation beyond window lifecycle; impure due output. C uses returned create_nhwindow handle, available owner; other operations are already implemented window owners. No missing consumed-return callee requires expanding source scope.",
+                "rg doborn across upstream src finds one definition and only cmd.c1943 caller. js/insight.js has no doborn declaration. js/cmd.js doextcmd uses resolved extcmdlist ef_funct and switch, but no doborn arm; generic default raises observed refusal. Existing WIZMODECMD admission must remain intact and ordinary mode is the cheap explicit-limit variation.",
+                "Entry evidence plan: selected admitted debug creation range27..31; independent C-first debug call with a different role and no-created-monster baseline, a created/killed or genocided species variation to expose count/flag rows, and ordinary-mode exclusion. Source-pinned checks pin all G_GONE combinations, neutral catalog names, minimum widths/trailing name padding, declaration order, empty table, no emitted totals, FALSE display flag and awaited teardown without RNG/time. Tests are additional evidence, not runtime wiring.",
+                "Current source recheck confirms insight.c3145-3182 unchanged; sole source cmd.c1942-1943 caller is extcmdlist wizborn. Current JS dispatcher has newly accepted wiz_show_vision/wiz_show_seenv but no doborn branch. No production edit or C recording has occurred in this report update.",
+                "The accepted dispatcher owner is read-only except the birth-statistics arm/import. No whole cmd.c:doextcmd reservation or completion credit is required for this task."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
