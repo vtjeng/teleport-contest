@@ -72,7 +72,7 @@
   },
   "evidence": [
     "Assigned-base .cache/B176/scan.json/log reproduces18/32screens and first stop segment0step18 keym, no earlier divergence; saved evaluation has2322/2322RNG and18/32cursors. C header is Monsters currently shown near (here):.",
-    "Complete pager.c:look_all1979-2084 scans y-major/x-minor, counts monster/self/invisible/warning or object rows, uses source constants for warning/invisible text, emits the header on count1, then coordinate prefix and encoded glyph. Source calls display_nhwindow(TRUE) if count, otherwise pline, then destroys the window.",
+    "Complete pager.c:look_all1979-2074 scans y-major/x-minor, counts monster/self/invisible/warning or object rows, uses source constants for warning/invisible text, emits the header on count1, then coordinate prefix and encoded glyph. Source calls display_nhwindow(TRUE) if count, otherwise pline, then destroys the window.",
     "Current JS look_all827-884 only accepts NONE/MAP, hardcodes map header/alignment, treats any hero glyph as visible self, omits invisible/warning rows and uses remembered display character. All are branches of the same selected function rather than new source owners.",
     "C coordinate widths are raw SCREEN, MAP right-aligned8 with single-digit-y trailing space, compass/full-compass right-aligned12. COMPASS nearby header is you/your position; COMFULL header is coord_desc(hero)=(here). Source lookbuf capacity accounts for encoded glyph length before decode.",
     "Existing getpos-cycle.test.mjs136 pins every pure mode. Add explicit-mode override test and source-derived alignment/header/glyph-row tests, plus independent C-first nearby/all monster/object variations. Admitted range18-31 supplies the full-compass nearby-monster entry. Future runtime blockers must remain named, with no broader pager/getpos completion claim."
@@ -87,7 +87,7 @@
         "file": "pager.c",
         "name": "look_all",
         "start": 1979,
-        "end": 2084
+        "end": 2074
       }
     ],
     "completionCredit": "Whole look_all only; verify existing pure coordinate formatter and source bounds; no whole do_look/getpos/display credit.",

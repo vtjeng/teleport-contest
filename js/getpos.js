@@ -765,8 +765,9 @@ export async function gather_locs(gloc, state = game) {
 // C ref: getpos.c coord_desc() (595-645).  getpos_menu() is a return-valued
 // caller of this formatter, so keep the coordinate modes beside its owner
 // instead of silently dropping configured map/screen coordinates.
-export function coord_desc(x, y, state) {
-    const mode = state.iflags?.getpos_coords ?? GPCOORDS_NONE;
+export function coord_desc(
+    x, y, state, mode = state.iflags?.getpos_coords ?? GPCOORDS_NONE,
+) {
     if (mode === GPCOORDS_COMPASS || mode === GPCOORDS_COMFULL) {
         const full = mode === GPCOORDS_COMFULL;
         return `(${dxdy_to_dist_descr(

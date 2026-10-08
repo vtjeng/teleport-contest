@@ -222,3 +222,12 @@ test('getpos source defines the twelve location-cycle bindings and wrap', () => 
     assert.match(C_SOURCE, /getpos_menu\(coord \*ccp, int gloc\)/);
     assert.match(C_SOURCE, /pick_cnt = select_menu\(tmpwin, PICK_ONE/);
 });
+
+// pager.c:look_all selects MAP while the option remains NONE. The explicit
+// argument must affect formatting alone, without changing canonical options.
+test('coord_desc accepts the caller source mode without mutating options', () => {
+    const state = { u: { ux: 5, uy: 5 }, iflags: { getpos_coords: GPCOORDS_NONE } };
+    // Source MAP prints the supplied map coordinates, independent of hero.
+    assert.equal(coord_desc(7, 5, state, GPCOORDS_MAP), '<7,5>');
+    assert.equal(state.iflags.getpos_coords, GPCOORDS_NONE);
+});

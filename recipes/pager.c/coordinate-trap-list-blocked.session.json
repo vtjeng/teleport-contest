@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside B176 look_all scope: alternate-coordinate trap lists remain blocked by pager.c:look_traps; do not admit by broadening the monster/object list owner.",
+  "segments": [
+    {
+      "seed": 17632014,
+      "datetime": "20510818122334",
+      "nethackrc": "OPTIONS=name:ListOutside,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,whatis_coord:full compass\n",
+      "moves": "./t."
+    }
+  ]
+}
