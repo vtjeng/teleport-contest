@@ -220266,7 +220266,7 @@
     {
       "id": "port-pager-look-all-coordinate-modes-v32-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port pager monster and object list coordinate modes",
       "cFile": "pager.c",
       "sessions": [
@@ -220280,15 +220280,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1e473520110f60b4e3643c68dee6672850378ead",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "look_all",
           "line": 1979,
           "endLine": 2077,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -220482,7 +220485,110 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "look_all",
+            "implementation": "js/pager.js",
+            "symbol": "look_all",
+            "sourceReview": "Read whole pager.c:look_all1979-2074 and direct source helpers. Preserve y-major/x-minor traversal, count increments before description checks, self detection with display.h:canspotself, live monster descriptions, invisible constant and warning table rows, object descriptions, NONE-to-MAP fallback, count1 header/separator, COMPASS you/your-position exception, COMFULL here, SCREEN raw coords, MAP width8/single-digit-y space, other width12, encoded-glyph prefix length before BUFSZ truncation, mixed glyph decoding and count/noncount window/message tail. Remove the alternate-coordinate refusal only in look_all; look_traps/look_engrs limits remain. Existing consumed coordinate/descriptive/glyph dependencies are retained and audited; monhealthdescr is #if0 empty in C. No invented RNG/messages or discarded unported calls in the selected function.",
+            "callers": [
+              {
+                "path": "js/pager.js",
+                "symbol": "do_look",
+                "source": "pager.c1859-1870 m/M/o/O dispatches nearby/all monster/object scans, then returns ECMD_OK; existing production calls are awaited."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/whatis-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pager.c/coordinate-lists-full-compass-independent.session.json",
+              "recordings/pager.c/coordinate-lists-compass-help-variation.session.json",
+              "recordings/pager.c/coordinate-lists-screen-extended-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-coordinate-monster-list",
+                "segment": 0,
+                "fromStep": 18,
+                "throughStep": 31,
+                "source": "pager.c:do_look m -> look_all(TRUE,TRUE), full-compass nearby monster rows including self and peaceful newt, text-window dismissal and subsequent boundaries."
+              }
+            ],
+            "checkedAt": "1e473520110f60b4e3643c68dee6672850378ead"
+          }
+        ],
+        "entryPointReview": "All four active do_look list choices are exercised through direct /, help-menu whatis and typed #whatis. The admitted case covers full-compass nearby monsters including a peaceful newt; independent C-first variations cover every nearby/all monster/object choice, nonempty object glyphs after moving off the dropped starting weapon, and role/coordinate/command-route differences. Existing ordinary map/NONE no-object recordings plus focused tests retain empty-set messages. Warning/invisible rows, hidden-self header, all modes and decoded glyph cells are pinned by focused tests. Alternate trap/engraving coordinate lists are separate source functions and the committed trap recipe confirms the retained boundary. No whole do_look/getpos/display completion credit.",
+        "entryPoints": [
+          {
+            "name": "Nearby monsters",
+            "functions": [
+              "look_all"
+            ],
+            "recordings": [
+              "recordings/pager.c/coordinate-lists-full-compass-independent.session.json",
+              "recordings/pager.c/coordinate-lists-compass-help-variation.session.json",
+              "recordings/pager.c/coordinate-lists-screen-extended-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-coordinate-monster-list",
+                "segment": 0,
+                "fromStep": 18,
+                "throughStep": 31,
+                "source": "pager.c:do_look m -> look_all(TRUE,TRUE), full-compass nearby monster rows including self and peaceful newt, text-window dismissal and subsequent boundaries."
+              }
+            ]
+          },
+          {
+            "name": "All monsters",
+            "functions": [
+              "look_all"
+            ],
+            "recordings": [
+              "recordings/pager.c/coordinate-lists-full-compass-independent.session.json",
+              "recordings/pager.c/coordinate-lists-compass-help-variation.session.json",
+              "recordings/pager.c/coordinate-lists-screen-extended-variation.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Nearby objects",
+            "functions": [
+              "look_all"
+            ],
+            "recordings": [
+              "recordings/pager.c/coordinate-lists-full-compass-independent.session.json",
+              "recordings/pager.c/coordinate-lists-compass-help-variation.session.json",
+              "recordings/pager.c/coordinate-lists-screen-extended-variation.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "All objects",
+            "functions": [
+              "look_all"
+            ],
+            "recordings": [
+              "recordings/pager.c/coordinate-lists-full-compass-independent.session.json",
+              "recordings/pager.c/coordinate-lists-compass-help-variation.session.json",
+              "recordings/pager.c/coordinate-lists-screen-extended-variation.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1e473520110f60b4e3643c68dee6672850378ead",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
