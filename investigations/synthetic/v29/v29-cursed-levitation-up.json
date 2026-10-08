@@ -1,0 +1,133 @@
+{
+  "session": "synthetic/v29/v29-cursed-levitation-up",
+  "remainingScreens": 3,
+  "recordedSteps": 41,
+  "corpus": "synthetic",
+  "batch": "v29",
+  "caseId": "v29-cursed-levitation-up",
+  "manifestPath": "challenges/manifests/v29.json",
+  "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+  "recordingSha256": "278cd887062d85c64c94eeb0048d5a486174e053c7fa04fd47727ac5d5859d8a",
+  "evaluationPath": "challenges/evaluations/accepted-7fd6fc56bec3f59571bef99c466c6d95f54dffe8-v29.json",
+  "evaluationCommit": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8",
+  "status": "complete",
+  "commit": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v29",
+    "caseId": "v29-cursed-levitation-up",
+    "session": "synthetic/v29/v29-cursed-levitation-up",
+    "manifestPath": "challenges/manifests/v29.json",
+    "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+    "recording": "challenges/cases/v29/v29-cursed-levitation-up.session.json",
+    "recordingPath": "challenges/cases/v29/v29-cursed-levitation-up.session.json",
+    "recordingSha256": "278cd887062d85c64c94eeb0048d5a486174e053c7fa04fd47727ac5d5859d8a",
+    "recipe": "challenges/cases/v29/v29-cursed-levitation-up.recipe.session.json",
+    "recipeSha256": "b864707215606504baaf5c3b35d93c4a8b778c55828e7243ac1baf5e9695915b",
+    "replayInputSha256": "3865bfa70706ac84f88c5d02b0e141e247b55ae3bf7a129b0a7a8b83e995245d",
+    "evaluationPath": "challenges/evaluations/accepted-7fd6fc56bec3f59571bef99c466c6d95f54dffe8-v29.json",
+    "evaluationCommit": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8",
+    "evaluationArtifact": "challenges/evaluations/accepted-7fd6fc56bec3f59571bef99c466c6d95f54dffe8-v29.json",
+    "evaluationUtc": "2026-10-08T09:46:03.134Z",
+    "remainingScreens": 3,
+    "recordedSteps": 41,
+    "previousScreensMatched": 38,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 38,
+        "total": 41
+      },
+      "rng": {
+        "matched": 2510,
+        "total": 2510
+      },
+      "cursors": {
+        "matched": 39,
+        "total": 41
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 32,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 32,
+          "key": "e"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 30,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 32,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 32,
+          "key": "e"
+        },
+        "cCursor": [
+          38,
+          0,
+          1
+        ],
+        "jsCursor": [
+          22,
+          5,
+          1
+        ]
+      }
+    },
+    "step": 32,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Cursed levitation on upstairs skips the existing doup() caller. The missing awaited call suppresses the More boundary and climb-out query while every RNG call still matches. Select whole potion.c:peffect_levitation, retaining the existing companion-transfer and end-game dependencies outside its completion credit.",
+  "source": {
+    "file": "potion.c",
+    "branch": "peffect_levitation receives a cursed object, BLevitation is clear, and stairway_at(u.ux,u.uy) returns an upward stairway. The function must call doup() and complete its input before setting gp.potion_nothing=0. At dungeon ledger1, doup asks whether to climb out; declining returns without traversing.",
+    "functions": [
+      "peffect_levitation (whole potion.c1165-1221)"
+    ],
+    "callers": [
+      "potion.c:peffects1404-1406 selects POT_LEVITATION/SPE_LEVITATION and calls peffect_levitation; js/potion.js2073-2075 already awaits its effect callback.",
+      "potion.c:dodrink -> dopotion -> peffects is the q/#quaff runtime command family; js/cmd.js:runQuaffCommand -> js/potion.js:dodrink/dopotion/peffects reaches this same effect.",
+      "spell.c:spelleffects1533-1545 routes SPE_LEVITATION through peffects(pseudo), with role_skill>=P_SKILLED setting pseudo->blessed first; js/spell.js1517-1523 already awaits this route."
+    ],
+    "dependencies": [
+      "do.c:doup1298-1344 is present and historically verified by closed port-do-doup-synthetic-v1-20260925. Read current whole JS2399-2452 against C: exact stair lookup, move command, rooted/pit/stair/stuck-steed/held/capacity/ledger1 query/pet gates, at_ladder and prev_level order. Await this owner; its command result is discarded in C. No new whole doup credit.",
+      "doup calls canonical y_n, u_rooted, climb_pit, stucksteed, u_stuck_cannot_go, near_capacity, ledger_no, next_to_u, prev_level. The selected admitted case declines before next_to_u/prev_level. Existing next_to_u rejects leashed-companion and steed transfer and remains an explicit outside-limit support frontier, not a new apply.c claim.",
+      "potion effect consumes stairway_at/up, has_ceiling, hard_helmet and rnd bounds10/6/3, body_part/ceiling and Maybe_Half_Phys. has_ceiling is whole dungeon.c1690-1698/js/dungeon.js752-758 with source-pinned tests in scripts/monster-pit.test.mjs; hard_helmet is whole do_wear.c568-573/js/do_wear.js864-868 with source-pinned tests in scripts/wear-armor.test.mjs. No required missing result callee found.",
+      "Existing set_itimeout/incr_itimeout, float_up, losehp, spoteffects and float_vs_flight owners carry the discarded effect/state calls. Whole polyself.c131-154 float_vs_flight and158-164 steed_vs_stealth retain their current single-location blocked-property writes. Broader owners are not selected. Preserve the non-returning source behavior if a ceiling death or accepted climb-out reaches done; no end.c completion credit."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Current authoritative saved evaluation challenges/evaluations/accepted-7fd6fc56bec3f59571bef99c466c6d95f54dffe8-v29.json measures38/41 screens,39/41 cursors and2510/2510 RNG. The immutable admitted recipe was planned independently in v29; its manifest sourceTrace already identifies this omitted doup call. Corpus digestbb2fc0ae is carried from the saved queue, not substituted with the raw manifest-file digest.",
+    "Fresh isolated replay of only this claimed case at examined commit7fd6fc56 reproduces the same first mismatch: segment0 step32 keye, screen row0 col30 C dash versus JS space, cursor C[38,0,1] versus JS[22,5,1], no RNG mismatch or boundary exception. .cache/B151/current-replay.log and current-comparison.json retain full diagnosis; bounded run-AjjXy3/receipt.json verifies command completion. No C game was recorded.",
+    "The C recording step32 prints You start to float in the air!--More--, step33 asks Beware, there will be no return! Still climb? with the source double space, and step34 prints You float gently to the stairs. C potion.c1195 calls (void)doup() before gp.potion_nothing=0 at1198. JS peffect_levitation1802-1804 instead calls note_unported(do.c doup); it never enters the existing owner/query, so the earlier message is not paged at the same input boundary. This is an omitted caller/state ordering effect, not a generic display defect.",
+    "Whole selected source review: potion.c1165-1221 snapshots effective/blocked Levitation, sets timeout1 before float_up, otherwise increments potion_nothing; cursed branch clears I_SPECIAL even when already levitating, respects blocked rise, attempts upstairs doup or consumes rnd(!helmet?10:!hard_helmet?6:3)/Maybe_Half_Phys before losehp, then resets potion_nothing. Blessed branch adds rn1(50,250) then I_SPECIAL; ordinary adds rn1(140,10). Common tail handles a levitating sink before float_vs_flight. JS already contains the corresponding branches except explicit doup gap; no whole peffect_levitation completion evidence exists in GOALS.json, so select its whole function as file-port rather than treating its declaration as completion.",
+    "Actionable minimal scope is whole potion.c:peffect_levitation with the existing peffects dispatch and a canonical awaited do.js:doup import/call. Preserve draw/order and doup result discard; remove the selected note_unported marker. No do.js, display, kick, door-opening, eyewear, or ball-memory code change is currently required. The source family has two active entry-point routes: quaffed potion and levitation spell; cited admitted quaff prefix can establish the stair query, and independent C-first potion plus spell variations must establish remaining effect entry points before completion. Cursed exit acceptance/leashed-companion variants should retain named outside-limit recipes if end/transfer owners block them.",
+    "Selection used saved A149 queue plus accepted-A151 measurements across all batches: every v1-v28 case is complete; v29-punished/eyes belong to queued B150, firebrand/display and legless-kick belong to C145/C146, and trapped door belongs to A152. The remaining oldest admitted unreserved case is cursed-levitation-up before demonbane-banish. Ledger assignment is investigation-only, and no game or central-record edits were made."
+  ]
+}

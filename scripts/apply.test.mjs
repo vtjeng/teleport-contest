@@ -89,6 +89,31 @@ test('use_towel awaits gulp_blnd_check before restoring blindness', () => {
         /if \(!await gulp_blnd_check\(state, env\)\)\s*\{[\s\S]*?await make_blinded\(0, true/u);
 });
 
+test('use_towel removes eyewear before dropping it with canonical operations', async () => {
+    // apply.c's cursed rn2(3)==1 arm calls Blindf_off before dropx. The
+    // independent witness reaches that arm after the earlier slimy-hands arm.
+    assert.match(APPLY_C,
+        /Blindf_off\(ublindf\);\s*dropx\(saved_ublindf\);/u);
+    assert.match(APPLY_JS,
+        /await Blindf_off\(worn, state\);\s*await dropx\(worn, dropCommandEnv\(state, env\)\);/u);
+    const recipe = JSON.parse(readFileSync(new URL(
+        '../recipes/do_wear.c/eyewear-cursed-towel-removal.session.json',
+        import.meta.url), 'utf8'));
+    let boundary;
+    const replay = await runSegment(recipe.segments[0], {
+        onBoundary: error => { boundary = error; },
+    });
+    assert.equal(boundary, undefined);
+    assert.ok(replay.getScreens().some(screen =>
+        screen.includes('You push your blindfold off.')));
+    assert.equal(game.ublindf, null);
+    let dropped = game.level.objlist;
+    while (dropped && dropped.otyp !== BLINDFOLD) dropped = dropped.nobj;
+    assert.ok(dropped, 'the removed blindfold reaches the floor');
+    assert.equal(dropped.where, OBJ_FLOOR);
+    assert.equal(dropped.owornmask, 0);
+});
+
 test('apply.c flip_coin drops a lost coin under Hallucination', async () => {
     // apply.c:doapply() dispatches COIN_CLASS to flip_coin(); the lose_coin
     // arm splits one coin, calls dropx(), and returns ECMD_TIME.

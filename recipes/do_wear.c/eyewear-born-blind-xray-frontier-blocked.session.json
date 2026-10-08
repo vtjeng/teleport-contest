@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked outside B150: vision.c:vision_recalc has no XRAY hidden-object overlay; wearing Eyes reveals a hidden boulder instead of the mapped corridor at segment0 step42. Same source callbacks complete, all RNG/cursors match; failed C recording retained only in cache.",
+  "segments": [
+    {
+      "seed": 1502907,
+      "datetime": "20590723123941",
+      "nethackrc": "OPTIONS=name:EyewearWitness,role:Monk,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,blind\n",
+      "moves": "   \u0017uncursed Eyes of the Overworld\n    \u0006Pj    R    ."
+    }
+  ]
+}

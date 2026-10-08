@@ -1090,7 +1090,7 @@ test('Blindf_off awaits gulp_blnd_check before restoring sight', () => {
     assert.notEqual(jsStart, -1, 'js/do_wear.js must contain Blindf_off');
     assert.ok(jsEnd > jsStart, 'Blindf_off must have a complete JS body');
     assert.match(DO_WEAR_JS.slice(jsStart, jsEnd),
-        /if \(!await gulp_blnd_check\(state\)\)\s*\{[\s\S]*?You can see again/u);
+        /if \(!await gulp_blnd_check\(state, env\)\)\s*\{[\s\S]*?You can see again/u);
 });
 
 test('Blindf_off clears the blindfold slot and toggles blindness', async () => {

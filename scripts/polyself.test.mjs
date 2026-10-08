@@ -34,6 +34,7 @@ import {
 } from '../js/monsters.js';
 import { armor_to_dragon, polymon } from '../js/polyself.js';
 import { do_stone_u } from '../js/uhitm.js';
+import { _doWearInternals } from '../js/do_wear.js';
 import { were_beastie } from '../js/were.js';
 import { your_race } from '../js/mondata.js';
 import { strstri } from '../js/hacklib.js';
@@ -475,4 +476,28 @@ test('polyself keeps the C early guards, selector, and final gate in order', () 
     assert.match(JS_FUNCTION, /were_beastie\(mntmp\)[\s\S]*counter_were/u);
     assert.match(JS_FUNCTION, /await newman\(state, env\)[\s\S]*await polymon/u);
     assert.doesNotMatch(JS_FUNCTION, /throw new UnsupportedPolyselfError/u);
+});
+
+test('headless polymorph removes eyewear through Blindf_off before dropping it', async () => {
+    // polyself.c:1298 uses a NULL argument to suppress the ordinary off_msg;
+    // brown mold's M1_NOHEAD makes the existing has_head guard take this arm.
+    assert.match(C_SOURCE, /!has_head\(uptr\)[\s\S]*?Blindf_off\(\(struct obj \*\) 0\)[\s\S]*?dropp\(otmp\)/u);
+    assert.match(JS_SOURCE, /has_head[\s\S]*?from '\.\/mondata\.js'/u);
+    assert.equal(typeof _doWearInternals.Blindf_off, 'function',
+        'break_armor consumes the existing callback registry');
+    const recipe = JSON.parse(readFileSync(
+        'recipes/do_wear.c/eyewear-headless-polymorph.session.json', 'utf8'));
+    let boundary;
+    const replay = await runSegment(recipe.segments[0], {
+        onBoundary: error => { boundary = error; },
+    });
+    assert.equal(boundary, undefined);
+    assert.ok(replay.getScreens().some(screen => screen.includes('the Brown Mold')),
+        'the removal occurs in the source headless form before later rehumanization');
+    assert.equal(game.ublindf, null);
+    assert.ok(replay.getScreens().some(screen =>
+        screen.includes('Your blindfold falls off!')));
+    assert.ok(!replay.getScreens().some(screen =>
+        screen.includes('You were wearing a blindfold.')),
+        'the source NULL call skips the usual removal message');
 });

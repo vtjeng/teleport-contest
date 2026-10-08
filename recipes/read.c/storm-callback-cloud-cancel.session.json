@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first read.c callback witness. Valkyrie with no pet/legacy/tip setup enters the target chooser, toggles markers twice and cancels. Source getpos_sethilite installs and clears the callback through the live command. Seed1452912 chosen without search; C-only setup observations are retained.",
+  "segments": [
+    {
+      "seed": 1452912,
+      "datetime": "20590417113521",
+      "nethackrc": "OPTIONS=name:CallbackC145,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\n",
+      "moves": " \u0017scroll of stinking cloud\nre   $$\u001b     "
+    }
+  ]
+}

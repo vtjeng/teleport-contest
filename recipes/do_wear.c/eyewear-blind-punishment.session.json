@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first eyewear/ball-memory witness; fixed new seed and clock. Confirm C wish letters and pager inputs before JavaScript comparison. ",
+  "segments": [
+    {
+      "seed": 1502903,
+      "datetime": "20590723123941",
+      "nethackrc": "OPTIONS=name:EyewearWitness,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "   \u0017uncursed blindfold\n\u0017uncursed scroll of punishment\n   Pe    rf     hl."
+    }
+  ]
+}

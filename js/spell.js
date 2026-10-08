@@ -22,6 +22,7 @@ import {
     EF_GREASE,
     EF_VERBOSE,
     ECMD_FAIL,
+    DISP_BEAM, DISP_END, D_ISOPEN, IS_DOOR, IS_STWALL, Is_waterlevel, ZAP_POS, EXPL_FIERY, EXPL_FROSTY,
     ECMD_OK,
     ECMD_TIME,
     HALF_PHDAM,
@@ -60,9 +61,9 @@ import { read_tribute } from './files.js';
 import { makeplural } from './fruit.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
-import { shieldeff } from './display.js';
+import { shieldeff, cmap_to_glyph, map_glyphinfo, tmp_at, canspotmon } from './display.js';
 import { check_capacity, invocation_pos, losehp, nomul } from './hack.js';
-import { dist2, isqrt, sgn } from './hacklib.js';
+import { dist2, distmin, isqrt, sgn } from './hacklib.js';
 import { obfree, update_inventory, useup } from './invent.js';
 import {
     can_chant,
@@ -153,7 +154,7 @@ import {
 import { discover_object, observe_object } from './o_init.js';
 import { do_vicinity_map } from './detect.js';
 import { use_skill } from './weapon.js';
-import { unturn_dead, zapyourself, weffects } from './zap.js';
+import { unturn_dead, zapyourself, weffects, spell_damage_bonus } from './zap.js';
 import { fall_asleep } from './timeout.js';
 import { erode_obj } from './trap_erode_obj.js';
 import { body_part } from './polyself.js';
@@ -173,6 +174,13 @@ import { note_unported } from './unported.js';
 // until gameplay.
 import { seffects } from './read.js';
 import { canseemon } from './display.js';
+import { getpos, getpos_sethilite } from './getpos.js';
+import { isok } from './cmd_isok.js';
+import { m_at } from './monst.js';
+import { walk_path } from './dothrow.js';
+import { explode } from './explode.js';
+import { clearTtyMessageWindow } from './tty_message.js';
+import { S_goodpos } from './symbols.js';
 
 // C ref: spell.c's spellmenu arguments. 0..MAXSPELL-1 double as svs.spl_book[]
 // indices while swapping two spells; SPELLMENU_DUMP (-3) belongs to
@@ -1400,15 +1408,41 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
             await make_slimed(0, 'The slime disappears!', state, env);
         break;
     }
-    // Skilled fireball/cone-of-cold uses throwspell()/explode(), which are
-    // not ported. Unskilled falls through to the wand-duplicate path.
+    // C spell.c:1420–1452, skilled storm branch. Other casting arms retain
+    // their existing source coverage; the target family is owned below.
     case SPE_FIREBALL:
     case SPE_CONE_OF_COLD:
         if (role_skill >= P_SKILLED) {
-            obfree(pseudo, null, { state });
-            throw new UnsupportedSpellCastError(
-                'throwspell()/explode() for skilled fireball/cone-of-cold',
-            );
+            if (await throwspell(state)) {
+                const cc = {x:state.u.dx, y:state.u.dy};
+                let n = random.rnd(8) + 1;
+                while (n--) {
+                    if (!state.u.dx && !state.u.dy && !state.u.dz) {
+                        const damage = await zapyourself(pseudo, true, state);
+                        if (damage)
+                            await losehp(damage, `zapped ${uhim(state)}self with a spell`,
+                                NO_KILLER_PREFIX, state);
+                    } else {
+                        await explode(state.u.dx, state.u.dy,
+                            otyp - SPE_MAGIC_MISSILE + 10,
+                            spell_damage_bonus(Math.trunc(state.u.ulevel / 2) + 1, state),
+                            0, otyp === SPE_CONE_OF_COLD ? EXPL_FROSTY : EXPL_FIERY,
+                            state);
+                    }
+                    // C final death does not return; life saving/debug does.
+                    if (state.program_state?.gameover) return ECMD_TIME;
+                    state.u.dx = cc.x + random.rnd(3) - 2;
+                    state.u.dy = cc.y + random.rnd(3) - 2;
+                    if (!isok(state.u.dx, state.u.dy)
+                        || !cansee(state.u.dx, state.u.dy, state)
+                        || IS_STWALL(state.level.at(state.u.dx, state.u.dy).typ)
+                        || state.u.uswallow) {
+                        state.u.dx = cc.x;
+                        state.u.dy = cc.y;
+                    }
+                }
+            }
+            break;
         }
         // falls through
     case SPE_FORCE_BOLT:
@@ -1550,6 +1584,79 @@ export async function docast(state = game, env = {}) {
         );
     }
     return ECMD_FAIL;
+}
+
+// C ref: spell.c:1607–1615. The argument is unused; walk_path supplies it.
+export function spell_aim_step(arg, x, y, state = game) {
+    if (!isok(x, y)) return false;
+    const cell = state.level.at(x, y);
+    if (!ZAP_POS(cell.typ)
+        && !(IS_DOOR(cell.typ) && (cell.doormask & D_ISOPEN))) return false;
+    return true;
+}
+
+// C ref: spell.c:1619–1624. Sight and Chebyshev distance are read only.
+export function can_center_spell_location(x, y, state = game) {
+    if (distmin(state.u.ux, state.u.uy, x, y) > 10) return false;
+    return isok(x, y) && cansee(x, y, state)
+        && !IS_STWALL(state.level.at(x, y).typ);
+}
+
+// C ref: spell.c:1627–1651. Preserve dx-then-dy iteration and skip the hero.
+export async function display_spell_target_positions(on_off, state = game) {
+    if (on_off) {
+        await tmp_at(DISP_BEAM, map_glyphinfo(cmap_to_glyph(S_goodpos, state), state), state);
+        for (let dx = -10; dx <= 10; dx++)
+            for (let dy = -10; dy <= 10; dy++) {
+                const x = state.u.ux + dx, y = state.u.uy + dy;
+                if (x === state.u.ux && y === state.u.uy) continue;
+                if (can_center_spell_location(x, y, state))
+                    await tmp_at(x, y, state);
+            }
+    } else {
+        await tmp_at(DISP_END, 0, state);
+    }
+}
+
+// C ref: spell.c:1655–1702. Target cancellation and water checks consume
+// no blast RNG. Swallowing sets dx/dy only, preserving the source dz value.
+export async function throwspell(state = game) {
+    if (state.u.uinwater) {
+        await ttyPline("You're joking!  In this weather?", state);
+        return 0;
+    } else if (Is_waterlevel(state.u.uz)) {
+        await ttyPline('You had better wait for the sun to come out.', state);
+        return 0;
+    }
+    await ttyPline('Where do you want to cast the spell?', state);
+    const cc = {x:state.u.ux, y:state.u.uy};
+    await getpos_sethilite(display_spell_target_positions,
+        can_center_spell_location, state);
+    if (await getpos(cc, true, 'the desired position', state) < 0) return 0;
+    clearTtyMessageWindow(state);
+    if (distmin(state.u.ux, state.u.uy, cc.x, cc.y) > 10) {
+        await ttyPline('The spell dissipates over the distance!', state);
+        return 0;
+    } else if (state.u.uswallow) {
+        await ttyPline('The spell is cut short!', state);
+        await exercise(A_WIS, false, state);
+        state.u.dx = state.u.dy = 0;
+        return 1;
+    } else {
+        let mon;
+        if (((cc.x !== state.u.ux || cc.y !== state.u.uy)
+            && !cansee(cc.x, cc.y, state)
+            && (!(mon = m_at(cc.x, cc.y, state)) || !canspotmon(mon, state)))
+            || IS_STWALL(state.level.at(cc.x, cc.y).typ)) {
+            await ttyPline('Your mind fails to lock onto that location!', state);
+            return 0;
+        }
+    }
+    const uc = {x:state.u.ux, y:state.u.uy};
+    await walk_path(uc, cc, (arg, x, y) => spell_aim_step(arg, x, y, state), null);
+    state.u.dx = cc.x;
+    state.u.dy = cc.y;
+    return 1;
 }
 
 // C ref: spell.c dowizcast(). The wizard command offers every usable spell

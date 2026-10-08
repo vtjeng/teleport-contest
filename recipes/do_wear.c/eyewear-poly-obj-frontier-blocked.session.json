@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked outside B150: non-ring zap.c:poly_obj removal/replacement and set_wear producer. Independent C transforms a worn blindfold to brass lantern at segment0 step66 after Blindf_off restores sight. JS records the excluded remove_worn_item call and then stops in replacement inventory cleanup: setNotWorn unavailable for otyp233. Preserve this producer frontier; no failed recording promoted.",
+  "segments": [
+    {
+      "seed": 1502908,
+      "datetime": "20590723123941",
+      "nethackrc": "OPTIONS=name:EyewearPolyFrontier,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "   \u0017uncursed blindfold\nPe    \u0017uncursed potion of polymorph\n#dip\nef      ."
+    }
+  ]
+}

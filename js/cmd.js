@@ -150,7 +150,6 @@ import {
 import {
     doremring, doputon, dotakeoff, dowear, ia_dotakeoff, remarm_swapwep,
     reset_remarm, doddoremarm,
-    UnsupportedAccessoryOnError,
     UnsupportedTakeOffError, UnsupportedWearError,
 } from './do_wear.js';
 import { doclose, doforce, doopen, reset_pick, UnsupportedLockError } from './lock.js';
@@ -2864,9 +2863,6 @@ export function failClosedCommandRefusals() {
         // set_wear() raises it too, from moveloop_preamble() rather than from
         // a command, which is the raiser the startup reader above converts.
         UnsupportedWearError,
-        // do_wear.c Amulet_on() and Blindf_on() are fail-closed entry points
-        // that belong to later puton-command slices.
-        UnsupportedAccessoryOnError,
         // eat.c newuhs() is shared: gethungry() calls it from the turn loop,
         // and done_eating() and lesshungry() call it from doeat().
         UnsupportedHungerTransitionError,
