@@ -561,7 +561,7 @@ import { begin_burn, end_burn } from './timeout.js';
 import { wield_tool } from './wield.js';
 import { acurr } from './attrib.js';
 import { known_spell, spe_Fresh, spelleffects } from './spell.js';
-import { stucksteed, use_saddle } from './steed.js';
+import { kick_steed, stucksteed, use_saddle } from './steed.js';
 import { enexto, rloc, rloc_to, tele_restrict, tele_to_rnd_pet, teleds } from './teleport.js';
 import { mpickobj } from './steal.js';
 import {
@@ -822,7 +822,7 @@ export async function use_whip(obj, state = game, env = {}) {
     } else if ((!u.dx && !u.dy) || u.dz > 0) {
         if (u.usteed && !rn2(proficient + 2)) {
             await ttyPline(`You whip ${mon_nam(u.usteed, state)}!`, state);
-            note_unported('steed.c kick_steed');
+            await kick_steed(state);
             return ECMD_TIME;
         }
         if (is_pool_or_lava(u.ux, u.uy, state)

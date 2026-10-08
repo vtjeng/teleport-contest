@@ -206768,13 +206768,13 @@
     {
       "id": "port-dokick-command-steed-family-v29-20261008",
       "kind": "file-port",
-      "status": "parked",
+      "status": "closed",
       "summary": "Port the whole kick command and mounted kick support, including its active bullwhip caller",
       "cFile": "dokick.c",
       "sessions": [
         "synthetic/v29/v29-kick-legless-hero"
       ],
-      "selectionReason": "The oldest reserved v29 mismatch reaches dokick's no-legs guard; the whole command requires kick_steed for its mounted path.",
+      "selectionReason": "B151 is accepted and C146 is the next dependency-ready implementation delivery.",
       "detail": "Preserve dokick guard, prompt, target, recoil, and return ordering; wire whole steed.c:kick_steed into dokick and the bounded apply.c:use_whip caller.",
       "openedAt": "39388f1d1531c35ea3f0ff8aa3c60abd2db67c85",
       "openStanding": {
@@ -206782,15 +206782,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c39bd0fdb5eee2f4e6dbce4a7ff1c8f09ecf787f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dokick",
           "line": 1257,
           "endLine": 1472,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -206802,9 +206805,9 @@
           "name": "kick_steed",
           "line": 402,
           "endLine": 459,
-          "declared": false,
+          "declared": true,
           "sourceFile": "steed.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -206822,7 +206825,7 @@
         }
       },
       "activeStanding": {
-        "sha": "e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833",
+        "sha": "7e71008bccf5e116384b2680966e5c876d955df9",
         "screens": 11405,
         "rng": 792838
       },
@@ -206984,18 +206987,178 @@
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "B150 is the oldest dependency-ready delivery and must integrate first; C146 implementation continues independently."
+      "parkedReason": "B150 is the oldest dependency-ready delivery and must integrate first; C146 implementation continues independently.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "dokick",
+            "implementation": "js/dokick.js",
+            "symbol": "dokick",
+            "sourceReview": "Whole dokick.c:1257–1470 reviewed in definition order. One nine-arm else-if guard chain, conditional underwater rn2(2), trapped type switch and wall-passing exception; mounted yn_function default y uses canonical byte return and exits before getdir; shared awaited message flush returns ECMD_FAIL. Direction and self cancellation precede kickedloc publication and C integer physical-attribute average; kicking boots set99. Swallow rn2(3) preserves digesting case1 fallthrough and wall-passing pit exits before brace/wake. Levitation bracing precedes target capture; maybe_kick_monster consumes its return before wake_nearby(FALSE)/u_wipe_engr(2). Off-map kick_ouch uses existing null/gn.nowhere representation. Monster/pool/object/door/non-door dispatch stays in source order, with saved monster data, invisible glyph restoration gap, XOR splash and integer recoil. Existing returned owners and kick helper source bodies were opened; no new helper credit. All owned command refusals removed; remaining UnsupportedKickError sites belong to inherited kick_monster callbacks. Discarded display.c:show_glyph remains precisely named for immediate invisible-monster death. Existing downstream billing/watch/death and hurtle limitations remain their owners’ gaps. Final full caller audit opened cmd.c act_on_act:4716 and domouseaction:4967. Generated closed door fields flags=8/doormask=0 reproduced missing menu choices; source rm.doormask aliases flags and the bounded cmd helper now reads flags || doormask || 0 consistently with existing lock/dokick owners. No new cmd completion credit.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runKickCommand",
+                "source": "cmd.c extcmdlist kick row -> rhack key dispatcher, doextcmd/executeExtcmdRow and existing canned command dispatcher; all consume dokick ECMD flags"
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "act_on_act",
+                "source": "cmd.c:4716 MCMD_KICK_DOOR queues dokick then cmdq_add_dir; keyboard dotherecmdmenu -> there_cmd_menu invokes this active caller. Pointer-only domouseaction:4967 invokes the same registered owner but is excluded by non-WIN32CON Unix tty_nh_poskey."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/kick-command.test.mjs",
+              "scripts/command-queue.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dokick.c/kick-snake-guard.session.json",
+              "recordings/dokick.c/kick-newt-guard.session.json",
+              "recordings/dokick.c/kick-crocodile-guard.session.json",
+              "recordings/dokick.c/kick-context-menu-natural-door.session.json",
+              "recordings/steed.c/kick-mounted-pony.session.json",
+              "recordings/steed.c/kick-sleeping-pony.session.json"
+            ],
+            "sourceFile": "dokick.c",
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-kick-legless-hero",
+                "segment": 0,
+                "fromStep": 25,
+                "throughStep": 30,
+                "source": "cmd.c rhack -> dokick.c dokick: snake no-legs guard, shared display_nhwindow(WIN_MESSAGE,TRUE), ECMD_FAIL without direction/RNG/time; final boundary beyond the guard."
+              }
+            ],
+            "checkedAt": "c39bd0fdb5eee2f4e6dbce4a7ff1c8f09ecf787f"
+          },
+          {
+            "name": "kick_steed",
+            "implementation": "js/steed.js",
+            "symbol": "kick_steed",
+            "sourceReview": "Whole steed.c:402–450 reviewed. Null steed returns before output/state/RNG. helpless guard obtains mhe with canonical canspotmon dependency, then conditional rn2(2) only when mcanmove or mfrozen; sleeping mobile steed clears msleeping, mfrozen>2 subtracts2, mfrozen<=2 clears frozen and restores movement. Re-test helpless chooses stirs versus monverbself rouse; pronoun and reflexive calls preserve independent hallucination RNG/order. Helpless return precedes tameness decrement. At mtame0/mleashed, discarded apply.c:m_unleash is noted in source order. Zero tameness short-circuits rnd(MAXULEV/2+5), otherwise resistance draws before newsym and discarded dismount_steed(DISMOUNT_THROWN) gap. Supporting dismount owner still refuses this reason; no replacement behavior invented. Positive arm awaits Monnam gallops feedback before ugallop+=rn1(20,30). Existing C rn1 wrapper logs inner rn2(20). Both direct source callers await this single owner; no whole use_whip/dismount credit.",
+            "callers": [
+              {
+                "path": "js/dokick.js",
+                "symbol": "dokick",
+                "source": "dokick.c:1274 mounted yes response, after You kick mon_nam and before ECMD_TIME"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_whip",
+                "source": "apply.c:3026 downward/self bullwhip accidental hit after rn2(proficient+2) and You whip message, before ECMD_TIME"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/steed-kick.test.mjs",
+              "scripts/kick-command.test.mjs",
+              "scripts/apply-pole-whip.test.mjs"
+            ],
+            "recordings": [
+              "recordings/steed.c/kick-mounted-pony.session.json",
+              "recordings/steed.c/kick-sleeping-pony.session.json",
+              "recordings/apply.c/whip-mounted-steed-gallop.session.json",
+              "recordings/apply.c/whip-mounted-steed-gallop-female.session.json"
+            ],
+            "sourceFile": "steed.c",
+            "synthetic": [],
+            "checkedAt": "c39bd0fdb5eee2f4e6dbce4a7ff1c8f09ecf787f"
+          }
+        ],
+        "entryPointReview": "Whole source units and all direct active call sites: dokick production key, named #kick and keyboard #therecmdmenu -> act_on_act(MCMD_KICK_DOOR) -> canned registered dokick and direction all have independent matching evidence. Canonical generated-door mask reconciliation restores the last caller without cmd/helper credit. cmd.c domouseaction:4967 is pointer-only and excluded in the actual Unix recorder: win/tty/wintty.c:4122–4148 non-WIN32CON tty_nh_poskey marks x/y/mod UNUSED and only calls tty_nhgetch; focused source pin verifies this build boundary. kick_steed is reached and awaited by mounted dokick and use_whip, both independently recorded. Discarded thrown dismount, unleash and glyph restoration remain named gaps, outside owner completion.",
+        "entryPoints": [
+          {
+            "name": "keyboard kick guard and mounted confirmation",
+            "functions": [
+              {
+                "sourceFile": "dokick.c",
+                "name": "dokick"
+              },
+              {
+                "sourceFile": "steed.c",
+                "name": "kick_steed"
+              }
+            ],
+            "recordings": [
+              "recordings/dokick.c/kick-snake-guard.session.json",
+              "recordings/dokick.c/kick-newt-guard.session.json",
+              "recordings/dokick.c/kick-crocodile-guard.session.json",
+              "recordings/dokick.c/kick-context-menu-natural-door.session.json",
+              "recordings/steed.c/kick-mounted-pony.session.json",
+              "recordings/steed.c/kick-sleeping-pony.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-kick-legless-hero",
+                "segment": 0,
+                "fromStep": 25,
+                "throughStep": 30,
+                "source": "cmd.c rhack -> dokick.c dokick: snake no-legs guard, shared display_nhwindow(WIN_MESSAGE,TRUE), ECMD_FAIL without direction/RNG/time; final boundary beyond the guard."
+              }
+            ]
+          },
+          {
+            "name": "extended #kick dispatcher",
+            "functions": [
+              {
+                "sourceFile": "dokick.c",
+                "name": "dokick"
+              }
+            ],
+            "recordings": [
+              "recordings/dokick.c/kick-newt-guard.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "mounted downward bullwhip accidental steed hit",
+            "functions": [
+              {
+                "sourceFile": "steed.c",
+                "name": "kick_steed"
+              }
+            ],
+            "recordings": [
+              "recordings/apply.c/whip-mounted-steed-gallop.session.json",
+              "recordings/apply.c/whip-mounted-steed-gallop-female.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "keyboard context-menu canned kick at a generated door",
+            "functions": [
+              {
+                "sourceFile": "dokick.c",
+                "name": "dokick"
+              }
+            ],
+            "recordings": [
+              "recordings/dokick.c/kick-context-menu-natural-door.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c39bd0fdb5eee2f4e6dbce4a7ff1c8f09ecf787f",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-potion-peffect-levitation-v29-20261008",
       "kind": "file-port",
-      "status": "parked",
+      "status": "closed",
       "summary": "Port the whole levitation potion effect and restore cursed upstairs handling",
       "cFile": "potion.c",
       "sessions": [
         "synthetic/v29/v29-cursed-levitation-up"
       ],
-      "selectionReason": "The oldest reserved v29 mismatch skips the source doup call for cursed levitation on an upstairs square.",
+      "selectionReason": "A153 is accepted and B151 is the next dependency-ready implementation delivery.",
       "detail": "Preserve peffect_levitation branch and common-tail ordering for quaff and spell callers; reuse the existing whole doup owner and retain companion-transfer and end-game limits outside this goal.",
       "openedAt": "4112636a58689f078315daeb8408d36e0ec5f8c1",
       "openStanding": {
@@ -207003,15 +207166,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7e71008bccf5e116384b2680966e5c876d955df9",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "peffect_levitation",
           "line": 1165,
           "endLine": 1223,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -207033,7 +207199,7 @@
         }
       },
       "activeStanding": {
-        "sha": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8",
+        "sha": "2ce550233f2bed644fa87f907aacb1d43b3cd7de",
         "screens": 11405,
         "rng": 792838
       },
@@ -207275,7 +207441,94 @@
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "A152 is the oldest dependency-ready delivery and must integrate first; B151 implementation continues independently."
+      "parkedReason": "A152 is the oldest dependency-ready delivery and must integrate first; B151 implementation continues independently.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_levitation",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_levitation",
+            "sourceReview": "Read complete potion.c1165-1221 and compared all source branches in order: !Levitation&&!BLevitation sets timeout1 before awaited float_up; otherwise potion_nothing++; cursed clears I_SPECIAL even already levitating, blocked rise is empty, up-stair branch awaits existing doup and discards ECMD return before resetting potion_nothing, else ceiling damage rnd(10/6/3) followed by Maybe_Half_Phys/losehp and reset; blessed rn1(50,250) before I_SPECIAL, uncursed rn1(140,10), effective Levitation sink spoteffects(FALSE), then float_vs_flight. Replaced only selected do.c:doup note_unported; no injected operation/refusal or swallowed failure remains in this unit. No invented draw or display effect. Existing consumed stairway_at, has_ceiling, hard_helmet, body_part/ceiling and Maybe_Half_Phys owners verified. Read whole doup1298-1344, prev_level1518-1543, float_vs_flight131-164 and matching JS; no broad completion credit. Existing downstream companion transfer limits explicitly preserved.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c1404-1406 POT_LEVITATION/SPE_LEVITATION shared awaited effect; existing command quaff -> dodrink/dopotion and spell.c1533-1545 spelleffects -> peffects production routes verified."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs",
+              "scripts/doup.test.mjs",
+              "scripts/spell.test.mjs",
+              "scripts/wear-armor.test.mjs",
+              "scripts/monster-pit.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/levitation-cursed-upstairs.session.json",
+              "recordings/potion.c/levitation-cursed-ceiling.session.json",
+              "recordings/potion.c/levitation-blessed.session.json",
+              "recordings/potion.c/levitation-uncursed.session.json",
+              "recordings/potion.c/levitation-spell.session.json",
+              "recordings/potion.c/levitation-sink.session.json"
+            ],
+            "sourceFile": "potion.c",
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-cursed-levitation-up",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 40,
+                "source": "cmd.c quaff -> potion.c:dodrink526-615/dopotion618-641/peffects1404-1406 -> peffect_levitation1165-1221 -> do.c:doup1298-1344. Cursed upstairs query, decline, potion_nothing reset, shared float_vs_flight tail, next-turn descent. Whole 41 boundaries/2510 RNG exact."
+              }
+            ],
+            "checkedAt": "7e71008bccf5e116384b2680966e5c876d955df9"
+          }
+        ],
+        "entryPointReview": "Only direct effect caller is potion.c:peffects POT_LEVITATION/SPE_LEVITATION. Active family1 quaff: cmd.c q/#quaff -> dodrink -> dopotion -> peffects; admitted cursed upstairs range plus independent cursed upstairs/ceiling, blessed/uncursed and sink recordings. Active family2 spell: cmd.c #wizcast -> spell.c:dowizcast -> spelleffects1533-1545 -> peffects SPE_LEVITATION; independent basic-skilled Wizard spell recording. Normal learned spell uses the same spelleffects dispatch; no extra effect call. end.c debug done_in_by callers make only POT_WATER/POT_RESTORE_ABILITY, never levitation. Other float_up callers belong to the existing owner, not this selected effect. No inactive source branches invented.",
+        "entryPoints": [
+          {
+            "name": "Quaff levitation potion",
+            "functions": [
+              "peffect_levitation"
+            ],
+            "recordings": [
+              "recordings/potion.c/levitation-cursed-upstairs.session.json",
+              "recordings/potion.c/levitation-cursed-ceiling.session.json",
+              "recordings/potion.c/levitation-blessed.session.json",
+              "recordings/potion.c/levitation-uncursed.session.json",
+              "recordings/potion.c/levitation-sink.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-cursed-levitation-up",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 40,
+                "source": "cmd.c quaff -> potion.c:dodrink526-615/dopotion618-641/peffects1404-1406 -> peffect_levitation1165-1221 -> do.c:doup1298-1344. Cursed upstairs query, decline, potion_nothing reset, shared float_vs_flight tail, next-turn descent. Whole 41 boundaries/2510 RNG exact."
+              }
+            ]
+          },
+          {
+            "name": "Cast levitation spell",
+            "functions": [
+              "peffect_levitation"
+            ],
+            "recordings": [
+              "recordings/potion.c/levitation-spell.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7e71008bccf5e116384b2680966e5c876d955df9",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-lock-doopen-indir-whole-v29-20261008",

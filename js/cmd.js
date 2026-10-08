@@ -2966,10 +2966,8 @@ export function failClosedCommandRefusals() {
         // have stopped raising the class, because dropping it early costs the
         // turn-boundary conversion too.
         UnsupportedPrayerError,
-        // dokick.c raises this from dokick()'s nine guards and five target
-        // tests and from kick_nondoor()'s terrain chain, each at its own
-        // condition and so before that arm has drawn, printed or written
-        // anything.
+        // dokick.c retains this for inherited kick_monster callbacks
+        // whose supporting owners still refuse their source branches.
         UnsupportedKickError,
         // mon.c maybe_unhide_at() raises this from inside invent.c
         // delobj_core(), which sit.c's cream-pie arm reaches through useupf().
@@ -3637,8 +3635,7 @@ async function runTwoWeaponCommand(key, state) {
 // C ref: dokick.c dokick(). Like dosearch() and doeat() it returns its own
 // ECMD_* result: ECMD_CANCEL when the direction prompt answers nothing or
 // names the hero's own square, and ECMD_TIME for the kick that lands. C's
-// third result, the ECMD_FAIL that follows every no-kick guard, belongs to
-// arms this port refuses.
+// guard chain returns ECMD_FAIL after flushing the pending message window.
 async function runKickCommand(key, state) {
     return failClosedCommand(key, state, () => dokick(state));
 }
@@ -4457,8 +4454,9 @@ function terrainAt(x, y, state) {
 
 function doorMaskAt(x, y, state) {
     const tile = tileAt(x, y, state);
+    // C rm.doormask aliases flags; ordinary generated doors populate flags.
     return typeof tile === 'object'
-        ? tile?.doormask ?? tile?.flags ?? 0 : 0;
+        ? tile?.flags || tile?.doormask || 0 : 0;
 }
 
 function objectAt(x, y, state) {
@@ -6167,7 +6165,7 @@ export async function rhack(key, state = game) {
             // C ref: rhack()'s result handling at cmd.c:3810-3825. dokick()
             // answers ECMD_CANCEL for a direction prompt that named nothing
             // and ECMD_TIME for the kick that lands; its ECMD_FAIL belongs to
-            // the no-kick guards this port refuses. cmd.c:1748's "kick" row
+            // the source-ordered no-kick guard chain. cmd.c:1748's "kick" row
             // carries no flags at all, so neither the prefix test at
             // 3693-3695 nor the MOVEMENTCMD and domove_attempting tests at
             // 3773-3800 can divert it.

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first context-menu kick at a natural room door. C startup map places source hero(67,10), west door(57,11); walk nine west and one south, then #therecmdmenu west. Initial door wish on floor was source-rejected and retained in cache. C menu confirms c selects Kick the door; the queued direction is supplied by act_on_act without another prompt.",
+  "segments": [
+    {
+      "seed": 1462941,
+      "datetime": "20910617121314",
+      "nethackrc": "OPTIONS=name:KickFamily,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!verbose,!autopickup,!acoustics,!debug_mongen,pettype:none\n",
+      "moves": " hhhhhhhhhj#therecmdmenu\nhc     ."
+    }
+  ]
+}
