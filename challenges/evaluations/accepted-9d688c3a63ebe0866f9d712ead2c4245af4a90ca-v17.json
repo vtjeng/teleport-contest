@@ -1,0 +1,1183 @@
+{
+  "version": 1,
+  "batch": "v17",
+  "manifestPath": "challenges/manifests/v17.json",
+  "sha": "9d688c3a63ebe0866f9d712ead2c4245af4a90ca",
+  "utc": "2026-10-08T19:59:14.922Z",
+  "status": "complete",
+  "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "c7886d395f84dc5f338e8db4d985bb4be38b8fd2f2701235f9334bea062733ae",
+  "inputFiles": [
+    "challenges/cases/v17/cursed-invisibility-aggravates-monsters-c-observed-slot.recipe.session.json",
+    "challenges/cases/v17/cursed-invisibility-aggravates-monsters-c-observed-slot.session.json",
+    "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-continuation.recipe.session.json",
+    "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-continuation.session.json",
+    "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.recipe.session.json",
+    "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.session.json",
+    "challenges/cases/v17/drain-life-spell-drains-positive-dagger-c-observed-route-offset.recipe.session.json",
+    "challenges/cases/v17/drain-life-spell-drains-positive-dagger-c-observed-route-offset.session.json",
+    "challenges/cases/v17/drain-life-spell-drains-positive-dagger-c-observed-route.recipe.session.json",
+    "challenges/cases/v17/drain-life-spell-drains-positive-dagger-c-observed-route.session.json",
+    "challenges/cases/v17/drain-life-spell-drains-positive-dagger-petless-c-first.recipe.session.json",
+    "challenges/cases/v17/drain-life-spell-drains-positive-dagger-petless-c-first.session.json",
+    "challenges/cases/v17/drain-life-spell-drains-positive-dagger-petless-slot-n.recipe.session.json",
+    "challenges/cases/v17/drain-life-spell-drains-positive-dagger-petless-slot-n.session.json",
+    "challenges/cases/v17/drain-life-spell-drains-positive-dagger.recipe.session.json",
+    "challenges/cases/v17/drain-life-spell-drains-positive-dagger.session.json",
+    "challenges/cases/v17/earthquake-drum-opens-pits-pager-corrected.recipe.session.json",
+    "challenges/cases/v17/earthquake-drum-opens-pits-pager-corrected.session.json",
+    "challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.recipe.session.json",
+    "challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.session.json",
+    "challenges/cases/v17/magic-harp-charms-hostile-pager-safe.recipe.session.json",
+    "challenges/cases/v17/magic-harp-charms-hostile-pager-safe.session.json",
+    "challenges/cases/v17/magic-harp-charms-hostile-targeted.recipe.session.json",
+    "challenges/cases/v17/magic-harp-charms-hostile-targeted.session.json",
+    "challenges/cases/v17/magic-harp-charms-hostile.recipe.session.json",
+    "challenges/cases/v17/magic-harp-charms-hostile.session.json",
+    "challenges/cases/v17/monk-quaffs-milky-gain-level-potion-ghost-from-bottle-selector.recipe.session.json",
+    "challenges/cases/v17/monk-quaffs-milky-gain-level-potion-ghost-from-bottle-selector.session.json",
+    "challenges/cases/v17/monk-quaffs-milky-potion-ghost-from-bottle-corrected-slot-k.recipe.session.json",
+    "challenges/cases/v17/monk-quaffs-milky-potion-ghost-from-bottle-corrected-slot-k.session.json",
+    "challenges/cases/v17/monk-quaffs-three-milky-potions-ghost-from-bottle-three-quaffs.recipe.session.json",
+    "challenges/cases/v17/monk-quaffs-three-milky-potions-ghost-from-bottle-three-quaffs.session.json",
+    "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.recipe.session.json",
+    "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.session.json",
+    "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water.recipe.session.json",
+    "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water.session.json",
+    "challenges/cases/v17/prayer-coaligned-altar-blesses-wished-water.recipe.session.json",
+    "challenges/cases/v17/prayer-coaligned-altar-blesses-wished-water.session.json",
+    "challenges/cases/v17/prayer-coaligned-neutral-altar-blesses-wished-water-corrected.recipe.session.json",
+    "challenges/cases/v17/prayer-coaligned-neutral-altar-blesses-wished-water-corrected.session.json",
+    "challenges/cases/v17/prayer-coaligned-neutral-water-blessing-force-yes.recipe.session.json",
+    "challenges/cases/v17/prayer-coaligned-neutral-water-blessing-force-yes.session.json",
+    "challenges/cases/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation.recipe.session.json",
+    "challenges/cases/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation.session.json",
+    "challenges/cases/v17/read-create-monster-scroll-selects-orc-after-more.recipe.session.json",
+    "challenges/cases/v17/read-create-monster-scroll-selects-orc-after-more.session.json",
+    "challenges/cases/v17/read-create-monster-scroll.recipe.session.json",
+    "challenges/cases/v17/read-create-monster-scroll.session.json",
+    "challenges/cases/v17/see-invisible-potion-mimic-unblock-corridor.recipe.session.json",
+    "challenges/cases/v17/see-invisible-potion-mimic-unblock-corridor.session.json",
+    "challenges/cases/v17/see-invisible-potion-mimic-unblock.recipe.session.json",
+    "challenges/cases/v17/see-invisible-potion-mimic-unblock.session.json",
+    "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.recipe.session.json",
+    "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json",
+    "challenges/cases/v17/tin-human-wererat-cpostfx.recipe.session.json",
+    "challenges/cases/v17/tin-human-wererat-cpostfx.session.json",
+    "challenges/cases/v17/wand-teleportation-moves-hostile-monster-slot-e-southeast.recipe.session.json",
+    "challenges/cases/v17/wand-teleportation-moves-hostile-monster-slot-e-southeast.session.json",
+    "challenges/cases/v17/wand-teleportation-moves-hostile-monster.recipe.session.json",
+    "challenges/cases/v17/wand-teleportation-moves-hostile-monster.session.json",
+    "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.recipe.session.json",
+    "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+    "challenges/cases/v17/werejackal-infects-wizard-on-bite.recipe.session.json",
+    "challenges/cases/v17/werejackal-infects-wizard-on-bite.session.json",
+    "challenges/cases/v17/wizard-eats-fresh-stalker-corpse-cpostfx-stun-pager-slot-o-finishes-occupation.recipe.session.json",
+    "challenges/cases/v17/wizard-eats-fresh-stalker-corpse-cpostfx-stun-pager-slot-o-finishes-occupation.session.json",
+    "challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.recipe.session.json",
+    "challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.session.json",
+    "challenges/cases/v17/wizard-fire-ray-melts-wished-ice.recipe.session.json",
+    "challenges/cases/v17/wizard-fire-ray-melts-wished-ice.session.json",
+    "challenges/cases/v17/wizard-sits-throne-court-summons.recipe.session.json",
+    "challenges/cases/v17/wizard-sits-throne-court-summons.session.json",
+    "challenges/cases/v17/wizard-sits-throne-electric-chair.recipe.session.json",
+    "challenges/cases/v17/wizard-sits-throne-electric-chair.session.json",
+    "challenges/cases/v17/wooden-flute-charms-moving-snake-slot-e-more-continued.recipe.session.json",
+    "challenges/cases/v17/wooden-flute-charms-moving-snake-slot-e-more-continued.session.json",
+    "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-corrected.recipe.session.json",
+    "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-corrected.session.json",
+    "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-more-continued.recipe.session.json",
+    "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-more-continued.session.json",
+    "challenges/cases/v17/wooden-harp-calms-nymph.recipe.session.json",
+    "challenges/cases/v17/wooden-harp-calms-nymph.session.json",
+    "challenges/manifests/v17.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd_isok.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkobj_hornoplenty.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself_bodyparts.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read_text_data.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rng.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/rumors.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/sp_lev.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/strutil.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout.js",
+    "js/topten.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizcmds_data.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "cursed-invisibility-aggravates-monsters-c-observed-slot",
+      "recordingSha256": "db306ba330657854a1c82e87c18d928e7620768cdeaaea8e1f1fe00c6f279efe",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 55,
+          "total": 55
+        },
+        "rng": {
+          "matched": 2419,
+          "total": 2419
+        },
+        "cursors": {
+          "matched": 55,
+          "total": 55
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+      "recordingSha256": "9658e3f285247499038a35fd97b8085b1f4778763e21d3c0c7b5b25a3f09ffa9",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 2420,
+          "total": 2420
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "drain-life-spell-drains-positive-dagger-petless-slot-n",
+      "recordingSha256": "80e797c732b8ef9e457fd08864f5798525647dd7921e1680cf3de9fc15873145",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 63,
+          "total": 63
+        },
+        "rng": {
+          "matched": 2674,
+          "total": 2674
+        },
+        "cursors": {
+          "matched": 63,
+          "total": 63
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "earthquake-drum-opens-pits-pager-corrected",
+      "recordingSha256": "b212e228ad360fa591d013f158fd73eab6cadcb6813cc5a2275614c1bda0f7fe",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 45,
+          "total": 45
+        },
+        "rng": {
+          "matched": 2425,
+          "total": 2425
+        },
+        "cursors": {
+          "matched": 45,
+          "total": 45
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "engrave-on-wished-undisturbed-grave-disturbs-it",
+      "recordingSha256": "48e789e3a061ae8f23054a96b62eb83bf5a84da669d28f7fe87a54de3ee5642f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 21,
+          "total": 21
+        },
+        "rng": {
+          "matched": 3159,
+          "total": 3159
+        },
+        "cursors": {
+          "matched": 21,
+          "total": 21
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "magic-harp-charms-hostile-pager-safe",
+      "recordingSha256": "ecaa9913dc70721acee4df43fc48ad9f1259b4ead5448e56b937e777ff0961ac",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 45,
+          "total": 45
+        },
+        "rng": {
+          "matched": 2501,
+          "total": 2501
+        },
+        "cursors": {
+          "matched": 45,
+          "total": 45
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "magic-harp-charms-hostile-targeted",
+      "recordingSha256": "5955a85ecdd957250d8dd6b3219a659535775af79b4f7b3594e3c0d05bd36a3d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 44,
+          "total": 44
+        },
+        "rng": {
+          "matched": 2507,
+          "total": 2507
+        },
+        "cursors": {
+          "matched": 44,
+          "total": 44
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "magic-harp-charms-hostile",
+      "recordingSha256": "6ebf5e5ce3a4fd8a45f671f5c67ddd9f7198a6f1080ddd6feda43041a9904e3d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 44,
+          "total": 44
+        },
+        "rng": {
+          "matched": 2702,
+          "total": 2702
+        },
+        "cursors": {
+          "matched": 44,
+          "total": 44
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "monk-quaffs-milky-potion-ghost-from-bottle-corrected-slot-k",
+      "recordingSha256": "a209a3b1ccca1ad9ddb8acd6f7b76eb1c81c8b4a11dcf2c77bcd24e794fc3310",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 28,
+          "total": 28
+        },
+        "rng": {
+          "matched": 2485,
+          "total": 2485
+        },
+        "cursors": {
+          "matched": 28,
+          "total": 28
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "monk-quaffs-three-milky-potions-ghost-from-bottle-three-quaffs",
+      "recordingSha256": "b4b5aa967700a1400e75f754e25bf6a04956dfb5890e9f99357004a80fdb1016",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 2557,
+          "total": 2557
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+      "recordingSha256": "70af4f5eb9759e70079659e627121d36a8b37b0bff0e19aa97b8839c08cc0d5e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 78,
+          "total": 78
+        },
+        "rng": {
+          "matched": 2694,
+          "total": 2694
+        },
+        "cursors": {
+          "matched": 78,
+          "total": 78
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "orc-wizard-tin-lycanthropy-cursed-water",
+      "recordingSha256": "d7f1e029d1874280373ea8490e8dd9f6bd93d75a2d09036ba8a70f885cc61cf2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 78,
+          "total": 78
+        },
+        "rng": {
+          "matched": 2666,
+          "total": 2666
+        },
+        "cursors": {
+          "matched": 78,
+          "total": 78
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "prayer-coaligned-altar-blesses-wished-water",
+      "recordingSha256": "c641cfe14ac8a1ef06905015a882838343839ac578a6b79d543df193fa03b05b",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 51,
+          "total": 51
+        },
+        "rng": {
+          "matched": 3360,
+          "total": 3360
+        },
+        "cursors": {
+          "matched": 51,
+          "total": 51
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "prayer-coaligned-neutral-altar-blesses-wished-water-corrected",
+      "recordingSha256": "4389ecc5eff325115811d6a87ef589a2937f8a829f94ec66bfb739b2138c202c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 58,
+          "total": 58
+        },
+        "rng": {
+          "matched": 2864,
+          "total": 2864
+        },
+        "cursors": {
+          "matched": 58,
+          "total": 58
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "prayer-coaligned-neutral-water-blessing-force-yes",
+      "recordingSha256": "0027820cb720967b482871af6e47145e8d22886e2f3bb6b6c8311de4b5b10e6d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 54,
+          "total": 54
+        },
+        "rng": {
+          "matched": 2845,
+          "total": 2845
+        },
+        "cursors": {
+          "matched": 54,
+          "total": 54
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "prayer-coaligned-neutral-water-prayer-glow-pager-continuation",
+      "recordingSha256": "69c64727010469c300a1284a33cd493fbd4cb08461d6af25e0c2dd17f2812b8f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 55,
+          "total": 55
+        },
+        "rng": {
+          "matched": 2845,
+          "total": 2845
+        },
+        "cursors": {
+          "matched": 55,
+          "total": 55
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "read-create-monster-scroll-selects-orc-after-more",
+      "recordingSha256": "dee8c69d1416b02e6106f9df94eb6ece2a171ea0c1af0f7095f5a528fe9356f3",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 49,
+          "total": 49
+        },
+        "rng": {
+          "matched": 2563,
+          "total": 2563
+        },
+        "cursors": {
+          "matched": 49,
+          "total": 49
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "read-create-monster-scroll",
+      "recordingSha256": "470f207599fad5b33218b91792534526145487b3706333140d3644d3269f245f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 45,
+          "total": 45
+        },
+        "rng": {
+          "matched": 2492,
+          "total": 2492
+        },
+        "cursors": {
+          "matched": 45,
+          "total": 45
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "see-invisible-potion-mimic-unblock-corridor",
+      "recordingSha256": "3b932ee850e499d03a616d3d2987ecd8568973773ef29cbfc3edae9fe8e14c8f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 63,
+          "total": 63
+        },
+        "rng": {
+          "matched": 2579,
+          "total": 2579
+        },
+        "cursors": {
+          "matched": 63,
+          "total": 63
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "see-invisible-potion-mimic-unblock",
+      "recordingSha256": "ba3b27803152aae8197439b30e62e71502b14e069885d2edeb65cc5d60dfffa3",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 61,
+          "total": 61
+        },
+        "rng": {
+          "matched": 2795,
+          "total": 2795
+        },
+        "cursors": {
+          "matched": 61,
+          "total": 61
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "tin-human-wererat-cpostfx-slot-n",
+      "recordingSha256": "7ea6bda981edcd91576a70c0d58b6a72fa28f6c4a3f80b14a112b7c598dcd9d0",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 51,
+          "total": 51
+        },
+        "rng": {
+          "matched": 2632,
+          "total": 2632
+        },
+        "cursors": {
+          "matched": 51,
+          "total": 51
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "tin-human-wererat-cpostfx",
+      "recordingSha256": "df52330fe1ed5c7475b3a2b9b39df81966871065dfbcc973df17e89f1e674f81",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 51,
+          "total": 51
+        },
+        "rng": {
+          "matched": 2621,
+          "total": 2621
+        },
+        "cursors": {
+          "matched": 51,
+          "total": 51
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wand-teleportation-moves-hostile-monster-slot-e-southeast",
+      "recordingSha256": "e47d4362b6dc90982e3a39351787eb374131cfb027f343b0e68f295258a96a76",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 50,
+          "total": 50
+        },
+        "rng": {
+          "matched": 5756,
+          "total": 5756
+        },
+        "cursors": {
+          "matched": 50,
+          "total": 50
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wand-teleportation-moves-hostile-monster",
+      "recordingSha256": "5fbc625d867eb8ca87e476f01e5f0f1ef9514e80e48f411525f8cb8fb8e1f8b5",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 50,
+          "total": 50
+        },
+        "rng": {
+          "matched": 5727,
+          "total": 5727
+        },
+        "cursors": {
+          "matched": 50,
+          "total": 50
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "werejackal-infects-wizard-on-bite-forced-rests",
+      "recordingSha256": "4240c23c664e2d821b712d1c97078415aa271a8509ab2f9ebdaac77d98f11baa",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 109,
+          "total": 109
+        },
+        "rng": {
+          "matched": 2338,
+          "total": 2338
+        },
+        "cursors": {
+          "matched": 109,
+          "total": 109
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-eats-fresh-stalker-corpse-cpostfx-stun-pager-slot-o-finishes-occupation",
+      "recordingSha256": "443798c3f21fbd8648ff1b459a9f28c1b74f0effcffa1f05d4b24f8d68949925",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 47,
+          "total": 47
+        },
+        "rng": {
+          "matched": 2431,
+          "total": 2431
+        },
+        "cursors": {
+          "matched": 47,
+          "total": 47
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-fire-ray-melts-wished-ice-slot-o",
+      "recordingSha256": "5814f3d55851994b515161092bf831cce05fe3bf895cad31d59ac0245424f431",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 2158,
+          "total": 2158
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-fire-ray-melts-wished-ice",
+      "recordingSha256": "2b8fb0e509576809c5aaf2a36c0b5a7c9dca4a3d1580cbec491b957e29e0861e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 2158,
+          "total": 2158
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-sits-throne-court-summons",
+      "recordingSha256": "3c93d338490da30a499c97ef6da1710cb0fc7f770986cd8dbf28857c287f8c59",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 18,
+          "total": 18
+        },
+        "rng": {
+          "matched": 2088,
+          "total": 2088
+        },
+        "cursors": {
+          "matched": 18,
+          "total": 18
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-sits-throne-electric-chair",
+      "recordingSha256": "1dae0376f81059c80c045bdcead91b011643d7b7937f3e30d04dfdeb01288ea6",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 18,
+          "total": 18
+        },
+        "rng": {
+          "matched": 2308,
+          "total": 2308
+        },
+        "cursors": {
+          "matched": 18,
+          "total": 18
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wooden-flute-charms-moving-snake-slot-e-more-continued",
+      "recordingSha256": "cb2ff5fdab929497e00a6176b2689dfbf700f2f4655bc3848c7b1d5380899d44",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 80,
+          "total": 80
+        },
+        "rng": {
+          "matched": 2843,
+          "total": 2843
+        },
+        "cursors": {
+          "matched": 80,
+          "total": 80
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wooden-harp-calms-nymph-slot-e-corrected",
+      "recordingSha256": "25da9de703f27a56abf0009a5be89a61b6530d266cbb871cd2f762b1a975570d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 86,
+          "total": 86
+        },
+        "rng": {
+          "matched": 3085,
+          "total": 3085
+        },
+        "cursors": {
+          "matched": 86,
+          "total": 86
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wooden-harp-calms-nymph-slot-e-more-continued",
+      "recordingSha256": "67977a917cf1ae9da9793837e18cc1086bfeca4de1af9c0dc94728d04ea8b0b3",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 87,
+          "total": 87
+        },
+        "rng": {
+          "matched": 3096,
+          "total": 3096
+        },
+        "cursors": {
+          "matched": 87,
+          "total": 87
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wooden-harp-calms-nymph",
+      "recordingSha256": "cd68c9b799e2ae5cf7031e2b3d6d12b435df3a621eafeab779e47e497b27a849",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 86,
+          "total": 86
+        },
+        "rng": {
+          "matched": 3081,
+          "total": 3081
+        },
+        "cursors": {
+          "matched": 86,
+          "total": 86
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "drain-life-spell-drains-positive-dagger-c-observed-route",
+      "recordingSha256": "2223a8fd3a7d9db30185de9c86adbba999be92d6365be074aff1fa7a961183e8",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 64,
+          "total": 64
+        },
+        "rng": {
+          "matched": 2740,
+          "total": 2740
+        },
+        "cursors": {
+          "matched": 64,
+          "total": 64
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "drain-life-spell-drains-positive-dagger-c-observed-route-offset",
+      "recordingSha256": "f76b63f864aaf632006fc1a4a69ff69755f5d8c9c5698751e18ce152ba519c1a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 65,
+          "total": 65
+        },
+        "rng": {
+          "matched": 2824,
+          "total": 2824
+        },
+        "cursors": {
+          "matched": 65,
+          "total": 65
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "drain-life-spell-drains-positive-dagger-petless-c-first",
+      "recordingSha256": "5a64ecb03cb10a033ca00590d77f7dc0bc1bd0a79b32788d550f58709c3cc237",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 64,
+          "total": 64
+        },
+        "rng": {
+          "matched": 2658,
+          "total": 2658
+        },
+        "cursors": {
+          "matched": 64,
+          "total": 64
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "drain-life-spell-drains-positive-dagger",
+      "recordingSha256": "94be266d7db38896dfcda447619bb5dd61d90d0e296d14b25cafa29d024bce38",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 64,
+          "total": 64
+        },
+        "rng": {
+          "matched": 2754,
+          "total": 2754
+        },
+        "cursors": {
+          "matched": 64,
+          "total": 64
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "cursed-invisibility-aggravates-sleeping-orc-continuation",
+      "recordingSha256": "1705a6e18b3e8cc96398350ffc78ee1a66aadc8774b07a0d23fefdfa49338680",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 54,
+          "total": 54
+        },
+        "rng": {
+          "matched": 2401,
+          "total": 2401
+        },
+        "cursors": {
+          "matched": 54,
+          "total": 54
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "monk-quaffs-milky-gain-level-potion-ghost-from-bottle-selector",
+      "recordingSha256": "e88528a999dbca78c0c59d3a52a9d2b09c148130de3edf5d523823391a9c73e9",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 2472,
+          "total": 2472
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "werejackal-infects-wizard-on-bite",
+      "recordingSha256": "9bd28e30daca52fc5293a857dd60d25b029fa790e05dc09e06836d9578a96232",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 70,
+          "total": 70
+        },
+        "rng": {
+          "matched": 2130,
+          "total": 2130
+        },
+        "cursors": {
+          "matched": 70,
+          "total": 70
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 41,
+      "total": 41
+    },
+    "screens": {
+      "matched": 2249,
+      "total": 2249
+    },
+    "rng": {
+      "matched": 113853,
+      "total": 113853
+    },
+    "cursors": {
+      "matched": 2249,
+      "total": 2249
+    }
+  }
+}

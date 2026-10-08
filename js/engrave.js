@@ -3,6 +3,7 @@
 // u_can_engrave(),
 // engrave(), make_engr_at(), wipe_engr_at(), wipeout_text(), freehand(), and rloc_engr().
 
+import { memoryLayout } from './wizcmds_data.js';
 import {
     ACCESSIBLE,
     A_WIS,
@@ -1412,4 +1413,14 @@ export function rloc_engr(ep, state = game, env = {}) {
     ep.engr_x = tx;
     ep.engr_y = ty;
     (env.redraw ?? newsym)(tx, ty, state);
+}
+
+// C ref: engrave.c:1626-1640. Return the source header/count/size output parameters.
+export function engr_stats(headerFormat, state = game) {
+    let count = 0, size = 0;
+    for (let entry = state.head_engr; entry; entry = entry.nxt_engr) {
+        count++;
+        size += memoryLayout.engr + entry.engr_alloc;
+    }
+    return { header: headerFormat.replace('%ld', String(memoryLayout.engr)), count, size };
 }

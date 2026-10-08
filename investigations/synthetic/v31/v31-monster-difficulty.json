@@ -1,0 +1,82 @@
+{
+  "session": "synthetic/v31/v31-monster-difficulty",
+  "corpus": "synthetic",
+  "batch": "v31",
+  "caseId": "v31-monster-difficulty",
+  "manifestPath": "challenges/manifests/v31.json",
+  "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+  "recordingSha256": "2fce722aa186af7f49d37629a69915e7ec917264049d5b2c44939b3c91e93ca3",
+  "evaluationPath": "challenges/evaluations/accepted-3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d-v31.json",
+  "evaluationCommit": "3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d",
+  "remainingScreens": 17,
+  "recordedSteps": 30,
+  "status": "complete",
+  "commit": "c3b649a8f59b7dcb9ebbaaf03e4e652dec7836ae",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v31",
+    "caseId": "v31-monster-difficulty",
+    "session": "synthetic/v31/v31-monster-difficulty",
+    "manifestPath": "challenges/manifests/v31.json",
+    "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+    "recordingPath": "challenges/cases/v31/v31-monster-difficulty.session.json",
+    "recording": "challenges/cases/v31/v31-monster-difficulty.session.json",
+    "recordingSha256": "2fce722aa186af7f49d37629a69915e7ec917264049d5b2c44939b3c91e93ca3",
+    "recipe": "challenges/cases/v31/v31-monster-difficulty.recipe.session.json",
+    "recipeSha256": "55e1bdb477647dc9d82302f5b5dbc1ffe7cac27d5beb0b76a018350d86369b6c",
+    "evaluationPath": "challenges/evaluations/accepted-3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d-v31.json",
+    "evaluationCommit": "3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d",
+    "evaluationUtc": "2026-10-08T19:34:26.947Z",
+    "remainingScreens": 17,
+    "recordedSteps": 30,
+    "passed": false,
+    "metrics": {
+      "screens": {
+        "matched": 13,
+        "total": 30
+      },
+      "rng": {
+        "matched": 2128,
+        "total": 2128
+      },
+      "cursors": {
+        "matched": 13,
+        "total": 30
+      }
+    },
+    "error": null,
+    "firstMismatch": {
+      "kind": "stop",
+      "step": 13,
+      "message": "unsupported hero command: wiz_mon_diff() for the extended command 'wizmondiff' is not ported"
+    },
+    "step": 13,
+    "kind": "stop",
+    "sourceFile": "wizcmds.c",
+    "function": "wiz_mon_diff",
+    "message": "unsupported hero command: wiz_mon_diff() for the extended command 'wizmondiff' is not ported"
+  },
+  "summary": "Wizard #wizmondiff stops at step 13 because the whole monster difficulty report and dispatcher are absent. Port wiz_mon_diff 1790\u20131828, using the existing source-correct mstrength return, live canonical monster table, signed discrepancies and blocking text dismissal.",
+  "goalKind": "file-port",
+  "source": {
+    "file": "wizcmds.c",
+    "branch": "Debug/development wizard command traverses mons until mlet is zero, compares calculated/hardcoded difficulty and prints only discrepancies; current C cleric and wizard rows differ by -1.",
+    "functions": [
+      "wiz_mon_diff"
+    ],
+    "callers": [
+      "cmd.c1985-1986 extcmdlist wizmondiff -> doextcmd/rhack"
+    ],
+    "dependencies": [
+      "Existing complete mondata.c:mstrength 428\u2013497 and its mstrength_ranged_attk 501\u2013512, audited against js/mondata.js and source-pinned scripts/mondata-pure.test.mjs",
+      "Canonical initialized per-game state.mons with mlet-zero sentinel, neutral pmnames and hardcoded difficulty",
+      "Existing TTY text-window lifecycle"
+    ]
+  },
+  "evidence": [
+    "Accepted 3c3b11a2 v31 evaluation records 13/30 screens/cursors and 2128/2128 RNG: 17 remaining. Current claimed-session replay .cache/A168/selected-before.log stops at zero-based step 13, on newline of #wizmondiff. C then displays a header and cleric/wizard rows with calculated 13, hardcoded 12 and delta -1; JS registry exists but doextcmd lacks the helper arm.",
+    "Read whole wizcmds.c1790\u20131828. Each source species is processed in table order until mlet-zero sentinel. Consume mstrength, subtract calculated from hardcoded; emit header only before first discrepancy, clamp displayed mlevel above 50, retain neutral name minimum width18, index width3, level/difficulty width2 and explicit signed delta; truncate Snprintf to BUFSZ-1. No discrepancies prints the source success line. Await display(FALSE)/destroy before ECMD_OK; no RNG or game state mutation.",
+    "Read complete mondata.c mstrength and mstrength_ranged_attk plus JS equivalents. Group/ranged/ac/speed/attack/special damage/name adjustments and integer divisions match source, with existing source-pinned per-species sweep including known cleric/wizard discrepancies. These return dependencies are already complete source implementations; no stub, unsupported refusal or injected accounting substitute is consumed, and no ownership edit/extra completion credit is needed.",
+    "Scope is whole wizcmds.c:wiz_mon_diff plus its bounded cmd.c:doextcmd arm. Exclude whole cmd, monster catalog generation, strength owner, TTY renderer and B164/C152 scopes. New independent roles/seeds/clocks will invoke/dismiss twice and verify canonical live table results; ordinary-play rejection is the outside-limit witness. Constructed source tests cover sentinel stop, no discrepancy, positive/negative deltas and named-demon displayed-level cap, which the current unchanged valid catalog does not reach as a discrepancy."
+  ]
+}

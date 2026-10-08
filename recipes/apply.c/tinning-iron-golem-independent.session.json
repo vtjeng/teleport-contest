@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first stone-golem variation: controlled iron-golem form tins a petrifying corpse without gloves; use_tinning_kit supplies an empty killer string and instapetrify transforms before conversion.",
+  "segments": [
+    {
+      "seed": 81726523,
+      "datetime": "20350312123139",
+      "nethackrc": "OPTIONS=name:TinningGolem,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen,pettype:none,showexp,time\n",
+      "moves": " #polyself\niron golem\n      \u0017uncursed tinning kit\n\u0017cockatrice corpse\naoy            "
+    }
+  ]
+}

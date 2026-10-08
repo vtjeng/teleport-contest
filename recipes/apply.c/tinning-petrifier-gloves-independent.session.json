@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first cheap gloves variation: worn gloves suppress bare-handed chickatrice tinning petrification and permit ordinary conversion.",
+  "segments": [
+    {
+      "seed": 81726519,
+      "datetime": "20350312112139",
+      "nethackrc": "OPTIONS=name:TinningGloves,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen,pettype:none,showexp,time\n",
+      "moves": "\u0017uncursed tinning kit\n\u0017uncursed leather gloves\nWf     \u0017chickatrice corpse\naeg        "
+    }
+  ]
+}

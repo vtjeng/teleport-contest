@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first memory accounting witness: starting pet and repeated paging. Newly chosen seed/role/clock and fixed source actions before comparison.",
+  "segments": [
+    {
+      "seed": 16440021,
+      "datetime": "20530614113000",
+      "nethackrc": "OPTIONS=name:Memory16440021,role:Healer,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:cat,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  .#stats\n  .#stats\n  "
+    }
+  ]
+}

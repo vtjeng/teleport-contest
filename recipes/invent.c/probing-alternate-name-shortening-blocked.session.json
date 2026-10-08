@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "BLOCKED runtime coverage for invent.c:cinv_ansimpleoname, not a passing regression recording. Source short_oname2009-2085 truncates the individual name and retries cinv_doname before selecting its alternate callback. This independent C-first long-named trapped-box probe checks whether the main callback already fits Contents-of fixed115-byte allowance; a returned shortened named/containing heading establishes main callback only, not cinv_ansimpleoname. No whole alternate-helper credit without actual runtime reachability. Seed and setup chosen from this source frontier before any JS comparison.",
+  "segments": [
+    {
+      "seed": 16408013,
+      "datetime": "20410318130529",
+      "nethackrc": "OPTIONS=name:LongContainer,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "    \u0017uncursed wand of probing\n\u0017trapped unlocked large box named LongContainerLongContainerLongContainerLongContainer\ndfze>            "
+    }
+  ]
+}

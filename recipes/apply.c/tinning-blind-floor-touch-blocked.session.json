@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside-limit blind-floor-touch variation: invent.c:feel_cockatrice called by eat.c:floorfood precedes use_tinning_kit selection and still records an unported trap.c:instapetrify gap. Broader feel_cockatrice/instapetrify completion is not part of the selected tinning helper; keep this recipe outside the passing corpus.",
+  "segments": [
+    {
+      "seed": 81726517,
+      "datetime": "20350312101739",
+      "nethackrc": "OPTIONS=name:TinningStone,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen,pettype:none,showexp,time\n",
+      "moves": "\u0017uncursed tinning kit\n\u0017uncursed blindfold\nPg   \u0017chickatrice corpse\nafyn                "
+    }
+  ]
+}

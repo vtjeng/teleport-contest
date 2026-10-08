@@ -148,6 +148,7 @@ export const S_expl_br = requiredCmapSymbol('s_expl_br');
 // The base of the four beam directions a zap glyph carries, which
 // glyphs.c glyph_to_cmap() (1003-1004) adds its remainder to.
 export const S_vbeam = requiredCmapSymbol('s_vbeam');
+export const S_rslant = requiredCmapSymbol('s_rslant');
 
 // C ref: rm.h trap_to_defsym()/defsym_to_trap().
 export function trap_to_defsym(ttyp) {

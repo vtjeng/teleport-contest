@@ -2,6 +2,7 @@
 // C refs: src/light.c new_light_source(), del_light_source(),
 // obj_merge_light_sources(), candle_light_range(); src/zap.c get_obj_location(), get_mon_location().
 
+import { memoryLayout } from './wizcmds_data.js';
 import {
     BURIED_TOO,
     COLNO,
@@ -467,4 +468,14 @@ export function do_light_sources(csRows, env = {}) {
             }
         }
     }
+}
+
+// C ref: light.c:501-511. Return the source header/count/size output parameters.
+export function light_stats(headerFormat, state = game) {
+    let count = 0, size = 0;
+    for (let entry = state.gl?.light_base; entry; entry = entry.next) {
+        count++;
+        size += memoryLayout.light_source;
+    }
+    return { header: headerFormat.replace('%ld', String(memoryLayout.light_source)), count, size };
 }

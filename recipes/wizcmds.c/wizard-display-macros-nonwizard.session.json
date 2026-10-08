@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first display macro diagnostic: roles/seeds/clocks fixed before recording or JavaScript comparison. Ordinary-play boundary rejects the wizard-only command before its source helper.",
+  "segments": [
+    {
+      "seed": 16740053,
+      "datetime": "20561023140000",
+      "nethackrc": "OPTIONS=name:Macros16740053,role:Tourist,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  .#wizdispmacros\n   "
+    }
+  ]
+}

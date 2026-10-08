@@ -1,6 +1,7 @@
 // Bones-file creation and retrieval.
 // C ref: src/bones.c.
 
+import { rest_region_capacity } from './region.js';
 import {
     COLNO,
     DEFUNCT_MONSTER,
@@ -951,6 +952,7 @@ function restoreBonesLevel(bonesData, state) {
     level.buriedobjlist = rebuildObjChain(bonesData.buriedObjects ?? []);
 
     state.level = level;
+    rest_region_capacity(level);
 
     // C restore.c rest_track() restores this after the level's other
     // level-local structures and before ghostly arrival.  initrack() first
