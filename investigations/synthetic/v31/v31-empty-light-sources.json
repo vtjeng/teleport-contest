@@ -1,0 +1,84 @@
+{
+  "session": "synthetic/v31/v31-empty-light-sources",
+  "corpus": "synthetic",
+  "batch": "v31",
+  "caseId": "v31-empty-light-sources",
+  "manifestPath": "challenges/manifests/v31.json",
+  "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+  "recordingSha256": "8421bd1f71a617446262ad86bcd99f3e060ce8ebb2f5b97e5d97214434ea5f13",
+  "evaluationPath": "challenges/evaluations/accepted-2f52799b8e966edcf64b8a93efcfabe527adb0e6-v31.json",
+  "evaluationCommit": "2f52799b8e966edcf64b8a93efcfabe527adb0e6",
+  "remainingScreens": 12,
+  "recordedSteps": 28,
+  "status": "complete",
+  "commit": "3f919fef22bb5f9fb03fde965b2862b64f3039d4",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v31",
+    "caseId": "v31-empty-light-sources",
+    "session": "synthetic/v31/v31-empty-light-sources",
+    "manifestPath": "challenges/manifests/v31.json",
+    "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+    "recording": "challenges/cases/v31/v31-empty-light-sources.session.json",
+    "recordingPath": "challenges/cases/v31/v31-empty-light-sources.session.json",
+    "recordingSha256": "8421bd1f71a617446262ad86bcd99f3e060ce8ebb2f5b97e5d97214434ea5f13",
+    "recipe": "challenges/cases/v31/v31-empty-light-sources.recipe.session.json",
+    "recipeSha256": "2e464fe140eefd4e19bd3ed0b983e149483a0c6f6ec34ee7ae97dfe6f350cf98",
+    "evaluationPath": "challenges/evaluations/accepted-2f52799b8e966edcf64b8a93efcfabe527adb0e6-v31.json",
+    "evaluationArtifact": "challenges/evaluations/accepted-2f52799b8e966edcf64b8a93efcfabe527adb0e6-v31.json",
+    "evaluationCommit": "2f52799b8e966edcf64b8a93efcfabe527adb0e6",
+    "evaluationUtc": "2026-10-08T20:50:02.970Z",
+    "metrics": {
+      "screens": {
+        "matched": 16,
+        "total": 28
+      },
+      "rng": {
+        "matched": 2588,
+        "total": 2588
+      },
+      "cursors": {
+        "matched": 16,
+        "total": 28
+      }
+    },
+    "remainingScreens": 12,
+    "recordedSteps": 28,
+    "passed": false,
+    "error": null,
+    "firstMismatch": {
+      "kind": "stop",
+      "step": 16,
+      "message": "unsupported hero command: wiz_light_sources() for the extended command 'lightsources' is not ported"
+    },
+    "step": 16,
+    "kind": "stop",
+    "sourceFile": "light.c",
+    "function": "wiz_light_sources",
+    "replayInputSha256": "bdbcc5ce30a5d59d83ce25d359e20e56748cc632a53096ec2db99cddcd9c4372"
+  },
+  "summary": "The lightsources dispatcher lacks whole light.c:wiz_light_sources. Empty-list output is source-traced, but populated rows consume alloc.c:fmt_ptr raw C pointer addresses; no source-faithful JavaScript pointer-identity contract exists. Implementation is blocked on C-pointer-diagnostic-format rather than opening a partial diagnostic.",
+  "source": {
+    "file": "light.c",
+    "functions": [
+      "wiz_light_sources"
+    ],
+    "branch": "Debug #lightsources creates an NHW_MENU corner text window, formats hero coordinates, then lists gl.light_base in chain order or <none>. Populated rows include raw pointer text and source object/local-monster/hero/migrating classification.",
+    "callers": [
+      "cmd.c1756-1757 lightsources registry -> canonical doextcmd/rhack -> light.c935-974 wiz_light_sources"
+    ],
+    "dependencies": [
+      "Consumed-return alloc.c125-135 fmt_ptr uses a rotating four-buffer pool and HAS_PTR_FMT %p (or unsigned-long fallback); JavaScript lacks the native pointer input contract. contract:C-pointer-diagnostic-format owner is unresolved.",
+      "Existing displayTtyMenuTextWindow owns the matching NHW_MENU corner text lifecycle; mon_is_local in light.c373 is the pure mx>0 macro, distinct from timeout.c owner.",
+      "Current obj.js3573-3582 private fmt_ptr substitutes [obj#id]/[mon#id] diagnostics and is not a source-faithful raw-pointer formatter or canonical alloc.c owner. Do not reuse it to claim populated diagnostic completion."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Accepted evaluation challenges/evaluations/accepted-2f52799b8e966edcf64b8a93efcfabe527adb0e6-v31.json at 2f52799b8e966edcf64b8a93efcfabe527adb0e6: 16/28 screens and cursors; remainingScreens=12; corpus digest feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57, recording digest 8421bd1f71a617446262ad86bcd99f3e060ce8ebb2f5b97e5d97214434ea5f13, recipe digest 2e464fe140eefd4e19bd3ed0b983e149483a0c6f6ec34ee7ae97dfe6f350cf98. No separate queue file was needed; retain this exact saved row and focused source diagnostic.",
+    ".cache/C153-before.json at worker 3f919fef confirms no earlier divergence, exact missing wiz_light_sources refusal at segment0 step16 newline; C shows corner-window Mobile light sources: hero @ (38,16). Original independent recipe intentionally carries no active source and expects <none>. This empty arm establishes cause only, not populated-arm completion.",
+    "Read whole light.c935-974. create_nhwindow(NHW_MENU) WIN_ERR returns ECMD_OK; otherwise put hero coordinates with minimum width2 and blank line. Nonempty chain adds exact table headers and each source coordinate/range/hex flags/type/id row. LS_MONSTER classification first checks mx>0, then youmonst identity, then <m>; other types use ???. Empty chain prints <none>; display(FALSE), destroy, ECMD_OK. Source window/input/order is independently assignable only once raw-pointer dependency is resolved.",
+    "Read whole alloc.c125-135 and surrounding PTR_FMT/HAS_PTR_FMT, PTRBUFCNT4/PTRBUFSIZ32 definitions. Returned static buffer string is produced from native pointer with %p on the reference host; addresses are not monster/object IDs. Existing recorder patches001-006 contain no fmt_ptr/address normalization. A stable-ID substitution would invent output for this consumed-return call and cannot establish source completion.",
+    "Global source search finds exactly cmd.c1757 active registry caller and light.c935 definition. There is no JS wiz_light_sources declaration/dispatch arm. No game code edits, C recordings, aggregate scans or partial implementation performed; task remains blocked on contract:C-pointer-diagnostic-format with owner unresolved."
+  ]
+}
