@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 supplemental C-first behavior: read.c:seffect_fire1850-1914. Read uncursed fire scroll without confusion. Required C observation: Tower of flame and shared scroll explosion. Planned before this case's JS comparison; original cases remain unchanged.",
+  "segments": [
+    {
+      "seed": 16035112,
+      "datetime": "20380507152302",
+      "nethackrc": "OPTIONS=name:Supplement16035112,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed scroll of fire\nre                    "
+    }
+  ]
+}

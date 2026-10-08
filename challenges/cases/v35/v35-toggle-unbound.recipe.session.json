@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: cmd.c:dotoggleoption1376-1385. Issue parameterless toggle command. Required C observation: Use optionsfull to set any option result. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 16035018,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035018,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#toggle\n                "
+    }
+  ]
+}

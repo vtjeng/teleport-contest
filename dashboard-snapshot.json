@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T14:48:30.699Z",
+  "capturedAt": "2026-10-08T15:42:17.272Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -28207,12 +28207,168 @@
         "task": "B160",
         "worker": "B",
         "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B159-a0ea2aef-20261008",
+        "type": "published",
+        "at": "2026-10-08T14:49:21.188Z",
+        "task": "B159",
+        "commit": "a0ea2aef23dc7ac7d00f03173b9da76cb9033472"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A157-96880f2d-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T14:51:48.170Z",
+        "task": "A157",
+        "integration": "96880f2dc4b89e465d0e229e93576e182c7936cf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A157-96880f2dc4b89e465d0e229e93576e182c7936cf-validated",
+        "type": "validated",
+        "at": "2026-10-08T14:57:17.444Z",
+        "task": "A157",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A157-incomplete-source-credit-20261008",
+        "type": "park",
+        "at": "2026-10-08T15:00:42.347Z",
+        "task": "A157"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A157-for-source-completion-20261008",
+        "type": "resume",
+        "at": "2026-10-08T15:00:43.199Z",
+        "task": "A157"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A157-incomplete-zombify-20261008",
+        "type": "feedback",
+        "at": "2026-10-08T15:00:44.067Z",
+        "task": "A157",
+        "delivery": "601840f5c8c8e00af2df8c307cb8de70afba5e99"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A157-complete-rot-601840f5",
+        "type": "resume",
+        "at": "2026-10-08T15:02:47.859Z",
+        "task": "A157"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0d396bb43aabdd79c150193b18f10c1e50bca2b1",
+        "type": "ready",
+        "at": "2026-10-08T15:18:19.938Z",
+        "task": "A157",
+        "delivery": "0d396bb43aabdd79c150193b18f10c1e50bca2b1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A157-correction-0d396bb4-20261008",
+        "type": "received",
+        "at": "2026-10-08T15:19:20.111Z",
+        "task": "A157",
+        "delivery": "0d396bb43aabdd79c150193b18f10c1e50bca2b1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A157-correction-f5e0576f-20261008-v2",
+        "type": "integrating",
+        "at": "2026-10-08T15:20:09.506Z",
+        "task": "A157",
+        "integration": "f5e0576f9dbaed8f436935876e8315f4b977c325"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8174499be8197d5f0371a00c68a54127d53b3fef",
+        "type": "ready",
+        "at": "2026-10-08T15:23:06.990Z",
+        "task": "B160",
+        "delivery": "8174499be8197d5f0371a00c68a54127d53b3fef"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B160-8174499b-20261008",
+        "type": "received",
+        "at": "2026-10-08T15:24:09.157Z",
+        "task": "B160",
+        "delivery": "8174499be8197d5f0371a00c68a54127d53b3fef"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A157-correction-f5e0576f-20261008",
+        "type": "validated",
+        "at": "2026-10-08T15:25:23.221Z",
+        "task": "A157",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A157-f5e0576f9dbaed8f436935876e8315f4b977c325-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T15:28:06.830Z",
+        "task": "A157"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A158-hunger-faint-bd16ad74",
+        "type": "assign",
+        "at": "2026-10-08T15:29:46.078Z",
+        "task": "A158",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A157-f3320ce3-20261008",
+        "type": "published",
+        "at": "2026-10-08T15:33:50.618Z",
+        "task": "A157",
+        "commit": "f3320ce3667f322f7a0fb09c686a3ade2468e4e4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B160-60cfdf72-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T15:34:22.911Z",
+        "task": "B160",
+        "integration": "60cfdf72acbaf0b1eef2b7535f81dac356565c02"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A158-newuhs-273c223b",
+        "type": "implement",
+        "at": "2026-10-08T15:39:49.454Z",
+        "task": "A158",
+        "goal": "port-eat-newuhs-fainting-starvation-v30-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B160-60cfdf72acbaf0b1eef2b7535f81dac356565c02-validated",
+        "type": "validated",
+        "at": "2026-10-08T15:41:04.181Z",
+        "task": "B160",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B160-60cfdf72acbaf0b1eef2b7535f81dac356565c02-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T15:41:05.267Z",
+        "task": "B160"
       }
     ]
   },
   "development": {
-    "executionCommit": "a1df82820c435d7f43389d085f22171b1cb77623",
-    "measuredAt": "2026-10-08T14:40:56.164Z",
+    "executionCommit": "60cfdf72acbaf0b1eef2b7535f81dac356565c02",
+    "measuredAt": "2026-10-08T15:40:25.810Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

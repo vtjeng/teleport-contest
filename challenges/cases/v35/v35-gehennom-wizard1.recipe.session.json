@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: teleport.c:level_tele -> mklev.c:makelevel -> dat/wizard1.lua. Levelport to valley then named wizard1 inside Gehennom. Required C observation: Distinct wizard1 layout and source arrival/infernal branch handling. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 16035008,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035008,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizlevelport\nvalley\n                        #wizlevelport\nwizard1\n                        #wizmap\n        "
+    }
+  ]
+}

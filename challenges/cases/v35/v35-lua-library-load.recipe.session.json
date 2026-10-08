@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 supplemental C-first behavior: wizcmds.c:wiz_load_lua353-373. Load existing nhlib.lua into the wizard Lua sandbox. Required C observation: Lua file prompt and successful library load without level teardown. Planned before this case's JS comparison; original cases remain unchanged.",
+  "segments": [
+    {
+      "seed": 16035100,
+      "datetime": "20380507152302",
+      "nethackrc": "OPTIONS=name:Supplement16035100,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizloadlua\nnhlib.lua\n                     "
+    }
+  ]
+}

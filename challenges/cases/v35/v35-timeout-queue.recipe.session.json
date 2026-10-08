@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: timeout.c:wiz_timeout_queue2041-2118. Drink speed potion and display timed intrinsic queue. Required C observation: Current time, queue and speed timeout output. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 16035014,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035014,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed potion of speed\nqe     #timeout\n                       "
+    }
+  ]
+}

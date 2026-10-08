@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: cmd.c:dotherecmdmenu4343-4351. Choose nearby map position for contextual actions. Required C observation: Getpos and contextual target commands. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 16035026,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035026,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#therecmdmenu\nl.\u001b                 "
+    }
+  ]
+}

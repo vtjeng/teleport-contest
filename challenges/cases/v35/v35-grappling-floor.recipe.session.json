@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: apply.c:use_grapple3729-3863. Use grappling hook to reach adjacent floor. Required C observation: Target prompt and floor/obstacle grapple result. Fixed before JS comparisons; no seed search or recipe changes based on JS failures. C-only setup correction from the observed inventory letter, More acknowledgments or source-confirmed prompt flow; no JavaScript comparison has run.",
+  "segments": [
+    {
+      "seed": 16035036,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035036,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed grappling hook\nae    l.                      "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 supplemental C-first behavior: apply.c:flip_coin4527-4555. Wish small gold pile then apply coin. Required C observation: Coin flip heads/tails result. Planned before this case's JS comparison; original cases remain unchanged.",
+  "segments": [
+    {
+      "seed": 16035109,
+      "datetime": "20380507152302",
+      "nethackrc": "OPTIONS=name:Supplement16035109,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u001717 gold pieces\na$                      "
+    }
+  ]
+}

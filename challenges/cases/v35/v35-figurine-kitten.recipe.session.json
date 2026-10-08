@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: apply.c:use_figurine2544-2592 -> dog.c:make_familiar. Apply blessed kitten figurine down at hero position. Required C observation: Figurine transforms into familiar, object removed. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 16035029,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035029,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017blessed figurine of a kitten\nae>                          "
+    }
+  ]
+}

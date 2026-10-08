@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: music.c:do_play_instrument DRUM_OF_EARTHQUAKE -> do_earthquake. Improvise earthquake drum in normal room. Required C observation: Level shakes, pits and nearby terrain effects. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 16035034,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035034,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed drum of earthquake\nae n                          "
+    }
+  ]
+}

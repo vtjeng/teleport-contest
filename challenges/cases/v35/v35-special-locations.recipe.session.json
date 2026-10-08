@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: wizcmds.c:wiz_where218-226 -> dungeon.c:print_dungeon. Display full dungeon location report without travel. Required C observation: Branch/special-level location list. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 16035016,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035016,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizwhere\n                        "
+    }
+  ]
+}

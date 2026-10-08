@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: cmd.c:doherecmdmenu4334-4340 -> click_to_cmd. Open contextual command menu at hero position. Required C observation: Here commands include pickup/drop/rest options. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 16035025,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035025,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#herecmdmenu\n\u001b                 "
+    }
+  ]
+}

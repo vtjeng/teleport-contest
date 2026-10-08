@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: options.c:doset. Display configurable options full menu then cancel. Required C observation: Full options sections and selectors. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 16035024,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035024,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#optionsfull\n\u001b                      "
+    }
+  ]
+}
