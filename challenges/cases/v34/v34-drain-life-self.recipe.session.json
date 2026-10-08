@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first B159 supplemental behavior: zap.c:zapyourself SPE_DRAIN_LIFE; Zap wand of undead turning at self while human. C observation target: Unturn dead self path or nothing happens. Planned before comparison; no recipe altered in response to JS.",
+  "segments": [
+    {
+      "seed": 15934117,
+      "datetime": "20370405132057",
+      "nethackrc": "OPTIONS=name:Supplement15934117,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed wand of undead turning\nze.                      "
+    }
+  ]
+}

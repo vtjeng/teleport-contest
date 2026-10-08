@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: artifact.c:invoke_fling_poison2022-2038. Chaotic orc Rogue invokes Grimtooth directionally. Required C observation: Venom created and thrown through source getdir. Fixed before JS comparisons; no seed search or recipe changes based on JS failures. C-only setup correction from observed role inventory, More acknowledgments, newly created monster coordinates, and source-confirmed ability state/Pw prerequisites; before any JS comparison.",
+  "segments": [
+    {
+      "seed": 15934003,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934003,role:Rogue,race:orc,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed Grimtooth\n         #invoke\nih                  "
+    }
+  ]
+}

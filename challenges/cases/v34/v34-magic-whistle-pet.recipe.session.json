@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: apply.c:use_magic_whistle495-580. Create tame kitten then apply blessed magic whistle. Required C observation: Pet recall relocation and pet/trap interaction. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15934013,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934013,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0007tame kitten\n      \u0017blessed magic whistle\nae                    "
+    }
+  ]
+}

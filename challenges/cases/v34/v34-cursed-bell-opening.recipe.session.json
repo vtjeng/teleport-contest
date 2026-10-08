@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: apply.c:use_bell1202-1320. Ring cursed Bell of Opening in ordinary room. Required C observation: Cursed bell summons nymph or gets object resistance outcome. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15934012,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934012,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed Bell of Opening\nae                      "
+    }
+  ]
+}

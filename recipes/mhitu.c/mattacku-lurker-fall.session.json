@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first lurker-fall: source mattacku discovers a hidden lurker above after #monster and hostile sewer-rat creation. Piercer/lurker distinguish the falling attack from the non-piercer return; mimic/trapper distinguish sticky disguise from surface hiding. Inputs, seed, character and clock chosen before JS comparison.",
+  "segments": [
+    {
+      "seed": 1483002,
+      "datetime": "20930819151617",
+      "nethackrc": "OPTIONS=name:HiddenEncounter,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!verbose,!acoustics,!autopickup,!debug_mongen,pettype:none\n",
+      "moves": ".#polyself\nlurker above\n       #monster\n#wizgenesis\nhostile sewer rat\n. . . . . . . . . . . . . . . ."
+    }
+  ]
+}

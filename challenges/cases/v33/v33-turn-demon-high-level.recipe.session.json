@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B158 C-first candidate: pray.c:doturn demon branch. Level30 Priest turns adjacent manes. Required C observation: Demon is destroyed or repelled by powerful turning. Inputs fixed before any JavaScript comparison; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15833020,
+      "datetime": "20360219161728",
+      "nethackrc": "OPTIONS=name:Probe15833020,role:Priest,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#levelchange\n30\n                                        \u0007manes\n     #turn\n                            "
+    }
+  ]
+}

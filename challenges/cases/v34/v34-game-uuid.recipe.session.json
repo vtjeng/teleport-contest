@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first B159 supplemental behavior: wizcmds.c:wiz_show_nhuuid1782-1787; Request stored game UUID. C observation target: UUID text, independently reproducible only if recorder controls identity. Planned before comparison; no recipe altered in response to JS.",
+  "segments": [
+    {
+      "seed": 15934106,
+      "datetime": "20370405132057",
+      "nethackrc": "OPTIONS=name:Supplement15934106,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizshownhuuid\n                      "
+    }
+  ]
+}

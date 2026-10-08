@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: artifact.c:invoke_blinding_ray2054-2088. Knight invokes Sunsword at self while human. Required C observation: Source self flashburn and temporary blindness. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15934006,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934006,role:Knight,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed Sunsword\n        #invoke\ni.                        "
+    }
+  ]
+}

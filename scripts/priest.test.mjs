@@ -112,3 +112,43 @@ test('priest.c mon_aligntyp selects the source extension and preserves A_NONE', 
         mextra: { epri: { shralign: A_NONE } },
     }), A_NONE);
 });
+
+test('pri_move preserves altar draws then awaits its adjacent hostile attack', async () => {
+    const { pri_move } = await import('../js/priest.js');
+    const { ROOMOFFSET, TEMPLE } = await import('../js/const.js');
+    // priest.c:179-203 first validates its temple, then makes two rn1(3,-1)
+    // draws before attacking the cardinally adjacent hero and returning zero.
+    const state = {
+        u: { ux: 11, uy: 8, uz: { dnum: 0, dlevel: 4 }, uprops: [] },
+        level: { rooms: [{ rtype: TEMPLE }],
+            at: () => ({ roomno: ROOMOFFSET }) },
+    };
+    const priest = { mx: 10, my: 8, ispriest: true, mpeaceful: false,
+        data: {}, mextra: { epri: { shroom: ROOMOFFSET,
+            shrpos: { x: 9, y: 8 }, shrlevel: { dnum: 0, dlevel: 4 } } } };
+    const order = [];
+    let finishAttack;
+    const attackPending = new Promise(resolve => { finishAttack = resolve; });
+    const result = pri_move(priest, { state,
+        random: { rn1: (range, base) => {
+            order.push(`rn1(${range},${base})`);
+            return base;
+        } },
+        attackHero: async (subject, env) => {
+            assert.equal(subject, priest);
+            assert.equal(env.state, state);
+            await attackPending;
+            order.push('attack');
+            return 1; // C discards the result here and returns zero.
+        },
+    });
+    let settled = false;
+    result.then(() => { settled = true; });
+    assert.deepEqual(order, ['rn1(3,-1)', 'rn1(3,-1)']);
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(settled, false, 'pri_move waits while mattacku is pending');
+    finishAttack();
+    assert.equal(await result, 0);
+    assert.equal(settled, true);
+    assert.deepEqual(order, ['rn1(3,-1)', 'rn1(3,-1)', 'attack']);
+});

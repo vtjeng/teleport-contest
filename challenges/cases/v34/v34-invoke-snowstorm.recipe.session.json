@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: artifact.c:invoke_storm_spell2040-2052. Wizard invokes Frost Brand cold storm. Required C observation: Cone-of-cold expert target menu and storm effect. Fixed before JS comparisons; no seed search or recipe changes based on JS failures. C-only setup correction from observed role inventory, More acknowledgments, newly created monster coordinates, and source-confirmed ability state/Pw prerequisites; before any JS comparison.",
+  "segments": [
+    {
+      "seed": 15934005,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934005,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#levelchange\n12\n                                             \u0017uncursed Frost Brand\n        #invoke\no     l. y                 "
+    }
+  ]
+}

@@ -17,11 +17,12 @@ import { m_at, remove_monster } from './monst.js';
 import { PM_LONG_WORM } from './monsters.js';
 import { clone_mon } from './makemon.js';
 import { Monnam, mon_nam } from './do_name.js';
-import { s_suffix } from './hacklib.js';
+import { dist2, s_suffix } from './hacklib.js';
 
 import { ttyPline } from './tty_message.js';
 import { rnd_nextto_goodpos } from './trap.js';
 import { note_unported } from './unported.js';
+import { mattacku } from './mhitu.js';
 import { canspotmon } from './display.js';
 
 function wormSlots(state) {
@@ -77,6 +78,22 @@ export function worm_known(worm, state = game) {
         segment.y,
         state,
     ));
+}
+
+// C ref: worm.c wormhitu() (343-363). Tail nodes retain list order; the
+// final node shares the head square and has already had its attack chance.
+// C deliberately leaves the head in place while attacking through a tail.
+export async function wormhitu(worm, rawEnv = {}) {
+    const env = wormEnvironment(rawEnv);
+    const segments = wormSlots(env.state)[worm.wormno].segments;
+    for (let index = 0; index < segments.length - 1; ++index) {
+        const segment = segments[index];
+        if (dist2(segment.x, segment.y, env.state.u.ux, env.state.u.uy) < 3
+            && await (env.attackHero ?? mattacku)(worm, env)) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 // C ref: worm.c count_wsegs(). The final array entry is the hidden segment

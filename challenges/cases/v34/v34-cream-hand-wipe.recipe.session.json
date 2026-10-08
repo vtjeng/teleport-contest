@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: apply.c:doapply CREAM_PIE/hack.c:dowipe. Apply cream pie to face then wipe using hands. Required C observation: Cream blindness cleared by wipe occupation rather than towel. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15934039,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934039,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cream pie\nae          #wipe\n                         "
+    }
+  ]
+}

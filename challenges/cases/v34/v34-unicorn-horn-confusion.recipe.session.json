@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: apply.c:use_unicorn_horn2259-2425. Drink confusion then apply blessed unicorn horn. Required C observation: Horn fixes temporary confusion and prints clearer feeling. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15934010,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934010,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed potion of confusion\nqe      \u0017blessed unicorn horn\naf                  "
+    }
+  ]
+}

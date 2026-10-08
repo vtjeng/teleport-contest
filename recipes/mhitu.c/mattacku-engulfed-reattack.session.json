@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first engulfed-reattack. Seed and input plan chosen before JS comparison; branches asserted against source and actual replay state. Corrected C-only setup: use m-prefix forced no-op turns near hostiles; mounted variation follows the observed east starting pony. Initial matching setup-only recording is preserved in cache and supplies no completion evidence.",
+  "segments": [
+    {
+      "seed": 1483012,
+      "datetime": "20930819151617",
+      "nethackrc": "OPTIONS=name:HiddenRoutes,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!verbose,!acoustics,!autopickup,!debug_mongen,pettype:none\n",
+      "moves": " #wizgenesis\nice vortex\nm.m.m.m.m. "
+    }
+  ]
+}
