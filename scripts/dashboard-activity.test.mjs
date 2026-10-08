@@ -5,6 +5,25 @@ import { test } from 'node:test';
 import { activityTimeline, syntheticGainByCommit } from './dashboard-activity.mjs';
 import { activityFromLedger, developmentFromCheckpoint, mergeActivity } from './dashboard-snapshot.mjs';
 
+test('claiming source scope preserves time spent investigating in the worker interval', () => {
+  // Distinct times make a lost diagnosis interval visible without wall-clock timing.
+  const assigned = '2026-09-25T10:00:00Z';
+  const scoped = '2026-09-25T10:10:00Z';
+  const ready = '2026-09-25T10:20:00Z';
+  const activity = activityFromLedger({ runId: 'loop-20260925', events: [
+    { id: 'claim', type: 'assign', at: assigned, task: 'A1', worker: 'A', kind: 'investigation' },
+    { id: 'scope', type: 'implement', at: scoped, task: 'A1', goal: 'sounds-port' },
+    { id: 'delivery', type: 'ready', at: ready, task: 'A1' },
+  ] });
+  const timeline = activityTimeline(activity, ready);
+  assert.equal(timeline.tasks[0].kind, 'implementation');
+  assert.equal(timeline.tasks[0].goal, 'sounds-port');
+  assert.deepEqual(timeline.segments.find(segment => segment.phase === 'working'), {
+    task: 'loop-20260925/A1', goal: 'sounds-port', worker: 'A', kind: 'implementation',
+    phase: 'working', start: assigned, end: ready, lane: 'A',
+  });
+});
+
 test('worker assignment overlaps another task waiting for integration', () => {
   const events = [
     { id: 'a', type: 'assign', at: '2026-09-25T10:00:00Z',

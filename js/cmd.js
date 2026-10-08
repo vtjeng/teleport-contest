@@ -95,7 +95,10 @@ import {
     STRANGLED,
     TELEP_TRAP,
     TELEPORT,
+    TER_FULL,
     TER_MAP,
+    TER_OBJ,
+    TER_TRP,
     VIBRATING_SQUARE,
     Upolyd,
     quitchars,
@@ -3149,11 +3152,9 @@ async function runSearchCommand(key, state) {
     return failClosedCommand(key, state, () => dosearch(state));
 }
 
-// C ref: cmd.c doterrain() (1098-1170). The menu is source-shaped for every
-// normal/explore/wizard entry, but only the normal preselected TER_MAP choice
-// is owned by this slice. reveal_terrain() stops after its projection and
-// message, before browse_map()/getpos(); the wrapper keeps that later branch
-// and every other menu choice fail-closed.
+// C ref: cmd.c doterrain() (1098-1189). Choices 1-4 use the complete
+// detect.c terrain projection. Wizard internal codes and legend remain
+// separate source owners, so those menu choices retain their refusal.
 async function runTerrainCommand(key, state) {
     return failClosedCommand(key, state, () => doterrain(state));
 }
@@ -3201,12 +3202,19 @@ export async function doterrain(state = game) {
         overlay: state.iflags?.menu_overlay !== false,
     });
     if (which === null) return ECMD_OK;
-    if (which !== 1) {
+    const subsets = {
+        1: TER_MAP,
+        2: TER_MAP | TER_TRP,
+        3: TER_MAP | TER_TRP | TER_OBJ,
+        4: TER_MAP | TER_FULL,
+    };
+    if (which in subsets) {
+        await reveal_terrain(subsets[which], state);
+    } else {
         throw new UnsupportedSearchError(
             `terrain menu choice ${which} is not ported`,
         );
     }
-    await reveal_terrain(TER_MAP, state);
     return ECMD_OK;
 }
 
@@ -5717,8 +5725,8 @@ export async function rhack(key, state = game) {
         }
         if (command === 'terrain') {
             // C ref: cmd.c rhack()'s result handling at 3810-3818. doterrain()
-            // is a no-time command; its TER_MAP implementation ends at the
-            // browse_map()/getpos() boundary with a fail-closed refusal.
+            // is a no-time command; terrain browsing restores the live map
+            // before the ordinary no-time result tail resets command state.
             const res = await runTerrainCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)

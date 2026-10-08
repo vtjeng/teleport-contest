@@ -35,10 +35,10 @@ Reuse unfinished code only when its purpose, scope, and remaining checks are
 clear. Otherwise preserve a recoverable copy, remove the abandoned task from
 the queue, and start from validated main.
 
-Give each worker an implementation task or one challenge preparation task to
-complete, test, and submit. For a C file port, choose whole functions in a
+Give each worker a session to investigate and implement, a known source task,
+or one challenge preparation task. For a C file port, choose whole functions in a
 selected C-order range under `.agents/selection.md`; it needs no separate span.
-After queuing the goal in the coordinator checkout, run
+For a known source task, after queuing the goal in the coordinator checkout, run
 `node scripts/goal-log.mjs task-context --goal <id>` there and copy its
 untracked `.cache/task-context.json` into the assigned worktree. Record the
 task ID, absolute worktree path, branch, base commit,
@@ -46,7 +46,10 @@ allowed edits, dependencies, and reserved functions or shared interfaces in
 the ledger assignment. A preparation task instead names its future batch and
 allowed `challenges/cases/<batch>/` paths. Implementation
 workers prepare later tasks under `.agents/selection.md`, “Seed continuation”,
-without waiting for you to open the central goal.
+without waiting for you to open the central goal. For an unresolved session,
+provide its saved queue entry and findings instead of a source task context.
+The worker claims the session, investigates it, then claims its source scope
+before editing code, following its guide.
 
 Check each new worktree before dispatch:
 
@@ -75,7 +78,8 @@ returned state into tracked records or progress messages.
 
 You own `main`, `GOALS.json`, `SCORE.tsv`, quality and review records, aggregate
 checks, batch admission, and publication. Implementation workers own their
-code, focused tests, recipes, and recordings. A preparation worker owns its case
+code, claimed investigation reports, focused tests, recipes, and recordings.
+A preparation worker owns its case
 recipes, C recordings, and prepared manifest in delivery evidence. Apply
 workers' proposed `QUALITY.json` changes yourself. Do not merge worker copies
 of central records.
@@ -158,7 +162,14 @@ separately from other goals.
 1. Run `node scripts/goal-log.mjs --current --detail` and read its output. Finish or park the
    current integration before opening another. Preserve queued deliveries.
 2. Check the delivery's task, reserved scope, selection reason, and existing
-   completion evidence. For implementation work, open its goal under
+   completion evidence. Validate a worker-owned investigation against the saved
+   queue entry and examined commit before importing it. Preserve its separate
+   report commit unchanged in integration history; import no game fix yet.
+   Recheck the report's count and recording identity against the current queue.
+   If stale, refresh it in a separate coordinator commit before goal selection.
+   If importing it replaces a newer diagnosis, restore that diagnosis in the
+   separate commit. The final report must retain useful source findings without
+   replacing newer evidence with an old count. For implementation work, open its goal under
    `.agents/selection.md` or `.agents/divergence.md`, then commit those
    records. A queued synthetic goal retains its source selection when the
    submitted fix has already resolved that case; opening it still requires
@@ -171,13 +182,17 @@ separately from other goals.
    integrate only the case recipes and C recordings. Retain the prepared
    manifest in immutable delivery evidence, outside admitted manifests.
    Commit the combined candidate.
-4. Run `worker-state.mjs preflight --task <id>` before broad focused testing.
-   Resolve its omissions. For implementation work, run its listed checks,
-   affected focused tests, `npm run lint`, and `npm run quality`. For a
-   preparation-only delivery containing only challenge case files, verify its
-   independent C replay checks; skip separate focused game tests, lint, and
-   quality. Run them if the delivery changes executable files or a prior
-   failure calls for them. Follow `.agents/review.md` to decide whether
+4. Run `worker-state.mjs preflight --task <id>` and resolve its omissions.
+   Review the saved worker check logs and source evidence. Its `focusedTests`
+   list identifies affected tests, not a mandatory second local test run.
+   Run affected focused tests or fresh replays for integration edits, merge
+   conflicts, suspect evidence, or a prior failure; use the combined hosted checkpoint for the full test
+   suite. Run `npm run lint` and `npm run quality` on a combined candidate with
+   executable changes; the checkpoint does not enforce both. For preparation-only
+   deliveries, verify
+   the saved independent C replay results and committed manifest hashes.
+   Rerun the C replay only when its inputs changed or the saved result is missing
+   or suspect. Follow `.agents/review.md` to decide whether
    review is needed. For a retry, pass the failed summary with
    `--previous-checkpoint` and address every failure. If corrections change
    the candidate, commit them and rerun preflight before testing it.
@@ -239,20 +254,23 @@ separately from other goals.
    already has a task, send the acceptance without replacing its assignment.
    If continuation is blocked, record the specific dependency and its owner
    in the existing ledger and assign independent work when available.
-   Run `worker-state.mjs sync-main --commit <accepted-commit>` to
-   verify local main. Refresh `dashboard-snapshot.json` from the shared worker
+   Keep local `main` at the tested commit through acceptance. Skip `sync-main`
+   in this publication path; it is for fast-forwarding a different local main.
+   Refresh `dashboard-snapshot.json` from the shared worker
    ledger and the passing checkpoint summary with
    `node scripts/dashboard-snapshot.mjs --ledger <shared-ledger> --checkpoint <summary> --output dashboard-snapshot.json`.
    Stage that generated report by name and commit it with the other publication
    records before the push. It captures worker activity through acceptance;
    the publication event enters the next snapshot. Push accepted work to main
    without asking again, then
-   record `published` after the push succeeds. Discover relevant CI run IDs for
-   the published commit and keep pending commits and run IDs in the untracked
-   `.cache/loop-ci-pending.json`; a commit with no run yet stays pending for
-   discovery. At each handoff and before another push, make a one-shot status
-   check for pending runs, then continue the merge queue while CI runs. Remove
-   an entry only after all its relevant runs pass. Do not block the next
+   record `published` after the push succeeds. Run
+   `node scripts/check-published-ci.mjs --commit <full-published-sha> --task <id>`
+   to register the commit and check publication CI once. The helper keeps
+   pending commits and known incomplete run IDs in `.cache/loop-ci-pending.json`, including
+   commits whose runs have not appeared. At each handoff and before another
+   push, run `node scripts/check-published-ci.mjs` and continue the merge queue
+   while CI runs. The helper removes an entry only after all relevant runs pass.
+   Do not block the next
    delivery with `gh run watch`. Reconcile the pending list after a restart
    against published commits in the worker-state ledger and their CI runs. If
    CI fails, finish an active checkpoint, then investigate and validate a
@@ -307,46 +325,22 @@ a task, park that task without a worker commit and send a push notification.
 Keep questions open until answered. Ask the user when no authorized next
 step remains.
 
-## Background investigations
+## Investigation findings
 
-Whenever an investigator finishes or capacity becomes available, start the
-next eligible investigation from the saved queue. Check that queue before
-leaving a worker idle and during each ten-minute recovery check. These
-checks do not require a new scan.
+The worker assigned a session owns its investigation through implementation.
+Reuse valid cached findings and group known related causes before assignment;
+do not make an independent task wait for a grouping investigation. Use separate
+helpers only for bounded questions under "Worker support".
 
-At loop entry and after refreshing either corpus's work queue, identify sessions
-whose investigation is missing, partial, invalid, or stale. You are
-responsible for scheduling their investigation and publishing the results.
-Use the queue's display order to start investigations, exclude sessions already
-owned by workers or pending deliveries, and keep one investigator per session.
-That order does not determine which investigated source task a worker must
-implement. Reserve capacity for implementation and its helpers; fill remaining
-investigator slots and refill them as results arrive. Reuse partial findings and begin
-eligible implementation without waiting for the whole batch.
-
-Give each investigator its session, remaining-screen count, examined commit,
-queue entry, and saved findings. Require it to follow the schema in `.agents/selection.md`, “Investigation
-cache”. Have it write its result to a temporary file beside its assigned
-cache file, then rename it into place before sending its completion message.
-It may read source at that commit, replay its assigned session under
-`.agents/validation.md`, and write its assigned
-`investigations/<session>.json` and session-specific `.cache/` artifacts.
-It must not edit game code or central records, commit, push, scan other
-sessions, record C games, or run full validation or scoring.
-
-Validate each returned file with `readInvestigation(root, queueEntry)` from
-`scripts/investigation-cache.mjs`; require `complete` or `partial`. Repair
-malformed files from existing findings. Require the remaining-screen count
-and cache path in the completion message. When the count changes, stop or
-finish the old investigation before replacing it so an old result cannot
-overwrite a newer one. Collect changed source findings into main's
-investigation files under `.agents/selection.md`, "Investigation cache".
-Keep the deployed dashboard current with completed and partial findings and
-the latest validated score. Publish changed findings at the next safe commit
-boundary without waiting for an implementation delivery. Worker activity
+Validate returned reports with `readInvestigation(root, queueEntry)` from
+`scripts/investigation-cache.mjs` and the count/provenance rules in
+`.agents/selection.md`, "Investigation cache". Collect completed and partial
+findings at the next safe record boundary. A parked investigation may hand off
+its report without an implementation delivery; the next owner reuses its
+evidence. Do not let a late result overwrite a newer diagnosis. Worker activity
 alone does not require an investigation edit or publication commit.
-After each push, verify the dashboard deployment and its displayed mismatch
-queue against the published records.
+Treat a successful `Dashboard` workflow run as confirmation of deployment.
+Inspect the live page only for a reported problem or a change to its presentation.
 
 ## Workflow friction
 

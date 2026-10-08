@@ -55,9 +55,9 @@ import {
     ROWNO,
     SCORR,
     SDOOR,
-    STONE,
     STUNNED,
     STATUE_TRAP,
+    TER_FULL,
     TER_MAP,
     TER_MON,
     TER_OBJ,
@@ -301,96 +301,125 @@ function terrainGlyphInfo(glyph, state) {
     return map_glyphinfo(glyph, state);
 }
 
-// C ref: detect.c reveal_terrain_getglyph() (2167-2294).  This slice owns
-// exactly TER_MAP: remembered terrain with monsters, objects, traps, and
-// invisible-monster markers removed.  Other subsets remain a deliberate
-// boundary in doterrain(), so they cannot accidentally acquire a partial
-// implementation here.
+// C ref: detect.c reveal_terrain_getglyph() (2167-2288). Projection reads
+// the displayed glyph separately from the remembered levl glyph. Temporary
+// seenv/topology changes are restored before returning the selected glyph.
 export function reveal_terrain_getglyph(
     x, y, swallowed, defaultGlyph, whichSubset, state = game,
 ) {
-    if (whichSubset !== TER_MAP) {
-        throw new UnsupportedSearchError(
-            'terrain projection subset is not ported',
-        );
-    }
-
-    const location = state.level?.at(x, y);
-    if (!location) return defaultGlyph;
-
-    // C uses levl.seenv when hero memory is enabled, otherwise it substitutes
-    // SVALL only for a currently visible square.  The restored normal witness
-    // is the hero-memory arm; retaining both terms keeps this helper aligned
-    // with the source without opening a second gameplay boundary.
-    const heroMemory = Boolean(state.level?.flags?.hero_memory);
-    const seenv = heroMemory
-        ? (location.seenv ?? 0)
+    const keepTraps = Boolean(whichSubset & TER_TRP);
+    const keepObjects = Boolean(whichSubset & TER_OBJ);
+    const keepMonsters = Boolean(whichSubset & TER_MON);
+    const full = Boolean(whichSubset & TER_FULL);
+    const location = state.level.at(x, y);
+    const heroMemory = Boolean(state.level.flags.hero_memory);
+    const seenv = (full || heroMemory) ? location.seenv
         : cansee(x, y, state) ? SVALL : 0;
-    const remembered = location.remembered_glyph?.glyph
-        ?? GLYPH_UNEXPLORED_OFF;
-    const levelGlyph = heroMemory
-        ? remembered
-        : seenv ? back_to_glyph(x, y, state) : defaultGlyph;
-    let glyph = swallowed ? levelGlyph : glyph_at(x, y, state);
-    let wasMonster = false;
-    const region = visible_region_at(x, y, state);
-
-    // C's keep_mons is false for TER_MAP.  A swallow glyph is also removed;
-    // the preflight in reveal_terrain keeps the ordinary path unconstrained.
-    if ((!glyph_is_monster(glyph) && !glyph_is_warning(glyph))
-        && !glyphIsSwallow(glyph)) {
-        // This branch is intentionally empty: it is the source's fallthrough
-        // when no monster-like display layer covers the square.
+    let glyph;
+    if (full) {
+        location.seenv = SVALL;
+        glyph = back_to_glyph(x, y, state);
+        location.seenv = seenv;
     } else {
-        glyph = levelGlyph;
-        wasMonster = true;
-    }
-
-    // With TER_MAP, keep_traps and keep_objs are both false.  The first C
-    // clause would restore a known trap only for a different menu selection;
-    // the conditional is retained so this source correspondence is explicit.
-    if (glyph_is_invisible(glyph)) {
-        // The final replacement below handles the invisible-monster marker.
-    }
-
-    if (glyph_is_object(glyph)
-        || glyph_is_trap(glyph)
-        || glyphIsGascloud(glyph)
-        || (region && wasMonster)
-        || glyph_is_invisible(glyph)) {
-        if (!seenv) {
-            glyph = region ? GLYPH_UNEXPLORED_OFF : defaultGlyph;
-        } else {
-            const lastSeenType = state.level?.lastseentyp?.[x]?.[y]
-                ?? STONE;
-            if (lastSeenType === location.typ) {
-                glyph = back_to_glyph(x, y, state);
+        const region = visible_region_at(x, y, state);
+        let wasMonster = false;
+        const levelGlyph = heroMemory
+            ? location.remembered_glyph?.glyph ?? GLYPH_UNEXPLORED_OFF
+            : seenv ? back_to_glyph(x, y, state) : defaultGlyph;
+        glyph = swallowed ? levelGlyph : glyph_at(x, y, state);
+        if (keepMonsters && u_at(x, y, state) && swallowed) {
+            glyph = mon_to_glyph(state.u.ustuck, state, rn2_on_display_rng).glyph;
+        } else if ((!keepMonsters
+                    && (glyph_is_monster(glyph) || glyph_is_warning(glyph)))
+                   || glyphIsSwallow(glyph)) {
+            glyph = levelGlyph;
+            wasMonster = true;
+        }
+        // display.h covers_traps aliases covers_objects. Underwater is the
+        // canonical u.uinwater value, and lava coverage tests the terrain type.
+        const covered = (is_pool(x, y, state) && !state.u.uinwater)
+            || location.typ === LAVAPOOL || location.typ === LAVAWALL;
+        if (((!keepObjects && glyph_is_object(glyph))
+             || glyph_is_invisible(glyph)) && keepTraps && !covered) {
+            const trap = t_at(x, y, state);
+            if (trap?.tseen) glyph = trap_to_glyph(trap, state);
+        }
+        if ((!keepObjects && glyph_is_object(glyph))
+            || (!keepTraps && (glyph_is_trap(glyph)
+                              || (region && glyphIsGascloud(glyph))))
+            || (region && wasMonster) || glyph_is_invisible(glyph)) {
+            if (!seenv) {
+                glyph = region ? GLYPH_UNEXPLORED_OFF : defaultGlyph;
+            } else if (keepTraps && region
+                       && (glyphIsGascloud(glyph) || wasMonster)) {
+                const trap = t_at(x, y, state);
+                glyph = trap?.tseen ? trap_to_glyph(trap, state) : region.glyph;
             } else {
-                const monster = m_at(x, y, state);
-                if (monster && M_AP_TYPE(monster) === M_AP_FURNITURE) {
-                    glyph = cmap_to_glyph(monster.mappearance, state);
-                } else {
-                    // back_to_glyph() needs the remembered topology and some
-                    // current flags.  C copies the rm struct, recalculates
-                    // wall_info when necessary, then restores it verbatim.
-                    const saved = { ...location };
-                    location.typ = lastSeenType;
-                    if (IS_WALL(location.typ) || location.typ === SDOOR)
-                        xy_set_wall_state(x, y, state);
+                const lastSeenType = state.level.lastseentyp[x][y];
+                if (lastSeenType === location.typ) {
                     glyph = back_to_glyph(x, y, state);
-                    Object.assign(location, saved);
+                } else {
+                    const monster = m_at(x, y, state);
+                    if (monster && M_AP_TYPE(monster) === M_AP_FURNITURE) {
+                        glyph = cmap_to_glyph(monster.mappearance, state);
+                    } else {
+                        const saved = { ...location };
+                        location.typ = lastSeenType;
+                        if (IS_WALL(location.typ) || location.typ === SDOOR)
+                            xy_set_wall_state(x, y, state);
+                        glyph = back_to_glyph(x, y, state);
+                        Object.assign(location, saved);
+                    }
                 }
             }
         }
     }
-
-    // C's dirty compatibility tail converts remembered dark-room and lit
-    // corridor glyphs back to their ordinary map symbols.
     if (glyph === cmap_to_glyph(S_darkroom, state))
         glyph = cmap_to_glyph(S_room, state);
     else if (glyph === cmap_to_glyph(S_litcorr, state))
         glyph = cmap_to_glyph(S_corr, state);
     return glyph;
+}
+
+// C ref: detect.c dump_map() (2294-2349), compiled only with DUMPLOG.
+// The minimal recorder disables DUMPLOG. Keep the row traversal and blank-row
+// suppression here; the inactive dump putstr output has no JS owner yet.
+export function dump_map(state = game) {
+    const subset = TER_MAP | TER_TRP | TER_OBJ | TER_MON;
+    const defaultSym = state.level.flags.arboreal ? S_tree : S_stone;
+    const defaultGlyph = cmap_to_glyph(defaultSym, state);
+    let skippedRows = 0;
+    let topRow = true;
+    for (let y = 0; y < ROWNO; ++y) {
+        let blankRow = true;
+        let lastNonblank = -1;
+        const row = [];
+        for (let x = 1; x < COLNO; ++x) {
+            const glyph = reveal_terrain_getglyph(
+                x, y, state.u.uswallow, defaultGlyph, subset, state,
+            );
+            const info = map_glyphinfo(glyph, state, { x, y, mgflags: 0 });
+            row[x - 1] = info.ch;
+            if (info.ch !== ' ') {
+                blankRow = false;
+                lastNonblank = x - 1;
+            }
+        }
+        if (!blankRow) {
+            row.length = lastNonblank + 1;
+            if (topRow) {
+                skippedRows = 0;
+                topRow = false;
+            }
+            for (let x = 0; x < skippedRows; ++x)
+                note_unported('windows.c putstr');
+            note_unported('windows.c putstr');
+            skippedRows = 0;
+        } else {
+            ++skippedRows;
+        }
+    }
+    if (skippedRows) note_unported('windows.c putstr');
 }
 
 // C ref: detect.c browse_map() (94-106). The temporary presentation is a
@@ -1568,30 +1597,35 @@ export async function use_crystal_ball(optr, state = game) {
     }
 }
 
-// C ref: detect.c reveal_terrain() (2356-2413), now through its ordinary
-// browse_map()/getpos()/map_redisplay path. Other menu choices and
-// disoriented or constrained heroes remain deliberately fail-closed above.
+// C ref: detect.c reveal_terrain() (2356-2413). Full projection overrides
+// disorientation; ordinary subsets preserve the requested object/trap layers.
 export async function reveal_terrain(whichSubset, state = game) {
-    if (whichSubset !== TER_MAP) {
-        throw new UnsupportedSearchError(
-            'terrain menu choice is not ported',
-        );
-    }
-    if (hallucinating(state)
-        || propertyActiveUnblocked(state.u, STUNNED)
-        || propertyActiveUnblocked(state.u, CONFUSION)) {
-        throw new UnsupportedSearchError(
-            'disoriented terrain projection',
-        );
+    const full = Boolean(whichSubset & TER_FULL);
+    // youprop.h: troubles use intrinsic values; only hallucination resistance
+    // also uses extrinsic. These macros do not read the blocked field.
+    const properties = state.u.uprops;
+    const hallucination = Boolean(properties[HALLUC]?.intrinsic)
+        && !Boolean(properties[HALLUC_RES]?.intrinsic
+                    || properties[HALLUC_RES]?.extrinsic);
+    if ((hallucination || properties[STUNNED]?.intrinsic
+         || properties[CONFUSION]?.intrinsic) && !full) {
+        await ttyPline('You are too disoriented for this.', state);
+        return;
     }
     if (state !== game)
         throw new TypeError('reveal_terrain() redraws the global game');
-
-    const swallowed = Boolean(state.u?.uswallow);
-    const defaultSym = state.level?.flags?.arboreal ? S_tree : S_stone;
+    const keepTraps = Boolean(whichSubset & TER_TRP);
+    const keepObjects = Boolean(whichSubset & TER_OBJ);
+    const keepMonsters = Boolean(whichSubset & TER_MON);
+    const swallowed = state.u.uswallow;
+    const defaultSym = state.level.flags.arboreal ? S_tree : S_stone;
+    if (unconstrain_map(state)) {
+        await docrt({
+            suspendVision: () => vision_recalc(2, { state }),
+            restoreVision: () => vision_recalc(0, { state }),
+        });
+    }
     const defaultGlyph = cmap_to_glyph(defaultSym, state);
-    if (unconstrain_map(state)) docrt();
-
     for (let x = 1; x < COLNO; ++x) {
         for (let y = 0; y < ROWNO; ++y) {
             const glyph = reveal_terrain_getglyph(
@@ -1600,10 +1634,21 @@ export async function reveal_terrain(whichSubset, state = game) {
             show_glyph_cell(x, y, terrainGlyphInfo(glyph, state));
         }
     }
-
     await flush_screen(1);
-    await ttyPline('Showing known terrain only...', state);
-    await browse_map(whichSubset, 'anything of interest', state);
+    let description;
+    if (full) {
+        description = 'underlying terrain';
+    } else {
+        description = 'known terrain';
+        if (keepTraps)
+            description += `${keepObjects || keepMonsters ? ',' : ' and'} traps`;
+        if (keepObjects)
+            description += `${keepTraps || keepMonsters ? ',' : ''}${keepMonsters ? '' : ' and'} objects`;
+        if (keepMonsters)
+            description += `${keepTraps || keepObjects ? ',' : ''} and monsters`;
+    }
+    await ttyPline(`Showing ${description} only...`, state);
+    await browse_map(whichSubset | TER_MAP, 'anything of interest', state);
     await map_redisplay(state);
 }
 

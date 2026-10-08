@@ -105,8 +105,19 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
     assert.equal(readFileSync(join(root, options.ledger), 'utf8'), originalLedger);
     assert.equal(readFileSync(join(root, 'GOALS.json'), 'utf8'), originalGoals);
     write('js/fixture.js', 'export const fixture = true;\n');
+    // Review and dashboard records do not change the already tested execution inputs.
+    for (const path of ['QUALITY.json', 'QUALITY-evidence.json', 'dashboard-snapshot.json'])
+        json(path, {});
+    rmSync(join(root, 'QUALITY.json'));
+    symlinkSync('GOALS.json', join(root, 'QUALITY.json'));
+    assert.throws(() => acceptTask(options, root), /outside closure/u);
+    rmSync(join(root, 'QUALITY.json'));
+    json('QUALITY.json', {}); // Only a regular report qualifies, never a redirect.
     const evaluationPath = `.git/checkpoint-results/${commit}/fixture/synthetic/ci-v1.json`;
     const evaluation = JSON.parse(readFileSync(join(root, evaluationPath), 'utf8'));
+    // A separately saved measurement may await publication without replacing the
+    // exact-candidate archive required below. Invalid current evidence still fails.
+    json('challenges/evaluations/saved-before-closure.json', evaluation);
     // Each invalid identity must stop before score import, despite a passing checkpoint.
     for (const [changed, error] of [
         [{ sha: 'f'.repeat(40) }, /complete current batch/u],
@@ -207,6 +218,9 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
     assert.deepEqual(JSON.parse(readFileSync(join(root, '.cache/ledger.json'), 'utf8')), accepted);
 
     // Reuse this disposable repository for preparation; no extra Git history is needed.
+    for (const path of ['QUALITY.json', 'QUALITY-evidence.json', 'dashboard-snapshot.json'])
+        rmSync(join(root, path)); // Remove this test's implementation closure reports.
+    rmSync(join(root, 'challenges/evaluations/saved-before-closure.json'));
     write('GOALS.json', originalGoals);
     write('SCORE.tsv', COLUMNS.join('\t') + '\n');
     for (const batch of ['v1', 'v2'])

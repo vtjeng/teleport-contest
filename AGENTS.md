@@ -72,8 +72,8 @@ An **implementation task** is a C **file port**, a **Lua port**, or a
 range; a Lua port implements a whole `dat/*.lua` program; a divergence fix
 repairs a source-traced defect. `GOALS.json` records implementation tasks as
 **goals** for historical continuity. New implementation tasks define their
-complete scope before work starts and do not require a separate span selection
-or closure. Existing spans and slices remain historical records. A
+complete source scope before code edits start and do not require separate span
+selection or closure. Existing spans and slices remain historical records. A
 **challenge preparation task** creates the next batch's C recipes and
 recordings without admitting or scoring it.
 
@@ -82,7 +82,9 @@ in its own Git worktree. Two normally work on implementation tasks; the third
 may prepare a future challenge batch or take an independent implementation task.
 Workers notify the orchestrator when a task is ready to merge; only the
 orchestrator integrates, runs combined validation, admits batches, and
-publishes. Workers select independent next work under the standing permission
+publishes. Implementation workers own a selected session's investigation through
+delivery, claiming the session before diagnosis and its source scope before code
+edits. Workers select independent next work under the standing permission
 in `.agents/loop.md`, which defines scheduling and merge requests.
 
 | Before you... | Read... |

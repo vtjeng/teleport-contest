@@ -31,6 +31,10 @@ export function activityTimeline(activity, capturedAt) {
     const task = tasks.get(taskId);
     if (!task) continue;
     switch (event.type) {
+      case 'implement':
+        task.kind = 'implementation';
+        task.goal = event.goal;
+        break;
       case 'ready':
         close(task, 'working', event.at);
         begin(task, 'queued', event.at);

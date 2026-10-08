@@ -11,19 +11,24 @@ import test from 'node:test';
 
 import {
     FLYING,
+    FROMOUTSIDE,
+    MAGICAL_BREATHING,
     SLIMED,
     SLEEPY,
     STRANGLED,
     TIMEOUT,
     W_AMUL,
+    W_RINGL,
 } from '../js/const.js';
 import {
-    UnsupportedAccessoryOnError,
     _doWearInternals,
+    set_wear,
 } from '../js/do_wear.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { can_be_strangled } from '../js/mondata.js';
+import { poly_gender } from '../js/polyself.js';
+import { M1_HUMANOID, M2_NEUTER } from '../js/monsters.js';
 import {
     PM_ACID_BLOB,
     PM_CLAY_GOLEM,
@@ -91,20 +96,6 @@ function syntheticAmulet(otyp) {
     return {
         oclass: AMULET_CLASS, otyp,
         owornmask: 0, dknown: true, known: false, spe: 0, quan: 1, where: 0,
-    };
-}
-
-// Validator for assert.rejects(): pins both the error class and the branch
-// name it carries, matching the pattern in wear-armor.test.mjs.
-function refusal(cls, branch) {
-    return (error) => {
-        assert.ok(error instanceof cls,
-            `expected ${cls.name}, got ${error?.constructor?.name}: `
-            + `${error?.message}`);
-        assert.ok(error.message.includes(branch),
-            `expected message naming ${JSON.stringify(branch)}, got `
-            + `${JSON.stringify(error?.message)}`);
-        return true;
     };
 }
 
@@ -258,17 +249,62 @@ test('Amulet_on FLYING grants flight when the hero has no other source',
         'amulet type is discovered via makeknown');
 });
 
-// ---- fail-closed arms ----
+// ---- breathing, change and pure gender dependency ----
 
-test('Amulet_on throws for MAGICAL_BREATHING', async () => {
+test('Amulet_on MAGICAL_BREATHING completes when no gas region is present', async () => {
     await initGame('amulet of magical breathing');
     game.uamul = null;
 
     const amul = syntheticAmulet(AMULET_OF_MAGICAL_BREATHING);
-    await assert.rejects(
-        () => Amulet_on(amul, game),
-        refusal(UnsupportedAccessoryOnError, 'AMULET_OF_MAGICAL_BREATHING'),
-    );
+    await Amulet_on(amul, game);
+    assert.equal(game.uamul, amul);
+    assert.equal(amul.owornmask & W_AMUL, W_AMUL);
+});
+
+test('Amulet_on breathing probe preserves every other property source', async () => {
+    // C clears only W_AMUL; intrinsic breathing or a different extrinsic
+    // keeps region_danger false, so this arm does not identify the amulet.
+    for (const intrinsic of [0, FROMOUTSIDE]) {
+        await initGame('amulet of magical breathing');
+        game.uamul = null;
+        game.level.regions = [{ hero_inside: true, inside_f: 0 }];
+        const breathing = game.u.uprops[MAGICAL_BREATHING];
+        breathing.intrinsic = intrinsic;
+        breathing.extrinsic = W_RINGL;
+        game.objects[AMULET_OF_MAGICAL_BREATHING].oc_name_known = 0;
+        const amul = syntheticAmulet(AMULET_OF_MAGICAL_BREATHING);
+        await Amulet_on(amul, game);
+        assert.equal(breathing.intrinsic, intrinsic);
+        assert.equal(breathing.extrinsic, W_RINGL | W_AMUL);
+        assert.equal(game.objects[AMULET_OF_MAGICAL_BREATHING].oc_name_known, 0);
+    }
+});
+
+test('set_wear awaits the selected amulet callback in source order', async () => {
+    await initGame('amulet of ESP');
+    const amul = syntheticAmulet(AMULET_OF_ESP);
+    game.uamul = amul;
+    // A target selects this callback only, leaving the starting armor alone.
+    const armor = game.uarm;
+    await set_wear(game, amul);
+    assert.equal(amul.owornmask & W_AMUL, W_AMUL);
+    assert.equal(game.uarm, armor);
+    assert.equal(game.initial_don, false);
+    assert.equal(game.unported.has('do_wear.c Amulet_on'), false);
+});
+
+test('Amulet_on pins complete C call order and dependency ownership', () => {
+    const c = readFileSync(new URL(
+        '../nethack-c/upstream/src/do_wear.c', import.meta.url), 'utf8');
+    const js = readFileSync(new URL('../js/do_wear.js', import.meta.url), 'utf8');
+    const body = js.slice(js.indexOf('async function Amulet_on('),
+        js.indexOf('export async function Amulet_off('));
+    assert.match(c, /remove_worn_item\(amul, FALSE\);\s*setworn\(amul, W_AMUL\);/u);
+    assert.match(body, /await remove_worn_item\(obj, false, state\);\s*await setworn/u);
+    assert.match(body, /extrinsic &= ~W_AMUL;\s*const was_in_poison_gas = region_danger\(state\);\s*breathing\.extrinsic \|= W_AMUL;/u);
+    assert.match(body, /livelog_newform\(false, orig_sex, new_sex, state\);\s*await ttyPline\('The amulet disintegrates!', state\);\s*if \(call_it\)\s*await trycall\(state\.uamul, state\);\s*await useup/u);
+    assert.doesNotMatch(body, /UnsupportedAccessoryOnError|note_unported/u);
+    assert.match(js, /if \(!obj \? state\.uamul : obj === state\.uamul\)\s*await Amulet_on\(state\.uamul, state\);/u);
 });
 
 test('Amulet_on clears Slimed for UNCHANGING', async () => {
@@ -292,15 +328,39 @@ test('Amulet_on clears Slimed for UNCHANGING', async () => {
     assert.equal(game.uamul, amul, 'the unchanging amulet stays worn');
 });
 
-test('Amulet_on throws for CHANGE', async () => {
-    await initGame('amulet of change');
+test('Amulet_on CHANGE changes gender and consumes its worn inventory object', async () => {
+    // C do_wear.c1006-1033 prints on_msg before gender feedback and
+    // disintegration, then useup clears both the worn slot and inventory.
+    await initGame('amulet of change', 3);
     game.uamul = null;
+    let amul = game.invent;
+    while (amul && amul.otyp !== AMULET_OF_CHANGE) amul = amul.nobj;
+    assert.ok(amul);
+    const female = game.flags.female;
+    await Amulet_on(amul, game);
+    assert.equal(game.flags.female, !female);
+    assert.equal(game.uamul, null);
+    assert.equal(amul.owornmask, 0);
+    for (let obj = game.invent; obj; obj = obj.nobj)
+        assert.notEqual(obj, amul);
+});
 
-    const amul = syntheticAmulet(AMULET_OF_CHANGE);
-    await assert.rejects(
-        () => Amulet_on(amul, game),
-        refusal(UnsupportedAccessoryOnError, 'AMULET_OF_CHANGE'),
-    );
+test('poly_gender pins the complete pure C result table', () => {
+    const source = readFileSync(new URL(
+        '../nethack-c/upstream/src/polyself.c', import.meta.url), 'utf8');
+    assert.match(source, /if \(is_neuter\(gy\.youmonst\.data\) \|\| !humanoid\(gy\.youmonst\.data\)\)\s*return 2;\s*return flags\.female;/u);
+    // C2149-2159 returns 0/1 for humanoid sexes and 2 for either
+    // a neuter humanoid or a nonhumanoid, independent of flags.female.
+    for (const female of [false, true]) {
+        const state = { flags: { female }, youmonst: {
+            data: { mflags1: M1_HUMANOID, mflags2: 0 },
+        } };
+        assert.equal(poly_gender(state), female ? 1 : 0);
+        state.youmonst.data.mflags2 = M2_NEUTER;
+        assert.equal(poly_gender(state), 2);
+        state.youmonst.data = { mflags1: 0, mflags2: 0 };
+        assert.equal(poly_gender(state), 2);
+    }
 });
 
 // ---- can_be_strangled ----
