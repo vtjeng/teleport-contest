@@ -197,13 +197,13 @@ export function getrumor(truth, excludeCookie, rawEnv = {}) {
         switch (adjustedTruth) {
         case 2:
         case 1:
-            beginning = state.gt.true_rumor_start;
-            ending = state.gt.true_rumor_end;
+            beginning = Number(BigInt.asIntN(64, BigInt(state.gt.true_rumor_start)));
+            ending = Number(state.gt.true_rumor_end);
             break;
         case 0:
         case -1:
-            beginning = state.gf.false_rumor_start;
-            ending = state.gf.false_rumor_end;
+            beginning = Number(BigInt.asIntN(64, BigInt(state.gf.false_rumor_start)));
+            ending = Number(state.gf.false_rumor_end);
             break;
         default:
             env.impossible?.('strange truth value for rumor');
