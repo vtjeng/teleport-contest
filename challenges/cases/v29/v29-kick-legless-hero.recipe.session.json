@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source extension: dokick.c:dokick no-limbs guard. Become a snake and attempt a kick; verify source refusal flush and no time use. Plan precedes own C/JS comparison.",
+  "segments": [
+    {
+      "seed": 1392919,
+      "datetime": "20480506070809",
+      "nethackrc": "OPTIONS=name:Probe1392919,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".#polyself\nsnake\n       \u0004    ."
+    }
+  ]
+}

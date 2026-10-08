@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v29 candidate: artifact.c:retouch_equipment. Lawful Knight wields Excalibur then becomes vampire; verify incompatible artifact retouch/drop. Fixed unsearched seed and independent clock; C-only setup corrections precede JS comparison. C-only correction from recorded inventory/pager/setup prerequisites before comparison; original attempts preserved.",
+  "segments": [
+    {
+      "seed": 1392907,
+      "datetime": "20480506070809",
+      "nethackrc": "OPTIONS=name:Probe1392907,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".\u0017uncursed Excalibur\nwi    #polyself\nvampire\n     i "
+    }
+  ]
+}

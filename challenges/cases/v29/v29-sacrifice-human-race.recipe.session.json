@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source extension: pray.c:sacrifice_your_race -> angrygods. Place neutral altar and sacrifice fresh human corpse as neutral human; verify blood staining/alignment/deity wrath. Plan precedes own C/JS comparison.",
+  "segments": [
+    {
+      "seed": 1392920,
+      "datetime": "20480506070809",
+      "nethackrc": "OPTIONS=name:Probe1392920,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".l\u0017neutral altar\n\u0017human corpse\n#offer\ne             ."
+    }
+  ]
+}

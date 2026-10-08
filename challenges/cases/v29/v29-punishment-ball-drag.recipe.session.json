@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v29 candidate: ball.c:drag_ball. Read punishment and move repeatedly with attached floor ball; verify coordinate drag and time usage. Fixed unsearched seed and independent clock; C-only setup corrections precede JS comparison.",
+  "segments": [
+    {
+      "seed": 1392914,
+      "datetime": "20480506070809",
+      "nethackrc": "OPTIONS=name:Probe1392914,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".l\u0017uncursed scroll of punishment\nre    llhhl."
+    }
+  ]
+}

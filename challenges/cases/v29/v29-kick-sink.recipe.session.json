@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source extension: dokick.c:kick_nondoor IS_SINK. Place sink off stairs, move away, kick sink repeatedly; verify pipe/dishwasher or injury branch. Plan precedes own C/JS comparison.",
+  "segments": [
+    {
+      "seed": 1392918,
+      "datetime": "20480506070809",
+      "nethackrc": "OPTIONS=name:Probe1392918,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".l\u0017sink\nl\u0004h     \u0004h     \u0004h     \u0004h     \u0004h     "
+    }
+  ]
+}
