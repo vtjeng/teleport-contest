@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: dungeon.c:print_dungeon/teleport.c:level_tele. Open full dungeon destination chooser and cancel. Required C observation: Named dungeon/depth choice menu including unreachable entries. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 16035012,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035012,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizlevelport\n?\n\u001b                "
+    }
+  ]
+}

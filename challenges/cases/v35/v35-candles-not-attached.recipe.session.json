@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: apply.c:use_candle1387-1470/use_candelabrum1319-1380. Attach seven wax candles to invocation candelabrum and light away from invocation square. Required C observation: Candles attached; seven candles burn rapidly and timers begin. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 16035033,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035033,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed Candelabrum of Invocation\n\u00177 uncursed wax candles\naf y        ae                       "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: potion.c:dodip potion mixing acid branch. Dip healing potion into acid potion. Required C observation: Acid mixture explosion/evaporation branch. Fixed before JS comparisons; no seed search or recipe changes based on JS failures. C-only setup correction from the observed inventory letter, More acknowledgments or source-confirmed prompt flow; no JavaScript comparison has run.",
+  "segments": [
+    {
+      "seed": 16035039,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035039,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed potion of healing\n\u0017uncursed potion of acid\n#dip\nef                       "
+    }
+  ]
+}

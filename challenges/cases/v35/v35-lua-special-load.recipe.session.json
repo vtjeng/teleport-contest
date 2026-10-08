@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 supplemental C-first behavior: wizcmds.c:wiz_load_splua376-395 -> dat:bigrm-1.lua. Load existing special big-room Lua into current level. Required C observation: Special Lua file prompt then level reset/finalization. Planned before this case's JS comparison; original cases remain unchanged.",
+  "segments": [
+    {
+      "seed": 16035101,
+      "datetime": "20380507152302",
+      "nethackrc": "OPTIONS=name:Supplement16035101,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizloaddes\nbigrm-1.lua\n                      "
+    }
+  ]
+}

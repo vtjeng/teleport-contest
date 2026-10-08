@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 supplemental C-first behavior: version.c:doextversion. Request compiled feature report rather than history. Required C observation: Current version plus compilation-options window. Planned before this case's JS comparison; original cases remain unchanged.",
+  "segments": [
+    {
+      "seed": 16035107,
+      "datetime": "20380507152302",
+      "nethackrc": "OPTIONS=name:Supplement16035107,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#version\n                         "
+    }
+  ]
+}

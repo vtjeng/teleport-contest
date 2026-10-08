@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: teleport.c:level_tele -> mklev.c:makelevel -> dat/sanctum.lua. Levelport to valley then named sanctum inside Gehennom. Required C observation: Distinct sanctum layout and source arrival/infernal branch handling. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 16035011,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035011,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizlevelport\nvalley\n                        #wizlevelport\nsanctum\n                        #wizmap\n        "
+    }
+  ]
+}
