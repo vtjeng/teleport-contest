@@ -18,8 +18,9 @@
 
 import { acurrstr, exercise, acurr, adjalign } from './attrib.js';
 import { isok } from './cmd_isok.js';
-import { getdir } from './cmd.js';
+import { getdir, yn_function } from './cmd.js';
 import {
+    TT_PIT, TT_WEB, TT_BEARTRAP,
     A_CHA, HALLUC, HALLUC_RES, LEG, OBJ_MINVENT, OBJ_MIGRATING, STATUE_TRAP, STONE_RES, WEB, ZAP_POS, KICKED_WEAPON, is_pit,
     A_LAWFUL,
     A_WIS,
@@ -112,7 +113,7 @@ import {
 } from './do.js';
 import { del_engr_at, disturb_grave, u_wipe_engr } from './engrave.js';
 import { Is_botlevel, dunlev, dunlevs_in_dungeon, on_level, surface } from './dungeon.js';
-import { breaktest, hero_breaks, impact_disturbs_zombies, thitmonst, hurtle } from './dothrow.js';
+import { breaktest, hero_breaks, impact_disturbs_zombies, thitmonst, hurtle, digests } from './dothrow.js';
 import { game } from './gstate.js';
 import { sgn, upstart } from './hacklib.js';
 import { currency, money_cnt, obj_extract_self, obfree, stackobj, useup, sobj_at } from './invent.js';
@@ -190,6 +191,7 @@ import {
     is_ice, is_pool,
 } from './dbridge.js';
 
+import { kick_steed } from './steed.js';
 import { note_unported } from './unported.js';
 import { cansee, recalc_block_point, unblock_point } from './vision.js';
 import { martial_bonus, special_dmgval, use_skill } from './weapon.js';
@@ -197,7 +199,7 @@ import {
     attack_checks, check_caitiff, damageum, find_roll_to_hit,
     missum, mon_maybe_unparalyze, passive,
 } from './uhitm.js';
-import { a_monnam, hcolor, Monnam, mon_nam } from './do_name.js';
+import { a_monnam, hcolor, hliquid, Monnam, mon_nam } from './do_name.js';
 import { enexto, noteleport_level, goodpos } from './teleport.js';
 import { canseemon, canspotmon } from './display.js';
 import { stop_occupation } from './allmain.js';
@@ -1256,59 +1258,56 @@ export async function dokick(state = game) {
     const u = state.u;
     const species = state.youmonst?.data;
 
-    // 1265-1316. Nine guards, each of which prints its own refusal, sets
-    // no_kick and leaves through one shared `display_nhwindow(WIN_MESSAGE,
-    // TRUE)` --More-- and ECMD_FAIL. C evaluates them as one else-if chain, so
-    // a later condition is read only when every earlier one was false; the
-    // remaining unported guards keep the source order through refusals.
+    // C evaluates one else-if chain before the shared blocking flush.
+    let no_kick = false;
     if (nolimbs(species) || slithy(species)) {
-        throw new UnsupportedKickError(
-            "dokick()'s no-legs guard, which needs its --More-- flush",
-        );
-    }
-    if (verysmall(species)) {
-        throw new UnsupportedKickError(
-            "dokick()'s too-small guard, which needs its --More-- flush",
-        );
-    }
-    if (u.usteed) {
-        throw new UnsupportedKickError(
-            "dokick()'s steed prompt, which needs kick_steed()",
-        );
-    }
-    if (Wounded_legs(state)) {
+        await ttyPline('You have no legs to kick with.', state);
+        no_kick = true;
+    } else if (verysmall(species)) {
+        await ttyPline('You are too small to do any kicking.', state);
+        no_kick = true;
+    } else if (u.usteed) {
+        if (await yn_function('Kick your steed?', 'yn', 'y', true, state) === 'y'.charCodeAt(0)) {
+            await ttyPline(`You kick ${mon_nam(u.usteed, state)}.`, state);
+            await kick_steed(state);
+            return ECMD_TIME;
+        }
+        return ECMD_OK;
+    } else if (Wounded_legs(state)) {
         await legs_in_no_shape('kicking', false, state);
+        no_kick = true;
+    } else if (near_capacity(state) > SLT_ENCUMBER) {
+        await ttyPline('Your load is too heavy to balance yourself for a kick.', state);
+        no_kick = true;
+    } else if (species?.mlet === S_LIZARD) {
+        await ttyPline('Your legs cannot kick effectively.', state);
+        no_kick = true;
+    } else if (u.uinwater && !rn2(2)) {
+        await ttyPline("Your slow motion kick doesn't hit anything.", state);
+        no_kick = true;
+    } else if (u.utrap) {
+        no_kick = true;
+        switch (u.utraptype) {
+        case TT_PIT:
+            if (!Passes_walls(state))
+                await ttyPline("There's not enough room to kick down here.", state);
+            else
+                no_kick = false;
+            break;
+        case TT_WEB:
+        case TT_BEARTRAP:
+            await ttyPline(`You can't move your ${body_part(LEG, state.youmonst)}!`, state);
+            break;
+        default:
+            break;
+        }
+    } else if (sobj_at(BOULDER, u.ux, u.uy, state) && !Passes_walls(state)) {
+        await ttyPline("There's not enough room to kick in here.", state);
+        no_kick = true;
+    }
+    if (no_kick) {
         await displayPendingTtyMessageWindow(state);
         return ECMD_FAIL;
-    }
-    if (near_capacity(state) > SLT_ENCUMBER) {
-        throw new UnsupportedKickError(
-            "dokick()'s encumbrance guard, which needs its --More-- flush",
-        );
-    }
-    if (species?.mlet === S_LIZARD) {
-        throw new UnsupportedKickError(
-            "dokick()'s lizard guard, which needs its --More-- flush",
-        );
-    }
-    // 1288. C's condition is `u.uinwater && !rn2(2)`, so a submerged hero
-    // reaches the rest of dokick() half the time; stopping on u.uinwater alone
-    // keeps that draw out of the stream.
-    if (u.uinwater) {
-        throw new UnsupportedKickError(
-            "dokick()'s underwater guard, whose rn2(2) this stops before",
-        );
-    }
-    if (u.utrap) {
-        throw new UnsupportedKickError(
-            "dokick()'s trapped-hero guard, and with it the kick at the side "
-            + 'of a pit at 1350-1353, which only a wall-passing hero reaches',
-        );
-    }
-    if (sobj_at(BOULDER, u.ux, u.uy, state) && !Passes_walls(state)) {
-        throw new UnsupportedKickError(
-            "dokick()'s boulder guard, which needs its --More-- flush",
-        );
     }
 
     // 1318-1321. getdir() prints "In what direction?" and writes u.dx/u.dy.
@@ -1339,9 +1338,24 @@ export async function dokick(state = game) {
     }
 
     if (u.uswallow) {
-        throw new UnsupportedKickError(
-            "dokick()'s engulfed arm, whose rn2(3) this stops before",
-        );
+        switch (rn2(3)) {
+        case 0:
+            await ttyPline(`You can't move your ${body_part(LEG, state.youmonst)}!`, state);
+            break;
+        case 1:
+            if (digests(u.ustuck.data)) {
+                await ttyPline(`${Monnam(u.ustuck, state)} burps loudly.`, state);
+                break;
+            }
+            // FALLTHROUGH: non-digesting engulfers use the ordinary feedback.
+        default:
+            await ttyPline('Your feeble kick has no effect.', state);
+            break;
+        }
+        return ECMD_TIME;
+    } else if (u.utrap && u.utraptype === TT_PIT) {
+        await ttyPline('You kick at the side of the pit.', state);
+        return ECMD_TIME;
     }
     // 1355-1370. While levitating, C can brace against a wall, door, or an
     // object behind the hero on an air level. Otherwise it returns ECMD_OK.
@@ -1371,9 +1385,8 @@ export async function dokick(state = game) {
     u_wipe_engr(2, { state });
 
     if (!isok(x, y)) {
-        throw new UnsupportedKickError(
-            "dokick()'s off-the-map arm, which needs kick_ouch()",
-        );
+        await kick_ouch(x, y, '', state);
+        return ECMD_TIME;
     }
     const maploc = state.level.at(x, y);
 
@@ -1410,14 +1423,12 @@ export async function dokick(state = game) {
     }
 
     unmap_invisible(x, y, state);
-    // 1444. The XOR is written out because C wrote it: a hero inside water
-    // kicking at dry land reaches the same message. u.uinwater is false by the
-    // time control arrives here, since the guard above refused it.
+    // C's XOR also splashes when an underwater hero kicks dry land.
     if ((is_pool(x, y, state) || maploc.typ === LAVAWALL)
         !== Boolean(u.uinwater)) {
-        throw new UnsupportedKickError(
-            "dokick()'s pool and lava arm",
-        );
+        await ttyPline(`You splash some ${hliquid(is_pool(x, y, state)
+            ? 'water' : 'lava', { state })} around.`, state);
+        return ECMD_TIME;
     }
 
     // 1452-1453. OBJ_AT() read off the per-square pile chain, so that a

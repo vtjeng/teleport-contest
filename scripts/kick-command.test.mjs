@@ -24,20 +24,21 @@ import {
     STONE,
     STAIRS,
     WOUNDED_LEGS,
+    ECMD_FAIL, ECMD_TIME, TT_PIT, TT_WEB, TT_BEARTRAP, PASSES_WALLS,
 } from '../js/const.js';
 import { KICKING_BOOTS } from '../js/objects.js';
 import { commandKeyCode } from '../js/command_bindings.js';
 import { dist2 } from '../js/hacklib.js';
 import { engr_at, make_engr_at } from '../js/engrave.js';
-import { rhack } from '../js/cmd.js';
+import { rhack, there_cmd_menu_next2u, MCMD } from '../js/cmd.js';
 import { legs_in_no_shape } from '../js/do.js';
-import { kickstr } from '../js/dokick.js';
+import { dokick, kickstr } from '../js/dokick.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { getRngLog } from '../js/rng.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { newMonster } from '../js/monst.js';
-import { PM_LICHEN } from '../js/monsters.js';
+import { PM_LICHEN, PM_SNAKE, PM_NEWT } from '../js/monsters.js';
 import {
     KICK,
     KICK_CASES,
@@ -833,4 +834,105 @@ test('a trapped door clears its mask and reaches b_trapped before redraw',
     assert.equal(loc.doormask, D_NODOOR);
     assert.equal(loc.flags, D_NODOOR);
     assert.ok(game.u.uhp < hp); // b_trapped's source explosion inflicts damage.
+});
+
+// dokick.c:1265-1316: guards share a blocking message flush and do not
+// consume direction input, RNG, or a turn. Species records come from C mons[].
+for (const [species, message] of [
+    [PM_SNAKE, 'You have no legs to kick with.'],
+    [PM_LICHEN, 'You have no legs to kick with.'],
+    [PM_NEWT, 'You are too small to do any kicking.'],
+]) {
+    test(`kick guard for species ${species} flushes without direction`, async () => {
+        await replay(MONK(), '');
+        game.youmonst.data = game.mons[species];
+        clearTtyMessageWindow(game);
+        const before = getRngLog().length;
+        game.nhDisplay.pushKey(commandKeyCode(' '));
+        assert.equal(await dokick(game), ECMD_FAIL);
+        assert.equal(game._ttyToplines, message);
+        assert.equal(getRngLog().length, before);
+    });
+}
+for (const [type, message] of [
+    [TT_PIT, "There's not enough room to kick down here."],
+    [TT_WEB, "You can't move your leg!"],
+    [TT_BEARTRAP, "You can't move your leg!"],
+]) {
+    test(`trapped kick guard ${type} preserves no-direction return`, async () => {
+        await replay(MONK(), '');
+        game.u.utrap = 4; // Any positive trap duration reaches the C guard.
+        game.u.utraptype = type;
+        clearTtyMessageWindow(game);
+        const before = getRngLog().length;
+        game.nhDisplay.pushKey(commandKeyCode(' '));
+        assert.equal(await dokick(game), ECMD_FAIL);
+        assert.equal(game._ttyToplines, message);
+        assert.equal(getRngLog().length, before);
+    });
+}
+
+test('wall-passing pit kick consumes direction then returns before wake and target tests',async()=>{
+    await replay(MONK(),'');
+    clearTtyMessageWindow(game);
+    game.u.utrap=4;game.u.utraptype=TT_PIT;
+    game.u.uprops[PASSES_WALLS].intrinsic=100; // Nonzero C Passes_walls timeout.
+    const before=getRngLog().length;
+    game.nhDisplay.pushKey(commandKeyCode('h')); // Adjacent west direction.
+    const result=await dokick(game);
+    assert.equal(result,ECMD_TIME);
+    assert.equal(game._ttyToplines,'You kick at the side of the pit.');
+    assert.equal(getRngLog().length,before);
+    assert.deepEqual(game.gk.kickedloc,{x:game.u.ux-1,y:game.u.uy});
+});
+
+test('mounted yes/no answers use the canonical numeric prompt response',()=>{
+    const js=readFileSync(new URL('../js/dokick.js',import.meta.url),'utf8');
+    assert.match(js,/yn_function\('Kick your steed\?', 'yn', 'y', true, state\) === 'y'\.charCodeAt\(0\)/u);
+    assert.match(js,/await kick_steed\(state\);\s*return ECMD_TIME;[\s\S]*return ECMD_OK;/u);
+    assert.equal(lineOf(DOKICK_C,1272),'if (yn_function("Kick your steed?", ynchars, \'y\', TRUE) == \'y\') {');
+});
+
+test('dokick keeps the source guard, swallowed, wake and target dispatch order',()=>{
+    const js=readFileSync(new URL('../js/dokick.js',import.meta.url),'utf8');
+    const body=js.slice(js.indexOf('export async function dokick'),js.indexOf('// C ref: dokick.c drop_to'));
+    const ordered=['nolimbs(species)','verysmall(species)','u.usteed','Wounded_legs(state)',
+        'near_capacity(state)','species?.mlet === S_LIZARD','u.uinwater && !rn2(2)',
+        'else if (u.utrap)','sobj_at(BOULDER, u.ux, u.uy','if (no_kick)',
+        'getdir(null, state)','state.gk.kickedloc','KICKING_BOOTS','if (u.uswallow)',
+        'Levitation(state)','maybe_kick_monster','wake_nearby','u_wipe_engr',
+        "await kick_ouch(x, y, '', state)",'await kick_monster','unmap_invisible',
+        'is_pool(x, y, state)','await kick_object','await kick_door'];
+    let offset=0;
+    for(const marker of ordered){const next=body.indexOf(marker,offset);assert.ok(next>=offset,marker);offset=next+marker.length;}
+    assert.doesNotMatch(body,/UnsupportedKickError/u);
+    assert.match(body,/switch \(rn2\(3\)\)[\s\S]*case 1:[\s\S]*digests\(u\.ustuck.data\)[\s\S]*burps loudly/u);
+    assert.match(body,/is_pool\(x, y, state\) \|\| maploc.typ === LAVAWALL\)\s*!== Boolean\(u.uinwater\)/u);
+    assert.match(body,/note_unported\('display.c show_glyph'\)/u,
+        'discarded invisible-death glyph restoration remains explicit');
+});
+
+test('Unix TTY recorder excludes the pointer-only mouse fallback kick caller',()=>{
+    const tty=cSource('win/tty/wintty.c').join('\n');
+    assert.match(tty,/#if defined\(WIN32CON\)\n\s*tty_nh_poskey\(coordxy \*x, coordxy \*y, int \*mod\)\n#else\n\s*tty_nh_poskey\(coordxy \*x UNUSED, coordxy \*y UNUSED, int \*mod UNUSED\)/u);
+    assert.match(tty,/#else \/\* !WIN32CON \*\/\n\s*i = tty_nhgetch\(\);/u);
+    // cmd.c:4967 is reachable from pointer-only domouseaction, while
+    // #therecmdmenu keyboard input independently reaches act_on_act:4716.
+    assert.equal(lineOf(CMD_C,4716),'cmdq_add_ec(CQ_CANNED, dokick);');
+    assert.equal(lineOf(CMD_C,4967),'cmdq_add_ec(CQ_CANNED, dokick);');
+});
+
+// C rm.doormask aliases flags; ordinary generated doors populate flags while
+// their unused doormask spelling remains zero. Adjacent closed doors expose
+// the same three actions as cmd.c:4541–4557.
+test('context-menu kick sees the canonical mask of a generated door',async()=>{
+    await replay(MONK(), '');
+    const x=game.u.ux-1,y=game.u.uy; // Adjacent west, as act_on_act queues it.
+    const door=game.level.at(x,y);door.typ=DOOR;door.flags=D_CLOSED;door.doormask=0;
+    game.level.monlist=[]; // Ordinary empty door has no additional monster actions.
+    game.level.objlist=[];
+    const items=[];
+    there_cmd_menu_next2u(items,x,y,1,{value:MCMD.NOTHING},game);
+    assert.deepEqual(items.map(item=>item.value),[MCMD.OPEN_DOOR,MCMD.UNTRAP_DOOR,MCMD.KICK_DOOR]);
+    assert.equal(lineOf(CMD_C,4541),'int dm = levl[x][y].doormask;');
 });

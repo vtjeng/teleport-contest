@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first bullwhip downward mounted-steed caller. C inventory showed i as bullwhip and pony southeast. Carry forward those observed setup inputs; named thrown-dismount gap remains outside scope. Source cmd.c:1754 #levelchange changes experience level, so level20 guarantees the non-resistance arm while preserving its rnd(20). Cheap gender variation retains source level20 bound.",
+  "segments": [
+    {
+      "seed": 1462921,
+      "datetime": "20910617121314",
+      "nethackrc": "OPTIONS=name:WhipKick,role:Knight,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!verbose,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017bullwhip\n     #ride\nny     wi     #levelchange\n20\n     ai>      ai>      ai>      ai>      ."
+    }
+  ]
+}
