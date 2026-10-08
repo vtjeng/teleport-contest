@@ -215197,8 +215197,8 @@
           "name": "wiz_mon_diff",
           "line": 1790,
           "endLine": 1831,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -215362,7 +215362,71 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_mon_diff",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_mon_diff",
+            "sourceReview": "Read whole wizcmds.c 1789–1828, function range 1790–1828 (39 lines; source parser includes the next return-type declaration, so closing brace checked directly). Loop starts mons[0] and stops at mlet-zero sentinel, including its independent cnt increment. Consume calculated mstrength before reading hardcoded difficulty, subtract calculated from hardcoded and print only nonzero discrepancies. First trouble emits one header. Displayed level above 50 is capped, neutral pmname uses source minimum width 18, index width 3, level/calculated/hardcoded width 2 and explicit signed delta; Snprintf byte capacity BUFSZ-1 preserved. Name/data formatting only reads live canonical state.mons and uses existing C-derived constants, not copied catalog/accounting state. No-discrepancy branch and cap/positive-delta branches are source-pinned constructed tests; unchanged valid catalog has only cleric/wizard discrepancies, so those alternate catalog branches lack ordinary runtime inputs. Existing complete mstrength and mstrength_ranged_attk implementations read in full against mondata.c 428–497/501–512: group/ranged/ac/speed/attack/special damage/name branches and integer divisions match source, with existing source-pinned formula/per-species tests. No dependency placeholder or unported result consumed, no ownership/extra completion credit for strength or catalog producers. Canonical TTY lifecycle handles create/putstr/display(FALSE)/destroy and is awaited before ECMD_OK. No RNG, game/map mutation or command-turn change. Missing dispatcher refusal replaced; no allowed unported call remains in the selected function.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c 1985–1986 wizmondiff extcmdlist under active DEBUG/development gate, IFBURIED|AUTOCOMPLETE|WIZMODECMD; existing generated registry and rhack extended-command input path reaches the new awaited arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-mon-diff.test.mjs",
+              "scripts/mondata-pure.test.mjs",
+              "scripts/wizcmds.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-mon-diff-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-mon-diff-ranger.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-monster-difficulty",
+                "segment": 0,
+                "fromStep": 13,
+                "throughStep": 14,
+                "source": "cmd.c 1985–1986 extcmdlist -> doextcmd -> wizcmds.c:wiz_mon_diff 1790–1828. Full canonical monster table traversal displays discrepancy rows at step 13, then dismisses/restores the map at step 14."
+              }
+            ],
+            "checkedAt": "588cece8f183f5957b9f46c06dbcdaf3c02f2fd0"
+          }
+        ],
+        "entryPointReview": "Only active impure entry is wizard #wizmondiff via source development registry/doextcmd/rhack. Admitted step range 13–14 covers full traversal, both source cleric/wizard discrepancies and dismissal. Independent C-first Priest and orc Ranger roles/seeds/clocks invoke and dismiss twice, verifying canonical table discrepancies and ECMD_OK/map restoration. Nonwizard Monk records ordinary-play admission refusal. Constructed source tests cover the empty/matching catalog, sentinel stopping, positive delta, named-demon displayed-level cap and long-name buffer limit; these alternate catalogs are not reachable via ordinary options. No whole dispatcher/catalog/strength/renderer ownership claim.",
+        "entryPoints": [
+          {
+            "name": "wizard #wizmondiff",
+            "functions": [
+              "wiz_mon_diff"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-mon-diff-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-mon-diff-ranger.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-monster-difficulty",
+                "segment": 0,
+                "fromStep": 13,
+                "throughStep": 14,
+                "source": "cmd.c 1985–1986 extcmdlist -> doextcmd -> wizcmds.c:wiz_mon_diff 1790–1828. Full canonical monster table traversal displays discrepancy rows at step 13, then dismisses/restores the map at step 14."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
