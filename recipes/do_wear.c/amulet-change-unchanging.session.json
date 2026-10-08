@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Unchanging variation. C menu probe established page3 letter u; intrinsic prevents change_sex, so Amulet_on keeps gender, displays the unknown amulet and reaches trycall before consumption. Complete the C-observed naming prompt with steady/newline. The unfinished escape probe is retained in cache.",
+  "segments": [
+    {
+      "seed": 1492907,
+      "datetime": "20660819141722",
+      "nethackrc": "OPTIONS=name:AmuletWitness,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "   \u0017uncursed amulet of change\n#wizintrinsic\n>>u\n  Pe      steady\n    ."
+    }
+  ]
+}

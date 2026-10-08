@@ -133,6 +133,7 @@ import {
     TT_INFLOOR,
     TT_LAVA,
     Upolyd,
+    UNCHANGING,
     W_ACCESSORY,
     W_AMUL,
     W_ARM,
@@ -390,7 +391,8 @@ import {
     add_valid_menu_class, encumber_msg, is_worn_by_type, menu_class_present,
     query_category, query_objlist, u_safe_from_fatal_corpse,
 } from './pickup.js';
-import { body_part, float_vs_flight } from './polyself.js';
+import { body_part, change_sex, float_vs_flight, livelog_newform, poly_gender } from './polyself.js';
+import { trycall } from './do.js';
 import {
     incr_itimeout, make_hallucinated, make_slimed, self_invis_message,
     toggle_blindness,
@@ -1164,8 +1166,7 @@ export async function Ring_off(obj, state = game, env = {}) {
     await Ring_off_or_gone(obj, false, state, env);
 }
 
-// Raised where Amulet_on() or Blindf_on() reaches a branch this port has not
-// translated. Both belong to later puton-command slices.
+// Raised where Blindf_on() reaches a branch this port has not translated.
 export class UnsupportedAccessoryOnError extends Error {
     constructor(what) {
         super(`accessory on reached an unported branch: ${what}`);
@@ -1173,7 +1174,7 @@ export class UnsupportedAccessoryOnError extends Error {
     }
 }
 
-// C ref: do_wear.c Amulet_on() (963-1087). The amulet half of
+// C ref: do_wear.c Amulet_on() (963-1089). The amulet half of
 // accessory_or_armor_on() dispatches here after the "already wearing" check.
 // Calls setworn() itself and decides when to call on_msg().
 //
@@ -1182,15 +1183,7 @@ export class UnsupportedAccessoryOnError extends Error {
 async function Amulet_on(obj, state = game) {
     let on_msg_done = false;
 
-    // C ref: steal.c remove_worn_item() (213-290). When the amulet has no
-    // worn mask it was never in a worn slot, so nothing to remove.
-    if (obj.owornmask) {
-        // The amulet is wielded/alt-wielded/quivered. The full
-        // remove_worn_item path is not ported; throw fail-closed.
-        throw new UnsupportedAccessoryOnError(
-            'remove_worn_item() for wielded amulet',
-        );
-    }
+    await remove_worn_item(obj, false, state);
 
     await setworn(obj, W_AMUL, setwornEnv(state));
 
@@ -1201,18 +1194,57 @@ async function Amulet_on(obj, state = game) {
     case AMULET_OF_REFLECTION:
     case FAKE_AMULET_OF_YENDOR:
         break;
-    case AMULET_OF_MAGICAL_BREATHING:
-        throw new UnsupportedAccessoryOnError(
-            'AMULET_OF_MAGICAL_BREATHING (needs region_danger integration)',
-        );
+    case AMULET_OF_MAGICAL_BREATHING: {
+        // C tests gas danger before this amulet contributed breathing.
+        const breathing = state.u.uprops[MAGICAL_BREATHING];
+        breathing.extrinsic &= ~W_AMUL;
+        const was_in_poison_gas = region_danger(state);
+        breathing.extrinsic |= W_AMUL;
+        if (was_in_poison_gas) {
+            discover_object(AMULET_OF_MAGICAL_BREATHING, true, true, true, state);
+            await on_msg(state.uamul, state);
+            on_msg_done = true;
+            await ttyPline('You are no longer bothered by the poison gas.', state);
+        }
+        break;
+    }
     case AMULET_OF_UNCHANGING:
         if (state.u.uprops[SLIMED].intrinsic)
             await make_slimed(0, null, state);
         break;
-    case AMULET_OF_CHANGE:
-        throw new UnsupportedAccessoryOnError(
-            'AMULET_OF_CHANGE (needs change_sex, livelog_newform, useup, trycall)',
-        );
+    case AMULET_OF_CHANGE: {
+        let call_it = false;
+        const orig_sex = poly_gender(state);
+        const unchanging = state.u.uprops[UNCHANGING];
+        if (!(unchanging.intrinsic || unchanging.extrinsic))
+            change_sex(state);
+        const new_sex = poly_gender(state);
+        if (new_sex !== orig_sex)
+            discover_object(AMULET_OF_CHANGE, true, true, true, state);
+        await on_msg(state.uamul, state);
+        on_msg_done = true;
+        if (new_sex !== orig_sex) {
+            newsym(state.u.ux, state.u.uy, state);
+            state.disp.botl = true;
+            await ttyPline(`You are suddenly very ${state.flags.female
+                ? 'feminine' : 'masculine'}!`, state);
+        } else {
+            await ttyPline("You don't feel like yourself.", state);
+            call_it = Boolean(state.uamul.dknown);
+        }
+        livelog_newform(false, orig_sex, new_sex, state);
+        await ttyPline('The amulet disintegrates!', state);
+        if (call_it)
+            await trycall(state.uamul, state);
+        await useup(state.uamul, {
+            ...setwornEnv(state),
+            hooks: {
+                ...setwornEnv(state).hooks,
+                setNotWorn: (target) => setnotworn(target, setwornEnv(state)),
+            },
+        });
+        break;
+    }
     case AMULET_OF_STRANGULATION:
         /* note: might already be Strangled (via #wizintrinsic) */
         if (can_be_strangled(state.youmonst, state)
@@ -2733,7 +2765,7 @@ export async function set_wear(state = game, obj = null, rawEnv = {}) {
         if (!obj ? state.uleft : obj === state.uleft)
             await Ring_on(state.uleft, state, env);
         if (!obj ? state.uamul : obj === state.uamul)
-            note_unported('do_wear.c Amulet_on');
+            await Amulet_on(state.uamul, state);
 
         if (!obj ? state.uarmu : obj === state.uarmu)
             await Shirt_on(state);

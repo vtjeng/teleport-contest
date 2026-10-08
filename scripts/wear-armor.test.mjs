@@ -127,6 +127,7 @@ import {
     AMULET_OF_ESP,
     ARMOR_CLASS,
     BATTLE_AXE,
+    BLINDFOLD,
     CLOAK_OF_DISPLACEMENT,
     CLOAK_OF_INVISIBILITY,
     CLOAK_OF_MAGIC_RESISTANCE,
@@ -1551,14 +1552,18 @@ test('set_wear dispatches accessory callbacks and keeps only the named gaps',
     const segment = segmentFor(TAKEOFF_KEY + WEAR_KEY + 'c');
     await setup(segment, WAIT);
 
-    game.ublindf = {};
+    // recalc_telepat_range reads every occupied accessory's object type.
+    game.ublindf = { otyp: BLINDFOLD, owornmask: 0 };
     const right = syntheticRing(RIN_INCREASE_ACCURACY, 2);
     right.owornmask = W_RINGR;
     game.uright = right;
     const left = syntheticRing(RIN_INCREASE_DAMAGE, 3);
     left.owornmask = W_RINGL;
     game.uleft = left;
-    game.uamul = {};
+    // C Amulet_on's ESP arm only wears and prints this accessory.
+    const amulet = { oclass: AMULET_CLASS, otyp: AMULET_OF_ESP,
+        owornmask: 0, dknown: true, known: false, spe: 0, quan: 1 };
+    game.uamul = amulet;
     const hitBefore = game.u.uhitinc ?? 0;
     const damageBefore = game.u.udaminc ?? 0;
 
@@ -1571,7 +1576,9 @@ test('set_wear dispatches accessory callbacks and keeps only the named gaps',
     assert.equal(game.initial_don, false,
         'C clears initial_don after every set_wear invocation');
     assert.ok(game.unported.has('do_wear.c Blindf_on'));
-    assert.ok(game.unported.has('do_wear.c Amulet_on'));
+    assert.equal(game.uamul, amulet);
+    assert.equal(amulet.owornmask & W_AMUL, W_AMUL);
+    assert.equal(game.unported.has('do_wear.c Amulet_on'), false);
     game.ublindf = null;
     game.uright = null;
     game.uleft = null;
