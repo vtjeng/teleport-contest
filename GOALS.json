@@ -198377,6 +198377,39 @@
           "evaluationCommit": "4f210e358149b03cf68194ba97bfd446aea2f3e0"
         }
       }
+    },
+    {
+      "id": "fix-do-dropx-throne-floor-v28-20261007",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Admit ordinary dry throne-floor drops through the canonical dropx path",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v28/v28-vlad-special-throne"
+      ],
+      "selectionReason": "Seed continuation from immutable A143. Its whole special_throne_effect port exposes a do.c:dropx terrain admission refusal at the same segment0 step88; the source default flooreffects branch leaves the object intact. Current shared ledger reserves no dropx or throne-floor contract. This is a bounded source-backed caller admission fix, with no whole dropx/dropz/flooreffects completion credit.",
+      "detail": "At examined worker commit 070d7706871274131a22efbf14808590d8830955, .cache/A143/selected-after.json records UnsupportedDropError: unsupported drop: non-ordinary terrain from js/do.js:preflight_dropx1933 -> dropx2065 -> allmain.js876 -> do_wear.js:glibr3252 -> finishElapsedTurn873 -> clone monster-turn planning. The C grease draw rn2(101)=93 now matches; the next absent RNG entry is index5192 rn2(5)=2 from monmove.c:distfleeck538, segment0 zero-based step88, newline. This missing draw is a consequence of early planner refusal, not a diagnosed monmove defect. First screen/cursor/animation differences are also at88. The saved accepted-b22bc2ea4e12eae1d608b975449d792a2213b945-v28.json evaluation has9 remaining screens of97; no new aggregate score has been run.\nC do.c:dropx786-796 extracts the inventory object, checks ship_object before altar behavior, then calls dropy800-804 -> dropz807-843. dropz clears weapon/quiver/swap slots, consumes flooreffects boolean before placement, then places/stacks/redraws and reports encumbrance. Whole flooreffects162-357 was read: on dry untrapped THRONE it returns the initialized FALSE after restoring gb.bhitpos, with no terrain-specific effect. Its hot-potion predicate is explicitly ROOM or CORR, excluding THRONE. JS canonical flooreffects/dropz already implement this default path; only preflight_dropx terrain list rejects THRONE. Add THRONE to that list, retaining costly-shop, trap, liquid, visible-region, nearby timed corpse, floor-object-grid, generic timed/light-pile and other guards. Preserve shipping, altar and extraction/placement order; no new RNG/message/state substitute.\nActive selected entry is C allmain.c:Glib -> do_wear.c:glibr2528-2631 -> dropx2626. glibr restores quantity, clears uwep and queued commands, consumes canonical canletgo, then drops the weapon. JS allmain clone/live forwarding already provides canonical dropx and matching encumbrance/newsym/remove hooks. Audit both live and cloned execution, with no adapter or source-order changes. Other ordinary drop command entries reuse the same source dropx; verify them independently.\nA named later source boundary remains: C mhitu.c:explmu1618 discards mon_explodes result; JS mhitu.js2674-2676 instead records note_unported(explode.c mon_explodes). JS explode.js756-779 contains the helper, but wiring it requires a separate bounded clone-RNG/message/map/death/input audit. The selected same-step C tail draws d(4,6)=10 at mon_explodes1026 after the preceding explmu roll. Do not claim full selected-session matching from the throne admission patch. Fresh replay after the patch must report the next exact boundary before delivery; if divergence closure requires full case parity, centrally expand or choose a source task with explicit partial evidence instead of treating the guard fix as complete.\nCurrent coordinator evidence at accepted commit 144aaa0d0e674fb54bb4cdff8dc27515272e5919 preserves 88/97 matching screens and the same step88 boundary; the hosted comparison found no lost screens or new errors across admitted batches.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dropx",
+      "session": "synthetic/v28/v28-vlad-special-throne",
+      "step": 88,
+      "syntheticProvenance": {
+        "synthetic/v28/v28-vlad-special-throne": {
+          "session": "synthetic/v28/v28-vlad-special-throne",
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-vlad-special-throne",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recordingPath": "challenges/cases/v28/v28-vlad-special-throne.session.json",
+          "recordingSha256": "efa15ee1e31c8fcc96b0caf1d48624f5407b2d70b5d6667a5078ee2a97574119",
+          "evaluationPath": "challenges/evaluations/accepted-144aaa0d0e674fb54bb4cdff8dc27515272e5919-v28.json",
+          "evaluationCommit": "144aaa0d0e674fb54bb4cdff8dc27515272e5919"
+        }
+      }
     }
   ]
 }
