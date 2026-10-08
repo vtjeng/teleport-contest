@@ -16,6 +16,11 @@ import {
     DOOR,
     DRAWBRIDGE_UP,
     GRAVE,
+    GPCOORDS_NONE,
+    GPCOORDS_MAP,
+    GPCOORDS_SCREEN,
+    GPCOORDS_COMPASS,
+    GPCOORDS_COMFULL,
     HALLUC,
     HALLUC_RES,
     HEADSTONE,
@@ -100,6 +105,7 @@ import {
     append_str,
     add_quoted_engraving,
     doquickwhatis,
+    look_all,
     look_engrs,
     look_traps,
     look_region_nearby,
@@ -1597,4 +1603,93 @@ test('lookat routes the exceptional self and swallowed source arms', () => {
     selfState.u.utrap = 1;
     selfState.u.utraptype = TT_BURIEDBALL;
     assert.match(self_lookat(selfState), /tethered to something buried/u);
+});
+
+// pager.c:look_all uses explicit cmode, fixed coordinate widths and decoded
+// glyph cells. The independent ordinary list fixture supplies real hero state.
+test('look_all applies every C coordinate mode and the NONE fallback', async () => {
+    const [segment] = loadWhatisMonsterObjectListRecipe().segments;
+    await runSegment({ ...segment, moves: ' ' });
+    const { ux: x, uy: y } = game.u;
+    const modes = [
+        // pager.c2039 substitutes MAP for NONE; MAP appends the alignment
+        // space only for single-digit y, then right-aligns to eight cells.
+        [GPCOORDS_NONE, `<${x},${y}>`, `<${x},${y}>${y < 10 ? ' ' : ''}`.padStart(8)],
+        [GPCOORDS_MAP, `<${x},${y}>`, `<${x},${y}>${y < 10 ? ' ' : ''}`.padStart(8)],
+        // COMPASS alone uses 'you'; COMFULL formats the hero as '(here)'.
+        [GPCOORDS_COMPASS, 'you', '(here)'.padStart(12)],
+        [GPCOORDS_COMFULL, '(here)', '(here)'.padStart(12)],
+        // The terminal status/top row account for source SCREEN y+2.
+        [GPCOORDS_SCREEN, `[${String(y + 2).padStart(2, '0')},${String(x).padStart(2, '0')}]`, `[${String(y + 2).padStart(2, '0')},${String(x).padStart(2, '0')}]`],
+    ];
+    for (const [mode, position, prefix] of modes) {
+        game.iflags.getpos_coords = mode;
+        let rows;
+        game._preNhgetchHook = () => {
+            rows = game.nhDisplay.grid.map(row => row.map(cell => cell.ch).join('').trimEnd());
+        };
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+        await look_all(true, true, game);
+        assert.equal(rows[0], `Monsters currently shown near ${position}:`);
+        assert.ok(rows.some(row => row.startsWith(`${prefix}  @  `)));
+        assert.equal(game.iflags.getpos_coords, mode);
+    }
+});
+
+test('look_all includes the source invisible and warning descriptions', async () => {
+    const [segment] = loadWhatisMonsterObjectListRecipe().segments;
+    await runSegment({ ...segment, moves: ' ' });
+    // Clear the shown map, then install adjacent source glyphs. These rows
+    // have no monster pointer, unlike live-monster descriptions.
+    for (let y = 0; y < 21; ++y)
+        for (let x = 1; x < 80; ++x)
+            game.level.at(x, y).disp_glyph = { glyph: NO_GLYPH };
+    const x = game.u.ux, y = game.u.uy;
+    game.level.at(x, y).disp_glyph = { glyph: GLYPH_INVIS_OFF };
+    // warnindx 1 is def_warnsyms' 'unknown creature causing you concern'.
+    game.level.at(x + 1, y).disp_glyph = { glyph: GLYPH_WARNING_OFF + 1 };
+    game.iflags.getpos_coords = GPCOORDS_COMPASS;
+    let rows;
+    game._preNhgetchHook = () => {
+        rows = game.nhDisplay.grid.map(row => row.map(cell => cell.ch).join('').trimEnd());
+    };
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+    await look_all(true, true, game);
+    assert.equal(rows[2], `${'(here)'.padStart(12)}  I  remembered, unseen, creature`);
+    assert.equal(rows[3], `${'(east)'.padStart(12)}  1  unknown creature causing you concern`);
+});
+
+// Source canspotself gates both the hero row and the abbreviated-compass
+// header. A warning row still keeps the text window nonempty.
+test('look_all hides an unsensed invisible hero and names your position', async () => {
+    const [segment] = loadWhatisMonsterObjectListRecipe().segments;
+    await runSegment({ ...segment, moves: ' ' });
+    // Clear live neighboring monsters as well as glyphs so a hero-square
+    // lookup cannot accidentally describe one of the fixture's monsters.
+    game.level.monlist = null;
+    for (let y = 0; y < 21; ++y)
+        for (let x = 1; x < 80; ++x)
+            game.level.at(x, y).disp_glyph = { glyph: NO_GLYPH };
+    const x = game.u.ux, y = game.u.uy;
+    game.level.at(x, y).disp_glyph = { glyph: GLYPH_MON_MALE_OFF + game.u.umonnum };
+    game.level.at(x + 1, y).disp_glyph = { glyph: GLYPH_WARNING_OFF + 1 };
+    // No blindness, see-invisible, telepathy or detection: Invisible is the
+    // source reason that the hero cannot spot herself.
+    game.u.uprops[INVIS] = { intrinsic: 1 };
+    game.u.uprops[SEE_INVIS] = {};
+    game.u.uprops[BLINDED] = {};
+    game.u.uprops[TELEPAT] = {};
+    game.iflags.getpos_coords = GPCOORDS_COMPASS;
+    let rows;
+    game._preNhgetchHook = () => {
+        rows = game.nhDisplay.grid.map(row => row.map(cell => cell.ch).join('').trimEnd());
+    };
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    await look_all(true, true, game);
+    assert.equal(rows[0], 'Monsters currently shown near your position:');
+    assert.ok(rows.every(row => !row.includes('human wizard called')));
+    assert.match(rows[2], /unknown creature causing you concern$/u);
 });
