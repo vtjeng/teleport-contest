@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first wish effect route. Record C up to the first sit gate before choosing any effect/wish answer; no JavaScript comparison inspected. C-only first sit gate missed; repeat #sit with no effect answer until C gate reaches debug prompt. C-only third sit rolls rnd(6)=6/rnd(13)=1; acknowledge the sit pager, choose effect1, wish an apple, then sit again to prove the original throne has become ordinary floor. First two misses remain in the recipe.",
+  "segments": [
+    {
+      "seed": 14328029,
+      "datetime": "20610709141723",
+      "nethackrc": "OPTIONS=name:ThroneWish,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup,!tips,!verbose\n",
+      "moves": " w-   #levelchange\n25\n                                                                                          m\u0016>I\n                                   \u0017blessed scroll of genocide\n               ri  *\n                              \u0017throne\n               #sit\n   #sit\n   #sit\n 1\napple\n                         #sit\n   "
+    }
+  ]
+}

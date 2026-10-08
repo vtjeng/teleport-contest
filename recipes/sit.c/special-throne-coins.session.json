@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first cheap variation: female Knight with coin stack in inventory, new seed. Source read.c wizard class * removes current monsters without genociding species; bare hands avoid the named dropx throne boundary. Preserve all gate misses and choose6 only in the C debug effect prompt. No JS result inspected.",
+  "segments": [
+    {
+      "seed": 14328017,
+      "datetime": "20610709141723",
+      "nethackrc": "OPTIONS=name:ThroneCoins,role:Knight,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup,!tips,!verbose\n",
+      "moves": " w-   #levelchange\n25\n                                                                                          m\u0016>I\n                                   \u0017blessed scroll of genocide\n               ri  *\n                              \u001791 gold pieces\n            \u0017throne\n               #sit\n 6\n                     #sit\n 6\n                     #sit\n 6\n                     #sit\n 6\n                     #sit\n 6\n                    i "
+    }
+  ]
+}
