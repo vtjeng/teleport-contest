@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: cmd.c:dotherecmdmenu/there_cmd_menu. Open directional adjacent context menu. Required C observation: Neighbor action menu then cancellation. Seed, clock and input history fixed before any JavaScript comparison, without a seed search.",
+  "segments": [
+    {
+      "seed": 15732022,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732022,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#therecmdmenu\nl\u001b          "
+    }
+  ]
+}

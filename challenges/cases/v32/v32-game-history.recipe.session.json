@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: pager.c:dohistory2961. Request packaged game development history. Required C observation: History text pages from data file. Seed, clock and input history fixed before any JavaScript comparison, without a seed search.",
+  "segments": [
+    {
+      "seed": 15732031,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732031,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#history\n                          "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: apply.c:dorub/use_lamp/potion.c:djinni_from_bottle. Rub a blessed magic lamp repeatedly. Required C observation: Djinni release and wish/freedom/hostility outcome. Seed, clock and input history fixed before any JavaScript comparison, without a seed search.",
+  "segments": [
+    {
+      "seed": 15732009,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732009,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017blessed magic lamp\n#rub\ne       #rub\ne       #rub\ne       #rub\ne       #rub\ne       uncursed diamond\n       "
+    }
+  ]
+}

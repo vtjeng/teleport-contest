@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: version.c:doextversion169+. Request compile-time option/version information. Required C observation: Build and runtime feature text window. Seed, clock and input history fixed before any JavaScript comparison, without a seed search.",
+  "segments": [
+    {
+      "seed": 15732030,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732030,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#version\n                      "
+    }
+  ]
+}

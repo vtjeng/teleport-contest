@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: pray.c:fix_worst_trouble TROUBLE_STRANGLED. Wear strangulation amulet then force successful prayer. Required C observation: Prayer removes amulet and cures strangulation. Seed, clock and input history fixed before any JavaScript comparison, without a seed search.",
+  "segments": [
+    {
+      "seed": 15732005,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732005,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed amulet of strangulation\nPe #pray\nyy              i      "
+    }
+  ]
+}
