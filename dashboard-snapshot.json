@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T22:03:42.979Z",
+  "capturedAt": "2026-10-08T22:25:51.453Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -67832,12 +67832,283 @@
         "type": "accepted",
         "at": "2026-10-08T22:02:58.790Z",
         "task": "A172"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A172-published-3c6179b7",
+        "type": "published",
+        "at": "2026-10-08T22:04:21.629Z",
+        "task": "A172",
+        "commit": "3c6179b7d22f38323321d3d90e511ff7aef747b5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C155-command-description-investigation-20261008",
+        "type": "assign",
+        "at": "2026-10-08T22:04:36.118Z",
+        "task": "C155",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C155-command-description-investigation-active-20261008",
+        "type": "turn",
+        "at": "2026-10-08T22:04:37.318Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B176-coordinate-lists-20261008",
+        "type": "implement",
+        "at": "2026-10-08T22:07:03.315Z",
+        "task": "B176",
+        "goal": "port-pager-look-all-coordinate-modes-v32-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B169-integrating-a4868dc1",
+        "type": "integrating",
+        "at": "2026-10-08T22:07:49.674Z",
+        "task": "B169",
+        "integration": "a4868dc1afd0a177328f21048c1ed5bcba91c00e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C155-report-complete-await-dispatch-20261008",
+        "type": "turn",
+        "at": "2026-10-08T22:08:57.974Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "Command-description investigation complete; awaiting dispatcher ownership release and source assignment."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A173-received-7a50f172",
+        "type": "received",
+        "at": "2026-10-08T22:09:00.337Z",
+        "task": "A173",
+        "delivery": "7a50f172de5337299ff35738c5dfd8b8237afce2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A173-review-7a50f172",
+        "type": "activity",
+        "at": "2026-10-08T22:09:02.837Z",
+        "task": "A173",
+        "phase": "review",
+        "reason": "Verify the immutable unmap_object delivery, source completion evidence, saved checks, and dependency on accepted A172 while B169 validates."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B169-feedback-a4868dc1-heavy-wish",
+        "type": "feedback",
+        "at": "2026-10-08T22:12:49.293Z",
+        "task": "B169",
+        "delivery": "e0bbc19fb4137f4c9aba1f6e04519784d43a1d45"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C155-rhack-owner-20261008",
+        "type": "park",
+        "at": "2026-10-08T22:13:45.889Z",
+        "task": "C155"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C156-options-scores-investigation-20261008",
+        "type": "assign",
+        "at": "2026-10-08T22:13:47.133Z",
+        "task": "C156",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C156-options-scores-investigation-20261008",
+        "type": "turn",
+        "at": "2026-10-08T22:13:48.360Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the options scores mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8652d4f924870b21b579a8cfeb623f3630b8d8a0",
+        "type": "ready",
+        "at": "2026-10-08T22:14:14.354Z",
+        "task": "B176",
+        "delivery": "8652d4f924870b21b579a8cfeb623f3630b8d8a0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B169-heavy-wish-correction-20261008",
+        "type": "resume",
+        "at": "2026-10-08T22:14:57.073Z",
+        "task": "B169"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B169-heavy-wish-correction-20261008",
+        "type": "turn",
+        "at": "2026-10-08T22:15:12.493Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Correct the stale heavy-wish trap-boundary test after source admission widened."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C156-first-owner-B173-20261008",
+        "type": "park",
+        "at": "2026-10-08T22:15:49.685Z",
+        "task": "C156"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C157-history-investigation-20261008",
+        "type": "assign",
+        "at": "2026-10-08T22:16:05.548Z",
+        "task": "C157",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C157-history-investigation-20261008",
+        "type": "turn",
+        "at": "2026-10-08T22:16:06.920Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the game-history command mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C157-first-owner-B171-20261008",
+        "type": "park",
+        "at": "2026-10-08T22:17:21.959Z",
+        "task": "C157"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-851988a66b99d6baf05844c7c5360a4c86e30d0b",
+        "type": "ready",
+        "at": "2026-10-08T22:17:39.036Z",
+        "task": "B169",
+        "delivery": "851988a66b99d6baf05844c7c5360a4c86e30d0b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C157-availability-idle-20261008",
+        "type": "turn",
+        "at": "2026-10-08T22:18:05.508Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "No independent admitted mismatch remains; awaiting queued implementations or blocked dispatcher owners."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B169-received-correction-851988a6",
+        "type": "received",
+        "at": "2026-10-08T22:18:09.231Z",
+        "task": "B169",
+        "delivery": "851988a66b99d6baf05844c7c5360a4c86e30d0b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B169-integrating-correction-02094146",
+        "type": "integrating",
+        "at": "2026-10-08T22:18:26.215Z",
+        "task": "B169",
+        "integration": "02094146bef512055a829bb70fc3927ad70b441f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C157-latest-accepted-availability-idle-20261008",
+        "type": "turn",
+        "at": "2026-10-08T22:18:30.291Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "No independent admitted mismatch remains; awaiting queued source deliveries and parked dispatcher owners."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B171-after-A172-20261008",
+        "type": "resume",
+        "at": "2026-10-08T22:18:37.119Z",
+        "task": "B171"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B171-history-implementation-20261008",
+        "type": "turn",
+        "at": "2026-10-08T22:18:38.290Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Resume the typed history command after its dispatcher reservation was released."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B171-history-after-A172-20261008",
+        "type": "implement",
+        "at": "2026-10-08T22:19:27.580Z",
+        "task": "B171",
+        "goal": "fix-cmd-doextcmd-history-dispatch-v32-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B169-validated-02094146",
+        "type": "validated",
+        "at": "2026-10-08T22:22:51.267Z",
+        "task": "B169",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-3732969821e4074692561e9b061197680faeb316",
+        "type": "ready",
+        "at": "2026-10-08T22:23:48.359Z",
+        "task": "A176",
+        "delivery": "3732969821e4074692561e9b061197680faeb316"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c3a78d5759c3340a044af017acfe17cd63fe5d29",
+        "type": "ready",
+        "at": "2026-10-08T22:24:16.029Z",
+        "task": "B171",
+        "delivery": "c3a78d5759c3340a044af017acfe17cd63fe5d29"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B169-02094146bef512055a829bb70fc3927ad70b441f-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T22:25:25.145Z",
+        "task": "B169"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A177-prayer-lycanthropy-5b3752fa",
+        "type": "assign",
+        "at": "2026-10-08T22:25:47.803Z",
+        "task": "A177",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A177-prayer-lycanthropy-20261008",
+        "type": "turn",
+        "at": "2026-10-08T22:25:48.866Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigate the remaining lycanthropy prayer mismatch; preserve A175 caller ownership until acceptance."
       }
     ]
   },
   "development": {
-    "executionCommit": "ab29afa9c189495b317c57344fa9c9536fd03649",
-    "measuredAt": "2026-10-08T21:59:11.202Z",
+    "executionCommit": "02094146bef512055a829bb70fc3927ad70b441f",
+    "measuredAt": "2026-10-08T22:22:23.972Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
