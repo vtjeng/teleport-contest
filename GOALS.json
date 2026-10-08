@@ -198259,7 +198259,7 @@
     {
       "id": "port-rumors-outoracle-v28-20261008",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port major Oracle consultation selection and text output",
       "cFile": "rumors.c",
       "sessions": [
@@ -198267,8 +198267,12 @@
       ],
       "selectionReason": "synthetic/v28/v28-oracle-major-consultation remains7/57 screens unmatched at b22bc2ea4e12eae1d608b975449d792a2213b945; the completed investigation traces step50 to omitted whole rumors.c:outoracle, its initializer, and persistent remaining-offset state. Independent of A Vlad/A142 and C140.",
       "detail": "Port whole outoracle640-694 and init_oracles577-595, replace the discarded gap with an awaited doconsult caller, generate makedefs Oracle data, and reconcile only the Oracle-state save/restore fields. Preserve rnd(count-1), swap-last/decrement before the blocking window, cheapskate special behavior and post-window exercise/XP. Keep broader save/restore/shutdown and couldnt_open_file diagnostics as named outside-credit boundaries.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "fc5768f7cde26ee4c074c8522f4a30dc5660bfd0",
+      "openStanding": {
+        "sha": "144aaa0d0e674fb54bb4cdff8dc27515272e5919",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -198307,7 +198311,355 @@
           "evaluationPath": "challenges/evaluations/accepted-5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec-v28.json",
           "evaluationCommit": "5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "144aaa0d0e674fb54bb4cdff8dc27515272e5919",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-oracle-major-consultation",
+          "session": "synthetic/v28/v28-oracle-major-consultation",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recording": "challenges/cases/v28/v28-oracle-major-consultation.session.json",
+          "recordingPath": "challenges/cases/v28/v28-oracle-major-consultation.session.json",
+          "recordingSha256": "4ebefa5859b9bf667ff711a1634c5afbfddf8f8e6243c0404576e398751f76b2",
+          "recipe": "challenges/cases/v28/v28-oracle-major-consultation.recipe.session.json",
+          "recipeSha256": "eef1767b28db9fa5d9da2f83c8a21143688113ddb03757803e529c83854440c6",
+          "replayInputSha256": "b37185c889e1810d88ac0c462f4251beaff83a7749ffdb053a9dd56b84f4e365",
+          "evaluationPath": "challenges/evaluations/accepted-144aaa0d0e674fb54bb4cdff8dc27515272e5919-v28.json",
+          "evaluationCommit": "144aaa0d0e674fb54bb4cdff8dc27515272e5919",
+          "evaluationArtifact": "challenges/evaluations/accepted-144aaa0d0e674fb54bb4cdff8dc27515272e5919-v28.json",
+          "evaluationUtc": "2026-10-08T03:04:46.095Z",
+          "remainingScreens": 7,
+          "recordedSteps": 57,
+          "previousScreensMatched": 50,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 50,
+              "total": 57
+            },
+            "rng": {
+              "matched": 2777,
+              "total": 2790
+            },
+            "cursors": {
+              "matched": 56,
+              "total": 57
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 50,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 50,
+                "key": "y"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2777,
+              "cEntry": "rnd(20)=6",
+              "cCaller": "outoracle(rumors.c:665)",
+              "jsEntry": "rn2(19)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 50,
+                "key": "y"
+              },
+              "stepIndex": 50
+            },
+            "cursor": {
+              "index": 50,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 50,
+                "key": "y"
+              },
+              "cCursor": [
+                8,
+                23,
+                1
+              ],
+              "jsCursor": [
+                65,
+                5,
+                1
+              ]
+            }
+          },
+          "step": 50,
+          "kind": "rng",
+          "sourceFile": "rumors.c",
+          "function": "outoracle",
+          "message": null,
+          "cFile": "rumors.c",
+          "luaFile": null,
+          "line": 665,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v28/v28-oracle-major-consultation.json",
+            "result": {
+              "session": "synthetic/v28/v28-oracle-major-consultation",
+              "corpus": "synthetic",
+              "batch": "v28",
+              "caseId": "v28-oracle-major-consultation",
+              "manifestPath": "challenges/manifests/v28.json",
+              "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+              "recording": "challenges/cases/v28/v28-oracle-major-consultation.session.json",
+              "recordingPath": "challenges/cases/v28/v28-oracle-major-consultation.session.json",
+              "recordingSha256": "4ebefa5859b9bf667ff711a1634c5afbfddf8f8e6243c0404576e398751f76b2",
+              "recipe": "challenges/cases/v28/v28-oracle-major-consultation.recipe.session.json",
+              "recipeSha256": "eef1767b28db9fa5d9da2f83c8a21143688113ddb03757803e529c83854440c6",
+              "evaluationPath": "challenges/evaluations/accepted-5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec-v28.json",
+              "evaluationCommit": "5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec",
+              "evaluationUtc": "2026-10-08T02:42:22.412Z",
+              "remainingScreens": 7,
+              "recordedSteps": 57,
+              "metrics": {
+                "screens": {
+                  "matched": 50,
+                  "total": 57
+                },
+                "rng": {
+                  "matched": 2777,
+                  "total": 2790
+                },
+                "cursors": {
+                  "matched": 56,
+                  "total": 57
+                }
+              },
+              "passed": false,
+              "error": null,
+              "step": 50,
+              "kind": "screen",
+              "sourceFile": "rumors.c",
+              "function": "outoracle",
+              "firstMismatch": {
+                "segment": 0,
+                "step": 50,
+                "kind": "screen",
+                "sourceFile": "rumors.c",
+                "function": "outoracle",
+                "message": "Missing paid Oracle text window and rnd(oracle_cnt-1) before Wisdom exercise and experience gain"
+              },
+              "diagnostic": {
+                "rngMismatch": {
+                  "index": 2777,
+                  "cEntry": "rnd(20)=6",
+                  "cCaller": "outoracle(rumors.c:665)",
+                  "jsEntry": "rn2(19)=2",
+                  "location": {
+                    "segmentIndex": 0,
+                    "stepIndex": 50,
+                    "key": "y"
+                  }
+                },
+                "screenMismatch": {
+                  "index": 50,
+                  "location": {
+                    "segmentIndex": 0,
+                    "stepIndex": 50,
+                    "key": "y"
+                  },
+                  "kind": "ch",
+                  "row": 0,
+                  "column": 0,
+                  "cCell": {
+                    "ch": "T",
+                    "color": 8,
+                    "attr": 0,
+                    "decgfx": 0
+                  },
+                  "jsCell": {
+                    "ch": "W",
+                    "color": 8,
+                    "attr": 0,
+                    "decgfx": 0
+                  }
+                },
+                "cursorMismatch": {
+                  "index": 50,
+                  "location": {
+                    "segmentIndex": 0,
+                    "stepIndex": 50,
+                    "key": "y"
+                  },
+                  "cCursor": [
+                    8,
+                    23,
+                    1
+                  ],
+                  "jsCursor": [
+                    65,
+                    5,
+                    1
+                  ]
+                }
+              },
+              "status": "complete",
+              "commit": "5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec",
+              "mismatch": {
+                "session": "synthetic/v28/v28-oracle-major-consultation",
+                "corpus": "synthetic",
+                "batch": "v28",
+                "caseId": "v28-oracle-major-consultation",
+                "manifestPath": "challenges/manifests/v28.json",
+                "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+                "recording": "challenges/cases/v28/v28-oracle-major-consultation.session.json",
+                "recordingPath": "challenges/cases/v28/v28-oracle-major-consultation.session.json",
+                "recordingSha256": "4ebefa5859b9bf667ff711a1634c5afbfddf8f8e6243c0404576e398751f76b2",
+                "recipe": "challenges/cases/v28/v28-oracle-major-consultation.recipe.session.json",
+                "recipeSha256": "eef1767b28db9fa5d9da2f83c8a21143688113ddb03757803e529c83854440c6",
+                "evaluationPath": "challenges/evaluations/accepted-5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec-v28.json",
+                "evaluationCommit": "5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec",
+                "evaluationUtc": "2026-10-08T02:42:22.412Z",
+                "remainingScreens": 7,
+                "recordedSteps": 57,
+                "metrics": {
+                  "screens": {
+                    "matched": 50,
+                    "total": 57
+                  },
+                  "rng": {
+                    "matched": 2777,
+                    "total": 2790
+                  },
+                  "cursors": {
+                    "matched": 56,
+                    "total": 57
+                  }
+                },
+                "passed": false,
+                "error": null,
+                "step": 50,
+                "kind": "screen",
+                "sourceFile": "rumors.c",
+                "function": "outoracle",
+                "firstMismatch": {
+                  "segment": 0,
+                  "step": 50,
+                  "kind": "screen",
+                  "sourceFile": "rumors.c",
+                  "function": "outoracle",
+                  "message": "Missing paid Oracle text window and rnd(oracle_cnt-1) before Wisdom exercise and experience gain"
+                },
+                "diagnostic": {
+                  "rngMismatch": {
+                    "index": 2777,
+                    "cEntry": "rnd(20)=6",
+                    "cCaller": "outoracle(rumors.c:665)",
+                    "jsEntry": "rn2(19)=2",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 50,
+                      "key": "y"
+                    }
+                  },
+                  "screenMismatch": {
+                    "index": 50,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 50,
+                      "key": "y"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "W",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "cursorMismatch": {
+                    "index": 50,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 50,
+                      "key": "y"
+                    },
+                    "cCursor": [
+                      8,
+                      23,
+                      1
+                    ],
+                    "jsCursor": [
+                      65,
+                      5,
+                      1
+                    ]
+                  }
+                }
+              },
+              "goalKind": "file-port",
+              "summary": "A paid major consultation skips rumors.c:outoracle. Port the whole output function and its initializer, generate the source Oracle data, and preserve the remaining-oracle list across save/restore. The missing selection draw and blocking text window cause the first mismatch at step50.",
+              "source": {
+                "file": "rumors.c",
+                "branch": "A peaceful Oracle receives a major-consultation payment; go.oracle_flg permits opening the Oracle data, and a normal unconsumed record or the special cheapskate record is selected.",
+                "functions": [
+                  "outoracle",
+                  "init_oracles"
+                ],
+                "callers": [
+                  "rumors.c:doconsult755 -> js/rumors.js78; await outoracle(cheapskate, TRUE) after gold transfer/achievement and before major_oracle, Wisdom exercise and XP.",
+                  "rumors.c:outoracle656 -> init_oracles577-595; initialize canonical svo.oracle_cnt and svo.oracle_loc before setting go.oracle_flg=1.",
+                  "Supporting persistence: save.c:savegamestate321 -> save_oracles598-620, and restore.c:restgamestate712 -> restore_oracles623-637. Wire the selected oracle-state fields into js/save.js serializeGameState and js/restore.js dorecover after artifact state in source order; no whole save/restore claim."
+                ],
+                "dependencies": [
+                  "util/makedefs.c:special_oracle1400-1413/do_oracles1423-1590 and dat/oracles.txt define the generated encrypted byte file. Extend the existing deterministic scripts/generate-random-text-data.mjs and js/random_text_data.js; verify header, N+1 hexadecimal offsets, special record, h_filter comments/separators, encryption and regenerated freshness. Do not hand-copy text or load files in game code.",
+                  "Consumed file-operation results (open success, header sscanf count, bounded dlb_fgets termination, newline search and --- sentinel) must be represented by the generated byte string and source-shaped cursor reads. Keep COLNO=80 reads limited to79 bytes and preserve encrypted byte offsets. Source opening failure sets go.oracle_flg=-1; couldnt_open_file is a discarded void diagnostic helper and may remain an explicitly named note_unported gap.",
+                  "hacklib.c:xcrypt is pure and already implemented in js/hacklib.js477-489 with existing source-pinned result tests. No new xcrypt credit. RNG rnd must use the canonical js/rng.js rnd owner; a normal draw is rnd(oracle_cnt-1), not rn2(oracle_cnt).",
+                  "Existing js/tty_menu.js:displayTtyTextWindow875-983 owns NHW_TEXT line layout, pending-message dismissal, bottom-row More, escape, window destruction and map repair. Await it with source header plus blank line and decoded record lines; do not replace it with pline or a menu.",
+                  "Canonical values are go.oracle_flg and svo.oracle_cnt/oracle_loc, initialized as C decl.c zeros. Normal selection decrements oracle_cnt and moves the last remaining offset into the selected slot before window display. The special offset stays at index0 and special output neither draws RNG nor consumes an offset. Save the count/remaining offsets; restore go.oracle_flg=1 only when count is nonzero.",
+                  "save_oracles FREEING state release and save.c:free_dynamic_data1124 macro are a distinct shutdown frontier if the JavaScript termination chain cannot wire them narrowly. Keep this named and outside source-completion credit; do not claim whole save_oracles, restore_oracles, savegamestate, restgamestate, or shutdown cleanup merely from a JSON snapshot."
+                ]
+              },
+              "evidence": [
+                "Current saved evaluation challenges/evaluations/accepted-b22bc2ea4e12eae1d608b975449d792a2213b945-v28.json at b22bc2ea4e12eae1d608b975449d792a2213b945 retains50/57 screens,2777/2790 RNG and56/57 cursors. Manifest digest 394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039 and recipe/recording SHA256 were checked against both worker and coordinator files; the remaining-screen count is7.",
+                "Read-only bounded run-3CkcRI at 7581437615345671501a47ebeb866517b6739431 reproduced the exact first mismatch: segment0step50 key y, C rnd(20)=6 at outoracle(rumors.c:665), JS rn2(19)=2. C starts with T at row0col0 for the Oracle text header; JS starts W for Welcome to experience level2. Diagnostic artifacts .cache/v28-oracle-major-consultation/replay.json and replay.log retain RNG/screen/cursor details. There was no refusal; live JS major_oracle was true while oracle count/flag were absent, ruling out the no-gold or unfriendly-Oracle guards.",
+                "C recording steps48-49 show minor rejection and the550-zorkmid major offer. Step50 transfers gold (next_ident), selects the6th normal oracle from20 with rnd(20), and displays the extra-healing advice. Step51 dismisses the text window before Wisdom exercise and level gain. This establishes both the missing selection and its wait placement; the later RNG drift is a consequence, not an independent exercise defect.",
+                "Whole outoracle640-694 source review: prior failed-open/exhaustion guards; open; one-time init; count0 and count<=1 normal guards; special-index0 versus rnd(count-1); seek; swap-last/decrement before output; Delphi special/normal header versus generic message header; blank line; COLNO-bounded encrypted reads until --- newline; newline removal/xcrypt; blocking display; destruction; close; failed-file diagnostic then flag=-1.",
+                "Whole init_oracles577-595 source review: skip generated comment, read decimal count, accept only successfully parsed positive count, allocate/count entries and read their hexadecimal offsets. util/makedefs emits21 records including the special entry; the recorded initial normal bound20 agrees with this layout. The generator emits an extra EOF offset that init does not read.",
+                "rg outoracle\\( nethack-c/upstream/src found only the definition and doconsult755 call. The delphi=false generic-message arm has no active upstream caller and needs source-pinned branch coverage rather than fabricated production wiring. init has one outoracle caller; save/restore state has the two persistence sites and the FREE_ALL_MEMORY shutdown macro, all identified above.",
+                "Existing JavaScript js/rumors.js78 records note_unported instead of calling outoracle. The module currently has no initializer/output implementation, while js/random_text_data.js contains rumors/engrave/epitaph/bogusmon only and js/save.js snapshot/js/restore.js recovery omit Oracle state. Source search also found no JS oracle_cnt/oracle_loc mutation or save_oracles/restore_oracles implementation.",
+                "Runtime evidence plan: admitted v28 segment0steps48-56 for a fully paid major consultation; independent C-first paid variation and insufficient-major-payment special consultation; a two-segment save/restore continuation followed by another major consultation to verify consumed-offset persistence and no reinitialization. Source-pinned tests cover exhaustion, <=1 normal rejection, special reuse/no RNG, swap-last ordering, generic-header inactive arm, malformed/missing data, mode-specific persistence/release and awaited caller ordering. No C game was recorded during this investigation.",
+                "Reservations were checked in .cache/v28-oracle-major-consultation/status.json. Proposed rumors functions, oracle state, generated data, and save/restore paths do not overlap pending B143 buried-ball release, A142 wiz_smell/doextcmd/rhack, C140 engraving NODIR dispatch or A's special_throne_effect proposal. The tracked worker tree remains clean; all diagnostic writes are in this worktree."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-wizcmds-wiz-flip-level-v28-20261008",
