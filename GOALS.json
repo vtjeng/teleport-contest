@@ -214776,6 +214776,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-apply-use-tinning-kit-v31-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port whole tinning-kit conversion and petrification ordering",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v31/v31-tinning-petrifier"
+      ],
+      "selectionReason": "The oldest selectable v31 tinning mismatch reaches apply.c use_tinning_kit at step 47, where JavaScript omits the canonical petrification transition before continuing conversion.",
+      "detail": "Port apply.c use_tinning_kit lines 2177-2258 and verify its existing doapply TINNING_KIT caller. Await the existing trap.c instapetrify support without claiming source completion for that helper; preserve the earlier blind floor-touch blocker in invent.c feel_cockatrice.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "use_tinning_kit",
+          "line": 2177,
+          "endLine": 2258,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2177,
+        "to": 2258
+      },
+      "syntheticProvenance": {
+        "synthetic/v31/v31-tinning-petrifier": {
+          "session": "synthetic/v31/v31-tinning-petrifier",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-tinning-petrifier",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-tinning-petrifier.session.json",
+          "recordingSha256": "b9729b789cae6000ccfac8a30839e7eac09f33f32f471f6fd73756058966709b",
+          "evaluationPath": "challenges/evaluations/accepted-9d688c3a63ebe0866f9d712ead2c4245af4a90ca-v31.json",
+          "evaluationCommit": "9d688c3a63ebe0866f9d712ead2c4245af4a90ca"
+        }
+      }
     }
   ]
 }
