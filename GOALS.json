@@ -215436,6 +215436,66 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-wizcmds-migrate-monsters-family-v31-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port wizard monster migration and its sorted pending-destination list",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v31/v31-migrating-monsters"
+      ],
+      "selectionReason": "C151 birth statistics seed is solved; select the independent unreserved admitted v31-migrating-monsters diagnostic missing wiz_migrate_mons at step14. Complete investigation identifies whole comparator/list/command family, distinct from active wizard statistics and corpse RNG scopes.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "migrsort_cmp",
+          "line": 1485,
+          "endLine": 1505,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "list_migrating_mons",
+          "line": 1506,
+          "endLine": 1615,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1485,
+        "to": 1615
+      },
+      "requiredFunctions": [
+        {
+          "name": "wiz_migrate_mons",
+          "line": 1873,
+          "endLine": 1933,
+          "declared": false,
+          "sourceFile": "wizcmds.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v31/v31-migrating-monsters": {
+          "session": "synthetic/v31/v31-migrating-monsters",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-migrating-monsters",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-migrating-monsters.session.json",
+          "recordingSha256": "e5e173f7971ac81ba79eae5034bb420132cf6a6f3073644aba4c0d90876f0ded",
+          "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+          "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b"
+        }
+      }
     }
   ]
 }
