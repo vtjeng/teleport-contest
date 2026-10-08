@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mounted wiz_kill dialogue variation. Knight mounts the east starting pony, then declines with q and with n followed by paranoid suicide refusal. This covers ynq and retained-steed caller state; mounted death remains a separate blocked recipe.",
+  "segments": [
+    {
+      "seed": 14629035,
+      "datetime": "20650716132800",
+      "nethackrc": "OPTIONS=name:Killmount,role:Knight,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!verbose,!debug_mongen\nBINDINGS=V:wizkill\n",
+      "moves": " #ride\nly       #wizkill\n.q #wizkill\n.nn\n "
+    }
+  ]
+}

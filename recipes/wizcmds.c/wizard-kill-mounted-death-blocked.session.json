@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked independent mounted-steed wiz_kill witness. mon.c:m_detach calls steed.c:dismount_steed(DISMOUNT_GENERIC), whose JavaScript reason branch is unported; no passing recording or completion credit.",
+  "segments": [
+    {
+      "seed": 14629035,
+      "datetime": "20650716132800",
+      "nethackrc": "OPTIONS=name:Killmount,role:Knight,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!verbose,!debug_mongen\nBINDINGS=V:wizkill\n",
+      "moves": " #ride\nly       #wizkill\n.y \u001b\u001b "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first wizcmds.c:wiz_kill hero route. Unsearched seed, fixed clock and source-valid debug/setup commands. C output is inspected before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 14629031,
+      "datetime": "20650716132800",
+      "nethackrc": "OPTIONS=name:Killhero,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!verbose,!debug_mongen,pettype:none\nBINDINGS=V:wizkill\n",
+      "moves": " \u0007peaceful quantum mechanic\n #wizkill\nm. \u001b "
+    }
+  ]
+}
