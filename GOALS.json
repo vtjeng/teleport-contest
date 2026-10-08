@@ -215440,7 +215440,7 @@
     {
       "id": "port-wizcmds-migrate-monsters-family-v31-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port wizard monster migration and its sorted pending-destination list",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -215454,22 +215454,25 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e0af258f80b5a632caf9419b124b7f4046d63e78",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "migrsort_cmp",
           "line": 1485,
           "endLine": 1505,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "list_migrating_mons",
           "line": 1506,
           "endLine": 1615,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -215481,9 +215484,9 @@
           "name": "wiz_migrate_mons",
           "line": 1873,
           "endLine": 1933,
-          "declared": false,
+          "declared": true,
           "sourceFile": "wizcmds.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -215651,7 +215654,139 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "migrsort_cmp",
+            "implementation": "js/wizcmds.js",
+            "symbol": "migrsort_cmp",
+            "sourceReview": "Read whole wizcmds.c1485-1505. Pure comparator: signed dungeon and level subtraction precedes unsigned m_id less/greater comparisons, including equality. No RNG, output, or mutation. JS Array.sort consumes the exact comparator result only when n>1. Source-pinned tests include destination precedence, uint32 high IDs, equality and named same-destination order.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "list_migrating_mons",
+                "source": "wizcmds.c1584-1585 qsort for n>1, including current/next categories"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizard-migration.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [],
+            "checkedAt": "e0af258f80b5a632caf9419b124b7f4046d63e78"
+          },
+          {
+            "name": "list_migrating_mons",
+            "implementation": "js/wizcmds.js",
+            "symbol": "list_migrating_mons",
+            "sourceReview": "Read whole wizcmds.c1506-1615 and its sole wiz_migrate_mons1892 caller. Traverse canonical gm.migrating_mons twice with current-level precedence, exact plural/count message and c/n/o prompt ordering; unavailable bytes remain after ESC and a/space/q remain visible. Canonical yn_function returns a key byte, converted to character at this owned C char seam. Selection count controls None versus silent q; rows use source titles, blank line, sorted pointers, canonical minimal_monnam FALSE, first <0,0> removal, given name, a/o destination and MIGR_EXACT_XY coordinates. Canonical text wrapper owns NHW_TEXT create/putstr/display(FALSE)/destroy and blocking dismissal. No missing consumed-return dependency, replacement stub or unported call in this whole function.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_migrate_mons",
+                "source": "wizcmds.c1892 list_migrating_mons(&tolevel) before count input"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizard-migration.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/migration-random-prefix.session.json",
+              "recordings/wizcmds.c/migration-existing-negative.session.json",
+              "recordings/wizcmds.c/migration-empty-cancel.session.json",
+              "recordings/wizcmds.c/migration-negative-limit.session.json",
+              "recordings/wizcmds.c/migration-integer-count.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-migrating-monsters",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 51,
+                "source": "cmd.c1769-1770 migratemons WIZMODECMD -> doextcmd -> wizcmds.c1873-1933 wiz_migrate_mons -> list_migrating_mons1506-1615; initial empty pending list, two random creations/migrations, destination/ID sorted all-monster text window and canceled count"
+              }
+            ],
+            "checkedAt": "e0af258f80b5a632caf9419b124b7f4046d63e78"
+          },
+          {
+            "name": "wiz_migrate_mons",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_migrate_mons",
+            "sourceReview": "Read whole wizcmds.c1873-1933, config.h620-621 DEBUG_MIGRATING_MONS build condition and cmd.c1769-1770 sole production entry. Reference DEBUG build activates count arm. Save debug_mongen before listing; stronghold -> valley, next depth via get_level, or zero bottom destination. Await list before getlin or Cannot-get-there message; ESC/empty return ECMD_OK before flag toggle. Source atoi decimal prefix, LP64 strtol saturation/int32 narrowing and reference INT_MIN negation are retained. Signed count chooses random versus current fmon, clamps at (COLNO-1)*ROWNO, disables debug_mongen, calls rndmonst before awaited canonical makemon_runtime(ptr,0,0,MM_NOMSG), and migrates nonnull result through canonical migrate_to_level/ledger_no/MIGR_RANDOM. Negative loop rereads canonical level.monlist each iteration; decrement also occurs when null; restore saved flag after loop and return no-time ECMD_OK. Missing-owner command refusal disappears only for this switch arm. All returned dependencies are existing owners; no new discard-call gap.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c1769-1770 extcmdlist migratemons IFBURIED|AUTOCOMPLETE|WIZMODECMD; canonical doextcmd dispatch invokes and awaits handler"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizard-migration.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/migration-random-prefix.session.json",
+              "recordings/wizcmds.c/migration-existing-negative.session.json",
+              "recordings/wizcmds.c/migration-empty-cancel.session.json",
+              "recordings/wizcmds.c/migration-negative-limit.session.json",
+              "recordings/wizcmds.c/migration-integer-count.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-migrating-monsters",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 51,
+                "source": "cmd.c1769-1770 migratemons WIZMODECMD -> doextcmd -> wizcmds.c1873-1933 wiz_migrate_mons -> list_migrating_mons1506-1615; initial empty pending list, two random creations/migrations, destination/ID sorted all-monster text window and canceled count"
+              }
+            ],
+            "checkedAt": "e0af258f80b5a632caf9419b124b7f4046d63e78"
+          }
+        ],
+        "entryPointReview": "Global source search finds one comparator consumer in list_migrating_mons, one list caller in wiz_migrate_mons and exactly one command registry entry at cmd.c1769-1770. Sole active entry is debug #migratemons through accepted doextcmd owner; no monster/planning or other direct call. DEBUG_MIGRATING_MONS is enabled by DEBUG config, so positive and negative count arms are active. Admitted two-monster all list plus independent positive/negative/empty/cancel/non-numeric/clamped/narrowed counts cover all impure units through the real command. Independent ordinary mode exclusion confirms existing WIZMODECMD gate. Source-pinned tests cover current/next/other/all categories, exact coordinate/naming, hidden prompt responses, uint ID tie-breaking, bottom/stronghold destinations, count limits and awaited window/makemon order.",
+        "entryPoints": [
+          {
+            "name": "debug #migratemons",
+            "functions": [
+              "migrsort_cmp",
+              "list_migrating_mons",
+              "wiz_migrate_mons"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/migration-random-prefix.session.json",
+              "recordings/wizcmds.c/migration-existing-negative.session.json",
+              "recordings/wizcmds.c/migration-empty-cancel.session.json",
+              "recordings/wizcmds.c/migration-negative-limit.session.json",
+              "recordings/wizcmds.c/migration-integer-count.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-migrating-monsters",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 51,
+                "source": "cmd.c1769-1770 migratemons WIZMODECMD -> doextcmd -> wizcmds.c1873-1933 wiz_migrate_mons -> list_migrating_mons1506-1615; initial empty pending list, two random creations/migrations, destination/ID sorted all-monster text window and canceled count"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e0af258f80b5a632caf9419b124b7f4046d63e78",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-wizcmds-wiz-telekinesis-v31-20261008",
