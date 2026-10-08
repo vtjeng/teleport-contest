@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B158 C-first candidate: uhitm.c:mhitm_ad_rust/mhitm.c:rustm. Polymorph rust monster and touch armed dwarf. Required C observation: Hero rust attack erodes monster equipment. Inputs fixed before any JavaScript comparison; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15833022,
+      "datetime": "20360219161728",
+      "nethackrc": "OPTIONS=name:Probe15833022,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#polyself\nrust monster\n       \u0007peaceful dwarf\n     FhFlFkFjFyFuFbFn     FhFlFkFjFyFuFbFn     "
+    }
+  ]
+}

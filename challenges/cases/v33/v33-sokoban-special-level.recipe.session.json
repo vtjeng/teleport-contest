@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B158 C-first candidate: teleport.c:level_tele/mklev.c:makelevel/dat:soko1-1.lua/soko1-2.lua. Wizard levelports to named Sokoban entrance. Required C observation: Sokoban puzzle terrain and branch arrival. Inputs fixed before any JavaScript comparison; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15833037,
+      "datetime": "20360219161728",
+      "nethackrc": "OPTIONS=name:Probe15833037,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizlevelport\nSokoban\n                                "
+    }
+  ]
+}
