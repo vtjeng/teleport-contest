@@ -201896,7 +201896,7 @@
     {
       "id": "port-detect-reveal-terrain-v29-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete terrain projection subsets and restore the ordinary map",
       "cFile": "detect.c",
       "sessions": [
@@ -201910,8 +201910,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "a75591960ab239110110cb1ef93bfa06ac3a07e4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "reveal_terrain_getglyph",
@@ -202279,6 +202282,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "a75591960ab239110110cb1ef93bfa06ac3a07e4",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {

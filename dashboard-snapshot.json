@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T07:09:00.996Z",
+  "capturedAt": "2026-10-08T07:25:29.317Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -26716,12 +26716,43 @@
         "worker": "C",
         "goal": "port-artifact-invoke-untrap-family-v29-20261008",
         "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C143-52701fe1",
+        "type": "published",
+        "at": "2026-10-08T07:11:31.834Z",
+        "task": "C143",
+        "commit": "52701fe145bb24238c3a64f02c044c4b168bccbf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B148-a7559196",
+        "type": "integrating",
+        "at": "2026-10-08T07:17:12.952Z",
+        "task": "B148",
+        "integration": "a75591960ab239110110cb1ef93bfa06ac3a07e4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B148-a75591960ab239110110cb1ef93bfa06ac3a07e4-validated",
+        "type": "validated",
+        "at": "2026-10-08T07:22:01.821Z",
+        "task": "B148",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B148-a75591960ab239110110cb1ef93bfa06ac3a07e4-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T07:24:17.283Z",
+        "task": "B148"
       }
     ]
   },
   "development": {
-    "executionCommit": "2becf24bebd527647f267e1f6cd7507291e3df46",
-    "measuredAt": "2026-10-08T07:00:02.413Z",
+    "executionCommit": "a75591960ab239110110cb1ef93bfa06ac3a07e4",
+    "measuredAt": "2026-10-08T07:20:52.880Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
