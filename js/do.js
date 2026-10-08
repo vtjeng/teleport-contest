@@ -747,6 +747,10 @@ export async function deferred_goto(state = game) {
             Boolean(typmask & UTOTYPE_PORTAL),
             state,
         );
+        // A final death during goto_level() is NORETURN in C. The JS
+        // finalizer returns after marking gameover so the ending screen can
+        // be captured; do not resume this deferred transition's tail.
+        if (state.program_state?.gameover) return;
         if (typmask & UTOTYPE_RMPORTAL) {
             // trap.c deltrap() is not ported. No level-teleport transition
             // carries this flag; portal ejection owns the first live use.
