@@ -213394,6 +213394,207 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-wizcmds-wiz-show-wmodes-v30-20261008",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port the complete wizard wall-mode diagnostic and bounded command dispatcher",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v30/v30-wall-modes"
+      ],
+      "selectionReason": "A165 continues the oldest completed A162 investigation for synthetic/v30/v30-wall-modes. The current accepted v30 evaluation retains five unmatched screens, and source tracing isolates complete wizcmds.c wiz_show_wmodes plus its bounded wmode dispatcher; B164 and C152 own independent scopes.",
+      "detail": "",
+      "openedAt": "8e4dcdc6aef093e0195a70ea86e60717e9773874",
+      "openStanding": {
+        "sha": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_show_wmodes",
+          "line": 657,
+          "endLine": 692,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 657,
+        "to": 692
+      },
+      "syntheticProvenance": {
+        "synthetic/v30/v30-wall-modes": {
+          "session": "synthetic/v30/v30-wall-modes",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-wall-modes",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-wall-modes.session.json",
+          "recordingSha256": "ad46ac28abc942577698ee023f32aaffdfaf45cbb1fb9cb4dda7f0aa3543c450",
+          "evaluationPath": "challenges/evaluations/accepted-f527447fdb1afd5f533fd6451b9bb0788cfa8fc3-v30.json",
+          "evaluationCommit": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3"
+        }
+      },
+      "activeStanding": {
+        "sha": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-wall-modes",
+          "session": "synthetic/v30/v30-wall-modes",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recording": "challenges/cases/v30/v30-wall-modes.session.json",
+          "recordingPath": "challenges/cases/v30/v30-wall-modes.session.json",
+          "recordingSha256": "ad46ac28abc942577698ee023f32aaffdfaf45cbb1fb9cb4dda7f0aa3543c450",
+          "recipe": "challenges/cases/v30/v30-wall-modes.recipe.session.json",
+          "recipeSha256": "5f2f08225a537f26e5333e2dbc57e634391629f9d9e42f9b9688b38ce8d044a7",
+          "replayInputSha256": "8eb96c2948220d891d4278d36b4eadbf23d7a936139aa8546ff186d29fc99c57",
+          "evaluationPath": "challenges/evaluations/accepted-f527447fdb1afd5f533fd6451b9bb0788cfa8fc3-v30.json",
+          "evaluationCommit": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3",
+          "evaluationArtifact": "challenges/evaluations/accepted-f527447fdb1afd5f533fd6451b9bb0788cfa8fc3-v30.json",
+          "evaluationUtc": "2026-10-08T19:09:55.598Z",
+          "remainingScreens": 5,
+          "recordedSteps": 15,
+          "previousScreensMatched": 10,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 10,
+              "total": 15
+            },
+            "rng": {
+              "matched": 2758,
+              "total": 2758
+            },
+            "cursors": {
+              "matched": 10,
+              "total": 15
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_show_wmodes() for the extended command 'wmode' is not ported",
+            "step": 10
+          },
+          "step": 10,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_show_wmodes",
+          "message": "unsupported hero command: wiz_show_wmodes() for the extended command 'wmode' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v30/v30-wall-modes.json",
+            "result": {
+              "session": "synthetic/v30/v30-wall-modes",
+              "corpus": "synthetic",
+              "batch": "v30",
+              "caseId": "v30-wall-modes",
+              "manifestPath": "challenges/manifests/v30.json",
+              "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+              "recordingSha256": "ad46ac28abc942577698ee023f32aaffdfaf45cbb1fb9cb4dda7f0aa3543c450",
+              "evaluationPath": "challenges/evaluations/accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json",
+              "evaluationCommit": "5d732fba68778b565d95c0f11dfe245afa3d89af",
+              "remainingScreens": 5,
+              "recordedSteps": 15,
+              "status": "complete",
+              "commit": "9a6b25e8d27edbb4db62b5cb85b3f14fed674ad0",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v30",
+                "caseId": "v30-wall-modes",
+                "session": "synthetic/v30/v30-wall-modes",
+                "manifestPath": "challenges/manifests/v30.json",
+                "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+                "recording": "challenges/cases/v30/v30-wall-modes.session.json",
+                "recordingPath": "challenges/cases/v30/v30-wall-modes.session.json",
+                "recordingSha256": "ad46ac28abc942577698ee023f32aaffdfaf45cbb1fb9cb4dda7f0aa3543c450",
+                "recipe": "challenges/cases/v30/v30-wall-modes.recipe.session.json",
+                "recipeSha256": "5f2f08225a537f26e5333e2dbc57e634391629f9d9e42f9b9688b38ce8d044a7",
+                "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
+                "evaluationPath": "challenges/evaluations/accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json",
+                "evaluationCommit": "5d732fba68778b565d95c0f11dfe245afa3d89af",
+                "evaluationArtifact": "challenges/evaluations/accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json",
+                "evaluationUtc": "2026-10-08T16:21:35.676Z",
+                "remainingScreens": 5,
+                "recordedSteps": 15,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 10,
+                    "total": 15
+                  },
+                  "rng": {
+                    "matched": 2758,
+                    "total": 2758
+                  },
+                  "cursors": {
+                    "matched": 10,
+                    "total": 15
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: wiz_show_wmodes() for the extended command 'wmode' is not ported",
+                  "step": 10
+                },
+                "step": 10,
+                "kind": "stop",
+                "sourceFile": "wizcmds.c",
+                "function": "wiz_show_wmodes",
+                "message": "unsupported hero command: wiz_show_wmodes() for the extended command 'wmode' is not ported",
+                "cFile": "wizcmds.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The #wmode dispatcher refuses missing wizcmds.c:wiz_show_wmodes. Existing canonical terrain and wall-mode bytes already reproduce every C map row at the first stop.",
+              "source": {
+                "file": "wizcmds.c",
+                "branch": "Wizard #wmode after ordinary room movement: text window shows masked wall modes, secret doors, corridors, rooms/doors, other terrain and hero in source precedence.",
+                "functions": [
+                  "wiz_show_wmodes"
+                ],
+                "callers": [
+                  "cmd.c:extcmdlist wmode row2002–2003 -> doextcmd -> rhack"
+                ],
+                "dependencies": [
+                  "Existing game.level.at(x,y).typ/wall_info terrain state",
+                  "Existing u_at, IS_WALL, IS_ROOM, IS_DOOR and WM_MASK/CORR/SDOOR constants",
+                  "Existing tty_menu.js:displayTtyTextWindow NHW_TEXT lifecycle and tty window-port convention"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Bounded run-HaKRrS at 9a6b25e8 replays only this assigned session. All 2,758 RNG calls and 10 prefix screens/cursors match; zero-based step10 newline is the first missing screen at cmd.js:doextcmd5315, UnsupportedHeroCommandBoundaryError naming wiz_show_wmodes. Artifacts .cache/A162/replay.json/replay.log.",
+                "C wizcmds.c:wiz_show_wmodes657–689 creates NHW_TEXT, adds an initial blank line only for tty, iterates y0..ROWNO-1 and x0..COLNO-1. u_at takes precedence, then IS_WALL or SDOOR emits 0+(wall_info&WM_MASK), CORR emits #, IS_ROOM or IS_DOOR emits dot, everything else emits x. Pass row[1] to exclude column0, retain all 79 columns without trimming, display blocking, destroy, return ECMD_OK. No RNG or state mutations.",
+                "The stopped snapshot hero49,3 and canonical terrain/wall_info arrays produce all 21 C step10 rows byte-for-byte using these rules, verified through frozen/screen-decode.mjs. Source-derived rows retained in .cache/A162/source-rows.json. No wallification, vision or terrain-state correction is indicated.",
+                "Production caller search finds only the C definition, extern.h3878 and extcmdlist cmd.c2003; JS extcmdlist_data.js181 already registers wmode with IFBURIED|AUTOCOMPLETE|WIZMODECMD. Whole helper plus bounded doextcmd import/branch is the actionable source task; whole doextcmd/rhack, tty renderer and terrain generation remain excluded.",
+                "No missing consumed-return dependency found. Existing source terrain macros in const.js and u_at provide predicates, existing text-window wrapper represents the winid create/putstr/display/destroy sequence and waits for dismissal. Preserve tty-only initial blank, column0 exclusion, every fixed-width row and ECMD_OK timing.",
+                "Reserve source:wizcmds.c:wiz_show_wmodes, bounded source:cmd.c:doextcmd and contract:wizard-wall-mode-text-window. Expected paths js/wizcmds.js/js/cmd.js, exact wall-mode tests/fresh runner, recipes/wizcmds.c and recordings/wizcmds.c. Coordinate the dispatcher claim with the older queued B162 statistics task; A159/A160 each retain their immutable bounded branches.",
+                "Source-pinned coverage should verify all wall classes, secret door, WM_MASK with other wall flags, CORR/SCORR distinction, IS_ROOM furniture precedence, DOOR, hero override, column0 exclusion, tty blank row, untrimmed width and await-before-return. Independent C-first ordinary role variation should invoke twice and restore the map; admitted range10–14 covers selected entry. Non-tty initial-line branch needs a source-pinned check when the runtime API supports that window-port distinction."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
