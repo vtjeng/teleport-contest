@@ -8,7 +8,7 @@ import test from 'node:test';
 
 const SCRIPT = fileURLToPath(new URL('./worker-state.mjs', import.meta.url));
 
-test('CLI events survive separate invocations and only the coordinator can write', (t) => {
+test('CLI preserves events and limits worker writes to owned task transitions', (t) => {
     const root = mkdtempSync(join(tmpdir(), 'worker-state-cli-'));
     t.after(() => rmSync(root, { recursive: true, force: true }));
     const git = (...args) => {
@@ -47,4 +47,22 @@ test('CLI events survive separate invocations and only the coordinator can write
     assert.equal(run(['event', '--json', 'null']).status, 1);
     assert.equal(run(['status', '--unknown', 'value']).status, 1);
     assert.equal(readFileSync(file, 'utf8'), before);
+    const workerEvent = event => run(['event', '--file', file, '--json', JSON.stringify(event)], worker);
+    const claim = { id: 'claim-session', type: 'assign', kind: 'investigation',
+        task: 'diagnosis', worker: 'A', seed: 'synthetic/v1/scout', base,
+        reservations: ['session:synthetic/v1/scout'],
+        allowedPaths: ['investigations/synthetic/v1/scout.json', '.cache/'] };
+    // One worker may release its diagnosis, but not discard a source delivery.
+    for (const event of [claim,
+        { id: 'handoff', type: 'park', task: claim.task, reason: 'Cause belongs to another task.' },
+        { id: 'resume', type: 'resume', task: claim.task },
+        { id: 'implement', type: 'implement', task: claim.task, goal: 'sounds-port',
+            reservations: [...claim.reservations, 'source:sounds.c:domonnoise'],
+            allowedPaths: [...claim.allowedPaths, 'js/sounds.js'] }]) {
+        const result = workerEvent(event);
+        assert.equal(result.status, 0, result.stderr);
+    }
+    const denied = workerEvent({ id: 'discard-code', type: 'park', task: claim.task, reason: 'Drop code.' });
+    assert.equal(denied.status, 1);
+    assert.match(denied.stderr, /only coordinator may park implementation/);
 });
