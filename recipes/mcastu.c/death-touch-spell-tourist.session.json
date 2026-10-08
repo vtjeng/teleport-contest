@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only first-spell caller coverage candidate: independent level30 Tourist without Antimagic and a hostile arch-lich. Inputs end after first forced rest/pager return; C source trace chooses death-touch reachability before JS comparison. C observed first forced rest only fills the newly created monster movement pool; second rest reaches the first actual spell action. C source trace establishes the owned entry: first arch-lich death spell at114, chance3 takes the no-effect branch.",
+  "segments": [
+    {
+      "seed": 17681460,
+      "datetime": "20710719112344",
+      "nethackrc": "OPTIONS=name:FirstDeath17681401,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #levelchange\n30\n                                                            #wizgenesis\nhostile arch-lich\nm. m.                    "
+    }
+  ]
+}

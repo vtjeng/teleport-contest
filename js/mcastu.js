@@ -15,6 +15,9 @@ import {
     BZ_VALID_ADTYP,
     CONFUSION,
     DEAF,
+    DIED,
+    KILLED_BY,
+    Upolyd,
     DISPLACED,
     FIRE_RES,
     FREE_ACTION,
@@ -38,7 +41,9 @@ import {
     ismnum,
 } from './const.js';
 import { game } from './gstate.js';
-import { nomul } from './hack.js';
+import { HeroDeathPlanningError, losehp, nomul } from './hack.js';
+import { adjuhploss, minuhpmax, setuhpmax } from './attrib.js';
+import { done } from './end.js';
 import { sgn } from './hacklib.js';
 import { Monnam, Mgender, pmname } from './do_name.js';
 import { an, the_unique_pm } from './objnam.js';
@@ -57,6 +62,9 @@ import {
     monstseesu,
     monstunseesu,
     perceives,
+    is_demon,
+    mhe,
+    nonliving,
     type_is_pname,
 } from './mondata.js';
 import {
@@ -66,7 +74,7 @@ import {
     AD_SPEL,
 } from './monsters.js';
 import { STRANGE_OBJECT } from './objects.js';
-import { body_part } from './polyself.js';
+import { body_part, rehumanize } from './polyself.js';
 import { lined_up } from './mthrowu.js';
 import { rn2, rnd, d } from './rng.js';
 
@@ -82,6 +90,47 @@ import { note_unported } from './unported.js';
 import { buzz, flash_str, flashburn } from './zap.js';
 import { verbalize as plineVerbalize } from './pline.js';
 import { ttyPline } from './tty_message.js';
+
+// C ref: mcastu.c touch_of_death() (323-354). Both Death's melee touch
+// and the monster spell share this HP/killer path. Terminal death/recovery
+// runs live; planning uses the established handoff before reading input.
+export async function touch_of_death(mtmp, env = {}) {
+    const state = env.state ?? game;
+    const random = { d, ...(env.random ?? {}) };
+    const message = env.message ?? (env.planning ? async () => {} : ttyPline);
+    let dmg = 50 + random.d(8, 6);
+    const drain = Math.trunc(dmg / 2);
+    await message('You feel drained...', state, env);
+    const kbuf = death_inflicted_by('the touch of death', mtmp, state);
+    if (Upolyd(state.u)) {
+        state.u.mh = 0;
+        await (env.rehumanize ?? rehumanize)(state, {
+            ...env, message,
+            planningDeath: typeof env.planningDeath === 'function'
+                ? () => env.planningDeath(mtmp) : undefined,
+        });
+    } else if (drain >= state.u.uhpmax) {
+        state.killer ??= {};
+        state.killer.format = KILLED_BY;
+        state.killer.name = kbuf;
+        if (env.planning) {
+            if (typeof env.planningDeath === 'function')
+                throw env.planningDeath(mtmp);
+            throw new HeroDeathPlanningError(kbuf, KILLED_BY, { fromMonster: true });
+        }
+        await (env.done ?? done)(DIED, state, env);
+    } else {
+        const olduhp = state.u.uhp;
+        const uhpmin = minuhpmax(3, state);
+        const newuhpmax = state.u.uhpmax - drain;
+        setuhpmax(Math.max(newuhpmax, uhpmin), false, state);
+        dmg = adjuhploss(dmg, olduhp, state);
+        await (env.losehp ?? losehp)(dmg, kbuf, KILLED_BY, state,
+            { ...env, message, fromMonster: true });
+    }
+    state.killer ??= {};
+    state.killer.name = '';
+}
 
 // C ref: mcastu.c death_inflicted_by() (358-382). The C output buffer is
 // represented by the returned string; naming reads no game state beyond the
@@ -102,6 +151,32 @@ export function death_inflicted_by(deathreason, monster, state = game) {
             result += ` imitating ${an(fakeName)}`;
     }
     return result;
+}
+
+// C ref: mcastu.c mcast_death_touch() (389-408). Keep the immunity gate
+// before its rn2 draw and publish observed resistance after the effect.
+export async function mcast_death_touch(mtmp, env = {}) {
+    const state = env.state ?? game;
+    const random = { rn2, ...(env.random ?? {}) };
+    const message = env.message ?? (env.planning ? async () => {} : ttyPline);
+    const effectEnv = { ...env, state, random, message,
+        canSpotMonster: env.canSpotMonster ?? canspotmon };
+    await message(`Oh no, ${mhe(mtmp, effectEnv)}'s using the touch of death!`, state, effectEnv);
+    if (nonliving(state.youmonst.data) || is_demon(state.youmonst.data)) {
+        await message('You seem no deader than before.', state, effectEnv);
+    } else if (!heroProperty(state, ANTIMAGIC) && random.rn2(mtmp.m_lev) > 12) {
+        if (Hallucination(state))
+            await message('You have an out of body experience.', state, effectEnv);
+        else
+            await touch_of_death(mtmp, effectEnv);
+        monstunseesu(M_SEEN_MAGR, state);
+    } else {
+        if (heroProperty(state, ANTIMAGIC)) {
+            await shieldeff(state.u.ux, state.u.uy, state);
+            monstseesu(M_SEEN_MAGR, state);
+        }
+        await message("Lucky for you, it didn't work!", state, effectEnv);
+    }
 }
 
 // ---- Spell enum (mcastu.h MONSPELL order) ----
@@ -796,7 +871,7 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
     let resultDmg = 0;
     switch (spellnum) {
     case MCAST_DEATH_TOUCH:
-        recordMcastGap('mcastu.c mcast_death_touch', env);
+        await mcast_death_touch(mtmp, env);
         break;
     case MCAST_CLONE_WIZ:
         recordMcastGap('mcastu.c mcast_clone_wiz', env);

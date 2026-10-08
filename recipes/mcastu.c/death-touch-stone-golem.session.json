@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first polymorphed Death route: makemon.c golemhp gives stone golem100HP with no passive elemental attack. Death high roll at65 reaches touch_of_death with Upolyd; drained feedback precedes human-form return66. This covers mh=0 and canonical rehumanize through the monster-action planner.",
+  "segments": [
+    {
+      "seed": 17681529,
+      "datetime": "20710719112344",
+      "nethackrc": "OPTIONS=name:DeathForm,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #polyself\nstone golem\n      #wizgenesis\nDeath\ny m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n               "
+    }
+  ]
+}

@@ -104,6 +104,7 @@ function randomPlan(plan) {
         random: {
             rn2: (bound) => take('rn2', [bound]),
             rnd: (bound) => take('rnd', [bound]),
+            d: (count, sides) => take('d', [count, sides]),
         },
         assertFinished() {
             assert.equal(index, plan.length, 'the helper uses every source-ordered draw');
@@ -261,7 +262,7 @@ test('the antimagic low roll shows its shield and clears the hit damage', async 
     assert.deepEqual(messages.slice(1), ["Lucky for you, it didn't work!"]);
 });
 
-test('the high roll without antimagic records the discarded touch and clears damage', async () => {
+test('the high roll without antimagic applies canonical Death touch and clears damage', async () => {
     // This seed initializes the fixture; roll 17 selects the C void touch_of_death boundary.
     await startGame(9400104);
     game.gv.vis = false;
@@ -270,7 +271,10 @@ test('the high roll without antimagic records the discarded touch and clears dam
     const attacker = addMonster(game, PM_ORC, 940104, 1, 0);
     const mhm = damageData(9); // The C source clears only this hit's damage after the void call.
     const messages = [];
-    const draws = randomPlan([draw('rn2', [20], 17)]); // C's first high result enters the no-Antimagic void branch.
+    // HP200 exceeds the37-point max-HP drain from source50+d(8,6)=74;
+    // this pins olduhp correction after setuhpmax clamps current HP.
+    game.u.uhp = game.u.uhpmax = 200;
+    const draws = randomPlan([draw('rn2', [20], 17), draw('d', [8, 6], 24)]);
 
     await mhitm_ad_deth(
         attacker, attackData(), game.youmonst, mhm, game,
@@ -278,11 +282,15 @@ test('the high roll without antimagic records the discarded touch and clears dam
     );
 
     draws.assertFinished();
-    assert.deepEqual(draws.calls, ['rn2(20)=17']);
+    assert.deepEqual(draws.calls, ['rn2(20)=17', 'd(8,6)=24']);
     assert.equal(mhm.damage, 0);
     assert.equal(mhm.permdmg, 0);
-    assert.equal(game.unported.has('mcastu.c touch_of_death'), true,
-        'the C-discarded void callee is recorded at its exact source boundary');
+    assert.equal(game.u.uhpmax, 163); // 200 minus integer-half drain37.
+    assert.equal(game.u.uhp, 126); // Total loss74, including the max-HP clamp.
+    assert.equal(messages.at(-1), 'You feel drained...');
+    assert.equal(game.killer.name, '', 'source clears the death reason after survival');
+    assert.equal(game.unported.has('mcastu.c touch_of_death'), false,
+        'the source call now reaches its canonical owner');
 });
 
 test('monster-pair Death delegation halves undead damage then applies direct life drain', async () => {
