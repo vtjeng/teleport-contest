@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import * as inventoryDisplay from '../js/invent.js';
+import { encodeUtf8ByteString } from '../js/hacklib.js';
+import { donameFresh } from '../js/objnam.js';
 
 import {
     BUC_BLESSED,
@@ -11,6 +14,7 @@ import {
     OBJ_MINVENT,
     MINV_ALL,
     PICK_NONE,
+    QBUFSZ,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
     HANDS_SYM,
@@ -46,6 +50,7 @@ import {
     FOOD_CLASS,
     FOOD_RATION,
     GOLD_PIECE,
+    CHEST,
     LONG_SWORD,
     OIL_LAMP,
     SACK,
@@ -345,4 +350,67 @@ test('display_minventory names monster possessions under temporary species data'
 
 test('free_invbuf remains a source-named cleanup boundary for immutable strings', () => {
     assert.equal(free_invbuf(), undefined);
+});
+
+// invent.c:5391-5441 inserts trapped into the full container name. The
+// fallback deliberately tests nonzero strncmp(), so its usual "a chest"
+// result remains unchanged; this pins the source rather than its intent.
+test('container display naming retains source trap and fallback semantics', () => {
+    const state = stateFixture();
+    const chest = object(CHEST, state, {
+        cknown: true, lknown: true, otrapped: true, bknown: false,
+    });
+    assert.equal(inventoryDisplay.cinv_doname(chest, state),
+        'an empty trapped unlocked chest');
+    chest.olocked = true;
+    assert.equal(inventoryDisplay.cinv_doname(chest, state),
+        'an empty trapped locked chest');
+    assert.equal(inventoryDisplay.cinv_ansimpleoname(chest, state), 'a chest');
+    chest.tknown = true;
+    // Modern doname already includes the known trap; invent.c still inserts
+    // another one. The independent trapped-box C recording confirms both.
+    assert.match(inventoryDisplay.cinv_doname(chest, state), /trapped trapped/);
+    chest.otrapped = false;
+    assert.equal(inventoryDisplay.cinv_doname(chest, state),
+        'an empty locked chest');
+});
+
+// The source empty arm is not called by bhito (which handles emptiness
+// itself), but must preserve its menu and cknown-after-acknowledgement tail.
+test('empty container display learns contents only after acknowledgement', async () => {
+    const state = stateFixture();
+    const chest = object(CHEST, state, { cknown: false, lknown: true });
+    let acknowledge;
+    let rows;
+    const pending = inventoryDisplay.display_cinventory(chest, state, {
+        menu(items, _state, how) {
+            rows = items;
+            assert.equal(how, PICK_NONE);
+            assert.equal(chest.cknown, false);
+            return new Promise((resolve) => { acknowledge = resolve; });
+        },
+    });
+    await Promise.resolve();
+    assert.match(rows[0].text, /^Contents of .*chest:$/);
+    assert.equal(rows[1].text, '');
+    assert.equal(rows[2].text, '(empty)');
+    acknowledge(null);
+    assert.equal(await pending, null);
+    assert.equal(chest.cknown, true);
+});
+
+// invent.c:5403 counts UTF-8 bytes and sizeof "trapped " (including NUL),
+// rather than JS characters. Long called and individual names exercise the
+// guard directly; safe_qbuf() normally shortens them before menu display.
+test('container trap heading honors the C byte-capacity guard', () => {
+    const state = stateFixture();
+    const chest = object(CHEST, state, {
+        cknown: true, lknown: true, otrapped: true,
+        oextra: { oname: '€'.repeat(40) },
+    });
+    // Forty three-byte glyphs make the full name exceed QBUFSZ's spare
+    // capacity while using fewer JS characters than its 128-byte limit.
+    const full = donameFresh(chest, state);
+    assert.ok(encodeUtf8ByteString(full).length + 'trapped '.length + 1 > QBUFSZ);
+    assert.equal(inventoryDisplay.cinv_doname(chest, state), full);
 });

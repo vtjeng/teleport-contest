@@ -102,7 +102,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "Probing a nonempty chest omits the container inventory menu. zap.c:bhito observes every direct child then calls invent.c:display_cinventory; js/zap.js substitutes note_unported and continues into staircase probing. Port the complete cinv_doname/cinv_ansimpleoname/display_cinventory family and await the existing probing caller, reusing canonical safe_qbuf/query_objlist/menu owners.",
+  "summary": "Probing a nonempty chest omits the container inventory menu. zap.c:bhito observes every direct child then calls invent.c:display_cinventory; js/zap.js substitutes note_unported and continues into staircase probing. Port the complete cinv_doname/cinv_ansimpleoname/display_cinventory family and await the existing probing caller, reusing canonical safe_qbuf/query_objlist/menu owners. The alternate name callback inherits minimal_xname temporary state writes, so it is impure; a C-only long-name probe returns through the shortened main formatter and leaves alternate-callback runtime coverage unresolved.",
   "goalKind": "file-port",
   "source": {
     "file": "invent.c",
@@ -121,7 +121,8 @@
       "objnam.c:doname/doname_base and ansimpleoname2446-2474: existing canonical naming owners; preserve trapped-name insertion with C strstri/strsubst semantics, including the source cinv_ansimpleoname nonzero strncmp guards. Test the source results rather than fixing the surprising guards.",
       "pickup.c:query_objlist1025-1215, allow_all517-520 and canonical inventory sorting/menu: INVORDER_SORT/PICK_NONE only. The incomplete INCLUDE_HERO guard is not supplied by this caller. No consumed dependency requires a new implementation in this flag subset.",
       "invent.c:invdisp_nothing5290-5308 already implemented; verify empty-menu heading/blank/(empty)/PICK_NONE order. display_cinventory empty branch has no current external C caller because bhito calls it only for nonempty contents; direct source-pinned coverage preserves that inactive branch.",
-      "Compiled menu cleanup/free ownership is represented by canonical select_menu/query_objlist; preserve return first selected object only when n>0 and cknown assignment after menu acknowledgement."
+      "Compiled menu cleanup/free ownership is represented by canonical select_menu/query_objlist; preserve return first selected object only when n>0 and cknown assignment after menu acknowledgement.",
+      "cinv_ansimpleoname inherits impure temporary catalog writes from objnam.c:minimal_xname1038-1086. Existing source-completion evidence explicitly treats those writes as impure. Runtime proof must reach the conditional short_oname alternate callback; a direct result test cannot close that helper."
     ]
   },
   "evidence": [
@@ -130,7 +131,8 @@
     "Read complete upstream invent.c:cinv_doname5391-5419, cinv_ansimpleoname5423-5441 and display_cinventory5446-5473 at16ff59115315917b93185d026aeefea06db9b0f4; selected C-order range5391-5473. No corresponding JS functions exist; current probing arm explicitly calls note_unported.",
     "Fresh focused replay .cache/B164/confirm.log, bounded run-W4zMvD at current base, emits all63screens but omits the contents menu at48 and instead emits the source post-menu staircase message. RNG already matches; this is missing display behavior, not a random/order defect.",
     "Read active caller WAN_PROBING branch2222-2274 and JS counterpart3055-3094, complete safe_qbuf/short_oname and query_objlist flag paths, and existing invdisp_nothing. Preserve observations before awaited menu, then outer res=1/learnwand and zap_updown continuation after acknowledgement.",
-    "Live reservations exclude A165 wall-mode and A166 probability diagnostic owners and C152 migration. invent.c container-display family and zap.c:bhito probing-display caller seam are unreserved; no diagnostic cmd/wizcmds ownership is needed."
+    "Live reservations exclude A165 wall-mode and A166 probability diagnostic owners and C152 migration. invent.c container-display family and zap.c:bhito probing-display caller seam are unreserved; no diagnostic cmd/wizcmds ownership is needed.",
+    "Independent C-only long-named trapped-box probe recipes/invent.c/probing-alternate-name-shortening-blocked.session.json reaches a contents menu atsegment0step123 that retains named text. Source short_oname truncates the long individual name before retrying cinv_doname; cinv_ansimpleoname suppresses named text, so this observed heading establishes only the main callback. Keep the alternate callback coverage gap explicit; do not classify it pure or build-inactive."
   ],
   "proposal": {
     "goalId": "port-invent-display-cinventory-v31-20261008",

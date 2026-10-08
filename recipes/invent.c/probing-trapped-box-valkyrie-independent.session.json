@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first invent.c:cinv_doname/cinv_ansimpleoname/display_cinventory witness. Fixed seed, clock, Valkyrie role and chest/large-box trap variation chosen before recording or JS comparison, without a seed search. Debug wishes create ordinary contents; probing down observes direct children and waits on the inventory-style menu. Input letters derive from Valkyrie four-object starting inventory, checked in C before JS comparison.",
+  "segments": [
+    {
+      "seed": 16408012,
+      "datetime": "20410317123715",
+      "nethackrc": "OPTIONS=name:ContainerProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "    \u0017uncursed wand of probing\n\u0017trapped unlocked large box\ndfze>            "
+    }
+  ]
+}
