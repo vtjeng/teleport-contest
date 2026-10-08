@@ -478,15 +478,17 @@ test('a queued synthetic goal can open after its selected case is resolved', t =
     assert.equal(f.goals()[0].syntheticProvenance[session].session, session);
 });
 
-test('a queued source goal can open when its first mismatch moved to later behavior', t => {
+for (const kind of ['file-port', 'divergence-fix']) {
+test(`a queued ${kind} can open when its first mismatch moved to later behavior`, t => {
     const f = fixture(t);
     const { session, queue } = syntheticQueue(f);
-    f.cli('queue-goal', '--id', 'advanced-port', '--kind', 'file-port',
-        '--c-file', 'widget.c', '--sessions', session,
+    f.cli('queue-goal', '--id', 'advanced-port', '--kind', kind,
+        '--c-file', 'widget.c', '--function', 'helper', '--session', session, '--sessions', session,
         '--summary', 'Port the selected source behavior');
     const entry = queue.sessions[0];
     entry.investigation = { status: 'stale' };
     entry.sourceFile = entry.cFile = 'later.c';
+    // One additional matching screen exposes later behavior in the same case.
     entry.previousScreensMatched = 6;
     entry.metrics = { screens: { matched: 7, total: 10 } };
     queue.candidates[0] = { ...entry, sessions: [session] };
@@ -494,15 +496,19 @@ test('a queued source goal can open when its first mismatch moved to later behav
     f.cli('open-goal', '--id', 'advanced-port');
     assert.equal(f.goals()[0].status, 'open');
 });
+}
 
-test('a stale unresolved source case needs measured progress and stable recording identity', t => {
+for (const kind of ['file-port', 'divergence-fix']) {
+test(`a stale ${kind} needs measured progress and stable recording identity`, t => {
     const f = fixture(t);
     const { session, queue } = syntheticQueue(f);
-    f.cli('queue-goal', '--id', 'unadvanced-port', '--kind', 'file-port',
-        '--c-file', 'widget.c', '--sessions', session,
+    f.cli('queue-goal', '--id', 'unadvanced-port', '--kind', kind,
+        '--c-file', 'widget.c', '--function', 'helper', '--session', session, '--sessions', session,
         '--summary', 'Port the selected source behavior');
     const entry = queue.sessions[0];
     entry.investigation = { status: 'stale' };
+    // An unchanged count cannot establish progress; changing the recording
+    // identity must still fail after the count advances by one.
     entry.previousScreensMatched = 6;
     entry.metrics = { screens: { matched: 6, total: 10 } };
     f.json('.cache/queue.json', queue);
@@ -512,6 +518,7 @@ test('a stale unresolved source case needs measured progress and stable recordin
     f.json('.cache/queue.json', queue);
     f.refuses(/investigation is stale/u, 'open-goal', '--id', 'unadvanced-port');
 });
+}
 
 test('a parked synthetic goal can resume after its selected case is resolved', t => {
     const f = fixture(t);
