@@ -494,7 +494,6 @@ export async function dig(state = game, rawEnv = {}) {
                 const { set_wounded_legs } = await import('./do.js');
                 await set_wounded_legs(
                     RIGHT_SIDE,
-    ROT_ORGANIC,
                     5 + random.rnd(5),
                     state,
                     { ...rawEnv, message },
