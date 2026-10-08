@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B161 C-first mission: dat/Kni-goal.lua. Knight uses wizard destination menu to enter Kni-goal, then maps that quest level. Required C observation: Kni-goal quest terrain, arrival and generation; map reveals source layout and role-specific inhabitants. This is forced arrival rather than earning quest permission.. Fixed before own JavaScript comparison; C-only prompt/inventory correction permitted, no seed search. C-only correction before own JS: C-only minimization: same destination selected directly on page two with selector derived from recorded wizard3 index plus source quest ordering; avoid typing full search name.",
+  "segments": [
+    {
+      "seed": 16136014,
+      "datetime": "20390609110721",
+      "nethackrc": "OPTIONS=name:Probe16136014,role:Knight,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizlevelport\n?\n>A                #wizmap\n                "
+    }
+  ]
+}

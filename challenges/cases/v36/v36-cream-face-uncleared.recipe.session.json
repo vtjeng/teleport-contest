@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B161 C-first mission: apply.c:use_cream_pie/use_towel. Apply cream pie to own face then wipe with towel. Required C observation: Face covered in cream, blinded, towel removes goop. Fixed before own JavaScript comparison; C-only prompt/inventory correction permitted, no seed search.",
+  "segments": [
+    {
+      "seed": 16136050,
+      "datetime": "20390609110721",
+      "nethackrc": "OPTIONS=name:Probe16136050,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed cream pie\nae                \u0017uncursed towel\nae                "
+    }
+  ]
+}

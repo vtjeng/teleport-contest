@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B161 C-first mission: potion.c:peffect_polymorph -> polyself.c:polyself. Drink uncursed polymorph as ordinary human. Required C observation: Random form/body transition and equipment reconciliation. Fixed before own JavaScript comparison; C-only prompt/inventory correction permitted, no seed search.",
+  "segments": [
+    {
+      "seed": 16136047,
+      "datetime": "20390609110721",
+      "nethackrc": "OPTIONS=name:Probe16136047,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed potion of polymorph\nqe                "
+    }
+  ]
+}
