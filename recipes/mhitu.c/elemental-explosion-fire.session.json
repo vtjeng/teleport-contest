@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first A145 elemental caller witness. Unsearched seed14528043 and clock20640610142300; Barbarian level20 survives source AT_EXPL, ordinary inventory tests burning/ignition. Source do.c:donull accepts m. forced rest beside a monster. C-only setup verified explosion before any JS comparison. Cheap variation changes only the monster element.",
+  "segments": [
+    {
+      "seed": 14528043,
+      "datetime": "20640610142300",
+      "nethackrc": "OPTIONS=name:SphereFire,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips,!debug_mongen\n",
+      "moves": " #levelchange\n20\n                                                                                \u0007flaming sphere\nm.m.    "
+    }
+  ]
+}

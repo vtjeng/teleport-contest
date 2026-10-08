@@ -32,6 +32,8 @@ import {
     LOST_EXPLODING,
     MON_EXPLODE,
     BURNING_OIL,
+    BURNING,
+    DIED,
     TRAP_EXPLODE,
     PHYS_EXPL_TYPE,
     PLNMSG_CAUGHT_IN_EXPLOSION,
@@ -56,6 +58,7 @@ import { isok } from './cmd_isok.js';
 import { exercise } from './attrib.js';
 import {
     curs_on_u,
+    HeroDeathPlanningError,
     losehp,
     nomul,
     nh_delay_output,
@@ -590,7 +593,7 @@ export async function explode(
 
                 if (!(state.u?.uswallow && !state.context?.mon_moving)) {
                     await zap_over_floor(xx, yy, type, shopdamage,
-                        false, explodingWandTyp, state, random);
+                        false, explodingWandTyp, state, random, env);
                 }
                 const monster = targetAt(xx, yy, state);
                 if (!monster) continue;
@@ -687,7 +690,7 @@ export async function explode(
             await ignite_items(state.invent, { ...env, state, random });
         }
         await destroy_items(state.youmonst, adtyp, dam, { ...env, state, random });
-        await ugolemeffects(adtyp, damu, state);
+        await ugolemeffects(adtyp, damu, state, env);
         if (uhurt === 2) {
             if (grabbing && state.u?.ustuck
                 && dist2(state.u.ustuck.mx, state.u.ustuck.my, x, y) <= 2)
@@ -701,7 +704,7 @@ export async function explode(
         if (uhurt === 1) monstseesu(seenres, state);
         else monstunseesu(seenres, state);
         if (state.u.uhp <= 0 || (Upolyd(state.u) && state.u.mh <= 0)) {
-            if (Upolyd(state.u)) await rehumanize(state);
+            if (Upolyd(state.u)) await rehumanize(state, env);
             else {
                 state.killer ??= { name: '', format: KILLED_BY };
                 state.killer.name = generic ? 'explosion' : str;
@@ -712,11 +715,27 @@ export async function explode(
                 await messageLine(lastMessage === PLNMSG_CAUGHT_IN_EXPLOSION
                     || lastMessage === PLNMSG_TOWER_OF_FLAME
                     ? 'It is fatal.' : `The ${str} is fatal.`, state, env);
-                await done(adtyp === AD_FIRE ? 3 : 0, state, env);
+                const how = adtyp === AD_FIRE ? BURNING : DIED;
+                // done() paints and reads from the live terminal. The typed
+                // planning signal preserves this source death for live replay.
+                if (env.planning) {
+                    if (typeof env.planningDeath === 'function')
+                        throw env.planningDeath(how);
+                    const death = new HeroDeathPlanningError(
+                        state.killer.name, state.killer.format,
+                        { fromMonster: Boolean(state.context?.mon_moving) },
+                    );
+                    death.how = how;
+                    throw death;
+                }
+                await done(how, state, env);
             }
         }
         await exercise(A_STR, false, state, random, {
-            encumberMessage: env.encumberMessage ?? encumber_msg,
+            encumberMessage: env.encumberMessage
+                ?? ((subject) => encumber_msg(subject, {
+                    message: env.planning ? async () => {} : env.message,
+                })),
         });
     }
 
