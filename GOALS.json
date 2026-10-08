@@ -200924,7 +200924,7 @@
     {
       "id": "port-eat-eatmdone-mimic-restoration-v29-20261008",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Restore temporary mimic disguise after eating",
       "cFile": "eat.c",
       "sessions": [
@@ -200932,8 +200932,12 @@
       ],
       "selectionReason": "The complete v29 investigation investigations/synthetic/v29/v29-eat-small-mimic-tin.json identifies eat.c:eatmdone as the highest-priority free source owner: 102 screens remain after the temporary small-mimic disguise fails to clear.",
       "detail": "Port whole eat.c eatmdone and wire both existing cpostfx cleanup and delayed ga.afternmv dispatch. Preserve the separately named windows.c display_nhwindow blocking-map gap and do not claim whole cpostfx completion.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "2e0f5529f5f95dc6aea5fccbe241deab6bcb19da",
+      "openStanding": {
+        "sha": "1cf15831c237fc4d910c6a10ae138e75c4ab5939",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -200962,7 +200966,228 @@
           "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
           "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "1cf15831c237fc4d910c6a10ae138e75c4ab5939",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-eat-small-mimic-tin",
+          "session": "synthetic/v29/v29-eat-small-mimic-tin",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recording": "challenges/cases/v29/v29-eat-small-mimic-tin.session.json",
+          "recordingPath": "challenges/cases/v29/v29-eat-small-mimic-tin.session.json",
+          "recordingSha256": "1f6ebc359511986856842725ed7764b5e51a012d5580c9506fcf4a88b0a6e8d6",
+          "recipe": "challenges/cases/v29/v29-eat-small-mimic-tin.recipe.session.json",
+          "recipeSha256": "9b17af5db0b3447752d8f598869859e48e9c7377670afc13c95eabdc5454fa0c",
+          "replayInputSha256": "2f716c76481f10782274c998b90b8a1bd1e9ed0b7ea820e14a2f83d02b834acb",
+          "evaluationPath": "challenges/evaluations/accepted-1cf15831c237fc4d910c6a10ae138e75c4ab5939-v29.json",
+          "evaluationCommit": "1cf15831c237fc4d910c6a10ae138e75c4ab5939",
+          "evaluationArtifact": "challenges/evaluations/accepted-1cf15831c237fc4d910c6a10ae138e75c4ab5939-v29.json",
+          "evaluationUtc": "2026-10-08T05:21:34.693Z",
+          "remainingScreens": 102,
+          "recordedSteps": 143,
+          "previousScreensMatched": 41,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 41,
+              "total": 143
+            },
+            "rng": {
+              "matched": 2846,
+              "total": 3110
+            },
+            "cursors": {
+              "matched": 143,
+              "total": 143
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 41,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 41,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 12,
+              "column": 17,
+              "cCell": {
+                "ch": "@",
+                "color": 15,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "$",
+                "color": 11,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2804,
+              "cEntry": "rn2(5)=4",
+              "cCaller": "distfleeck(monmove.c:538)",
+              "jsEntry": "rn2(1)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 45,
+                "key": "."
+              },
+              "stepIndex": 45
+            },
+            "cursor": null
+          },
+          "step": 41,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v29/v29-eat-small-mimic-tin.json",
+            "result": {
+              "session": "synthetic/v29/v29-eat-small-mimic-tin",
+              "corpus": "synthetic",
+              "batch": "v29",
+              "caseId": "v29-eat-small-mimic-tin",
+              "remainingScreens": 102,
+              "recordedSteps": 143,
+              "status": "complete",
+              "commit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v29",
+                "caseId": "v29-eat-small-mimic-tin",
+                "session": "synthetic/v29/v29-eat-small-mimic-tin",
+                "manifestPath": "challenges/manifests/v29.json",
+                "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+                "recording": "challenges/cases/v29/v29-eat-small-mimic-tin.session.json",
+                "recordingPath": "challenges/cases/v29/v29-eat-small-mimic-tin.session.json",
+                "recordingSha256": "1f6ebc359511986856842725ed7764b5e51a012d5580c9506fcf4a88b0a6e8d6",
+                "recipe": "challenges/cases/v29/v29-eat-small-mimic-tin.recipe.session.json",
+                "recipeSha256": "9b17af5db0b3447752d8f598869859e48e9c7377670afc13c95eabdc5454fa0c",
+                "replayInputSha256": "e5f00e598a85ca13d8684094f15ff96b4fa92b3f2a1f80b1b65b10b36ca16403",
+                "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+                "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+                "evaluationArtifact": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+                "evaluationUtc": "2026-10-08T05:02:17.323Z",
+                "remainingScreens": 102,
+                "recordedSteps": 143,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 41,
+                    "total": 143
+                  },
+                  "rng": {
+                    "matched": 2846,
+                    "total": 3110
+                  },
+                  "cursors": {
+                    "matched": 143,
+                    "total": 143
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 41,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 41,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 12,
+                    "column": 17,
+                    "cCell": {
+                      "ch": "@",
+                      "color": 15,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "$",
+                      "color": 11,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2804,
+                    "cEntry": "rn2(5)=4",
+                    "cCaller": "distfleeck(monmove.c:538)",
+                    "jsEntry": "rn2(1)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 45,
+                      "key": "."
+                    },
+                    "stepIndex": 45
+                  },
+                  "cursor": null
+                },
+                "step": 41,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The source owner is eat.c. cpostfx(PM_SMALL_MIMIC) starts the temporary gold disguise, schedules eatmdone to restore the hero glyph, and blocks on display_nhwindow(WIN_MAP, TRUE). JavaScript leaves both eatmdone and the map display as note_unported gaps. The saved comparison first differs in animation grouping at step 40 (C 0 frames, JavaScript 3), then in the first scored screen at step 41: C shows @ and JavaScript shows $ at row 12, column 17. RNG first diverges later at step 45 in distfleeck().",
+              "source": {
+                "file": "eat.c",
+                "branch": "After consuming a tin containing PM_SMALL_MIMIC, when the hero is not a mimic and lacks Unchanging, cpostfx() applies a 20-turn object disguise as gold (or an orange while hallucinating), stores the restoration message, and schedules eatmdone() to clear the disguise when the multi ends or stale mimic state is cleaned up.",
+                "functions": [
+                  "cpostfx",
+                  "eatmdone"
+                ],
+                "callers": [
+                  "consume_tin() (eat.c:1610-1614) calls cpostfx() after cprefx() while the tin remains in context; the assigned case reaches it through doeat() -> start_tin() -> opentin().",
+                  "done_eating() (eat.c:562-565) calls cpostfx() for corpse and globby meals; the JavaScript caller is js/eat.js:3445-3448.",
+                  "Finish_digestion() (eat.c:3958-3967) calls cpostfx() after digesting a corpse; the JavaScript caller is js/eat.js:2798-2804.",
+                  "cpostfx() (eat.c:1135-1138) calls eatmdone() to clean up an existing disguise, and (eat.c:1217) assigns it to ga.afternmv; hack.c:unmul() (4200-4205) dispatches that callback after the multi ends."
+                ],
+                "dependencies": [
+                  "windows.c display_nhwindow: cpostfx() calls display_nhwindow(WIN_MAP, TRUE) at eat.c:1224 to flush and wait for the gold disguise; js/eat.js:2668 currently records note_unported('windows.c display_nhwindow'), matching the separate step-40 animation-frame discrepancy."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "C source at nethack-c/upstream/src/eat.c:1610-1614 wires consume_tin() to cpostfx() after cprefx(); the recorded case opens and consumes a blessed small-mimic-meat tin.",
+                "C source at nethack-c/upstream/src/eat.c:1135-1138 calls eatmdone() when ge.eatmbuf is already set. At :1195-1224, the PM_SMALL_MIMIC branch sets a 20-turn multi, saves ge.eatmbuf/gn.nomovemsg, assigns ga.afternmv=eatmdone, sets M_AP_OBJECT/GOLD_PIECE, redraws the hero, positions the cursor, and calls display_nhwindow(WIN_MAP, TRUE).",
+                "C source at nethack-c/upstream/src/eat.c:163-176 defines eatmdone(): it releases ge.eatmbuf, clears gn.nomovemsg when it points to that buffer, resets m_ap_type to M_AP_NOTHING when needed, and redraws the hero. JavaScript has no eatmdone() implementation: js/eat.js:2550-2552 and :2663 retain note_unported('eat.c eatmdone') at the cleanup and delayed-callback sites.",
+                "JavaScript source at js/eat.js:1127 wires the tin path to cpostfx(). Its PM_SMALL_MIMIC branch at :2661-2668 sets the same disguise and callback but substitutes note_unported() for both eatmdone and windows.c display_nhwindow.",
+                "Saved C/JavaScript diagnostic: challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json, case v29-eat-small-mimic-tin, records 41/143 matching screens and first screen mismatch at segment 0 step 41, key space, row 12 column 17 (C @, JS $); first RNG divergence at step 45 is rn2(5)=4 vs rn2(1)=0 at distfleeck(monmove.c:538). The case source trace distinguishes the earlier animation grouping difference at step 40 (C 0 frames, JS 3) from the scored screen mismatch.",
+                "Archived single-case comparison at /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-eat-small-mimic-tin.comparison.json confirms the step-40 animation mismatch, step-41 screen mismatch, step-45 RNG mismatch, and equal 143-screen/143-cursor lengths. This artifact is diagnostic evidence only; no other session was replayed."
+              ],
+              "manifestPath": "challenges/manifests/v29.json",
+              "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+              "recordingSha256": "1f6ebc359511986856842725ed7764b5e51a012d5580c9506fcf4a88b0a6e8d6",
+              "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+              "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0"
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-wizcmds-wiz-kill-v29-20261008",
