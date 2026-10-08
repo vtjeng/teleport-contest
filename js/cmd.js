@@ -282,6 +282,7 @@ import {
 } from './invent.js';
 import {
     doattributes,
+    doborn,
     doconduct,
     do_gamelog,
     dogenocided,
@@ -5268,6 +5269,8 @@ async function doextcmd(key, state) {
         return await runKillCommand(key, state);
     case 'wiz_rumor_check':
         return await wiz_rumor_check(state);
+    case 'doborn':
+        return await doborn(state);
     case 'wiz_smell':
         return await runSmellCommand(key, state);
     case 'wiz_show_seenv':
