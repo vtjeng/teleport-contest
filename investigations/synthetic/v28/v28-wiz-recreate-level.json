@@ -36,7 +36,7 @@
   "sourceFile": "wizcmds.c",
   "message": "unsupported hero command: wiz_makemap() for the extended command 'wizmakemap' is not ported",
   "status": "complete",
-  "commit": "6f880d8ce85dde8e4789f9fd0ac8f1deddc1cab5",
+  "commit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
   "mismatch": {
     "session": "synthetic/v28/v28-wiz-recreate-level",
     "corpus": "synthetic",
@@ -75,7 +75,8 @@
     "sourceFile": "wizcmds.c",
     "message": "unsupported hero command: wiz_makemap() for the extended command 'wizmakemap' is not ported",
     "passed": false,
-    "error": null
+    "error": null,
+    "evaluationArtifact": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json"
   },
   "goalKind": "file-port",
   "summary": "The wizmakemap extended command is selected correctly but cmd.c dispatch refuses its absent wizcmds.c:wiz_makemap owner. Port the whole command and wire direct and queued dispatch; reuse existing map pre/post and generation owners with their named teardown and arrival limits.",

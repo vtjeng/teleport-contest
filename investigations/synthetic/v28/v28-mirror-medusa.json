@@ -9,9 +9,9 @@
   "recordingSha256": "76e09d2b3c02154705367de2cb6b00458b59d378f8567d9f82128b0ab33c0b9a",
   "recipe": "challenges/cases/v28/v28-mirror-medusa.recipe.session.json",
   "recipeSha256": "1171d745ac9bb6705a29a4cb2d982ee27bab2eeb09e8735126108297f61242cd",
-  "evaluationPath": "challenges/evaluations/accepted-e0d0dcd2de84273a7db3e7676a895db314cb98d2-v28.json",
-  "evaluationCommit": "e0d0dcd2de84273a7db3e7676a895db314cb98d2",
-  "evaluationUtc": "2026-10-08T04:01:18.312Z",
+  "evaluationPath": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
+  "evaluationCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+  "evaluationUtc": "2026-10-08T04:24:32.322Z",
   "remainingScreens": 7,
   "recordedSteps": 52,
   "metrics": {
@@ -47,7 +47,7 @@
     }
   },
   "status": "complete",
-  "commit": "e2250db5009cbc173d8283e1460218f2960e4356",
+  "commit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
   "mismatch": {
     "session": "synthetic/v28/v28-mirror-medusa",
     "corpus": "synthetic",
@@ -59,9 +59,9 @@
     "recordingSha256": "76e09d2b3c02154705367de2cb6b00458b59d378f8567d9f82128b0ab33c0b9a",
     "recipe": "challenges/cases/v28/v28-mirror-medusa.recipe.session.json",
     "recipeSha256": "1171d745ac9bb6705a29a4cb2d982ee27bab2eeb09e8735126108297f61242cd",
-    "evaluationPath": "challenges/evaluations/accepted-e0d0dcd2de84273a7db3e7676a895db314cb98d2-v28.json",
-    "evaluationCommit": "e0d0dcd2de84273a7db3e7676a895db314cb98d2",
-    "evaluationUtc": "2026-10-08T04:01:18.312Z",
+    "evaluationPath": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
+    "evaluationCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+    "evaluationUtc": "2026-10-08T04:24:32.322Z",
     "remainingScreens": 7,
     "recordedSteps": 52,
     "metrics": {
@@ -95,7 +95,8 @@
         "stepIndex": 45,
         "key": "j"
       }
-    }
+    },
+    "evaluationArtifact": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json"
   },
   "goalKind": "divergence-fix",
   "summary": "apply.c:use_mirror skips killed() after reflected Medusa petrification. JavaScript leaves Medusa alive and gs.stoned set, omits the kill/statue/experience effects, and reaches monster movement before C’s obj_resists draw at step45. Wire the existing canonical killed -> xkilled -> monstone path at this source caller; broader death ownership remains separate.",

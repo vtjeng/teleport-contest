@@ -7,9 +7,9 @@
   "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
   "recordingPath": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
   "recordingSha256": "1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54",
-  "evaluationPath": "challenges/evaluations/accepted-e0d0dcd2de84273a7db3e7676a895db314cb98d2-v28.json",
-  "evaluationCommit": "e0d0dcd2de84273a7db3e7676a895db314cb98d2",
-  "evaluationUtc": "2026-10-08T04:01:18.312Z",
+  "evaluationPath": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
+  "evaluationCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+  "evaluationUtc": "2026-10-08T04:24:32.322Z",
   "remainingScreens": 9,
   "recordedSteps": 85,
   "metrics": {
@@ -31,7 +31,7 @@
   "kind": "refusal",
   "message": "burial requires buried_ball_to_punishment for otyp 477",
   "status": "complete",
-  "commit": "ccc19e7876bac50f265d456eca0c7ee87a543f01",
+  "commit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
   "mismatch": {
     "session": "synthetic/v28/v28-buried-ball-unearth",
     "corpus": "synthetic",
@@ -41,9 +41,9 @@
     "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
     "recordingPath": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
     "recordingSha256": "1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54",
-    "evaluationPath": "challenges/evaluations/accepted-e0d0dcd2de84273a7db3e7676a895db314cb98d2-v28.json",
-    "evaluationCommit": "e0d0dcd2de84273a7db3e7676a895db314cb98d2",
-    "evaluationUtc": "2026-10-08T04:01:18.312Z",
+    "evaluationPath": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
+    "evaluationCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+    "evaluationUtc": "2026-10-08T04:24:32.322Z",
     "remainingScreens": 9,
     "recordedSteps": 85,
     "metrics": {
@@ -63,7 +63,8 @@
     "passed": false,
     "step": 76,
     "kind": "refusal",
-    "message": "burial requires buried_ball_to_punishment for otyp 477"
+    "message": "burial requires buried_ball_to_punishment for otyp 477",
+    "evaluationArtifact": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json"
   },
   "goalKind": "file-port",
   "summary": "Missing dig.c:buried_ball_to_punishment leaves the buried tether unchanged before downward digging; maketrap then reaches unearth_objs and refuses the same restoration. Port whole punishment restoration with source-required read.c:punish reuse-ball behavior and whole unearth_objs, preserving awaited ordering and every active caller frontier.",
