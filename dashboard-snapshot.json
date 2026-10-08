@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T09:52:42.848Z",
+  "capturedAt": "2026-10-08T10:02:50.037Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -27267,12 +27267,76 @@
         "type": "accepted",
         "at": "2026-10-08T09:50:29.294Z",
         "task": "B150"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B150-47b27c214",
+        "type": "published",
+        "at": "2026-10-08T09:53:14.170Z",
+        "task": "B150",
+        "commit": "47b27c21497425ff73c5e58eae35e0526a45a8bf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B151-levitation-e34273a6-20261008",
+        "type": "implement",
+        "at": "2026-10-08T09:53:46.902Z",
+        "task": "B151",
+        "goal": "port-potion-peffect-levitation-v29-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A152-9855f024",
+        "type": "integrating",
+        "at": "2026-10-08T09:54:29.253Z",
+        "task": "A152",
+        "integration": "9855f02407cdfd2171190f79fb09ffc5a2547679"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-52f32bcc3e5bbd386e2ddbf0634414252fdfc4ef",
+        "type": "ready",
+        "at": "2026-10-08T09:56:43.371Z",
+        "task": "A153",
+        "delivery": "52f32bcc3e5bbd386e2ddbf0634414252fdfc4ef"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A153-52f32bcc",
+        "type": "received",
+        "at": "2026-10-08T09:57:27.843Z",
+        "task": "A153",
+        "delivery": "52f32bcc3e5bbd386e2ddbf0634414252fdfc4ef"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A154-eyes-investigation-7872b79d",
+        "type": "assign",
+        "at": "2026-10-08T09:58:35.455Z",
+        "task": "A154",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A152-9855f02407cdfd2171190f79fb09ffc5a2547679-validated",
+        "type": "validated",
+        "at": "2026-10-08T10:01:01.390Z",
+        "task": "A152",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A152-9855f02407cdfd2171190f79fb09ffc5a2547679-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T10:02:36.718Z",
+        "task": "A152"
       }
     ]
   },
   "development": {
-    "executionCommit": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8",
-    "measuredAt": "2026-10-08T09:48:03.370Z",
+    "executionCommit": "9855f02407cdfd2171190f79fb09ffc5a2547679",
+    "measuredAt": "2026-10-08T09:58:46.403Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

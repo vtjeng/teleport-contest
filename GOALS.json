@@ -207280,7 +207280,7 @@
     {
       "id": "port-lock-doopen-indir-whole-v29-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port whole directional door opening and preserve automatic-open command behavior",
       "cFile": "lock.c",
       "sessions": [
@@ -207294,15 +207294,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9855f02407cdfd2171190f79fb09ffc5a2547679",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "doopen_indir",
           "line": 780,
           "endLine": 925,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -207475,7 +207478,109 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "doopen_indir",
+            "implementation": "js/lock.js",
+            "symbol": "doopen_indir",
+            "sourceReview": "Read complete lock.c:doopen_indir780-921. Preserve nohands and pit/container direction ordering, self/up/down doloot return, awaited accepted door-mimic return, Confusion/Stunned turn result, remembered-glyph/mapseen learning, drawbridge/non-door/container messages, whole-mask switch with its default locked flag, autokey short-circuit and pick_lock consumed result, mounted ynq suppression, canonical ynq repeat-answer recording, source-ordered extcmd+signed-direction canned kick returning ECMD_OK, verysmall refusal, integer folded-Strength threshold and rnl20, trap damage before D_NODOOR, feel_newsym then recalc_block_point, and failure exercise before message. Canonical consumed-return dependencies nohands/get_adjacent_loc/container_at/closed_door/doloot/stumble_on_door_mimic/property/drawbridge/mapseen/autokey/pick_lock/yn_function/ext_func_tab_from_func/verysmall/acurrstr/acurr/rnl/in_rooms reuse existing source owners. Read existing cmd queue/ynq helpers and whole autokey/pick_lock/b_trapped source/port; use the extcmd table row rather than a callback stand-in. Remove both D_TRAPPED and AUTOUNLOCK_KICK refusals and obsolete private switch helper; keep UnsupportedLockError for unrelated forcelock. Source-discarded shk.c:add_damage at C911 remains note_unported, without invented shop effects. No whole trap/mimic/cmd/hack/loot/shop credit.",
+            "callers": [
+              {
+                "path": "js/lock.js",
+                "symbol": "doopen",
+                "source": "lock.c775 calls doopen_indir(0,0); cmd.c extcmdlist open row and rhack/doextcmd invoke doopen, whose return is consumed unchanged. Explicit o and #open witnesses match."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "test_move",
+                "source": "hack.c1099-1105 awaits doopen_indir(x,y), consumes ECMD_OK and cmdq_peek canonical dokick row to hand the canned kick to the next command; otherwise reads !closed_door and sets context.move from position change. Existing runtime path reused; obsolete dependency comment corrected. Autoopen trap/ordinary/kick witnesses match."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/lock.test.mjs",
+              "scripts/closed-door-autoopen.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/hack.test.mjs",
+              "scripts/command-queue.test.mjs",
+              "scripts/apply-lock-pick.test.mjs",
+              "scripts/lock-pick-lock.test.mjs",
+              "scripts/force-lock.test.mjs",
+              "scripts/diagonal-doorway.test.mjs"
+            ],
+            "recordings": [
+              "recordings/lock.c/open-door-explicit-trap.session.json",
+              "recordings/lock.c/open-door-auto-trap.session.json",
+              "recordings/lock.c/open-door-auto-ordinary.session.json",
+              "recordings/lock.c/open-door-auto-kick.session.json",
+              "recordings/lock.c/open-door-explicit-extended.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-open-trapped-door",
+                "segment": 0,
+                "fromStep": 36,
+                "throughStep": 55,
+                "source": "cmd.c rhack open -> lock.c doopen773-776 -> doopen_indir780-921, successful trapped pull904-916 -> trap.c b_trapped6694-6709, then removed door and restored vision."
+              }
+            ],
+            "checkedAt": "9855f02407cdfd2171190f79fb09ffc5a2547679"
+          }
+        ],
+        "entryPointReview": "All active entries into the whole source function are wired: explicit open via rhack/doextcmd -> doopen; and automatic movement via hack.c:test_move. Independent C-first o, #open (!autoopen), plain/trapped walking and missing-key+kick witnesses match strictly, including the queued command execution. The selected admitted explicit trap range also matches through the final step55. Existing canonical doloot redirect, mimic, autokey and pick_lock callbacks are reused, covered by their source-pinned focused tests and accepted owner evidence; no new owner credit. Shop add_damage is a named discarded-void gap allowed by the source port rule.",
+        "entryPoints": [
+          {
+            "name": "explicit open command and extended open dispatcher",
+            "functions": [
+              "doopen_indir"
+            ],
+            "recordings": [
+              "recordings/lock.c/open-door-explicit-trap.session.json",
+              "recordings/lock.c/open-door-explicit-extended.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-open-trapped-door",
+                "segment": 0,
+                "fromStep": 36,
+                "throughStep": 55,
+                "source": "cmd.c rhack open -> lock.c doopen773-776 -> doopen_indir780-921, successful trapped pull904-916 -> trap.c b_trapped6694-6709, then removed door and restored vision."
+              }
+            ]
+          },
+          {
+            "name": "walking automatic open",
+            "functions": [
+              "doopen_indir"
+            ],
+            "recordings": [
+              "recordings/lock.c/open-door-auto-trap.session.json",
+              "recordings/lock.c/open-door-auto-ordinary.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "walking missing-key autounlock and canned kick",
+            "functions": [
+              "doopen_indir"
+            ],
+            "recordings": [
+              "recordings/lock.c/open-door-auto-kick.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9855f02407cdfd2171190f79fb09ffc5a2547679",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
