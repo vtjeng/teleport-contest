@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T18:00:24.909Z",
+  "capturedAt": "2026-10-08T18:14:14.879Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -65789,12 +65789,85 @@
         "task": "Prep1",
         "phase": "review",
         "reason": "Approved a reduced 10-case v37 preparation after an extensive distinct-candidate search produced 10 qualifying mismatches; final replay and overlap packaging is in progress."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A159-c9898e393-20261008",
+        "type": "published",
+        "at": "2026-10-08T18:01:54.331Z",
+        "task": "A159",
+        "commit": "c9898e393c0a56a52021287549c7a49062f1e9bc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-accepted-A159-synced-idle",
+        "type": "turn",
+        "at": "2026-10-08T18:02:36.715Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A159 is accepted and synced. A160 remains submitted for integration; completed later investigations await the older B162 task’s shared command dispatcher."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A160-f93c4e5e3-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T18:05:16.364Z",
+        "task": "A160",
+        "integration": "f93c4e5e3bebe7454755e07745e9e03d7f7e85a0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-07a7613c9c9855de0cb1db8c681cf95b5c466b6d",
+        "type": "ready",
+        "at": "2026-10-08T18:07:06.489Z",
+        "task": "Prep1",
+        "delivery": "07a7613c9c9855de0cb1db8c681cf95b5c466b6d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A160-fd0c960c3-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T18:07:23.410Z",
+        "task": "A160",
+        "integration": "fd0c960c3088c7db9177d7fdac93295af563489a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-Prep1-07a7613c9-20261008",
+        "type": "received",
+        "at": "2026-10-08T18:09:44.074Z",
+        "task": "Prep1",
+        "delivery": "07a7613c9c9855de0cb1db8c681cf95b5c466b6d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep1-packet-review-20261008",
+        "type": "activity",
+        "at": "2026-10-08T18:09:46.838Z",
+        "task": "Prep1",
+        "phase": "review",
+        "reason": "Reviewed the reduced five-case v37 packet: committed file hashes and independent C replay logs match; overlap evidence excludes the unresolved v36 Lua shuffle duplicates."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A160-fd0c960c3088c7db9177d7fdac93295af563489a-validated",
+        "type": "validated",
+        "at": "2026-10-08T18:12:16.578Z",
+        "task": "A160",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A160-fd0c960c3088c7db9177d7fdac93295af563489a-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T18:14:00.295Z",
+        "task": "A160"
       }
     ]
   },
   "development": {
-    "executionCommit": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895",
-    "measuredAt": "2026-10-08T17:56:52.690Z",
+    "executionCommit": "fd0c960c3088c7db9177d7fdac93295af563489a",
+    "measuredAt": "2026-10-08T18:11:28.552Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
