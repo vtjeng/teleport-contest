@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T05:30:24.679Z",
+  "capturedAt": "2026-10-08T05:50:29.606Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -26497,12 +26497,77 @@
         "at": "2026-10-08T05:30:05.191Z",
         "task": "B147",
         "delivery": "8ffcb93f6fb38de975a83ad103a7f63e1f342ddf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C142-2e0f5529",
+        "type": "published",
+        "at": "2026-10-08T05:31:47.821Z",
+        "task": "C142",
+        "commit": "2e0f5529f5f95dc6aea5fccbe241deab6bcb19da"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-637a11849049c114f1b704e5dac69b57463e9d6b",
+        "type": "ready",
+        "at": "2026-10-08T05:34:52.807Z",
+        "task": "A146",
+        "delivery": "637a11849049c114f1b704e5dac69b57463e9d6b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B147-be1d7b43",
+        "type": "integrating",
+        "at": "2026-10-08T05:35:50.726Z",
+        "task": "B147",
+        "integration": "be1d7b43058b9973167448f8562c136850501400"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-A146-637a1184",
+        "type": "received",
+        "at": "2026-10-08T05:35:53.128Z",
+        "task": "A146",
+        "delivery": "637a11849049c114f1b704e5dac69b57463e9d6b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B147-be1d7b43058b9973167448f8562c136850501400-validated",
+        "type": "validated",
+        "at": "2026-10-08T05:42:00.914Z",
+        "task": "B147",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-720dbea5d43675772eeec8ebb2917a52a14d6672",
+        "type": "ready",
+        "at": "2026-10-08T05:43:15.807Z",
+        "task": "C143",
+        "delivery": "720dbea5d43675772eeec8ebb2917a52a14d6672"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B147-be1d7b43058b9973167448f8562c136850501400-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T05:43:46.183Z",
+        "task": "B147"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B148-705510cc-20261008",
+        "type": "assign",
+        "at": "2026-10-08T05:49:21.905Z",
+        "task": "B148",
+        "worker": "B",
+        "goal": "port-detect-reveal-terrain-v29-20261008",
+        "kind": "implementation"
       }
     ]
   },
   "development": {
-    "executionCommit": "1cf15831c237fc4d910c6a10ae138e75c4ab5939",
-    "measuredAt": "2026-10-08T05:23:38.467Z",
+    "executionCommit": "be1d7b43058b9973167448f8562c136850501400",
+    "measuredAt": "2026-10-08T05:41:03.197Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -200924,7 +200924,7 @@
     {
       "id": "port-eat-eatmdone-mimic-restoration-v29-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore temporary mimic disguise after eating",
       "cFile": "eat.c",
       "sessions": [
@@ -200938,15 +200938,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "be1d7b43058b9973167448f8562c136850501400",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "eatmdone",
           "line": 163,
           "endLine": 180,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -201187,7 +201190,61 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "eatmdone",
+            "implementation": "js/eat.js",
+            "symbol": "eatmdone",
+            "sourceReview": "Read complete eat.c163-176, immediate cpostfx1135-1138 and delayed cpostfx1215-1224, plus hack.c:unmul4176-4208 and existing JS dispatcher. Preserve non-null eatmbuf guard, shared nomovemsg alias clear before releasing eatmbuf, nonzero U_AP_TYPE guard, M_AP_NOTHING store before newsym, unchanged mappearance, and literal zero return. No RNG or message is added. This helper is impure because it changes shared state and repaints the hero. JS eatmbuf and nomovemsg retain the existing shared string representation. Replace both eatmdone placeholders; cpostfx immediate call discards zero, and afternmv uses canonical function identity. Existing hack.js unmul clears afternmv before awaiting f(state), so no dispatcher edit is needed. newsym is the existing whole display owner; its returned value is discarded. C free has no separately ported game behavior. Preserve windows.c:display_nhwindow blocking map window and dismount_steed as existing cpostfx gaps outside selected helper credit.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "cpostfx",
+                "source": "eat.c1135-1138 immediately invokes eatmdone when an older restoration buffer exists; eat.c1217 assigns the canonical callback for PM_SMALL_MIMIC, PM_LARGE_MIMIC and PM_GIANT_MIMIC. Existing consume_tin, done_eating and Finish_digestion invoke cpostfx in production."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "unmul",
+                "source": "hack.c4200-4205 invokes ga.afternmv after clearing it; JS unmul already awaits f(state), reached through allmain.c elapsed negative multi expiry. No hack.c completion credit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat.test.mjs",
+              "scripts/eat-corpse.test.mjs",
+              "scripts/eat-tin.test.mjs",
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/hack.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/mimic-tin-blind.session.json",
+              "recordings/eat.c/mimic-large-tin-blind.session.json"
+            ],
+            "sourceFile": "eat.c",
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-eat-small-mimic-tin",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 142,
+                "source": "eat.c:consume_tin -> cpostfx1215-1224 assigns eatmdone; allmain.c elapsed immobility -> hack.c:unmul4200-4205 clears callback then invokes eat.c:eatmdone163-176, restoring the hero glyph from step41 onward. Every scored screen, cursor, input and RNG call matches through final step142. The separate windows.c:display_nhwindow frame grouping discrepancy at step40 remains explicitly excluded."
+              }
+            ],
+            "checkedAt": "be1d7b43058b9973167448f8562c136850501400"
+          }
+        ],
+        "entryPointReview": "Helper-only range: eatmdone adds no command or action entry. Both C caller sites are reconciled in cpostfx: direct cleanup of a preexisting buffer (source-pinned and constructed alias/type tests), and afternmv assignment consumed by existing hack.c:unmul. The ordinary eating-tin command family independently executes consume_tin -> cpostfx -> unmul -> eatmdone in small/large blindfold variations, with complete strict screen/RNG/cursor/animation equality. The admitted visible small-mimic tin gives the scored matching restoration range. Existing corpse done_eating and polymorphed Finish_digestion paths call the same cpostfx; no whole cpostfx, eating, digestion or unmul credit is claimed. Visible corpse recording reaches the helper but is retained as a blocked recipe because the explicitly excluded blocking map window groups animation frames differently. The monster-interrupted large-mimic probe is blocked by monmove.c:distfleeck hero-disguise admission before restoration; no monster-action scope expansion.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "be1d7b43058b9973167448f8562c136850501400",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-wizcmds-wiz-kill-v29-20261008",
@@ -201272,6 +201329,63 @@
           "recordingSha256": "1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54",
           "evaluationPath": "challenges/evaluations/accepted-1cf15831c237fc4d910c6a10ae138e75c4ab5939-v28.json",
           "evaluationCommit": "1cf15831c237fc4d910c6a10ae138e75c4ab5939"
+        }
+      }
+    },
+    {
+      "id": "port-detect-reveal-terrain-v29-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete terrain projection subsets and restore the ordinary map",
+      "cFile": "detect.c",
+      "sessions": [
+        "synthetic/v29/v29-terrain-projection-objects"
+      ],
+      "selectionReason": "Continue from accepted B147 using an independent v29 case with 7 of 39 screens unmatched. Complete the source projection pair rather than patching only the object flag; bounded cmd.c:doterrain choices 1-4 provide the production caller while wizard choices remain separate owners.",
+      "detail": "The accepted be1d7b43 evaluation still refuses terrain menu choice 3 before detect.c projection. C passes TER_MAP|TER_TRP|TER_OBJ, preserves remembered objects and known traps while removing monsters, browses, and restores the ordinary map without spending time.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "reveal_terrain_getglyph",
+          "line": 2167,
+          "endLine": 2293,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "dump_map",
+          "line": 2294,
+          "endLine": 2355,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "reveal_terrain",
+          "line": 2356,
+          "endLine": 2419,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2167,
+        "to": 2419
+      },
+      "syntheticProvenance": {
+        "synthetic/v29/v29-terrain-projection-objects": {
+          "session": "synthetic/v29/v29-terrain-projection-objects",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-terrain-projection-objects",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-terrain-projection-objects.session.json",
+          "recordingSha256": "0c1c7929ab931001134d5b68730fbf76cfabd78cad10477b6d47118a68dfa08d",
+          "evaluationPath": "challenges/evaluations/accepted-be1d7b43058b9973167448f8562c136850501400-v29.json",
+          "evaluationCommit": "be1d7b43058b9973167448f8562c136850501400"
         }
       }
     }
