@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T20:39:27.442Z",
+  "capturedAt": "2026-10-08T20:55:58.521Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -66763,12 +66763,206 @@
         "at": "2026-10-08T20:39:23.642Z",
         "task": "A168",
         "commit": "2ee4e709490102a8f75961a4e186cdfe34951bbc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C152-report-review-20261008",
+        "type": "activity",
+        "at": "2026-10-08T20:40:21.834Z",
+        "task": "C152",
+        "phase": "review",
+        "reason": "Importing the completed migration diagnosis and opening its source task for worker C."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A170-delivery-wait-20261008",
+        "type": "activity",
+        "at": "2026-10-08T20:42:50.733Z",
+        "task": "A170",
+        "phase": "waiting",
+        "reason": "Waiting for worker A to finish its fully matching telekinesis delivery while workers B and C continue independent source tasks."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-06fea9a4fbc262b29bbf41e1f3247279b8701a86",
+        "type": "ready",
+        "at": "2026-10-08T20:43:23.955Z",
+        "task": "A170",
+        "delivery": "06fea9a4fbc262b29bbf41e1f3247279b8701a86"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A170-06fea9a4",
+        "type": "received",
+        "at": "2026-10-08T20:44:05.619Z",
+        "task": "A170",
+        "delivery": "06fea9a4fbc262b29bbf41e1f3247279b8701a86"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "review-A170-06fea9a4",
+        "type": "activity",
+        "at": "2026-10-08T20:44:06.545Z",
+        "task": "A170",
+        "phase": "review",
+        "reason": "Reviewing the telekinesis source port, caller wiring, and matching C recordings before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A171-skill-tab-columns-investigation-20261008",
+        "type": "assign",
+        "at": "2026-10-08T20:44:08.663Z",
+        "task": "A171",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A171-skill-tab-columns-investigation-20261008",
+        "type": "turn",
+        "at": "2026-10-08T20:44:09.786Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating skill-menu column presentation from C source."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C152-20261008",
+        "type": "implement",
+        "at": "2026-10-08T20:45:14.796Z",
+        "task": "C152",
+        "goal": "port-wizcmds-migrate-monsters-family-v31-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C152-implementation-20261008",
+        "type": "turn",
+        "at": "2026-10-08T20:45:31.038Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A170-2f52799b",
+        "type": "integrating",
+        "at": "2026-10-08T20:47:17.456Z",
+        "task": "A170",
+        "integration": "2f52799b8e966edcf64b8a93efcfabe527adb0e6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B166-implementation-final-20261008",
+        "type": "turn",
+        "at": "2026-10-08T20:47:19.137Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B166 terrain map and legend: both admitted cases match; final independent checks and evidence packaging."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A171-skill-tab-columns-20261008",
+        "type": "implement",
+        "at": "2026-10-08T20:47:25.457Z",
+        "task": "A171",
+        "goal": "fix-weapon-menu-tab-columns-v31-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b033d5e4809f6f5cea1d739621017a552001c404",
+        "type": "ready",
+        "at": "2026-10-08T20:50:09.728Z",
+        "task": "B166",
+        "delivery": "b033d5e4809f6f5cea1d739621017a552001c404"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B166-b033d5e4",
+        "type": "received",
+        "at": "2026-10-08T20:50:37.112Z",
+        "task": "B166",
+        "delivery": "b033d5e4809f6f5cea1d739621017a552001c404"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "review-B166-b033d5e4",
+        "type": "activity",
+        "at": "2026-10-08T20:50:38.024Z",
+        "task": "B166",
+        "phase": "review",
+        "reason": "Reviewing the terrain map and legend delivery while A170 hosted validation completes."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4dab0fd59aee626e173d7272974a4f0e6d92e531",
+        "type": "ready",
+        "at": "2026-10-08T20:51:30.861Z",
+        "task": "A171",
+        "delivery": "4dab0fd59aee626e173d7272974a4f0e6d92e531"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B167-shield-insight-20261008",
+        "type": "assign",
+        "at": "2026-10-08T20:51:33.009Z",
+        "task": "B167",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B167-investigation-20261008",
+        "type": "turn",
+        "at": "2026-10-08T20:51:34.859Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B167 investigates the wielded-shield insight mismatch while B166 awaits integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A172-custom-glyphs-investigation-20261008",
+        "type": "assign",
+        "at": "2026-10-08T20:52:07.780Z",
+        "task": "A172",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A172-custom-glyphs-investigation-20261008",
+        "type": "turn",
+        "at": "2026-10-08T20:52:08.859Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating custom-glyph diagnostic source and return dependencies."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A170-2f52799b",
+        "type": "validated",
+        "at": "2026-10-08T20:52:37.990Z",
+        "task": "A170",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B167-weapon-insight-20261008",
+        "type": "implement",
+        "at": "2026-10-08T20:55:06.077Z",
+        "task": "B167",
+        "goal": "port-insight-weapon-insight-v31-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A170-2f52799b8e966edcf64b8a93efcfabe527adb0e6-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T20:55:34.825Z",
+        "task": "A170"
       }
     ]
   },
   "development": {
-    "executionCommit": "2ee4e709490102a8f75961a4e186cdfe34951bbc",
-    "measuredAt": "2026-10-08T20:39:02.046Z",
+    "executionCommit": "2f52799b8e966edcf64b8a93efcfabe527adb0e6",
+    "measuredAt": "2026-10-08T20:51:51.074Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -215500,7 +215500,7 @@
     {
       "id": "port-wizcmds-wiz-telekinesis-v31-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the wizard telekinesis target loop and command dispatcher",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -215515,15 +215515,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2f52799b8e966edcf64b8a93efcfabe527adb0e6",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_telekinesis",
           "line": 494,
           "endLine": 533,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -215834,7 +215837,83 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_telekinesis",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_telekinesis",
+            "sourceReview": "Read whole wizcmds.c494–528 (35 lines, closing brace checked directly). Initialize cc to hero once; announce before do-while. Force TRUE getpos consumes answer before x<1, preserving coordinate between calls. Assign m_at before canspotmon; OR hero-square test admits an existing hidden monster pointer without clearing it. getdir false cancels before movement. Existing canonical mhurtle receives target, dx/dy and fixed6; then !DEADMONSTER hp>=1 and canspotmon guard coordinate refresh in that order. Hero-only path calls existing hurtle(...,6,FALSE), then copies updated hero position. UTOTYPE_NONE is zero; any deferred level transition terminates with ECMD_OK. No invented RNG, output or state effects. Canonical consumed getpos/getdir and m_at/canspotmon/u_at bodies inspected; normal keyboard targeting/direction/cancellation behavior is source-backed. Existing void mhurtle/hurtle source owners and callback/trap paths inspected, called in awaited source order, with no new ownership credit. Unit fixture operation overrides only exercise control-flow branches; production defaults always call canonical owners. No unported result or injected placeholder consumed in selected function.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c1996–1997 extcmdlist wiztelekinesis IFBURIED|AUTOCOMPLETE|WIZMODECMD reaches existing rhack/doextcmd and newly awaited helper arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-telekinesis.test.mjs",
+              "scripts/dothrow.test.mjs",
+              "scripts/getpos-cycle.test.mjs",
+              "scripts/getpos-show-valid.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/wizcmds.test.mjs",
+              "scripts/extended-command-prompt.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-telekinesis-newt.session.json",
+              "recordings/wizcmds.c/wizard-telekinesis-giant.session.json",
+              "recordings/wizcmds.c/wizard-telekinesis-hero.session.json",
+              "recordings/wizcmds.c/wizard-telekinesis-cancel.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-telekinesis-monster",
+                "segment": 0,
+                "fromStep": 32,
+                "throughStep": 39,
+                "source": "cmd.c1996–1997 extcmdlist -> doextcmd -> wizcmds.c:wiz_telekinesis494–528. Announcement, getpos tip/selection, direction, mhurtle, next selection coordinate and Escape cancellation."
+              }
+            ],
+            "checkedAt": "2f52799b8e966edcf64b8a93efcfabe527adb0e6"
+          }
+        ],
+        "entryPointReview": "One active command entry: wizard #wiztelekinesis. Admitted monster case covers target selection, movement, coordinate refresh and cancellation; same-source unfinished selector case matches its complete43 boundaries but establishes no completed movement beyond its recorded pending input. Independent recipes were planned/recorded C-first: Priest newt hurtle with coordinate change, elf Ranger huge stone giant wake/stun/zero movement and does-not-budge message, Tourist hero hurtle north until wall collision, Wizard hero direction cancellation. Runtime runner asserts movement/stun/movement0, map input restoration and no command turn. Monk normal-play recipe pins wizard admission refusal. C-only giant correction acknowledges More before Escape cancels next selector. Alternate dead/hidden target refresh, invalid empty square, negative answer/x-zero cancel, monster on hero square and deferred-level exit branches are source-pinned control-flow tests; no independent rare death or migration claim.",
+        "entryPoints": [
+          {
+            "name": "wizard #wiztelekinesis",
+            "functions": [
+              "wiz_telekinesis"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-telekinesis-newt.session.json",
+              "recordings/wizcmds.c/wizard-telekinesis-giant.session.json",
+              "recordings/wizcmds.c/wizard-telekinesis-hero.session.json",
+              "recordings/wizcmds.c/wizard-telekinesis-cancel.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-telekinesis-monster",
+                "segment": 0,
+                "fromStep": 32,
+                "throughStep": 39,
+                "source": "cmd.c1996–1997 extcmdlist -> doextcmd -> wizcmds.c:wiz_telekinesis494–528. Announcement, getpos tip/selection, direction, mhurtle, next selection coordinate and Escape cancellation."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2f52799b8e966edcf64b8a93efcfabe527adb0e6",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
