@@ -16,7 +16,7 @@ import {
 } from '../js/cmd.js';
 import { init_artifacts } from '../js/artifacts.js';
 import {
-    A_CON, A_STR, FIG_TRANSFORM, MOD_ENCUMBER, UNENCUMBERED,
+    A_CON, A_STR, FIG_TRANSFORM, MOD_ENCUMBER, POOL, UNENCUMBERED,
 } from '../js/const.js';
 import { UnsupportedDropError } from '../js/do.js';
 import { WIZMODECMD, extcmdlist } from '../js/extcmdlist_data.js';
@@ -404,7 +404,7 @@ test('a heavy wished boulder lands after hold and wish source writes', async () 
     assert.ok(pile.some(obj => obj.otyp === BOULDER));
 });
 
-test('a trap stops a heavy wish only after hold and wish state changes',
+test('a pool drop stops a heavy wish only after hold and wish state changes',
     async () => {
         const recorded = loadWizardWishRecipe().segments[0];
         await runSegment({ ...recorded, moves: '.' });
@@ -412,11 +412,13 @@ test('a trap stops a heavy wish only after hold and wish state changes',
         // default MOD_ENCUMBER pickup limit on this otherwise live hero.
         game.u.acurr.a[A_STR] = 3;
         game.u.acurr.a[A_CON] = 3;
-        // Place a trap at the hero's position to trigger the drop guard.
-        // Previously has_shop sufficed, but the guard now checks costly_spot()
-        // and a non-shop square on a shop level no longer refuses the drop.
+        // do.c:flooreffects consumes water_damage() when this ball lands in
+        // a pool. Unlike a seen pit edge, water terrain does not divert the
+        // hold caller through can_reach_floor(TRUE) -> hitfloor(). The hero
+        // has not entered the water; dropx retains the liquid-effect boundary.
         const { ux, uy } = game.u;
-        game.level.traps = (game.level.traps ?? []).concat({ tx: ux, ty: uy });
+        assert.ok(!game.u.uinwater);
+        game.level.at(ux, uy).typ = POOL;
         const before = {
             blesscnt: game.u.ublesscnt,
             conduct: game.u.uconduct.wishes,
@@ -428,7 +430,7 @@ test('a trap stops a heavy wish only after hold and wish state changes',
         await assert.rejects(
             () => rhack(WIZWISH_KEY.charCodeAt(0), game),
             (error) => error instanceof UnsupportedHeroCommandBoundaryError
-                && /trap/u.test(error.message),
+                && /liquid terrain/u.test(error.message),
         );
 
         assert.equal(game.u.uconduct.wishes, before.conduct + 1);
@@ -436,7 +438,7 @@ test('a trap stops a heavy wish only after hold and wish state changes',
         assert.equal(game.level.objects[ux][uy], before.floor);
         assert.equal(game.u.ublesscnt, before.blesscnt);
         // makewish's final rn1(100, 50) blessing timeout is after hold/drop;
-        // it is therefore not reached when dropx refuses this trapped square.
+        // it is therefore not reached when dropx refuses this active pool effect.
     });
 
 // invent.c:1261-1264 raises the hold limit to flags.pickup_burden, exactly as
