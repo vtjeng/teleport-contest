@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T21:25:22.139Z",
+  "capturedAt": "2026-10-08T21:40:34.437Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -67336,12 +67336,179 @@
         "worker": "B",
         "state": "active",
         "reason": "Trace crystal-ball scrying and its production dependencies."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C154-A171-accepted-boundary-idle-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:26:03.390Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Accepted A171 is merged and boundary checks passed. C154 fatal-timeout investigation is complete and awaits the coordinator’s implementation context; C152 correction remains submitted and C153 remains blocked on pointer formatting."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A171-published-00295cf52bc35c69aa731cebedb90a9c0aa3c538",
+        "type": "published",
+        "at": "2026-10-08T21:26:54.865Z",
+        "task": "A171",
+        "commit": "00295cf52bc35c69aa731cebedb90a9c0aa3c538"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A173-investigation-3c29936c",
+        "type": "assign",
+        "at": "2026-10-08T21:27:53.286Z",
+        "task": "A173",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A173-investigation-3c29936c",
+        "type": "turn",
+        "at": "2026-10-08T21:27:54.423Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B170-in-use-direct-keys-20261008",
+        "type": "implement",
+        "at": "2026-10-08T21:29:11.713Z",
+        "task": "B170",
+        "goal": "fix-cmd-rhack-in-use-inventory-dispatch-v32-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B167-integrating-86e7e4196de994d52bfa413ac89fdb28afd3bd84",
+        "type": "integrating",
+        "at": "2026-10-08T21:29:32.273Z",
+        "task": "B167",
+        "integration": "86e7e4196de994d52bfa413ac89fdb28afd3bd84"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A173-unmap-object-20261008",
+        "type": "implement",
+        "at": "2026-10-08T21:29:45.871Z",
+        "task": "A173",
+        "goal": "port-display-unmap-object-engraving-v32-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C152-received-72e6d930763fc28b41e81d6dc547408121ab3c30",
+        "type": "received",
+        "at": "2026-10-08T21:30:54.449Z",
+        "task": "C152",
+        "delivery": "72e6d930763fc28b41e81d6dc547408121ab3c30"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C152-correction-review-72e6d930763fc28b41e81d6dc547408121ab3c30",
+        "type": "activity",
+        "at": "2026-10-08T21:30:55.626Z",
+        "task": "C152",
+        "phase": "review",
+        "reason": "Reviewing the corrected wizard monster migration delivery and tutorial random-coordinate admission while B167 hosted validation runs."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B170-implementation-validation-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:33:04.949Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Validate direct tools-in-use and all-in-use inventory keys."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B167-validated-86e7e4196de994d52bfa413ac89fdb28afd3bd84",
+        "type": "validated",
+        "at": "2026-10-08T21:34:27.407Z",
+        "task": "B167",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7a50f172de5337299ff35738c5dfd8b8237afce2",
+        "type": "ready",
+        "at": "2026-10-08T21:34:31.824Z",
+        "task": "A173",
+        "delivery": "7a50f172de5337299ff35738c5dfd8b8237afce2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A174-prayer-stoning-7a50f172",
+        "type": "assign",
+        "at": "2026-10-08T21:35:18.174Z",
+        "task": "A174",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A174-prayer-stoning-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:35:19.458Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-f92e53362d8bb9bd87835e588806457ab6f85887",
+        "type": "ready",
+        "at": "2026-10-08T21:37:46.842Z",
+        "task": "B170",
+        "delivery": "f92e53362d8bb9bd87835e588806457ab6f85887"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A174-getlin-screen-20261008",
+        "type": "implement",
+        "at": "2026-10-08T21:38:55.376Z",
+        "task": "A174",
+        "goal": "fix-getline-menu-search-physical-screen-v32-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B171-game-history-20261008",
+        "type": "assign",
+        "at": "2026-10-08T21:39:12.707Z",
+        "task": "B171",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B171-game-history-audit-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:39:14.026Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the v32 game history mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B167-86e7e4196de994d52bfa413ac89fdb28afd3bd84-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T21:39:17.734Z",
+        "task": "B167"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C154-B167-clean-boundary-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:40:13.539Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Accepted B167 is merged at a clean boundary. C154 fatal-timeout investigation is complete and awaits the coordinator’s implementation context; the C152 correction is submitted for integration."
       }
     ]
   },
   "development": {
-    "executionCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1",
-    "measuredAt": "2026-10-08T21:21:36.655Z",
+    "executionCommit": "86e7e4196de994d52bfa413ac89fdb28afd3bd84",
+    "measuredAt": "2026-10-08T21:33:57.158Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
