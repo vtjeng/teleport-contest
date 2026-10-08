@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pickup.c:reverse_loot witness. No-coins inventory variation reaches reverse_loot false return, all five decreasing-bound inventory draws, and normal-loot fallthrough. Seed/clock/setup selected independently before comparison; potion inventory letter established from C-only setup inspection.",
+  "segments": [
+    {
+      "seed": 15630031,
+      "datetime": "20400617131231",
+      "nethackrc": "OPTIONS=name:Reverse15630031,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".\u0017uncursed potion of confusion\nqf  #loot\n  #loot\n  #loot\n  #loot\n  "
+    }
+  ]
+}

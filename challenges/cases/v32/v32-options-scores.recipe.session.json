@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: options.c:optfn_scores. Change top/around/own score disclosure values interactively. Required C observation: Score-list settings prompt/menu. Seed, clock and input history fixed before any JavaScript comparison, without a seed search. C-only correction of inventory letters, pager acknowledgments, intrinsic/option spelling or source-confirmed placement from initial C observations, before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 15732026,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732026,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#optionsfull\n:scores\n\n5 top/2 around/own\n              \u001b"
+    }
+  ]
+}

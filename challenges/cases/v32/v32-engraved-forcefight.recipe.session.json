@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: display.c:unmap_object408-438/hack.c:domove_fight_empty. Move off stairs, engrave barehand, move back, force-fight engraved empty square. Required C observation: Engraving remembered and source thin-air swing repairs memory. Seed, clock and input history fixed before any JavaScript comparison, without a seed search. C-only correction of inventory letters, pager acknowledgments, intrinsic/option spelling or source-confirmed placement from initial C observations, before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 15732000,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732000,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".lE- Visit\nhFl           "
+    }
+  ]
+}

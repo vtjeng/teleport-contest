@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: do.c:dropx786-801/doaltarobj363-393. Create off-stair neutral altar and drop cursed dagger. Required C observation: Black flash reveals curse from altar landing. Seed, clock and input history fixed before any JavaScript comparison, without a seed search.",
+  "segments": [
+    {
+      "seed": 15732002,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732002,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "..l\u0017neutral altar\n\u0017cursed dagger\nde          :    "
+    }
+  ]
+}

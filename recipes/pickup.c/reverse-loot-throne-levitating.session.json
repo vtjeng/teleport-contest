@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first chestless-throne fallback levitation variation: the existing generation-only no-chest seed remains chestless. Wish an already-looted throne, gold, levitation ring and confusion; C-only setup assigns ring e/potion f, then wear left and quaff. Preserves no court creation and unconditional fallback dropx, including partial contribution. No challenge inputs copied.",
+  "segments": [
+    {
+      "seed": 15630104,
+      "datetime": "20400618141900",
+      "nethackrc": "OPTIONS=name:Reverse15630034,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".\u0017looted throne\n\u0017171 gold pieces\n\u0017uncursed ring of levitation\n\u0017uncursed potion of confusion\nPel  qf  #loot\n  #loot\n  #loot\n  #loot\n  "
+    }
+  ]
+}

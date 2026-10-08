@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: pray.c:fix_worst_trouble TROUBLE_BLIND. Quaff long cursed blindness and request forced prayer recovery. Required C observation: Eyes feel better and map sight returns. Seed, clock and input history fixed before any JavaScript comparison, without a seed search.",
+  "segments": [
+    {
+      "seed": 15732007,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732007,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed potion of blindness\nqe      #pray\nyy               "
+    }
+  ]
+}

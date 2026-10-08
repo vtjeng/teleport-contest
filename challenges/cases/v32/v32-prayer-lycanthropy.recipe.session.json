@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: pray.c:fix_worst_trouble TROUBLE_LYCANTHROPE/were.c:you_unwere. Eat werewolf tin while human then force prayer. Required C observation: Lycanthropy removed by successful deity aid. Seed, clock and input history fixed before any JavaScript comparison, without a seed search. C-only correction of inventory letters, pager acknowledgments, intrinsic/option spelling or source-confirmed placement from initial C observations, before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 15732008,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732008,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017blessed tin of werewolf meat\nee y       #pray\ny y                 "
+    }
+  ]
+}

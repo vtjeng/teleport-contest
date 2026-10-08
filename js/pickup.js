@@ -39,6 +39,8 @@ import {
     FOOT,
     HALLUC,
     IS_ALTAR,
+    IS_THRONE,
+    T_LOOTED,
     GETOBJ_ALLOWCNT,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
@@ -131,7 +133,7 @@ import { get_adjacent_loc, paranoid_ynq, yn_function } from './cmd.js';
 import { def_char_to_objclass } from './drawing.js';
 import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_O } from './symbol_data.js';
 import { container_contents } from './end.js';
-import { autokey, pick_lock } from './lock.js';
+import { autokey, boxlock, pick_lock } from './lock.js';
 import { bot, flush_screen, newsym, obj_to_glyph } from './display.js';
 import { hliquid } from './do_name.js';
 import { ceiling, surface, surface_typ } from './dungeon.js';
@@ -162,6 +164,7 @@ import {
 import {
     INVLET_BASIC,
     add_to_container,
+    add_to_minv,
     addinv_runtime,
     freeinv,
     carrying,
@@ -198,24 +201,26 @@ import {
 } from './mondata.js';
 import { m_at } from './monst.js';
 import {
-    carried, hasContents, isBox, isCandle, isContainer, obj_no_longer_held,
+    carried, g_at, hasContents, isBox, isCandle, isContainer, obj_no_longer_held,
     is_pick, remove_object, set_bknown, set_corpsenm, splitobj, unsplitobj, weight,
     unbless,
 } from './obj.js';
 
 import { get_obj_location, obj_is_burning } from './light.js';
 import { bagotricks, set_malign } from './makemon.js';
-import { makemon } from './makemon_create.js';
+import { makemon, makemon_runtime } from './makemon_create.js';
+import { courtmon } from './mkroom.js';
+import { remove_worn_item } from './steal.js';
 import { hornoplenty } from './mkobj_hornoplenty.js';
 import { observe_object } from './o_init.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { regex_match } from './posixregex.js';
 import { in_rooms } from './rooms.js';
-import { rn2, rnd } from './rng.js';
+import { rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { rider_cant_reach } from './steed.js';
 import {
     AMULET_OF_YENDOR, BAG_OF_HOLDING, BAG_OF_TRICKS, BELL_OF_OPENING, BOULDER,
-    BRASS_LANTERN,
+    BRASS_LANTERN, CHEST, SPE_WIZARD_LOCK,
     CANDELABRUM_OF_INVOCATION, CAN_OF_GREASE, COIN_CLASS, CORPSE,
     CRAM_RATION, FOOD_RATION, GOLD_PIECE, HORN_OF_PLENTY, ICE_BOX,
     LARGE_BOX, LEMBAS_WAFER, LEASH, LOADSTONE, MAGIC_LAMP, OIL_LAMP,
@@ -257,7 +262,7 @@ import {
     SCATTER_MAY_HIT,
     scatter,
 } from './explode.js';
-import { livelog_printf } from './pline.js';
+import { livelog_printf, verbalize } from './pline.js';
 import { tiphat } from './sounds.js';
 import { setwornEnv } from './do_wear.js';
 import { setuwep, welded, weldmsg } from './wield.js';
@@ -3395,8 +3400,8 @@ export async function menu_loot(retry, put_in, state = game) {
 // get_adjacent_loc(), the underfoot redirect, the u.dz < 0 ceiling arm, and
 // the no-container messages.
 //
-// Not covered: Confusion/reverse_loot() (refuses),
-// cockatrice blind-no-glove arm (refuses).
+// Also covers the confusion gate and its reverse_loot() result.
+// Not covered: cockatrice blind-no-glove arm (refuses).
 async function doloot_core(state) {
     let c = null;
     let timepassed = 0;
@@ -3415,13 +3420,14 @@ async function doloot_core(state) {
         return ECMD_OK;
     }
 
-    // pickup.c:2202-2209. Confusion causes random reverse looting or a
-    // wasted turn. reverse_loot() interacts with inventory and shops, which
-    // this slice does not own.
+    // pickup.c:2202-2209. The second draw occurs only if reverse_loot
+    // was skipped or returned false. A successful reverse loot spends a turn.
     if (ConfusionProp(state)) {
-        throw new UnsupportedPickupError(
-            'doloot_core: confused looting',
-        );
+        if (rn2(6) && await reverse_loot(state)) return ECMD_TIME;
+        if (rn2(2)) {
+            await ttyPline('Being confused, you find nothing to loot.', state);
+            return ECMD_TIME;
+        }
     }
 
     // pickup.c:2210-2211. cc is already set to hero's position.
@@ -3610,6 +3616,83 @@ export async function doloot(state = game) {
         state.loot_reset_justpicked = false;
     }
     return res;
+}
+
+// C ref: pickup.c reverse_loot() (2350-2426). The inventory and floor
+// chains correspond to gi.invent and fobj; keep chest selection in fobj order.
+export async function reverse_loot(state = game, rawEnv = {}) {
+    const message = rawEnv.message ?? ttyPline;
+    const random = { rn1, rn2, rnd, rne, rnz, d, ...rawEnv.random };
+    const env = objectGenerationEnv(dropCommandEnv(state, {
+        ...rawEnv, state, random,
+        hooks: { message, ...rawEnv.hooks },
+    }));
+    const { ux: x, uy: y } = state.u;
+    if (!random.rn2(3)) {
+        let n = inv_cnt(true, state);
+        for (let obj = state.invent; obj; --n, obj = obj.nobj) {
+            if (!random.rn2(n + 1)) {
+                await prinv('You find old loot:', obj, 0, env);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    let goldob = state.invent;
+    for (; goldob; goldob = goldob.nobj) {
+        if (goldob.oclass === COIN_CLASS) {
+            const contribution = Math.trunc((random.rnd(5) * goldob.quan + 4) / 5);
+            if (contribution < goldob.quan)
+                goldob = splitobj(goldob, contribution, env);
+            break;
+        }
+    }
+    if (!goldob) return false;
+    await remove_worn_item(goldob, false, state, env);
+
+    const location = state.level.at(x, y);
+    if (!IS_THRONE(location.typ)) {
+        await dropx(goldob, env);
+        if (g_at(x, y, state))
+            await message('Ok, now there is loot here.', state);
+    } else {
+        let coffers = null, nearest = null;
+        const distance = obj => (obj.ox - x) ** 2 + (obj.oy - y) ** 2;
+        for (coffers = state.level.objlist; coffers; coffers = coffers.nobj) {
+            if (coffers.otyp === CHEST) {
+                if (coffers.spe === 2) break;
+                if (!nearest || distance(coffers) < distance(nearest))
+                    nearest = coffers;
+            }
+        }
+        if (!coffers) coffers = nearest;
+        if (coffers) {
+            // sndprocs.h:276 makes SetVoice empty in the recorder build.
+            await verbalize('Thank you for your contribution to reduce the debt.', state, { message });
+            await freeinv(goldob, env);
+            add_to_container(coffers, goldob, env);
+            coffers.owt = weight(coffers, env);
+            coffers.cknown = 0;
+            if (!coffers.olocked)
+                await boxlock(coffers, { otyp: SPE_WIZARD_LOCK }, state);
+        } else {
+            // rm.h looted aliases the feature flags field.
+            const mon = location.flags !== T_LOOTED
+                ? await makemon_runtime(courtmon(state, random), x, y, 0, env)
+                : null;
+            if (mon) {
+                await freeinv(goldob, env);
+                add_to_minv(mon, goldob, env);
+                await message('The exchequer accepts your contribution.', state);
+                if (!random.rn2(10)) location.flags = T_LOOTED;
+            } else {
+                await message(`You drop ${donameFresh(goldob, state)}.`, state);
+                await dropx(goldob, env);
+            }
+        }
+    }
+    return true;
 }
 
 // C ref: pickup.c loot_mon() (2431-2481). The optional mutable values

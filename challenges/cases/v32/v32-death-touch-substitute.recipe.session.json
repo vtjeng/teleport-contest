@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: uhitm.c:mhitm_ad_deth/mcastu.c:touch_of_death. Level20 human stands next to Death and refuses debug deaths. Required C observation: Death touch HP drain or fatal touch and rescue. Seed, clock and input history fixed before any JavaScript comparison, without a seed search. C-only correction of inventory letters, pager acknowledgments, intrinsic/option spelling or source-confirmed placement from initial C observations, before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 15732033,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732033,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#levelchange\n20\n                         \u0007Death\nm. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   "
+    }
+  ]
+}

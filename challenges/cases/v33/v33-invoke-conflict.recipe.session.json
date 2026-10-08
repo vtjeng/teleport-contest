@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B158 C-first candidate: artifact.c:arti_invoke CONFLICT property branch. Cavewoman toggles Sceptre of Might conflict. Required C observation: Conflict invocation property turns on/off. Inputs fixed before any JavaScript comparison; no seed search or recipe changes based on JS failures. C-only setup correction: inventory letter, pickup More acknowledgments, source menu choice or weight removal read from initial C output; no JS comparison.",
+  "segments": [
+    {
+      "seed": 15833002,
+      "datetime": "20360219161728",
+      "nethackrc": "OPTIONS=name:Probe15833002,role:Caveman,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed Sceptre of Might\n          #invoke\nf        #invoke\nf        "
+    }
+  ]
+}

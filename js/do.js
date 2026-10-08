@@ -1881,16 +1881,13 @@ export function preflight_dropx(obj, env = {}) {
         throw new UnsupportedDropError('the box whose lock is being picked');
     if (!u || u.uswallow)
         throw new UnsupportedDropError('a swallowed hero');
-    // do.c dropz():836 maps an object specially only for Blind && Levitation.
-    // can_reach_floor(TRUE) below already refuses that pair; grounded blindness
-    // and Hallucination both reach the ordinary place_object()/stackobj()/
-    // newsym() tail. display.c owns Hallucination's glyph draws there.
+    // Direct dropx()/dropz() callers, including confused reverse_loot(), do
+    // not test can_reach_floor(). That test belongs to drop() before its
+    // hitfloor() branch; dropz maps Blind && Levitation after stacking.
     if (u.uinwater || on_level(u.uz, state.air_level)
         || on_level(u.uz, state.water_level)) {
         throw new UnsupportedDropError('underwater or special-level display');
     }
-    if (!can_reach_floor(true, state))
-        throw new UnsupportedDropError('an unreachable floor');
     // dig.c:341 drops uwep directly; do.c:810 clears it in dropz after
     // extraction, shipping and altar handling. Admit only that primary mask.
     const primaryWeapon = state.uwep === obj && obj.owornmask === W_WEP;
@@ -2147,8 +2144,7 @@ async function dropzAdmitted(obj, normalized, withImpact = false) {
         }
     }
     stackobj(obj, normalized);
-    if (withImpact && heroIsBlind(normalized.state)
-        && Levitation(normalized.state)) {
+    if (heroIsBlind(normalized.state) && Levitation(normalized.state)) {
         map_object(obj, 0, normalized.state);
     }
     requiredDropHook(normalized, 'newsym')(

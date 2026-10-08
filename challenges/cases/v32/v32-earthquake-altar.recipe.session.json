@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: music.c:do_earthquake344+/pray.c:desecrate_altar. Stand on created altar and play drum of earthquake. Required C observation: Altar collapses into pit or survives quake; divine response. Seed, clock and input history fixed before any JavaScript comparison, without a seed search.",
+  "segments": [
+    {
+      "seed": 15732013,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732013,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "..l\u0017neutral altar\n\u0017uncursed drum of earthquake\naey                "
+    }
+  ]
+}

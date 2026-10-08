@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: cmd.c:doherecmdmenu/here_cmd_menu. Open hero-tile context menu on stairs with floor dagger. Required C observation: Available local commands menu then cancellation. Seed, clock and input history fixed before any JavaScript comparison, without a seed search.",
+  "segments": [
+    {
+      "seed": 15732021,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732021,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed dagger\nde#herecmdmenu\n\u001b          "
+    }
+  ]
+}
