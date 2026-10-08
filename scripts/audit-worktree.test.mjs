@@ -317,7 +317,7 @@ test('cleanup rejects a manifest moved outside its prepared root', t => {
     );
 });
 
-test('readiness runs checkpoint and quality check', () => {
+test('review readiness checks quality without running a full checkpoint', () => {
     const seen = [];
     // A fake runner that passes everything: the entries carry each command,
     // its verdict, and the last lines of its output for the manifest.
@@ -327,7 +327,8 @@ test('readiness runs checkpoint and quality check', () => {
     };
     const results = runReadiness({ root: '/repo', run: green });
     assert.deepEqual(results.map(({ label }) => label),
-        ['checkpoint', 'quality check']);
+        ['quality check']);
+    assert.deepEqual(seen, ['npm run quality -- --check --health']);
     assert.equal(results[0].passed, true);
     assert.equal(results[0].tail, 'line1\nline2');
 
