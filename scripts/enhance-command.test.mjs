@@ -136,16 +136,32 @@ test('add_skills_to_menu narrows the column for a Samurai', async () => {
     ]);
 });
 
-// weapon.c:1294-1296. iflags.menu_tab_sep replaces the padded column with a
+// weapon.c:1293-1296. iflags.menu_tab_sep replaces the padded column with a
 // tab-separated one, and options.c optfn_boolean() lets a configuration file
 // set it in an ordinary game.
-test('add_skills_to_menu refuses menu_tab_sep columns', async () => {
+test('add_skills_to_menu retains source ordinary and wizard tab columns', async () => {
     const state = await heroAfterOneTurn('monk-one-page');
     state.iflags.menu_tab_sep = true;
-    assert.throws(
-        () => add_skills_to_menu(state),
-        UnsupportedWeaponSkillError,
-    );
+    // Quarterstaff is a Monk skill; set it to the source unskilled threshold
+    // of level*level*20 practice with no slots, reaching the '*' prefix.
+    const slot = skillSlot(P_QUARTERSTAFF, state);
+    slot.skill = P_UNSKILLED;
+    slot.max_skill = P_BASIC;
+    slot.advance = 20;
+    state.u.weapon_slots = 0;
+    const rows = add_skills_to_menu(state);
+    assert.ok(rows.some(row => row.text === ' quarterstaff\t[Unskilled]'));
+    assert.ok(add_skills_to_menu(state, true).some(row =>
+        row.text === '   * quarterstaff\t[Unskilled]'));
+    state.wizard = true;
+    // Source wizard format uses %5d(%4d) and no padded name/level columns.
+    assert.ok(add_skills_to_menu(state).some(row =>
+        row.text === ' quarterstaff\tUnskilled\t   20(  20)'));
+    assert.ok(add_skills_to_menu(state, true).some(row =>
+        row.text === '   * quarterstaff\tUnskilled\t   20(  20)'));
+    assert.ok(add_skills_to_menu(state, true, true).some(row =>
+        row.value === P_QUARTERSTAFF + 1 && row.text.startsWith(' quarterstaff\t')),
+    'source speedy wizard gate supplies a selector instead of the prefix');
 });
 
 // A synthetic skill table, so each of could_advance()'s and peaked_skill()'s
