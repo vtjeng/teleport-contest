@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first apply.c use_mirror reflected Medusa witness. New seed/clock and role-specific inventory; inspect C before JavaScript comparison. Apply the wished mirror toward the C-inspected adjacent Medusa; the variation changes role, inventory slot and beam direction.",
+  "segments": [
+    {
+      "seed": 14928011,
+      "datetime": "20660819143700",
+      "nethackrc": "OPTIONS=name:Mirrormedusa,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none\n",
+      "moves": " \u0017uncursed mirror\n\u0007peaceful Medusa\nyank :"
+    }
+  ]
+}

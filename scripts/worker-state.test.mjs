@@ -39,6 +39,60 @@ function fixture() {
     return { send, assign, ready, accept, ledger: () => ledger };
 }
 
+// An unknown synthetic cause needs session ownership before source ownership.
+const DIAGNOSIS = { type: 'assign', task: 'diagnose', worker: 'A',
+    kind: 'investigation', seed: 'synthetic/v1/scout', base: BASE,
+    reservations: ['session:synthetic/v1/scout'],
+    allowedPaths: ['investigations/synthetic/v1/scout.json', '.cache/'] };
+const IMPLEMENT = { type: 'implement', task: DIAGNOSIS.task, goal: 'sounds-port',
+    reservations: [...DIAGNOSIS.reservations, RESERVATION],
+    allowedPaths: [...DIAGNOSIS.allowedPaths, 'js/sounds.js'] };
+
+test('an investigation reserves its session until source ownership is claimed', () => {
+    const f = fixture();
+    f.send(DIAGNOSIS);
+    assert.throws(() => f.send({ ...DIAGNOSIS, task: 'duplicate', worker: 'B' }), /reserved/);
+    assert.throws(() => f.ready(DIAGNOSIS.task), /claim implementation scope/);
+    assert.throws(() => f.send({ type: 'scope', task: DIAGNOSIS.task,
+        reservations: IMPLEMENT.reservations, allowedPaths: IMPLEMENT.allowedPaths }), /claim source scope/);
+    const state = f.send(IMPLEMENT);
+    assert.equal(state.tasks.diagnose.kind, 'implementation');
+    assert.equal(state.tasks.diagnose.goal, IMPLEMENT.goal);
+    assert.equal(state.reservations[RESERVATION].worker, 'A');
+    assert.equal(state.reservations[DIAGNOSIS.reservations[0]].worker, 'A');
+    assert.equal(f.ready(DIAGNOSIS.task).tasks.diagnose.status, 'ready');
+});
+
+test('converging causes leave the losing investigation intact until explicitly parked', () => {
+    const f = fixture();
+    f.send(DIAGNOSIS);
+    f.assign('owner', 'B');
+    const before = f.ledger();
+    assert.throws(() => f.send(IMPLEMENT), /reserved/);
+    assert.deepEqual(f.ledger(), before);
+    f.send({ type: 'park', task: DIAGNOSIS.task, reason: 'Sent source evidence to owner.' });
+    const state = f.send({ ...DIAGNOSIS, task: 'next', seed: 'synthetic/v1/other',
+        reservations: ['session:synthetic/v1/other'],
+        allowedPaths: ['investigations/synthetic/v1/other.json', '.cache/'] });
+    assert.equal(state.reservations[DIAGNOSIS.reservations[0]], undefined);
+    assert.equal(state.reservations[RESERVATION].worker, 'B');
+});
+
+test('investigation claims cannot grant code paths or omit source ownership', () => {
+    for (const patch of [{ goal: 'premature' }, { seed: null },
+        { allowedPaths: [...DIAGNOSIS.allowedPaths, 'js/sounds.js'] },
+        { reservations: ['session:synthetic/v1/../scout'] }]) {
+        assert.throws(() => fixture().send({ ...DIAGNOSIS, ...patch }));
+    }
+    const f = fixture();
+    f.send(DIAGNOSIS);
+    for (const patch of [{ reservations: [RESERVATION] },
+        { reservations: DIAGNOSIS.reservations },
+        { allowedPaths: ['js/sounds.js'] }]) {
+        assert.throws(() => f.send({ ...IMPLEMENT, ...patch }), /retain/);
+    }
+});
+
 test('events supply timestamps and exact duplicate notifications preserve them', () => {
     const f = fixture();
     const event = { id: 'scope-one', type: 'assign', task: 'one', worker: 'A',

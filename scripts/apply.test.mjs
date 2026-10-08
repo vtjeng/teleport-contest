@@ -342,6 +342,24 @@ test('c_obj_colors preserves decl.c streak names', () => {
     ]);
 });
 
+test('use_mirror awaits the canonical stone-kill caller after reflection', () => {
+    // apply.c:1132-1139 sets stoned only after mon_reflects declines.
+    assert.match(APPLY_C, /gs\.stoned = TRUE;\s*killed\(mtmp\);/u);
+    const start = APPLY_JS.indexOf('export async function use_mirror(');
+    const end = APPLY_JS.indexOf('\n}\n', start) + 2;
+    const body = APPLY_JS.slice(start, end);
+    assert.match(body, /state\.gs\.stoned = true;\s*await killed\(mtmp, state,/u);
+    assert.doesNotMatch(body, /note_unported\('mon\.c killed'\)/u);
+});
+
+test('use_mirror Medusa petrification matches the admitted v28 case', async () => {
+    const recording = JSON.parse(readFileSync(new URL(
+        '../challenges/cases/v28/v28-mirror-medusa.session.json', import.meta.url), 'utf8'));
+    const js = await runJsSession(recording, process.cwd());
+    const result = compareSessionOutputs(recording, js);
+    assert.equal(result.passed, true, JSON.stringify(result));
+});
+
 test('apply.c use_mirror matches the admitted v8 monster-reflection case', async () => {
     const recording = JSON.parse(readFileSync(
         new URL('../challenges/cases/v8/mirror-monster-reflection.session.json', import.meta.url),

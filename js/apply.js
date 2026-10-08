@@ -281,7 +281,7 @@ import { bagotricks, mkclass } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
 import { mkundead } from './mkroom.js';
 import {
-    m_in_air, mnexto, seemimic, set_ustuck, wakeup, wake_nearby, wake_nearto,
+    killed, m_in_air, mnexto, seemimic, set_ustuck, wakeup, wake_nearby, wake_nearto,
 } from './mon.js';
 import {
     can_blow,
@@ -3987,7 +3987,7 @@ export function beautiful(state = game) {
                                 : cha >= 4 ? 'ugly' : 'hideous';
 }
 
-// C ref: apply.c use_mirror() (1021-1190). bhit() supplies the first
+// C ref: apply.c use_mirror() (1018-1201). bhit() supplies the first
 // visible or self-perceiving monster along an INVIS_BEAM, without a beam
 // glyph or animation. Its returned monster and gn.notonhead are both used
 // here, so the zap.c callee is wired at this exact source call.
@@ -4130,10 +4130,10 @@ export async function use_mirror(obj, state = game, env = {}) {
             await ttyPline(`${Monnam(mtmp, state)} is turned to stone!`, state);
         state.gs ??= {};
         state.gs.stoned = true;
-        // mon.c:killed() is void in C but its xkilled() source family still
-        // has unrelated early branch refusals. Preserve the source gap
-        // instead of claiming a stone-kill side effect that cannot complete.
-        note_unported('mon.c killed');
+        await killed(mtmp, state, {
+            ...env,
+            random: { d, rn1, rn2, rnd, rne, rnl, rnz, ...(env.random ?? {}) },
+        });
     } else if (monable && mtmp.data === state.mons[PM_FLOATING_EYE]) {
         let amount = random.d(
             Math.trunc(mtmp.m_lev),

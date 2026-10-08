@@ -95,9 +95,9 @@ Validate in this order:
 - a refreshed mismatch queue.
 
 In the multi-worker loop, the worker submits focused and fresh-differential
-results; the orchestrator runs `npm run checkpoint` on the combined fix before
-claiming resolution. A standalone fix still requires its own post-commit
-checkpoint. When the fix
+results; the orchestrator obtains the combined candidate's checkpoint under
+`.agents/validation.md`, using hosted validation by default. A standalone fix
+uses the same post-commit validation policy. When the fix
 changes the development score, the goal's `SCORE.tsv` rows record it; a fix
 committed outside a goal appends a row with `event=divergence` and `label=`
 naming the session and root cause, following `.agents/scoring.md`.

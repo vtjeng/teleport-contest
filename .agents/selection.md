@@ -29,27 +29,28 @@ The queue displays measured unmatched screens, first mismatch steps, and
 source groups for diagnosis. Neither screen counts nor first mismatch steps
 predict how much source behavior a fix will complete. Keep RNG, cursor,
 refusal, and runner failures visible; a failed or missing evaluation is not a
-measured zero. For a free implementation worker slot, choose a session with a
+measured zero. For a free implementation worker slot, prefer a session with a
 completed, valid investigation whose source functions and shared-state
-contracts are not reserved by another worker or pending delivery. Apply the
-seed-continuation rule below before assigning a new task.
+contracts are not reserved by another worker or pending delivery. Otherwise
+the worker claims an eligible session and investigates it before claiming
+implementation scope. Apply the seed-continuation rule below before assigning
+a new task.
 
-After choosing the source-traced task, inspect other outstanding sessions for
-related work in the same C function family or Lua program, caller path, or
-state contract.
+Use existing investigation records and reservations to identify related work
+in the same C function family or Lua program, caller path, or state contract.
 Where one coherent implementation can address those mismatches, include the
-additional source functions, callers, and session IDs in the task scope before
-assigning it, subject to worker reservations. Do not bundle unrelated work
+additional source functions, callers, and session IDs before claiming source
+scope, subject to worker reservations. Do not bundle unrelated work
 solely to increase the number of sessions covered. Define the complete scope
-before work starts and finish its source behavior even when only one session
-currently reaches it.
+before code edits start and finish its source behavior even when only one
+session currently reaches it.
 
-Start background investigations for other uncached or invalidated sessions as
-`.agents/loop.md`, "Background investigations", specifies. Do not wait for
-another investigation while an independent, source-traced task is ready. If
-none is ready, investigate an outstanding case and select an assignable task
-when its source trace is complete. Keep an implementation task running until
-its normal handoff; reconsider availability between tasks.
+Do not investigate a batch of sessions merely to group work before assignment.
+The assigned worker owns diagnosis through delivery. Separate investigators
+provide bounded help for a specific question under `.agents/loop.md`, "Worker
+support"; do not maintain a continuously refilled investigator pool. Keep an
+implementation task running until its normal handoff; reconsider availability
+between tasks.
 
 Use the selected investigation's source trace to choose the goal kind:
 
@@ -65,9 +66,10 @@ Use the selected investigation's source trace to choose the goal kind:
 - A defect in implemented behavior: open a `divergence-fix` and follow
   `.agents/divergence.md`. Trace deterministic state changes as well as RNG
   and drawing; a screen mismatch need not be a rendering defect.
-- An unresolved source owner: keep its investigation in the background queue
-  until it identifies a C or Lua owner and one of the above goal kinds. A
-  caller annotation alone does not count as a completed investigation.
+- An unresolved source owner: continue the claimed investigation until it
+  identifies a C or Lua owner and one of the above goal kinds, or records a
+  concrete blocker. A caller annotation alone does not count as a completed
+  investigation.
 
 Always name the selected session with `--sessions` (or `--session` for a
 divergence fix). For a synthetic case, retain its batch, manifest digest,
@@ -129,8 +131,9 @@ Count a completed, valid investigation only when its source functions and
 shared-state contracts are free of ledger reservations and pending deliveries.
 Count overlapping investigations as one task, even when several sessions point
 to them. Do not count a raw session, an unresolved source owner, or a task
-already assigned to a worker as another available task. Keep background
-investigations running for unmatched sessions that are not yet source-traced.
+already assigned to a worker as another available task. Workers may investigate
+unclaimed sessions while preparation runs; an investigation claim is not yet
+an independently assignable source task.
 Let `implementationSlots` be the number of workers that can take implementation
 tasks next, normally two and at most three. Request or resume preparation when
 the assignable task count falls below `implementationSlots + 1`; keep the one
@@ -287,8 +290,9 @@ assignment. Respect the user's task bounds and stop requests throughout.
 
 Explain seed continuation, related sessions, and source reservations in
 `--selection-reason`.
-A fresh worker-branch observation stays tied to that commit and does not
-replace main's investigation cache. Recheck selection and
+A fresh worker-branch observation stays tied to that commit. Include the
+claimed investigation in the delivery; the orchestrator validates its count
+and provenance before using it in main's cache. Recheck selection and
 existing completion evidence before integrating each delivery; reconcile
 work made redundant by intervening integrations rather than implementing it
 again. A submitted delivery may be integrated while another worker proceeds;

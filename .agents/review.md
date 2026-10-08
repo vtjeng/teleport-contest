@@ -32,12 +32,14 @@ cross-subsystem risk that a targeted review cannot resolve. State that risk
 before launching. The number of deliveries, functions touched, commits
 since the last audit, or changed lines does not independently trigger an audit.
 
-Three other passes have their own occasions. Run one `/simplify-codebase` pass over
-the whole of `js/` before the Phase 1 freeze on 2026-11-29, because Phase 2
-divides parity by the size of the diff to NetHack 5.1. Run
-`/copyedit-technical-prose` before publishing changed documentation or reports
-outside this repository. Run `/audit-diff-clarity` only for a concrete
-readability problem a reader hit, scoped to that code.
+Copyedit prose inline using the technical-writing rules. Run a multi-agent
+copyedit only when the user explicitly requests one. This project rule also
+applies when a copyediting skill would otherwise launch multiple agents.
+
+Simplify code for a specific maintenance problem, scoped to the affected
+code. Do not schedule a whole-codebase simplification for the phase freeze.
+Run `/audit-diff-clarity` only for a concrete readability problem a reader
+hit, scoped to that code.
 
 ## Readiness for a formal review pass
 

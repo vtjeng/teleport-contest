@@ -8,7 +8,7 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const EVENT_TYPES = new Set([
-  'assign', 'ready', 'received', 'feedback', 'resume', 'park',
+  'assign', 'implement', 'ready', 'received', 'feedback', 'resume', 'park',
   'integrating', 'validated', 'accepted', 'published',
 ]);
 
