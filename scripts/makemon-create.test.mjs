@@ -5872,6 +5872,80 @@ test('a first random rock thrower is accepted outside Sokoban', async () => {
     }
 });
 
+test('Sokoban accepts a first random monster that does not throw rocks',
+    async () => {
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.u.uz.dlevel = 20;
+        state.u.ulevel = 30;
+        leaveOnlyRandomSpecies(state, [PM_OGRE]);
+        state.mons[PM_OGRE] = {
+            ...state.mons[PM_OGRE],
+            geno: state.mons[PM_OGRE].geno & ~G_SGROUP,
+        };
+        const savedSokobanDnum = game.sokoban_dnum;
+        game.sokoban_dnum = state.u.uz.dnum;
+        const random = recordingRandom();
+        try {
+            const monster = await makemon_runtime(
+                null, MON_X, MON_Y, NO_MM_FLAGS,
+                {
+                    state,
+                    random: random.random,
+                    hooks: { newsym: () => {} },
+                    message: async () => {},
+                    norepMessage: async () => {},
+                },
+            );
+            assert.equal(monster.data, state.mons[PM_OGRE]);
+            assert.deepEqual(
+                random.calls.slice(0, 2).map(call => call.kind),
+                ['rn2', 'rnd'],
+                'a non-rock-thrower proceeds after its first reservoir draw',
+            );
+        } finally {
+            game.sokoban_dnum = savedSokobanDnum;
+        }
+    });
+
+test('random monster placement accepts the 51st candidate after bad positions',
+    async () => {
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.u.uz.dlevel = 20;
+        state.u.ulevel = 30;
+        state.level.at(MON_X, MON_Y).typ = POOL;
+        leaveOnlyRandomSpecies(state, [PM_OGRE]);
+        state.mons[PM_OGRE] = {
+            ...state.mons[PM_OGRE],
+            geno: state.mons[PM_OGRE].geno & ~G_SGROUP,
+        };
+        const savedSokobanDnum = game.sokoban_dnum;
+        game.sokoban_dnum = state.u.uz.dnum + 1;
+        const random = recordingRandom();
+        try {
+            const monster = await makemon_runtime(
+                null, MON_X, MON_Y, NO_MM_FLAGS,
+                {
+                    state,
+                    random: random.random,
+                    hooks: { newsym: () => {} },
+                    message: async () => {},
+                    norepMessage: async () => {},
+                },
+            );
+            assert.equal(monster.data, state.mons[PM_OGRE]);
+            assert.equal(
+                random.calls.slice(0, 51).every(call => call.kind === 'rn2'),
+                true,
+            );
+            assert.equal(random.calls[51].kind, 'rnd',
+                'the 51st selection proceeds to monster allocation');
+        } finally {
+            game.sokoban_dnum = savedSokobanDnum;
+        }
+    });
+
 test('minotaurs use their source inventory arm before generic giant items',
     () => {
         const state = initialLevelState();
