@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T08:16:47.565Z",
+  "capturedAt": "2026-10-08T08:34:52.212Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -26877,12 +26877,93 @@
         "at": "2026-10-08T08:16:04.069Z",
         "task": "A150",
         "delivery": "494c9990181a7f23d450f5612d037186a5126af3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B149-3a2ab1b4",
+        "type": "published",
+        "at": "2026-10-08T08:17:41.911Z",
+        "task": "B149",
+        "commit": "3a2ab1b43da5d860b7120dc716ae0b2e4ecd0b8e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C145-firebrand-investigation-20261008",
+        "type": "assign",
+        "at": "2026-10-08T08:17:52.535Z",
+        "task": "C145",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C144-c873065a",
+        "type": "received",
+        "at": "2026-10-08T08:19:44.324Z",
+        "task": "C144",
+        "delivery": "c873065a8cc9e5018f54c5fe36b102171de9aa49"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A151-chameleon-tin-investigation-27b02bc5",
+        "type": "assign",
+        "at": "2026-10-08T08:19:51.227Z",
+        "task": "A151",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C144-270a19f56",
+        "type": "integrating",
+        "at": "2026-10-08T08:23:04.129Z",
+        "task": "C144",
+        "integration": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A151-cpostfx-polymorph-caller-20261008",
+        "type": "implement",
+        "at": "2026-10-08T08:24:59.449Z",
+        "task": "A151",
+        "goal": "fix-eat-cpostfx-polymorph-caller-v29-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C144-270a19f56",
+        "type": "validated",
+        "at": "2026-10-08T08:28:09.318Z",
+        "task": "C144",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C144-270a19f5678fcc7f7db9bb79b38a591d8013d3a3-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T08:30:28.028Z",
+        "task": "C144"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B150-eyewear-8bdabc9b-20261008",
+        "type": "implement",
+        "at": "2026-10-08T08:33:58.283Z",
+        "task": "B150",
+        "goal": "port-do-wear-eyewear-blindness-v29-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C145-storm-family-20261008",
+        "type": "implement",
+        "at": "2026-10-08T08:34:30.439Z",
+        "task": "C145",
+        "goal": "port-spell-skilled-storm-target-family-v29-20261008"
       }
     ]
   },
   "development": {
-    "executionCommit": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
-    "measuredAt": "2026-10-08T08:04:41.454Z",
+    "executionCommit": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3",
+    "measuredAt": "2026-10-08T08:27:28.403Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

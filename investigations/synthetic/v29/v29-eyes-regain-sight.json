@@ -1,0 +1,96 @@
+{
+  "session": "synthetic/v29/v29-eyes-regain-sight",
+  "corpus": "synthetic",
+  "batch": "v29",
+  "caseId": "v29-eyes-regain-sight",
+  "manifestPath": "challenges/manifests/v29.json",
+  "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+  "recordingSha256": "aae73f89a8f19d19af64c8b8c583dce890065bb15bce207118e4075d926ebc3d",
+  "evaluationPath": "challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json",
+  "evaluationCommit": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
+  "remainingScreens": 6,
+  "recordedSteps": 81,
+  "status": "complete",
+  "commit": "763f3ebcc1aac6fb64b01ea7fc79d74f2c87a8d3",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v29",
+    "caseId": "v29-eyes-regain-sight",
+    "session": "synthetic/v29/v29-eyes-regain-sight",
+    "manifestPath": "challenges/manifests/v29.json",
+    "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+    "recording": "challenges/cases/v29/v29-eyes-regain-sight.session.json",
+    "recordingPath": "challenges/cases/v29/v29-eyes-regain-sight.session.json",
+    "recordingSha256": "aae73f89a8f19d19af64c8b8c583dce890065bb15bce207118e4075d926ebc3d",
+    "recipe": "challenges/cases/v29/v29-eyes-regain-sight.recipe.session.json",
+    "recipeSha256": "5eba307f81155a1e19b9629baee5c77254c09de6481adc94066704bca1ceb8a2",
+    "replayInputSha256": "3865bfa70706ac84f88c5d02b0e141e247b55ae3bf7a129b0a7a8b83e995245d",
+    "evaluationPath": "challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json",
+    "evaluationCommit": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
+    "evaluationArtifact": "challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json",
+    "evaluationUtc": "2026-10-08T08:02:48.939Z",
+    "remainingScreens": 6,
+    "recordedSteps": 81,
+    "previousScreensMatched": 75,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 75,
+        "total": 81
+      },
+      "rng": {
+        "matched": 2336,
+        "total": 2360
+      },
+      "cursors": {
+        "matched": 75,
+        "total": 81
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: accessory on reached an unported branch: Blindf_on() regaining sight (Eyes of the Overworld)",
+      "step": 75
+    },
+    "step": 75,
+    "kind": "stop",
+    "sourceFile": "do_wear.c",
+    "function": "Blindf_on",
+    "message": "unsupported hero command: an unported branch of this command: accessory on reached an unported branch: Blindf_on() regaining sight (Eyes of the Overworld)",
+    "cFile": "do_wear.c",
+    "luaFile": null,
+    "line": null
+  },
+  "goalKind": "file-port",
+  "summary": "Wearing the Eyes while temporarily blind reaches do_wear.c:Blindf_on sight-restoration arm, which JavaScript refuses after installing W_TOOL/on_msg. Complete the whole Blindf_on/Blindf_off eyewear family and canonical set_bc/bc_order dependency; related punished-blindfold reaches the same missing ball/chain setup. Preserve canonical map memory rather than transient glyph buffer in its bounded ball consumers.",
+  "source": {
+    "file": "do_wear.c",
+    "branch": "Blindf_on1461-1493 snapshots already_blind before remove_worn_item/setworn/on_msg. Existing blindness is overridden by Eyes W_TOOL artifact intrinsic, making already_blind && !Blind true at step75. C sets changed, prints You can see (or first-life sight and clears u.uroleplay.blind), then toggle_blindness. The same whole function has Punished set_bc(0) when newly blind; Blindf_off1495-1535 has the matching Eyes sight-loss/set_bc arm and swallowed gulp_blnd_check consumed result.",
+    "functions": [
+      "Blindf_on",
+      "Blindf_off"
+    ],
+    "callers": [
+      "do_wear.c:accessory_or_armor_on2421 reaches Blindf_on from P/#puton; armor_or_accessory_off1821 and removal chains reach Blindf_off from R/#remove and A/#takeoffall. Existing JS callers await these callbacks.",
+      "apply.c:doapply4250 and4248 await on/off for BLINDFOLD/LENSES; existing js/apply.js4859-4865 routes both.",
+      "do_wear.c:set_wear1545 must replace the existing Blindf_on gap; allmain.c73 new-game gear and zap.c:poly_obj1946-1948 are upstream routes, with non-ring poly_obj remaining the declared outside-limit producer."
+    ],
+    "dependencies": [
+      "Required ball.c:bc_order354-371 returns stack order to set_bc and move_bc. Existing js/ball.js:bcOrder90 is incomplete (missing u.uswallow and discarded impossible gap) and uses a different source name; reconcile whole helper and direct callers. It calls impossible on an invalid missing pile, so do not assert source purity merely because ordinary branches only read.",
+      "Whole ball.c:set_bc380-425 is absent. Source sets bc_order/bc_felt, uses hero memory when already blind/swallowed, otherwise removes chain and floor ball, calls newsym, captures underlying remembered glyphs, and restores source pile order/redraw. Canonical remove_object/place_object/newsym exist. C discards impossible result; note_unported with no fabricated output.",
+      "set_bc direct callers: do_wear.c1476/1523 (on/off), potion.c:make_blinded309 (before set_itimeout/toggle), read.c:punish3059 after placebc before final newsym (already_blind1). Wire all bounded callers, and compare C Blind macro rather than only BLINDED property in read caller. No whole potion/read caller credit. Completing Blindf_on removes the last UnsupportedAccessoryOnError throws; delete its class plus the existing cmd.js import and failClosedErrorTypes registry entry, with no cmd.c completion credit.",
+      "Supporting ball-memory contract: current placebc_core150 reads obsolete cell.glyph; unplacebc_core192/199 writes that obsolete field, while canonical rm.glyph representation is cell.remembered_glyph.{glyph}. move_bc358/359/375/390 reads live glyph_at although ball.c465/466/486/506 reads levl remembered glyph. Reconcile these exact reads/writes and current bcOrder sites without broad placebc/unplacebc/move_bc completion credit. Preserve logical integer u.bglyph/u.cglyph, pile identity and side-effect order.",
+      "Existing remove_worn_item/setworn/artifact intrinsic/on_msg/off_msg/toggle_blindness/gulp_blnd_check source owners supply the rest. toggle_blindness2311 fully matches potion.c336-364, with source vision/see_monsters/Sting/inventory order; keep known vision.c XRAY hidden-corridor overlay frontier outside scope and preserve planning-clone display seams when wiring set_bc."
+    ]
+  },
+  "evidence": [
+    "Refreshed isolated worker replay .cache/B150/replay-accepted.log (bounded run-5uXGVv) confirms 75/81 screens/cursors and2336/2360 RNG on 763f3ebcc1aac6fb64b01ea7fc79d74f2c87a8d3. Exact refusal is Blindf_on regaining sight after step75 keyk. Next C draw rn2(5)=2 in distfleeck at step76 follows callback completion; it is not an RNG call to invent in eyewear.",
+    "C step75 displays You are now wearing ... Eyes of the Overworld with More; step76 displays You can see. Whole C1461-1493 declares changed true and calls toggle_blindness, whereas JS throws after setworn/on_msg before those effects. Source also requires permanent-blind conduct clear and held-eyewear removal; both existing guards must be deleted when ported.",
+    "Accepted B149 8b31f4af evaluation companion synthetic/v29/v29-punished-blindfold has7 remaining screens,67 steps, first stop60 set_bc(0) while Punished. Its source Blindf_on1476 is the same coherent family, not an unrelated bundled goal. C step60 shows worn blindfold, sight-loss and monster continuation; the missing set_bc is before toggle_blindness.",
+    "Full source/read audit establishes set_bc closure and all direct callers. bc_order consumed return forces complete helper; its swallowed and pile-order branches need source-pinned cases. Canonical map memory lives in js/game.js makeLocation and display.js remembered_glyph helpers; using transient glyph_at would preserve a source divergence after blindness begins.",
+    "Independent runtime plan: own-role Monk Eyes worn while temporarily blind, cheap blind-from-birth option, held blindfold/towel ordinary P; apply eyewear toggles; Eyes remove while original blindness remains; punished blindfold with ball on floor and carried variation; punished wizintrinsic blindness through make_blinded; already-blind scroll-of-punishment through punish. Freeze C-observed inventory/menu/pager inputs before JS comparison. Use live/display-isolated assertions for temporary floor extraction, pile stack preservation, integer cached memory and planner clone output.",
+    "Non-ring zap.c:poly_obj producer and hidden-corridor vision.c XRAY overlay remain named outside limits, with representative blocked recipes. No unrelated artifact touch, restore/startup dispatch or whole ball movement credit."
+  ]
+}
