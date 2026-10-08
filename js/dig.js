@@ -187,6 +187,7 @@ import {
     obj_ice_effects,
     place_object,
     remove_object,
+    rnd_treefruit_at,
 } from './obj.js';
 import { cansee, does_block, m_canseeu, recalc_block_point, unblock_point } from './vision.js';
 import { d, rn1, rn2, rn2_on_display_rng, rne, rnl, rnd, rnz } from './rng.js';
@@ -638,7 +639,9 @@ export async function dig(state = game, rawEnv = {}) {
                 digtext = 'You cut down the tree.';
                 setTerrain(location, ROOM);
                 if (!random.rn2(5))
-                    note_unported('mkobj.c rnd_treefruit_at');
+                    rnd_treefruit_at(x, y, objectGenerationEnv({
+                        ...rawEnv, state, random,
+                    }));
                 if (state.urace?.mnum === PM_ELF
                     || state.urole?.mnum === PM_RANGER) {
                     adjalign(-1, state);
