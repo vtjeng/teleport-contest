@@ -3336,6 +3336,19 @@
       ],
       "outcome": "changed",
       "recordedAt": "2026-10-07T09:34:50.453Z"
+    },
+    {
+      "kind": "review",
+      "head": "0f20a29cbe7f6c70692b156a02817310c5bfa0ec",
+      "auditedRange": "9d5a4e50685fd5101824c29e769d3a6cb3721740..0f20a29cbe7f6c70692b156a02817310c5bfa0ec",
+      "level": "full",
+      "areas": [
+        "objects",
+        "monsters",
+        "commands"
+      ],
+      "outcome": "changed",
+      "recordedAt": "2026-10-08T01:25:25.315Z"
     }
   ]
 }

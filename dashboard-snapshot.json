@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T23:57:35.522Z",
+  "capturedAt": "2026-10-08T01:35:00.748Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -25475,12 +25475,134 @@
         "at": "2026-10-07T23:57:30.148Z",
         "task": "A140",
         "delivery": "55483686b9b683ce6c3f236a2bc48664057b0170"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A140-55483686",
+        "type": "received",
+        "at": "2026-10-07T23:58:28.875Z",
+        "task": "A140",
+        "delivery": "55483686b9b683ce6c3f236a2bc48664057b0170"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A140-50c5b88d",
+        "type": "integrating",
+        "at": "2026-10-07T23:58:55.911Z",
+        "task": "A140",
+        "integration": "50c5b88dd5a39f41434a34d8fc30cd167f751c4a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-fc7bf6fb9a378a743d4a1bea6bb76d5980008b53",
+        "type": "ready",
+        "at": "2026-10-07T23:58:58.543Z",
+        "task": "B141",
+        "delivery": "fc7bf6fb9a378a743d4a1bea6bb76d5980008b53"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B142-rloc-engr-v28-20261008",
+        "type": "assign",
+        "at": "2026-10-08T00:02:00.278Z",
+        "task": "B142",
+        "worker": "B",
+        "goal": "port-engrave-rloc-engr-v28-20261008",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-96539900c3efd19c4b721d5bce83fdc06dc6b862",
+        "type": "ready",
+        "at": "2026-10-08T00:05:59.668Z",
+        "task": "C139",
+        "delivery": "96539900c3efd19c4b721d5bce83fdc06dc6b862"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A140-55483686-case-incomplete",
+        "type": "feedback",
+        "at": "2026-10-08T00:07:09.406Z",
+        "task": "A140",
+        "delivery": "55483686b9b683ce6c3f236a2bc48664057b0170"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A140-potion-naming-20261007",
+        "type": "resume",
+        "at": "2026-10-08T00:07:41.000Z",
+        "task": "A140"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-da30432498c30c1cde6a3a9474e0d2ac22bb7215",
+        "type": "ready",
+        "at": "2026-10-08T00:12:02.851Z",
+        "task": "B142",
+        "delivery": "da30432498c30c1cde6a3a9474e0d2ac22bb7215"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-bf11abd71c1847e67da27fd3e5fcd915fe3f8da1",
+        "type": "ready",
+        "at": "2026-10-08T00:14:41.268Z",
+        "task": "A140",
+        "delivery": "bf11abd71c1847e67da27fd3e5fcd915fe3f8da1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A140-bf11abd7",
+        "type": "received",
+        "at": "2026-10-08T00:15:11.518Z",
+        "task": "A140",
+        "delivery": "bf11abd71c1847e67da27fd3e5fcd915fe3f8da1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A140-456ae860",
+        "type": "integrating",
+        "at": "2026-10-08T00:15:34.091Z",
+        "task": "A140",
+        "integration": "456ae860f7bed820f3c771c50dd0b8ebf2b8c4cd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A140-0f20a29c",
+        "type": "integrating",
+        "at": "2026-10-08T01:27:23.940Z",
+        "task": "A140",
+        "integration": "0f20a29cbe7f6c70692b156a02817310c5bfa0ec"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A140-run-37711928076",
+        "type": "validated",
+        "at": "2026-10-08T01:27:24.678Z",
+        "task": "A140",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A140-0f20a29cbe7f6c70692b156a02817310c5bfa0ec-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T01:32:27.205Z",
+        "task": "A140"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A141-20261007",
+        "type": "assign",
+        "at": "2026-10-08T01:34:53.044Z",
+        "task": "A141",
+        "worker": "A2",
+        "goal": "fix-dig-treefruit-caller-v28-20261007",
+        "kind": "implementation"
       }
     ]
   },
   "development": {
-    "executionCommit": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
-    "measuredAt": "2026-10-07T23:50:49.939Z",
+    "executionCommit": "0f20a29cbe7f6c70692b156a02817310c5bfa0ec",
+    "measuredAt": "2026-10-08T01:17:43.386Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
