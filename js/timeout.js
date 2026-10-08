@@ -620,14 +620,12 @@ async function zombifyMonCallback(arg, timeout, env) {
     return zombify_mon(arg, timeout, env);
 }
 
-// The fallback reaches the existing bounded rot_corpse owner. Preserve its
-// admission check before run_timers unlinks anything in the due prefix.
+// The fallback uses rot_corpse's corpse validation before the due prefix is
+// unlinked. Its location cleanup and residual-timer removal are canonical.
 function unportedZombifyMonReason(body, env) {
     const zmon = zombie_form(env.state.mons[body.corpsenm]);
     if (zmon !== NON_PM && !(env.state.mvitals[zmon].mvflags & G_GENOD))
         return null;
-    if (Math.trunc(body.timed ?? 0) !== 1)
-        return 'the due object to hold only its own timer';
     return unportedRotCorpseReason(body, env);
 }
 
@@ -718,15 +716,11 @@ function unportedDueTimerReason(state, env) {
         const entry = timeout_funcs[timer.func_index];
         if (!entry.f)
             return `a ported timeout function, but ${entry.name}() is due`;
-        // A corpse still carrying a second timer would reach obj_timer_checks()
-        // from remove_object() with a nonzero `timed`, and that can stop and
-        // restart a timer on ice, which is exactly the prefix change the walk
-        // above assumes away.
-        // zombify_mon -> set_corpsenm stops the corpse's other timers before
-        // conversion/revival. Debug zombifying wishes retain both ROT_CORPSE
-        // and ZOMBIFY_MON until this source operation; fallback rot admission
-        // remains checked by unportedZombifyMonReason.
-        if (timer.kind === TIMER_OBJECT && timer.func_index !== ZOMBIFY_MON
+        // C rereads timer_base after every callback. Corpse deletion stops
+        // residual object timers through obfree -> obj_stop_timers; conversion
+        // cancels them through set_corpsenm. Both may change the queue head.
+        if (timer.kind === TIMER_OBJECT
+            && timer.func_index !== ZOMBIFY_MON && timer.func_index !== ROT_CORPSE
             && Math.trunc(timer.arg?.timed ?? 0) !== 1)
             return 'the due object to hold only its own timer';
         const reason = entry.unported(timer.arg, env);
@@ -1390,11 +1384,13 @@ export function nh_timeout_requires_live_state(state = game) {
     // These callbacks can revive a monster and remove its corpse.
     // ZOMBIFY_MON can also fall back to rot_corpse, removing the corpse and
     // redrawing its square. Both effects must run live before planning the
-    // elapsed turn's monster tail.
+    // elapsed turn's monster tail. Carried ROT_CORPSE also names the corpse
+    // and can remove worn gear or interrupt an occupation, so run it live.
     for (let timer = state.gt?.timer_base;
         timer && timer.timeout <= state.moves; timer = timer.next) {
         if (timer.kind === TIMER_OBJECT
-            && (timer.func_index === REVIVE_MON || timer.func_index === ZOMBIFY_MON))
+            && (timer.func_index === REVIVE_MON || timer.func_index === ZOMBIFY_MON
+                || (timer.func_index === ROT_CORPSE && timer.arg.where === OBJ_INVENT)))
             return true;
     }
     if (u.mtimedone === 1 && !propertySource(state, UNCHANGING)

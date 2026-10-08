@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent wielded no-form corpse variation: dig.c rot_corpse prints the wielded exclamation, removes worn item state and calls stop_occupation before inventory extraction. Leashed or hidden-hero state is not part of this setup.",
+  "segments": [
+    {
+      "seed": 15741005,
+      "datetime": "20510319101400",
+      "nethackrc": "OPTIONS=name:ZombieFallback,role:Knight,race:human,gender:male,align:lawful,playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": "\u0017zombifying lichen corpse\n  wa  m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   "
+    }
+  ]
+}

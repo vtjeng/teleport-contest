@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "comment": "Blocked evidence limit: timeout.c:run_timers retains its coexisting-timer refusal for the no-zombie-form rot fallback, whose downstream dig.c rot_corpse owner remains bounded. This valid debug zombifying newt wish keeps ROT_CORPSE and ZOMBIFY_MON on the same floor corpse; positive zombie conversion is covered separately and cancels both source timers through set_corpsenm.",
+  "comment": "Independent no-conversion floor fallback: zombie and ordinary rot timers coexist; rot_corpse deletion cancels the residual timer through canonical obfree before run_timers rereads its head.",
   "segments": [
     {
       "seed": 15741003,

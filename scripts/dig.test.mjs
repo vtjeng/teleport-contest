@@ -564,10 +564,9 @@ function rotState(moves = 254) {
 
 let nextRotObjectId = 2;
 
-// A corpse whose ROT_CORPSE timer has already fired: run_timers() decrements
-// `timed` before the call, and obfree() would otherwise demand a
-// stopObjectTimers seam that js/timeout.js cannot supply from inside its own
-// drain. See the run_timers ordering test in scripts/timeout.test.mjs.
+// A corpse whose only ROT_CORPSE timer has fired: run_timers decrements
+// timed before the callback. Separate timeout tests cover canonical removal
+// of residual timers when the corpse originally carried more than one.
 function floorCorpse(state, x, y, corpsenm = PM_ORC) {
     const corpse = newObject({
         age: 0,
@@ -617,7 +616,7 @@ function recordingNewsym(state) {
     };
 }
 
-test('rot_corpse deletes a floor corpse and redraws its square', () => {
+test('rot_corpse deletes a floor corpse and redraws its square', async () => {
     const state = rotState();
     // An arbitrary interior square; the witness session's head timer names
     // <40,5>, and rot_corpse() reads the coordinates off the object rather
@@ -628,7 +627,7 @@ test('rot_corpse deletes a floor corpse and redraws its square', () => {
     const corpse = floorCorpse(state, x, y);
     const { drawn, newsym } = recordingNewsym(state);
 
-    rot_corpse(corpse, state.moves, { state, hooks: { newsym } });
+    await rot_corpse(corpse, state.moves, { state, hooks: { newsym } });
 
     // Both floor indexes: the per-square pile and the level object list.
     assert.equal(state.level.objects[x][y], rock);
@@ -642,7 +641,7 @@ test('rot_corpse deletes a floor corpse and redraws its square', () => {
 });
 
 test('rot_corpse exposes a hider only once nothing is left to hide under',
-    () => {
+    async () => {
         // dig.c:2179-2182. The monster is a cave spider, one of the eight
         // hides_under() species (M1_CONCEAL); a jackal is not.
         for (const row of [
@@ -663,7 +662,7 @@ test('rot_corpse exposes a hider only once nothing is left to hide under',
             state.level.monsters[x][y] = monster;
             const { drawn, newsym } = recordingNewsym(state);
 
-            rot_corpse(corpse, state.moves, { state, hooks: { newsym } });
+            await rot_corpse(corpse, state.moves, { state, hooks: { newsym } });
 
             assert.equal(monster.mundetected, row.expected, row.why);
             // The flag is already at its final value when the square is
@@ -682,12 +681,9 @@ test('unportedRotCorpseReason names the arm each corpse is waiting on', () => {
     const floor = floorCorpse(state, 12, 6);
     assert.equal(unportedRotCorpseReason(floor, seam), null);
 
-    // dig.c:2158-2178's three non-floor arms all still stop.
+    // dig.c:2158-2178 now dispatches carried, monster and migrating corpses.
     const carried = newObject({ otyp: CORPSE, where: OBJ_INVENT });
-    assert.match(
-        unportedRotCorpseReason(carried, seam),
-        /a corpse on the floor, but one is rotting at where=3/u,
-    );
+    assert.equal(unportedRotCorpseReason(carried, seam), null);
 
     // rot_organic()'s contents loop at dig.c:2129-2136.
     const holder = floorCorpse(state, 13, 6);
@@ -697,28 +693,16 @@ test('unportedRotCorpseReason names the arm each corpse is waiting on', () => {
         /a rotting corpse to hold nothing/u,
     );
 
-    // shk.c obfree()'s billing seam.
+    // Billing is owned by canonical obfree; the discarded hero hideunder
+    // call records a named mon.c gap instead of refusing corpse deletion.
     const owed = floorCorpse(state, 14, 6);
     owed.unpaid = true;
-    assert.match(
-        unportedRotCorpseReason(owed, seam),
-        /a rotting corpse nobody owes for/u,
-    );
-
-    // dig.c:2183-2185, mon.c hideunder(&gy.youmonst): the hero is hidden on
-    // the rotting corpse's own square and belongs to a hides_under() species.
+    assert.equal(unportedRotCorpseReason(owed, seam), null);
     const underfoot = floorCorpse(state, 20, 9);
     state.u.ux = 20;
     state.u.uy = 9;
     state.u.uundetected = 1;
     state.youmonst.data = state.mons[PM_CAVE_SPIDER];
-    assert.match(
-        unportedRotCorpseReason(underfoot, seam),
-        /a rotting corpse not under the hidden hero/u,
-    );
-    // A hero of a species that cannot hide under an object reaches neither
-    // C's else-if nor this stop.
-    state.youmonst.data = state.mons[PM_JACKAL];
     assert.equal(unportedRotCorpseReason(underfoot, seam), null);
 });
 
