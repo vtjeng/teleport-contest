@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source route for wizcmds.c:wiz_telekinesis494–528. Variation creates huge stone giant, so canonical mhurtle wakes/stuns it but reports does not budge; cancel next loop. Seed/role/date/action route chosen before JS comparison; no seed search. C-only setup correction: acknowledge huge-monster message More before Escape cancels next selector.",
+  "segments": [
+    {
+      "seed": 17050072,
+      "datetime": "20581115124500",
+      "nethackrc": "OPTIONS=name:Witness170giant,role:Ranger,race:elf,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "  \u0007peaceful stone giant\n#wiztelekinesis\n  m.l \u001b "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source route for wizcmds.c:wiz_telekinesis494–528. Select hero but cancel direction before hurtle. Seed/role/date/action route chosen before JS comparison; no seed search.",
+  "segments": [
+    {
+      "seed": 17050074,
+      "datetime": "20581115151500",
+      "nethackrc": "OPTIONS=name:Witness170cancel,role:Wizard,race:elf,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "  #wiztelekinesis\n  .\u001b "
+    }
+  ]
+}
