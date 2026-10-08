@@ -331,3 +331,42 @@ test('rumor_check acknowledges inaccessible rumors before catalog output', async
         displayMessage: async () => { noMessage.push('ack'); }, window: async () => {} });
     assert.deepEqual(noMessage, ['rumors not accessible.', 'ack']);
 });
+
+test('init_rumors scans signed hex tokens into LP64 unsigned offsets then casts ends', async () => {
+    const { init_rumors, rumor_check } = await import('../js/rumors.js');
+    const decl = readFileSync(new URL('../nethack-c/upstream/include/decl.h', import.meta.url), 'utf8');
+    assert.match(decl, /unsigned long true_rumor_start/u);
+    assert.match(decl, /unsigned long false_rumor_start/u);
+    assert.match(source, /"%d,%ld,%lx;%d,%ld,%lx;0,0,%lx\\n"/u);
+    assert.match(source, /gt\.true_rumor_end = \(long\) gt\.true_rumor_start \+ gt\.true_rumor_size/u);
+    assert.match(source, /gf\.false_rumor_end = \(long\) gf\.false_rumor_start \+ gf\.false_rumor_size/u);
+    // Review counterexample: scanf accepts -10 as hex -16, storing 2^64-16
+    // in unsigned long; the source casts it back to -16 before adding size4.
+    const header = '# generated\n1,4,-10;1,5,30;0,0,90\n';
+    const state = rumorState();
+    init_rumors({ data: header, position: 0 }, state);
+    assert.equal(state.gt.true_rumor_start, 0xfffffffffffffff0n);
+    assert.equal(state.gt.true_rumor_end, -12);
+    assert.equal(state.gf.false_rumor_start, 0x30);
+    assert.equal(state.gf.false_rumor_end, 0x30 + 5);
+    // Reuse cached offsets and a sufficiently long byte file so both source
+    // seeks/read loops have records; only the offset display is asserted here.
+    let output;
+    await rumor_check(state, { files: { rumors: header + textFile(['first', 'second', 'last']) },
+        window: async (_state, lines) => { output = lines.map(line => line.text); } });
+    assert.equal(output[0], 'T start=-00016 (fffffffffffffff0), end=-00012 (fffffffffffffff4), size=000004 (000004)');
+    assert.ok(output[2].startsWith('T 000000 '), 'failed negative seek leaves reopened cached cursor at zero');
+    const cold = rumorState();
+    await rumor_check(cold, { files: { rumors: header + textFile(['first', 'second', 'last']) },
+        window: async (_state, lines) => { output = lines.map(line => line.text); } });
+    assert.ok(output[2].startsWith('T ' + String(header.length).padStart(6, '0') + ' '),
+        'failed negative seek leaves cold init cursor after the two header lines');
+    const config = readFileSync(new URL('../nethack-c/upstream/include/config.h', import.meta.url), 'utf8');
+    const dlb = readFileSync(new URL('../nethack-c/upstream/include/dlb.h', import.meta.url), 'utf8');
+    assert.match(config, /\/\* #define DLB \*\//u);
+    assert.match(dlb, /#define dlb_fseek fseek/u);
+    const falseNegative = rumorState();
+    init_rumors({ data: '# generated\n1,4,10;1,5,-0X20;0,0,90\n', position: 0 }, falseNegative);
+    assert.equal(falseNegative.gf.false_rumor_start, 0xffffffffffffffe0n);
+    assert.equal(falseNegative.gf.false_rumor_end, -27); // Signed -32 plus size5.
+});

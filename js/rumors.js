@@ -34,6 +34,17 @@ function byteLine(file, size) {
     return line;
 }
 
+// The recorder uses LP64: offsets scanned with %lx are unsigned 64-bit,
+// while sizes/ends and explicit (long) casts are signed. Keep ordinary file
+// offsets as Numbers and retain values outside their exact range as BigInts
+// in the same source field, rather than rounding an unsigned negative token.
+function longInteger(value, unsigned = false) {
+    const integer = unsigned ? BigInt.asUintN(64, BigInt(value))
+        : BigInt.asIntN(64, BigInt(value));
+    return integer >= BigInt(Number.MIN_SAFE_INTEGER)
+        && integer <= BigInt(Number.MAX_SAFE_INTEGER) ? Number(integer) : integer;
+}
+
 // C ref: rumors.c init_rumors() (85-107). Counts and EOF are parsed but local;
 // only C's gt/gf offsets persist. A failed init closes its local dlb handle.
 export function init_rumors(file, state = game) {
@@ -57,7 +68,10 @@ export function init_rumors(file, state = game) {
             ? /^\s*[+-]?\d+/u : /^\s*[+-]?(?:0x)?[\da-f]+/iu);
         if (!match) break;
         const token = match[0].trim();
-        const value = Number.parseInt(token, kind === 'decimal' ? 10 : 16);
+        const negative = token.startsWith('-');
+        const digits = token.replace(/^[+-]/u, '').replace(/^0x/iu, '');
+        const value = kind === 'decimal' ? longInteger(token)
+            : longInteger((negative ? -1n : 1n) * BigInt('0x' + digits), true);
         if (owner) owner[field] = value;
         converted++;
         remaining = remaining.slice(match[0].length);
@@ -66,8 +80,10 @@ export function init_rumors(file, state = game) {
     }
     if (converted === 7 && state.gt.true_rumor_size > 0
         && state.gf.false_rumor_size > 0) {
-        state.gt.true_rumor_end = state.gt.true_rumor_start + state.gt.true_rumor_size;
-        state.gf.false_rumor_end = state.gf.false_rumor_start + state.gf.false_rumor_size;
+        state.gt.true_rumor_end = longInteger(BigInt(longInteger(state.gt.true_rumor_start))
+            + BigInt(state.gt.true_rumor_size));
+        state.gf.false_rumor_end = longInteger(BigInt(longInteger(state.gf.false_rumor_start))
+            + BigInt(state.gf.false_rumor_size));
     } else {
         state.gt.true_rumor_size = -1;
         file.closed = true;
@@ -96,8 +112,12 @@ export async function rumor_check(state = game, env = {}) {
     }
     if (file) {
         win.lines = [];
-        const decimal = value => String(value).padStart(6, '0');
-        const hex = value => value.toString(16).padStart(6, '0');
+        const decimal = value => {
+            const signed = BigInt.asIntN(64, BigInt(value));
+            return signed < 0n ? '-' + (-signed).toString().padStart(5, '0')
+                : signed.toString().padStart(6, '0');
+        };
+        const hex = value => BigInt.asUintN(64, BigInt(value)).toString(16).padStart(6, '0');
         for (const [tag, fields, prefix] of [
             ['T', state.gt, 'true_rumor'], ['F', state.gf, 'false_rumor'],
         ]) {
@@ -112,9 +132,13 @@ export async function rumor_check(state = game, env = {}) {
             ['T', state.gt.true_rumor_start, state.gt.true_rumor_end],
             ['F', state.gf.false_rumor_start, state.gf.false_rumor_end],
         ]) {
-            file.position = start;
+            // The UNIX recorder disables DLB (config.h): dlb_fseek is fseek.
+            // A negative signed SEEK_SET offset fails, leaving ftell unchanged.
+            const signedStart = Number(longInteger(start));
+            if (signedStart >= 0) file.position = signedStart;
+            const actualStart = file.position;
             let line = byteLine(file, BUFSZ) ?? '';
-            win.lines.push({ text: tag + ' ' + decimal(start) + ' ' + decodedLine(line) });
+            win.lines.push({ text: tag + ' ' + decimal(actualStart) + ' ' + decodedLine(line) });
             // fgets changes line before ftell is compared. The record ending
             // exactly at end is the final displayed line, without unpadline.
             let next;
