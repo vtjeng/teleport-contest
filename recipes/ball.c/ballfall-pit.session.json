@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first ballfall recipe; unsearched seed chosen before C observation or JavaScript comparison. Pit entry: move away from the placed punishment ball before making a pit under the hero. trap.c trapeffect_pit calls unplacebc, ballfall, placebc in order. C-only setup correction: a leading space acknowledges the tty startup More prompt; a leading period did not, so the first intended wish was never entered. C-only setup correction: trap wishing creates the pit but does not trigger it. Step away and return to enter the known trap; y answers any move confirmation. C-only tty correction: leaving the pit square onto the upstairs prints a pending More line, so acknowledge it before returning.",
+  "segments": [
+    {
+      "seed": 1432803,
+      "datetime": "20551204112213",
+      "nethackrc": "OPTIONS=name:Ball1432803,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " l\u0017uncursed scroll of punishment\nre    ll\u0017pit trap\nh  ly        ."
+    }
+  ]
+}
