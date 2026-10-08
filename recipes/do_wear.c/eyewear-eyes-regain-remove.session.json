@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Monk Eyes eyewear witness; C setup confirmed j is Eyes and k is next wished potion. Mapping before blindness separates callback sight change from the existing hidden-corridor XRAY overlay limitation.",
+  "segments": [
+    {
+      "seed": 1502906,
+      "datetime": "20590723123941",
+      "nethackrc": "OPTIONS=name:EyewearWitness,role:Monk,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "   \u0017uncursed Eyes of the Overworld\n    \u0006\u0017uncursed potion of blindness\nqk    Pj    R    ."
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 // ball.js -- punishment ball and chain movement.
 // C refs: ball.c ballrelease() (23-39), ballfall() (43-67), placebc_core() (120-145),
 // unplacebc_core() (147-190), placebc()/unplacebc() (193-219),
+// bc_order() (354-371), set_bc() (380-425),
 // move_bc() (437-552), drag_ball() (560-830), and drag_down() (986-1031).
 // The movement helpers are used by dothrow.c hurtle_step() while a jumping
 // hero is punished. The pointers in drag_ball() are represented by `{ value }`
@@ -26,6 +27,7 @@ import {
     is_hole,
     is_pit,
 } from './const.js';
+import { GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 import {
     is_pool,
 } from './dbridge.js';
@@ -34,7 +36,6 @@ import { canletgo, flooreffects } from './do.js';
 import { game } from './gstate.js';
 import {
     cls,
-    glyph_at,
     map_object,
     newsym,
     remembered_glyph_from_presentation,
@@ -87,11 +88,13 @@ function setPointer(pointer, value) {
         pointer.value = value;
 }
 
-function bcOrder(state) {
+// C ref: ball.c bc_order() (354-371), including the swallowed guard before
+// inspecting the floor pile. The invalid-pile diagnostic is a discarded call.
+export function bc_order(state = game) {
     const ball = state.uball;
     const chain = state.uchain;
-    if (!ball || !chain || carried(ball)
-        || ball.ox !== chain.ox || ball.oy !== chain.oy)
+    if (ball.ox !== chain.ox || ball.oy !== chain.oy
+        || carried(ball) || state.u.uswallow)
         return BCPOS_DIFFER;
     for (let object = state.level?.objects?.[ball.ox]?.[ball.oy] ?? null;
         object;
@@ -99,7 +102,61 @@ function bcOrder(state) {
         if (object === chain) return BCPOS_CHAIN;
         if (object === ball) return BCPOS_BALL;
     }
+    note_unported('pline.c impossible');
     return BCPOS_DIFFER;
+}
+
+// C levl[x][y].glyph is persistent map memory, separate from disp_glyph.
+// Undefined memory represents C's GLYPH_UNEXPLORED sentinel.
+function memoryGlyph(x, y, state) {
+    return state.level.at(x, y).remembered_glyph?.glyph
+        ?? GLYPH_UNEXPLORED_OFF;
+}
+
+// C ref: ball.c set_bc() (380-425). Capture the glyph under each felt object
+// before toggle_blindness rebuilds visibility. Extraction and replacement
+// preserve both floor chains and their original stacking order.
+export function set_bc(already_blind, state = game, rawEnv = {}) {
+    const ball = state.uball;
+    const chain = state.uchain;
+    const ball_on_floor = !carried(ball);
+    const env = { ...rawEnv, state };
+    // newsym owns the live display. Planning callers forward their redraw
+    // seam, as toggle_blindness does; a foreign state never paints live tty.
+    const redraw = rawEnv.redraw ?? (state === game ? newsym : () => {});
+
+    state.u.bc_order = bc_order(state);
+    state.u.bc_felt = ball_on_floor ? BC_BALL | BC_CHAIN : BC_CHAIN;
+    if (already_blind || state.u.uswallow) {
+        state.u.cglyph = state.u.bglyph = memoryGlyph(state.u.ux, state.u.uy, state);
+        return;
+    }
+
+    remove_object(chain, env);
+    if (ball_on_floor) remove_object(ball, env);
+    redraw(chain.ox, chain.oy, state);
+    state.u.cglyph = memoryGlyph(chain.ox, chain.oy, state);
+
+    if (state.u.bc_order === BCPOS_DIFFER) {
+        place_object(chain, chain.ox, chain.oy, env);
+        redraw(chain.ox, chain.oy, state);
+        if (ball_on_floor) {
+            redraw(ball.ox, ball.oy, state);
+            state.u.bglyph = memoryGlyph(ball.ox, ball.oy, state);
+            place_object(ball, ball.ox, ball.oy, env);
+            redraw(ball.ox, ball.oy, state);
+        }
+    } else {
+        state.u.bglyph = state.u.cglyph;
+        if (state.u.bc_order === BCPOS_CHAIN) {
+            place_object(ball, ball.ox, ball.oy, env);
+            place_object(chain, chain.ox, chain.oy, env);
+        } else {
+            place_object(chain, chain.ox, chain.oy, env);
+            place_object(ball, ball.ox, ball.oy, env);
+        }
+        redraw(ball.ox, ball.oy, state);
+    }
 }
 
 function blind(state) {
@@ -147,7 +204,7 @@ async function placebc_core(state, rawEnv = {}) {
         state.u.bc_order = BCPOS_CHAIN;
     }
     place_object(chain, state.u.ux, state.u.uy, { state });
-    const glyph = state.level.at(state.u.ux, state.u.uy).glyph;
+    const glyph = memoryGlyph(state.u.ux, state.u.uy, state);
     state.u.bglyph = glyph;
     state.u.cglyph = glyph;
     redraw(state.u.ux, state.u.uy, state);
@@ -189,14 +246,14 @@ function unplacebc_core(state) {
     if (!carried(ball) && ball.where === OBJ_FLOOR) {
         remove_object(ball, { state });
         if (heroIsBlind(state) && (state.u.bc_felt & BC_BALL))
-            state.level.at(ball.ox, ball.oy).glyph = state.u.bglyph;
+            state.level.at(ball.ox, ball.oy).remembered_glyph = rememberedGlyph(state.u.bglyph);
         maybe_unhide_at(ball.ox, ball.oy, state);
         newsym(ball.ox, ball.oy, state);
     }
     if (chain.where === OBJ_FLOOR)
         remove_object(chain, { state });
     if (heroIsBlind(state) && (state.u.bc_felt & BC_CHAIN))
-        state.level.at(chain.ox, chain.oy).glyph = state.u.cglyph;
+        state.level.at(chain.ox, chain.oy).remembered_glyph = rememberedGlyph(state.u.cglyph);
     maybe_unhide_at(chain.ox, chain.oy, state);
     newsym(chain.ox, chain.oy, state);
     state.u.bc_felt = 0;
@@ -355,8 +412,8 @@ export function move_bc(before, control, ballx, bally, chainx, chainy, state = g
                     state.level.at(chain.ox, chain.oy).remembered_glyph
                         = rememberedGlyph(state.u.cglyph);
                 state.u.bc_felt = 0;
-                state.u.bglyph = glyph_at(ballx, bally, state);
-                state.u.cglyph = glyph_at(chainx, chainy, state);
+                state.u.bglyph = memoryGlyph(ballx, bally, state);
+                state.u.cglyph = memoryGlyph(chainx, chainy, state);
                 moveObject(ball, ballx, bally, state);
                 moveObject(chain, chainx, chainy, state);
             } else if (control & BC_BALL) {
@@ -372,7 +429,7 @@ export function move_bc(before, control, ballx, bally, chainx, chainy, state = g
                     state.u.bc_felt &= ~BC_BALL;
                 }
                 state.u.bglyph = ballx !== chainx || bally !== chainy
-                    ? glyph_at(ballx, bally, state) : state.u.cglyph;
+                    ? memoryGlyph(ballx, bally, state) : state.u.cglyph;
                 moveObject(ball, ballx, bally, state);
             } else if (control & BC_CHAIN) {
                 if (state.u.bc_felt & BC_CHAIN) {
@@ -387,16 +444,16 @@ export function move_bc(before, control, ballx, bally, chainx, chainy, state = g
                     state.u.bc_felt &= ~BC_CHAIN;
                 }
                 state.u.cglyph = ballx !== chainx || bally !== chainy
-                    ? glyph_at(chainx, chainy, state) : state.u.bglyph;
+                    ? memoryGlyph(chainx, chainy, state) : state.u.bglyph;
                 moveObject(chain, chainx, chainy, state);
             }
-            state.u.bc_order = bcOrder(state);
+            state.u.bc_order = bc_order(state);
         }
         return;
     }
 
     if (before) {
-        if (!control) state.u.bc_order = bcOrder(state);
+        if (!control) state.u.bc_order = bc_order(state);
         if (chain.where === OBJ_FLOOR) {
             remove_object(chain, { state });
             maybe_unhide_at(chain.ox, chain.oy, state);

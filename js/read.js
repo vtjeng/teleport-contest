@@ -360,7 +360,8 @@ import {
     cmap_to_glyph, map_glyphinfo, map_invisible, newsym, shieldeff, tmp_at,
 } from './display.js';
 import { dropCommandEnv, dropy, flooreffects, trycall } from './do.js';
-import { placebc } from './ball.js';
+import { placebc, set_bc } from './ball.js';
+import { heroIsBlind as Blind } from './startup_a11y.js';
 import { y_n } from './cmd.js';
 import {
     study_book,
@@ -1150,7 +1151,7 @@ export async function punish(sobj, state = game, rawEnv = {}) {
 
     if (!state.u.uswallow) {
         await placebc(state, env);
-        if (propertyActive(BLINDED, state)) note_unported('ball.c set_bc');
+        if (Blind(state)) set_bc(1, state, env);
         (rawEnv.redraw ?? newsym)(state.u.ux, state.u.uy, state);
     }
 }

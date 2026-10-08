@@ -172,6 +172,7 @@ import { more_experienced, pluslvl, rndexp } from './exper.js';
 import { unfixable_trouble_count } from './apply.js';
 import { fruitname, makeplural } from './fruit.js';
 import { game } from './gstate.js';
+import { set_bc } from './ball.js';
 import { del_light_source } from './light.js';
 import {
     endRunning, losehp, nomul, spoteffects, You_can_move_again,
@@ -802,10 +803,7 @@ export async function make_blinded(xtime, talk, state = game, env = {}) {
                 state,
             );
         }
-        // C's set_bc() result is discarded. It remains outside this span;
-        // planning clones must not add the gap to the live game's set.
-        const punished = Boolean(state.uball);
-        if (punished && state === game) note_unported('ball.c set_bc');
+        if (state.uball) set_bc(0, state, env);
     } else if (!old && xtime) {
         if (talk) {
             if (!haseyes(state.youmonst?.data) || permaBlind) {

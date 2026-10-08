@@ -4264,7 +4264,7 @@ export async function use_towel(obj, state = game, env = {}) {
                 } else {
                     await message(`You push your ${what} off.`, state);
                     await Blindf_off(worn, state);
-                    await dropx(worn, { ...env, state });
+                    await dropx(worn, dropCommandEnv(state, env));
                 }
             }
             if (is_wet_towel(obj))
