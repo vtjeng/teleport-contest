@@ -57,6 +57,7 @@ import {
     tty_yn_function,
 } from '../js/getline.js';
 import { game } from '../js/gstate.js';
+import { delayed_killer, find_delayed_killer } from '../js/end.js';
 import { near_capacity } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import {
@@ -738,6 +739,50 @@ test('in_trouble() hit-point arm ignores Unchanging on an unpolymorphed hero',
         u.uhp = fullHp;
         assert.equal(in_trouble(game), 0);
     });
+
+// pray.c:383 delegates the cure to potion.c:222-240. Five remaining turns
+// make a live timeout; FROMOUTSIDE checks that set_itimeout keeps upper bits.
+test('prayer petrification cure clears timeout and delayed killer without RNG', async () => {
+    const state = await startedGame();
+    state.u.uprops[STONED].intrinsic = FROMOUTSIDE | 5;
+    // The cure passes a null killer name and zero format; the existing record
+    // must be removed rather than replaced with that null input.
+    delayed_killer(STONED, 0, 'petrification fixture', state);
+    delayed_killer(SLIMED, 0, 'sliming fixture', state);
+    const unrelated = find_delayed_killer(SLIMED, state);
+    state.disp.botl = false;
+    // Preserve the dirty flag for inspection; botl.c:255 suppresses repaint
+    // under the same canonical flag held by menu callers.
+    (state.gb ??= {}).bot_disabled = true;
+    clearTtyMessageWindow(state);
+    enableRngLog();
+
+    await fix_worst_trouble(TROUBLE_STONED, state);
+
+    assert.equal(state.u.uprops[STONED].intrinsic, FROMOUTSIDE);
+    assert.equal(find_delayed_killer(STONED, state), null);
+    assert.equal(find_delayed_killer(SLIMED, state), unrelated);
+    assert.equal(state.killer.next, unrelated);
+    assert.equal(state.disp.botl, true);
+    state.gb.bot_disabled = false;
+    assert.equal(state._pending_message, 'You feel more limber.');
+    assert.deepEqual(getRngLog(), []);
+    assert.match(PRAY_C, /case TROUBLE_STONED:\s*make_stoned\(0L, "You feel more limber\.", 0, \(char \*\) 0\);/u);
+});
+
+test('prayer cure with no stoning timeout emits no transition message', async () => {
+    const state = await startedGame();
+    // Upper intrinsic bits alone are not a timed petrification transition.
+    state.u.uprops[STONED].intrinsic = FROMOUTSIDE;
+    clearTtyMessageWindow(state);
+    state.disp.botl = false;
+    enableRngLog();
+    await fix_worst_trouble(TROUBLE_STONED, state);
+    assert.equal(state.u.uprops[STONED].intrinsic, FROMOUTSIDE);
+    assert.equal(state.disp.botl, false);
+    assert.equal(state._pending_message ?? '', '');
+    assert.deepEqual(getRngLog(), []);
+});
 
 // pray.c:421-439 fixes the low-HP arm in place. The threshold test and the
 // rnd(5) draw are both source behavior: the draw happens only when u.uhpmax
