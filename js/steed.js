@@ -88,6 +88,7 @@ import {
     x_monnam,
     y_monnam,
 } from './do_name.js';
+import { canseemon } from './display.js';
 import { game } from './gstate.js';
 import {
     losehp,
@@ -206,15 +207,6 @@ function saddleEnv(env = {}) {
     };
 }
 
-function canSeeStartingPet(monster, env) {
-    if (typeof env.canseemon === 'function')
-        return Boolean(env.canseemon(monster, env));
-    if (env.state.in_mklev) return false;
-    // dog.c:makedog() equips the saddle before initedog(); ordinary startup
-    // pets are adjacent unless blindness or invisibility prevents seeing one.
-    return !Blind(env.state) && !monster.minvis;
-}
-
 // C ref: steed.c rider_cant_reach() (17-20). Its caller has decided
 // that the mounted hero cannot reach; naming retains the ordinary owner.
 export async function rider_cant_reach(state = game, env = {}) {
@@ -279,7 +271,11 @@ export function put_saddle_on_mon(saddle, monster, env = {}) {
     }
     if (mpickobj(monster, saddle, {
         ...normalized,
-        canSeeMonster: (subject) => canSeeStartingPet(subject, normalized),
+        // steal.c:mpickobj uses current canseemon even before initedog.
+        // Special-level construction can supply its existing sight adapter.
+        canSeeMonster: (subject) => typeof normalized.canseemon === 'function'
+            ? Boolean(normalized.canseemon(subject, normalized))
+            : canseemon(subject, normalized.state),
     }))
         throw new Error('put_saddle_on_mon: merged saddle');
     monster.misc_worn_check |= W_SADDLE;
