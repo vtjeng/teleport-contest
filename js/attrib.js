@@ -1701,6 +1701,10 @@ export async function poisoned(
             const adjustedLoss = adjuhploss(loss, olduhp, state);
 
             await losehp(adjustedLoss, pkiller, kprefix, state);
+            // C losehp() does not return after an accepted death. JS marks
+            // gameover and unwinds asynchronously, so stop before poison's
+            // remaining attribute losses and encumbrance update.
+            if (state.program_state?.gameover) return;
             if (await adjattrib(A_CON, typ !== A_CON ? -1 : -3, 1, state, env))
                 await poisontell(A_CON, true, state, env);
             if (typ !== A_CON
@@ -1715,6 +1719,7 @@ export async function poisoned(
             && state.ublindf?.otyp === TOWEL && state.ublindf.spe > 0)
             loss = Math.trunc((loss + 1) / 2);
         await losehp(loss, pkiller, kprefix, state);
+        if (state.program_state?.gameover) return;
     } else {
         // Attribute loss.
         const loss = (thrown_weapon || !fatal)
@@ -1734,6 +1739,7 @@ export async function poisoned(
         if (env.planning && typeof env.planningDeath === 'function')
             throw env.planningDeath();
         await done(strstri(pkiller, 'poison') >= 0 ? DIED : POISONING, state);
+        if (state.program_state?.gameover) return;
     }
     await encumberMessage(state);
 }

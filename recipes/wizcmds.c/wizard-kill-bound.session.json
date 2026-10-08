@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first wizcmds.c:wiz_kill bound route. Unsearched seed, fixed clock and source-valid debug/setup commands. C output is inspected before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 14629033,
+      "datetime": "20650716132800",
+      "nethackrc": "OPTIONS=name:Killbound,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!verbose,!debug_mongen,pettype:none\nBINDINGS=V:wizkill\n",
+      "moves": " 3V .n\n #wizkill\nl. "
+    }
+  ]
+}

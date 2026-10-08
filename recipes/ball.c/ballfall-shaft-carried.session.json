@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first ballfall recipe; unsearched seed chosen before C observation or JavaScript comparison. Carried-ball variation: pick up the attached iron ball before downward digging. ballfall computes chance before ballrelease(TRUE) removes the ball from inventory and prints the startled message. C-only setup correction: a leading space acknowledges the tty startup More prompt; a leading period did not, so the first intended wish was never entered.",
+  "segments": [
+    {
+      "seed": 1432805,
+      "datetime": "20551204112213",
+      "nethackrc": "OPTIONS=name:Ball1432805,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " l\u0017uncursed scroll of punishment\nre    ,a\n     \u0017uncursed wand of digging\nzg>          ."
+    }
+  ]
+}

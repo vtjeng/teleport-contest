@@ -1,0 +1,125 @@
+{
+  "session": "synthetic/v29/v29-terrain-projection-objects",
+  "corpus": "synthetic",
+  "batch": "v29",
+  "caseId": "v29-terrain-projection-objects",
+  "manifestPath": "challenges/manifests/v29.json",
+  "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+  "recordingSha256": "0c1c7929ab931001134d5b68730fbf76cfabd78cad10477b6d47118a68dfa08d",
+  "evaluationPath": "challenges/evaluations/accepted-be1d7b43058b9973167448f8562c136850501400-v29.json",
+  "evaluationCommit": "be1d7b43058b9973167448f8562c136850501400",
+  "remainingScreens": 7,
+  "recordedSteps": 39,
+  "status": "complete",
+  "commit": "be1d7b43058b9973167448f8562c136850501400",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v29",
+    "caseId": "v29-terrain-projection-objects",
+    "session": "synthetic/v29/v29-terrain-projection-objects",
+    "manifestPath": "challenges/manifests/v29.json",
+    "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+    "recordingPath": "challenges/cases/v29/v29-terrain-projection-objects.session.json",
+    "recordingSha256": "0c1c7929ab931001134d5b68730fbf76cfabd78cad10477b6d47118a68dfa08d",
+    "evaluationPath": "challenges/evaluations/accepted-be1d7b43058b9973167448f8562c136850501400-v29.json",
+    "evaluationCommit": "be1d7b43058b9973167448f8562c136850501400",
+    "remainingScreens": 7,
+    "recordedSteps": 39,
+    "metrics": {
+      "screens": {
+        "matched": 32,
+        "total": 39
+      },
+      "rng": {
+        "matched": 2872,
+        "total": 2876
+      },
+      "cursors": {
+        "matched": 32,
+        "total": 39
+      }
+    },
+    "step": 32,
+    "kind": "unsupported",
+    "message": "unsupported hero command: an unported branch of this command: terrain menu choice 3 is not ported",
+    "firstMismatch": {
+      "screen": {
+        "index": 32,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 32,
+          "key": "c"
+        },
+        "kind": "js-missing"
+      },
+      "rng": {
+        "index": 2872,
+        "cEntry": "rn2(12)=6",
+        "cCaller": "mcalcmove(mon.c:1164)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 38,
+          "key": "."
+        }
+      },
+      "cursor": {
+        "index": 32,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 32,
+          "key": "c"
+        },
+        "cCursor": [
+          57,
+          0,
+          1
+        ]
+      }
+    },
+    "evaluationUtc": "2026-10-08T05:39:22.671Z"
+  },
+  "summary": "The terrain menu refuses its known-map-with-objects selection before detect.c projection. C choice3 passes TER_MAP|TER_TRP|TER_OBJ, preserves remembered objects and known traps while removing monsters, then browses and restores the map without consuming time. Both JS projection functions refuse every subset except TER_MAP. Complete the whole detect.c projection pair and reconcile the bounded menu caller; wizard internal-code and legend owners remain separate.",
+  "goalKind": "file-port",
+  "source": {
+    "file": "detect.c",
+    "branch": "cmd.c:doterrain selects menu choice3 in the admitted case; it must pass TER_MAP|TER_TRP|TER_OBJ to reveal_terrain. Whole selected helpers cover all subset bits (TRP,OBJ,MON,FULL), temporary swallowed/water/buried constraints, disoriented non-full refusal, full-map temporary seenv restoration, visible-region/trap precedence, mimic remembered topology and wall_info restoration, and room/corridor normalization. TER_MON is also consumed by the compiled DUMPLOG dump_map caller but is excluded from the minimal recorder because config.h669 leaves DUMPLOG undefined.",
+    "functions": [
+      "reveal_terrain_getglyph",
+      "reveal_terrain"
+    ],
+    "callers": [
+      "cmd.c:doterrain1098–1189 cases1–4 calls reveal_terrain with exact TER_MAP/TRP/OBJ/FULL flags; JS cmd.js3161–3211 handles the menu but throws for choices2–6. Reconcile choices1–4 only; retain separate wizard choices5/6 owners without whole doterrain completion credit.",
+      "detect.c:reveal_terrain2378–2383 calls reveal_terrain_getglyph for every map square; keep x outer/y inner source iteration order.",
+      "detect.c:dump_map2323 invokes reveal_terrain_getglyph with TER_MAP|TER_TRP|TER_OBJ|TER_MON under DUMPLOG; the minimal recorder keeps DUMPLOG disabled (config.h669 and linux-minimal has no DUMPLOG override), so no active JS dump caller is required."
+    ],
+    "dependencies": [
+      "Existing consumed detect.c:unconstrain_map69–81 and display glyph producer returns (back_to_glyph,cmap_to_glyph,glyph_at,trap_to_glyph,mon_to_glyph), vision cansee/covers_traps, region visible_region_at, and monster lookup m_at must be source-verified.",
+      "Existing discard-result xy_set_wall_state, browse_map/getpos, map_redisplay/docrt and flush_screen support the source temporary projection; no broader display/vision/getpos completion credit.",
+      "Wizard menu choices5/6 dispatch void-return wizcmds.c:wiz_map_levltyp693–836 and wiz_levltyp_legend841–895, absent in JS. Retain these as named outside-limit owners rather than claiming their completion."
+    ]
+  },
+  "evidence": [
+    "Source read in full: detect.c2167–2288 reveal_terrain_getglyph and2356–2413 reveal_terrain; cmd.c1098–1189 menu choices and return. The getglyph helper is impure: full and remembered-topology branches temporarily mutate levl state; swallowed keep-monster arm can use display RNG.",
+    "Focused replay run-oXRWfn at8ffcb93f reproduces refusal atsegment0step32,keyc: UnsupportedHeroCommandBoundaryError terrain menu choice3 is not ported. C39steps,JS32screens/cursors,C2876RNG,JS2872. Local .cache/v29-terrain-projection-objects/replay.log andterrain.comparison.json preserve this worker observation; it does not replace the saved main evaluation.",
+    "Cstep32 prints Showing known terrain, traps, and objects only...; step33 first-use getpos tip; step34 cursor browsing; step35 Done; steps36–37 restore ordinary map; step38 wait. Immutable input .l,wish/drop diamond,#terrain,c supplies independent object-preserving projection witness.",
+    "JS detect.js309–397 retains only TER_MAP glyph filtering and throws before other subsets. Missing source arms include keep_traps/object/monster/full masks, region/trap precedence and swallowed keep-monster display; detect.js1574–1616 also throws rather than displaying C disorientation message and lacks C subset description construction.",
+    "Existing helper calls inspected: unconstrain_map saves and clears three constraint fields; browse_map supplies terrainmode/autodescribe and calls getpos; map_redisplay reconstrains before vision/docrt redraw. Reveal currently calls async docrt without await on the constrained arm, which source caller reconciliation must correct.",
+    "Next independent evidence should cover known trap-only choice2, object-preserving choice3 with cheap object-class variation, full-map choice4, disoriented rejection and constrained-map restoration; preserve wizard choices5/6 blocked recipes if menu caller limits remain.",
+    "DUMPLOG build audit: upstream config.h669 leaves its definition commented; linux-minimal hint has no override and patched recorder config.h retains the same commented line. dump_map2292–2350 caller is compile-time inactive; pin TER_MON branch results/state in focused source tests without inventing a startup/shutdown entry."
+  ],
+  "evaluationUtc": "2026-10-08T05:39:22.671Z",
+  "metrics": {
+    "screens": {
+      "matched": 32,
+      "total": 39
+    },
+    "rng": {
+      "matched": 2872,
+      "total": 2876
+    },
+    "cursors": {
+      "matched": 32,
+      "total": 39
+    }
+  }
+}

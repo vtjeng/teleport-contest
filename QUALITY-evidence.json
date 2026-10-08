@@ -18507,5 +18507,81 @@
       "unverified": []
     },
     "recordedAt": "2026-10-08T01:25:25.315Z"
+  },
+  {
+    "kind": "review",
+    "head": "8309e0c5dd27fc9680e5c3ad69a05df3ed7d1e4f",
+    "auditedRange": "0f20a29cbe7f6c70692b156a02817310c5bfa0ec..8309e0c5dd27fc9680e5c3ad69a05df3ed7d1e4f",
+    "level": "full",
+    "areas": [
+      "hero",
+      "objects",
+      "generation",
+      "monsters",
+      "world-effects",
+      "commands",
+      "runtime"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 10 raw, 8 deduplicated, 5 confirmed, 5 applied, 0 deferred, 3 rejected, 0 unverified. The four mandatory finders ran. Concurrency also ran because the range changes asynchronous terminal-death and cleanup control flow; performance was disabled because the range adds no work beyond the C source. The correction verifier found no remaining production defect. Focused validation passed for explosion, monster-hit, throne, wizard-kill, and level-flip behavior, followed by lint and the quality check. Warnings were limited to optional direct coverage of the menu-requested monster-kill branch, ordinary throne case 1, and life-saving or declined-debug recovery paths.",
+    "auditMetrics": {
+      "wallTimeSeconds": 999,
+      "counts": {
+        "raw": 10,
+        "deduplicated": 8,
+        "confirmed": 5,
+        "applied": 5,
+        "deferred": 0,
+        "rejected": 3,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 3,
+        "tests": 1,
+        "clarity": 1,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [
+        {
+          "summary": "A lethal elemental monster explosion resumed after done(), allowing explode(), mon_explodes(), and explmu() to exercise Strength, wake monsters, clear the canonical killer, and run later cleanup that C's final NORETURN path cannot reach.",
+          "foundBy": [
+            "correctness",
+            "concurrency",
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "A lethal ordinary throne effect resumed after losehp(), allowing Constitution exercise and the common throne-removal draw that C's final NORETURN path cannot reach.",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "wiz_kill() could request another target after xkilled() or monkilled() caused a fatal monster explosion, where C's final done() path never returns to the target loop.",
+          "foundBy": [
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        }
+      ],
+      "rejections": [
+        {
+          "summary": "flip_level() was said to perform an extra vision reset absent from C.",
+          "counterEvidence": "NetHack sp_lev.c:921 calls vision_reset() at the end of flip_level(), matching js/sp_lev.js. Do not reopen without a source revision or a reachable ordering difference after that source call."
+        },
+        {
+          "summary": "maketrap()'s conditional Promise was said to be mishandled by ensure_way_out().",
+          "counterEvidence": "The Promise path requires restoring a buried punishment ball while the hero is trapped by it. ensure_way_out() runs during fresh special-level construction, where that state and buried ball are absent; runtime pit and hole callers await maketrap(). Reopen if a synchronous runtime caller can reach that buried-ball state."
+        },
+        {
+          "summary": "Wizard-kill swallowed targeting was said to use the wrong distance metric.",
+          "counterEvidence": "C next2u() uses distu() <= 2, and distu() aliases dist2(). JavaScript uses the same dist2() <= 2 comparison; offsets (2,0), (2,1), and (2,2) are excluded by both. Do not reopen without a source input on which the two predicates differ."
+        }
+      ]
+    },
+    "recordedAt": "2026-10-08T06:55:45.807Z"
   }
 ]

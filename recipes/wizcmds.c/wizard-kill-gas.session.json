@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first m-prefix gas-spore variation. Levelchange sets level 5 for blast survival; source-created peaceful newt and gas spore. The counted configured-key command (3mV) selects the spore, which explodes and kills an adjacent newt while mon_moving remains true, preserving zero hero kill conduct and setup experience; no seed scan.",
+  "segments": [
+    {
+      "seed": 14629039,
+      "datetime": "20650716132800",
+      "nethackrc": "OPTIONS=name:Killgas,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!verbose,!debug_mongen,pettype:none\nBINDINGS=V:wizkill\n",
+      "moves": " #levelchange\n5\n           \u0007peaceful newt\n \u0007peaceful gas spore\n 3mVm. m.       \u001b "
+    }
+  ]
+}

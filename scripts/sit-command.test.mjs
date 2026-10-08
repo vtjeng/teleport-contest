@@ -8,6 +8,7 @@ import {
     BLINDED,
     CONFUSION,
     DEAF,
+    DISCLOSE_NO_WITHOUT_PROMPT,
     DRAWBRIDGE_DOWN,
     ECMD_OK,
     ECMD_TIME,
@@ -386,6 +387,40 @@ test('throne_sit_effect keeps its source random-call order on the comfort arm',
     assert.equal(await dosit(game, { random }), ECMD_TIME);
     assert.deepEqual(calls, ['rnd(6)', 'rn2(3)']);
     assert.ok(toplines().includes('You feel somehow out of place...'));
+});
+
+test('a lethal electric throne stops exercise and throne-removal draws', async () => {
+    await standOnStairs();
+    heroSquare().typ = THRONE;
+    game.u.uz.dnum = game.tower_dnum + 1;
+    game.wizard = false;
+    game.u.uhp = 1;
+    game.invent = null;
+    game.iflags.window_inited = false;
+    game.flags.end_disclose.fill(DISCLOSE_NO_WITHOUT_PROMPT);
+    game.flags.bones = false;
+    game.moves = Math.max(game.moves, 2);
+    const calls = [];
+    const random = {
+        rnd(bound) {
+            calls.push(`rnd(${bound})`);
+            if (bound === 6) return 5;
+            if (bound === 13) return 3;
+            if (bound === 30) return 30;
+            assert.fail(`unexpected rnd(${bound})`);
+        },
+        rn2(bound) {
+            calls.push(`rn2(${bound})`);
+            assert.fail(`unexpected rn2(${bound}) after final death`);
+        },
+    };
+
+    assert.equal(await dosit(game, {
+        random,
+        message: async () => {},
+    }), ECMD_TIME);
+    assert.equal(game.program_state.gameover, true);
+    assert.deepEqual(calls, ['rnd(6)', 'rnd(13)', 'rnd(30)']);
 });
 
 test('Vlad throne effect 7 removes an intrinsic before its amusement message',

@@ -392,6 +392,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
             const { losehp } = await import('./hack.js');
             await losehp(random.rnd(10), 'cursed throne', KILLED_BY_AN,
                 state, rawEnv);
+            if (state.program_state?.gameover) return;
             break;
         }
         case 2: {
@@ -414,6 +415,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
                 random.rnd(shockResistant ? 6 : 30),
                 'electric chair', KILLED_BY_AN, state, rawEnv,
             );
+            if (state.program_state?.gameover) return;
             await sit_exercise(A_CON, state, random);
             break;
         }

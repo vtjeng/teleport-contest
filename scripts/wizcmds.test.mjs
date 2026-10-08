@@ -7,7 +7,8 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
-    BLINDED, ECMD_OK, KILLED_BY, LAST_PROP, SLIMED, STONED, TIMEOUT,
+    BLINDED, DISCLOSE_NO_WITHOUT_PROMPT, ECMD_OK, KILLED_BY, LAST_PROP,
+    SLIMED, STONED, TIMEOUT,
 } from '../js/const.js';
 import { delayed_killer } from '../js/end.js';
 import { GameDisplay } from '../js/game_display.js';
@@ -342,4 +343,131 @@ test('wiz_makemap has awaited interactive and queued command dispatch', () => {
     const js = readFileSync('js/cmd.js', 'utf8');
     assert.match(js, /case 'wiz_makemap':\s*(?:\/\/[^\n]*\n\s*)*return await wiz_makemap\(state\);/u);
     assert.match(js, /queuedExtcmdEntry\?\.ef_funct === 'wiz_makemap'[\s\S]*?const res = await wiz_makemap\(state\);[\s\S]*?resetCommandVars\(state, state.multi < 0\);/u);
+});
+
+
+// wizcmds.c:243–352 owns both target iteration and immediate dead-node cleanup.
+test('wiz_kill restores targeting flags and returns OK even on cancellation', async () => {
+    const { wiz_kill } = await import('../js/wizcmds.js');
+    assert.equal(typeof wiz_kill, 'function');
+    const state = await smellTestGame();
+    state.flags.verbose = true;
+    state.iflags.autodescribe = false;
+    const messages = [];
+    queueSmellKeys(state, '\x1b'); // getpos's negative result exits without a target.
+    const moves = state.moves;
+    assert.equal(await wiz_kill(state, {
+        message: async text => messages.push(text),
+    }), ECMD_OK);
+    assert.deepEqual(messages, ['Pick first monster to slay:']);
+    assert.equal(state.flags.verbose, true);
+    assert.equal(state.iflags.autodescribe, false);
+    assert.equal(state.iflags.purge_monsters, 0);
+    assert.equal(state.moves, moves, 'C returns ECMD_OK without spending time');
+});
+
+test('wiz_kill clears an empty invisible marker before its no-monster message', async () => {
+    const { wiz_kill } = await import('../js/wizcmds.js');
+    assert.equal(typeof wiz_kill, 'function');
+    const { ROOM } = await import('../js/const.js');
+    const { map_invisible, glyph_at, glyph_is_invisible } = await import('../js/display.js');
+    const state = await smellTestGame();
+    const [key, dx, dy] = [
+        ['l', 1, 0], ['h', -1, 0], ['j', 0, 1], ['k', 0, -1],
+    ].find(([, dx, dy]) => state.level.at(state.u.ux + dx, state.u.uy + dy).typ === ROOM
+        && !state.level.monsters[state.u.ux + dx][state.u.uy + dy]);
+    const x = state.u.ux + dx, y = state.u.uy + dy;
+    map_invisible(x, y, state);
+    queueSmellKeys(state, `${key}.`); // A free adjacent floor ends the loop.
+    const messages = [];
+    assert.equal(await wiz_kill(state, { message: async text => {
+        messages.push(text);
+        if (text === 'There is no monster there.')
+            assert.equal(glyph_is_invisible(glyph_at(x, y, state)), false);
+    } }), ECMD_OK);
+    assert.deepEqual(messages, ['Pick first monster to slay:', 'There is no monster there.']);
+});
+
+test('wiz_kill stops at accepted suicide before dead-monster cleanup', async () => {
+    const { wiz_kill } = await import('../js/wizcmds.js');
+    const state = await smellTestGame();
+    state.wizard = false; // Skip the debug-mode reprieve after confirming suicide.
+    state.iflags.window_inited = false; // C's no-window finalization needs no key.
+    state.flags.end_disclose.fill(DISCLOSE_NO_WITHOUT_PROMPT);
+    state.flags.bones = false;
+    state.invent = null;
+    state.moves = Math.max(state.moves, 2);
+    // A call to dmonsfree() would reject this unmatched pending count.  C's
+    // accepted-suicide path never reaches that cleanup after done(DIED).
+    state.iflags.purge_monsters = 1;
+    queueSmellKeys(state, '.yes\n');
+
+    assert.equal(await wiz_kill(state), undefined);
+    assert.equal(state.program_state.gameover, true);
+    assert.equal(state.iflags.purge_monsters, 1);
+});
+
+test('wiz_kill does not prompt again after a fatal gas-spore explosion',
+    async () => {
+        const { wiz_kill } = await import('../js/wizcmds.js');
+        const { newMonster, place_monster } = await import('../js/monst.js');
+        const { NON_PM, PM_GAS_SPORE } = await import('../js/monsters.js');
+        const { ROOM } = await import('../js/const.js');
+        const state = await smellTestGame();
+        const [key, dx, dy] = [
+            ['l', 1, 0], ['h', -1, 0], ['j', 0, 1], ['k', 0, -1],
+        ].find(([, offsetX, offsetY]) =>
+            state.level.at(state.u.ux + offsetX, state.u.uy + offsetY).typ === ROOM
+            && !state.level.monsters[state.u.ux + offsetX][state.u.uy + offsetY]);
+        const spore = newMonster({
+            data: state.mons[PM_GAS_SPORE],
+            mnum: PM_GAS_SPORE,
+            mx: state.u.ux + dx,
+            my: state.u.uy + dy,
+            mhp: 1,
+            mhpmax: 1,
+            cham: NON_PM,
+        });
+        place_monster(spore, spore.mx, spore.my, state);
+        spore.nmon = state.level.monlist;
+        state.level.monlist = spore;
+        state.wizard = false;
+        state.u.uhp = 1;
+        state.invent = null;
+        state.iflags.window_inited = false;
+        state.flags.end_disclose.fill(DISCLOSE_NO_WITHOUT_PROMPT);
+        state.flags.bones = false;
+        state.level.flags.deathdrops = true;
+        state.moves = Math.max(state.moves, 2);
+        const messages = [];
+        queueSmellKeys(state, `${key}.`);
+        state.nhDisplay.onEmptyQueue = () => '\x1b'.charCodeAt(0);
+
+        const result = await wiz_kill(state, {
+            message: async text => messages.push(text),
+        });
+        assert.equal(state.program_state.gameover, true, JSON.stringify({
+            result,
+            messages,
+            hp: state.u.uhp,
+            killer: state.killer,
+            sporeHp: spore.mhp,
+        }));
+        assert.equal(result, undefined);
+        assert.ok(!messages.includes('Next monster:'));
+    });
+
+test('wiz_kill follows the whole source control flow and caller contracts', () => {
+    const source = readFileSync('nethack-c/upstream/src/wizcmds.c', 'utf8');
+    const start = source.indexOf('wiz_kill(void)');
+    const kill = source.slice(start, source.indexOf('DISABLE_WARNING_FORMAT_NONLITERAL', start));
+    assert.match(kill, /save_verbose = flags.verbose[\s\S]*?save_autodescribe = iflags.autodescribe/u);
+    assert.match(kill, /ans = getpos\(&cc, TRUE, "a monster"\);[\s\S]*?flags.verbose = save_verbose[\s\S]*?ans < 0 \|\| cc.x < 1/u);
+    assert.match(kill, /ynq\(qbuf\)[\s\S]*?paranoid_query\(TRUE, qbuf\)[\s\S]*?done\(DIED\)/u);
+    assert.match(kill, /next2u\(cc.x, cc.y\) \? u.ustuck : 0/u);
+    assert.match(kill, /unmap_invisible[\s\S]*?xkilled\(mtmp, XKILL_NOMSG\)/u);
+    assert.match(kill, /mon_moving = TRUE[\s\S]*?monkilled\(mtmp, \(char \*\) 0, AD_PHYS\)[\s\S]*?mon_moving = FALSE/u);
+    assert.match(kill, /u.utotype \|\| !on_level[\s\S]*?dmonsfree\(\);[\s\S]*?return ECMD_OK/u);
+    const js = readFileSync('js/wizcmds.js', 'utf8');
+    assert.match(js, /export async function wiz_kill\(/u);
 });

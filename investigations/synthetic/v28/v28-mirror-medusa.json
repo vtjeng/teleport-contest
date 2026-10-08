@@ -9,9 +9,9 @@
   "recordingSha256": "76e09d2b3c02154705367de2cb6b00458b59d378f8567d9f82128b0ab33c0b9a",
   "recipe": "challenges/cases/v28/v28-mirror-medusa.recipe.session.json",
   "recipeSha256": "1171d745ac9bb6705a29a4cb2d982ee27bab2eeb09e8735126108297f61242cd",
-  "evaluationPath": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
-  "evaluationCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
-  "evaluationUtc": "2026-10-08T04:24:32.322Z",
+  "evaluationPath": "challenges/evaluations/accepted-1d7f8aa4d04aac0a6714ea5a495187dfab2ca008-v28.json",
+  "evaluationCommit": "1d7f8aa4d04aac0a6714ea5a495187dfab2ca008",
+  "evaluationUtc": "2026-10-08T06:09:18.406Z",
   "remainingScreens": 7,
   "recordedSteps": 52,
   "metrics": {
@@ -47,7 +47,7 @@
     }
   },
   "status": "complete",
-  "commit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+  "commit": "1d7f8aa4d04aac0a6714ea5a495187dfab2ca008",
   "mismatch": {
     "session": "synthetic/v28/v28-mirror-medusa",
     "corpus": "synthetic",
@@ -59,9 +59,9 @@
     "recordingSha256": "76e09d2b3c02154705367de2cb6b00458b59d378f8567d9f82128b0ab33c0b9a",
     "recipe": "challenges/cases/v28/v28-mirror-medusa.recipe.session.json",
     "recipeSha256": "1171d745ac9bb6705a29a4cb2d982ee27bab2eeb09e8735126108297f61242cd",
-    "evaluationPath": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
-    "evaluationCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
-    "evaluationUtc": "2026-10-08T04:24:32.322Z",
+    "evaluationPath": "challenges/evaluations/accepted-1d7f8aa4d04aac0a6714ea5a495187dfab2ca008-v28.json",
+    "evaluationCommit": "1d7f8aa4d04aac0a6714ea5a495187dfab2ca008",
+    "evaluationUtc": "2026-10-08T06:09:18.406Z",
     "remainingScreens": 7,
     "recordedSteps": 52,
     "metrics": {
@@ -96,7 +96,7 @@
         "key": "j"
       }
     },
-    "evaluationArtifact": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json"
+    "evaluationArtifact": "challenges/evaluations/accepted-1d7f8aa4d04aac0a6714ea5a495187dfab2ca008-v28.json"
   },
   "goalKind": "divergence-fix",
   "summary": "apply.c:use_mirror skips killed() after reflected Medusa petrification. JavaScript leaves Medusa alive and gs.stoned set, omits the kill/statue/experience effects, and reaches monster movement before C’s obj_resists draw at step45. Wire the existing canonical killed -> xkilled -> monstone path at this source caller; broader death ownership remains separate.",
@@ -125,6 +125,8 @@
     "Historical closed goal port-apply-use-mirror-synthetic-v8-20260927 records whole beautiful/use_mirror caller/source evidence, with this permitted mon.c:killed void gap explicitly named. This is a bounded caller reconciliation, not a new whole use_mirror port or whole kill/statue credit. Existing JSmon.js:killed5789 awaits xkilled with XKILL_GIVEMSG. xkilled sets HP0/conduct, emits kill line, calls monstone when stoned, clears stoned and skips corpse/treasure, then handles peaceful-kill rn2(2), experience/newexplevel and alignment. It defaults an unsupported callback only for actual incomplete source branches, so absence of env.unsupported does not refuse the selected ordinary Medusa path.",
     "Read mon.c:monstone3287–3374 and JSmon.js5610–5720: canonical vamp_stone gate, lifesaving check, inventory extraction before statue construction; object resistance, floor/drop or contained object decisions; historic unique-statue and gender flags; ordered container insertion and weight; stack/unmap/redraw, then mondead. Medusa is neither shifted vampire nor tiny creature, so the statue branch skips the tiny-monster random choice. Selected C RNG starts with obj_resists for her inventory, then statue initialization and ordinary xkilled cleanup. Existing scripts/mon-stone-migration.test.mjs covers statue/detach and scripts/mon-kill.test.mjs covers kill cleanup; they support owner reuse but cannot certify the missing production mirror caller.",
     "Proposed task scope: reservation source:apply.c:use_mirror and contract:reflected-gaze-petrification. Allowed js/apply.js, scripts/apply.test.mjs, affected scripts/mon-kill.test.mjs/scripts/mon-stone-migration.test.mjs only if needed, a source-named mirror fresh runner, recipes/apply.c/, recordings/apply.c/, and task cache. No existing active B145 impact-drop or C142 buried-ball source/contract overlap. Recheck the ledger before claiming and request any newly required external owner changes.",
-    "Independent validation plan: new unsearched seed/clock and source-valid wizard-created ordinary Medusa plus mirror, choose direction from C-only geometry; retained Medusa inventory tests statue containment and cleanup. Cheap role/seed/peaceful-versus-hostile variation covers luck/experience order. Source-pin reflection/cancellation/no-eyes gates, stoned reset, conduct/statue ownership, historical flag, full RNG/messages/cursors, and no duplicated corpse/treasure. Replay admitted v28 steps45–51 and prior v8 mirror regression. Record outside-limit reflected or suppressed petrification behavior if source requires no kill; retain blocked recipes for canonical monster lifesaving/other owner frontiers rather than claim those complete. No C runs or game edits were made during this investigation."
-  ]
+    "Independent validation plan: new unsearched seed/clock and source-valid wizard-created ordinary Medusa plus mirror, choose direction from C-only geometry; retained Medusa inventory tests statue containment and cleanup. Cheap role/seed/peaceful-versus-hostile variation covers luck/experience order. Source-pin reflection/cancellation/no-eyes gates, stoned reset, conduct/statue ownership, historical flag, full RNG/messages/cursors, and no duplicated corpse/treasure. Replay admitted v28 steps45–51 and prior v8 mirror regression. Record outside-limit reflected or suppressed petrification behavior if source requires no kill; retain blocked recipes for canonical monster lifesaving/other owner frontiers rather than claim those complete. No C runs or game edits were made during this investigation.",
+    "Post-A146 read-only refresh at immutable637a11849049c114f1b704e5dac69b57463e9d6b: .cache/v28-mirror-medusa/replay-A146.log and diagnostic-A146.json reproduce the same first step45 RNG2875 C obj_resists rn2(100)=80 versus JSrn2(5)=0, Medusa alive89HP, gs.stoned true, conduct0/experience0. Latest reviewed accepted C1421cf15831 v28 evaluation still reports45/52 screens (7 remaining). Read git show1cf15831:js/apply.js confirms use_mirror retains the same skipped killed call; C142 is accepted/published2e0f5529 and its former apply coordination blocker is released. Worker observation is tied to637a1184; merge accepted C142 descendant before implementation. No game edits or C runs made during refresh."
+  ],
+  "evaluationArtifact": "challenges/evaluations/accepted-1d7f8aa4d04aac0a6714ea5a495187dfab2ca008-v28.json"
 }

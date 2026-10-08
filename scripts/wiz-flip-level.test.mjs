@@ -118,8 +118,11 @@ test('wizcmds.c waits for docrt before its ECMD_OK return', async () => {
         query: async () => '2'.charCodeAt(0), // yn_function's C key byte contract.
         redraw: async () => { redrawing = true; await held; },
     }).then(value => { completed = true; return value; });
-    // Both source calls are awaited; allow their microtasks to reach docrt.
-    while (!redrawing) await Promise.resolve();
+    // Both source calls are awaited. Twenty event-loop turns give the direct
+    // call chain time to reach docrt while bounding failure if redraw vanishes.
+    for (let attempts = 0; attempts < 20 && !redrawing; ++attempts)
+        await new Promise(resolve => setImmediate(resolve));
+    assert.equal(redrawing, true, 'wiz_flip_level reaches its awaited redraw');
     assert.equal(completed, false);
     release();
     assert.equal(await command, ECMD_OK);
