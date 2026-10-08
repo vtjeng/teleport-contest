@@ -198748,7 +198748,7 @@
     {
       "id": "port-wizcmds-wiz-flip-level-v28-20261008",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port live wizard level transposition in source order",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -198756,8 +198756,12 @@
       ],
       "selectionReason": "Independent admitted v28 wizard flip refusal at step15, 8 remaining screens; C140 seed is fully solved, buried-ball/Vlad/Oracle scopes excluded.",
       "detail": "Canonical investigation investigations/synthetic/v28/v28-wiz-flip-level.json traces absent command dispatcher and generation-only flip owners. Include consumed bounds helper and live extras order, retaining explicit nhlua flip caller frontier.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "6478f2efb2b90d3c6664f9df5cdfad7b36407dbb",
+      "openStanding": {
+        "sha": "64eeb6b668c69fe3216f8c9a92abd98be0d499c7",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -198765,8 +198769,8 @@
           "name": "wiz_flip_level",
           "line": 412,
           "endLine": 445,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -198796,7 +198800,7 @@
           "endLine": 1440,
           "declared": true,
           "sourceFile": "mkmaze.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -198812,7 +198816,316 @@
           "evaluationPath": "challenges/evaluations/accepted-4f210e358149b03cf68194ba97bfd446aea2f3e0-v28.json",
           "evaluationCommit": "4f210e358149b03cf68194ba97bfd446aea2f3e0"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "64eeb6b668c69fe3216f8c9a92abd98be0d499c7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-wiz-flip-level",
+          "session": "synthetic/v28/v28-wiz-flip-level",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recording": "challenges/cases/v28/v28-wiz-flip-level.session.json",
+          "recordingPath": "challenges/cases/v28/v28-wiz-flip-level.session.json",
+          "recordingSha256": "731e024dc0254d97b404c752d19695c3b46beea14d8e18bd357abdb748883122",
+          "recipe": "challenges/cases/v28/v28-wiz-flip-level.recipe.session.json",
+          "recipeSha256": "afd796efcaf31353f5647bd852f9655244b90321d90aad6bcb7b64e701fa0cbd",
+          "replayInputSha256": "0fce0376c4b31222345376cdfbebd1ddf9bd40fe91353d0c1004ebb78f47ae72",
+          "evaluationPath": "challenges/evaluations/accepted-64eeb6b668c69fe3216f8c9a92abd98be0d499c7-v28.json",
+          "evaluationCommit": "64eeb6b668c69fe3216f8c9a92abd98be0d499c7",
+          "evaluationArtifact": "challenges/evaluations/accepted-64eeb6b668c69fe3216f8c9a92abd98be0d499c7-v28.json",
+          "evaluationUtc": "2026-10-08T03:28:48.386Z",
+          "remainingScreens": 8,
+          "recordedSteps": 23,
+          "previousScreensMatched": 15,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 15,
+              "total": 23
+            },
+            "rng": {
+              "matched": 2163,
+              "total": 2168
+            },
+            "cursors": {
+              "matched": 15,
+              "total": 23
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_flip_level() for the extended command 'wizfliplevel' is not ported",
+            "step": 15
+          },
+          "step": 15,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_flip_level",
+          "message": "unsupported hero command: wiz_flip_level() for the extended command 'wizfliplevel' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v28/v28-wiz-flip-level.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v28",
+              "caseId": "v28-wiz-flip-level",
+              "session": "synthetic/v28/v28-wiz-flip-level",
+              "manifestPath": "challenges/manifests/v28.json",
+              "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+              "recording": "challenges/cases/v28/v28-wiz-flip-level.session.json",
+              "recordingPath": "challenges/cases/v28/v28-wiz-flip-level.session.json",
+              "recordingSha256": "731e024dc0254d97b404c752d19695c3b46beea14d8e18bd357abdb748883122",
+              "evaluationPath": "challenges/evaluations/accepted-4f210e358149b03cf68194ba97bfd446aea2f3e0-v28.json",
+              "evaluationCommit": "4f210e358149b03cf68194ba97bfd446aea2f3e0",
+              "evaluationUtc": "2026-10-08T02:52:00.525Z",
+              "remainingScreens": 8,
+              "recordedSteps": 23,
+              "metrics": {
+                "screens": {
+                  "matched": 15,
+                  "total": 23
+                },
+                "rng": {
+                  "matched": 2163,
+                  "total": 2168
+                },
+                "cursors": {
+                  "matched": 15,
+                  "total": 23
+                }
+              },
+              "passed": false,
+              "step": 15,
+              "kind": "refusal",
+              "message": "unsupported hero command: wiz_flip_level() for the extended command 'wizfliplevel' is not ported",
+              "status": "complete",
+              "commit": "4f210e358149b03cf68194ba97bfd446aea2f3e0",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v28",
+                "caseId": "v28-wiz-flip-level",
+                "session": "synthetic/v28/v28-wiz-flip-level",
+                "manifestPath": "challenges/manifests/v28.json",
+                "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+                "recording": "challenges/cases/v28/v28-wiz-flip-level.session.json",
+                "recordingPath": "challenges/cases/v28/v28-wiz-flip-level.session.json",
+                "recordingSha256": "731e024dc0254d97b404c752d19695c3b46beea14d8e18bd357abdb748883122",
+                "evaluationPath": "challenges/evaluations/accepted-4f210e358149b03cf68194ba97bfd446aea2f3e0-v28.json",
+                "evaluationCommit": "4f210e358149b03cf68194ba97bfd446aea2f3e0",
+                "evaluationUtc": "2026-10-08T02:52:00.525Z",
+                "remainingScreens": 8,
+                "recordedSteps": 23,
+                "metrics": {
+                  "screens": {
+                    "matched": 15,
+                    "total": 23
+                  },
+                  "rng": {
+                    "matched": 2163,
+                    "total": 2168
+                  },
+                  "cursors": {
+                    "matched": 15,
+                    "total": 23
+                  }
+                },
+                "passed": false,
+                "step": 15,
+                "kind": "refusal",
+                "message": "unsupported hero command: wiz_flip_level() for the extended command 'wizfliplevel' is not ported"
+              },
+              "goalKind": "file-port",
+              "summary": "The active #wizfliplevel row reaches cmd.js default refusal at step15 instead of wizcmds.c wiz_flip_level. Port the whole command and wire it to the complete source-ordered flip family; the existing generation-only flip omits live hero/ball/migrating-monster/timer/travel/digging/vision state and drops extras in randomized flipping. A narrow dispatcher change cannot implement the live source path.",
+              "source": {
+                "file": "wizcmds.c",
+                "branch": "wizard mode #wizfliplevel: yn_function choices0123; 0 calls flip_level_rnd(3,TRUE), 1/2/3 call flip_level(mask,TRUE), valid selection then docrt, cancellation Never mind, ECMD_OK without time.",
+                "functions": [
+                  "wiz_flip_level"
+                ],
+                "callers": [
+                  "cmd.c extcmdlist wizfliplevel -> doextcmd -> wizcmds.c wiz_flip_level; JS extcmdlist_data.js row162 -> cmd.js dispatchExtendedCommand currently lacks wiz_flip_level case"
+                ],
+                "dependencies": [
+                  "sp_lev.c flip_level533-925 whole source/live extras closure",
+                  "sp_lev.c flip_level_rnd967-985 preserving extras and vertical-then-horizontal rn2(2) order",
+                  "mkmaze.c get_level_extends1353-1435 consumed four output coordinates; JS lacks source horizontal clamps",
+                  "Existing sp_lev flip_dbridge/flip_visuals/flip_encoded_dir_bits/flip_vault_guard helpers, display docrt, ball placebc/unplacebc, vision vision_reset and mklev wall owners",
+                  "nhlua.c nhl_flip_level1509-1520 is another active C flip_level caller; no JavaScript Lua VM/caller exists, so broader flip-family completion must retain this explicit frontier"
+                ]
+              },
+              "evidence": [
+                "Current accepted evaluation challenges/evaluations/accepted-44f17fe441ece513f929f5a76e3024aa0c759d83-v28.json commit 44f17fe441ece513f929f5a76e3024aa0c759d83 reports15/23 matching screens (8 remaining); admitted manifest corpus digest 394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039, recording SHA256 731e024dc0254d97b404c752d19695c3b46beea14d8e18bd357abdb748883122. Read-only fresh replay .cache/C141-wiz-flip-selected-scan.json at c9c3c589 confirms exactly15 emitted screens and same UnsupportedHeroCommandBoundaryError; no new C recording or aggregate scan.",
+                "Patched C recording segment0 step15 displays Flip 0=randomly, 1=vertically, 2=horizontally, 3=both: [0123]; step16 input2 redraws flipped live map without RNG; step22 wait consumes five ordinary turn RNG draws. cmd.js default dispatch refusal stops before the source query.",
+                "Read complete wizcmds.c412-442 and sp_lev.c533-985 plus existing mklev.js5274-5511. Six live omissions are documented at mklev.js5268-5273 and proved by direct source comparison: punishment setup/placebc, priest/shopkeeper/worm and migrating metadata, MELT_ICE_AWAY packed timer coordinates, hero/ux0/uy0, travelcc/digging.pos and vision_reset. Existing mgoal/door transforms omit Flip_coord x!=0/in-area guard. Timer storage canonical state.gt.timer_base; ball owner placebc is async, so caller await must preserve source order and generation callers must await the same owner.",
+                "Read complete mkmaze.c1353-1435 get_level_extends against mklev.js8288-8324; C clamps xmin>=0/xmax<COLNO before scanning rows. JS omits those clamps. This consumed-output helper needs whole-source correction and source-pinned fixtures. Its second caller is bound_digging; preserve generation behavior with focused boundary tests and independent special-level evidence.",
+                "Active flip_level callers: wizcmds.c434; sp_lev.c981 via random wrapper with generation callers lspo_finalize_level6041/load_special6482; nhlua.c1517 via nh.flip_level and !in_mklev. The Lua API is compiled and cannot be labeled inactive merely because absent in JS. Proposed whole command may close independently while additional flip source units remain explicitly incomplete for any unverified API entry; no broad nhlua completion claim.",
+                "Whole supporting source comparison must preserve source region/room/object/list/grid ordering, coordinate guards and even combined flip conjoined-bit behavior, packed timer arithmetic, and source disclaimers about levregions/mtrack/migrating return coordinates. Reuse canonical helpers; do not invent RNG/output/state for discarded unported worm helper calls. worm.c flip_worm_segs_vertical968-977 and horizontal979-988 are short active discarded callees currently absent; if completing them, expand scope/reservations and add production evidence first.",
+                "Focused scope proposal: whole wiz_flip_level plus required whole flip_level/flip_level_rnd and get_level_extends, bounded cmd dispatcher and existing generation callers, source-pinned bounds/coordinate/order tests, selected admitted horizontal range, independent C-first vertical/both/random/cancel/nonwizard and special-generation inputs. Runtime tests must pin hero and map ownership plus remembered glyph and RNG order. No game code or central goal edits made; dependency boundary for the Lua API is retained."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_flip_level",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_flip_level",
+            "sourceReview": "Read the whole wizcmds.c:412-442 body and command-table/yn_function contract. Preserve the numeric NUL default, TRUE addcmdq, byte choices 0123, random mask 3, explicit orientation, awaited transposition before awaited docrt, Never_mind cancellation, wizard gate, ECMD_OK and no time use. Removed the unsupported extended-command dispatch. No session/seed specialization.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extcmdlist wizfliplevel with WIZMODECMD -> wizcmds.c wiz_flip_level"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-flip-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/flip-vertical.session.json",
+              "recordings/wizcmds.c/flip-horizontal.session.json",
+              "recordings/wizcmds.c/flip-both-floor-object.session.json",
+              "recordings/wizcmds.c/flip-random.session.json",
+              "recordings/wizcmds.c/flip-cancel.session.json",
+              "recordings/wizcmds.c/flip-random-twice.session.json",
+              "recordings/wizcmds.c/flip-live-monster.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v28",
+                "caseId": "v28-wiz-flip-level",
+                "segment": 0,
+                "fromStep": 14,
+                "throughStep": 22,
+                "source": "cmd.c extended command registry/dispatch -> wizcmds.c wiz_flip_level -> sp_lev.c flip_level -> vision_reset -> docrt; the byte-valued query accepts the recorded orientation and redraws the live level."
+              }
+            ],
+            "checkedAt": "e0d0dcd2de84273a7db3e7676a895db314cb98d2"
+          },
+          {
+            "name": "get_level_extends",
+            "implementation": "js/mkmaze.js",
+            "symbol": "get_level_extends",
+            "sourceReview": "Read whole mkmaze.c:1353-1435. This reads terrain and is_maze_lev, computes scratch bounds and writes only caller output coordinates: no RNG, output or game mutation. Preserve left/right scanning and horizontal clamps before row scans, nonwall expansion and deliberately unclamped vertical results. Moved the only implementation from mklev.js to its canonical same-source owner; no compatibility reexport.",
+            "callers": [
+              {
+                "path": "js/sp_lev.js",
+                "symbol": "flip_level",
+                "source": "sp_lev.c:555 get_level_extends"
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "bound_digging",
+                "source": "mkmaze.c:1449 bound_digging -> get_level_extends; existing bound_digging owner remains unchanged except direct canonical import"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mkmaze-level-bounds.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "mkmaze.c",
+            "synthetic": [],
+            "checkedAt": "e0d0dcd2de84273a7db3e7676a895db314cb98d2"
+          }
+        ],
+        "entryPointReview": "Enumerated active C callers: cmd.c wizfliplevel -> wiz_flip_level -> flip_level/flip_level_rnd; sp_lev.c:6482 load_special -> flip_level_rnd(FALSE); sp_lev.c:6041 lspo_finalize_level(non-NULL Lua state) -> flip_level_rnd(FALSE); nhlua.c:1517 nhl_flip_level -> flip_level(!in_mklev). Two Lua entry families remain blocked and keep the supporting units incomplete. get_level_extends is pure and wired through flip_level and the existing bound_digging caller. sp_lev.c:#if 0 pet EDOG.ogoal branch is excluded by the source condition. Source itself documents unhandled levregions, monster mtrack and migrating return coordinates; do not invent their transposition. Ordinary play cannot dispatch WIZMODECMD: independent nonwizard recording proves that explicit limit. Oracle generation uses its source noflip flag, reaches DELPHI and executes the production random wrapper with mask 0; it does not establish nonzero generation flip coverage.",
+        "entryPoints": [
+          {
+            "name": "wizard live explicit orientation, random orientation, repeated random, floor object, live monster and cancellation",
+            "functions": [
+              "wiz_flip_level",
+              {
+                "sourceFile": "sp_lev.c",
+                "name": "flip_level"
+              },
+              {
+                "sourceFile": "sp_lev.c",
+                "name": "flip_level_rnd"
+              }
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/flip-vertical.session.json",
+              "recordings/wizcmds.c/flip-horizontal.session.json",
+              "recordings/wizcmds.c/flip-both-floor-object.session.json",
+              "recordings/wizcmds.c/flip-random.session.json",
+              "recordings/wizcmds.c/flip-cancel.session.json",
+              "recordings/wizcmds.c/flip-random-twice.session.json",
+              "recordings/wizcmds.c/flip-live-monster.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v28",
+                "caseId": "v28-wiz-flip-level",
+                "segment": 0,
+                "fromStep": 14,
+                "throughStep": 22,
+                "source": "cmd.c extended command registry/dispatch -> wizcmds.c wiz_flip_level -> sp_lev.c flip_level -> vision_reset -> docrt; the byte-valued query accepts the recorded orientation and redraws the live level."
+              }
+            ]
+          },
+          {
+            "name": "load_special Oracle generation zero-mask random wrapper",
+            "functions": [
+              {
+                "sourceFile": "sp_lev.c",
+                "name": "flip_level_rnd"
+              }
+            ],
+            "recordings": [
+              "recordings/sp_lev.c/flip-oracle-generation.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "nhlua nh.flip_level live/generation API",
+            "functions": [
+              {
+                "sourceFile": "sp_lev.c",
+                "name": "flip_level"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Lua des.finalize_level non-NULL callback",
+            "functions": [
+              {
+                "sourceFile": "sp_lev.c",
+                "name": "flip_level_rnd"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "e0d0dcd2de84273a7db3e7676a895db314cb98d2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The live wizard command and get_level_extends are verified, but sp_lev.c flip_level and flip_level_rnd still lack runtime evidence for active nhlua.c nhl_flip_level and non-NULL lspo_finalize_level callers. Resume when those JavaScript Lua entry paths exist and can be recorded."
     },
     {
       "id": "fix-do-dropx-throne-floor-v28-20261007",

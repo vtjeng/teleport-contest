@@ -3,7 +3,8 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { COLNO, ROWNO } from '../js/const.js';
-import { do_clear_area_async } from '../js/vision.js';
+import { do_clear_area_async, vision_reset, recalc_block_point } from '../js/vision.js';
+import { GameMap } from '../js/game.js';
 
 const VISION_C = readFileSync(
     new URL('../nethack-c/upstream/src/vision.c', import.meta.url), 'utf8',
@@ -67,3 +68,28 @@ test('do_clear_area detection override is centered and limited to air or water',
         assert.deepEqual(await visitedFor(ordinaryLevel, true), []);
 
     });
+
+test('vision_reset publishes the source ready and deferred recalculation flags', () => {
+    assert.match(VISION_C, /iflags\.vision_inited = TRUE;/u);
+    assert.match(VISION_C, /gv\.vision_full_recalc = 1;/u);
+    const state = { level: new GameMap(), iflags: { vision_inited: false },
+        vision_full_recalc: 0 }; // Cleared source flags expose both publications.
+    vision_reset(state);
+    assert.equal(state.iflags.vision_inited, true);
+    assert.equal(state.vision_full_recalc, 1);
+});
+
+test('borrowed transparency rebuilding preserves live publication and display bounds', () => {
+    const state = { level: new GameMap(),
+        iflags: Object.freeze({ vision_inited: true }),
+        vision_full_recalc: 0,
+        _viz_rmin: [1], _viz_rmax: [1] }; // Existing display bounds remain owned.
+    const minimum = state._viz_rmin, maximum = state._viz_rmax;
+    // An unseen point updates only the derived transparency index. Planning
+    // cleanup performs this same rebuild against immutable live iflags.
+    recalc_block_point(1, 1, state);
+    assert.equal(state.iflags.vision_inited, true);
+    assert.equal(state.vision_full_recalc, 0);
+    assert.equal(state._viz_rmin, minimum);
+    assert.equal(state._viz_rmax, maximum);
+});

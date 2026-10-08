@@ -850,9 +850,10 @@ test('the recorder renders the counts sentence from the metrics', () => {
             + '1 deferred, 3 rejected, 0 unverified.');
 });
 
-test('recorded readiness attestations must carry all three statements', () => {
-    // The three keys review.md defines; whitespace-only text is as absent as
-    // a missing key, so a blank attestation cannot pass as recorded.
+test('new reviews omit attestations while historical attestations remain valid', () => {
+    assert.doesNotThrow(() => validateAuditMetrics(EMPTY_AUDIT_METRICS));
+    // Preserve the historical three-field schema when an old record includes
+    // attestations; new records need none of these fields.
     const readiness = {
         boundary: 'from the e keypress to the "You finish eating" message',
         sourceReview: 'traced eat.c branches against the port',

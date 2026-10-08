@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source-designed wizard flip cancel. Fixed seed chosen before recording; no admitted challenge inputs copied. wizcmds.c wiz_flip_level -> sp_lev.c live flip family.",
+  "segments": [
+    {
+      "seed": 1412805,
+      "datetime": "20510304151617",
+      "nethackrc": "OPTIONS=name:Flip1412805,role:Valkyrie,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".#wizfliplevel\n\u001b."
+    }
+  ]
+}
