@@ -1135,6 +1135,14 @@ function monsterWieldOperations(env) {
 export async function moveSimpleOrdinary(monster, env) {
     return m_move(monster, {
         ...env,
+        // monmove.c:2023 -> m_move_aggress:2097/2111 reaches hitmm/missmm
+        // and pre_mm_attack through canonical mattackm. The planning clone
+        // shares map memory with the live game, so suppress both marker and
+        // display writes until the same action runs live.
+        message: env.planning ? async () => {} : (env.message ?? ttyPline),
+        redraw: env.planning ? () => {} : (env.redraw ?? newsym),
+        markInvisible: env.planning ? () => {}
+            : (env.markInvisible ?? map_invisible),
         ...doorVisionOperations(env),
         ...monsterWieldOperations(env),
         migrateToLevel: monsterMigrationOperation(env),

@@ -134,6 +134,7 @@ import {
     preflightSimpleMonsterActions,
     preflightElapsedTurnTail,
     planningState,
+    moveSimpleOrdinary,
     runSimpleMonsterAction,
     UnsupportedSimpleMonsterActionError,
     wieldMonsterItemAgainstMonster,
@@ -299,6 +300,56 @@ function ordinaryMonster(pmidx, x, y, overrides = {}) {
         ...overrides,
     });
 }
+
+// monmove.c:2023 -> m_move_aggress:2097/2111 consumes mattackm's result.
+// Even unseen hits and misses need mhitm.c's message operation; visible
+// combat also reaches pre_mm_attack's redraw/map_invisible operations.
+for (const hit of [true, false]) {
+    test(`ordinary monster combat forwards ${hit ? 'hit' : 'miss'} operations`, async () => {
+        const target = await prepareSelectedAction({ pmidx: PM_GIANT_RAT });
+        target.monster.mconf = true;
+        const defender = ordinaryMonster(PM_GIANT_RAT, target.destinationX,
+            target.heroY, { m_id: 9002, mhp: 100, mhpmax: 100, movement: 0 });
+        target.monster.nmon = defender;
+        game.level.monsters[defender.mx][defender.my] = defender;
+        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+        game.viz_array[target.heroY][target.destinationX] |= IN_SIGHT;
+        const messages = [];
+        const draws = [];
+        const random = {
+            rn2(bound) { draws.push(['rn2', bound]); return 0; },
+            rnd(bound) { draws.push(['rnd', bound]); return hit ? 1 : bound; },
+            d(n, sides) { draws.push(['d', n, sides]); return n; },
+        };
+        const result = await moveSimpleOrdinary(target.monster, {
+            state: game, random,
+            message: async text => { messages.push(text); },
+        });
+        assert.equal(result, MMOVE_DONE);
+        assert.equal(defender.mhp, hit ? 99 : 100);
+        assert.match(messages[0], hit ? /bites the giant rat/u : /misses the giant rat/u);
+        assert.deepEqual(draws.filter(draw => draw[0] !== 'rn2'),
+            hit ? [['rnd', 20], ['d', 1, 3]] : [['rnd', 20]]);
+        assert.ok(MONMOVE_SOURCE.includes('return m_move_aggress(mtmp, nix, niy);'));
+        assert.ok(MONMOVE_SOURCE.includes('mstatus = mattackm(mtmp, mtmp2);'));
+    });
+}
+
+test('ordinary monster combat planning suppresses messages and invisible markers', async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_GIANT_RAT });
+    target.monster.mconf = true;
+    const defender = ordinaryMonster(PM_GIANT_RAT, target.destinationX,
+        target.heroY, { m_id: 9002, mhp: 100, mhpmax: 100, movement: 0 });
+    target.monster.nmon = defender;
+    game.level.monsters[defender.mx][defender.my] = defender;
+    game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+    game.viz_array[target.heroY][target.destinationX] &= ~IN_SIGHT;
+    const before = completeSecondTurnSnapshot(game, target.replay);
+    const messages = [...game.nhDisplay.messages];
+    await preflightSimpleMonsterActions(game);
+    assert.deepEqual(completeSecondTurnSnapshot(game, target.replay), before);
+    assert.deepEqual([...game.nhDisplay.messages], messages);
+});
 
 function floorObject(x, y, id = 9101, otyp = ROCK) {
     const type = game.objects[otyp];
