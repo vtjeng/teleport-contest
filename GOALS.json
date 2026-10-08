@@ -213946,7 +213946,7 @@
     {
       "id": "port-invent-display-cinventory-v31-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port probed container inventory display and its source naming callbacks",
       "cFile": "invent.c",
       "sessions": [
@@ -214382,7 +214382,17 @@
             ]
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "9261fc9e4e7cab87cc07b39f600948376f09dd86",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "cinv_ansimpleoname remains unverified until a valid runtime path exercises safe_qbuf's impure alternate callback; the blocked alternate-name-shortening recipe preserves the remaining coverage work."
     }
   ]
 }
