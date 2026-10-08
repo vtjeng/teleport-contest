@@ -218503,6 +218503,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-display-unmap-object-engraving-v32-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete engraved-square map-memory restoration",
+      "cFile": "display.c",
+      "sessions": [
+        "synthetic/v32/v32-engraved-forcefight"
+      ],
+      "selectionReason": "Seed continuation after fully matching A172 custom glyph session: independent v32 forcefight engraving refusal is source-traced to whole display.c unmap_object; existing helpers and callers are canonical.",
+      "detail": "Complete the engraving branch, exact remembered-room darkening compare, and obsolete refusal/caller cleanup. No whole hack, cmd, allmain, or show_mon_or_warn ownership.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "unmap_object",
+          "line": 409,
+          "endLine": 474,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 409,
+        "to": 474
+      },
+      "syntheticProvenance": {
+        "synthetic/v32/v32-engraved-forcefight": {
+          "session": "synthetic/v32/v32-engraved-forcefight",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-engraved-forcefight",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-engraved-forcefight.session.json",
+          "recordingSha256": "d16ca10b3509219ccf002082af3363c458c17dd39950045485cca76bf66df61d",
+          "evaluationPath": "challenges/evaluations/accepted-02094146bef512055a829bb70fc3927ad70b441f-v32.json",
+          "evaluationCommit": "02094146bef512055a829bb70fc3927ad70b441f"
+        }
+      }
     }
   ]
 }
