@@ -202581,7 +202581,7 @@
     {
       "id": "port-artifact-invoke-untrap-family-v29-20261008",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Restore Master Key untrapping through the complete untrap/disarm family and door-mimic return path",
       "cFile": "artifact.c",
       "sessions": [
@@ -202589,8 +202589,12 @@
       ],
       "selectionReason": "synthetic/v29/v29-key-invoke-untrap, investigations/synthetic/v29/v29-key-invoke-untrap.json: missing artifact invoke_untrap dispatch consumes the incomplete trap untrap return family, so include whole trap.c:dountrap..untrap and lock.c:stumble_on_door_mimic rather than closing a wrapper-only task.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "538851d3a855cb9510b3301322f8f2e40a686b6e",
+      "openStanding": {
+        "sha": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -202758,6 +202762,14 @@
           "declared": true,
           "sourceFile": "lock.c",
           "complete": false
+        },
+        {
+          "name": "trap_ice_effects",
+          "line": 7175,
+          "endLine": 7197,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
         }
       ],
       "syntheticProvenance": {
@@ -202773,7 +202785,257 @@
           "evaluationPath": "challenges/evaluations/accepted-2becf24bebd527647f267e1f6cd7507291e3df46-v29.json",
           "evaluationCommit": "2becf24bebd527647f267e1f6cd7507291e3df46"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-key-invoke-untrap",
+          "session": "synthetic/v29/v29-key-invoke-untrap",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recording": "challenges/cases/v29/v29-key-invoke-untrap.session.json",
+          "recordingPath": "challenges/cases/v29/v29-key-invoke-untrap.session.json",
+          "recordingSha256": "989017009bc0da16807b96e50a1d738c20d5906d80ae52ecbadb724b5723a067",
+          "recipe": "challenges/cases/v29/v29-key-invoke-untrap.recipe.session.json",
+          "recipeSha256": "07124edf520d5f236ce4e17e6590229f95f13668bfb8b4490a6ff4612bf18d23",
+          "replayInputSha256": "3bdd2eaf35a19dfd305d5243b03f9ea9a3ea0669895a21dab953cac2c6acb1a1",
+          "evaluationPath": "challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json",
+          "evaluationCommit": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
+          "evaluationArtifact": "challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json",
+          "evaluationUtc": "2026-10-08T08:02:48.939Z",
+          "remainingScreens": 10,
+          "recordedSteps": 80,
+          "previousScreensMatched": 70,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 70,
+              "total": 80
+            },
+            "rng": {
+              "matched": 2758,
+              "total": 2792
+            },
+            "cursors": {
+              "matched": 70,
+              "total": 80
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 70,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 70,
+                "key": "g"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "I",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2757,
+              "cEntry": "rn2(5)=1",
+              "cCaller": "distfleeck(monmove.c:538)",
+              "jsEntry": "d(2,4)=3",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 73,
+                "key": "y"
+              },
+              "stepIndex": 73
+            },
+            "cursor": {
+              "index": 70,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 70,
+                "key": "g"
+              },
+              "cCursor": [
+                19,
+                0,
+                1
+              ],
+              "jsCursor": [
+                46,
+                8,
+                1
+              ]
+            }
+          },
+          "step": 70,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v29/v29-key-invoke-untrap.json",
+            "result": {
+              "session": "synthetic/v29/v29-key-invoke-untrap",
+              "corpus": "synthetic",
+              "batch": "v29",
+              "caseId": "v29-key-invoke-untrap",
+              "manifestPath": "challenges/manifests/v29.json",
+              "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+              "recordingSha256": "989017009bc0da16807b96e50a1d738c20d5906d80ae52ecbadb724b5723a067",
+              "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+              "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+              "remainingScreens": 10,
+              "recordedSteps": 80,
+              "status": "complete",
+              "commit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v29",
+                "caseId": "v29-key-invoke-untrap",
+                "session": "synthetic/v29/v29-key-invoke-untrap",
+                "manifestPath": "challenges/manifests/v29.json",
+                "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+                "recording": "challenges/cases/v29/v29-key-invoke-untrap.session.json",
+                "recordingPath": "challenges/cases/v29/v29-key-invoke-untrap.session.json",
+                "recordingSha256": "989017009bc0da16807b96e50a1d738c20d5906d80ae52ecbadb724b5723a067",
+                "recipe": "challenges/cases/v29/v29-key-invoke-untrap.recipe.session.json",
+                "recipeSha256": "07124edf520d5f236ce4e17e6590229f95f13668bfb8b4490a6ff4612bf18d23",
+                "replayInputSha256": "e5f00e598a85ca13d8684094f15ff96b4fa92b3f2a1f80b1b65b10b36ca16403",
+                "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+                "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+                "evaluationArtifact": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+                "evaluationUtc": "2026-10-08T05:02:17.323Z",
+                "remainingScreens": 10,
+                "recordedSteps": 80,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 70,
+                    "total": 80
+                  },
+                  "rng": {
+                    "matched": 2758,
+                    "total": 2792
+                  },
+                  "cursors": {
+                    "matched": 70,
+                    "total": 80
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 70,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 70,
+                      "key": "g"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "I",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "W",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2757,
+                    "cEntry": "rn2(5)=1",
+                    "cCaller": "distfleeck(monmove.c:538)",
+                    "jsEntry": "d(2,4)=3",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 73,
+                      "key": "y"
+                    },
+                    "stepIndex": 73
+                  },
+                  "cursor": {
+                    "index": 70,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 70,
+                      "key": "g"
+                    },
+                    "cCursor": [
+                      19,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      46,
+                      8,
+                      1
+                    ]
+                  }
+                },
+                "step": 70,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The Master Key invocation mismatch is caused by the JavaScript artifact.c invoke_untrap() wrapper returning without calling trap.c untrap(). C asks for a direction; the JavaScript replay leaves the invoke prompt on screen and consumes the next key as a game command. Port and wire invoke_untrap() to the existing untrap() implementation.",
+              "source": {
+                "file": "artifact.c",
+                "branch": "When arti_invoke() selects an artifact whose invocation property is UNTRAP and its cost check succeeds, invoke_untrap() calls untrap(TRUE, 0, 0, NULL). That path asks for a direction. In this recording, the westward answer finds no known trap, so untrap() returns false and invoke_untrap() resets the artifact age and returns ECMD_CANCEL.",
+                "functions": [
+                  "invoke_untrap"
+                ],
+                "callers": [
+                  "artifact.c:arti_invoke() dispatches the UNTRAP case (2158); artifact.c:doinvoke() enters arti_invoke() (1749-1758)."
+                ],
+                "dependencies": [
+                  "trap.c:untrap() (5848 onward), already implemented in js/trap.js:untrap(); its usual interactive path calls cmd.c:getdir() (3962-4019), already implemented in js/cmd.js:getdir()."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json records the first mismatch at screen 70, step 70, key g (C cell I, JavaScript cell W), with the first RNG divergence at step 73. The recorded session challenges/cases/v29/v29-key-invoke-untrap.session.json shows that step 70 asks for an invocation direction in C; key h at step 71 then produces “You know of no traps there.”",
+                "nethack-c/upstream/src/artifact.c:1838-1846 implements invoke_untrap(): call untrap(TRUE, 0, 0, NULL); if it returns false, clear obj->age and return ECMD_CANCEL; otherwise return ECMD_TIME. artifact.c:2158 dispatches UNTRAP from arti_invoke().",
+                "nethack-c/upstream/src/trap.c:5848 onward shows that the usual untrap path calls getdir() before checking the target and returns false when no known trap or door is at that location. nethack-c/upstream/src/cmd.c:3988 supplies the default “In what direction?” prompt.",
+                "At examined commit 9f590c88f193a980f8f819ebfad051a65f36faa0, js/artifacts.js:2410-2414 instead calls note_unported(\"trap.c untrap\"), resets obj.age, and returns ECMD_CANCEL without calling untrap(). The existing js/trap.js:2823 untrap() and js/cmd.js:getdir() implementations are therefore bypassed. This leaves the invoke prompt on screen and lets the recorded h answer fall through as a normal command, matching the queue’s subsequent step-73 RNG divergence.",
+                "Implementation scope: port the whole artifact.c invoke_untrap() function and wire it to the existing JavaScript trap.untrap() function. Keep the C cancellation behavior when untrap() returns false. The source trace does not require a new trap.c port for this prompt/no-trap branch."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-do-wear-amulet-on-v29-20261008",
