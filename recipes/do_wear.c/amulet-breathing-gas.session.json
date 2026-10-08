@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first gas-danger witness. C observed an extra starting inventory object, placing scroll f and amulet g; corrected only those item selections before JS comparison. Read the cloud on the hero then wear breathing. Original target miss is preserved in .cache/B149/. C also pauses at poison-cloud entry before returning to the command loop; two spaces acknowledge that source message before P. Preserve the pager miss in cache.",
+  "segments": [
+    {
+      "seed": 1492906,
+      "datetime": "20660819141722",
+      "nethackrc": "OPTIONS=name:AmuletWitness,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "   \u0017uncursed scroll of stinking cloud\n\u0017uncursed amulet of magical breathing\nrf    .  Pg        ."
+    }
+  ]
+}
