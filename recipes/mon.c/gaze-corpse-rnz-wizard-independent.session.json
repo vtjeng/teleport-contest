@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mon.c:make_corpse RNG-family witness. Seed, role, clock and target selected before C recording or JavaScript comparison, without seed search. polyself.c:dogaze fiery-gaze death reaches ordinary killed/xkilled corpse generation; two attempts allow a nonfatal first hit. No whole make_corpse completion credit. C-only initial recording consumed the command during startup More and left energy at level one; added startup dismissals before any JS comparison.",
+  "segments": [
+    {
+      "seed": 16307011,
+      "datetime": "20371023124507",
+      "nethackrc": "OPTIONS=name:CorpseProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "    #levelchange\n15\n                                #polyself\npyrolisk\n     \u0007peaceful newt\n#monster\ny     #monster\ny     ."
+    }
+  ]
+}
