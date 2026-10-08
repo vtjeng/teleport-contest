@@ -209980,7 +209980,7 @@
         "synthetic/v30/v30-hunger-faint"
       ],
       "selectionReason": "Integrate the source-traced v30 hunger-faint ZOMBIFY_MON timer boundary.",
-      "detail": "Port the complete do.c:zombify_mon source body. Wire bounded timeout table and live-state dispatch plus the readobjnam raw corpse payload. Preserve metadata clearing, species conversion, revive or rot fallback order. Do not claim whole timeout.c, objnam.c, revive_mon, or rot_corpse completion; inherited no-form nonfloor and multiple-timer boundaries remain explicit.",
+      "detail": "Port the complete do.c:zombify_mon source body. Wire bounded timeout table and live-state dispatch plus the readobjnam raw corpse payload. Preserve metadata clearing, species conversion, revive or rot fallback order. Complete required dig.c:rot_corpse behavior for floor, hero inventory, monster inventory, and migrating corpses, including residual timer cancellation. Do not claim whole timeout.c, objnam.c, revive_mon, or rot_organic completion; retain discarded-return downstream gaps explicitly.",
       "openedAt": "6f56e0962df207f4c0917ceaaed6fc2ac2a95db4",
       "openStanding": {
         "sha": "a1df82820c435d7f43389d085f22171b1cb77623",
@@ -209994,6 +209994,16 @@
           "name": "zombify_mon",
           "line": 2299,
           "endLine": 2318,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "requiredFunctions": [
+        {
+          "sourceFile": "dig.c",
+          "name": "rot_corpse",
+          "line": 2146,
+          "endLine": 2189,
           "declared": false,
           "complete": false
         }
