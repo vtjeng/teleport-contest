@@ -211360,6 +211360,206 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-wizcmds-wiz-show-vision-v30-20261008",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port the wizard vision text window",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v30/v30-vision-display"
+      ],
+      "selectionReason": "The admitted v30 vision case stops at the missing wizard vision command after 13 of 18 screens; the ready delivery predates the queued memory-statistics port and owns the shared dispatcher first.",
+      "detail": "Port whole wizcmds.c:wiz_show_vision lines 621-653 and its bounded cmd.c:doextcmd dispatcher arm. Preserve source dimensions, vision-bit rendering, hero override, trailing-space trimming, blocking text dismissal, map restoration, and ECMD_OK.",
+      "openedAt": "0d1afe59181aedabe2e5f5660b6be1ffb9d18827",
+      "openStanding": {
+        "sha": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_show_vision",
+          "line": 621,
+          "endLine": 656,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 621,
+        "to": 656
+      },
+      "syntheticProvenance": {
+        "synthetic/v30/v30-vision-display": {
+          "session": "synthetic/v30/v30-vision-display",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-vision-display",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-vision-display.session.json",
+          "recordingSha256": "ad21b263bf7255ad8290108442f3dc00de016c0938be40fd0fd7d770da084a43",
+          "evaluationPath": "challenges/evaluations/accepted-61ed127bc2ffb5432a7b6256015398cc6f0dd2ac-v30.json",
+          "evaluationCommit": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac"
+        }
+      },
+      "activeStanding": {
+        "sha": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-vision-display",
+          "session": "synthetic/v30/v30-vision-display",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recording": "challenges/cases/v30/v30-vision-display.session.json",
+          "recordingPath": "challenges/cases/v30/v30-vision-display.session.json",
+          "recordingSha256": "ad21b263bf7255ad8290108442f3dc00de016c0938be40fd0fd7d770da084a43",
+          "recipe": "challenges/cases/v30/v30-vision-display.recipe.session.json",
+          "recipeSha256": "ac5b67efc79fdb2a79009043848218ad1436fb5f65e1af2179add2b126dec8b9",
+          "replayInputSha256": "d9a8a854fa77f26a388dac63f2975815cf69453a12e8898f63ca466392799c3f",
+          "evaluationPath": "challenges/evaluations/accepted-61ed127bc2ffb5432a7b6256015398cc6f0dd2ac-v30.json",
+          "evaluationCommit": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac",
+          "evaluationArtifact": "challenges/evaluations/accepted-61ed127bc2ffb5432a7b6256015398cc6f0dd2ac-v30.json",
+          "evaluationUtc": "2026-10-08T17:38:42.882Z",
+          "remainingScreens": 5,
+          "recordedSteps": 18,
+          "previousScreensMatched": 13,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 13,
+              "total": 18
+            },
+            "rng": {
+              "matched": 2338,
+              "total": 2338
+            },
+            "cursors": {
+              "matched": 13,
+              "total": 18
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_show_vision() for the extended command 'vision' is not ported",
+            "step": 13
+          },
+          "step": 13,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_show_vision",
+          "message": "unsupported hero command: wiz_show_vision() for the extended command 'vision' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v30/v30-vision-display.json",
+            "result": {
+              "session": "synthetic/v30/v30-vision-display",
+              "corpus": "synthetic",
+              "batch": "v30",
+              "caseId": "v30-vision-display",
+              "manifestPath": "challenges/manifests/v30.json",
+              "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+              "recordingSha256": "ad21b263bf7255ad8290108442f3dc00de016c0938be40fd0fd7d770da084a43",
+              "evaluationPath": "challenges/evaluations/accepted-61ed127bc2ffb5432a7b6256015398cc6f0dd2ac-v30.json",
+              "evaluationCommit": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac",
+              "remainingScreens": 5,
+              "recordedSteps": 18,
+              "status": "complete",
+              "commit": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v30",
+                "caseId": "v30-vision-display",
+                "session": "synthetic/v30/v30-vision-display",
+                "manifestPath": "challenges/manifests/v30.json",
+                "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+                "recording": "challenges/cases/v30/v30-vision-display.session.json",
+                "recordingPath": "challenges/cases/v30/v30-vision-display.session.json",
+                "recordingSha256": "ad21b263bf7255ad8290108442f3dc00de016c0938be40fd0fd7d770da084a43",
+                "recipe": "challenges/cases/v30/v30-vision-display.recipe.session.json",
+                "recipeSha256": "ac5b67efc79fdb2a79009043848218ad1436fb5f65e1af2179add2b126dec8b9",
+                "replayInputSha256": "d9a8a854fa77f26a388dac63f2975815cf69453a12e8898f63ca466392799c3f",
+                "evaluationPath": "challenges/evaluations/accepted-61ed127bc2ffb5432a7b6256015398cc6f0dd2ac-v30.json",
+                "evaluationCommit": "61ed127bc2ffb5432a7b6256015398cc6f0dd2ac",
+                "evaluationArtifact": "challenges/evaluations/accepted-61ed127bc2ffb5432a7b6256015398cc6f0dd2ac-v30.json",
+                "evaluationUtc": "2026-10-08T17:38:42.882Z",
+                "remainingScreens": 5,
+                "recordedSteps": 18,
+                "previousScreensMatched": 13,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 13,
+                    "total": 18
+                  },
+                  "rng": {
+                    "matched": 2338,
+                    "total": 2338
+                  },
+                  "cursors": {
+                    "matched": 13,
+                    "total": 18
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: wiz_show_vision() for the extended command 'vision' is not ported",
+                  "step": 13
+                },
+                "step": 13,
+                "kind": "stop",
+                "sourceFile": "wizcmds.c",
+                "function": "wiz_show_vision",
+                "message": "unsupported hero command: wiz_show_vision() for the extended command 'vision' is not ported",
+                "cFile": "wizcmds.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The #vision dispatcher refuses wizcmds.c:wiz_show_vision instead of displaying the canonical vision bits in a text window. The existing JS vision array already reproduces the C map at the first stop.",
+              "source": {
+                "file": "wizcmds.c",
+                "branch": "Wizard extended command #vision after ordinary movement; canonical viz_array contains COULD_SEE/IN_SIGHT/TEMP_LIT bits.",
+                "functions": [
+                  "wiz_show_vision"
+                ],
+                "callers": [
+                  "cmd.c:extcmdlist vision row1928-1929 -> doextcmd -> rhack"
+                ],
+                "dependencies": [
+                  "Existing state.viz_array (vision.c:vision_recalc)",
+                  "Existing u_at macro, COLNO/ROWNO and COULD_SEE/IN_SIGHT/TEMP_LIT constants",
+                  "Existing tty_menu.js:displayTtyTextWindow for blocking NHW_TEXT and restoration"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Bounded run-kyIMVj /tmp/teleport-validation-1000/run-kyIMVj/receipt.json at6d0f3c11:13/18 screens/cursors and all2338 RNG match; missing JS screen at zero-based step13 newline, UnsupportedHeroCommandBoundaryError in cmd.js:doextcmd5311. Artifact .cache/A159/replay.json.",
+                "C wizcmds.c:wiz_show_vision621-653 creates NHW_TEXT, writes Flags header then blank line, iterates y0..ROWNO-1 and x1..COLNO-1; hero @ overrides bits, zero becomes space and nonzero becomes 0+v; trim only trailing spaces, display blocking then destroy, return ECMD_OK. No RNG or game state changes in the source function.",
+                "The replay snapshot hero44,14 and all existing viz_array rows yield the exact C step13 digit layout (3333333 room and 113333@33 lower edge); first cause is missing command, not a vision_recalc defect. Whole vision_recalc and tty text owner remain excluded.",
+                "All production callers: rg wiz_show_vision upstream *.[ch] finds only extcmdlist row cmd.c1929 and declaration/definition; generated JS extcmdlist_data row149 already points to the missing function. Wire only bounded cmd.js:doextcmd branch/import; existing rhack dispatcher already handles ECMD_OK.",
+                "Implement whole function in js/wizcmds.js and bound source:cmd.c:doextcmd wiring. Use existing displayTtyTextWindow to preserve blocking input/map restore and canonical state.viz_array (no duplicate cached map). Tests pin header, dimensions, column-zero exclusion, hero override, zero/combined-bit rows and trailing-space-only removal; selected prefix plus independent C-first ordinary and blind variation verify active #vision entry and window restoration.",
+                "No consumed-return unported dependency found: NHW_TEXT window ID lifecycle is represented by the existing canonical displayTtyTextWindow wrapper; u_at is pure existing source macro. Shared contract wizard-vision-text-window; no changes to vision.c or global vision reset."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
