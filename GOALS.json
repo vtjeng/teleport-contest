@@ -201249,7 +201249,7 @@
     {
       "id": "port-wizcmds-wiz-kill-v29-20261008",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port wizard monster selection and kill command",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -201257,8 +201257,12 @@
       ],
       "selectionReason": "The complete v29 investigation investigations/synthetic/v29/v29-quantum-mechanic-box.json identifies the next highest independent owner: 30 screens remain because wizcmds.c:wiz_kill has no production dispatcher.",
       "detail": "Port whole wizcmds.c wiz_kill and wire interactive doextcmd dispatch. Preserve mount, swallowed, suicide, m-prefix monkilled, level-change and dmonsfree branches in source order; verify selected and independent entry paths.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "473721cc66523a22ff7c6b34b870367ed8e08c1e",
+      "openStanding": {
+        "sha": "be1d7b43058b9973167448f8562c136850501400",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -201287,7 +201291,161 @@
           "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
           "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "be1d7b43058b9973167448f8562c136850501400",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-quantum-mechanic-box",
+          "session": "synthetic/v29/v29-quantum-mechanic-box",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recording": "challenges/cases/v29/v29-quantum-mechanic-box.session.json",
+          "recordingPath": "challenges/cases/v29/v29-quantum-mechanic-box.session.json",
+          "recordingSha256": "0d4fc84b0d0a5fe91664646e7ac7a24fe75dd4787e9c6c350cb9025ad4ab0ede",
+          "recipe": "challenges/cases/v29/v29-quantum-mechanic-box.recipe.session.json",
+          "recipeSha256": "706ab2d90036b0fccee8692d7716f8fb21a5f2c0257c66f5a163b83e3a20d026",
+          "replayInputSha256": "bba62a519fa3cf9837b7768bf4ffb7ba4d01772de5d638d92de23eb0205ded97",
+          "evaluationPath": "challenges/evaluations/accepted-be1d7b43058b9973167448f8562c136850501400-v29.json",
+          "evaluationCommit": "be1d7b43058b9973167448f8562c136850501400",
+          "evaluationArtifact": "challenges/evaluations/accepted-be1d7b43058b9973167448f8562c136850501400-v29.json",
+          "evaluationUtc": "2026-10-08T05:39:22.671Z",
+          "remainingScreens": 30,
+          "recordedSteps": 67,
+          "previousScreensMatched": 37,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 37,
+              "total": 67
+            },
+            "rng": {
+              "matched": 2992,
+              "total": 3038
+            },
+            "cursors": {
+              "matched": 37,
+              "total": 67
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_kill() for the extended command 'wizkill' is not ported",
+            "step": 37
+          },
+          "step": 37,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_kill",
+          "message": "unsupported hero command: wiz_kill() for the extended command 'wizkill' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v29/v29-quantum-mechanic-box.json",
+            "result": {
+              "session": "synthetic/v29/v29-quantum-mechanic-box",
+              "corpus": "synthetic",
+              "batch": "v29",
+              "caseId": "v29-quantum-mechanic-box",
+              "remainingScreens": 30,
+              "recordedSteps": 67,
+              "manifestPath": "challenges/manifests/v29.json",
+              "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+              "recordingSha256": "0d4fc84b0d0a5fe91664646e7ac7a24fe75dd4787e9c6c350cb9025ad4ab0ede",
+              "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+              "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+              "status": "complete",
+              "commit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v29",
+                "caseId": "v29-quantum-mechanic-box",
+                "session": "synthetic/v29/v29-quantum-mechanic-box",
+                "manifestPath": "challenges/manifests/v29.json",
+                "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+                "recording": "challenges/cases/v29/v29-quantum-mechanic-box.session.json",
+                "recordingPath": "challenges/cases/v29/v29-quantum-mechanic-box.session.json",
+                "recordingSha256": "0d4fc84b0d0a5fe91664646e7ac7a24fe75dd4787e9c6c350cb9025ad4ab0ede",
+                "recipe": "challenges/cases/v29/v29-quantum-mechanic-box.recipe.session.json",
+                "recipeSha256": "706ab2d90036b0fccee8692d7716f8fb21a5f2c0257c66f5a163b83e3a20d026",
+                "replayInputSha256": "e5f00e598a85ca13d8684094f15ff96b4fa92b3f2a1f80b1b65b10b36ca16403",
+                "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+                "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+                "evaluationArtifact": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+                "evaluationUtc": "2026-10-08T05:02:17.323Z",
+                "remainingScreens": 30,
+                "recordedSteps": 67,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 37,
+                    "total": 67
+                  },
+                  "rng": {
+                    "matched": 2992,
+                    "total": 3038
+                  },
+                  "cursors": {
+                    "matched": 37,
+                    "total": 67
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: wiz_kill() for the extended command 'wizkill' is not ported",
+                  "step": 37
+                },
+                "step": 37,
+                "kind": "stop",
+                "sourceFile": "wizcmds.c",
+                "function": "wiz_kill",
+                "message": "unsupported hero command: wiz_kill() for the extended command 'wizkill' is not ported",
+                "cFile": "wizcmds.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The saved evaluation stops at zero-based step 37 because JavaScript's extended-command dispatcher has no `wiz_kill` case. C dispatches `#wizkill` to `wizcmds.c:wiz_kill()`. The recorded path selects and kills a peaceful quantum mechanic, then continues to the box-tipping commands, so the actionable scope is the complete C function plus its production dispatch wiring.",
+              "source": {
+                "file": "wizcmds.c",
+                "branch": "In wizard/debug mode, selecting `#wizkill` enters a no-time target-selection loop. For this recording, `getpos()` selects the peaceful quantum mechanic (step 41's screen identifies it); with no `m` menu prefix, C prints the hero kill message and calls `xkilled()` (step 42), then prompts for another target and eventually exits through the cancel/no-target path. Port all of `wiz_kill()`, including mount and swallowed targeting, suicide confirmation, the `m`-prefix `monkilled()` path, level-change termination, and `dmonsfree()` cleanup/ECMD_OK return.",
+                "functions": [
+                  "wiz_kill"
+                ],
+                "callers": [
+                  "C cmd.c:extcmdlist[] `wizkill` row (1967-1969) names wiz_kill; cmd.c:doextcmd() invokes the selected row function pointer (493-517).",
+                  "JS extcmdlist_data.js:166 contains the matching row; cmd.js:doextcmd() dispatches it by ef_funct, but has no wiz_kill case and reaches the unsupported-command default at 5304-5309."
+                ],
+                "dependencies": [
+                  "getpos() for target selection (C getpos.c; JS getpos.js:getpos()).",
+                  "m_at(), next2u(), u_at(), and unmap_invisible() for normal, swallowed, and remembered-invisible target handling (JS monst.js, const.js, and display.js:unmap_invisible()).",
+                  "canspotmon(), has_mgivenname(), x_monnam(), nonliving(), and upstart() for naming and messaging the selected monster.",
+                  "xkilled() for hero-attributed kills and monkilled() for the `m`-prefix branch (JS mon.js already defines both; verify the needed quantum-mechanic and monster-attribution paths).",
+                  "ynq(), paranoid_query(), done(), on_level(), and dmonsfree() for mount confirmation, suicide, level-change exits, and final no-time cleanup (JS cmd.js:paranoid_query() and makemon_create.js:dmonsfree() are present)."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved queue entry for synthetic/v29/v29-quantum-mechanic-box points to challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json at 9f590c88f193a980f8f819ebfad051a65f36faa0: it reports 37/67 matched screens, 2992/3038 matched RNG calls, and 37/67 matched cursors. Its first mismatch is a stop at zero-based step 37: “unsupported hero command: wiz_kill() for the extended command 'wizkill' is not ported”; 30 screens remain unmatched.",
+                "The immutable C recording challenges/cases/v29/v29-quantum-mechanic-box.session.json (SHA-256 0d4fc84b0d0a5fe91664646e7ac7a24fe75dd4787e9c6c350cb9025ad4ab0ede) contains 67 steps. At step 37, the screen shows “Pick first monster to slay”; step 41 identifies “peaceful quantum mechanic” under the target cursor; step 42 shows “You kill the quantum mechanic!” and the experience-level message. The recipe challenges/cases/v29/v29-quantum-mechanic-box.recipe.session.json (SHA-256 706ab2d90036b0fccee8692d7716f8fb21a5f2c0257c66f5a163b83e3a20d026) names the intended route: create a quantum mechanic, kill it with wizard kill, then tip its spe=1 large box to exercise pickup.c:observe_quantum_cat.",
+                "C wizcmds.c:240-347 contains the complete loop: it saves/restores verbose and autodescribe around getpos(), resolves mount/swallowed/map targets, unmaps an invisible marker, selects xkilled() or monkilled() based on the menu prefix, stops if the level changes, calls dmonsfree(), and returns ECMD_OK without spending time. The C command row and indirect function-pointer call are in cmd.c:1967-1969 and 493-517.",
+                "The matching JS command row is present at extcmdlist_data.js:166, but cmd.js:doextcmd() has no `wiz_kill` case; the default at 5304-5309 resets command variables and raises UnsupportedHeroCommandBoundaryError. This locates the first divergence at command dispatch, before JS can produce the C target prompt or reach the quantum mechanic kill."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-ball-ballfall-v28-20261008",
