@@ -213667,6 +213667,209 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-wizcmds-wiz-objprobs-v30-20261008",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port the complete wizard object probability report and bounded command dispatcher",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v30/v30-object-probabilities"
+      ],
+      "selectionReason": "A166 continues the refreshed A163 investigation for synthetic/v30/v30-object-probabilities. The current accepted v30 evaluation retains five unmatched screens, and source tracing isolates complete wizcmds.c wiz_objprobs plus its bounded wizobjprobs dispatcher; A167, B164, and C152 own independent scopes.",
+      "detail": "",
+      "openedAt": "b340e9a6a004a0f9372d310670349fceaf196213",
+      "openStanding": {
+        "sha": "7002c1cb236a754350f7d8a5384840474ab5d55b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_objprobs",
+          "line": 1832,
+          "endLine": 1872,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1832,
+        "to": 1872
+      },
+      "syntheticProvenance": {
+        "synthetic/v30/v30-object-probabilities": {
+          "session": "synthetic/v30/v30-object-probabilities",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-object-probabilities",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-object-probabilities.session.json",
+          "recordingSha256": "c84c4f58b2ffb07cf63a090457c77362d99bd4b948a97650c83bb469de7b7f23",
+          "evaluationPath": "challenges/evaluations/accepted-7002c1cb236a754350f7d8a5384840474ab5d55b-v30.json",
+          "evaluationCommit": "7002c1cb236a754350f7d8a5384840474ab5d55b"
+        }
+      },
+      "activeStanding": {
+        "sha": "7002c1cb236a754350f7d8a5384840474ab5d55b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-object-probabilities",
+          "session": "synthetic/v30/v30-object-probabilities",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recording": "challenges/cases/v30/v30-object-probabilities.session.json",
+          "recordingPath": "challenges/cases/v30/v30-object-probabilities.session.json",
+          "recordingSha256": "c84c4f58b2ffb07cf63a090457c77362d99bd4b948a97650c83bb469de7b7f23",
+          "recipe": "challenges/cases/v30/v30-object-probabilities.recipe.session.json",
+          "recipeSha256": "cfa4fb3930dd26d5409f8d392849d20077806236b4823718b364295babf697ef",
+          "replayInputSha256": "0cb6b77e49f00805b53a6577eb883416e28298f4fd515ebc3d867a377ab55442",
+          "evaluationPath": "challenges/evaluations/accepted-7002c1cb236a754350f7d8a5384840474ab5d55b-v30.json",
+          "evaluationCommit": "7002c1cb236a754350f7d8a5384840474ab5d55b",
+          "evaluationArtifact": "challenges/evaluations/accepted-7002c1cb236a754350f7d8a5384840474ab5d55b-v30.json",
+          "evaluationUtc": "2026-10-08T19:21:31.015Z",
+          "remainingScreens": 5,
+          "recordedSteps": 19,
+          "previousScreensMatched": 14,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 14,
+              "total": 19
+            },
+            "rng": {
+              "matched": 2684,
+              "total": 2684
+            },
+            "cursors": {
+              "matched": 14,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_objprobs() for the extended command 'wizobjprobs' is not ported",
+            "step": 14
+          },
+          "step": 14,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_objprobs",
+          "message": "unsupported hero command: wiz_objprobs() for the extended command 'wizobjprobs' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v30/v30-object-probabilities.json",
+            "result": {
+              "session": "synthetic/v30/v30-object-probabilities",
+              "corpus": "synthetic",
+              "batch": "v30",
+              "caseId": "v30-object-probabilities",
+              "manifestPath": "challenges/manifests/v30.json",
+              "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+              "recordingSha256": "c84c4f58b2ffb07cf63a090457c77362d99bd4b948a97650c83bb469de7b7f23",
+              "evaluationPath": "challenges/evaluations/accepted-8a1c6bca0b99c51a199a18424976a9182a40d67f-v30.json",
+              "evaluationCommit": "8a1c6bca0b99c51a199a18424976a9182a40d67f",
+              "remainingScreens": 5,
+              "recordedSteps": 19,
+              "status": "complete",
+              "commit": "9fe6073151cf4d05573ca4a6a3e199e6ce3fc618",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v30",
+                "caseId": "v30-object-probabilities",
+                "session": "synthetic/v30/v30-object-probabilities",
+                "manifestPath": "challenges/manifests/v30.json",
+                "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+                "recording": "challenges/cases/v30/v30-object-probabilities.session.json",
+                "recordingPath": "challenges/cases/v30/v30-object-probabilities.session.json",
+                "recordingSha256": "c84c4f58b2ffb07cf63a090457c77362d99bd4b948a97650c83bb469de7b7f23",
+                "recipe": "challenges/cases/v30/v30-object-probabilities.recipe.session.json",
+                "recipeSha256": "cfa4fb3930dd26d5409f8d392849d20077806236b4823718b364295babf697ef",
+                "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
+                "evaluationPath": "challenges/evaluations/accepted-8a1c6bca0b99c51a199a18424976a9182a40d67f-v30.json",
+                "evaluationCommit": "8a1c6bca0b99c51a199a18424976a9182a40d67f",
+                "evaluationArtifact": "challenges/evaluations/accepted-8a1c6bca0b99c51a199a18424976a9182a40d67f-v30.json",
+                "evaluationUtc": "2026-10-08T16:21:35.676Z",
+                "remainingScreens": 5,
+                "recordedSteps": 19,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 14,
+                    "total": 19
+                  },
+                  "rng": {
+                    "matched": 2684,
+                    "total": 2684
+                  },
+                  "cursors": {
+                    "matched": 14,
+                    "total": 19
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: wiz_objprobs() for the extended command 'wizobjprobs' is not ported",
+                  "step": 14
+                },
+                "step": 14,
+                "kind": "stop",
+                "sourceFile": "wizcmds.c",
+                "function": "wiz_objprobs",
+                "message": "unsupported hero command: wiz_objprobs() for the extended command 'wizobjprobs' is not ported",
+                "cFile": "wizcmds.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The #wizobjprobs dispatcher refuses missing wizcmds.c:wiz_objprobs. The canonical initialized object probabilities and names already reproduce all five recorded C table pages.",
+              "source": {
+                "file": "wizcmds.c",
+                "branch": "Active DEBUG wizard #wizobjprobs: sum each object class over FIRST_OBJECT..NUM_OBJECTS-1, omit unnamed placeholder rows only from display, then show probabilities and source names in a paged text window.",
+                "functions": [
+                  "wiz_objprobs"
+                ],
+                "callers": [
+                  "cmd.c:extcmdlist wizobjprobs row1977–1978 -> doextcmd -> rhack"
+                ],
+                "dependencies": [
+                  "Existing state.objects and state.obj_descr, initialized by objects.c/o_init.c including setgemprobs",
+                  "Existing objects.js:OBJ_NAME and FIRST_OBJECT/NUM_OBJECTS/MAXOCLASSES constants",
+                  "Existing tty_menu.js:displayTtyTextWindow NHW_TEXT paging/dismissal/restore lifecycle",
+                  "C float32 multiplication/division followed by printf fixed precision and field widths"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Bounded run-oTty9D at b1f12683d stops at zero-based step14 newline: 14/19 screens/cursors and all 2,684 RNG match, UnsupportedHeroCommandBoundaryError names wiz_objprobs at cmd.js:doextcmd5315. A second diagnostic run only retained the initialized object table/name descriptors from that same assigned session. Artifacts .cache/A163/replay.json, replay.log and replay-with-data.log.",
+                "C wizcmds.c:wiz_objprobs1832–1868 zeroes probsum[MAXOCLASSES], initializes oclass from FIRST_OBJECT, then sums every object probability through NUM_OBJECTS-1 before filtering unnamed rows. Second traversal skips OBJ_NAME==null, inserts a blank when a displayed row changes class, and uses %4d / %4d (%6.2f%%): %s with float casts and100.f before displaying NHW_TEXT nonblocking flagFALSE, destroying and returning ECMD_OK. No RNG or state changes; the tty NHW_TEXT implementation still reads paging/dismissal input.",
+                "Source-derived rendering from state.objects/state.obj_descr reproduces all 115 C rows at steps14–18 (five 23-row pages), verified with frozen/screen-decode.mjs. Weapon sum is1002, armor sum1000; these are live sums rather than an assumed1000 total. Generated diagnostic lines/sums are .cache/A163/source-lines.json. No object generation or initialization correction is indicated.",
+                "All production caller search results are the source definition, extern.h3890, cmd.c1978 and generated extcmdlist_data.js170. DEBUG/NH_DEVEL_STATUS build condition is active in the recorder; scripts/extended-command-prompt.test.mjs295–299 pins the command registry. Add only bounded cmd.js:doextcmd import/branch plus whole wiz_objprobs in js/wizcmds.js.",
+                "No unported consumed-return callee found: existing OBJ_NAME directly reads state.obj_descr[oc_name_idx].oc_name; FIRST_OBJECT/NUM_OBJECTS/MAXOCLASSES are generated canonical constants; existing text wrapper represents window-ID lifecycle. Read state.objects directly so current depth-dependent gem probabilities and initialized zero-probability classes are used, with no duplicate probability table or state mutation.",
+                "Complete task scope is whole wiz_objprobs1832–1868, bounded doextcmd caller and contract:wizard-object-probability-text-window. Expected writes js/wizcmds.js/js/cmd.js, source-pinned probability tests/fresh runner, recipes/wizcmds.c and recordings/wizcmds.c. Older queued B162 has dispatcher priority; this report remains available for later implementation after that boundary.",
+                "Tests should pin class sums including unnamed placeholders, row-name skip/order and class-change blank lines, integer field widths, float32 multiply/divide and C printf two-decimal rounding, canonical live tables and awaited return. Independent C-first witnesses should page through the whole455-line table to dismissal and repeat, plus a cheap role or supported depth/gem-probability variation. The selected case stops inside page5, so its matching range alone will not establish final map restoration or later object-class rows. No implementation, fresh C game, whole doextcmd/rhack, object-init or text-window credit is claimed.",
+                "A166 handoff at 9fe60731 preserves original A163 diagnosis 4972dc9a. Accepted A164 statistics clears the previous dispatcher priority; current accepted-8a1c6bca v30 retains exactly five unmatched screens and the same step14 owner, recording and manifest identity. Whole source1832-1868 and existing consumed dependencies reread; A165 wall-mode delivery changes only its distinct dispatcher arm and cannot alter canonical object probabilities. B163 make_corpse and C152 migration are independent. No new game recording or implementation edits during this refreshed investigation."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
