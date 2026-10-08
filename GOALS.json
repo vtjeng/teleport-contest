@@ -206989,13 +206989,13 @@
     {
       "id": "port-potion-peffect-levitation-v29-20261008",
       "kind": "file-port",
-      "status": "parked",
+      "status": "closed",
       "summary": "Port the whole levitation potion effect and restore cursed upstairs handling",
       "cFile": "potion.c",
       "sessions": [
         "synthetic/v29/v29-cursed-levitation-up"
       ],
-      "selectionReason": "The oldest reserved v29 mismatch skips the source doup call for cursed levitation on an upstairs square.",
+      "selectionReason": "A153 is accepted and B151 is the next dependency-ready implementation delivery.",
       "detail": "Preserve peffect_levitation branch and common-tail ordering for quaff and spell callers; reuse the existing whole doup owner and retain companion-transfer and end-game limits outside this goal.",
       "openedAt": "4112636a58689f078315daeb8408d36e0ec5f8c1",
       "openStanding": {
@@ -207003,15 +207003,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7e71008bccf5e116384b2680966e5c876d955df9",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "peffect_levitation",
           "line": 1165,
           "endLine": 1223,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -207033,7 +207036,7 @@
         }
       },
       "activeStanding": {
-        "sha": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8",
+        "sha": "2ce550233f2bed644fa87f907aacb1d43b3cd7de",
         "screens": 11405,
         "rng": 792838
       },
@@ -207275,7 +207278,94 @@
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "A152 is the oldest dependency-ready delivery and must integrate first; B151 implementation continues independently."
+      "parkedReason": "A152 is the oldest dependency-ready delivery and must integrate first; B151 implementation continues independently.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_levitation",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_levitation",
+            "sourceReview": "Read complete potion.c1165-1221 and compared all source branches in order: !Levitation&&!BLevitation sets timeout1 before awaited float_up; otherwise potion_nothing++; cursed clears I_SPECIAL even already levitating, blocked rise is empty, up-stair branch awaits existing doup and discards ECMD return before resetting potion_nothing, else ceiling damage rnd(10/6/3) followed by Maybe_Half_Phys/losehp and reset; blessed rn1(50,250) before I_SPECIAL, uncursed rn1(140,10), effective Levitation sink spoteffects(FALSE), then float_vs_flight. Replaced only selected do.c:doup note_unported; no injected operation/refusal or swallowed failure remains in this unit. No invented draw or display effect. Existing consumed stairway_at, has_ceiling, hard_helmet, body_part/ceiling and Maybe_Half_Phys owners verified. Read whole doup1298-1344, prev_level1518-1543, float_vs_flight131-164 and matching JS; no broad completion credit. Existing downstream companion transfer limits explicitly preserved.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c1404-1406 POT_LEVITATION/SPE_LEVITATION shared awaited effect; existing command quaff -> dodrink/dopotion and spell.c1533-1545 spelleffects -> peffects production routes verified."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs",
+              "scripts/doup.test.mjs",
+              "scripts/spell.test.mjs",
+              "scripts/wear-armor.test.mjs",
+              "scripts/monster-pit.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/levitation-cursed-upstairs.session.json",
+              "recordings/potion.c/levitation-cursed-ceiling.session.json",
+              "recordings/potion.c/levitation-blessed.session.json",
+              "recordings/potion.c/levitation-uncursed.session.json",
+              "recordings/potion.c/levitation-spell.session.json",
+              "recordings/potion.c/levitation-sink.session.json"
+            ],
+            "sourceFile": "potion.c",
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-cursed-levitation-up",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 40,
+                "source": "cmd.c quaff -> potion.c:dodrink526-615/dopotion618-641/peffects1404-1406 -> peffect_levitation1165-1221 -> do.c:doup1298-1344. Cursed upstairs query, decline, potion_nothing reset, shared float_vs_flight tail, next-turn descent. Whole 41 boundaries/2510 RNG exact."
+              }
+            ],
+            "checkedAt": "7e71008bccf5e116384b2680966e5c876d955df9"
+          }
+        ],
+        "entryPointReview": "Only direct effect caller is potion.c:peffects POT_LEVITATION/SPE_LEVITATION. Active family1 quaff: cmd.c q/#quaff -> dodrink -> dopotion -> peffects; admitted cursed upstairs range plus independent cursed upstairs/ceiling, blessed/uncursed and sink recordings. Active family2 spell: cmd.c #wizcast -> spell.c:dowizcast -> spelleffects1533-1545 -> peffects SPE_LEVITATION; independent basic-skilled Wizard spell recording. Normal learned spell uses the same spelleffects dispatch; no extra effect call. end.c debug done_in_by callers make only POT_WATER/POT_RESTORE_ABILITY, never levitation. Other float_up callers belong to the existing owner, not this selected effect. No inactive source branches invented.",
+        "entryPoints": [
+          {
+            "name": "Quaff levitation potion",
+            "functions": [
+              "peffect_levitation"
+            ],
+            "recordings": [
+              "recordings/potion.c/levitation-cursed-upstairs.session.json",
+              "recordings/potion.c/levitation-cursed-ceiling.session.json",
+              "recordings/potion.c/levitation-blessed.session.json",
+              "recordings/potion.c/levitation-uncursed.session.json",
+              "recordings/potion.c/levitation-sink.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-cursed-levitation-up",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 40,
+                "source": "cmd.c quaff -> potion.c:dodrink526-615/dopotion618-641/peffects1404-1406 -> peffect_levitation1165-1221 -> do.c:doup1298-1344. Cursed upstairs query, decline, potion_nothing reset, shared float_vs_flight tail, next-turn descent. Whole 41 boundaries/2510 RNG exact."
+              }
+            ]
+          },
+          {
+            "name": "Cast levitation spell",
+            "functions": [
+              "peffect_levitation"
+            ],
+            "recordings": [
+              "recordings/potion.c/levitation-spell.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7e71008bccf5e116384b2680966e5c876d955df9",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-lock-doopen-indir-whole-v29-20261008",
@@ -207578,6 +207668,361 @@
       "closeMismatches": [],
       "closeStanding": {
         "sha": "9855f02407cdfd2171190f79fb09ffc5a2547679",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-artifact-invoke-banish-v29-20261008",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port complete Demonbane banishment and preserve canonical migration behavior",
+      "cFile": "artifact.c",
+      "sessions": [
+        "synthetic/v29/v29-demonbane-banish"
+      ],
+      "selectionReason": "A152 is accepted and A153 is the next dependency-ready implementation delivery.",
+      "detail": "The v29 case first diverges in artifact.c invoke_banish at step 44; the delivery ports the whole function and its active arti_invoke caller contract.",
+      "openedAt": "32b2a322e1c9caa86eb9cdf81487e1f9eca3ec47",
+      "openStanding": {
+        "sha": "9855f02407cdfd2171190f79fb09ffc5a2547679",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "2ce550233f2bed644fa87f907aacb1d43b3cd7de",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "invoke_banish",
+          "line": 1963,
+          "endLine": 2021,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1963,
+        "to": 2021
+      },
+      "syntheticProvenance": {
+        "synthetic/v29/v29-demonbane-banish": {
+          "session": "synthetic/v29/v29-demonbane-banish",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-demonbane-banish",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-demonbane-banish.session.json",
+          "recordingSha256": "08cfa08c69e673671f4f8ff893755861c74f0f3b51d37b5eb05c494ce6b3dd70",
+          "evaluationPath": "challenges/evaluations/accepted-9855f02407cdfd2171190f79fb09ffc5a2547679-v29.json",
+          "evaluationCommit": "9855f02407cdfd2171190f79fb09ffc5a2547679"
+        }
+      },
+      "activeStanding": {
+        "sha": "9855f02407cdfd2171190f79fb09ffc5a2547679",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-demonbane-banish",
+          "session": "synthetic/v29/v29-demonbane-banish",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recording": "challenges/cases/v29/v29-demonbane-banish.session.json",
+          "recordingPath": "challenges/cases/v29/v29-demonbane-banish.session.json",
+          "recordingSha256": "08cfa08c69e673671f4f8ff893755861c74f0f3b51d37b5eb05c494ce6b3dd70",
+          "recipe": "challenges/cases/v29/v29-demonbane-banish.recipe.session.json",
+          "recipeSha256": "d3535e0577a5325eb9fff5b271dd9b77dc621d36cdff3548aea766b11f543c26",
+          "replayInputSha256": "74e494a069b0f4dc4ceaf738b3622a2dd3e3acc913287eb87d02273ad2b10290",
+          "evaluationPath": "challenges/evaluations/accepted-9855f02407cdfd2171190f79fb09ffc5a2547679-v29.json",
+          "evaluationCommit": "9855f02407cdfd2171190f79fb09ffc5a2547679",
+          "evaluationArtifact": "challenges/evaluations/accepted-9855f02407cdfd2171190f79fb09ffc5a2547679-v29.json",
+          "evaluationUtc": "2026-10-08T09:56:26.165Z",
+          "remainingScreens": 6,
+          "recordedSteps": 50,
+          "previousScreensMatched": 44,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 44,
+              "total": 50
+            },
+            "rng": {
+              "matched": 2384,
+              "total": 2392
+            },
+            "cursors": {
+              "matched": 50,
+              "total": 50
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 44,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 44,
+                "key": "j"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2378,
+              "cEntry": "rn2(24)=20",
+              "cCaller": "invoke_banish(artifact.c:1996)",
+              "jsEntry": "rn2(5)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 44,
+                "key": "j"
+              },
+              "stepIndex": 44
+            },
+            "cursor": null
+          },
+          "step": 44,
+          "kind": "rng",
+          "sourceFile": "artifact.c",
+          "function": "invoke_banish",
+          "message": null,
+          "cFile": "artifact.c",
+          "luaFile": null,
+          "line": 1996,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v29/v29-demonbane-banish.json",
+            "result": {
+              "session": "synthetic/v29/v29-demonbane-banish",
+              "corpus": "synthetic",
+              "batch": "v29",
+              "caseId": "v29-demonbane-banish",
+              "manifestPath": "challenges/manifests/v29.json",
+              "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+              "recordingSha256": "08cfa08c69e673671f4f8ff893755861c74f0f3b51d37b5eb05c494ce6b3dd70",
+              "evaluationPath": "challenges/evaluations/accepted-9855f02407cdfd2171190f79fb09ffc5a2547679-v29.json",
+              "evaluationCommit": "9855f02407cdfd2171190f79fb09ffc5a2547679",
+              "remainingScreens": 6,
+              "recordedSteps": 50,
+              "status": "complete",
+              "commit": "9855f02407cdfd2171190f79fb09ffc5a2547679",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v29",
+                "caseId": "v29-demonbane-banish",
+                "session": "synthetic/v29/v29-demonbane-banish",
+                "manifestPath": "challenges/manifests/v29.json",
+                "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+                "recording": "challenges/cases/v29/v29-demonbane-banish.session.json",
+                "recordingPath": "challenges/cases/v29/v29-demonbane-banish.session.json",
+                "recordingSha256": "08cfa08c69e673671f4f8ff893755861c74f0f3b51d37b5eb05c494ce6b3dd70",
+                "recipe": "challenges/cases/v29/v29-demonbane-banish.recipe.session.json",
+                "recipeSha256": "d3535e0577a5325eb9fff5b271dd9b77dc621d36cdff3548aea766b11f543c26",
+                "replayInputSha256": "3865bfa70706ac84f88c5d02b0e141e247b55ae3bf7a129b0a7a8b83e995245d",
+                "evaluationPath": "challenges/evaluations/accepted-9855f02407cdfd2171190f79fb09ffc5a2547679-v29.json",
+                "evaluationCommit": "9855f02407cdfd2171190f79fb09ffc5a2547679",
+                "evaluationArtifact": "challenges/evaluations/accepted-9855f02407cdfd2171190f79fb09ffc5a2547679-v29.json",
+                "evaluationUtc": "2026-10-08T09:56:26.165Z",
+                "remainingScreens": 6,
+                "recordedSteps": 50,
+                "previousScreensMatched": 44,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 44,
+                    "total": 50
+                  },
+                  "rng": {
+                    "matched": 2384,
+                    "total": 2392
+                  },
+                  "cursors": {
+                    "matched": 50,
+                    "total": 50
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 44,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 44,
+                      "key": "j"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "W",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2378,
+                    "cEntry": "rn2(24)=20",
+                    "cCaller": "invoke_banish(artifact.c:1996)",
+                    "jsEntry": "rn2(5)=4",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 44,
+                      "key": "j"
+                    },
+                    "stepIndex": 44
+                  },
+                  "cursor": null
+                },
+                "step": 44,
+                "kind": "rng",
+                "sourceFile": "artifact.c",
+                "function": "invoke_banish",
+                "message": null,
+                "cFile": "artifact.c",
+                "luaFile": null,
+                "line": 1996
+              },
+              "summary": "Demonbane invocation skips the visible imp at step 44 because artifact.c:invoke_banish uses an absent state.fmon chain instead of canonical level.monlist. Complete the whole source unit with cached-next traversal, canonical find_hell destination and quest status, and existing migration/teleport owners. C next draws rn2(24) for Gehennom while JavaScript skips to monster upkeep.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "artifact.c",
+                "functions": [
+                  "invoke_banish() whole 1963-2019"
+                ],
+                "branch": "After doinvoke selects and retouches Demonbane and arti_invoke pays its cooldown, visit living on-map demons or imp-class monsters in potential sight, excluding nemeses. Clear sleep/tame/peaceful, apply Quest/prince/lord chance, migrate outside Hell or teleport within Hell, then report vanished/stayed counts.",
+                "callers": [
+                  "cmd.c #invoke dispatcher -> artifact.c:doinvoke1749-1759 -> arti_invoke2131-2232 -> BANISH case2167 -> invoke_banish1963-2019. JS cmd.js -> artifacts.js doinvoke/retouch_object/arti_invoke already await and consume this helper ECMD_TIME. Only invoke_banish implementation needs changing; no whole dispatcher, arti_invoke or retouch credit."
+                ],
+                "dependencies": [
+                  "C find_hell1970 mutates the consumed destination before the monster loop. Existing dungeon.js:find_hell606-609 and its source-pinned test match dungeon.c1949-1953; reuse instead of the stale gap/default destination inside the loop. Existing dunlevs_in_dungeon1332-1335 and ledger_no1376-1379 pin the RNG bound and target ledger.",
+                  "C mtmp2=mtmp->nmon1975 must precede all gates/migration. Canonical fmon lives at state.level.monlist, as mon.js get_iter_mons/iter_mons and migration lifecycle show. migrate_mon -> dog.js:migrate_to_level unlinks the live chain and repurposes nmon, so current mtmp=mtmp.nmon iteration is also invalid after fixing the head.",
+                  "Canonical Quest status is state.svq.quest_status, read by quest.js and monster generation. Use killed_nemesis from that source state instead of absent state.quest_status. Monster class/demon/prince/lord/sound/potential-sight/dead/offmap predicates and vtense are existing owners.",
+                  "mon.c:migrate_mon3843-3863 and teleport.c:u_teleport_mon2263-2304 are source-discarded return calls. Reuse existing async/lifecycle owners with the correct state/env. Remove stale u_teleport_mon gap; no new teleport/mon/dungeon function credit. Existing migration excludes leashed, shopkeeper, long-worm/disguised or stuck cases; preserve any reached concrete downstream frontier as a blocked recipe, with no fabricated effects.",
+                  "No overlap with B151 levitation, B150 eyewear/ball or C145 targeting contracts. C146 kick scope remains excluded. Shared artifacts.js contains disjoint invocation functions; do not edit C145 invoke_storm_spell or its callees."
+                ]
+              },
+              "evidence": [
+                "Current bounded replay .cache/A153/replay.json at examined ca99faab reproduces first zero-based step44 key j. Startup/object choice/cooldown RNG matches; C next rn2(24)=20 @ invoke_banish(artifact.c1996), JS rn2(5)=4 from monster upkeep. C screen begins The demon disappears in a cloud of brimstone; JS retains the invoke object prompt. Both produce50 cursors, but6 of50 screens remain unmatched in accepted9f7 evaluation.",
+                "Pre-invocation state probe .cache/A153/state-probe.json confirms state.fmon is absent; level.monlist contains the living peaceful imp-class monster at map35,13 in potential sight (viz bits3). It also contains a nonvisible non-demon monster, so visit/filter the real chain rather than treating missing state as no targets.",
+                "Read complete upstream artifact.c:invoke_banish1963-2019 and JS artifacts.js2520-2573. The skipped loop is the first cause. Source saves next before every branch, initializes find_hell outside the loop, uses svq.quest_status, and calls u_teleport_mon when Inhell. Current JS omits those contracts or substitutes a stale gap.",
+                "Read whole production doinvoke and arti_invoke BANISH dispatch. The selected object prompt and cooldown draws match before this helper, so neither wish generation nor object-letter selection is the cause. No changes to challenge seed/input/recording are required.",
+                "Read existing canonical dungeon find_hell/dunlevs/ledger, whole migrate_mon and migrate_to_level linkage, whole u_teleport_mon and couldsee. find_hell is already ported; do not create another destination helper or retain its placeholder. Teleport owner evidence in GOALS names banish as a previously skipped caller gap, which this source unit must reconcile.",
+                "Validation plan: fail-first source-pinned active-chain/cached-next/Quest/target-count tests; selected admitted step44 through49; independent C-first lawful Priest Demonbane invoke with a visible imp, plus multiple imp/demon variation to verify all targets survive unlinking order. Cover prince/lord/stayed summary and Hell relocation with focused source-derived cases or matching cheap C variations. If an exceptional migration or Hell setup blocks, retain its independently selected recipe and name the exact downstream source limit."
+              ],
+              "evidenceLimits": [
+                "The investigated selected case ends after the single ordinary outside-Hell invocation. It does not establish multi-target traversal, Quest chance, Hell relocation, or exceptional migration correctness; add independent evidence/source-pinned tests before claiming the whole unit."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "invoke_banish",
+            "implementation": "js/artifacts.js",
+            "symbol": "invoke_banish",
+            "sourceReview": "Read whole artifact.c:invoke_banish1963-2019. Initialize canonical find_hell out-parameter before the loop; walk C fmon at state.level.monlist and save nmon before all gates so migration unlinking cannot lose targets. Preserve DEADMONSTER/isok, demon-or-S_IMP, couldsee and MS_NEMESIS filter order. Use state.svq.quest_status.killed_nemesis for Quest+10, then prince+2 and lord+1; zero sleep/tame/peaceful before chance, skip chance RNG at1. Outside Hell increment nvanished and draw rn2(dunlevs_in_dungeon(dest)) including source dlevel0 possibility, then canonical ledger_no/migrate_mon; inside Hell await existing u_teleport_mon(mtmp,FALSE,{state}) without incrementing nvanished. Preserve stayed count, singular/plural and Most/Some/The wording, and unconditional ECMD_TIME. Reuse source-pinned dungeon.c find_hell/dunlevs/ledger and canonical monster/vision/name predicates; read whole migrate_mon/migrate_to_level and u_teleport_mon caller contracts. Remove absent-head/Quest state locations and stale find_hell/u_teleport_mon placeholders. The known leashed source-discarded migrate_mon call remains a bounded caller gap: after destination RNG, note_unported dog.c migrate_to_level leashed monster migration and skip only that unavailable call, without fabricating leash or migration effects. No whole arti_invoke/doinvoke/dungeon/mon/dog/teleport credit; no C145 storm function edits.",
+            "callers": [
+              {
+                "path": "js/artifacts.js",
+                "symbol": "arti_invoke",
+                "source": "artifact.c2167 BANISH dispatch awaits invoke_banish and consumes its ECMD_TIME. cmd.c #invoke -> doinvoke1749-1759 -> getobj/retouch_object -> arti_invoke_cost cooldown -> arti_invoke BANISH; source guards and cooldown draws match before the selected divergence and all independent witnesses reach this production path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/artifact-banish.test.mjs",
+              "scripts/artifact-invoke.test.mjs",
+              "scripts/artifacts.test.mjs",
+              "scripts/dungeon.test.mjs",
+              "scripts/teleport.test.mjs",
+              "scripts/mon-stone-migration.test.mjs"
+            ],
+            "recordings": [
+              "recordings/artifact.c/invoke-banish-imp.session.json",
+              "recordings/artifact.c/invoke-banish-pair.session.json",
+              "recordings/artifact.c/invoke-banish-hell.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-demonbane-banish",
+                "segment": 0,
+                "fromStep": 43,
+                "throughStep": 49,
+                "source": "cmd.c #invoke -> artifact.c doinvoke1749-1759 selects and retouches Demonbane -> arti_invoke2167 BANISH -> invoke_banish1963-2019 visits visible imp, consumes Gehennom destination draw, migrates then reports singular disappearance."
+              }
+            ],
+            "checkedAt": "2ce550233f2bed644fa87f907aacb1d43b3cd7de"
+          }
+        ],
+        "entryPointReview": "The one active caller is arti_invoke BANISH from the #invoke command. Selected v29 and independent single-imp evidence cover ordinary outside-Hell migration; independent two-imp-class species prove every target survives active-list unlinking and plural counts; independent numeric wizard level teleport reaches the source Inhell branch and canonical u_teleport_mon/rloc with no vanished-count message. Filters and rare lord/prince/Quest stayed branches are source-pinned in focused tests, including the canonical Quest status with a contradictory obsolete field. The independent leashed target is an explicit discarded-callee gap; preserve the blocked recipe and do not claim dog.c leashed migration completion.",
+        "entryPoints": [
+          {
+            "name": "Demonbane #invoke outside Hell",
+            "functions": [
+              "invoke_banish"
+            ],
+            "recordings": [
+              "recordings/artifact.c/invoke-banish-imp.session.json",
+              "recordings/artifact.c/invoke-banish-pair.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-demonbane-banish",
+                "segment": 0,
+                "fromStep": 43,
+                "throughStep": 49,
+                "source": "cmd.c #invoke -> artifact.c doinvoke1749-1759 selects and retouches Demonbane -> arti_invoke2167 BANISH -> invoke_banish1963-2019 visits visible imp, consumes Gehennom destination draw, migrates then reports singular disappearance."
+              }
+            ]
+          },
+          {
+            "name": "Demonbane #invoke within Hell",
+            "functions": [
+              "invoke_banish"
+            ],
+            "recordings": [
+              "recordings/artifact.c/invoke-banish-hell.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2ce550233f2bed644fa87f907aacb1d43b3cd7de",
         "screens": 11405,
         "rng": 792838
       }

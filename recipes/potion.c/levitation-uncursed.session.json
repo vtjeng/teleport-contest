@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B151 C-first recipe. Uncursed timeout draw, cheap beatitude and gender variation. Seeds 84815111–84815115 chosen before recording; no seed search. The initial full-moon clock consumed startup pager input, so the final clock uses a non-full-moon date before JS comparison.",
+  "segments": [
+    {
+      "seed": 84815114,
+      "datetime": "20320516102347",
+      "nethackrc": "OPTIONS=name:LevitationWitness,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": ".\u0017uncursed potion of levitation\nqe    ."
+    }
+  ]
+}

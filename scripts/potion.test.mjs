@@ -15,12 +15,12 @@ import {
     DETECT_MONSTERS, FAST, FREE_ACTION,
     FAINTED, FIRE_RES, FIXED_ABIL, FROMOUTSIDE, GLIB, HALLUC,
     GETOBJ_DOWNPLAY, GETOBJ_EXCLUDE, GETOBJ_EXCLUDE_INACCESS, GETOBJ_SUGGEST,
-    HALLUC_RES, INVIS, IN_SIGHT, LEVITATION, NOT_HUNGRY, POTHIT_HERO_THROW,
+    HALLUC_RES, INVIS, IN_SIGHT, I_SPECIAL, LEVITATION, NOT_HUNGRY, POTHIT_HERO_THROW,
     OBJ_DELETED, POTHIT_MONST_THROW, SEE_INVIS,
     SATIATED, SICK, SLEEP_RES, WEAK, STRAT_APPEARMSG, STRAT_WAITFORU,
     KILLED_BY, M_AP_MONSTER, M_AP_NOTHING, M_AP_TYPE, SLIMED, STONED,
     STUNNED, TELEPAT, TIMEOUT, UNCHANGING, VOMITING,
-    WOUNDED_LEGS, W_RINGL,
+    TT_WEB, WOUNDED_LEGS, W_RINGL,
 } from '../js/const.js';
 import { find_delayed_killer } from '../js/end.js';
 import { trycall } from '../js/do.js';
@@ -3000,6 +3000,86 @@ test('an already levitating hero records nothing before potion extension',
     assert.equal(levitation.intrinsic & TIMEOUT, 30 + draw);
     assert.equal(game.gp.potion_nothing, 1);
     assert.deepEqual(getRngLog(), [`rn2(140)=${draw}`]);
+});
+
+test('cursed levitation calls doup before resetting potion_nothing', async () => {
+    // potion.c:1190-1198 clears control even while already levitating,
+    // calls doup on the starting up stair, then resets the nothing counter.
+    await startedGame(84815101, 'CursedRise');
+    const levitation = game.u.uprops[LEVITATION];
+    levitation.intrinsic = I_SPECIAL | 20; // Existing timeout avoids float_up.
+    levitation.extrinsic = 0;
+    levitation.blocked = 0;
+    game.gp.potion_nothing = 0;
+    clearTopline();
+    game.nhDisplay.toplin = 0; // No preceding message needs a More key.
+    game.nhDisplay.pushKey('n'.charCodeAt(0)); // Decline the D:1 escape.
+    const potion = { ...vaporPotion(POT_LEVITATION), cursed: true };
+    enableRngLog();
+
+    await peffects(potion, game);
+
+    assert.equal(toplines(),
+        'Beware, there will be no return!  Still climb? [yn] (n) n');
+    assert.equal(levitation.intrinsic, 20);
+    assert.equal(game.gp.potion_nothing, 0);
+    assert.equal(game.unported.has('do.c doup'), false);
+    assert.deepEqual(getRngLog(), []); // Upstairs replaces ceiling damage.
+});
+
+test('levitation source preserves upstairs, timeout and shared-tail order', () => {
+    const source = potionSource();
+    const c = source.slice(source.indexOf('peffect_levitation(struct obj *otmp)'),
+        source.indexOf('peffect_gain_energy(struct obj *otmp)'));
+    assert.match(c, /\(void\) doup\(\);[\s\S]*gp\.potion_nothing = 0/u);
+    assert.match(c, /incr_itimeout\(&HLevitation, rn1\(50, 250\)\);[\s\S]*HLevitation \|= I_SPECIAL/u);
+    assert.match(c, /spoteffects\(FALSE\);[\s\S]*float_vs_flight\(\);/u);
+    const sourceJS = readFileSync(new URL('../js/potion.js', import.meta.url), 'utf8');
+    const js = sourceJS.slice(sourceJS.indexOf('async function peffect_levitation('),
+        sourceJS.indexOf('async function peffect_acid('));
+    assert.match(js, /await doup\(state\);\s*state\.gp\.potion_nothing = 0/u);
+    assert.doesNotMatch(js, /note_unported/u);
+});
+
+test('blocked cursed levitation clears control and preserves the timeout', async () => {
+    // potion.c:1174-1193: BLevitation skips float_up and doup/ceiling,
+    // but cursed still clears I_SPECIAL and increments potion_nothing.
+    await startedGame(84815102, 'BlockedRise');
+    const levitation = game.u.uprops[LEVITATION];
+    levitation.intrinsic = I_SPECIAL | 20; // Existing timeout and descent control.
+    levitation.extrinsic = 0;
+    levitation.blocked = I_SPECIAL;
+    game.u.utrap = 1; // Stuck in a web preserves the blocked bit in the tail.
+    game.u.utraptype = TT_WEB;
+    game.gp.potion_nothing = 0;
+    const potion = { ...vaporPotion(POT_LEVITATION), cursed: true };
+    clearTopline();
+    enableRngLog();
+    await peffects(potion, game);
+    assert.equal(levitation.intrinsic, 20);
+    assert.equal(levitation.blocked, I_SPECIAL);
+    assert.equal(game.gp.potion_nothing, 1);
+    assert.equal(toplines(), '');
+    assert.deepEqual(getRngLog(), []);
+});
+
+test('blessed levitation extends before granting descent control', async () => {
+    // potion.c:1209-1215 gives one initial turn plus rn1(50,250),
+    // and then sets I_SPECIAL without a second draw.
+    await startedGame(84815103, 'BlessedRise');
+    const levitation = game.u.uprops[LEVITATION];
+    levitation.intrinsic = 0;
+    levitation.extrinsic = 0;
+    levitation.blocked = 0;
+    const potion = { ...vaporPotion(POT_LEVITATION), blessed: true };
+    clearTopline();
+    enableRngLog();
+    await peffects(potion, game);
+    const [call] = getRngLog();
+    const draw = Number(/^rn2\(50\)=(\d+)$/u.exec(call)?.[1]);
+    assert.deepEqual(getRngLog(), [`rn2(50)=${draw}`]);
+    assert.equal(levitation.intrinsic, I_SPECIAL | (251 + draw));
+    assert.equal(toplines(), 'You start to float in the air!');
 });
 
 test('a sober confusion potion prints its message and draws its timeout',
