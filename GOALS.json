@@ -214802,7 +214802,7 @@
           "line": 2177,
           "endLine": 2258,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -215093,7 +215093,76 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "use_tinning_kit",
+            "implementation": "js/apply.js",
+            "symbol": "use_tinning_kit",
+            "sourceReview": "Read whole apply.c2177-2258 at16ff59115315917b93185d026aeefea06db9b0f4; compared every branch and source order with existing JS. Preserve exhausted kit, floorfood NULL, partly eaten guard, species lookup, touch_petrifies/resistance/gloves order, poly_when_stoned empty killer versus exact trying-to-tin fatal killer, awaited instapetrify before Rider/zero nutrition/charge/creation, consumed revive_corpse success, shop voice before useup/useupf, and hold_another_object after corpse destruction. Exact kit curse/bless/weight/known/homemade assignments retained. Added state argument to poly_when_stoned for the caller-owned genocided-form check. Supporting instapetrify remains incomplete/no-credit, but its existing consumed polymon and live done dependencies have accepted source evidence. Its returned discarded-void invocation is awaited; a gameover return preserves C really_done NORETURN after actual death without changing wizard recovery. Removed obsolete wrong-owner polyself.c instapetrify gap. No new refusal or RNG/message surrogate. Existing pline.c impossible gap remains at impossible TIN allocation failure; no selected source branch consumes that gap result.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c4295 TINNING_KIT, sole production caller; already awaited and retains ECMD_TIME. cmd apply command dispatch reaches it directly."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-tinning-kit.test.mjs",
+              "scripts/apply.test.mjs",
+              "scripts/do-wear-wielding-corpse.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/tinning-petrifier-valkyrie-independent.session.json",
+              "recordings/apply.c/tinning-petrifier-gloves-independent.session.json",
+              "recordings/apply.c/tinning-iron-golem-independent.session.json",
+              "recordings/apply.c/tinning-kit-lichen-floor-independent.session.json",
+              "recordings/apply.c/tinning-kit-newt-independent.session.json",
+              "recordings/do.c/b123-rider-tinning-floor.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-tinning-petrifier",
+                "segment": 0,
+                "fromStep": 45,
+                "throughStep": 60,
+                "source": "cmd.c rhack apply -> apply.c:doapply4295 TINNING_KIT -> use_tinning_kit2177-2258 -> supporting trap.c:instapetrify3844-3855 -> end.c:done(STONING) wizard recovery; then charge, tin creation, corpse consumption and inventory feedback"
+              }
+            ],
+            "checkedAt": "42700761d73b8e722222858972e81e96905bb0f1"
+          }
+        ],
+        "entryPointReview": "Only source entry is apply.c:doapply TINNING_KIT. Admitted bare-handed cockatrice range and independent Valkyrie chickatrice recording cover fatal warning, urgent More, debug death recovery and continuation. Independent gloves variation covers protected inventory corpse conversion; independent iron-golem variation covers empty killer string and consumed polymon(PM_STONE_GOLEM) result before conversion. Existing ordinary inventory/floor and Rider floor recordings were refreshed individually. Branch tests cover exhausted kit, charge retained before recovery and Rider return. No startup/Lua/compile-inactive entry belongs to this helper. Blind floor touching is a prior floorfood -> invent.c:feel_cockatrice path and remains outside selected helper: the independently tested blocked recipe diverges at its discarded instapetrify call before use_tinning_kit receives a corpse. Broader trap.c:instapetrify callers remain named existing gaps, without whole helper/end credit.",
+        "entryPoints": [
+          {
+            "name": "Apply a tinning kit to a selected floor or inventory corpse",
+            "functions": [
+              "use_tinning_kit"
+            ],
+            "recordings": [
+              "recordings/apply.c/tinning-petrifier-valkyrie-independent.session.json",
+              "recordings/apply.c/tinning-petrifier-gloves-independent.session.json",
+              "recordings/apply.c/tinning-iron-golem-independent.session.json",
+              "recordings/apply.c/tinning-kit-lichen-floor-independent.session.json",
+              "recordings/apply.c/tinning-kit-newt-independent.session.json",
+              "recordings/do.c/b123-rider-tinning-floor.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-tinning-petrifier",
+                "segment": 0,
+                "fromStep": 45,
+                "throughStep": 60,
+                "source": "cmd.c rhack apply -> apply.c:doapply4295 TINNING_KIT -> use_tinning_kit2177-2258 -> supporting trap.c:instapetrify3844-3855 -> end.c:done(STONING) wizard recovery; then charge, tin creation, corpse consumption and inventory feedback"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
