@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked production entry: nhlua.c nhl_flip_level -> sp_lev.c flip_level. The reference #wizloadlua command can load a script containing nh.flip_level(2), but JS wizcmds.c wiz_load_lua and the Lua loader/VM/API are unported. This input stops at that owner before filename/program entry; provide flip-live.lua in a supported reference installation to complete that separate caller witness. No whole nhlua or flip-family completion is claimed from this blocked recipe.",
+  "segments": [
+    {
+      "seed": 1412810,
+      "datetime": "20510506171819",
+      "nethackrc": "OPTIONS=name:FlipLuaFrontier,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": ".#wizloadlua\nflip-live.lua\n"
+    }
+  ]
+}

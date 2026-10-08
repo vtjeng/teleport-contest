@@ -1500,3 +1500,45 @@ export function mkportal(x, y, destinationDungeon, destinationLevel,
     portal.dst = { dnum: destinationDungeon, dlevel: destinationLevel };
     return portal;
 }
+
+// C ref: mkmaze.c get_level_extends() (1353-1435). Returns the four
+// source output coordinates; horizontal clamps precede the row scans.
+export function get_level_extends(state = game) {
+    const map = state.level;
+    let xmin = 0, xmax = COLNO - 1, ymin = 0, ymax = ROWNO - 1;
+    let found = false, nonwall = false;
+    for (xmin = 0; !found && xmin <= COLNO; xmin++) {
+        for (let y = 0; y <= ROWNO - 1; y++) {
+            const typ = map.at(xmin, y)?.typ ?? STONE;
+            if (typ !== STONE) { found = true; if (!IS_WALL(typ)) nonwall = true; }
+        }
+    }
+    xmin -= (nonwall || !state.level.flags.is_maze_lev) ? 2 : 1;
+    if (xmin < 0) xmin = 0;
+    found = false; nonwall = false;
+    for (xmax = COLNO - 1; !found && xmax >= 0; xmax--) {
+        for (let y = 0; y <= ROWNO - 1; y++) {
+            const typ = map.at(xmax, y)?.typ ?? STONE;
+            if (typ !== STONE) { found = true; if (!IS_WALL(typ)) nonwall = true; }
+        }
+    }
+    xmax += (nonwall || !state.level.flags.is_maze_lev) ? 2 : 1;
+    if (xmax >= COLNO) xmax = COLNO - 1;
+    found = false; nonwall = false;
+    for (ymin = 0; !found && ymin <= ROWNO; ymin++) {
+        for (let x = xmin; x <= xmax; x++) {
+            const typ = map.at(x, ymin)?.typ ?? STONE;
+            if (typ !== STONE) { found = true; if (!IS_WALL(typ)) nonwall = true; }
+        }
+    }
+    ymin -= (nonwall || !state.level.flags.is_maze_lev) ? 2 : 1;
+    found = false; nonwall = false;
+    for (ymax = ROWNO - 1; !found && ymax >= 0; ymax--) {
+        for (let x = xmin; x <= xmax; x++) {
+            const typ = map.at(x, ymax)?.typ ?? STONE;
+            if (typ !== STONE) { found = true; if (!IS_WALL(typ)) nonwall = true; }
+        }
+    }
+    ymax += (nonwall || !state.level.flags.is_maze_lev) ? 2 : 1;
+    return { xmin, xmax, ymin, ymax };
+}
