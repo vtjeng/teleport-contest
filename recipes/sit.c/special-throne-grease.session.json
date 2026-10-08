@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first bare-hands primary, newly chosen Knight seed after source-derived cleanup mechanics were established. No JS comparison of this seed; retain every C gate miss and use debug effect6 only when prompted.",
+  "segments": [
+    {
+      "seed": 14328023,
+      "datetime": "20610709141723",
+      "nethackrc": "OPTIONS=name:ThronePrimary,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup,!tips,!verbose\n",
+      "moves": " w-   #levelchange\n25\n                                                                                          m\u0016>I\n                                   \u0017blessed scroll of genocide\n               ri  *\n                              \u0017throne\n               #sit\n 6\n                     #sit\n 6\n                     #sit\n 6\n                     #sit\n 6\n                     #sit\n 6\n                    i "
+    }
+  ]
+}

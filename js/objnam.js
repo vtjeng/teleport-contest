@@ -179,20 +179,18 @@ const DONAME_BODY_CAPACITY = BUFSZ - PREFIX - 1;
 
 // C objnam.c's Concat() uses strncat(spaceleft + delta), while ConcatF1/F2
 // use snprintf(spaceleft + delta), which leaves one byte for the terminator.
-// Keep the two write rules separate because delta=1 may replace the last
-// visible byte of an already full body.
+// strncat scans to the terminating NUL even from eos-delta, so Concat
+// preserves the last byte and only enlarges its copy bound. snprintf writes
+// at eos-delta and therefore replaces that byte.
 function nameBodySpaceLeft(body, pointerOffset = 0) {
     return Math.max(0, DONAME_BODY_CAPACITY - pointerOffset
         - encodeUtf8ByteString(body).length);
 }
 
 export function concatNameBody(body, text, delta = 0, pointerOffset = 0) {
-    const bodyLength = encodeUtf8ByteString(body).length;
-    const startLength = Math.max(0, bodyLength - delta);
-    const start = truncateByteString(body, startLength);
     const spaceleft = nameBodySpaceLeft(body, pointerOffset);
     const count = Math.max(0, spaceleft + delta);
-    return start + truncateByteString(String(text), count);
+    return body + truncateByteString(String(text), count);
 }
 
 export function concatFormatNameBody(
@@ -1232,8 +1230,8 @@ function wornClassSuffix(obj, type, state, body, bufferOffset) {
             : doffing(obj, state) ? 'being doffed'
                 : donning(obj, state) ? 'being donned' : 'being worn';
         body = concatNameBody(body, ` (${phrase})`, 0, bufferOffset);
-        // objnam.c:1404-1406 changes the just-written closing paren for
-        // slippery gloves, then :1410-1414 adds an artifact's light text.
+        // objnam.c:1404-1406 appends after the just-written closing paren
+        // through Concat; :1410-1414 uses ConcatF to replace the next paren.
         if (obj === state.uarmg && Glib(state) && body.endsWith(')'))
             body = concatNameBody(body, '; slippery)', 1, bufferOffset);
         if (!heroIsBlind(state) && obj.lamplit && artifact_light(obj)

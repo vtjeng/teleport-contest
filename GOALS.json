@@ -196959,7 +196959,7 @@
     {
       "id": "port-dig-buried-ball-to-freedom-v28-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port buried-ball freedom release and wire its production callers",
       "cFile": "dig.c",
       "sessions": [
@@ -196973,15 +196973,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "buried_ball_to_freedom",
           "line": 1958,
           "endLine": 1983,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -197166,7 +197169,80 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "buried_ball_to_freedom",
+            "implementation": "js/dig.js",
+            "symbol": "buried_ball_to_freedom",
+            "sourceReview": "Read complete dig.c1958-1979; the generated context1958-1983 includes the following comment, not another source function. Preserve hero-coordinate capture and consumed buried_ball result, no-ball no-op, OBJ_BURIED extraction, same-object floor placement, stackobj, awaited reset_utrap(TRUE), selected-coordinate engraving deletion and one destination redraw. Rust-metal stop_timer is compiled out under #if0 in the reference source; no substitute timer call is added. Verify the entire existing consumed buried_ball1885-1930 against js/dig.js: exact-coordinate priority, squared-radius<=8, nearest selection, first-on-ties, trap eligibility and caller coordinate mutation; tests pin each result, without new finder completion credit. Canonical mkobj.c:obj_extract_self OBJ_BURIED transition, place_object floor indexes and objectGenerationEnv, invent.c:stackobj and trap.c:reset_utrap are reused. Heavy iron balls are nonmergeable in objects.h1624-1627, so source stackobj does not need an unported merge return. reset_utrap(TRUE) completes before engraving deletion/redraw, including resumed flight in the fog-cloud recording. All five direct C caller sites now await the source helper; their messages, caller reset, openit result and inventory ordering are retained. Removed all five freedom note_unported placeholders. No new discarded-result dependency remains in the selected function; no whole caller, buried_ball_to_punishment, punish, trapmove or other owner completion is claimed.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_remove_curse",
+                "source": "read.c1601: await freedom before the clasp message and update_inventory."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_bell",
+                "source": "apply.c1283: blessed charged Bell awaits freedom before res=1 and consumed openit result."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "fix_worst_trouble",
+                "source": "pray.c522: TROUBLE_PUNISHED prints chain-disappears, then awaits freedom instead of unpunish for TT_BURIEDBALL."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "polymon",
+                "source": "polyself.c982: wall-pass message, awaited freedom, then preserve the caller reset_utrap(TRUE)."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "polymon",
+                "source": "polyself.c997: amorphous/whirly/unsolid slip-free message precedes awaited freedom."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dig-buried-ball.test.mjs",
+              "scripts/bury.test.mjs",
+              "scripts/read-command.test.mjs",
+              "scripts/apply-bell.test.mjs",
+              "scripts/polyself.test.mjs",
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dig.c/buried-ball-freedom-scroll.session.json",
+              "recordings/dig.c/buried-ball-freedom-scroll-variation.session.json",
+              "recordings/dig.c/buried-ball-freedom-bell.session.json",
+              "recordings/dig.c/buried-ball-freedom-wallpass.session.json",
+              "recordings/dig.c/buried-ball-freedom-unsolid.session.json",
+              "recordings/dig.c/buried-ball-freedom-prayer.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v28",
+                "caseId": "v28-buried-ball-release",
+                "segment": 0,
+                "fromStep": 82,
+                "throughStep": 95,
+                "source": "read.c:seffect_remove_curse1601 calls dig.c:buried_ball_to_freedom before clasp output; subsequent movement exposes trap reset and floor ball state."
+              }
+            ],
+            "checkedAt": "5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec"
+          }
+        ],
+        "entryPointReview": "The selected range is helper-only, so entryPoints is empty under validation rules. All active production caller families are enumerated above and independently exercised: remove-curse command (uncursed and blessed inventory variation), blessed charged Bell application, prayer minor-trouble repair, controlled wall-pass xorn polymorph, and controlled unsolid fog-cloud polymorph. The admitted v28 source range82-95 also verifies remove curse and released movement. scripts/run-buried-ball-freedom.mjs captures the actual buried object before release and proves that all six production plays restore the same o_id/object to both floor indexes, clear the trap counter, and leave no punishment ball or chain attached. No compile-inactive caller is omitted. The source Rust timer branch is #if0 and inactive.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-wizcmds-wiz-smell-v28-20261007",
@@ -197443,16 +197519,23 @@
     {
       "id": "fix-engrave-owned-zapnodir-dispatch-v28-20261008",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Restore charged nondirectional wand effects before engraving text.",
       "cFile": "engrave.c",
       "sessions": [],
       "selectionReason": "Highest-priority independent admitted v28 mismatch (28 remaining screens, step36): the completed investigation traces an obsolete skipped call to the already owned zapnodir dispatcher; independent from A141, A142, and B143 reservations.",
       "detail": "engrave.c:579-599 calls zapnodir for all six NODIR wand types after charge, unpaid, and backfire handling. JS engrave.js skips it; restore the awaited canonical state and RNG call with no effect-owner changes or whole-file credit.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "c8a2c700483a1080a35d88e7b351048d6b01cb0d",
+      "openStanding": {
+        "sha": "5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "4f210e358149b03cf68194ba97bfd446aea2f3e0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "doengrave_sfx_item_WAN",
       "session": "synthetic/v28/v28-engrave-create-monster",
       "step": 36,
@@ -197469,12 +197552,267 @@
           "evaluationPath": "challenges/evaluations/accepted-44f17fe441ece513f929f5a76e3024aa0c759d83-v28.json",
           "evaluationCommit": "44f17fe441ece513f929f5a76e3024aa0c759d83"
         }
+      },
+      "activeStanding": {
+        "sha": "5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-engrave-create-monster",
+          "session": "synthetic/v28/v28-engrave-create-monster",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recording": "challenges/cases/v28/v28-engrave-create-monster.session.json",
+          "recordingPath": "challenges/cases/v28/v28-engrave-create-monster.session.json",
+          "recordingSha256": "3b019fd5d150b61ddae1d553028b2436c85986146b1d3475b4939dbca283b464",
+          "recipe": "challenges/cases/v28/v28-engrave-create-monster.recipe.session.json",
+          "recipeSha256": "818c575684269a5099d87cbffd5ef149b84fca1db4524b7a358691bc6b4ec4a5",
+          "replayInputSha256": "c5ee7256620ce38e535b6e0f5978c6c86e29531c21cc618cd567faa3b19a2cff",
+          "evaluationPath": "challenges/evaluations/accepted-5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec-v28.json",
+          "evaluationCommit": "5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec",
+          "evaluationArtifact": "challenges/evaluations/accepted-5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec-v28.json",
+          "evaluationUtc": "2026-10-08T02:42:22.412Z",
+          "remainingScreens": 28,
+          "recordedSteps": 64,
+          "previousScreensMatched": 36,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 36,
+              "total": 64
+            },
+            "rng": {
+              "matched": 2350,
+              "total": 2427
+            },
+            "cursors": {
+              "matched": 40,
+              "total": 64
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 36,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 36,
+                "key": "e"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "C",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2350,
+              "cEntry": "rn2(23)=15",
+              "cCaller": "zapnodir(zap.c:2571)",
+              "jsEntry": "rn2(25)=9",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 36,
+                "key": "e"
+              },
+              "stepIndex": 36
+            },
+            "cursor": {
+              "index": 36,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 36,
+                "key": "e"
+              },
+              "cCursor": [
+                29,
+                0,
+                1
+              ],
+              "jsCursor": [
+                49,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 36,
+          "kind": "rng",
+          "sourceFile": "zap.c",
+          "function": "zapnodir",
+          "message": null,
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 2571,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v28/v28-engrave-create-monster.json",
+            "result": {
+              "session": "synthetic/v28/v28-engrave-create-monster",
+              "corpus": "synthetic",
+              "batch": "v28",
+              "caseId": "v28-engrave-create-monster",
+              "manifestPath": "challenges/manifests/v28.json",
+              "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+              "recordingSha256": "3b019fd5d150b61ddae1d553028b2436c85986146b1d3475b4939dbca283b464",
+              "evaluationPath": "challenges/evaluations/accepted-44f17fe441ece513f929f5a76e3024aa0c759d83-v28.json",
+              "evaluationCommit": "44f17fe441ece513f929f5a76e3024aa0c759d83",
+              "remainingScreens": 28,
+              "recordedSteps": 64,
+              "status": "complete",
+              "commit": "44f17fe441ece513f929f5a76e3024aa0c759d83",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v28",
+                "caseId": "v28-engrave-create-monster",
+                "session": "synthetic/v28/v28-engrave-create-monster",
+                "manifestPath": "challenges/manifests/v28.json",
+                "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+                "recording": "challenges/cases/v28/v28-engrave-create-monster.session.json",
+                "recordingPath": "challenges/cases/v28/v28-engrave-create-monster.session.json",
+                "recordingSha256": "3b019fd5d150b61ddae1d553028b2436c85986146b1d3475b4939dbca283b464",
+                "recipe": "challenges/cases/v28/v28-engrave-create-monster.recipe.session.json",
+                "recipeSha256": "818c575684269a5099d87cbffd5ef149b84fca1db4524b7a358691bc6b4ec4a5",
+                "evaluationPath": "challenges/evaluations/accepted-44f17fe441ece513f929f5a76e3024aa0c759d83-v28.json",
+                "evaluationCommit": "44f17fe441ece513f929f5a76e3024aa0c759d83",
+                "evaluationArtifact": "challenges/evaluations/accepted-44f17fe441ece513f929f5a76e3024aa0c759d83-v28.json",
+                "evaluationUtc": "2026-10-08T02:16:22.579Z",
+                "remainingScreens": 28,
+                "recordedSteps": 64,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 36,
+                    "total": 64
+                  },
+                  "rng": {
+                    "matched": 2350,
+                    "total": 2427
+                  },
+                  "cursors": {
+                    "matched": 40,
+                    "total": 64
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 36,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 36,
+                      "key": "e"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "C",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2350,
+                    "cEntry": "rn2(23)=15",
+                    "cCaller": "zapnodir(zap.c:2571)",
+                    "jsEntry": "rn2(25)=9",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 36,
+                      "key": "e"
+                    },
+                    "stepIndex": 36
+                  },
+                  "cursor": {
+                    "index": 36,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 36,
+                      "key": "e"
+                    },
+                    "cCursor": [
+                      29,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      49,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 36,
+                "kind": "rng-screen-cursor",
+                "sourceFile": "zap.c",
+                "function": "zapnodir",
+                "message": "C rn2(23)=15 at zapnodir(zap.c:2571) and Create what kind of monster prompt; JS rn2(25)=9 and engraving prompt."
+              },
+              "summary": "Charged nondirectional wand engraving still skips the now-owned awaited zapnodir dispatch. At step 36 C rolls rn2(23)=15 and prompts for a monster; JavaScript instead prompts for engraving text. Restore the source call for all six NODIR wand types, retaining charge/backfire/effect/discovery/engraving order.",
+              "source": {
+                "file": "engrave.c",
+                "branch": "doengrave_sfx_item has a WAND_CLASS object with successful zappable(), no cursed backfire, then doengrave_sfx_item_WAN selects WAN_LIGHT, WAN_SECRET_DOOR_DETECTION, WAN_STASIS, WAN_CREATE_MONSTER, WAN_WISHING or WAN_ENLIGHTENMENT.",
+                "functions": [
+                  "doengrave_sfx_item_WAN"
+                ],
+                "callers": [
+                  "cmd.c engraving command -> engrave.c:doengrave -> doengrave_sfx_item -> doengrave_sfx_item_WAN, after zappable/check_unpaid/backfire in engrave.c:793-812."
+                ],
+                "dependencies": [
+                  "zap.c:zapnodir is already source-owned in js/zap.js:5944-6008; call it with awaited existing state/RNG, leave owner read-only.",
+                  "makemon.c:create_critters is already the consumed-return owner behind zapnodir and preserves the wizard create_particular prompt; no new source port required.",
+                  "Existing light/findit/stasis/makewish/enlightenment/discovery owners remain read-only; no delivery dependency or reservation overlap with A141/A142/B143."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Upstream source gitlink 16ff59115315917b93185d026aeefea06db9b0f4: engrave.c:579-599 defines the six NODIR wand cases and unconditionally calls zapnodir(de->otmp) before returning to the text path. engrave.c:793-812 first consumes the charge, runs unpaid/backfire handling, records zapwand and evaluates floor reachability. js/engrave.js:552-565 already preserves that ordering.",
+                "js/engrave.js:382-401 has an obsolete narrower-port comment and note_unported('zap.c zapnodir') for every NODIR arm. The canonical awaited js/zap.js:5944-6008 now owns all corresponding effects and shared discovery tail. Restore this caller; do not duplicate effects, synthesize RNG, or edit js/zap.js.",
+                "Original annotation zap.c:zapnodir identifies the missing call's first draw, not a defect in its current body. C zap.c:2571 draws rn2(23)=15 then create_critters consumes visibility; makemon.c create_critters prompts for peaceful lichen in wizard mode. C step36 says Create what kind of monster?, step52 creates the lichen, step53 identifies wand of create monster, step54 finally asks engraving text. JS skips creation, reads peaceful lichen as text, and draws engraving corruption rn2(25)=9 instead.",
+                "Fresh single-case replay at 44f17fe441ece513f929f5a76e3024aa0c759d83: node scripts/scan-sessions.mjs --json --synthetic v28/v28-engrave-create-monster. Diagnostic .cache/C140-v28-engrave-create-monster-scan.json preserves first RNG/screen/cursor mismatch step36 and the explicit zap.c zapnodir gap; no refusal or runner error, all64 input boundaries emitted. Recorder files were not modified and no C recording was run.",
+                "Committed saved evaluation challenges/evaluations/accepted-44f17fe441ece513f929f5a76e3024aa0c759d83-v28.json, sha 44f17fe441ece513f929f5a76e3024aa0c759d83, raw SHA256 166e3ec3524e1e5eb2f60e1aa059c8ffee4c017436150f008562435a720e4dcd: 36/64 screens, 2350/2427 RNG, 40/64 cursors. Hosted C139 checkpoint /home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/bfb4598e1eb21336a7d6c3a88afc69d7863ac92f/run-hosted-ToBLZ6/synthetic/ci-v28.json has the same case measurements. git diff --stat 44f17fe441ece513f929f5a76e3024aa0c759d83 bfb4598e1eb21336a7d6c3a88afc69d7863ac92f -- js produced no difference; current merged tracked tree has the accepted source.",
+                "Historical evidence in GOALS retains doengrave_sfx_item_WAN completion with the explicit discarded zapnodir gap. Later closed goal port-zap-zapnodir-synthetic-v11-20260928 records the complete owner and existing z/spell callers. This is a bounded caller restoration, not whole engrave.c or zap.c completion; preserve historical evidence and report any other retained engraving gaps precisely.",
+                "Proposed implementation checks: fail-first focused E-command/caller assertion pins awaiting effect before text, state and source RNG forwarding, discovery/charges and canceled text; independent C-first matrix exercises all six charged NODIR engraving arms with cheap role/vision/selection variations and an empty wand just outside admission. Reuse admitted segment0 steps0-63 for create-monster entry. No recorded source evidence is added by this investigation.",
+                "Related current saved v28 cases do not identify this same missing dispatch: the former teleport-engraving defect has accepted rloc_engr support; wand backfire, floor migration, buried-ball, tree-fruit, mirror, Oracle, throne and wizard commands have distinct source scopes. Highest remaining-screen independent row is this28-screen case; queued tree fruit19, active wizard smell10 and buried-ball freedom3 are excluded."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4f210e358149b03cf68194ba97bfd446aea2f3e0",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-sit-special-throne-effect-v28-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port the complete Vlad special-throne effect family",
       "cFile": "sit.c",
       "sessions": [
@@ -197482,17 +197820,24 @@
       ],
       "selectionReason": "After A142, the smell seed fully matches. Vlad has9 remaining screens and is the highest independent saved v28 candidate after B143 buried-ball and C engraving reservations are excluded. Source trace proves missing whole special_throne_effect, with reusable canonical callees and an explicit separate elemental explosion caller gap.",
       "detail": "At immutable worker244bb55aa69e3eb38649350016bed3bea6d49e90, bounded read-only .cache/v28-vlad-special-throne/replay.mjs/log/json reproduces first RNG/screen/cursor difference at segment0 zero-based step88, key newline ending wizard-selected effect6. C first differing RNG index5191 is rn2(101)=93 from special_throne_effect(sit.c:277); JS instead draws rn2(5)=4 for monster movement. Both replays have97 boundaries. Saved accepted63ae evaluation records88/97 matching screens, hence9 remaining; current first difference has the same boundary.\nC sit.c:45–64 draws rnd(6)=6 and rnd(13)=4 at step84, asks debug Throne sit effect at85, accepts6 at87–88, then calls special_throne_effect because the hero is in Vlad’s tower. Complete special_throne_effect238–354 selects cases1–13. Case6 at265–280 prints A greasy liquid sprays all over you!, walks gi.invent excluding COIN_CLASS and sets greased=1, then make_glib(rn1(101,100)) and update_inventory. C rn1 logs rn2(101)=93, yielding193 slippery-finger turns before elapsed timeout processing.\nJS sit.js230–265 implements only cases7 and10; all other effects call note_unported(sit.c special_throne_effect) and return. The diagnostic unported set contains that exact source marker; final GLIB is0 and all five carried non-coin objects remain ungreased. JS step88 begins The flaming sphere explodes!... instead of C’s grease message followed by the sphere message; no exception stops the replay.\nActionable task is a whole-function file port of sit.c:special_throne_effect238–354, retaining existing cases7/10 in source order. Include wish1–4 plus original throne coordinate removal/redraw; permanent drain5 and ulevelmax decrement; grease6; attrcurse7; vibrating-square schedule8 with Amulet guard; three msummon(NULL) calls9 and exact seeems spelling; fake blessed spellbook/confusion save-restore10; vampire guard/polyself11; acid damage/exercise12; six ability draws13. Preserve no random ordinary-throne removal after special effect: throne_sit_effect returns at65.\nEvery direct return used by this unit is already owned: RNG rnd/rn1/rn2, COIN_CLASS and property macros, is_vampire(mondata.js), plus existing canonical state/data owners. Source-discarded impure calls have reusable implementations: makewish(zap.js1789), losexp(exper.js60), make_glib(potion.js665), update_inventory(invent.js2913), attrcurse(sit.js929), find_hell(dungeon.js606 writing an out-parameter), schedule_goto(do.js717), msummon(minion.js355), seffects(read.js3275), polyself(polyself.js1702), losehp(hack.js1279), exercise/adjattrib(attrib.js978/1141), map_background/display newsym. Audit helper validity at implementation time rather than supplying placeholder results. Drain/Acid resistance are intrinsic-or-extrinsic property macros (youprop.h52/61). find_hell’s written level is consumed and its existing body matches dungeon.c1949–1953.\nThe only direct source caller is sit.c:throne_sit_effect64, already awaited by JSsit.js296; it is reached through sit.c:dosit558 (JS853) and cmd.c extended/queued dosit dispatch. Keep caller reconciliation bounded, without whole throne_sit_effect/dosit/cmd credit. Existing display.c:newsym_force1863–1871 is newsym plus dirty-buffer bounds; JSdisplay.js3697 documents full-map rendering’s existing equivalent. Confirm this reuse or record its void gap, without inventing substitute map effects or claiming whole display.\nIndependent validation must use source-valid Vlad tower #sit routes with independently chosen seed/role/clock and wizard effect input. Required matching primary/cheap variation cover6 with carried objects versus coins and glove/glib status; independent wish1–4 must prove original throne disappears after awaited makewish. Include reachable drain/resistance, teleport/Amulet, summoning, confusion restoration, vampire/polyself, acid/resistance and ability branches through matching runtime evidence or explicit committed blocked recipes. Existing7/10 source-pinned tests in scripts/sit-command.test.mjs must stay valid; they alone do not certify the other impure runtime paths. Do not reuse the admitted recipe as regression inputs.\nAn exact downstream boundary is already visible independently of the grease omission: C at the same step88 calls mhitu.c:explmu1618 -> explode.c:mon_explodes1026 and draws d(4,6)=10. JSmhitu.js2674–2676 still skips that void call with note_unported(explode.c mon_explodes), although JSexplode.js756–779 now contains the canonical helper. Current unported set records it; C steps89–91 then show explosion/burn/item damage and the greased spear slipping. This is a separate bounded explmu caller reconciliation and planner clone/output/death audit, not whole special_throne_effect itself. Restoring grease alone cannot prove that selected case’s full tail matches; retain this exact follow-up limit until a fresh source-backed replay after the port verifies it. Other diagnostic gaps (sounds.c SoundAchievement and zap.c bhito) have no attribution to the first mismatch.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "d523543eab95da59bc188b508dc1c218d249cb23",
+      "openStanding": {
+        "sha": "4f210e358149b03cf68194ba97bfd446aea2f3e0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "144aaa0d0e674fb54bb4cdff8dc27515272e5919",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "special_throne_effect",
           "line": 238,
           "endLine": 357,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -197511,6 +197856,910 @@
           "recordingSha256": "efa15ee1e31c8fcc96b0caf1d48624f5407b2d70b5d6667a5078ee2a97574119",
           "evaluationPath": "challenges/evaluations/accepted-b22bc2ea4e12eae1d608b975449d792a2213b945-v28.json",
           "evaluationCommit": "b22bc2ea4e12eae1d608b975449d792a2213b945"
+        }
+      },
+      "activeStanding": {
+        "sha": "4f210e358149b03cf68194ba97bfd446aea2f3e0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-vlad-special-throne",
+          "session": "synthetic/v28/v28-vlad-special-throne",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recording": "challenges/cases/v28/v28-vlad-special-throne.session.json",
+          "recordingPath": "challenges/cases/v28/v28-vlad-special-throne.session.json",
+          "recordingSha256": "efa15ee1e31c8fcc96b0caf1d48624f5407b2d70b5d6667a5078ee2a97574119",
+          "recipe": "challenges/cases/v28/v28-vlad-special-throne.recipe.session.json",
+          "recipeSha256": "a8822dfa3c52848752b2a847126f3e0d4cee48258b98765bb5f215739b4ab3f3",
+          "replayInputSha256": "d7355e7f535cf042b73598ebfd470d015614542e50b6de5f23a44b9c1050556b",
+          "evaluationPath": "challenges/evaluations/accepted-4f210e358149b03cf68194ba97bfd446aea2f3e0-v28.json",
+          "evaluationCommit": "4f210e358149b03cf68194ba97bfd446aea2f3e0",
+          "evaluationArtifact": "challenges/evaluations/accepted-4f210e358149b03cf68194ba97bfd446aea2f3e0-v28.json",
+          "evaluationUtc": "2026-10-08T02:52:00.525Z",
+          "remainingScreens": 9,
+          "recordedSteps": 97,
+          "previousScreensMatched": 88,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 88,
+              "total": 97
+            },
+            "rng": {
+              "matched": 5195,
+              "total": 5255
+            },
+            "cursors": {
+              "matched": 93,
+              "total": 97
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 88,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 88,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "A",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 5191,
+              "cEntry": "rn2(101)=93",
+              "cCaller": "special_throne_effect(sit.c:277)",
+              "jsEntry": "rn2(5)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 88,
+                "key": "\n"
+              },
+              "stepIndex": 88
+            },
+            "cursor": {
+              "index": 88,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 88,
+                "key": "\n"
+              },
+              "cCursor": [
+                74,
+                0,
+                1
+              ],
+              "jsCursor": [
+                71,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 88,
+          "kind": "rng",
+          "sourceFile": "sit.c",
+          "function": "special_throne_effect",
+          "message": null,
+          "cFile": "sit.c",
+          "luaFile": null,
+          "line": 277,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v28/v28-vlad-special-throne.json",
+            "result": {
+              "session": "synthetic/v28/v28-vlad-special-throne",
+              "corpus": "synthetic",
+              "batch": "v28",
+              "caseId": "v28-vlad-special-throne",
+              "manifestPath": "challenges/manifests/v28.json",
+              "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+              "recordingPath": "challenges/cases/v28/v28-vlad-special-throne.session.json",
+              "recordingSha256": "efa15ee1e31c8fcc96b0caf1d48624f5407b2d70b5d6667a5078ee2a97574119",
+              "evaluationPath": "challenges/evaluations/accepted-b22bc2ea4e12eae1d608b975449d792a2213b945-v28.json",
+              "evaluationCommit": "b22bc2ea4e12eae1d608b975449d792a2213b945",
+              "remainingScreens": 9,
+              "recordedSteps": 97,
+              "step": 88,
+              "kind": "rng",
+              "sourceFile": "sit.c",
+              "function": "special_throne_effect",
+              "message": "Grease-hands/inventory case6 omitted: C rn2(101)=93; JS advances to rn2(5)=4 monster turn",
+              "status": "complete",
+              "commit": "b22bc2ea4e12eae1d608b975449d792a2213b945",
+              "mismatch": {
+                "session": "synthetic/v28/v28-vlad-special-throne",
+                "corpus": "synthetic",
+                "batch": "v28",
+                "caseId": "v28-vlad-special-throne",
+                "manifestPath": "challenges/manifests/v28.json",
+                "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+                "recordingPath": "challenges/cases/v28/v28-vlad-special-throne.session.json",
+                "recordingSha256": "efa15ee1e31c8fcc96b0caf1d48624f5407b2d70b5d6667a5078ee2a97574119",
+                "evaluationPath": "challenges/evaluations/accepted-b22bc2ea4e12eae1d608b975449d792a2213b945-v28.json",
+                "evaluationCommit": "b22bc2ea4e12eae1d608b975449d792a2213b945",
+                "remainingScreens": 9,
+                "recordedSteps": 97,
+                "step": 88,
+                "kind": "rng",
+                "sourceFile": "sit.c",
+                "function": "special_throne_effect",
+                "message": "Grease-hands/inventory case6 omitted: C rn2(101)=93; JS advances to rn2(5)=4 monster turn"
+              },
+              "goalKind": "file-port",
+              "summary": "Vlad special-throne effect6 is skipped. C greases every carried non-coin object and sets slippery fingers before monster turns; JavaScript implements only effects7/10. Port whole special_throne_effect and preserve its existing #sit caller. A separate already-visible elemental explmu→mon_explodes caller gap limits matching the later explosion tail.",
+              "source": {
+                "file": "sit.c",
+                "functions": [
+                  "special_throne_effect"
+                ],
+                "branch": "Hero sits on a throne in Vlad’s tower, rnd(6)>4, and the debug effect input selects6. The missing grease message, inventory mutations and rn1(101,100) are the first cause at step88.",
+                "callers": [
+                  "sit.c:throne_sit_effect64 -> special_throne_effect, returning before ordinary throne removal",
+                  "sit.c:dosit558 -> throne_sit_effect; cmd.c #sit and queued terrain action -> dosit"
+                ],
+                "dependencies": [
+                  "Existing canonical consumed RNG/property/is_vampire owners; canonical void effect and find_hell out-parameter owners listed in evidence.",
+                  "B143 owns seffect_remove_curse and polymon caller reconciliation; reuse existing seffects/polyself without editing those reserved owners. No special-throne reservation currently conflicts.",
+                  "Separate downstream mhitu.c:explmu elemental mon_explodes call remains a named gap despite a canonical helper; audit planner state/RNG/messages and live output before attempting that caller correction."
+                ]
+              },
+              "evidence": [
+                "At immutable worker244bb55aa69e3eb38649350016bed3bea6d49e90, bounded read-only .cache/v28-vlad-special-throne/replay.mjs/log/json reproduces first RNG/screen/cursor difference at segment0 zero-based step88, key newline ending wizard-selected effect6. C first differing RNG index5191 is rn2(101)=93 from special_throne_effect(sit.c:277); JS instead draws rn2(5)=4 for monster movement. Both replays have97 boundaries. Saved accepted63ae evaluation records88/97 matching screens, hence9 remaining; current first difference has the same boundary.",
+                "C sit.c:45–64 draws rnd(6)=6 and rnd(13)=4 at step84, asks debug Throne sit effect at85, accepts6 at87–88, then calls special_throne_effect because the hero is in Vlad’s tower. Complete special_throne_effect238–354 selects cases1–13. Case6 at265–280 prints A greasy liquid sprays all over you!, walks gi.invent excluding COIN_CLASS and sets greased=1, then make_glib(rn1(101,100)) and update_inventory. C rn1 logs rn2(101)=93, yielding193 slippery-finger turns before elapsed timeout processing.",
+                "JS sit.js230–265 implements only cases7 and10; all other effects call note_unported(sit.c special_throne_effect) and return. The diagnostic unported set contains that exact source marker; final GLIB is0 and all five carried non-coin objects remain ungreased. JS step88 begins The flaming sphere explodes!... instead of C’s grease message followed by the sphere message; no exception stops the replay.",
+                "Actionable task is a whole-function file port of sit.c:special_throne_effect238–354, retaining existing cases7/10 in source order. Include wish1–4 plus original throne coordinate removal/redraw; permanent drain5 and ulevelmax decrement; grease6; attrcurse7; vibrating-square schedule8 with Amulet guard; three msummon(NULL) calls9 and exact seeems spelling; fake blessed spellbook/confusion save-restore10; vampire guard/polyself11; acid damage/exercise12; six ability draws13. Preserve no random ordinary-throne removal after special effect: throne_sit_effect returns at65.",
+                "Every direct return used by this unit is already owned: RNG rnd/rn1/rn2, COIN_CLASS and property macros, is_vampire(mondata.js), plus existing canonical state/data owners. Source-discarded impure calls have reusable implementations: makewish(zap.js1789), losexp(exper.js60), make_glib(potion.js665), update_inventory(invent.js2913), attrcurse(sit.js929), find_hell(dungeon.js606 writing an out-parameter), schedule_goto(do.js717), msummon(minion.js355), seffects(read.js3275), polyself(polyself.js1702), losehp(hack.js1279), exercise/adjattrib(attrib.js978/1141), map_background/display newsym. Audit helper validity at implementation time rather than supplying placeholder results. Drain/Acid resistance are intrinsic-or-extrinsic property macros (youprop.h52/61). find_hell’s written level is consumed and its existing body matches dungeon.c1949–1953.",
+                "The only direct source caller is sit.c:throne_sit_effect64, already awaited by JSsit.js296; it is reached through sit.c:dosit558 (JS853) and cmd.c extended/queued dosit dispatch. Keep caller reconciliation bounded, without whole throne_sit_effect/dosit/cmd credit. Existing display.c:newsym_force1863–1871 is newsym plus dirty-buffer bounds; JSdisplay.js3697 documents full-map rendering’s existing equivalent. Confirm this reuse or record its void gap, without inventing substitute map effects or claiming whole display.",
+                "Independent validation must use source-valid Vlad tower #sit routes with independently chosen seed/role/clock and wizard effect input. Required matching primary/cheap variation cover6 with carried objects versus coins and glove/glib status; independent wish1–4 must prove original throne disappears after awaited makewish. Include reachable drain/resistance, teleport/Amulet, summoning, confusion restoration, vampire/polyself, acid/resistance and ability branches through matching runtime evidence or explicit committed blocked recipes. Existing7/10 source-pinned tests in scripts/sit-command.test.mjs must stay valid; they alone do not certify the other impure runtime paths. Do not reuse the admitted recipe as regression inputs.",
+                "An exact downstream boundary is already visible independently of the grease omission: C at the same step88 calls mhitu.c:explmu1618 -> explode.c:mon_explodes1026 and draws d(4,6)=10. JSmhitu.js2674–2676 still skips that void call with note_unported(explode.c mon_explodes), although JSexplode.js756–779 now contains the canonical helper. Current unported set records it; C steps89–91 then show explosion/burn/item damage and the greased spear slipping. This is a separate bounded explmu caller reconciliation and planner clone/output/death audit, not whole special_throne_effect itself. Restoring grease alone cannot prove that selected case’s full tail matches; retain this exact follow-up limit until a fresh source-backed replay after the port verifies it. Other diagnostic gaps (sounds.c SoundAchievement and zap.c bhito) have no attribution to the first mismatch."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "special_throne_effect",
+            "implementation": "js/sit.js",
+            "symbol": "special_throne_effect",
+            "sourceReview": "Read and translated whole sit.c238–354 (planner238–357) in switch order: retain original throne coordinates across awaited wishes1–4, ROOM/flags/map redraw/disintegration; drain5 checks both intrinsic/extrinsic resistance then permanent ulevelmax decrement; grease6 excludes COIN_CLASS, sets each inventory flag before rn1(101,100), make_glib/update_inventory; intrinsic loss7 precedes amusement; destination8 uses canonical find_hell out-parameter and penultimate dungeon level, Amulet guard or deferred schedule message; demon9 awaits exactly three msummon(NULL) and preserves seeems spelling; fake zero-object blessed remove-curse book10 saves/forces/restores full HConfusion; vampire/polyself11; acid12 resistance roll and loss before exercise; six ordered rn2(5)-2 adjustments13. Non-returning fatal done boundaries prevent peak-level mutation or exercise after gameover. The caller returns before ordinary throne removal RNG. Deleted the old special_throne_effect note_unported skip. Direct consumed RNG/property/is_vampire and find_hell out-parameter owners were read; they are canonical implementations, not placeholder results. All discarded helpers called have existing owners (makewish, losexp, map_background/newsym, make_glib, update_inventory, attrcurse, schedule_goto, msummon, seffects, polyself, losehp, exercise/adjattrib); no new gaps inside this source unit. The existing full-map display newsym is its documented live newsym_force equivalent; no display completion credit. Supporting objnam Concat correction is bounded and separate from whole-function source credit.",
+            "callers": [
+              {
+                "path": "js/sit.js",
+                "symbol": "throne_sit_effect",
+                "source": "sit.c45–65 rnd(6)>4, rnd(13), optional debug effect getlin, then special_throne_effect64 when In_V_tower; already awaits helper and returns before ordinary removal. dosit558/JSsit.js853 reaches that helper from IS_THRONE; cmd.c typed/queued dosit dispatch existing canonical owner."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/sit-command.test.mjs",
+              "scripts/objnam.test.mjs",
+              "scripts/worn.test.mjs",
+              "scripts/wear-armor.test.mjs",
+              "scripts/makewish.test.mjs",
+              "scripts/wizard-level-tele.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sit.c/special-throne-grease.session.json",
+              "recordings/sit.c/special-throne-coins.session.json",
+              "recordings/sit.c/special-throne-wish.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "144aaa0d0e674fb54bb4cdff8dc27515272e5919"
+          }
+        ],
+        "entryPointReview": "This helper-only source range has one direct caller, throne_sit_effect, through the existing #sit command. Matching independent C-first male Knight primary and female Knight coin variation establish grease, non-coin inventory state, live slippery glove naming, no armed drop, and source wizard gate misses; independent apple wish establishes awaited makewish, original throne removal/flags/redraw, then a real subsequent #sit on ordinary floor. These collectively cover this helper’s production entry. Focused tests pin both resistance terms, permanent level drain, deferred versus Amulet-blocked destination, vampire guard, acid bounds/CON order, six ability draws, and existing intrinsic-loss/confusion-save/restore branches. Existing canonical helper functions retain their own completion evidence, with no new helper or whole dosit/throne_sit_effect/cmd/objnam/display credit.",
+        "entryPoints": [
+          {
+            "name": "Vlad special-throne command through dosit and throne_sit_effect",
+            "functions": [
+              "special_throne_effect"
+            ],
+            "recordings": [
+              "recordings/sit.c/special-throne-grease.session.json",
+              "recordings/sit.c/special-throne-coins.session.json",
+              "recordings/sit.c/special-throne-wish.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-vlad-special-throne",
+          "session": "synthetic/v28/v28-vlad-special-throne",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recording": "challenges/cases/v28/v28-vlad-special-throne.session.json",
+          "recordingPath": "challenges/cases/v28/v28-vlad-special-throne.session.json",
+          "recordingSha256": "efa15ee1e31c8fcc96b0caf1d48624f5407b2d70b5d6667a5078ee2a97574119",
+          "recipe": "challenges/cases/v28/v28-vlad-special-throne.recipe.session.json",
+          "recipeSha256": "a8822dfa3c52848752b2a847126f3e0d4cee48258b98765bb5f215739b4ab3f3",
+          "replayInputSha256": "b37185c889e1810d88ac0c462f4251beaff83a7749ffdb053a9dd56b84f4e365",
+          "evaluationPath": "challenges/evaluations/accepted-144aaa0d0e674fb54bb4cdff8dc27515272e5919-v28.json",
+          "evaluationCommit": "144aaa0d0e674fb54bb4cdff8dc27515272e5919",
+          "evaluationArtifact": "challenges/evaluations/accepted-144aaa0d0e674fb54bb4cdff8dc27515272e5919-v28.json",
+          "evaluationUtc": "2026-10-08T03:04:46.095Z",
+          "remainingScreens": 9,
+          "recordedSteps": 97,
+          "previousScreensMatched": 88,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 88,
+              "total": 97
+            },
+            "rng": {
+              "matched": 5192,
+              "total": 5255
+            },
+            "cursors": {
+              "matched": 88,
+              "total": 97
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 88,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 88,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 36,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 88,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 88,
+                "key": "\n"
+              },
+              "cCursor": [
+                74,
+                0,
+                1
+              ],
+              "jsCursor": [
+                44,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 88,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v28/v28-vlad-special-throne.json",
+            "result": {
+              "session": "synthetic/v28/v28-vlad-special-throne",
+              "corpus": "synthetic",
+              "batch": "v28",
+              "caseId": "v28-vlad-special-throne",
+              "manifestPath": "challenges/manifests/v28.json",
+              "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+              "recordingPath": "challenges/cases/v28/v28-vlad-special-throne.session.json",
+              "recordingSha256": "efa15ee1e31c8fcc96b0caf1d48624f5407b2d70b5d6667a5078ee2a97574119",
+              "evaluationPath": "challenges/evaluations/accepted-b22bc2ea4e12eae1d608b975449d792a2213b945-v28.json",
+              "evaluationCommit": "b22bc2ea4e12eae1d608b975449d792a2213b945",
+              "remainingScreens": 9,
+              "recordedSteps": 97,
+              "step": 88,
+              "kind": "rng",
+              "sourceFile": "sit.c",
+              "function": "special_throne_effect",
+              "message": "Grease-hands/inventory case6 omitted: C rn2(101)=93; JS advances to rn2(5)=4 monster turn",
+              "status": "complete",
+              "commit": "b22bc2ea4e12eae1d608b975449d792a2213b945",
+              "mismatch": {
+                "session": "synthetic/v28/v28-vlad-special-throne",
+                "corpus": "synthetic",
+                "batch": "v28",
+                "caseId": "v28-vlad-special-throne",
+                "manifestPath": "challenges/manifests/v28.json",
+                "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+                "recordingPath": "challenges/cases/v28/v28-vlad-special-throne.session.json",
+                "recordingSha256": "efa15ee1e31c8fcc96b0caf1d48624f5407b2d70b5d6667a5078ee2a97574119",
+                "evaluationPath": "challenges/evaluations/accepted-b22bc2ea4e12eae1d608b975449d792a2213b945-v28.json",
+                "evaluationCommit": "b22bc2ea4e12eae1d608b975449d792a2213b945",
+                "remainingScreens": 9,
+                "recordedSteps": 97,
+                "step": 88,
+                "kind": "rng",
+                "sourceFile": "sit.c",
+                "function": "special_throne_effect",
+                "message": "Grease-hands/inventory case6 omitted: C rn2(101)=93; JS advances to rn2(5)=4 monster turn"
+              },
+              "goalKind": "file-port",
+              "summary": "Vlad special-throne effect6 is skipped. C greases every carried non-coin object and sets slippery fingers before monster turns; JavaScript implements only effects7/10. Port whole special_throne_effect and preserve its existing #sit caller. A separate already-visible elemental explmu→mon_explodes caller gap limits matching the later explosion tail.",
+              "source": {
+                "file": "sit.c",
+                "functions": [
+                  "special_throne_effect"
+                ],
+                "branch": "Hero sits on a throne in Vlad’s tower, rnd(6)>4, and the debug effect input selects6. The missing grease message, inventory mutations and rn1(101,100) are the first cause at step88.",
+                "callers": [
+                  "sit.c:throne_sit_effect64 -> special_throne_effect, returning before ordinary throne removal",
+                  "sit.c:dosit558 -> throne_sit_effect; cmd.c #sit and queued terrain action -> dosit"
+                ],
+                "dependencies": [
+                  "Existing canonical consumed RNG/property/is_vampire owners; canonical void effect and find_hell out-parameter owners listed in evidence.",
+                  "B143 owns seffect_remove_curse and polymon caller reconciliation; reuse existing seffects/polyself without editing those reserved owners. No special-throne reservation currently conflicts.",
+                  "Separate downstream mhitu.c:explmu elemental mon_explodes call remains a named gap despite a canonical helper; audit planner state/RNG/messages and live output before attempting that caller correction."
+                ]
+              },
+              "evidence": [
+                "At immutable worker244bb55aa69e3eb38649350016bed3bea6d49e90, bounded read-only .cache/v28-vlad-special-throne/replay.mjs/log/json reproduces first RNG/screen/cursor difference at segment0 zero-based step88, key newline ending wizard-selected effect6. C first differing RNG index5191 is rn2(101)=93 from special_throne_effect(sit.c:277); JS instead draws rn2(5)=4 for monster movement. Both replays have97 boundaries. Saved accepted63ae evaluation records88/97 matching screens, hence9 remaining; current first difference has the same boundary.",
+                "C sit.c:45–64 draws rnd(6)=6 and rnd(13)=4 at step84, asks debug Throne sit effect at85, accepts6 at87–88, then calls special_throne_effect because the hero is in Vlad’s tower. Complete special_throne_effect238–354 selects cases1–13. Case6 at265–280 prints A greasy liquid sprays all over you!, walks gi.invent excluding COIN_CLASS and sets greased=1, then make_glib(rn1(101,100)) and update_inventory. C rn1 logs rn2(101)=93, yielding193 slippery-finger turns before elapsed timeout processing.",
+                "JS sit.js230–265 implements only cases7 and10; all other effects call note_unported(sit.c special_throne_effect) and return. The diagnostic unported set contains that exact source marker; final GLIB is0 and all five carried non-coin objects remain ungreased. JS step88 begins The flaming sphere explodes!... instead of C’s grease message followed by the sphere message; no exception stops the replay.",
+                "Actionable task is a whole-function file port of sit.c:special_throne_effect238–354, retaining existing cases7/10 in source order. Include wish1–4 plus original throne coordinate removal/redraw; permanent drain5 and ulevelmax decrement; grease6; attrcurse7; vibrating-square schedule8 with Amulet guard; three msummon(NULL) calls9 and exact seeems spelling; fake blessed spellbook/confusion save-restore10; vampire guard/polyself11; acid damage/exercise12; six ability draws13. Preserve no random ordinary-throne removal after special effect: throne_sit_effect returns at65.",
+                "Every direct return used by this unit is already owned: RNG rnd/rn1/rn2, COIN_CLASS and property macros, is_vampire(mondata.js), plus existing canonical state/data owners. Source-discarded impure calls have reusable implementations: makewish(zap.js1789), losexp(exper.js60), make_glib(potion.js665), update_inventory(invent.js2913), attrcurse(sit.js929), find_hell(dungeon.js606 writing an out-parameter), schedule_goto(do.js717), msummon(minion.js355), seffects(read.js3275), polyself(polyself.js1702), losehp(hack.js1279), exercise/adjattrib(attrib.js978/1141), map_background/display newsym. Audit helper validity at implementation time rather than supplying placeholder results. Drain/Acid resistance are intrinsic-or-extrinsic property macros (youprop.h52/61). find_hell’s written level is consumed and its existing body matches dungeon.c1949–1953.",
+                "The only direct source caller is sit.c:throne_sit_effect64, already awaited by JSsit.js296; it is reached through sit.c:dosit558 (JS853) and cmd.c extended/queued dosit dispatch. Keep caller reconciliation bounded, without whole throne_sit_effect/dosit/cmd credit. Existing display.c:newsym_force1863–1871 is newsym plus dirty-buffer bounds; JSdisplay.js3697 documents full-map rendering’s existing equivalent. Confirm this reuse or record its void gap, without inventing substitute map effects or claiming whole display.",
+                "Independent validation must use source-valid Vlad tower #sit routes with independently chosen seed/role/clock and wizard effect input. Required matching primary/cheap variation cover6 with carried objects versus coins and glove/glib status; independent wish1–4 must prove original throne disappears after awaited makewish. Include reachable drain/resistance, teleport/Amulet, summoning, confusion restoration, vampire/polyself, acid/resistance and ability branches through matching runtime evidence or explicit committed blocked recipes. Existing7/10 source-pinned tests in scripts/sit-command.test.mjs must stay valid; they alone do not certify the other impure runtime paths. Do not reuse the admitted recipe as regression inputs.",
+                "An exact downstream boundary is already visible independently of the grease omission: C at the same step88 calls mhitu.c:explmu1618 -> explode.c:mon_explodes1026 and draws d(4,6)=10. JSmhitu.js2674–2676 still skips that void call with note_unported(explode.c mon_explodes), although JSexplode.js756–779 now contains the canonical helper. Current unported set records it; C steps89–91 then show explosion/burn/item damage and the greased spear slipping. This is a separate bounded explmu caller reconciliation and planner clone/output/death audit, not whole special_throne_effect itself. Restoring grease alone cannot prove that selected case’s full tail matches; retain this exact follow-up limit until a fresh source-backed replay after the port verifies it. Other diagnostic gaps (sounds.c SoundAchievement and zap.c bhito) have no attribution to the first mismatch."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "144aaa0d0e674fb54bb4cdff8dc27515272e5919",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-rumors-outoracle-v28-20261008",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port major Oracle consultation selection and text output",
+      "cFile": "rumors.c",
+      "sessions": [
+        "synthetic/v28/v28-oracle-major-consultation"
+      ],
+      "selectionReason": "synthetic/v28/v28-oracle-major-consultation remains7/57 screens unmatched at b22bc2ea4e12eae1d608b975449d792a2213b945; the completed investigation traces step50 to omitted whole rumors.c:outoracle, its initializer, and persistent remaining-offset state. Independent of A Vlad/A142 and C140.",
+      "detail": "Port whole outoracle640-694 and init_oracles577-595, replace the discarded gap with an awaited doconsult caller, generate makedefs Oracle data, and reconcile only the Oracle-state save/restore fields. Preserve rnd(count-1), swap-last/decrement before the blocking window, cheapskate special behavior and post-window exercise/XP. Keep broader save/restore/shutdown and couldnt_open_file diagnostics as named outside-credit boundaries.",
+      "openedAt": "fc5768f7cde26ee4c074c8522f4a30dc5660bfd0",
+      "openStanding": {
+        "sha": "144aaa0d0e674fb54bb4cdff8dc27515272e5919",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "outoracle",
+          "line": 640,
+          "endLine": 695,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 640,
+        "to": 695
+      },
+      "requiredFunctions": [
+        {
+          "name": "init_oracles",
+          "line": 577,
+          "endLine": 597,
+          "declared": false,
+          "sourceFile": "rumors.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v28/v28-oracle-major-consultation": {
+          "session": "synthetic/v28/v28-oracle-major-consultation",
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-oracle-major-consultation",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recordingPath": "challenges/cases/v28/v28-oracle-major-consultation.session.json",
+          "recordingSha256": "4ebefa5859b9bf667ff711a1634c5afbfddf8f8e6243c0404576e398751f76b2",
+          "evaluationPath": "challenges/evaluations/accepted-5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec-v28.json",
+          "evaluationCommit": "5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec"
+        }
+      },
+      "activeStanding": {
+        "sha": "144aaa0d0e674fb54bb4cdff8dc27515272e5919",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-oracle-major-consultation",
+          "session": "synthetic/v28/v28-oracle-major-consultation",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recording": "challenges/cases/v28/v28-oracle-major-consultation.session.json",
+          "recordingPath": "challenges/cases/v28/v28-oracle-major-consultation.session.json",
+          "recordingSha256": "4ebefa5859b9bf667ff711a1634c5afbfddf8f8e6243c0404576e398751f76b2",
+          "recipe": "challenges/cases/v28/v28-oracle-major-consultation.recipe.session.json",
+          "recipeSha256": "eef1767b28db9fa5d9da2f83c8a21143688113ddb03757803e529c83854440c6",
+          "replayInputSha256": "b37185c889e1810d88ac0c462f4251beaff83a7749ffdb053a9dd56b84f4e365",
+          "evaluationPath": "challenges/evaluations/accepted-144aaa0d0e674fb54bb4cdff8dc27515272e5919-v28.json",
+          "evaluationCommit": "144aaa0d0e674fb54bb4cdff8dc27515272e5919",
+          "evaluationArtifact": "challenges/evaluations/accepted-144aaa0d0e674fb54bb4cdff8dc27515272e5919-v28.json",
+          "evaluationUtc": "2026-10-08T03:04:46.095Z",
+          "remainingScreens": 7,
+          "recordedSteps": 57,
+          "previousScreensMatched": 50,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 50,
+              "total": 57
+            },
+            "rng": {
+              "matched": 2777,
+              "total": 2790
+            },
+            "cursors": {
+              "matched": 56,
+              "total": 57
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 50,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 50,
+                "key": "y"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2777,
+              "cEntry": "rnd(20)=6",
+              "cCaller": "outoracle(rumors.c:665)",
+              "jsEntry": "rn2(19)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 50,
+                "key": "y"
+              },
+              "stepIndex": 50
+            },
+            "cursor": {
+              "index": 50,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 50,
+                "key": "y"
+              },
+              "cCursor": [
+                8,
+                23,
+                1
+              ],
+              "jsCursor": [
+                65,
+                5,
+                1
+              ]
+            }
+          },
+          "step": 50,
+          "kind": "rng",
+          "sourceFile": "rumors.c",
+          "function": "outoracle",
+          "message": null,
+          "cFile": "rumors.c",
+          "luaFile": null,
+          "line": 665,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v28/v28-oracle-major-consultation.json",
+            "result": {
+              "session": "synthetic/v28/v28-oracle-major-consultation",
+              "corpus": "synthetic",
+              "batch": "v28",
+              "caseId": "v28-oracle-major-consultation",
+              "manifestPath": "challenges/manifests/v28.json",
+              "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+              "recording": "challenges/cases/v28/v28-oracle-major-consultation.session.json",
+              "recordingPath": "challenges/cases/v28/v28-oracle-major-consultation.session.json",
+              "recordingSha256": "4ebefa5859b9bf667ff711a1634c5afbfddf8f8e6243c0404576e398751f76b2",
+              "recipe": "challenges/cases/v28/v28-oracle-major-consultation.recipe.session.json",
+              "recipeSha256": "eef1767b28db9fa5d9da2f83c8a21143688113ddb03757803e529c83854440c6",
+              "evaluationPath": "challenges/evaluations/accepted-5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec-v28.json",
+              "evaluationCommit": "5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec",
+              "evaluationUtc": "2026-10-08T02:42:22.412Z",
+              "remainingScreens": 7,
+              "recordedSteps": 57,
+              "metrics": {
+                "screens": {
+                  "matched": 50,
+                  "total": 57
+                },
+                "rng": {
+                  "matched": 2777,
+                  "total": 2790
+                },
+                "cursors": {
+                  "matched": 56,
+                  "total": 57
+                }
+              },
+              "passed": false,
+              "error": null,
+              "step": 50,
+              "kind": "screen",
+              "sourceFile": "rumors.c",
+              "function": "outoracle",
+              "firstMismatch": {
+                "segment": 0,
+                "step": 50,
+                "kind": "screen",
+                "sourceFile": "rumors.c",
+                "function": "outoracle",
+                "message": "Missing paid Oracle text window and rnd(oracle_cnt-1) before Wisdom exercise and experience gain"
+              },
+              "diagnostic": {
+                "rngMismatch": {
+                  "index": 2777,
+                  "cEntry": "rnd(20)=6",
+                  "cCaller": "outoracle(rumors.c:665)",
+                  "jsEntry": "rn2(19)=2",
+                  "location": {
+                    "segmentIndex": 0,
+                    "stepIndex": 50,
+                    "key": "y"
+                  }
+                },
+                "screenMismatch": {
+                  "index": 50,
+                  "location": {
+                    "segmentIndex": 0,
+                    "stepIndex": 50,
+                    "key": "y"
+                  },
+                  "kind": "ch",
+                  "row": 0,
+                  "column": 0,
+                  "cCell": {
+                    "ch": "T",
+                    "color": 8,
+                    "attr": 0,
+                    "decgfx": 0
+                  },
+                  "jsCell": {
+                    "ch": "W",
+                    "color": 8,
+                    "attr": 0,
+                    "decgfx": 0
+                  }
+                },
+                "cursorMismatch": {
+                  "index": 50,
+                  "location": {
+                    "segmentIndex": 0,
+                    "stepIndex": 50,
+                    "key": "y"
+                  },
+                  "cCursor": [
+                    8,
+                    23,
+                    1
+                  ],
+                  "jsCursor": [
+                    65,
+                    5,
+                    1
+                  ]
+                }
+              },
+              "status": "complete",
+              "commit": "5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec",
+              "mismatch": {
+                "session": "synthetic/v28/v28-oracle-major-consultation",
+                "corpus": "synthetic",
+                "batch": "v28",
+                "caseId": "v28-oracle-major-consultation",
+                "manifestPath": "challenges/manifests/v28.json",
+                "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+                "recording": "challenges/cases/v28/v28-oracle-major-consultation.session.json",
+                "recordingPath": "challenges/cases/v28/v28-oracle-major-consultation.session.json",
+                "recordingSha256": "4ebefa5859b9bf667ff711a1634c5afbfddf8f8e6243c0404576e398751f76b2",
+                "recipe": "challenges/cases/v28/v28-oracle-major-consultation.recipe.session.json",
+                "recipeSha256": "eef1767b28db9fa5d9da2f83c8a21143688113ddb03757803e529c83854440c6",
+                "evaluationPath": "challenges/evaluations/accepted-5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec-v28.json",
+                "evaluationCommit": "5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec",
+                "evaluationUtc": "2026-10-08T02:42:22.412Z",
+                "remainingScreens": 7,
+                "recordedSteps": 57,
+                "metrics": {
+                  "screens": {
+                    "matched": 50,
+                    "total": 57
+                  },
+                  "rng": {
+                    "matched": 2777,
+                    "total": 2790
+                  },
+                  "cursors": {
+                    "matched": 56,
+                    "total": 57
+                  }
+                },
+                "passed": false,
+                "error": null,
+                "step": 50,
+                "kind": "screen",
+                "sourceFile": "rumors.c",
+                "function": "outoracle",
+                "firstMismatch": {
+                  "segment": 0,
+                  "step": 50,
+                  "kind": "screen",
+                  "sourceFile": "rumors.c",
+                  "function": "outoracle",
+                  "message": "Missing paid Oracle text window and rnd(oracle_cnt-1) before Wisdom exercise and experience gain"
+                },
+                "diagnostic": {
+                  "rngMismatch": {
+                    "index": 2777,
+                    "cEntry": "rnd(20)=6",
+                    "cCaller": "outoracle(rumors.c:665)",
+                    "jsEntry": "rn2(19)=2",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 50,
+                      "key": "y"
+                    }
+                  },
+                  "screenMismatch": {
+                    "index": 50,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 50,
+                      "key": "y"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "W",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "cursorMismatch": {
+                    "index": 50,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 50,
+                      "key": "y"
+                    },
+                    "cCursor": [
+                      8,
+                      23,
+                      1
+                    ],
+                    "jsCursor": [
+                      65,
+                      5,
+                      1
+                    ]
+                  }
+                }
+              },
+              "goalKind": "file-port",
+              "summary": "A paid major consultation skips rumors.c:outoracle. Port the whole output function and its initializer, generate the source Oracle data, and preserve the remaining-oracle list across save/restore. The missing selection draw and blocking text window cause the first mismatch at step50.",
+              "source": {
+                "file": "rumors.c",
+                "branch": "A peaceful Oracle receives a major-consultation payment; go.oracle_flg permits opening the Oracle data, and a normal unconsumed record or the special cheapskate record is selected.",
+                "functions": [
+                  "outoracle",
+                  "init_oracles"
+                ],
+                "callers": [
+                  "rumors.c:doconsult755 -> js/rumors.js78; await outoracle(cheapskate, TRUE) after gold transfer/achievement and before major_oracle, Wisdom exercise and XP.",
+                  "rumors.c:outoracle656 -> init_oracles577-595; initialize canonical svo.oracle_cnt and svo.oracle_loc before setting go.oracle_flg=1.",
+                  "Supporting persistence: save.c:savegamestate321 -> save_oracles598-620, and restore.c:restgamestate712 -> restore_oracles623-637. Wire the selected oracle-state fields into js/save.js serializeGameState and js/restore.js dorecover after artifact state in source order; no whole save/restore claim."
+                ],
+                "dependencies": [
+                  "util/makedefs.c:special_oracle1400-1413/do_oracles1423-1590 and dat/oracles.txt define the generated encrypted byte file. Extend the existing deterministic scripts/generate-random-text-data.mjs and js/random_text_data.js; verify header, N+1 hexadecimal offsets, special record, h_filter comments/separators, encryption and regenerated freshness. Do not hand-copy text or load files in game code.",
+                  "Consumed file-operation results (open success, header sscanf count, bounded dlb_fgets termination, newline search and --- sentinel) must be represented by the generated byte string and source-shaped cursor reads. Keep COLNO=80 reads limited to79 bytes and preserve encrypted byte offsets. Source opening failure sets go.oracle_flg=-1; couldnt_open_file is a discarded void diagnostic helper and may remain an explicitly named note_unported gap.",
+                  "hacklib.c:xcrypt is pure and already implemented in js/hacklib.js477-489 with existing source-pinned result tests. No new xcrypt credit. RNG rnd must use the canonical js/rng.js rnd owner; a normal draw is rnd(oracle_cnt-1), not rn2(oracle_cnt).",
+                  "Existing js/tty_menu.js:displayTtyTextWindow875-983 owns NHW_TEXT line layout, pending-message dismissal, bottom-row More, escape, window destruction and map repair. Await it with source header plus blank line and decoded record lines; do not replace it with pline or a menu.",
+                  "Canonical values are go.oracle_flg and svo.oracle_cnt/oracle_loc, initialized as C decl.c zeros. Normal selection decrements oracle_cnt and moves the last remaining offset into the selected slot before window display. The special offset stays at index0 and special output neither draws RNG nor consumes an offset. Save the count/remaining offsets; restore go.oracle_flg=1 only when count is nonzero.",
+                  "save_oracles FREEING state release and save.c:free_dynamic_data1124 macro are a distinct shutdown frontier if the JavaScript termination chain cannot wire them narrowly. Keep this named and outside source-completion credit; do not claim whole save_oracles, restore_oracles, savegamestate, restgamestate, or shutdown cleanup merely from a JSON snapshot."
+                ]
+              },
+              "evidence": [
+                "Current saved evaluation challenges/evaluations/accepted-b22bc2ea4e12eae1d608b975449d792a2213b945-v28.json at b22bc2ea4e12eae1d608b975449d792a2213b945 retains50/57 screens,2777/2790 RNG and56/57 cursors. Manifest digest 394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039 and recipe/recording SHA256 were checked against both worker and coordinator files; the remaining-screen count is7.",
+                "Read-only bounded run-3CkcRI at 7581437615345671501a47ebeb866517b6739431 reproduced the exact first mismatch: segment0step50 key y, C rnd(20)=6 at outoracle(rumors.c:665), JS rn2(19)=2. C starts with T at row0col0 for the Oracle text header; JS starts W for Welcome to experience level2. Diagnostic artifacts .cache/v28-oracle-major-consultation/replay.json and replay.log retain RNG/screen/cursor details. There was no refusal; live JS major_oracle was true while oracle count/flag were absent, ruling out the no-gold or unfriendly-Oracle guards.",
+                "C recording steps48-49 show minor rejection and the550-zorkmid major offer. Step50 transfers gold (next_ident), selects the6th normal oracle from20 with rnd(20), and displays the extra-healing advice. Step51 dismisses the text window before Wisdom exercise and level gain. This establishes both the missing selection and its wait placement; the later RNG drift is a consequence, not an independent exercise defect.",
+                "Whole outoracle640-694 source review: prior failed-open/exhaustion guards; open; one-time init; count0 and count<=1 normal guards; special-index0 versus rnd(count-1); seek; swap-last/decrement before output; Delphi special/normal header versus generic message header; blank line; COLNO-bounded encrypted reads until --- newline; newline removal/xcrypt; blocking display; destruction; close; failed-file diagnostic then flag=-1.",
+                "Whole init_oracles577-595 source review: skip generated comment, read decimal count, accept only successfully parsed positive count, allocate/count entries and read their hexadecimal offsets. util/makedefs emits21 records including the special entry; the recorded initial normal bound20 agrees with this layout. The generator emits an extra EOF offset that init does not read.",
+                "rg outoracle\\( nethack-c/upstream/src found only the definition and doconsult755 call. The delphi=false generic-message arm has no active upstream caller and needs source-pinned branch coverage rather than fabricated production wiring. init has one outoracle caller; save/restore state has the two persistence sites and the FREE_ALL_MEMORY shutdown macro, all identified above.",
+                "Existing JavaScript js/rumors.js78 records note_unported instead of calling outoracle. The module currently has no initializer/output implementation, while js/random_text_data.js contains rumors/engrave/epitaph/bogusmon only and js/save.js snapshot/js/restore.js recovery omit Oracle state. Source search also found no JS oracle_cnt/oracle_loc mutation or save_oracles/restore_oracles implementation.",
+                "Runtime evidence plan: admitted v28 segment0steps48-56 for a fully paid major consultation; independent C-first paid variation and insufficient-major-payment special consultation; a two-segment save/restore continuation followed by another major consultation to verify consumed-offset persistence and no reinitialization. Source-pinned tests cover exhaustion, <=1 normal rejection, special reuse/no RNG, swap-last ordering, generic-header inactive arm, malformed/missing data, mode-specific persistence/release and awaited caller ordering. No C game was recorded during this investigation.",
+                "Reservations were checked in .cache/v28-oracle-major-consultation/status.json. Proposed rumors functions, oracle state, generated data, and save/restore paths do not overlap pending B143 buried-ball release, A142 wiz_smell/doextcmd/rhack, C140 engraving NODIR dispatch or A's special_throne_effect proposal. The tracked worker tree remains clean; all diagnostic writes are in this worktree."
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "port-wizcmds-wiz-flip-level-v28-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port live wizard level transposition in source order",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v28/v28-wiz-flip-level"
+      ],
+      "selectionReason": "Independent admitted v28 wizard flip refusal at step15, 8 remaining screens; C140 seed is fully solved, buried-ball/Vlad/Oracle scopes excluded.",
+      "detail": "Canonical investigation investigations/synthetic/v28/v28-wiz-flip-level.json traces absent command dispatcher and generation-only flip owners. Include consumed bounds helper and live extras order, retaining explicit nhlua flip caller frontier.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_flip_level",
+          "line": 412,
+          "endLine": 445,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 412,
+        "to": 445
+      },
+      "requiredFunctions": [
+        {
+          "name": "flip_level",
+          "line": 533,
+          "endLine": 925,
+          "declared": true,
+          "sourceFile": "sp_lev.c",
+          "complete": false
+        },
+        {
+          "name": "flip_level_rnd",
+          "line": 967,
+          "endLine": 985,
+          "declared": true,
+          "sourceFile": "sp_lev.c",
+          "complete": false
+        },
+        {
+          "name": "get_level_extends",
+          "line": 1353,
+          "endLine": 1440,
+          "declared": true,
+          "sourceFile": "mkmaze.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v28/v28-wiz-flip-level": {
+          "session": "synthetic/v28/v28-wiz-flip-level",
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-wiz-flip-level",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recordingPath": "challenges/cases/v28/v28-wiz-flip-level.session.json",
+          "recordingSha256": "731e024dc0254d97b404c752d19695c3b46beea14d8e18bd357abdb748883122",
+          "evaluationPath": "challenges/evaluations/accepted-4f210e358149b03cf68194ba97bfd446aea2f3e0-v28.json",
+          "evaluationCommit": "4f210e358149b03cf68194ba97bfd446aea2f3e0"
+        }
+      }
+    },
+    {
+      "id": "fix-do-dropx-throne-floor-v28-20261007",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Admit ordinary dry throne-floor drops through the canonical dropx path",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v28/v28-vlad-special-throne"
+      ],
+      "selectionReason": "Seed continuation from immutable A143. Its whole special_throne_effect port exposes a do.c:dropx terrain admission refusal at the same segment0 step88; the source default flooreffects branch leaves the object intact. Current shared ledger reserves no dropx or throne-floor contract. This is a bounded source-backed caller admission fix, with no whole dropx/dropz/flooreffects completion credit.",
+      "detail": "At examined worker commit 070d7706871274131a22efbf14808590d8830955, .cache/A143/selected-after.json records UnsupportedDropError: unsupported drop: non-ordinary terrain from js/do.js:preflight_dropx1933 -> dropx2065 -> allmain.js876 -> do_wear.js:glibr3252 -> finishElapsedTurn873 -> clone monster-turn planning. The C grease draw rn2(101)=93 now matches; the next absent RNG entry is index5192 rn2(5)=2 from monmove.c:distfleeck538, segment0 zero-based step88, newline. This missing draw is a consequence of early planner refusal, not a diagnosed monmove defect. First screen/cursor/animation differences are also at88. The saved accepted-b22bc2ea4e12eae1d608b975449d792a2213b945-v28.json evaluation has9 remaining screens of97; no new aggregate score has been run.\nC do.c:dropx786-796 extracts the inventory object, checks ship_object before altar behavior, then calls dropy800-804 -> dropz807-843. dropz clears weapon/quiver/swap slots, consumes flooreffects boolean before placement, then places/stacks/redraws and reports encumbrance. Whole flooreffects162-357 was read: on dry untrapped THRONE it returns the initialized FALSE after restoring gb.bhitpos, with no terrain-specific effect. Its hot-potion predicate is explicitly ROOM or CORR, excluding THRONE. JS canonical flooreffects/dropz already implement this default path; only preflight_dropx terrain list rejects THRONE. Add THRONE to that list, retaining costly-shop, trap, liquid, visible-region, nearby timed corpse, floor-object-grid, generic timed/light-pile and other guards. Preserve shipping, altar and extraction/placement order; no new RNG/message/state substitute.\nActive selected entry is C allmain.c:Glib -> do_wear.c:glibr2528-2631 -> dropx2626. glibr restores quantity, clears uwep and queued commands, consumes canonical canletgo, then drops the weapon. JS allmain clone/live forwarding already provides canonical dropx and matching encumbrance/newsym/remove hooks. Audit both live and cloned execution, with no adapter or source-order changes. Other ordinary drop command entries reuse the same source dropx; verify them independently.\nA named later source boundary remains: C mhitu.c:explmu1618 discards mon_explodes result; JS mhitu.js2674-2676 instead records note_unported(explode.c mon_explodes). JS explode.js756-779 contains the helper, but wiring it requires a separate bounded clone-RNG/message/map/death/input audit. The selected same-step C tail draws d(4,6)=10 at mon_explodes1026 after the preceding explmu roll. Do not claim full selected-session matching from the throne admission patch. Fresh replay after the patch must report the next exact boundary before delivery; if divergence closure requires full case parity, centrally expand or choose a source task with explicit partial evidence instead of treating the guard fix as complete.\nCurrent coordinator evidence at accepted commit 144aaa0d0e674fb54bb4cdff8dc27515272e5919 preserves 88/97 matching screens and the same step88 boundary; the hosted comparison found no lost screens or new errors across admitted batches.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dropx",
+      "session": "synthetic/v28/v28-vlad-special-throne",
+      "step": 88,
+      "syntheticProvenance": {
+        "synthetic/v28/v28-vlad-special-throne": {
+          "session": "synthetic/v28/v28-vlad-special-throne",
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-vlad-special-throne",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recordingPath": "challenges/cases/v28/v28-vlad-special-throne.session.json",
+          "recordingSha256": "efa15ee1e31c8fcc96b0caf1d48624f5407b2d70b5d6667a5078ee2a97574119",
+          "evaluationPath": "challenges/evaluations/accepted-144aaa0d0e674fb54bb4cdff8dc27515272e5919-v28.json",
+          "evaluationCommit": "144aaa0d0e674fb54bb4cdff8dc27515272e5919"
         }
       }
     }
