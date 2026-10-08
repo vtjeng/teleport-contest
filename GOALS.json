@@ -216509,7 +216509,7 @@
     {
       "id": "fix-weapon-menu-tab-columns-v31-20261008",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore source tab-separated ordinary and wizard skill menu rows",
       "cFile": "weapon.c",
       "sessions": [
@@ -216523,8 +216523,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "add_skills_to_menu",
       "session": "synthetic/v31/v31-skill-tab-columns",
       "step": 11,
@@ -216686,7 +216689,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

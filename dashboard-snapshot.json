@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T21:12:28.564Z",
+  "capturedAt": "2026-10-08T21:25:22.139Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -67131,12 +67131,217 @@
         "type": "accepted",
         "at": "2026-10-08T21:11:29.226Z",
         "task": "B166"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B166-published-63e65bf6b64d5ffec02b8e7f1542812b63c2aedb",
+        "type": "published",
+        "at": "2026-10-08T21:13:08.931Z",
+        "task": "B166",
+        "commit": "63e65bf6b64d5ffec02b8e7f1542812b63c2aedb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A171-received-4dab0fd59aee626e173d7272974a4f0e6d92e531",
+        "type": "received",
+        "at": "2026-10-08T21:13:30.248Z",
+        "task": "A171",
+        "delivery": "4dab0fd59aee626e173d7272974a4f0e6d92e531"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A171-review-4dab0fd59aee626e173d7272974a4f0e6d92e531",
+        "type": "activity",
+        "at": "2026-10-08T21:13:31.210Z",
+        "task": "A171",
+        "phase": "review",
+        "reason": "Reviewing the immutable A171 tab-separated skill menu correction and its source evidence after B166 publication."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C154-B166-boundary-idle-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:14:26.854Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C154 fatal-timeout investigation is complete and awaits the coordinator’s implementation context. Accepted B166 boundary checks passed; C152 migration delivery remains queued and C153 remains parked on the pointer-format contract."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B169-inert-trap-20261008",
+        "type": "implement",
+        "at": "2026-10-08T21:16:29.935Z",
+        "task": "B169",
+        "goal": "fix-do-dropx-inert-trap-admission-v32-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B169-implement-inert-trap-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:16:31.173Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implement ordinary drops over inert traps after source verification."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A171-integrating-8ad9b29d189e31d080528420f7c973012a25f0c1",
+        "type": "integrating",
+        "at": "2026-10-08T21:16:53.615Z",
+        "task": "A171",
+        "integration": "8ad9b29d189e31d080528420f7c973012a25f0c1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A171-wait-checkpoint-37845769917",
+        "type": "activity",
+        "at": "2026-10-08T21:18:05.118Z",
+        "task": "A171",
+        "phase": "waiting",
+        "reason": "Hosted checkpoint 37845769917 is queued for exact integration commit 8ad9b29d189e31d080528420f7c973012a25f0c1."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C152-received-c919743ed6a32ba24269ce80d4ec703f7d3063d4",
+        "type": "received",
+        "at": "2026-10-08T21:19:06.359Z",
+        "task": "C152",
+        "delivery": "c919743ed6a32ba24269ce80d4ec703f7d3063d4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C152-review-c919743ed6a32ba24269ce80d4ec703f7d3063d4",
+        "type": "activity",
+        "at": "2026-10-08T21:19:07.399Z",
+        "task": "C152",
+        "phase": "review",
+        "reason": "Previewing C152 wizard monster migration source family and saved evidence while A171 hosted validation runs."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C152-feedback-tutorial-random-nomsg",
+        "type": "feedback",
+        "at": "2026-10-08T21:19:48.754Z",
+        "task": "C152",
+        "delivery": "c919743ed6a32ba24269ce80d4ec703f7d3063d4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B167-received-2ec681b75626a7d08859aff17d3e9590c57a552b",
+        "type": "received",
+        "at": "2026-10-08T21:19:59.091Z",
+        "task": "B167",
+        "delivery": "2ec681b75626a7d08859aff17d3e9590c57a552b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B167-review-2ec681b75626a7d08859aff17d3e9590c57a552b",
+        "type": "activity",
+        "at": "2026-10-08T21:20:00.097Z",
+        "task": "B167",
+        "phase": "review",
+        "reason": "Previewing B167 whole insight.c weapon_insight delivery and its two saved investigations while A171 hosted validation runs."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C154-for-C152-tutorial-audit-20261008",
+        "type": "park",
+        "at": "2026-10-08T21:21:01.884Z",
+        "task": "C154"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C152-tutorial-audit-20261008",
+        "type": "resume",
+        "at": "2026-10-08T21:21:03.075Z",
+        "task": "C152"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C152-tutorial-audit-active-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:21:04.253Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A171-validated-8ad9b29d189e31d080528420f7c973012a25f0c1",
+        "type": "validated",
+        "at": "2026-10-08T21:22:08.404Z",
+        "task": "A171",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-72e6d930763fc28b41e81d6dc547408121ab3c30",
+        "type": "ready",
+        "at": "2026-10-08T21:22:52.467Z",
+        "task": "C152",
+        "delivery": "72e6d930763fc28b41e81d6dc547408121ab3c30"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C154-after-C152-tutorial-20261008",
+        "type": "resume",
+        "at": "2026-10-08T21:23:12.237Z",
+        "task": "C154"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C154-post-C152-correction-idle-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:23:13.430Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C152 tutorial admission correction is submitted for integration. C154 fatal-timeout investigation is complete and awaits the coordinator’s implementation context; C153 remains parked on the pointer-format contract."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ee0bd332d930dc99504aeb6792f935551c754305",
+        "type": "ready",
+        "at": "2026-10-08T21:23:49.442Z",
+        "task": "A172",
+        "delivery": "ee0bd332d930dc99504aeb6792f935551c754305"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e0bbc19fb4137f4c9aba1f6e04519784d43a1d45",
+        "type": "ready",
+        "at": "2026-10-08T21:24:13.110Z",
+        "task": "B169",
+        "delivery": "e0bbc19fb4137f4c9aba1f6e04519784d43a1d45"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A171-8ad9b29d189e31d080528420f7c973012a25f0c1-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T21:24:58.828Z",
+        "task": "A171"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B170-crystal-ball-20261008",
+        "type": "assign",
+        "at": "2026-10-08T21:25:07.837Z",
+        "task": "B170",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B170-crystal-ball-audit-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:25:08.979Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Trace crystal-ball scrying and its production dependencies."
       }
     ]
   },
   "development": {
-    "executionCommit": "df3f88e14504c6bd2b05c427cee310320c4f74a8",
-    "measuredAt": "2026-10-08T21:06:38.044Z",
+    "executionCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+    "measuredAt": "2026-10-08T21:21:36.655Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
