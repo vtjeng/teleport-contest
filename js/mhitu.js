@@ -31,6 +31,7 @@ import {
     M_AP_OBJECT,
     M_AP_TYPE,
     M_ATTK_AGR_DIED,
+    M_ATTK_DEF_DIED,
     M_ATTK_AGR_DONE,
     M_ATTK_HIT,
     M_ATTK_MISS,
@@ -87,6 +88,8 @@ import {
     RLOC_MSG,
     RIGHT_RING,
     BOLT_LIM,
+    TELEDS_ALLOW_DRAG,
+    Ugender,
 } from './const.js';
 import {
     is_pool,
@@ -118,6 +121,7 @@ import {
     shieldeff,
     swallowed,
     tp_sensemon,
+    sensemon,
 } from './display.js';
 import { reset_occupations, y_n } from './cmd.js';
 import {
@@ -132,15 +136,16 @@ import {
     noit_Monnam,
     noit_mon_nam,
     pmname,
+    m_monnam,
 } from './do_name.js';
 import { initedog } from './dog.js';
-import { In_hell, on_level } from './dungeon.js';
+import { In_hell, on_level, ceiling } from './dungeon.js';
 import { done, done_in_by } from './end.js';
 import { mon_explodes } from './explode.js';
 import { losexp, pluslvl } from './exper.js';
 import { game } from './gstate.js';
-import { losehp, nomul, showdamage, spoteffects } from './hack.js';
-import { dist2, distmin, upstart } from './hacklib.js';
+import { losehp, nomul, showdamage, spoteffects, unmul } from './hack.js';
+import { dist2, distmin, upstart, s_suffix } from './hacklib.js';
 import { is_home_elemental } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
 import { msummon } from './minion.js';
@@ -149,6 +154,7 @@ import {
     engulf_target,
     failed_grab,
     paralyze_monst,
+    mattackm,
 } from './mhitm.js';
 import {
     golemeffects,
@@ -201,6 +207,10 @@ import {
     defended,
     resists_blnd,
     resists_drli,
+    is_hider,
+    likes_gold,
+    is_swimmer,
+    sticks,
 } from './mondata.js';
 import { monnear, onscary, set_apparxy } from './monmove.js';
 import * as M from './monsters.js';
@@ -222,6 +232,8 @@ import {
     AMULET_OF_GUARDING,
     BOULDER,
     CORPSE,
+    EGG,
+    GOLD_PIECE,
     OILSKIN_CLOAK,
     PIERCE,
     RIN_ADORNMENT,
@@ -239,7 +251,11 @@ import {
     xname,
     xnameFresh,
     yname,
+    helm_simple_name,
+    mimic_obj_name,
 } from './objnam.js';
+import { hard_helmet } from './do_wear.js';
+import { enexto, teleds } from './teleport.js';
 import { discover_object, observe_object } from './o_init.js';
 import { is_quest_artifact } from './questpgr.js';
 import { d, rn1, rn2, rnd, rne, rn2_on_display_rng } from './rng.js';
@@ -265,7 +281,7 @@ import {
 import { Cold_resistance, Fire_resistance, drain_item } from './zap.js';
 import { cansee, couldsee, m_canseeu, vision_recalc } from './vision.js';
 import { hitval } from './weapon.js';
-import { is_pole, setworn, which_armor } from './worn.js';
+import { is_pole, setworn, which_armor, find_mac } from './worn.js';
 import { breamu, spitmu } from './mthrowu.js';
 import { mnexto } from './mon.js';
 import {
@@ -1481,21 +1497,24 @@ export function getmattk(magr, mdef, indx, prev_result, rawEnv = {}) {
 // C ref: mhitu.c calc_mattacku_vars() (447-463). "calc some variables needed
 // for mattacku()".
 //
-// C also sets gb.bhitpos to the hero's square and clears gn.notonhead, which
-// do_attack() does for the mirror case. Neither has a ported reader. hitmu()
-// reads neither; the consumers are mattacku()'s own u_at(gb.bhitpos.x,
-// gb.bhitpos.y) test at mhitu.c:782 and the passive counter-attacks. That
-// test is tautologically false, because the only write between here and it,
-// the steed retaliation at mhitu.c:545, returns on every path out of :547.
+// Publish the same shared target as do_attack(); retaliation and passive
+// attacks read these fields after the booleans have been calculated.
 export function calc_mattacku_vars(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const seeMonster = rawEnv.canSeeMonster ?? canseemon;
-    return {
+    const result = {
         ranged: mdistu(mtmp, state) > 3,
         range2: !monnear(mtmp, mtmp.mux, mtmp.muy, state),
         foundyou: u_at(mtmp.mux, mtmp.muy, state),
         youseeit: seeMonster(mtmp, state),
     };
+    state.gb ??= {};
+    state.gb.bhitpos ??= {};
+    state.gb.bhitpos.x = state.u.ux;
+    state.gb.bhitpos.y = state.u.uy;
+    state.gn ??= {};
+    state.gn.notonhead = false;
+    return result;
 }
 
 // C ref: mhitu.c mtrapped_in_pit() (466-479). "return TRUE iff monster or hero
@@ -1509,47 +1528,11 @@ export function mtrapped_in_pit(mtmp, state = game) {
     return Boolean(ttmp && is_pit(ttmp.ttyp));
 }
 
-// C ref: mhitu.c mattacku() (491-951). "monster attacks you; returns 1 if
-// monster dies (e.g. 'yellow light'), 0 otherwise".
-//
-// This slice's AT_GAZE arm now calls gazemu(), but C excludes Medusa there:
-// mon.c:m_respond handles the only compiled AD_STON attacker first. The
-// reflected lethal gaze therefore remains in m_respond_medusa, not this
-// function's return. Other reachable exits in this partial port still answer
-// false, including the steed's own arm, which mhitu.c:532 returns 0 from.
-//
-// C dochug() consumes mattacku()'s result to stop after attacker death. The
-// current JS dochug adapter still awaits and discards that separate result;
-// this task only fixes dochug's preceding response/death order seam and does
-// not claim the whole caller contract.
-//
-// Ported: the preamble, including the invulnerable-hero early return, the
-// u.usteed arm, the armor-class differential, the eel-reveal, the
-// find_offensive()/use_offensive() pair, the NATTK loop, and,
-// inside it,
-// the AT_CLAW/AT_KICK/AT_BITE/AT_STNG/AT_TUCH/AT_BUTT/AT_TENT arm, the
-// non-range2 AT_WEAP arm, and the ordinary ice-vortex AT_ENGL arm. Those
-// attacks run through hitmu(), missmu() or gulpmu().
-//
-// Refused where C acts: the hero-concealment blocks (u.uundetected, the
-// S_MIMIC and M_AP_OBJECT arms), summonmu(), use_offensive()'s arms outside
-// the thrown potion, wildmiss() for a monster that guessed wrong, and every
-// other aatyp arm.
-//
-// Two lines of the preamble are deliberately absent:
-//   DEADMONSTER(mtmp) cannot answer TRUE, because mon.c movemon() drops a
-//     monster with mhp < 1 before dochug() runs and nothing between there and
-//     here damages it;
-//   Underwater needs u.uinwater, whose sole writer is hack.c set_uinwater()
-//     and whose only ported callers, in js/do.js, both pass FALSE;
-// The swallowed-state arm now belongs to the ordinary ice-vortex slice below;
-// other swallowed attackers still stop in their own AT_ENGL branches.
-//
-// Two seams still owe the steed draw and stop before it, named by symbol
-// because line numbers rot and both citations here were already wrong once:
-// js/dogmove.js dog_move()'s `monster === state.u.usteed` arm (dogmove.c:911)
-// and js/dogmove.js pet_ranged_attk() (dogmove.c:1286). Both must call this
-// function when they are ported.
+// C ref: mhitu.c mattacku() (491–951). Returns an attacker-death flag.
+// All dispatch branches use the canonical combat/relocation owners and retain
+// those owners' documented admission limits. Planning uses the same state and
+// RNG order with silent display operations. The discarded worm_move call is
+// still a named gap; no tail movement is invented here.
 export async function mattacku(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const u = state.u;
@@ -1599,10 +1582,12 @@ export async function mattacku(monster, rawEnv = {}) {
     };
     let mdat = monster.data;
     const initial = calc_mattacku_vars(monster, env);
-    let { range2, foundyou } = initial;
+    let { range2, foundyou, youseeit } = initial;
 
     if (!initial.ranged)
         nomul(0, state);
+    if (monster.mhp < 1) return 1;
+    if (u.uinwater && !is_swimmer(mdat)) return false;
 
     // C ref: mhitu.c mattacku() (522-533). Once engulfed, only the current
     // holder may attack; its remembered target is refreshed to the hero's
@@ -1614,34 +1599,127 @@ export async function mattacku(monster, rawEnv = {}) {
         if (u.uinvulnerable) return false;
         range2 = false;
         foundyou = true;
-    }
-
-    if (u.usteed) {
+    } else if (u.usteed) {
         if (monster === u.usteed)
             /* Your steed won't attack you */
             return false;
         /* Orcs like to steal and eat horses and the like */
         if (!random.rn2(is_orc(mdat) ? 2 : 4)
             && m_next2u(monster, state)) {
-            // C hands the attack to mattackm(mtmp, u.usteed) and, if the steed
-            // survives, lets it strike back through a second mattackm(). No
-            // monster-versus-monster combat is ported.
-            unsupported("a monster attacking the hero's steed");
+            const status = await mattackm(monster, u.usteed, env);
+            if (status & M_ATTK_AGR_DIED) return 1;
+            if ((status & M_ATTK_DEF_DIED) || !u.usteed
+                || !m_next2u(monster, state)) return false;
+            state.gb.bhitpos.x = monster.mx;
+            state.gb.bhitpos.y = monster.my;
+            state.gn.notonhead = false;
+            return Boolean((await mattackm(u.usteed, monster, env))
+                & M_ATTK_DEF_DIED);
         }
     }
 
-    // The three hero-concealment blocks (551-706). Each ends in `return 0`
-    // after revealing the hero, and each needs machinery -- enexto()/teleds(),
-    // set_ustuck(), unmul() -- that is not ported. Their shared gate,
-    // `!range2 && foundyou && !u.uswallow`, is written once.
-    if (!range2 && foundyou) {
-        if (u.uundetected) unsupported('a monster finding the hidden hero');
+    // C ref: mhitu.c:551–656. A discovery spends this attack without
+    // entering the ordinary attack loop, including a falling piercer miss.
+    if (u.uundetected && !range2 && foundyou && !u.uswallow) {
+        if (!(env.canSpotMonster ?? canspotmon)(monster, state))
+            markInvisible(monster.mx, monster.my);
+        u.uundetected = 0;
+        if (is_hider(state.youmonst.data) && u.umonnum !== M.PM_TRAPPER) {
+            await message(`You fall from the ${ceiling(u.ux, u.uy, state)}!`, state, env);
+            remove_monster(monster.mx, monster.my, state);
+            let cc = enexto(u.ux, u.uy, state.youmonst.data, env);
+            if (!cc || (mdat.mlet === M.S_EEL
+                && is_pool(monster.mx, monster.my, state)
+                && !is_pool(u.ux, u.uy, state))) {
+                place_monster(monster, monster.mx, monster.my, state);
+                redraw(u.ux, u.uy, state);
+                await message(`${Monnam(monster, state, env)} draws back as you drop!`, state, env);
+                return false;
+            }
+            redraw(monster.mx, monster.my, state);
+            place_monster(monster, u.ux, u.uy, state);
+            if (monster.wormno) {
+                note_unported('worm.c worm_move');
+                // C's retry tests occupancy after its discarded worm_move.
+                if (state.level.monsters[cc.x]?.[cc.y]) {
+                    const retry = enexto(u.ux, u.uy, state.youmonst.data, env);
+                    // C discards this retry result; a failure keeps cc intact.
+                    if (retry) cc = retry;
+                }
+            }
+            await teleds(cc.x, cc.y, TELEDS_ALLOW_DRAG, state, env);
+            set_apparxy(monster, env);
+            redraw(u.ux, u.uy, state);
+            if (state.youmonst.data.mlet !== M.S_PIERCER) return false;
+            const helmet = which_armor(monster, W_ARMH, state);
+            if (hard_helmet(helmet, state)) {
+                await message(`Your blow glances off ${s_suffix(mon_nam(monster, state, env))} ${helm_simple_name(helmet, state)}.`, state, env);
+            } else if (3 + find_mac(monster, state) <= random.rnd(20)) {
+                await message(`${Monnam(monster, state, env)} is hit by a falling piercer (you)!`, state, env);
+                monster.mhp -= random.d(3, 6);
+                if (monster.mhp < 1) await killed(monster, state, env);
+            } else {
+                await message(`${Monnam(monster, state, env)} is almost hit by a falling piercer (you)!`, state, env);
+            }
+        } else {
+            if (!initial.youseeit) {
+                await message('It tries to move where you are hiding.', state, env);
+            } else {
+                const obj = state.level.objects[u.ux][u.uy];
+                if (obj || u.umonnum === M.PM_TRAPPER
+                    || (state.youmonst.data.mlet === M.S_EEL && is_pool(u.ux, u.uy, state))) {
+                    const saveSpe = obj?.spe;
+                    if (obj?.otyp === EGG) obj.spe = 0;
+                    try {
+                        const form = pmname(state.youmonst.data, Ugender(state));
+                        const name = state.plname;
+                        const prefix = `Wait, ${m_monnam(monster, state, env)}!  There's a`;
+                        await message(state.youmonst.data.mlet === M.S_EEL || u.umonnum === M.PM_TRAPPER
+                            ? `${prefix} hidden ${form} named ${name} there!`
+                            : `${prefix} ${form} named ${name} hiding under ${donameFresh(obj, state)}!`, state, env);
+                    } finally {
+                        if (obj) obj.spe = saveSpe;
+                    }
+                } else {
+                    if (typeof env.impossible === 'function')
+                        env.impossible('hiding under nothing?');
+                    else note_unported('pline.c impossible');
+                }
+            }
+            redraw(u.ux, u.uy, state);
+        }
+        return false;
+    }
+
+    if (!range2 && foundyou && !u.uswallow) {
         if (state.youmonst.data.mlet === M.S_MIMIC
             && M_AP_TYPE(state.youmonst) !== M_AP_NOTHING) {
-            unsupported('a monster finding the mimicking hero');
+            const sticky = sticks(state.youmonst.data);
+            if (!(env.canSpotMonster ?? canspotmon)(monster, state))
+                markInvisible(monster.mx, monster.my);
+            await message(sticky && !initial.youseeit
+                ? 'It gets stuck on you.'
+                : `Wait, ${m_monnam(monster, state, env)}!  That's a ${pmname(state.youmonst.data, Ugender(state))} named ${state.plname}!`, state, env);
+            if (sticky) set_ustuck(monster, state);
+            state.youmonst.m_ap_type = M_AP_NOTHING;
+            state.youmonst.mappearance = 0;
+            redraw(u.ux, u.uy, state);
+            return false;
         }
-        if (M_AP_TYPE(state.youmonst) === M_AP_OBJECT)
-            unsupported('a monster finding the hero disguised as an object');
+        if (M_AP_TYPE(state.youmonst) === M_AP_OBJECT) {
+            if (!(env.canSpotMonster ?? canspotmon)(monster, state))
+                markInvisible(monster.mx, monster.my);
+            await message(!initial.youseeit
+                ? `Something ${likes_gold(mdat) && state.youmonst.mappearance === GOLD_PIECE ? 'tries to pick you up' : 'disturbs you'}!`
+                : `Wait, ${m_monnam(monster, state, env)}!  That ${mimic_obj_name(state.youmonst, state)} is really ${an(pmname(state.mons[u.umonnum], Ugender(state)))} named ${state.plname}!`, state, env);
+            if ((state.multi ?? 0) < 0) {
+                const form = Upolyd(u)
+                    ? an(pmname(state.youmonst.data, state.flags.female ? FEMALE : MALE))
+                    : 'yourself';
+                await unmul(`You appear to be ${form} again.`, state, env);
+            }
+            return false;
+        }
     }
 
     /*  Work out the armor class differential   */
@@ -1676,7 +1754,16 @@ export async function mattacku(monster, rawEnv = {}) {
         mdat = monster.data;
     }
 
-    if (u.uinvulnerable) return false; /* monsters won't attack you */
+    if (u.uinvulnerable) {
+        if (monster === u.ustuck) {
+            await message(`${Monnam(monster, state, env)} loosens its grip slightly.`, state, env);
+        } else if (!range2) {
+            await message(initial.youseeit || sensemon(monster, state)
+                ? `${Monnam(monster, state, env)} starts to attack you, but pulls back.`
+                : 'You feel something move nearby.', state, env);
+        }
+        return false;
+    }
 
     /* Unlike defensive stuff, don't let them use item _and_ attack. */
     if (find_offensive(monster, env)) {
@@ -1699,21 +1786,19 @@ export async function mattacku(monster, rawEnv = {}) {
     // slot. It is cleared before getmattk() for every slot, then assigned only
     // by AT_WEAP; passiveum() reads it for AD_ENCH.
     let mon_currwep = null;
+    // C keeps j across slots; an engulf cooldown skips drawing a new roll.
+    let j = 0;
 
     for (let i = 0; i < NATTK; i++) {
         sum[i] = M_ATTK_MISS;
-        // C's DEADMONSTER(mtmp) guard covers a counterattack against attack
-        // [i-1] having killed the attacker. Every counterattack sits behind
-        // hitmu(), which refuses, so the attacker is always alive here.
+        if (monster.mhp < 1) return 1;
         if (i > 0) {
             /* recalc in case prior attack moved hero */
-            ({ range2, foundyou } = calc_mattacku_vars(monster, env));
+            ({ range2, foundyou, youseeit } = calc_mattacku_vars(monster, env));
             /* if hero was found but isn't anymore, avoid wildmiss now */
             if (firstfoundyou && !foundyou)
                 continue; /* set sum[i] to 'miss' but skip other actions */
-            // C's second skip tests !u_at(gb.bhitpos.x, gb.bhitpos.y).
-            // calc_mattacku_vars() has just written the hero's own square into
-            // bhitpos, so that test is always false and is left out.
+            if (!u_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state)) continue;
         }
         mon_currwep = null;
         env.mon_currwep = mon_currwep;
@@ -1743,7 +1828,7 @@ export async function mattacku(monster, rawEnv = {}) {
                             || Conflict(state)
                             || !touch_petrifies(state.youmonst.data))) {
                 if (foundyou) {
-                    const j = random.rnd(20 + i);
+                    j = random.rnd(20 + i);
                     if (tmp > j) {
                         if (unsolid(state.youmonst.data)
                             && await failed_grab(
@@ -1794,7 +1879,6 @@ export async function mattacku(monster, rawEnv = {}) {
         case M.AT_ENGL:
             if (!range2) {
                 if (foundyou) {
-                    let j = 0;
                     const engulfing = u.uswallow
                         || (!monster.mspec_used
                             && ((j = random.rnd(20 + i)), tmp > j));
@@ -1810,7 +1894,7 @@ export async function mattacku(monster, rawEnv = {}) {
                         state,
                         env,
                     );
-                } else if (initial.youseeit) {
+                } else if (youseeit) {
                     await message(
                         `${Monnam(monster, state, env)} lunges forward and recoils!`,
                         state,
@@ -1882,7 +1966,7 @@ export async function mattacku(monster, rawEnv = {}) {
                     // C stores this attack roll in gm.mhitu_dieroll; the
                     // AD_PHYS poison continuation reads it after artifact and
                     // damage resolution. Keep the same roll with that attack.
-                    const j = random.rnd(20 + i);
+                    j = random.rnd(20 + i);
                     if (tmp > j)
                         sum[i] = await hitmu(monster, mattk, {
                             ...env,

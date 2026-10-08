@@ -2544,14 +2544,15 @@ async function eye_of_newt_buzz(state) {
 
 // C ref: eat.c eatmdone() (163-176). state.eatmbuf represents ge.eatmbuf;
 // cpostfx assigns the same message to gn.nomovemsg until unmul or cleanup.
-export function eatmdone(state = game) {
+export function eatmdone(state = game, env = {}) {
     if (state.eatmbuf) {
         if (state.nomovemsg === state.eatmbuf) state.nomovemsg = null;
         state.eatmbuf = null;
     }
     if (state.youmonst.m_ap_type) {
         state.youmonst.m_ap_type = M_AP_NOTHING;
-        newsym(state.u.ux, state.u.uy);
+        if (!env.planning)
+            (env.redraw ?? newsym)(state.u.ux, state.u.uy, state);
     }
     return 0;
 }

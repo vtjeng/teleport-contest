@@ -70,6 +70,7 @@ import { near_capacity, spoteffects, weight_cap } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     could_seduce,
+    calc_mattacku_vars,
     diseasemu,
     explmu,
     gazemu,
@@ -1489,6 +1490,101 @@ test('mattacku returns without attacking an invulnerable hero', async () => {
     assert.equal(state.multi, -3);
 });
 
+test('calc_mattacku_vars publishes the hero target and head marker', async () => {
+    // mhitu.c:448–463 sets these shared fields even for an adjacent attack.
+    const state = await meleeHero();
+    const rat = meleeAttacker(state, PM_SEWER_RAT, 1, 0);
+    state.gb ??= {};
+    state.gn ??= {};
+    state.gb.bhitpos = { x: 0, y: 0 };
+    state.gn.notonhead = true;
+    const result = calc_mattacku_vars(rat, { state, canSeeMonster: () => true });
+    assert.deepEqual(result, {
+        ranged: false, range2: false, foundyou: true, youseeit: true,
+    });
+    assert.deepEqual(state.gb.bhitpos, { x: state.u.ux, y: state.u.uy });
+    assert.equal(state.gn.notonhead, false);
+});
+
+test('mattacku exposes a surface-hiding hero before the ordinary attack roll', async () => {
+    // A trapper is excluded from the ceiling arm at mhitu.c:555.
+    const { PM_TRAPPER } = await import('../js/monsters.js');
+    const state = await meleeHero();
+    state.youmonst.data = state.mons[PM_TRAPPER];
+    state.u.umonnum = PM_TRAPPER;
+    state.u.uundetected = 1;
+    const rat = meleeAttacker(state, PM_SEWER_RAT, 1, 0);
+    const result = meleeEnv(state, [], { canSeeMonster: () => false });
+    assert.equal(await mattacku(rat, result.env), false);
+    assert.equal(state.u.uundetected, 0);
+    assert.deepEqual(result.lines, ['It tries to move where you are hiding.']);
+    assert.deepEqual(result.bounds, [], 'exposure returns before AC and attack RNG');
+});
+
+test('mattacku prints adjacent invulnerability feedback before returning', async () => {
+    // mhitu.c:743–754 prints the visible near attacker, unlike the range case.
+    const state = await meleeHero();
+    state.u.uinvulnerable = true;
+    state.multi = -3; // Prayer's negative multi keeps nomul(0) from clearing it.
+    const rat = meleeAttacker(state, PM_SEWER_RAT, 1, 0);
+    const result = meleeEnv(state, [], { canSeeMonster: () => true });
+    assert.equal(await mattacku(rat, result.env), false);
+    assert.deepEqual(result.lines, ['The sewer rat starts to attack you, but pulls back.']);
+    assert.deepEqual(result.bounds, []);
+});
+
+test('mattacku reveals a sticky mimic and binds the discovering monster', async () => {
+    // mhitu.c:660–677 clears both fields after set_ustuck. Large mimic
+    // has AD_STCK; small mimic has only AD_PHYS and is not sticky.
+    const { PM_LARGE_MIMIC } = await import('../js/monsters.js');
+    const { M_AP_OBJECT, M_AP_NOTHING } = await import('../js/const.js');
+    const state = await meleeHero();
+    state.youmonst.data = state.mons[PM_LARGE_MIMIC];
+    state.u.umonnum = PM_LARGE_MIMIC;
+    state.youmonst.m_ap_type = M_AP_OBJECT;
+    state.youmonst.mappearance = 0; // STRANGE_OBJECT is #monster's disguise.
+    const rat = meleeAttacker(state, PM_SEWER_RAT, 1, 0);
+    const result = meleeEnv(state, [], { canSeeMonster: () => false });
+    assert.equal(await mattacku(rat, result.env), false);
+    assert.deepEqual(result.lines, ['It gets stuck on you.']);
+    assert.equal(state.u.ustuck, rat);
+    assert.equal(state.youmonst.m_ap_type, M_AP_NOTHING);
+    assert.equal(state.youmonst.mappearance, 0);
+    assert.deepEqual(result.bounds, []);
+});
+
+test('mattacku object-disguise recovery mutates only its planning clone', async () => {
+    // mhitu.c:682–706 calls unmul, whose eatmdone callback clears the disguise.
+    const { M_AP_OBJECT, M_AP_NOTHING } = await import('../js/const.js');
+    const { GOLD_PIECE } = await import('../js/objects.js');
+    const { eatmdone } = await import('../js/eat.js');
+    const { planningState } = await import('../js/unported_monster_actions.js');
+    const state = await meleeHero();
+    state.youmonst.m_ap_type = M_AP_OBJECT;
+    state.youmonst.mappearance = GOLD_PIECE;
+    state.multi = -5; // Mimic-corpse impersonation is a helpless occupation.
+    state.eatmbuf = 'You appear to be yourself again.';
+    state.nomovemsg = state.eatmbuf;
+    state.afternmv = eatmdone;
+    const rat = meleeAttacker(state, PM_SEWER_RAT, 1, 0);
+    const clone = planningState(state);
+    const attempt = meleeEnv(clone, [], {
+        planning: true,
+        redraw: () => assert.fail('a planned recovery must not redraw'),
+    });
+    assert.equal(await mattacku(clone.level.monlist, attempt.env), false);
+    assert.equal(clone.multi, 0);
+    assert.equal(clone.afternmv, null);
+    assert.equal(clone.eatmbuf, null);
+    assert.equal(clone.youmonst.m_ap_type, M_AP_NOTHING);
+    assert.deepEqual(attempt.lines, []);
+    assert.equal(state.multi, -5);
+    assert.equal(state.afternmv, eatmdone);
+    assert.equal(state.youmonst.m_ap_type, M_AP_OBJECT);
+    assert.equal(state.eatmbuf, 'You appear to be yourself again.');
+    assert.equal(rat.mhp, 10, 'discovery did not make an ordinary attack');
+});
+
 test('mattacku reaches hitmu after failed_grab permits a solid hero', async () => {
     const state = await meleeHero();
     // mhitu.c:mattacku() reaches summonmu() for this adjacent wererat. The
@@ -1550,10 +1646,15 @@ test('wildmiss chooses unseen and underwater feedback in source order',
 
     raven.mcansee = true;
     state.u.uinwater = true;
+    // mattacku:516 excludes a non-swimmer while Underwater. A crocodile
+    // reaches wildmiss's water-reflection arm through its ordinary bite.
+    const { PM_CROCODILE } = await import('../js/monsters.js');
+    const crocodile = meleeAttacker(state, PM_CROCODILE, -1, 0);
+    crocodile.mux = state.u.ux - 2;
     const underwater = meleeEnv(state, []);
-    await mattacku(raven, underwater.env);
+    await mattacku(crocodile, underwater.env);
     assert.deepEqual(underwater.lines, [
-        'The raven is fooled by water reflections and misses!',
+        'The crocodile is fooled by water reflections and misses!',
     ]);
     assert.deepEqual(underwater.bounds, []);
 });
@@ -2308,20 +2409,22 @@ test('mattacku reveals an eel the moment it strikes', async () => {
     assert.deepEqual(spottedMarks, []);
 });
 
-test('mattacku admits a hidden hero only where C already returned',
+test('mattacku discovers a hidden hero only at the adjacent source gate',
     async () => {
     // mhitu.c:551. The concealment blocks are gated on `!range2 && foundyou`,
-    // so a hidden hero stops an adjacent attacker and not a distant one.
+    // so an adjacent attacker exposes the hero and a distant one does not.
     const state = await meleeHero();
+    const { PM_TRAPPER } = await import('../js/monsters.js');
+    state.youmonst.data = state.mons[PM_TRAPPER];
+    state.u.umonnum = PM_TRAPPER;
     state.u.uundetected = 1;
     const distant = meleeAttacker(state, PM_SEWER_RAT, 4, 0);
     assert.equal(await mattacku(distant, meleeEnv(state, [20]).env), false);
     const adjacent = meleeAttacker(state, PM_SEWER_RAT, 1, 0);
-    await assert.rejects(
-        () => mattacku(adjacent, meleeEnv(state, [20]).env),
-        (error) => error.reason === 'a monster finding the hidden hero',
-    );
-    state.u.uundetected = 0;
+    const discovery = meleeEnv(state, [20], { canSeeMonster: () => false });
+    assert.equal(await mattacku(adjacent, discovery.env), false);
+    assert.deepEqual(discovery.lines, ['It tries to move where you are hiding.']);
+    assert.equal(state.u.uundetected, 0);
 });
 
 test('mattacku wields for an attacker with an empty hand', async () => {
@@ -3074,13 +3177,15 @@ test('hitmu hidden feedback ignores warning and terrain sensing wrappers',
     remove_monster(first.mx, first.my, state);
 
     state.u.uinwater = 1;
-    const underwater = meleeAttacker(state, PM_CAVE_SPIDER, -1, 0,
+    // mattacku excludes cave spiders underwater; a hidden swimming eel
+    // still reaches the same hitmu object-feedback and sensing distinction.
+    const underwater = meleeAttacker(state, PM_GIANT_EEL, -1, 0,
         { m_lev: 1, mundetected: 1 });
     boulder(underwater);
-    const underwaterEnv = meleeEnv(state, [1]);
+    const underwaterEnv = meleeEnv(state, [1, 30]);
     assert.equal(await mattacku(underwater, underwaterEnv.env), false);
     assert.ok(underwaterEnv.lines.some(line =>
-        line === 'A cave spider was hidden under a boulder!'));
+        line === 'A giant eel was hidden under a boulder!'));
     assert.equal(underwater.mundetected, 0);
     remove_monster(underwater.mx, underwater.my, state);
 
@@ -4476,4 +4581,37 @@ test('elemental planning forwards the fatal form-reversion environment', async (
     assert.equal(state.u.mh, 1);
     assert.equal(sphere.mhp, 10);
     assert.equal(state.nhDisplay.serialize(), screen);
+});
+
+test('mattacku keeps the C attack-roll variable outside the slot loop', () => {
+    // C491 initializes j once. getmattk normally converts a cooling-down
+    // engulf to a simple attack, so retain this source pin for the dormant
+    // short-circuit edge rather than inventing a monster form to exercise it.
+    const c = MHITU_C.slice(MHITU_C.indexOf('mattacku(struct monst *mtmp)'),
+        MHITU_C.indexOf('mattacku(struct monst *mtmp)') + 20000);
+    assert.match(c, /int i, j = 0/u);
+    const js = MHITU_JS.slice(MHITU_JS.indexOf('export async function mattacku('),
+        MHITU_JS.indexOf('export async function expels('));
+    assert.ok(js.indexOf('let j = 0;') < js.indexOf('for (let i = 0;'));
+    assert.equal((js.match(/let j = 0;/gu) ?? []).length, 1);
+});
+
+test('mattacku falling piercer glances off a hard helmet without damage RNG', async () => {
+    // mhitu.c:597-602 checks hard_helmet before rnd(20) and d(3,6).
+    const { PM_ROCK_PIERCER } = await import('../js/monsters.js');
+    const { HELMET, ARMOR_CLASS } = await import('../js/objects.js');
+    const { W_ARMH } = await import('../js/const.js');
+    const state = await meleeHero();
+    state.youmonst.data = state.mons[PM_ROCK_PIERCER];
+    state.u.umonnum = PM_ROCK_PIERCER;
+    state.u.uundetected = 1;
+    const rat = meleeAttacker(state, PM_SEWER_RAT, 1, 0);
+    rat.minvent = { otyp: HELMET, oclass: ARMOR_CLASS, owornmask: W_ARMH, nobj: null };
+    rat.misc_worn_check = W_ARMH; // Mirror the source armor aggregate mask.
+    const result = meleeEnv(state, [], { canSeeMonster: () => true });
+    const hp = rat.mhp;
+    assert.equal(await mattacku(rat, result.env), false);
+    assert.equal(rat.mhp, hp);
+    assert.equal(result.bounds.some(draw => /rnd\(20\)|d\(3,6\)/u.test(draw)), false);
+    assert.ok(result.lines.some(line => /Your blow glances off .*helm\./u.test(line)));
 });

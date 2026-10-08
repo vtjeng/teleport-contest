@@ -10,6 +10,7 @@ import {
     initworm,
     remove_worm,
     wseg_at,
+    wormhitu,
 } from '../js/worm.js';
 import { game } from '../js/gstate.js';
 
@@ -234,4 +235,30 @@ test('cutworm discards a split tail when no worm slot remains', async () => {
     assert.deepEqual(redraws, [[5, 8], [6, 8]]);
     assert.deepEqual(messages, [],
         'worm.c:cutworm suppresses the moving-monster message out of sight');
+});
+
+
+test('wormhitu walks nearby tail nodes in order, skips the head and returns death', async () => {
+    // worm.c:359 uses squared distance < 3 and skips the dummy head node.
+    // A cardinal and diagonal tail qualify; distance two cardinal does not.
+    const state = wormState();
+    state.u = { ux: 10, uy: 8 };
+    const worm = { wormno: 1, mx: 13, my: 8 };
+    state.level.worms[1] = { segments: [
+        { x: 12, y: 8 }, { x: 9, y: 8 }, { x: 9, y: 7 },
+        { x: 10, y: 8 }, // Dummy head is excluded even at the hero square.
+    ] };
+    const calls = [];
+    const result = await wormhitu(worm, { state,
+        attackHero: async (subject) => {
+            calls.push([subject.mx, subject.my]);
+            // C leaves the real head unchanged and stops at the first death.
+            return calls.length === 2;
+        },
+    });
+    assert.equal(result, 1);
+    assert.deepEqual(calls, [[13, 8], [13, 8]]);
+    assert.equal(await wormhitu(worm, { state,
+        attackHero: async () => 0,
+    }), 0);
 });

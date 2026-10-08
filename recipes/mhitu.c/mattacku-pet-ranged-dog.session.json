@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent larger-dog cheap variation: little-dog setup reaches immediate combat with the natural rat until confusion clears before ranged consideration. Use the source-supported tame dog with a newly chosen seed; preserve earlier setup as outside completion. Recorded C setup shows the dog southeast, not east; change only the direction to n before comparing.",
+  "segments": [
+    {
+      "seed": 1483064,
+      "datetime": "20930819151617",
+      "nethackrc": "OPTIONS=name:HiddenEncounter,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!verbose,!acoustics,!autopickup,!debug_mongen,pettype:none\n",
+      "moves": "\u0017potion of confusion\n\u0007tame dog\nten  \n   m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. "
+    }
+  ]
+}

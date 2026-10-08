@@ -58,6 +58,7 @@ import {
     DB_MOAT,
     DB_UNDER,
     DISPLACED,
+    Upolyd,
     engulfing_u,
     DOOR,
     DRAWBRIDGE_UP,
@@ -423,6 +424,7 @@ import { quest_stat_check, quest_talk } from './quest.js';
 import { create_gas_cloud, m_in_out_region, visible_region_at } from './region.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import { in_rooms } from './rooms.js';
+import { wormhitu } from './worm.js';
 import { after_shk_move, inhishop, shk_move } from './shk.js';
 import { findgold, mdrop_obj, mpickobj } from './steal.js';
 import { stairway_at, stairway_find_dir } from './stairs.js';
@@ -2389,7 +2391,7 @@ export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
 //   watch_on_duty()                       wired
 //   mind_blast()                          wired for mind flayers
 //   killer bee jelly, gelcube_digests()   wired; the boundary rejects both species
-//   mon_offmap(), wormhitu()              unreachable on a fresh D:1 level
+//   mon_offmap()                         unreachable on a fresh D:1 level
 //   cuss()                                the source gate and wizard.c:cuss
 //                                         are wired below; com_pager is a
 //                                         named discarded void gap there
@@ -2747,10 +2749,13 @@ export async function dochug(monster, rawEnv = {}) {
     if (status !== MMOVE_DONE
         && (!monster.mpeaceful
             || (activeProperty(state, CONFLICT, false)
-                && !resist_conflict(monster, state, random)))
-        && ((range.inrange && !range.scared) || panicattk)
-        && !noattacks(monster.data)) {
-        await attackHero(monster, env);
+                && !resist_conflict(monster, state, random)))) {
+        if (((range.inrange && !range.scared) || panicattk)
+            && !noattacks(monster.data)
+            && (Upolyd(state.u) ? state.u.mh : state.u.uhp) > 0) {
+            if (await attackHero(monster, env)) return 1;
+        }
+        if (monster.wormno && await wormhitu(monster, env)) return 1;
     }
 
     // C ref: monmove.c:983-985. This source-ordered gate also runs after a
@@ -3807,10 +3812,10 @@ export async function m_move(monster, rawEnv = {}) {
         // shk_move / gd_move / pri_move return: 1 moved, 0 didn't, -1 let
         // m_move do it, -2 died.
         const xm = monster.isshk
-            ? shk_move(monster, state, env)
+            ? await shk_move(monster, state, env)
             : monster.isgd
                 ? await gd_move(monster, env)
-                : pri_move(monster, env);
+                : await pri_move(monster, env);
         if (xm === -2) return MMOVE_DIED;
         if (xm === -1) {
             // C uses -1 to fall through to ordinary movement.  In particular,

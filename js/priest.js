@@ -21,6 +21,8 @@ import {
     A_WIS,
     CLAIRVOYANT,
     DEAF,
+    CONFLICT,
+    DISPLACED,
     DRY,
     EPRI,
     FROMOUTSIDE,
@@ -65,7 +67,7 @@ import { dist2, highc } from './hacklib.js';
 import { record_achievement } from './insight.js';
 import { makemon, mongets } from './makemon_create.js';
 import { set_malign } from './makemon.js';
-import { m_next2u } from './mhitu.js';
+import { mattacku, m_next2u } from './mhitu.js';
 import { mon_allowflags, mongone } from './mon.js';
 import {
     amphibious,
@@ -79,8 +81,9 @@ import {
     mon_learns_traps,
     noncorporeal,
     passes_walls,
+    resist_conflict,
 } from './mondata.js';
-import { mfndpos } from './monmove.js';
+import { mfndpos, monnear } from './monmove.js';
 import { PM_ALIGNED_CLERIC, PM_GHOST, PM_HIGH_CLERIC, S_EEL } from './monsters.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import { AMULET_OF_YENDOR } from './objects.js';
@@ -502,20 +505,31 @@ export function pri_move(priest, env = {}) {
 
     let avoid = true;
 
-    // A hostile priest (or one under Conflict) attacks the hero if near.
-    // A peaceful priest not under Conflict simply avoids.
-    // Conflict and Displaced properties are not yet fully ported; the common
-    // case is a peaceful priest, so we take that branch directly.
-    if (!priest.mpeaceful) {
-        // Non-peaceful priest handling is not fully ported (mattacku,
-        // Displaced message). Throw on it.
-        throw new Error('pri_move: hostile priest actions unported');
+    const conflict = state.u.uprops?.[CONFLICT];
+    if (!priest.mpeaceful || ((conflict?.intrinsic || conflict?.extrinsic)
+        && !resist_conflict(priest, state, random))) {
+        if (monnear(priest, state.u.ux, state.u.uy, state)) {
+            // priest.c:199-203 completes its discarded attack before returning.
+            return (async () => {
+                const displaced = state.u.uprops?.[DISPLACED];
+                if (displaced?.intrinsic || displaced?.extrinsic) {
+                    if (!env.planning)
+                        await (env.message ?? ttyPline)(
+                            `Your displaced image doesn't fool ${mon_nam(priest, state)}!`,
+                            state, env,
+                        );
+                }
+                await (env.attackHero ?? mattacku)(priest, { ...env, state });
+                return 0;
+            })();
+        }
+        // The separate hostile pursuit arm remains outside this caller seam.
+        throw new Error('pri_move: hostile priest pursuit unported');
+    } else {
+        const invisProp = state.u.uprops?.[INVIS];
+        if ((invisProp?.intrinsic || invisProp?.extrinsic) && !invisProp?.blocked)
+            avoid = false;
     }
-    // C: `else if (Invis) avoid = FALSE;` -- Invis is the hero's invisibility
-    // from uprops[INVIS] (intrinsic or extrinsic, minus blocked).
-    const invisProp = state.u?.uprops?.[INVIS];
-    if ((invisProp?.intrinsic || invisProp?.extrinsic) && !invisProp?.blocked)
-        avoid = false;
 
     return move_special(
         priest, false, 1, false, avoid,
