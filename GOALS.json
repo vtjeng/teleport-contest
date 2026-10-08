@@ -213419,8 +213419,8 @@
           "name": "wiz_show_wmodes",
           "line": 657,
           "endLine": 692,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -213594,7 +213594,70 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_show_wmodes",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_show_wmodes",
+            "sourceReview": "Whole wizcmds.c657-689 read. Source current WINDOWPORT(tty) adds blank first line; all y and x in definition order, hero overrides terrain, IS_WALL or SDOOR emits digit 0+(wall_info&WM_MASK), CORR hash, IS_ROOM or IS_DOOR dot, other terrain x. Compute column zero then pass row[1], retaining exactly COLNO-1 characters, no trim. Canonical TTY text window owns create/putstr/display(TRUE)/destroy and is awaited before ECMD_OK. Existing u_at and rm.h predicates/macros checked against const.js; no missing consumed-return helper. No RNG/map/turn mutation. JS canonical window interface is tty (options.js ACTIVE_WINDOWPROCS_NAME), matching reference wp_tty; other window ports cannot be selected in this runtime. Their C false-istty arm only omits the blank line and remains outside supported interface ownership, with source-pin explaining that boundary. Obsolete command refusal replaced, no helper gap/injected accounting substitute remains.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "C cmd.c2002-2003 extcmdlist wmode row already in generated JS registry with IFBURIED|AUTOCOMPLETE|WIZMODECMD. Bounded awaited import/case returns ECMD_OK through existing rhack extended-command and queue dispatch. Source search finds only this production caller, extern declaration and definition."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-wmodes.test.mjs",
+              "scripts/wizcmds.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-wmodes-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-wmodes-ranger.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-wall-modes",
+                "segment": 0,
+                "fromStep": 10,
+                "throughStep": 14,
+                "source": "cmd.c extcmdlist wmode -> doextcmd -> wizcmds.c:wiz_show_wmodes657-689; full-width terrain/mode text with source tty blank, blocking dismissal and map restoration before ECMD_OK."
+              }
+            ],
+            "checkedAt": "7acd276b1a948b9b7cdc67740d2bcf482a494d30"
+          }
+        ],
+        "entryPointReview": "Only active entry is wizard #wmode via existing extcmdlist/doextcmd/rhack. Admitted range shows the complete command after movement; independent newly chosen Barbarian/Ranger roles, seeds and clocks invoke/dismiss twice through production. Outside-limit ordinary play mode rejects #wmode before entering the helper; no whole dispatcher credit. Non-tty interface is inactive for current JS interface and patched recorder, and the source-only blank-line distinction is pinned. No terrain generator, wallification, vision or renderer changes.",
+        "entryPoints": [
+          {
+            "name": "wizard #wmode",
+            "functions": [
+              "wiz_show_wmodes"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-wmodes-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-wmodes-ranger.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-wall-modes",
+                "segment": 0,
+                "fromStep": 10,
+                "throughStep": 14,
+                "source": "cmd.c extcmdlist wmode -> doextcmd -> wizcmds.c:wiz_show_wmodes657-689; full-width terrain/mode text with source tty blank, blocking dismissal and map restoration before ECMD_OK."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
