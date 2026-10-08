@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B158 C-first candidate: uhitm.c:hmon_hitmon_msg_silver1663-1700. Wield silver dagger and attack adjacent manes. Required C observation: Silver searing feedback follows hit message. Inputs fixed before any JavaScript comparison; no seed search or recipe changes based on JS failures. C-only setup correction: inventory letter, pickup More acknowledgments, source menu choice or weight removal read from initial C output; no JS comparison.",
+  "segments": [
+    {
+      "seed": 15833030,
+      "datetime": "20360219161728",
+      "nethackrc": "OPTIONS=name:Probe15833030,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed silver dagger\nwf     \u0007manes\n     Fh     Fl     Fk     Fj     Fy     Fu     Fb     Fn     Fh     Fl     Fk     Fj     Fy     Fu     Fb     Fn     Fh     Fl     Fk     Fj     Fy     Fu     Fb     Fn     "
+    }
+  ]
+}

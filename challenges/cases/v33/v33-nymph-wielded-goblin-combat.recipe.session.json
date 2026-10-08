@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B158 C-first candidate: uhitm.c:steal_it2174-2290. Polymorph to wood nymph and melee armed goblin. Required C observation: Hero steals monster inventory weapon. Inputs fixed before any JavaScript comparison; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15833021,
+      "datetime": "20360219161728",
+      "nethackrc": "OPTIONS=name:Probe15833021,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#polyself\nwood nymph\n       \u0007peaceful goblin\n     FhFlFkFjFyFuFbFn     FhFlFkFjFyFuFbFn     i     "
+    }
+  ]
+}

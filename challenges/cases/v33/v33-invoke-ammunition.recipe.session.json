@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B158 C-first candidate: artifact.c:invoke_create_ammo1934-1961. Ranger invokes blessed Longbow of Diana. Required C observation: Artifact creates arrows and charge/cooldown state. Inputs fixed before any JavaScript comparison; no seed search or recipe changes based on JS failures. C-only setup correction: inventory letter, pickup More acknowledgments, source menu choice or weight removal read from initial C output; no JS comparison.",
+  "segments": [
+    {
+      "seed": 15833000,
+      "datetime": "20360219161728",
+      "nethackrc": "OPTIONS=name:Probe15833000,role:Ranger,race:human,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017blessed Longbow of Diana\n          #invoke\ng          i      "
+    }
+  ]
+}

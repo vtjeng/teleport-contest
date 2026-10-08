@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B158 C-first candidate: spell.c:cursed_book130-201/study_book. Read cursed finger-of-death book while human. Required C observation: One source curse mishap, such as poison, confusion or teleport. Inputs fixed before any JavaScript comparison; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15833017,
+      "datetime": "20360219161728",
+      "nethackrc": "OPTIONS=name:Probe15833017,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed spellbook of finger of death\nre                                  "
+    }
+  ]
+}

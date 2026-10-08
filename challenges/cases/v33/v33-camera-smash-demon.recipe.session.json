@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B158 C-first candidate: dothrow.c:breakobj/apply.c:release_camera_demon. Throw cursed expensive camera downward onto stairs. Required C observation: Camera shatters with chance of released demon. Inputs fixed before any JavaScript comparison; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15833029,
+      "datetime": "20360219161728",
+      "nethackrc": "OPTIONS=name:Probe15833029,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed expensive camera\nte>                     "
+    }
+  ]
+}

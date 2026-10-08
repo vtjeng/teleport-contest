@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B158 C-first candidate: potion.c:dip_into POT_INVISIBILITY. Dip dagger into invisibility potion. Required C observation: Object transparency handling or no effect. Inputs fixed before any JavaScript comparison; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15833011,
+      "datetime": "20360219161728",
+      "nethackrc": "OPTIONS=name:Probe15833011,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed dagger\n\u0017uncursed potion of invisibility\n#dip\nef             i      "
+    }
+  ]
+}

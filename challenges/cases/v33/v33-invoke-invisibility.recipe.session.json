@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B158 C-first candidate: artifact.c:arti_invoke INVIS property branch. Archeologist invokes own Orb of Detection twice. Required C observation: Hero becomes invisible then visibly toggles off. Inputs fixed before any JavaScript comparison; no seed search or recipe changes based on JS failures. C-only setup correction: inventory letter, pickup More acknowledgments, source menu choice or weight removal read from initial C output; no JS comparison.",
+  "segments": [
+    {
+      "seed": 15833001,
+      "datetime": "20360219161728",
+      "nethackrc": "OPTIONS=name:Probe15833001,role:Archeologist,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed Orb of Detection\n          #invoke\ni        #invoke\ni        "
+    }
+  ]
+}

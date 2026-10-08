@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B158 C-first candidate: eat.c:cprefx/insight.c:doconduct. Monk consumes nonvegetarian orc meat then checks conduct. Required C observation: Diet violation is displayed in conduct. Inputs fixed before any JavaScript comparison; no seed search or recipe changes based on JS failures. C-only setup correction: inventory letter, pickup More acknowledgments, source menu choice or weight removal read from initial C output; no JS comparison.",
+  "segments": [
+    {
+      "seed": 15833038,
+      "datetime": "20360219161728",
+      "nethackrc": "OPTIONS=name:Probe15833038,role:Monk,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017orc corpse\nej y        #conduct\n                  "
+    }
+  ]
+}
