@@ -208413,6 +208413,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-do-wear-armor-on-gold-light-v30-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port whole Armor_on callback and gold-dragon light admission through the production wearing path",
+      "cFile": "do_wear.c",
+      "sessions": [
+        "synthetic/v30/v30-gold-dragon-light"
+      ],
+      "selectionReason": "Assigned admitted v30 gold-dragon-light has 9 remaining screens at stop 42; source Armor_on and its gold wearing seam are independent of A mattackm and B v31 preparation. Existing dragon-effects, burn and light owners already implement the consumed dependencies. Refer to investigations/synthetic/v30/v30-gold-dragon-light.json for the whole source and caller trace.",
+      "detail": "Whole Armor_on C886-906. Remove both gold-specific refusals in the already-owned accessory_or_armor_on callback selector; reuse existing dragon_armor_handling, artifact_light, begin_burn, arti_light_description, Yname2/otense/Blind/inventory owners. No whole accessory_or_armor_on/set_wear or supporting-owner credit. Preserve non-ring poly_obj producer as the existing upstream frontier; do not broaden it silently.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Armor_on",
+          "line": 887,
+          "endLine": 908,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 887,
+        "to": 908
+      },
+      "syntheticProvenance": {
+        "synthetic/v30/v30-gold-dragon-light": {
+          "session": "synthetic/v30/v30-gold-dragon-light",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-gold-dragon-light",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-gold-dragon-light.session.json",
+          "recordingSha256": "3aa2b974c419dc196b0709c36209fc5b6cc77f6fa3470305d7747d0f45ea7af4",
+          "evaluationPath": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+          "evaluationCommit": "e2bd11e4d854c94af711e9d5730256c018f17270"
+        }
+      }
     }
   ]
 }
