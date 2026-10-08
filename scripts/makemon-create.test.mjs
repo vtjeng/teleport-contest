@@ -7677,3 +7677,30 @@ test('explicit runtime creation accepts kick-terrain anger and gender flags', as
         if (flags & MM_FEMALE) assert.equal(monster.female, true);
     }
 });
+
+
+test('makemon runtime MM_NOMSG random coordinates preserve the source placement and flag boundary', async () => {
+    assert.match(MAKEMON_C_SOURCE, /if \(x == 0 && y == 0\) \{[\s\S]*?makemon_rnd_goodpos\(ptr \? &fakemon : \(struct monst \*\) 0,/u);
+    for (const ptrPresent of [true, false]) {
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.viz_array = Array.from({ length: ROWNO }, () => new Uint8Array(COLNO));
+        const random = recordingRandom();
+        const messages = [];
+        const monster = await makemon_runtime(ptrPresent ? state.mons[PM_NEWT] : null,
+            0, 0, MM_NOMSG, { state, random: random.random,
+                message: async text => messages.push(text), norepMessage: async text => messages.push(text) });
+        assert.ok(monster, 'source placement accepts explicit and selected species');
+        assert.notEqual(monster.mx, 0);
+        assert.ok(state.level.monlist === monster);
+        assert.deepEqual(random.calls.slice(0, 2).map(({ kind, args }) => [kind, ...args]),
+            [['rn1', COLNO - 3, 2], ['rn2', ROWNO]], 'placement precedes species/construction draws');
+        assert.deepEqual(messages, [], 'MM_NOMSG suppresses appearance');
+    }
+    const state = initialLevelState(); state.in_mklev = false;
+    const random = recordingRandom();
+    await assert.rejects(makemon_runtime(state.mons[PM_NEWT], 0, 0,
+        MM_NOMSG | MM_NOCOUNTBIRTH, { state, random: random.random,
+            message: async () => {}, norepMessage: async () => {} }), /random coordinates outside mklev/u);
+    assert.deepEqual(random.calls, [], 'other flag shapes retain their original refusal');
+});
