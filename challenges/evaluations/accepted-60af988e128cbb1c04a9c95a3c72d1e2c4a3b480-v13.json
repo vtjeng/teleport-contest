@@ -1,0 +1,809 @@
+{
+  "version": 1,
+  "batch": "v13",
+  "manifestPath": "challenges/manifests/v13.json",
+  "sha": "60af988e128cbb1c04a9c95a3c72d1e2c4a3b480",
+  "utc": "2026-10-08T22:43:27.979Z",
+  "status": "complete",
+  "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "79d31c05f38b8b347845bf74285ebc46063bc3e151a54124b0538115596ea1b2",
+  "inputFiles": [
+    "challenges/cases/v13/apply-lights-potion-of-oil.recipe.session.json",
+    "challenges/cases/v13/apply-lights-potion-of-oil.session.json",
+    "challenges/cases/v13/asmodeus-uses-source-wand.recipe.session.json",
+    "challenges/cases/v13/asmodeus-uses-source-wand.session.json",
+    "challenges/cases/v13/empty-candelabrum-no-candles.recipe.session.json",
+    "challenges/cases/v13/empty-candelabrum-no-candles.session.json",
+    "challenges/cases/v13/extinguish-lit-oil-lamp.recipe.session.json",
+    "challenges/cases/v13/extinguish-lit-oil-lamp.session.json",
+    "challenges/cases/v13/glib-refuses-dual-wield-and-drops-secondary.recipe.session.json",
+    "challenges/cases/v13/glib-refuses-dual-wield-and-drops-secondary.session.json",
+    "challenges/cases/v13/grappling-hook-finds-no-object.recipe.session.json",
+    "challenges/cases/v13/grappling-hook-finds-no-object.session.json",
+    "challenges/cases/v13/hero-blinds-self-with-cream-pie.recipe.session.json",
+    "challenges/cases/v13/hero-blinds-self-with-cream-pie.session.json",
+    "challenges/cases/v13/hero-enters-poison-gas-region.recipe.session.json",
+    "challenges/cases/v13/hero-enters-poison-gas-region.session.json",
+    "challenges/cases/v13/hero-polymorphs-from-self-zapped-wand.recipe.session.json",
+    "challenges/cases/v13/hero-polymorphs-from-self-zapped-wand.session.json",
+    "challenges/cases/v13/horn-of-plenty-generates-food.recipe.session.json",
+    "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+    "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.recipe.session.json",
+    "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.session.json",
+    "challenges/cases/v13/knight-jousts-hostile-target-from-steed.recipe.session.json",
+    "challenges/cases/v13/knight-jousts-hostile-target-from-steed.session.json",
+    "challenges/cases/v13/levitation-boots-start-floating.recipe.session.json",
+    "challenges/cases/v13/levitation-boots-start-floating.session.json",
+    "challenges/cases/v13/magic-marker-engraves-warding.recipe.session.json",
+    "challenges/cases/v13/magic-marker-engraves-warding.session.json",
+    "challenges/cases/v13/ordinary-bell-rings.recipe.session.json",
+    "challenges/cases/v13/ordinary-bell-rings.session.json",
+    "challenges/cases/v13/pet-leash-attaches-to-tame-dog.recipe.session.json",
+    "challenges/cases/v13/pet-leash-attaches-to-tame-dog.session.json",
+    "challenges/cases/v13/sergeant-self-heals-with-carried-potion.recipe.session.json",
+    "challenges/cases/v13/sergeant-self-heals-with-carried-potion.session.json",
+    "challenges/cases/v13/shield-refuses-two-handed-wield.recipe.session.json",
+    "challenges/cases/v13/shield-refuses-two-handed-wield.session.json",
+    "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.recipe.session.json",
+    "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+    "challenges/cases/v13/uncursed-scare-scroll-pickup-reveals-use.recipe.session.json",
+    "challenges/cases/v13/uncursed-scare-scroll-pickup-reveals-use.session.json",
+    "challenges/cases/v13/unicorn-cures-blindness-with-innate-horn.recipe.session.json",
+    "challenges/cases/v13/unicorn-cures-blindness-with-innate-horn.session.json",
+    "challenges/cases/v13/wand-digging-opens-wall.recipe.session.json",
+    "challenges/cases/v13/wand-digging-opens-wall.session.json",
+    "challenges/cases/v13/yellow-dragon-scales-removed.recipe.session.json",
+    "challenges/cases/v13/yellow-dragon-scales-removed.session.json",
+    "challenges/cases/v13/yellow-dragon-scales-worn.recipe.session.json",
+    "challenges/cases/v13/yellow-dragon-scales-worn.session.json",
+    "challenges/manifests/v13.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd_isok.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkobj_hornoplenty.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself_bodyparts.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read_text_data.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rng.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/rumors.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/sp_lev.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/strutil.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout.js",
+    "js/topten.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizcmds_data.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "apply-lights-potion-of-oil",
+      "recordingSha256": "6d59ba2301544eb7df87a4c630bb4b1a8ca7152dd645c1dc5f646c329a04f177",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 36,
+          "total": 36
+        },
+        "rng": {
+          "matched": 2782,
+          "total": 2782
+        },
+        "cursors": {
+          "matched": 36,
+          "total": 36
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "asmodeus-uses-source-wand",
+      "recordingSha256": "09c64924c6400a5267053035d83d50def043f4a01a712f48619a5c872aec76ce",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 37,
+          "total": 37
+        },
+        "rng": {
+          "matched": 3256,
+          "total": 3256
+        },
+        "cursors": {
+          "matched": 37,
+          "total": 37
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "empty-candelabrum-no-candles",
+      "recordingSha256": "908560d51b03dad77ab684349353c3c6bd2057e6b90f131e6cd651a5fc2b75b3",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 39,
+          "total": 39
+        },
+        "rng": {
+          "matched": 2395,
+          "total": 2395
+        },
+        "cursors": {
+          "matched": 39,
+          "total": 39
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "extinguish-lit-oil-lamp",
+      "recordingSha256": "5e511642a586dea8e14168956364465b1d844bc653c87ad39b277a3dd1050b6f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 18,
+          "total": 18
+        },
+        "rng": {
+          "matched": 2208,
+          "total": 2208
+        },
+        "cursors": {
+          "matched": 18,
+          "total": 18
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "glib-refuses-dual-wield-and-drops-secondary",
+      "recordingSha256": "cb3edc91389f03c70595f030b6f94c4ef8c4ab688ba28a5001a01621182b8f04",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 91,
+          "total": 91
+        },
+        "rng": {
+          "matched": 2291,
+          "total": 2291
+        },
+        "cursors": {
+          "matched": 91,
+          "total": 91
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "grappling-hook-finds-no-object",
+      "recordingSha256": "0946fffe16c9be504bc681f00391c4840b447c138c08de78139469b4179bcb99",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 31,
+          "total": 31
+        },
+        "rng": {
+          "matched": 2917,
+          "total": 2917
+        },
+        "cursors": {
+          "matched": 31,
+          "total": 31
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "hero-blinds-self-with-cream-pie",
+      "recordingSha256": "33b30236e27f155fb1a466c7294ff364b6a1ea003463274f28cb1a4aed1d5639",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 23,
+          "total": 23
+        },
+        "rng": {
+          "matched": 4342,
+          "total": 4342
+        },
+        "cursors": {
+          "matched": 23,
+          "total": 23
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "hero-enters-poison-gas-region",
+      "recordingSha256": "2836e6db38c78599e909c6949c2d56756c1a864b277e2813f37dfe023f3a998c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 3079,
+          "total": 3079
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "hero-polymorphs-from-self-zapped-wand",
+      "recordingSha256": "c0d31c3633ba8087ab68c436cd3dfb76d97872955b0e64819aa6243cba825453",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 41,
+          "total": 41
+        },
+        "rng": {
+          "matched": 3064,
+          "total": 3064
+        },
+        "cursors": {
+          "matched": 41,
+          "total": 41
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "horn-of-plenty-generates-food",
+      "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 29,
+          "total": 29
+        },
+        "rng": {
+          "matched": 4203,
+          "total": 4203
+        },
+        "cursors": {
+          "matched": 29,
+          "total": 29
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "hostile-orc-exposed-to-poison-gas",
+      "recordingSha256": "feb5051b45974360d89bb56d7c552f7ccd3ac70dcf901162511a6bdf8daee028",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 70,
+          "total": 70
+        },
+        "rng": {
+          "matched": 2940,
+          "total": 2940
+        },
+        "cursors": {
+          "matched": 70,
+          "total": 70
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "knight-jousts-hostile-target-from-steed",
+      "recordingSha256": "1e9b1aa764d9509655a15ca297bdbe0713441da564488e56a7c49dd636b7b0d1",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 53,
+          "total": 53
+        },
+        "rng": {
+          "matched": 2710,
+          "total": 2710
+        },
+        "cursors": {
+          "matched": 53,
+          "total": 53
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "levitation-boots-start-floating",
+      "recordingSha256": "e7920a63dcccd1383f81397058d4ed771fd571f86a9c2206d9c4365e9c649132",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 23,
+          "total": 23
+        },
+        "rng": {
+          "matched": 2170,
+          "total": 2170
+        },
+        "cursors": {
+          "matched": 23,
+          "total": 23
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "magic-marker-engraves-warding",
+      "recordingSha256": "2bebbf72a836f2527daaa19a134eba86695b6032069ad08ce95f2e3818e9314b",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 2834,
+          "total": 2834
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "ordinary-bell-rings",
+      "recordingSha256": "04413b86de4003f2eabfc16c50d4c1d570d2df29538a72d06395da6a753c1a0d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 27,
+          "total": 27
+        },
+        "rng": {
+          "matched": 2926,
+          "total": 2926
+        },
+        "cursors": {
+          "matched": 27,
+          "total": 27
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "pet-leash-attaches-to-tame-dog",
+      "recordingSha256": "e51da120b82de4e825e6f71bccc22a1bea35e4a586d68e4f1b955e0715b4a59a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 21,
+          "total": 21
+        },
+        "rng": {
+          "matched": 2989,
+          "total": 2989
+        },
+        "cursors": {
+          "matched": 21,
+          "total": 21
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "sergeant-self-heals-with-carried-potion",
+      "recordingSha256": "c52769f8097efb4575059000a385d389f8867a44f66387693439db62a4b122e2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 23,
+          "total": 23
+        },
+        "rng": {
+          "matched": 2696,
+          "total": 2696
+        },
+        "cursors": {
+          "matched": 23,
+          "total": 23
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "shield-refuses-two-handed-wield",
+      "recordingSha256": "c9b77f8370672a55badb62b32c5c696642973b577df8607868edaa07fb8e1fc6",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 50,
+          "total": 50
+        },
+        "rng": {
+          "matched": 2793,
+          "total": 2793
+        },
+        "cursors": {
+          "matched": 50,
+          "total": 50
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "thrown-dagger-cuts-long-worm-segment",
+      "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 42,
+          "total": 42
+        },
+        "rng": {
+          "matched": 3826,
+          "total": 3826
+        },
+        "cursors": {
+          "matched": 42,
+          "total": 42
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "uncursed-scare-scroll-pickup-reveals-use",
+      "recordingSha256": "8d33dbd7f0e6a96a67141a7f29a30a2bd997dfe3218cda779f7e34adde9db32e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 47,
+          "total": 47
+        },
+        "rng": {
+          "matched": 2556,
+          "total": 2556
+        },
+        "cursors": {
+          "matched": 47,
+          "total": 47
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "unicorn-cures-blindness-with-innate-horn",
+      "recordingSha256": "d42f5507d8e40215136f93d276848e273c6ad5dcbdd536b38f18351ade366e56",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 64,
+          "total": 64
+        },
+        "rng": {
+          "matched": 2834,
+          "total": 2834
+        },
+        "cursors": {
+          "matched": 64,
+          "total": 64
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wand-digging-opens-wall",
+      "recordingSha256": "197c052f3c0254bcc074c03dbff63f07e839916c62f8cb1300ec2f15491239a4",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 23,
+          "total": 23
+        },
+        "rng": {
+          "matched": 2447,
+          "total": 2447
+        },
+        "cursors": {
+          "matched": 23,
+          "total": 23
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "yellow-dragon-scales-removed",
+      "recordingSha256": "9011b1cb70dc0d715c63e5ae2c515674ec725cbf30c97406f3dbf4e0b5d0fb20",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 2160,
+          "total": 2160
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "yellow-dragon-scales-worn",
+      "recordingSha256": "7fad0c2cfcd7455efb909ad9f436f79164542815f2e321d84f31d4d19acdf9c7",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 27,
+          "total": 27
+        },
+        "rng": {
+          "matched": 2339,
+          "total": 2339
+        },
+        "cursors": {
+          "matched": 27,
+          "total": 27
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 24,
+      "total": 24
+    },
+    "screens": {
+      "matched": 919,
+      "total": 919
+    },
+    "rng": {
+      "matched": 68757,
+      "total": 68757
+    },
+    "cursors": {
+      "matched": 919,
+      "total": 919
+    }
+  }
+}

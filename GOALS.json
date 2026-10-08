@@ -218819,7 +218819,7 @@
     {
       "id": "fix-cmd-rhack-in-use-inventory-dispatch-v32-20261008",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Dispatch direct tools-in-use and all-in-use inventory keys.",
       "cFile": "cmd.c",
       "sessions": [
@@ -218833,8 +218833,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "60af988e128cbb1c04a9c95a3c72d1e2c4a3b480",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "rhack",
       "session": "synthetic/v32/v32-crystal-ball-scry",
       "step": 26,
@@ -219026,7 +219029,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "60af988e128cbb1c04a9c95a3c72d1e2c4a3b480",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

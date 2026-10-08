@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T22:38:41.929Z",
+  "capturedAt": "2026-10-08T22:49:43.474Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -68208,12 +68208,87 @@
         "type": "accepted",
         "at": "2026-10-08T22:38:16.838Z",
         "task": "A173"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-A173-f8eb15e4-20261008",
+        "type": "turn",
+        "at": "2026-10-08T22:38:57.615Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Accepted A173 merged cleanly. Remaining admitted work is owned or blocked by pending caller and build contracts."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-A173-boundary-idle-20261008",
+        "type": "turn",
+        "at": "2026-10-08T22:39:31.901Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Accepted main merged and focused checks passed; awaiting queued deliveries and dispatcher owners."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A173-07de01894",
+        "type": "published",
+        "at": "2026-10-08T22:39:34.161Z",
+        "task": "A173",
+        "commit": "07de01894919d81b27a39338b86a3f710f417720"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B175-post-A173-clean-availability-20261008",
+        "type": "turn",
+        "at": "2026-10-08T22:39:47.318Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Accepted A173 merged; next source work waits on cmd dispatch deliveries or native-pointer/build-host contracts."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B170-60af988e",
+        "type": "integrating",
+        "at": "2026-10-08T22:42:09.797Z",
+        "task": "B170",
+        "integration": "60af988e128cbb1c04a9c95a3c72d1e2c4a3b480"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A174-647b6547",
+        "type": "received",
+        "at": "2026-10-08T22:43:04.841Z",
+        "task": "A174",
+        "delivery": "647b6547b993865fa7144dd1c85174e9202f2c1a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-A174-review-647b6547",
+        "type": "activity",
+        "at": "2026-10-08T22:43:10.765Z",
+        "task": "A174",
+        "phase": "review",
+        "reason": "Previewing the immutable A174 terminal input delivery while B170 completes hosted validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B170-60af988e128cbb1c04a9c95a3c72d1e2c4a3b480-validated",
+        "type": "validated",
+        "at": "2026-10-08T22:47:02.246Z",
+        "task": "B170",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B170-60af988e128cbb1c04a9c95a3c72d1e2c4a3b480-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T22:49:28.314Z",
+        "task": "B170"
       }
     ]
   },
   "development": {
-    "executionCommit": "f8eb15e4cc2b0df9b7e7335c1f624597ae0951e9",
-    "measuredAt": "2026-10-08T22:34:51.355Z",
+    "executionCommit": "60af988e128cbb1c04a9c95a3c72d1e2c4a3b480",
+    "measuredAt": "2026-10-08T22:46:25.867Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
