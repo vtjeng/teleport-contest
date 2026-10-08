@@ -213136,7 +213136,7 @@
     {
       "id": "fix-mon-make-corpse-rnz-env-v30-20261008",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore the canonical corpse timer RNG wrapper through make_corpse object generation",
       "cFile": "mon.c",
       "sessions": [
@@ -213150,8 +213150,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "make_corpse",
       "session": "synthetic/v30/v30-pyrolisk-gaze",
       "step": 103,
@@ -213384,7 +213387,552 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-wizcmds-wiz-show-wmodes-v30-20261008",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port the complete wizard wall-mode diagnostic and bounded command dispatcher",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v30/v30-wall-modes"
+      ],
+      "selectionReason": "A165 continues the oldest completed A162 investigation for synthetic/v30/v30-wall-modes. The current accepted v30 evaluation retains five unmatched screens, and source tracing isolates complete wizcmds.c wiz_show_wmodes plus its bounded wmode dispatcher; B164 and C152 own independent scopes.",
+      "detail": "",
+      "openedAt": "8e4dcdc6aef093e0195a70ea86e60717e9773874",
+      "openStanding": {
+        "sha": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "7002c1cb236a754350f7d8a5384840474ab5d55b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "wiz_show_wmodes",
+          "line": 657,
+          "endLine": 692,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 657,
+        "to": 692
+      },
+      "syntheticProvenance": {
+        "synthetic/v30/v30-wall-modes": {
+          "session": "synthetic/v30/v30-wall-modes",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-wall-modes",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-wall-modes.session.json",
+          "recordingSha256": "ad46ac28abc942577698ee023f32aaffdfaf45cbb1fb9cb4dda7f0aa3543c450",
+          "evaluationPath": "challenges/evaluations/accepted-f527447fdb1afd5f533fd6451b9bb0788cfa8fc3-v30.json",
+          "evaluationCommit": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3"
+        }
+      },
+      "activeStanding": {
+        "sha": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-wall-modes",
+          "session": "synthetic/v30/v30-wall-modes",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recording": "challenges/cases/v30/v30-wall-modes.session.json",
+          "recordingPath": "challenges/cases/v30/v30-wall-modes.session.json",
+          "recordingSha256": "ad46ac28abc942577698ee023f32aaffdfaf45cbb1fb9cb4dda7f0aa3543c450",
+          "recipe": "challenges/cases/v30/v30-wall-modes.recipe.session.json",
+          "recipeSha256": "5f2f08225a537f26e5333e2dbc57e634391629f9d9e42f9b9688b38ce8d044a7",
+          "replayInputSha256": "8eb96c2948220d891d4278d36b4eadbf23d7a936139aa8546ff186d29fc99c57",
+          "evaluationPath": "challenges/evaluations/accepted-f527447fdb1afd5f533fd6451b9bb0788cfa8fc3-v30.json",
+          "evaluationCommit": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3",
+          "evaluationArtifact": "challenges/evaluations/accepted-f527447fdb1afd5f533fd6451b9bb0788cfa8fc3-v30.json",
+          "evaluationUtc": "2026-10-08T19:09:55.598Z",
+          "remainingScreens": 5,
+          "recordedSteps": 15,
+          "previousScreensMatched": 10,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 10,
+              "total": 15
+            },
+            "rng": {
+              "matched": 2758,
+              "total": 2758
+            },
+            "cursors": {
+              "matched": 10,
+              "total": 15
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_show_wmodes() for the extended command 'wmode' is not ported",
+            "step": 10
+          },
+          "step": 10,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_show_wmodes",
+          "message": "unsupported hero command: wiz_show_wmodes() for the extended command 'wmode' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v30/v30-wall-modes.json",
+            "result": {
+              "session": "synthetic/v30/v30-wall-modes",
+              "corpus": "synthetic",
+              "batch": "v30",
+              "caseId": "v30-wall-modes",
+              "manifestPath": "challenges/manifests/v30.json",
+              "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+              "recordingSha256": "ad46ac28abc942577698ee023f32aaffdfaf45cbb1fb9cb4dda7f0aa3543c450",
+              "evaluationPath": "challenges/evaluations/accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json",
+              "evaluationCommit": "5d732fba68778b565d95c0f11dfe245afa3d89af",
+              "remainingScreens": 5,
+              "recordedSteps": 15,
+              "status": "complete",
+              "commit": "9a6b25e8d27edbb4db62b5cb85b3f14fed674ad0",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v30",
+                "caseId": "v30-wall-modes",
+                "session": "synthetic/v30/v30-wall-modes",
+                "manifestPath": "challenges/manifests/v30.json",
+                "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+                "recording": "challenges/cases/v30/v30-wall-modes.session.json",
+                "recordingPath": "challenges/cases/v30/v30-wall-modes.session.json",
+                "recordingSha256": "ad46ac28abc942577698ee023f32aaffdfaf45cbb1fb9cb4dda7f0aa3543c450",
+                "recipe": "challenges/cases/v30/v30-wall-modes.recipe.session.json",
+                "recipeSha256": "5f2f08225a537f26e5333e2dbc57e634391629f9d9e42f9b9688b38ce8d044a7",
+                "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
+                "evaluationPath": "challenges/evaluations/accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json",
+                "evaluationCommit": "5d732fba68778b565d95c0f11dfe245afa3d89af",
+                "evaluationArtifact": "challenges/evaluations/accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json",
+                "evaluationUtc": "2026-10-08T16:21:35.676Z",
+                "remainingScreens": 5,
+                "recordedSteps": 15,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 10,
+                    "total": 15
+                  },
+                  "rng": {
+                    "matched": 2758,
+                    "total": 2758
+                  },
+                  "cursors": {
+                    "matched": 10,
+                    "total": 15
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: wiz_show_wmodes() for the extended command 'wmode' is not ported",
+                  "step": 10
+                },
+                "step": 10,
+                "kind": "stop",
+                "sourceFile": "wizcmds.c",
+                "function": "wiz_show_wmodes",
+                "message": "unsupported hero command: wiz_show_wmodes() for the extended command 'wmode' is not ported",
+                "cFile": "wizcmds.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The #wmode dispatcher refuses missing wizcmds.c:wiz_show_wmodes. Existing canonical terrain and wall-mode bytes already reproduce every C map row at the first stop.",
+              "source": {
+                "file": "wizcmds.c",
+                "branch": "Wizard #wmode after ordinary room movement: text window shows masked wall modes, secret doors, corridors, rooms/doors, other terrain and hero in source precedence.",
+                "functions": [
+                  "wiz_show_wmodes"
+                ],
+                "callers": [
+                  "cmd.c:extcmdlist wmode row2002–2003 -> doextcmd -> rhack"
+                ],
+                "dependencies": [
+                  "Existing game.level.at(x,y).typ/wall_info terrain state",
+                  "Existing u_at, IS_WALL, IS_ROOM, IS_DOOR and WM_MASK/CORR/SDOOR constants",
+                  "Existing tty_menu.js:displayTtyTextWindow NHW_TEXT lifecycle and tty window-port convention"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Bounded run-HaKRrS at 9a6b25e8 replays only this assigned session. All 2,758 RNG calls and 10 prefix screens/cursors match; zero-based step10 newline is the first missing screen at cmd.js:doextcmd5315, UnsupportedHeroCommandBoundaryError naming wiz_show_wmodes. Artifacts .cache/A162/replay.json/replay.log.",
+                "C wizcmds.c:wiz_show_wmodes657–689 creates NHW_TEXT, adds an initial blank line only for tty, iterates y0..ROWNO-1 and x0..COLNO-1. u_at takes precedence, then IS_WALL or SDOOR emits 0+(wall_info&WM_MASK), CORR emits #, IS_ROOM or IS_DOOR emits dot, everything else emits x. Pass row[1] to exclude column0, retain all 79 columns without trimming, display blocking, destroy, return ECMD_OK. No RNG or state mutations.",
+                "The stopped snapshot hero49,3 and canonical terrain/wall_info arrays produce all 21 C step10 rows byte-for-byte using these rules, verified through frozen/screen-decode.mjs. Source-derived rows retained in .cache/A162/source-rows.json. No wallification, vision or terrain-state correction is indicated.",
+                "Production caller search finds only the C definition, extern.h3878 and extcmdlist cmd.c2003; JS extcmdlist_data.js181 already registers wmode with IFBURIED|AUTOCOMPLETE|WIZMODECMD. Whole helper plus bounded doextcmd import/branch is the actionable source task; whole doextcmd/rhack, tty renderer and terrain generation remain excluded.",
+                "No missing consumed-return dependency found. Existing source terrain macros in const.js and u_at provide predicates, existing text-window wrapper represents the winid create/putstr/display/destroy sequence and waits for dismissal. Preserve tty-only initial blank, column0 exclusion, every fixed-width row and ECMD_OK timing.",
+                "Reserve source:wizcmds.c:wiz_show_wmodes, bounded source:cmd.c:doextcmd and contract:wizard-wall-mode-text-window. Expected paths js/wizcmds.js/js/cmd.js, exact wall-mode tests/fresh runner, recipes/wizcmds.c and recordings/wizcmds.c. Coordinate the dispatcher claim with the older queued B162 statistics task; A159/A160 each retain their immutable bounded branches.",
+                "Source-pinned coverage should verify all wall classes, secret door, WM_MASK with other wall flags, CORR/SCORR distinction, IS_ROOM furniture precedence, DOOR, hero override, column0 exclusion, tty blank row, untrimmed width and await-before-return. Independent C-first ordinary role variation should invoke twice and restore the map; admitted range10–14 covers selected entry. Non-tty initial-line branch needs a source-pinned check when the runtime API supports that window-port distinction."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_show_wmodes",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_show_wmodes",
+            "sourceReview": "Whole wizcmds.c657-689 read. Source current WINDOWPORT(tty) adds blank first line; all y and x in definition order, hero overrides terrain, IS_WALL or SDOOR emits digit 0+(wall_info&WM_MASK), CORR hash, IS_ROOM or IS_DOOR dot, other terrain x. Compute column zero then pass row[1], retaining exactly COLNO-1 characters, no trim. Canonical TTY text window owns create/putstr/display(TRUE)/destroy and is awaited before ECMD_OK. Existing u_at and rm.h predicates/macros checked against const.js; no missing consumed-return helper. No RNG/map/turn mutation. JS canonical window interface is tty (options.js ACTIVE_WINDOWPROCS_NAME), matching reference wp_tty; other window ports cannot be selected in this runtime. Their C false-istty arm only omits the blank line and remains outside supported interface ownership, with source-pin explaining that boundary. Obsolete command refusal replaced, no helper gap/injected accounting substitute remains.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "C cmd.c2002-2003 extcmdlist wmode row already in generated JS registry with IFBURIED|AUTOCOMPLETE|WIZMODECMD. Bounded awaited import/case returns ECMD_OK through existing rhack extended-command and queue dispatch. Source search finds only this production caller, extern declaration and definition."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-wmodes.test.mjs",
+              "scripts/wizcmds.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-wmodes-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-wmodes-ranger.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-wall-modes",
+                "segment": 0,
+                "fromStep": 10,
+                "throughStep": 14,
+                "source": "cmd.c extcmdlist wmode -> doextcmd -> wizcmds.c:wiz_show_wmodes657-689; full-width terrain/mode text with source tty blank, blocking dismissal and map restoration before ECMD_OK."
+              }
+            ],
+            "checkedAt": "7acd276b1a948b9b7cdc67740d2bcf482a494d30"
+          }
+        ],
+        "entryPointReview": "Only active entry is wizard #wmode via existing extcmdlist/doextcmd/rhack. Admitted range shows the complete command after movement; independent newly chosen Barbarian/Ranger roles, seeds and clocks invoke/dismiss twice through production. Outside-limit ordinary play mode rejects #wmode before entering the helper; no whole dispatcher credit. Non-tty interface is inactive for current JS interface and patched recorder, and the source-only blank-line distinction is pinned. No terrain generator, wallification, vision or renderer changes.",
+        "entryPoints": [
+          {
+            "name": "wizard #wmode",
+            "functions": [
+              "wiz_show_wmodes"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-wmodes-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-wmodes-ranger.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-wall-modes",
+                "segment": 0,
+                "fromStep": 10,
+                "throughStep": 14,
+                "source": "cmd.c extcmdlist wmode -> doextcmd -> wizcmds.c:wiz_show_wmodes657-689; full-width terrain/mode text with source tty blank, blocking dismissal and map restoration before ECMD_OK."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7002c1cb236a754350f7d8a5384840474ab5d55b",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-wizcmds-wiz-objprobs-v30-20261008",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port the complete wizard object probability report and bounded command dispatcher",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v30/v30-object-probabilities"
+      ],
+      "selectionReason": "A166 continues the refreshed A163 investigation for synthetic/v30/v30-object-probabilities. The current accepted v30 evaluation retains five unmatched screens, and source tracing isolates complete wizcmds.c wiz_objprobs plus its bounded wizobjprobs dispatcher; A167, B164, and C152 own independent scopes.",
+      "detail": "",
+      "openedAt": "b340e9a6a004a0f9372d310670349fceaf196213",
+      "openStanding": {
+        "sha": "7002c1cb236a754350f7d8a5384840474ab5d55b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_objprobs",
+          "line": 1832,
+          "endLine": 1872,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1832,
+        "to": 1872
+      },
+      "syntheticProvenance": {
+        "synthetic/v30/v30-object-probabilities": {
+          "session": "synthetic/v30/v30-object-probabilities",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-object-probabilities",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-object-probabilities.session.json",
+          "recordingSha256": "c84c4f58b2ffb07cf63a090457c77362d99bd4b948a97650c83bb469de7b7f23",
+          "evaluationPath": "challenges/evaluations/accepted-7002c1cb236a754350f7d8a5384840474ab5d55b-v30.json",
+          "evaluationCommit": "7002c1cb236a754350f7d8a5384840474ab5d55b"
+        }
+      },
+      "activeStanding": {
+        "sha": "7002c1cb236a754350f7d8a5384840474ab5d55b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-object-probabilities",
+          "session": "synthetic/v30/v30-object-probabilities",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recording": "challenges/cases/v30/v30-object-probabilities.session.json",
+          "recordingPath": "challenges/cases/v30/v30-object-probabilities.session.json",
+          "recordingSha256": "c84c4f58b2ffb07cf63a090457c77362d99bd4b948a97650c83bb469de7b7f23",
+          "recipe": "challenges/cases/v30/v30-object-probabilities.recipe.session.json",
+          "recipeSha256": "cfa4fb3930dd26d5409f8d392849d20077806236b4823718b364295babf697ef",
+          "replayInputSha256": "0cb6b77e49f00805b53a6577eb883416e28298f4fd515ebc3d867a377ab55442",
+          "evaluationPath": "challenges/evaluations/accepted-7002c1cb236a754350f7d8a5384840474ab5d55b-v30.json",
+          "evaluationCommit": "7002c1cb236a754350f7d8a5384840474ab5d55b",
+          "evaluationArtifact": "challenges/evaluations/accepted-7002c1cb236a754350f7d8a5384840474ab5d55b-v30.json",
+          "evaluationUtc": "2026-10-08T19:21:31.015Z",
+          "remainingScreens": 5,
+          "recordedSteps": 19,
+          "previousScreensMatched": 14,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 14,
+              "total": 19
+            },
+            "rng": {
+              "matched": 2684,
+              "total": 2684
+            },
+            "cursors": {
+              "matched": 14,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_objprobs() for the extended command 'wizobjprobs' is not ported",
+            "step": 14
+          },
+          "step": 14,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_objprobs",
+          "message": "unsupported hero command: wiz_objprobs() for the extended command 'wizobjprobs' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v30/v30-object-probabilities.json",
+            "result": {
+              "session": "synthetic/v30/v30-object-probabilities",
+              "corpus": "synthetic",
+              "batch": "v30",
+              "caseId": "v30-object-probabilities",
+              "manifestPath": "challenges/manifests/v30.json",
+              "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+              "recordingSha256": "c84c4f58b2ffb07cf63a090457c77362d99bd4b948a97650c83bb469de7b7f23",
+              "evaluationPath": "challenges/evaluations/accepted-8a1c6bca0b99c51a199a18424976a9182a40d67f-v30.json",
+              "evaluationCommit": "8a1c6bca0b99c51a199a18424976a9182a40d67f",
+              "remainingScreens": 5,
+              "recordedSteps": 19,
+              "status": "complete",
+              "commit": "9fe6073151cf4d05573ca4a6a3e199e6ce3fc618",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v30",
+                "caseId": "v30-object-probabilities",
+                "session": "synthetic/v30/v30-object-probabilities",
+                "manifestPath": "challenges/manifests/v30.json",
+                "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+                "recording": "challenges/cases/v30/v30-object-probabilities.session.json",
+                "recordingPath": "challenges/cases/v30/v30-object-probabilities.session.json",
+                "recordingSha256": "c84c4f58b2ffb07cf63a090457c77362d99bd4b948a97650c83bb469de7b7f23",
+                "recipe": "challenges/cases/v30/v30-object-probabilities.recipe.session.json",
+                "recipeSha256": "cfa4fb3930dd26d5409f8d392849d20077806236b4823718b364295babf697ef",
+                "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
+                "evaluationPath": "challenges/evaluations/accepted-8a1c6bca0b99c51a199a18424976a9182a40d67f-v30.json",
+                "evaluationCommit": "8a1c6bca0b99c51a199a18424976a9182a40d67f",
+                "evaluationArtifact": "challenges/evaluations/accepted-8a1c6bca0b99c51a199a18424976a9182a40d67f-v30.json",
+                "evaluationUtc": "2026-10-08T16:21:35.676Z",
+                "remainingScreens": 5,
+                "recordedSteps": 19,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 14,
+                    "total": 19
+                  },
+                  "rng": {
+                    "matched": 2684,
+                    "total": 2684
+                  },
+                  "cursors": {
+                    "matched": 14,
+                    "total": 19
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: wiz_objprobs() for the extended command 'wizobjprobs' is not ported",
+                  "step": 14
+                },
+                "step": 14,
+                "kind": "stop",
+                "sourceFile": "wizcmds.c",
+                "function": "wiz_objprobs",
+                "message": "unsupported hero command: wiz_objprobs() for the extended command 'wizobjprobs' is not ported",
+                "cFile": "wizcmds.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The #wizobjprobs dispatcher refuses missing wizcmds.c:wiz_objprobs. The canonical initialized object probabilities and names already reproduce all five recorded C table pages.",
+              "source": {
+                "file": "wizcmds.c",
+                "branch": "Active DEBUG wizard #wizobjprobs: sum each object class over FIRST_OBJECT..NUM_OBJECTS-1, omit unnamed placeholder rows only from display, then show probabilities and source names in a paged text window.",
+                "functions": [
+                  "wiz_objprobs"
+                ],
+                "callers": [
+                  "cmd.c:extcmdlist wizobjprobs row1977–1978 -> doextcmd -> rhack"
+                ],
+                "dependencies": [
+                  "Existing state.objects and state.obj_descr, initialized by objects.c/o_init.c including setgemprobs",
+                  "Existing objects.js:OBJ_NAME and FIRST_OBJECT/NUM_OBJECTS/MAXOCLASSES constants",
+                  "Existing tty_menu.js:displayTtyTextWindow NHW_TEXT paging/dismissal/restore lifecycle",
+                  "C float32 multiplication/division followed by printf fixed precision and field widths"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Bounded run-oTty9D at b1f12683d stops at zero-based step14 newline: 14/19 screens/cursors and all 2,684 RNG match, UnsupportedHeroCommandBoundaryError names wiz_objprobs at cmd.js:doextcmd5315. A second diagnostic run only retained the initialized object table/name descriptors from that same assigned session. Artifacts .cache/A163/replay.json, replay.log and replay-with-data.log.",
+                "C wizcmds.c:wiz_objprobs1832–1868 zeroes probsum[MAXOCLASSES], initializes oclass from FIRST_OBJECT, then sums every object probability through NUM_OBJECTS-1 before filtering unnamed rows. Second traversal skips OBJ_NAME==null, inserts a blank when a displayed row changes class, and uses %4d / %4d (%6.2f%%): %s with float casts and100.f before displaying NHW_TEXT nonblocking flagFALSE, destroying and returning ECMD_OK. No RNG or state changes; the tty NHW_TEXT implementation still reads paging/dismissal input.",
+                "Source-derived rendering from state.objects/state.obj_descr reproduces all 115 C rows at steps14–18 (five 23-row pages), verified with frozen/screen-decode.mjs. Weapon sum is1002, armor sum1000; these are live sums rather than an assumed1000 total. Generated diagnostic lines/sums are .cache/A163/source-lines.json. No object generation or initialization correction is indicated.",
+                "All production caller search results are the source definition, extern.h3890, cmd.c1978 and generated extcmdlist_data.js170. DEBUG/NH_DEVEL_STATUS build condition is active in the recorder; scripts/extended-command-prompt.test.mjs295–299 pins the command registry. Add only bounded cmd.js:doextcmd import/branch plus whole wiz_objprobs in js/wizcmds.js.",
+                "No unported consumed-return callee found: existing OBJ_NAME directly reads state.obj_descr[oc_name_idx].oc_name; FIRST_OBJECT/NUM_OBJECTS/MAXOCLASSES are generated canonical constants; existing text wrapper represents window-ID lifecycle. Read state.objects directly so current depth-dependent gem probabilities and initialized zero-probability classes are used, with no duplicate probability table or state mutation.",
+                "Complete task scope is whole wiz_objprobs1832–1868, bounded doextcmd caller and contract:wizard-object-probability-text-window. Expected writes js/wizcmds.js/js/cmd.js, source-pinned probability tests/fresh runner, recipes/wizcmds.c and recordings/wizcmds.c. Older queued B162 has dispatcher priority; this report remains available for later implementation after that boundary.",
+                "Tests should pin class sums including unnamed placeholders, row-name skip/order and class-change blank lines, integer field widths, float32 multiply/divide and C printf two-decimal rounding, canonical live tables and awaited return. Independent C-first witnesses should page through the whole455-line table to dismissal and repeat, plus a cheap role or supported depth/gem-probability variation. The selected case stops inside page5, so its matching range alone will not establish final map restoration or later object-class rows. No implementation, fresh C game, whole doextcmd/rhack, object-init or text-window credit is claimed.",
+                "A166 handoff at 9fe60731 preserves original A163 diagnosis 4972dc9a. Accepted A164 statistics clears the previous dispatcher priority; current accepted-8a1c6bca v30 retains exactly five unmatched screens and the same step14 owner, recording and manifest identity. Whole source1832-1868 and existing consumed dependencies reread; A165 wall-mode delivery changes only its distinct dispatcher arm and cannot alter canonical object probabilities. B163 make_corpse and C152 migration are independent. No new game recording or implementation edits during this refreshed investigation."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_objprobs",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_objprobs",
+            "sourceReview": "Whole wizcmds.c1832-1868 read. First loop sums every live per-game object probability from FIRST_OBJECT through NUM_OBJECTS-1 before the second loop filters null OBJ_NAME descriptors. Nonnull empty strings remain rows. Initial class comes from FIRST_OBJECT even if its descriptor is null; blank separator occurs only when a displayed object changes class. Canonical objects/obj_descr and OBJ_NAME are reused. Integer widths4, source float32 multiplication/division then promoted printf rounding (ties to even), percent width6/two decimal digits, BUFSZ-1 byte capacity and definition-order rows preserved. A development-only compiled exact expression pins midpoint rounding in both directions,1002 class totals,1/3,999/1000 and zero/zero recorder sign; pure internal formatter tested. Existing canonical TTY text window is awaited for create/putstr/display(FALSE)/destroy; returns ECMD_OK after dismissal with no RNG, map or command-turn mutation. C source/JS helper purity and catalog macros audited; no missing consumed-return owner or discarded unported call. Obsolete command refusal removed. DEBUG/NH_DEVEL_STATUS preprocessor gate is active in the recorder and existing registry; ordinary play admission remains excluded. No independent object initialization/gem probability or whole dispatcher/text renderer credit.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "C cmd.c1977-1978 extcmdlist wizobjprobs row calls wiz_objprobs and carries IFBURIED|AUTOCOMPLETE|WIZMODECMD. Existing generated registry and rhack/extended-command input dispatch reach the new awaited arm. Source search finds only this active runtime caller, extern declaration and definition."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-objprobs.test.mjs",
+              "scripts/wizcmds.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-objprobs-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-objprobs-deep.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-object-probabilities",
+                "segment": 0,
+                "fromStep": 14,
+                "throughStep": 18,
+                "source": "cmd.c extcmdlist1977-1978 -> doextcmd -> wizcmds.c:wiz_objprobs1832-1868. Initial five pages verify traversal, class separators and percentage text; independent recordings cover the remaining classes and final dismissal."
+              }
+            ],
+            "checkedAt": "b25f95dace7fe6ca34fb5a104562795421605c4a"
+          }
+        ],
+        "entryPointReview": "Only active entry is wizard #wizobjprobs through cmd.c extcmdlist/doextcmd/rhack. Admitted range covers the first five pages. Independently chosen Barbarian and Wizard roles/seeds/clocks invoke the full table and dismiss twice, including final venom class and map restoration. Depth5 variation tests an initialized live object table after level teleport; its C output matches the ordinary table, so no changed gem-probability branch credit is claimed. An independent normal Samurai case verifies WIZMODECMD admission rejects the command before this helper. Source-pinned tests cover unnamed/empty names, class totals/separators, truncation and exact float formatting. No additional runtime entry exists.",
+        "entryPoints": [
+          {
+            "name": "wizard #wizobjprobs",
+            "functions": [
+              "wiz_objprobs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-objprobs-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-objprobs-deep.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-object-probabilities",
+                "segment": 0,
+                "fromStep": 14,
+                "throughStep": 18,
+                "source": "cmd.c extcmdlist1977-1978 -> doextcmd -> wizcmds.c:wiz_objprobs1832-1868. Initial five pages verify traversal, class separators and percentage text; independent recordings cover the remaining classes and final dismissal."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
