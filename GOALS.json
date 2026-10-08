@@ -205921,6 +205921,217 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-dokick-command-steed-family-v29-20261008",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port the whole kick command and mounted kick support, including its active bullwhip caller",
+      "cFile": "dokick.c",
+      "sessions": [
+        "synthetic/v29/v29-kick-legless-hero"
+      ],
+      "selectionReason": "The oldest reserved v29 mismatch reaches dokick's no-legs guard; the whole command requires kick_steed for its mounted path.",
+      "detail": "Preserve dokick guard, prompt, target, recoil, and return ordering; wire whole steed.c:kick_steed into dokick and the bounded apply.c:use_whip caller.",
+      "openedAt": "39388f1d1531c35ea3f0ff8aa3c60abd2db67c85",
+      "openStanding": {
+        "sha": "e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dokick",
+          "line": 1257,
+          "endLine": 1472,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1257,
+        "to": 1472
+      },
+      "requiredFunctions": [
+        {
+          "name": "kick_steed",
+          "line": 402,
+          "endLine": 459,
+          "declared": false,
+          "sourceFile": "steed.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v29/v29-kick-legless-hero": {
+          "session": "synthetic/v29/v29-kick-legless-hero",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-kick-legless-hero",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-kick-legless-hero.session.json",
+          "recordingSha256": "a6fd34aac412250fd39218506dce6369029359a4a6ccc4e9d8ab69d3c56b9c9d",
+          "evaluationPath": "challenges/evaluations/accepted-e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833-v29.json",
+          "evaluationCommit": "e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833"
+        }
+      },
+      "activeStanding": {
+        "sha": "e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-kick-legless-hero",
+          "session": "synthetic/v29/v29-kick-legless-hero",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recording": "challenges/cases/v29/v29-kick-legless-hero.session.json",
+          "recordingPath": "challenges/cases/v29/v29-kick-legless-hero.session.json",
+          "recordingSha256": "a6fd34aac412250fd39218506dce6369029359a4a6ccc4e9d8ab69d3c56b9c9d",
+          "recipe": "challenges/cases/v29/v29-kick-legless-hero.recipe.session.json",
+          "recipeSha256": "68704383aceb377db2de6f106adae4b1bee306b4c58b65f1faff1c3db47fe13b",
+          "replayInputSha256": "94df92478420dadfa7029b418dfc4d1e83e520726faf2247bea5a0cf06583dd4",
+          "evaluationPath": "challenges/evaluations/accepted-e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833-v29.json",
+          "evaluationCommit": "e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833",
+          "evaluationArtifact": "challenges/evaluations/accepted-e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833-v29.json",
+          "evaluationUtc": "2026-10-08T09:33:05.539Z",
+          "remainingScreens": 6,
+          "recordedSteps": 31,
+          "previousScreensMatched": 25,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 25,
+              "total": 31
+            },
+            "rng": {
+              "matched": 2873,
+              "total": 2882
+            },
+            "cursors": {
+              "matched": 25,
+              "total": 31
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: kicking reached an unported branch: dokick()'s no-legs guard, which needs its --More-- flush",
+            "step": 25
+          },
+          "step": 25,
+          "kind": "stop",
+          "sourceFile": "dokick.c",
+          "function": "dokick",
+          "message": "unsupported hero command: an unported branch of this command: kicking reached an unported branch: dokick()'s no-legs guard, which needs its --More-- flush",
+          "cFile": "dokick.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v29/v29-kick-legless-hero.json",
+            "result": {
+              "session": "synthetic/v29/v29-kick-legless-hero",
+              "remainingScreens": 6,
+              "recordedSteps": 31,
+              "corpus": "synthetic",
+              "batch": "v29",
+              "caseId": "v29-kick-legless-hero",
+              "manifestPath": "challenges/manifests/v29.json",
+              "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+              "recordingSha256": "a6fd34aac412250fd39218506dce6369029359a4a6ccc4e9d8ab69d3c56b9c9d",
+              "evaluationPath": "challenges/evaluations/accepted-e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833-v29.json",
+              "evaluationCommit": "e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833",
+              "status": "complete",
+              "commit": "e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v29",
+                "caseId": "v29-kick-legless-hero",
+                "session": "synthetic/v29/v29-kick-legless-hero",
+                "manifestPath": "challenges/manifests/v29.json",
+                "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+                "recording": "challenges/cases/v29/v29-kick-legless-hero.session.json",
+                "recordingPath": "challenges/cases/v29/v29-kick-legless-hero.session.json",
+                "recordingSha256": "a6fd34aac412250fd39218506dce6369029359a4a6ccc4e9d8ab69d3c56b9c9d",
+                "recipe": "challenges/cases/v29/v29-kick-legless-hero.recipe.session.json",
+                "recipeSha256": "68704383aceb377db2de6f106adae4b1bee306b4c58b65f1faff1c3db47fe13b",
+                "evaluationPath": "challenges/evaluations/accepted-e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833-v29.json",
+                "evaluationCommit": "e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833",
+                "evaluationArtifact": "challenges/evaluations/accepted-e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833-v29.json",
+                "evaluationUtc": "2026-10-08T09:33:05.539Z",
+                "remainingScreens": 6,
+                "recordedSteps": 31,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 25,
+                    "total": 31
+                  },
+                  "rng": {
+                    "matched": 2873,
+                    "total": 2882
+                  },
+                  "cursors": {
+                    "matched": 25,
+                    "total": 31
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "step": 25,
+                  "message": "unsupported hero command: an unported branch of this command: kicking reached an unported branch: dokick()'s no-legs guard, which needs its --More-- flush"
+                },
+                "step": 25,
+                "kind": "stop",
+                "sourceFile": "dokick.c",
+                "function": "dokick",
+                "message": "unsupported hero command: an unported branch of this command: kicking reached an unported branch: dokick()'s no-legs guard, which needs its --More-- flush",
+                "cFile": "dokick.c",
+                "luaFile": null,
+                "line": 1265
+              },
+              "summary": "The no-limbs/slithy guard in dokick still throws instead of printing the C no-legs message, waiting at the shared message-window boundary, and returning ECMD_FAIL without a direction or turn. Port whole dokick, including the other ordered guards and remaining target arms; close the missing mounted kick_steed owner and its apply bullwhip caller as required for active-entry coverage.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "dokick.c",
+                "branch": "#kick/Ctrl-D while polymorphed into snake: nolimbs or slithy is true before every later guard, so the source emits no-legs feedback and the shared no_kick display_nhwindow(WIN_MESSAGE,TRUE) waits before ECMD_FAIL. Other active branches remain in the same whole function.",
+                "functions": [
+                  "dokick() whole dokick.c1256–1470",
+                  "kick_steed() whole steed.c401–450, required active mounted-kick support"
+                ],
+                "callers": [
+                  "cmd.c extcmdlist kick and rhack kick dispatch -> dokick",
+                  "cmd.c MCMD_KICK_DOOR and adjacent locked-door canned queue -> dokick",
+                  "apply.c3026 use_whip -> steed.c kick_steed, currently discarded note_unported"
+                ],
+                "dependencies": [
+                  "steed.c:kick_steed is absent in JS and has two active callers; include whole function and bounded apply.c:use_whip call before claiming mounted-entry completion",
+                  "Existing consumed-return owners near_capacity/getdir/maybe_kick_monster/kick_object/kick_nondoor are implemented; audit their source/state contracts rather than inventing substitutes. Existing kick_door/kick_nondoor completion evidence is retained.",
+                  "Existing discarded display.c:show_glyph gap in the dead-invisible-monster arm remains explicit unless its canonical owner is admitted; do not invent a numeric-glyph presentation adapter."
+                ]
+              },
+              "evidence": [
+                "Admitted challenges/manifests/v29.json corpus digest bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e; immutable recording challenges/cases/v29/v29-kick-legless-hero.session.json SHA256 a6fd34aac412250fd39218506dce6369029359a4a6ccc4e9d8ab69d3c56b9c9d. Latest accepted evaluation challenges/evaluations/accepted-e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833-v29.json at e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833 records 25/31 matching screens (6 remaining).",
+                "Bounded single-recording replay at worker 3bb21384538740c6a69e3595d29de5855eb8b855 run-GW3qZ4, .cache/C146-selected-replay.json/.log: stop on zero-based step25 Ctrl-D before C no-legs boundary; screensEmitted25, recordedSteps31, exact UnsupportedKickError no-legs refusal. No aggregate scan or new C recording was run.",
+                "C recording step24 is ordinary unknown-space feedback; step25 Ctrl-D emits You have no legs to kick with.--More-- with no RNG; step26 space clears the awaited message; steps27–29 are ordinary unknown-space feedback and step30 wait draws9 existing turn RNG calls. Thus restoring refusal must not request direction, consume a turn, or consume step26 as another command.",
+                "dokick.c1256–1470 read whole. The nine guard branches form one else-if chain and share no_kick/display/ECMD_FAIL. Missing JS arms include no-limbs, too-small, mounted prompt, load, lizard, underwater rn2(2), trapped/PASSES_WALLS pit, boulder; later swallowed rn2(3), pit-side, off-map kick_ouch and pool/lava splash are also refused. Complete the whole owner, preserving later monster/pool/object/non-door/door ordering and existing recoil/return behavior.",
+                "steed.c401–450 read whole: helpless wake/paralysis branch and conditional rn2(2), tame decrement and leash removal, resistance rnd(MAXULEV/2+5) and dismount, gallop message and rn1(20,30). js/steed.js has no kick_steed implementation. Active callers are dokick.c1274 and apply.c3026; js/apply.js use_whip currently emits note_unported(steed.c kick_steed). This is a bounded required caller seam, not whole use_whip credit.",
+                "Source searches enumerate cmd.c key/extended/canned kick routes. Existing js/cmd.js runKickCommand/queueHandler route reaches dokick and applies ECMD flags; its old comment says guard ECMD_FAIL is refused and needs comment-only reconciliation. Existing UnsupportedKickError also supports inherited monster-kick owner refusals, so do not delete the class until its last remaining throw user is removed.",
+                "No live source reservation conflicts in saved .cache/C146-reservation-status.json: A151 owns eat/polyself, A152 open-trapped-door session, B150 eyewear/ball-chain/use_towel, C145 owns storm target helpers. Proposed dokick/kick_steed/use_whip seams are independent; C145 remains immutable and would be the explicit pending ancestor dependency if implementation starts from this worker lineage."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
