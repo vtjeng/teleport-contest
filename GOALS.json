@@ -218507,7 +218507,7 @@
     {
       "id": "port-display-unmap-object-engraving-v32-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete engraved-square map-memory restoration",
       "cFile": "display.c",
       "sessions": [
@@ -218521,15 +218521,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f8eb15e4cc2b0df9b7e7335c1f624597ae0951e9",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "unmap_object",
           "line": 409,
           "endLine": 474,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -218723,7 +218726,95 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "unmap_object",
+            "implementation": "js/display.js",
+            "symbol": "unmap_object",
+            "sourceReview": "Compared the entire display.c408–438 definition, headers spot_shows_engravings/covers_traps and each required canonical callee. Preserve hero_memory early return; t_at then tseen/coverage trap priority; seenv before engraving lookup; ROOM/CORR/ICE lookup before coverage; cansee sets only erevealed; map_engraving(ep,0) even out of sight; else map_background; exact !waslit && remembered glyph==cmap_to_glyph(S_room) && typ==ROOM darkening; unseen default stone. No RNG or screen writes in this function; game-state memory/revelation mutations make it impure. All consumed-return callees already canonical. Removed the sole UnsupportedMapMemoryError throw/class, cmd/allmain refusal entries, and swallowed display caller gap; no placeholders remain.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "dopush",
+                "source": "hack.c207: clear invisible marker before movobj"
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "domove_fight_empty",
+                "source": "hack.c2280: unmap before optional map_object/newsym/message"
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "unmap_invisible",
+                "source": "display.c391: unmap before newsym and TRUE"
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "display_monster",
+                "source": "display.c490 show_mon_or_warn macro expands in display_monster: clear marker before remapping visible object/drawing monster"
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "clear_stale_map",
+                "source": "detect.c326: clear_stale_map checks stale detection data then unmaps"
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "mondead",
+                "source": "mon.c3171: marker cleanup before detach"
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "monstone",
+                "source": "mon.c3359: marker cleanup before visible redraw and mondead"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_monster_detection",
+                "source": "potion.c933: blessed detection x-major scan clears markers before newsym"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "bhit",
+                "source": "zap.c4041/4084: visible zap/kick trajectory clears remembered invisible markers"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/force-fight.test.mjs",
+              "scripts/display-symbols.test.mjs",
+              "scripts/display-visibility.test.mjs",
+              "scripts/bhit.test.mjs"
+            ],
+            "recordings": [
+              "recordings/display.c/unmap-engraving-dust.session.json",
+              "recordings/display.c/unmap-engraving-dust-variation.session.json"
+            ],
+            "sourceFile": "display.c",
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-engraved-forcefight",
+                "segment": 0,
+                "fromStep": 14,
+                "throughStep": 14,
+                "source": "cmd.c F prefix/rhack -> hack.c domove_fight_empty2280 -> display.c unmap_object408–438 -> map_engraving; source thin-air message and elapsed turn follow canonical redraw."
+              }
+            ],
+            "checkedAt": "f8eb15e4cc2b0df9b7e7335c1f624597ae0951e9"
+          }
+        ],
+        "entryPointReview": "This selected range is one map-memory helper, not a command/monster action dispatcher. All nine active direct C caller sites are reconciled above against existing production JS; no new dispatcher and no whole caller ownership. Canonical state forwarding is retained for live and planner clones. Source runtime evidence enters through existing F+direction command with two independent C-first recordings and admitted segment0 step14; focused display/invisible-marker tests cover existing callers. No C build-conditional exclusions or discarded unported calls in unmap_object.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "f8eb15e4cc2b0df9b7e7335c1f624597ae0951e9",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
