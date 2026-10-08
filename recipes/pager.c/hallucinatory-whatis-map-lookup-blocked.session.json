@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside-limit C-first probe: pager.c:do_look active hallucinatory lookup/description remains unverified and is refused after a valid map choice. Menu admission/cancellation alone is the current scope. C-only inventory-letter correction: the independently recorded wish receives f, before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 17432013,
+      "datetime": "20500504122134",
+      "nethackrc": "OPTIONS=name:MenuProbe17432013,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed potion of hallucination\nqf      /y\u001b."
+    }
+  ]
+}

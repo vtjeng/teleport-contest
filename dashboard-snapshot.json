@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T22:49:43.474Z",
+  "capturedAt": "2026-10-08T23:02:34.273Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -68283,12 +68283,101 @@
         "type": "accepted",
         "at": "2026-10-08T22:49:28.314Z",
         "task": "B170"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-B170-60af988e-20261008",
+        "type": "turn",
+        "at": "2026-10-08T22:50:17.633Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Accepted B170 merged. C155’s older command-description report is released; A177’s prayer dependency remains pending A175."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B170-cc420919",
+        "type": "published",
+        "at": "2026-10-08T22:50:20.772Z",
+        "task": "B170",
+        "commit": "cc42091901487309228b831ac2124045d5166bff"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-post-B170-command-description-owner-20261008",
+        "type": "turn",
+        "at": "2026-10-08T22:50:32.932Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B170 merged; command-description handoff belongs to C155, while B options work waits on B171 acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C155-post-B170-report-refresh-20261008",
+        "type": "resume",
+        "at": "2026-10-08T22:50:42.028Z",
+        "task": "C155"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C155-typed-caller-B171-20261008",
+        "type": "park",
+        "at": "2026-10-08T22:50:43.220Z",
+        "task": "C155"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-B170-boundary-idle-20261008",
+        "type": "turn",
+        "at": "2026-10-08T22:50:44.327Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Command-description report refreshed; waiting for B171 extended-command ownership release."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A174-5ade3297",
+        "type": "integrating",
+        "at": "2026-10-08T22:53:37.206Z",
+        "task": "A174",
+        "integration": "5ade3297960ca8e3b146ec14c28a02114b2c6714"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B174-605cff1c-20261008",
+        "type": "received",
+        "at": "2026-10-08T22:55:14.350Z",
+        "task": "B174",
+        "delivery": "605cff1c490577c38e761d12257d8ae61d2d4c77"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-B174-review-20261008",
+        "type": "activity",
+        "at": "2026-10-08T22:55:15.379Z",
+        "task": "B174",
+        "phase": "review",
+        "reason": "Reviewing the immutable hallucinatory whatis-menu delivery while A174 completes hosted validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A174-37856406365",
+        "type": "validated",
+        "at": "2026-10-08T22:59:26.378Z",
+        "task": "A174",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A174-5ade3297960ca8e3b146ec14c28a02114b2c6714-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T23:02:07.981Z",
+        "task": "A174"
       }
     ]
   },
   "development": {
-    "executionCommit": "60af988e128cbb1c04a9c95a3c72d1e2c4a3b480",
-    "measuredAt": "2026-10-08T22:46:25.867Z",
+    "executionCommit": "5ade3297960ca8e3b146ec14c28a02114b2c6714",
+    "measuredAt": "2026-10-08T22:58:57.687Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

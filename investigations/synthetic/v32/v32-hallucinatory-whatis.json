@@ -1,0 +1,111 @@
+{
+  "session": "synthetic/v32/v32-hallucinatory-whatis",
+  "corpus": "synthetic",
+  "batch": "v32",
+  "caseId": "v32-hallucinatory-whatis",
+  "manifestPath": "challenges/manifests/v32.json",
+  "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+  "recordingSha256": "5a4a4dfd66b0ea47fc4cc8e7b547637af04942d42d279485370a2b977faa53a6",
+  "evaluationPath": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v32.json",
+  "evaluationCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+  "remainingScreens": 19,
+  "recordedSteps": 63,
+  "status": "complete",
+  "commit": "2f8487a0490082516b5350442b97cedb67d2901c",
+  "mismatch": {
+    "version": 1,
+    "corpus": "synthetic",
+    "batch": "v32",
+    "caseId": "v32-hallucinatory-whatis",
+    "manifestPath": "challenges/manifests/v32.json",
+    "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+    "recordingPath": "challenges/cases/v32/v32-hallucinatory-whatis.session.json",
+    "recordingSha256": "5a4a4dfd66b0ea47fc4cc8e7b547637af04942d42d279485370a2b977faa53a6",
+    "recipeSha256": "01f62680e00c415cf82a14e5f75f6beb8e67a2b156e0f0b28bec68e451695999",
+    "evaluationPath": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v32.json",
+    "evaluationCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+    "evaluationUtc": "2026-10-08T21:20:26.992Z",
+    "session": "synthetic/v32/v32-hallucinatory-whatis",
+    "remainingScreens": 19,
+    "recordedSteps": 63,
+    "metrics": {
+      "screens": {
+        "matched": 44,
+        "total": 63
+      },
+      "rng": {
+        "matched": 2761,
+        "total": 2761
+      },
+      "cursors": {
+        "matched": 44,
+        "total": 63
+      }
+    },
+    "step": 44,
+    "kind": "stop",
+    "sourceFile": "pager.c",
+    "function": "do_look",
+    "line": 1748,
+    "message": "unsupported hero command: an unported branch of this command: unsupported whatis: a hallucinating hero",
+    "diagnosticToolSha256": "01cb5004cc11a812f50a8e119ea49eb9700d913dc19487543ad6f877b06e6a82",
+    "replayCommit": "2f8487a0490082516b5350442b97cedb67d2901c"
+  },
+  "summary": "Hallucination does not prevent the whatis selection menu in C: do_look always offers the three map/inventory/name choices and suppresses the blank separator and nearby/all list choices while hallucinating. JS refuses the entire menu first and otherwise always adds every row. Reconcile that bounded menu branch, while retaining hallucinated lookup execution as an explicit later frontier. The prepared m input targets an unavailable C choice and exercises menu cancellation rather than monster descriptions.",
+  "goalKind": "divergence-fix",
+  "source": {
+    "file": "pager.c",
+    "functions": [
+      "do_look"
+    ],
+    "branch": "Ordinary whatis menu, lootabc false, hero not swallowed but Hallucination active. The three first choices remain, while !u.uswallow && !Hallucination gates the separator and eight nearby/all list rows. Menu cancellation returns ECMD_OK without lookup/RNG/time.",
+    "callers": [
+      "pager.c:dowhatis2322 delegates do_look(0,NULL); cmd.c direct / and typed #whatis dispatch that owner. Existing js/pager.js:dowhatis and cmd.js runWhatisCommand await canonical do_look.",
+      "pager.c help menu hmenu_dowhatis invokes dowhatis; same ordinary menu branch. doquickwhatis mode1 and clicklook/queued callers have no selection menu, so remain outside this correction."
+    ],
+    "dependencies": [
+      "Existing js/pager.js:whatisMenuItems pure row projection and menuLines/menuTitleStyle/select_menu must mirror source choices and absence of separator when supplemental rows are suppressed. Pin pure projection against pager.c1726-1804 with Hallucination/resistance/inactive state cases.",
+      "Existing propertyActive/heroHallucinating applies HALLUC/HALLUC_RES state. Do not change property storage, potion behavior or display RNG; exact pre-menu prefix matches all2761RNG.",
+      "Existing do_look inventory/name/map lookup owners remain outside hallucination admission. Move the same refusal after a noncancelled choice (and retain quick-mode refusal), keeping hallucinated lookup as a named incomplete frontier rather than claiming those source branches. Preserve existing swallowed/lootabc/click/queue limits.",
+      "Existing TTY menu handles invalid selectors and Escape with PICK_ONE, repairs the map and returns null. No window/display/getline source edit or injected substitute is needed; A174 getline/display active scope is independent."
+    ]
+  },
+  "evidence": [
+    "Focused scan .cache/B174/scan.json at2f8487a04 reproduces44/63screens, refusal atsegment0step44 /: unsupported whatis a hallucinating hero. Saved accepted-8ad9 evaluation gives19remaining, all2761RNG matched,44/63cursors. No prior silent divergence.",
+    "Read complete C do_look1673-1963, menu block1726-1804 and all choice dispatch after it. Source never refuses the entire menu for Hallucination. Existing JS assertOrdinaryWhatisState throws before select_menu, and whatisMenuItems always adds the unavailable eight supplemental rows; menuLines also always inserts a separator.",
+    "Admitted recipe quaffs independent potion and then submits /m. C Hallucination suppresses m choice; subsequent acknowledgements cancel the menu and restore map. The prepared mission misses monster-list target and does not establish active hallucinated lookup/monster-description behavior. No downstream description owner should be inferred from its original comment.",
+    "Independent runtime evidence should exercise typed #whatis and help-menu whatis under Hallucination with invalid suppressed-list selector/Escape, plus cheap ordinary or HALLUC_RES row variation. Keep a committed blocked recipe choosing an actual map lookup while hallucinating; name the unported source branch, without treating that recording as passing.",
+    "Live ledger reserves A174 prayer session, A173 display map memory, A172 doextcmd, C154 Rider and C152 migration. pager.c do_look/menu contract is unowned. Proposed correction changes only pager menu logic, with no shared cmd/display/getline edit."
+  ],
+  "proposal": {
+    "goalId": "fix-pager-whatis-hallucination-menu-v32-20261008",
+    "summary": "Show the source whatis menu during hallucination.",
+    "selectionReason": "Independent v32 investigation after B170: current assigned-base refusal occurs before the C three-row hallucination menu. Source1748 gates only supplemental menu rows; prepared m is unavailable and the case cancels. Repair menu admission/contents without reopening unverified hallucinatory description behavior or A174 input/display ownership.",
+    "detail": "Hallucination does not prevent the whatis selection menu in C: do_look always offers the three map/inventory/name choices and suppresses the blank separator and nearby/all list choices while hallucinating. JS refuses the entire menu first and otherwise always adds every row. Reconcile that bounded menu branch, while retaining hallucinated lookup execution as an explicit later frontier. The prepared m input targets an unavailable C choice and exercises menu cancellation rather than monster descriptions.",
+    "dependencyReady": true,
+    "sourceUnits": [
+      {
+        "file": "pager.c",
+        "name": "do_look",
+        "start": 1673,
+        "end": 1963
+      }
+    ],
+    "completionCredit": "Bounded do_look menu admission/row-selection correction only; no whole do_look, description, lookat, quick lookup or display credit.",
+    "proposedReservations": [
+      "session:synthetic/v32/v32-hallucinatory-whatis",
+      "source:pager.c:do_look",
+      "contract:hallucinatory-whatis-menu"
+    ],
+    "proposedPaths": [
+      "js/pager.js",
+      "scripts/pager.test.mjs",
+      "scripts/whatis-menu.test.mjs",
+      "recipes/pager.c/",
+      "recordings/pager.c/",
+      "investigations/synthetic/v32/v32-hallucinatory-whatis.json",
+      ".cache/"
+    ],
+    "dependencies": []
+  }
+}
