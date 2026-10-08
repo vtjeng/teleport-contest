@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: spell.c:doturn. Lawful Priest turns adjacent hostile zombie. Required C observation: Priestly invocation, undead resist or flee. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 16035044,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035044,role:Priest,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0007human zombie\n      #turn\n                           "
+    }
+  ]
+}

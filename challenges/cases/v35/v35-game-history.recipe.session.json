@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: pager.c:dohistory2961-2972. Request game development history. Required C observation: History text window. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 16035021,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035021,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#history\n                                  "
+    }
+  ]
+}

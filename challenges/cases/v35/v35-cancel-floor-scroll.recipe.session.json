@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: zap.c:bhito/cancel_item. Drop enchant weapon scroll and cancel down. Required C observation: Floor scroll loses enchantment into blank paper. Fixed before JS comparisons; no seed search or recipe changes based on JS failures. C-only setup correction from the observed inventory letter, More acknowledgments or source-confirmed prompt flow; no JavaScript comparison has run. Further C-only correction: observed Wizard orb letter o, left-side demon direction h, immediate yn answer, and floor look after zap. Before JS comparison.",
+  "segments": [
+    {
+      "seed": 16035042,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035042,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed scroll of enchant weapon\nde        \u0017uncursed wand of cancellation\nzf>     :                     "
+    }
+  ]
+}

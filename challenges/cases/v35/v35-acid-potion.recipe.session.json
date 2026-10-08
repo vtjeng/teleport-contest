@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 supplemental C-first behavior: potion.c:peffect_acid. Quaff uncursed acid as normal human. Required C observation: Acid burn HP loss and acid-specific exercise. Planned before this case's JS comparison; original cases remain unchanged.",
+  "segments": [
+    {
+      "seed": 16035116,
+      "datetime": "20380507152302",
+      "nethackrc": "OPTIONS=name:Supplement16035116,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed potion of acid\nqe                       "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 supplemental C-first behavior: apply.c:flip_through_book4473-4524. Apply known force-bolt spellbook rather than study it. Required C observation: Flipping book pages and mental/spell-retention feedback. Planned before this case's JS comparison; original cases remain unchanged.",
+  "segments": [
+    {
+      "seed": 16035110,
+      "datetime": "20380507152302",
+      "nethackrc": "OPTIONS=name:Supplement16035110,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed spellbook of force bolt\nae                     "
+    }
+  ]
+}

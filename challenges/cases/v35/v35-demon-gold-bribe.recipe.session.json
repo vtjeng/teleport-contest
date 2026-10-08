@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: priest.c:demon_talk. Chat to peaceful demon with wished gold. Required C observation: Demonic demand/negotiated bribe or chat response. Fixed before JS comparisons; no seed search or recipe changes based on JS failures. Further C-only correction: observed Wizard orb letter o, left-side demon direction h, immediate yn answer, and floor look after zap. Before JS comparison.",
+  "segments": [
+    {
+      "seed": 16035045,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035045,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u00175000 gold pieces\n\u0007peaceful horned devil\n      #chat\nh1000\n                   "
+    }
+  ]
+}

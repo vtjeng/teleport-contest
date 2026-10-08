@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: wizcmds.c:wiz_flip_level412-445 -> sp_lev.c:flip_level. Flip ordinary level horizontally while on stairs. Required C observation: Coordinates/terrain reflected, docrt map updated. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 16035013,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035013,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizfliplevel\n2               "
+    }
+  ]
+}

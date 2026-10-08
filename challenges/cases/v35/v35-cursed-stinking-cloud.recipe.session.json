@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B160 C-first candidate: read.c:seffect_stinking_cloud -> region.c:create_gas_cloud. Read cursed stinking cloud and select hero. Required C observation: Visible cloud placement and short gas lifetime. Fixed before JS comparisons; no seed search or recipe changes based on JS failures. C-only setup correction from the observed inventory letter, More acknowledgments or source-confirmed prompt flow; no JavaScript comparison has run.",
+  "segments": [
+    {
+      "seed": 16035048,
+      "datetime": "20380506142201",
+      "nethackrc": "OPTIONS=name:Probe16035048,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed scroll of stinking cloud\nre     .                        "
+    }
+  ]
+}
