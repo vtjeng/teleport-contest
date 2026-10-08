@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: read.c:seffect_charging1788-1849. Read blessed charging scroll for empty light wand. Required C observation: Scroll recharge target selection and wand glow. Fixed before JS comparisons; no seed search or recipe changes based on JS failures. C-only setup correction from observed role inventory, More acknowledgments, newly created monster coordinates, and source-confirmed ability state/Pw prerequisites; before any JS comparison.",
+  "segments": [
+    {
+      "seed": 15934021,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934021,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed wand of light (0:0)\n\u0017blessed scroll of charging\nrf e                      "
+    }
+  ]
+}

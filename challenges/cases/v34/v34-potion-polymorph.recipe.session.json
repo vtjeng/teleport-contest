@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: potion.c:peffect_polymorph1318-1334. Quaff blessed polymorph while wearing starting armor. Required C observation: Uncontrolled hero transformation/newman or system shock. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15934027,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934027,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017blessed potion of polymorph\nqe                           "
+    }
+  ]
+}

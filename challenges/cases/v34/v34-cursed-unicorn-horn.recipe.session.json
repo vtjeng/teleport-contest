@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: apply.c:use_unicorn_horn cursed branch. Apply cursed unicorn horn while healthy. Required C observation: Curse inflicts sickness/blindness/confusion or stunned state. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15934011,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934011,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed unicorn horn\nae                           "
+    }
+  ]
+}

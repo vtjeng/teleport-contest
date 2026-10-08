@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: polyself.c:dosummon. Polymorph werewolf then activate monster ability. Required C observation: Hero calls wolf pack and creates tame helpers. Fixed before JS comparisons; no seed search or recipe changes based on JS failures. C-only setup correction from observed role inventory, More acknowledgments, newly created monster coordinates, and source-confirmed ability state/Pw prerequisites; before any JS comparison.",
+  "segments": [
+    {
+      "seed": 15934037,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934037,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#levelchange\n12\n                                             \u0017blessed tin of werewolf meat\nee y             \u0017uncursed ring of polymorph control\nPfl       \u0017cursed potion of water\nqg y         sky\n       #monster\n                           "
+    }
+  ]
+}

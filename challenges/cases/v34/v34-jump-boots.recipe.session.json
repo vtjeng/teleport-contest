@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: apply.c:dojump/jump1988-2118. Wear jumping boots and choose adjacent jump destination. Required C observation: Getpos jump path/landing or refused target. Fixed before JS comparisons; no seed search or recipe changes based on JS failures. C-only setup correction from observed role inventory, More acknowledgments, newly created monster coordinates, and source-confirmed ability state/Pw prerequisites; before any JS comparison.",
+  "segments": [
+    {
+      "seed": 15934014,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934014,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed jumping boots\nWe       #jump\n   l.\u001b              "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first B159 supplemental behavior: pager.c:dowhatdoes2657-2719; Ask command-description query for z rather than inventory. C observation target: Zap command description. Planned before comparison; no recipe altered in response to JS.",
+  "segments": [
+    {
+      "seed": 15934109,
+      "datetime": "20370405132057",
+      "nethackrc": "OPTIONS=name:Supplement15934109,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".&z                      "
+    }
+  ]
+}

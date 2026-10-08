@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: artifact.c:invoke_banish1963-2019. Lawful Priest invokes Demonbane near a manes. Required C observation: Demon vanishes in brimstone and migrates to Gehennom. Fixed before JS comparisons; no seed search or recipe changes based on JS failures. C-only setup correction from observed role inventory, More acknowledgments, newly created monster coordinates, and source-confirmed ability state/Pw prerequisites; before any JS comparison.",
+  "segments": [
+    {
+      "seed": 15934002,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934002,role:Priest,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed Demonbane\n        \u0007peaceful manes\n      #invoke\ni                 "
+    }
+  ]
+}

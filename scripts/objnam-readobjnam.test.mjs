@@ -2389,3 +2389,16 @@ test('the random-wish matrix keeps its class and type spread', () => {
         ['zzyzx potion'],
     );
 });
+
+// objnam.c5222-5225 schedules the corpse itself via C's anything value.
+// JS timeout primitives keep TIMER_OBJECT arguments as canonical objects.
+test('zombifying wish keeps both timers on the same canonical corpse', async () => {
+    const {ZOMBIFY_MON,ROT_CORPSE}=await import('../js/const.js');
+    const state=wishWorldState();
+    const corpse=await readobjnam('zombifying human corpse',NO_WISH,
+        objectGenerationEnv({state,random:recordingRandom([])}));
+    const timers=[];
+    for(let t=state.gt.timer_base;t;t=t.next)if(t.arg===corpse)timers.push(t.func_index);
+    assert.equal(corpse.timed,2,'ordinary corpse rot and debug zombie revival coexist');
+    assert.deepEqual(timers.sort((a,b)=>a-b),[ROT_CORPSE,ZOMBIFY_MON]);
+});

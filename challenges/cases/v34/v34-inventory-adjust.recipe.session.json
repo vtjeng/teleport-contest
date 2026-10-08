@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: invent.c:doorganize. Wish daggers and adjust chosen inventory letter to z. Required C observation: Inventory letter reassignment and update display. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15934030,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934030,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u00173 uncursed daggers\n#adjust\nez           i            "
+    }
+  ]
+}
