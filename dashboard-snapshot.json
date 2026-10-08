@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T13:34:11.746Z",
+  "capturedAt": "2026-10-08T13:36:16.333Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -28000,6 +28000,23 @@
         "type": "accepted",
         "at": "2026-10-08T13:32:49.855Z",
         "task": "B158"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B158-3cf6b950-20261008",
+        "type": "published",
+        "at": "2026-10-08T13:34:49.612Z",
+        "task": "B158",
+        "commit": "3cf6b95031c990d267347bdd30853fb21ca38235"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B159-v34-ff93d021-20261008",
+        "type": "assign",
+        "at": "2026-10-08T13:36:01.152Z",
+        "task": "B159",
+        "worker": "B",
+        "kind": "challenge-preparation"
       }
     ]
   },
