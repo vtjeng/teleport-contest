@@ -210391,8 +210391,8 @@
           "name": "wiz_rumor_check",
           "line": 1102,
           "endLine": 1116,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -210404,25 +210404,25 @@
           "name": "init_rumors",
           "line": 85,
           "endLine": 116,
-          "declared": false,
+          "declared": true,
           "sourceFile": "rumors.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "rumor_check",
           "line": 196,
           "endLine": 307,
-          "declared": false,
+          "declared": true,
           "sourceFile": "rumors.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "others_check",
           "line": 308,
           "endLine": 419,
-          "declared": false,
+          "declared": true,
           "sourceFile": "rumors.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -210599,7 +210599,200 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_rumor_check",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_rumor_check",
+            "sourceReview": "Whole C1102–1106 (generated range1102–1116) awaits rumor_check and returns ECMD_OK. Existing cmd.c WIZMODECMD row gates admission; canonical doextcmd dispatcher now awaits the owner. No turn or RNG. Removed generic missing-command refusal by wiring the actual function.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c:1989 extcmdlist wizrumorcheck row, dispatched by doextcmd/rhack"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizcmds.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/rumor-check-fresh.session.json",
+              "recordings/rumors.c/rumor-check-cookie-repeat.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-rumor-boundaries",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 18,
+                "source": "cmd.c doextcmd WIZMODECMD -> wizcmds.c wiz_rumor_check -> rumors.c rumor_check/init_rumors/others_check; complete two-page tty diagnostic and dismissal"
+              }
+            ],
+            "checkedAt": "046895c0546c37c21ec49fea99d15f4516807480"
+          },
+          {
+            "name": "init_rumors",
+            "implementation": "js/rumors.js",
+            "symbol": "init_rumors",
+            "sourceReview": "Whole C85–107 (generated85–116). Skip two generated records, seven sscanf numeric conversions in order; counts and EOF remain local, parsed sizes/starts use the single gt/gf cache. Positive sizes publish ends; failed conversion/size marks true_size=-1 and closes the local handle. Commented boundary asserts are not enforced. Partial assignments before failed conversion are retained. Shared returned owner xcrypt/data is read-only; no RNG/output. Removed parseRumorHeader duplicate cache/parser and its extra validation. getrumor now observes the negative cache guard before open, initializes only at size0 and remembers failed open/init. No whole getrumor credit. Correction: LP64 %lx sign tokens convert modulo unsigned64 without Number rounding; wide exact values stay BigInt in their single gt/gf field, safe generated values retain Number representation. C long casts precede signed end arithmetic. Source-pinned negative true/false offsets and an independently compiled reference-host scanf/cast/printf probe confirm conversion. Second correction: bounded getrumor consumer retains signed LP64 BigInt offsets through get_rnd_line subtraction; only the source-bounded positive chunk converts for rn2. Its actual opened-file cursor is retained across initialization/retries, and failed seeks/reads retain cursor/output buffer in source order. No whole getrumor/get_rnd_line credit.",
+            "callers": [
+              {
+                "path": "js/random_text.js",
+                "symbol": "getrumor",
+                "source": "rumors.c:139–146 first-use initialization before either random choice; independent Monk cookie reaches eat.c fpostfx -> outrumor -> getrumor with zero pre-cookie cache"
+              },
+              {
+                "path": "js/rumors.js",
+                "symbol": "rumor_check",
+                "source": "rumors.c:207–214 first-use initialization; fresh Wizard zero pre-diagnostic cache, confirmed by runner"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/rumors.test.mjs",
+              "scripts/random-text.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/rumor-check-fresh.session.json",
+              "recordings/rumors.c/rumor-check-cookie-repeat.session.json"
+            ],
+            "sourceFile": "rumors.c",
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-rumor-boundaries",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 18,
+                "source": "cmd.c doextcmd WIZMODECMD -> wizcmds.c wiz_rumor_check -> rumors.c rumor_check/init_rumors/others_check; complete two-page tty diagnostic and dismissal"
+              }
+            ],
+            "checkedAt": "046895c0546c37c21ec49fea99d15f4516807480"
+          },
+          {
+            "name": "rumor_check",
+            "implementation": "js/rumors.js",
+            "symbol": "rumor_check",
+            "sourceReview": "Whole C196–303 (generated196–307). Guard negative cache before open; initialize zero cache; report decimal/hex gt/gf offsets in T/F order. Seek/read first and fgets/ftell last true/false records, retaining underscores and exact boundary comparison; C byte strings decode for tty without changing seek units. Close before catalogs. Invalid/cached failure awaits pline then WIN_MESSAGE acknowledgment; first open failure notes discarded couldnt_open_file and publishes -1. All catalogs share one lazily created text window, displayed/destroyed by canonical tty owner once after collection. No RNG/turn. Correction: decimal uses signed-long cast and sign-aware zero padding; hex uses unsigned-long cast, including negative end bit patterns. Signed seek follows the UNIX reference recorder stdio fseek branch (DLB disabled by config.h/dlb.h): negative SEEK_SET fails and retains the cursor; displayed ftell uses actual cursor. Cold-init and reopened cached cursors are both pinned.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_rumor_check",
+                "source": "wizcmds.c:1104 calls rumor_check before ECMD_OK"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/rumors.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/rumor-check-fresh.session.json",
+              "recordings/rumors.c/rumor-check-cookie-repeat.session.json"
+            ],
+            "sourceFile": "rumors.c",
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-rumor-boundaries",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 18,
+                "source": "cmd.c doextcmd WIZMODECMD -> wizcmds.c wiz_rumor_check -> rumors.c rumor_check/init_rumors/others_check; complete two-page tty diagnostic and dismissal"
+              }
+            ],
+            "checkedAt": "046895c0546c37c21ec49fea99d15f4516807480"
+          },
+          {
+            "name": "others_check",
+            "implementation": "js/rumors.js",
+            "symbol": "others_check",
+            "sourceReview": "Whole C308–408 (generated308–419). Open before lazy text-window creation; blank/title precede comment validation. Failed/invalid comment and absent/empty first entry retain exact diagnostics, malformed comment shows raw and xcrypt variants. First/second/last entry decoding retains padding; one/two-entry messages and ellipsis only above3 preserve order. Close on every opened branch; missing file records discarded couldnt_open_file. Reference TTY allocation failure panics at wintty.c:858–863 before WIN_ERR (NOTREACHED); no recoverable failed-window behavior is invented. Focused source assertion pins this build boundary.",
+            "callers": [
+              {
+                "path": "js/rumors.js",
+                "symbol": "rumor_check",
+                "source": "rumors.c:294–296 ordered Engravings/epitaphs/bogus-monsters calls sharing winptr"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/rumors.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/rumor-check-fresh.session.json",
+              "recordings/rumors.c/rumor-check-cookie-repeat.session.json"
+            ],
+            "sourceFile": "rumors.c",
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-rumor-boundaries",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 18,
+                "source": "cmd.c doextcmd WIZMODECMD -> wizcmds.c wiz_rumor_check -> rumors.c rumor_check/init_rumors/others_check; complete two-page tty diagnostic and dismissal"
+              }
+            ],
+            "checkedAt": "046895c0546c37c21ec49fea99d15f4516807480"
+          }
+        ],
+        "entryPointReview": "Direct production sites searched in upstream: cmd.c:1989 has the sole wiz_rumor_check command entry; wizcmds.c:1104 is sole rumor_check caller; rumors.c:140 and208 are both init_rumors callers; rumors.c:294–296 are all others_check callers. Fresh Wizard verifies zero cache before diagnostic initialization. Independent Monk cookie verifies zero cache before getrumor and positive offsets before two repeat diagnostics; unchanged turns verify ECMD_OK. Existing random_engraving/arti_speak/outrumor getrumor callers retain the shared initialized owner with no additional source credit. Standard tty creation cannot return WIN_ERR after panic; source assertion documents the excluded recoverable arm. Nonwizard independent C case verifies WIZMODECMD exclusion. No other entry point omitted.",
+        "entryPoints": [
+          {
+            "name": "wizard extended rumor diagnostic (cold and cached)",
+            "functions": [
+              {
+                "sourceFile": "wizcmds.c",
+                "name": "wiz_rumor_check"
+              },
+              {
+                "sourceFile": "rumors.c",
+                "name": "rumor_check"
+              },
+              {
+                "sourceFile": "rumors.c",
+                "name": "init_rumors"
+              },
+              {
+                "sourceFile": "rumors.c",
+                "name": "others_check"
+              }
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/rumor-check-fresh.session.json",
+              "recordings/rumors.c/rumor-check-cookie-repeat.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-rumor-boundaries",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 18,
+                "source": "cmd.c doextcmd WIZMODECMD -> wizcmds.c wiz_rumor_check -> rumors.c rumor_check/init_rumors/others_check; complete two-page tty diagnostic and dismissal"
+              }
+            ]
+          },
+          {
+            "name": "shared getrumor initialization through fortune-cookie reading",
+            "functions": [
+              {
+                "sourceFile": "rumors.c",
+                "name": "init_rumors"
+              }
+            ],
+            "recordings": [
+              "recordings/rumors.c/rumor-check-cookie-repeat.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
