@@ -194,3 +194,17 @@ test('getpos SHOWVALID branch matches the C continuation contract', () => {
     assert.ok(callback < showGoal);
     assert.ok(showGoal < continueInput);
 });
+
+test('NULL target callbacks discard the completed selection cursor handoff', async () => {
+    await runSegment({...PROBE,moves:' '});
+    game.iflags.bgcolors=false;
+    // Select one nearby cell so installation and exit both force newsym.
+    const hero={x:game.u.ux,y:game.u.uy};
+    await getpos_sethilite(async()=>{},(x,y)=>x===hero.x+2&&y===hero.y,game);
+    assert.ok(game.getpos_forced_map_cursor);
+    assert.match(C_SOURCE,/getpos_sethilite\(NULL, NULL\);\s*u\.dx = udx/u);
+    await getpos_sethilite(null,null,game);
+    assert.equal(game.getpos_getvalid,null);
+    assert.equal(game.getpos_forced_map_cursor,null,
+        'a later callback-free chooser must not reuse the old selected glyph cursor');
+});

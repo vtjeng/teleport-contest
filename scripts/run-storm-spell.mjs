@@ -18,6 +18,8 @@ const cases=[
     // every external apply/read call site without copying challenge inputs.
     ['apply.c','storm-callback-jump-cancel'],
     ['getpos.c','storm-background-refresh-cancel'],
+    ['getpos.c','target-jump-then-teleport-male'],
+    ['getpos.c','target-jump-then-teleport-female'],
     ['spell.c','storm-trained-wizcast-cancel'],
     ['spell.c','storm-trained-docast-cancel'],
     ['apply.c','use-pole-knight-cancel-independent'],
@@ -44,6 +46,7 @@ export async function verifyStormSegment(input,owner,name) {
     assert.ok(replay.getScreens().length>0);
     assert.equal(game.getpos_hilitefunc,null);
     assert.equal(game.getpos_getvalid,null);
+    assert.equal(game.getpos_forced_map_cursor,null, 'NULL callbacks clear the completed chooser handoff');
     if(owner==='spell.c') {
         if(name.startsWith('storm-trained-')) {
             assert.equal(P_SKILL(P_ATTACK_SPELL,game),P_SKILLED, 'C #enhance reaches Skilled attack magic');

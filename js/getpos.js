@@ -218,7 +218,9 @@ export async function getpos_sethilite(gp_hilitef, gp_getvalidf, state = game) {
         }
         // Existing HUP cursor adapter: the recorder's map curs() is a no-op;
         // a forced redraw leaves its cursor after the last row-major glyph.
-        state.getpos_forced_map_cursor = last;
+        // The handoff belongs to the installed chooser. C exit clears its
+        // callbacks; its redraw must not move a later callback-free cursor.
+        state.getpos_forced_map_cursor = gp_getvalidf ? last : null;
     }
 }
 
