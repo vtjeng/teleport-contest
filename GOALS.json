@@ -196163,7 +196163,7 @@
     {
       "id": "port-zap-blank-novel-v28-20261007",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port novel blanking and its cancellation and water-damage callers",
       "cFile": "zap.c",
       "sessions": [
@@ -196177,15 +196177,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "d6683ff41482c0da2412f4c019c8d581e668778a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "blank_novel",
           "line": 1367,
           "endLine": 1381,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -196360,7 +196363,102 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "blank_novel",
+            "implementation": "js/zap.js",
+            "symbol": "blank_novel",
+            "sourceReview": "Read the complete zap.c1367-1376 helper and both direct C calls at zap.c1327 and trap.c4820. Preserves the blank-paper precondition, canonical novelidx/corpsenm alias reset, verified do_name.c:free_oname80-88, then mkobj.c:container_weight2733-2738 using the existing canonical invent.js owner. Recomputed book weight and each enclosing container in source order; no new value or copied title state. Inspected full parent source cancel_item1239-1362 and water_damage4712-4852 to preserve their prior type change, study/dknown order, billing, BUC cleanup, and inventory update boundaries. Deleted zap.c blank_novel gap and water_damage injected partial blankNovel operation; no other caller or dependency uses a consumed unported result. This helper is impure because it mutates the object/name and container weights; it makes no random draw or terminal write. Source-pinned tests verify identity, canonical alias, unrelated oextra retention, nested weights and caller order; independent live recordings establish both caller families.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "cancel_item",
+                "source": "zap.c1323-1327: old SPE_NOVEL only, after costly_alteration and obj->otyp=SPE_BLANK_PAPER, before common unbless/uncurse."
+              },
+              {
+                "path": "js/trap_water_damage.js",
+                "symbol": "water_damage",
+                "source": "trap.c4810-4822: after fade/type/spestudied/dknown updates, before carried update_inventory; replaced placeholder with the canonical synchronous owner."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-blank-novel.test.mjs",
+              "scripts/zap-command.test.mjs",
+              "scripts/trap-water-damage.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/blank-novel-water-dip.session.json",
+              "recordings/zap.c/blank-novel-named-water-dip.session.json",
+              "recordings/zap.c/blank-novel-self-cancellation.session.json",
+              "recordings/zap.c/blank-novel-floor-cancellation.session.json"
+            ],
+            "sourceFile": "zap.c",
+            "synthetic": [
+              {
+                "batch": "v28",
+                "caseId": "v28-cancel-novel",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 45,
+                "source": "cmd.c z -> zap.c:dozap -> zapyourself -> cancel_monst(self_cancel) -> cancel_item -> blank_novel; final inventory establishes former novel title removal."
+              }
+            ],
+            "checkedAt": "d6683ff41482c0da2412f4c019c8d581e668778a"
+          }
+        ],
+        "entryPointReview": "Whole blank_novel has exactly two direct source callers, cancel_item and water_damage. Production self-cancellation inventory and downward floor cancellation each have independently matching C recordings. Water dipping establishes the other caller, with a fixed named-title variation. These existing parents and their dispatcher paths are supporting callers, not newly credited whole functions. The selected helper has no RNG, message, startup or Lua branch; source-pinned nested-container state assertions establish the recursive weight contract. No unrelated parent completion claimed.",
+        "entryPoints": [
+          {
+            "name": "self-cancellation of carried novel",
+            "functions": [
+              "blank_novel"
+            ],
+            "recordings": [
+              "recordings/zap.c/blank-novel-self-cancellation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v28",
+                "caseId": "v28-cancel-novel",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 45,
+                "source": "cmd.c z -> zap.c:dozap -> zapyourself -> cancel_monst(self_cancel) -> cancel_item -> blank_novel; final inventory establishes former novel title removal."
+              }
+            ]
+          },
+          {
+            "name": "downward cancellation of a floor novel",
+            "functions": [
+              "blank_novel"
+            ],
+            "recordings": [
+              "recordings/zap.c/blank-novel-floor-cancellation.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "water dipping of a random or explicitly named novel",
+            "functions": [
+              "blank_novel"
+            ],
+            "recordings": [
+              "recordings/zap.c/blank-novel-water-dip.session.json",
+              "recordings/zap.c/blank-novel-named-water-dip.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "d6683ff41482c0da2412f4c019c8d581e668778a",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "fix-dig-treefruit-caller-v28-20261007",
