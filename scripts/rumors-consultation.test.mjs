@@ -31,15 +31,21 @@ async function consultation(gold = 0) {
     const messages = [];
     const prompts = [];
     const draws = [];
+    const windows = [];
     const env = {
         message: async (message) => messages.push(message),
         ynq: async (prompt) => { prompts.push(prompt); return 'q'.charCodeAt(0); },
         y_n: async (prompt) => { prompts.push(prompt); return 'n'.charCodeAt(0); },
         // Zero chooses the first true rumor, offhand wording and no positive
         // Wisdom exercise: deterministic branches from getrumor/outrumor.
-        random: { rn2: (bound) => { draws.push(bound); return 0; } },
+        random: {
+            rn2: (bound) => { draws.push(bound); return 0; },
+            // Source rnd uses a positive normal-record index, reserving zero for special.
+            rnd: (bound) => { draws.push(bound); return 1; },
+        },
+        window: async (_state, lines) => windows.push(lines.map(line => line.text)),
     };
-    return { oracle, messages, prompts, draws, env };
+    return { oracle, messages, prompts, draws, windows, env };
 }
 
 test('doconsult preserves whole source guard, payment and reward order', () => {
@@ -132,12 +138,18 @@ test('major prompt guards use the canonical saved Oracle count and flag', async 
     assert.equal(money_cnt(game.invent), 51);
 });
 
-test('short major payment transfers all gold, exercises Wisdom negatively and records text gap', async () => {
+test('short major payment transfers all gold and displays special text before negative Wisdom exercise', async () => {
     const c = await consultation(51); // Above minor, below level-one major cost.
     c.env.ynq = async () => 'n'.charCodeAt(0);
     c.env.y_n = async () => 'y'.charCodeAt(0);
     const before = game.u.aexe[A_WIS];
     c.env.random.rn2 = (bound) => { c.draws.push(bound); return 1; };
+    c.env.window = async (_state, lines) => {
+        assert.equal(money_cnt(game.invent), 0, 'payment precedes the window');
+        assert.equal(Boolean(game.u.uevent.major_oracle), false, 'the event waits for dismissal');
+        assert.equal(game.u.aexe[A_WIS], before, 'Wisdom exercise waits for dismissal');
+        c.windows.push(lines.map(line => line.text));
+    };
     assert.equal(await doconsult(c.oracle, game, c.env), ECMD_TIME);
     assert.equal(money_cnt(game.invent), 0);
     assert.equal(money_cnt(c.oracle.minvent), 51);
@@ -145,7 +157,9 @@ test('short major payment transfers all gold, exercises Wisdom negatively and re
     assert.equal(game.u.uexp, 0);
     assert.equal(game.u.aexe[A_WIS], before - 1);
     assert.deepEqual(c.draws, [2]); // Negative attrib.c exercise draw.
-    assert.ok(game.unported.has('rumors.c outoracle'));
+    assert.equal(c.windows[0][0], 'The Oracle scornfully takes all your gold and says:');
+    assert.equal(game.svo.oracle_cnt, 21, 'the special record is not consumed');
+    assert.equal(game.unported?.has('rumors.c outoracle') ?? false, false);
 });
 
 test('full first major after minor grants 22 XP and invokes canonical level gain', async () => {
@@ -180,5 +194,5 @@ test('first major earns 55 XP before level gain caps the surplus; repeats earn n
     repeat.env.y_n = async () => 'y'.charCodeAt(0);
     assert.equal(await doconsult(repeat.oracle, game, repeat.env), ECMD_TIME);
     assert.equal(game.u.uexp, 0);
-    assert.deepEqual(repeat.draws, [19]); // Full major still exercises Wisdom.
+    assert.deepEqual(repeat.draws, [20, 19]); // Select a normal oracle, then exercise Wisdom.
 });
