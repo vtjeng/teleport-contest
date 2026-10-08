@@ -205023,7 +205023,7 @@
     {
       "id": "fix-eat-cpostfx-polymorph-caller-v29-20261008",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore polymorph food's canonical post-effect caller",
       "cFile": "eat.c",
       "sessions": [],
@@ -205035,8 +205035,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9f7db41233cca4114fe040f41e72e0282fbe08b0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "cpostfx",
       "session": "synthetic/v29/v29-eat-chameleon-tin",
       "step": 37,
@@ -205331,7 +205334,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9f7db41233cca4114fe040f41e72e0282fbe08b0",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
