@@ -2808,6 +2808,7 @@ async function jumpLandingPath(target, state) {
     const source = { x: state.u.ux, y: state.u.uy };
     const destination = { x: target.x, y: target.y };
     const range = {
+        state,
         range: Math.max(
             Math.abs(destination.x - source.x),
             Math.abs(destination.y - source.y),
@@ -2817,7 +2818,7 @@ async function jumpLandingPath(target, state) {
         source,
         destination,
         hurtle_jump,
-        { state, range },
+        range,
     );
     target.x = destination.x;
     target.y = destination.y;

@@ -119,3 +119,31 @@ test('jump forwards the supplied hunger callbacks and random source at the trapp
     assert.equal(game.u.uhs, WEAK);
     assert.deepEqual(events, [['rnd', 10], ['message', 'You are beginning to feel weak.'], ['run', true], ['bot', true]]);
 });
+
+test('one-cell jump consumes a flat mutable range and emits no delay frame', async () => {
+    const { runSegment } = await import('../js/jsmain.js');
+    const gstate = await import('../js/gstate.js');
+    const { jump } = await import('../js/apply.js');
+    const { ROOM, TIP_GETPOS } = await import('../js/const.js');
+    const { clearTtyMessageWindow } = await import('../js/tty_message.js');
+    // Independent starting map; this unit fixture supplies one legal floor cell.
+    await runSegment({ seed: 18541041, datetime: '20490318134536',
+        nethackrc: 'OPTIONS=name:JumpRange,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!debug_mongen,!acoustics,!tips', moves: '' });
+    const { game } = gstate;
+    clearTtyMessageWindow(game);
+    const x = game.u.ux, y = game.u.uy;
+    game.level.at(x + 1, y).typ = ROOM;
+    game.viz_array[y][x + 1] |= IN_SIGHT;
+    game.context.tips = (game.context.tips ?? 0) | (1 << TIP_GETPOS);
+    game.nhDisplay.pushKey('l'.charCodeAt(0));
+    game.nhDisplay.pushKey('.'.charCodeAt(0));
+    let frames = 0;
+    game._animationFrameHook = async () => { ++frames; };
+    const draws = [];
+    // apply.c2161 consumes one rnd(25) after the one-cell range becomes zero.
+    await jump(1, game, { random: { rnd: n => { draws.push(n); return 7; } } });
+    assert.deepEqual([game.u.ux, game.u.uy], [x + 1, y]);
+    assert.deepEqual(draws, [25]);
+    // dothrow.c971 delays only when the decremented integer range is nonzero.
+    assert.equal(frames, 0);
+});

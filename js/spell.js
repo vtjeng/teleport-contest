@@ -32,6 +32,7 @@ import {
     NO_KILLER_PREFIX,
     NO_SPELL,
     NO_MINVENT,
+    nothing_happens,
     P_ATTACK_SPELL,
     P_BASIC,
     P_CLERIC_SPELL,
@@ -55,6 +56,7 @@ import {
     uhim,
 } from './const.js';
 import { acurr, exercise } from './attrib.js';
+import { jump } from './apply.js';
 import { cmdq_pop, getdir, set_occupation } from './cmd.js';
 import { morehungry } from './eat.js';
 import { more_experienced, newexplevel } from './exper.js';
@@ -122,6 +124,7 @@ import {
     BELL_OF_OPENING,
     CANDELABRUM_OF_INVOCATION,
     SPE_INVISIBILITY,
+    SPE_JUMPING,
     SPE_KNOCK,
     SPE_LEVITATION,
     SPE_LIGHT,
@@ -1687,6 +1690,12 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
         // falls through
     case SPE_INVISIBILITY:
         await peffects(pseudo, state);
+        break;
+
+    case SPE_JUMPING:
+        // C spell.c1584–1587 consumes jump's TIME bit before common cleanup.
+        if (!(await jump(Math.max(role_skill, 1), state, env) & ECMD_TIME))
+            await (env.message ?? ttyPline)(nothing_happens, state);
         break;
 
     default:
