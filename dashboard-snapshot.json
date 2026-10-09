@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T16:05:06.028Z",
+  "capturedAt": "2026-10-09T16:19:44.080Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -74682,19 +74682,83 @@
         "worker": "A2",
         "state": "active",
         "reason": "A192 Mon-goal Lua port is active with its source and loader scope claimed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A197-6a3376788cd-20261009",
+        "type": "published",
+        "at": "2026-10-09T16:07:25.583Z",
+        "task": "A197",
+        "commit": "6a3376788cd3e39986b97106fce036a4c0db779d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B186-aa078be247",
+        "type": "integrating",
+        "at": "2026-10-09T16:08:20.041Z",
+        "task": "B186",
+        "integration": "aa078be24751cc723362b906245b9eb53d03ec6e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8a0f69f0c52809e267c7d06476888f0f3e5c44de",
+        "type": "ready",
+        "at": "2026-10-09T16:13:11.740Z",
+        "task": "C171",
+        "delivery": "8a0f69f0c52809e267c7d06476888f0f3e5c44de"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C171-ready-idle-20261009",
+        "type": "turn",
+        "at": "2026-10-09T16:13:35.361Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C171 is ready for integration; the immutable delivery includes source, callers, tests and replay evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C171-8a0f69f0-20261009",
+        "type": "received",
+        "at": "2026-10-09T16:13:50.458Z",
+        "task": "C171",
+        "delivery": "8a0f69f0c52809e267c7d06476888f0f3e5c44de"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B186-aa078be24751cc723362b906245b9eb53d03ec6e-validated",
+        "type": "validated",
+        "at": "2026-10-09T16:14:13.935Z",
+        "task": "B186",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B186-aa078be24751cc723362b906245b9eb53d03ec6e-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T16:18:14.364Z",
+        "task": "B186"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-resume-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T16:19:37.364Z",
+        "worker": "B",
+        "state": "active"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "B186",
-        "worker": "B",
-        "goal": "port-wizcmds-wiz-show-nhuuid-v34-20261009",
+        "task": "C171",
+        "worker": "C",
+        "goal": "port-kni-loca-quest-level-v36-20261009",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "747065a01f2df1ee7b66ecc44106fe1dd4d782d8",
-        "since": "2026-10-09T15:32:08.222Z",
+        "delivery": "8a0f69f0c52809e267c7d06476888f0f3e5c44de",
+        "since": "2026-10-09T16:13:11.740Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -75177,8 +75241,8 @@
     ]
   },
   "development": {
-    "executionCommit": "b581facde072156e518fc16846e3a5ca02455f81",
-    "measuredAt": "2026-10-09T15:48:48.511Z",
+    "executionCommit": "aa078be24751cc723362b906245b9eb53d03ec6e",
+    "measuredAt": "2026-10-09T16:12:41.894Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
