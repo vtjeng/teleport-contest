@@ -561,7 +561,6 @@ test('activity distinguishes pending deliveries from reported waits and preserve
     data.activity = activityTimeline({ runId: 'loop-20260925', events }, at('11:15'));
     const rendered = renderDashboard(data);
     assert.match(rendered.get('activityMetrics').innerHTML, /Ready → integration[\s\S]*30m[\s\S]*2 completed queue intervals/u);
-    assert.doesNotMatch(rendered.get('activityWaitList').innerHTML, /A1/u);
     assert.match(rendered.get('timeline').innerHTML, /activity-row main/u);
     // Only the recorded workers A and B, plus Main, need lanes.
     assert.equal((rendered.get('timeline').innerHTML.match(/activity-row(?: main)?" style="height:48px"/gu) || []).length, 3);
@@ -586,14 +585,17 @@ test('activity distinguishes pending deliveries from reported waits and preserve
         target: { classList: { contains: name => name === 'activity-bar' },
             dataset: { segment: String(mainIndex) } } });
     timeline.listeners.pointerup[0]({ type: 'pointerup', pointerId: 2, target: timeline });
-    assert.match(rendered.get('timelineReadout').innerHTML, /waiting delivery overlapped this stage/u);
+    assert.doesNotMatch(rendered.get('timelineReadout').innerHTML, /overlapped this stage|Overlap alone/u);
+    // The selected integration stage appears once, highlighted within the lifespan.
+    assert.match(rendered.get('timelineReadout').innerHTML, /class="selected"><button[^>]*aria-current="step"[^>]*>Main · Integration/u);
+    assert.match(rendered.get('timelineReadout').innerHTML, /<time>[^<]+<\/time> → <time>[^<]+<\/time>/u);
+    assert.doesNotMatch(rendered.get('timelineReadout').innerHTML, /Selected stage/u);
     const shortWindow = rendered.get('activityWindowLabel').textContent;
     timeline.listeners.pointerdown[0]({ button: 0, clientX: 0, pointerId: 1, target: timeline });
     timeline.listeners.pointermove[0]({ clientX: 700, pointerId: 1 });
     timeline.listeners.pointerup[0]({ pointerId: 1 });
     assert.notEqual(rendered.get('activityWindowLabel').textContent, shortWindow);
     assert.match(rendered.get('timeline').innerHTML, /B0/u);
-    assert.doesNotMatch(rendered.get('activityWaitList').innerHTML, /A1/u);
     assert.equal((rendered.get('timeline').innerHTML.match(/activity-row(?: main)?" style="height:48px"/gu) || []).length, 3);
     rendered.get('activityLatest').listeners.click[0]();
     assert.equal(rendered.get('activityWindowLabel').textContent, shortWindow);
@@ -626,25 +628,12 @@ test('activity view labels preparation and escapes public wait reasons', () => {
     assert.match(html, /activity-label">Prep/u);
     assert.match(rendered.get('timelineReadout').innerHTML, /Await main &lt;admission&gt;/u);
     assert.match(rendered.get('activityMetrics').innerHTML, /Longest block \/ parked task[\s\S]*Await main &lt;admission&gt;/u);
-    assert.match(rendered.get('activityWaitList').innerHTML, /Await main &lt;admission&gt;/u);
 });
 
-test('activity wait list contains every wait in the window', () => {
-    const data = sourceDashboardData();
-    data.activity = {
-        capturedAt: '2026-09-25T12:00:00Z',
-        tasks: Array.from({ length: 7 }, (_, index) => ({
-            id: `task-${index}`, label: `Task ${index}`, status: 'published',
-        })),
-        segments: Array.from({ length: 7 }, (_, index) => ({
-            task: `task-${index}`, worker: 'A', lane: 'A', phase: 'blocked',
-            start: `2026-09-25T11:${String(index).padStart(2, '0')}:00Z`,
-            end: `2026-09-25T11:${String(index + 10).padStart(2, '0')}:00Z`,
-        })),
-    };
-    const rendered = renderDashboard(data);
-    assert.equal((rendered.get('activityWaitList').innerHTML.match(/<button /gu) || []).length, 7);
-    assert.match(readFileSync(TEMPLATE, 'utf8'), /Blocks, idle and unrecorded time/u);
+test('activity keeps selected-stage details without a separate Inspect list', () => {
+    const template = readFileSync(TEMPLATE, 'utf8');
+    assert.match(template, /id="timelineReadout"/u);
+    assert.doesNotMatch(template, /activityListMode|activityWaitList/u);
 });
 
 test('selected stage details stay pinned across hover, focus and time range changes', () => {
@@ -699,8 +688,13 @@ test('activity keeps one row per agent across panning and zooming', () => {
     data.activity = activityTimeline({ events }, at('12:00'));
     const rendered = renderDashboard(data);
     const timeline = rendered.get('timeline');
-    assert.match(timeline.innerHTML, /activity-label">A2<\/div>/u);
+    assert.match(timeline.innerHTML, /activity-label">A<\/div>/u);
+    assert.doesNotMatch(timeline.innerHTML, /activity-label">A2<\/div>/u);
     assert.match(timeline.innerHTML, /Assigned task for replacement-A/u);
+    const replacementIndex = data.activity.stages.findIndex(row => row.task === 'replacement-A');
+    timeline.listeners.click[0]({ target: { classList: { contains: value => value === 'activity-bar' },
+        dataset: { segment: String(replacementIndex) } } });
+    assert.match(rendered.get('timelineReadout').innerHTML, /replacement-A<\/strong> · A2/u);
     assert.doesNotMatch(timeline.innerHTML, /Delivery pending for replacement-A/u);
     const barPosition = index => {
         const bar = timeline.innerHTML.match(new RegExp(
@@ -720,7 +714,7 @@ test('activity keeps one row per agent across panning and zooming', () => {
     }
     // Queue history can overlap, but an agent's displayed activity cannot.
     assert.equal(new Set([...taskPositions.values()].map(row => row.position[0])).size, 1);
-    assert.equal((timeline.innerHTML.match(/activity-row(?: main)?" style="height:48px"/gu) || []).length, 4);
+    assert.equal((timeline.innerHTML.match(/activity-row(?: main)?" style="height:48px"/gu) || []).length, 3);
     const initialWindow = rendered.get('activityWindowLabel').textContent;
     // A short drag shifts the window while keeping all three assignments visible.
     timeline.listeners.pointerdown[0]({ button: 0, clientX: 0, pointerId: 1, target: timeline });
