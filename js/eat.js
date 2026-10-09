@@ -1412,7 +1412,7 @@ function foodword(otmp, state) {
 
 // C ref: eat.c Hear_again() (1800-1809). The ga.afternmv callback after
 // rotten-food fainting.  50% chance to clear timed deafness; always returns 0.
-async function Hear_again(state, env = {}) {
+export async function Hear_again(state, env = {}) {
     /* Chance of deafness going away while fainted/sleeping/etc. */
     if (!(env.random?.rn2 ?? rn2)(2)) {
         await make_deaf(0, false, state, env);

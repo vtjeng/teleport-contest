@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first female human Knight arrival through the C('v') wizard level-teleport key. The distinct fixed seed, clock and gender vary initialization and the one-time warhorse and per-horse saddle draws; the final #wizmap observes Kni-strt.lua after generation.",
+  "segments": [
+    {
+      "seed": 24110317,
+      "datetime": "20461103111609",
+      "nethackrc": "OPTIONS=name:KnightKey,role:Knight,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0016?\n>y                #wizmap\n                "
+    }
+  ]
+}

@@ -71,6 +71,7 @@ import {
 import { on_level } from './dungeon.js';
 import { dogfood as classifyDogFood } from './dogfood.js';
 import { eaten_stat } from './eat.js';
+import { lose_guardian_angel } from './minion.js';
 import { game } from './gstate.js';
 import { currency, obj_extract_self, sobj_at } from './invent.js';
 import { On_stairs } from './stairs.js';
@@ -1420,7 +1421,8 @@ export async function dog_move(monster, after, rawEnv = {}) {
             ?? ((subject) => resist_conflict(subject, state, random));
         if (!resistConflict(monster, env) && !edog) {
             if (env.loseGuardianAngel) await env.loseGuardianAngel(monster, env);
-            else if (!env.planning) note_unported('minion.c lose_guardian_angel');
+            else if (!env.planning)
+                await lose_guardian_angel(monster, state, env);
             return MMOVE_DIED;
         }
     }

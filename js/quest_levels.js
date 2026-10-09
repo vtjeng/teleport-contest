@@ -5,6 +5,7 @@
 //         dat/Arc-goal.lua, dat/Cav-goal.lua, dat/Cav-loca.lua,
 //         dat/Cav-strt.lua,
 //         dat/Hea-goal.lua, dat/Hea-loca.lua, dat/Hea-strt.lua,
+//         dat/Kni-strt.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
@@ -62,6 +63,8 @@ import { CAV_LOCA_LEVEL_MAP, CAV_LOCA_MONSTERS } from './cav_loca_level_data.js'
 import { HEA_STRT_LEVEL_MAP, HEA_STRT_DOORS, HEA_STRT_ATTENDANTS } from './hea_strt_level_data.js';
 import { CAV_STRT_LEVEL_MAP } from './cav_strt_level_data.js';
 import { HEA_LOCA_LEVEL_MAP } from './hea_loca_level_data.js';
+import { KNI_STRT_LEVEL_MAP } from './kni_strt_level_data.js';
+import { ASTRAL_LEVEL_MAP } from './astral_level_data.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
 // that draws a random zig-zag path from (x1,y1) to (x2,y2).
@@ -2103,6 +2106,184 @@ async function cavStrt(des) {
     await des.wallify();
 }
 
+// C ref: dat/Kni-strt.lua. Preserve the fortress descriptors and the
+// one-time warhorse-count draw followed by one saddle chance per horse.
+async function kniStrt(des) {
+    await des.level_init({ style: 'solidfill', fg: '.' });
+    await des.level_flags('mazelevel', 'noteleport', 'hardfloor');
+    await des.level_init({ style: 'mines', fg: '.', bg: '.',
+        smoothed: false, joined: false, lit: 1, walled: false });
+    await des.map(KNI_STRT_LEVEL_MAP);
+
+    await des.region(selection_area(0, 0, 49, 15), 'lit');
+    await des.region(selection_area(4, 4, 45, 11), 'unlit');
+    await des.region({ region: [6, 6, 22, 9], lit: 1,
+        type: 'throne', filled: 2 });
+    await des.region(selection_area(27, 6, 43, 9), 'lit');
+    await des.levregion({ region: [20, 14, 20, 14], type: 'branch' });
+    await des.stair('down', 40, 7);
+
+    await des.door('locked', 24, 3);
+    await des.door('locked', 25, 3);
+    await des.door('closed', 23, 4);
+    await des.door('closed', 26, 4);
+    await des.door('locked', 24, 5);
+    await des.door('locked', 25, 5);
+    await des.door('closed', 23, 7);
+    await des.door('closed', 26, 7);
+    await des.door('closed', 23, 8);
+    await des.door('closed', 26, 8);
+    await des.door('closed', 36, 8);
+    await des.door('closed', 4, 3);
+    await des.door('closed', 45, 3);
+    await des.door('closed', 4, 12);
+    await des.door('closed', 45, 12);
+
+    await des.monster({ id: 'King Arthur', coord: [9, 7], async inventory() {
+        await des.object({ id: 'long sword', spe: 4, buc: 'blessed', name: 'Excalibur' });
+        await des.object({ id: 'plate mail', spe: 4 });
+    } });
+    await des.object('chest', 9, 7);
+    await des.monster({ id: 'knight', x: 4, y: 2, peaceful: 1 });
+    await des.monster({ id: 'knight', x: 4, y: 13, peaceful: 1 });
+    await des.monster({ id: 'knight', x: 45, y: 2, peaceful: 1 });
+    await des.monster({ id: 'knight', x: 45, y: 13, peaceful: 1 });
+    await des.monster('page', 16, 6);
+    await des.monster('page', 18, 6);
+    await des.monster('page', 20, 6);
+    await des.monster('page', 16, 9);
+    await des.monster('page', 18, 9);
+    await des.monster('page', 20, 9);
+
+    await des.non_diggable(selection_area(0, 0, 49, 15));
+    await des.trap('sleep gas', 24, 4);
+    await des.trap('sleep gas', 25, 4);
+    for (let i = 0; i < 4; ++i) await des.trap();
+    for (let x = 14; x <= 36; x += 2)
+        await des.monster({ id: 'quasit', x, y: 0, peaceful: 0 });
+
+    // Lua evaluates the loop bound once; each inventory callback then draws
+    // independently for its optional saddle, matching nhlib.lua percent().
+    const warhorseCount = 2 + rn2(3);
+    for (let i = 0; i < warhorseCount; ++i) {
+        await des.monster({ id: 'warhorse', peaceful: 1, async inventory() {
+            if (rn2(100) < 50) await des.object('saddle');
+        } });
+    }
+}
+
+// C ref: dat/astral.lua, whole program.
+async function astral(des, state) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noteleport', 'hardfloor', 'nommap',
+        'shortsighted', 'solidify');
+    await des.message('You arrive on the Astral Plane!');
+    await des.message('Here the High Temple of %d is located.');
+    await des.message('You sense alarm, hostility, and excitement in the air!');
+    await des.map(ASTRAL_LEVEL_MAP);
+
+    for (let i = 1; i <= 2; ++i) {
+        if (rn2(100) < 60) {
+            if (i === 1) {
+                await des.terrain(selection_area(17, 14, 30, 18), '.');
+                await des.wallify();
+                await des.terrain(33, 18, '|');
+                const hall = selection_floodfill(30, 16, state, des.frame);
+                await des.terrain(33, 18, '.');
+                for (let j = 0, count = rn2(6) + 4; j < count; ++j) {
+                    await des.monster({ id: 'Angel', coord: hall.rndcoord(true, rn2),
+                        align: 'noalign', peaceful: 0 });
+                    if (rn2(100) < 50)
+                        await des.monster({ coord: hall.rndcoord(true, rn2), peaceful: 0 });
+                }
+            } else {
+                await des.terrain(selection_area(44, 14, 57, 18), '.');
+                await des.wallify();
+                await des.terrain(41, 18, '|');
+                const hall = selection_floodfill(44, 16, state, des.frame);
+                await des.terrain(41, 18, '.');
+                for (let j = 0, count = rn2(6) + 4; j < count; ++j) {
+                    await des.monster({ id: 'Angel', coord: hall.rndcoord(true, rn2),
+                        align: 'noalign', peaceful: 0 });
+                    if (rn2(100) < 50)
+                        await des.monster({ coord: hall.rndcoord(true, rn2), peaceful: 0 });
+                }
+            }
+        }
+    }
+
+    const riders = new ThemeroomSelection();
+    riders.set(23, 9);
+    riders.set(37, 14);
+    riders.set(51, 9);
+    await des.teleport_region({ region: [29, 15, 45, 15], exclude: [30, 15, 44, 15] });
+
+    await des.region({ region: [1, 5, 16, 14], lit: 1, type: 'ordinary', irregular: 1 });
+    await des.region({ region: [31, 1, 44, 10], lit: 1, type: 'ordinary', irregular: 1 });
+    await des.region({ region: [61, 5, 74, 14], lit: 1, type: 'ordinary', irregular: 1 });
+    await des.region({ region: [4, 7, 10, 11], lit: 1, type: 'temple', filled: 2 });
+    await des.region({ region: [34, 3, 40, 7], lit: 1, type: 'temple', filled: 2 });
+    await des.region({ region: [64, 7, 70, 11], lit: 1, type: 'temple', filled: 2 });
+    await des.altar({ x: 7, y: 9, align: state.specialLevelAlign[0], type: 'sanctum' });
+    await des.altar({ x: 37, y: 5, align: state.specialLevelAlign[1], type: 'sanctum' });
+    await des.altar({ x: 67, y: 9, align: state.specialLevelAlign[2], type: 'sanctum' });
+
+    for (const [stateName, x, y] of [
+        ['closed', 11, 9], ['closed', 17, 9], ['locked', 23, 12],
+        ['locked', 37, 8], ['closed', 37, 11], ['closed', 37, 17],
+        ['locked', 51, 12], ['locked', 57, 9], ['closed', 63, 9],
+    ]) await des.door(stateName, x, y);
+    const all = selection_area(0, 0, 74, 19);
+    await des.non_diggable(all);
+    await des.non_passwall(all);
+
+    const fixedMonsters = [
+        ['aligned cleric', 18, 9, 'noalign', 0], ['aligned cleric', 19, 8, 'noalign', 0],
+        ['aligned cleric', 19, 9, 'noalign', 0], ['aligned cleric', 19, 10, 'noalign', 0],
+        ['Angel', 20, 9, 'noalign', 0], ['Angel', 20, 10, 'noalign', 0],
+    ];
+    for (const [id, x, y, align, peaceful] of fixedMonsters)
+        await des.monster({ id, x, y, align, peaceful });
+    await des.monster({ id: 'Pestilence', coord: riders.rndcoord(true, rn2), peaceful: 0 });
+    for (const [id, x, y] of [
+        ['aligned cleric', 36, 12], ['aligned cleric', 37, 12],
+        ['aligned cleric', 38, 12], ['aligned cleric', 36, 13],
+        ['Angel', 38, 13], ['Angel', 37, 13],
+    ]) await des.monster({ id, x, y, align: 'noalign', peaceful: 0 });
+    await des.monster({ id: 'Death', coord: riders.rndcoord(true, rn2), peaceful: 0 });
+    for (const [id, x, y] of [
+        ['aligned cleric', 56, 9], ['aligned cleric', 55, 8],
+        ['aligned cleric', 55, 9], ['aligned cleric', 55, 10],
+        ['Angel', 54, 9], ['Angel', 54, 10],
+    ]) await des.monster({ id, x, y, align: 'noalign', peaceful: 0 });
+    await des.monster({ id: 'Famine', coord: riders.rndcoord(true, rn2), peaceful: 0 });
+
+    const alignedHorde = [
+        ['aligned cleric', 12, 7, 'chaos', 0], ['aligned cleric', 13, 7, 'chaos', 1],
+        ['aligned cleric', 14, 7, 'law', 0], ['aligned cleric', 12, 11, 'law', 1],
+        ['aligned cleric', 13, 11, 'neutral', 0], ['aligned cleric', 14, 11, 'neutral', 1],
+        ['Angel', 11, 5, 'chaos', 0], ['Angel', 12, 5, 'chaos', 1],
+        ['Angel', 13, 5, 'law', 0], ['Angel', 11, 13, 'law', 1],
+        ['Angel', 12, 13, 'neutral', 0], ['Angel', 13, 13, 'neutral', 1],
+        ['aligned cleric', 32, 9, 'chaos', 0], ['aligned cleric', 33, 9, 'chaos', 1],
+        ['aligned cleric', 34, 9, 'law', 0], ['aligned cleric', 40, 9, 'law', 1],
+        ['aligned cleric', 41, 9, 'neutral', 0], ['aligned cleric', 42, 9, 'neutral', 1],
+        ['Angel', 31, 8, 'chaos', 0], ['Angel', 32, 8, 'chaos', 1],
+        ['Angel', 31, 9, 'law', 0], ['Angel', 42, 8, 'law', 1],
+        ['Angel', 43, 8, 'neutral', 0], ['Angel', 43, 9, 'neutral', 1],
+        ['aligned cleric', 60, 7, 'chaos', 0], ['aligned cleric', 61, 7, 'chaos', 1],
+        ['aligned cleric', 62, 7, 'law', 0], ['aligned cleric', 60, 11, 'law', 1],
+        ['aligned cleric', 61, 11, 'neutral', 0], ['aligned cleric', 62, 11, 'neutral', 1],
+        ['Angel', 61, 5, 'chaos', 0], ['Angel', 62, 5, 'chaos', 1],
+        ['Angel', 63, 5, 'law', 0], ['Angel', 61, 13, 'law', 1],
+        ['Angel', 62, 13, 'neutral', 0], ['Angel', 63, 13, 'neutral', 1],
+    ];
+    for (const [id, x, y, align, peaceful] of alignedHorde)
+        await des.monster({ id, x, y, align, peaceful });
+    for (const monsterClass of ['L', 'L', 'L', 'V', 'V', 'V', 'D', 'D', 'D'])
+        await des.monster({ class: monsterClass, peaceful: 0 });
+}
+
 export const QUEST_LEVEL_LOADERS = {
     'Hea-strt': heaStrt,
     'Cav-loca': cavLoca,
@@ -2121,6 +2302,8 @@ export const QUEST_LEVEL_LOADERS = {
     'Hea-goal': heaGoal,
     'Cav-strt': cavStrt,
     'Hea-loca': heaLoca,
+    'Kni-strt': kniStrt,
+    astral,
     'Pri-strt': priStrt,
     'Pri-loca': priLoca,
     'Pri-goal': priGoal,
