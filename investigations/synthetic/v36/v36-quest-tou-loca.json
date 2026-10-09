@@ -1,0 +1,93 @@
+{
+  "session": "synthetic/v36/v36-quest-tou-loca",
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-tou-loca",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "82620864b147afeef63968c3285e30bc758b89ed8df48a51ecadcea08e679c3a",
+  "evaluationPath": "challenges/evaluations/accepted-c65c2b3a1cdd449def877087461571f57c3f88b6-v36.json",
+  "evaluationCommit": "c65c2b3a1cdd449def877087461571f57c3f88b6",
+  "remainingScreens": 41,
+  "recordedSteps": 60,
+  "status": "complete",
+  "commit": "6bc77f255cd131a01328ba8827c73892694aa955",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-tou-loca",
+    "session": "synthetic/v36/v36-quest-tou-loca",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-tou-loca.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-tou-loca.session.json",
+    "recordingSha256": "82620864b147afeef63968c3285e30bc758b89ed8df48a51ecadcea08e679c3a",
+    "recipe": "challenges/cases/v36/v36-quest-tou-loca.recipe.session.json",
+    "recipeSha256": "d1a4edd2b7f52fb1516ea00a6228e350a553b07601f2a1a2c6d0dff511b1b9ab",
+    "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+    "evaluationPath": "challenges/evaluations/accepted-c65c2b3a1cdd449def877087461571f57c3f88b6-v36.json",
+    "evaluationCommit": "c65c2b3a1cdd449def877087461571f57c3f88b6",
+    "evaluationArtifact": "challenges/evaluations/accepted-c65c2b3a1cdd449def877087461571f57c3f88b6-v36.json",
+    "evaluationUtc": "2026-10-09T13:34:54.250Z",
+    "remainingScreens": 41,
+    "recordedSteps": 60,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 60
+      },
+      "rng": {
+        "matched": 2977,
+        "total": 9445
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-loca\"",
+      "step": 19
+    },
+    "step": 19,
+    "kind": "stop",
+    "sourceFile": "Tou-loca.lua",
+    "function": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-loca\"",
+    "cFile": null,
+    "luaFile": "Tou-loca.lua",
+    "line": null
+  },
+  "goalKind": "lua-port",
+  "summary": "Tou-loca has no registered loader. Port its whole Tourist quest locate program and required selection union/subtraction, preserving deferred special-room filling and trap exclusion from both shops.",
+  "source": {
+    "file": "Tou-loca.lua",
+    "branch": "Tourist quest locate arrival or registered wizard load of Tou-loca, including map-defined room types and nine random traps selected outside the two shops.",
+    "functions": [
+      "Tou-loca.lua"
+    ],
+    "callers": [
+      "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Tou-loca.lua",
+      "wizcmds.c:wiz_load_splua -> load_special -> registered Tou-loca Lua program"
+    ],
+    "dependencies": [
+      "Required pure nhlsel.c:l_selection_or306–330 and l_selection_sub361–386 owners for consumed Lua selection operators; source-pinned value/set and coordinate-frame semantics must be preserved. No canonical JavaScript operator owner exists.",
+      "Existing selection_area/filter_mapchar/rndcoord, region/levregion/door/object/trap/monster owners and deferred stock_room/fill_zoo filling. No alignment macro or spinach descriptor is used."
+    ]
+  },
+  "evidence": [
+    "Saved accepted evaluation challenges/evaluations/accepted-c65c2b3a1cdd449def877087461571f57c3f88b6-v36.json at c65c2b3a1cdd449def877087461571f57c3f88b6 has19/60matching screens and41remaining, with missing Tou-loca loader at step19. Recordingchallenges/cases/v36/v36-quest-tou-loca.session.json, digest82620864b147afeef63968c3285e30bc758b89ed8df48a51ecadcea08e679c3a; manifest corpus digest58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c. Examined worker boundary includes accepted C1692bb9024f9f762a4e380075f8faeb6d4bee382ed4; source count and immutable recording identity are unchanged. No session replay or C recording during investigation.",
+    "Read whole dat/Tou-loca.lua1–153, SHA256595f7f6265dd3346624aa6de81e7093b05705e67f8c73ed39e75b54caf213d82. Solidfill stone,mazelevel/hardfloor,exact76×20 map,fullmap lit/nondiggable precede eight filled special regions: morgue,two shops,three barracks,zoo,temple. Twenty-four ordinary region tables and two local lighting selections follow. Fixed up10,4/down73,5, repeated full nondiggable,35literal doors,14random objects and two blank-paper objects71,12 retain source order. Generate literal map/regions/doors deterministically. No explicit wallify call.",
+    "Tou-loca.lua130–134 filters full area0,0..75,19 to floor, subtracts the union of shop rectangles15,3..20,5 and62,3..71,4, then removes one selected coordinate for each of nine traps. Selection points must use one frame consistently: either absolute with origin subtraction at rndcoord, or existing relative selection representation with map-frame offset only for filter lookup. No extra coordinate RNG or replacement rectangle is permitted. Trap coordinate tables x/y already pass through get_table_xy_or_coord; random trap type remains owned by create_trap.",
+    "Consumed operators have no canonical owner: rg -n 'selection_(or|add|union|sub)|selUnion|selSubtract|\\.union\\(|\\.subtract\\(' js finds only private bigrm.js selUnion, with no nhlsel.js or subtraction implementation. Source nhlsel.c306–330 unions point values using bitwise OR over rect_bounds;361–386 computes (a_pt ^ b_pt) & a_pt and recalculates bounds. Both are pure with respect to game state, messages and RNG. Propose canonical js/nhlsel.js whole operators and pure source-pinned tests rather than borrowing the private bigrm helper or inventing per-level exclusions.",
+    "Operator source review must retain numeric point semantics: selvar.c168–209 stores (char)(c+1) and reads map-byte minus1; nhlsel.c159–196 allows an explicit integer point value. Existing ThemeroomSelection exposes Boolean get/set for ordinary points, so do not claim generic operator completion using Boolean coercion. The central scope must establish a source-equivalent point-value adapter for the new pure operators, or explicitly keep their broader owner incomplete and reconsider whole-program closure. No shared selection storage edit is authorized by this report.",
+    "Existing lspo_region3898+ creates actual special rooms with needfill and light state; ordinary rectangles only call light_region. fill_special_room520+ matches sp_lev.c2731–2806: stock_room for shops,fill_zoo for morgue/barracks/zoo,temple only sets has_temple. This temple region does not call lspo_altar or B198 alignment conversion. Normal load_special finalization fills the registered rooms after fixup_special; source room order and RNG must be preserved.",
+    "Tou-loca.lua136–153 creates16giant spiders and2s-class monsters after trap placement. Reuse named/class descriptor owners and ordinary object type resolution for blank paper. No edits to pending C170,B195/A191 or C172 spinach descriptor scope were identified. Runtime support remains unverified for this program; preserve any concrete new support blocker rather than inventing behavior.",
+    "Plan fail-first registry/sequence and generated-data equality, pure selection OR/subtraction tests covering overlap/disjoint/empty/frame/value behavior, exact shop exclusions and decreasing rndcoord cardinality, no random trap in shops, deferred room filling order, source flags/stairs and duplicate nondiggable operation. Admitted Tourist locate arrival plus independent male/female human Tourist #wizloaddes recordings cover runtime routes. No impure helper completion credit beyond the Lua program is proposed; central scope must approve the required pure operator dependency before source edits."
+  ]
+}
