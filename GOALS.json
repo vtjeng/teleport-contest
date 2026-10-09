@@ -232963,6 +232963,317 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-spell-cast-preflight-amulet-v35-20261009",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete spell-casting preflight, Amulet drain and forgotten-spell backfire.",
+      "cFile": "spell.c",
+      "sessions": [
+        "synthetic/v35/v35-spell-amulet-carrier"
+      ],
+      "selectionReason": "A190 is the oldest dependency-ready delivery and unblocks A188; its reviewed source family is selected from the admitted v35 Amulet casting mismatch.",
+      "detail": "At segment 0 step 44 selecting force bolt, C spelleffects_check:1298 calls rnd(10)=4 after the drain message; hero energy 7 falls to 3, lower than base energy 5. C sets disp.botl and ECMD_TIME before insufficient-energy return. JS stops before message/RNG and its current abort shape hardcodes ECMD_OK. Translate whole preflight and adjacent backfire, preserving return-valued energy/result, message/input/RNG/property order and normal/force entry distinctions.",
+      "openedAt": "25efd01511171e4656035a5f06df89485353b102",
+      "openStanding": {
+        "sha": "9bb29ae0cf4db7baf1358008c21acd797175aebc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "spell_backfire",
+          "line": 1181,
+          "endLine": 1219,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "spelleffects_check",
+          "line": 1220,
+          "endLine": 1384,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1181,
+        "to": 1384
+      },
+      "syntheticProvenance": {
+        "synthetic/v35/v35-spell-amulet-carrier": {
+          "session": "synthetic/v35/v35-spell-amulet-carrier",
+          "corpus": "synthetic",
+          "batch": "v35",
+          "caseId": "v35-spell-amulet-carrier",
+          "manifestPath": "challenges/manifests/v35.json",
+          "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+          "recordingPath": "challenges/cases/v35/v35-spell-amulet-carrier.session.json",
+          "recordingSha256": "e5224f5c13c5c5812a78e0ee303efcb4ae8d70c593e8cca6942eb5c40ddfd5ae",
+          "evaluationPath": "challenges/evaluations/accepted-9bb29ae0cf4db7baf1358008c21acd797175aebc-v35.json",
+          "evaluationCommit": "9bb29ae0cf4db7baf1358008c21acd797175aebc"
+        }
+      },
+      "activeStanding": {
+        "sha": "9bb29ae0cf4db7baf1358008c21acd797175aebc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v35",
+          "caseId": "v35-spell-amulet-carrier",
+          "session": "synthetic/v35/v35-spell-amulet-carrier",
+          "manifestPath": "challenges/manifests/v35.json",
+          "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+          "recording": "challenges/cases/v35/v35-spell-amulet-carrier.session.json",
+          "recordingPath": "challenges/cases/v35/v35-spell-amulet-carrier.session.json",
+          "recordingSha256": "e5224f5c13c5c5812a78e0ee303efcb4ae8d70c593e8cca6942eb5c40ddfd5ae",
+          "recipe": "challenges/cases/v35/v35-spell-amulet-carrier.recipe.session.json",
+          "recipeSha256": "14d2cec47a2cff5c29c993824dcba44a71589b331716e3fb3bcab089f3d58dcf",
+          "replayInputSha256": "d8082dfa7a1abd607a851ef089936e6a2239a9574307e24fe5bfcea827a3b111",
+          "evaluationPath": "challenges/evaluations/accepted-9bb29ae0cf4db7baf1358008c21acd797175aebc-v35.json",
+          "evaluationCommit": "9bb29ae0cf4db7baf1358008c21acd797175aebc",
+          "evaluationArtifact": "challenges/evaluations/accepted-9bb29ae0cf4db7baf1358008c21acd797175aebc-v35.json",
+          "evaluationUtc": "2026-10-09T12:23:57.911Z",
+          "remainingScreens": 28,
+          "recordedSteps": 72,
+          "previousScreensMatched": 44,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 44,
+              "total": 72
+            },
+            "rng": {
+              "matched": 6138,
+              "total": 6143
+            },
+            "cursors": {
+              "matched": 44,
+              "total": 72
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: spell casting requires the Amulet of Yendor energy drain during casting",
+            "step": 44
+          },
+          "step": 44,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: spell casting requires the Amulet of Yendor energy drain during casting",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v35/v35-spell-amulet-carrier.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v35",
+              "caseId": "v35-spell-amulet-carrier",
+              "session": "synthetic/v35/v35-spell-amulet-carrier",
+              "manifestPath": "challenges/manifests/v35.json",
+              "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+              "recordingSha256": "e5224f5c13c5c5812a78e0ee303efcb4ae8d70c593e8cca6942eb5c40ddfd5ae",
+              "evaluationPath": "challenges/evaluations/accepted-61b9bad31ac7fc81b7370cd1312e25e5bf7358cf-v35.json",
+              "evaluationCommit": "61b9bad31ac7fc81b7370cd1312e25e5bf7358cf",
+              "remainingScreens": 28,
+              "recordedSteps": 72,
+              "status": "complete",
+              "commit": "0bff853548e214fc72efc77b38bea3711d1c7627",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v35",
+                "caseId": "v35-spell-amulet-carrier",
+                "session": "synthetic/v35/v35-spell-amulet-carrier",
+                "manifestPath": "challenges/manifests/v35.json",
+                "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+                "recording": "challenges/cases/v35/v35-spell-amulet-carrier.session.json",
+                "recordingPath": "challenges/cases/v35/v35-spell-amulet-carrier.session.json",
+                "recordingSha256": "e5224f5c13c5c5812a78e0ee303efcb4ae8d70c593e8cca6942eb5c40ddfd5ae",
+                "recipe": "challenges/cases/v35/v35-spell-amulet-carrier.recipe.session.json",
+                "recipeSha256": "14d2cec47a2cff5c29c993824dcba44a71589b331716e3fb3bcab089f3d58dcf",
+                "replayInputSha256": "9a345b9f1c2c4f64668854b1f41843898e09b9498646789c8c4a14892bfcd5a5",
+                "evaluationPath": "challenges/evaluations/accepted-61b9bad31ac7fc81b7370cd1312e25e5bf7358cf-v35.json",
+                "evaluationCommit": "61b9bad31ac7fc81b7370cd1312e25e5bf7358cf",
+                "evaluationArtifact": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+                "evaluationUtc": "2026-10-09T08:57:27.032Z",
+                "remainingScreens": 28,
+                "recordedSteps": 72,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 44,
+                    "total": 72
+                  },
+                  "rng": {
+                    "matched": 6138,
+                    "total": 6143
+                  },
+                  "cursors": {
+                    "matched": 44,
+                    "total": 72
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: spell casting requires the Amulet of Yendor energy drain during casting",
+                  "step": 44
+                },
+                "step": 44,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: spell casting requires the Amulet of Yendor energy drain during casting",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "goalKind": "file-port",
+              "summary": "At step 44, spell.c:spelleffects_check reaches the real-Amulet energy drain. JavaScript refuses it before C rnd(10)=4; C drains hero energy 7 to 3 and sets ECMD_TIME, so even the resulting insufficient-energy abort consumes a turn. Complete the whole preflight and adjacent forgotten-spell backfire, with canonical result/RNG/message propagation. This scope is disjoint from the separate chain-lightning effect owners.",
+              "source": {
+                "file": "spell.c",
+                "functions": [
+                  "spell_backfire (1181-1217)",
+                  "spelleffects_check (1220-1380)"
+                ],
+                "branch": "A nonforced known-spell cast passes rejection/knowledge/hunger/strength/capacity checks. With u.uhave.amulet and u.uen >= base energy, drain happens before the insufficient-energy test, with a zero clamp and time result. The same whole checker has a currently refused forgotten-knowledge arm calling spell_backfire.",
+                "callers": [
+                  "spell.c:1385-1395 spelleffects calls spelleffects_check unless force, consuming abort/res/energy. JS spell.js:1509 mirrors this private-helper caller, so no effect/chain-lightning implementation is needed.",
+                  "spell.c:820-829 docast -> spelleffects(FALSE), production cmd.js runCastCommand -> docast supplies canonical message/menu/hunger operations. Selected case reaches this ordinary command with real carried Amulet.",
+                  "teleport.c:1134 dotele -> spelleffects(SPE_TELEPORT_AWAY,TRUE,FALSE), JS cmd.js teleport branch currently omits env; audit canonical operations at this source caller/check boundary. pray.c:2422 doturn non-Priest/non-Knight -> spelleffects(FALSE) already forwards normalized message/random in js/pray.js.",
+                  "spell.c:812 dowizcast -> spelleffects(TRUE) must bypass the entire checker/drain. JS spell.js:1819 preserves force=true. No dispatcher changes needed."
+                ],
+                "dependencies": [
+                  "Existing spellev/spellid/spellknow, rejectcasting/freehand/can_chant, acurr, check_capacity, percent_success and morehungry return/value owners must be read and reused; source pins already cover percent_success role/equipment integers. Preserve C confusion short-circuit before rnd(100).",
+                  "Missing void spell_backfire is adjacent spell.c:1181-1217: rn2(10) branches add level-based duration to HConfusion/HStun TIMEOUT, with exact integer thirds and canonical make_confused/make_stunned(FALSE) call order. Whole helper is included to make the declared preflight source scope complete rather than leave another UnsupportedSpellCastError.",
+                  "Canonical potion.c make_confused:89-104 and make_stunned:107-131 are already in potion.js with set_itimeout, status transitions and optional env. Existing spell.js randomSource can preserve supplied clone RNG and canonical live defaults without inventing draws.",
+                  "B192 confirmed exact source:propagate_chain_lightning:952-999/cast_chain_lightning:1003-1101 and one spelleffects SPE_CHAIN_LIGHTNING arm only. Shared spell.js file is disjoint; no cost/Amulet/check/protection edit from B. A186 list/A189 showtrap dispatcher contracts remain immutable and need no source changes for the proposed core family."
+                ]
+              },
+              "evidence": [
+                "Assigned-base bounded replay run-aMeAIL at 0bff853548e214fc72efc77b38bea3711d1c7627 reproduces44/72 screens and cursors, and 6138/6143 RNG calls. First missing screen/RNG is step 44 a; C rnd(10)=4 attributed spelleffects_check:1298. Cache probe.json/probe.log retain exact comparison and stack; accepted 61b9bad31 has an unchanged 28 remaining screens and identical immutable recording.",
+                "C recording step 43 Z opens spell selection. Step44 a prints You feel the amulet draining your energy away.--More-- and rnd(10)=4; step 45 dot remains at More; step 46 Space prints insufficient-energy message and consumes four elapsed-turn draws. JS hero energy remains7 at its refusal, proving missing deterministic drain/result behavior rather than glyph or beam mismatch.",
+                "Read whole source spell.c:1220-1380 against JS spell.js:1380-1480. The checker currently throws for Amulet drain and forgotten knowledge. Its existing insufficient-energy abort returns hardcoded ECMD_OK, which must preserve the source incoming/out result after Amulet sets ECMD_TIME. Base energy/hunger must not include the extra Amulet drain; state.disp.botl and zero clamp precede abort.",
+                "Read complete adjacent source spell_backfire:1181-1217 plus canonical potion setters. Cases 0-3 confusion; 4-6 confusion then stun; 7-8 stun then confusion; 9 stun; old timeout values and level-based duration are distinct source values. Use this whole helper in the coherent preflight task; pure constructed tests alone cannot establish the forgotten-spell entry.",
+                "Existing read.c seffect_amnesia/forget -> spell.c losespells is implemented and provides a source-valid runtime path to zero retention while preserving spell slot/ID. Independent C-first uncursed amnesia scroll setup followed by cast is the planned backfire witness; no long wait, seed search or state injection is necessary. Random amnesia may forget none, so inspect C setup and retain source-supported multiple-scroll actions as needed before JavaScript comparison.",
+                "Evidence limits: investigation-only replay of the assigned immutable case. No game edits, new C games or source claim. Current case reaches drain-induced failure, not a surviving Amulet cast or backfire. Direct teleport caller env and complete preflight entry coverage require verification in implementation; do not claim whole spelleffects, getspell, docast, dotele or doturn."
+              ],
+              "proposal": {
+                "id": "port-spell-cast-preflight-amulet-v35-20261009",
+                "kind": "file-port",
+                "cFile": "spell.c",
+                "fromFunction": "spell_backfire",
+                "toFunction": "spelleffects_check",
+                "functions": [
+                  "spell_backfire",
+                  "spelleffects_check"
+                ],
+                "lineRanges": [
+                  "1181-1217",
+                  "1220-1380"
+                ],
+                "cLines": 198,
+                "base": "0bff853548e214fc72efc77b38bea3711d1c7627",
+                "summary": "Complete spell-casting preflight, Amulet drain and forgotten-spell backfire.",
+                "selectionReason": "A190 independently claims admitted synthetic/v35/v35-spell-amulet-carrier. Accepted 61b9bad31 and current assigned-base replay both leave 28 unmatched screens out of 72, first stop44. Source spell.c:1290-1303 drains rnd(2*energy) and consumes a turn even when the resulting energy is insufficient. JavaScript refuses that missing branch. Whole preflight also refuses forgotten spells, so coherent complete scope includes adjacent spell_backfire. B192 owns only disjoint chain-lightning functions and one effect arm; no list/showtrap dispatcher changes are required.",
+                "detail": "At segment 0 step 44 selecting force bolt, C spelleffects_check:1298 calls rnd(10)=4 after the drain message; hero energy 7 falls to 3, lower than base energy 5. C sets disp.botl and ECMD_TIME before insufficient-energy return. JS stops before message/RNG and its current abort shape hardcodes ECMD_OK. Translate whole preflight and adjacent backfire, preserving return-valued energy/result, message/input/RNG/property order and normal/force entry distinctions.",
+                "sessions": [
+                  "synthetic/v35/v35-spell-amulet-carrier"
+                ],
+                "investigation": "investigations/synthetic/v35/v35-spell-amulet-carrier.json",
+                "syntheticProvenance": [
+                  {
+                    "corpus": "synthetic",
+                    "batch": "v35",
+                    "caseId": "v35-spell-amulet-carrier",
+                    "session": "synthetic/v35/v35-spell-amulet-carrier",
+                    "manifestPath": "challenges/manifests/v35.json",
+                    "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+                    "recording": "challenges/cases/v35/v35-spell-amulet-carrier.session.json",
+                    "recordingPath": "challenges/cases/v35/v35-spell-amulet-carrier.session.json",
+                    "recordingSha256": "e5224f5c13c5c5812a78e0ee303efcb4ae8d70c593e8cca6942eb5c40ddfd5ae",
+                    "recipe": "challenges/cases/v35/v35-spell-amulet-carrier.recipe.session.json",
+                    "recipeSha256": "14d2cec47a2cff5c29c993824dcba44a71589b331716e3fb3bcab089f3d58dcf",
+                    "replayInputSha256": "9a345b9f1c2c4f64668854b1f41843898e09b9498646789c8c4a14892bfcd5a5",
+                    "evaluationPath": "challenges/evaluations/accepted-61b9bad31ac7fc81b7370cd1312e25e5bf7358cf-v35.json",
+                    "evaluationCommit": "61b9bad31ac7fc81b7370cd1312e25e5bf7358cf",
+                    "evaluationArtifact": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+                    "evaluationUtc": "2026-10-09T08:57:27.032Z",
+                    "remainingScreens": 28,
+                    "recordedSteps": 72,
+                    "previousScreensMatched": null,
+                    "regression": false,
+                    "passed": false,
+                    "error": null,
+                    "metrics": {
+                      "screens": {
+                        "matched": 44,
+                        "total": 72
+                      },
+                      "rng": {
+                        "matched": 6138,
+                        "total": 6143
+                      },
+                      "cursors": {
+                        "matched": 44,
+                        "total": 72
+                      }
+                    },
+                    "firstMismatch": {
+                      "kind": "stop",
+                      "message": "unsupported hero command: an unported branch of this command: spell casting requires the Amulet of Yendor energy drain during casting",
+                      "step": 44
+                    },
+                    "step": 44,
+                    "kind": "stop",
+                    "sourceFile": null,
+                    "function": null,
+                    "message": "unsupported hero command: an unported branch of this command: spell casting requires the Amulet of Yendor energy drain during casting",
+                    "cFile": null,
+                    "luaFile": null,
+                    "line": null
+                  }
+                ],
+                "reservations": [
+                  "session:synthetic/v35/v35-spell-amulet-carrier",
+                  "source:spell.c:spell_backfire",
+                  "source:spell.c:spelleffects_check",
+                  "contract:spell-cast-preflight-result"
+                ],
+                "allowedPaths": [
+                  "investigations/synthetic/v35/v35-spell-amulet-carrier.json",
+                  "js/spell.js",
+                  "scripts/spell.test.mjs",
+                  "scripts/amulet-casting.test.mjs",
+                  "scripts/run-amulet-casting.mjs",
+                  "recipes/spell.c/",
+                  "recordings/spell.c/",
+                  ".cache/"
+                ],
+                "dependencies": [
+                  "a2200bd388c90cb78421179f2efc1747714a4530",
+                  "fe92f318021b5ab8501314da09973cee63e39624"
+                ],
+                "supportingScope": "Reuse the existing spelleffects consumed-check result and all caller adapters; no whole spelleffects/docast/getspell/teleport/pray credit. Audit canonical message fallback at the checker because dotele currently calls spelleffects without env. Request an exact bounded external caller path only if production evidence proves required.",
+                "validationPlan": "Source-pin all preflight early returns, remembered/forgotten knowledge, hunger/strength/capacity, pre-drain insufficient energy (no RNG/no time), Amulet clamp/ECMD_TIME and surviving-energy base cost, hunger and success-roll order. Backfire pins rn2(10) cases, TIMEOUT extraction, addition/truncation and canonical make_confused/make_stunned order. Replay selected through all 72 steps. Independent C-first real-Amulet cast primary and cheap role/spell/date variation should cover drain-induced failure and surviving drain/success or normal failure. Reach forgotten backfire with ordinary uncursed amnesia scroll(s) then cast retained forgotten spell slot; use already implemented losespells/read ownership, no state injection. Audit sole direct checker caller spelleffects and nonforced docast/dotele/doturn command adapters; record independent witnesses or exact inherited caller blockers before completion. Forced dowizcast must skip the check/drain. Focused/lint/quality/fresh and required synthetic range, no aggregate scans."
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }
