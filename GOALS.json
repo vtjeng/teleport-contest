@@ -231116,7 +231116,7 @@
     {
       "id": "port-cav-goal-quest-level-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Caveman quest goal level and live special-level registry dispatch.",
       "luaFile": "Cav-goal.lua",
       "sessions": [
@@ -231130,15 +231130,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "61750b3c94588b56b72831b9a3754af8f9cd6770",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Cav-goal.lua",
           "line": 1,
           "endLine": 59,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -231305,7 +231308,85 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Cav-goal.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "cavGoal",
+            "sourceReview": "Read whole dat/Cav-goal.lua1–59 and live makelevel/makemaz/load_special dispatch. Preserve solidfill, mazelevel, exact generated 76×20 map, lit and nondiggable source selection, random up stair, blessed enchantment-zero named mace, fourteen independent random-object descriptors, sleeping Chromatic Dragon and three source string shriekers at exact coordinates, and final wallify in source order. Await each descriptor; source names preserve canonical name-resolution/gender RNG. Existing descriptor/object/monster/selection owners are reused read-only; no substitute or refusal remains in this whole Lua program. No whole support-owner completion credit.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "dat/dungeon.lua role-code goal prototype -> Cav-goal.lua registration."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "sp_lev.c:load_special executes registered Lua program; reached from mkmaze.c:makemaz1188 and wizcmds.c:wiz_load_splua."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/cav-goal-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Cav-goal.lua/cav-goal-human.session.json",
+              "recordings/Cav-goal.lua/cav-goal-dwarf.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-cav-goal",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Wizard forced Cav-goal quest arrival -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Cav-goal.lua, then postprocessing and magic mapping."
+              }
+            ],
+            "checkedAt": "61750b3c94588b56b72831b9a3754af8f9cd6770"
+          }
+        ],
+        "entryPointReview": "Whole Cav-goal Lua top-level program has two active dispatch routes: normal special quest goal generation through makelevel/makemaz (admitted forced quest arrival verifies its production route), and the wizard des-file command through wiz_load_splua/load_special (two independent role/race/alignment/filename variations). Whole quest permission/gameplay, C loader/postprocessing families, and adjacent Cav-loca/strt programs are outside scope. No missing active program entry is hidden by a test-only call.",
+        "entryPoints": [
+          {
+            "name": "Cav-goal special quest generation",
+            "functions": [
+              "Cav-goal.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-cav-goal",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Wizard forced Cav-goal quest arrival -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Cav-goal.lua, then postprocessing and magic mapping."
+              }
+            ]
+          },
+          {
+            "name": "Wizard des-file program loading",
+            "functions": [
+              "Cav-goal.lua"
+            ],
+            "recordings": [
+              "recordings/Cav-goal.lua/cav-goal-human.session.json",
+              "recordings/Cav-goal.lua/cav-goal-dwarf.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "61750b3c94588b56b72831b9a3754af8f9cd6770",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "fix-display-magic-map-rogue-darkroom-symbol-v35-20261009",
