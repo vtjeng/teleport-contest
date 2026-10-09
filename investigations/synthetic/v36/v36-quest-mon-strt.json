@@ -1,0 +1,97 @@
+{
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-mon-strt",
+  "session": "synthetic/v36/v36-quest-mon-strt",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "9ee4dfa848e9b6c50c6058f398378cf18912c62be39534bfa1b887df5f1c7d9e",
+  "evaluationPath": "challenges/evaluations/accepted-9bb29ae0cf4db7baf1358008c21acd797175aebc-v36.json",
+  "evaluationCommit": "9bb29ae0cf4db7baf1358008c21acd797175aebc",
+  "remainingScreens": 41,
+  "recordedSteps": 60,
+  "status": "complete",
+  "commit": "91c5b0ea4fb8d5c766acfee1a81755e4e8c758d2",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-mon-strt",
+    "session": "synthetic/v36/v36-quest-mon-strt",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-mon-strt.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-mon-strt.session.json",
+    "recordingSha256": "9ee4dfa848e9b6c50c6058f398378cf18912c62be39534bfa1b887df5f1c7d9e",
+    "recipe": "challenges/cases/v36/v36-quest-mon-strt.recipe.session.json",
+    "recipeSha256": "84381349e41e458b1fdc65cb68e6ae3f612b2d59fc4b5a0114c6f9114fead597",
+    "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+    "evaluationPath": "challenges/evaluations/accepted-9bb29ae0cf4db7baf1358008c21acd797175aebc-v36.json",
+    "evaluationCommit": "9bb29ae0cf4db7baf1358008c21acd797175aebc",
+    "evaluationArtifact": "challenges/evaluations/accepted-9bb29ae0cf4db7baf1358008c21acd797175aebc-v36.json",
+    "evaluationUtc": "2026-10-09T10:38:34.264Z",
+    "remainingScreens": 41,
+    "recordedSteps": 60,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 60
+      },
+      "rng": {
+        "matched": 2772,
+        "total": 3613
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-strt\"",
+      "step": 19
+    },
+    "step": 19,
+    "kind": "stop",
+    "sourceFile": "Mon-strt.lua",
+    "function": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-strt\"",
+    "cFile": null,
+    "luaFile": "Mon-strt.lua",
+    "line": null
+  },
+  "summary": "Mon-strt.lua has no QUEST_LEVEL_LOADERS entry and stops forced Monk quest-start arrival at step19. Port whole108line program and source-ordered forest replacement, pre-clearing floodfill selection, unaligned unattended altar, Grand Master custom robe, guards,selected traps/siege monsters and vegetarian food. Required bounded support is lspo_object spinach-tin normalization: C sets NON_PM and spe1, while current JS forwards the spinach string as corpsenm and misses that type-specific field rule.",
+  "goalKind": "lua-port",
+  "source": {
+    "file": "Mon-strt.lua",
+    "branch": "First generation of Monk quest start special proto Mon-strt after forced quest arrival; no registered source loader.",
+    "functions": [
+      "Mon-strt.lua (whole program, lines1-108)"
+    ],
+    "callers": [
+      "do.c:goto_level -> mklev.c:makelevel1266-1271 -> mkmaze.c:makemaz1184-1193 -> sp_lev.c:load_special6454-6503 -> dat/Mon-strt.lua",
+      "js/mklev.js:makelevel/makemaz/load_special -> QUEST_LEVEL_LOADERS[Mon-strt] -> monStrt in established quest_levels.js, plus des.finish"
+    ],
+    "dependencies": [
+      "Existing lspo_level_init/map/region/replace_terrain and canonical selection helpers: exact20x76 map,10percent forests with x-major draws, snapshot selection.floodfill5/4 before resetting terrain5/4 tofloor. C default diagonalsFALSE, rndcoord(remove1) selects x-major and removes14distinct points (2dart traps,8earth elementals,4xorns). Source-return dependency must be verified with recorded play and source-pinned selected coordinate tests.",
+      "Existing lspo_levregion/door/stair/non_diggable/altar: unfilled temple region24/6..33/13 and noalign altar28/9 without priest; branch5/4,down52/9,18doors/protectedwalls; helper declarations not new completion credit.",
+      "Existing lspo_monster/create_monster/spo_end_moninvent custom inventory: Grand Master coord28/10 receives robe spe6 then m_dowear/clear carrier;8abbots and12selected siege monsters retain string name-resolution RNG.",
+      "Required bounded sp_lev.c:lspo_object3676-3684 spinach-tin arm: resolve actual TIN type, assign NON_PM and spe1 in canonical sp_lev_object normalization rather than forwarding raw spinach as species; quantity2 tins29/9 plus quantity4 food rations46/4. Broader monster-name/class/empty-egg parsing outside credit.",
+      "Pending B195012b37ee remains actual ancestry dependency; B194 and B192 are accepted and their immutable histories remain preserved. Unique Mon-strt import/function/key is disjoint from A192Mon-goal/C172Mon-loca; coordinate supporting owner expansion before edits."
+    ]
+  },
+  "evidence": [
+    "Saved combined queue stops at missing Mon-strt loader segment0step19:19/60screens/cursors,2772/3613RNG,41remaining. Accepted9bb29ae0 v36 evaluation retains identical counts and recording digest. RecipeSHA84381349e41e458b1fdc65cb68e6ae3f612b2d59fc4b5a0114c6f9114fead597,recordingSHA9ee4dfa848e9b6c50c6058f398378cf18912c62be39534bfa1b887df5f1c7d9e verified. No new C recording or replay/aggregate scan during investigation.",
+    "Read whole upstream dat/Mon-strt.lua1-108; sourceSHA3a61403d6d1888d918ea2a0bf67f1a1a2b45a5c5f043faa72960136e13993964. Solidfillspace,mazelevel/noteleport/hardfloor,20x76monastery map,lit area0/0..75/19,unfilledtemple24/6..33/13,forest replacements0/0..10/19 and65/0..75/19 chance10. Snapshot floodfill5/4 precedes terrain clearing,branch5/4,down52/9,18doors (4locked/14closed),noalign altar28/9,Grand Master robe spe6,8abbots,protected18/3..55/16,2selecteddart+4randomtraps,8selectedearth elementals and4xorns,2spinachtins29/9,4foodrations46/4. No filler chest or invented priest.",
+    "rg Mon-strt|monStrt in quest_levels and focused test corpus finds no implementation. makelevel650-685 checks registry and refuses before Lua. Source makemaz resolves proto.lua and load_special runs full program/finalization. This is a missing wholeLua owner, not a rendering divergence.",
+    "Read nhlsel.c:l_selection_flood723-756 and l_selection_rndcoord407-429 plus selvar.c:selection_rndcoord284-317/selection_floodfill395-452. Default orthogonal same-terrain floodfill; source rndcoord picks x-major, optionally removes point and returns map-relative coords. Existing quest_levels.js selection_floodfill108-137 uses relative frame and ThemeroomSelection.rndcoord132-155 same x-major/removal. Similar Pri-strt clears terrain before snapshot, unlike this source; do not copy that ordering. C step19 logs14 selection_rndcoord draws with bounds964,963,...951, confirming one retained/removing selection across traps and monsters.",
+    "Read sp_lev.c:lspo_replace_terrain5051-5141 and JS mklev3540-3622: source resolves region toabsolute selection, visits x-major/y-minor startingmax1, draws rn2(100)<chance only for matchingterrain. Mon-strt must await both replacements before floodfill. Existing region/altar code creates no priest for typealtar and no has_temple from filled0; runtime verifier must use those source values.",
+    "Read custom inventory owner from Kni-strt audit; Grand Master robe uses same lspo_monster/create_monster/finish carrier path. No active helper ownership expansion needed for that callback unless runtime shows new defect.",
+    "Exact supporting defect: C sp_lev.c3676-3684 recognizes TIN montype spinach and writes corpsenmNON_PM/spe1. JS mklev4587 carries raw spec.montype into corpsenm; sp_lev_object.js normalizedSpe125-136 only assigns0 for numericTIN and normalizeSpecification184 retains string corpsenm. applyObjectFields305-310 consumes that string through set_corpsenm. Proposed fix belongs to canonical descriptor normalization in sp_lev_object.js, with source-pinned lspo_object focused regression; no broad monster-type parser or whole sp_lev.c credit.",
+    "Whole source evidence plan: admitted0:19-59 plus independent C-first Monk arrivals using typed/direct wizard teleport and #wizmap; role alignment/gender variation chosen independently. Verify shrine mask0/no priest,Grand Master robe/worn state,branch/downstairs,forest lighting/traps and vegetarian tins spe1/NON_PM/quantity2 plus rations4. Source-pinned20x76 generated map and descriptor/floodfill/removal order tests. Outside-limit separately owned Monk goal/locate program remains explicit without duplicate source edits.",
+    "Initial wholeMon-strt scope plus bounded spinach-tin support: quest_levels.js,mon_strt_level_data.js,generator,mon-strt focused/matrix,sp_lev_object.js,scripts/sp-lev-object.test.mjs,recipes/Mon-strt.lua/,recordings/Mon-strt.lua/. Reservations session:synthetic/v36/v36-quest-mon-strt,source:Mon-strt.lua,contract:monk-quest-start-loader,source:sp_lev.c:lspo_object,contract:special-level-spinach-tin-fields. Source edits require central gate and atomic implementation claim."
+  ]
+}
