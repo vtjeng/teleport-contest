@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked independent teleport spell-preflight caller: teleport.c dotelecmd wizard m-prefix mode menu/tport_spell is not implemented in js/cmd.js. C supports mode s adding a temporary known teleport spell. Keep outside passing recordings; A190 only normalizes the downstream checker env. C-only wished stack is inventory n for this starting inventory.",
+  "segments": [
+    {
+      "seed": 19035026,
+      "datetime": "20671122192939",
+      "nethackrc": "OPTIONS=name:Preflight,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  .\u00173 blessed potions of gain energy\n  qn  qn  qn  m\u0014s      ."
+    }
+  ]
+}
