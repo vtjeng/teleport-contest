@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T22:23:53.821Z",
+  "capturedAt": "2026-10-09T22:24:26.899Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -76904,6 +76904,15 @@
         "worker": "B",
         "state": "blocked",
         "reason": "The accepted-438 queue has no independent source task: A2 owns Val-strt; timeout and light await native-pointer resolution, Juiblex awaits recorder repair, and version cases await a provenance decision."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-after-C181-no-independent-queue-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:24:02.183Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "No independent source task is available: A2 owns Val-strt; remaining cases await native-pointer, Main-owned recorder, or platform-provenance gates."
       }
     ]
   },
