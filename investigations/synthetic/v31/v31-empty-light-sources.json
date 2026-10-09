@@ -151,7 +151,7 @@
     }
   ],
   "reassessment": {
-    "acceptedMain": "df4b031bc0d080c7786086e56a3103e2f48f21e2",
+    "acceptedMain": "be68a3dc47a6fe9f8ce693c94cb11b91a85a3afe",
     "queuePath": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/current-work-queue.json",
     "queueSha256": "91c3b3a8266903081611bc65c8b09dd3c738949bd8cb59b9b4a63dea0d4bfe41",
     "sourceGate": "clear",
@@ -160,6 +160,8 @@
       "session": "synthetic/v37/v37-lightsources-empty",
       "status": "prepared-corrected-unadmitted",
       "use": "regression probe only; not completion evidence"
-    }
+    },
+    "sourceGateCommit": "d399398f872cf682ce5ed796bbd6c66704dde739",
+    "recorderRepair": "Published patch 007 built cleanly and the fresh nonempty B168 light-source differential passed; source gate is clear."
   }
 }
