@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T19:28:04.965Z",
+  "capturedAt": "2026-10-09T19:40:44.225Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -75944,19 +75944,93 @@
         "type": "accepted",
         "at": "2026-10-09T19:27:19.396Z",
         "task": "A193"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A194-rog-loca-approved-20261009",
+        "type": "implement",
+        "at": "2026-10-09T19:28:36.753Z",
+        "task": "A194",
+        "goal": "port-rog-loca-quest-locate-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A194-implementation-20261009",
+        "type": "turn",
+        "at": "2026-10-09T19:28:38.191Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Implementing the complete Rogue quest-locate level."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A193-0bd43cd72",
+        "type": "published",
+        "at": "2026-10-09T19:29:14.976Z",
+        "task": "A193",
+        "commit": "0bd43cd722096de068c913d70972b95922a60333"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C172-c7bb74710",
+        "type": "integrating",
+        "at": "2026-10-09T19:32:56.101Z",
+        "task": "C172",
+        "integration": "c7bb7471083822d944dd96d56cdbe4127349c7c1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A194-package-20261009",
+        "type": "turn",
+        "at": "2026-10-09T19:36:38.615Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Packaging the complete Rogue quest locate level after focused and recorded validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1682c5d4b8d8c6b5248b401479379744bf48356e",
+        "type": "ready",
+        "at": "2026-10-09T19:36:52.116Z",
+        "task": "A194",
+        "delivery": "1682c5d4b8d8c6b5248b401479379744bf48356e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A194-ready-seed-gate-cc4839b6",
+        "type": "turn",
+        "at": "2026-10-09T19:37:52.466Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Rogue locate delivery is ready. Waiting for the central gate on the preserved Samurai locate proposal; other saved cases have existing owners or shared-tooling blockers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C172-c7bb74710",
+        "type": "validated",
+        "at": "2026-10-09T19:38:36.567Z",
+        "task": "C172",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C172-c7bb7471083822d944dd96d56cdbe4127349c7c1-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T19:40:07.914Z",
+        "task": "C172"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "C172",
-        "worker": "C",
-        "goal": "port-mon-loca-quest-level-v36-20261009",
+        "task": "A194",
+        "worker": "A2",
+        "goal": "port-rog-loca-quest-locate-v36-20261009",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "70a8ba91d1118cc26b721b43eb4aa267c7c7d685",
-        "since": "2026-10-09T19:02:31.716Z",
+        "delivery": "1682c5d4b8d8c6b5248b401479379744bf48356e",
+        "since": "2026-10-09T19:36:52.116Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -76340,8 +76414,8 @@
     ]
   },
   "development": {
-    "executionCommit": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269",
-    "measuredAt": "2026-10-09T19:25:26.749Z",
+    "executionCommit": "c7bb7471083822d944dd96d56cdbe4127349c7c1",
+    "measuredAt": "2026-10-09T19:38:13.663Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -238741,7 +238741,7 @@
     {
       "id": "port-mon-loca-quest-level-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Monk quest locate level",
       "luaFile": "Mon-loca.lua",
       "sessions": [
@@ -238755,15 +238755,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c7bb7471083822d944dd96d56cdbe4127349c7c1",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Mon-loca.lua",
           "line": 1,
           "endLine": 98,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -238936,7 +238939,87 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Mon-loca.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "monLoca",
+            "sourceReview": "Read whole dat/Mon-loca.lua1–98 and sp_lev.c:3680–3725 nonpmobj branch; preserved solidfill/maze flag, exact cave, lighting, random stairs and 15 objects, full-grid negate/filter with numeric ROOM and x-major nonremoved relative coordinate, blessed quantity2 spinach tin and shared burned engraving, six random traps,14 earth elementals and9 xorns. Bounded lspo_object normalization recognizes mixed-case spinach/empty tins and empty eggs, leaves create_object NON_PM setter skip intact, preserves tin spe1/0 and egg laid_by_you override, generated species and RNG. No whole descriptor/create_object credit.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "Mon-loca registry entry supplies whole dat/Mon-loca.lua to the existing registered special-level loader."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special invokes registered Mon-loca program. Wizard wiz_load_splua uses the same loader."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-loca-level.test.mjs",
+              "scripts/special-level.test.mjs",
+              "scripts/sp-lev-object.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Mon-loca.lua/mon-loca-direct-male-independent.session.json",
+              "recordings/Mon-loca.lua/mon-loca-direct-female-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-mon-loca",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Mon-loca.lua"
+              }
+            ],
+            "checkedAt": "c7bb7471083822d944dd96d56cdbe4127349c7c1"
+          }
+        ],
+        "entryPointReview": "Two active entries: natural Monk quest locate arrival through makelevel/makemaz/load_special and wizard wiz_load_splua registered-name loading. Admitted v36 covers natural arrival; independently fixed male/female human neutral Monk recipes cover explicit and extensionless registered-name entries. Descriptor supporting correction receives no whole C function credit. Named-monster descriptors, broader lspo_object and create_object completion remain outside this task; C174/B197 reports preserved.",
+        "entryPoints": [
+          {
+            "name": "ordinary Monk quest locate arrival",
+            "functions": [
+              "Mon-loca.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-mon-loca",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Mon-loca.lua"
+              }
+            ]
+          },
+          {
+            "name": "wizard registered Monk locate load",
+            "functions": [
+              "Mon-loca.lua"
+            ],
+            "recordings": [
+              "recordings/Mon-loca.lua/mon-loca-direct-male-independent.session.json",
+              "recordings/Mon-loca.lua/mon-loca-direct-female-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c7bb7471083822d944dd96d56cdbe4127349c7c1",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
