@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { COLUMNS, readRows } from './score-log.mjs';
-import { challengeDashboard, challengeInputSnapshot, challengePath, challengeState,
+import { challengeDashboard, challengeDashboardPayload, challengeInputSnapshot, challengePath, challengeState,
     compareEvaluations, corpusDigest, digest, evaluationFields, readChallengeBatches,
     readChallenges, saveEvaluation, totalsFor } from './challenge-results.mjs';
 import { measuredCases, recordEvaluation, runAllBatches } from './score-challenges.mjs';
@@ -177,6 +177,32 @@ test('catalog and state keep batches separate and require fresh evidence for rea
     assert.equal(dashboard.cases.length, 2);
     assert.deepEqual(dashboard.cases.map(caseEntry => caseEntry.batch), ['v1', 'v2']);
     assert.deepEqual(dashboard.cases.map(caseEntry => caseEntry.id), ['one', 'one']);
+});
+
+test('dashboard payload omits evaluator evidence and manifest replay metadata', () => {
+    const first = { screens: { matched: 1, total: 2 } };
+    const current = { screens: { matched: 2, total: 2 }, passed: true };
+    const payload = challengeDashboardPayload({
+        status: 'measured', totals: { screens: { matched: 2, total: 2 } },
+        error: null, commitUtc: NEXT_TIME, commitAgeLabel: 'Oldest measured commit',
+        cases: [{ batch: 'v2', id: 'case', title: 'Case', first, current,
+            screenCount: 2, delta: 1, outcome: 'match',
+            localComparison: { trace: 'large replay trace' }, cReplay: ['unused'],
+            sourceTrace: ['unused'], selectionRationale: 'unused' }],
+        batches: [{ batch: 'v2', status: 'measured', error: null,
+            history: [{ screens: 2 }], evaluation: { cases: ['unused'] },
+            cases: ['unused'], previous: { cases: ['unused'] } }],
+    });
+    assert.deepEqual(payload, {
+        status: 'measured', totals: { screens: { matched: 2, total: 2 } },
+        error: null, commitUtc: NEXT_TIME, commitAgeLabel: 'Oldest measured commit',
+        cases: [{ batch: 'v2', id: 'case', title: 'Case', first, current,
+            screenCount: 2, delta: 1, outcome: 'match' }],
+        batches: [{ batch: 'v2', status: 'measured', error: null }],
+    });
+    assert.equal(payload.cases[0].localComparison, undefined);
+    assert.equal(payload.batches[0].history, undefined);
+    assert.equal(payload.batches[0].evaluation, undefined);
 });
 
 test('corrupt ledger evidence and masked historical case changes fail closed', t => {

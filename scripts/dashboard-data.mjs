@@ -8,7 +8,7 @@ import { join } from 'node:path';
 
 import { completedSourceUnits, sourceUnits, sourceUnitKey } from './port-evidence.mjs';
 import { readRows, standing } from './score-log.mjs';
-import { challengeDashboard } from './challenge-results.mjs';
+import { challengeDashboard, challengeDashboardPayload } from './challenge-results.mjs';
 import { activityTimeline, syntheticGainByCommit } from './dashboard-activity.mjs';
 
 function run(cmd) {
@@ -475,9 +475,10 @@ for (const task of activity.tasks) {
 }
 
 const output = {
-  progress, scoreHistory, workGoals, summary, scores, challenges,
+  progress, scoreHistory, workGoals, summary, scores,
+  challenges: challengeDashboardPayload(challenges),
   activity, activityGoals: [...activityGoals.values()],
   developmentSessions,
 };
 
-process.stdout.write(JSON.stringify(output, null, 2));
+process.stdout.write(JSON.stringify(output));

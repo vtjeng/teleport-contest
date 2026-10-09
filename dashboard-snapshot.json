@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T04:31:22.724Z",
+  "capturedAt": "2026-10-09T04:37:08.182Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -70661,6 +70661,23 @@
         "type": "accepted",
         "at": "2026-10-09T04:31:09.138Z",
         "task": "A180"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A184-idle-after-A180-6b16ba5f",
+        "type": "turn",
+        "at": "2026-10-09T04:31:36.088Z",
+        "worker": "A2",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C163-after-A180-await-C162-20261009",
+        "type": "turn",
+        "at": "2026-10-09T04:31:39.772Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "A180 is merged; C163 evidence correction awaits C162 acceptance."
       }
     ]
   },
