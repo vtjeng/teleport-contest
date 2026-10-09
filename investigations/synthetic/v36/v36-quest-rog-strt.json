@@ -1,0 +1,92 @@
+{
+  "session": "synthetic/v36/v36-quest-rog-strt",
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-rog-strt",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "4c9bc59e3036b960d3ba360df435b41ba1339b118f64142803ac845340674c2a",
+  "evaluationPath": "challenges/evaluations/accepted-61750b3c94588b56b72831b9a3754af8f9cd6770-v36.json",
+  "evaluationCommit": "61750b3c94588b56b72831b9a3754af8f9cd6770",
+  "remainingScreens": 41,
+  "recordedSteps": 60,
+  "status": "complete",
+  "commit": "be33c18c7d85451336003e3b505f37231bb73cf7",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-rog-strt",
+    "session": "synthetic/v36/v36-quest-rog-strt",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-rog-strt.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-rog-strt.session.json",
+    "recordingSha256": "4c9bc59e3036b960d3ba360df435b41ba1339b118f64142803ac845340674c2a",
+    "recipe": "challenges/cases/v36/v36-quest-rog-strt.recipe.session.json",
+    "recipeSha256": "1fcbc3f7a3ab3ad84941436542fa493b0751faa4e94de6b462d38b545745e0ba",
+    "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+    "evaluationPath": "challenges/evaluations/accepted-61750b3c94588b56b72831b9a3754af8f9cd6770-v36.json",
+    "evaluationCommit": "61750b3c94588b56b72831b9a3754af8f9cd6770",
+    "evaluationArtifact": "challenges/evaluations/accepted-61750b3c94588b56b72831b9a3754af8f9cd6770-v36.json",
+    "evaluationUtc": "2026-10-09T12:57:34.625Z",
+    "remainingScreens": 41,
+    "recordedSteps": 60,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 60
+      },
+      "rng": {
+        "matched": 4624,
+        "total": 5722
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Rog-strt\"",
+      "step": 19
+    },
+    "step": 19,
+    "kind": "stop",
+    "sourceFile": "Rog-strt.lua",
+    "function": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Rog-strt\"",
+    "cFile": null,
+    "luaFile": "Rog-strt.lua",
+    "line": null
+  },
+  "goalKind": "lua-port",
+  "summary": "Rog-strt has no registered loader. Port its whole Rogue quest start program, including shuffled stair exits, disguised mimics, leader inventory, street selection and removal-based monster placement.",
+  "source": {
+    "file": "Rog-strt.lua",
+    "branch": "Rogue quest start arrival or registered wizard load of Rog-strt; map-relative streets and exit coordinates establish stairs, stair mimics, leader and hostile street monsters.",
+    "functions": [
+      "Rog-strt.lua"
+    ],
+    "callers": [
+      "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Rog-strt.lua",
+      "wizcmds.c:wiz_load_splua -> load_special -> registered Rog-strt Lua program"
+    ],
+    "dependencies": [
+      "Existing map-relative quest selection_floodfill and ThemeroomSelection.rndcoord(true), shuffle/nhlib random equivalents, lspo_monster furniture mimic and custom inventory owners, map/flags/levregion/door/object/trap/nondiggable owners. No required supporting owner change identified by source review."
+    ]
+  },
+  "evidence": [
+    "Accepted challenges/evaluations/accepted-61750b3c94588b56b72831b9a3754af8f9cd6770-v36.json at 61750b3c94588b56b72831b9a3754af8f9cd6770 retains missing Rog-strt loader at zero-based19:19/60matching screens and41remaining. Manifest corpus digest58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c; recordingchallenges/cases/v36/v36-quest-rog-strt.session.json, digest4c9bc59e3036b960d3ba360df435b41ba1339b118f64142803ac845340674c2a. Saved diagnosis reused; no replay or new C recording during investigation.",
+    "Read whole dat/Rog-strt.lua1–166, SHA256e375e02db567addd2d087af7c5803d60e140bb3fdbb491810dd7a140cda8e55f. Solidfill stone,mazelevel/noteleport/hardfloor/nommap and exact76×21 map precede orthogonal same-terrain floodfill from relative0,12. Preserve all map spaces/doors/pools and top-level order. No lit region call or explicit wallify occurs. Generate the map,46literal door calls and fixed guard/exit tables deterministically from source; retain the duplicate closed door23,14 at lines92–93.",
+    "Lua43–55 captures the streets selection before shuffling exits33,0;0,12;25,20;75,5. nhlib.lua shuffle descends4,3,2 with one rn2(i) per iteration. The first shuffled coordinate becomes down stairs and the next three create giant/large/small mimics with appear_as ter:staircase down. Existing lspo_monster parses M_AP_FURNITURE, create_monster scans CMAP_EXPLANATIONS and assigns m_ap_type/mappearance. The branch region19,9 is map-relative. No role-alignment macro or tin descriptor is used.",
+    "nhlsel.c:l_selection_flood723–754 converts the relative start through get_location_coord, matches its terrain and uses diagonalsFALSE; existing quest_levels.js selection_floodfill108–138 supplies same-terrain cardinal floodfill in the current map frame. The selection result is relative, so ThemeroomSelection.rndcoord(true) without a second origin subtraction preserves nhlsel.c407–427 coordinate conversion. Its x-major point count/selection and removal match selvar.c284 onward. Pin the captured street set and removal against source rather than use a reconstructed rectangle.",
+    "Lua106–124 creates Master of Thieves at36,11 with inventory callback: leather armor spe5, silver dagger spe4 and dagger spe2 quantity d(2,4) not-cursed. nhlib.lua d uses two one-based rnd4 draws. Existing lspo_monster waits for creation and inventory, then clears the inventory carrier; chest and nine thug guards follow. All inventory object calls must be awaited before chest and later descriptors. No generic owner completion credit is proposed.",
+    "Lua126–166 applies nondiggable fullmap,16random traps, eight fixed hostile water nymph/leprechaun blockers. Evaluate4+rn2(4) once before the first loop; each iteration consumes streets:rndcoord(1), creates a water nymph, consumes/removes another coordinate and creates a leprechaun. Evaluate7+rn2(4) once before the second loop; remove one coordinate per hostile chameleon. Preserve loop-bound RNG lifetime, species creation order and source nhlib.lua/nhlua.c:nhl_random semantics.",
+    "Production change is a distinct rogStrt body/import/key in existing js/quest_levels.js and generated rog_strt_level_data.js; rg -n rogStrt|Rog-strt js/quest_levels.js found no loader. Existing makelevel/makemaz/load_special and wizard load-splua callers already reach registered programs. Source review identified no required edits to pending C169/C170, B195/A191, alignment or spinach owners. Runtime checks may expose a separate support blocker; preserve it rather than inventing behavior.",
+    "Plan fail-first registry and whole source-sequence tests, generated output equality, exit shuffle and mimic assignment, source street-selection/removal, one-time random loop bounds, awaited leader inventory and exact dice ordering. Cover admitted Rogue quest arrival plus independent male/female human Rogue #wizloaddes C-first recordings. Runtime state must prove one stair and three stair-disguised mimics, leader inventory and source flags. Adjacent Rog-loca belongs to A194; retain its outside-scope recipe boundary without taking source credit. Central context is required before implementation."
+  ]
+}
