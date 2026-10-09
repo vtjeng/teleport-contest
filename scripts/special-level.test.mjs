@@ -8,6 +8,7 @@ import { mklev } from '../js/mklev.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { objects_globals_init } from '../js/objects.js';
 import { initRng } from '../js/rng.js';
+import { ICE, ICED_POOL, ICED_MOAT, ROOM } from '../js/const.js';
 import { light_globals_init } from '../js/light.js';
 import {
     str2align,
@@ -188,5 +189,46 @@ test('array map returns its nontransparent and valid written selection', async (
         assert.equal(placed.selection.get(placed.xstart, placed.ystart), true);
         assert.equal(placed.selection.get(placed.xstart + 1, placed.ystart), false);
         assert.equal(placed.selection.get(placed.xstart + 2, placed.ystart), false);
+    });
+});
+
+test('mines finish_map stores source pool and moat ice flags', async () => {
+    const source = readFileSync('nethack-c/upstream/src/mkmap.c', 'utf8');
+    assert.match(source, /levl\[x\]\[y\]\.icedpool = icedpools \? ICED_POOL : ICED_MOAT/u);
+    for (const icedpools of [false, true]) { // Both source branches share the same cave generator.
+        await runLoader(async des => {
+            await des.level_init({style:'solidfill', fg:' '});
+            if (icedpools) await des.level_flags('icedpools');
+            await des.level_init({style:'mines', fg:'.', bg:'I', smoothed:true,
+                joined:false, lit:1, walled:false});
+            let ice = 0;
+            for (let x=1; x<80; ++x) for (let y=0; y<21; ++y) { // mkmap.c whole playable grid.
+                const location = game.level.at(x,y);
+                if (location.typ === ICE) {
+                    ++ice;
+                    assert.equal(location.icedpool, icedpools ? ICED_POOL : ICED_MOAT);
+                }
+            }
+            assert.ok(ice > 0); // Source background I must reach the finish-map assignment.
+        });
+    }
+});
+
+test('fixed des.stair forces ROOM before a dungeon-end refusal', async () => {
+    const source = readFileSync('nethack-c/upstream/src/mklev.c', 'utf8');
+    const stairs = source.slice(source.indexOf('mkstairs(\n'), source.indexOf('/* is room a good one'));
+    assert.match(stairs, /if \(force\)\s*levl\[x\]\[y\]\.typ = ROOM;[\s\S]*?if \(dunlev\(&u\.uz\)/u);
+    await runLoader(async des => {
+        await des.level_init({style:'solidfill', fg:'I'}); // All candidate cells are ice.
+        const x = des.frame.xstart + 10, y = des.frame.ystart + 10; // Fixed interior coordinate.
+        assert.equal(game.u.uz.dlevel, 1); // Up stairs at a dungeon endpoint are refused.
+        await des.stair('up', 10, 10);
+        assert.equal(game.level.at(x,y).typ, ROOM); // C force precedes the refusal.
+    });
+    await runLoader(async des => {
+        await des.level_init({style:'solidfill', fg:'I'});
+        await des.stair('up'); // Random descriptors pass force=false.
+        for (let x=1; x<80; ++x) for (let y=0; y<21; ++y)
+            assert.notEqual(game.level.at(x,y).typ, ROOM); // C force=false preserves background ice.
     });
 });

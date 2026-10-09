@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first direct wizard load of dat/Val-goal.lua through #wizloaddes. Seed 64019041, date 20520819112233, and a female dwarf lawful Valkyrie were selected to exercise the explicit source level with a race variation.",
+  "segments": [
+    {
+      "seed": 64019041,
+      "datetime": "20520819112233",
+      "nethackrc": "OPTIONS=name:ValGoalDwarf,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizloaddes\nVal-goal.lua\n "
+    }
+  ]
+}
