@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v35.json",
   "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
   "recordingSha256": "891f077ee0f147d70c173b5790854090dbc6543e8177034f1fa07fff43f938d4",
-  "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
-  "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+  "evaluationPath": "challenges/evaluations/accepted-9cf6135e96ef404438d1de92579e412f0fc024f7-v35.json",
+  "evaluationCommit": "9cf6135e96ef404438d1de92579e412f0fc024f7",
   "remainingScreens": 8,
   "recordedSteps": 62,
   "status": "complete",
-  "commit": "909d395c99dfaa88c3bd62b1cf29e06b1630c937",
+  "commit": "6b6d398857cd52e917bafc488aff7c349c46e27f",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v35",
@@ -25,10 +25,10 @@
     "recipe": "challenges/cases/v35/v35-arrival-castle.recipe.session.json",
     "recipeSha256": "4c84f21985f907bbe89bba45743f32ceca76709baba2391a156ef190f4c1963c",
     "replayInputSha256": "9a345b9f1c2c4f64668854b1f41843898e09b9498646789c8c4a14892bfcd5a5",
-    "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
-    "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
-    "evaluationArtifact": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
-    "evaluationUtc": "2026-10-09T08:22:23.377Z",
+    "evaluationPath": "challenges/evaluations/accepted-9cf6135e96ef404438d1de92579e412f0fc024f7-v35.json",
+    "evaluationCommit": "9cf6135e96ef404438d1de92579e412f0fc024f7",
+    "evaluationArtifact": "challenges/evaluations/accepted-9cf6135e96ef404438d1de92579e412f0fc024f7-v35.json",
+    "evaluationUtc": "2026-10-09T20:40:41.947Z",
     "remainingScreens": 8,
     "recordedSteps": 62,
     "previousScreensMatched": null,
@@ -106,11 +106,12 @@
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    "Authoritative accepted-672aef01 v35 metrics are54/62 screens,17174/17174 RNG and62/62 cursors,8 remaining. Current assigned-base single-case diagnostic run-ai7Mty at909d395c reproduces first screen difference segment0 step54 (Enter after #wizmap), row12 col44: C backslash color11, JS period color8. There is no refusal, RNG or cursor divergence. Artifact .cache/B188/current-scan.json.",
+    "Current accepted v35 evaluation at 9cf6135e96ef404438d1de92579e412f0fc024f7 still records 54/62 screens, 17,174/17,174 RNG values and 62/62 cursors matched (8 remaining). Fresh synthetic replay at worker base 6b6d398857cd52e917bafc488aff7c349c46e27f reproduces the first screen difference at segment 0 step 54, row 12 column 44: C backslash/color 11 versus JS period/color 8. The focused replay is saved at .cache/synthetic-scans/v35/v35-arrival-castle.json and identifies the `#wizmap` command at step 54; no RNG, cursor or command-refusal mismatch precedes it.",
     "Read complete upstream dat/castle.lua and its js/castle_levels.js owner. The Lua long string contains nine periods after the preceding door, then backslash, period, secret door. JS contains ten periods, then backslash, secret door. Both remain63 columns; cells36/37 are transposed, so downstream terrain operations consume identical dimensions and draw counts.",
     "The source-derived .cache/B188/source-map-comparison.json decodes the JS string escape and compares all17 rows to the Lua long-string bytes. Only(36,8) and(37,8) differ. This removes the initial suspicion of an arrival/display/parser or object-generator problem.",
     "The same replay inspected canonical final terrain without mutation: .cache/B188/state-snapshots.json has only throne at game(46,11), while game(45,11) is ROOM. The source map’s xstart9/ystart3 places its throne at game(45,11); display.js6015 renders game x at terminal x-1, matching the recorded first differing column44. A map data correction changes actual terrain and normal mapping output together.",
     "Independent implementation evidence plan after central assignment: source-pin the entire decoded map matrix against dat/castle.lua using the existing loader with a read-only des-map capture, then add independent C-first Castle levelport/mapping recipes with different relevant role and seed, checking actual throne/floor and message/RNG/cursor ordering. Cite admitted steps54–61 after correction. Do not copy the admitted recipe or alter source owner functions beyond the row literal.",
-    "No new C games or aggregate scans were run during investigation. A188/C165 were notified of the disjoint Castle map boundary; source implementation remains centrally gated."
+    "No new C games or aggregate scans were run during investigation. A188/C165 were notified of the disjoint Castle map boundary; source implementation remains centrally gated.",
+    "Re-read the full `sp_lev.c:lspo_map` implementation (upstream lines 6075–6323): after validating and placing the `mapfragment`, it loops over every coordinate and calls `mapfrag_get` for the source cell, then sets that terrain. The full `dat/castle.lua` program still defines row 8 as `\\.` at local columns 36/37. The production JavaScript path is `mklev.js:ensureSpecialLevelLoaders` → `CASTLE_LEVEL_LOADERS.castle` → `des.map` → `mapFromRows`; only the translated row literal is wrong."
   ]
 }
