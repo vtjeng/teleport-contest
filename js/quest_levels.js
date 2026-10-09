@@ -2,7 +2,7 @@
 // C refs: dat/Bar-strt.lua, dat/Bar-fila.lua, dat/Bar-filb.lua,
 //         dat/Bar-goal.lua, dat/Bar-loca.lua, dat/Arc-strt.lua,
 //         dat/Arc-loca.lua, dat/Arc-fila.lua, dat/Arc-filb.lua,
-//         dat/Arc-goal.lua, dat/Hea-goal.lua,
+//         dat/Arc-goal.lua, dat/Hea-goal.lua, dat/Hea-loca.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
@@ -55,6 +55,7 @@ import { rn2, rnd } from './rng.js';
 import { selection_area, ThemeroomSelection } from './themerooms.js';
 import { KNI_GOAL_LEVEL_MAP } from './kni_goal_level_data.js';
 import { HEA_GOAL_LEVEL_MAP } from './hea_goal_level_data.js';
+import { HEA_LOCA_LEVEL_MAP } from './hea_loca_level_data.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
 // that draws a random zig-zag path from (x1,y1) to (x2,y2).
@@ -1261,6 +1262,39 @@ async function heaGoal(des) {
     for (let i = 0; i < 10; ++i) await des.monster({ class: 'S', peaceful: 0 });
 }
 
+// C ref: dat/Hea-loca.lua. The smoothed mines background precedes the
+// temple-island map; the chaotic shrine creates its priest before monsters.
+async function heaLoca(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'hardfloor');
+    await des.level_init({ style: 'mines', fg: '.', bg: 'P',
+        smoothed: true, joined: true, lit: 1, walled: false });
+    await des.map(HEA_LOCA_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 30, 9), 'lit');
+    await des.region({ region: [12, 3, 20, 6], lit: 1,
+        type: 'temple', filled: 1 });
+    await des.door('closed', 9, 4);
+    await des.door('closed', 9, 5);
+    await des.door('locked', 11, 3);
+    await des.door('locked', 11, 6);
+    await des.stair({ dir: 'up', x: 4, y: 4 });
+    await des.stair({ dir: 'down', x: 20, y: 6 });
+    await des.non_diggable(selection_area(11, 2, 21, 7));
+    await des.altar({ x: 13, y: 5, align: 'chaos', type: 'shrine' });
+
+    for (let i = 0; i < 15; ++i) await des.object();
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (let i = 0; i < 8; ++i) await des.monster('rabid rat');
+    await des.monster({ class: 'r', peaceful: 0 });
+    for (let i = 0; i < 5; ++i) await des.monster('giant eel');
+    for (let i = 0; i < 2; ++i) await des.monster('electric eel');
+    await des.monster('kraken');
+    for (let i = 0; i < 2; ++i) await des.monster('shark');
+    for (let i = 0; i < 2; ++i) await des.monster({ class: ';', peaceful: 0 });
+    for (let i = 0; i < 5; ++i) await des.monster({ class: 'D', peaceful: 0 });
+    for (let i = 0; i < 9; ++i) await des.monster({ class: 'S', peaceful: 0 });
+}
+
 // C ref: dat/Pri-goal.lua. Priest quest goal level — lava-filled cave with
 // Nalzok guarding the Mitre of Holiness amid human zombies and wraiths.
 async function priGoal(des) {
@@ -1952,6 +1986,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Arc-goal': arcGoal,
     'Kni-goal': kniGoal,
     'Hea-goal': heaGoal,
+    'Hea-loca': heaLoca,
     'Pri-strt': priStrt,
     'Pri-loca': priLoca,
     'Pri-goal': priGoal,

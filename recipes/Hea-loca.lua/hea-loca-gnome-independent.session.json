@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B195 C-first gnome Healer locate-level arrival. Seed, fixed clock, character options and command route chosen before JS comparison. Source dat/Hea-loca.lua generates a smoothed joined-mines pool background plus temple island, four closed/locked doors, two stairs and chaotic shrine/priest before15 objects,6 traps and35 monsters. Map observation verifies terrain. gnome variation changes startup and generation RNG; no admitted challenge copied. C-only correction before this variation's JS comparison: acknowledge the new-moon startup message before the direct teleport key; preserve seed/date and gameplay destination.",
+  "segments": [
+    {
+      "seed": 19561117,
+      "datetime": "20471117113527",
+      "nethackrc": "OPTIONS=name:HeaLocagnome,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "    .\u0016?\n>z    #wizmap\n    "
+    }
+  ]
+}
