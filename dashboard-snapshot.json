@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T23:13:14.466Z",
+  "capturedAt": "2026-10-09T23:22:55.831Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -77031,6 +77031,30 @@
         "task": "B187",
         "phase": "done",
         "reason": "Published a deterministic recorder pointer contract using <ptr>/<null>, verified it with a live lamp diagnostic, and passed the complete hosted checkpoint."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B168-after-patch007-20261009",
+        "type": "resume",
+        "at": "2026-10-09T23:14:25.548Z",
+        "task": "B168"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B168-active-after-pointer-contract-20261009",
+        "type": "turn",
+        "at": "2026-10-09T23:14:29.214Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Resuming B168 after patch 007 established stable pointer text; claiming the complete light-source diagnostic and bounded callers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B168-light-and-canonical-pointer-20261009",
+        "type": "implement",
+        "at": "2026-10-09T23:18:13.070Z",
+        "task": "B168",
+        "goal": "port-light-wiz-light-sources-v31-20261009"
       }
     ]
   },
@@ -77202,17 +77226,6 @@
         "since": "2026-10-08T21:02:41.656Z",
         "blockedBy": [],
         "reason": "contract:C-pointer-diagnostic-format owner unresolved: populated light.c:wiz_light_sources consumes alloc.c:fmt_ptr raw native %p addresses without an established source-faithful JS identity contract. Complete investigation saved; no partial owner implementation."
-      },
-      {
-        "task": "B168",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-08T21:08:45.647Z",
-        "blockedBy": [],
-        "reason": "Whole light.c:wiz_light_sources consumes alloc.c:fmt_ptr for active nonempty lists; native-pointer diagnostic formatting has no canonical JS owner and existing object-ID substitutions are incomplete. Source report is complete at 12 remaining screens; resume after coordinator resolves the shared pointer contract."
       },
       {
         "task": "B172",
