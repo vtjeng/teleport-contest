@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first whole Ran-loca.lua variation fixed before recording or JavaScript comparison: female human neutral Ranger, Ran-loca #wizloaddes entry, a distinct seed, and explicit no-pet/no ambient-monster options. Exercises the same source order while varying gender and RNG; the admitted v36 quest-arrival case covers ordinary makelevel entry.",
+  "segments": [
+    {
+      "seed": 30109131,
+      "datetime": "20661009173011",
+      "nethackrc": "OPTIONS=name:RanLocaProbe,role:Ranger,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\n#wizloaddes\nRan-loca.lua\n"
+    }
+  ]
+}
