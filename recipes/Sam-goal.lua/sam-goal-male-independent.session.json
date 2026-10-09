@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first male Samurai direct Sam-goal load. C-only startup preflight verifies there is no monster-inventory teardown before Lua entry; the original teardown route remains a named blocked recipe.",
+  "segments": [
+    {
+      "seed": 69934253,
+      "datetime": "20530721134137",
+      "nethackrc": "OPTIONS=name:SamGoalmale,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizloaddes\nSam-goal.lua\n "
+    }
+  ]
+}
