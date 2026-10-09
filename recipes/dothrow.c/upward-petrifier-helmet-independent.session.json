@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first cockatrice upward-corpse helmet-protected outside-limit variation. Fixed inputs chosen before JS comparison; canonical source order is toss_up -> dropy -> thrownobj clear -> done(STONING).",
+  "segments": [
+    {
+      "seed": 18333003,
+      "datetime": "20591009173526",
+      "nethackrc": "OPTIONS=name:UpwardDrop,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed leather gloves\nWe   \u0017uncursed helmet\nWf   \u0017cockatrice corpse\ntg<   n  ."
+    }
+  ]
+}
