@@ -13,9 +13,12 @@
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
-//         dat/tower1.lua, dat/tower2.lua, dat/tower3.lua.
+//         dat/tower1.lua, dat/tower2.lua, dat/tower3.lua, dat/Val-strt.lua.
 
-import { COLNO, FEMALE, G_GENOD, ROOM, ROWNO } from './const.js';
+import {
+    COLNO, FEMALE, G_GENOD, ROOM, ROWNO,
+    W_ANY, W_NORTH, W_RANDOM, W_WEST,
+} from './const.js';
 import { mkclass } from './makemon.js';
 import {
     G_IGNORE,
@@ -59,7 +62,9 @@ import {
     MACE, MIRROR, ROBE, RUNESWORD, STATUE, TALLOW_CANDLE, WAX_CANDLE,
 } from './objects.js';
 import { rn2, rnd } from './rng.js';
-import { selection_area, selection_negate, ThemeroomSelection } from './themerooms.js';
+import {
+    selection_area, selection_new, selection_negate, ThemeroomSelection,
+} from './themerooms.js';
 import { KNI_GOAL_LEVEL_MAP } from './kni_goal_level_data.js';
 import { CAV_GOAL_LEVEL_MAP } from './cav_goal_level_data.js';
 import { HEA_GOAL_LEVEL_MAP } from './hea_goal_level_data.js';
@@ -93,6 +98,7 @@ import {
 import { KNI_STRT_LEVEL_MAP } from './kni_strt_level_data.js';
 import { ASTRAL_LEVEL_MAP } from './astral_level_data.js';
 import { VAL_LOCA_LEVEL_MAP } from './val_loca_level_data.js';
+import { VAL_STRT_LEVEL_MAP } from './val_strt_level_data.js';
 import {
     ROG_STRT_DOORS, ROG_STRT_EXIT_MONSTERS, ROG_STRT_GUARDS,
     ROG_STRT_LEVEL_MAP,
@@ -2654,6 +2660,65 @@ async function astral(des, state) {
 
 // Whole dat/Val-loca.lua1–85. Fixed stair coordinates remain map-relative,
 // including the up stair beyond the fragment; the canonical owner checks the level.
+function valStrtSelectionGrow(selection, direction, random) {
+    const directions = {
+        all: W_ANY,
+        north: W_NORTH,
+        west: W_WEST,
+        random: W_RANDOM,
+    };
+    return selection.grow(directions[direction], random.rn2);
+}
+
+// Whole dat/Val-strt.lua. The Lua selection library is passed separately from
+// des.* because it is a global table in the source program.
+async function valStrt(des, state, lua) {
+    await des.level_flags('mazelevel', 'noteleport', 'hardfloor', 'icedpools');
+    await des.level_init({ style: 'solidfill', fg: 'I' });
+
+    let pools = selection_new();
+    for (let i = 0; i < 13; ++i) lua.selection.set(pools);
+    pools = l_selection_or(
+        pools,
+        valStrtSelectionGrow(lua.selection.set(selection_new()), 'west', lua.random),
+    );
+    pools = l_selection_or(
+        pools,
+        valStrtSelectionGrow(lua.selection.set(selection_new()), 'north', lua.random),
+    );
+    pools = l_selection_or(
+        pools,
+        valStrtSelectionGrow(lua.selection.set(selection_new()), 'random', lua.random),
+    );
+
+    // C selection_grow() clones its receiver; paint the grown pool rim first.
+    await des.terrain(valStrtSelectionGrow(pools.clone(), 'all', lua.random), 'P');
+    await des.terrain(pools, 'L');
+
+    await des.map(VAL_STRT_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 19), 'lit');
+    await des.levregion({ region: [66, 17, 66, 17], type: 'branch' });
+    await des.stair('down', 18, 1);
+    await des.feature('fountain', 53, 2);
+    await des.door('locked', 26, 10);
+    await des.door('locked', 43, 10);
+    await des.monster({ id: 'Norn', coord: [35, 10], async inventory() {
+        await des.object({ id: 'banded mail', spe: 5 });
+        await des.object({ id: 'long sword', spe: 4 });
+    } });
+    await des.object('chest', 36, 10);
+    for (const [x, y] of [[27, 8], [27, 9], [27, 11], [27, 12],
+        [42, 8], [42, 9], [42, 11], [42, 12]])
+        await des.monster('warrior', x, y);
+    await des.non_diggable(selection_area(26, 7, 43, 13));
+    for (let i = 0; i < 6; ++i) await des.trap('fire');
+    for (const [x, y] of [[4, 12], [8, 8], [14, 4], [17, 11], [24, 10],
+        [45, 10], [54, 2], [55, 7], [58, 14], [63, 17]])
+        await des.monster('fire ant', x, y);
+    await des.monster({ id: 'fire giant', x: 18, y: 1, peaceful: 0 });
+    await des.monster({ id: 'fire giant', x: 10, y: 16, peaceful: 0 });
+}
+
 async function valLoca(des) {
     await des.level_init({ style: 'solidfill', fg: ' ' });
     await des.level_flags('mazelevel', 'hardfloor', 'icedpools', 'noflip');
@@ -2887,6 +2952,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Ran-strt': ranStrt,
     'Rog-strt': rogStrt,
     'Val-loca': valLoca,
+    'Val-strt': valStrt,
     'Hea-strt': heaStrt,
     'Cav-loca': cavLoca,
     'Cav-goal': cavGoal,
