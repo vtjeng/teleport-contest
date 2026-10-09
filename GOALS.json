@@ -222656,6 +222656,59 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-options-pickup-types-whole-v32-20261009",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete the pickup-types option request handler",
+      "cFile": "options.c",
+      "sessions": [
+        "synthetic/v32/v32-options-pickup-traditional"
+      ],
+      "selectionReason": "Dependency-ready after C155 acceptance; complete the oldest pickup option request mismatch while preserving the active saveoptions frontier.",
+      "detail": "Port whole options.c optfn_pickup_types request behavior and verify whole handler_pickup_types; consolidate startup set/get and interactive callers, preserving prompt, clear, restore, menu, class, and error order. No whole doset or parseoptions credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "optfn_pickup_types",
+          "line": 3308,
+          "endLine": 3403,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3308,
+        "to": 3403
+      },
+      "requiredFunctions": [
+        {
+          "name": "handler_pickup_types",
+          "line": 6114,
+          "endLine": 6123,
+          "declared": true,
+          "sourceFile": "options.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v32/v32-options-pickup-traditional": {
+          "session": "synthetic/v32/v32-options-pickup-traditional",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-options-pickup-traditional",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-options-pickup-traditional.session.json",
+          "recordingSha256": "c67c2911b24eeff7fdf9830a2fba5ee5098784fa0134d739ac457701dc6bed14",
+          "evaluationPath": "challenges/evaluations/accepted-a7706a9cdd4c2c738d83a025f720b1dc3cd580fd-v32.json",
+          "evaluationCommit": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd"
+        }
+      }
     }
   ]
 }
