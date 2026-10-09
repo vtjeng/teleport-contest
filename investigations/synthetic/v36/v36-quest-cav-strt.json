@@ -10,7 +10,7 @@
   "remainingScreens": 41,
   "recordedSteps": 60,
   "session": "synthetic/v36/v36-quest-cav-strt",
-  "commit": "ca646b9b85772ef445a8e1d9756dd12270347796",
+  "commit": "004a6da893c5dc420e260eb3ae0e285e85a56874",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v36",
