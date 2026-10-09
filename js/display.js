@@ -3589,7 +3589,9 @@ export function magic_map_background(x, y, show, state = game) {
             // The JS option owner stores C's effective iflags.use_color in
             // wc_color; display.js uses the same field for every map glyph.
             glyphNumber = state.flags?.dark_room && state.iflags?.wc_color
-                ? cmap_to_glyph(S_darkroom, state) : GLYPH_NOTHING_OFF;
+                ? cmap_to_glyph(
+                    isRogueLevelForState(state) ? S_stone : S_darkroom, state)
+                : GLYPH_NOTHING_OFF;
         } else if (location.typ === CORR
                    && glyphNumber === cmap_to_glyph(S_litcorr, state)) {
             glyphNumber = cmap_to_glyph(S_corr, state);

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T10:30:33.399Z",
+  "capturedAt": "2026-10-09T11:15:46.230Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -72511,22 +72511,398 @@
         "worker": "C",
         "state": "idle",
         "reason": "No independent admitted source task is available. Queued C167/C164 remain immutable; Wizard3 and UUID retain earlier owners, while recorder, pointer, platform and tooling gates remain unresolved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C166-c27b3a55a",
+        "type": "published",
+        "at": "2026-10-09T10:32:13.852Z",
+        "task": "C166",
+        "commit": "c27b3a55aeba868e4f83d27c18fcc6e16a7db4b9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C168-cav-goal-20261009",
+        "type": "assign",
+        "at": "2026-10-09T10:41:26.577Z",
+        "task": "C168",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C168-cav-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T10:41:27.902Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B194-hea-goal-20261009",
+        "type": "assign",
+        "at": "2026-10-09T10:41:59.863Z",
+        "task": "B194",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B194-hea-goal-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T10:42:13.111Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the Healer quest goal Lua loader; Caveman goal is owned by C168."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A188-C165-accepted-09d60e457",
+        "type": "resume",
+        "at": "2026-10-09T10:42:32.633Z",
+        "task": "A188"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A188-source-refresh-09d60e457",
+        "type": "turn",
+        "at": "2026-10-09T10:42:34.062Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Resuming Wizard3 source investigation after accepted C165 released its map-selection prerequisite."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B161-v36-admission-baseline-20261009",
+        "type": "activity",
+        "at": "2026-10-09T10:43:35.349Z",
+        "task": "B161",
+        "phase": "baseline",
+        "reason": "Admitted the accepted 68-case v36 batch and published its first evaluation: 42 of 68 sessions, 2,983 of 4,025 screens, and 231,412 of 280,903 RNG calls match."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A188-central-gate-339677290",
+        "type": "turn",
+        "at": "2026-10-09T10:43:57.793Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "Wizard3 investigation is complete; waiting for Main to queue its whole Lua source scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C168-cav-goal-20261009",
+        "type": "implement",
+        "at": "2026-10-09T10:44:02.381Z",
+        "task": "C168",
+        "goal": "port-cav-goal-quest-level-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B192-5d699058-20261009",
+        "type": "received",
+        "at": "2026-10-09T10:44:12.072Z",
+        "task": "B192",
+        "delivery": "5d699058e1a189f60bb603928cce0508e9599d39"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A190-f996acd4-20261009",
+        "type": "received",
+        "at": "2026-10-09T10:44:18.029Z",
+        "task": "A190",
+        "delivery": "f996acd4c1821cd43c5cc9bf3cb80a80e730684a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B194-source-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T10:44:42.961Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Healer quest goal diagnosis complete; waiting for Main to queue the whole Lua source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A188-wizard3-339677290",
+        "type": "implement",
+        "at": "2026-10-09T10:47:53.038Z",
+        "task": "A188",
+        "goal": "port-wizard3-special-level-v35-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A188-implementation-339677290",
+        "type": "turn",
+        "at": "2026-10-09T10:47:54.433Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Porting the complete Wizard3 Lua program with canonical map-selection protection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B194-hea-goal-20261009",
+        "type": "implement",
+        "at": "2026-10-09T10:48:26.909Z",
+        "task": "B194",
+        "goal": "port-hea-goal-lua-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B194-implement-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T10:48:37.480Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing the Healer quest goal Lua program and verifying independent arrival evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2bb7339f46bdc8706ccf9e68ee4243e5866318a9",
+        "type": "ready",
+        "at": "2026-10-09T10:52:22.287Z",
+        "task": "C168",
+        "delivery": "2bb7339f46bdc8706ccf9e68ee4243e5866318a9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C169-cav-loca-20261009",
+        "type": "assign",
+        "at": "2026-10-09T10:53:17.117Z",
+        "task": "C169",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C169-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T10:53:18.844Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C169-cav-loca-20261009",
+        "type": "implement",
+        "at": "2026-10-09T10:55:48.095Z",
+        "task": "C169",
+        "goal": "port-cav-loca-quest-level-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-886a35eaa110facdc58e3089f54f492b7e252fef",
+        "type": "ready",
+        "at": "2026-10-09T10:56:50.168Z",
+        "task": "B194",
+        "delivery": "886a35eaa110facdc58e3089f54f492b7e252fef"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B195-hea-loca-20261009",
+        "type": "assign",
+        "at": "2026-10-09T10:57:27.717Z",
+        "task": "B195",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B191-004a6da89",
+        "type": "integrating",
+        "at": "2026-10-09T10:57:34.679Z",
+        "task": "B191",
+        "integration": "004a6da893c5dc420e260eb3ae0e285e85a56874"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B195-hea-loca-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T10:57:44.562Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the Healer quest locate Lua program after the goal-level delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ca646b9b85772ef445a8e1d9756dd12270347796",
+        "type": "ready",
+        "at": "2026-10-09T10:58:01.762Z",
+        "task": "A188",
+        "delivery": "ca646b9b85772ef445a8e1d9756dd12270347796"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A191-Cav-strt-ca646b9b8",
+        "type": "assign",
+        "at": "2026-10-09T10:59:03.555Z",
+        "task": "A191",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A191-source-investigation-ca646b9b8",
+        "type": "turn",
+        "at": "2026-10-09T10:59:05.004Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating the next unowned v36 Caveman quest-start loader and its source dependencies."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B195-source-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T10:59:58.392Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Healer quest locate diagnosis complete; waiting for Main to queue the whole Lua source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A191-central-gate-8ae35a248",
+        "type": "turn",
+        "at": "2026-10-09T11:03:08.369Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "Caveman quest-start investigation is complete; waiting for Main to queue the whole Lua source scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-da6f18a9ca871a76b085adaaf6b89167e6a7327a",
+        "type": "ready",
+        "at": "2026-10-09T11:03:37.731Z",
+        "task": "C169",
+        "delivery": "da6f18a9ca871a76b085adaaf6b89167e6a7327a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C170-hea-strt-20261009",
+        "type": "assign",
+        "at": "2026-10-09T11:04:57.066Z",
+        "task": "C170",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C170-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T11:04:58.681Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B191-004a6da893c5dc420e260eb3ae0e285e85a56874-validated",
+        "type": "validated",
+        "at": "2026-10-09T11:05:56.300Z",
+        "task": "B191",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B191-004a6da893c5dc420e260eb3ae0e285e85a56874-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T11:10:07.211Z",
+        "task": "B191"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C170-hea-strt-20261009",
+        "type": "implement",
+        "at": "2026-10-09T11:10:20.821Z",
+        "task": "C170",
+        "goal": "port-hea-strt-quest-level-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C170-central-gate-hold-20261009",
+        "type": "turn",
+        "at": "2026-10-09T11:10:55.620Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "Healer start-level investigation complete; Main is queueing its source goal after the active publication boundary."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B195-gated-after-B191-merge-20261009",
+        "type": "turn",
+        "at": "2026-10-09T11:11:06.124Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Healer quest locate diagnosis complete; waiting for Main source gate. Accepted B191 merged cleanly."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "recv-C168-2bb7339f-20261009",
+        "type": "received",
+        "at": "2026-10-09T11:15:05.186Z",
+        "task": "C168",
+        "delivery": "2bb7339f46bdc8706ccf9e68ee4243e5866318a9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "recv-B194-886a35ea-20261009",
+        "type": "received",
+        "at": "2026-10-09T11:15:09.169Z",
+        "task": "B194",
+        "delivery": "886a35eaa110facdc58e3089f54f492b7e252fef"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "recv-A188-ca646b9b-20261009",
+        "type": "received",
+        "at": "2026-10-09T11:15:13.312Z",
+        "task": "A188",
+        "delivery": "ca646b9b85772ef445a8e1d9756dd12270347796"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A191-Cav-strt-8ae35a248",
+        "type": "implement",
+        "at": "2026-10-09T11:15:15.168Z",
+        "task": "A191",
+        "goal": "port-cav-strt-quest-start-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A191-implementation-8ae35a248",
+        "type": "turn",
+        "at": "2026-10-09T11:15:16.472Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Porting the complete Caveman quest-start Lua program and its generated map."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C170-source-gate-resumed-20261009",
+        "type": "turn",
+        "at": "2026-10-09T11:15:18.930Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Implementing the Healer quest start level and its independent recorded evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "recv-C169-da6f18a9-20261009",
+        "type": "received",
+        "at": "2026-10-09T11:15:24.258Z",
+        "task": "C169",
+        "delivery": "da6f18a9ca871a76b085adaaf6b89167e6a7327a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B195-hea-loca-20261009",
+        "type": "implement",
+        "at": "2026-10-09T11:15:43.014Z",
+        "task": "B195",
+        "goal": "port-hea-loca-lua-v36-20261009"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B191",
-        "worker": "B",
-        "goal": "fix-display-magic-map-rogue-darkroom-symbol-v35-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "15c4efc720ebb259d852007e6bfb8e0564d2aa5f",
-        "since": "2026-10-09T09:16:22.454Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "A186",
         "worker": "A2",
@@ -72560,7 +72936,7 @@
         "blockedBy": [
           "C167"
         ],
-        "unblocks": 0
+        "unblocks": 1
       },
       {
         "task": "B192",
@@ -72570,10 +72946,8 @@
         "status": "ready",
         "delivery": "5d699058e1a189f60bb603928cce0508e9599d39",
         "since": "2026-10-09T09:49:40.736Z",
-        "blockedBy": [
-          "B191"
-        ],
-        "unblocks": 0
+        "blockedBy": [],
+        "unblocks": 1
       },
       {
         "task": "A190",
@@ -72587,20 +72961,62 @@
           "A186"
         ],
         "unblocks": 0
+      },
+      {
+        "task": "C168",
+        "worker": "C",
+        "goal": "port-cav-goal-quest-level-v36-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "2bb7339f46bdc8706ccf9e68ee4243e5866318a9",
+        "since": "2026-10-09T10:52:22.287Z",
+        "blockedBy": [
+          "C164"
+        ],
+        "unblocks": 1
+      },
+      {
+        "task": "B194",
+        "worker": "B",
+        "goal": "port-hea-goal-lua-v36-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "886a35eaa110facdc58e3089f54f492b7e252fef",
+        "since": "2026-10-09T10:56:50.168Z",
+        "blockedBy": [
+          "B192"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "A188",
+        "worker": "A2",
+        "goal": "port-wizard3-special-level-v35-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "ca646b9b85772ef445a8e1d9756dd12270347796",
+        "since": "2026-10-09T10:58:01.762Z",
+        "blockedBy": [
+          "A186",
+          "A190"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "C169",
+        "worker": "C",
+        "goal": "port-cav-loca-quest-level-v36-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "da6f18a9ca871a76b085adaaf6b89167e6a7327a",
+        "since": "2026-10-09T11:03:37.731Z",
+        "blockedBy": [
+          "C168"
+        ],
+        "unblocks": 0
       }
     ],
     "preparedBatches": [
-      {
-        "task": "B161",
-        "worker": "B",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "awaiting-admission",
-        "delivery": "030e699c0ff28c384ba99dec8ec59b1624eb89f7",
-        "since": "2026-10-08T16:33:59.935Z",
-        "blockedBy": [],
-        "batch": "v36"
-      },
       {
         "task": "Prep1",
         "worker": "Prep",
@@ -72857,17 +73273,6 @@
         "reason": "Whole timeout queue family consumes alloc.c:fmt_ptr native addresses for populated rows; matching IDs are not equivalent. Canonical property table relocation also awaits B185 wizcmds owner. No partial timeout source credit."
       },
       {
-        "task": "A188",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T08:31:32.610Z",
-        "blockedBy": [],
-        "reason": "Waiting for C165 canonical written-cell des.map return selection before wizard3 Lua implementation"
-      },
-      {
         "task": "B188",
         "worker": "B",
         "goal": null,
@@ -72903,8 +73308,8 @@
     ]
   },
   "development": {
-    "executionCommit": "711b9702dc92992c64fad92625f1eb2e8f9baea8",
-    "measuredAt": "2026-10-09T10:25:08.607Z",
+    "executionCommit": "004a6da893c5dc420e260eb3ae0e285e85a56874",
+    "measuredAt": "2026-10-09T11:04:15.556Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
