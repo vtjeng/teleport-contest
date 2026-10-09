@@ -60,12 +60,13 @@
     "callers": [
       "options.c:parseoptions638–647 invokes allopt[].optfn do_set for configuration and in-game updates; JS parseNethackrc startup branch6324 and live OPTION_SET_HANDLERS8437 need one canonical scores handler.",
       "options.c:doset_add_menu9037 requests get_val; JS OPTION_VALUE_HANDLERS.scores7664 duplicates the formatter and must call the same source owner.",
-      "options.c:initoptions_init initializes option do_init; scores returns success with no changes. options.c:do_write_options requests get_cnf_val; the getter must preserve this request, while broader file output remains outside this task."
+      "options.c:initoptions_init7428 requests do_init; scores returns success with no state changes. options.c:get_option_value8481–8505 requests get_cnf_val/get_val through allopt. The config getter shares the menu formatter; broader native #saveoptions all_options_strbuf9678 serialization is stopped by existing cfgfiles.c fopen gap and receives no caller/owner credit."
     ],
     "dependencies": [
       "Existing string_for_opt/hacklib helpers provide consumed token values; preserve signed atoi narrowing, source letter classification and left-to-right partial writes.",
       "cfgfiles.c:config_erradd1554–1562 live diagnostic output is unported and its result is discarded. Retain a named note_unported gap for live missing/invalid scores diagnostics, preserve state and source return paths, and retain a blocked independent runtime variation. Do not expand into configuration-error owner completion.",
-      "Keep B178 doset/doset_simple_menu and B179 pickup/B180 status-hilite owners read-only. C155 is an immutable ancestor dependency unrelated to scores behavior."
+      "Keep B178 doset/doset_simple_menu and B179 pickup/B180 status-hilite owners read-only. C155 is an immutable ancestor dependency unrelated to scores behavior.",
+      "Native #saveoptions serialization through get_option_value/all_options_strbuf remains outside this owner task, stopped by the existing cfgfiles.c fopen gap in JS do_write_config_file. Keep this broader caller boundary explicit and take no configuration-writing credit."
     ]
   },
   "evidence": [
