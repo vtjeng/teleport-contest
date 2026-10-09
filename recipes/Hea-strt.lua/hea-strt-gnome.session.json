@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first whole Hea-strt.lua input fixed before JS comparison: gnome male Healer, neutral alignment and Hea-strt name. Covers map, pool replacement, branch region, neutral altar, doors, Hippocrates custom silver dagger, attendants and siege monsters. No seed search. Blocked production variation: vision.c:vision_recalc redraw differs at zero-based boundary22 (C blank vs JS floor at map32,10 from hero14,19) despite matching RNG/cursors. Original inputs and C recording retained unchanged in .cache/C170-gnome-original-c.session.json; no completion citation for this recording and no vision owner change.",
+  "segments": [
+    {
+      "seed": 17091019,
+      "datetime": "20660918162631",
+      "nethackrc": "OPTIONS=name:HeaStrtProbe,role:Healer,race:gnome,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizloaddes\nHea-strt\n            #wizmap\n        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first male-human variation designed after retaining the original gnome redraw mismatch as a separate vision.c:vision_recalc frontier. Seed17091029 and clock20660918162631 fixed before C recording/JS comparison, male neutral human Healer and extensionless des-file name. No seed search or changed inputs after comparison.",
+  "segments": [
+    {
+      "seed": 17091029,
+      "datetime": "20660918162631",
+      "nethackrc": "OPTIONS=name:HeaStrtProbe,role:Healer,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizloaddes\nHea-strt\n            #wizmap\n        "
+    }
+  ]
+}
