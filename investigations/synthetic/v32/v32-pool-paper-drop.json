@@ -1,0 +1,114 @@
+{
+  "session": "synthetic/v32/v32-pool-paper-drop",
+  "corpus": "synthetic",
+  "batch": "v32",
+  "caseId": "v32-pool-paper-drop",
+  "manifestPath": "challenges/manifests/v32.json",
+  "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+  "recordingSha256": "1ed3b3660d65117fb205eaf143a8c4d43455a373bebc176435d7a91491344fe5",
+  "evaluationPath": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v32.json",
+  "evaluationCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+  "remainingScreens": 15,
+  "recordedSteps": 81,
+  "status": "complete",
+  "commit": "8ec7aa7a941c65be2d91c6a8117083ecfb634699",
+  "mismatch": {
+    "version": 1,
+    "corpus": "synthetic",
+    "batch": "v32",
+    "caseId": "v32-pool-paper-drop",
+    "manifestPath": "challenges/manifests/v32.json",
+    "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+    "recordingPath": "challenges/cases/v32/v32-pool-paper-drop.session.json",
+    "recordingSha256": "1ed3b3660d65117fb205eaf143a8c4d43455a373bebc176435d7a91491344fe5",
+    "recipeSha256": "9a0111c9f7b619ace63dd17120937436f70eea5dca6487e7e0c161b1a4c302ee",
+    "evaluationPath": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v32.json",
+    "evaluationCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+    "evaluationUtc": "2026-10-08T21:20:26.992Z",
+    "session": "synthetic/v32/v32-pool-paper-drop",
+    "remainingScreens": 15,
+    "recordedSteps": 81,
+    "metrics": {
+      "screens": {
+        "matched": 66,
+        "total": 81
+      },
+      "rng": {
+        "matched": 2836,
+        "total": 2842
+      },
+      "cursors": {
+        "matched": 66,
+        "total": 81
+      }
+    },
+    "step": 66,
+    "kind": "stop",
+    "sourceFile": "do.c",
+    "function": "dropx",
+    "line": 787,
+    "message": "unsupported hero command: an unported branch of this command: unsupported drop: liquid terrain",
+    "diagnosticToolSha256": "01cb5004cc11a812f50a8e119ea49eb9700d913dc19487543ad6f877b06e6a82",
+    "replayCommit": "8ec7aa7a941c65be2d91c6a8117083ecfb634699"
+  },
+  "summary": "An unconditional preflight_dropx liquid-terrain refusal blocks a plain scroll landing in a pool, before existing flooreffects and canonical water_damage run. The source consumes water_damage(obj,NULL,FALSE)==ER_DESTROYED; its supported scroll branch first draws rn2(20), then blanks the detached paper and preserves the object for ordinary floor placement. Admit only source-supported plain scroll pool drops under the existing guards; retain lava, underwater/special-level and other object-family limits. B169 still owns dropx through its immutable ready delivery, so implementation waits for that acceptance boundary.",
+  "goalKind": "divergence-fix",
+  "source": {
+    "file": "do.c",
+    "functions": [
+      "dropx"
+    ],
+    "branch": "A non-lit, non-timed, non-globby ordinary scroll is dropped by a hero standing on pool terrain but not yet Underwater, outside shops/shipping/trap/region/special-pile limits. C extracts it, then flooreffects water_damage with force FALSE decides blanking before ordinary placement; JS preflight blocks all liquid terrain before extraction.",
+    "callers": [
+      "do.c:dodrop -> drop preserves canletgo/can_reach_floor, prints drop message, sets how_lost, then calls dropx. dropx785-797 freeinv precedes ship_object/altar and dropy -> dropz -> flooreffects. Existing js/do.js preserves this source ordering after successful preflight; callers are unchanged.",
+      "Existing preflight_dropx is shared with direct dropx/dropz and hold_another_object/reverse_loot callers. Reconcile its narrow paper-on-pool policy without broadening those owner functions or claiming unrelated active drop callers. Source-required ordinary placement uses existing dropCommandEnv hooks."
+    ],
+    "dependencies": [
+      "do.c:flooreffects pool branch273-291 preserves splash/map_background/newsym conditions then consumes water_damage(obj,NULL,FALSE)==ER_DESTROYED. Existing js/do.js1085-1108 already delegates the canonical owner and returns that comparison. No copied floor/water function or invented RNG is needed.",
+      "Read complete trap.c:water_damage4712-4852 and existing js/trap_water_damage.js. Selected ordinary scroll branch: absent light/grease/container special paths, force FALSE Luck check at4771 draws rn2(20); blank-paper no-op, otherwise otyp=SCR_BLANK_PAPER, dknown=0, spe=0, ER_DAMAGED. Detached floor object has in_invent false, so no fade message/update_inventory here. Broader acid/container/book/default erosion callers remain outside this bounded admission credit.",
+      "Existing dropCommandEnv1553 composes setworn, encumberMessage, extractExternalObject/remove_object and newsym. Existing dropzAdmitted places/stacks/maps the surviving object. Retain all shop/trap/region/timer/light/glob guards and source ordering; new admission requires both the liquid check and ordinary-terrain whitelist to agree on the supported pool-scroll case.",
+      "B169 still holds exact source:do.c:dropx through immutable delivery e0bbc19f. Its occupied-pit admission is separate but must be preserved; no source claim or game edit during this investigation. Resume only after acceptance/merge or explicit coordinator approval of dependent continuation."
+    ]
+  },
+  "evidence": [
+    "Assigned-base .cache/B175/scan.json at8ec7aa7a reproduces66/81screens, first stop segment0step66 object selector e, exact unsupported drop liquid terrain. Saved accepted-8ad9 evaluation gives15remaining,2836/2842RNG,66/81cursors. No earlier divergence.",
+    "C admitted step66 drops a scroll labeled ELAM EBOW; first missing draw is water_damage rn2(20)=15. C then processes ordinary turn draws and giant-eel pool entry, wetting inventory atsteps66-67. Do not attribute the later immersion draws to the floor scroll helper or claim their source owners.",
+    "Read-only prefix probe .cache/B175/entry-state.mjs/log confirms scroll e is SCROLL_CLASS in inventory, hero stands on a pool, uinwater false, no lit/timer/glob/grease flags. It ends before drop, so the separate Underwater guard is false; exact current refusal is the unconditional liquid-terrain guard. No game files were modified.",
+    "Read whole source dropx/dropy/dropz/flooreffects and complete water_damage before proposing bounded admission. Existing JS carries the source scroll return branch and direct pool floor call; the refusal is an old caller/substrate guard. Other object-family return paths are not selected as new completion credit.",
+    "Future validation needs admitted range66-80, independent C-first scroll-on-pool variation with state assertions for original object identity, blanking/protection and floor placement, focused preflight/ordering tests, and a representative blocked non-scroll/lava/underwater case. If a later source owner blocks full runtime, keep it named and do not call the wider function complete."
+  ],
+  "proposal": {
+    "goalId": "fix-do-dropx-pool-scroll-admission-v32-20261008",
+    "summary": "Admit ordinary scroll drops into pools.",
+    "selectionReason": "Independent v32 investigation after B174 submission and accepted C152 merge: matched prefix reaches a plain scroll pool drop, but stale preflight admission refuses the existing water floor-effect owner. Preserve B169 trap-admission delivery; source claim waits for its acceptance because both fixes own dropx.",
+    "detail": "An unconditional preflight_dropx liquid-terrain refusal blocks a plain scroll landing in a pool, before existing flooreffects and canonical water_damage run. The source consumes water_damage(obj,NULL,FALSE)==ER_DESTROYED; its supported scroll branch first draws rn2(20), then blanks the detached paper and preserves the object for ordinary floor placement. Admit only source-supported plain scroll pool drops under the existing guards; retain lava, underwater/special-level and other object-family limits. B169 still owns dropx through its immutable ready delivery, so implementation waits for that acceptance boundary.",
+    "dependencyReady": false,
+    "sourceUnits": [
+      {
+        "file": "do.c",
+        "name": "dropx",
+        "start": 785,
+        "end": 797
+      }
+    ],
+    "completionCredit": "Bounded dropx/preflight pool-scroll admission divergence only; no whole drop-family, flooreffects, water_damage, water-entry or display credit.",
+    "proposedReservations": [
+      "session:synthetic/v32/v32-pool-paper-drop",
+      "source:do.c:dropx",
+      "contract:pool-scroll-drop-water-damage"
+    ],
+    "proposedPaths": [
+      "js/do.js",
+      "scripts/drop-command.test.mjs",
+      "scripts/inventory-substrate.test.mjs",
+      "scripts/run-pool-scroll-drop.mjs",
+      "recipes/do.c/",
+      "recordings/do.c/",
+      "investigations/synthetic/v32/v32-pool-paper-drop.json",
+      ".cache/"
+    ],
+    "dependencies": [
+      "B169 immutable e0bbc19fb4137f4c9aba1f6e04519784d43a1d45 must be accepted/merged before reopening source:do.c:dropx; canonical water scroll behavior already exists in the recorded base."
+    ]
+  }
+}
