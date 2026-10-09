@@ -235645,7 +235645,7 @@
     {
       "id": "port-kni-loca-quest-level-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Knight quest locate level from Lua.",
       "luaFile": "Kni-loca.lua",
       "sessions": [
@@ -235659,15 +235659,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "12b580fd16db4d603164821a223688d1d9167cdc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Kni-loca.lua",
           "line": 1,
           "endLine": 137,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -235835,7 +235838,90 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Kni-loca.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "kniLoca",
+            "sourceReview": "Read the complete upstream dat/Kni-loca.lua, lines 1-137, and preserved the top-level evaluation order: solid fill; mazelevel/hardfloor; joined mines floor/pool initialization; transparent 40x12 map; lit whole-map and filled=2 temple regions; up/down stairs; neutral shrine; 15 random objects; 45 fixed magic-trap descriptors; seven random anti-magic trap calls; and 27 hostile monster descriptors. The deterministic generator parses the map, fixed trap coordinates, and ordered monster descriptors directly from the Lua source. Existing des descriptor owners remain the implementation dependencies; no generic descriptor behavior was moved or newly claimed. The file has no branches or helper functions and no unported calls.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special dispatches the Kni-loca special-level name to the registered loader."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "wizcmds.c:wiz_load_splua calls sp_lev.c:load_special for a wizard-specified des-file name."
+              },
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "dat/Kni-loca.lua is registered under its special-level name for load_special dispatch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/kni-loca-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Kni-loca.lua/kni-loca-male-independent.session.json",
+              "recordings/Kni-loca.lua/kni-loca-female-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-kni-loca",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 20,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Kni-loca.lua"
+              }
+            ],
+            "checkedAt": "12b580fd16db4d603164821a223688d1d9167cdc"
+          }
+        ],
+        "entryPointReview": "The whole program has two active production entries in the reference recorder. Ordinary Knight quest locate arrival reaches makelevel/makemaz/load_special and is replay-verified by admitted v36 case v36-quest-kni-loca through the initial Kni-loca level screen at segment 0, step 20. Debug wizard command wiz_load_splua reaches load_special with the requested file name; independent male and female Knight recordings exercise that dispatch. Both caller paths are enabled in the patched recorder. Kni-loca.lua has only top-level descriptor statements; all descriptors use existing owners, and this task does not claim those generic owners.",
+        "entryPoints": [
+          {
+            "name": "Knight quest locate arrival",
+            "functions": [
+              "Kni-loca.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-kni-loca",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 20,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Kni-loca.lua"
+              }
+            ]
+          },
+          {
+            "name": "Wizard #wizloaddes direct load",
+            "functions": [
+              "Kni-loca.lua"
+            ],
+            "recordings": [
+              "recordings/Kni-loca.lua/kni-loca-male-independent.session.json",
+              "recordings/Kni-loca.lua/kni-loca-female-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "12b580fd16db4d603164821a223688d1d9167cdc",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-mon-goal-quest-goal-v36-20261009",

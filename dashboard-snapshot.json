@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T16:32:05.764Z",
+  "capturedAt": "2026-10-09T16:44:46.835Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -74802,22 +74802,34 @@
         "at": "2026-10-09T16:23:58.349Z",
         "task": "B196",
         "goal": "port-kni-strt-lua-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C171-12b580fd1-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T16:34:35.883Z",
+        "task": "C171",
+        "integration": "12b580fd16db4d603164821a223688d1d9167cdc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C171-12b580fd16db4d603164821a223688d1d9167cdc-validated",
+        "type": "validated",
+        "at": "2026-10-09T16:42:37.769Z",
+        "task": "C171",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C171-12b580fd16db4d603164821a223688d1d9167cdc-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T16:43:46.110Z",
+        "task": "C171"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C171",
-        "worker": "C",
-        "goal": "port-kni-loca-quest-level-v36-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "8a0f69f0c52809e267c7d06476888f0f3e5c44de",
-        "since": "2026-10-09T16:13:11.740Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "A192",
         "worker": "A2",
@@ -75297,8 +75309,8 @@
     ]
   },
   "development": {
-    "executionCommit": "7c789590bf2ff0b12c9c8c1ddbb81a41a51b609a",
-    "measuredAt": "2026-10-09T16:27:49.262Z",
+    "executionCommit": "12b580fd16db4d603164821a223688d1d9167cdc",
+    "measuredAt": "2026-10-09T16:41:51.893Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
