@@ -90,6 +90,7 @@ import { newsym } from './display.js';
 import { onscary, set_apparxy } from './monmove.js';
 import { mk_roamer } from './priest.js';
 import { your_race } from './mondata.js';
+import { mk_mplayer } from './mplayer.js';
 import { lspo_gas_cloud, lspo_monster } from './mklev.js';
 import { christen_monst } from './do_name.js';
 import { MAXMCLASSES, MAXPCHARS } from './symbols.js';
@@ -535,11 +536,9 @@ function impossible(message, env) {
 
 // C ref: sp_lev.c create_monster(), from the class lookup through the
 // attribute switch. `m` is the descriptor lspo_monster() fills; the port
-// stores its `class` as the class index rather than the C's class
-// character. One arm remains unported: a player species (C: mk_mplayer)
-// falls through to makemon(), and assertSupportedMonsterAppearance() refuses
-// the monster appearance arm
-// before this runs; object and furniture disguises are handled below.
+// stores its `class` as the class index rather than the C's class character.
+// The player-species creation arm is handled below; the monster appearance
+// arm remains refused by assertSupportedMonsterAppearance().
 function createMonsterBody(m, croom, env) {
     const replacement = env.hooks.createMonster;
     // This hook replaces create_monster()'s monster construction and
@@ -608,9 +607,9 @@ function createMonsterBody(m, croom, env) {
     // for script-placed monsters during mklev, the same way rndmonst-selected
     // species bypass it.
     if (state?.in_mklev) monsterEnv._rndmonMklev = true;
-    // C sp_lev.c:1983-1984 routes every explicit alignment through
-    // priest.c mk_roamer(). AM_SPLEV_RANDOM alone uses the ordinary
-    // mkclass/mkplayer/makemon arms below.
+    // C sp_lev.c:create_monster() routes explicit alignments to mk_roamer,
+    // player species with random alignment to mk_mplayer, and other monsters
+    // to makemon, in this source order.
     const maybeMtmp = m.sp_amask !== AM_SPLEV_RANDOM
         ? mk_roamer(
             pm,
@@ -620,6 +619,8 @@ function createMonsterBody(m, croom, env) {
             Boolean(m.peaceful),
             monsterEnv,
         )
+        : PM_ARCHEOLOGIST <= m.id && m.id <= PM_WIZARD
+            ? mk_mplayer(pm, coordinate.x, coordinate.y, false, monsterEnv)
         : makemon(
             pm,
             coordinate.x,

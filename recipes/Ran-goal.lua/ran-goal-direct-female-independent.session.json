@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first direct wizard load of dat/Ran-goal.lua through #wizloaddes. Seed 64019003, date 20401226100745, and a female human neutral Ranger vary gender and startup state while preserving the source level entry point.",
+  "segments": [
+    {
+      "seed": 64019003,
+      "datetime": "20401226100745",
+      "nethackrc": "OPTIONS=name:RanGoalFemale,role:Ranger,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizloaddes\nRan-goal.lua\n "
+    }
+  ]
+}

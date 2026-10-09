@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first direct wizard load of dat/Ran-goal.lua through #wizloaddes. Seed 64019001, date 20520819112233, and a male human neutral Ranger were selected to exercise the explicit source level without reusing a recorded session.",
+  "segments": [
+    {
+      "seed": 64019001,
+      "datetime": "20520819112233",
+      "nethackrc": "OPTIONS=name:RanGoalMale,role:Ranger,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizloaddes\nRan-goal.lua\n "
+    }
+  ]
+}

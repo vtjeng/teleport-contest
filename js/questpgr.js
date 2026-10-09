@@ -213,7 +213,7 @@ function convertArg(c, state) {
 // where <arg> is one of the letters handled by convertArg, and
 // <modifier> is an optional suffix: A/a (article), C (capitalize),
 // h/H/i/I/j/J (pronoun), P/p (plural), S/s (possessive), t (strip "the").
-function convertLine(line, state) {
+export function convertLine(line, state) {
     let out = '';
     let i = 0;
     while (i < line.length) {

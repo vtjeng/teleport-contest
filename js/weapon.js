@@ -401,6 +401,13 @@ const RANGED_WEAPONS = Object.freeze([
     CREAM_PIE,
 ]);
 
+// C ref: weapon.c monmightthrowwep().
+export function monmightthrowwep(obj) {
+    for (let index = 0; index < RANGED_WEAPONS.length; index++)
+        if (obj.otyp === RANGED_WEAPONS[index]) return true;
+    return false;
+}
+
 const POLEARMS = Object.freeze([
     HALBERD,
     BARDICHE,
