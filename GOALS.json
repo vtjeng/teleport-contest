@@ -234961,7 +234961,7 @@
     {
       "id": "port-medusa-4-lua-v37-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete and verify the Medusa-4 special level, including its final moat row.",
       "luaFile": "medusa-4.lua",
       "sessions": [
@@ -234975,15 +234975,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b581facde072156e518fc16846e3a5ca02455f81",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "medusa-4.lua",
           "line": 1,
           "endLine": 152,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -235256,7 +235259,91 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "medusa-4.lua",
+            "implementation": "js/medusa_levels.js",
+            "symbol": "medusa4",
+            "sourceReview": "Read whole dat/medusa-4.lua1–152 in order: solid stone fill and noteleport/mazelevel flags; generated exact21x76 map including final moat row; four-point selection with two distinct removed coordinates; lit map and irregular room; separate up/down teleport regions; up levregion, down stair at medloc, seven locked doors, branch region and nondiggable palace; crystal ball; historic male uncursed knight Perseus statue with75/25/50/50 conditional contents; seven empty statues and eight random objects; seven random traps; sleeping Medusa first, kraken, sleeping yellow dragon,50/25 baby gates and50/25 extra egg gates; two eels, two jellyfish,14 snakes and four interleaved black-naga/hatchling pairs. Every impure descriptor and contents callback is awaited in source order. Existing canonical descriptors consume resolved object/species IDs, while source positional string descriptors preserve default parsing. Lua contents=0 opens/closes an empty container through the equivalent empty callback. No stub or unported consumed result remains in the Lua unit.",
+            "callers": [
+              {
+                "path": "js/medusa_levels.js",
+                "symbol": "MEDUSA_LEVEL_LOADERS",
+                "source": "Existing medusa-4 registry resolves the source-named Lua program. All four program registrations remain intact."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "makelevel/makemaz -> sp_lev.c load_special -> nhlua load_lua -> whole medusa-4.lua. Canonical loader creates the descriptor API and private alignment shuffle, then finishes level generation. Matching selected arrival and independent Wizard arrival establish this production route."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "wizcmds.c wiz_load_splua calls source-named load_special after level reset. Independent Valkyrie direct loading matches through whole generation and map display."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/medusa4-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/medusa-4.lua/medusa4-valkyrie-independent.session.json",
+              "recordings/medusa-4.lua/medusa4-wizard-arrival-independent.session.json"
+            ],
+            "sourceFile": "medusa-4.lua",
+            "synthetic": [
+              {
+                "batch": "v37",
+                "caseId": "v37-medusa",
+                "segment": 0,
+                "fromStep": 18,
+                "throughStep": 26,
+                "source": "Natural Medusa arrival via level_tele/deferred_goto/goto_level -> makelevel/makemaz/load_special -> whole dat/medusa-4.lua and finish. Full selected replay matches27 screens/cursors and7466 RNG calls."
+              }
+            ],
+            "checkedAt": "b581facde072156e518fc16846e3a5ca02455f81"
+          }
+        ],
+        "entryPointReview": "The whole Lua generation entry is reachable through natural Medusa level creation and direct source-named debug loading. Selected admitted arrival and independently selected Wizard arrival cover natural generation; independent Valkyrie direct loading covers wiz_load_splua. Source-derived tests establish all descriptor values/order, removed selection coordinates and percent gates. Runtime assertions verify sleeping Medusa, nesting dragon, flags, down stair at Medusa and full-width final moat row. No whole generic descriptor, Medusa variants1–3, coordinate, reset or command credit.",
+        "entryPoints": [
+          {
+            "name": "Natural Medusa-level arrival generation",
+            "functions": [
+              "medusa-4.lua"
+            ],
+            "recordings": [
+              "recordings/medusa-4.lua/medusa4-wizard-arrival-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v37",
+                "caseId": "v37-medusa",
+                "segment": 0,
+                "fromStep": 18,
+                "throughStep": 26,
+                "source": "Natural Medusa arrival via level_tele/deferred_goto/goto_level -> makelevel/makemaz/load_special -> whole dat/medusa-4.lua and finish. Full selected replay matches27 screens/cursors and7466 RNG calls."
+              }
+            ]
+          },
+          {
+            "name": "Direct source-named special-level loading",
+            "functions": [
+              "medusa-4.lua"
+            ],
+            "recordings": [
+              "recordings/medusa-4.lua/medusa4-valkyrie-independent.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b581facde072156e518fc16846e3a5ca02455f81",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-wizcmds-wiz-show-nhuuid-v34-20261009",
