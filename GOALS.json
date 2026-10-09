@@ -229899,6 +229899,39 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-read-genocide-retry-quote-v34-20261009",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore the quoted question mark in genocide retry hints",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v34/v34-genocide-no-such-species"
+      ],
+      "selectionReason": "A187 selected the admitted v34 genocide prompt mismatch at step 54; source review traces both affected retry hints in do_genocide and do_class_genocide.",
+      "detail": "Restore the two source-faithful quoted question-mark literals only; preserve parser, prompt, retry, RNG, and genocide behavior without whole-function credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "do_genocide",
+      "session": "synthetic/v34/v34-genocide-no-such-species",
+      "step": 54,
+      "syntheticProvenance": {
+        "synthetic/v34/v34-genocide-no-such-species": {
+          "session": "synthetic/v34/v34-genocide-no-such-species",
+          "corpus": "synthetic",
+          "batch": "v34",
+          "caseId": "v34-genocide-no-such-species",
+          "manifestPath": "challenges/manifests/v34.json",
+          "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+          "recordingPath": "challenges/cases/v34/v34-genocide-no-such-species.session.json",
+          "recordingSha256": "2889b7946ebfcd8ad2067a88618ab4a538cacfb3bbe8061749248c63a9523d6a",
+          "evaluationPath": "challenges/evaluations/accepted-2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a-v34.json",
+          "evaluationCommit": "2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a"
+        }
+      }
     }
   ]
 }
