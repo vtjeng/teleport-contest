@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v32.json",
   "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
   "recordingSha256": "c67c2911b24eeff7fdf9830a2fba5ee5098784fa0134d739ac457701dc6bed14",
-  "evaluationPath": "challenges/evaluations/accepted-db0a7ad02ea001265fce34f7485b90c58d649d79-v32.json",
-  "evaluationCommit": "db0a7ad02ea001265fce34f7485b90c58d649d79",
-  "remainingScreens": 32,
+  "evaluationPath": "challenges/evaluations/accepted-a7706a9cdd4c2c738d83a025f720b1dc3cd580fd-v32.json",
+  "evaluationCommit": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd",
+  "remainingScreens": 17,
   "recordedSteps": 46,
   "status": "complete",
-  "commit": "b7bf47b1017496f2afa0873382808c729b67f175",
+  "commit": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd",
   "mismatch": {
     "version": 1,
     "corpus": "synthetic",
@@ -23,14 +23,20 @@
     "recordingPath": "challenges/cases/v32/v32-options-pickup-traditional.session.json",
     "recordingSha256": "c67c2911b24eeff7fdf9830a2fba5ee5098784fa0134d739ac457701dc6bed14",
     "recipeSha256": "63b7b806dc533a00e905f7cd78835dd223457ae1e81521e911ad680f94f3a13f",
-    "evaluationPath": "challenges/evaluations/accepted-db0a7ad02ea001265fce34f7485b90c58d649d79-v32.json",
-    "evaluationCommit": "db0a7ad02ea001265fce34f7485b90c58d649d79",
-    "evaluationUtc": "2026-10-09T00:02:56.121Z",
-    "remainingScreens": 32,
+    "replayInputSha256": "40982fe64b741e7a7ca7d2ecc362b427f0ae75fcfc3ebb0705715fc285211a62",
+    "evaluationPath": "challenges/evaluations/accepted-a7706a9cdd4c2c738d83a025f720b1dc3cd580fd-v32.json",
+    "evaluationCommit": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd",
+    "evaluationArtifact": "challenges/evaluations/accepted-a7706a9cdd4c2c738d83a025f720b1dc3cd580fd-v32.json",
+    "evaluationUtc": "2026-10-09T01:18:12.039Z",
+    "remainingScreens": 17,
     "recordedSteps": 46,
+    "previousScreensMatched": 29,
+    "regression": false,
+    "passed": false,
+    "error": null,
     "metrics": {
       "screens": {
-        "matched": 14,
+        "matched": 29,
         "total": 46
       },
       "rng": {
@@ -38,15 +44,23 @@
         "total": 2537
       },
       "cursors": {
-        "matched": 14,
+        "matched": 29,
         "total": 46
       }
     },
-    "step": 14,
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: the options menu requires optfn_pickup_types()'s getlin(\"New %s: [%s am] (%s)\")",
+      "step": 29
+    },
+    "step": 29,
     "kind": "stop",
-    "sourceFile": "cmd.c",
-    "function": "doextcmd",
-    "message": "Saved evaluation missing typed optionsfull dispatcher. Local immutable B173 dependency reveals traditional pickup_types getlin refusal at29."
+    "sourceFile": "options.c",
+    "function": "optfn_pickup_types",
+    "message": "unsupported hero command: an unported branch of this command: the options menu requires optfn_pickup_types()'s getlin(\"New %s: [%s am] (%s)\")",
+    "cFile": "options.c",
+    "luaFile": null,
+    "line": null
   },
   "summary": "After the B173 typed full-options caller, selecting pickup_types with traditional menustyle stops at optfn_pickup_types' missing getlin branch. Complete the whole request handler and its existing handler_pickup_types caller, reconciling duplicated startup parsing and menu value rendering with one source owner. Preserve old class symbols across empty/Escape, clear them on whitespace, and enter the canonical class menu only on m or menu-style requests.",
   "goalKind": "file-port",
@@ -70,7 +84,7 @@
     ]
   },
   "evidence": [
-    "Saved accepted-db0a v32 queue retains32remaining/46; pending-B173 worker replay run-mPDLRq atb7bf47b10 matches29/46 with no earlier RNG/screen/cursor divergence, then refuses traditional getlin. Current local remaining17 is worker-branch evidence, not a new aggregate evaluation.",
+    "Accepted C155 evaluation accepted-a7706a9c-v32 matches 29/46 screens and cursors and all 2537 RNG calls, then stops at the traditional pickup_types getlin branch on zero-based step 29. The accepted B173 and B178 dependencies account for the 15-screen advance since the original investigation without changing this source diagnosis.",
     "Complete C source3308-3402 includes do_init, do_set explicit/missing/compat/negation/initial paths, traditional/combination getlin and m fallback, wizard venom menu append, class uniqueness validation, get_val/get_cnf_val, do_handler and default return. A traditional-only branch addition would leave the whole selected function partial and duplicate startup/get logic.",
     "Whole function closure can preserve startup synchrony with a request dispatcher that returns synchronous results for noninteractive requests and an awaited operation only for interactive prompt paths; do not make the global startup parser asynchronous or broaden initoptions.",
     "Runtime coverage plan: admitted traditional $ response prefix through handler completion; independent ordinary-play combination and traditional restore/Escape/space/all/explicit-value startup variations; independent m fallback and full-menu-style class menu including wizard venom variation. Source-pinned request results and class loop/error behavior cover cheap unreachable request variants. A recorded invalid-class outside frontier should pin config_error_add or remain explicit if its frame owner blocks.",

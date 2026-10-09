@@ -222017,7 +222017,7 @@
     {
       "id": "fix-options-tab-separated-menu-format-v32-20261009",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Render source tab-separated option menus",
       "cFile": "options.c",
       "sessions": [
@@ -222031,8 +222031,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "6f43faf156d28688e1e9bf2470077de98e6cc4b2",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "doset_simple_menu..doset",
       "session": "synthetic/v32/v32-options-tab-menu",
       "step": 14,
@@ -222222,6 +222225,679 @@
                   "recipes/options.c/",
                   "recordings/options.c/",
                   "investigations/synthetic/v32/v32-options-tab-menu.json",
+                  ".cache/"
+                ],
+                "dependencies": [
+                  "4f44a54aa3bff3ccd1d4252387a5e069b3d66a6b"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6f43faf156d28688e1e9bf2470077de98e6cc4b2",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-pager-command-description-family-v32-20261008",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete command descriptions and key-help dispatch",
+      "cFile": "pager.c",
+      "sessions": [
+        "synthetic/v32/v32-command-description"
+      ],
+      "selectionReason": "Dependency-ready after B178 acceptance; complete the oldest command-description refusal and its consumed-return lookup dependency.",
+      "detail": "Port whole pager.c dowhatdoes and whatdoes_help plus consumed-return cmd.c key2extcmddesc; wire direct, typed, and help-menu callers; preserve the distinct unported help_dir frontier.",
+      "openedAt": "e7bbe29506261bf392465307daae65c7d6ba6821",
+      "openStanding": {
+        "sha": "6f43faf156d28688e1e9bf2470077de98e6cc4b2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "dowhatdoes",
+          "line": 2659,
+          "endLine": 2717,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2659,
+        "to": 2717
+      },
+      "requiredFunctions": [
+        {
+          "name": "whatdoes_help",
+          "line": 2421,
+          "endLine": 2457,
+          "declared": true,
+          "sourceFile": "pager.c",
+          "complete": true
+        },
+        {
+          "name": "key2extcmddesc",
+          "line": 2561,
+          "endLine": 2623,
+          "declared": true,
+          "sourceFile": "cmd.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v32/v32-command-description": {
+          "session": "synthetic/v32/v32-command-description",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-command-description",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-command-description.session.json",
+          "recordingSha256": "6dcfcaa7279c9f79bdb41404f4c33800e4c08511ac64a301c2545f1e626c2f8c",
+          "evaluationPath": "challenges/evaluations/accepted-6f43faf156d28688e1e9bf2470077de98e6cc4b2-v32.json",
+          "evaluationCommit": "6f43faf156d28688e1e9bf2470077de98e6cc4b2"
+        }
+      },
+      "activeStanding": {
+        "sha": "6f43faf156d28688e1e9bf2470077de98e6cc4b2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-command-description",
+          "session": "synthetic/v32/v32-command-description",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recording": "challenges/cases/v32/v32-command-description.session.json",
+          "recordingPath": "challenges/cases/v32/v32-command-description.session.json",
+          "recordingSha256": "6dcfcaa7279c9f79bdb41404f4c33800e4c08511ac64a301c2545f1e626c2f8c",
+          "recipe": "challenges/cases/v32/v32-command-description.recipe.session.json",
+          "recipeSha256": "c54ccd40ae5ad506d4473c35e443a626cd4b88ffbc1bdd35140831b3c398af54",
+          "replayInputSha256": "72b7cb368a39a02ca684839aeaf65b8c2ae62059282cbbd205cce9ec5474aabe",
+          "evaluationPath": "challenges/evaluations/accepted-6f43faf156d28688e1e9bf2470077de98e6cc4b2-v32.json",
+          "evaluationCommit": "6f43faf156d28688e1e9bf2470077de98e6cc4b2",
+          "evaluationArtifact": "challenges/evaluations/accepted-6f43faf156d28688e1e9bf2470077de98e6cc4b2-v32.json",
+          "evaluationUtc": "2026-10-09T01:03:32.526Z",
+          "remainingScreens": 11,
+          "recordedSteps": 13,
+          "previousScreensMatched": 2,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 2,
+              "total": 13
+            },
+            "rng": {
+              "matched": 6093,
+              "total": 6093
+            },
+            "cursors": {
+              "matched": 2,
+              "total": 13
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, droptype, pickup, pay, takeoff, takeoffall, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, wizsmell, wizkill, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+            "step": 2
+          },
+          "step": 2,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, droptype, pickup, pay, takeoff, takeoffall, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, wizsmell, wizkill, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v32/v32-command-description.json",
+            "result": {
+              "session": "synthetic/v32/v32-command-description",
+              "corpus": "synthetic",
+              "batch": "v32",
+              "caseId": "v32-command-description",
+              "manifestPath": "challenges/manifests/v32.json",
+              "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+              "recordingSha256": "6dcfcaa7279c9f79bdb41404f4c33800e4c08511ac64a301c2545f1e626c2f8c",
+              "evaluationPath": "challenges/evaluations/accepted-db0a7ad02ea001265fce34f7485b90c58d649d79-v32.json",
+              "evaluationCommit": "db0a7ad02ea001265fce34f7485b90c58d649d79",
+              "remainingScreens": 11,
+              "recordedSteps": 13,
+              "status": "complete",
+              "commit": "9b09a64d41c12b2df0686818f06570d7f6d96832",
+              "mismatch": {
+                "session": "synthetic/v32/v32-command-description",
+                "corpus": "synthetic",
+                "batch": "v32",
+                "caseId": "v32-command-description",
+                "manifestPath": "challenges/manifests/v32.json",
+                "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+                "recording": "challenges/cases/v32/v32-command-description.session.json",
+                "recordingPath": "challenges/cases/v32/v32-command-description.session.json",
+                "recordingSha256": "6dcfcaa7279c9f79bdb41404f4c33800e4c08511ac64a301c2545f1e626c2f8c",
+                "recipe": "challenges/cases/v32/v32-command-description.recipe.session.json",
+                "recipeSha256": "c54ccd40ae5ad506d4473c35e443a626cd4b88ffbc1bdd35140831b3c398af54",
+                "evaluationPath": "challenges/evaluations/accepted-db0a7ad02ea001265fce34f7485b90c58d649d79-v32.json",
+                "evaluationCommit": "db0a7ad02ea001265fce34f7485b90c58d649d79",
+                "evaluationUtc": "2026-10-09T00:02:56.121Z",
+                "metrics": {
+                  "screens": {
+                    "matched": 2,
+                    "total": 13
+                  },
+                  "rng": {
+                    "matched": 6093,
+                    "total": 6093
+                  },
+                  "cursors": {
+                    "matched": 2,
+                    "total": 13
+                  }
+                },
+                "remainingScreens": 11,
+                "recordedSteps": 13,
+                "passed": false,
+                "error": null,
+                "firstMismatch": {
+                  "kind": "command-refusal",
+                  "step": 2,
+                  "message": "Direct & command is rejected before pager.c:dowhatdoes dispatch"
+                },
+                "step": 2,
+                "kind": "command-refusal",
+                "sourceFile": "pager.c",
+                "function": "dowhatdoes",
+                "replayInputSha256": "47accbe65dfc8d160b713eb60c414977e8a46cb1b84d1969612956f2f79f96f9"
+              },
+              "summary": "Direct & is refused at step2 before partial pager.c:dowhatdoes. Complete dowhatdoes/whatdoes_help and required cmd.c:key2extcmddesc; the latter incorrectly returns temporary movement text before C binding lookup. Wire the distinct direct/extended/menu whatdoes paths; B173 independently owns optionsfull caller edits.",
+              "source": {
+                "file": "pager.c",
+                "functions": [
+                  "whatdoes_help",
+                  "dowhatdoes",
+                  "key2extcmddesc"
+                ],
+                "branch": "A key bound to whatdoes reaches the unrestricted What command? query. First use prints an introduction; ALTMETA Escape reads a second byte. Known keys produce one or two description lines, &/? first display keyhelp, and unknown keys print unsigned character diagnostics.",
+                "callers": [
+                  "cmd.c1934–1935 extcmdlist whatdoes row -> rhack direct function-pointer dispatch at3805; typed #whatdoes -> doextcmd function-pointer dispatch",
+                  "pager.c2808–2811 hmenu_dowhatdoes -> dowhatdoes, reached by dohelp menu row2839",
+                  "pager.c2696 dowhatdoes &/? arm -> whatdoes_help"
+                ],
+                "dependencies": [
+                  "Reuse pager.c:dowhatdoes_core compiled2577–2600 body, but complete consumed-return cmd.c:key2extcmddesc2561–2623 in this task. JS returns temporary move/rush/run before source binding lookup; canonical C continues into digits, misc keys and command bindings. Preserve all movecmd state writes. The broader cmd.c:help_dir4247 -> dowhatdoes_core caller stays outside new completion credit.",
+                  "whatdoes_cond2458–2573 and legacy cmdhelp parsing inside dowhatdoes_core are #if 0, so they are not active source dependencies.",
+                  "Generate dat/keyhelp deterministically: skip only first-byte # comments and trim leading spaces/tabs, preserving dlb_fgets newline. C whatdoes_help passes that newline into tty_putstr, so existing wintty.c compress_str collapses consecutive spaces even on short lines. Ordinary help-file projections still remove newlines and expand tabs. Reuse canonical text/message windows, yn_function, ttyPline, visctrl and key formatting owners.",
+                  "Current cmd.js has no dowhatdoes import, direct rhack arm, doextcmd switch arm, or ADMITTED_COMMANDS entry. Add only the source whatdoes dispatch/admission, preserving ECMD_OK, repeat queue, timing and source input order; no whole cmd ownership credit.",
+                  "Distinct whatdoes import/admission/direct/typed arm is adjudicated independent of earlier B173 optionsfull import/full-selection/doset arm; reserve only the bounded command-description dispatcher contract and exact key2extcmddesc source unit, with no whole rhack/doextcmd credit."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Committed accepted evidence challenges/evaluations/accepted-db0a7ad02ea001265fce34f7485b90c58d649d79-v32.json at db0a7ad02ea001265fce34f7485b90c58d649d79: 2/13 screens; 11 remain. Latest accepted B171 hosted .git/checkpoint-results/01a1e0ff0fc9213a17a9ef3378383804e778f0ac/run-hosted-oE91HC/synthetic/ci-v32.json retains the same count. Independent narrow replay .cache/C155-B171-selected-before.log at 9b09a64d41c12b2df0686818f06570d7f6d96832 confirms direct & still refuses at zero-based step2; no source input was changed.",
+                "Saved accepted evaluation challenges/evaluations/accepted-e0af258f80b5a632caf9419b124b7f4046d63e78-v32.json at e0af258f80b5a632caf9419b124b7f4046d63e78: 2/13 screens,6093/6093 RNG,2/13 cursors; 11 remaining screens. Admitted v32 corpus digest df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823; recording digest 6dcfcaa7279c9f79bdb41404f4c33800e4c08511ac64a301c2545f1e626c2f8c; recipe digest c54ccd40ae5ad506d4473c35e443a626cd4b88ffbc1bdd35140831b3c398af54. Raw manifest file digest is separate provenance, not the admitted corpus digest. Raw manifest SHA-256 0f9e89adc37fd791772a8723f6d11e05d2868d69c47db31c45f72db5f53cd1d3; evaluation file SHA-256 75b27fb80a818b758e33d43b7c73697819b9818697d07f75112562f1be222e36.",
+                ".cache/C155-selected-before.log replays only this case at 55a9709928c414f8becab19c8694740ab139a493. It emits two screens, then commandRefusal=true, key=&, command=whatdoes, inputThroughStop=.&; first unresolved zero-based step2. C next displays Ask about '&' or '?' to get more info.--More--. This disproves attributing the first stop solely to the pager query restriction. Replay input digest 47accbe65dfc8d160b713eb60c414977e8a46cb1b84d1969612956f2f79f96f9; diagnostic tool digest 01cb5004cc11a812f50a8e119ea49eb9700d913dc19487543ad6f877b06e6a82.",
+                "Read whole pager.c:dowhatdoes2659–2719: once-only introduction and ALTMETA text, unrestricted input and Escape/meta handling, compiled description lookup, help expansion, ordinary and embedded-newline output, unknown-key visctrl/unsigned decimal/octal/hex diagnostics, ECMD_OK. Current pager.js2104–2120 permits only byte0x69 inventory and throws UnsupportedHelpError otherwise; all other branches remain partial.",
+                "Read whole pager.c:whatdoes_help2421–2444: KEYHELP open failure prints exact filename and displays the message window; success creates NHW_TEXT, skips first-byte comments, strips leading spaces/tabs only, displays blocking and destroys. HELP_TEXT_FILES generator currently lists eight files and omits keyhelp. Source dat/keyhelp is available. Existing displayTtyTextWindow owns matching ordinary text-window lifecycle.",
+                "Global source search found only extcmdlist1935 and hmenu_dowhatdoes2810 direct dowhatdoes call sites, and only dowhatdoes2696 calls whatdoes_help. dowhatdoes_core additionally has help_dir4247; reuse that existing owner without claiming its broader caller family complete. Inactive whatdoes_cond and file parsing are explicitly #if0.",
+                "Evidence plan after scope approval: selected admitted direct read-key range; independently chosen direct known/unknown key and reqmenu two-line queries, &/? expansion with source-valid window dismissal, cheap role variation, repeated first-use suppression, ALTMETA Escape/Meta and numeric-pad descriptions, help-menu and typed #whatdoes routes. Source-pinned tests cover unsigned diagnostics, description movement side effects, leading-only keyhelp filtering and all input/order branches. Preserve a missing-keyhelp discarded host-file boundary if the browser data adapter cannot reproduce it. No C recording or source edits during investigation.",
+                "Whole-source consumed-return review adds cmd.c:key2extcmddesc2561–2623: initial movecmd writes are evaluated before count, special-key and command-binding lookup; C h returns move west (screen left) (#movewest), while pre-fix JS returns move. Independent C known-prefix-movement and number-pad recipes confirm those source-defined binding strings. Historical port-cmd-doherecmdmenu ported:true must be invalidated centrally before new completion."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dowhatdoes",
+            "implementation": "js/pager.js",
+            "symbol": "dowhatdoes",
+            "sourceReview": "Read whole pager.c2659-2717. Preserve once-only intro with ALTMETA suffix, unrestricted awaited yn_function and alternate ESC prompt/meta-bit handling, compiled core return, blocking &/? helper, ordinary and two-line m message order, unknown unsigned-byte decimal/octal/hex and visctrl, ECMD_OK. Native introff/intron signal handlers have no browser/replay handler counterpart and no simulated game effects. Delete old ordinary-inventory-only refusal. Canonical yn_function repeat queue and source cmd result handling remain owners.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c extcmdlist1934-1935 whatdoes default& -> rhack3805 handler, result ECMD_OK no-time/reset semantics; bounded direct dispatcher/admission only."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c doextcmd function-pointer dispatch of typed whatdoes; add only distinct dowhatdoes arm/import, independent of B173 doset arm."
+              },
+              {
+                "path": "js/pager.js",
+                "symbol": "hmenu_dowhatdoes",
+                "source": "pager.c2808-2811 hmenu_dowhatdoes -> dowhatdoes; dohelp menu row2839 calls it."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/command-description.test.mjs",
+              "scripts/help-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pager.c/command-description-known-prefix-movement.session.json",
+              "recordings/pager.c/command-description-extended.session.json",
+              "recordings/pager.c/command-description-help-menu.session.json",
+              "recordings/pager.c/command-description-number-pad.session.json",
+              "recordings/pager.c/command-description-altmeta.session.json",
+              "recordings/pager.c/command-description-keyhelp.session.json",
+              "recordings/pager.c/command-description-keyhelp-question.session.json"
+            ],
+            "sourceFile": "pager.c",
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-command-description",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 12,
+                "source": "Direct & -> cmd.c rhack function-pointer dispatch -> pager.c dowhatdoes -> dowhatdoes_core -> cmd.c key2extcmddesc; all recorded What command queries and source output through terminal boundary12."
+              }
+            ],
+            "checkedAt": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd"
+          },
+          {
+            "name": "whatdoes_help",
+            "implementation": "js/pager.js",
+            "symbol": "whatdoes_help",
+            "sourceReview": "Read whole pager.c2421-2444 (source planner range2421-2457 includes subsequent inactive declarations). Generate exact KEYHELP raw read lines from pinned source, skip first-byte# comments and trim only leading blanks; retain newline passed into putstr so canonical wintty compression remains authoritative. Await source text-window lifecycle and missing-data message/display guard. Embedded resource is always present for ordinary reference games; corrupt/missing installed C resource is outside the recorded gameplay input corpus. No new host-file/TTY owner completion credit.",
+            "callers": [
+              {
+                "path": "js/pager.js",
+                "symbol": "dowhatdoes",
+                "source": "pager.c2695-2696 q==&||q==? after a nonnull compiled description -> whatdoes_help before final description pline."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/command-description.test.mjs",
+              "scripts/help-data.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pager.c/command-description-keyhelp.session.json",
+              "recordings/pager.c/command-description-keyhelp-question.session.json"
+            ],
+            "sourceFile": "pager.c",
+            "synthetic": [],
+            "checkedAt": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd"
+          },
+          {
+            "name": "key2extcmddesc",
+            "implementation": "js/cmd.js",
+            "symbol": "key2extcmddesc",
+            "sourceReview": "Read whole cmd.c2561-2623 and misc_keys2085-2097, binding/movement owners. Preserve ordered short-circuit walk/rush/run probes and their u.dx/u.dy/u.dz state writes, then count/digit override with numpad/PC-Hack cases, exact misc keys, regular binding lookup, reqmenu two-line substitution and ## stripping. Remove premature movement return. No RNG or new injected operation. These independent recordings provide new source evidence. The legacy declaration has no completion evidence and remains only a historical name count; no historical completion is claimed.",
+            "callers": [
+              {
+                "path": "js/pager.js",
+                "symbol": "dowhatdoes_core",
+                "source": "pager.c2588 compiled dowhatdoes_core -> key2extcmddesc return consumed to format the query. Existing broader help_dir4247 consumes dowhatdoes_core; no new core/help_dir family completion claim."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/command-description.test.mjs",
+              "scripts/help-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pager.c/command-description-known-prefix-movement.session.json",
+              "recordings/pager.c/command-description-number-pad.session.json",
+              "recordings/pager.c/command-description-extended.session.json",
+              "recordings/pager.c/command-description-help-menu.session.json",
+              "recordings/pager.c/command-description-altmeta.session.json"
+            ],
+            "sourceFile": "cmd.c",
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-command-description",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 12,
+                "source": "Direct & -> cmd.c rhack function-pointer dispatch -> pager.c dowhatdoes -> dowhatdoes_core -> cmd.c key2extcmddesc; all recorded What command queries and source output through terminal boundary12."
+              }
+            ],
+            "checkedAt": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd"
+          }
+        ],
+        "entryPointReview": "Active dowhatdoes entries are direct/rebound whatdoes keys through rhack, typed #whatdoes through doextcmd and help-menu row6 through hmenu_dowhatdoes. All three have independent complete C-first replays. whatdoes_help is entered only by &/? description queries, each independently recorded. key2extcmddesc has only compiled dowhatdoes_core direct source caller, reached by all queries. ALTMETA and number_pad cases plus m two-line and movement bindings are production variations. Broader help_dir caller of unchanged core remains a distinct unported caller branch and takes no completion credit. UNIX signal toggles affect only native handlers absent in browser/replay, not game state/RNG/input bytes.",
+        "entryPoints": [
+          {
+            "name": "direct whatdoes key command",
+            "functions": [
+              "dowhatdoes",
+              {
+                "sourceFile": "cmd.c",
+                "name": "key2extcmddesc"
+              }
+            ],
+            "recordings": [
+              "recordings/pager.c/command-description-known-prefix-movement.session.json",
+              "recordings/pager.c/command-description-number-pad.session.json",
+              "recordings/pager.c/command-description-altmeta.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-command-description",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 12,
+                "source": "Direct & -> cmd.c rhack function-pointer dispatch -> pager.c dowhatdoes -> dowhatdoes_core -> cmd.c key2extcmddesc; all recorded What command queries and source output through terminal boundary12."
+              }
+            ]
+          },
+          {
+            "name": "typed #whatdoes extended command",
+            "functions": [
+              "dowhatdoes",
+              {
+                "sourceFile": "cmd.c",
+                "name": "key2extcmddesc"
+              }
+            ],
+            "recordings": [
+              "recordings/pager.c/command-description-extended.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "help-menu command-description target",
+            "functions": [
+              "dowhatdoes",
+              {
+                "sourceFile": "cmd.c",
+                "name": "key2extcmddesc"
+              }
+            ],
+            "recordings": [
+              "recordings/pager.c/command-description-help-menu.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "keyhelp text from & and ? queries",
+            "functions": [
+              "dowhatdoes",
+              "whatdoes_help",
+              {
+                "sourceFile": "cmd.c",
+                "name": "key2extcmddesc"
+              }
+            ],
+            "recordings": [
+              "recordings/pager.c/command-description-keyhelp.session.json",
+              "recordings/pager.c/command-description-keyhelp-question.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-options-pickup-types-whole-v32-20261009",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete the pickup-types option request handler",
+      "cFile": "options.c",
+      "sessions": [
+        "synthetic/v32/v32-options-pickup-traditional"
+      ],
+      "selectionReason": "Dependency-ready after C155 acceptance; accepted v32 evidence stops at options.c optfn_pickup_types step 29, and B179 completes the handler while retaining the saveoptions writer frontier.",
+      "detail": "Port whole options.c optfn_pickup_types request behavior and verify whole handler_pickup_types; consolidate startup set/get and interactive callers, preserving prompt, clear, restore, menu, class, and error order. No whole doset or parseoptions credit.",
+      "openedAt": "61f6708dda415951550451cc05f953d47d4dcd3e",
+      "openStanding": {
+        "sha": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "optfn_pickup_types",
+          "line": 3308,
+          "endLine": 3403,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3308,
+        "to": 3403
+      },
+      "requiredFunctions": [
+        {
+          "name": "handler_pickup_types",
+          "line": 6114,
+          "endLine": 6123,
+          "declared": true,
+          "sourceFile": "options.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v32/v32-options-pickup-traditional": {
+          "session": "synthetic/v32/v32-options-pickup-traditional",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-options-pickup-traditional",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-options-pickup-traditional.session.json",
+          "recordingSha256": "c67c2911b24eeff7fdf9830a2fba5ee5098784fa0134d739ac457701dc6bed14",
+          "evaluationPath": "challenges/evaluations/accepted-a7706a9cdd4c2c738d83a025f720b1dc3cd580fd-v32.json",
+          "evaluationCommit": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd"
+        }
+      },
+      "activeStanding": {
+        "sha": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-options-pickup-traditional",
+          "session": "synthetic/v32/v32-options-pickup-traditional",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recording": "challenges/cases/v32/v32-options-pickup-traditional.session.json",
+          "recordingPath": "challenges/cases/v32/v32-options-pickup-traditional.session.json",
+          "recordingSha256": "c67c2911b24eeff7fdf9830a2fba5ee5098784fa0134d739ac457701dc6bed14",
+          "recipe": "challenges/cases/v32/v32-options-pickup-traditional.recipe.session.json",
+          "recipeSha256": "63b7b806dc533a00e905f7cd78835dd223457ae1e81521e911ad680f94f3a13f",
+          "replayInputSha256": "40982fe64b741e7a7ca7d2ecc362b427f0ae75fcfc3ebb0705715fc285211a62",
+          "evaluationPath": "challenges/evaluations/accepted-a7706a9cdd4c2c738d83a025f720b1dc3cd580fd-v32.json",
+          "evaluationCommit": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd",
+          "evaluationArtifact": "challenges/evaluations/accepted-a7706a9cdd4c2c738d83a025f720b1dc3cd580fd-v32.json",
+          "evaluationUtc": "2026-10-09T01:18:12.039Z",
+          "remainingScreens": 17,
+          "recordedSteps": 46,
+          "previousScreensMatched": 29,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 29,
+              "total": 46
+            },
+            "rng": {
+              "matched": 2537,
+              "total": 2537
+            },
+            "cursors": {
+              "matched": 29,
+              "total": 46
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: the options menu requires optfn_pickup_types()'s getlin(\"New %s: [%s am] (%s)\")",
+            "step": 29
+          },
+          "step": 29,
+          "kind": "stop",
+          "sourceFile": "options.c",
+          "function": "optfn_pickup_types",
+          "message": "unsupported hero command: an unported branch of this command: the options menu requires optfn_pickup_types()'s getlin(\"New %s: [%s am] (%s)\")",
+          "cFile": "options.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v32/v32-options-pickup-traditional.json",
+            "result": {
+              "session": "synthetic/v32/v32-options-pickup-traditional",
+              "corpus": "synthetic",
+              "batch": "v32",
+              "caseId": "v32-options-pickup-traditional",
+              "manifestPath": "challenges/manifests/v32.json",
+              "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+              "recordingSha256": "c67c2911b24eeff7fdf9830a2fba5ee5098784fa0134d739ac457701dc6bed14",
+              "evaluationPath": "challenges/evaluations/accepted-a7706a9cdd4c2c738d83a025f720b1dc3cd580fd-v32.json",
+              "evaluationCommit": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd",
+              "remainingScreens": 17,
+              "recordedSteps": 46,
+              "status": "complete",
+              "commit": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd",
+              "mismatch": {
+                "version": 1,
+                "corpus": "synthetic",
+                "batch": "v32",
+                "caseId": "v32-options-pickup-traditional",
+                "session": "synthetic/v32/v32-options-pickup-traditional",
+                "manifestPath": "challenges/manifests/v32.json",
+                "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+                "recordingPath": "challenges/cases/v32/v32-options-pickup-traditional.session.json",
+                "recordingSha256": "c67c2911b24eeff7fdf9830a2fba5ee5098784fa0134d739ac457701dc6bed14",
+                "recipeSha256": "63b7b806dc533a00e905f7cd78835dd223457ae1e81521e911ad680f94f3a13f",
+                "replayInputSha256": "40982fe64b741e7a7ca7d2ecc362b427f0ae75fcfc3ebb0705715fc285211a62",
+                "evaluationPath": "challenges/evaluations/accepted-a7706a9cdd4c2c738d83a025f720b1dc3cd580fd-v32.json",
+                "evaluationCommit": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd",
+                "evaluationArtifact": "challenges/evaluations/accepted-a7706a9cdd4c2c738d83a025f720b1dc3cd580fd-v32.json",
+                "evaluationUtc": "2026-10-09T01:18:12.039Z",
+                "remainingScreens": 17,
+                "recordedSteps": 46,
+                "previousScreensMatched": 29,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 29,
+                    "total": 46
+                  },
+                  "rng": {
+                    "matched": 2537,
+                    "total": 2537
+                  },
+                  "cursors": {
+                    "matched": 29,
+                    "total": 46
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: the options menu requires optfn_pickup_types()'s getlin(\"New %s: [%s am] (%s)\")",
+                  "step": 29
+                },
+                "step": 29,
+                "kind": "stop",
+                "sourceFile": "options.c",
+                "function": "optfn_pickup_types",
+                "message": "unsupported hero command: an unported branch of this command: the options menu requires optfn_pickup_types()'s getlin(\"New %s: [%s am] (%s)\")",
+                "cFile": "options.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "After the B173 typed full-options caller, selecting pickup_types with traditional menustyle stops at optfn_pickup_types' missing getlin branch. Complete the whole request handler and its existing handler_pickup_types caller, reconciling duplicated startup parsing and menu value rendering with one source owner. Preserve old class symbols across empty/Escape, clear them on whitespace, and enter the canonical class menu only on m or menu-style requests.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "options.c",
+                "functions": [
+                  "optfn_pickup_types",
+                  "handler_pickup_types"
+                ],
+                "branch": "do_set with no explicit value, noninitial nonnegated long pickup_types statement, menu_style traditional or combination: save old selection, clear canonical class array, read source New pickup_types prompt, inspect leading whitespace before mungspaces, restore/clear/open-menu/parse as source orders.",
+                "callers": [
+                  "options.c:handler_pickup_types6114-6121 discards parseoptions return then returns optn_ok; full and simple option menus invoke handler through allopt do_handler.",
+                  "options.c:parseoptions handler table calls optfn_pickup_types do_set; initialization calls do_init, menu value code calls get_val/get_cnf_val. Existing JS startup parseNethackrc block6360-6378 duplicates set logic; OPTION_VALUE_HANDLERS getter7657 duplicates get logic; OPTION_SET_HANDLERS wraps the current async partial at8378. All must reconcile under the same source owner."
+                ],
+                "dependencies": [
+                  "Read all optfn_pickup_types3308-3402 and handler_pickup_types6114-6121. Consumed helpers oc_to_str, string_for_opt, mungspaces and def_char_to_objclass already exist; inspect/pin their caller contract and retain exact saved tbuf/order without a second class store.",
+                  "getlin is canonical windows.js155->tty_getlin and saves/restores bot_disabled. Runtime prompt can be awaited only in interactive do_set; startup/GET requests must keep their synchronous parser/getter contracts. Existing request-style handlers in options.js show scalar GET vs optn_ok translation convention.",
+                  "choose_classes_menu C count result is discarded; its class_select out-buffer is required state. Existing windows.js category1/PICK_ANY implementation returns the rewritten buffer, matching the sole source call at3360. Keep category0/PICK_ONE outside this task and do not expand windows.js. Append venom only when entering that menu, after getlin decides use_menu.",
+                  "bad_negation/config_error_add are discarded-return error callees. Source cfgfiles.c:config_erradd1543-1589 uses pline when config_error_ready is false; JS cfgfiles.js315 only accepts a startup frame and game runtime has none. The startup path is canonical and must be reused. Preserve interactive error output as a named discarded-return gap via note_unported rather than calling the startup-only wrapper with an undefined frame; no cfgfiles expansion required for valid prompt/menu entries. Invalid/repeated bytes still retain parsed classes and return optn_err, with blocked error-message variation preserved.",
+                  "Required pending B1734f44a54aa typed dispatcher; B178 formatting is independent and can be excluded as dependency if the next delivery base contains it only through report/merge ancestry. Final lineage dependency list must reflect actual unaccepted ancestor deliveries. No C155/C158/A177 ownership overlap."
+                ]
+              },
+              "evidence": [
+                "Accepted C155 evaluation accepted-a7706a9c-v32 matches 29/46 screens and cursors and all 2537 RNG calls, then stops at the traditional pickup_types getlin branch on zero-based step 29. The accepted B173 and B178 dependencies account for the 15-screen advance since the original investigation without changing this source diagnosis.",
+                "Complete C source3308-3402 includes do_init, do_set explicit/missing/compat/negation/initial paths, traditional/combination getlin and m fallback, wizard venom menu append, class uniqueness validation, get_val/get_cnf_val, do_handler and default return. A traditional-only branch addition would leave the whole selected function partial and duplicate startup/get logic.",
+                "Whole function closure can preserve startup synchrony with a request dispatcher that returns synchronous results for noninteractive requests and an awaited operation only for interactive prompt paths; do not make the global startup parser asynchronous or broaden initoptions.",
+                "Runtime coverage plan: admitted traditional $ response prefix through handler completion; independent ordinary-play combination and traditional restore/Escape/space/all/explicit-value startup variations; independent m fallback and full-menu-style class menu including wizard venom variation. Source-pinned request results and class loop/error behavior cover cheap unreachable request variants. A recorded invalid-class outside frontier should pin config_error_add or remain explicit if its frame owner blocks.",
+                "Read source cfgfiles.c:config_error_add1865-1892 -> config_erradd1543-1589 and JS cfgfiles.js315-331. Existing wrapper is startup-only; runtime game has no configErrorFrame (rg over gstate/allmain/jsmain finds only startup done). The minimal whole selected function scope keeps this discarded error-output frontier explicit and obtains matching valid-entry evidence; no cfgfiles.c source credit."
+              ],
+              "proposal": {
+                "goalId": "port-options-pickup-types-whole-v32-20261009",
+                "summary": "Complete the pickup-types option request handler.",
+                "selectionReason": "Seed-family continuation after immutable B173 typed optionsfull dispatcher; oldest independent missing pickup option branch with complete3308-3402 source trace, excluding live command-description/prayer contracts.",
+                "detail": "Port whole optfn_pickup_types and verify whole handler_pickup_types, consolidate startup set/get and interactive callers, preserving prompt/clear/restore/menu/class/error order. No whole doset or parseoptions credit.",
+                "sourceUnits": [
+                  {
+                    "file": "options.c",
+                    "name": "optfn_pickup_types",
+                    "start": 3308,
+                    "end": 3402
+                  },
+                  {
+                    "file": "options.c",
+                    "name": "handler_pickup_types",
+                    "start": 6114,
+                    "end": 6121
+                  }
+                ],
+                "proposedReservations": [
+                  "session:synthetic/v32/v32-options-pickup-traditional",
+                  "source:options.c:optfn_pickup_types",
+                  "source:options.c:handler_pickup_types",
+                  "contract:pickup-types-option-request-state"
+                ],
+                "proposedPaths": [
+                  "js/options.js",
+                  "scripts/options-menu.test.mjs",
+                  "scripts/options-simple-menu.test.mjs",
+                  "scripts/startup-pickup-types.test.mjs",
+                  "scripts/options-pickup-types.test.mjs",
+                  "recipes/options.c/",
+                  "recordings/options.c/",
+                  "investigations/synthetic/v32/v32-options-pickup-traditional.json",
                   ".cache/"
                 ],
                 "dependencies": [
