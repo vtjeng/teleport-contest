@@ -237595,7 +237595,7 @@
     {
       "id": "port-sam-goal-lua-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Sam-goal has no registered loader. Port the complete Samurai quest goal program, preserving the concentric map, source-ordered location draws, doors, stair and wall openings, named Tsurugi, objects, traps, and inhabitants.",
       "luaFile": "Sam-goal.lua",
       "sessions": [
@@ -237609,15 +237609,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b134b4d3767f961f9fff0d5b043bb5050458b3cd",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Sam-goal.lua",
           "line": 1,
           "endLine": 111,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -237793,7 +237796,88 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Sam-goal.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "samGoal",
+            "sourceReview": "Read complete dat/Sam-goal.lua1–111 and nhlib.lua math.random compatibility, then canonical map/region/stair/terrain/door/non_diggable/object/trap/monster descriptor owners and makelevel registry dispatch. Preserve solidfill space initialization with unspecified lighting before mazelevel/noteleport flags and the exact20x45 map. Draw the up-stair rn2(2) before the unlit region and four closed doors, then three independent ring choices rn2(4),rn2(4),rn2(2) immediately before terrain writes; map flips/finalization remain canonical. Protect the map walls, create blessed spe0 named Tsurugi at22/10, fourteen random objects, three fixed boards and six random traps, then Ashikaga, five hostile samurai, five hostile ninja, four wolves, two dog-class monsters and nine stalkers in source order. Preserve source string IDs and classes, coordinate forms and awaited descriptor calls; no injected operations, guessed species IDs, removed RNG or obsolete guard. Canonical accepted mplayer/object helpers are reused without edits or source credit. The missing registry entry is replaced by samGoal in the established source-owner module; generated rows and generator check preserve all spaces.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c:makelevel1266–1271 -> mkmaze.c:makemaz1184–1193 -> sp_lev.c:load_special6454–6503; ensureSpecialLevelLoaders spreads QUEST_LEVEL_LOADERS and routes Sam-goal to samGoal."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "wizcmds.c:wiz_load_splua requests a special Lua file, canonical registered loader handling resolves Sam-goal.lua and awaits its descriptors."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/sam-goal-level-generation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Sam-goal.lua/sam-goal-male-independent.session.json",
+              "recordings/Sam-goal.lua/sam-goal-female-independent.session.json",
+              "recordings/Sam-goal.lua/sam-goal-natural-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-sam-goal",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "do.c:goto_level -> mklev.c:makelevel/mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Sam-goal.lua1–111 and canonical finalization/rearrival."
+              }
+            ],
+            "checkedAt": "b134b4d3767f961f9fff0d5b043bb5050458b3cd"
+          }
+        ],
+        "entryPointReview": "Whole Lua executes via natural quest-goal generation and direct wizard special-Lua loading. Natural Samurai quest arrival is the admitted matching v36 range; independent male/female human Samurai C recordings cover typed #wizloaddes and fully compare the complete generated level. Regeneration/rearrival uses the same makelevel registry owner, no per-session special handling. Source descriptor tests pin every top-level statement, all four random choices and complete descriptor order. A third independently chosen female Samurai records natural destination-menu arrival and wizard map observation; all three witnesses are strict-perfect.",
+        "entryPoints": [
+          {
+            "name": "natural Samurai quest goal generation",
+            "functions": [
+              "Sam-goal.lua"
+            ],
+            "recordings": [
+              "recordings/Sam-goal.lua/sam-goal-natural-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-sam-goal",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "do.c:goto_level -> mklev.c:makelevel/mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Sam-goal.lua1–111 and canonical finalization/rearrival."
+              }
+            ]
+          },
+          {
+            "name": "direct wizard special Lua load",
+            "functions": [
+              "Sam-goal.lua"
+            ],
+            "recordings": [
+              "recordings/Sam-goal.lua/sam-goal-male-independent.session.json",
+              "recordings/Sam-goal.lua/sam-goal-female-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b134b4d3767f961f9fff0d5b043bb5050458b3cd",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
