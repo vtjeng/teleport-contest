@@ -325,6 +325,7 @@ function safeStringify(value) {
 function serializeGameState(state) {
     const snapshot = {
         // C ref: savegamestate() fields in save.c:265-333 order
+        nhuuid: state.svn.nhuuid,
         moves: state.moves,
         hero_seq: state.hero_seq,
         flags: state.flags,
