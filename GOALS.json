@@ -222241,6 +222241,67 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-pager-command-description-family-v32-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete command descriptions and key-help dispatch",
+      "cFile": "pager.c",
+      "sessions": [
+        "synthetic/v32/v32-command-description"
+      ],
+      "selectionReason": "Seed-family continuation after accepted command dispatch; v32-command-description is the oldest dependency-ready pager refusal.",
+      "detail": "Port whole pager.c dowhatdoes and whatdoes_help plus consumed-return cmd.c key2extcmddesc; wire direct, typed, and help-menu callers; preserve the distinct unported help_dir frontier.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dowhatdoes",
+          "line": 2659,
+          "endLine": 2717,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2659,
+        "to": 2717
+      },
+      "requiredFunctions": [
+        {
+          "name": "whatdoes_help",
+          "line": 2421,
+          "endLine": 2457,
+          "declared": false,
+          "sourceFile": "pager.c",
+          "complete": false
+        },
+        {
+          "name": "key2extcmddesc",
+          "line": 2561,
+          "endLine": 2623,
+          "declared": true,
+          "sourceFile": "cmd.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v32/v32-command-description": {
+          "session": "synthetic/v32/v32-command-description",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-command-description",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-command-description.session.json",
+          "recordingSha256": "6dcfcaa7279c9f79bdb41404f4c33800e4c08511ac64a301c2545f1e626c2f8c",
+          "evaluationPath": "challenges/evaluations/accepted-6f43faf156d28688e1e9bf2470077de98e6cc4b2-v32.json",
+          "evaluationCommit": "6f43faf156d28688e1e9bf2470077de98e6cc4b2"
+        }
+      }
     }
   ]
 }
