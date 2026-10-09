@@ -231600,7 +231600,7 @@
     {
       "id": "port-cmd-doextlist-v34-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the extended-command list, wizard sections, filtering, search and navigation.",
       "cFile": "cmd.c",
       "sessions": [
@@ -231614,22 +231614,25 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "338529f9f9746be82cb898f866177aa4a044449f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "doc_extcmd_flagstr",
           "line": 524,
           "endLine": 561,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "doextlist",
           "line": 562,
           "endLine": 751,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -231643,7 +231646,7 @@
           "endLine": 159,
           "declared": true,
           "sourceFile": "strutil.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -231849,7 +231852,174 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "doc_extcmd_flagstr",
+            "implementation": "js/cmd.js",
+            "symbol": "doc_extcmd_flagstr",
+            "sourceReview": "Read whole cmd.c524-558. Existing canonical formatter preserves source menu-prefix binding and visible key, mutable AUTOCOMPLETE/CMD_M_PREFIX flags and m-before-A field order. Null entry returns the two menu footnote lines for the builder to append at the source point; ordinary entry returns empty/[m]/[A]/[mA], whose caller right-aligns width4. Complete source output is preserved with existing lines representation rather than a second window owner. No obsolete refusal or unported dependency remains.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "extendedCommandListLines",
+                "source": "cmd.c680-707 doextlist formats each visible command and appends both null-entry footnotes unless an active search has no matches."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/help-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/cmd.c/extended-list-wizard-independent.session.json",
+              "recordings/cmd.c/extended-list-help-independent.session.json",
+              "recordings/cmd.c/extended-list-bound-discover-independent.session.json"
+            ],
+            "sourceFile": "cmd.c",
+            "synthetic": [
+              {
+                "batch": "v34",
+                "caseId": "v34-debug-extended-list",
+                "segment": 0,
+                "fromStep": 4,
+                "throughStep": 30,
+                "source": "cmd.c typed #? -> doextcmd -> doextlist/doc_extcmd_flagstr including wizard second section and footnotes; list dismissal repeats the extended-command prompt, then final wait."
+              }
+            ],
+            "checkedAt": "338529f9f9746be82cb898f866177aa4a044449f"
+          },
+          {
+            "name": "doextlist",
+            "implementation": "js/cmd.js",
+            "symbol": "doextlist",
+            "sourceReview": "Read complete cmd.c562-743, all initialization, menu controls, ordinary/debug passes, lazy headings, cumulative n separators, mutable source flags and order, ordinary nondiscover genocided description replacement, substring before wildcard search, no-matches versus footnotes, returned choices and normalization. Search state resets/redisplay exactly follow cases1-4; empty/Escape line terminates without redisplay. C MENU_SEARCH overrides the searched-menu colon group synonym; the scalar choices adapter therefore omits that ineffective synonym while preserving initial s group and colon explicit selector. Source window lifetime is represented by canonical select_menu each redisplay, without a second screen/window owner. Removed wizard/toggle/search UnsupportedHelpError throw sites. No RNG or turns added. Source QBUFSZ search-phrase display guard uses canonical eos byte length, pinned by a 120-byte multibyte query rather than JavaScript character count.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c493-519 awaits registered handler and loops only for doextlist. Bounded added list arm/loop preserves every other handler return, availability, prefix and repeat-queue order."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c1670-1672 registers M(?) with ef_txt ?, and rhack3805-3825 calls bound/canned pointer. Bounded direct/rebound/canned arm returns no time and resets counts; counted list bypasses the existing repeated-command refusal because ECMD_OK consumes that count."
+              },
+              {
+                "path": "js/pager.js",
+                "symbol": "dohelp",
+                "source": "pager.c hmenu_doextlist2814-2817 and help item2844. Existing choice11 awaits doextlist and returns ECMD_OK; no repeat of # prompt in this entry."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/help-command.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/cmd-span.test.mjs"
+            ],
+            "recordings": [
+              "recordings/cmd.c/extended-list-wizard-independent.session.json",
+              "recordings/cmd.c/extended-list-help-independent.session.json",
+              "recordings/cmd.c/extended-list-bound-discover-independent.session.json"
+            ],
+            "sourceFile": "cmd.c",
+            "synthetic": [
+              {
+                "batch": "v34",
+                "caseId": "v34-debug-extended-list",
+                "segment": 0,
+                "fromStep": 4,
+                "throughStep": 30,
+                "source": "cmd.c typed #? -> doextcmd -> doextlist/doc_extcmd_flagstr including wizard second section and footnotes; list dismissal repeats the extended-command prompt, then final wait."
+              }
+            ],
+            "checkedAt": "338529f9f9746be82cb898f866177aa4a044449f"
+          },
+          {
+            "name": "pmatchi",
+            "implementation": "js/strutil.js",
+            "symbol": "pmatchi",
+            "sourceReview": "Read strutil.c152-155 and all consumed pmatch_internal105-142. pmatchi always passes TRUE and NULL skipset. Relocated existing dynamic-programming matcher to canonical source owner; source whole-string * and one-byte ? transitions preserve lowc ASCII folding. Canonical UTF-8 bytes and first-NUL bounds now implement C char-pointer consumption for Unicode too. No RNG, output or game-state mutation. Both prior TTY consumers import this one implementation; pmatch/pmatchz other flags are separate unclaimed owners.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "extendedCommandListLines",
+                "source": "cmd.c653-654 wildcard fallback only after both case-insensitive substring tests fail."
+              },
+              {
+                "path": "js/tty_menu.js",
+                "symbol": "selectOneTtyMenu",
+                "source": "wintty.c MENU_SEARCH1717 matches source row strings through pmatchi after getlin, existing canonical PICK_ONE search caller."
+              },
+              {
+                "path": "js/tty_menu.js",
+                "symbol": "selectAnyTtyMenu",
+                "source": "wintty.c MENU_SEARCH1717 same source search for PICK_ANY, both prior private matcher consumers now import canonical strutil owner."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/strutil.test.mjs",
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "strutil.c",
+            "synthetic": [],
+            "checkedAt": "338529f9f9746be82cb898f866177aa4a044449f"
+          }
+        ],
+        "entryPointReview": "Whole cmd.c formatter/list plus pure required wildcard owner complete. Active entries are typed extended list with doextcmd retry, default meta-? or custom bound direct command and queued pointer through rhack, plus help-menu choice11. Independent debug typed, ordinary help and counted discovery bound recipes cover every active owner; canned pointer path is pinned with real initialized game and queued Escape. No whole dispatcher/getlin/TTY ownership. Matching recipes cover search wildcard/description, mungspaces, switch-back, autocomplete and debug merge toggles plus canceled search. Other deterministic branches are source-pinned. No new unported gap or blocked source entry remains.",
+        "entryPoints": [
+          {
+            "name": "Typed extended-command list and retry",
+            "functions": [
+              "doextlist",
+              "doc_extcmd_flagstr"
+            ],
+            "recordings": [
+              "recordings/cmd.c/extended-list-wizard-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v34",
+                "caseId": "v34-debug-extended-list",
+                "segment": 0,
+                "fromStep": 4,
+                "throughStep": 30,
+                "source": "cmd.c typed #? -> doextcmd -> doextlist/doc_extcmd_flagstr including wizard second section and footnotes; list dismissal repeats the extended-command prompt, then final wait."
+              }
+            ]
+          },
+          {
+            "name": "Ordinary help-menu list",
+            "functions": [
+              "doextlist",
+              "doc_extcmd_flagstr"
+            ],
+            "recordings": [
+              "recordings/cmd.c/extended-list-help-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Counted rebound discovery-mode list",
+            "functions": [
+              "doextlist",
+              "doc_extcmd_flagstr"
+            ],
+            "recordings": [
+              "recordings/cmd.c/extended-list-bound-discover-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "338529f9f9746be82cb898f866177aa4a044449f",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

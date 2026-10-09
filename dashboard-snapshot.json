@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T11:15:46.230Z",
+  "capturedAt": "2026-10-09T11:34:44.969Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -72898,22 +72898,187 @@
         "at": "2026-10-09T11:15:43.014Z",
         "task": "B195",
         "goal": "port-hea-loca-lua-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B195-implementation-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T11:16:03.712Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing the Healer quest locate Lua program and verifying its temple and shrine-priest generation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B191-1e1fd23a0",
+        "type": "published",
+        "at": "2026-10-09T11:18:20.976Z",
+        "task": "B191",
+        "commit": "1e1fd23a0258b43f0aebc3006476d47136270115"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-A186-review-20261009-1",
+        "type": "activity",
+        "at": "2026-10-09T11:18:38.516Z",
+        "task": "A186",
+        "phase": "review",
+        "reason": "Reviewing the dependency-ready extended command list delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2913f041d1102cba4bddda4746b89e926f906677",
+        "type": "ready",
+        "at": "2026-10-09T11:22:36.430Z",
+        "task": "C170",
+        "delivery": "2913f041d1102cba4bddda4746b89e926f906677"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C170-2913f041d",
+        "type": "received",
+        "at": "2026-10-09T11:24:01.550Z",
+        "task": "C170",
+        "delivery": "2913f041d1102cba4bddda4746b89e926f906677"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A186-338529f9f",
+        "type": "integrating",
+        "at": "2026-10-09T11:24:03.014Z",
+        "task": "A186",
+        "integration": "338529f9f9746be82cb898f866177aa4a044449f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C171-kni-loca-20261009",
+        "type": "assign",
+        "at": "2026-10-09T11:24:29.047Z",
+        "task": "C171",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C171-investigation-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T11:24:30.439Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the next independent Knight quest locate-level mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-012b37ee9920e63a8966c179df9a0f8160e41e06",
+        "type": "ready",
+        "at": "2026-10-09T11:24:57.663Z",
+        "task": "B195",
+        "delivery": "012b37ee9920e63a8966c179df9a0f8160e41e06"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-99b851f8a743df7a2becc3f43da8f1013790deed",
+        "type": "ready",
+        "at": "2026-10-09T11:25:13.921Z",
+        "task": "A191",
+        "delivery": "99b851f8a743df7a2becc3f43da8f1013790deed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B195-012b37ee",
+        "type": "received",
+        "at": "2026-10-09T11:25:47.794Z",
+        "task": "B195",
+        "delivery": "012b37ee9920e63a8966c179df9a0f8160e41e06"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A191-99b851f8",
+        "type": "received",
+        "at": "2026-10-09T11:25:49.273Z",
+        "task": "A191",
+        "delivery": "99b851f8a743df7a2becc3f43da8f1013790deed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B196-kni-strt-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T11:25:51.852Z",
+        "task": "B196",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B196-kni-strt-investigation-20261009",
+        "type": "turn",
+        "at": "2026-10-09T11:25:53.311Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A192-Mon-goal-99b851f8a",
+        "type": "assign",
+        "at": "2026-10-09T11:26:10.198Z",
+        "task": "A192",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A192-source-audit-99b851f8a",
+        "type": "turn",
+        "at": "2026-10-09T11:26:51.271Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating the independent Monk quest goal level after submitting Caveman start."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C171-central-gate-hold-20261009",
+        "type": "turn",
+        "at": "2026-10-09T11:26:58.445Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "Knight locate-level investigation is complete; Main will queue its source goal after the active acceptance boundary."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B196-source-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T11:28:47.191Z",
+        "worker": "B",
+        "state": "blocked"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A186-37923536824",
+        "type": "validated",
+        "at": "2026-10-09T11:29:41.373Z",
+        "task": "A186",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A192-central-source-gate-a27ffd7a0",
+        "type": "turn",
+        "at": "2026-10-09T11:31:45.935Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "Monk goal-level source trace is complete; waiting for Main to queue the implementation goal."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A186-338529f9f9746be82cb898f866177aa4a044449f-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T11:34:03.018Z",
+        "task": "A186"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "A186",
-        "worker": "A2",
-        "goal": "port-cmd-doextlist-v34-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "fe92f318021b5ab8501314da09973cee63e39624",
-        "since": "2026-10-09T09:25:12.018Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "C167",
         "worker": "C",
@@ -72957,10 +73122,8 @@
         "status": "ready",
         "delivery": "f996acd4c1821cd43c5cc9bf3cb80a80e730684a",
         "since": "2026-10-09T10:04:25.819Z",
-        "blockedBy": [
-          "A186"
-        ],
-        "unblocks": 0
+        "blockedBy": [],
+        "unblocks": 1
       },
       {
         "task": "C168",
@@ -72997,10 +73160,9 @@
         "delivery": "ca646b9b85772ef445a8e1d9756dd12270347796",
         "since": "2026-10-09T10:58:01.762Z",
         "blockedBy": [
-          "A186",
           "A190"
         ],
-        "unblocks": 0
+        "unblocks": 1
       },
       {
         "task": "C169",
@@ -73012,6 +73174,46 @@
         "since": "2026-10-09T11:03:37.731Z",
         "blockedBy": [
           "C168"
+        ],
+        "unblocks": 1
+      },
+      {
+        "task": "C170",
+        "worker": "C",
+        "goal": "port-hea-strt-quest-level-v36-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "2913f041d1102cba4bddda4746b89e926f906677",
+        "since": "2026-10-09T11:22:36.430Z",
+        "blockedBy": [
+          "C169"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "B195",
+        "worker": "B",
+        "goal": "port-hea-loca-lua-v36-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "012b37ee9920e63a8966c179df9a0f8160e41e06",
+        "since": "2026-10-09T11:24:57.663Z",
+        "blockedBy": [
+          "B194",
+          "B192"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "A191",
+        "worker": "A2",
+        "goal": "port-cav-strt-quest-start-v36-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "99b851f8a743df7a2becc3f43da8f1013790deed",
+        "since": "2026-10-09T11:25:13.921Z",
+        "blockedBy": [
+          "A188"
         ],
         "unblocks": 0
       }
@@ -73308,8 +73510,8 @@
     ]
   },
   "development": {
-    "executionCommit": "004a6da893c5dc420e260eb3ae0e285e85a56874",
-    "measuredAt": "2026-10-09T11:04:15.556Z",
+    "executionCommit": "338529f9f9746be82cb898f866177aa4a044449f",
+    "measuredAt": "2026-10-09T11:28:30.673Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
