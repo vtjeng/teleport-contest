@@ -54,7 +54,6 @@ import {
     spellet,
     spellretention,
     spelltypemnemonic,
-    UnsupportedSpellDisplayError,
 } from '../js/spell.js';
 import { SPELL_KNOWLEDGE_KEEN } from '../js/startup_skills.js';
 
@@ -208,7 +207,7 @@ test('spelltypemnemonic names each spell school', () => {
     );
     // C answers impossible() plus an empty string for anything else; no
     // spellbook a hero can learn from carries such an oc_skill.
-    assert.throws(() => spelltypemnemonic(P_UNSKILLED), RangeError);
+    assert.equal(spelltypemnemonic(P_UNSKILLED), '');
 });
 
 test('percent_success follows spell.c for an unequipped Healer', () => {
@@ -323,7 +322,7 @@ test('dovspell answers a hero who knows no spells without a menu', async () => {
             message: (text) => messages.push(text),
             menu: recorder.menu,
         }),
-        false,
+        ECMD_OK,
     );
     assert.deepEqual(messages, ["You don't know any spells right now."]);
     assert.equal(recorder.calls.length, 0);
@@ -340,7 +339,7 @@ test('dovspell lists known spells in spl_book order', async () => {
     const recorder = menuRecorder();
     assert.equal(
         await dovspell(state, { message: () => {}, menu: recorder.menu }),
-        false,
+        ECMD_OK,
     );
     assert.equal(recorder.calls.length, 1);
     const { items, how, prompt } = recorder.calls[0];
@@ -357,16 +356,19 @@ test('dovspell lists known spells in spl_book order', async () => {
             selector: 'a',
             label: 'healing                1   healing        0%  91%-100%',
             value: 1,
+            selected: false,
         },
         {
             selector: 'b',
             label: 'extra healing          3   healing       62%  91%-100%',
             value: 2,
+            selected: false,
         },
         {
             selector: 'c',
             label: 'stone to flesh         3   healing       71%  91%-100%',
             value: 3,
+            selected: false,
         },
         // SPELLMENU_SORT is MAXSPELL, and every menu value is that index
         // plus one.
@@ -385,41 +387,16 @@ test('dovspell asks for a display-only menu when one spell is known', async () =
     assert.equal(items.length, 2);
 });
 
-test('dovspell stops on the reordering and sorting branches', async () => {
-    const state = spellState({
-        spells: [{ otyp: SPE_HEALING }, { otyp: SPE_EXTRA_HEALING }],
-    });
-    await assert.rejects(
-        dovspell(state, {
-            message: () => {},
-            menu: menuRecorder(MAXSPELL + 1).menu,
-        }),
-        (error) => error instanceof UnsupportedSpellDisplayError
-            && error.branch === 'spellsortmenu()',
-    );
-    await assert.rejects(
-        dovspell(state, {
-            message: () => {},
-            // Choosing 'b' returns svs.spl_book index 1 plus one.
-            menu: menuRecorder(2).menu,
-        }),
-        (error) => error instanceof UnsupportedSpellDisplayError
-            && error.branch === 'the spell reordering swap',
-    );
-});
-
-test('dovspell stops before drawing a tab-separated menu', async () => {
+test('dovspell formats source tab-separated columns', async () => {
     const state = spellState({ spells: [{ otyp: SPE_HEALING }] });
     state.iflags.menu_tab_sep = true;
     const recorder = menuRecorder();
-    await assert.rejects(
-        dovspell(state, { message: () => {}, menu: recorder.menu }),
-        (error) => error instanceof UnsupportedSpellDisplayError
-            && error.branch === 'menu_tab_sep columns',
-    );
-    assert.equal(recorder.calls.length, 0);
+    await dovspell(state, { message: () => {}, menu: recorder.menu });
+    assert.equal(recorder.calls[0].items[0].text,
+        'Name\tLevel\tCategory\tFail\tRetention');
+    assert.equal(recorder.calls[0].items[1].label,
+        'healing\t1\thealing\t0%\t100%');
 });
-
 test('percent_success applies spell.c\'s worn-equipment adjustments', () => {
     // Every case below casts extra healing, which an unequipped Healer casts
     // at 38%: splcaster is 3 + spelheal(-3) == 0, and chance is
