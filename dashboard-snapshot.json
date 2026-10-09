@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T08:26:33.447Z",
+  "capturedAt": "2026-10-09T08:50:21.196Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -71563,22 +71563,246 @@
         "worker": "B",
         "state": "active",
         "reason": "Investigating wizard timeout queue display"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B187-native-pointer-and-B185-20261009",
+        "type": "park",
+        "at": "2026-10-09T08:29:42.686Z",
+        "task": "B187",
+        "reason": "Whole timeout queue family consumes alloc.c:fmt_ptr native addresses for populated rows; matching IDs are not equivalent. Canonical property table relocation also awaits B185 wizcmds owner. No partial timeout source credit."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B188-arrival-castle-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T08:29:44.117Z",
+        "task": "B188",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B188-arrival-castle-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T08:29:45.387Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating Castle arrival display"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A188-complete-source-gate",
+        "type": "turn",
+        "at": "2026-10-09T08:30:34.360Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "Wizard Tower diagnosis complete; waiting for the shared map-return prerequisite and source gate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A188-C165-map-return",
+        "type": "park",
+        "at": "2026-10-09T08:31:32.610Z",
+        "task": "A188",
+        "reason": "Waiting for C165 canonical written-cell des.map return selection before wizard3 Lua implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A189-crystal-ball-mishap",
+        "type": "assign",
+        "at": "2026-10-09T08:31:34.010Z",
+        "task": "A189",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A189-investigation",
+        "type": "turn",
+        "at": "2026-10-09T08:31:35.482Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Tracing the crystal-ball blinding mishap."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-A185-review-v35-20261009",
+        "type": "activity",
+        "at": "2026-10-09T08:32:38.473Z",
+        "task": "A185",
+        "phase": "review",
+        "reason": "Reviewing the queued magical jumping delivery against accepted v35 main."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C165-transparent-map-selection-20261009",
+        "type": "implement",
+        "at": "2026-10-09T08:32:41.029Z",
+        "task": "C165",
+        "goal": "fix-sp-lev-map-transparent-return-mask-v35-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A185-da09934d2",
+        "type": "integrating",
+        "at": "2026-10-09T08:34:33.893Z",
+        "task": "A185",
+        "integration": "da09934d2fe8d1727ed9fc51fff0e31307143a53"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B188-source-gate-wait-20261009",
+        "type": "turn",
+        "at": "2026-10-09T08:35:12.940Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Castle map diagnosis complete; awaiting Main source assignment"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B185-0f268f2c",
+        "type": "received",
+        "at": "2026-10-09T08:36:08.367Z",
+        "task": "B185",
+        "delivery": "0f268f2c2d6a6186247bb68d29b6b90314c64efc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A187-9826e496",
+        "type": "received",
+        "at": "2026-10-09T08:36:09.537Z",
+        "task": "A187",
+        "delivery": "9826e4966749acfeee524e6bffc96590ec00a106"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A189-complete-source-gate",
+        "type": "turn",
+        "at": "2026-10-09T08:37:44.093Z",
+        "worker": "A2",
+        "state": "blocked"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A189-showtrap",
+        "type": "implement",
+        "at": "2026-10-09T08:38:15.535Z",
+        "task": "A189",
+        "goal": "port-pager-doidtrap-showtrap-v35-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A189-implementation",
+        "type": "turn",
+        "at": "2026-10-09T08:38:17.064Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B188-lua-divergence-schema-20261009",
+        "type": "park",
+        "at": "2026-10-09T08:38:42.919Z",
+        "task": "B188",
+        "reason": "Main confirmed bounded Lua divergence tooling gap: worker-delivery only recognizes Lua for lua-port, while this task must retain divergence-only credit. Await canonical luaFile support after A185 checkpoint. Two independent C-first Castle role cases and byte-identical replays preserved under .cache/B188/c-first; no game edits."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B189-candles-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T08:38:44.176Z",
+        "task": "B189",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B189-candles-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T08:38:45.499Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating unattached candle application"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B189-source-gate-wait-20261009",
+        "type": "turn",
+        "at": "2026-10-09T08:42:36.878Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Candle answer diagnosis complete; awaiting Main source assignment"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d503206ea0d066a489a1bef6cb91488d78c55bb5",
+        "type": "ready",
+        "at": "2026-10-09T08:46:28.705Z",
+        "task": "C165",
+        "delivery": "d503206ea0d066a489a1bef6cb91488d78c55bb5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C166-lua-special-load-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T08:47:38.274Z",
+        "task": "C166",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C166-lua-special-load-investigation-20261009",
+        "type": "turn",
+        "at": "2026-10-09T08:47:39.635Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A185-da09934d2fe8d1727ed9fc51fff0e31307143a53-validated",
+        "type": "validated",
+        "at": "2026-10-09T08:47:52.146Z",
+        "task": "A185",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A185-da09934d2fe8d1727ed9fc51fff0e31307143a53-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T08:48:05.925Z",
+        "task": "A185"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C165-d503206ea0d066a489a1bef6cb91488d78c55bb5",
+        "type": "received",
+        "at": "2026-10-09T08:49:06.893Z",
+        "task": "C165",
+        "delivery": "d503206ea0d066a489a1bef6cb91488d78c55bb5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B189-candle-no-byte-20261009",
+        "type": "implement",
+        "at": "2026-10-09T08:50:07.059Z",
+        "task": "B189",
+        "goal": "fix-apply-candle-negative-answer-byte-v35-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B189-candle-implementation-20261009",
+        "type": "turn",
+        "at": "2026-10-09T08:50:08.550Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Correcting candle attachment negative answer"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "A185",
-        "worker": "A2",
-        "goal": "fix-spell-jumping-caller-v34-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "3befa1a0eff3c364040977ed51b37adfd4409909",
-        "since": "2026-10-09T07:34:55.948Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "B185",
         "worker": "B",
@@ -71598,9 +71822,18 @@
         "status": "ready",
         "delivery": "9826e4966749acfeee524e6bffc96590ec00a106",
         "since": "2026-10-09T08:08:59.460Z",
-        "blockedBy": [
-          "A185"
-        ],
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C165",
+        "worker": "C",
+        "goal": "fix-sp-lev-map-transparent-return-mask-v35-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "d503206ea0d066a489a1bef6cb91488d78c55bb5",
+        "since": "2026-10-09T08:46:28.705Z",
+        "blockedBy": [],
         "unblocks": 0
       }
     ],
@@ -71881,12 +72114,45 @@
         "since": "2026-10-09T08:26:17.393Z",
         "blockedBy": [],
         "reason": "Main source gate: game UUID cmd/wizcmds seams await immutable unaccepted B185. Preserve report/proposal; no game edits."
+      },
+      {
+        "task": "B187",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T08:29:42.686Z",
+        "blockedBy": [],
+        "reason": "Whole timeout queue family consumes alloc.c:fmt_ptr native addresses for populated rows; matching IDs are not equivalent. Canonical property table relocation also awaits B185 wizcmds owner. No partial timeout source credit."
+      },
+      {
+        "task": "A188",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T08:31:32.610Z",
+        "blockedBy": [],
+        "reason": "Waiting for C165 canonical written-cell des.map return selection before wizard3 Lua implementation"
+      },
+      {
+        "task": "B188",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T08:38:42.919Z",
+        "blockedBy": [],
+        "reason": "Main confirmed bounded Lua divergence tooling gap: worker-delivery only recognizes Lua for lua-port, while this task must retain divergence-only credit. Await canonical luaFile support after A185 checkpoint. Two independent C-first Castle role cases and byte-identical replays preserved under .cache/B188/c-first; no game edits."
       }
     ]
   },
   "development": {
-    "executionCommit": "b337f6ea36ed6a3277c2d992a472bd4142fef2b5",
-    "measuredAt": "2026-10-09T08:21:09.331Z",
+    "executionCommit": "da09934d2fe8d1727ed9fc51fff0e31307143a53",
+    "measuredAt": "2026-10-09T08:39:40.419Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

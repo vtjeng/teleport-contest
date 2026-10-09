@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 18534005,
+      "datetime": "20381010124532",
+      "nethackrc": "OPTIONS=name:PanicPositive,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!verbose,!debug_mongen,pettype:none\n",
+      "moves": ".#panic\nyes\n",
+      "comment": "Outside whole wizcmds.c:wiz_panic caller credit: positive confirmation reaches unported discarded end.c:panic392–471 native window shutdown/error save/paniclog/NH_abort/really_done(PANICKED). JS records end.c panic and skips it under the source gap rule. No invented termination state/output and no positive branch recording in the passing corpus."
+    }
+  ]
+}
