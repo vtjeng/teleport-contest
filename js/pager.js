@@ -6,6 +6,7 @@
 // hero, swallowed, monster, object, trap, warning, invisible, and cmap arm.
 
 import {
+    BEAR_TRAP,
     BLINDED,
     BOLT_LIM,
     BUFSZ,
@@ -23,7 +24,15 @@ import {
     DB_UNDER,
     DOOR,
     DRAWBRIDGE_UP,
+    ECMD_CANCEL,
     ECMD_OK,
+    HOLE,
+    PIT,
+    ROCKTRAP,
+    TRAPPED_CHEST,
+    TRAPPED_DOOR,
+    WEB,
+    is_hole,
     GRAVE,
     GPCOORDS_COMPASS,
     GPCOORDS_SCREEN,
@@ -263,7 +272,7 @@ import {
 import { cansee, couldsee, howmonseen } from './vision.js';
 import { spot_time_left } from './timeout.js';
 import { getlin, select_menu } from './windows.js';
-import { key2extcmddesc, key2txt, yn_function } from './cmd.js';
+import { getdir, key2extcmddesc, key2txt, yn_function } from './cmd.js';
 
 export const WHAT_IS_A_LOCATION = 'a monster, object or location';
 
@@ -909,7 +918,7 @@ export async function look_all(nearby, doMons, state = game) {
 export function trap_description(ttyp, x, y, state = game) {
     if (trapped_chest_at(ttyp, x, y, state)) return 'trapped chest';
     if (trapped_door_at(ttyp, x, y, state)) return 'trapped door';
-    return trapname(ttyp);
+    return trapname(ttyp, false, state);
 }
 
 // C ref: pager.c add_quoted_engraving(). JavaScript returns the extended
@@ -2061,6 +2070,40 @@ export async function dowhatis(state = game) {
 export async function doquickwhatis(state = game) {
     return do_look(1, null, state);
 }
+
+// C ref: pager.c doidtrap() (2336-2389). The glyph buffer can still show
+// chest/door trap symbols while blind; those are not entries in ftrap.
+export async function doidtrap(state = game) {
+    if (!await getdir('^', state)) return ECMD_CANCEL;
+    const { u } = state;
+    const x = u.ux + u.dx;
+    const y = u.uy + u.dy;
+    const glyph = glyph_at(x, y, state);
+    if (glyph_is_trap(glyph)) {
+        const tt = glyph_to_trap(glyph);
+        if (tt === BEAR_TRAP || tt === TRAPPED_DOOR || tt === TRAPPED_CHEST) {
+            const chesttrap = trapped_chest_at(tt, x, y, state);
+            if (chesttrap || trapped_door_at(tt, x, y, state)) {
+                await ttyPline(`That is a trapped ${chesttrap ? 'chest' : 'door'}.`, state);
+                return ECMD_OK;
+            }
+        }
+    }
+    // level.traps preserves the source ftrap/ntrap chain order.
+    for (const trap of state.level?.traps ?? []) {
+        if (trap.tx !== x || trap.ty !== y) continue;
+        if (!trap.tseen) break;
+        const tt = trap.ttyp;
+        if (u.dz && (u.dz < 0 ? is_hole(tt) : tt === ROCKTRAP)) break;
+        const suffix = !trap.madeby_u ? '' : tt === WEB ? ' woven'
+            : tt === HOLE || tt === PIT ? ' dug' : ' set';
+        await ttyPline(`That is ${an(trapname(tt, false, state))}${suffix}${trap.madeby_u ? ' by you' : ''}.`, state);
+        return ECMD_OK;
+    }
+    await ttyPline("I can't see a trap there.", state);
+    return ECMD_OK;
+}
+
 
 // C ref: pager.c setopt_cmd() (2908-2957). Resolve the three commands from
 // the current command-binding model just as cmd_from_func() does. This keeps
