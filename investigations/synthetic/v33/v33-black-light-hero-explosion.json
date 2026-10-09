@@ -1,0 +1,130 @@
+{
+  "corpus": "synthetic",
+  "batch": "v33",
+  "caseId": "v33-black-light-hero-explosion",
+  "session": "synthetic/v33/v33-black-light-hero-explosion",
+  "manifestPath": "challenges/manifests/v33.json",
+  "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+  "recording": "challenges/cases/v33/v33-black-light-hero-explosion.session.json",
+  "recordingPath": "challenges/cases/v33/v33-black-light-hero-explosion.session.json",
+  "recordingSha256": "d67c5e0e3ce9d93120850865bb9b7dddde1630814fdcf2b268387a74d3925cff",
+  "recipe": "challenges/cases/v33/v33-black-light-hero-explosion.recipe.session.json",
+  "recipeSha256": "38f31eaeb7b8d2b444cfd5bba9c997d8ad446578437551f8239cde1d39f4c685",
+  "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+  "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+  "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+  "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+  "evaluationUtc": "2026-10-09T03:03:55.655Z",
+  "remainingScreens": 167,
+  "recordedSteps": 220,
+  "previousScreensMatched": null,
+  "regression": false,
+  "passed": false,
+  "error": null,
+  "metrics": {
+    "screens": {
+      "matched": 53,
+      "total": 220
+    },
+    "rng": {
+      "matched": 6194,
+      "total": 6386
+    },
+    "cursors": {
+      "matched": 53,
+      "total": 220
+    }
+  },
+  "firstMismatch": {
+    "kind": "stop",
+    "message": "unsupported hero move: force-fight while polymorphed into an exploding form",
+    "step": 53
+  },
+  "step": 53,
+  "kind": "stop",
+  "sourceFile": null,
+  "function": null,
+  "message": "unsupported hero move: force-fight while polymorphed into an exploding form",
+  "cFile": null,
+  "luaFile": null,
+  "line": null,
+  "status": "complete",
+  "commit": "ae2ee24eaa23aeaf21b59731835296195b8194b0",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v33",
+    "caseId": "v33-black-light-hero-explosion",
+    "session": "synthetic/v33/v33-black-light-hero-explosion",
+    "manifestPath": "challenges/manifests/v33.json",
+    "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+    "recording": "challenges/cases/v33/v33-black-light-hero-explosion.session.json",
+    "recordingPath": "challenges/cases/v33/v33-black-light-hero-explosion.session.json",
+    "recordingSha256": "d67c5e0e3ce9d93120850865bb9b7dddde1630814fdcf2b268387a74d3925cff",
+    "recipe": "challenges/cases/v33/v33-black-light-hero-explosion.recipe.session.json",
+    "recipeSha256": "38f31eaeb7b8d2b444cfd5bba9c997d8ad446578437551f8239cde1d39f4c685",
+    "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+    "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+    "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+    "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+    "evaluationUtc": "2026-10-09T03:03:55.655Z",
+    "remainingScreens": 167,
+    "recordedSteps": 220,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 53,
+        "total": 220
+      },
+      "rng": {
+        "matched": 6194,
+        "total": 6386
+      },
+      "cursors": {
+        "matched": 53,
+        "total": 220
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero move: force-fight while polymorphed into an exploding form",
+      "step": 53
+    },
+    "step": 53,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero move: force-fight while polymorphed into an exploding form",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "goalKind": "divergence-fix",
+  "summary": "At step 53, empty-square force-fight in black-light form is refused by an obsolete domove_fight_empty guard. C prints the exploding-form terrain message, calls wake_nearto then existing explum(NULL,attack), sets mh=-1 and rehumanizes. The prepared dropx diagnosis is superseded: current baseline matches through step 52.",
+  "source": {
+    "file": "hack.c",
+    "functions": [
+      "domove_fight_empty"
+    ],
+    "branch": "Forcefight targets an empty square while Upolyd and attacktype(youmonst.data,AT_EXPL) are true. Reuse existing terrain arms with C exploding-form adverb/verb and exact wake/explum/form-death/rehumanize tail.",
+    "callers": [
+      "hack.c:domove_core -> domove_fight_empty:2810, after force-fight target checks; js/hack.js canonical movement dispatcher.",
+      "hack.c:move_out_of_bounds -> domove_fight_empty:2589 for off-map forcefight, preserving no destination-grid access."
+    ],
+    "dependencies": [
+      "mondata.c:attacktype_fordmg42–50 return selects first AT_EXPL/AD_ANY attack; js/mondata.js already implements it. Existing Upolyd/attacktype and glyph/terrain predicates remain canonical.",
+      "uhitm.c:explum4891–4928 is already translated in js/uhitm.js1412–1460. Null defender suppresses AD_BLND/AD_HALU monster effects, but attack dice and second wake_nearto still run. Caller discards its result; no mhitm_ad_halu expansion is needed.",
+      "Canonical mon.c:wake_nearto is awaited before explum and again inside it. Canonical polyself.c:rehumanize follows mh=-1. Supply source state/message/random; preserve existing named retouch_equipment/selftouch gaps. No new return-valued dependency is missing.",
+      "Keep underwater/unremembered-terrain/web arms and whole domove_fight_empty/domove_core completion outside this bounded divergence."
+    ]
+  },
+  "evidence": [
+    "Authoritative baseline-66ac2b0bf-v33 has 53/220 screens/cursors, 6194/6386 RNG. Refreshed saved .cache/mismatch-queue-v33-3ab0909e.json identifies zero-based step53 unsupported force-fight while polymorphed into an exploding form. Selection used saved evidence without replay, as instructed.",
+    "The prepared manifest’s step23 dropx refusal predates accepted fixes. Current do.js preflight_dropx1907–1909 explicitly admits direct dropx without can_reach_floor, and baseline matches through52. This counter-evidence prevents reopening the repaired drop dependency.",
+    "Read whole hack.c:domove_fight_empty2227–2338 and existing JS translation. C computes explo2247, resolves boulder/solid/thin-air or off-edge target, prints source adverb/verb2318–2321, nomul(0), then attacktype_fordmg/wake_nearto/optional explum(NULL)/mh=-1/rehumanize2324–2334. JS3651–3655 refuses before all terrain arms and later emits only ordinary attack messages.",
+    "Read whole uhitm.c:explum4891–4928 and JS1412–1460. NULL-defender yellow/black-light calls still roll attack dice and wake twice overall, but need no monster damage handler. Elemental explosions reuse canonical explode/state/planning operations. No stand-in behavior is needed.",
+    "Actionable bounded scope: exploding-form branch and both production entries in hack.c:domove_fight_empty; js/hack.js imports/caller reconciliation, scripts/force-fight.test.mjs and scripts/run-force-fight.mjs, independent recipes/hack.c and recordings/hack.c. Source-pinned tests need off-edge/solid/thin-air wording, dice/wake/form-change order, and ordinary behavior. Independent C-first seed/role/clock and yellow/black form variations plus the selected admitted range establish wiring. Preserve whole-function exclusions."
+  ]
+}
