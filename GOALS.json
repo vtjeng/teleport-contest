@@ -229505,7 +229505,7 @@
     {
       "id": "fix-apply-cursed-unicorn-horn-con-call-v34-20261009",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Use current Constitution for cursed unicorn-horn sickness duration",
       "cFile": "apply.c",
       "sessions": [],
@@ -229517,8 +229517,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "61748d768be8dde676d67309b0a15965d6f0931b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "use_unicorn_horn",
       "session": "synthetic/v34/v34-cursed-unicorn-horn",
       "step": 24,
@@ -229690,7 +229693,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "61748d768be8dde676d67309b0a15965d6f0931b",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "fix-spell-jumping-caller-v34-20261009",
