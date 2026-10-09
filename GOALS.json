@@ -229754,7 +229754,7 @@
     {
       "id": "port-wizcmds-wiz-panic-v34-20261009",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port wizard panic confirmation and fuzzer recovery branch",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -229762,17 +229762,24 @@
       ],
       "selectionReason": "Independent admitted v34-panic-declined has 24 unmatched screens; source tracing identifies whole wizcmds.c:wiz_panic and bounded command dispatch with the existing paranoid_query dependency.",
       "detail": "Port whole wiz_panic in source order. Wire only its bounded direct, typed, rebound, and canned dispatcher seams. Keep end.c:panic as the named discarded-result gap after positive confirmation, with no whole doextcmd, rhack, or end.c credit.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "61b9bad31ac7fc81b7370cd1312e25e5bf7358cf",
+      "openStanding": {
+        "sha": "61b9bad31ac7fc81b7370cd1312e25e5bf7358cf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "61b9bad31ac7fc81b7370cd1312e25e5bf7358cf",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_panic",
           "line": 534,
           "endLine": 548,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -229792,6 +229799,96 @@
           "evaluationPath": "challenges/evaluations/accepted-bc2ce8fb5ecd42fec92c2db427c427b566e0d645-v34.json",
           "evaluationCommit": "bc2ce8fb5ecd42fec92c2db427c427b566e0d645"
         }
+      },
+      "activeStanding": {
+        "sha": "61b9bad31ac7fc81b7370cd1312e25e5bf7358cf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_panic",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_panic",
+            "sourceReview": "Read complete wizcmds.c:wiz_panic534–546 and surrounding declaration/comments through548, cmd.c panic table1793–1794/doextcmd491–523/rhack3682–3825, complete paranoid_query5655–5658 and paranoid_ynq5587–5651 plus JS canonical implementations. Preserve debug_fuzzer assignment chains uhp=uhpmax=1000, then uen=uenmax=1000 and immediate ECMD_OK with no query, RNG or status flag write. Ordinary branch awaits canonical paranoid_query(TRUE,prompt); only TRUE records discarded void end.c:panic through note_unported. Read complete native panic392–471 and retain its terminal shutdown/error-save/paniclog/core/really_done effects as a named gap, without invented output/state. Ordinary negative returns ECMD_OK. Add only cmd import, admission, typed owner arm, bound/canned no-time reset and panic-specific count refusal exemption. No generated table edits, duplicate query state, injected operations, error class or swallowed refusal; generic defaults remain for other handlers. Searched scripts/*.test.mjs for wiz_panic/panic command/old unsupported markers; no stale panic refusal assertions exist.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c491–523 resolves extcmdlist1793–1794 panic row, can_do_extcmd wizard/buried flags, and consumes wiz_panic return."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c3682–3825 resolves rebound/canned row, calls wiz_panic and resets no-time ECMD_OK, clearing an entered count without repeating it."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizcmds.test.mjs",
+              "scripts/cmd-span.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-panic-typed-no-independent.session.json",
+              "recordings/wizcmds.c/wizard-panic-typed-default-independent.session.json",
+              "recordings/wizcmds.c/wizard-panic-bound-escape-independent.session.json",
+              "recordings/wizcmds.c/wizard-panic-bound-confirm-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v34",
+                "caseId": "v34-panic-declined",
+                "segment": 0,
+                "fromStep": 8,
+                "throughStep": 31,
+                "source": "cmd.c:doextcmd extcmdlist panic row -> wizcmds.c:wiz_panic534–546 -> canonical paranoid_query negative confirmation, ECMD_OK reset, then subsequent recorded commands."
+              }
+            ],
+            "checkedAt": "61b9bad31ac7fc81b7370cd1312e25e5bf7358cf"
+          }
+        ],
+        "entryPointReview": "C references name only the extern, complete function and extcmdlist panic row. Active user command entries are typed #panic and a configured bound key; both have complete matching C recordings, including no/default/Escape and ParanoidConfirm retry/count variation. The same rhack row covers canned/repeat resolution; no source producer specifically queues wiz_panic, so no separate invented canned C recipe is required. Source-pinned dispatch contracts retain this general route. debug_fuzzer is an internal state branch of the same command, source-pinned without an input/display; it does not grant completion to the broader native random-key fuzzer workflow. Positive confirmation’s void noreturn native panic is an explicit discarded-callee gap, represented by the committed blocked recipe and kept outside passing runtime evidence.",
+        "entryPoints": [
+          {
+            "name": "Typed wizard panic negative/default confirmation",
+            "functions": [
+              "wiz_panic"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-panic-typed-no-independent.session.json",
+              "recordings/wizcmds.c/wizard-panic-typed-default-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v34",
+                "caseId": "v34-panic-declined",
+                "segment": 0,
+                "fromStep": 8,
+                "throughStep": 31,
+                "source": "cmd.c:doextcmd extcmdlist panic row -> wizcmds.c:wiz_panic534–546 -> canonical paranoid_query negative confirmation, ECMD_OK reset, then subsequent recorded commands."
+              }
+            ]
+          },
+          {
+            "name": "Rebound wizard panic Escape or counted ParanoidConfirm negative reply",
+            "functions": [
+              "wiz_panic"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-panic-bound-escape-independent.session.json",
+              "recordings/wizcmds.c/wizard-panic-bound-confirm-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "61b9bad31ac7fc81b7370cd1312e25e5bf7358cf",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -230090,7 +230187,7 @@
     {
       "id": "fix-read-genocide-retry-quote-v34-20261009",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Restore the quoted question mark in genocide retry hints",
       "cFile": "read.c",
       "sessions": [
@@ -230098,10 +230195,17 @@
       ],
       "selectionReason": "A187 selected the admitted v34 genocide prompt mismatch at step 54; source review traces both affected retry hints in do_genocide and do_class_genocide.",
       "detail": "Restore the two source-faithful quoted question-mark literals only; preserve parser, prompt, retry, RNG, and genocide behavior without whole-function credit.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "cca7c156f3ffb7fe1ed2a1938de2bf83d6accc57",
+      "openStanding": {
+        "sha": "cca7c156f3ffb7fe1ed2a1938de2bf83d6accc57",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "cca7c156f3ffb7fe1ed2a1938de2bf83d6accc57",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "do_genocide",
       "session": "synthetic/v34/v34-genocide-no-such-species",
       "step": 54,
@@ -230118,6 +230222,18 @@
           "evaluationPath": "challenges/evaluations/accepted-2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a-v34.json",
           "evaluationCommit": "2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a"
         }
+      },
+      "activeStanding": {
+        "sha": "cca7c156f3ffb7fe1ed2a1938de2bf83d6accc57",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "cca7c156f3ffb7fe1ed2a1938de2bf83d6accc57",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

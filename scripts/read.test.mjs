@@ -14,6 +14,7 @@ import {
     can_center_cloud,
     charge_ok,
     do_class_genocide,
+    do_genocide,
     recharge,
     seffect_identify,
     seffect_amnesia,
@@ -996,4 +997,51 @@ test('read.c blessed amnesia keeps spell retention but still drains skills',
         assert.deepEqual(state.context.spbook, {
             delay: -2, book: {}, o_id: 4,
         });
+    });
+
+
+test('read.c genocide retry hints preserve the quoted source help selector', () => {
+    // read.c2656 and2860 quote the help selector in both cmdassist hints.
+    // These exact literals expose caller text before getlin wraps it.
+    for (const hint of [
+        "the name of a type of monster, or '?'",
+        "the symbol or name representing a class, or '?'",
+    ]) {
+        assert.ok(READ_C.includes(`"${hint}"`), hint);
+        assert.ok(JS_READ.includes(`"${hint}"`), hint);
+    }
+});
+
+test('read.c species and class retry hints preserve input and random order',
+    async () => {
+        for (const [kind, operation, hint] of [
+            ['species', () => do_genocide(1, game),
+                "the name of a type of monster, or '?'"],
+            ['class', () => do_class_genocide(game),
+                "the symbol or name representing a class, or '?'"],
+        ]) {
+            for (const cmdassist of [true, false]) {
+                // Independent shell seed only initializes input/display;
+                // the constructed invalid name selects read.c's retry arm.
+                await emptyTamingWorld(18741001);
+                game.iflags.cmdassist = cmdassist;
+                game._pending_message = '';
+                game._ttyMessageStopped = false;
+                game.nhDisplay.toplin = TOPLINE_EMPTY;
+                // LF submits a nonexistent name, Space dismisses its More,
+                // and Escape cancels the new prompt. No monster is selected.
+                const input = 'imaginary beast\n \x1b';
+                game.nhDisplay.terminal._inputQueue.push(
+                    ...Array.from(input, ch => ch.charCodeAt(0)),
+                );
+                enableRngLog();
+                const before = getRngLog().length;
+                await operation();
+                assert.equal(getRngLog().length, before, kind);
+                const expected = cmdassist ? hint : "'?' to see previous genocides";
+                assert.ok(game._ttyPreviousMessage.includes(`[enter ${expected}]`),
+                    `${kind}: ${game._ttyPreviousMessage}`);
+                assert.equal(game.nhDisplay.terminal._inputQueue.length, 0, kind);
+            }
+        }
     });
