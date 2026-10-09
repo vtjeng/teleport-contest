@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 18434001,
+      "datetime": "20601009143625",
+      "nethackrc": "OPTIONS=name:HornCon,role:Knight,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time,showexp\n",
+      "comment": "Outside B184 bounded cursed sickness correction: same C-first Knight initialization retains the deafness/blindness inputs, then applies a distinct uncursed horn to multiple troubles. apply.c:use_unicorn_horn calls discarded rnd.c:shuffle_int_array; JS records that gap without shuffling. This recipe is blocked on rnd.c:shuffle_int_array and grants no whole horn completion credit.",
+      "moves": " \u0017cursed unicorn horn\nai ai\u0017uncursed unicorn horn\naj"
+    }
+  ]
+}
