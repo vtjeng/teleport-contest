@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// C-first inputs use fixed seeds18233001..18233009, without a seed search.
+// C-first inputs use fixed seeds18233001..18233009 and18233101..18233106.
 // The role/repertoire, menu action and tab option variations are in recipes.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -12,6 +12,8 @@ import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 export const SPELL_MENU_CASES = [
     'sort-retain-swap', 'sort-healer', 'tab-columns', 'swap-default',
     'swap-deselect', 'cast-cancel', 'cast-healing', 'no-spells', 'typed-showspells',
+    'swap-unselect-all', 'swap-unselect-page', 'swap-counted-default',
+    'sort-unselect-all', 'sort-unselect-page', 'sort-counted-default',
 ];
 export function loadSpellMenuRecipe(name) {
     return JSON.parse(readFileSync(new URL(

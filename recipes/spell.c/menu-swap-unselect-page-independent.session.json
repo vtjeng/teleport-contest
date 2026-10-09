@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first preselected spell correction witness: swap-unselect-page. Healer starts with multiple spells. Bulk unselection/positive count reaches wintty.c row-state recount consumed by spell.c dospellmenu/spellsortmenu; final Escape ends redisplayed view when applicable.",
+  "segments": [
+    {
+      "seed": 18233102,
+      "datetime": "20581013152637",
+      "nethackrc": "OPTIONS=name:SpellRecount,role:Healer,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".+a\\\n\u001b"
+    }
+  ]
+}

@@ -1178,7 +1178,7 @@ test('PICK_ONE explicit choices beat mappings and deselection updates markers', 
     deselected._preNhgetchHook = () => markers.push(
         rowText(deselected, 4).slice(41),
     );
-    assert.equal(await selectTtyMenu(deselected, confirmation), 1);
+    assert.equal(await selectTtyMenu(deselected, confirmation), -1);
     assert.deepEqual(markers, [
         'y * Yes; start game',
         'y - Yes; start game',
@@ -1495,4 +1495,32 @@ test('menuTitleStyle converts canonical heading attributes only for drawing', ()
     state.iflags.menu_headings.attr = 2;
     assert.equal(menuTitleStyle(state).titleAttr, 0);
     assert.equal(state.iflags.menu_headings.attr, 2);
+});
+
+test('PICK_ONE selected results recount bulk deselection and retain counted defaults', async () => {
+    // wintty.c tty_select_menu recounts curr->selected; toggle_menu_curr
+    // retains an already selected row when counting with count > 0.
+    assert.match(WINTTY_C, /case MENU_UNSELECT_PAGE:\s*unset_all_on_page\(window, page_start, page_end\);/u);
+    assert.match(WINTTY_C, /case MENU_UNSELECT_ALL:[\s\S]*?unset_all_on_page\(window, page_start, page_end\);/u);
+    assert.match(WINTTY_C, /if \(curr->selected\)\s+n\+\+/u);
+    assert.match(WINTTY_C, /if \(counting && count > 0\) \{\s*curr->count = count;/u);
+    for (const [keys, expected] of [
+        ['\n', [{ value: 1, count: -1 }]], // Enter retains source default.
+        ['-\n', []], // MENU_UNSELECT_ALL clears every selected row.
+        ['\\\n', []], // MENU_UNSELECT_PAGE clears the current-page row.
+        ['a', []], // Uncounted explicit default toggles it off.
+        ['1a', [{ value: 1, count: 1 }]], // Positive count keeps it selected.
+        ['b', [{ value: 1, count: -1 }, { value: 2, count: -1 }]],
+    ]) {
+        const state = menuState(keys);
+        assert.deepEqual(await selectTtyMenu(state, {
+            how: PICK_ONE, returnSelections: true, title: 'Selected rows',
+            items: [{ selector: 'a', value: 1, label: 'Default', selected: true },
+                { selector: 'b', value: 2, label: 'Other' }],
+        }), expected, JSON.stringify(keys));
+    }
+    // Existing scalar confirmation callers also must not revive a row which
+    // the bulk command cleared before Enter.
+    for (const keys of ['-\n', '\\\n'])
+        assert.equal(await selectTtyMenu(menuState(keys), confirmation), -1);
 });
