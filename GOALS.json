@@ -235387,6 +235387,84 @@
           "evaluationCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd"
         }
       }
+    },
+    {
+      "id": "port-kni-loca-quest-level-v36-20261009",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Port the complete Knight quest locate level from Lua.",
+      "luaFile": "Kni-loca.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-kni-loca"
+      ],
+      "selectionReason": "C171 traced the v36 Knight locate stop to the missing Kni-loca loader; the whole Lua program uses existing descriptor owners and has no live reservation overlap.",
+      "detail": "Port all dat/Kni-loca.lua top-level statements and register the production quest loader. Preserve source order, generate the fixed map and tables from source, and verify natural Knight arrival plus independent male and female direct loads.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Kni-loca.lua",
+          "line": 1,
+          "endLine": 137,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-kni-loca": {
+          "session": "synthetic/v36/v36-quest-kni-loca",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-kni-loca",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-kni-loca.session.json",
+          "recordingSha256": "d4614f2ccb4abc35c097705db11890113bed01144d3fa40c6c4d9ae4f29bc856",
+          "evaluationPath": "challenges/evaluations/accepted-b581facde072156e518fc16846e3a5ca02455f81-v36.json",
+          "evaluationCommit": "b581facde072156e518fc16846e3a5ca02455f81"
+        }
+      }
+    },
+    {
+      "id": "port-mon-goal-quest-goal-v36-20261009",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Port the complete Monk quest goal level from Lua.",
+      "luaFile": "Mon-goal.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-mon-goal"
+      ],
+      "selectionReason": "A192 traced the v36 Monk quest goal stop to the missing Mon-goal loader; the whole Lua program uses existing descriptor owners and does not overlap B186 or C171.",
+      "detail": "Port all dat/Mon-goal.lua top-level statements and register the production quest loader. Preserve its single shared two-position draw for the artifact, Master Kaen, and altar; generate fixed tables from source and verify natural arrival plus independent direct loads.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Mon-goal.lua",
+          "line": 1,
+          "endLine": 75,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-mon-goal": {
+          "session": "synthetic/v36/v36-quest-mon-goal",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-mon-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-mon-goal.session.json",
+          "recordingSha256": "daf2d29044a317edaf6598177fb6c24d2a290406534b6bafa42b3408d11db3f8",
+          "evaluationPath": "challenges/evaluations/accepted-b581facde072156e518fc16846e3a5ca02455f81-v36.json",
+          "evaluationCommit": "b581facde072156e518fc16846e3a5ca02455f81"
+        }
+      }
     }
   ]
 }
