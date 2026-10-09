@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T23:00:50.402Z",
+  "capturedAt": "2026-10-09T23:13:14.466Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -77013,6 +77013,24 @@
         "task": "B193",
         "phase": "done",
         "reason": "Bounded recorder screen capture output, rejected future out-of-range cursors, preserved admitted v35 evidence as historical, and verified the fresh Juiblex replay plus hosted checkpoint."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-main-b187-pointer-contract-20261009",
+        "type": "activity",
+        "at": "2026-10-09T23:05:40.233Z",
+        "task": "B187",
+        "phase": "review",
+        "reason": "Normalizing recorder pointer diagnostics into deterministic null/non-null tokens so timeout and light-source source tasks can produce portable C evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-main-b187-pointer-contract-done-20261009",
+        "type": "activity",
+        "at": "2026-10-09T23:13:10.392Z",
+        "task": "B187",
+        "phase": "done",
+        "reason": "Published a deterministic recorder pointer contract using <ptr>/<null>, verified it with a live lamp diagnostic, and passed the complete hosted checkpoint."
       }
     ]
   },
@@ -77331,8 +77349,8 @@
     ]
   },
   "development": {
-    "executionCommit": "f5d95cf1e445b7dca8a75b6988625a52c03b2e52",
-    "measuredAt": "2026-10-09T22:43:28.651Z",
+    "executionCommit": "2b7928c6316b352bf2b0eb8b3eedb910d4d2f786",
+    "measuredAt": "2026-10-09T23:12:46.652Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
