@@ -8,7 +8,7 @@
 //         dat/Kni-loca.lua, dat/Kni-strt.lua, dat/Ran-loca.lua,
 //         dat/Ran-goal.lua, dat/Ran-strt.lua, dat/Rog-strt.lua, dat/Rog-loca.lua,
 //         dat/Rog-goal.lua, dat/Val-goal.lua,
-//         dat/Val-loca.lua,
+//         dat/Tou-loca.lua, dat/Val-loca.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
@@ -96,6 +96,8 @@ import {
     ROG_STRT_LEVEL_MAP,
 } from './rog_strt_level_data.js';
 import { ROG_LOCA_LEVEL_MAP } from './rog_loca_level_data.js';
+import { TOU_LOCA_DOORS, TOU_LOCA_LEVEL_MAP } from './tou_loca_level_data.js';
+import { l_selection_or, l_selection_sub } from './nhlsel.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
 // that draws a random zig-zag path from (x1,y1) to (x2,y2).
@@ -2391,6 +2393,77 @@ async function touStrt(des) {
     for (let i = 0; i < 9; ++i) await des.trap();
 }
 
+// dat/Tou-loca.lua lines 1–153. Selection operators preserve the source's
+// numeric point values; map-relative coordinates are resolved through des.frame.
+async function touLoca(des, state) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'hardfloor');
+    await des.map(TOU_LOCA_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 19), 'lit');
+    await des.non_diggable(selection_area(0, 0, 75, 19));
+
+    await des.region({ region: [1, 1, 4, 5], lit: 0, type: 'morgue', filled: 1 });
+    await des.region({ region: [15, 3, 20, 5], lit: 1, type: 'shop', filled: 1 });
+    await des.region({ region: [62, 3, 71, 4], lit: 1, type: 'shop', filled: 1 });
+    await des.region({ region: [1, 17, 11, 18], lit: 1, type: 'barracks', filled: 1 });
+    await des.region({ region: [12, 9, 20, 10], lit: 1, type: 'barracks', filled: 1 });
+    await des.region({ region: [53, 11, 59, 14], lit: 1, type: 'zoo', filled: 1 });
+    await des.region({ region: [63, 14, 72, 16], lit: 1, type: 'barracks', filled: 1 });
+    await des.region({ region: [32, 14, 40, 16], lit: 1, type: 'temple', filled: 1 });
+
+    await des.region({ region: [6, 1, 11, 2], type: 'ordinary' });
+    await des.region({ region: [24, 1, 29, 2], type: 'ordinary' });
+    await des.region({ region: [31, 1, 36, 2], type: 'ordinary' });
+    await des.region({ region: [42, 1, 45, 3], type: 'ordinary' });
+    await des.region({ region: [53, 1, 58, 2], type: 'ordinary' });
+    await des.region({ region: [24, 4, 26, 5], type: 'ordinary' });
+    await des.region({ region: [30, 6, 34, 7], type: 'ordinary' });
+    await des.region(selection_area(73, 5, 74, 5), 'unlit');
+    await des.region({ region: [1, 9, 4, 12], type: 'ordinary' });
+    await des.region({ region: [1, 14, 7, 15], type: 'ordinary' });
+    await des.region({ region: [12, 12, 20, 13], type: 'ordinary' });
+    await des.region({ region: [13, 17, 20, 18], type: 'ordinary' });
+    await des.region({ region: [22, 9, 24, 10], type: 'ordinary' });
+    await des.region({ region: [22, 12, 24, 12], type: 'ordinary' });
+    await des.region({ region: [24, 16, 28, 18], type: 'ordinary' });
+    await des.region({ region: [28, 11, 33, 12], type: 'ordinary' });
+    await des.region(selection_area(35, 11, 36, 12), 'lit');
+    await des.region({ region: [38, 8, 41, 12], type: 'ordinary' });
+    await des.region({ region: [43, 7, 49, 8], type: 'ordinary' });
+    await des.region({ region: [43, 12, 49, 12], type: 'ordinary' });
+    await des.region({ region: [44, 16, 51, 16], type: 'ordinary' });
+    await des.region({ region: [53, 6, 59, 7], type: 'ordinary' });
+    await des.region({ region: [61, 6, 71, 7], type: 'ordinary' });
+    await des.region({ region: [55, 16, 59, 18], type: 'ordinary' });
+    await des.region({ region: [63, 11, 68, 12], type: 'ordinary' });
+    await des.region({ region: [70, 11, 72, 12], type: 'ordinary' });
+
+    await des.stair('up', 10, 4);
+    await des.stair('down', 73, 5);
+    await des.non_diggable(selection_area(0, 0, 75, 19));
+    for (const door of TOU_LOCA_DOORS) await des.door(...door);
+
+    for (let i = 0; i < 14; ++i) await des.object();
+    await des.object('blank paper', 71, 12);
+    await des.object('blank paper', 71, 12);
+
+    // Lua filter_mapchar('.') maps the floor glyph to ROOM in splev.c. The
+    // selection coordinates stay local until lspo_trap resolves them.
+    const floorSquares = selection_area(0, 0, 75, 19).filter_mapchar(
+        ROOM, (x, y) => state.level.at(des.frame.xstart + x, des.frame.ystart + y),
+    );
+    const shops = l_selection_or(
+        selection_area(15, 3, 20, 5), selection_area(62, 3, 71, 4),
+    );
+    const validTraps = l_selection_sub(floorSquares, shops);
+    for (let i = 0; i < 9; ++i)
+        await des.trap(validTraps.rndcoord(true, rn2));
+
+    for (let i = 0; i < 16; ++i) await des.monster('giant spider');
+    await des.monster('s');
+    await des.monster('s');
+}
+
 // C ref: dat/astral.lua, whole program.
 async function astral(des, state) {
     await des.level_init({ style: 'solidfill', fg: ' ' });
@@ -2677,6 +2750,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Kni-goal': kniGoal,
     'Sam-goal': samGoal,
     'Tou-strt': touStrt,
+    'Tou-loca': touLoca,
     'Kni-loca': kniLoca,
     'Ran-loca': ranLoca,
     'Ran-goal': ranGoal,
