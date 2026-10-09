@@ -13,7 +13,7 @@ import {
     ROWNO,
 } from './const.js';
 import * as O from './objects.js';
-import { mk_artifact, is_art } from './artifacts.js';
+import { ART_MAGICBANE, mk_artifact, is_art } from './artifacts.js';
 import { christen_monst } from './do_name.js';
 import { rank_of } from './display.js';
 import { game } from './gstate.js';
@@ -207,7 +207,7 @@ export async function mk_mplayer(species, x, y, special = false, rawEnv = {}) {
             && monmightthrowwep(object))
             object.quan += random.rn2(is_spear(object, state) ? 4 : 8);
         object.owt = weight(object, env);
-        if (is_art(object, O.ART_MAGICBANE)) object.spe = random.rnd(4);
+        if (is_art(object, ART_MAGICBANE)) object.spe = random.rnd(4);
         mpickobj(monster, object, env);
     }
 
