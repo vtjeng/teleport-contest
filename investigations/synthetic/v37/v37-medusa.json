@@ -113,8 +113,8 @@
     "line": 1234
   },
   "status": "complete",
-  "goalKind": "divergence-fix",
-  "summary": "The Medusa-4 JavaScript map omits its final Lua moat row, reducing height from 21 to 20. C moves the full-height fragment to ystart=0 and uses rn2(21) for random locations; JavaScript uses the smaller frame and rn2(20). Restore that source row in the caller, preserving generic map and coordinate owners.",
+  "goalKind": "lua-port",
+  "summary": "Medusa-4 omits its final Lua moat row, reducing the map height from 21 to 20. The canonical full-height placement and random-location bounds then differ. The central task covers the whole medusa-4.lua program, including its selections, conditional contents, monsters and production entry points.",
   "source": {
     "file": "medusa-4.lua",
     "functions": [
@@ -129,8 +129,7 @@
       "sp_lev.c mapfrag_fromstr227-253 counts the rows; lspo_map6110-6116 parses the single string and centers it;6227-6238 sets ystart=0 when height equals ROWNO. JS mapFromRows applies the same full-height gate, so correcting its caller payload restores the frame.",
       "sp_lev.c get_location1202-1240 reads gy.ysize as sy and draws rn2(sy). JS room_coordinates get_location reads frame.ysize identically. The observed rn2(21)/rn2(20) is caused by the caller payload, not a coordinate-owner defect.",
       "Existing splev_chr2typ converts } to MOAT. Lua discards the map return; no numeric selection/alignment/tin/monster owner expansion is needed. Source comparison of all four maps shows variants1-3 exact and only variant4 missing its final row.",
-      "Existing post-map room/stair/object/trap/monster/selection operations are outside whole-source credit. The map-only diagnostic traverses them and fully matches this assigned case. Independent C evidence remains required for production correction.",
-      "scripts/worker-delivery.mjs146-150 recognizes Lua only for kind lua-port. The bounded Lua divergence tooling gate is already documented for B188 Castle and needs central resolution; do not mislabel this correction as whole Medusa-4 completion."
+      "Whole medusa-4.lua1–152 review confirms every top-level descriptor and contents callback, two removed random room coordinates and eight percent gates. Existing selection and descriptor owners supply consumed results. Numeric statue/egg species and object IDs preserve the canonical table descriptor representation; empty callbacks implement Lua contents=0 without random contents. No unported consumed result occurs inside the program."
     ]
   },
   "evidence": [
@@ -138,8 +137,8 @@
     "Read whole dat/medusa-4.lua1-152 and JS medusa4. Lua12-34 has21 rows of 76 columns; JS456-477 has20 rows of 76 columns. Only Lua33 final moat row is missing. .cache/A197/map-source-comparison.json compares all four decoded JS arrays to source long strings; variants1-3 identical, variant4 only missing row 20.",
     "Cache-only diagnostic run-szGjDK substitutes the authoritative map through a proxy on the exported medusa-4 loader without changing game files. It fully matches27/27 screens,27/27 cursors7466/7466 RNG and0/0 frames with no boundary. .cache/A197/map-row-probe.mjs/json/log preserve this cause test; it is diagnostic evidence, not independent C coverage or committed implementation.",
     "Read C mapfrag_fromstr/lspo_map full-height overflow/get_location and JS mapFromRows/get_location. Source height 21 triggers existing ROWNO gate ystart=0 and preserves random-location bound 21. No parser or coordinate behavior change is required.",
-    "Actionable bounded scope: source:medusa-4.lua and contract:medusa-map-source-height; missing row in js/medusa_levels.js; source-derived map/frame regression and fresh runner; recipes/medusa-4.lua and recordings/medusa-4.lua. No whole Lua program, sp_lev.c, mklev, nhlua.c or room_coordinates credit.",
-    "Fail first with source-derived full decoded matrix comparison of all four exported loaders, asserting Medusa-4 height 21 and final 76-cell moat row. Pin canonical full-height ystart=0 and frame-height RNG behavior without changing those owners. Replay admitted segment 0 steps 18-26. Record independent C-first direct #wizloaddes medusa-4.lua/mapping primary and role variation with new seed/date; compare complete RNG/screens/cursors/frames and actual bottom moat row. Retain another Medusa variant as the outside-scope check; observe its loader instead of relying on seed-based guesses of variant diversity.",
-    "Evidence limits: no game edits/new C game. The selected diagnostic matches only after cache-only payload substitution; production and independent runtime evidence remain required. Central bounded Lua divergence support is a known tooling gate shared with B188 Castle and must be resolved before source claim/delivery."
+    "Central source gate broadened the task to whole medusa-4.lua1–152, using the supported lua-port workflow. The source-derived generator restores the full 21x76 map, and focused descriptor tests pin top-level order, selection results and percentage calls. Source variants1–3 remain outside completion credit.",
+    "Production replay run-K3h6b1 now matches all27 screens/cursors and7466 RNG calls. Independent C-first direct Valkyrie loading and naturally selected Wizard arrival strictly match82 screens/cursors and12242 RNG calls combined; fresh matrix run-dtHQph also includes a matching neighboring Medusa-3 outside-program witness (three segments,109 screens/cursors,19573 RNG calls).",
+    "Alternative direct Wizard and direct Medusa-3 recipes remain blocked before program entry at wiz_load_splua -> lspo_reset_level -> makemap_prepost -> delobj/obj_resists. They are preserved as blocked recipes, outside passing recordings. Both active owned entry routes have separate matching evidence; no whole reset/descriptor/coordinate owner credit is claimed."
   ]
 }
