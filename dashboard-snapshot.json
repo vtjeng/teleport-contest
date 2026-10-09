@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T19:12:41.072Z",
+  "capturedAt": "2026-10-09T19:28:04.965Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -75896,22 +75896,59 @@
         "type": "accepted",
         "at": "2026-10-09T19:11:39.219Z",
         "task": "B201"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B201-accepted-no-independent-e10f7f-20261009",
+        "type": "turn",
+        "at": "2026-10-09T19:14:43.296Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Tourist start is accepted; remaining quest tasks await shared dependencies or source gates, and diagnostic cases retain native-pointer, recorder, or platform blockers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B201-74649a71d",
+        "type": "published",
+        "at": "2026-10-09T19:14:54.536Z",
+        "task": "B201",
+        "commit": "74649a71d101a84a734cbd569a77c7bd5b87ac8d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A193-2f0a43c0ba81ea5ed1f4abe8d7680b32c80b133a",
+        "type": "received",
+        "at": "2026-10-09T19:16:01.289Z",
+        "task": "A193",
+        "delivery": "2f0a43c0ba81ea5ed1f4abe8d7680b32c80b133a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A193-9a32ea9ec",
+        "type": "integrating",
+        "at": "2026-10-09T19:20:16.216Z",
+        "task": "A193",
+        "integration": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A193-37979679721",
+        "type": "validated",
+        "at": "2026-10-09T19:25:47.923Z",
+        "task": "A193",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A193-9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T19:27:19.396Z",
+        "task": "A193"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "A193",
-        "worker": "A2",
-        "goal": "port-ran-strt-quest-start-v36-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "2f0a43c0ba81ea5ed1f4abe8d7680b32c80b133a",
-        "since": "2026-10-09T18:51:42.275Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "C172",
         "worker": "C",
@@ -76303,8 +76340,8 @@
     ]
   },
   "development": {
-    "executionCommit": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef",
-    "measuredAt": "2026-10-09T19:08:57.956Z",
+    "executionCommit": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269",
+    "measuredAt": "2026-10-09T19:25:26.749Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

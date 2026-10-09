@@ -238451,7 +238451,7 @@
     {
       "id": "port-ran-strt-quest-start-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Ranger quest start level",
       "luaFile": "Ran-strt.lua",
       "sessions": [
@@ -238465,15 +238465,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Ran-strt.lua",
           "line": 1,
           "endLine": 101,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -238649,7 +238652,91 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Ran-strt.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "ranStrt",
+            "sourceReview": "Read complete dat/Ran-strt.lua lines 1–101. Solid floor fill; mazelevel/noteleport/hardfloor/arboreal flags; joined smoothed lit unwalled floor mines; five-percent tree replacement over the pre-map frame; exact generated 41x21 map aligned left/center; lit and nondiggable rectangle selections; relative down stair and absolute branch region; Orion with awaited leather armor+4, yumi+4 and ya+4 quantity50 inventory; floor chest after inventory; eight hunters; two arrow traps, pit, random spiked pit and two bear traps; hostile sleeping minotaur, eighteen fixed forest centaurs, six random plains centaurs and two random scorpions. Every descriptor is awaited in source order, including callback objects. Fixed map and monster placement tables are generated deterministically from authoritative source. The table map uses the canonical string representation. No top-level statement, callback, consumed placeholder or source-discarded gap is omitted.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "Ran-strt source key maps to ranStrt; unique import/function/key added without altering other quest loaders."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "do.c goto_level -> mklev.c makelevel -> mkmaze.c makemaz -> sp_lev.c load_special -> nhlua whole Ran-strt program. Canonical descriptor creation, private alignment shuffle and finish remain unchanged. Selected and independent human natural arrival fully match."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "wizcmds.c wiz_load_splua calls source-named load_special and lspo_finalize_level. Independent chaotic elf direct loading fully matches the same whole program."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/ran-strt-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Ran-strt.lua/start-human-arrival.session.json",
+              "recordings/Ran-strt.lua/start-elf-des.session.json"
+            ],
+            "sourceFile": "Ran-strt.lua",
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-ran-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Ranger quest-start arrival via wizlevelport -> deferred_goto/goto_level -> makelevel/makemaz/load_special -> whole dat/Ran-strt.lua and canonical finish. Full 60 screens/cursors and 6677 RNG calls match."
+              }
+            ],
+            "checkedAt": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269"
+          }
+        ],
+        "entryPointReview": "The complete Lua program has two active production entries: quest-start generation through natural level arrival and direct source-named wizard loading. The inventory closure is part of both entries and awaits its three descriptor calls before the separate floor chest. Selected admitted arrival plus independently selected neutral human arrival establish the first entry; chaotic elf direct loading establishes the second. Runtime matrix asserts all four flags, trees,36 monsters with exact species counts, explicit hostile/sleep state, Orion inventory and floor chest, source trap counts and the down stair. A third independent direct Ran-loca recording verifies the separately accepted outside-program boundary.",
+        "entryPoints": [
+          {
+            "name": "Natural quest-start arrival generation",
+            "functions": [
+              "Ran-strt.lua"
+            ],
+            "recordings": [
+              "recordings/Ran-strt.lua/start-human-arrival.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-ran-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Ranger quest-start arrival via wizlevelport -> deferred_goto/goto_level -> makelevel/makemaz/load_special -> whole dat/Ran-strt.lua and canonical finish. Full 60 screens/cursors and 6677 RNG calls match."
+              }
+            ]
+          },
+          {
+            "name": "Direct source-named special-level generation",
+            "functions": [
+              "Ran-strt.lua"
+            ],
+            "recordings": [
+              "recordings/Ran-strt.lua/start-elf-des.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
