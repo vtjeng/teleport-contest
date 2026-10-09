@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T05:56:44.731Z",
+  "capturedAt": "2026-10-09T06:50:05.567Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -70874,33 +70874,157 @@
         "at": "2026-10-09T05:56:35.278Z",
         "worker": "A2",
         "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A184-idle-after-A181-current-C162",
+        "type": "turn",
+        "at": "2026-10-09T05:56:51.809Z",
+        "worker": "A2",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A181-5cbe135be-20261009",
+        "type": "published",
+        "at": "2026-10-09T05:58:58.110Z",
+        "task": "A181",
+        "commit": "5cbe135becfe36f63593c31b0cd952616b46b6d6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-B182-review-20261009",
+        "type": "activity",
+        "at": "2026-10-09T06:00:01.036Z",
+        "task": "B182",
+        "phase": "review",
+        "reason": "Reviewing the spell sort and menu family, including selection results and casting-letter state."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-B182-preselected-unselect-20261009",
+        "type": "feedback",
+        "at": "2026-10-09T06:03:35.060Z",
+        "task": "B182",
+        "delivery": "2efa8906f5e92a584ed1fb3061beb009173a5e49"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B182-selected-count-correction-20261009",
+        "type": "resume",
+        "at": "2026-10-09T06:04:45.947Z",
+        "task": "B182"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B182-selected-count-correction-20261009",
+        "type": "turn",
+        "at": "2026-10-09T06:04:48.649Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Correcting preselected TTY spell menu returns"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-A182-review-20261009",
+        "type": "activity",
+        "at": "2026-10-09T06:05:11.303Z",
+        "task": "A182",
+        "phase": "review",
+        "reason": "Reviewing the persisted subroom identity correction and its two independent Oracle recordings."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A182-993ad924f-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T06:08:01.502Z",
+        "task": "A182",
+        "integration": "993ad924fd08f999b0beeaa0945abc04eb2e5ec0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-90a333f612ee410532957e2e3ae60ea8034c5ec6",
+        "type": "ready",
+        "at": "2026-10-09T06:12:04.763Z",
+        "task": "B182",
+        "delivery": "90a333f612ee410532957e2e3ae60ea8034c5ec6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B182-correction-ready-20261009",
+        "type": "turn",
+        "at": "2026-10-09T06:12:37.872Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B182 correction ready; B183 waits for B182 acceptance"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A182-993ad924fd08f999b0beeaa0945abc04eb2e5ec0-validated",
+        "type": "validated",
+        "at": "2026-10-09T06:13:36.366Z",
+        "task": "A182",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A182-993ad924fd08f999b0beeaa0945abc04eb2e5ec0-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T06:16:43.735Z",
+        "task": "A182"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A184-idle-after-A182-993ad924",
+        "type": "turn",
+        "at": "2026-10-09T06:19:13.281Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "No independent admitted source task is available: remaining v33 sessions belong to A184, B182/B183 and C163; v31 light diagnostics and v32 build provenance retain documented boundaries. Await orchestrator integration or v34 admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A182-48ae2fb1d-20261009",
+        "type": "published",
+        "at": "2026-10-09T06:27:03.725Z",
+        "task": "A182",
+        "commit": "48ae2fb1d27693bd5b09a55890410acc1f447164"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B182-90a333f61-20261009",
+        "type": "received",
+        "at": "2026-10-09T06:30:28.897Z",
+        "task": "B182",
+        "delivery": "90a333f612ee410532957e2e3ae60ea8034c5ec6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B182-3ef1ebdbf-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T06:38:52.831Z",
+        "task": "B182",
+        "integration": "3ef1ebdbffb1bf6d15c3f591ec568f182fa36148"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B182-3ef1ebdbffb1bf6d15c3f591ec568f182fa36148-validated",
+        "type": "validated",
+        "at": "2026-10-09T06:46:37.590Z",
+        "task": "B182",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B182-3ef1ebdbffb1bf6d15c3f591ec568f182fa36148-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T06:49:29.244Z",
+        "task": "B182"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B182",
-        "worker": "B",
-        "goal": "port-spell-sort-menu-family-v33-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "2efa8906f5e92a584ed1fb3061beb009173a5e49",
-        "since": "2026-10-09T03:53:55.896Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
-      {
-        "task": "A182",
-        "worker": "A2",
-        "goal": "fix-hack-special-room-subroom-reset-v33-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "d64539f8556f0c32fa865c4c542abee0d2298670",
-        "since": "2026-10-09T03:59:22.274Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "A184",
         "worker": "A2",
@@ -70909,9 +71033,7 @@
         "status": "ready",
         "delivery": "f2e040ad62dca7eb4089c3943bd2438be15e9541",
         "since": "2026-10-09T04:11:51.951Z",
-        "blockedBy": [
-          "A182"
-        ],
+        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -70922,9 +71044,7 @@
         "status": "ready",
         "delivery": "829f17d33cbdea0e09d4fae6a113c234ebf7fedd",
         "since": "2026-10-09T04:18:06.978Z",
-        "blockedBy": [
-          "B182"
-        ],
+        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -71198,8 +71318,8 @@
     ]
   },
   "development": {
-    "executionCommit": "1b64b111784f2179ae9353fc4277fd495bda5d25",
-    "measuredAt": "2026-10-09T05:50:58.906Z",
+    "executionCommit": "3ef1ebdbffb1bf6d15c3f591ec568f182fa36148",
+    "measuredAt": "2026-10-09T06:45:43.515Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

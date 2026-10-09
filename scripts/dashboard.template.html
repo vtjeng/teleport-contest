@@ -634,6 +634,9 @@ canvas {
 }
 .activity-inspection > section { min-width: 0; height: 210px; overflow-y: auto; scrollbar-gutter: stable; }
 .activity-inspection strong { color: var(--ink-primary); }
+.activity-task-fields { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 4px 12px; margin: 5px 0 8px; }
+.activity-task-fields dt { color: var(--ink-muted); }
+.activity-task-fields dd { margin: 0; min-width: 0; }
 .activity-inspection p { margin: 5px 0 8px; }
 .activity-inspection ul { margin: 4px 0 0; padding-left: 18px; }
 @media (max-width: 640px) {
@@ -1773,7 +1776,8 @@ document.getElementById('stats').innerHTML = [
   const metric = (label, value, detail) => '<div class="activity-metric"><div class="activity-metric-label">'
     + label + '</div><strong class="activity-metric-value">' + value
     + '</strong><div class="activity-metric-detail">' + detail + '</div></div>';
-  const name = segment => taskById.get(segment.task)?.label || segment.label || segment.task;
+  const name = segment => taskById.get(segment.task)?.label
+    || (segment.label ? displayLane(segment.label) : segment.task);
   const isBlock = segment => ['blocked', 'parked'].includes(segment.phase);
   const isWait = segment => isBlock(segment) || ['idle', 'unrecorded'].includes(segment.phase);
   let describedTask = null;
@@ -1792,12 +1796,15 @@ document.getElementById('stats').innerHTML = [
     const lifespan = task ? history.map((row, sourceIndex) => ({ row, sourceIndex }))
       .filter(({ row }) => row.task === segment.task)
       .sort((a, b) => a.row.start.localeCompare(b.row.start)) : [{ row: segment, sourceIndex: selectedSource }];
-    readout.innerHTML = '<section><h4>Task details</h4><p><strong>' + esc(name(segment))
-      + '</strong>' + (name(segment) === segment.lane ? '' : ' · ' + esc(segment.lane))
-      + (task?.goal ? ' · ' + esc(task.goal) : '')
-      + '</p>'
-      + (task ? '<p>Task status: <strong>' + esc(task.status) + '</strong>'
-        + (task.publishedAt ? ' · published ' + stamp(task.publishedAt) : '') + '</p>' : '')
+    const worker = displayLane(task?.worker || segment.worker || segment.lane);
+    const actor = displayLane(segment.lane);
+    readout.innerHTML = '<section><h4>Task details</h4><dl class="activity-task-fields">'
+      + '<dt>Task</dt><dd>' + (task ? '<strong>' + esc(name(segment)) + '</strong>' : 'None') + '</dd>'
+      + '<dt>Worker</dt><dd>' + esc(worker) + '</dd>'
+      + '<dt>Stage</dt><dd>' + (actor === worker ? '' : esc(actor) + ' · ') + esc(phaseNames[segment.phase]) + '</dd>'
+      + (task ? '<dt>Status</dt><dd>' + esc(task.status) + '</dd>' : '')
+      + (task?.goal ? '<dt>Goal</dt><dd>' + esc(task.goal) + '</dd>' : '')
+      + (task?.publishedAt ? '<dt>Published</dt><dd>' + stamp(task.publishedAt) + '</dd>' : '') + '</dl>'
       + (segment.reason ? '<p><strong>' + reasonLabel + '</strong>' + esc(segment.reason) + '</p>' : '')
       + '</section><section><h4>' + (task ? 'Task lifespan' : 'Reported interval') + '</h4><ol class="activity-history">'
       + lifespan.map(({ row, sourceIndex }) => {
@@ -1806,7 +1813,7 @@ document.getElementById('stats').innerHTML = [
         return '<li' + (selected ? ' class="selected"' : '') + '><button'
             + (sourceIndex === undefined ? ' disabled' : ' data-history="' + sourceIndex + '"')
             + (selected ? ' aria-current="step"' : '') + '>'
-            + esc(row.lane) + ' · ' + phaseNames[row.phase] + ' · ' + fmt(duration(row))
+            + esc(displayLane(row.lane)) + ' · ' + phaseNames[row.phase] + ' · ' + fmt(duration(row))
             + (selected ? ' · selected' : '') + '<br><time>' + stamp(row.start) + '</time> → <time>' + stamp(row.end) + '</time>'
             + (row.superseded ? ' · end event missing' : row.ongoing ? ' · open at snapshot' : '') + '</button></li>';
       }).join('') + '</ol></section>';

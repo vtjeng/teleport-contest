@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B182 C-first spell menu witness: swap-default. Seed18233001 plus fixed case index; date20581009172536. Role/repertoire, sort actions, swap input or tab option selects the source branch. Inputs fixed from spell.c before C recording or JS comparison.",
+  "segments": [
+    {
+      "seed": 18233004,
+      "datetime": "20581009172536",
+      "nethackrc": "OPTIONS=name:SpellWitness,role:Healer,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".+a\n"
+    }
+  ]
+}
