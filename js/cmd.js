@@ -378,7 +378,7 @@ import {
 import {
     wiz_detect, wiz_flip_level, wiz_genesis, wiz_identify, wiz_intrinsic, wiz_level_change, wiz_kill, wiz_smell, wiz_show_seenv, wiz_show_vision, wiz_show_stats, wiz_show_wmodes, wiz_objprobs, wiz_display_macros, wiz_mon_diff, wiz_telekinesis, wiz_custom,
     wiz_level_tele, wiz_makemap, wiz_map, wiz_polyself, wiz_wish, wiz_where, wiz_rumor_check, wiz_migrate_mons,
-    wiz_map_levltyp, wiz_levltyp_legend,
+    wiz_map_levltyp, wiz_levltyp_legend, wiz_panic,
 } from './wizcmds.js';
 import {
     dozap,
@@ -1859,7 +1859,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'rush', 'run', 'repeat',
     'options', 'autopickup',
     'wizwish', 'wizidentify', 'wizlevelport', 'wizgenesis', 'wizintrinsic', 'wizmap', 'wizwhere', 'wizcast', 'wizsmell', 'wizkill', 'fire', 'throw',
-    'swap', 'kick',
+    'swap', 'kick', 'panic',
     'save', 'wield', 'quiver', 'help', 'whatdoes', 'whatis', '#', 'loot', 'force', 'tip',
     'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet',
     'seeall', 'seetools', 'teleport',
@@ -5248,6 +5248,8 @@ async function doextcmd(key, state) {
         return await wiz_flip_level(state);
     case 'wiz_kill':
         return await runKillCommand(key, state);
+    case 'wiz_panic':
+        return await wiz_panic(state);
     case 'wiz_migrate_mons':
         return await wiz_migrate_mons(state);
     case 'wiz_rumor_check':
@@ -5529,8 +5531,9 @@ export async function rhack(key, state = game) {
         } else if (state.multi > 0 && command !== null && command !== 'pay'
             && command !== 'pickup' && command !== '#'
             && !Object.hasOwn(MOVEMENT_INTENTS, command)
-            // Both targeting commands clear a count with their no-time result.
-            && command !== 'wizsmell' && command !== 'wizkill') {
+            // These commands clear a count with their no-time result.
+            && command !== 'wizsmell' && command !== 'wizkill'
+            && command !== 'panic') {
             // `#` is the dispatch row for doextcmd(), not the selected
             // extended command. C dispatches it with gm.multi intact; the
             // selected handler (for example, wiz_genesis() using multi as its
@@ -6283,6 +6286,12 @@ export async function rhack(key, state = game) {
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);
             if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'panic') {
+            // C rhack():3810-3818 clears any count for ECMD_OK without a turn.
+            await wiz_panic(state);
+            resetCommandVars(state, state.multi < 0);
             return;
         }
         if (command === 'wizintrinsic') {

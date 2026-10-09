@@ -874,6 +874,22 @@ export async function wiz_telekinesis(state = game, env = {}) {
     return ECMD_OK;
 }
 
+// C ref: wizcmds.c wiz_panic() (534-546). Native panic's shutdown,
+// error-save and core dump remain an explicit discarded-void callee gap.
+export async function wiz_panic(state = game) {
+    if (state.iflags.debug_fuzzer) {
+        state.u.uhp = state.u.uhpmax = 1000;
+        state.u.uen = state.u.uenmax = 1000;
+        return ECMD_OK;
+    }
+    if (await paranoid_query(
+        true, 'Do you want to call panic() and end your game?', state,
+    )) {
+        note_unported('end.c panic');
+    }
+    return ECMD_OK;
+}
+
 // C ref: wizcmds.c wiz_smell() (885-939). The same coordinate survives each
 // getpos call; selecting a square may repair its remembered invisible marker.
 export async function wiz_smell(state = game, env = {}) {
