@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { newgame_pre_mklev } from '../js/allmain.js';
@@ -17,6 +18,15 @@ import {
 import { timeout_globals_init } from '../js/timeout.js';
 
 class LoaderDone extends Error {}
+
+test('C map selection excludes skipped cells before callback and frame reset', () => {
+    const source = readFileSync('nethack-c/upstream/src/sp_lev.c', 'utf8');
+    const map = source.slice(source.indexOf('lspo_map(lua_State *L)\n{'));
+    // These source gates precede selection_setpoint, then contents executes
+    // before reset_xystart_size and the copied selection is returned.
+    assert.match(map, /if \(mptyp == INVALID_TYPE\)[\s\S]*?continue;[\s\S]*?if \(mptyp >= MAX_TYPE\)[\s\S]*?continue;[\s\S]*?selection_setpoint\(x, y, sel, 1\)/u);
+    assert.match(map, /nhl_pcall_handle\(L, 1, 0, "lspo_map", NHLpa_panic\);\s*reset_xystart_size\(\);[\s\S]*?l_selection_push_copy\(L, sel\)/u);
+});
 
 async function runLoader(body) {
     resetGame();
@@ -111,3 +121,72 @@ test('special-level API waits for map, room, and region contents callbacks',
             'region:start', 'region:end', 'region:return',
         ]);
     });
+
+test('map returns only its own written cells across awaited contents and reset', async () => {
+    await runLoader(async (des) => {
+        // sp_lev.c:6280–6293: x is transparent; ? is unrecognized. They
+        // preserve underlying terrain but do not enter the return selection.
+        const x = 10, y = 6;
+        game.level.at(x + 1, y).typ = 1; // Stone wall sentinel under x.
+        game.level.at(x + 2, y).typ = 1; // Same sentinel under unrecognized ?.
+        let release;
+        const gate = new Promise(resolve => { release = resolve; });
+        let entered = false;
+        const pending = des.map({ map: '.x?\n...', x, y,
+            async contents() {
+                entered = true;
+                // This callback changes the transparent square. C's map
+                // selection was captured before contents, so it stays absent.
+                await des.terrain(1, 0, '.');
+                await gate;
+            },
+        });
+        await Promise.resolve();
+        assert.equal(entered, true);
+        assert.equal(des.frame.xstart, x);
+        assert.equal(des.frame.ystart, y);
+        release();
+        const placed = await pending;
+        assert.equal(placed.xstart, x);
+        assert.equal(placed.ystart, y);
+        assert.equal(placed.xsize, 3); // Source literal width, including skipped cells.
+        assert.equal(placed.ysize, 2); // Source literal height.
+        assert.equal(placed.selection.absolute, true);
+        assert.equal(placed.selection.numpoints(), 4); // One first-row + three second-row writes.
+        assert.equal(placed.selection.get(x, y), true);
+        assert.equal(placed.selection.get(x + 1, y), false);
+        assert.equal(placed.selection.get(x + 2, y), false);
+        assert.equal(placed.selection.get(x + 2, y + 1), true);
+        assert.equal(des.frame.xstart, 1); // reset_xystart_size: column0 is off limits.
+        assert.equal(des.frame.ystart, 0);
+        // A later map cannot mutate the earlier returned C selection copy.
+        const later = await des.map({ map: '..\n..', x: x + 1, y });
+        assert.equal(later.selection.get(x + 1, y), true);
+        assert.equal(placed.selection.get(x + 1, y), false);
+        assert.equal(placed.selection.numpoints(), 4);
+    });
+});
+
+test('map return selection clips writes to the C level bounds', async () => {
+    await runLoader(async des => {
+        // sp_lev.c:6279–6281 stops at min(COLNO,xstart+xsize). The third
+        // literal square would be column 80, outside the 80-column map.
+        const placed = await des.map({ map: '...', x: 78, y: 10 });
+        assert.equal(placed.xsize, 3);
+        assert.equal(placed.selection.numpoints(), 2);
+        assert.deepEqual(placed.selection.bounds(), { lx: 78, ly: 10, hx: 79, hy: 10 });
+    });
+});
+
+test('array map returns its nontransparent and valid written selection', async () => {
+    await runLoader(async des => {
+        // The port's rows adapter implements C's string-form lspo_map.
+        // A one-row 3-column fragment has exactly one real source square.
+        const placed = await des.map(['.x?']);
+        assert.equal(placed.selection.absolute, true);
+        assert.equal(placed.selection.numpoints(), 1);
+        assert.equal(placed.selection.get(placed.xstart, placed.ystart), true);
+        assert.equal(placed.selection.get(placed.xstart + 1, placed.ystart), false);
+        assert.equal(placed.selection.get(placed.xstart + 2, placed.ystart), false);
+    });
+});

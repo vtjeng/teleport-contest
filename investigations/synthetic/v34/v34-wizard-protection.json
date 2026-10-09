@@ -1,0 +1,116 @@
+{
+  "corpus": "synthetic",
+  "batch": "v34",
+  "caseId": "v34-wizard-protection",
+  "session": "synthetic/v34/v34-wizard-protection",
+  "manifestPath": "challenges/manifests/v34.json",
+  "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+  "recording": "challenges/cases/v34/v34-wizard-protection.session.json",
+  "recordingPath": "challenges/cases/v34/v34-wizard-protection.session.json",
+  "recordingSha256": "613003618a11dc97d9841c7a66f064342c0a132f3ca7f30a03e59ce239b80274",
+  "recipe": "challenges/cases/v34/v34-wizard-protection.recipe.session.json",
+  "recipeSha256": "f42f13a8105b0bf659fc816c79462e58d8500b210b81b2f28fc1962ae8bd269e",
+  "evaluationPath": "challenges/evaluations/accepted-2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a-v34.json",
+  "evaluationCommit": "2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a",
+  "evaluationArtifact": "challenges/evaluations/accepted-2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a-v34.json",
+  "evaluationUtc": "2026-10-09T07:54:08.123Z",
+  "remainingScreens": 28,
+  "recordedSteps": 101,
+  "passed": false,
+  "error": null,
+  "metrics": {
+    "screens": {
+      "matched": 73,
+      "total": 101
+    },
+    "rng": {
+      "matched": 2096,
+      "total": 2107
+    },
+    "cursors": {
+      "matched": 73,
+      "total": 101
+    }
+  },
+  "firstMismatch": {
+    "kind": "stop",
+    "step": 73,
+    "message": "unsupported hero command: an unported branch of this command: spell casting requires spell type 403 is not ported"
+  },
+  "step": 73,
+  "kind": "stop",
+  "sourceFile": "spell.c",
+  "function": "cast_protection",
+  "message": "unsupported hero command: an unported branch of this command: spell casting requires spell type 403 is not ported",
+  "status": "complete",
+  "commit": "52f8548f8c24705ab8041b863fba919ab8817261",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v34",
+    "caseId": "v34-wizard-protection",
+    "session": "synthetic/v34/v34-wizard-protection",
+    "manifestPath": "challenges/manifests/v34.json",
+    "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+    "recording": "challenges/cases/v34/v34-wizard-protection.session.json",
+    "recordingPath": "challenges/cases/v34/v34-wizard-protection.session.json",
+    "recordingSha256": "613003618a11dc97d9841c7a66f064342c0a132f3ca7f30a03e59ce239b80274",
+    "recipe": "challenges/cases/v34/v34-wizard-protection.recipe.session.json",
+    "recipeSha256": "f42f13a8105b0bf659fc816c79462e58d8500b210b81b2f28fc1962ae8bd269e",
+    "evaluationPath": "challenges/evaluations/accepted-2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a-v34.json",
+    "evaluationCommit": "2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a",
+    "evaluationArtifact": "challenges/evaluations/accepted-2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a-v34.json",
+    "evaluationUtc": "2026-10-09T07:54:08.123Z",
+    "remainingScreens": 28,
+    "recordedSteps": 101,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 73,
+        "total": 101
+      },
+      "rng": {
+        "matched": 2096,
+        "total": 2107
+      },
+      "cursors": {
+        "matched": 73,
+        "total": 101
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "step": 73,
+      "message": "unsupported hero command: an unported branch of this command: spell casting requires spell type 403 is not ported"
+    },
+    "step": 73,
+    "kind": "stop",
+    "sourceFile": "spell.c",
+    "function": "cast_protection",
+    "message": "unsupported hero command: an unported branch of this command: spell casting requires spell type 403 is not ported"
+  },
+  "goalKind": "file-port",
+  "summary": "Forced protection casting reaches spelleffects at step73, but JS lacks the SPE_PROTECTION dispatch and whole cast_protection body. Port level/AC integer gain, golden-haze atmosphere feedback, protection countdown initialization and canonical find_ac in C order.",
+  "source": {
+    "file": "spell.c",
+    "branch": "Successful ordinary or forced SPE_PROTECTION cast; gain>0 uses blind/previous protection/swallowed/terrain feedback branches, otherwise warm-skin feedback.",
+    "functions": [
+      "cast_protection"
+    ],
+    "callers": [
+      "spell.c:spelleffects1581–1583 sole direct caller; ordinary docast and forced wizard casting share that dispatcher."
+    ],
+    "dependencies": [
+      "Existing do_wear.c:find_ac implementation at js/u_init_inventory_attrs.js, do_name.c:hcolor/hliquid, objnam.c:an, startup_skills P_SKILL/spell_skilltype, mondata.c:dmgtype_fromattack and property/terrain macros. No new dependency source units."
+    ]
+  },
+  "evidence": [
+    "Exact accepted checkpoint evaluation challenges/evaluations/accepted-2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a-v34.json reports73/101 screens/cursors and2096/2107 RNG. Hosted artifact run-hosted-NwqhHy/synthetic/ci-v34.json retains the same exact row.",
+    "Current-worker single-case replay at 52f8548f8c24705ab8041b863fba919ab8817261 in .cache/C164-protection-diagnostic.json reproduces UnsupportedHeroCommandBoundaryError: spell type403 is not ported, first missing screen73/key q; earlier RNG2096 matches. No aggregate scan is needed.",
+    "Upstream spell.c1104–1178 entire cast_protection: loglevel counts integer halving; natac=(10-uac-uspellprot)/10 and gain division truncate toward zero; positive gain evaluates hcolor before atmosphere, then awaited message before uspellprot/uspmtime/usptime/find_ac mutations. No core RNG is called; hallucination naming uses canonical display RNG.",
+    "spell.c1140–1165 atmosphere order: existing protection dense haze; otherwise swallowed fog/maelstrom/folds/maw/ooze before water/cloud/tree/stone/air. enfolds is display-free mondata.h73–74 dmgtype_fromattack(AD_WRAP,AT_ENGL), whose whole canonical helper already exists.",
+    "spell.c1581–1583 sole call site; js/spell.js spelleffects default currently throws UnsupportedSpellCastError for403. Task must add only the protection case/import and whole helper; retain every unrelated casting refusal. A185 owns distinct jumping case and source:spell.c:spelleffects, so bounded switch-arm sharing requires coordinator adjudication before implementation.",
+    "find_ac is the existing canonical do_wear.c owner at js/u_init_inventory_attrs.js439–467; it subtracts uspellprot and updates botl. P_SKILL/spell_skilltype, hcolor/hliquid/an, heroIsBlind, is_whirly/is_animal/dmgtype_fromattack and IS_TREE/IS_STWALL exist and can be reused read-only.",
+    "Evidence plan: admitted v34 forced level12 entry; independent C-first low-level initial/repeated casts, blind cast, and cheap role/level variation; focused source-pinned integer diminishing-gain, expert timer20 vs10, timer preservation, nonpositive feedback, all atmosphere branches, and message-before-state order. No broader spelleffects completion claim."
+  ]
+}

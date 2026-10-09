@@ -5100,10 +5100,10 @@ async function doextcmd(key, state) {
         return await runHelpCommand(key, state);
     case 'dohistory':
         return await dohistory(state);
-    case 'doset':
-        return await runOptionsCommand(key, state, doset);
     case 'dowhatdoes':
         return await dowhatdoes(state);
+    case 'doset':
+        return await runOptionsCommand(key, state, doset);
     case 'dowhatis':
         return await runWhatisCommand(key, state);
     case 'doidtrap':

@@ -4418,6 +4418,9 @@ function createSpecialLevelApi(state) {
             const mf = mapfrag_fromstr(spec.map);
             const has_contents = typeof spec.contents === 'function';
             if (!mf) throw new Error('Map data error');
+            // sp_lev.c:lspo_map returns the selection of cells it wrote,
+            // including neither transparent nor invalid fragment cells.
+            const selection = new ThemeroomSelection(null, true);
 
             // C ref: sp_lev.c lspo_map() l_or_r2i[]/t_or_b2i[]: an absent
             // alignment is "none" (-1), which leaves that axis's start as it
@@ -4485,6 +4488,7 @@ function createSpecialLevelApi(state) {
                         if (mptyp >= MAX_TYPE) continue;
                         set_themeroom_map_terrain(x, y, mptyp, state);
                         frame.splevMap[x][y] = 1;
+                        selection.set(x, y);
                     }
             }
             mapfrag_free(mf);
@@ -4492,6 +4496,7 @@ function createSpecialLevelApi(state) {
             const placed = {
                 xstart: frame.xstart, ystart: frame.ystart,
                 xsize: frame.xsize, ysize: frame.ysize,
+                selection,
             };
             if (has_contents) {
                 const maybeContents = spec.contents(
@@ -4714,19 +4719,22 @@ function mapFromRows(rows, frame, state) {
     state.ystart = frame.ystart;
     state.xsize = frame.xsize;
     state.ysize = frame.ysize;
+    const selection = new ThemeroomSelection(null, true);
     for (let y = 0; y < height; ++y) {
         for (let x = 0; x < width; ++x) {
             const ax = frame.xstart + x;
             const ay = frame.ystart + y;
             const mptyp = splev_chr2typ(rows[y][x]);
+            if (mptyp === INVALID_TYPE) continue;
             if (mptyp >= MAX_TYPE) continue;
             set_themeroom_map_terrain(ax, ay, mptyp, state);
             // C ref: sp_lev.c:6292. Mark cells placed by the map fragment
             // so fill_empty_maze and maze1xy avoid them.
             if (frame.splevMap) frame.splevMap[ax][ay] = 1;
+            selection.set(ax, ay);
         }
     }
-    return { ...frame };
+    return { ...frame, selection };
 }
 
 // C ref: sp_lev.c wallify_map(). Converts STONE tiles adjacent to ROOM or
