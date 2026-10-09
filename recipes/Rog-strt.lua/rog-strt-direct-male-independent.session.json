@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first male human chaotic Rogue wizard load of whole dat/Rog-strt.lua, fixed seed 17509101 and clock before comparison. Covers shuffled stair mimics, leader custom inventory, duplicate door and removal-based street monsters; explicit versus extensionless name varies the registered entry. No seed search.",
+  "segments": [
+    {
+      "seed": 17509101,
+      "datetime": "20561008173521",
+      "nethackrc": "OPTIONS=name:RogStrtProbe,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizloaddes\nRog-strt.lua\n "
+    }
+  ]
+}
