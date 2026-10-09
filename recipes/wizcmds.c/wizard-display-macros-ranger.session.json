@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first display macro diagnostic: roles/seeds/clocks fixed before recording or JavaScript comparison. Invoke and dismiss the complete fixed glyph-range diagnostic twice.",
+  "segments": [
+    {
+      "seed": 16740052,
+      "datetime": "20561023124500",
+      "nethackrc": "OPTIONS=name:Macros16740052,role:Ranger,race:elf,gender:male,align:chaotic,playmode:debug,!debug_mongen,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  .#wizdispmacros\n .#wizdispmacros\n "
+    }
+  ]
+}

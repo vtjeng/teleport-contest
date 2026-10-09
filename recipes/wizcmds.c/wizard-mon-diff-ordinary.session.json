@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first monster difficulty command. Roles/seeds/clocks fixed before any recording or JavaScript comparison. Traverse the live catalog and dismiss the complete discrepancy report twice.",
+  "segments": [
+    {
+      "seed": 16840061,
+      "datetime": "20571114113000",
+      "nethackrc": "OPTIONS=name:Difficulty16840061,role:Priest,race:human,gender:female,align:chaotic,playmode:debug,!debug_mongen,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  .#wizmondiff\n .#wizmondiff\n "
+    }
+  ]
+}

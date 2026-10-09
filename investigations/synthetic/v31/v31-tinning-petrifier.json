@@ -1,0 +1,169 @@
+{
+  "session": "synthetic/v31/v31-tinning-petrifier",
+  "corpus": "synthetic",
+  "batch": "v31",
+  "caseId": "v31-tinning-petrifier",
+  "manifestPath": "challenges/manifests/v31.json",
+  "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+  "recordingSha256": "b9729b789cae6000ccfac8a30839e7eac09f33f32f471f6fd73756058966709b",
+  "evaluationPath": "challenges/evaluations/accepted-f527447fdb1afd5f533fd6451b9bb0788cfa8fc3-v31.json",
+  "evaluationCommit": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3",
+  "remainingScreens": 4,
+  "recordedSteps": 61,
+  "status": "complete",
+  "commit": "74e61dc29d4121756dc449665b3cc7ae0a87b3a2",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v31",
+    "caseId": "v31-tinning-petrifier",
+    "session": "synthetic/v31/v31-tinning-petrifier",
+    "manifestPath": "challenges/manifests/v31.json",
+    "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+    "recording": "challenges/cases/v31/v31-tinning-petrifier.session.json",
+    "recordingPath": "challenges/cases/v31/v31-tinning-petrifier.session.json",
+    "recordingSha256": "b9729b789cae6000ccfac8a30839e7eac09f33f32f471f6fd73756058966709b",
+    "recipe": "challenges/cases/v31/v31-tinning-petrifier.recipe.session.json",
+    "recipeSha256": "fca05f0493bdf46e333b94456a8ff0dce190f7343d239b3418363e33d66f30dd",
+    "replayInputSha256": "2b9b36d4565562353240545434382d2cf4286947fa33ecc671d1be8ec6bae3de",
+    "evaluationPath": "challenges/evaluations/accepted-f527447fdb1afd5f533fd6451b9bb0788cfa8fc3-v31.json",
+    "evaluationCommit": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3",
+    "evaluationArtifact": "challenges/evaluations/accepted-f527447fdb1afd5f533fd6451b9bb0788cfa8fc3-v31.json",
+    "evaluationUtc": "2026-10-08T19:09:55.598Z",
+    "remainingScreens": 4,
+    "recordedSteps": 61,
+    "previousScreensMatched": 57,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 57,
+        "total": 61
+      },
+      "rng": {
+        "matched": 2336,
+        "total": 2336
+      },
+      "cursors": {
+        "matched": 58,
+        "total": 61
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 47,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 47,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "g",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 47,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 47,
+          "key": " "
+        },
+        "cCursor": [
+          28,
+          0,
+          1
+        ],
+        "jsCursor": [
+          41,
+          5,
+          1
+        ]
+      }
+    },
+    "step": 47,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Bare-handed tinning of a petrifying corpse skips trap.c:instapetrify after the fatal-mistake message. C waits for urgent petrification and wizard death recovery before consuming the kit charge and making the tin; JavaScript records an incorrectly attributed polyself.c gap and proceeds immediately. Complete the existing apply.c:use_tinning_kit source unit and await the canonical trap.js helper with the exact killer string. Keep the broader instapetrify owner and its other callers explicitly incomplete, without new completion credit.",
+  "goalKind": "file-port",
+  "source": {
+    "file": "apply.c",
+    "functions": [
+      "use_tinning_kit"
+    ],
+    "branch": "A positive-charge tinning kit selects an uneaten cockatrice or chickatrice corpse, the hero lacks stone resistance and gloves, and use_tinning_kit calls instapetrify before Rider handling, nutrition validation, charge consumption, or tin creation. poly_when_stoned uses an empty killer string; other forms use trying to tin <article corpse name> without gloves.",
+    "callers": [
+      "apply.c:doapply4295, TINNING_KIT case; sole production caller. js/apply.js:doapply already awaits use_tinning_kit and returns ECMD_TIME after it finishes."
+    ],
+    "dependencies": [
+      "eat.c:floorfood3579-3733 and apply.c:tinnable2167-2174: existing tin corpse-selection subset reads canonical floor/inventory objects, excludes partly eaten and zero-nutrition corpses, and uses existing getobj/yn_function. Blind floor corpse touching calls the independently incomplete invent.c:feel_cockatrice before the selected tinning helper branch; retain that outside-limit frontier.",
+      "trap.c:instapetrify3844-3855 is already translated as bounded incomplete support in js/trap.js:357. It handles resistance, consumed poly_when_stoned/polymon(PM_STONE_GOLEM), urgent message, killer, planning death and live done(STONING). Reuse it at this discarded-result call site; do not claim whole helper or wire its broader older callers. Existing B140 source evidence verifies the consumed polymon and done owners for this subset.",
+      "do.c:revive_corpse returns the Rider revival success and is a verified canonical dependency. Preserve consumed result and Rider message before returning without charge consumption.",
+      "mkobj.c:mksobj(TIN,FALSE,FALSE), weight and eat.c:set_tin_variety: existing object construction/nutrition owners; preserve kit blessed/cursed, known, weight and homemade variety order.",
+      "invent.c:consume_obj_charge/useup/useupf/hold_another_object, shop room/keeper/voice and canonical object lifecycle hooks: existing owners. Preserve charge before creation, shop speech before corpse destruction, and hold_another_object after destruction; no broad shop completion claim."
+    ]
+  },
+  "evidence": [
+    "Tracked accepted-f527 v31 evaluation measures57/61 screens,58/61 cursors and2336/2336 RNG. First substantive mismatch segment0step47: C You turn to stone...--More--, JS tin inventory feedback. The preceding fatal-mistake message matches.",
+    "Focused selected replay at74e61dc2 reproduced57/61 screens,58/61 cursors, all2336 RNG (.cache/B165/frozen-before.log, bounded run-iMMa7J). This is a missing awaited death/message boundary, not a random-call divergence.",
+    "Read complete upstream apply.c:use_tinning_kit2177-2258 at16ff59115315917b93185d026aeefea06db9b0f4 and existing js/apply.js1567-1688. JS omits kbuf construction and substitutes note_unported(polyself.c instapetrify) at1604 for C instapetrify(kbuf) at2208.",
+    "C recording segment0step45 emits fatal mistake,47 urgent petrification,48 Die? [yn](n),49 wizard recovery and homemade tin feedback,50 survival message. Preserve the pending More before the death prompt and continue tinning only after done returns.",
+    "Read complete trap.c:instapetrify3844-3855 and existing js/trap.js354-376. Its canonical helper has the required awaited urgent/death path, including no-output planning error and stone-golem short circuit. All other instapetrify callers remain named gaps; no broader trap/end source completion is proposed.",
+    "Read source/JS floorfood tin-only subset, tinnable, production TINNING_KIT dispatch and existing scripts/apply-tinning-kit.test.mjs ordinary floor/inventory/Rider fixtures. Existing ordinary recipes provide independent entry witnesses; add a different-role C-first bare-handed tinning witness and cheap gloves/resistance or stone-golem variation.",
+    "Live reservations exclude A166/A167 wizard diagnostics, C152 migration and submitted B164 invent container display/zap probing. apply.c:use_tinning_kit and tinning-petrification caller contract are independent.",
+    "Representative blind-floor-touch variation recipes/apply.c/tinning-blind-floor-touch-blocked.session.json diverges atboundary70 despite all2398 RNG matching. invent.c:feel_cockatrice4343-4361 calls instapetrify after its fatal warning, while JS still records that discarded-result gap. This earlier floorfood path remains outside selected use_tinning_kit and is preserved as a blocked recipe."
+  ],
+  "proposal": {
+    "goalId": "port-apply-use-tinning-kit-v31-20261008",
+    "summary": "Complete tinning-kit petrification and corpse conversion ordering.",
+    "selectionReason": "B164 selected container case is exact on the worker branch. Independent admitted v31-tinning-petrifier retains four unmatched screens at accepted f527. Source trace identifies the omitted tinning-kit petrification caller, independent of wizard diagnostics, migration and queued container display.",
+    "sourceUnits": [
+      {
+        "file": "apply.c",
+        "name": "use_tinning_kit",
+        "start": 2177,
+        "end": 2258
+      }
+    ],
+    "reservations": [
+      "session:synthetic/v31/v31-tinning-petrifier",
+      "source:apply.c:use_tinning_kit",
+      "contract:tinning-petrifying-corpse-death-order"
+    ],
+    "allowedPaths": [
+      "investigations/synthetic/v31/v31-tinning-petrifier.json",
+      "js/apply.js",
+      "scripts/apply-tinning-kit.test.mjs",
+      "scripts/apply.test.mjs",
+      "scripts/run-tinning-kit.mjs",
+      "recipes/apply.c/",
+      "recordings/apply.c/",
+      ".cache/"
+    ],
+    "dependencies": [],
+    "runtimeEvidencePlan": [
+      "Admitted segment0steps45-60 for fatal tinning/death recovery and subsequent homemade tin completion.",
+      "Independent different-role C-first bare-handed tinning plus cheap gloves/resistance or stone-golem variation; completely matching recordings.",
+      "Refresh existing ordinary floor/inventory and Rider tinning recordings/tests; source-pin exact empty/fatal killer string, no charge before death or after Rider return, and planning/live helper contract.",
+      "Retain blind floor-touch and broader instapetrify callers as outside-limit gaps, without completion credit."
+    ]
+  }
+}

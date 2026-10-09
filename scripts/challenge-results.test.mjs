@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import { COLUMNS, readRows } from './score-log.mjs';
 import { challengeDashboard, challengeInputSnapshot, challengePath, challengeState,
     compareEvaluations, corpusDigest, digest, evaluationFields, readChallengeBatches,
-    readChallenges, saveEvaluation, totalsFor } from './challenge-results.mjs';
+    readChallenges, saveEvaluation, totalsFor, admittedBatchIds } from './challenge-results.mjs';
 import { measuredCases, recordEvaluation, runAllBatches } from './score-challenges.mjs';
 
 // Distinct complete SHAs distinguish an initial implementation, its successor,
@@ -161,6 +161,7 @@ test('catalog and state keep batches separate and require fresh evidence for rea
     mkdirSync(join(root, 'challenges/manifests/nested'));
     writeFileSync(join(root, 'challenges/manifests/nested/v3.json'), '{}');
     assert.deepEqual(readChallengeBatches(root).map(batch => batch.batch), ['v1', 'v2']);
+    assert.deepEqual(admittedBatchIds(root), ['v1', 'v2'], 'only direct manifest identities count as admitted');
     const first = saved(root, 'v1', fresh(root, evaluation([measured(a, 2)])));
     const secondEvaluation = fresh(root,
         { ...evaluation([measured(b, 2)]), batch: 'v2',

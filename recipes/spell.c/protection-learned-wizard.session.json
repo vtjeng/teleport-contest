@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first spell.c:cast_protection variation: learned-wizard. Seeds16491013/19/27/31 and clock20570917181923 chosen before comparisons; forced low-level/repeated/blind and learned ordinary-casting routes are distinct source entries. Setup corrections are based only on C output. Independent ordinary docast entry: learn protection then select new known-spell slot. Startup/level acknowledgements and book letter corrected only from C recording. C-only setup correction from the independently recorded inventory: wished book is o, not nonexistent p. C-only setup correction: acknowledge both memorization messages before entering #cast; waiting periods and the command had been consumed by the learning More prompt.",
+  "segments": [
+    {
+      "seed": 16491031,
+      "datetime": "20570917181923",
+      "nethackrc": "OPTIONS=name:Protlearnedwizard,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,!tips\n",
+      "moves": "  #levelchange\n10\n                \u0017blessed spellbook of protection\nro  #cast\nc  "
+    }
+  ]
+}

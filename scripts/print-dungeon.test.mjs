@@ -997,7 +997,7 @@ test('unreachable_level: dummy level is not selectable via menu', async () => {
 test('add_menu_heading produces an item with heading:true', () => {
     const state = resetGame();
     state.iflags = {
-        menu_headings: { attr: ATR_INVERSE, color: NO_COLOR },
+        menu_headings: { attr: 7 /* C ATR_INVERSE */, color: NO_COLOR },
     };
     const item = add_menu_heading('Test Heading', state);
     // The heading flag must be true so add_menu() skips menu coloring.

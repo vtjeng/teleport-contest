@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B182 typed #showspells entry: Healer repertoire, alphabetical sort then exit. Seed18233009/date20581009172536 fixed before C or JS. This covers cmd.c doextcmd in addition to direct + dispatch.",
+  "segments": [
+    {
+      "seed": 18233009,
+      "datetime": "20581009172536",
+      "nethackrc": "OPTIONS=name:SpellWitness,role:Healer,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#showspells\n+b\u001b"
+    }
+  ]
+}

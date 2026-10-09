@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent timeout.c slime genocide variation: a worn amulet supplies the first reprieve, producing the Unfortunately followup rather than the wizard Yes-you-do text; the second death is declined. Seed1542123 selected before C comparison.",
+  "segments": [
+    {
+      "seed": 1542123,
+      "datetime": "20421108122100",
+      "nethackrc": "OPTIONS=name:FatalBranch,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!safe_wait\nOPTIONS=playmode:debug\n",
+      "moves": " .\u0017amulet of life saving\nWo\u0017uncursed scroll of genocide\nrp  green slime\n   #wizintrinsic\n1c\n .                n   ."
+    }
+  ]
+}

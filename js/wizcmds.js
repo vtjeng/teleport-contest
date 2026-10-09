@@ -3,6 +3,19 @@
 // wiz_level_tele(), wiz_wish(), wiz_identify(), wiz_polyself(),
 // wiz_intrinsic(), wiz_kill(), and wiz_makemap(), among the rows cmd.c dispatches here.
 
+import { NO_COLOR } from './terminal.js';
+import { engr_stats } from './engrave.js';
+import { light_stats } from './light.js';
+import { timer_stats } from './timeout.js';
+import { region_stats } from './region.js';
+import { size_wseg } from './worm.js';
+import { FIRST_OBJECT, NUM_OBJECTS, MAXOCLASSES, OBJ_NAME } from './objects.js';
+import { MAX_GLYPH } from './glyph_offsets.js';
+import { NUMMONS } from './monsters.js';
+import { MAXPCHARS, S_vbeam, S_rslant, known_handling } from './symbols.js';
+import { fill_glyphid_cache, free_glyphid_cache, glyphid_cache_status, wizcustom_glyphids } from './glyphs.js';
+import { mstrength } from './mondata.js';
+import { memoryLayout } from './wizcmds_data.js';
 import {
     ACID_RES,
     ARTICLE_A, ARTICLE_THE, ARTICLE_YOUR,
@@ -14,7 +27,8 @@ import {
     BLND_RES,
     CLAIRVOYANT,
     COLD_RES,
-    COLNO, ROWNO, COULD_SEE, IN_SIGHT, TEMP_LIT,
+    COLNO, ROWNO, COULD_SEE, IN_SIGHT, TEMP_LIT, BUFSZ, NEUTRAL,
+    CORR, SDOOR, WM_MASK, IS_WALL, IS_ROOM, IS_DOOR,
     CONFUSION,
     CONFLICT,
     DEAF,
@@ -47,8 +61,9 @@ import {
     LIFESAVED,
     MAGICAL_BREATHING,
     MAXULEV,
+    NHL_SB_SAFE, NHL_SB_DEBUGGING,
     PASSES_WALLS,
-    PICK_ANY,
+    PICK_ANY, PICK_NONE, PRIMARYSET,
     POLY_CONTROLLED,
     POLYMORPH,
     POLYMORPH_CONTROL,
@@ -69,6 +84,7 @@ import {
     SLIMED,
     SLOW_DIGESTION,
     STONED,
+    STONE,
     STONE_RES,
     STEALTH,
     STRANGLED,
@@ -87,38 +103,50 @@ import {
     WOUNDED_LEGS,
     WWALKING,
     XKILL_NOMSG,
-    has_mgivenname,
+    has_mgivenname, MGIVENNAME, MM_NOMSG, MIGR_RANDOM, MIGR_EXACT_XY,
     u_at,
 } from './const.js';
 import { losexp, pluslvl } from './exper.js';
 import { rumor_check } from './rumors.js';
 import { body_part, float_vs_flight, polyself } from './polyself.js';
 import { create_particular } from './read.js';
-import { getlin, select_menu } from './windows.js';
+import { getlin, select_menu, add_menu_heading } from './windows.js';
 import { game } from './gstate.js';
 import { done } from './end.js';
-import { mon_nam, x_monnam } from './do_name.js';
-import { dmonsfree } from './makemon_create.js';
+import { minimal_monnam, mon_nam, x_monnam } from './do_name.js';
+import { dmonsfree, makemon_runtime } from './makemon_create.js';
+import { rndmonst } from './makemon.js';
+import { migrate_to_level } from './dog.js';
 import { AD_PHYS, PM_GRID_BUG, PM_SAMURAI } from './monsters.js';
 import { note_unported } from './unported.js';
+import { load_lua } from './nhlua.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
-import { cmd_from_func, makemap_prepost, paranoid_query, yn_function } from './cmd.js';
+import {
+    cmd_from_func, getdir, levltyp, makemap_prepost, paranoid_query, yn_function,
+} from './cmd.js';
+import { hurtle, mhurtle } from './dothrow.js';
 import { display_inventory } from './invent.js';
 import {
     notice_mon_off, notice_mon_on, pooleffects,
+    may_dig,
 } from './hack.js';
 import { monkilled, rescham, usmellmon, xkilled } from './mon.js';
-import { dist2, mungspaces, upstart } from './hacklib.js';
+import { dist2, mungspaces, strncmpi, upstart, truncateByteString } from './hacklib.js';
 import { encumber_msg } from './pickup.js';
 import { level_tele } from './teleport.js';
 import { ttyPline } from './tty_message.js';
 import { displayTtyTextWindow } from './tty_menu.js';
 import { makewish } from './zap.js';
 import { canspotmon, docrt, glyph_at, glyph_is_invisible, glyph_is_monster,
-    map_engraving, map_invisible, map_trap, unmap_invisible } from './display.js';
+    glyph_is_cmap, glyph_is_cmap_zap, glyph_to_cmap, glyph_to_mon, glyph_is_object, glyph_to_obj, NO_GLYPH,
+    glyphmap_base_fields, map_engraving, map_invisible, map_trap, unmap_invisible } from './display.js';
 import { do_mapping, findit } from './detect.js';
-import { In_W_tower, on_level, print_dungeon } from './dungeon.js';
-import { mklev } from './mklev.js';
+import { overview_stats, In_W_tower, on_level, print_dungeon,
+    depth, get_level, Is_botlevel, ledger_no,
+    Is_special, Invocation_lev, On_W_tower_level } from './dungeon.js';
+import { DEFAULT_PRIMARY_SYMBOLS } from './symbol_data.js';
+import { S_fountain, S_sink } from './symbols.js';
+import { mklev, load_special, lspo_reset_level, lspo_finalize_level } from './mklev.js';
 import {
     incr_itimeout, make_blinded, make_deaf, make_glib, make_hallucinated,
     make_sick, make_slimed, make_stunned,
@@ -129,6 +157,127 @@ import { vision_recalc } from './vision.js';
 import { getpos } from './getpos.js';
 import { m_at } from './monst.js';
 import { nonliving, olfaction } from './mondata.js';
+
+// C ref: wizcmds.c wiz_show_wmodes() (657-689). The canonical interface
+// in options.js is tty, matching the recorder's active WINDOWPORT(tty).
+// The existing text window owns create/putstr/display(TRUE)/destroy.
+export async function wiz_show_wmodes(state = game, env = {}) {
+    const lines = [{ text: '' }]; // Source tty-only blank top line.
+    for (let y = 0; y < ROWNO; y++) {
+        let row = '';
+        for (let x = 0; x < COLNO; x++) {
+            const location = state.level.at(x, y);
+            if (u_at(x, y, state)) row += '@';
+            else if (IS_WALL(location.typ) || location.typ === SDOOR)
+                row += String(location.wall_info & WM_MASK);
+            else if (location.typ === CORR) row += '#';
+            else if (IS_ROOM(location.typ) || IS_DOOR(location.typ)) row += '.';
+            else row += 'x';
+        }
+        lines.push({ text: row.slice(1) }); // Column zero is off screen; never trim rows.
+    }
+    await (env.window ?? displayTtyTextWindow)(state, lines);
+    return ECMD_OK;
+}
+
+// C ref: wizcmds.c wiz_map_levltyp() (693-835). The recorder and options.js
+// expose only tty, whose text window begins with a blank top line.
+export async function wiz_map_levltyp(state = game, env = {}) {
+    const lines = [{ text: '' }];
+    for (let y = 0; y < ROWNO; y++) {
+        let row = '';
+        for (let x = 1; x < COLNO; x++) {
+            const terrain = state.level.at(x, y).typ;
+            row += terrain === STONE && !may_dig(x, y, state) ? '*'
+                : String.fromCharCode(terrain < 10 ? '0'.charCodeAt(0) + terrain
+                    : terrain < 36 ? 'a'.charCodeAt(0) + terrain - 10
+                        : 'A'.charCodeAt(0) + terrain - 36);
+        }
+        if (state.level.at(0, y).typ !== STONE || may_dig(0, y, state))
+            row += '!';
+        lines.push({ text: row });
+    }
+
+    const level = state.u.uz;
+    const special = Is_special(level, state);
+    let dsc = `D:${level.dnum},L:${level.dlevel}`;
+    if (special) {
+        dsc += ` "${special.proto}"`;
+        if (special.flags.maze_like) dsc += ' mazelike';
+        if (special.flags.hellish) dsc += ' hellish';
+        if (special.flags.town) dsc += ' town';
+        if (special.flags.rogue_like) dsc += ' roguelike';
+    }
+    const flags = state.level.flags;
+    if (flags.nfountains)
+        dsc += ` ${String.fromCharCode(DEFAULT_PRIMARY_SYMBOLS[S_fountain])}:${flags.nfountains}`;
+    if (flags.nsinks)
+        dsc += ` ${String.fromCharCode(DEFAULT_PRIMARY_SYMBOLS[S_sink])}:${flags.nsinks}`;
+    if (flags.has_vault) dsc += ' vault';
+    if (flags.has_shop) dsc += ' shop';
+    if (flags.has_temple) dsc += ' temple';
+    if (flags.has_court) dsc += ' throne';
+    if (flags.has_zoo) dsc += ' zoo';
+    if (flags.has_morgue) dsc += ' morgue';
+    if (flags.has_barracks) dsc += ' barracks';
+    if (flags.has_beehive) dsc += ' hive';
+    if (flags.has_swamp) dsc += ' swamp';
+    if (flags.noteleport) dsc += ' noTport';
+    if (flags.hardfloor) dsc += ' noDig';
+    if (flags.nommap) dsc += ' noMMap';
+    if (!flags.hero_memory) dsc += ' noMem';
+    if (flags.shortsighted) dsc += ' shortsight';
+    if (flags.graveyard) dsc += ' graveyard';
+    if (flags.is_maze_lev) dsc += ' maze';
+    if (flags.is_cavernous_lev) dsc += ' cave';
+    if (flags.arboreal) dsc += ' tree';
+    if (flags.sokoban_rules) dsc += ' sokoban-rules';
+    if (Invocation_lev(level, state)) dsc += ' invoke';
+    if (On_W_tower_level(level, state)) dsc += ' tower';
+    // dungeon.h macros read this caller's topology, rather than the module
+    // singleton used by the historical const.js macro adapters.
+    const knox = state.knox_level;
+    if (level.dnum === 0) dsc += ' dungeon';
+    else if (level.dnum === state.mines_dnum) dsc += ' mines';
+    else if (level.dnum === state.sokoban_dnum) dsc += ' sokoban';
+    else if (level.dnum === state.quest_dnum) dsc += ' quest';
+    else if (knox && (knox.dnum || knox.dlevel) && on_level(level, knox))
+        dsc += ' ludios';
+    else if (level.dnum === 1) dsc += ' gehennom';
+    else if (level.dnum === state.tower_dnum) dsc += ' vlad';
+    else if (level.dnum === state.astral_level.dnum) dsc += ' endgame';
+    else {
+        let brname = state.dungeons[level.dnum].dname;
+        if (!brname) brname = 'unknown';
+        if (!strncmpi(brname, 'the ', 4)) brname = brname.slice(4);
+        dsc += ` ${brname}`;
+    }
+    lines.push({ text: truncateByteString(dsc, COLNO - 1) });
+    await (env.window ?? displayTtyTextWindow)(state, lines);
+}
+
+// C ref: wizcmds.c wiz_levltyp_legend() (841-877). Reuse cmd.c's canonical
+// levltyp array, including the unreachable label and odd-count padding.
+export async function wiz_levltyp_legend(state = game, env = {}) {
+    const lines = [{ text: '#terrain encodings:' }, { text: '' }];
+    const last = levltyp.length & ~1;
+    let buf = '';
+    for (let i = 0; i < last / 2; i++) {
+        for (let j = i; j < last; j += last / 2) {
+            const dsc = levltyp[j];
+            const code = !dsc ? ' ' : dsc.startsWith('unreachable') ? '*'
+                : String.fromCharCode(j < 10 ? '0'.charCodeAt(0) + j
+                    : j < 36 ? 'a'.charCodeAt(0) + j - 10
+                        : 'A'.charCodeAt(0) + j - 36);
+            buf += ` ${code} - ${dsc.padEnd(28)}`;
+            if (j > i) {
+                lines.push({ text: buf });
+                buf = '';
+            }
+        }
+    }
+    await (env.window ?? displayTtyTextWindow)(state, lines);
+}
 
 // C ref: wizcmds.c wiz_show_seenv() (576-617). Each map cell occupies two
 // columns; C narrows a full-width crop by one cell to avoid an 80-byte row.
@@ -605,6 +754,47 @@ export function scanLevelArgument(buf) {
     };
 }
 
+// C ref: wizcmds.c:353–372. The result of loading the temporary Lua state
+// is discarded; the existing bounded nhlua owner names unsupported programs.
+export async function wiz_load_lua(state = game, env = {}) {
+    if (state.wizard) {
+        const sbi = {
+            flags: (NHL_SB_SAFE | NHL_SB_DEBUGGING) >>> 0,
+            memlimit: 16 * 1024 * 1024,
+            steps: 0,
+            perpcall: 16 * 1024 * 1024,
+        };
+        let buf = await (env.getLine ?? getlin)('Load which lua file?', state);
+        if (buf[0] === '\x1b' || buf === '') return ECMD_CANCEL;
+        if (!buf.includes('.')) buf += '.lua';
+        await (env.loadLua ?? load_lua)(buf, sbi, state);
+    } else {
+        await (env.message ?? ttyPline)("Unavailable command 'wizloadlua'.", state);
+    }
+    return ECMD_OK;
+}
+
+// C ref: wizcmds.c:376–395. The command discards the loader's result,
+// so finalization follows even when the file cannot be loaded.
+export async function wiz_load_splua(state = game, env = {}) {
+    if (state.wizard) {
+        let buf = await (env.getLine ?? getlin)('Load which des lua file?', state);
+        if (buf[0] === '\x1b' || buf === '') return ECMD_CANCEL;
+        if (!buf.includes('.')) buf += '.lua';
+
+        // NULL Lua state skips coder recreation and coder-gated finalization.
+        // The loader publishes its existing frame here for SpLev_Map access;
+        // its boolean return remains discarded as in the C command.
+        const levelEnv = { state };
+        await (env.resetLevel ?? lspo_reset_level)(null, levelEnv);
+        await (env.loadSpecial ?? load_special)(buf, state, levelEnv);
+        await (env.finalizeLevel ?? lspo_finalize_level)(null, levelEnv);
+    } else {
+        await (env.message ?? ttyPline)("Unavailable command 'wizloaddes'.", state);
+    }
+    return ECMD_OK;
+}
+
 // C ref: wizcmds.c wiz_flip_level() (412-442). The live flip finishes
 // before docrt; ECMD_OK means the query and transposition consume no turn.
 export async function wiz_flip_level(state = game, env = {}) {
@@ -692,6 +882,54 @@ export async function wiz_level_change(state = game) {
 // Unconditionally calls polyself(POLY_CONTROLLED) and returns ECMD_OK.
 export async function wiz_polyself(state = game) {
     await polyself(POLY_CONTROLLED, state);
+    return ECMD_OK;
+}
+
+// C ref: wizcmds.c wiz_telekinesis() (494–528). The selection coordinate
+// survives each getpos call and follows a target only while it remains visible.
+export async function wiz_telekinesis(state = game, env = {}) {
+    const cc = { x: state.u.ux, y: state.u.uy };
+    await (env.message ?? ttyPline)('Pick a monster to hurtle.', state, env);
+    do {
+        const ans = await (env.getpos ?? getpos)(cc, true, 'a monster', state);
+        if (ans < 0 || cc.x < 1) return ECMD_CANCEL;
+        const monster = (env.m_at ?? m_at)(cc.x, cc.y, state);
+        if ((monster && (env.canspotmon ?? canspotmon)(monster, state))
+            || u_at(cc.x, cc.y, state)) {
+            if (!await (env.getdir ?? getdir)('which direction?', state))
+                return ECMD_CANCEL;
+            if (monster) {
+                await (env.mhurtle ?? mhurtle)(monster, state.u.dx, state.u.dy,
+                    6, { ...env, state });
+                if (monster.mhp >= 1
+                    && (env.canspotmon ?? canspotmon)(monster, state)) {
+                    cc.x = monster.mx;
+                    cc.y = monster.my;
+                }
+            } else {
+                await (env.hurtle ?? hurtle)(state.u.dx, state.u.dy, 6,
+                    false, state, env);
+                cc.x = state.u.ux;
+                cc.y = state.u.uy;
+            }
+        }
+    } while (!state.u.utotype); // you.h UTOTYPE_NONE is zero.
+    return ECMD_OK;
+}
+
+// C ref: wizcmds.c wiz_panic() (534-546). Native panic's shutdown,
+// error-save and core dump remain an explicit discarded-void callee gap.
+export async function wiz_panic(state = game) {
+    if (state.iflags.debug_fuzzer) {
+        state.u.uhp = state.u.uhpmax = 1000;
+        state.u.uen = state.u.uenmax = 1000;
+        return ECMD_OK;
+    }
+    if (await paranoid_query(
+        true, 'Do you want to call panic() and end your game?', state,
+    )) {
+        note_unported('end.c panic');
+    }
     return ECMD_OK;
 }
 
@@ -831,5 +1069,403 @@ export async function wiz_kill(state = game, env = {}) {
 // C ref: wizcmds.c wiz_rumor_check() (1102-1106). cmd.c gates wizard mode.
 export async function wiz_rumor_check(state = game, env = {}) {
     await rumor_check(state, env);
+    return ECMD_OK;
+}
+
+// C refs: wizcmds.c statistics family (1117-1399, 1616-1697).
+// The row array replaces the source NHW_TEXT winid; mutable totals hold C's
+// count/size output parameters. Counts describe C allocations, not JS memory.
+export function memory_stats_line(label, count, size) {
+    return label.padEnd(27) + '  ' + String(count).padStart(4)
+        + '  ' + String(size).padStart(6);
+}
+function stringAllocation(text) {
+    return new TextEncoder().encode(text).length + 1;
+}
+export function size_obj(obj, state = game) {
+    let size = memoryLayout.obj;
+    if (obj.oextra) {
+        const extra = obj.oextra;
+        size += memoryLayout.oextra;
+        if (extra.oname != null) size += stringAllocation(extra.oname);
+        if (extra.omonst) size += size_monst(extra.omonst, false, state);
+        if (extra.omailcmd != null) size += stringAllocation(extra.omailcmd);
+    }
+    return size;
+}
+export function count_obj(chain, totals, top, recurse, state = game) {
+    let count = 0, size = 0;
+    for (let obj = chain; obj; obj = obj.nobj) {
+        if (top) { count++; size += size_obj(obj, state); }
+        if (recurse && obj.cobj) count_obj(obj.cobj, totals, true, true, state);
+    }
+    totals.count += count; totals.size += size;
+}
+function statsRow(rows, label, subtotal, totals, force = false) {
+    if (subtotal.count || subtotal.size || force) {
+        totals.count += subtotal.count; totals.size += subtotal.size;
+        rows.push({ text: memory_stats_line(label, subtotal.count, subtotal.size) });
+    }
+}
+export function obj_chain(rows, label, chain, force, totals, state = game) {
+    const subtotal = { count: 0, size: 0 };
+    count_obj(chain, subtotal, true, false, state);
+    statsRow(rows, label, subtotal, totals, force);
+}
+export function mon_invent_chain(rows, label, chain, totals, state = game) {
+    const subtotal = { count: 0, size: 0 };
+    for (let mon = chain; mon; mon = mon.nmon)
+        count_obj(mon.minvent, subtotal, true, false, state);
+    statsRow(rows, label, subtotal, totals);
+}
+export function contained_stats(rows, label, totals, state = game) {
+    const subtotal = { count: 0, size: 0 };
+    for (const chain of [state.invent, state.level?.objlist,
+        state.level?.buriedobjlist, state.gm?.migrating_objs])
+        count_obj(chain, subtotal, false, true, state);
+    for (const chain of [state.level?.monlist, state.gm?.migrating_mons])
+        for (let mon = chain; mon; mon = mon.nmon)
+            count_obj(mon.minvent, subtotal, false, true, state);
+    statsRow(rows, label, subtotal, totals);
+}
+export function size_monst(monster, incl_wsegs, state = game) {
+    let size = memoryLayout.monst;
+    if (monster.wormno && incl_wsegs) size += size_wseg(monster, state);
+    if (monster.mextra) {
+        const extra = monster.mextra;
+        size += memoryLayout.mextra;
+        if (extra.mgivenname != null) size += stringAllocation(extra.mgivenname);
+        for (const field of ['egd', 'epri', 'eshk', 'emin', 'edog', 'ebones'])
+            if (extra[field]) size += memoryLayout[field];
+    }
+    return size;
+}
+export function mon_chain(rows, label, chain, force, totals, state = game) {
+    const subtotal = { count: 0, size: 0 };
+    const incl_wsegs = label.toLowerCase() === 'fmon';
+    for (let mon = chain; mon; mon = mon.nmon) {
+        subtotal.count++; subtotal.size += size_monst(mon, incl_wsegs, state);
+    }
+    statsRow(rows, label, subtotal, totals, force);
+}
+export function misc_stats(rows, totals, state = game) {
+    const traps = state.level?.traps ?? [];
+    statsRow(rows, `traps, size ${memoryLayout.trap}`,
+        { count: traps.length, size: traps.length * memoryLayout.trap }, totals, true);
+    const engr = engr_stats('engravings, size %ld+text', state);
+    statsRow(rows, engr.header, engr, totals, true);
+    const lights = light_stats('light sources, size %ld', state);
+    statsRow(rows, lights.header, lights, totals);
+    const timers = timer_stats('timers, size %ld', state);
+    statsRow(rows, timers.header, timers, totals);
+    let count = 0, size = 0;
+    for (let record = state.level?.damagelist; record; record = record.next) {
+        count++; size += memoryLayout.damage;
+    }
+    statsRow(rows, `shop damage, size ${memoryLayout.damage}`, { count, size }, totals);
+    const regions = region_stats('regions, size %ld+%ld*rect+N', state);
+    statsRow(rows, regions.header, regions, totals);
+    count = size = 0;
+    for (let killer = state.killer?.next; killer; killer = killer.next) {
+        count++; size += memoryLayout.kinfo;
+    }
+    statsRow(rows, `delayed killer${count === 1 ? '' : 's'}, size ${memoryLayout.kinfo}`, { count, size }, totals);
+    count = size = 0;
+    const bones = state.level?.bonesinfo;
+    if (Array.isArray(bones)) {
+        count = bones.length; size = count * memoryLayout.cemetery;
+    } else for (let record = bones; record; record = record.next) {
+        count++; size += memoryLayout.cemetery;
+    }
+    statsRow(rows, `bones history, size ${memoryLayout.cemetery}`, { count, size }, totals);
+    count = size = 0;
+    for (const obj of state.objects ?? []) if (obj?.oc_uname != null) {
+        count++; size += stringAllocation(obj.oc_uname);
+    }
+    statsRow(rows, 'object type names, text', { count, size }, totals);
+}
+// C ref: wizcmds.c migrsort_cmp (1485-1505). Destination coordinates are
+// signed integers; the unsigned monster ID tie-breaker uses comparisons.
+export function migrsort_cmp(m1, m2) {
+    if (m1.mux !== m2.mux) return m1.mux - m2.mux;
+    if (m1.muy !== m2.muy) return m1.muy - m2.muy;
+    return m1.m_id < m2.m_id ? -1 : Number(m1.m_id > m2.m_id);
+}
+
+// C ref: wizcmds.c list_migrating_mons (1506-1615). The canonical tty text
+// window owns create/putstr/display(FALSE)/destroy and its blocking dismissal.
+export async function list_migrating_mons(nextlevl, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const category = monster => monster.mux === state.u.uz.dnum
+        && monster.muy === state.u.uz.dlevel ? 'c'
+        : monster.mux === nextlevl.dnum && monster.muy === nextlevl.dlevel
+            ? 'n' : 'o';
+    const counts = { c: 0, n: 0, o: 0 };
+    for (let mon = state.gm.migrating_mons; mon; mon = mon.nmon)
+        counts[category(mon)]++;
+    const total = counts.c + counts.n + counts.o;
+    if (!total) {
+        await message('No monsters currently migrating.', state);
+        return;
+    }
+    await message(`${counts.c} mon${counts.c === 1 ? '' : 's'} pending for current level, ${counts.n} for next level, ${counts.o} for others.`, state);
+    let prompt = '', extra = '';
+    for (const c of ['c', 'n', 'o']) {
+        if (counts[c]) prompt += c;
+        else extra += c;
+    }
+    prompt += 'a q';
+    if (extra) prompt += `\x1b${extra}`;
+    const choice = String.fromCharCode(await (env.yn ?? yn_function)(
+        'List which?', prompt, 'q', true, state,
+    ));
+    const count = choice === 'a' ? total : counts[choice] ?? 0;
+    if (count > 0) {
+        const title = choice === 'a' ? 'All migrating monsters:'
+            : `Monster${count === 1 ? '' : 's'} migrating to ${choice === 'c' ? 'current level' : choice === 'n' ? 'next level' : "'other' levels"}:`;
+        const rows = [{ text: title }, { text: '' }];
+        const selected = [];
+        for (let mon = state.gm.migrating_mons; mon; mon = mon.nmon)
+            if (choice === 'a' || category(mon) === choice) selected.push(mon);
+        if (selected.length > 1) selected.sort(migrsort_cmp);
+        for (const mon of selected) {
+            let text = `  ${minimal_monnam(mon, false, state)}`.replace(' <0,0>', '');
+            if (has_mgivenname(mon)) text += ` named ${MGIVENNAME(mon)}`;
+            if (choice === 'o' || choice === 'a') text += ` to ${mon.mux}:${mon.muy}`;
+            if (mon.mtrack[0].x === MIGR_EXACT_XY)
+                text += ` at <${mon.mtrack[1].x},${mon.mtrack[1].y}>`;
+            rows.push({ text });
+        }
+        await (env.window ?? displayTtyTextWindow)(state, rows);
+    } else if (choice !== 'q') {
+        await message('None.', state);
+    }
+}
+
+export async function wiz_show_stats(state = game, env = {}) {
+    const rows = [{ text: 'Current memory statistics:' },
+        { text: '                             count  bytes' },
+        { text: `  Objects, base size ${memoryLayout.obj}` }];
+    const objects = { count: 0, size: 0 };
+    obj_chain(rows, 'invent', state.invent, true, objects, state);
+    obj_chain(rows, 'fobj', state.level?.objlist, true, objects, state);
+    obj_chain(rows, 'buried', state.level?.buriedobjlist, false, objects, state);
+    obj_chain(rows, 'migrating obj', state.gm?.migrating_objs, false, objects, state);
+    obj_chain(rows, 'billobjs', state.gb?.billobjs, false, objects, state);
+    mon_invent_chain(rows, 'minvent', state.level?.monlist, objects, state);
+    mon_invent_chain(rows, 'migrating minvent', state.gm?.migrating_mons, objects, state);
+    contained_stats(rows, 'contained', objects, state);
+    const separator = '---------------------------  ----- -------';
+    rows.push({ text: separator }, { text: memory_stats_line('  Obj total', objects.count, objects.size) },
+        { text: '' }, { text: `  Monsters, base size ${memoryLayout.monst}` });
+    const monsters = { count: 0, size: 0 };
+    mon_chain(rows, 'fmon', state.level?.monlist, true, monsters, state);
+    mon_chain(rows, 'migrating', state.gm?.migrating_mons, false, monsters, state);
+    if (state.gm?.mydogs) mon_chain(rows, 'mydogs', state.gm.mydogs, false, monsters, state);
+    rows.push({ text: separator }, { text: memory_stats_line('  Mon total', monsters.count, monsters.size) },
+        { text: '' }, { text: '  Overview' });
+    const overview = { count: 0, size: 0 };
+    overview_stats(rows, memory_stats_line, overview, state);
+    rows.push({ text: separator }, { text: memory_stats_line('  Over total', overview.count, overview.size) },
+        { text: '' }, { text: '  Miscellaneous' });
+    const misc = { count: 0, size: 0 };
+    misc_stats(rows, misc, state);
+    rows.push({ text: separator }, { text: memory_stats_line('  Misc total', misc.count, misc.size) },
+        { text: '' }, { text: separator },
+        { text: memory_stats_line('  Grand total', objects.count + monsters.count + overview.count + misc.count,
+            objects.size + monsters.size + overview.size + misc.size) });
+    // show_borlandc_stats is excluded by the Linux recorder's build guard.
+    await (env.window ?? displayTtyTextWindow)(state, rows);
+    return ECMD_OK;
+}
+
+// C ref: wizcmds.c wiz_display_macros() (1705-1774). Fixed macro ranges
+// are checked in source order; report each issue after a single header.
+export async function wiz_display_macros(state = game, env = {}) {
+    const rows = [];
+    let trouble = 0;
+    function issue(text) {
+        if (!trouble++) rows.push({ text: 'Display macro issues:' });
+        rows.push({ text });
+    }
+    for (let glyph = 0; glyph < MAX_GLYPH; glyph++) {
+        if (glyph_is_cmap(glyph)) {
+            const value = glyph_to_cmap(glyph);
+            if (value === NO_GLYPH)
+                issue(`glyph_is_cmap() / glyph_to_cmap(glyph=${glyph}) sync failure, returned NO_GLYPH (${value})`);
+            if (glyph_is_cmap_zap(glyph) && !(value >= S_vbeam && value <= S_rslant))
+                issue(`glyph_is_cmap_zap(glyph=${glyph}) returned non-zap cmap ${value}`);
+            if (!(value >= 0 && value < MAXPCHARS + 1))
+                issue(`glyph_to_cmap(glyph=${glyph}) returns ${value} exceeds defsyms[${MAXPCHARS + 1}] bounds (MAX_GLYPH = ${MAX_GLYPH})`);
+        }
+        if (glyph_is_monster(glyph)) {
+            const value = glyph_to_mon(glyph);
+            if (value < 0 || value >= NUMMONS)
+                issue(`glyph_to_mon(glyph=${glyph}) returns ${value} exceeds mons[${NUMMONS}] bounds`);
+        }
+        if (glyph_is_object(glyph)) {
+            const value = glyph_to_obj(glyph);
+            if (value < 0 || value > NUM_OBJECTS)
+                issue(`glyph_to_obj(glyph=${glyph}) returns ${value} exceeds objects[${NUM_OBJECTS}] bounds`);
+        }
+    }
+    if (!trouble) rows.push({ text: 'No display macro issues detected.' });
+    await (env.window ?? displayTtyTextWindow)(state, rows);
+    return ECMD_OK;
+}
+
+// C ref: wizcmds.c wiz_mon_diff() (1790-1828). Compare the live
+// catalog's stored difficulty with the source formula, in table order.
+export async function wiz_mon_diff(state = game, env = {}) {
+    const rows = [];
+    let trouble = 0;
+    for (let count = 0; state.mons[count].mlet; count++) {
+        const species = state.mons[count];
+        const calculated = mstrength(species), hardcoded = species.difficulty;
+        const difference = hardcoded - calculated;
+        if (difference) {
+            if (!trouble++) rows.push({ text: 'Review of monster difficulty ratings [index:level]:' });
+            const level = species.mlevel > 50 ? 50 : species.mlevel;
+            const text = species.pmnames[NEUTRAL].padEnd(18) + ' ['
+                + String(count).padStart(3) + ':' + String(level).padStart(2)
+                + ']: calculated: ' + String(calculated).padStart(2)
+                + ', hardcoded: ' + String(hardcoded).padStart(2)
+                + ' (' + (difference >= 0 ? '+' : '') + difference + ')';
+            rows.push({ text: truncateByteString(text, BUFSZ - 1) });
+        }
+    }
+    if (!trouble) rows.push({ text: 'No monster difficulty discrepancies were detected.' });
+    await (env.window ?? displayTtyTextWindow)(state, rows);
+    return ECMD_OK;
+}
+
+// C ref: wizcmds.c wiz_objprobs() (1858-1862), float operands passed to
+// printf's %6.2f. Each source arithmetic operation rounds to float32 first;
+// printf then rounds the exact promoted value to nearest, ties to even.
+export function wiz_objprobs_percentage(probability, sum) {
+    const percentage = Math.fround(Math.fround(Math.fround(probability) * 100)
+        / Math.fround(sum));
+    if (Number.isNaN(percentage)) return '  -nan'; // Recorder's runtime 0.f/0.f sign.
+    if (!Number.isFinite(percentage)) return (percentage < 0 ? '-inf' : 'inf').padStart(6);
+    const scaled = Math.abs(percentage) * 100;
+    let hundredths = Math.floor(scaled);
+    const fraction = scaled - hundredths;
+    if (fraction > 0.5 || (fraction === 0.5 && hundredths % 2)) hundredths++;
+    const sign = percentage < 0 || Object.is(percentage, -0) ? '-' : '';
+    return (sign + Math.trunc(hundredths / 100) + '.'
+        + String(hundredths % 100).padStart(2, '0')).padStart(6);
+}
+
+// C ref: wizcmds.c wiz_objprobs() (1832-1868). Use initialized per-game
+// probabilities/names; unnamed catalog entries still contribute to sums.
+export async function wiz_objprobs(state = game, env = {}) {
+    const sums = Array(MAXOCLASSES).fill(0);
+    let oclass = state.objects[FIRST_OBJECT].oc_class;
+    for (let type = FIRST_OBJECT; type < NUM_OBJECTS; type++)
+        sums[state.objects[type].oc_class] += state.objects[type].oc_prob;
+    const rows = [];
+    for (let type = FIRST_OBJECT; type < NUM_OBJECTS; type++) {
+        const object = state.objects[type], name = OBJ_NAME(object, state);
+        if (name == null) continue;
+        if (object.oc_class !== oclass) rows.push({ text: '' });
+        oclass = object.oc_class;
+        const row = String(object.oc_prob).padStart(4) + ' / '
+            + String(sums[oclass]).padStart(4) + ' ('
+            + wiz_objprobs_percentage(object.oc_prob, sums[oclass]) + '%): ' + name;
+        rows.push({ text: truncateByteString(row, BUFSZ - 1) });
+    }
+    await (env.window ?? displayTtyTextWindow)(state, rows);
+    return ECMD_OK;
+}
+
+// C ref: wizcmds.c wiz_migrate_mons (1873-1933). DEBUG_MIGRATING_MONS is
+// enabled in the reference DEBUG build. Existing creation and migration
+// owners retain their species, leash, shopkeeper and worm admission limits.
+export async function wiz_migrate_mons(state = game, env = {}) {
+    const savedMongen = state.iflags.debug_mongen;
+    const destination = { dnum: 0, dlevel: 0 };
+    if (on_level(state.u.uz, state.stronghold_level)) {
+        Object.assign(destination, state.valley_level);
+    } else if (!Is_botlevel(state.u.uz, state)) {
+        get_level(destination, depth(state.u.uz, state) + 1, state);
+    }
+    await list_migrating_mons(destination, state, env);
+    let input = '';
+    if (destination.dnum || destination.dlevel)
+        input = await (env.getlin ?? getlin)('How many random monsters to migrate to next level? [0]', state);
+    else
+        await (env.message ?? ttyPline)("Can't get there from here.", state);
+    if (!input || input[0] === '\x1b') return ECMD_OK;
+    // atoi is strtol(..., 10) narrowed to int in the LP64 reference build:
+    // retain the decimal prefix, long saturation, and 32-bit signed result.
+    const prefix = /^[ \t\n\r\v\f]*([+-]?\d+)/u.exec(input);
+    let parsed = prefix ? BigInt(prefix[1]) : 0n;
+    const longMax = (1n << 63n) - 1n, longMin = -(1n << 63n);
+    if (parsed > longMax) parsed = longMax;
+    else if (parsed < longMin) parsed = longMin;
+    let count = Number(BigInt.asIntN(32, parsed));
+    const useRandom = count >= 0;
+    if (count < 0) count = (-count) | 0;
+    count = Math.min(Math.max(count, 0), (COLNO - 1) * ROWNO);
+    state.iflags.debug_mongen = false;
+    while (count > 0) {
+        let monster;
+        if (useRandom) {
+            const ptr = (env.rndmonst ?? rndmonst)({ ...env, state });
+            monster = await (env.makemon ?? makemon_runtime)(ptr, 0, 0, MM_NOMSG, { ...env, state });
+        } else {
+            monster = state.level.monlist;
+        }
+        if (monster)
+            (env.migrate ?? migrate_to_level)(monster, ledger_no(destination, state), MIGR_RANDOM, null, { ...env, state });
+        count--;
+    }
+    state.iflags.debug_mongen = savedMongen;
+    return ECMD_OK;
+}
+
+// C refs: wizcmds.c wiz_custom1934-1984 and wizcustom_callback1987-2027.
+// A rows array represents the source winid during construction; select_menu
+// owns create/start/add/end/select(PICK_NONE)/destroy and its input handoff.
+export function wizcustom_callback(items, glyphnum, id, state = game) {
+    if (!items || id === null) return;
+    const custom = state.gg?.glyph_customizations?.[glyphnum];
+    const base = glyphmap_base_fields(glyphnum, state);
+    const unicode = custom?.displayCh ?? base.unicode;
+    if (!unicode && !custom?.nhcolor) return;
+    const bufa = `[${String(glyphnum).padStart(4, '0')}] ${id.padEnd(44)}`;
+    const bufb = `'\\${String(base.ttychar).padStart(3, '0')}' ${String(base.color).padStart(2, '0')}`;
+    const bufc = ((custom?.nhcolor ?? 0) >>> 0).toString(16).padStart(11, '0');
+    let bufu = '';
+    if (unicode) {
+        bufu = `U+${unicode.codePointAt(0).toString(16).padStart(4, '0')}`;
+        for (const byte of new TextEncoder().encode(unicode)) {
+            if (!byte) break;
+            bufu += ` <${byte}>`;
+        }
+    }
+    items.push({ value: glyphnum + 1,
+        label: truncateByteString(`${bufa} ${bufb} ${bufc} ${bufu}`, BUFSZ - 1),
+        color: NO_COLOR, attr: 0 });
+}
+
+export async function wiz_custom(state = game, env = {}) {
+    if (!state.wizard) {
+        await (env.message ?? ttyPline)("Unavailable command 'wizcustom'.", state);
+        return ECMD_OK;
+    }
+    if (!glyphid_cache_status(state)) fill_glyphid_cache(state);
+    const items = [add_menu_heading(
+        '    glyph  glyph identifier                             sym   clr customcolor unicode utf8', state,
+    )];
+    const primary = state.gs?.symset?.[PRIMARYSET] ?? {};
+    // The current tty backend reports the recorder's 256-color capability.
+    let title = `#wizcustom: colorcount=${state.iflags?.colorcount ?? 256} ${primary.name || 'default'}`;
+    if (state.gc?.currentgraphics === PRIMARYSET && primary.name) title += ', active';
+    if (primary.handling) title += `, handler=${known_handling[primary.handling]}`;
+    wizcustom_glyphids(items, wizcustom_callback, state);
+    await (env.menu ?? select_menu)(state, { title, how: PICK_NONE, items, cancelValue: null });
+    if (glyphid_cache_status(state)) free_glyphid_cache(state);
+    (env.redraw ?? docrt)(state);
     return ECMD_OK;
 }

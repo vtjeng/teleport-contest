@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -80,7 +81,6 @@ import {
     list_genocided,
     dogenocided,
     record_achievement,
-    UnsupportedEnlightenmentError,
 } from '../js/insight.js';
 import { from_what } from '../js/attrib.js';
 import { describe_level } from '../js/display.js';
@@ -94,6 +94,7 @@ import {
 import {
     BASICENLIGHTENMENT,
     ENL_GAMEINPROGRESS,
+    ENL_GAMEOVERALIVE,
     ENL_GAMEOVERDEAD,
     EXT_ENCUMBER,
     FIRE_RES,
@@ -166,6 +167,7 @@ import {
     RING_CLASS,
     RING_MAIL,
     SHORT_SWORD,
+    SHIELD_OF_REFLECTION,
     SILVER_DRAGON_SCALE_MAIL,
     objects_globals_init,
     TOWEL,
@@ -395,8 +397,8 @@ test('weapon_insight reports a wielded class name with "some"', async () => {
 
 // obj.h is_wet_towel(o) is (otyp == TOWEL && spe > 0). weapon.c weapon_descr()
 // lists TOWEL among the P_NONE overrides, so a dry towel prints its object
-// name; only a wet one needs the unported wording.
-test('a dry towel prints its name and a wet one stops', async () => {
+// name; positive wetness overrides that name before article selection.
+test('weapon_insight describes dry and wet towels at the source boundary', async () => {
     const state = await readyGame();
     state.uwep = {
         otyp: TOWEL, oclass: 8 /* TOOL_CLASS */, quan: 1, spe: 0, known: true,
@@ -410,12 +412,39 @@ test('a dry towel prints its name and a wet one stops', async () => {
         ' You are wielding a towel.',
     );
 
-    state.uwep.spe = 1;
-    await assert.rejects(
-        () => enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
-        (error) => error instanceof UnsupportedEnlightenmentError
-            && error.branch === 'is_wet_towel()',
-    );
+    // Source spe>0 includes minimally wet1 and fully wet3 without "moist".
+    for (const spe of [1, 3]) {
+        state.uwep.spe = spe;
+        assert.equal(statusLine(await enlightenment(
+            BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state,
+        ), ' You are wielding'), ' You are wielding a wet towel.');
+    }
+});
+
+// insight.c1290-1305 first obtains the class description, then overrides a
+// reflection shield with objnam.c's dknown-dependent silver/smooth name.
+test('weapon_insight uses shield visibility, quantity and disclosure tense', async () => {
+    const state = await readyGame();
+    for (const dknown of [false, true]) {
+        for (const quan of [1, 2]) { // Singular article and source stack plural.
+            state.uwep = { otyp: SHIELD_OF_REFLECTION, oclass: ARMOR_CLASS,
+                quan, spe: 0, dknown };
+            const what = dknown ? 'silver shield' : 'smooth shield';
+            for (const final of [ENL_GAMEINPROGRESS, ENL_GAMEOVERALIVE]) {
+                const prefix = ` You ${final ? 'were' : 'are'} wielding`;
+                assert.equal(statusLine(await enlightenment(
+                    BASICENLIGHTENMENT, final, state,
+                ), prefix), `${prefix} ${quan === 1 ? 'a ' + what : what + 's'}.`);
+            }
+        }
+    }
+});
+
+test('weapon_insight follows the source description override order', () => {
+    const c = readFileSync(new URL('../nethack-c/upstream/src/insight.c', import.meta.url), 'utf8');
+    const js = readFileSync(new URL('../js/insight.js', import.meta.url), 'utf8');
+    assert.match(c, /what = weapon_descr\(uwep\);[\s\S]*?what = shield_simple_name\(uwep\);[\s\S]*?else if \(is_wet_towel\(uwep\)\)/u);
+    assert.match(js, /what = weapon_descr\(uwep, state\);[\s\S]*?what = shield_simple_name\(uwep, state\);[\s\S]*?else if \(is_wet_towel\(uwep\)\)/u);
 });
 
 // insight.c one_characteristic():862-866 hides a characteristic's base and
@@ -1892,7 +1921,7 @@ test('list_vanquished preserves C class-heading attributes', async () => {
     state.svm.mvitals[PM_WOLF].died = 1;
     state.svm.mvitals[PM_VAMPIRE].died = 1;
     state.flags = { vanq_sortmode: VANQ_MCLS_LTOH };
-    state.iflags = { menu_headings: { attr: ATR_BOLD } };
+    state.iflags = { menu_headings: { attr: 1 /* C ATR_BOLD */ } };
     state.program_state = {};
 
     let commandLines;
@@ -2264,7 +2293,7 @@ test('list_genocided preserves C class-heading attributes', async () => {
     state.svm.mvitals[PM_WOLF].mvflags = G_GENOD;
     state.svm.mvitals[PM_VAMPIRE].mvflags = G_GENOD;
     state.flags = { vanq_sortmode: VANQ_MCLS_LTOH };
-    state.iflags = { menu_headings: { attr: ATR_BOLD } };
+    state.iflags = { menu_headings: { attr: 1 /* C ATR_BOLD */ } };
     state.program_state = {};
 
     let commandLines;

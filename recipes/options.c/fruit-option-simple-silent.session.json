@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first options.c:optfn_fruit1758–1760 fruit-option-simple-silent witness. Seed15941017, clock20560220114031, Ranger, menu route and fruit name were fixed before JavaScript comparison. Source quiet/startup route must omit live feedback; canonical fruit state stays owned by existing naming/fruit owners. C-only setup review: PICK_ONE search selects the unique fruit row immediately; omit the second newline used by the full PICK_ANY menu. The initial extra-confirm probe is retained in cache and gives no completion evidence.",
+  "segments": [
+    {
+      "seed": 15941017,
+      "datetime": "20560220114031",
+      "nethackrc": "OPTIONS=name:Fay,role:Ranger,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".O:fruit\nsnowberry\n\u001b."
+    }
+  ]
+}

@@ -341,6 +341,7 @@ import {
     AT_ENGL,
     AD_RUST,
     AT_EXPL,
+    AD_ANY,
     G_UNIQ,
     NUMMONS,
     PM_DISPLACER_BEAST,
@@ -363,6 +364,7 @@ import {
     maybe_unhide_at,
     seemimic,
     set_ustuck,
+    wake_nearto,
 } from './mon.js';
 import { m_next2u, mdamageu } from './mhitu.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
@@ -460,7 +462,7 @@ import { init_objects } from './o_init.js';
 import { note_unported } from './unported.js';
 import { livelog_printf } from './pline.js';
 import { select_menu } from './windows.js';
-import { do_attack, is_safemon, stumble_onto_mimic } from './uhitm.js';
+import { do_attack, explum, is_safemon, stumble_onto_mimic } from './uhitm.js';
 import {
     block_point,
     couldsee,
@@ -2177,9 +2179,8 @@ async function dopush(sx, sy, rx, ry, otmp, state, env) {
     state.gb.bldrpushtime = moves;
 
     /* Move the boulder *after* the message. */
-    // 206-207. unmap_object() has its own explicit map-memory boundary when
-    // the remembered square also contains an unsupported engraving/sensed
-    // monster; the call itself remains in source order.
+    // 206-207. Restore underlying memory before moving the boulder onto a
+    // square that remembers an invisible monster.
     if (glyph_is_invisible(glyph_at(rx, ry, state)))
         unmap_object(rx, ry, state);
     otmp.next_boulder = 0;
@@ -3644,27 +3645,32 @@ async function domove_fight_empty(x, y, state) {
         && !state.context.nopick;
     if (!state.context.forcefight && !remembersUnseenMonster) return false;
 
-    // 2247 explo, whose consequences are the tail at 2324-2334: wake_nearto(),
-    // explum(), u.mh = -1 and rehumanize(). Nothing in this port polymorphs the
-    // hero, and none of those four is ported. C reads it above the off-edge arm
-    // below and spends it at 2319-2321, so a swing off the edge in an exploding
-    // form stops here rather than printing.
-    if (Upolyd(state.u) && attacktype(state.youmonst?.data, AT_EXPL)) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'force-fight while polymorphed into an exploding form',
-        );
+    const explo = Upolyd(state.u) && attacktype(state.youmonst?.data, AT_EXPL);
+    // C's futile label joins the off-edge and ordinary terrain paths. Both
+    // run this tail after the message and nomul(0); no target monster exists.
+    async function expendExplodingForm() {
+        if (!explo) return;
+        const attk = attacktype_fordmg(state.youmonst.data, AT_EXPL, AD_ANY);
+        const env = { state, message: ttyPline, random: { d, rn1, rn2, rnd } };
+        await wake_nearto(state.u.ux, state.u.uy, 7 * 7, env);
+        if (attk) await explum(null, attk, state, env);
+        state.u.mh = -1;
+        await rehumanize(state, env);
     }
     // 2252-2256. `solid` at 2248 is true from `off_edge` alone and `boulder` is
-    // still the 0 it was given at 2246, so the adverb at 2320 is "harmlessly ";
-    // `explo`, its third input, is refused above. The jump to `futile` skips
+    // still the 0 it was given at 2246, so the adverb at 2320 is "harmlessly "
+    // or "futilely " for an exploding form. The jump to `futile` skips
     // every test below along with unmap_object() and newsym(), so this arm
     // reads no square at all -- which is why C's pinning of x,y to <0,1> at
     // 2235-2239, there to keep the reads it skips inside the array, has no
     // counterpart here.
     if (!isok(x, y)) {
         /* treat as if solid rock, even on planes' levels */
-        await ttyPline('You harmlessly attack an unknown obstacle.', state);
+        await ttyPline(explo
+            ? 'You futilely explode at an unknown obstacle.'
+            : 'You harmlessly attack an unknown obstacle.', state);
         nomul(0, state);
+        await expendExplodingForm();
         return true;
     }
 
@@ -3759,12 +3765,12 @@ async function domove_fight_empty(x, y, state) {
     // 2318-2321, C's `futile` label, which the off-edge arm above jumps to and
     // this arm falls into. C's adverb is
     //     !(boulder || solid) ? "" : !explo ? "harmlessly " : "futilely "
-    // The exploding-form arm was handled above, so an admitted boulder or
-    // solid square takes the harmless branch while ordinary floor is bare.
-    const adverb = boulder || solid ? 'harmlessly ' : '';
-    await ttyPline(`You ${adverb}attack ${buf}.`, state);
+    const adverb = boulder || solid
+        ? (explo ? 'futilely ' : 'harmlessly ') : '';
+    await ttyPline(`You ${adverb}${explo ? 'explode at' : 'attack'} ${buf}.`, state);
 
     nomul(0, state);
+    await expendExplodingForm();
     return true;
 }
 

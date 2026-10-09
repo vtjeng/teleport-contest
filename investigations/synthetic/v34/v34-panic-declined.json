@@ -1,0 +1,78 @@
+{
+  "session": "synthetic/v34/v34-panic-declined",
+  "corpus": "synthetic",
+  "batch": "v34",
+  "caseId": "v34-panic-declined",
+  "manifestPath": "challenges/manifests/v34.json",
+  "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+  "recordingSha256": "8729211a0395f9723bdcd60599589b5dec8497864401f14aadcb504b27e5494b",
+  "evaluationPath": "challenges/evaluations/accepted-993ad924fd08f999b0beeaa0945abc04eb2e5ec0-v34.json",
+  "evaluationCommit": "993ad924fd08f999b0beeaa0945abc04eb2e5ec0",
+  "remainingScreens": 24,
+  "recordedSteps": 32,
+  "status": "complete",
+  "commit": "bc2ce8fb5ecd42fec92c2db427c427b566e0d645",
+  "mismatch": {
+    "session": "synthetic/v34/v34-panic-declined",
+    "corpus": "synthetic",
+    "batch": "v34",
+    "caseId": "v34-panic-declined",
+    "manifestPath": "challenges/manifests/v34.json",
+    "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+    "recordingPath": "challenges/cases/v34/v34-panic-declined.session.json",
+    "recordingSha256": "8729211a0395f9723bdcd60599589b5dec8497864401f14aadcb504b27e5494b",
+    "recipe": "challenges/cases/v34/v34-panic-declined.recipe.session.json",
+    "recipeSha256": "89fd2ffabbe768efd12969c6bab8945abf8a4a17697731ea54f7d7a84a092374",
+    "evaluationPath": "challenges/evaluations/accepted-993ad924fd08f999b0beeaa0945abc04eb2e5ec0-v34.json",
+    "evaluationCommit": "993ad924fd08f999b0beeaa0945abc04eb2e5ec0",
+    "remainingScreens": 24,
+    "recordedSteps": 32,
+    "metrics": {
+      "screens": {
+        "matched": 8,
+        "total": 32
+      },
+      "rng": {
+        "matched": 2831,
+        "total": 2831
+      },
+      "cursors": {
+        "matched": 8,
+        "total": 32
+      }
+    },
+    "error": null,
+    "passed": false,
+    "firstMismatch": {
+      "kind": "refusal",
+      "segment": 0,
+      "step": 8,
+      "boundary": "unsupported hero command: wiz_panic() for the extended command 'panic' is not ported"
+    }
+  },
+  "summary": "The wizard panic command has no JavaScript owner or dispatcher arm. C asks its paranoid confirmation and returns without spending a turn after a negative answer; JS refuses before the query.",
+  "source": {
+    "file": "wizcmds.c",
+    "branch": "wiz_panic534–546: debug_fuzzer fills current/max HP and energy to1000 without a query; ordinary debug play calls paranoid_query(TRUE) and negative confirmation returns ECMD_OK without panic.",
+    "functions": [
+      "wiz_panic"
+    ],
+    "callers": [
+      "cmd.c:doextcmd491–523 invokes extcmdlist function pointer for panic at1793–1794; JS doextcmd lacks wiz_panic switch arm.",
+      "cmd.c:rhack3682–3825 dispatches rebound or canned extcmd rows and handles ECMD_OK; JS rhack also needs the bounded panic arm for BINDINGS/canned commands."
+    ],
+    "dependencies": [
+      "Existing consumed cmd.c:paranoid_query5655–5658 and paranoid_ynq5587–5651 are source-aligned in js/cmd.js900–962; use canonical async helper without new query state, random draw or output substitute.",
+      "Source end.c:panic392–471 is a discarded void noreturn callee after positive confirmation. No canonical JS end.c panic owner exists; unrelated local dungeon.js panic is not that source function. Preserve this as an explicit outside-limit end.c:panic gap with no native shutdown/core/error-save completion credit."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Current one-case diagnostic .cache/B185/current-scan.json, measured at 0be84a8b924b013b14544833362f5e060f9503fc, emits8/32 screens then refuses at segment0 step8 Enter after #panic. It has no earlier screen/RNG/cursor divergence; the expected C line is Do you want to call panic() and end your game? [yes|n] (n). Saved accepted-993ad924 metrics are8/32 screens/cursors and2831/2831 RNG.",
+    "Read whole wizcmds.c:wiz_panic534–546. Its debug_fuzzer branch assigns u.uhp/u.uhpmax=1000 then u.uen/u.uenmax=1000 and returns ECMD_OK. Otherwise paranoid_query(TRUE,prompt) gates panic(\"Crash test (#panic).\"), followed by ECMD_OK. No RNG is called by this selected function.",
+    "rg over JS and C confirms only C declaration/function/table references to wiz_panic; js/wizcmds.js has no owner and js/cmd.js doextcmd falls to UnsupportedHeroCommandBoundaryError. extcmdlist_data.js94 correctly retains key0 and IFBURIED|AUTOCOMPLETE|WIZMODECMD, so generated table changes are unnecessary.",
+    "Existing paranoid_query returns awaited paranoid_ynq(...,false)===KEY_Y. Read both complete C helpers and JS implementation: spelling, case/whitespace normalization, default no, Escape and ParanoidConfirm retry behavior match. Reuse its state-owned line input/history without porting another copy.",
+    "Complete end.c:panic source includes terminal shutdown, error save, paniclog, native NH_abort and really_done(PANICKED). It is not required as a consumed-return callee because wiz_panic discards its void result; proposed whole owner keeps it named through note_unported and preserves explicit positive-confirmation/native-termination outside limits. Positive panic must not be represented by invented output or state.",
+    "Proposed evidence after central assignment: admitted negative confirmation through final step31; independent C-first typed negative/default/escape/paranoid-confirm answers and rebound BINDINGS=V:panic variation, complete matching recordings; source-pinned fuzzer assignments and early return/query exclusion. Preserve positive native panic as a blocked recipe, outside passing corpus and no end.c credit."
+  ]
+}

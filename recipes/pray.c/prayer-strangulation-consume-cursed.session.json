@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pray.c:fix_worst_trouble STRANGLED caller witness consume-cursed. New Valkyrie equipment, clock and seed; successful wizard-forced prayer must consume the worn strangulation amulet before the breathe message. Inputs chosen before JavaScript comparison; C-only setup corrections are retained in evidence.",
+  "segments": [
+    {
+      "seed": 15820023,
+      "datetime": "20370817202931",
+      "nethackrc": "OPTIONS=name:Breathing,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed amulet of strangulation\nPe #pray\ny y              i      ."
+    }
+  ]
+}

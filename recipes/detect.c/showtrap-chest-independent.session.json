@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first chest variation for pager.c doidtrap and consumed detect.c trapped glyph predicates. Source wizard wishes set the physical trap/container, blindness preserves discovered chest/door trap glyphs, hallucination exercises guarded core rn2(20) without requiring sight. Adjust input only from C observations before comparison. Leading Space explicitly dismisses any initial welcome More before source setup. Ctrl-E invokes source wiz_detect/findit (Ctrl-F merely mapped the level and did not expose the container/door trap glyph). C observation placed an east wall beside this independently generated start; move west onto the visible floor and inspect east, leaving the box at the original square. Use the canonical typed #wizdetect caller: the separate direct Ctrl-E admission remains an inherited dispatcher frontier outside showtrap scope. Before hallucinating, typed #whatis selects map farlook and the adjacent remembered trap, exercising the existing trap_description helper caller. Repeated no-time inspections sample both C hallucination gate branches without seed search; !help suppresses unrelated encyclopedia input.",
+  "segments": [
+    {
+      "seed": 18935014,
+      "datetime": "20561013122334",
+      "nethackrc": "OPTIONS=name:Trapchest,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,!help\n",
+      "moves": " \u0017trapped large box\nde h#wizintrinsic\n60i\n #wizdetect\n   ^l #whatis\n/   l.\u001b  #wizintrinsic\n60h\n ^l ^l ^l ^l ^l ^l ^l ^l ^l ^l ^l ^l ^l ^l ^l ^l ^l ^l ^l ^l ^l ^l ^l ^l ^l ^l ^l ^l ^l ^l."
+    }
+  ]
+}

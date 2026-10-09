@@ -1,0 +1,110 @@
+{
+  "session": "synthetic/v32/v32-altar-buc-drop",
+  "corpus": "synthetic",
+  "batch": "v32",
+  "caseId": "v32-altar-buc-drop",
+  "manifestPath": "challenges/manifests/v32.json",
+  "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+  "recordingSha256": "d460590aeabf0d672c99368d3c2a3d362aacec18e2ef0889a40eb0874868bed2",
+  "evaluationPath": "challenges/evaluations/accepted-2f52799b8e966edcf64b8a93efcfabe527adb0e6-v32.json",
+  "evaluationCommit": "2f52799b8e966edcf64b8a93efcfabe527adb0e6",
+  "remainingScreens": 16,
+  "recordedSteps": 51,
+  "status": "complete",
+  "commit": "b2cf5aa15bf8d617223a84da1eabef7605995efa",
+  "mismatch": {
+    "version": 1,
+    "corpus": "synthetic",
+    "batch": "v32",
+    "caseId": "v32-altar-buc-drop",
+    "manifestPath": "challenges/manifests/v32.json",
+    "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+    "recordingPath": "challenges/cases/v32/v32-altar-buc-drop.session.json",
+    "recordingSha256": "d460590aeabf0d672c99368d3c2a3d362aacec18e2ef0889a40eb0874868bed2",
+    "recipeSha256": "9a8af0047fd0b6dfac3dfca1dfaeee0a27e3bf29c49fbce9df487ad5e9f332d8",
+    "evaluationPath": "challenges/evaluations/accepted-2f52799b8e966edcf64b8a93efcfabe527adb0e6-v32.json",
+    "evaluationCommit": "2f52799b8e966edcf64b8a93efcfabe527adb0e6",
+    "replayInputSha256": "baeded212c21f8e021f5bafb7222a91783c52d44c0992dd0df6f017eb2d7f8b0",
+    "diagnosticToolSha256": "01cb5004cc11a812f50a8e119ea49eb9700d913dc19487543ad6f877b06e6a82",
+    "replayCommit": "3a987ec6504de5bec46ca2bcb8b86420384e507a",
+    "session": "synthetic/v32/v32-altar-buc-drop",
+    "evaluationUtc": "2026-10-08T20:50:17.876Z",
+    "remainingScreens": 16,
+    "recordedSteps": 51,
+    "metrics": {
+      "screens": {
+        "matched": 35,
+        "total": 51
+      },
+      "rng": {
+        "matched": 2049,
+        "total": 2057
+      },
+      "cursors": {
+        "matched": 35,
+        "total": 51
+      }
+    },
+    "previousScreensMatched": 35,
+    "step": 35,
+    "kind": "stop",
+    "sourceFile": "do.c",
+    "function": "dropx",
+    "line": 785,
+    "message": "unsupported hero command: an unported branch of this command: unsupported drop: shipping or floor effects at a trap"
+  },
+  "summary": "An obsolete dropx preflight rejects every trap before inventory extraction or altar handling. C reaches an ordinary dry-floor drop for this nonboulder dagger: the hero is already caught in the pit, so neither pit-edge nor shaft floor effects apply. doaltarobj already implements the black flash; this is a bounded trap-admission divergence.",
+  "goalKind": "divergence-fix",
+  "source": {
+    "file": "do.c",
+    "functions": [
+      "dropx"
+    ],
+    "branch": "Ordinary nonboulder object drops onto dry terrain with an inert trap: not a hole/trapdoor or an active uteetering_at_seen_pit/uescaped_shaft landing. The selected hero is caught in a seen pit (utrap nonzero, utraptype TT_PIT), so the trap adds no floor effect.",
+    "callers": [
+      "do.c:drop -> dropx785-797 -> freeinv -> ship_object -> doaltarobj on an altar -> dropy/dropz/flooreffects. JS dodrop/drop stops in preflight_dropx before freeinv.",
+      "Existing direct dropx/dropz callers share this guard, including invent.c:hold_another_object; the fix adds no caller or floor-effect implementation."
+    ],
+    "dependencies": [
+      "Canonical pure trap.c:uteetering_at_seen_pit6648-6653 and uescaped_shaft6660-6664 (js/trap.js547-562) retain active landing frontiers. Read exact position, seen and TT_PIT tests.",
+      "dokick.c:down_gate1943-1975 returns MIGR_NOWHERE for a plain pit without downward stairs; ship_object1639 onward immediately returns FALSE before RNG. Existing js/dokick.js implements these early returns. Preserve all hole/trapdoor and boulder trap refusals.",
+      "Read whole do.c:flooreffects161-361: boulder/pit-hole, lava/water, pit-edge/shaft, glob, moving-monster altar and hot-ground potion arms. None fires for the selected dagger. Other existing admission limits remain."
+    ]
+  },
+  "evidence": [
+    "Focused assigned-base scan run-3sDpW0 (.cache/B169/scan.json) reproduces segment0 step35 refusal: unsupported drop: shipping or floor effects at a trap. Saved accepted-2f52799b evaluation remains35/51screens/cursors and2049/2057RNG; remaining16 matches the unchanged corpus/recording identity.",
+    "Read admitted independent C recipe/recording. Replay state at refusal: ALTAR at the hero, seen PIT, utrap4 and utraptype TT_PIT; both canonical trap predicates are false. Coordinates/counts are diagnostic data, not implementation constants. C step35 prints There is a black flash as a dagger hits the altar.",
+    "Read whole do.c:dropx785-797 and doaltarobj363-392. JS preserves freeinv -> ship -> altar -> dropy and altar blind/gnostic/coin/flash/bknown behavior; the unconditional t_at guard in preflight_dropx1947 prevents those existing owners.",
+    "Smallest correction admits inert nonboulder trap landings, retaining boulder trap, all shaft, seen pit-edge, liquid, shop, attachment and special merge guards. No whole drop/flooreffects/trap/shipping completion credit.",
+    "Focused search found stale inert WEB refusals in inventory-substrate and unseen PIT refusals in engraving/throne tests. Replace effect-frontier fixtures with active seen pit edges or shafts; add inert pit/other-trap extraction/altar/placement/RNG assertions. Record independent trapped ordinary/blessed/cursed drops and retain a boulder or pit-edge outside-limit recipe."
+  ],
+  "proposal": {
+    "goalId": "fix-do-dropx-inert-trap-admission-v32-20261008",
+    "summary": "Admit ordinary drops over inert traps.",
+    "selectionReason": "Seed continuation after independent v31 owners were claimed or native-pointer blocked; v32 altar drop has16 unmatched screens and an independent dropx admission defect.",
+    "dependencyReady": true,
+    "sourceUnits": [
+      {
+        "file": "do.c",
+        "name": "dropx",
+        "start": 785,
+        "end": 797
+      }
+    ],
+    "proposedReservations": [
+      "session:synthetic/v32/v32-altar-buc-drop",
+      "source:do.c:dropx",
+      "contract:drop-inert-trap-admission"
+    ],
+    "proposedPaths": [
+      "js/do.js",
+      "scripts/drop-command.test.mjs",
+      "scripts/inventory-substrate.test.mjs",
+      "recipes/do.c/",
+      "recordings/do.c/",
+      "investigations/synthetic/v32/v32-altar-buc-drop.json",
+      ".cache/"
+    ],
+    "dependencies": []
+  }
+}

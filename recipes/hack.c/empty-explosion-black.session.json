@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent A179 C-first witness for hack.c:domove_fight_empty2324–2334. Seed chosen directly without search, before C observation or JS comparison. Role and form variations change inventory shedding and AT_EXPL dice. Verify empty-square exploding-form wording, dice/wake order and rehumanization; read C output before comparison.",
+  "segments": [
+    {
+      "seed": 17933000,
+      "datetime": "20410922113000",
+      "nethackrc": "OPTIONS=name:A179Probe,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#polyself\nblack light\n        Fh         ."
+    }
+  ]
+}

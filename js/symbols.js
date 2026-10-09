@@ -18,6 +18,7 @@ import { game } from './gstate.js';
 import { isDefaultSymsetName } from './files.js';
 import {
     apply_customizations,
+    fill_glyphid_cache, free_glyphid_cache, glyphid_cache_status,
     clear_all_glyphmap_colors,
     clear_all_glyphmap_unicode,
     numeric_glyph_customization,
@@ -148,6 +149,7 @@ export const S_expl_br = requiredCmapSymbol('s_expl_br');
 // The base of the four beam directions a zap glyph carries, which
 // glyphs.c glyph_to_cmap() (1003-1004) adds its remainder to.
 export const S_vbeam = requiredCmapSymbol('s_vbeam');
+export const S_rslant = requiredCmapSymbol('s_rslant');
 
 // C ref: rm.h trap_to_defsym()/defsym_to_trap().
 export function trap_to_defsym(ttyp) {
@@ -162,6 +164,11 @@ export function defsym_to_trap(defsym) {
         throw new RangeError(`defsym ${defsym} is not a trap symbol`);
     return ttyp;
 }
+
+// C ref: symbols.c known_handling[]; options and wizard diagnostics share it.
+export const known_handling = Object.freeze([
+    'UNKNOWN', 'IBM', 'DEC', 'CURS', 'MAC', 'UTF8',
+]);
 
 const HANDLING_BY_NAME = Object.freeze({
     UNKNOWN: H_UNK,
@@ -298,8 +305,14 @@ function loadSymbolSet(name, set, state) {
         return;
     }
 
+    // symbols.c do_symset1072 fills before read_sym_file.
+    if (!glyphid_cache_status(state)) fill_glyphid_cache(state);
     const definition = symbolSetDefinition(name);
-    if (!definition) throw new Error(`unknown symbol set '${name}'`);
+    if (!definition) {
+        // do_symset frees the cache even when read_sym_file fails.
+        if (glyphid_cache_status(state)) free_glyphid_cache(state);
+        throw new Error(`unknown symbol set '${name}'`);
+    }
     const arrays = slotArrays(set, state);
     for (const [index, byte] of Object.entries(definition.bytes)) {
         arrays.base[Number(index)] = byte;
@@ -324,6 +337,7 @@ function loadSymbolSet(name, set, state) {
     for (const [glyphName, value] of Object.entries(definition.glyphs)) {
         glyphrep_to_custom_map_entries(`${glyphName}:${value}`, state);
     }
+    if (glyphid_cache_status(state)) free_glyphid_cache(state);
     apply_customizations(state.gc.currentgraphics, state);
 }
 

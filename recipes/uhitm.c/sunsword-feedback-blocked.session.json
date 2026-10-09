@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked outside silver-helper scope: light-hating gremlin route reaches monmove.c:distfleeck -> mon.c:monflee light-fear feedback before the hero can land the intended uhitm.c:hmon_hitmon_msg_lightobj blow. The discarded light-message helper remains separately unported. C-only reference confirms wall attack followed by Bright light! at the later mismatch; no light-helper reachability credit. Independent Valkyrie source-valid Sunsword setup retained as a representative neighboring limit, with no passing recording.",
+  "segments": [
+    {
+      "seed": 18433002,
+      "datetime": "20451013141516",
+      "nethackrc": "OPTIONS=name:SilverProbe,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "        \u0017uncursed Sunsword\n        we        \u0007gremlin\n        Fh     Fl     Fk     Fj     Fy     Fu     Fb     Fn     Fh     Fl     Fk     Fj     Fy     Fu     Fb     Fn     Fh     Fl     Fk     Fj     Fy     Fu     Fb     Fn     "
+    }
+  ]
+}

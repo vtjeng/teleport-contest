@@ -23,6 +23,7 @@ const HELP_FILENAMES = Object.freeze([
     'usagehlp',
     'license',
     'wizhelp',
+    'keyhelp',
 ]);
 
 function expandTabs(value) {
@@ -62,6 +63,14 @@ export function parseHelpTextFile(source, filename) {
             );
         }
     }
+    // pager.c whatdoes_help() passes dlb_fgets' newline to putstr, which makes
+    // wintty.c compress_str() compress consecutive spaces even on short lines.
+    // Keep those source bytes; trim only the helper's leading spaces/tabs.
+    if (filename === 'keyhelp')
+        return lines.map((line, index) => line
+            + (index < lines.length - 1 || source.endsWith('\n') ? '\n' : ''))
+            .filter(line => !line.startsWith('#'))
+            .map(line => line.replace(/^[ \t]*/u, ''));
     return lines.map((line) => line.includes('\t') ? expandTabs(line) : line);
 }
 

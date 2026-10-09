@@ -62,7 +62,10 @@
 // four points -- and why scripts/uhitm-hmon.test.mjs pins that arm directly
 // instead.
 
-import { validateCleanRecipe } from './diff-fresh.mjs';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { runSegment } from '../js/jsmain.js';
+import { compareSessionOutputs, validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 export const MELEE_DATETIME = '20260214031500';
@@ -254,6 +257,38 @@ export async function runHostileMeleeHitMatrix() {
             recipe: loadBarehandedMeleeHitRecipe(),
         }],
         summaryLabel: 'HOSTILE MELEE HIT',
+    });
+}
+
+// uhitm.c hmon_hitmon_msg_silver: singular/plural weapon feedback runs before killed.
+export async function runSilverHitMatrix() {
+    const roles = ['caveman', 'valkyrie'];
+    return runFreshMatrix({
+        entries: roles.map(role => ({ label: `silver weapon ${role}`,
+            recipe: validateCleanRecipe(JSON.parse(readFileSync(new URL(
+                `../recipes/uhitm.c/silver-hit-${role}.session.json`, import.meta.url,
+            )))),
+        })),
+        summaryLabel: 'SILVER HIT', chunkLimit: 1,
+        verifySegment: async segment => {
+            const role = roles.find(role =>
+                segment.nethackrc.toLowerCase().includes(`role:${role},`));
+            const reference = JSON.parse(readFileSync(new URL(
+                `../recordings/uhitm.c/silver-hit-${role}.session.json`, import.meta.url,
+            )));
+            let boundary;
+            const output = await runSegment(segment, { onBoundary(error) { boundary = error; } });
+            if (boundary) throw boundary;
+            const comparison = compareSessionOutputs(reference, {
+                rng: output.getRngLog(), screens: output.getScreens(), cursors: output.getCursors(),
+                animFrames: output.getAnimationFramesByStep(),
+            });
+            assert.equal(comparison.passed, true, JSON.stringify(comparison));
+            const weapon = role === 'caveman' ? 'dagger sears' : 'daggers sear';
+            assert.ok(output.getScreens().some(screen => screen.includes(
+                `Your silver ${weapon} the manes' flesh!  You destroy the manes!`,
+            )), 'source silver feedback precedes kill feedback');
+        },
     });
 }
 

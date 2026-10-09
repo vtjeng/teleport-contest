@@ -4,6 +4,7 @@
 // place_worm_tail_randomly(), count_wsegs(), create_worm_tail(), worm_known(),
 // wseg_at().
 
+import { memoryLayout } from './wizcmds_data.js';
 import {
     has_mcorpsenm,
     MAX_NUM_WORMS,
@@ -366,4 +367,9 @@ export async function cutworm(worm, x, y, cuttier, rawEnv = {}) {
     } else {
         await wormMessage(`You cut ${mon_nam(worm, state)} in half.`, env);
     }
+}
+
+// C ref: worm.c size_wseg() (827-830). Only visible segments contribute.
+export function size_wseg(monster, state = game) {
+    return count_wsegs(monster, state) * memoryLayout.wseg;
 }

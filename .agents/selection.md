@@ -123,6 +123,9 @@ repair current mismatches. Give each preparation task the next unused version nu
 unaccepted preparation task at a time, and resume a parked batch before
 starting a later version. Keep at most one unadmitted prepared batch; after
 admission, recheck the preparation trigger before starting another.
+If several accepted batches are already waiting for admission, admit those
+before preparing another batch. `worker-state next` lists these ready batches;
+accepting preparation does not admit the batch.
 Preparation does not require the current
 batch to match.
 
@@ -211,14 +214,26 @@ and the earlier case they duplicate. They do not need independent replay unless
 needed to establish a blocker. Do not omit a distinct valid case because
 JavaScript passes it. Recheck overlap against current saved evaluations before
 admission; require a corrected delivery if a submitted manifest includes
-an overlapping case. Until admission, the cases do not enter synthetic scoring, the mismatch
-queue, or the dashboard.
+an overlapping case. Until admission, the cases do not enter synthetic scoring,
+the mismatch queue, or the dashboard's scored batch charts. The dashboard lists
+ready batches awaiting admission separately.
 
-Admit the oldest ready batch at the next safe integration boundary. If main
-has no ready implementation delivery, start immediately; otherwise give the
-implementation delivery priority. Do not wait for screen parity or a queue
-threshold. Admission still requires current, complete evaluations and a passing
-fixed-workload checkpoint. Missing, failed, or stale evaluations block admission.
+Admit prepared batches in order at safe integration boundaries. Give admission
+priority over queued deliveries when too few independent next tasks are
+available for the implementation workers. Count only unreserved work,
+not submitted deliveries.
+
+After saving a new batch's baseline, ask every idle implementation worker to
+reassess the updated queue at a clean task boundary. Do not wait for that
+worker's previous delivery to be accepted.
+
+After each admission, check whether
+every implementation worker has independent work available. Stop admitting
+when they do; otherwise admit the next ready batch. When workers have enough
+next tasks, prefer ready implementation deliveries. Do not interrupt an active
+checkpoint or wait for screen parity. Admission still requires current,
+complete evaluations and a passing fixed-workload checkpoint. Missing, failed,
+or stale evaluations block admission.
 Continue investigating and scheduling older unmatched cases;
 admission does not close or suppress them. Keep outstanding RNG or cursor
 defects visible across the transition. Preserve `v1` at

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first inert-trap drop: new seed/clock; create a pit beneath the hero, then drop blessed ruby. Verify trapped state and source floor/altar ordering before JS comparison. C established a failed staircase-pit setup and an unseen-pit down-command miss; final inputs move off stairs, wish a pit, leave and reenter it before dropping. Valkyrie/blessed gem/altar varies class, BUC and role; C prints amber flash.",
+  "segments": [
+    {
+      "seed": 16932011,
+      "datetime": "20490617140123",
+      "nethackrc": "OPTIONS=name:TrapDrop,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips,!debug_mongen\n",
+      "moves": " h\u0017pit\n  hl  \u0017neutral altar\n  \u0017blessed ruby\n   de    ."
+    }
+  ]
+}

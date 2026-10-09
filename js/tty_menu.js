@@ -50,8 +50,9 @@ import {
     CLR_GRAY,
     NO_COLOR,
 } from './terminal.js';
-import { menuitem_invert_test, select_menu } from './windows.js';
+import { menuitem_invert_test, select_menu, ttyMenuColorAttribute } from './windows.js';
 import { vision_recalc } from './vision.js';
+import { pmatchi } from './strutil.js';
 
 // C ref: win/tty/wintty.c process_menu_window()'s MENU_SEARCH arm, which
 // calls tty_getlin("Search for:") and skips an empty or Escaped answer.
@@ -76,7 +77,7 @@ export function menuTitleStyle(state = game) {
     const style = state.iflags?.menu_headings;
     return {
         titleAttr: Number.isInteger(style?.attr)
-            ? style.attr : ATR_INVERSE,
+            ? ttyMenuColorAttribute(style.attr) : ATR_INVERSE,
         titleColor: Number.isInteger(style?.color)
             ? style.color : NO_COLOR,
     };
@@ -996,34 +997,6 @@ function isDefaultMenuResponse(ch) {
         || '^|><.-@,\\~:'.includes(ch);
 }
 
-function lowercaseAscii(ch) {
-    const code = ch.charCodeAt(0);
-    return code >= 65 && code <= 90
-        ? String.fromCharCode(code + 32)
-        : ch;
-}
-
-// C ref: src/strutil.c pmatchi(). '*' matches zero or more characters and
-// '?' matches exactly one; all other comparisons are case-insensitive.
-function pmatchi(pattern, text) {
-    let previous = new Array(text.length + 1).fill(false);
-    previous[0] = true;
-    for (const patternCharacter of pattern) {
-        const current = new Array(text.length + 1).fill(false);
-        if (patternCharacter === '*') current[0] = previous[0];
-        for (let index = 1; index <= text.length; ++index) {
-            if (patternCharacter === '*') {
-                current[index] = previous[index] || current[index - 1];
-            } else if (patternCharacter === '?'
-                || lowercaseAscii(patternCharacter)
-                    === lowercaseAscii(text[index - 1])) {
-                current[index] = previous[index - 1];
-            }
-        }
-        previous = current;
-    }
-    return previous[text.length];
-}
 
 function searchItemText(item, columns) {
     // tty_add_menu() stores the original '-' marker in curr->str; selection
@@ -1203,11 +1176,37 @@ async function selectOneTtyMenu(state, spec) {
         || Object.hasOwn(spec, 'emptyValue');
     const emptyCompletion = Object.hasOwn(spec, 'preselected')
         ? spec.preselected : spec.emptyValue;
+    const selectedRows = () => selectableItems(workingSpec)
+        .filter(item => item.selected)
+        .map(item => ({ value: item.value, count: item.count }));
+    const hasSelection = () => workingSpec.items
+        ? selectedRows().length > 0
+        : (workingSpec.lines ?? []).some(line => {
+            const text = typeof line === 'string'
+                ? line : String(line?.text ?? line?.label ?? '');
+            return sourceChoiceSelector(line) && '+*#'.includes(text[2]);
+        });
+    const initiallySelected = hasSelection();
+    const committedValue = () => {
+        // C tty_select_menu recounts the current rows after process_menu_window;
+        // an Enter after bulk deselection cannot restore the initial payload.
+        if (spec.returnSelections) return selectedRows();
+        if (initiallySelected && !hasSelection())
+            return spec.emptyValue ?? spec.cancelValue ?? null;
+        return hasEmptyCompletion ? emptyCompletion : (spec.cancelValue ?? null);
+    };
     let pageIndex = 0;
     let rendered = renderTtyMenu(state, workingSpec, pageIndex);
     let pendingCount = null;
-    const selectedValue = (value, count = pendingCount) => spec.returnCount
-        ? { value, count: count ?? -1 } : value;
+    const selectedValue = (value, count = pendingCount) => {
+        if (spec.returnSelections) {
+            const item = selectableItems(workingSpec)
+                .find(row => row.value === value);
+            if (item) toggleItem(item, count);
+            return selectedRows();
+        }
+        return spec.returnCount ? { value, count: count ?? -1 } : value;
+    };
     for (;;) {
         const code = await nhgetch(state);
         const incoming = keyCharacter(code);
@@ -1282,8 +1281,7 @@ async function selectOneTtyMenu(state, spec) {
             // process_menu_window()'s '\0', '\n', and '\r' cases set
             // finished = TRUE unconditionally, the same commit Space takes.
             await dismissTtyMenu(state, rendered);
-            return hasEmptyCompletion
-                ? emptyCompletion : (spec.cancelValue ?? null);
+            return committedValue();
         }
         if (ch === ' ' || ch === MENU_NEXT_PAGE) {
             pendingCount = null;
@@ -1296,8 +1294,7 @@ async function selectOneTtyMenu(state, spec) {
                 // process_menu_window()'s MENU_NEXT_PAGE arm: on the last
                 // page a space finishes the menu, while '>' does not.
                 await dismissTtyMenu(state, rendered);
-                return hasEmptyCompletion
-                    ? emptyCompletion : (spec.cancelValue ?? null);
+                return committedValue();
             }
             continue;
         }
@@ -1592,13 +1589,14 @@ async function selectAnyTtyMenu(state, spec) {
     }
 }
 
-// PICK_ONE retains the established scalar return value. Its preselected and
-// optional emptyValue fields let source callers interpret select_menu()'s
-// unusual zero-selection result. PICK_ANY mirrors tty_select_menu() with an
+// PICK_ONE retains the established scalar return value unless returnSelections
+// requests C's selected row/count array (including an empty committed array).
+// Its preselected payload is retained only while its row remains selected.
+// PICK_ANY mirrors tty_select_menu() with an
 // ordered array of { value, count } entries, an empty array for an empty
 // commit, and cancelValue (null by default) for Esc. PICK_NONE shares the
 // PICK_ONE loop, which refuses every selection and so always answers
-// cancelValue.
+// cancelValue (or an empty array when returnSelections is requested).
 export async function selectTtyMenu(state = game, spec) {
     // wintty.c tty_display_nhwindow() clears rawprint before the menu arm.
     if (state.nhDisplay?.nomuxRaw)

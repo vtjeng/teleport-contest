@@ -1,0 +1,96 @@
+{
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-cav-strt",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "7632fc336c92a177429e5fc96f4a4c163823c11882d420116053ece9b44d98f6",
+  "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+  "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+  "remainingScreens": 41,
+  "recordedSteps": 60,
+  "session": "synthetic/v36/v36-quest-cav-strt",
+  "commit": "004a6da893c5dc420e260eb3ae0e285e85a56874",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-cav-strt",
+    "session": "synthetic/v36/v36-quest-cav-strt",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-cav-strt.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-cav-strt.session.json",
+    "recordingSha256": "7632fc336c92a177429e5fc96f4a4c163823c11882d420116053ece9b44d98f6",
+    "recipe": "challenges/cases/v36/v36-quest-cav-strt.recipe.session.json",
+    "recipeSha256": "339c68d04fbb280e5a8fa2cad40db3e19cc4a472073d862bbfcff0f8a521f28c",
+    "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+    "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+    "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+    "evaluationArtifact": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+    "evaluationUtc": "2026-10-09T10:38:34.264Z",
+    "remainingScreens": 41,
+    "recordedSteps": 60,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 60
+      },
+      "rng": {
+        "matched": 2792,
+        "total": 3434
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Cav-strt\"",
+      "step": 19
+    },
+    "step": 19,
+    "kind": "stop",
+    "sourceFile": "Cav-strt.lua",
+    "function": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Cav-strt\"",
+    "cFile": null,
+    "luaFile": "Cav-strt.lua",
+    "line": null
+  },
+  "status": "complete",
+  "goalKind": "lua-port",
+  "summary": "Quest arrival selects Cav-strt, but the special-level registry has no loader. Port the entire Cav-strt.lua program, including its exact generated cave map, irregular temple and occupied rooms, coaligned shrine, Shaman Karnov custom inventory, guards, traps, siege monsters and wallification, then register the loader.",
+  "source": {
+    "file": "Cav-strt.lua",
+    "functions": [
+      "Cav-strt.lua"
+    ],
+    "branch": "The special-level record for the Caveman quest start names Cav-strt; named level teleport reaches load_special before its private alignment shuffle. Lua initializes solid stone, places its fixed map, defines irregular rooms and a shrine, and then constructs quest inhabitants and siege features in source order.",
+    "callers": [
+      "do.c goto_level -> mklev.c makelevel -> mkmaze.c makemaz -> sp_lev.c load_special executes dat/Cav-strt.lua. JS allmain.js deferred-goto -> do.js goto_level -> mklev.js makelevel/makemaz/load_special -> QUEST_LEVEL_LOADERS. js/quest_levels.js lacks Cav-strt.",
+      "The accepted wizcmds.c wiz_load_splua command can execute the same named program through load_special. Natural quest branch arrival and named wizard teleport share makelevel/load_special; no separate Lua entry is defined."
+    ],
+    "dependencies": [
+      "Canonical des.level_init/level_flags/map/region/stair/levregion/door/altar/monster/object/non_diggable/trap/wallify already exist in createSpecialLevelApi. Each operation and inventory callback must be awaited in source order; no descriptor-owner edit is currently required.",
+      "Consumed Lua result: selection.area(0,0,75,19) is handled by existing relative ThemeroomSelection and descriptor coordinate conversion. The map result is discarded; no new map-return contract is needed. Other des operation results are discarded rather than used as placeholder data.",
+      "Irregular region uses lspo_region -> mkmap.c flood_fill_rm and add_room; JS mklev.js3993+ calls canonical flood_fill_rm and saves the room/coder in source order. Temple filled1 is source-valid and uses existing fill_special_room flags; shrine create_altar -> priestini creates the aligned priest before custom leader inventory.",
+      "Custom monster inventory: JS lspo_monster2240+ awaits the closure after create_monster, then spo_end_moninvent clears context and equips canonical items. The source leader has only leather armor+5 and club+5; its later chest is a floor object outside the closed inventory context.",
+      "C168 Cav-goal and C169 Cav-loca reserve distinct Lua programs and only their own quest_levels.js import/function/registry hunks; C confirmed no generic helper/API change or source overlap. Coordinate adjacent imports/registry entries at accepted merges."
+    ]
+  },
+  "evidence": [
+    "Assigned replay run-2sBLC4 reproduces 19/60 screens/cursors and 2792/3434 RNG. Segment0 step19 key y selects the wizard destination menu; C next rn2(3)=1 is private nhlib.lua alignment shuffle before the new program. JS stops with makelevel/load_special absent Cav-strt. .cache/A191/probe.json and probe.log retain exact differences and source stack.",
+    "Read all dat/Cav-strt.lua1–94, including top-level statements and the leader inventory callback. Source13/15 initializes solidfill and flags;17–37 is the fixed 76x20 map;39–47 unlit whole map then one irregular temple and six lit irregular ordinary rooms;49–55 stair, branch arrival point, locked door and coaligned shrine;57–60 leader inventory;62 floor chest;64–71 eight neanderthal guards;73 nondiggable map;75–80 two fixed pits and four random traps;82–93 twelve hostile bugbears;94 final wallification.",
+    "The first RNG annotation is not a shuffle defect: JS never enters the canonical load_special private-library initialization because the loader key is absent. Existing QUEST_LEVEL_LOADERS contains Bar/Arc/Pri/Wiz and Kni-goal, but no Cav-strt. Add a source-named cavStrt function and exact key rather than modify teleport/menu logic.",
+    "Consumed-return and callback review: selection.area is already canonical; Lua ignores map/descriptor returns. lspo_region, create_altar and lspo_monster custom inventory already supply the source paths. No Unsupported refusal was found in these selected descriptor branches. Runtime evidence still must establish their combined behavior before completion; if an actual helper defect appears, request its source scope before editing.",
+    "Generate the large fixed cave map deterministically from dat/Cav-strt.lua with scripts/generate-cav-strt-level.mjs and commit js/cav_strt_level_data.js plus a source-pinned --check. Preserve all trailing spaces, room area values, fixed monster/trap coordinates and inventory callback order.",
+    "Actionable complete scope: whole Cav-strt.lua1–94 with loader function/registry in existing js/quest_levels.js, generated map data/script and exact focused test/runner, recipes/Cav-strt.lua and recordings/Cav-strt.lua. C169 confirmed disjoint Cav-loca hunks and no generic API changes. No whole quest_levels/sp_lev/teleport/quest permission credit.",
+    "Validation plan: fail-first absent registry/module; source-pinned exact generated map and complete descriptor/callback order tests. Verify admitted segment0steps19–59 and add independent C-first human-neutral/dwarf-lawful role/race variations using direct #wizloaddes and source-named quest arrival. Assert shrine alignment/room metadata, leader inventory, guard/siege counts and source stair/branch/pits; compare complete RNG/screens/cursors/frames. Choose a neighboring already owned Cav-loca route as outside-scope evidence and retain its named boundary if accepted code is not yet present.",
+    "Evidence limits: read-only investigation; no source edits or new C recordings. The assigned replay stops before the Lua program, so helper reachability is a proposed coverage plan, not runtime completion. C169 independent frontier at /tmp/teleport-loop-worker-c-20260925/.cache/C169-cav-strt-frontier-c.session.json is C provenance only; it receives no A191 completion credit."
+  ]
+}

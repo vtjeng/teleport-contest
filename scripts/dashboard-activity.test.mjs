@@ -2,8 +2,104 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { test } from 'node:test';
 
-import { activityTimeline, syntheticGainByCommit } from './dashboard-activity.mjs';
+import { activityTimeline, agentStages, syntheticGainByCommit } from './dashboard-activity.mjs';
 import { activityFromLedger, developmentFromCheckpoint, mergeActivity } from './dashboard-snapshot.mjs';
+
+test('parked task reasons survive publication and older deliveries never replace worker activity', () => {
+  // Reproduce A177: two dependency parks interrupt work while three older deliveries wait.
+  const at = minute => `2026-09-25T10:${String(minute).padStart(2, '0')}:00Z`;
+  const events = [
+    ...['A174', 'A175', 'A176'].flatMap((task, index) => [
+      { type: 'assign', task, worker: 'A2', at: at(index * 2) },
+      { type: 'ready', task, at: at(index * 2 + 1) },
+    ]),
+    { type: 'assign', task: 'A177', worker: 'A2', at: at(6) },
+    { type: 'park', task: 'A177', reason: 'Await A175 prayer caller.', at: at(7) },
+    { type: 'resume', task: 'A177', at: at(10) },
+    { type: 'park', task: 'A177', reason: 'Await C158 prayer caller.', at: at(11) },
+    { type: 'turn', worker: 'A2', state: 'idle', summary: 'C158 still owns the caller.', at: at(12) },
+    { type: 'resume', task: 'A177', at: at(15) },
+    { type: 'ready', task: 'A177', at: at(18) },
+  ].map((row, index) => ({ id: String(index), ...row }));
+  const activity = activityFromLedger({ runId: 'loop-20260925', events });
+  assert.equal(activity.events.find(row => row.type === 'park').reason, 'Await A175 prayer caller.');
+  const { stages, segments } = activityTimeline(activity, at(20));
+  const sequence = stages.filter(row => row.lane === 'A2' && row.start >= at(6) && row.start < at(18));
+  assert.ok(sequence.every(row => row.task.endsWith('/A177')));
+  assert.deepEqual(sequence.map(row => [row.phase, row.start, row.end]), [
+    ['working', at(6), at(7)], ['parked', at(7), at(10)],
+    ['working', at(10), at(11)], ['parked', at(11), at(15)], ['working', at(15), at(18)],
+  ]);
+  assert.equal(sequence[3].reason, 'Await C158 prayer caller.');
+  assert.equal(segments.filter(row => row.phase === 'queued').length, 4,
+    'all deliveries remain in task history');
+  assert.ok(stages.every(row => row.phase !== 'queued' && row.phase !== 'pending'));
+  assert.ok(stages.some(row => row.lane === 'A2' && row.phase === 'unrecorded' && row.start === at(18)),
+    'resuming A177 invalidates the earlier idle report');
+});
+
+test('an older parked task cannot reappear after the worker delivers newer work', () => {
+  // Ownership persists, but A1's unfinished task is no longer this worker's current activity.
+  const at = minute => `2026-09-25T10:${String(minute).padStart(2, '0')}:00Z`;
+  const { stages } = activityTimeline({ events: [
+    { type: 'register', worker: 'A', live: true, at: at(0) },
+    { type: 'assign', task: 'A1', worker: 'A', at: at(0) },
+    { type: 'park', task: 'A1', reason: 'Await source port.', at: at(1) },
+    { type: 'assign', task: 'A2', worker: 'A', at: at(2) },
+    { type: 'ready', task: 'A2', at: at(3) },
+    { type: 'turn', worker: 'A', state: 'idle', reason: 'No independent task selected.', at: at(4) },
+  ] }, at(5));
+  assert.deepEqual(stages.filter(row => row.lane === 'A').map(row => row.phase),
+    ['working', 'parked', 'working', 'unrecorded', 'idle']);
+  assert.ok(stages.filter(row => row.start >= at(2)).every(row => row.task !== 'A1'));
+});
+
+test('integration closes a resumed worker interval even without a second ready event', () => {
+  // This is A117's handoff shape: a resumed parked task went directly to integration.
+  const at = minute => `2026-09-25T10:${String(minute).padStart(2, '0')}:00Z`;
+  const { tasks, segments } = activityTimeline({ events: [
+    { type: 'assign', task: 'A117', worker: 'A', at: at(0) },
+    { type: 'park', task: 'A117', at: at(1) },
+    { type: 'resume', task: 'A117', at: at(2) },
+    { type: 'integrating', task: 'A117', at: at(3) },
+    { type: 'accepted', task: 'A117', at: at(4) },
+    { type: 'published', task: 'A117', at: at(5) },
+  ] }, at(10));
+  assert.equal(tasks[0].status, 'published');
+  assert.deepEqual(segments.filter(row => row.task === 'A117' && row.phase === 'working')
+    .map(row => row.end), [at(1), at(3)]);
+  assert.ok(segments.filter(row => row.task === 'A117').every(row => !row.ongoing));
+});
+
+test('agent stages prefer active work over queued deliveries and reset stale blocked reports', () => {
+  // A1 is pending while A2 works; A2 reports a block, then resumes without an active turn.
+  const at = minute => `2026-09-25T10:${String(minute).padStart(2, '0')}:00Z`;
+  const rows = [
+    { task: 'A1', worker: 'A', lane: 'A', phase: 'queued', start: at(0), end: at(10) },
+    { task: 'A2', worker: 'A', lane: 'A', phase: 'working', start: at(2), end: at(10) },
+  ];
+  const stages = agentStages(rows, [
+    { type: 'assign', task: 'A2', worker: 'A', at: at(2) },
+    { type: 'turn', worker: 'A', state: 'blocked', reason: 'Await source lock.', at: at(4) },
+    { type: 'implement', task: 'A2', at: at(6) },
+  ]);
+  assert.deepEqual(stages.map(row => [row.phase, row.start, row.end]), [
+    ['working', at(2), at(4)], ['blocked', at(4), at(6)], ['working', at(6), at(10)],
+  ]);
+  assert.equal(stages[1].reason, 'Await source lock.');
+  assert.equal(rows[0].phase, 'queued', 'queue evidence is preserved separately');
+  assert.deepEqual(agentStages(rows).map(row => row.phase), ['working']);
+});
+
+test('a publication with no endpoint cannot reappear after newer Main work ends', () => {
+  // The old publication remains in history, but silence after a newer stage is unknown.
+  const at = minute => `2026-09-25T10:${String(minute).padStart(2, '0')}:00Z`;
+  const stages = agentStages([
+    { task: 'A1', lane: 'Main', phase: 'publication', start: at(0), end: at(10), ongoing: true },
+    { task: 'B1', lane: 'Main', phase: 'integrating', start: at(2), end: at(4) },
+  ]);
+  assert.deepEqual(stages.map(row => row.phase), ['publication', 'integrating', 'unrecorded']);
+});
 
 test('claiming source scope preserves time spent investigating in the worker interval', () => {
   // Distinct times make a lost diagnosis interval visible without wall-clock timing.
@@ -93,10 +189,12 @@ test('pre-merge review, corrections and batch admission occupy explicit lanes', 
   ];
   const { segments } = activityTimeline({ events }, at(20));
   assert.deepEqual(segments.filter(row => row.phase === 'review').map(row => [row.start, row.end]),
-    [[at(8), at(10)], [at(16), at(18)]]);
+    [[at(8), at(9)], [at(16), at(18)]]);
   assert.equal(segments.find(row => row.phase === 'rework').lane, 'C');
   assert.equal(segments.find(row => row.phase === 'admission').lane, 'Main');
-  assert.equal(segments.find(row => row.phase === 'baseline').end, at(17));
+  // A later Main stage supersedes a missing baseline endpoint, not an ongoing job.
+  assert.equal(segments.find(row => row.phase === 'baseline').end, at(16));
+  assert.equal(segments.find(row => row.phase === 'baseline').superseded, true);
   assert.deepEqual(segments.filter(row => row.task === 'P1' && row.phase === 'publication')
     .map(row => [row.start, row.end]), [[at(6), at(9)], [at(17), at(19)]]);
   assert.ok(segments.some(row => row.lane === 'Prep'));
@@ -116,11 +214,11 @@ test('reported waits fill unassigned time without hiding other work or inventing
     { type: 'integrating', task: 'C2', at: at(18) },
   ];
   const { segments } = activityTimeline({ events }, at(20));
-  const waits = segments.filter(row => row.phase === 'waiting');
+  const waits = segments.filter(row => row.phase === 'blocked');
   assert.deepEqual(waits.map(row => [row.start, row.end, row.reason]),
-    [[at(8), at(15), 'Awaiting Prep admission.']]);
+    [[at(6), at(15), 'Awaiting Prep admission.']]);
   assert.ok(segments.some(row => row.lane === 'C' && row.phase === 'unrecorded'
-    && row.start === at(18))); // The old blocked turn cannot leak across C2's assignment.
+    && row.start === at(17))); // The old blocked turn cannot leak across C2's assignment.
   const released = activityTimeline({ events: [...events,
     { type: 'observe', worker: 'C', live: false, at: at(19) }] }, at(30));
   assert.ok(released.segments.filter(row => row.lane === 'C').every(row => row.end <= at(19)));

@@ -1,0 +1,151 @@
+{
+  "session": "synthetic/v34/v34-wizard-chain-lightning",
+  "corpus": "synthetic",
+  "batch": "v34",
+  "caseId": "v34-wizard-chain-lightning",
+  "manifestPath": "challenges/manifests/v34.json",
+  "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+  "recordingSha256": "72b0c2e4a7dcf930df9fe54274b830a5b4cc2436317fe7503faad975ca2dc04a",
+  "evaluationPath": "challenges/evaluations/accepted-61748d768be8dde676d67309b0a15965d6f0931b-v34.json",
+  "evaluationCommit": "61748d768be8dde676d67309b0a15965d6f0931b",
+  "remainingScreens": 28,
+  "recordedSteps": 117,
+  "status": "complete",
+  "commit": "15c4efc720ebb259d852007e6bfb8e0564d2aa5f",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v34",
+    "caseId": "v34-wizard-chain-lightning",
+    "session": "synthetic/v34/v34-wizard-chain-lightning",
+    "manifestPath": "challenges/manifests/v34.json",
+    "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+    "recording": "challenges/cases/v34/v34-wizard-chain-lightning.session.json",
+    "recordingPath": "challenges/cases/v34/v34-wizard-chain-lightning.session.json",
+    "recordingSha256": "72b0c2e4a7dcf930df9fe54274b830a5b4cc2436317fe7503faad975ca2dc04a",
+    "recipe": "challenges/cases/v34/v34-wizard-chain-lightning.recipe.session.json",
+    "recipeSha256": "bf794a9dc1dcfabf8e27427153b3a3474b2671ac17edc8c8f5de48bd97fa2cb1",
+    "replayInputSha256": "5a9c9117d8422e08dae857171270ad57485dc1bb9931f4a2edd7ab1b3d55aeb2",
+    "evaluationPath": "challenges/evaluations/accepted-61748d768be8dde676d67309b0a15965d6f0931b-v34.json",
+    "evaluationCommit": "61748d768be8dde676d67309b0a15965d6f0931b",
+    "evaluationArtifact": "challenges/evaluations/accepted-61748d768be8dde676d67309b0a15965d6f0931b-v34.json",
+    "evaluationUtc": "2026-10-09T08:09:29.798Z",
+    "remainingScreens": 28,
+    "recordedSteps": 117,
+    "previousScreensMatched": 89,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 89,
+        "total": 117
+      },
+      "rng": {
+        "matched": 6147,
+        "total": 6154
+      },
+      "cursors": {
+        "matched": 89,
+        "total": 117
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: spell casting requires spell type 406 is not ported",
+      "step": 89
+    },
+    "step": 89,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: spell casting requires spell type 406 is not ported",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "SPE_CHAIN_LIGHTNING is refused at the forced cast. C calls the missing whole cast_chain_lightning/propagate_chain_lightning family, including breadth-first beam animation, shock/peaceful avoidance and returned zhitm damage. Canonical ray and display dependencies exist; only the neighboring parked protection dispatch needs ownership adjudication before claiming source.",
+  "source": {
+    "file": "spell.c",
+    "functions": [
+      "propagate_chain_lightning",
+      "cast_chain_lightning"
+    ],
+    "branch": "spelleffects1588–1590 SPE_CHAIN_LIGHTNING; whole propagation952–999 and cast1003–1101. Source creates a100-entry FIFO, propagates one step in each of eight ordered directions, avoids blocked terrain/peacefuls and duplicate squares, resets strength on vulnerable monsters, ends it on shock resistance, damages queued monsters, rotates side branches and decrements hero Pw before exact output delays/cleanup.",
+    "callers": [
+      "spell.c:spelleffects1588–1590 calls cast_chain_lightning; js/spell.js has no SPE_CHAIN_LIGHTNING case and falls through UnsupportedSpellCastError.",
+      "spell.c:dowizcast787–815 -> forced spelleffects and docast820–829 -> ordinary spelleffects are the active command entries; existing js spell.js dispatch must call the new owner in the same source position before common cleanup.",
+      "spell.c:cast_chain_lightning1023/1082/1089/1092 calls propagate_chain_lightning; no separate production caller exists for the queue helper."
+    ],
+    "dependencies": [
+      "Required consumed zap.c:zhitm4238–4398 already implements all8 damage families/shared tail; source review confirms its electric d(nd,6), spell bonus, resistance/shield, nd>2 blindness gate, rn2(3) inventory damage, saving throw and HP deduction. Existing JS returns{damage,otmp}; chain consumes damage and intentionally ignores armor pointer for AD_ELEC. No zap owner expansion proposed.",
+      "Existing returned zap.c:spell_damage_bonus and resist, mondata.c:Resists_Elem/defended, zap_destroy_items destroy_items and display zapdir_to_glyph/canseemon are canonical owners. Existing tmp_at/nh_delay_output, map_invisible, xkilled/wakeup, message and naming owners provide source effects; inspect any newly reached runtime blocker before scope expansion.",
+      "Queue terrain/direction tests are C macros in spell.c/hack.h: CHAIN_LIGHTNING_LIMIT100, SPACE_POS/POOL/MOAT/DRAWBRIDGE_UP/LAVAPOOL plus open/unlocked DOOR, DIR_LEFT=(dir+7)%8 and DIR_RIGHT2=(dir+2)%8. Use existing const xdir/ydir,N_DIRS and canonical terrain/door fields; do not invent a separate table.",
+      "C164 protection’s parked source caller is neighboring spelleffects. Main must adjudicate that seam before implementation claim; B189/B191 are pending immutable ancestors and remain delivery dependencies."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Authoritative saved v34 queue at accepted61748d76 records28 remaining screens/117 recorded boundaries and first stop89. Immutable B159 preparation traces C spelleffects1588 to cast_chain_lightning1003 and its first zhitm d(2,6), with C propagation animation frames.",
+    "Read-only targeted scan .cache/B192/current-scan.json at15c4efc72 still stops on spell type406 at the same typed cast, without earlier output or RNG divergence; run-c59Vse exited0. No recipe, C recording or game source was changed during this investigation.",
+    "Read complete spell.c queue macros/structs and both functions952–1101. Propagation copies its zap by value, advances before the tail/terrain guards, checks peacefulness, handles resistance strength, drops empty powerless nodes, deduplicates all queued coordinates, enqueues then paints. Casting initializes hallucination display RNG even before the swallowed return, seeds eight directions, processes fixed-tail waves, consumes damage and issues exact delay/cleanup order.",
+    "Whole existing JS zap.c:zhitm1593–1790 compared against C4238–4398; electric/shield/damage/returned armor logic and shared Knight/save/HP tail are already implemented. AD_ELEC cannot supply destroyed armor, so the chain caller consumes returned.damage with no invented conversion or use of note_unported as data. The existing acid_damage discarded-void gap is a different damage family and does not enter chain lightning.",
+    "Existing display.js tmp_at4282+ supports retained DISP_BEAM glyphs and source maximum160; source CHAIN_LIGHTNING_LIMIT100 remains below it. zapdir_to_glyph4271 returns the existing glyph presentation accepted by tmp_at; nh_delay_output is owned in hack.js. No new renderer or animation approximation is needed.",
+    "Existing mon.c wakeup receives via_attackFALSE within a temporary forcefight increment, preserving mimic/hider behavior; xkilled receives XKILL_GIVEMSG for lethal hits. Retain original stale gb.bhitpos comparison when setting notonhead rather than assigning the current chain square as an improvement.",
+    "Only a session reservation has been claimed. Proposed shared spelleffects ownership is deliberately unclaimed pending Main’s C164 seam decision; complete source proposal is saved at .cache/B192/proposal.json."
+  ],
+  "proposal": {
+    "goal": "port-spell-chain-lightning-v34-20261009",
+    "kind": "file-port",
+    "summary": "Port the whole chain-lightning propagation and casting family",
+    "selectionReason": "B191 seed continuation now matches completely. Oldest independent unresolved v34 chain-lightning case remains28 screens behind a missing SPE_CHAIN_LIGHTNING dispatch; current live reservations exclude its two source units. Coordinate the neighboring parked C164 protection dispatch before claiming shared spelleffects.",
+    "detail": "synthetic/v34/v34-wizard-chain-lightning segment0 step89 forced wizard cast is refused as spell type406. C spell.c1588–1590 calls cast_chain_lightning1003–1101, which consumes zhitm’s returned damage and uses whole propagate_chain_lightning952–999 for source-ordered queue growth and animation. Port both whole units and their static queue/terrain macros; add only the bounded spelleffects dispatch. No whole spelleffects, zap.c:zhitm, display or monster-death credit.",
+    "cFile": "spell.c",
+    "functions": [
+      "propagate_chain_lightning",
+      "cast_chain_lightning"
+    ],
+    "lineRanges": [
+      "952-1101"
+    ],
+    "cLines": 150,
+    "jsFile": "js/spell.js",
+    "sessions": [
+      "synthetic/v34/v34-wizard-chain-lightning"
+    ],
+    "step": 89,
+    "reservations": [
+      "session:synthetic/v34/v34-wizard-chain-lightning",
+      "source:spell.c:propagate_chain_lightning",
+      "source:spell.c:cast_chain_lightning",
+      "source:spell.c:spelleffects",
+      "contract:chain-lightning-propagation",
+      "contract:chain-lightning-spell-dispatch"
+    ],
+    "allowedPaths": [
+      "investigations/synthetic/v34/v34-wizard-chain-lightning.json",
+      "js/spell.js",
+      "scripts/spell-cast-effects.test.mjs",
+      "scripts/spell.test.mjs",
+      "scripts/chain-lightning.test.mjs",
+      "scripts/run-chain-lightning.mjs",
+      "recipes/spell.c/",
+      "recordings/spell.c/",
+      ".cache/"
+    ],
+    "dependencies": [
+      "50801c62a5566612886c0d9caddc2cb23c506f79",
+      "15c4efc720ebb259d852007e6bfb8e0564d2aa5f"
+    ],
+    "sharedSeam": "C164 cast_protection is parked on its earlier A185 spelleffects dependency. Both effects need distinct one-case dispatch additions in spell.js; no source claim or edit before Main adjudicates priority/shared reservation.",
+    "limits": [
+      "Whole source completion credit only propagate_chain_lightning and cast_chain_lightning. Required returned helpers reuse source-reviewed canonical owners; request scope expansion before any required owner edit.",
+      "Do not edit cmd/query, zap.js/destroy_items, display.js or monster-death modules. Existing no-credit caller arm stays bounded to SPE_CHAIN_LIGHTNING."
+    ],
+    "validationPlan": [
+      "C-first independent forced casts cover different roles, ordinary/shock-resistant/peaceful targets, terrain boundaries and no targets; learned spell command reaches the same spelleffects arm through docast. Fix inputs before JS comparisons and reproduce every retained C recording independently.",
+      "Source-pin queue limit100, eight direction ordering, source terrain macros, value-copy queue records, duplicate coordinates and original resistance/strength rules. Verify exact wave and final delay ordering, temporary glyph cleanup, current bhitpos-based notonhead and forcefight bracket.",
+      "Preserve spell damage d(2,6), spell bonus, shock resistance, destruction gate rn2(3), resist roll and the consumed zhitm damage return. Compare complete screens/cursors/RNG/animation frames, not just final monster HP.",
+      "Use the admitted segment0 step89+ range for the forced cast and create independent evidence for the ordinary learned caller. Source-pin swallowed TODO and hallucinated display-RNG initialization in their original order; retain any concrete external caller blocker explicitly."
+    ]
+  }
+}

@@ -2,9 +2,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { COLNO, LAST_PROP, PICK_NONE, ROOM, ROWNO } from '../js/const.js';
+import { COLNO, LAST_PROP, PICK_ANY, PICK_ONE, PICK_NONE, ROOM, ROWNO } from '../js/const.js';
 import { flush_screen, status_window_rows } from '../js/display.js';
 import { GameMap } from '../js/game.js';
+import { runSegment } from '../js/jsmain.js';
 import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
 import {
@@ -12,8 +13,9 @@ import {
 } from '../js/hacklib.js';
 import { parseNethackrc } from '../js/options.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
-import { tty_yn_function } from '../js/getline.js';
+import { tty_getlin, tty_yn_function, UnsupportedGetlinBoundaryError } from '../js/getline.js';
 import {
+    clearTtyMessageWindow,
     displayPendingTtyMessageWindow,
     TOPLINE_EMPTY,
     ttyPline,
@@ -25,6 +27,7 @@ import {
     renderTtyMenu,
     selectTtyMenu,
     ttyMenuLayout,
+    menuTitleStyle,
     ttyMenuTextData,
     ttyMenuTextLayout,
     ttyTextWindowData,
@@ -1175,7 +1178,7 @@ test('PICK_ONE explicit choices beat mappings and deselection updates markers', 
     deselected._preNhgetchHook = () => markers.push(
         rowText(deselected, 4).slice(41),
     );
-    assert.equal(await selectTtyMenu(deselected, confirmation), 1);
+    assert.equal(await selectTtyMenu(deselected, confirmation), -1);
     assert.deepEqual(markers, [
         'y * Yes; start game',
         'y - Yes; start game',
@@ -1419,4 +1422,105 @@ test('tty_end_menu measures and cuts a stored menu line in bytes', () => {
     assert.equal(inside.length, cols - 2);
     // 0xC3 0xA9 is e-acute; the kept prefix ends on a lone lead byte.
     assert.deepEqual(inside.slice(-3), [0xC3, 0xA9, 0xC3]);
+});
+
+// C getline.c57 raises inread before custompline flushes; display.c2244–2255
+// paints only dirty map cells, leaving the physical menu beneath the prompt.
+async function gameplaySearchState(keys) {
+    await runSegment({ seed: 17470011, datetime: '20630314101112',
+        nethackrc: 'OPTIONS=name:Prompt,role:Tourist,race:human,gender:female,align:neutral,'
+            + 'playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics',
+        moves: '' });
+    clearTtyMessageWindow(game); // The welcome message is acknowledged before the tested prompt.
+    game._ttyToplines = '';
+    game.gb ??= {};
+    game.gb.bot_disabled = true; // select_menu's source caller suspends status refresh.
+    for (const key of keys) game.nhDisplay.pushKey(key.charCodeAt(0));
+    return game;
+}
+
+test('gameplay menu search retains PICK_ONE and PICK_ANY rows beneath getlin', async () => {
+    for (const how of [PICK_ONE, PICK_ANY]) {
+        // Search selects Alpha; PICK_ANY needs a second newline to commit.
+        const state = await gameplaySearchState(':Alpha\n' + (how === PICK_ANY ? '\n' : ''));
+        const frames = [];
+        state._preNhgetchHook = () => frames.push({
+            top: rowText(state, 0), cells: state.nhDisplay.grid[2].map(cell => ({ ...cell })),
+            inread: state.nhDisplay.inread,
+        });
+        const result = await selectTtyMenu(state, { how, title: 'Searchable choices',
+            items: [{ selector: 'a', value: 1, label: 'Alpha' },
+                    { selector: 'b', value: 2, label: 'Beta' }] });
+        assert.deepEqual(result, how === PICK_ONE ? 1 : [{ value: 1, count: -1 }]);
+        assert.equal(frames[1].top, 'Search for:');
+        assert.deepEqual(frames[1].cells, frames[0].cells,
+            'source prompt clears only WIN_MESSAGE, retaining menu row two');
+        assert.equal(frames[1].inread, 1); // C inread increments exactly once per getlin.
+        assert.equal(state.nhDisplay.inread, 0);
+    }
+});
+
+test('getlin prompt flush writes a dirty blank glyph and preserves clean physical cells', async () => {
+    const state = await gameplaySearchState('\n');
+    const x = state.u.ux;
+    const y = state.u.uy;
+    const dirty = state.level.at(x, y);
+    dirty.disp_ch = ' '; // C print_glyph must erase even when the dirty glyph is blank.
+    dirty.gnew = 1;
+    state.nhDisplay.setCell(x - 1, y + 1, 'X', 2, 1);
+    const clean = state.level.at(x + 1, y);
+    clean.gnew = 0;
+    state.nhDisplay.setCell(x, y + 1, 'M', 4, 2); // A physical menu cell over clean map.
+    state.nhDisplay.inread = 2; // A nested read restores its caller's existing depth.
+    state._preNhgetchHook = () => {
+        assert.equal(state.nhDisplay.grid[y + 1][x - 1].ch, ' ');
+        assert.deepEqual(state.nhDisplay.grid[y + 1][x], { ch: 'M', color: 4, attr: 2 });
+        assert.equal(state.nhDisplay.inread, 3);
+    };
+    assert.equal(await tty_getlin('Input:', state), '');
+    assert.equal(dirty.gnew, 0);
+    assert.equal(state.nhDisplay.inread, 2);
+});
+
+test('getlin releases inread after its existing ctrl-P boundary', async () => {
+    const state = await gameplaySearchState('\x10'); // C Ctrl-P history is still an explicit gap.
+    await assert.rejects(() => tty_getlin('Input:', state), UnsupportedGetlinBoundaryError);
+    assert.equal(state.nhDisplay.inread, 0, 'port-side abort cannot strand prompt rendering state');
+});
+
+test('menuTitleStyle converts canonical heading attributes only for drawing', () => {
+    // wintype.h inverse7 differs from captured inverse1; dim2 is invisible.
+    const state = { iflags: { menu_headings: { attr: 7, color: 8 } } };
+    assert.deepEqual(menuTitleStyle(state), { titleAttr: 1, titleColor: 8 });
+    state.iflags.menu_headings.attr = 2;
+    assert.equal(menuTitleStyle(state).titleAttr, 0);
+    assert.equal(state.iflags.menu_headings.attr, 2);
+});
+
+test('PICK_ONE selected results recount bulk deselection and retain counted defaults', async () => {
+    // wintty.c tty_select_menu recounts curr->selected; toggle_menu_curr
+    // retains an already selected row when counting with count > 0.
+    assert.match(WINTTY_C, /case MENU_UNSELECT_PAGE:\s*unset_all_on_page\(window, page_start, page_end\);/u);
+    assert.match(WINTTY_C, /case MENU_UNSELECT_ALL:[\s\S]*?unset_all_on_page\(window, page_start, page_end\);/u);
+    assert.match(WINTTY_C, /if \(curr->selected\)\s+n\+\+/u);
+    assert.match(WINTTY_C, /if \(counting && count > 0\) \{\s*curr->count = count;/u);
+    for (const [keys, expected] of [
+        ['\n', [{ value: 1, count: -1 }]], // Enter retains source default.
+        ['-\n', []], // MENU_UNSELECT_ALL clears every selected row.
+        ['\\\n', []], // MENU_UNSELECT_PAGE clears the current-page row.
+        ['a', []], // Uncounted explicit default toggles it off.
+        ['1a', [{ value: 1, count: 1 }]], // Positive count keeps it selected.
+        ['b', [{ value: 1, count: -1 }, { value: 2, count: -1 }]],
+    ]) {
+        const state = menuState(keys);
+        assert.deepEqual(await selectTtyMenu(state, {
+            how: PICK_ONE, returnSelections: true, title: 'Selected rows',
+            items: [{ selector: 'a', value: 1, label: 'Default', selected: true },
+                { selector: 'b', value: 2, label: 'Other' }],
+        }), expected, JSON.stringify(keys));
+    }
+    // Existing scalar confirmation callers also must not revive a row which
+    // the bulk command cleared before Enter.
+    for (const keys of ['-\n', '\\\n'])
+        assert.equal(await selectTtyMenu(menuState(keys), confirmation), -1);
 });

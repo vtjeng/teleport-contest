@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Wizard variation for insight.c weapon_insight1270-1465 via detailed attributes. Direct seed chosen before JS comparison; C setup established wet towel n. Follow with dry towel o to test the positive-wetness override and its ordinary-name boundary. C established two dismissal spaces; surplus unknown-command probes remain in cache.",
+  "segments": [
+    {
+      "seed": 81726713,
+      "datetime": "20400417102739",
+      "nethackrc": "OPTIONS=name:InsightProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed wet towel\nwn#attributes\n  \u0017uncursed towel\nwo#attributes\n  "
+    }
+  ]
+}

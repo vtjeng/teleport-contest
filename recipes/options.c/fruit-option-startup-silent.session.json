@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first options.c:optfn_fruit1758–1760 fruit-option-startup-silent witness. Seed15941023, clock20560220114031, Barbarian, menu route and fruit name were fixed before JavaScript comparison. Source quiet/startup route must omit live feedback; canonical fruit state stays owned by existing naming/fruit owners.",
+  "segments": [
+    {
+      "seed": 15941023,
+      "datetime": "20560220114031",
+      "nethackrc": "OPTIONS=name:Fay,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics, fruit:moonberries\n",
+      "moves": ".#optionsfull\n\u001b."
+    }
+  ]
+}

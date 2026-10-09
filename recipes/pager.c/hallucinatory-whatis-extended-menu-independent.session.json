@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source witness for pager.c:do_look hallucination menu: only map/inventory/name rows exist; m is not selectable; Escape cancels without spending time. Typed #whatis and help-menu callers vary role and entry route. Inputs chosen before JavaScript comparison. C-only inventory-letter correction: the independently recorded wish receives e, before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 17432011,
+      "datetime": "20500504122134",
+      "nethackrc": "OPTIONS=name:MenuProbe17432011,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed potion of hallucination\nqe      #whatis\nm\u001b."
+    }
+  ]
+}

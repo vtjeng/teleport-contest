@@ -2692,7 +2692,7 @@ export async function do_class_genocide(state = game, env = {}) {
         let prompt = 'What class of monsters do you want to genocide?';
         if (attempt > 0) {
             prompt += ` [enter ${state.iflags?.cmdassist
-                ? 'the symbol or name representing a class, or ?'
+                ? "the symbol or name representing a class, or '?'"
                 : "'?' to see previous genocides"}]`;
         }
         const buf = mungspaces(await getlin(prompt, state) ?? '');
@@ -2895,7 +2895,7 @@ export async function do_genocide(how, state = game) {
             let prompt = 'What type of monster do you want to genocide?';
             if (attempt > 0) {
                 prompt += ` [enter ${state.iflags?.cmdassist
-                    ? 'the name of a type of monster, or ?'
+                    ? "the name of a type of monster, or '?'"
                     : "'?' to see previous genocides"}]`;
             }
             buf = mungspaces(await getlin(prompt, state) ?? '');

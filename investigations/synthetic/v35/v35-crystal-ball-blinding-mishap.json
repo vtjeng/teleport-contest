@@ -1,0 +1,94 @@
+{
+  "corpus": "synthetic",
+  "batch": "v35",
+  "caseId": "v35-crystal-ball-blinding-mishap",
+  "session": "synthetic/v35/v35-crystal-ball-blinding-mishap",
+  "manifestPath": "challenges/manifests/v35.json",
+  "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+  "recordingSha256": "6306c8b4d2be3c9b161cc8cf98584ac30620850bf2c5f35e9cfb7e5dc8389730",
+  "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+  "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+  "remainingScreens": 28,
+  "recordedSteps": 54,
+  "commit": "fd34417fc6500d26b4c24d825579908c29587ed6",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v35",
+    "caseId": "v35-crystal-ball-blinding-mishap",
+    "session": "synthetic/v35/v35-crystal-ball-blinding-mishap",
+    "manifestPath": "challenges/manifests/v35.json",
+    "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+    "recording": "challenges/cases/v35/v35-crystal-ball-blinding-mishap.session.json",
+    "recordingPath": "challenges/cases/v35/v35-crystal-ball-blinding-mishap.session.json",
+    "recordingSha256": "6306c8b4d2be3c9b161cc8cf98584ac30620850bf2c5f35e9cfb7e5dc8389730",
+    "recipe": "challenges/cases/v35/v35-crystal-ball-blinding-mishap.recipe.session.json",
+    "recipeSha256": "2a95c9a91ed3ed17ec92a905b5aae0eb25d6a34e694992db29b9c7f8c81f400f",
+    "replayInputSha256": "9a345b9f1c2c4f64668854b1f41843898e09b9498646789c8c4a14892bfcd5a5",
+    "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+    "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+    "evaluationArtifact": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+    "evaluationUtc": "2026-10-09T08:22:23.377Z",
+    "remainingScreens": 28,
+    "recordedSteps": 54,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 26,
+        "total": 54
+      },
+      "rng": {
+        "matched": 5825,
+        "total": 5825
+      },
+      "cursors": {
+        "matched": 26,
+        "total": 54
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, droptype, pickup, pay, takeoff, takeoffall, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, wizsmell, wizkill, fire, throw, swap, kick, save, wield, quiver, help, whatdoes, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+      "step": 26
+    },
+    "step": 26,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, droptype, pickup, pay, takeoff, takeoffall, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, wizsmell, wizkill, fire, throw, swap, kick, save, wield, quiver, help, whatdoes, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "status": "complete",
+  "goalKind": "file-port",
+  "summary": "The crystal-ball blinding already matches. At segment0 step26, raw ^ resolves showtrap but JavaScript rejects admission before the absent pager.c:doidtrap handler; C opens the direction prompt. Port whole doidtrap and its required trapped-chest/door predicate branches, and wire direct, extended and canned callers.",
+  "source": {
+    "file": "pager.c",
+    "functions": [
+      "doidtrap"
+    ],
+    "branch": "Source ^/showtrap direction prompt and complete discovered trap identification; required consumed trapped-chest/door predicate results include hallucination core RNG gates.",
+    "callers": [
+      "Production callers: cmd.c1873 registers ^/showtrap/doidtrap; rhack3810-3825 consumes command result; doextcmd invokes the same registered function; act_on_act4727 queues doidtrap plus CMDQ_DIR for MCMD_LOOK_TRAP. JS extcmdlist_data.js127 already has canonical row, cmd.js4660 already queues the correct handler/direction, but supportedHeroCommands and dispatcher lack it. Add bounded import/admission/direct/typed/canned handler wiring preserving ECMD_CANCEL reset and ECMD_OK no-time handling, with no whole cmd credit.",
+      "Existing helper callers are pager.c:trap_description167-182 -> lookat721 and do_look2094; js/pager.js910-912 already consumes canonical helpers. Audit these paths and preserve short-circuit RNG order. Reuse glyph_at/glyph_is_trap/glyph_to_trap, linked object/monster lookup, canonical trapname/an, and getdir. Existing getdir queued/self/vertical/ordinary/cancel paths are source aligned; redraw, simulated mouse and help-request retry remain inherited named frontiers outside this task. No placeholder return may be consumed."
+    ],
+    "dependencies": [
+      "Read whole detect.c:trapped_chest_at139-177 and trapped_door_at182-197. Their consumed return values are required dependencies. Existing js/detect.js2452-2481 covers map/inventory/steed/monster boxes and door masks but omits Hallucination && rn2(20) after the exact matching ttyp guard in each function. The JS comment incorrectly calls that gate display RNG; C calls core rn2. Correct these whole helpers and their comments in the same source task. Door invokes chest only behind open/broken/no-door mask and its ttyp prevents another draw.",
+      "Canonical getdir, glyph_at/glyph conversion, an, trapname, trap/monster/object chains and ECMD result handling. Existing input retry/redraw/mouse frontiers remain explicit; no whole credit."
+    ]
+  },
+  "evidence": [
+    "Assigned-session bounded replay run-JiKoZW at fd34417fc6500d26b4c24d825579908c29587ed6 reproduces26/54 screens/cursors with5825/5825 RNG and zero animation frames. First missing JS screen/cursor is segment0 step26 raw ^; C prompt is In what direction?. Stack stops in js/cmd.js admitParsedCommand1924 -> rhack5407. Diagnostic .cache/A189/probe.json and /tmp/teleport-validation-1000/run-JiKoZW/receipt.json retain the boundary.",
+    "Counter-evidence: step25 applying the blessed crystal ball executes detect.c:use_crystal_ball blinding mishap, with rnd(16)=8, rnd(79)=5, rnd(4)=3 and message The glass orb damages your vision!. JavaScript follows the same source branch and complete RNG tail; no use_crystal_ball/apply/jump correction is needed. Step27 Space cancels the requested direction; later spaces are independent unknown-command output.",
+    "Read whole pager.c:doidtrap2336-2389: getdir(^) cancellation returns ECMD_CANCEL; form coordinates from u.dx/dy; transient glyph check recognizes chest/door only after helper results; traverse ftrap in order and stop on unseen match; vertical directions reject upward hole/trapdoor or downward rocktrap; print an(trapname) and madeby_u woven/dug/set suffix; otherwise no-visible-trap text. All success/refusal descriptions return ECMD_OK without time.",
+    "Read whole detect.c:trapped_chest_at139-177 and trapped_door_at182-197. Their consumed return values are required dependencies. Existing js/detect.js2452-2481 covers map/inventory/steed/monster boxes and door masks but omits Hallucination && rn2(20) after the exact matching ttyp guard in each function. The JS comment incorrectly calls that gate display RNG; C calls core rn2. Correct these whole helpers and their comments in the same source task. Door invokes chest only behind open/broken/no-door mask and its ttyp prevents another draw.",
+    "Production callers: cmd.c1873 registers ^/showtrap/doidtrap; rhack3810-3825 consumes command result; doextcmd invokes the same registered function; act_on_act4727 queues doidtrap plus CMDQ_DIR for MCMD_LOOK_TRAP. JS extcmdlist_data.js127 already has canonical row, cmd.js4660 already queues the correct handler/direction, but supportedHeroCommands and dispatcher lack it. Add bounded import/admission/direct/typed/canned handler wiring preserving ECMD_CANCEL reset and ECMD_OK no-time handling, with no whole cmd credit.",
+    "Existing helper callers are pager.c:trap_description167-182 -> lookat721 and do_look2094; js/pager.js910-912 already consumes canonical helpers. Audit these paths and preserve short-circuit RNG order. Reuse glyph_at/glyph_is_trap/glyph_to_trap, linked object/monster lookup, canonical trapname/an, and getdir. Existing getdir queued/self/vertical/ordinary/cancel paths are source aligned; redraw, simulated mouse and help-request retry remain inherited named frontiers outside this task. No placeholder return may be consumed.",
+    "Actionable scope is whole pager.c:doidtrap plus whole detect.c:trapped_chest_at/trapped_door_at, bounded cmd dispatch and supporting existing trap_description caller reconciliation only if state forwarding requires it. Current reservations do not cover these owners: A185 jump/spelleffects, C165 lspo_map return, B185 distinct panic dispatcher and A187 read hints are disjoint. A186 list remains parked on B185; request central adjudication of the distinct showtrap dispatcher contract before shared cmd edits.",
+    "Independent validation plan: source-pinned cancellation/no-time, unseen/absent trap, vertical filtering, player woven/dug/set suffixes, remembered chest/door glyphs, map/hero/steed/monster boxes, Hallucination gate0/nonzero and exact short-circuit RNG. Strict selected replay through all54 steps. Independently record ^ and typed #showtrap known-trap routes with new seed/date/role, cheap trap-type variation, and canned there-menu LOOK_TRAP direction. Add hallucinated remembered chest/door #whatis/showtrap witnesses to cover the helper RNG entry; retain any unreachable inherited caller as named blocked recipe rather than fabricate passing evidence.",
+    "Evidence limit: investigation only, no game edits or new C recordings. Current selected replay stops at admission and establishes only the cancellation prompt route after implementation; it does not establish trap description/helper hallucination runtime evidence. Preserve A185/A187 immutable and A188 parked on C165. Whole getdir, trap_description, cmd, apply and detect use_crystal_ball completion are excluded."
+  ]
+}

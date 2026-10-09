@@ -1,0 +1,80 @@
+{
+  "session": "synthetic/v32/v32-options-fruit",
+  "corpus": "synthetic",
+  "batch": "v32",
+  "caseId": "v32-options-fruit",
+  "manifestPath": "challenges/manifests/v32.json",
+  "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+  "recordingSha256": "9a613ee4fb1fa15dbbe7692645cbe7d3950c65f10ced9e3ece1d9d5e52b8522e",
+  "evaluationPath": "challenges/evaluations/accepted-6f43faf156d28688e1e9bf2470077de98e6cc4b2-v32.json",
+  "evaluationCommit": "6f43faf156d28688e1e9bf2470077de98e6cc4b2",
+  "remainingScreens": 1,
+  "recordedSteps": 53,
+  "status": "complete",
+  "commit": "e206b5cc7595c734671904a08e9c30e1330ac8a5",
+  "mismatch": {
+    "version": 1,
+    "corpus": "synthetic",
+    "batch": "v32",
+    "caseId": "v32-options-fruit",
+    "manifestPath": "challenges/manifests/v32.json",
+    "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+    "recordingPath": "challenges/cases/v32/v32-options-fruit.session.json",
+    "recordingSha256": "9a613ee4fb1fa15dbbe7692645cbe7d3950c65f10ced9e3ece1d9d5e52b8522e",
+    "recipeSha256": "67bfcb671aa5c5a6662e6e6ad81b98c86498126b6b107412b57567a7bc821020",
+    "evaluationPath": "challenges/evaluations/accepted-6f43faf156d28688e1e9bf2470077de98e6cc4b2-v32.json",
+    "evaluationCommit": "6f43faf156d28688e1e9bf2470077de98e6cc4b2",
+    "evaluationUtc": "2026-10-09T01:03:32.526Z",
+    "session": "synthetic/v32/v32-options-fruit",
+    "remainingScreens": 1,
+    "recordedSteps": 53,
+    "metrics": {
+      "screens": {
+        "matched": 52,
+        "total": 53
+      },
+      "rng": {
+        "matched": 2664,
+        "total": 2664
+      },
+      "cursors": {
+        "matched": 53,
+        "total": 53
+      }
+    },
+    "step": 33,
+    "kind": "screen",
+    "sourceFile": "options.c",
+    "function": "optfn_fruit",
+    "line": 1760,
+    "message": "Source live Fruit is now message is absent; current give_opt_msg true and startupEvents absent.",
+    "diagnosticToolSha256": "01cb5004cc11a812f50a8e119ea49eb9700d913dc19487543ad6f877b06e6a82",
+    "replayCommit": "e206b5cc7595c734671904a08e9c30e1330ac8a5"
+  },
+  "summary": "The accepted full-options path now sets the fruit correctly. At step 33, C prints Fruit is now after fruitadd; JS queues that live feedback only when startupEvents exists, so the ordinary game omits the message. Restore source-ordered awaited live output without changing startup parsing or fruit ownership.",
+  "goalKind": "divergence-fix",
+  "source": {
+    "file": "options.c",
+    "functions": [
+      "optfn_fruit"
+    ],
+    "branch": "DO_SET with go.opt_initial FALSE successfully renames the fruit and calls fruitadd, then give_opt_msg TRUE requires pline. JavaScript requires startupEvents and appends a deferred event instead of calling the live message owner.",
+    "callers": [
+      "options.c:doset8939–8951 -> parseoptions638–647 -> allopt fruit DO_SET. JS existing OPTION_SET_HANDLERS.fruit forwards the owner result and parseoptions already awaits it.",
+      "options.c:parseoptions configuration-file DO_SET is adapted by JS applyOption/parseNethackrc. Source startup never prints this live feedback; preserve its synchronous return.",
+      "options.c:doset_simple8722–8733 brackets give_opt_msg FALSE/TRUE; the live quiet/simple-menu branch must remain silent and source order unchanged."
+    ],
+    "dependencies": [
+      "Canonical ttyPline, fruitadd, naming and option-menu owners are already present; do not edit them or B179/B180 handlers.",
+      "Keep the correction to successful live feedback. Existing fruit-limit/error diagnostics, native configuration serialization and broader optfn_fruit completion are outside this divergence-fix claim."
+    ]
+  },
+  "evidence": [
+    "challenges/evaluations/accepted-6f43faf156d28688e1e9bf2470077de98e6cc4b2-v32.json at 6f43faf156d28688e1e9bf2470077de98e6cc4b2: 52/53 screens,2664/2664 RNG,53/53 cursors; one unmatched screen with unchanged corpus/recording identity.",
+    ".cache/C159-selected-before.log at worker e206b5cc7595c734671904a08e9c30e1330ac8a5 runs all 53 boundaries without refusal and first differs at segment0 step33, newline after the selected fruit name; C cell(0,0)=F, JS blank, RNG and cursor mismatch null.",
+    "Recorded C step33 first line is Fruit is now \"cloudberry\". .cache/C159-fruit-state-probe.log confirms current runtime give_opt_msg=true, startupEvents absent, fruit=cloudberry, and blank JS first line at33. State selection and fruit mutation already agree; no rendering/RNG defect is inferred.",
+    "Read whole C options.c:optfn_fruit1706–1774. At1758 discarded fruitadd runs before give_opt_msg conditional pline1759–1760. JS options.js1624–1629 appends a message to startupEvents only if that startup-only array exists; a live successful update takes no message path. Existing live parseoptions awaits the returned owner, so source-ordered live output can be restored without changing the synchronous startup setter.",
+    "Read options.c give_opt_msg static TRUE108 and doset_simple8722–8733 FALSE/TRUE bracket; current JS source-equivalent simple-menu bracket is retained. Independent full-options message and quiet simple-menu variations should pin the bounded correction.",
+    "Earlier B173 dispatcher refusal at14 is accepted and resolved; keep the original diagnosis as history, do not reopen its cmd.c doextcmd owner. B178 menu formatting is also accepted; preserve both caller bodies and pending C155/C156 deliveries."
+  ]
+}

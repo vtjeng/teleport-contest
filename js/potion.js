@@ -195,7 +195,7 @@ import {
 } from './monsters.js';
 import {
     bless, bcsign, carried, costly_alteration, curse, fixup_oil, is_ammo,
-    is_weptool, isCorrodeable, isRustprone, mkobj, objectType, splitobj,
+    is_weptool, isCorrodeable, isRustprone, mkobj, newObject, objectType, splitobj,
     unbless, uncurse,
 } from './obj.js';
 import { dist2, s_suffix, upstart } from './hacklib.js';
@@ -211,7 +211,7 @@ import { is_boots, is_gloves } from './obj.js';
 import { discover_object, observe_object } from './o_init.js';
 import { encumber_msg } from './pickup.js';
 import { body_part, float_vs_flight, polyself } from './polyself.js';
-import { set_ulycn, you_were } from './were.js';
+import { set_ulycn, you_unwere, you_were } from './were.js';
 import {
     dealloc_killer,
     delayed_killer,
@@ -1138,7 +1138,7 @@ async function peffect_water(otmp, state = game, rawEnv = {}) {
                     state,
                 );
                 if (state.youmonst.data === state.mons[u.ulycn])
-                    note_unported('were.c you_unwere');
+                    await you_unwere(false, state, { ...rawEnv, random, message });
                 set_ulycn(NON_PM, state);
             }
             const damage = Maybe_Half_Phys(random.d(2, 6), state);
@@ -1164,7 +1164,7 @@ async function peffect_water(otmp, state = game, rawEnv = {}) {
         await exercise(A_WIS, true, state, random, { encumberMessage });
         await exercise(A_CON, true, state, random, { encumberMessage });
         if (ismnum(u.ulycn))
-            note_unported('were.c you_unwere');
+            await you_unwere(true, state, { ...rawEnv, random, message });
     } else {
         if (u.ualign.type === A_LAWFUL) {
             await message(`This burns like ${hliquid('acid', { state })}!`, state);
@@ -2851,7 +2851,7 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
 
 // C ref: potion.c potionbreathe() (1932-2118). Preserve every vapor arm,
 // fallthrough, random call, hero update and naming step. The discarded void
-// call to were.c:you_unwere remains a named gap.
+// call to were.c:you_unwere uses its canonical form-removal helper.
 //
 // obj stays in the caller's inventory: C sets in_use so that a wielded
 // potion of unholy water cannot be dropped out from under maybe_destroy_item(),
@@ -3052,7 +3052,7 @@ export async function potionbreathe(obj, state = game, env = {}) {
         } else if (ismnum(state.u.ulycn)) {
             if (obj.blessed
                 && state.youmonst.data === state.mons[state.u.ulycn]) {
-                note_unported('were.c you_unwere');
+                await you_unwere(false, state, { ...env, random, message });
             } else if (obj.cursed && !Upolyd(state.u)) {
                 await you_were(state, { ...env, random, message });
             }
@@ -3315,6 +3315,7 @@ export async function dodip(state = game, rawEnv = {}) {
             }
             ++drink_ok_extra;
         } else if (atPool) {
+            const { y_n } = await import('./cmd.js');
             const pooltype = waterbody_name(hero.ux, hero.uy, state);
             const prompt = 'Dip ' + (state.flags.verbose ? obuf : shortestName)
                 + ' into the ' + pooltype + '?';
@@ -3687,8 +3688,8 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
                 await message('Something happens.', state);
             if (oldDknown && !state.objects[oldType].oc_name_known
                 && !state.objects[oldType].oc_uname) {
-                const fakeobj = { ...state.cg.zeroobj, dknown: 1,
-                    otyp: oldType, oclass: POTION_CLASS };
+                const fakeobj = newObject({ dknown: 1,
+                    otyp: oldType, oclass: POTION_CLASS });
                 await docall(fakeobj, state);
             }
         }

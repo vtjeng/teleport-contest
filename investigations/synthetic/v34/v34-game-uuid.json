@@ -1,0 +1,80 @@
+{
+  "session": "synthetic/v34/v34-game-uuid",
+  "corpus": "synthetic",
+  "batch": "v34",
+  "caseId": "v34-game-uuid",
+  "manifestPath": "challenges/manifests/v34.json",
+  "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+  "recordingSha256": "a3502cee25b5e748a333a0b3b750ed2cdc98e1ddfbad71440b4b1642bf2dff7a",
+  "evaluationPath": "challenges/evaluations/accepted-bc2ce8fb5ecd42fec92c2db427c427b566e0d645-v34.json",
+  "evaluationCommit": "bc2ce8fb5ecd42fec92c2db427c427b566e0d645",
+  "remainingScreens": 23,
+  "recordedSteps": 39,
+  "status": "complete",
+  "commit": "0f268f2c2d6a6186247bb68d29b6b90314c64efc",
+  "mismatch": {
+    "session": "synthetic/v34/v34-game-uuid",
+    "corpus": "synthetic",
+    "batch": "v34",
+    "caseId": "v34-game-uuid",
+    "manifestPath": "challenges/manifests/v34.json",
+    "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+    "recordingPath": "challenges/cases/v34/v34-game-uuid.session.json",
+    "recordingSha256": "a3502cee25b5e748a333a0b3b750ed2cdc98e1ddfbad71440b4b1642bf2dff7a",
+    "recipe": "challenges/cases/v34/v34-game-uuid.recipe.session.json",
+    "recipeSha256": "4fddd1988a2918e73cb2b823b35a4b8afb80d8b88fc221f0b63d563d5bbf5aa2",
+    "evaluationPath": "challenges/evaluations/accepted-bc2ce8fb5ecd42fec92c2db427c427b566e0d645-v34.json",
+    "evaluationCommit": "bc2ce8fb5ecd42fec92c2db427c427b566e0d645",
+    "remainingScreens": 23,
+    "recordedSteps": 39,
+    "metrics": {
+      "screens": {
+        "matched": 16,
+        "total": 39
+      },
+      "rng": {
+        "matched": 2596,
+        "total": 2596
+      },
+      "cursors": {
+        "matched": 16,
+        "total": 39
+      }
+    },
+    "error": null,
+    "passed": false,
+    "firstMismatch": {
+      "kind": "refusal",
+      "segment": 0,
+      "step": 16,
+      "boundary": "unsupported hero command: wiz_show_nhuuid() for the extended command 'wizshownhuuid' is not ported"
+    }
+  },
+  "summary": "The wizard game-UUID display command is missing. C prints the stored svn.nhuuid, which is empty in the recorder’s minimal build; JS refuses before the message. Its single stored value must survive save/restore rather than be replaced by a fixed display string.",
+  "source": {
+    "file": "wizcmds.c",
+    "branch": "wiz_show_nhuuid1782–1786, wizard command admitted only when not buried: print svn.nhuuid and return ECMD_OK without RNG or elapsed game time.",
+    "functions": [
+      "wiz_show_nhuuid"
+    ],
+    "callers": [
+      "cmd.c:doextcmd491–521 invokes the extcmdlist function pointer for wizshownhuuid1992–1993. js/extcmdlist_data.js176 has the correct AUTOCOMPLETE|WIZMODECMD row, but js/cmd.js lacks its typed switch arm.",
+      "cmd.c:rhack3682–3825 resolves rebound/canned command rows, invokes the handler, and clears count after ECMD_OK. js/cmd.js needs only the bounded wizshownhuuid import/admission/rebound arm and existing result/reset behavior, including its no-time counted path."
+    ],
+    "dependencies": [
+      "Existing pline owner supplies the discarded output call; use the canonical awaited tty message path. The selected function has no consumed-return callee.",
+      "C decl.c928–934 initializes svn.nhuuid to a zero-filled NHUUIDSZ37 buffer, include/decl.h1173 declares the single saved field, and allmain.c:newgame778 calls get_nhuuid. Unix get_nhuuid849–871 is compile-time inactive without NHUUID. Both recorder minimal hints omit -DNHUUID; the private Linux recorder disassembly shows get_nhuuid only pushes/pops its frame then returns. No native UUID generation is needed for this build.",
+      "C save.c:savegamestate273 writes svn.nhuuid before moves and restore.c:restgamestate539 restores it before moves. JS gstate/resetGame currently creates no UUID field; serializeGameState and dorestore also omit it. Proposed supporting closure initializes one canonical state.svn.nhuuid empty string and transports that value through the existing snapshot. No duplicate cached UUID or command-local literal.",
+      "C save.c:freedynamicdata1170 calls free_nhuuid and bones.c614/636/678 writes/reads ancestor UUID metadata. Broader shutdown/bones ownership and NHUUID-enabled native generation remain explicit outside limits; no completion credit for those functions or whole startup/save/restore."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Current assigned-base single-session scan .cache/B186/current-scan.json, bounded run-Mecttq at 0f268f2c2d6a6186247bb68d29b6b90314c64efc, emits16 of39 screens with no earlier divergence, then refuses on Enter at segment0 step16: unsupported hero command: wiz_show_nhuuid() for the extended command 'wizshownhuuid' is not ported. Expected C message is The NHUUID for this game is {  }. Saved accepted-bc2 metrics are16/39 screens/cursors and2596/2596 RNG.",
+    "Read complete wizcmds.c:wiz_show_nhuuid1782–1786: one pline with %s and svn.nhuuid, followed by ECMD_OK. rg for wiz_show_nhuuid/nhuuid in JS and focused tests finds only the generated command-table row and unrelated source-boundary/prompt tests; no implementation or stored UUID field exists.",
+    "Recorder source nethack-c/build-recorder.sh selects upstream sys/unix/hints/linux-minimal or nethack-c/macosx-minimal. Their CFLAGS do not define NHUUID and their link libraries do not include UUID support. Unlike full linux.500/macOS.500 hints, they do not conditionally add it. Read complete unixmain.c:get_nhuuid/free_nhuuid849–881; get_nhuuid’s body is wrapped by #if defined(NHUUID). objdump -d --disassemble=get_nhuuid /tmp/b121-recorder-worker-b/nethack confirms the actual private recorder body has no writes or UUID calls. This is a compile-time source fact, not a seed/session special case.",
+    "C’s initialized saved field remains empty in the supported recorder build, but wiz_show_nhuuid reads whatever is stored. Source-pinned tests should verify a nonempty supplied field is formatted unchanged, reset owns one fresh empty value, and save/restore preserves it without overwriting another saved-n field. Native generation is excluded from source completion.",
+    "Production command table uses AUTOCOMPLETE|WIZMODECMD without IFBURIED. Preserve existing wizard/buried admission, cancellation, no-time return, count reset, and normal message/More handling. There is no dedicated C producer of a queued UUID command; generic canned/repeat routing shares rhack’s row dispatch.",
+    "Independent evidence after central assignment: C-first typed command with different relevant role/options, rebound BINDINGS=V:wizshownhuuid with a count, repeated display, and a save/restore multi-segment variation showing the same stored field. Retain the admitted range through step38. Native UUID-enabled builds and bones/shutdown consumers stay named frontiers, without invented randomness or native operations."
+  ]
+}

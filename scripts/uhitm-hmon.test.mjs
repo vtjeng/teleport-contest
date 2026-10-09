@@ -133,6 +133,7 @@ import { P_ADVANCE, skillSlot } from '../js/startup_skills.js';
 import { uwep_skill_type } from '../js/weapon.js';
 import {
     hmon,
+    hmon_hitmon_msg_silver,
     known_hitum,
     digests,
     enfolds,
@@ -781,7 +782,7 @@ test('a shade uses the source zero-damage feedback arm', async () => {
     assert.deepEqual(wielded.bounds, ['rnd(3)', 'rnd(3)']);
 
     // A silver saber clears artifact.c shade_glare(), so the same target takes
-    // real damage and the silver feedback remains a recorded source gap.
+    // real damage and reaches the canonical silver feedback helper.
     const saber = mksobj(SILVER_SABER, true, false, { state: game });
     const silver = hitEnv({ rolls: [1, 1] });
     assert.equal(
@@ -1669,7 +1670,7 @@ test('the bare-handed ring switch reads the hand that struck', async () => {
     game.uright = right;
 
     // twohits 0: uhitm.c:865 checks both hands, so the left ring applies and
-    // hmd.silvermsg is set, which stops at the message this slice does not own.
+    // hmd.silvermsg is set, which reaches the common silver feedback helper.
     const rolls = [1, 1];
     game.twohits = 0;
     const firstSilver = target(PM_HUMAN_WEREWOLF);
@@ -1927,4 +1928,51 @@ test('hmonas source keeps attack selection, results, passive, and knockback orde
     const jsFunction = jsSource.slice(jsStart, jsEnd);
     assert.match(jsFunction,
         /await mhitm_knockback\([\s\S]*?break;\s*\}\s*sums\[i\] = hitflags\.value;\s*if \(state\.uswapwep && weapon === state\.uswapwep && weapon\.cursed\) \{\s*await drop_uswapwep\(state, attackEnv\);\s*break;/u);
+});
+
+// uhitm.c1878 prints silver feedback before the common reaction tail.
+test('silver weapon feedback reaches the canonical common hit caller', async () => {
+    await hero();
+    // A living shade is noncorporeal and hates silver; the source therefore
+    // names the target without the possessive flesh suffix.
+    const saber = mksobj(SILVER_SABER, true, false, { state: game });
+    const env = hitEnv({ rolls: [1, 1] });
+    await hmon(target(PM_SHADE), saber, HMON_MELEE, 10, game, env);
+    assert.ok(env.lines.includes('Your silver saber sears the shade!'));
+    assert.deepEqual(env.bounds, ['rnd(8)', 'rnd(20)']);
+});
+
+// Each row pins a branch of uhitm.c1663–1700; synthetic and independent play
+// establish runtime reachability, while these fixtures isolate message grammar.
+test('silver feedback follows the source visibility, ring and flesh branches', async () => {
+    await hero();
+    const cases = [
+        // Ring counts are source hmd fields; no current ring table is silver.
+        { count: 1, expected: "Your silver ring sears the vampire's flesh!" },
+        { count: 2, expected: "Your silver rings sear the vampire's flesh!" },
+        // No saved object name selects the generic source fallback.
+        { count: 0, expected: "The silver sears the vampire's flesh!" },
+        // Case-insensitive silver search suppresses the extra adjective.
+        { name: 'Silver Saber', expected: "Your Silver Saber sears the vampire's flesh!" },
+        // Percent bytes from a player name remain literal; plural object names
+        // choose sear rather than sears through canonical vtense.
+        { name: 'daggers named 50%s', expected: "Your silver daggers named 50%s sear the vampire's flesh!" },
+        // Source amorphous and noncorporeal guards both omit flesh.
+        { species: PM_OCHRE_JELLY, expected: 'The silver sears the ochre jelly!' },
+        { species: PM_SHADE, expected: 'The silver sears the shade!' },
+        // An invisible unsensed target is named it, capitalized before suffix.
+        { invisible: true, expected: "Its flesh is seared!" },
+    ];
+    for (const row of cases) {
+        const mon = target(row.species ?? PM_VAMPIRE, { minvis: row.invisible ?? false });
+        const env = hitEnv();
+        const hmd = { mdat: mon.data, barehand_silver_rings: row.count ?? 0,
+            silverobj: Boolean(row.name), saved_oname: row.name ?? '' };
+        await hmon_hitmon_msg_silver(hmd, mon, game, env);
+        assert.deepEqual(env.lines, [row.expected]);
+        assert.deepEqual(env.bounds, [], 'ordinary naming/feedback adds no RNG');
+    }
+    assert.match(UHITM_SOURCE, /if \(hmd->barehand_silver_rings == 1\)/u);
+    assert.match(UHITM_SOURCE, /strstri\(hmd->saved_oname, "silver"\)/u);
+    assert.match(UHITM_SOURCE, /!noncorporeal\(hmd->mdat\) && !amorphous\(hmd->mdat\)/u);
 });

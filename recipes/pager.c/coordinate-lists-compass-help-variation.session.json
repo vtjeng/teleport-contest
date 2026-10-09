@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pager.c:look_all witness: drop an ordinary starting weapon, then select all four nearby/all monster/object branches under compass. Cheap role and command-route variations chosen before JS comparison. C-only setup correction: move west after dropping so the weapon glyph is no longer obscured by the hero.",
+  "segments": [
+    {
+      "seed": 17632012,
+      "datetime": "20510817122334",
+      "nethackrc": "OPTIONS=name:ListProbe17632012,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,whatis_coord:compass\n",
+      "moves": ".dah?em ?eM ?eo ?eO ."
+    }
+  ]
+}

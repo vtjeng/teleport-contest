@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B182 C-first spell menu witness: tab-columns. Seed18233001 plus fixed case index; date20581009172536. Role/repertoire, sort actions, swap input or tab option selects the source branch. Inputs fixed from spell.c before C recording or JS comparison.",
+  "segments": [
+    {
+      "seed": 18233003,
+      "datetime": "20581009172536",
+      "nethackrc": "OPTIONS=name:SpellWitness,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,menu_tab_sep\n",
+      "moves": ".+\u001b"
+    }
+  ]
+}

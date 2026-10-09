@@ -1,18 +1,23 @@
 // glyphs.js -- Glyph-ID expansion and glyph-map customizations.
 // C refs: glyphs.c glyphrep_to_custom_map_entries(), glyph_find_core(),
-// parse_id(), add/apply/purge/shuffle_customizations(); utf8map.c unicode_val().
+// parse_id(), glyph_to_cmap(), add/apply/purge/shuffle_customizations();
+// utf8map.c unicode_val().
 
 import {
     H_UTF8,
+    MAXEXPCHARS,
     NH_BASIC_COLOR,
     PRIMARYSET,
     ROGUESET,
 } from './const.js';
+import { game } from './gstate.js';
+import { lcase } from './hacklib.js';
 import { rgbstr_to_int32 } from './coloratt.js';
 import {
     GLYPHREP_CMAP_PARTITIONS,
-    sourceGlyphNumber,
+    SOURCE_GLYPH_IDS,
     sourceSymbolIndex,
+    sourceSymbolNamesByIndex,
 } from './glyph_ids.js';
 import {
     GLYPH_ALTAR_OFF,
@@ -28,6 +33,7 @@ import {
     GLYPH_DETECT_FEM_OFF,
     GLYPH_DETECT_MALE_OFF,
     GLYPH_EXPLODE_OFF,
+    GLYPH_EXPLODE_FROSTY_OFF,
     GLYPH_MON_FEM_OFF,
     GLYPH_MON_MALE_OFF,
     GLYPH_OBJ_OFF,
@@ -49,6 +55,33 @@ import {
     SYM_OFF_W,
     SYM_OFF_X,
 } from './symbol_data.js';
+
+import {
+    MAXPCHARS, S_stone, S_vwall, S_trwall, S_ndoor, S_altar, S_grave,
+    S_digbeam, S_goodpos, S_vbeam, S_sw_tl, S_expl_tl, S_expl_br,
+} from './symbols.js';
+
+// C ref: glyphs.c glyph_to_cmap() (199-231). The five adjacent wall
+// ranges share cmap indices; altar variants likewise share S_altar.
+export function glyph_to_cmap(glyph) {
+    if (glyph === GLYPH_CMAP_STONE_OFF) return S_stone;
+    if (glyph >= GLYPH_CMAP_MAIN_OFF && glyph < GLYPH_CMAP_A_OFF)
+        return ((glyph - GLYPH_CMAP_MAIN_OFF) % (S_trwall - S_vwall + 1)) + S_vwall;
+    if (glyph >= GLYPH_CMAP_A_OFF && glyph < GLYPH_ALTAR_OFF)
+        return glyph - GLYPH_CMAP_A_OFF + S_ndoor;
+    if (glyph >= GLYPH_ALTAR_OFF && glyph < GLYPH_CMAP_B_OFF) return S_altar;
+    if (glyph >= GLYPH_CMAP_B_OFF && glyph < GLYPH_ZAP_OFF)
+        return glyph - GLYPH_CMAP_B_OFF + S_grave;
+    if (glyph >= GLYPH_CMAP_C_OFF && glyph < GLYPH_CMAP_C_OFF + S_goodpos - S_digbeam + 1)
+        return glyph - GLYPH_CMAP_C_OFF + S_digbeam;
+    if (glyph >= GLYPH_ZAP_OFF && glyph < GLYPH_CMAP_C_OFF)
+        return ((glyph - GLYPH_ZAP_OFF) % 4) + S_vbeam;
+    if (glyph >= GLYPH_SWALLOW_OFF && glyph < GLYPH_SWALLOW_OFF + (NUMMONS << 3))
+        return ((glyph - GLYPH_SWALLOW_OFF) & 7) + S_sw_tl;
+    if (glyph >= GLYPH_EXPLODE_OFF && glyph < GLYPH_EXPLODE_FROSTY_OFF + MAXEXPCHARS)
+        return ((glyph - GLYPH_EXPLODE_OFF) % (S_expl_br - S_expl_tl + 1)) + S_expl_tl;
+    return MAXPCHARS; // C's legal defsyms fencepost for every other glyph.
+}
 
 const MONSTER_GLYPH_OFFSETS = Object.freeze([
     GLYPH_MON_MALE_OFF,
@@ -139,12 +172,163 @@ function cmapGlyphs(cmap) {
     return [];
 }
 
+// C refs: glyphs.c glyph ID cache (303-455). The one record below owns C's
+// glyphid_cache pointer, glyphid_cache_size and glyphid_cache_lsize. It is
+// created during configuration or #wizcustom and freed at those source sites.
+export function glyph_hash(id) {
+    let hash = 0;
+    for (const byte of new TextEncoder().encode(id)) {
+        if (!byte) break;
+        // The reference build uses signed char; its XOR promotes high bytes.
+        const ch = byte >= 128 ? byte - 256
+            : byte >= 65 && byte <= 90 ? byte + 32 : byte;
+        hash = (((hash << 1) | (hash >>> 31)) ^ ch) >>> 0;
+    }
+    return hash;
+}
+
+export function init_glyph_cache(state = game) {
+    state.gg ??= {};
+    let size = 1, lsize = 0;
+    while (size < 2 * MAX_GLYPH) { size <<= 1; ++lsize; }
+    state.gg.glyphid_cache = {
+        size, lsize,
+        entries: Array.from({ length: size }, () => ({ glyphnum: 0, id: null })),
+    };
+}
+
+export function glyphid_cache_status(state = game) {
+    return Boolean(state.gg?.glyphid_cache);
+}
+
+export function free_glyphid_cache(state = game) {
+    if (!glyphid_cache_status(state)) return;
+    state.gg.glyphid_cache = null;
+}
+
+export function add_glyph_to_cache(glyphnum, id, state = game) {
+    const cache = state.gg.glyphid_cache;
+    const hash = glyph_hash(id);
+    const mask = cache.size - 1;
+    const first = hash & mask;
+    const step = ((hash >>> cache.lsize) & mask) | 1;
+    let index = first;
+    do {
+        if (cache.entries[index].id === null) {
+            cache.entries[index] = { glyphnum, id };
+            return;
+        }
+        index = (index + step) & mask;
+    } while (index !== first);
+    throw new Error('glyphid_cache full'); // source panic: no empty bucket.
+}
+
+export function find_glyph_in_cache(id, state = game) {
+    const cache = state.gg.glyphid_cache;
+    const hash = glyph_hash(id);
+    const mask = cache.size - 1;
+    const first = hash & mask;
+    const step = ((hash >>> cache.lsize) & mask) | 1;
+    let index = first;
+    do {
+        const entry = cache.entries[index];
+        if (entry.id === null) return -1;
+        if (lcase(entry.id) === lcase(id)) return entry.glyphnum;
+        index = (index + step) & mask;
+    } while (index !== first);
+    return -1;
+}
+
+export function find_glyphid_in_cache_by_glyphnum(glyphnum, state = game) {
+    if (!glyphid_cache_status(state)) return null;
+    for (const entry of state.gg.glyphid_cache.entries)
+        if (entry.glyphnum === glyphnum && entry.id !== null) return entry.id;
+    return null;
+}
+
+// C ref: glyphs.c parse_id (824-1162). glyph_ids.js generates the complete
+// fixed catalog with the source's fix_glyphname and naming branches; its C
+// dump comparison pins every ID and hole. Keep parsing/cache control here.
+// find_* = nothing/pm/oc/cmap/glyph (0..4), res_* = nothing/dump/fill (0..2).
+// A supplied dump sink represents FILE* output, without game filesystem I/O.
+export function parse_id(id, findwhat, state = game) {
+    let dumping = false, filling = false;
+    if (findwhat.findtype === 0 && findwhat.restype) {
+        if (findwhat.restype === 1) {
+            if (!findwhat.reserved) return 0;
+            dumping = true;
+        }
+        if (findwhat.restype === 2) {
+            if (!findwhat.reserved || findwhat.reserved !== state.gg?.glyphid_cache) return 0;
+            filling = true;
+        }
+    }
+    const isG = id?.startsWith('G_');
+    const isS = id?.startsWith('S_');
+    if (isG || filling || dumping) {
+        if (!filling && id && glyphid_cache_status(state)) {
+            const val = find_glyph_in_cache(id, state);
+            if (val < 0) return 0; // source early return leaves findwhat untouched.
+            Object.assign(findwhat, { findtype: 4, val, loadsyms_offset: 0 });
+            return 1;
+        }
+        for (let glyph = 0; glyph < MAX_GLYPH; ++glyph) {
+            const name = SOURCE_GLYPH_IDS[glyph];
+            // Empty catalog holes include deliberately skipped unnamed object
+            // entries and the empty piletop venom ID. Only that latter hole is
+            // inserted/dumped in C (glyph_is_object excludes it).
+            if (!name && glyph !== GLYPH_OBJ_PILETOP_OFF + VENOM_CLASS) continue;
+            if (dumping) findwhat.reserved(`(${String(glyph).padStart(4, '0')}) ${name}\n`);
+            else if (filling) add_glyph_to_cache(glyph, name, state);
+            else if (id && lcase(name) === lcase(id)) {
+                Object.assign(findwhat, { findtype: 4, val: glyph, loadsyms_offset: 0 });
+                return 1;
+            }
+        }
+    } else if (isS) {
+        const absolute = sourceSymbolIndex(id);
+        if (absolute !== null
+            && `s_${sourceSymbolNamesByIndex()[absolute]}` === lcase(id)) {
+            if (absolute >= SYM_OFF_P && absolute < SYM_OFF_O) {
+                Object.assign(findwhat, { findtype: 3, val: absolute - SYM_OFF_P, loadsyms_offset: absolute });
+                return 1;
+            }
+            if (absolute >= SYM_OFF_O && absolute < SYM_OFF_M) {
+                Object.assign(findwhat, { findtype: 2, val: absolute - SYM_OFF_O, loadsyms_offset: absolute });
+                return 1;
+            }
+            if (absolute > SYM_OFF_M && absolute <= SYM_OFF_X) {
+                Object.assign(findwhat, { findtype: 1, val: absolute - SYM_OFF_M, loadsyms_offset: absolute });
+                return 1;
+            }
+        }
+    }
+    if (dumping || filling) return 1;
+    Object.assign(findwhat, { findtype: 0, val: 0, loadsyms_offset: 0 });
+    return 0;
+}
+
+export function fill_glyphid_cache(state = game) {
+    if (!glyphid_cache_status(state)) init_glyph_cache(state);
+    const findwhat = { findtype: 0, restype: 2, reserved: state.gg.glyphid_cache };
+    if (!parse_id(null, findwhat, state)) free_glyphid_cache(state);
+}
+
+export function wizcustom_glyphids(win, callback, state = game) {
+    if (!glyphid_cache_status(state)) return;
+    for (let glyph = 0; glyph < MAX_GLYPH; ++glyph) {
+        const id = find_glyphid_in_cache_by_glyphnum(glyph, state);
+        if (id !== null) callback(win, glyph, id, state);
+    }
+}
+
 /** glyphs.c parse_id()+glyph_find_core(), including all S_* fanout. */
-export function glyph_find(id) {
+export function glyph_find(id, state = game) {
+    const found = { findtype: 0 };
+    if (!parse_id(String(id ?? ''), found, state)) return null;
     const text = String(id ?? '');
     if (text.startsWith('G_')) {
-        const glyph = sourceGlyphNumber(text);
-        return glyph === null ? null : [glyph];
+        return [found.val];
     }
     if (!text.startsWith('S_')) return null;
     const absolute = sourceSymbolIndex(text);
@@ -235,7 +419,7 @@ export function inspect_glyphrep(raw) {
 /** Parse one already-munged options.c glyph value and append its records. */
 export function glyphrep_to_custom_map_entries(raw, state, whichSet = null) {
     const { id, unicode, color } = parseGlyphrepDelimiterPointers(raw);
-    const glyphs = glyph_find(id);
+    const glyphs = glyph_find(id, state);
     if (glyphs === null) return false;
     // parse_id() can succeed for S_nothing while glyph_find_core() invokes no
     // callback.  It therefore emits no nag and allocates no state.

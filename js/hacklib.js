@@ -522,10 +522,11 @@ export function online2(x0, y0, x1, y1) {
 
 // C ref: hacklib.c strncmpi(). Compare at most `n` source characters,
 // stopping at either NUL terminator, with lowc()'s ASCII-only case fold.
+// strcmpi() passes -1, which keeps C's while(n--) running through NUL.
 export function strncmpi(s1, s2, n) {
     let remaining = Math.trunc(n);
     let index = 0;
-    while (remaining-- > 0) {
+    while (remaining-- !== 0) {
         const c1 = s1?.[index] ?? '\0';
         const c2 = s2?.[index] ?? '\0';
         if (c2 === '\0') return c1 === '\0' ? 0 : 1;

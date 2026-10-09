@@ -136,7 +136,6 @@ import {
     newsym,
     objnum_to_glyph,
     vobj_at,
-    UnsupportedMapMemoryError,
     UnsupportedTransientDisplayError,
 } from './display.js';
 import {
@@ -252,6 +251,7 @@ import {
 } from './dungeon.js';
 import {
     encodeUtf8Text,
+    eos,
     dist2,
     mungspaces,
     sgn,
@@ -282,6 +282,7 @@ import {
 } from './invent.js';
 import {
     doattributes,
+    doborn,
     doconduct,
     do_gamelog,
     dogenocided,
@@ -292,6 +293,7 @@ import {
 import { dodiscovered, UnsupportedDiscoveryDisplayError } from './o_init.js';
 import { donameFresh, UnsupportedObjectNameError } from './objnam.js';
 import {
+    doset,
     doset_simple,
     dotogglepickup,
     toggle_bool_option,
@@ -309,6 +311,9 @@ import { kill_genocided_monsters, UnsupportedHideError } from './mon.js';
 import { dosave, dosave0, savelev } from './save.js';
 import {
     dohelp,
+    dohistory,
+    doidtrap,
+    dowhatdoes,
     doquickwhatis,
     do_screen_description,
     dowhatis,
@@ -333,7 +338,6 @@ import {
     spe_Unknown,
     spelleffects,
     UnsupportedSpellCastError,
-    UnsupportedSpellDisplayError,
 } from './spell.js';
 import {
     UnsupportedWeaponSkillError,
@@ -343,6 +347,7 @@ import {
     displayTtyTextWindow, menuTitleStyle,
 } from './tty_menu.js';
 import { add_menu_heading, getlin, select_menu } from './windows.js';
+import { pmatchi } from './strutil.js';
 import {
     check_capacity,
     domove,
@@ -374,8 +379,9 @@ import {
     dopoly, doremove, dospinweb, dospit, dosummon,
 } from './polyself.js';
 import {
-    wiz_detect, wiz_flip_level, wiz_genesis, wiz_identify, wiz_intrinsic, wiz_level_change, wiz_kill, wiz_smell, wiz_show_seenv, wiz_show_vision,
-    wiz_level_tele, wiz_makemap, wiz_map, wiz_polyself, wiz_wish, wiz_where, wiz_rumor_check,
+    wiz_detect, wiz_flip_level, wiz_genesis, wiz_identify, wiz_intrinsic, wiz_level_change, wiz_kill, wiz_smell, wiz_show_seenv, wiz_show_vision, wiz_show_stats, wiz_show_wmodes, wiz_objprobs, wiz_display_macros, wiz_mon_diff, wiz_telekinesis, wiz_custom,
+    wiz_level_tele, wiz_load_lua, wiz_load_splua, wiz_makemap, wiz_map, wiz_polyself, wiz_wish, wiz_where, wiz_rumor_check, wiz_migrate_mons,
+    wiz_map_levltyp, wiz_levltyp_legend, wiz_panic,
 } from './wizcmds.js';
 import {
     dozap,
@@ -1074,11 +1080,10 @@ export function movecmd(sym, mode, state = game) {
 export function key2extcmddesc(key, state = game) {
     const byte = key & 0xFF;
     const model = commandBindings(state);
-    let description = '';
-    if (movecmd(byte, MV_WALK, state)) description = 'move';
-    else if (movecmd(byte, MV_RUSH, state)) description = 'rush';
-    else if (movecmd(byte, MV_RUN, state)) description = 'run';
-    if (description) return description;
+    // C writes temporary movement text but never returns it: it continues
+    // into the count, special-key and binding lookups. Keep all probe effects.
+    if (!movecmd(byte, MV_WALK, state)
+        && !movecmd(byte, MV_RUSH, state)) movecmd(byte, MV_RUN, state);
 
     const unmeta = byte & 0x7F;
     const isDigit = (value) => value >= 0x30 && value <= 0x39;
@@ -1377,70 +1382,96 @@ function doc_extcmd_flagstr(entry, flags, state = game) {
         : '';
 }
 
-// C ref: cmd.c doextlist() (562-707), through its first non-debug,
-// empty-search pass. The controls remain selectable so doextlist() can stop
-// at the precise input which enters the excluded toggle and search modes.
-export function extendedCommandListLines(state = game) {
+// C ref: cmd.c doextlist() (562-743). Rows preserve extcmdlist's source
+// order, with lazy headings and the cumulative n across its two passes.
+export function extendedCommandListLines(state = game, {
+    menumode = 0, onelist = 0, searchbuf = '',
+} = {}) {
     const lines = [
         { text: 'Extended Commands List' },
         { text: '' },
-        { text: "a - Switch to excluding commands that don't autocomplete" },
-        { text: ': - Search extended commands' },
-        { text: '' },
+        { text: `a - Switch to ${menumode ? 'including' : 'excluding'} commands that don't autocomplete` },
     ];
-    let headingAdded = false;
-    let count = 0;
-    for (let index = 0; index < extcmdlist.length; ++index) {
-        const entry = extcmdlist[index];
-        const flags = state.extcmdFlags?.[index] ?? entry.flags;
-        if (flags & (CMD_NOT_AVAILABLE | INTERNALCMD)) continue;
-        if (flags & WIZMODECMD) continue;
-
-        if (!headingAdded) {
-            lines.push(add_menu_heading('Extended commands', state));
-            headingAdded = true;
-        }
-        let description = entry.ef_desc;
-        if (!state.wizard && !state.discover
-            && (flags & GENERALCMD)
-            && strstri(description, 'extinct') >= 0) {
-            description = strsubst(
-                description,
-                ' been genocided or become extinct',
-                ' been genocided',
-            );
-        }
-        const flagText = doc_extcmd_flagstr(entry, flags, state);
-        lines.push({
-            text: ` ${entry.ef_txt.padEnd(14)} ${flagText.padStart(4)} ${description}`,
-        });
-        ++count;
+    if (!searchbuf) lines.push({ text: ': - Search extended commands' });
+    else {
+        let back = 'Switch back from search';
+        if (back.length + eos(searchbuf) + ' ("")'.length < QBUFSZ)
+            back += ` ("${searchbuf}")`;
+        lines.push({ text: `s - ${back}` });
     }
-    if (count) lines.push({ text: '' });
-    lines.push(...doc_extcmd_flagstr(null, 0, state));
+    if (state.wizard) lines.push({ text: onelist
+        ? 'z - Switch to showing debugging commands in separate section'
+        : 'z - Switch to showing all alphabetically, including debugging commands' });
+    lines.push({ text: '' });
+    let count = 0;
+    for (let pass = 0; pass <= 1; ++pass) {
+        if (pass === 1 && (onelist || !state.wizard)) break;
+        let headingAdded = false;
+        for (let index = 0; index < extcmdlist.length; ++index) {
+            const entry = extcmdlist[index];
+            const flags = state.extcmdFlags?.[index] ?? entry.flags;
+            if (flags & (CMD_NOT_AVAILABLE | INTERNALCMD)) continue;
+            if (menumode === 1 && !(flags & AUTOCOMPLETE)) continue;
+            const wizardCommand = Boolean(flags & WIZMODECMD);
+            if (wizardCommand && !state.wizard) continue;
+            if (!onelist && pass !== Number(wizardCommand)) continue;
+            let description = entry.ef_desc;
+            if (!state.wizard && !state.discover && (flags & GENERALCMD)
+                && strstri(description, 'extinct') >= 0) {
+                description = strsubst(description,
+                    ' been genocided or become extinct', ' been genocided');
+            }
+            if (searchbuf && strstri(entry.ef_txt, searchbuf) < 0
+                && strstri(description, searchbuf) < 0
+                && !pmatchi(searchbuf, entry.ef_txt)
+                && !pmatchi(searchbuf, description)) continue;
+            if (!headingAdded) {
+                lines.push(add_menu_heading(pass === 0
+                    ? 'Extended commands' : 'Debugging Extended Commands', state));
+                headingAdded = true;
+            }
+            const flagText = doc_extcmd_flagstr(entry, flags, state);
+            lines.push({ text: ` ${entry.ef_txt.padEnd(14)} ${flagText.padStart(4)} ${description}` });
+            ++count;
+        }
+        if (count) lines.push({ text: '' });
+    }
+    if (searchbuf && !count) lines.push({ text: 'no matches' });
+    else lines.push(...doc_extcmd_flagstr(null, 0, state));
     return lines;
 }
 
 export async function doextlist(state = game) {
-    if (state.wizard) {
-        throw new UnsupportedHelpError(
-            'debug sections in the extended-command list',
-        );
-    }
-    const choice = await select_menu(state, {
-        how: PICK_ONE,
-        title: null,
-        lines: extendedCommandListLines(state),
-        choices: new Map([['a', 1], [':', 2]]),
-        overlay: state.iflags?.menu_overlay !== false,
-        cancelValue: null,
-    });
-    if (choice !== null) {
-        throw new UnsupportedHelpError(
-            choice === 1
-                ? 'the extended-command autocomplete toggle'
-                : 'extended-command list search',
-        );
+    let menumode = 0, onelist = 0, searchbuf = '', redisplay = true;
+    while (redisplay) {
+        redisplay = false;
+        const choices = new Map([['a', 1]]);
+        if (!searchbuf) {
+            choices.set(':', 2);
+            choices.set('s', 2); // source group accelerator for the ':' row
+        } else {
+            choices.set('s', 3);
+            // The ':' group synonym loses to wintty's MENU_SEARCH arm;
+            // leaving it out here preserves that backend precedence.
+        }
+        if (state.wizard) choices.set('z', 4);
+        const choice = await select_menu(state, {
+            how: PICK_ONE, title: null,
+            lines: extendedCommandListLines(state, { menumode, onelist, searchbuf }),
+            choices, overlay: state.iflags?.menu_overlay !== false,
+            cancelValue: null,
+        });
+        let search = false;
+        if (choice === 1) { menumode = 1 - menumode; redisplay = true; }
+        else if (choice === 2) search = true;
+        else if (choice === 3) { searchbuf = ''; redisplay = true; }
+        else if (choice === 4) { searchbuf = ''; onelist = 1 - onelist; redisplay = true; }
+        else searchbuf = '';
+        if (search) {
+            searchbuf = mungspaces(await getlin('Extended command list search phrase?', state));
+            if (searchbuf[0] === '\x1b') searchbuf = '';
+            if (searchbuf) redisplay = true;
+        }
     }
     return ECMD_OK;
 }
@@ -1857,8 +1888,8 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'rush', 'run', 'repeat',
     'options', 'autopickup',
     'wizwish', 'wizidentify', 'wizlevelport', 'wizgenesis', 'wizintrinsic', 'wizmap', 'wizwhere', 'wizcast', 'wizsmell', 'wizkill', 'fire', 'throw',
-    'swap', 'kick',
-    'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
+    'swap', 'kick', 'panic',
+    '?', 'save', 'wield', 'quiver', 'help', 'whatdoes', 'whatis', 'showtrap', '#', 'loot', 'force', 'tip',
     'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet',
     'seeall', 'seetools', 'teleport',
     'overview', 'chronicle', 'conduct', 'vanquished', 'genocided',
@@ -2362,7 +2393,8 @@ export async function enter_explore_mode(state = game) {
     return ECMD_OK;
 }
 
-const LEVLTYP_NAMES = Object.freeze([
+// C ref: cmd.c levltyp[MAX_TYPE + 2], also read by wizcmds.c diagnostics.
+export const levltyp = Object.freeze([
     'stone', 'vertical wall', 'horizontal wall', 'top-left corner wall',
     'top-right corner wall', 'bottom-left corner wall',
     'bottom-right corner wall', 'cross wall', 'tee-up wall', 'tee-down wall',
@@ -2374,9 +2406,9 @@ const LEVLTYP_NAMES = Object.freeze([
     'unreachable/undiggable', '',
 ]);
 
-// C ref: cmd.c levltyp_to_name() (1090-1193).
+// C ref: cmd.c levltyp_to_name() (1089-1095).
 export function levltyp_to_name(typ) {
-    return typ >= 0 && typ < MAX_TYPE ? LEVLTYP_NAMES[typ] : null;
+    return typ >= 0 && typ < MAX_TYPE ? levltyp[typ] : null;
 }
 
 function selectedPoint(selection, x, y) {
@@ -2825,7 +2857,6 @@ export function failClosedCommandRefusals() {
     return [
         UnsupportedFeatureDescriptionError,
         UnsupportedObjectNameError,
-        UnsupportedSpellDisplayError,
         // spell.c spelleffects_check() and spelleffects() raise this from
         // the forgotten-spell, amulet-drain, and non-healing spell paths
         // that this port has not reached.
@@ -2906,10 +2937,6 @@ export function failClosedCommandRefusals() {
         // anything, so an unported option value stops with no output; its
         // pick loop stops after the player has committed a selection.
         UnsupportedOptionMenuError,
-        // display.c unmap_object() raises this for a square that shows an
-        // engraving, which hack.c domove_fight_empty() is the one ported
-        // caller that can reach.
-        UnsupportedMapMemoryError,
         UnsupportedHeroTimeoutBoundaryError,
         UnsupportedPositionCheckError,
         UnsupportedMonsterCreationError,
@@ -3068,29 +3095,7 @@ async function runInventoryCommand(key, state) {
 
 // C ref: spell.c dovspell().
 async function runShowspellsCommand(key, state) {
-    return failClosedCommand(key, state, () => dovspell(state, {
-        message: ttyPline,
-        // spell.c dospellmenu() ends its menu with end_menu(prompt) and asks
-        // select_menu() for PICK_ONE, or PICK_NONE when only one spell is
-        // known; Escape answers null either way.
-        menu: (items, how, prompt) => select_menu(state, {
-            // add_menu_heading() draws the column heading with
-            // iflags.menu_headings, and allmain.c hands the same style to
-            // tty_end_menu()'s prompt line through adjust_menu_promptstyle().
-            items: items.map((item) => (item.heading
-                ? {
-                    ...item,
-                    attr: menuTitleStyle(state).titleAttr,
-                    color: menuTitleStyle(state).titleColor,
-                }
-                : item)),
-            how,
-            title: prompt,
-            ...menuTitleStyle(state),
-            cancelValue: null,
-            overlay: state.iflags?.menu_overlay !== false,
-        }),
-    }));
+    return failClosedCommand(key, state, () => dovspell(state));
 }
 
 // C ref: o_init.c dodiscovered().
@@ -3143,8 +3148,7 @@ async function runSearchCommand(key, state) {
 }
 
 // C ref: cmd.c doterrain() (1098-1189). Choices 1-4 use the complete
-// detect.c terrain projection. Wizard internal codes and legend remain
-// separate source owners, so those menu choices retain their refusal.
+// detect.c terrain projection; choices 5-6 await the wizcmds.c text windows.
 async function runTerrainCommand(key, state) {
     return failClosedCommand(key, state, () => doterrain(state));
 }
@@ -3200,10 +3204,10 @@ export async function doterrain(state = game) {
     };
     if (which in subsets) {
         await reveal_terrain(subsets[which], state);
-    } else {
-        throw new UnsupportedSearchError(
-            `terrain menu choice ${which} is not ported`,
-        );
+    } else if (which === 5) {
+        await wiz_map_levltyp(state);
+    } else if (which === 6) {
+        await wiz_levltyp_legend(state);
     }
     return ECMD_OK;
 }
@@ -3320,7 +3324,7 @@ async function runCastCommand(key, state) {
         message: ttyPline,
         // spell.c dospellmenu() for SPELLMENU_CAST: PICK_ONE menu with the
         // column heading styled by iflags.menu_headings.
-        menu: (items, how, prompt) => select_menu(state, {
+        menu: (items, how, prompt, _menuState, selection = {}) => select_menu(state, {
             items: items.map((item) => (item.heading
                 ? {
                     ...item,
@@ -3329,6 +3333,7 @@ async function runCastCommand(key, state) {
                 }
                 : item)),
             how,
+            ...selection,
             title: prompt,
             ...menuTitleStyle(state),
             cancelValue: null,
@@ -3672,12 +3677,12 @@ async function runEnhanceCommand(key, state) {
     }));
 }
 
-// C ref: options.c doset_simple(), the 'O' command. Both it and the doset()
-// its menu_requested arm hands off to format the whole menu before
+// C ref: options.c doset_simple() ('O') and doset() ('#optionsfull'). Both
+// preserve their own menu_requested inversion and format the menu before
 // select_menu() draws anything, so an unported option value stops before any
 // output.
-async function runOptionsCommand(key, state) {
-    return failClosedCommand(key, state, () => doset_simple(state, {
+async function runOptionsCommand(key, state, handler = doset_simple) {
+    return failClosedCommand(key, state, () => handler(state, {
         // add_menu_heading() draws each section heading with
         // iflags.menu_headings, which menuTitleStyle() reads.
         headingStyle: {
@@ -4973,351 +4978,387 @@ async function prefixRefusedCommand(prefixCommand, entry, wasMPrefix, state) {
     );
 }
 
-// C ref: cmd.c doextcmd(). The do/while loop repeats only while the command
-// reached is doextlist (#?), which stays unported, so one pass covers every
-// dispatch the port can make.
+// C ref: cmd.c doextcmd() (493-519). Only doextlist repeats the
+// extended-command prompt; every other handler returns its ECMD result.
 async function doextcmd(key, state) {
-    const idx = await tty_get_ext_cmd(state);
-    if (idx < 0) return ECMD_OK; /* quit */
+    for (;;) {
+        const idx = await tty_get_ext_cmd(state);
+        if (idx < 0) return ECMD_OK; /* quit */
 
-    const entry = extcmdlist[idx];
-    if (!await can_do_extcmd(entry, state)) return ECMD_OK;
-    if (!state.in_doagain && entry.ef_funct !== 'do_repeat'
-        && entry.ef_funct !== 'doextcmd') {
-        cmdq_clear(CQ_REPEAT, state);
-        cmdq_add_ec(CQ_REPEAT, entry, state);
-    }
-    if (state.iflags.menu_requested && !accept_menu_prefix(entry)) {
-        const prefix = keyForCommand(commandBindings(state), 'reqmenu');
-        await ttyPline(
-            `'${visibleCommandKey(prefix)}' prefix has no effect for the `
-            + `${entry.ef_txt} command.`,
-            state,
-        );
-        state.iflags.menu_requested = false;
-    }
-    // ge.ext_tlist tells rhack() which row actually ran. It matters only for
-    // the repeat queue and for rhack()'s PREFIXCMD and MOVEMENTCMD tests, and
-    // no command below is either, so the substitution has nothing to change
-    // yet. Porting '#movewest' or another MOVEMENTCMD row has to add it.
-    switch (entry.ef_funct) {
-    case 'doextcmd':
-        // '#' names itself, so '##' opens a second prompt. C recurses through
-        // `retval = (*func)()`; the do/while around it repeats only for
-        // doextlist.
-        return doextcmd(key, state);
-    case 'done2':
-        // C ref: end.c done2(), the #quit handler. Its accepted path calls
-        // done(QUIT), while the cancellation path returns ECMD_OK after it
-        // restores the command loop.
-        return await done2(state);
-    case 'wiz_debug_cmd_bury': {
-        const { wiz_debug_cmd_bury } = await import('./dig.js');
-        return await wiz_debug_cmd_bury(state);
-    }
-    case 'doprev_message':
-        return doprev_message(state);
-    case 'enter_explore_mode':
-        return await enter_explore_mode(state);
-    case 'dolookaround':
-        return await dolookaround(state);
-    case 'doherecmdmenu':
-        return await doherecmdmenu(state);
-    case 'dotherecmdmenu':
-        return await dotherecmdmenu(state);
-    case 'dotoggleoption':
-        return await dotoggleoption(state);
-    case 'do_move_west':
-        return do_move_west(state);
-    case 'do_move_northwest':
-        return do_move_northwest(state);
-    case 'do_move_north':
-        return do_move_north(state);
-    case 'do_move_northeast':
-        return do_move_northeast(state);
-    case 'do_move_east':
-        return do_move_east(state);
-    case 'do_move_southeast':
-        return do_move_southeast(state);
-    case 'do_move_south':
-        return do_move_south(state);
-    case 'do_move_southwest':
-        return do_move_southwest(state);
-    case 'do_rush_west':
-        return do_rush_west(state);
-    case 'do_rush_northwest':
-        return do_rush_northwest(state);
-    case 'do_rush_north':
-        return do_rush_north(state);
-    case 'do_rush_northeast':
-        return do_rush_northeast(state);
-    case 'do_rush_east':
-        return do_rush_east(state);
-    case 'do_rush_southeast':
-        return do_rush_southeast(state);
-    case 'do_rush_south':
-        return do_rush_south(state);
-    case 'do_rush_southwest':
-        return do_rush_southwest(state);
-    case 'do_run_west':
-        return do_run_west(state);
-    case 'do_run_northwest':
-        return do_run_northwest(state);
-    case 'do_run_north':
-        return do_run_north(state);
-    case 'do_run_northeast':
-        return do_run_northeast(state);
-    case 'do_run_east':
-        return do_run_east(state);
-    case 'do_run_southeast':
-        return do_run_southeast(state);
-    case 'do_run_south':
-        return do_run_south(state);
-    case 'do_run_southwest':
-        return do_run_southwest(state);
-    case 'do_rush':
-        return do_rush(state);
-    case 'do_run':
-        return do_run(state);
-    case 'do_repeat':
-        return do_repeat(state);
-    case 'dosh_core':
-        return await dosh_core(state);
-    case 'dosuspend_core':
-        return await dosuspend_core(state);
-    case 'donull':
-        return await donull(state) ? ECMD_TIME : ECMD_OK;
-    case 'doredraw':
-        return await doredraw();
-    case 'dolook':
-        return await runLookCommand(key, state) ? ECMD_TIME : ECMD_OK;
-    case 'doattributes':
-        return await runAttributesCommand(key, state) ? ECMD_TIME : ECMD_OK;
-    case 'dooverview':
-        // C ref: dungeon.c dooverview(), which returns ECMD_OK after the
-        // overview menu has been dismissed.
-        return await dooverview(state);
-    case 'ddoinv':
-        return await runInventoryCommand(key, state) ? ECMD_TIME : ECMD_OK;
-    case 'dotypeinv':
-        return await failClosedCommand(key, state, () => dotypeinv(state));
-    case 'doorganize':
-        return await failClosedCommand(key, state, () => doorganize(state));
-    case 'adjust_split':
-        return await failClosedCommand(key, state, () => adjust_split(state));
-    case 'doperminv':
-        return await doperminv(state);
-    case 'dovspell':
-        return await runShowspellsCommand(key, state) ? ECMD_TIME : ECMD_OK;
-    case 'dodiscovered':
-        return await runKnownCommand(key, state) ? ECMD_TIME : ECMD_OK;
-    case 'dosearch':
-        return await runSearchCommand(key, state);
-    case 'doterrain':
-        return await runTerrainCommand(key, state);
-    case 'doeat':
-        return await runEatCommand(key, state);
-    case 'doengrave':
-        return await runEngraveCommand(key, state);
-    case 'dohelp':
-        return await runHelpCommand(key, state);
-    case 'dowhatis':
-        return await runWhatisCommand(key, state);
-    case 'doquickwhatis':
-        return await runGlanceCommand(key, state);
-    case 'doprgold':
-        await failClosedCommand(key, state, () => doprgold(state));
-        return ECMD_OK;
-    case 'doprwep':
-        await failClosedCommand(key, state, () => doprwep(state, inventoryMenuHooks(state)));
-        return ECMD_OK;
-    case 'doprarm':
-        await failClosedCommand(key, state, () => doprarm(state, inventoryMenuHooks(state)));
-        return ECMD_OK;
-    case 'doprinuse':
-        await failClosedCommand(key, state, () => doprinuse(state, inventoryMenuHooks(state)));
-        return ECMD_OK;
-    case 'doprring':
-        await failClosedCommand(key, state, () => doprring(state, inventoryMenuHooks(state)));
-        return ECMD_OK;
-    case 'doprtool':
-        await failClosedCommand(key, state, () => doprtool(state, inventoryMenuHooks(state)));
-        return ECMD_OK;
-    case 'dopramulet':
-        await failClosedCommand(key, state, () => dopramulet(state, inventoryMenuHooks(state)));
-        return ECMD_OK;
-    case 'doread':
-        return await runReadCommand(key, state);
-    case 'dowieldquiver':
-        return await failClosedCommand(
-            key, state, () => dowieldquiver(state),
-        );
-    case 'doapply':
-        return await runApplyCommand(key, state);
-    case 'dorub':
-        return await runRubCommand(key, state);
-    case 'dojump':
-        return await dojump(state);
-    case 'dozap':
-        return await runZapCommand(key, state);
-    case 'docast':
-        return await runCastCommand(key, state);
-    case 'dowizcast':
-        return await runWizCastCommand(key, state);
-    case 'dodown':
-        return await runDownCommand(key, state);
-    case 'doup':
-        return await runUpCommand(key, state);
-    case 'dodrop':
-        return await runDropCommand(key, state);
-    case 'doddrop':
-        return await failClosedCommand(key, state, () => doddrop(state));
-    case 'dopickup':
-        return await runPickupCommand(key, state);
-    case 'dopay':
-        return await failClosedCommand(key, state, () => dopay(state));
-    case 'doloot':
-        return await runLootCommand(key, state);
-    case 'doopen':
-        return await runOpenCommand(key, state);
-    case 'dotogglepickup':
-        await dotogglepickup(state);
-        return ECMD_OK;
-    case 'doddoremarm':
-        return doddoremarm(state);
-    case 'dotakeoff':
-        return await runTakeOffCommand(key, state);
-    case 'dowear':
-        return await runWearCommand(key, state);
-    case 'doputon':
-        return await runPutonCommand(key, state);
-    case 'doride':
-        // C ref: steed.c doride(), which returns its own ECMD_* result.
-        return await doride(state);
-    case 'dopray':
-        // C ref: pray.c dopray(), which returns its own ECMD_* result.
-        return await dopray(state);
-    case 'dosacrifice':
-        // C ref: pray.c dosacrifice(), which returns ECMD_OK for its refusal
-        // guards and ECMD_TIME after a selected offering.
-        return await dosacrifice(state);
-    case 'do_gamelog':
-        // C ref: insight.c do_gamelog(), reached from the #chronicle row.
-        // show_gamelog owns the text-window wait and returns ECMD_OK.
-        return await do_gamelog(state, {
-            displayTextWindow: displayTtyTextWindow,
-        });
-    case 'doconduct':
-        // C ref: insight.c doconduct(), reached from the #conduct row.
-        // show_conduct owns the voluntary-challenges text window and wait.
-        return await doconduct(state);
-    case 'dovanquished':
-        // C ref: insight.c dovanquished(), reached from the #vanquished row.
-        // list_vanquished owns sort selection, list formatting, and its wait.
-        return await dovanquished(state);
-    case 'dogenocided':
-        // C ref: insight.c dogenocided(), reached from the #genocided row.
-        // list_genocided owns the species filtering, sort selection, and wait.
-        return await dogenocided(state);
-    case 'doextversion':
-        // C ref: version.c doextversion(), reached from cmd.c's #version row.
-        return await doextversion(state, {
-            displayTextWindow: displayTtyTextWindow,
-            random: rn2,
-        });
-    case 'doturn':
-        // C ref: pray.c doturn(), which returns its own ECMD_* result.
-        return await doturn(state);
-    case 'dosit':
-        // C ref: sit.c dosit(), which returns its own ECMD_* result.
-        return await dosit(state);
-    case 'dowipe':
-        return await failClosedCommand(key, state, () => dowipe(state));
-    case 'dokick':
-        return await runKickCommand(key, state);
-    case 'dotwoweapon':
-        return await runTwoWeaponCommand(key, state);
-    case 'dotalk':
-        return await runChatCommand(key, state);
-    case 'docallcmd':
-        // C ref: do_name.c docallcmd(), which returns its own ECMD_* result.
-        return await docallcmd(state);
-    case 'enhance_weapon_skill':
-        return await runEnhanceCommand(key, state);
-    case 'wiz_level_change':
-        return await runLevelChangeCommand(key, state);
-    case 'wiz_level_tele':
-        return await runLevelTeleCommand(key, state);
-    case 'wiz_wish':
-        return await runWishCommand(key, state);
-    case 'wiz_identify':
-        return await runIdentifyCommand(key, state);
-    case 'wiz_genesis':
-        return await runGenesisCommand(key, state);
-    case 'wiz_map':
-        return await runMapCommand(key, state);
-    case 'wiz_makemap':
-        return await wiz_makemap(state);
-    case 'wiz_detect':
-        return await runDetectCommand(key, state);
-    case 'wiz_where':
-        return await runWhereCommand(key, state);
-    case 'wiz_flip_level':
-        return await wiz_flip_level(state);
-    case 'wiz_kill':
-        return await runKillCommand(key, state);
-    case 'wiz_rumor_check':
-        return await wiz_rumor_check(state);
-    case 'wiz_smell':
-        return await runSmellCommand(key, state);
-    case 'wiz_show_seenv':
-        return await wiz_show_seenv(state);
-    case 'wiz_show_vision':
-        return await wiz_show_vision(state);
-    case 'wiz_intrinsic':
-        return await runIntrinsicCommand(key, state);
-    case 'wiz_polyself':
-        return await runPolyselfCommand(key, state);
-    case 'domonability':
-        return await runMonsterCommand(key, state);
-    case 'dosave':
-        // C ref: save.c dosave(), which always returns ECMD_OK.
-        return await dosave(state);
-    case 'do_write_config_file':
-        // C ref: cfgfiles.c do_write_config_file(), which returns ECMD_OK
-        // after the overwrite query and its file-write attempt.
-        return await do_write_config_file(state, {
-            message: ttyPline,
-            wait: tty_wait_synch,
-            query: paranoid_query,
-        });
-    case 'doforce':
-        // C ref: lock.c doforce(), which returns ECMD_OK or ECMD_TIME.
-        return await doforce(state);
-    case 'dotip':
-        // C ref: pickup.c dotip(), which returns its own ECMD_* result.
-        return await failClosedCommand(key, state, () => dotip(state));
-    case 'dodip':
-        // C ref: potion.c dodip(), which returns its own ECMD_* result.
-        return await runDipCommand(key, state);
-    case 'dip_into':
-        // C ref: potion.c dip_into(), queued by itemactions.c IA_DIP_OBJ.
-        return await runDipIntoCommand(key, state);
-    case 'donamelevel':
-        // C ref: dungeon.c donamelevel(), which returns ECMD_OK.
-        return await donamelevel(state);
-    case 'doinvoke':
-        // C ref: artifact.c doinvoke(), which returns its own ECMD_* result.
-        return await failClosedCommand(key, state, () => doinvoke(state));
-    case 'dountrap':
-        // C ref: trap.c dountrap(), which returns ECMD_OK or ECMD_TIME.
-        return await dountrap(state);
-    default:
-        resetCommandVars(state);
-        throw new UnsupportedHeroCommandBoundaryError(
-            `${entry.ef_funct}() for the extended command '${entry.ef_txt}' is not ported`,
-            key,
-        );
+        const entry = extcmdlist[idx];
+        if (!await can_do_extcmd(entry, state)) return ECMD_OK;
+        if (!state.in_doagain && entry.ef_funct !== 'do_repeat'
+            && entry.ef_funct !== 'doextcmd') {
+            cmdq_clear(CQ_REPEAT, state);
+            cmdq_add_ec(CQ_REPEAT, entry, state);
+        }
+        if (state.iflags.menu_requested && !accept_menu_prefix(entry)) {
+            const prefix = keyForCommand(commandBindings(state), 'reqmenu');
+            await ttyPline(
+                `'${visibleCommandKey(prefix)}' prefix has no effect for the `
+                + `${entry.ef_txt} command.`,
+                state,
+            );
+            state.iflags.menu_requested = false;
+        }
+        // ge.ext_tlist tells rhack() which row actually ran. It matters only for
+        // the repeat queue and for rhack()'s PREFIXCMD and MOVEMENTCMD tests, and
+        // no command below is either, so the substitution has nothing to change
+        // yet. Porting '#movewest' or another MOVEMENTCMD row has to add it.
+        switch (entry.ef_funct) {
+        case 'doextlist':
+            await doextlist(state);
+            continue; // cmd.c517 retries only after the list handler
+        case 'doextcmd':
+            // '#' names itself, so '##' opens a second prompt. C recurses through
+            // `retval = (*func)()`; the do/while around it repeats only for
+            // doextlist.
+            return doextcmd(key, state);
+        case 'done2':
+            // C ref: end.c done2(), the #quit handler. Its accepted path calls
+            // done(QUIT), while the cancellation path returns ECMD_OK after it
+            // restores the command loop.
+            return await done2(state);
+        case 'wiz_debug_cmd_bury': {
+            const { wiz_debug_cmd_bury } = await import('./dig.js');
+            return await wiz_debug_cmd_bury(state);
+        }
+        case 'doprev_message':
+            return doprev_message(state);
+        case 'enter_explore_mode':
+            return await enter_explore_mode(state);
+        case 'dolookaround':
+            return await dolookaround(state);
+        case 'doherecmdmenu':
+            return await doherecmdmenu(state);
+        case 'dotherecmdmenu':
+            return await dotherecmdmenu(state);
+        case 'dotoggleoption':
+            return await dotoggleoption(state);
+        case 'do_move_west':
+            return do_move_west(state);
+        case 'do_move_northwest':
+            return do_move_northwest(state);
+        case 'do_move_north':
+            return do_move_north(state);
+        case 'do_move_northeast':
+            return do_move_northeast(state);
+        case 'do_move_east':
+            return do_move_east(state);
+        case 'do_move_southeast':
+            return do_move_southeast(state);
+        case 'do_move_south':
+            return do_move_south(state);
+        case 'do_move_southwest':
+            return do_move_southwest(state);
+        case 'do_rush_west':
+            return do_rush_west(state);
+        case 'do_rush_northwest':
+            return do_rush_northwest(state);
+        case 'do_rush_north':
+            return do_rush_north(state);
+        case 'do_rush_northeast':
+            return do_rush_northeast(state);
+        case 'do_rush_east':
+            return do_rush_east(state);
+        case 'do_rush_southeast':
+            return do_rush_southeast(state);
+        case 'do_rush_south':
+            return do_rush_south(state);
+        case 'do_rush_southwest':
+            return do_rush_southwest(state);
+        case 'do_run_west':
+            return do_run_west(state);
+        case 'do_run_northwest':
+            return do_run_northwest(state);
+        case 'do_run_north':
+            return do_run_north(state);
+        case 'do_run_northeast':
+            return do_run_northeast(state);
+        case 'do_run_east':
+            return do_run_east(state);
+        case 'do_run_southeast':
+            return do_run_southeast(state);
+        case 'do_run_south':
+            return do_run_south(state);
+        case 'do_run_southwest':
+            return do_run_southwest(state);
+        case 'do_rush':
+            return do_rush(state);
+        case 'do_run':
+            return do_run(state);
+        case 'do_repeat':
+            return do_repeat(state);
+        case 'dosh_core':
+            return await dosh_core(state);
+        case 'dosuspend_core':
+            return await dosuspend_core(state);
+        case 'donull':
+            return await donull(state) ? ECMD_TIME : ECMD_OK;
+        case 'doredraw':
+            return await doredraw();
+        case 'dolook':
+            return await runLookCommand(key, state) ? ECMD_TIME : ECMD_OK;
+        case 'doattributes':
+            return await runAttributesCommand(key, state) ? ECMD_TIME : ECMD_OK;
+        case 'dooverview':
+            // C ref: dungeon.c dooverview(), which returns ECMD_OK after the
+            // overview menu has been dismissed.
+            return await dooverview(state);
+        case 'ddoinv':
+            return await runInventoryCommand(key, state) ? ECMD_TIME : ECMD_OK;
+        case 'dotypeinv':
+            return await failClosedCommand(key, state, () => dotypeinv(state));
+        case 'doorganize':
+            return await failClosedCommand(key, state, () => doorganize(state));
+        case 'adjust_split':
+            return await failClosedCommand(key, state, () => adjust_split(state));
+        case 'doperminv':
+            return await doperminv(state);
+        case 'dovspell':
+            return await runShowspellsCommand(key, state);
+        case 'dodiscovered':
+            return await runKnownCommand(key, state) ? ECMD_TIME : ECMD_OK;
+        case 'dosearch':
+            return await runSearchCommand(key, state);
+        case 'doterrain':
+            return await runTerrainCommand(key, state);
+        case 'doeat':
+            return await runEatCommand(key, state);
+        case 'doengrave':
+            return await runEngraveCommand(key, state);
+        case 'dohelp':
+            return await runHelpCommand(key, state);
+        case 'dohistory':
+            return await dohistory(state);
+        case 'dowhatdoes':
+            return await dowhatdoes(state);
+        case 'doset':
+            return await runOptionsCommand(key, state, doset);
+        case 'dowhatis':
+            return await runWhatisCommand(key, state);
+        case 'doidtrap':
+            return await doidtrap(state);
+        case 'doquickwhatis':
+            return await runGlanceCommand(key, state);
+        case 'doprgold':
+            await failClosedCommand(key, state, () => doprgold(state));
+            return ECMD_OK;
+        case 'doprwep':
+            await failClosedCommand(key, state, () => doprwep(state, inventoryMenuHooks(state)));
+            return ECMD_OK;
+        case 'doprarm':
+            await failClosedCommand(key, state, () => doprarm(state, inventoryMenuHooks(state)));
+            return ECMD_OK;
+        case 'doprinuse':
+            await failClosedCommand(key, state, () => doprinuse(state, inventoryMenuHooks(state)));
+            return ECMD_OK;
+        case 'doprring':
+            await failClosedCommand(key, state, () => doprring(state, inventoryMenuHooks(state)));
+            return ECMD_OK;
+        case 'doprtool':
+            await failClosedCommand(key, state, () => doprtool(state, inventoryMenuHooks(state)));
+            return ECMD_OK;
+        case 'dopramulet':
+            await failClosedCommand(key, state, () => dopramulet(state, inventoryMenuHooks(state)));
+            return ECMD_OK;
+        case 'doread':
+            return await runReadCommand(key, state);
+        case 'dowieldquiver':
+            return await failClosedCommand(
+                key, state, () => dowieldquiver(state),
+            );
+        case 'doapply':
+            return await runApplyCommand(key, state);
+        case 'dorub':
+            return await runRubCommand(key, state);
+        case 'dojump':
+            return await dojump(state);
+        case 'dozap':
+            return await runZapCommand(key, state);
+        case 'docast':
+            return await runCastCommand(key, state);
+        case 'dowizcast':
+            return await runWizCastCommand(key, state);
+        case 'dodown':
+            return await runDownCommand(key, state);
+        case 'doup':
+            return await runUpCommand(key, state);
+        case 'dodrop':
+            return await runDropCommand(key, state);
+        case 'doddrop':
+            return await failClosedCommand(key, state, () => doddrop(state));
+        case 'dopickup':
+            return await runPickupCommand(key, state);
+        case 'dopay':
+            return await failClosedCommand(key, state, () => dopay(state));
+        case 'doloot':
+            return await runLootCommand(key, state);
+        case 'doopen':
+            return await runOpenCommand(key, state);
+        case 'dotogglepickup':
+            await dotogglepickup(state);
+            return ECMD_OK;
+        case 'doddoremarm':
+            return doddoremarm(state);
+        case 'dotakeoff':
+            return await runTakeOffCommand(key, state);
+        case 'dowear':
+            return await runWearCommand(key, state);
+        case 'doputon':
+            return await runPutonCommand(key, state);
+        case 'doride':
+            // C ref: steed.c doride(), which returns its own ECMD_* result.
+            return await doride(state);
+        case 'dopray':
+            // C ref: pray.c dopray(), which returns its own ECMD_* result.
+            return await dopray(state);
+        case 'dosacrifice':
+            // C ref: pray.c dosacrifice(), which returns ECMD_OK for its refusal
+            // guards and ECMD_TIME after a selected offering.
+            return await dosacrifice(state);
+        case 'do_gamelog':
+            // C ref: insight.c do_gamelog(), reached from the #chronicle row.
+            // show_gamelog owns the text-window wait and returns ECMD_OK.
+            return await do_gamelog(state, {
+                displayTextWindow: displayTtyTextWindow,
+            });
+        case 'doconduct':
+            // C ref: insight.c doconduct(), reached from the #conduct row.
+            // show_conduct owns the voluntary-challenges text window and wait.
+            return await doconduct(state);
+        case 'dovanquished':
+            // C ref: insight.c dovanquished(), reached from the #vanquished row.
+            // list_vanquished owns sort selection, list formatting, and its wait.
+            return await dovanquished(state);
+        case 'dogenocided':
+            // C ref: insight.c dogenocided(), reached from the #genocided row.
+            // list_genocided owns the species filtering, sort selection, and wait.
+            return await dogenocided(state);
+        case 'doextversion':
+            // C ref: version.c doextversion(), reached from cmd.c's #version row.
+            return await doextversion(state, {
+                displayTextWindow: displayTtyTextWindow,
+                random: rn2,
+            });
+        case 'doturn':
+            // C ref: pray.c doturn(), which returns its own ECMD_* result.
+            return await doturn(state);
+        case 'dosit':
+            // C ref: sit.c dosit(), which returns its own ECMD_* result.
+            return await dosit(state);
+        case 'dowipe':
+            return await failClosedCommand(key, state, () => dowipe(state));
+        case 'dokick':
+            return await runKickCommand(key, state);
+        case 'dotwoweapon':
+            return await runTwoWeaponCommand(key, state);
+        case 'dotalk':
+            return await runChatCommand(key, state);
+        case 'docallcmd':
+            // C ref: do_name.c docallcmd(), which returns its own ECMD_* result.
+            return await docallcmd(state);
+        case 'enhance_weapon_skill':
+            return await runEnhanceCommand(key, state);
+        case 'wiz_level_change':
+            return await runLevelChangeCommand(key, state);
+        case 'wiz_level_tele':
+            return await runLevelTeleCommand(key, state);
+        case 'wiz_load_splua':
+            return await wiz_load_splua(state);
+        case 'wiz_load_lua':
+            return await wiz_load_lua(state);
+        case 'wiz_wish':
+            return await runWishCommand(key, state);
+        case 'wiz_identify':
+            return await runIdentifyCommand(key, state);
+        case 'wiz_genesis':
+            return await runGenesisCommand(key, state);
+        case 'wiz_map':
+            return await runMapCommand(key, state);
+        case 'wiz_makemap':
+            return await wiz_makemap(state);
+        case 'wiz_detect':
+            return await runDetectCommand(key, state);
+        case 'wiz_where':
+            return await runWhereCommand(key, state);
+        case 'wiz_flip_level':
+            return await wiz_flip_level(state);
+        case 'wiz_kill':
+            return await runKillCommand(key, state);
+        case 'wiz_panic':
+            return await wiz_panic(state);
+        case 'wiz_migrate_mons':
+            return await wiz_migrate_mons(state);
+        case 'wiz_rumor_check':
+            return await wiz_rumor_check(state);
+        case 'doborn':
+            return await doborn(state);
+        case 'wiz_smell':
+            return await runSmellCommand(key, state);
+        case 'wiz_display_macros':
+            return await wiz_display_macros(state);
+        case 'wiz_mon_diff':
+            return await wiz_mon_diff(state);
+        case 'wiz_custom':
+            return await wiz_custom(state);
+        case 'wiz_telekinesis':
+            return await wiz_telekinesis(state);
+        case 'wiz_objprobs':
+            return await wiz_objprobs(state);
+        case 'wiz_show_wmodes':
+            return await wiz_show_wmodes(state);
+        case 'wiz_show_stats':
+            return await wiz_show_stats(state);
+        case 'wiz_show_seenv':
+            return await wiz_show_seenv(state);
+        case 'wiz_show_vision':
+            return await wiz_show_vision(state);
+        case 'wiz_intrinsic':
+            return await runIntrinsicCommand(key, state);
+        case 'wiz_polyself':
+            return await runPolyselfCommand(key, state);
+        case 'domonability':
+            return await runMonsterCommand(key, state);
+        case 'dosave':
+            // C ref: save.c dosave(), which always returns ECMD_OK.
+            return await dosave(state);
+        case 'do_write_config_file':
+            // C ref: cfgfiles.c do_write_config_file(), which returns ECMD_OK
+            // after the overwrite query and its file-write attempt.
+            return await do_write_config_file(state, {
+                message: ttyPline,
+                wait: tty_wait_synch,
+                query: paranoid_query,
+            });
+        case 'doforce':
+            // C ref: lock.c doforce(), which returns ECMD_OK or ECMD_TIME.
+            return await doforce(state);
+        case 'dotip':
+            // C ref: pickup.c dotip(), which returns its own ECMD_* result.
+            return await failClosedCommand(key, state, () => dotip(state));
+        case 'dodip':
+            // C ref: potion.c dodip(), which returns its own ECMD_* result.
+            return await runDipCommand(key, state);
+        case 'dip_into':
+            // C ref: potion.c dip_into(), queued by itemactions.c IA_DIP_OBJ.
+            return await runDipIntoCommand(key, state);
+        case 'donamelevel':
+            // C ref: dungeon.c donamelevel(), which returns ECMD_OK.
+            return await donamelevel(state);
+        case 'doinvoke':
+            // C ref: artifact.c doinvoke(), which returns its own ECMD_* result.
+            return await failClosedCommand(key, state, () => doinvoke(state));
+        case 'dountrap':
+            // C ref: trap.c dountrap(), which returns ECMD_OK or ECMD_TIME.
+            return await dountrap(state);
+        default:
+            resetCommandVars(state);
+            throw new UnsupportedHeroCommandBoundaryError(
+                `${entry.ef_funct}() for the extended command '${entry.ef_txt}' is not ported`,
+                key,
+            );
+        }
     }
 }
 
@@ -5529,8 +5570,9 @@ export async function rhack(key, state = game) {
         } else if (state.multi > 0 && command !== null && command !== 'pay'
             && command !== 'pickup' && command !== '#'
             && !Object.hasOwn(MOVEMENT_INTENTS, command)
-            // Both targeting commands clear a count with their no-time result.
-            && command !== 'wizsmell' && command !== 'wizkill') {
+            // These commands clear a count with their no-time result.
+            && command !== 'wizsmell' && command !== 'wizkill'
+            && command !== 'panic' && command !== '?') {
             // `#` is the dispatch row for doextcmd(), not the selected
             // extended command. C dispatches it with gm.multi intact; the
             // selected handler (for example, wiz_genesis() using multi as its
@@ -5768,9 +5810,27 @@ export async function rhack(key, state = game) {
             resetCommandVars(state, state.multi < 0);
             return;
         }
+        if (command === 'whatdoes') {
+            await dowhatdoes(state);
+            resetCommandVars(state, state.multi < 0);
+            return;
+        }
         if (command === 'whatis') {
             await runWhatisCommand(key, state);
             resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === '?') {
+            await doextlist(state);
+            resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === 'showtrap') {
+            // C rhack3810-3825: cancellation resets normally; a successful
+            // description is ECMD_OK and never spends a turn.
+            const result = await doidtrap(state);
+            if (result & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else resetCommandVars(state, state.multi < 0);
             return;
         }
         if (command === 'glance') {
@@ -6280,6 +6340,12 @@ export async function rhack(key, state = game) {
             if (res & ECMD_TIME) commandTookTime(state);
             return;
         }
+        if (command === 'panic') {
+            // C rhack():3810-3818 clears any count for ECMD_OK without a turn.
+            await wiz_panic(state);
+            resetCommandVars(state, state.multi < 0);
+            return;
+        }
         if (command === 'wizintrinsic') {
             // C ref: rhack()'s result handling at cmd.c:3810-3818.
             // wiz_intrinsic() ends with ECMD_OK and never consumes a turn;
@@ -6490,9 +6556,9 @@ export async function rhack(key, state = game) {
             return;
         }
         if (command === 'showspells') {
-            const elapsed = await runShowspellsCommand(key, state);
+            const result = await runShowspellsCommand(key, state);
             resetCommandVars(state);
-            if (elapsed) commandTookTime(state);
+            if (result & ECMD_TIME) commandTookTime(state);
             return;
         }
         if (command === 'known') {
@@ -6546,6 +6612,19 @@ export async function rhack(key, state = game) {
         }
         if (command === 'seeamulet') {
             await failClosedCommand(key, state, () => dopramulet(state, inventoryMenuHooks(state)));
+            resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        // C ref: cmd.c rhack() invokes the registered inventory handler,
+        // then resets ECMD_OK without spending time (3810-3825). These
+        // direct keys use the same canonical display as their #commands.
+        if (command === 'seetools') {
+            await failClosedCommand(key, state, () => doprtool(state, inventoryMenuHooks(state)));
+            resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === 'seeall') {
+            await failClosedCommand(key, state, () => doprinuse(state, inventoryMenuHooks(state)));
             resetCommandVars(state, state.multi < 0);
             return;
         }

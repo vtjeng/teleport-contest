@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source route for wizcmds.c:wiz_telekinesis494–528. Ordinary-play variation refuses the wizard-only extended command. Seed/role/date/action route chosen before JS comparison; no seed search.",
+  "segments": [
+    {
+      "seed": 17050075,
+      "datetime": "20581115163000",
+      "nethackrc": "OPTIONS=name:Witness170nonwizard,role:Monk,race:human,gender:female,align:neutral,playmode:normal,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wiztelekinesis\n "
+    }
+  ]
+}

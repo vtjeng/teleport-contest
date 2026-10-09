@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first display.c:unmap_object409–438 witness. Move off the starting stairs, engrave in dust, step back, and forcefight the engraved empty square. New source-derived input/seed/date/role before C recording and JavaScript comparison; short waits finish the turn. Cheap variation changes role, direction, text and level.",
+  "segments": [
+    {
+      "seed": 17320017,
+      "datetime": "20620217112345",
+      "nethackrc": "OPTIONS=name:Memorydust-variation,role:Ranger,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".lE- Meridian\nhFl....."
+    }
+  ]
+}

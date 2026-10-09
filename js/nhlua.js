@@ -1,12 +1,13 @@
 // nhlua.js -- Lua-state initialization side effects used by live callers.
 // C ref: nhlua.c nhl_init() and dat/nhlib.lua's global alignment shuffle,
 // and nhlua.c's Lua table accessors. version.js imports this module during
-// startup, so it imports nothing itself; check_mapchr() and
+// startup; check_mapchr() and
 // get_table_mapchr_opt(), which need sp_lev.c's splev_chr2typ(), live in
 // mklev.js beside it.
 
 import { game } from './gstate.js';
 import { note_unported } from './unported.js';
+import { rn2 } from './rng.js';
 import {
     NHCORE_ENTER_TUTORIAL,
     NHCORE_LEAVE_TUTORIAL,
@@ -122,6 +123,24 @@ export function nhl_init(random) {
         ];
     }
     return alignments;
+}
+
+// C ref: nhlua.c load_lua(). This bounded adapter preserves initialization
+// and registered nhlib.lua's top-level effects for discarded-return callers.
+// VM allocation/sandbox enforcement, arbitrary programs, and teardown remain
+// gaps. The alignment arrays are temporary, as in the source Lua state; they
+// are not Lua pointers or success values and are never published to the game.
+export function load_lua(name, sbi, state = game, env = {}) {
+    note_unported('nhlua.c nhlL_newstate');
+    state.iflags.in_lua = true;
+    nhl_init(env.random ?? rn2); // Implicit nhlib.lua load during nhl_init.
+    if (name === 'nhlib.lua') {
+        nhl_init(env.random ?? rn2); // Explicit requested library execution.
+    } else {
+        note_unported('nhlua.c nhl_loadlua');
+    }
+    note_unported('nhlua.c nhl_done');
+    state.iflags.in_lua = false;
 }
 
 // C ref: nhlua.c nhl_get_timertype(). Lua callback arguments are represented

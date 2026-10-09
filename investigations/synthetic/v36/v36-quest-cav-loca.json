@@ -1,0 +1,90 @@
+{
+  "session": "synthetic/v36/v36-quest-cav-loca",
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-cav-loca",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "1efed0a5827687ebefcfae72c992baec47e974ba6792a41e7abb2f56763cb4b7",
+  "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+  "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+  "remainingScreens": 41,
+  "recordedSteps": 60,
+  "status": "complete",
+  "commit": "004a6da893c5dc420e260eb3ae0e285e85a56874",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-cav-loca",
+    "session": "synthetic/v36/v36-quest-cav-loca",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-cav-loca.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-cav-loca.session.json",
+    "recordingSha256": "1efed0a5827687ebefcfae72c992baec47e974ba6792a41e7abb2f56763cb4b7",
+    "recipe": "challenges/cases/v36/v36-quest-cav-loca.recipe.session.json",
+    "recipeSha256": "b9bafebee73a48b4d130f681a66037caf195fa001e0f01b76facccff2c052109",
+    "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+    "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+    "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+    "evaluationArtifact": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+    "evaluationUtc": "2026-10-09T10:38:34.264Z",
+    "remainingScreens": 41,
+    "recordedSteps": 60,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 60
+      },
+      "rng": {
+        "matched": 2222,
+        "total": 3175
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Cav-loca\"",
+      "step": 19
+    },
+    "step": 19,
+    "kind": "stop",
+    "sourceFile": "Cav-loca.lua",
+    "function": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Cav-loca\"",
+    "cFile": null,
+    "luaFile": "Cav-loca.lua",
+    "line": null
+  },
+  "goalKind": "lua-port",
+  "summary": "Cav-loca has no registered loader, so Caveman quest locate arrival refuses before the source Lua program. Port the whole level in source order through the existing quest registry and canonical descriptors; no shared owner change is currently required.",
+  "source": {
+    "file": "Cav-loca.lua",
+    "branch": "Special Caveman/Cavewoman quest locate generation or registered wizard des-file load of Cav-loca.",
+    "functions": [
+      "Cav-loca.lua"
+    ],
+    "callers": [
+      "mklev.c:makelevel -> mkmaze.c:makemaz1188 -> sp_lev.c:load_special -> dat/Cav-loca.lua",
+      "wizcmds.c:wiz_load_splua -> load_special -> registered Cav-loca Lua program"
+    ],
+    "dependencies": [
+      "Existing des map/region/door/stair/nondiggable/object/trap/monster/wallify owners, including irregular ordinary region; pending C168 worker ancestry retained explicitly."
+    ]
+  },
+  "evidence": [
+    "Admitted evaluation challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json at ac836655676993fda791c76b619905969c841859 records missing Cav-loca loader at segment0 step19,41remaining/60recordedsteps; immutable recordingSHA1efed0a5827687ebefcfae72c992baec47e974ba6792a41e7abb2f56763cb4b7, corpus digest58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c.",
+    "Read whole dat/Cav-loca.lua1-101, SHA256bf51ca0c62904245dea2379cbbf346cb3f34d2cb089a6bd6881cf155b9ba16bd: stone solidfill, mazelevel/hardfloor, exact76×20 map including B boundaries and S secret doors; unlit full region and lit irregular ordinary region52,6..73,15; locked door28,11; up stair4,3/down73,10; nondiggable whole map; fifteen random objects; six traps;27monster descriptors (17bugbears, three class-selected, seven hillgiants); wallify. Trailing comments after wallify have no runtime effect.",
+    "js/mklev.js registry dispatch already incorporates QUEST_LEVEL_LOADERS, but Cav-loca key is absent. Scope only whole cavLoca program + key in established js/quest_levels.js and generated map/monster constants; no new makemaz/load_special completion or compatible reexport is planned.",
+    "Audited lspo_region irregular branch: resolve coordinates, flood_fill_rm, add_room, room fields, temporary croom end/add_doors; lspo_door positional form, explicit stair descriptors, existing random object/trap and monster creation. Source program discards each descriptor return; canonical owners already exist for these forms and need fresh runtime verification, not whole helper credit.",
+    "Independent C168 frontier recipe #wizloaddes Cav-loca.lua proves C executes the adjacent program; cache .cache/C168-cav-loca-frontier-c.session.json. Existing JS missing loader leaves a blank map and later throws mkmaze.js place_lregion type3. This counter-evidence concerns the same absent Lua owner; do not invent a region finalizer repair to make a missing program appear complete.",
+    "Plan two independent C-first role/race/alignment runs and source descriptor/map/monster regeneration checks. Admitted forced quest arrival covers makelevel production entry; registered wizard-load cases cover the other direct load route. Every new shared support defect must be reported before owner scope expands."
+  ]
+}

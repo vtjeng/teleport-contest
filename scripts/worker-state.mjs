@@ -9,12 +9,15 @@ import { dirname, isAbsolute, relative, resolve } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { preflightDelivery, resolveEventCommits, submitDelivery, syncMain, verifyEvent } from './worker-delivery.mjs';
+import { admittedBatchIds } from './challenge-results.mjs';
+import { acceptedDependency, pendingMainWork, workerWork, savedQueueIssues } from './worker-backlog.mjs';
+import { readRows } from './score-log.mjs';
 
 export const USAGE = `Usage (run from the coordinator or assigned worker checkout root):
   node scripts/worker-state.mjs init --run <run-id> [--file <ledger.json>]
   node scripts/worker-state.mjs event --json '<event>' [--file <ledger.json>]
   node scripts/worker-state.mjs status [--file <ledger.json>]
-  node scripts/worker-state.mjs next [--file <ledger.json>]
+  node scripts/worker-state.mjs next [--queue <saved-work-queue.json>] [--file <ledger.json>]
   node scripts/worker-state.mjs submit --task <id> --context <task-context.json> \\
     --evidence <task-evidence.json> --checks <checks.json> [--base <revision>] \\
     [--head <revision>] [--dependencies <SHA,...|none>] --file <absolute-shared-ledger.json>
@@ -88,8 +91,12 @@ its actual dependencies explicitly. Do not include unrelated task commits.
 The queue retains the task's earlier commits as required parts of its correction.
 
 next is a read-only work list: connections, unread deliveries, worker turn
-actions, pending corrections and the next dependency-ready integration. Feed
-actual completion observations into turn events; saved state is not proof of
+actions, pending corrections and the next dependency-ready integration.
+Pass a saved combined mismatch queue with --queue to list worker candidates
+separately from Main's delivery backlog. Counts are provisional: workers must
+check source independence and recheck parked blockers. Admission suggestions
+do not interrupt an active checkpoint or waive baseline/admission checks.
+Feed actual completion observations into turn events; saved state is not proof of
 liveness. Feedback waits for a safe task boundary. resume refuses to mix two
 working tasks on one worker. preflight reads committed files, reports omissions,
 direct-importer/changed/source-pinned tests and every prior checkpoint failure.
@@ -205,15 +212,6 @@ function checkOwnership(state, task) {
         for (const key of task.reservations) check(!other.reservations.includes(key),
             `${key} is reserved by worker ${other.worker} task ${other.id}`);
     }
-}
-
-export function acceptedDependency(state, sha) {
-    const delivery = state.deliveries[sha];
-    if (!delivery) return false;
-    // A corrected task is accepted as a whole. Its failed original snapshot is
-    // not relabelled as a pass; dependants validate against the accepted repair.
-    const latest = state.tasks[delivery.task]?.deliveries.at(-1);
-    return Boolean(delivery.acceptedAt || state.deliveries[latest]?.acceptedAt);
 }
 
 function dependsOnTask(state, deliverySha, taskId, seen = new Set()) {
@@ -464,14 +462,20 @@ export function summarizeLedger(ledger) {
 
 // This is a work list, not a claim about live processes. The orchestrator feeds
 // observed turn completions into the ledger and uses its own collaboration tools.
-export function nextActions(state) {
+export function nextActions(state, admittedBatches = [], queue = null) {
     const tasks = Object.values(state.tasks);
     const deliveries = Object.values(state.deliveries);
     const slot = tasks.find(task => ['integrating', 'validated'].includes(task.status));
-    const ready = tasks.filter(task => task.status === 'ready')
-        .map(task => state.deliveries[task.deliveries.at(-1)])
-        .filter(delivery => delivery.dependencies.every(sha => acceptedDependency(state, sha)))
-        .sort((a, b) => a.readyAt.localeCompare(b.readyAt));
+    const pending = pendingMainWork(state, admittedBatches);
+    const ready = pending.deliveries.filter(row => row.status === 'ready' && !row.blockedBy.length)
+        .sort((a, b) => b.unblocks - a.unblocks || a.since.localeCompare(b.since));
+    const available = workerWork(state, queue);
+    const reserve = pending.preparedBatches[0];
+    available.admission = available.candidateGroups === null ? { action: 'reassess-worker-work' }
+        : available.candidateGroups < available.implementationWorkers
+            ? reserve ? { action: 'admit-at-next-safe-boundary', batch: reserve.batch, task: reserve.task }
+                : { action: 'prepare-more-work' }
+            : { action: 'check-independence' };
     return {
         connections: Object.values(state.workers).filter(w => w.connectionRequestedAt && !w.connectedAt)
             .map(w => ({ worker: w.worker, handle: w.handle })),
@@ -489,6 +493,10 @@ export function nextActions(state) {
             task: tasks.find(t => t.worker === w.worker && t.status === 'working')?.id ?? null })),
         integration: slot ? { task: slot.id, status: slot.status } : ready[0]
             ? { task: ready[0].task, delivery: ready[0].delivery, status: 'ready' } : null,
+        workerWork: available,
+        pendingMainWork: { ...pending,
+            // Keep routine coordination compact; status and the dashboard retain reasons.
+            parkedTasks: pending.parkedTasks.map(({ task, worker, since }) => ({ task, worker, since })) },
     };
 }
 
@@ -562,7 +570,7 @@ export function main(argv = process.argv.slice(2)) {
     if (argv.length === 1 && ['--help', '-h'].includes(argv[0])) return console.log(USAGE);
     const [command, ...args] = argv;
     const allowed = {
-        init: ['--run'], event: ['--json'], status: [], next: [],
+        init: ['--run'], event: ['--json'], status: [], next: ['--queue'],
         submit: ['--task', '--context', '--evidence', '--checks', '--base', '--head', '--dependencies'],
         preflight: ['--task', '--commit', '--previous-checkpoint'], 'sync-main': ['--commit'],
     };
@@ -582,7 +590,18 @@ export function main(argv = process.argv.slice(2)) {
         const state = summarizeLedger(JSON.parse(readFileSync(file, 'utf8')));
         let result = { file, ...state };
         if (command !== 'status') check(root === state.coordinatorRoot, 'only coordinator may run this command');
-        if (command === 'next') result = nextActions(state);
+        if (command === 'next') {
+            const batches = admittedBatchIds(root);
+            const queue = options['--queue'] ? JSON.parse(readFileSync(resolve(root, options['--queue']), 'utf8')) : null;
+            if (queue) {
+                const issues = savedQueueIssues(queue, batches, readRows(resolve(root, 'SCORE.tsv')));
+                if (issues.length) {
+                    queue.selectionBlocked = true;
+                    queue.blockers = [...(queue.blockers ?? []), ...issues.map(reason => ({ reason }))];
+                }
+            }
+            result = nextActions(state, batches, queue);
+        }
         if (command === 'preflight') {
             result = preflightDelivery({ root, state, taskId: options['--task'],
                 commit: options['--commit'], previousCheckpoint: options['--previous-checkpoint'] });

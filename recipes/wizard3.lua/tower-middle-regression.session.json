@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first representative route outside Wizard3 Lua ownership: generates existing wizard2 via named teleport. Complete C/JS comparison matches. This is a regression check of the neighboring loader; no wizard2 completion credit belongs to A188.",
+  "segments": [
+    {
+      "seed": 18836013,
+      "datetime": "20611210121543",
+      "nethackrc": "OPTIONS=name:MiddleTower,role:Healer,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizlevelport\nvalley\n   #wizlevelport\nwizard2\n   #wizmap\n"
+    }
+  ]
+}

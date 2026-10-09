@@ -123,7 +123,6 @@ import {
     PM_GELATINOUS_CUBE,
     PM_KILLER_BEE,
     PM_KITTEN,
-    PM_LEPRECHAUN,
     PM_LITTLE_DOG,
     PM_PONY,
     S_EEL,
@@ -137,6 +136,8 @@ import {
     m_digweapon_check,
     m_everyturn_effect,
     m_move,
+    monflee,
+    monfleeMessage,
     onscary,
     set_apparxy,
 } from './monmove.js';
@@ -330,16 +331,8 @@ function assertSimpleActionState(monster, state) {
     //
     // mon.c m_respond() is now wired through dochug(); its remaining
     // unported callees record their own gaps without stopping the turn.
-    // monmove.c dochug() checks msleeping before m_move()'s leppie_avoidance()
-    // arm. Let disturb() decide whether a sleeping, non-tame, non-minion
-    // leprechaun wakes: its visibility, distance, Stealth, and hard-to-wake
-    // gates can all return before species-specific movement. An already-awake
-    // leprechaun still reaches the special-action boundary below.
-    const sleepingLeprechaun =
-        monster.data?.pmidx === PM_LEPRECHAUN
-        && monster.msleeping
-        && !monster.mtame
-        && !monster.isminion;
+    // Awake and sleeping leprechauns now reach canonical dochug(), including
+    // its gold movement term, leppie_avoidance(), and AD_SGLD dispatch.
     // C monmove.c:341-358 evaluates couldsee(), mdistu(), and Stealth before
     // any wakeup RNG. A sleeping killer bee therefore takes dochug()'s
     // ordinary no-op return when it is unseen, farther than ten squares, or
@@ -364,10 +357,9 @@ function assertSimpleActionState(monster, state) {
         && gelcubeHasDigestibleObject(monster, state);
     // monmove.c m_move() consumes Tengu's natural-teleport roll before
     // tele_restrict() rejects it on a no-teleport level. m_move now admits
-    // the permitted relocation path through rloc()/mnexto(); leprechaun,
-    // sleeping-bee, and digesting-cube actions remain separate boundaries.
-    if ((monster.data?.pmidx === PM_LEPRECHAUN && !sleepingLeprechaun)
-        || (monster.data?.pmidx === PM_KILLER_BEE
+    // the permitted relocation path through rloc()/mnexto(); sleeping-bee
+    // and digesting-cube actions remain separate boundaries.
+    if ((monster.data?.pmidx === PM_KILLER_BEE
             && monster.msleeping
             && !sleepingOutOfWakeRangeKillerBee)
         || (monster.data?.pmidx === PM_GELATINOUS_CUBE
@@ -1570,7 +1562,19 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                     }
                     return false;
                 },
-                monFlee: () => unsupported('monster flight'),
+                // monmove.c:distfleeck564 and dochug's fear calls share the
+                // canonical flight owner in both cloned and live scans.
+                monFlee: (subject, time, first, showMessage, fleeEnv) =>
+                    monflee(subject, time, first, showMessage, {
+                        ...fleeEnv,
+                        canSeeMonster: (mtmp) => canseemon(mtmp, fleeEnv.state),
+                        fleeMessage: monfleeMessage,
+                        message: fleeEnv.planning ? async () => {}
+                            : (fleeEnv.message ?? ttyPline),
+                        // C discards create_gas_cloud's return. Its damaging
+                        // region callback remains a separate source gap.
+                        createGasCloud: () => note_unported('region.c create_gas_cloud'),
+                    }),
                 questStatCheck: quest_stat_check,
                 // C ref: monmove.c:722 quest_talk(). The one place a monster's
                 // turn reads the keyboard: quest.c is_pure()'s wizard-mode

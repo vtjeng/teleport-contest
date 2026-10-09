@@ -2,7 +2,9 @@
 // C refs: dat/Bar-strt.lua, dat/Bar-fila.lua, dat/Bar-filb.lua,
 //         dat/Bar-goal.lua, dat/Bar-loca.lua, dat/Arc-strt.lua,
 //         dat/Arc-loca.lua, dat/Arc-fila.lua, dat/Arc-filb.lua,
-//         dat/Arc-goal.lua,
+//         dat/Arc-goal.lua, dat/Cav-goal.lua, dat/Cav-loca.lua,
+//         dat/Cav-strt.lua,
+//         dat/Hea-goal.lua, dat/Hea-strt.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
@@ -54,6 +56,11 @@ import {
 import { rn2, rnd } from './rng.js';
 import { selection_area, ThemeroomSelection } from './themerooms.js';
 import { KNI_GOAL_LEVEL_MAP } from './kni_goal_level_data.js';
+import { CAV_GOAL_LEVEL_MAP } from './cav_goal_level_data.js';
+import { HEA_GOAL_LEVEL_MAP } from './hea_goal_level_data.js';
+import { CAV_LOCA_LEVEL_MAP, CAV_LOCA_MONSTERS } from './cav_loca_level_data.js';
+import { HEA_STRT_LEVEL_MAP, HEA_STRT_DOORS, HEA_STRT_ATTENDANTS } from './hea_strt_level_data.js';
+import { CAV_STRT_LEVEL_MAP } from './cav_strt_level_data.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
 // that draws a random zig-zag path from (x1,y1) to (x2,y2).
@@ -1229,6 +1236,37 @@ async function kniGoal(des) {
     await des.monster({ class: 'j', peaceful: 0 });
 }
 
+// C ref: dat/Hea-goal.lua. Preserve both initialization calls before the
+// fixed map: the joined mines background extends beyond the pool island.
+async function heaGoal(des) {
+    await des.level_init({ style: 'solidfill', fg: 'P' });
+    await des.level_flags('mazelevel');
+    await des.level_init({ style: 'mines', fg: '.', bg: 'P',
+        smoothed: false, joined: true, lit: 1, walled: false });
+    await des.map(HEA_GOAL_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 40, 11), 'lit');
+    await des.stair({ dir: 'up', x: 39, y: 10 });
+    await des.non_diggable(selection_area(0, 0, 40, 11));
+
+    await des.object({ id: 'quarterstaff', x: 20, y: 6, buc: 'blessed',
+        spe: 0, name: 'The Staff of Aesculapius' });
+    await des.object('wand of lightning', 20, 6);
+    for (let i = 0; i < 14; ++i) await des.object();
+    for (let i = 0; i < 6; ++i) await des.trap();
+
+    // Keep Lua's names and class letters so the canonical des parser
+    // performs the same monster-name resolution and gender draws as C.
+    await des.monster({ id: 'Cyclops', x: 20, y: 6, peaceful: 0 });
+    for (let i = 0; i < 3; ++i) await des.monster('rabid rat');
+    for (let i = 0; i < 2; ++i) await des.monster({ class: 'r', peaceful: 0 });
+    for (let i = 0; i < 6; ++i) await des.monster('giant eel');
+    for (let i = 0; i < 2; ++i) await des.monster('electric eel');
+    for (let i = 0; i < 2; ++i) await des.monster('shark');
+    await des.monster({ class: ';', peaceful: 0 });
+    for (let i = 0; i < 5; ++i) await des.monster({ class: 'D', peaceful: 0 });
+    for (let i = 0; i < 10; ++i) await des.monster({ class: 'S', peaceful: 0 });
+}
+
 // C ref: dat/Pri-goal.lua. Priest quest goal level — lava-filled cave with
 // Nalzok guarding the Mitre of Holiness amid human zombies and wraiths.
 async function priGoal(des) {
@@ -1907,7 +1945,134 @@ async function wizFilb(des) {
     await des.random_corridors();
 }
 
+// C ref: dat/Cav-goal.lua. The lit cavern contains the Sceptre of Might,
+// a sleeping Chromatic Dragon and three fixed shriekers.
+async function cavGoal(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel');
+    await des.map(CAV_GOAL_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 19), 'lit');
+    await des.stair('up');
+    await des.non_diggable(selection_area(0, 0, 75, 19));
+    await des.object({ id: 'mace', x: 23, y: 10,
+        buc: 'blessed', spe: 0, name: 'The Sceptre of Might' });
+    // Cav-goal.lua40-53 has fourteen independent random-object descriptors.
+    for (let i = 0; i < 14; ++i) await des.object();
+    await des.monster({ id: 'Chromatic Dragon', x: 23, y: 10, asleep: 1 });
+    await des.monster('shrieker', 26, 13);
+    await des.monster('shrieker', 25, 8);
+    await des.monster('shrieker', 45, 11);
+    await des.wallify();
+}
+
+// C ref: dat/Cav-loca.lua. Dark connected caves and the lit irregular
+// eastern chamber contain fixed and random hostile humanoids and giants.
+async function cavLoca(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'hardfloor');
+    await des.map(CAV_LOCA_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 19), 'unlit');
+    await des.region({ region: [52, 6, 73, 15], lit: 1,
+        type: 'ordinary', irregular: 1 });
+    await des.door('locked', 28, 11);
+    await des.stair('up', 4, 3);
+    await des.stair('down', 73, 10);
+    await des.non_diggable(selection_area(0, 0, 75, 19));
+    // Cav-loca.lua43-57: fifteen random-object descriptors.
+    for (let i = 0; i < 15; ++i) await des.object();
+    // Cav-loca.lua59-64: six random traps precede the source monster tables.
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (const monster of CAV_LOCA_MONSTERS) await des.monster({ ...monster });
+    await des.wallify();
+}
+
+// C ref: dat/Hea-strt.lua, the besieged Healer quest start level.
+async function heaStrt(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noteleport', 'hardfloor');
+    await des.map(HEA_STRT_LEVEL_MAP);
+    await des.replace_terrain({ region: [1, 1, 74, 18], fromterrain: 'P', toterrain: '.', chance: 10 });
+    await des.region(selection_area(0, 0, 75, 19), 'lit');
+    await des.stair('down', 37, 9);
+    await des.levregion({ region: [4, 12, 4, 12], type: 'branch' });
+    await des.altar({ x: 32, y: 9, align: 'neutral', type: 'altar' });
+    for (const door of HEA_STRT_DOORS) await des.door(...door);
+    await des.monster({
+        id: 'Hippocrates', coord: [37, 10],
+        async inventory() {
+            await des.object({ id: 'silver dagger', spe: 5 });
+        },
+    });
+    await des.object('chest', 37, 10);
+    for (const coord of HEA_STRT_ATTENDANTS) await des.monster('attendant', ...coord);
+    await des.non_diggable(selection_area(0, 0, 75, 19));
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (let i = 0; i < 10; ++i) await des.monster('rabid rat');
+    await des.monster('giant eel');
+    await des.monster('shark');
+    await des.monster(';');
+    for (let i = 0; i < 5; ++i) await des.monster({ class: 'D', peaceful: 0 });
+    for (let i = 0; i < 5; ++i) await des.monster({ class: 'S', peaceful: 0 });
+}
+
+// Source: complete dat/Cav-strt.lua, including the leader inventory callback.
+async function cavStrt(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noteleport', 'hardfloor');
+    await des.map(CAV_STRT_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 19), 'unlit');
+    await des.region({ region: [13, 1, 40, 5], lit: 1,
+        type: 'temple', filled: 1, irregular: 1 });
+    await des.region({ region: [2, 1, 8, 3], lit: 1, type: 'ordinary', irregular: 1 });
+    await des.region({ region: [1, 11, 6, 14], lit: 1, type: 'ordinary', irregular: 1 });
+    await des.region({ region: [13, 8, 18, 10], lit: 1, type: 'ordinary', irregular: 1 });
+    await des.region({ region: [5, 17, 14, 18], lit: 1, type: 'ordinary', irregular: 1 });
+    await des.region({ region: [17, 16, 23, 18], lit: 1, type: 'ordinary', irregular: 1 });
+    await des.region({ region: [35, 16, 44, 18], lit: 1, type: 'ordinary', irregular: 1 });
+    await des.stair('down', 2, 3);
+    await des.levregion({ region: [71, 9, 71, 9], type: 'branch' });
+    await des.door('locked', 19, 6);
+    await des.altar({ x: 36, y: 2, align: 'coaligned', type: 'shrine' });
+    await des.monster({ id: 'Shaman Karnov', coord: [35, 2],
+        async inventory() {
+            await des.object({ id: 'leather armor', spe: 5 });
+            await des.object({ id: 'club', spe: 5 });
+        } });
+    await des.object('chest', 34, 2);
+    await des.monster('neanderthal', 20, 3);
+    await des.monster('neanderthal', 20, 2);
+    await des.monster('neanderthal', 20, 1);
+    await des.monster('neanderthal', 21, 3);
+    await des.monster('neanderthal', 21, 2);
+    await des.monster('neanderthal', 21, 1);
+    await des.monster('neanderthal', 22, 1);
+    await des.monster('neanderthal', 26, 9);
+    await des.non_diggable(selection_area(0, 0, 75, 19));
+    await des.trap('pit', 47, 11);
+    await des.trap('pit', 57, 10);
+    await des.trap();
+    await des.trap();
+    await des.trap();
+    await des.trap();
+    await des.monster({ id: 'bugbear', x: 47, y: 2, peaceful: 0 });
+    await des.monster({ id: 'bugbear', x: 48, y: 3, peaceful: 0 });
+    await des.monster({ id: 'bugbear', x: 49, y: 4, peaceful: 0 });
+    await des.monster({ id: 'bugbear', x: 67, y: 3, peaceful: 0 });
+    await des.monster({ id: 'bugbear', x: 69, y: 4, peaceful: 0 });
+    await des.monster({ id: 'bugbear', x: 51, y: 13, peaceful: 0 });
+    await des.monster({ id: 'bugbear', x: 53, y: 14, peaceful: 0 });
+    await des.monster({ id: 'bugbear', x: 55, y: 15, peaceful: 0 });
+    await des.monster({ id: 'bugbear', x: 63, y: 10, peaceful: 0 });
+    await des.monster({ id: 'bugbear', x: 65, y: 9, peaceful: 0 });
+    await des.monster({ id: 'bugbear', x: 67, y: 10, peaceful: 0 });
+    await des.monster({ id: 'bugbear', x: 69, y: 11, peaceful: 0 });
+    await des.wallify();
+}
+
 export const QUEST_LEVEL_LOADERS = {
+    'Hea-strt': heaStrt,
+    'Cav-loca': cavLoca,
+    'Cav-goal': cavGoal,
     'Bar-strt': barStrt,
     'Bar-fila': barFila,
     'Bar-filb': barFilb,
@@ -1919,6 +2084,8 @@ export const QUEST_LEVEL_LOADERS = {
     'Arc-filb': arcFilb,
     'Arc-goal': arcGoal,
     'Kni-goal': kniGoal,
+    'Hea-goal': heaGoal,
+    'Cav-strt': cavStrt,
     'Pri-strt': priStrt,
     'Pri-loca': priLoca,
     'Pri-goal': priGoal,

@@ -6,7 +6,7 @@ import { adjalign, ALIGNLIM } from '../js/attrib.js';
 import { experience } from '../js/exper.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { enableRngLog, getRngLog } from '../js/rng.js';
+import { cloneIsaacContext, createCoreRandom, enableRngLog, getRngLog } from '../js/rng.js';
 import {
     adj_erinys,
     corpse_chance,
@@ -1410,6 +1410,48 @@ test('an ordinary corpse arms no zombie timer', async () => {
         assert.equal(game.gz.zombify, false, `${role} reset`);
         assert.equal(game.level.objects[mon.mx][mon.my].otyp, CORPSE, role);
     }
+});
+
+// mon.c make_corpse() -> mkobj.c start_corpse_timeout():1413 calls the
+// canonical rnd.c rnz() wrapper after its internal rn2/rne draws. A big
+// owlbear guarantees corpse_chance() without scripting the caller's RNG.
+test('ordinary corpse creation logs the canonical rnz wrapper', async () => {
+    await hero();
+    const mon = spawn(PM_OWLBEAR, { mhp: 0 });
+    enableRngLog();
+    await mondied(mon, game, { unsupported: killEnv().unsupported });
+    const log = getRngLog();
+    const index = log.findIndex((entry) => entry.startsWith('rnz(10)='));
+    assert.ok(index >= 0, 'start_corpse_timeout retains its wrapper');
+    assert.match(log[index - 1], /^rn2\(2\)=/);
+    assert.match(log[index - 2], /^rne\(4\)=/);
+    assert.ok(log.slice(0, index).some((entry) => /^rn2\(1000\)=/.test(entry)));
+    assert.equal(game.level.objects[mon.mx][mon.my].otyp, CORPSE);
+});
+
+test('corpse creation honors caller rnz and isolates a planning RNG', async () => {
+    await hero();
+    const mon = spawn(PM_OWLBEAR, { mhp: 0 });
+    const liveRandom = structuredClone(game.coreCtx);
+    const env = killEnv();
+    await mondied(mon, game, env);
+    assert.equal(env.bounds.filter((entry) => entry === 'rnz(10)').length, 1);
+    assert.deepEqual(game.coreCtx, liveRandom, 'explicit family overrides defaults');
+
+    const next = spawn(PM_OWLBEAR, { mhp: 0 });
+    const planned = planningState(game);
+    const context = cloneIsaacContext(game.coreCtx);
+    const before = structuredClone(context);
+    enableRngLog();
+    await mondied(planned.level.monlist, planned, {
+        planning: true,
+        unsupported: killEnv().unsupported,
+        random: createCoreRandom(context, planned),
+    });
+    assert.notDeepEqual(context, before, 'corpse generation consumes clone draws');
+    assert.deepEqual(game.coreCtx, liveRandom, 'the live RNG remains untouched');
+    assert.deepEqual(getRngLog(), [], 'planning produces no live recorder entries');
+    assert.equal(game.level.monsters[next.mx][next.my], next);
 });
 
 // mon.c xkilled():3514-3522 and 3528-3541, the two arms whose guards read a

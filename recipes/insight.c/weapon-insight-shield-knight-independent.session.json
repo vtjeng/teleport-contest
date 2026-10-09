@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Knight witness for insight.c weapon_insight1270-1465 via detailed attributes. Direct seed chosen before JS comparison; C setup established shield letter i. Test the silver-shield override even while a small shield is worn separately. C established two dismissal spaces; surplus unknown-command probes remain in cache.",
+  "segments": [
+    {
+      "seed": 81726711,
+      "datetime": "20400417102739",
+      "nethackrc": "OPTIONS=name:InsightProbe,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed shield of reflection\nwi#attributes\n  "
+    }
+  ]
+}

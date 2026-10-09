@@ -199,7 +199,7 @@ import {
     tmp_at,
 } from './display.js';
 import {
-    canletgo, doaltarobj, dropy, dropz, flooreffects,
+    canletgo, doaltarobj, dropCommandEnv, dropy, dropz, flooreffects,
 } from './do.js';
 import { hard_helmet, setwornEnv } from './do_wear.js';
 import {
@@ -1418,7 +1418,7 @@ async function toss_up_petrify(obj, state, rawEnv) {
     state.killer.format = KILLED_BY;
     state.killer.name = 'elementary physics';
     await (rawEnv.message ?? ttyPline)('You turn to stone.', state, rawEnv);
-    if (obj) await dropy(obj, state);
+    if (obj) await dropy(obj, dropCommandEnv(state, rawEnv));
     state.gt.thrownobj = null;
     await done(STONING, state, rawEnv);
 }

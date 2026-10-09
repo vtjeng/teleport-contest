@@ -1,0 +1,113 @@
+{
+  "session": "synthetic/v32/v32-crystal-ball-scry",
+  "corpus": "synthetic",
+  "batch": "v32",
+  "caseId": "v32-crystal-ball-scry",
+  "manifestPath": "challenges/manifests/v32.json",
+  "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+  "recordingSha256": "eea1a6f74521c64593c550a8bf8332b89bc0777784bcdb65dc63d05cc5fd90d7",
+  "evaluationPath": "challenges/evaluations/accepted-df3f88e14504c6bd2b05c427cee310320c4f74a8-v32.json",
+  "evaluationCommit": "df3f88e14504c6bd2b05c427cee310320c4f74a8",
+  "remainingScreens": 18,
+  "recordedSteps": 44,
+  "status": "complete",
+  "commit": "bdc6ce5960070f705fc52bd7eb42cb2d415ae300",
+  "mismatch": {
+    "version": 1,
+    "corpus": "synthetic",
+    "batch": "v32",
+    "caseId": "v32-crystal-ball-scry",
+    "manifestPath": "challenges/manifests/v32.json",
+    "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+    "recordingPath": "challenges/cases/v32/v32-crystal-ball-scry.session.json",
+    "recordingSha256": "eea1a6f74521c64593c550a8bf8332b89bc0777784bcdb65dc63d05cc5fd90d7",
+    "recipeSha256": "885ef01720152f58db064a47cca7e908041eed82cf2102662c20843e47b63ade",
+    "evaluationPath": "challenges/evaluations/accepted-df3f88e14504c6bd2b05c427cee310320c4f74a8-v32.json",
+    "evaluationCommit": "df3f88e14504c6bd2b05c427cee310320c4f74a8",
+    "replayInputSha256": "53ba1d94eb7c6cd6102d3610366b216e14eeaef1c54854792d87167f8165b6c4",
+    "diagnosticToolSha256": "01cb5004cc11a812f50a8e119ea49eb9700d913dc19487543ad6f877b06e6a82",
+    "replayCommit": "e0bbc19fb4137f4c9aba1f6e04519784d43a1d45",
+    "session": "synthetic/v32/v32-crystal-ball-scry",
+    "evaluationUtc": "2026-10-08T21:05:51.871Z",
+    "remainingScreens": 18,
+    "recordedSteps": 44,
+    "metrics": {
+      "screens": {
+        "matched": 26,
+        "total": 44
+      },
+      "rng": {
+        "matched": 2554,
+        "total": 2554
+      },
+      "cursors": {
+        "matched": 26,
+        "total": 44
+      }
+    },
+    "previousScreensMatched": 26,
+    "step": 26,
+    "kind": "stop",
+    "sourceFile": "cmd.c",
+    "function": "rhack",
+    "line": 3766,
+    "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, droptype, pickup, pay, takeoff, takeoffall, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, wizsmell, wizkill, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command"
+  },
+  "goalKind": "divergence-fix",
+  "summary": "The crystal ball reaches its zap-your-mind failure arm, so the next ( input is an ordinary seetools command. Its inventory handler and extended-command caller are already implemented and verified, but rhack admits seetools and omits the direct-key handler. The matching seeall admission has the same omitted direct-key caller. Reconcile those two bounded inventory dispatch sites; no crystal-ball, detection or whole rhack port is needed.",
+  "source": {
+    "file": "cmd.c",
+    "functions": [
+      "rhack"
+    ],
+    "branch": "A bound direct seetools/TOOL_SYM or seeall/* key selects extcmdlist doprtool/doprinuse. C rhack invokes the row function, then resets command vars with gm.multi<0 for ECMD_OK without spending time; JS currently falls through its generic bound-command refusal despite admission.",
+    "callers": [
+      "cmd.c:extcmdlist1848-1857 registers seeall -> doprinuse and seetools -> doprtool; rhack3627-3847 consumes cmdbind_get(key&0xff), invokes the row at3766 and applies common result3810-3825. Existing JS command bindings and ADMITTED_COMMANDS include both names; raw rhack lacks their handler arms.",
+      "Existing cmd.js doextcmd doprtool/doprinuse cases correctly await canonical inventoryMenuHooks and are retained. Existing queued ext-command dispatch reaches those same handlers; no doextcmd expansion. Direct ordinary, rebound and menu-prefixed key paths need the bounded handler reconciliation."
+    ],
+    "dependencies": [
+      "invent.c:doprtool4715-4734 and doprinuse4740-4757 are whole verified owners recorded in GOALS.json atcfc6097b. Read current C/JS: tool inventory traversal,52-letter bound, tool_being_used predicate, empty message or dispinv_with_action discarded return, ECMD_OK. doprinuse stops after first is_inuse and calls the same display with null selection. Reuse both canonical exports without new inventory completion credit.",
+      "invent.c:tool_being_used4697-4711 is pure; W_TOOL|W_SADDLE takes priority, non-tools false, then wielded tool/lamplit/leashed-pet checks. Existing tested JS predicate and is_inuse/display owners match selected source paths. Menu time/More behavior stays in the existing inventory owner.",
+      "cmd.c:reset_cmd_vars/common ECMD_OK result handling and JS inventoryMenuHooks/failClosedCommand are existing shared owners. Add the same awaited no-time arms as seeweapon/seearmor/seerings/seeamulet, apply the source negative-multi command-queue reset flag while always clearing multi and context; retain repeat-queue and prefix behavior. A172 doextcmd custom-glyph edit is disjoint; worker A confirmed no rhack overlap."
+    ]
+  },
+  "evidence": [
+    "Focused assigned-base scan run in .cache/B170/scan.json reproduces26/44screens with first stop segment0step26, key( and C message You are not using any tools. Saved accepted-df3f88e v32 count remains18 with all2554RNG matched. Identity hashes match the admitted corpus and immutable recording.",
+    "Read admitted C recipe/steps before attributing source. Step23 assigns ball f; step24 apply prompt includes f; step25 prints The glass orb zaps your mind! from detect.c:use_crystal_ball impairment case4. The intended scrying mission was missed because RNG selected the source failure arm, not because the inventory letter was wrong. Step26 therefore dispatches ordinary seetools. Existing ball failure branch already matches its RNG/output prefix.",
+    "Read complete C rhack3627-3847 plus extcmd rows and whole invent.c:doprtool/doprinuse/tool_being_used. Existing JS doextcmd cases dispatch both owners; raw rhack has the four adjacent seeweapon/seearmor/seerings/seeamulet arms but omits seetools and seeall, ending at UnsupportedHeroCommandBoundaryError. Source and regression paths establish a bounded caller divergence rather than missing detection behavior.",
+    "Search of GOALS.json confirms completed doprtool/doprinuse source evidence and independent show-tools-in-use/show-all-in-use recordings. Those typed #commands do not establish the missing raw-key caller. Independent new evidence should exercise empty tools, a lit tool selection, direct * in-use display, and source prefix/rebinding/no-time behavior without changing existing menu owners.",
+    "Read-only A172 coordination confirmed its immutable js/cmd.js edit affects only doextcmd wiz_custom. Proposed rhack arms beside seeamulet are disjoint. No source or game paths have been claimed or edited during this investigation."
+  ],
+  "proposal": {
+    "goalId": "fix-cmd-rhack-in-use-inventory-dispatch-v32-20261008",
+    "summary": "Dispatch direct tools-in-use and all-in-use inventory keys.",
+    "selectionReason": "Independent v32 seed continuation after B169 submission: crystal-ball target failed in C, exposing the omitted direct seetools caller. Group the identical admitted seeall caller omission in the existing inventory-in-use family; preserve A172 doextcmd ownership.",
+    "dependencyReady": true,
+    "sourceUnits": [
+      {
+        "file": "cmd.c",
+        "name": "rhack",
+        "start": 3627,
+        "end": 3847
+      }
+    ],
+    "completionCredit": "Bounded direct seetools/seeall caller correction only; no whole rhack, doextcmd, inventory or crystal-ball credit.",
+    "proposedReservations": [
+      "session:synthetic/v32/v32-crystal-ball-scry",
+      "source:cmd.c:rhack",
+      "contract:in-use-inventory-direct-key-dispatch"
+    ],
+    "proposedPaths": [
+      "js/cmd.js",
+      "scripts/in-use-inventory-command.test.mjs",
+      "scripts/invent-display-span.test.mjs",
+      "scripts/repeated-simple-commands.test.mjs",
+      "scripts/cmd-span.test.mjs",
+      "recipes/cmd.c/",
+      "recordings/cmd.c/",
+      "investigations/synthetic/v32/v32-crystal-ball-scry.json",
+      ".cache/"
+    ],
+    "dependencies": []
+  }
+}

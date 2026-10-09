@@ -76,9 +76,12 @@
 // recorded session was read.
 
 import { game } from '../js/gstate.js';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { is_axe, is_pick } from '../js/obj.js';
 import { runSegment } from '../js/jsmain.js';
-import { validateCleanRecipe } from './diff-fresh.mjs';
+import { compareSessionOutputs, validateCleanRecipe } from './diff-fresh.mjs';
+import { normalizeSession } from '../frozen/session_loader.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 // A fixed Monday morning with no calendar event, so nothing competes with
@@ -474,6 +477,54 @@ export async function runForceFightMatrix() {
         ],
         summaryLabel: 'FORCE FIGHT',
         verifySegment: verifyForceFightSegment,
+    });
+}
+
+// Independent debug forms cover both damage kinds and the off-map caller.
+// An ordinary wall swing keeps the non-exploding behavior in the same run.
+export async function runExplodingForceFightMatrix() {
+    const names = ['black', 'yellow', 'offedge'];
+    const entries = names.map((name) => ({
+        label: `empty explosion ${name}`,
+        recipe: validateCleanRecipe(JSON.parse(readFileSync(
+            new URL(`../recipes/hack.c/empty-explosion-${name}.session.json`, import.meta.url),
+            'utf8',
+        ))),
+    }));
+    const ordinary = loadForceFightRecipe();
+    entries.push({
+        label: 'ordinary wall outside exploding-form branch',
+        recipe: { ...ordinary, segments: ordinary.segments.slice(0, 1) },
+    });
+    return runFreshMatrix({
+        entries,
+        chunkLimit: 1,
+        summaryLabel: 'EMPTY FORCE-FIGHT EXPLOSION',
+        verifySegment: async (segment) => {
+            const index = entries.findIndex((entry) => entry.recipe.segments[0].seed === segment.seed);
+            if (index === names.length) return verifyForceFightSegment(segment);
+            const reference = normalizeSession(JSON.parse(readFileSync(
+                new URL(`../recordings/hack.c/empty-explosion-${names[index]}.session.json`, import.meta.url),
+                'utf8',
+            )));
+            let boundary;
+            const output = await runSegment(segment, {
+                onBoundary: (error) => { boundary = error; },
+            });
+            if (boundary) throw boundary;
+            const result = compareSessionOutputs(reference, {
+                rng: output.getRngLog(), screens: output.getScreens(),
+                cursors: output.getCursors(), animFrames: output.getAnimationFramesByStep(),
+            });
+            assert.equal(result.passed, true, JSON.stringify(result));
+            assert.equal(game.u.umonnum, game.u.umonster);
+            assert.equal(game.u.mh, 0);
+            const screens = output.getScreens().join('\n');
+            assert.match(screens, index === 2
+                ? /You futilely explode at an unknown obstacle\./u
+                : /You explode at thin air\./u);
+            assert.match(screens, /You return to human form!/u);
+        },
     });
 }
 

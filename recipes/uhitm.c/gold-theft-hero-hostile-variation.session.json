@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent cheap variation of hero-positive mhitm_ad_sgld: male Wizard seed16381019, independently C-observed southwest hostile leprechaun rather than the female/northern peaceful target. C105 shows acquisition. Ends after that complete attack; the subsequent incoming wait remains separately blocked by monmove.c:distfleeck in its own recipe.",
+  "segments": [
+    {
+      "seed": 16381019,
+      "datetime": "20560614151619",
+      "nethackrc": "OPTIONS=name:Ada,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!debug_mongen,!acoustics,!autopickup\n",
+      "moves": "      DAa\n                              #polyself\nleprechaun\n     #wizgenesis\nhostile leprechaun\n     Fb     "
+    }
+  ]
+}

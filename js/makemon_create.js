@@ -1268,6 +1268,12 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && randomCoordinates
         && !ptr
         && mmflags === 0;
+    // wizcmds.c uses makemon(ptr/null, 0, 0, MM_NOMSG). C makemon.c
+    // 1172-1179 passes either species shape through makemon_rnd_goodpos;
+    // MM_NOMSG changes only the later appearance message.
+    const runtimeRandomNoMsgCall = !state.in_mklev
+        && randomCoordinates
+        && mmflags === MM_NOMSG;
     // makemon.c:create_critters() calls makemon(NULL, u.ux, u.uy,
     // NO_MM_FLAGS); its in-water path supplies another valid explicit square.
     // C relocates the hero-square request with enexto_core() before selection.
@@ -1337,7 +1343,8 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !randomCoordinates
         && Boolean(mmflags & MM_NOMSG)
         && !(mmflags & ~(MM_NOMSG | MM_ANGRY | MM_MALE | MM_FEMALE));
-    if (tutorialLevel && !runtimeExplicitRandomCall && !runtimeGroupCall
+    if (tutorialLevel && !runtimeRandomNoMsgCall
+        && !runtimeExplicitRandomCall && !runtimeGroupCall
         && !wereSummonCall && !explicitCoordinateNoFlagsRuntimeCall
         && !explicitCoordinateNoMinventRuntimeCall
         && !explicitInventorylessHeroCall && !hatchEggCall
@@ -1351,6 +1358,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         );
     }
     if (randomCoordinates && !state.in_mklev && !runtimeRandomCall
+        && !runtimeRandomNoMsgCall
         && !statueInventoryCall) {
         throw new UnsupportedMonsterCreationError(
             'random coordinates outside mklev',
@@ -1484,7 +1492,8 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && (mmflags === MM_NOMSG || mmflags === NO_MM_FLAGS);
     const runtimeCall = startingPetCall || confusedLightCall || djinniBottleCall
         || fountainCreatureCall
-        || runtimeRandomCall || runtimeExplicitRandomCall || runtimeGroupCall
+        || runtimeRandomCall || runtimeRandomNoMsgCall
+        || runtimeExplicitRandomCall || runtimeGroupCall
         || createParticularCall
         || deadbookCall || vaultGuardCall || revivalCall || statueAnimationCall
         || figurineAnimationCall || explicitInventorylessHeroCall
@@ -1563,8 +1572,8 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         );
     }
     if (!ptr && !(mmflags & MM_NOGRP) && !state.in_mklev
-        && !runtimeRandomCall && !runtimeExplicitRandomCall
-        && !createParticularCall) {
+        && !runtimeRandomCall && !runtimeRandomNoMsgCall
+        && !runtimeExplicitRandomCall && !createParticularCall) {
         throw new UnsupportedMonsterCreationError('random monster groups');
     }
     if (!Array.isArray(state.mons) || !Array.isArray(state.mvitals))

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first incoming same-mlet mhitm_ad_sgld witness: male leprechaun hero wakes a hostile leprechaun with Fb then forces one m. wait. C111 shows the incoming hit and final HP13/14; canonical dispatch returns before the discarded stealgold arm. The original admission failure is preserved in the immutable C163 source delivery and cache logs.",
+  "segments": [
+    {
+      "seed": 16381019,
+      "datetime": "20560614151619",
+      "nethackrc": "OPTIONS=name:Ada,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!debug_mongen,!acoustics,!autopickup\n",
+      "moves": "      DAa\n                              #polyself\nleprechaun\n     #wizgenesis\nhostile leprechaun\n     Fb     m."
+    }
+  ]
+}

@@ -150,106 +150,116 @@ async function hooked_tty_getlin(query, hook, state) {
     // ported prompt wraps, so the omission is unobservable today; a wrapped
     // prompt has to bring the state with it.
 
-    // custompline(OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, "%s ", query).  vpline()
-    // flushes the map first; remember_topl() then moves whatever the top line
-    // held into history and empties gt.toplines before show_topl() repaints.
-    if (state.u?.ux) await flush_screen(1);
-    state._ttyToplines = '';
-    show_topl(display, `${query} `);
-    state._pending_message = '';
-    // addtopl() leaves ttyDisplay->toplin at TOPLINE_NEED_MORE.
-    display.toplin = TOPLINE_NEED_MORE;
-    state._ttyPreviousMessage = `${query} `;
-
+    // C ttyDisplay->inread counts prompt readers, not menus. The tty owner
+    // initializes it to zero; retain any surrounding reader's depth.
+    display.inread = (display.inread ?? 0) + 1;
     let text = '';
     let pos = 0;
-    for (;;) {
-        // Strcat(strcat(strcpy(gt.toplines, query), " "), obufp) refreshes the
-        // recall copy of the prompt before every keystroke.
-        state._ttyToplines = `${query} ${text}`;
-        display.toplines = state._ttyToplines;
-        const c = (await nhgetch(state)) & 0xFF;
+    try {
+        // custompline(OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, "%s ", query).  vpline()
+        // flushes the map first; remember_topl() then moves whatever the top line
+        // held into history and empties gt.toplines before show_topl() repaints.
+        if (state.u?.ux) await flush_screen(1);
+        state._ttyToplines = '';
+        show_topl(display, `${query} `);
+        state._pending_message = '';
+        // addtopl() leaves ttyDisplay->toplin at TOPLINE_NEED_MORE.
+        display.toplin = TOPLINE_NEED_MORE;
+        state._ttyPreviousMessage = `${query} `;
 
-        // pgetchar() reaches tty_nhgetch(), which maps NUL to Escape.
-        //
-        // 0xFF joins them by accident, which cmd.c:452 preserves: pgetchar()
-        // ends `return (char) ch;`, and char is signed here, so the 255 that
-        // getchar() returns becomes -1. getline.c:85 tests `c == EOF`, so the
-        // line is cancelled. tty_nhgetch() cannot deliver EOF itself, mapping
-        // both NUL and EOF to Escape, so the signed cast is the only route to
-        // this arm.
-        if (c === 0 || c === ESC || c === EOF_BYTE) {
-            if (c === EOF_BYTE) state.iflags.term_gone = 1;
-            // getline.c:88 gates the restart on `c == '\033'` alone, so EOF
-            // never restarts: it always takes the cancel arm below, even over
-            // existing text, where Escape would clear and redraw the prompt.
-            // NUL still restarts, because tty_nhgetch() has already turned it
-            // into Escape by the time this test runs.
-            if (c !== EOF_BYTE && text) {
-                // Escape over existing text restarts the prompt and then falls
-                // through the remaining tests, every one of which declines it.
-                text = '';
-                pos = 0;
-                clearMessageWindow(display);
-                putsyms(display, `${query} `);
+        for (;;) {
+            // Strcat(strcat(strcpy(gt.toplines, query), " "), obufp) refreshes the
+            // recall copy of the prompt before every keystroke.
+            state._ttyToplines = `${query} ${text}`;
+            display.toplines = state._ttyToplines;
+            const c = (await nhgetch(state)) & 0xFF;
+
+            // pgetchar() reaches tty_nhgetch(), which maps NUL to Escape.
+            //
+            // 0xFF joins them by accident, which cmd.c:452 preserves: pgetchar()
+            // ends `return (char) ch;`, and char is signed here, so the 255 that
+            // getchar() returns becomes -1. getline.c:85 tests `c == EOF`, so the
+            // line is cancelled. tty_nhgetch() cannot deliver EOF itself, mapping
+            // both NUL and EOF to Escape, so the signed cast is the only route to
+            // this arm.
+            if (c === 0 || c === ESC || c === EOF_BYTE) {
+                if (c === EOF_BYTE) state.iflags.term_gone = 1;
+                // getline.c:88 gates the restart on `c == '\033'` alone, so EOF
+                // never restarts: it always takes the cancel arm below, even over
+                // existing text, where Escape would clear and redraw the prompt.
+                // NUL still restarts, because tty_nhgetch() has already turned it
+                // into Escape by the time this test runs.
+                if (c !== EOF_BYTE && text) {
+                    // Escape over existing text restarts the prompt and then falls
+                    // through the remaining tests, every one of which declines it.
+                    text = '';
+                    pos = 0;
+                    clearMessageWindow(display);
+                    putsyms(display, `${query} `);
+                    continue;
+                }
+                text = '\x1B';
+                break;
+            }
+            if (c === CTRL_P) {
+                // ctrl-P replays message history through tty_doprev_message(),
+                // which nothing in this port owns yet.
+                throw new UnsupportedGetlinBoundaryError(
+                    'ctrl-P recalls message history at a getlin prompt',
+                );
+            }
+            if (c === ERASE_CHAR || c === BACKSPACE) {
+                if (pos) {
+                    --pos;
+                    topl_putsym(display, '\b');
+                    // Blank whatever the hook painted past the new insertion
+                    // point, then step the cursor back over those blanks.
+                    const painted = text.length - pos;
+                    for (let i = 0; i < painted; ++i) topl_putsym(display, ' ');
+                    for (let i = 0; i < painted; ++i) topl_putsym(display, '\b');
+                    text = text.slice(0, pos);
+                }
+                // tty_nhbell() otherwise, which writes no cell.
                 continue;
             }
-            text = '\x1B';
-            break;
-        }
-        if (c === CTRL_P) {
-            // ctrl-P replays message history through tty_doprev_message(),
-            // which nothing in this port owns yet.
-            throw new UnsupportedGetlinBoundaryError(
-                'ctrl-P recalls message history at a getlin prompt',
-            );
-        }
-        if (c === ERASE_CHAR || c === BACKSPACE) {
-            if (pos) {
-                --pos;
-                topl_putsym(display, '\b');
-                // Blank whatever the hook painted past the new insertion
-                // point, then step the cursor back over those blanks.
-                const painted = text.length - pos;
-                for (let i = 0; i < painted; ++i) topl_putsym(display, ' ');
-                for (let i = 0; i < painted; ++i) topl_putsym(display, '\b');
-                text = text.slice(0, pos);
-            }
-            // tty_nhbell() otherwise, which writes no cell.
-            continue;
-        }
-        if (c === 10 || c === 13) break;
-        if (c >= 0x20 && c !== 0x7F && pos < BUFSZ - 1 && pos < COLNO) {
-            // char *i = eos(bufp) records how far the previous guess reached,
-            // before *bufp = c truncates the buffer at the insertion point.
-            const priorEnd = text.length;
-            text = text.slice(0, pos) + String.fromCharCode(c);
-            putsyms(display, text.slice(pos));
-            ++pos;
-            const expansion = hook ? hook(text) : null;
-            if (expansion !== null) {
-                text = expansion;
+            if (c === 10 || c === 13) break;
+            if (c >= 0x20 && c !== 0x7F && pos < BUFSZ - 1 && pos < COLNO) {
+                // char *i = eos(bufp) records how far the previous guess reached,
+                // before *bufp = c truncates the buffer at the insertion point.
+                const priorEnd = text.length;
+                text = text.slice(0, pos) + String.fromCharCode(c);
                 putsyms(display, text.slice(pos));
-                // Pointer and cursor left where they were.
-                for (let i = pos; i < text.length; ++i)
-                    topl_putsym(display, '\b');
-            } else if (priorEnd > pos) {
-                // Erase the rest of the prior guess.
-                for (let i = pos; i < priorEnd; ++i)
-                    topl_putsym(display, ' ');
-                for (let i = pos; i < priorEnd; ++i)
-                    topl_putsym(display, '\b');
+                ++pos;
+                const expansion = hook ? hook(text) : null;
+                if (expansion !== null) {
+                    text = expansion;
+                    putsyms(display, text.slice(pos));
+                    // Pointer and cursor left where they were.
+                    for (let i = pos; i < text.length; ++i)
+                        topl_putsym(display, '\b');
+                } else if (priorEnd > pos) {
+                    // Erase the rest of the prior guess.
+                    for (let i = pos; i < priorEnd; ++i)
+                        topl_putsym(display, ' ');
+                    for (let i = pos; i < priorEnd; ++i)
+                        topl_putsym(display, '\b');
+                }
+                continue;
             }
-            continue;
+            if (c === KILL_CHAR || c === 0x7F) {
+                // This test comes last because '@' can be the kill character.
+                for (let i = pos; i < text.length; ++i) topl_putsym(display, ' ');
+                for (pos = text.length; pos > 0; --pos)
+                    putsyms(display, '\b \b');
+                text = '';
+            }
+            // tty_nhbell() for anything else.
         }
-        if (c === KILL_CHAR || c === 0x7F) {
-            // This test comes last because '@' can be the kill character.
-            for (let i = pos; i < text.length; ++i) topl_putsym(display, ' ');
-            for (pos = text.length; pos > 0; --pos)
-                putsyms(display, '\b \b');
-            text = '';
-        }
-        // tty_nhbell() for anything else.
+
+    } finally {
+        // getline.c214 decrements before clearing WIN_MESSAGE. Also release
+        // the counter on a port-side refusal so later segments cannot inherit it.
+        --display.inread;
     }
 
     // ttyDisplay->toplin = TOPLINE_NON_EMPTY, then
@@ -294,9 +304,9 @@ export async function tty_yn_function(query, resp, def, state = game) {
     // topl.c:391 clears WIN_STOP and WIN_NOSTOP whether or not more() ran.
     state._ttyMessageStopped = false;
     // topl.c:392 then assigns ttyDisplay->toplin = TOPLINE_SPECIAL_PROMPT and
-    // topl.c:393 raises ttyDisplay->inread.  Neither is modeled, for the same
-    // reason hooked_tty_getlin() gives above: the state is read only once the
-    // top line has wrapped, and inread only gates tty_doprev_message().
+    // topl.c:393 raises ttyDisplay->inread. This yn reader still omits those
+    // wrapped-prompt/history states; hooked_tty_getlin models inread for its
+    // physical-screen-preserving prompt flush.
 
     // Both arms end in the same
     // custompline(OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, "%s", prompt); they

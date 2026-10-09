@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first options.c:optfn_fruit1758–1760 fruit-option-full-feedback witness. Seed15941011, clock20560220114031, Wizard, menu route and fruit name were fixed before JavaScript comparison. Source full menu leaves give_opt_msg enabled after fruitadd; canonical fruit state stays owned by existing naming/fruit owners.",
+  "segments": [
+    {
+      "seed": 15941011,
+      "datetime": "20560220114031",
+      "nethackrc": "OPTIONS=name:Fay,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#optionsfull\n:fruit\n\ndragonberry\n\u001b."
+    }
+  ]
+}

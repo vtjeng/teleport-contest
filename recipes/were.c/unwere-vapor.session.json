@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first potionbreathe -> you_unwere(false) witness. A pauper Wizard acquires wererat infection, wears +20 protection, carries blessed water while human, sets 500 turns of intrinsic fire resistance, and becomes the matching beast. Move west onto empty floor and enter three newly wished fire traps. Intrinsic resistance permits carried water to boil; an external resistance ring would protect it. C step250 prints boiling feedback and helper reversion. Two Escape keys close naming, completing the vapor caller. Stop before later known-trap entry; blocked recipes preserve that frontier and the missing dosit caller.",
+  "segments": [
+    {
+      "seed": 81773003,
+      "datetime": "20890317113000",
+      "nethackrc": "OPTIONS=name:unwere-vapor,role:Wizard,race:human,gender:female,align:neutral,pauper,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,debug_mongen,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017blessed tin opener\n\u0017blessed homemade tin of human wererat meat\nwa eb y \u0017+20 ring of protection\nPcl\u0017blessed potion of water\n #wizintrinsic\n>500i\n #polyself\nwererat\n   hhhh    \u0017fire trap\nh    l    \u001b\u001bh    \u0017fire trap\nh    l    \u001b\u001bh    \u0017fire trap\nh    l    \u001b\u001b"
+    }
+  ]
+}

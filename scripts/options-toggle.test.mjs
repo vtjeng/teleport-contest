@@ -30,7 +30,7 @@ import { GLYPH_OBJ_PILETOP_OFF } from '../js/glyph_offsets.js';
 import { choose_classes_menu } from '../js/windows.js';
 import {
     COULD_SEE, ECMD_OK, FOUNTAIN, IN_SIGHT, OBJ_FLOOR,
-    MENU_COMBINATION, MENU_FULL, MENU_TRADITIONAL, PICK_ANY,
+    MENU_COMBINATION, MENU_TRADITIONAL, PICK_ANY,
     SYM_NOTHING,
 } from '../js/const.js';
 import {
@@ -38,7 +38,7 @@ import {
 } from '../js/objects.js';
 import { S_darkroom, S_room, SYM_OFF_X } from '../js/symbols.js';
 import {
-    ATR_BOLD, ATR_INVERSE, ATR_NONE, CLR_RED, NO_COLOR,
+    ATR_INVERSE, ATR_NONE, CLR_RED, NO_COLOR,
 } from '../js/terminal.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import { selectTtyMenu } from '../js/tty_menu.js';
@@ -121,7 +121,7 @@ test('menu_headings handler queries color then attribute and refreshes style',
             },
             selectMenu: (spec) => {
                 querySpecs.push(spec);
-                return querySpecs.length === 1 ? CLR_RED : ATR_BOLD;
+                return 2; // Source red row2 and bold row2.
             },
         };
 
@@ -130,7 +130,7 @@ test('menu_headings handler queries color then attribute and refreshes style',
         assert.equal(querySpecs[0].title, 'How to highlight menu headings:');
         assert.equal(querySpecs[1].title, 'How to highlight menu headings:');
         assert.equal(state.iflags.menu_headings.color, CLR_RED);
-        assert.equal(state.iflags.menu_headings.attr, ATR_BOLD);
+        assert.equal(state.iflags.menu_headings.attr, 1 /* C ATR_BOLD */);
         assert.equal(state.go.opt_need_promptstyle, false);
     });
 
@@ -532,7 +532,7 @@ test('hilite_pet supplies a pet attribute only while switching on',
         assert.equal(
             await parseoptions(state, 'hilite_pet', false, false), true,
         );
-        assert.equal(state.iflags.wc2_petattr, ATR_INVERSE);
+        assert.equal(state.iflags.wc2_petattr, 7 /* C ATR_INVERSE */);
     });
 
 test('idlecheckpoint reports the missing build support and goes quiet',
@@ -843,21 +843,27 @@ test('optfn_pickup_types() reports a class list it could not parse', async () =>
 
 // C ref: options.c optfn_pickup_types():3337-3356. Both traditional menu
 // styles ask getlin() for the class list instead of opening the class menu.
-test('optfn_pickup_types() stops on the two getlin menu styles', async () => {
+test('optfn_pickup_types() reads classes for both getlin menu styles', async () => {
     const state = await startStockGame();
     for (const style of [MENU_TRADITIONAL, MENU_COMBINATION]) {
         state.flags.menu_style = style;
-        await assert.rejects(
-            doset(state, menuHelpers([
+        // Source typed '%' plus newline selects FOOD_CLASS without a menu.
+        const keys = [...'%\n'].map(ch => ch.charCodeAt(0));
+        const readKey = state.nhDisplay.readKey;
+        state.nhDisplay.readKey = async () => {
+            assert.ok(keys.length, 'the source prompt requested extra input');
+            return keys.shift();
+        };
+        try {
+            await doset(state, menuHelpers([
                 { value: menuValue('pickup_types'), count: -1 },
-            ])),
-            (error) => error instanceof UnsupportedOptionMenuError
-                && error.what
-                    === 'optfn_pickup_types()\'s getlin("New %s: [%s am] (%s)")',
-            `menu_style ${style}`,
-        );
+            ]));
+            assert.deepEqual(state.flags.pickup_types, [FOOD_CLASS]);
+            assert.deepEqual(keys, []);
+        } finally {
+            state.nhDisplay.readKey = readKey;
+        }
     }
-    state.flags.menu_style = MENU_FULL;
 });
 
 // C ref: windows.c choose_classes_menu()'s category 1 arm (1660-1740). The

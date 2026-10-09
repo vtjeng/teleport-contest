@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "B182 outside-limit probe: spell.c:getspell MENU_TRADITIONAL yn_function prompt and retry loop749–780 are not implemented. * reaches the selected dospellmenu only after that prompt; keep the recipe blocked, outside the passing recordings corpus and without getspell/yn_function credit.",
+  "segments": [
+    {
+      "seed": 18233010,
+      "datetime": "20581009172536",
+      "nethackrc": "OPTIONS=name:SpellWitness,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,menustyle:traditional\n",
+      "moves": ".Z*\u001b"
+    }
+  ]
+}

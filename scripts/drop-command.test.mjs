@@ -21,6 +21,8 @@ import {
     OBJ_FLOOR,
     OBJ_INVENT,
     PIT,
+    HOLE,
+    WEB,
     POOL,
     ROOM,
     SINK,
@@ -49,7 +51,7 @@ import {
     ELVEN_DAGGER, GEM_CLASS, LEASH, LOADSTONE, MEAT_RING,
     BOULDER, CORPSE, RIN_SEARCHING, SPEAR,
     TWO_HANDED_SWORD, WEAPON_CLASS,
-    RUBY,
+    RUBY, SCROLL_CLASS, SCR_ENCHANT_WEAPON, SCR_BLANK_PAPER,
 } from '../js/objects.js';
 import { PM_SMALL_MIMIC } from '../js/monsters.js';
 import {
@@ -953,6 +955,64 @@ test('ordinary drops preserve dust, carved and burned engravings', async () => {
     }
 });
 
+// trap.c:water_damage checks Luck before blanking ordinary floor scrolls.
+// A detached scroll survives both return values and dropz places that object.
+test('plain pool scrolls use water damage before placing the same object', async () => {
+    for (const protectedByLuck of [false, true]) {
+        const state = await startedGame();
+        const { ux, uy } = state.u;
+        state.level.at(ux, uy).typ = POOL;
+        const obj = addinv(mksobj(SCR_ENCHANT_WEAPON, false, false, { state }), { state });
+        assert.equal(obj.oclass, SCROLL_CLASS);
+        obj.spe = 3; // Nonzero charge detects the source blanking reset.
+        obj.dknown = 1; // Blanking forgets the former scroll appearance.
+        state.u.uluck = 0; // Source Luck + 5 threshold is five.
+        const draws = [];
+        const env = { ...dropCommandEnv(state), random: {
+            rn2: bound => {
+                draws.push(bound);
+                // Zero is protected; nineteen crosses Luck + 5.
+                return protectedByLuck ? 0 : 19;
+            },
+        } };
+        assert.doesNotThrow(() => preflight_dropx(obj, env));
+        await dropx(obj, env);
+        assert.deepEqual(draws, [20]); // trap.c consumes precisely rn2(20).
+        assert.equal(obj.where, OBJ_FLOOR);
+        assert.ok(pileAt(state, ux, uy).includes(obj));
+        assert.ok(!letters(state).includes(obj.invlet));
+        assert.equal(obj.otyp, protectedByLuck ? SCR_ENCHANT_WEAPON : SCR_BLANK_PAPER);
+        assert.equal(obj.spe, protectedByLuck ? 3 : 0);
+        assert.equal(Boolean(obj.dknown), protectedByLuck);
+        assert.doesNotMatch(state._ttyToplines, /fade/u); // C carried(obj) is false.
+    }
+});
+
+test('pool-scroll admission retains unsupported water-damage branches', async () => {
+    const state = await startedGame();
+    const { ux, uy } = state.u;
+    state.level.at(ux, uy).typ = POOL;
+    for (const fields of [
+        { greased: true }, // Grease adds a different rn2(2) branch.
+        { lamplit: true }, // splash_lit has its own light lifecycle.
+        { timed: 1 }, // Generic timer merges remain outside this admission.
+        { globby: true }, // flooreffects glob handling belongs to another family.
+    ]) {
+        const obj = addinv(mksobj(SCR_ENCHANT_WEAPON, false, false, { state }), { state });
+        Object.assign(obj, fields);
+        assert.throws(() => preflight_dropx(obj, dropCommandEnv(state)),
+            error => error instanceof UnsupportedDropError && /liquid terrain/u.test(error.message));
+        assert.equal(obj.where, OBJ_INVENT);
+    }
+});
+
+test('independent pool-scroll command variations preserve the floor survivor', async () => {
+    const { POOL_SCROLL_CASES, loadPoolScrollRecipe, verifyPoolScrollSegment } =
+        await import('./run-pool-scroll-drop.mjs');
+    for (const entry of POOL_SCROLL_CASES)
+        await verifyPoolScrollSegment(loadPoolScrollRecipe(entry.name).segments[0]);
+});
+
 test('engraving admission retains the liquid and trap frontiers', async () => {
     for (const hazard of ['pool', 'pit']) {
         const state = await startedGame();
@@ -962,7 +1022,7 @@ test('engraving admission retains the liquid and trap frontiers', async () => {
         const obj = addinv(mksobj(RUBY, false, false, { state }), { state });
         // The liquid and pit effects are separate do.c:flooreffects branches.
         if (hazard === 'pool') state.level.at(ux, uy).typ = POOL;
-        else state.level.traps.push({ tx: ux, ty: uy, ttyp: PIT, tseen: false });
+        else state.level.traps.push({ tx: ux, ty: uy, ttyp: PIT, tseen: true });
         const rngBefore = getRngLog().length;
         assert.throws(() => preflight_dropx(obj, dropCommandEnv(state)),
             error => error instanceof UnsupportedDropError
@@ -1123,7 +1183,7 @@ test('throne drop recipes retain the command and elapsed-turn entry points', () 
     }
 });
 
-// A144 admits only the ordinary dry throne path. A pit beneath it and
+// A dry throne remains outside admission at a seen pit edge; the pit and
 // other furniture retain their separate source/admission boundaries.
 test('throne admission retains the trap and other-furniture frontiers', async () => {
     for (const hazard of ['pit', 'fountain']) {
@@ -1131,7 +1191,7 @@ test('throne admission retains the trap and other-furniture frontiers', async ()
         state.u.ux++; // Avoid the upstairs exception in terrain admission.
         const { ux, uy } = state.u;
         state.level.at(ux, uy).typ = hazard === 'pit' ? THRONE : FOUNTAIN;
-        if (hazard === 'pit') state.level.traps.push({ tx: ux, ty: uy, ttyp: PIT, tseen: false });
+        if (hazard === 'pit') state.level.traps.push({ tx: ux, ty: uy, ttyp: PIT, tseen: true });
         const obj = addinv(mksobj(RUBY, false, false, { state }), { state });
         const rngBefore = getRngLog().length;
         assert.throws(() => preflight_dropx(obj, dropCommandEnv(state)),
@@ -1155,4 +1215,39 @@ test('direct dropx owns no floor-reach gate and dropz maps blind levitation afte
     const preflight = js.slice(js.indexOf('export function preflight_dropx'), js.indexOf('function consumeDropAdmission'));
     assert.ok(!preflight.includes('!can_reach_floor'));
     assert.match(js, /stackobj\(obj, normalized\);\s*if \(heroIsBlind\(normalized\.state\) && Levitation\(normalized\.state\)\) \{\s*map_object\(obj, 0, normalized\.state\);[\s\S]*requiredDropHook\(normalized, 'newsym'\)/);
+});
+
+// do.c:flooreffects boulder/pit-hole and hero-edge arms, plus down_gate's
+// seen-shaft branch, remain outside this ordinary nonboulder admission.
+test('inert-trap admission retains boulder, pit-edge and shaft limits', async () => {
+    for (const [otyp, ttyp, seen] of [
+        [BOULDER, WEB, true], // Every boulder trap path remains bounded.
+        [RUBY, PIT, true], // Free hero stands on the known pit edge.
+        [RUBY, HOLE, true], // Shipping can consume the object.
+        [RUBY, HOLE, false], // Unseen shafts remain outside this fix too.
+    ]) {
+        const state = await startedGame();
+        const { ux, uy } = state.u;
+        state.level.at(ux, uy).typ = ROOM;
+        state.u.utrap = 0; // Exclude the admitted already-caught pit branch.
+        state.level.traps.push({ tx: ux, ty: uy, ttyp, tseen: seen });
+        const obj = addinv(mksobj(otyp, false, false, { state }), { state });
+        const draws = getRngLog().length;
+        assert.throws(() => preflight_dropx(obj, dropCommandEnv(state)),
+            error => error instanceof UnsupportedDropError
+                && /shipping or floor effects at a trap/u.test(error.message));
+        assert.equal(obj.where, OBJ_INVENT);
+        assert.equal(getRngLog().length, draws);
+    }
+});
+
+test('inert-trap admission uses the source pit-edge and shaft predicates', () => {
+    const c = readFileSync('nethack-c/upstream/src/do.c', 'utf8');
+    assert.match(c, /obj->otyp == BOULDER && \(t = t_at\(x, y\)\) != 0[\s\S]*is_pit\(t->ttyp\) \|\| is_hole\(t->ttyp\)/u);
+    assert.match(c, /uteetering_at_seen_pit\(t\) \|\| uescaped_shaft\(t\)/u);
+    const trapC = readFileSync('nethack-c/upstream/src/trap.c', 'utf8');
+    assert.match(trapC, /!\(u\.utrap && u\.utraptype == TT_PIT\)/u);
+    const js = readFileSync('js/do.js', 'utf8');
+    const preflight = js.slice(js.indexOf('export function preflight_dropx'), js.indexOf('function consumeDropAdmission'));
+    assert.match(preflight, /obj\.otyp === BOULDER \|\| is_hole\(trap\.ttyp\)[\s\S]*uteetering_at_seen_pit\(trap, state\)[\s\S]*uescaped_shaft\(trap, state\)/u);
 });

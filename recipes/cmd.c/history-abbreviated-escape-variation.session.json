@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first cmd.c:doextcmd dohistory caller: abbreviated selection and first-page cancellation. Source dat/history has401lines, tty text windows page23lines. Role and command route vary before JS comparison. C-only correction: a short name keeps the welcome line below the TTY wrap boundary, so command keys do not merely acknowledge the startup More.",
+  "segments": [
+    {
+      "seed": 17132012,
+      "datetime": "20520918122434",
+      "nethackrc": "OPTIONS=name:Clio,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": ".#hist\n\u001b."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside-limit caller: cmd.c saveoptions -> all_options_strbuf -> get_option_value(cnfvalid TRUE) -> optfn_pickup_types GET_CNF_VAL. Whole command/file persistence is unported; pure request result is source-pinned.",
+  "segments": [
+    {
+      "seed": 17932016,
+      "datetime": "20531018112133",
+      "nethackrc": "OPTIONS=name:Mara,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,menustyle:full,pickup_types:)\n",
+      "moves": ".#saveoptions\n"
+    }
+  ]
+}

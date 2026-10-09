@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside C168 whole Cav-goal.lua scope: dat/Cav-loca.lua remains unported; registered wizloaddes reaches load_special without a Cav-loca loader. This blocked recipe is not completion evidence. Exact JS boundary after the missing loader: mkmaze.c:place_lregion type3 cannot place a region on the unloaded blank map; no Cav-loca or finalizer completion is claimed.",
+  "segments": [
+    {
+      "seed": 16891023,
+      "datetime": "20640918142631",
+      "nethackrc": "OPTIONS=name:CavGoalProbe,role:Cavewoman,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizloaddes\nCav-loca.lua\n            #wizmap\n        "
+    }
+  ]
+}

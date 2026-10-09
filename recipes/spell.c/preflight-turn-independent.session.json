@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pray.c doturn non-priest/non-knight spell preflight. Ordinary blessed genocide scroll with source-supported wizard * removes initial monsters (read.c2705-2717), because both jackal and grid bug interrupt study. Read a blessed turn-undead book, wait for retention, then invoke #turn. Seed/date chosen before C observation. C-only successful study runs automatically after its More acknowledgment; one space is required before #turn.",
+  "segments": [
+    {
+      "seed": 19035025,
+      "datetime": "20661121182838",
+      "nethackrc": "OPTIONS=name:Preflight,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  .\u0017blessed scroll of genocide\n  ro  *\n  \u0017blessed spellbook of turn undead\n  rp #turn\n     ."
+    }
+  ]
+}

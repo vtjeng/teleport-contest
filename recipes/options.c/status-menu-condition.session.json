@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source mission: condition pair, source color/attribute menus. Seed18032031+index and clock20561117132435 chosen before JS comparison; cheap role/menu variations preserve causal independence.",
+  "segments": [
+    {
+      "seed": 18032034,
+      "datetime": "20561117132435",
+      "nethackrc": "OPTIONS=name:Lysa,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": ".#optionsfull\n:status highlight rules\n\n:condition\nbk\nbc\n \u001b\u001b."
+    }
+  ]
+}

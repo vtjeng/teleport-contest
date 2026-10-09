@@ -85,3 +85,44 @@ test('nhlua.c nhl_error preserves message, line, and short source', () => {
         /oops \(line 4 @x\.lua\)/u,
     );
 });
+
+test('bounded load_lua repeats the source nhlib shuffle and clears in_lua', async () => {
+    const { readFileSync } = await import('node:fs');
+    const { load_lua } = await import('../js/nhlua.js');
+    assert.equal(typeof load_lua, 'function');
+    const source = readFileSync('nethack-c/upstream/src/nhlua.c', 'utf8');
+    const init = source.slice(source.indexOf('nhl_init(nhl_sandbox_info'), source.indexOf('RESTORE_WARNING_CONDEXPR', source.indexOf('nhl_init(nhl_sandbox_info')));
+    const load = source.slice(source.indexOf('load_lua(const char'), source.indexOf('DISABLE_WARNING_FORMAT_NONLITERAL', source.indexOf('load_lua(const char')));
+    assert.match(init, /iflags.in_lua = TRUE;[\s\S]*nhl_loadlua\(L, "nhlib.lua"\)/u);
+    assert.match(load, /nhl_init\(sbi\)[\s\S]*nhl_loadlua\(L, name\)[\s\S]*nhl_done\(L\)/u);
+    const done = source.slice(source.indexOf('nhl_done(lua_State'), source.indexOf('boolean\nload_lua'));
+    assert.match(done, /iflags.in_lua = FALSE;/u);
+    const library = readFileSync('nethack-c/upstream/dat/nhlib.lua', 'utf8');
+    assert.match(library, /align = \{ "law", "neutral", "chaos" \};\s*shuffle\(align\);/u);
+    freshGame();
+    game.iflags = { in_lua: false }; // C iflags exists before any command.
+    const draws = [];
+    const result = load_lua('nhlib.lua', {}, game, { random(bound) {
+        assert.equal(game.iflags.in_lua, true);
+        draws.push(bound);
+        return 0; // A valid draw in both the three- and two-entry shuffle.
+    } });
+    assert.equal(result, undefined); // No fabricated consumed Lua-state/result.
+    assert.deepEqual(draws, [3, 2, 3, 2]); // Implicit then explicit library load.
+    assert.equal(game.iflags.in_lua, false);
+    assert.deepEqual([...game.unported], ['nhlua.c nhlL_newstate', 'nhlua.c nhl_done']);
+});
+
+test('bounded load_lua initializes before a named arbitrary-program gap', async () => {
+    const { load_lua } = await import('../js/nhlua.js');
+    assert.equal(typeof load_lua, 'function');
+    freshGame();
+    game.iflags = { in_lua: false }; // Source-valid command state.
+    const draws = [];
+    load_lua('other.lua', {}, game, { random: bound => { draws.push(bound); return 0; } });
+    assert.deepEqual(draws, [3, 2]); // C initializes before requested-file lookup.
+    assert.equal(game.iflags.in_lua, false);
+    assert.deepEqual([...game.unported], [
+        'nhlua.c nhlL_newstate', 'nhlua.c nhl_loadlua', 'nhlua.c nhl_done',
+    ]);
+});

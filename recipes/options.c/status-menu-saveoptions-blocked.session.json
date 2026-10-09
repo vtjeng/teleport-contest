@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "BLOCKED outside limit: cmd.c saveoptions / cfgfiles.c do_write_config_file / options.c all_options_strbuf and botl.c all_options_statushilites remain outside this menu task. GET_CNF_VAL is active but writer evidence is blocked.",
+  "segments": [
+    {
+      "seed": 18032931,
+      "datetime": "20561117132435",
+      "nethackrc": "OPTIONS=name:Lysa,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": ".#saveoptions\n"
+    }
+  ]
+}

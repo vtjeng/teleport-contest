@@ -131,11 +131,16 @@
         "js/baalz_levels.js",
         "js/bigrm.js",
         "js/castle_levels.js",
+        "js/cav_goal_level_data.js",
+        "js/cav_loca_level_data.js",
+        "js/cav_strt_level_data.js",
         "js/dungeon.js",
         "js/dungeon_data.js",
         "js/extralev.js",
         "js/fire_level_data.js",
         "js/fire_levels.js",
+        "js/hea_goal_level_data.js",
+        "js/hea_strt_level_data.js",
         "js/hell_levels.js",
         "js/juiblex_levels.js",
         "js/kni_goal_level_data.js",
@@ -166,7 +171,8 @@
         "js/themerooms.js",
         "js/tutorial_level.js",
         "js/valley_levels.js",
-        "js/wizard1_levels.js"
+        "js/wizard1_levels.js",
+        "js/wizard3_levels.js"
       ],
       "generatedOutputs": [
         {
@@ -315,6 +321,7 @@
         "js/uhitm.js",
         "js/windows.js",
         "js/wizcmds.js",
+        "js/wizcmds_data.js",
         "js/write.js"
       ],
       "generatedOutputs": [
@@ -340,6 +347,7 @@
         "js/glyph_ids.js",
         "js/glyph_offsets.js",
         "js/glyphs.js",
+        "js/status_field_data.js",
         "js/symbol_data.js",
         "js/symbols.js"
       ],

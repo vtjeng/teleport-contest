@@ -1,11 +1,15 @@
 // Runtime spell-memory upkeep, the known-spell display, and spell casting.
 // C ref: spell.c age_spells(), dovspell(), dospellmenu(), percent_success(),
+// spell_cmp(), sortspells(), spellsortmenu(), show_spells(),
 // spellretention(), spelltypemnemonic(), study_book(), docast(), getspell(),
-// spelleffects_check(), spelleffects(), rejectcasting(), spell_let_to_idx(),
+// spell_backfire(), spelleffects_check(), spelleffects(), rejectcasting(), spell_let_to_idx(),
 // and spell_idx().
 
 import {
     A_INT,
+    DISP_CHANGE, D_CLOSED, D_LOCKED, SPACE_POS, POOL, MOAT,
+    DRAWBRIDGE_UP, LAVAPOOL, SHOCK_RES, HALLUC, HALLUC_RES,
+    N_DIRS, xdir, ydir, XKILL_GIVEMSG,
     A_STR,
     A_WIS,
     EYE,
@@ -18,6 +22,7 @@ import {
     CMDQ_KEY,
     CONFUSION,
     BLINDED,
+    CLOUD, IS_TREE,
     ERODE_CORRODE,
     EF_GREASE,
     EF_VERBOSE,
@@ -31,6 +36,7 @@ import {
     NO_KILLER_PREFIX,
     NO_SPELL,
     NO_MINVENT,
+    nothing_happens,
     P_ATTACK_SPELL,
     P_BASIC,
     P_CLERIC_SPELL,
@@ -54,6 +60,7 @@ import {
     uhim,
 } from './const.js';
 import { acurr, exercise } from './attrib.js';
+import { jump } from './apply.js';
 import { cmdq_pop, getdir, set_occupation } from './cmd.js';
 import { morehungry } from './eat.js';
 import { more_experienced, newexplevel } from './exper.js';
@@ -61,19 +68,23 @@ import { read_tribute } from './files.js';
 import { makeplural } from './fruit.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
-import { shieldeff, cmap_to_glyph, map_glyphinfo, tmp_at, canspotmon } from './display.js';
-import { check_capacity, invocation_pos, losehp, nomul } from './hack.js';
-import { dist2, distmin, isqrt, sgn } from './hacklib.js';
+import { shieldeff, cmap_to_glyph, map_glyphinfo, tmp_at, canspotmon, zapdir_to_glyph, map_invisible } from './display.js';
+import { check_capacity, invocation_pos, losehp, nomul, nh_delay_output } from './hack.js';
+import { dist2, distmin, isqrt, sgn, strncmpi } from './hacklib.js';
 import { obfree, update_inventory, useup } from './invent.js';
 import {
     can_chant,
+    Resists_Elem, defended,
     haseyes,
     is_undead,
     is_vampshifter,
+    is_whirly, is_animal, dmgtype_fromattack,
 } from './mondata.js';
 import {
+    AD_ELEC,
     PM_CYCLOPS,
     PM_FLOATING_EYE,
+    PM_FOG_CLOUD, AD_WRAP, AT_ENGL,
     PM_KNIGHT,
     PM_MASTER_LICH,
     PM_NALFESHNEE,
@@ -82,7 +93,7 @@ import {
 import {
     isMetallic, mksobj, objectType, set_bknown, weight,
 } from './obj.js';
-import { Tobjnam } from './objnam.js';
+import { Tobjnam, an } from './objnam.js';
 import { check_unpaid } from './shk.js';
 import {
     MAXSPELL,
@@ -92,6 +103,7 @@ import {
     QUARTERSTAFF,
     ROBE,
     SMALL_SHIELD,
+    SPE_CHAIN_LIGHTNING,
     SPE_CAUSE_FEAR,
     SPE_CANCELLATION,
     SPE_CLAIRVOYANCE,
@@ -121,11 +133,13 @@ import {
     BELL_OF_OPENING,
     CANDELABRUM_OF_INVOCATION,
     SPE_INVISIBILITY,
+    SPE_JUMPING,
     SPE_KNOCK,
     SPE_LEVITATION,
     SPE_LIGHT,
     SPE_MAGIC_MISSILE,
     SPE_POLYMORPH,
+    SPE_PROTECTION,
     SPE_REMOVE_CURSE,
     SPE_RESTORE_ABILITY,
     SPE_SLEEP,
@@ -138,7 +152,7 @@ import {
     SPE_NOVEL,
     LENSES,
 } from './objects.js';
-import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnl, rnz, rn2_on_display_rng } from './rng.js';
 import { aggravate } from './wizard.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { livelog_printf } from './pline.js';
@@ -149,12 +163,12 @@ import {
     spell_skilltype,
 } from './startup_skills.js';
 import {
-    healup, make_blinded, make_confused, make_slimed, peffects,
+    healup, make_blinded, make_confused, make_stunned, make_slimed, peffects,
 } from './potion.js';
 import { discover_object, observe_object } from './o_init.js';
 import { do_vicinity_map } from './detect.js';
 import { use_skill } from './weapon.js';
-import { unturn_dead, zapyourself, weffects, spell_damage_bonus } from './zap.js';
+import { unturn_dead, zapyourself, weffects, spell_damage_bonus, zhitm, exclam } from './zap.js';
 import { fall_asleep } from './timeout.js';
 import { erode_obj } from './trap_erode_obj.js';
 import { body_part } from './polyself.js';
@@ -164,9 +178,11 @@ import { make_familiar, tamedog } from './dog.js';
 import { set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
 import { mkundead } from './mkroom.js';
-import { iter_mons_async } from './mon.js';
+import { iter_mons_async, wakeup, xkilled } from './mon.js';
 import { monflee, monfleeMessage, youHear } from './monmove.js';
-import { noveltitle } from './do_name.js';
+import { noveltitle, hcolor, hliquid, mon_nam, Monnam } from './do_name.js';
+import { heroIsBlind } from './startup_a11y.js';
+import { find_ac } from './u_init_inventory_attrs.js';
 import { note_unported } from './unported.js';
 // C spell.c:spelleffects() passes scroll-duplicate fake spellbooks to
 // read.c:seffects(). read.js imports study_book() from this module; both
@@ -183,8 +199,8 @@ import { clearTtyMessageWindow } from './tty_message.js';
 import { S_goodpos } from './symbols.js';
 
 // C ref: spell.c's spellmenu arguments. 0..MAXSPELL-1 double as svs.spl_book[]
-// indices while swapping two spells; SPELLMENU_DUMP (-3) belongs to
-// show_spells(), which is not ported.
+// indices while swapping two spells.
+const SPELLMENU_DUMP = -3;
 const SPELLMENU_CAST = -2;
 const SPELLMENU_VIEW = -1;
 const SPELLMENU_SORT = MAXSPELL;
@@ -946,10 +962,8 @@ export function spelltypemnemonic(skill) {
     case P_MATTER_SPELL:
         return 'matter';
     default:
-        // C reports impossible() and returns "". No spellbook a hero can
-        // learn from carries another oc_skill, so reaching this is a bug in
-        // the caller rather than a game state to render.
-        throw new RangeError(`Unknown spell skill, ${skill};`);
+        note_unported('pline.c impossible');
+        return '';
     }
 }
 
@@ -1069,110 +1083,243 @@ export function spellretention(idx, state = game) {
     return `${percent - accuracy + 1}%-${percent}%`;
 }
 
-// C ref: spell.c dospellmenu(). Covers SPELLMENU_VIEW (the `+` listing) and
-// SPELLMENU_CAST (the getspell() casting menu). The swap prompt and the
-// dumplog listing pass another splaction and stop.
-//
-// The whole menu is built before the window owner draws anything, the shape
-// display_pickinv() uses, so an unported column stops with the screen
-// untouched. Returns { ok, spell_no }: `ok` is C's boolean result and
-// `spell_no` is C's *spell_no out-parameter.
-async function dospellmenu(prompt, splaction, state, menu) {
-    if (splaction !== SPELLMENU_VIEW && splaction !== SPELLMENU_CAST)
-        throw new UnsupportedSpellDisplayError('a preselected spell menu');
-    // The tab-separated column layout belongs to iflags.menu_tab_sep, whose
-    // options.c boolean handler is not ported.
-    if (state.iflags?.menu_tab_sep)
-        throw new UnsupportedSpellDisplayError('menu_tab_sep columns');
-    const sep = ' ';
+// C ref: spell.c spl_sort_types and spl_sortchoices (1840-1866).
+export const SORTBY_LETTER = 0;
+export const SORTBY_ALPHA = 1;
+export const SORTBY_LVL_LO = 2;
+export const SORTBY_LVL_HI = 3;
+export const SORTBY_SKL_AL = 4;
+export const SORTBY_SKL_LO = 5;
+export const SORTBY_SKL_HI = 6;
+export const SORTBY_CURRENT = 7;
+export const SORTRETAINORDER = 8;
+const spl_sortchoices = [
+    'by casting letter',
+    'alphabetically',
+    'by level, low to high',
+    'by level, high to low',
+    'by skill group, alphabetized within each group',
+    'by skill group, low to high level within group',
+    'by skill group, high to low level within group',
+    'maintain current ordering',
+    'reassign casting letters to retain current order',
+];
 
-    // The column spacing assumes a monospaced font and a four-character
-    // "a - " selector prefix. C drops the matching indent for SPELLMENU_DUMP,
-    // whose entries carry no such prefix.
-    let heading = `    ${'Name'.padEnd(20)} Level `
-        + `${'Category'.padEnd(12)} Fail Retention`;
-    if (state.wizard) heading += `${sep}${'turns'.padStart(6)}`;
-
-    const items = [{ text: heading, heading: true }];
-    for (let i = 0; i < MAXSPELL && spellid(i, state) !== NO_SPELL; ++i) {
-        // C reads gs.spl_orderindx[i] when a sort has allocated it.
-        // sortspells() is unported and nothing else allocates it, so the
-        // index is always the slot itself.
-        const splnum = i;
-        let text = `${spellname(splnum, state).padEnd(20)}  `
-            + `${String(spellev(splnum, state)).padStart(2)}   `
-            + `${spelltypemnemonic(
-                spell_skilltype(spellid(splnum, state), state),
-            ).padEnd(12)} `
-            + `${String(100 - percent_success(splnum, state)).padStart(3)}% `
-            + `${spellretention(splnum, state).padStart(9)}`;
-        // C indexes spellknow() with the loop counter rather than splnum, so
-        // a sorted list shows retention turns against the wrong row.
-        if (state.wizard)
-            text += `${sep}${String(spellknow(i, state)).padStart(6)}`;
-
-        // C preselects the entry whose index equals splaction, which
-        // SPELLMENU_VIEW never matches.
-        items.push({
-            selector: spellet(splnum),
-            label: text,
-            value: splnum + 1, /* must be non-zero */
-        });
-    }
-
-    let how = PICK_ONE;
-    if (splaction === SPELLMENU_VIEW) {
-        if (spellid(1, state) === NO_SPELL) {
-            /* only one spell => nothing to swap with */
-            how = PICK_NONE;
-        } else {
-            /* more than 1 spell, add an extra menu entry */
-            items.push({
-                selector: '+',
-                label: '[sort spells]',
-                value: SPELLMENU_SORT + 1,
-            });
-        }
-    }
-    /* SPELLMENU_CAST: always PICK_ONE, no [sort spells] entry */
-
-    const chosen = await menu(items, how, prompt, state);
-    // C's `*spell_no == splaction` test detects that the hero left the
-    // preselected spell alone; with no preselection every answer other than
-    // "nothing chosen" is a real choice.
-    if (chosen != null) return { ok: true, spell_no: chosen - 1 };
-    return { ok: false, spell_no: splaction };
+// decl.c gs.spl_sortmode/gs.spl_orderindx start at 0/NULL. They describe
+// temporary display order, independently of the persistent svs.spl_book.
+function spellSortState(state) {
+    state.gs ??= {};
+    state.gs.spl_sortmode ??= SORTBY_LETTER;
+    state.gs.spl_orderindx ??= null;
+    return state.gs;
 }
 
-// C ref: spell.c dovspell(), bound to '+'. A hero who knows no spell is told
-// so; a hero who knows one or more sees the spell list. Returns whether the
-// command took game time, which for this one is never.
-export async function dovspell(state = game, { message, menu } = {}) {
-    if (typeof message !== 'function')
-        throw new TypeError('dovspell needs a message owner');
+// C ref: spell.c spell_cmp(). position1/2 represent the callback's pointers
+// into the original index array, as patch002's stable qsort wrapper passes
+// them. SORTBY_CURRENT ordinarily returns before calling the comparator.
+export function spell_cmp(indx1, indx2, state = game,
+    position1 = indx1, position2 = indx2) {
+    const otyp1 = spellid(indx1, state), otyp2 = spellid(indx2, state);
+    const obj1 = objectType(otyp1, state), obj2 = objectType(otyp2, state);
+    const levl1 = obj1.oc_level, levl2 = obj2.oc_level;
+    const skil1 = obj1.oc_skill, skil2 = obj2.oc_skill;
+    switch (state.gs?.spl_sortmode ?? SORTBY_LETTER) {
+    case SORTBY_LETTER: return indx1 - indx2;
+    case SORTBY_ALPHA: break;
+    case SORTBY_LVL_LO:
+        if (levl1 !== levl2) return levl1 - levl2;
+        break;
+    case SORTBY_LVL_HI:
+        if (levl1 !== levl2) return levl2 - levl1;
+        break;
+    case SORTBY_SKL_AL:
+        if (skil1 !== skil2) return skil1 - skil2;
+        break;
+    case SORTBY_SKL_LO:
+        if (skil1 !== skil2) return skil1 - skil2;
+        if (levl1 !== levl2) return levl1 - levl2;
+        break;
+    case SORTBY_SKL_HI:
+        if (skil1 !== skil2) return skil1 - skil2;
+        if (levl1 !== levl2) return levl2 - levl1;
+        break;
+    default:
+        return position1 < position2 ? -1 : Number(position1 > position2);
+    }
+    // include/global.h strcmpi is strncmpi(a,b,-1), with ASCII lowc().
+    return strncmpi(OBJ_NAME(obj1, state), OBJ_NAME(obj2, state), -1);
+}
+
+// C ref: spell.c sortspells(). Only RETAIN changes casting letters.
+export function sortspells(state = game) {
+    const gs = spellSortState(state);
+    if (gs.spl_sortmode === SORTBY_CURRENT) return;
+    let n = 0;
+    while (n < MAXSPELL && spellid(n, state) !== NO_SPELL) ++n;
+    if (n < 2) return;
+    if (!gs.spl_orderindx) {
+        if (gs.spl_sortmode === SORTBY_LETTER
+            || gs.spl_sortmode === SORTRETAINORDER) return;
+        gs.spl_orderindx = Array.from({ length: MAXSPELL }, (_, i) => i);
+    }
+    if (gs.spl_sortmode === SORTRETAINORDER) {
+        // C copies structs by value, including all unused slots.
+        const tmp_book = gs.spl_orderindx.map(
+            (index) => ({ ...state.svs.spl_book[index] }),
+        );
+        for (let i = 0; i < MAXSPELL; ++i) {
+            state.svs.spl_book[i] = tmp_book[i];
+            gs.spl_orderindx[i] = i;
+        }
+        gs.spl_sortmode = SORTBY_LETTER;
+        return;
+    }
+    // ES sort is stable, matching patch002's original-position tie-break.
+    const order = gs.spl_orderindx.slice(0, n)
+        .sort((a, b) => spell_cmp(a, b, state));
+    for (let i = 0; i < n; ++i) gs.spl_orderindx[i] = order[i];
+}
+
+// Bounded window seam for spell.c's menu calls. Import at the async call
+// boundary so this does not add a startup cycle through cmd/display.
+async function spellMenu(items, how, prompt, state, selection = {}) {
+    const { select_menu } = await import('./windows.js');
+    const { menuTitleStyle } = await import('./tty_menu.js');
+    const style = menuTitleStyle(state);
+    return select_menu(state, {
+        items: items.map((item) => item.heading
+            ? { ...item, attr: style.titleAttr, color: style.titleColor }
+            : item),
+        how, title: prompt, ...style, ...selection,
+        cancelValue: null,
+        overlay: state.iflags?.menu_overlay !== false,
+    });
+}
+
+// Production menus return C's ordered selected[] rows, including their counts.
+// A scalar remains usable by an injected caller, but cannot imply deselection.
+function spellMenuValues(chosen) {
+    if (Array.isArray(chosen)) return chosen.map(item => item.value);
+    if (chosen == null) return [];
+    return [typeof chosen === 'object' ? chosen.value : chosen];
+}
+
+// C ref: spell.c spellsortmenu().
+export async function spellsortmenu(state = game, menu = spellMenu) {
+    const gs = spellSortState(state);
+    const items = [];
+    for (let i = 0; i < spl_sortchoices.length; ++i) {
+        if (i === SORTRETAINORDER) items.push({ text: '' });
+        items.push({
+            selector: i === SORTRETAINORDER ? 'z' : String.fromCharCode(97 + i),
+            value: i + 1,
+            label: spl_sortchoices[i],
+            selected: i === gs.spl_sortmode,
+        });
+    }
+    const selected = spellMenuValues(await menu(
+        items, PICK_ONE, 'View known spells list sorted', state,
+        { returnSelections: true },
+    ));
+    if (!selected.length) return false;
+    let choice = selected[0] - 1;
+    if (selected.length > 1 && choice === gs.spl_sortmode)
+        choice = selected[1] - 1;
+    gs.spl_sortmode = choice;
+    return true;
+}
+
+// C ref: spell.c dovspell(). Returns ECMD_OK without taking game time.
+export async function dovspell(state = game,
+    { message = ttyPline, menu = spellMenu } = {}) {
+    const gs = spellSortState(state);
     if (spellid(0, state) === NO_SPELL) {
         await message("You don't know any spells right now.", state);
     } else {
-        if (typeof menu !== 'function')
-            throw new TypeError('dovspell needs a menu owner');
-        // C loops until dospellmenu() answers FALSE. Both loop bodies are
-        // unported, so the loop here runs at most once: the '[sort spells]'
-        // entry needs spellsortmenu() and sortspells(), and picking a spell
-        // starts the reordering swap through a second dospellmenu().
-        const { ok, spell_no } = await dospellmenu(
-            'Currently known spells', SPELLMENU_VIEW, state, menu,
-        );
-        if (ok) {
-            throw new UnsupportedSpellDisplayError(
-                spell_no === SPELLMENU_SORT
-                    ? 'spellsortmenu()'
-                    : 'the spell reordering swap',
+        for (;;) {
+            const result = await dospellmenu(
+                'Currently known spells', SPELLMENU_VIEW, state, menu,
             );
+            if (!result.ok) break;
+            const splnum = result.spell_no;
+            if (splnum === SPELLMENU_SORT) {
+                if (await spellsortmenu(state, menu)) sortspells(state);
+            } else {
+                const other = await dospellmenu(
+                    `Reordering spells; swap '${spellet(splnum)}' with`,
+                    splnum, state, menu,
+                );
+                if (!other.ok) break;
+                const spl_tmp = state.svs.spl_book[splnum];
+                state.svs.spl_book[splnum] = state.svs.spl_book[other.spell_no];
+                state.svs.spl_book[other.spell_no] = spl_tmp;
+            }
         }
     }
-    // C frees gs.spl_orderindx and resets gs.spl_sortmode here; the port
-    // allocates neither, because sortspells() is what would set them.
-    return false;
+    gs.spl_orderindx = null;
+    gs.spl_sortmode = SORTBY_LETTER;
+    return ECMD_OK;
+}
+
+// C ref: spell.c show_spells(). end.c's caller is DUMPLOG-inactive in the
+// reference build; preserve the function and its source menu call anyway.
+export async function show_spells(state = game,
+    { message = ttyPline, menu = spellMenu } = {}) {
+    if (spellid(0, state) === NO_SPELL) {
+        await message("You didn't know any spells.", state);
+        await message('', state);
+    } else {
+        await message('Spells:', state);
+        await dospellmenu('', SPELLMENU_DUMP, state, menu);
+    }
+}
+
+// C ref: spell.c dospellmenu(). The boolean and out-index are {ok,spell_no}.
+export async function dospellmenu(prompt, splaction, state = game,
+    menu = spellMenu) {
+    const sep = state.iflags?.menu_tab_sep ? '\t' : ' ';
+    let heading = sep === '\t' ? 'Name\tLevel\tCategory\tFail\tRetention'
+        : `${splaction === SPELLMENU_DUMP ? '' : '    '}${'Name'.padEnd(20)}`
+            + ` Level ${'Category'.padEnd(12)} Fail Retention`;
+    if (state.wizard) heading += `${sep}${'turns'.padStart(6)}`;
+    const items = [{ text: heading, heading: true }];
+    for (let i = 0; i < MAXSPELL && spellid(i, state) !== NO_SPELL; ++i) {
+        const splnum = state.gs?.spl_orderindx ? state.gs.spl_orderindx[i] : i;
+        const name = spellname(splnum, state);
+        const level = spellev(splnum, state);
+        const category = spelltypemnemonic(
+            spell_skilltype(spellid(splnum, state), state),
+        );
+        const fail = 100 - percent_success(splnum, state);
+        const retention = spellretention(splnum, state);
+        let text = sep === '\t'
+            ? `${name}\t${level}\t${category}\t${fail}%\t${retention}`
+            : `${name.padEnd(20)}  ${String(level).padStart(2)}   `
+                + `${category.padEnd(12)} ${String(fail).padStart(3)}% `
+                + retention.padStart(9);
+        // Preserve C's loop index, even when splnum has been sorted.
+        if (state.wizard) text += `${sep}${String(spellknow(i, state)).padStart(6)}`;
+        items.push({ selector: spellet(splnum), label: text,
+            value: splnum + 1, selected: splnum === splaction });
+    }
+    let how = PICK_ONE;
+    if (splaction === SPELLMENU_VIEW) {
+        if (spellid(1, state) === NO_SPELL) how = PICK_NONE;
+        else items.push({ selector: '+', label: '[sort spells]',
+            value: SPELLMENU_SORT + 1 });
+    }
+    const selection = { returnSelections: true };
+    const selected = spellMenuValues(await menu(
+        items, how, prompt, state, selection,
+    ));
+    if (selected.length) {
+        let spell_no = selected[0] - 1;
+        if (selected.length > 1 && spell_no === splaction)
+            spell_no = selected[1] - 1;
+        return { ok: spell_no !== splaction, spell_no };
+    }
+    if (splaction >= 0) return { ok: true, spell_no: splaction };
+    return { ok: false, spell_no: splaction };
 }
 
 // C ref: spell.c spell_let_to_idx() (115-126). Converts a letter ('a'..'z' or
@@ -1242,16 +1389,86 @@ async function getspell(state, { message, menu }) {
         state, menu);
 }
 
-// C ref: spell.c spelleffects_check() (1220-1380). Validates that the hero can
-// cast spell `spell` (a spl_book[] index): checks that the spell is known, the
-// hero has enough energy, the hero is not too hungry or weak, and the cast
-// succeeds on a random roll. Hunger is charged before the success roll;
-// failed casts spend half energy.
-//
-// Returns { abort, res, energy } where `abort` is true when the cast should not
-// proceed (C returned TRUE). Only the common successful-cast path is fully
-// ported; the twisted-knowledge and amulet-draining paths throw fail-closed.
-async function spelleffects_check(spell, state, env) {
+// C ref: spell.c cast_protection() (1104–1178). Integer divisions truncate
+// toward zero; the source feedback finishes before protection and AC change.
+export async function cast_protection(state = game, env = {}) {
+    const u = state.u;
+    let l = u.ulevel, loglev = 0;
+    let natac = u.uac + u.uspellprot;
+    while (l) {
+        ++loglev;
+        l = Math.trunc(l / 2);
+    }
+    natac = Math.trunc((10 - natac) / 10);
+    const gain = loglev - Math.trunc(u.uspellprot / (4 - Math.min(3, natac)));
+    const message = env.message ?? ttyPline;
+    if (gain > 0) {
+        if (!heroIsBlind(state)) {
+            // decl.c c_color_names.c_golden is "golden". Naming uses display
+            // RNG, independently of spelleffects' optional core RNG adapter.
+            const displayEnv = { state, displayRandom: env.displayRandom };
+            const hgolden = hcolor('golden', state, displayEnv);
+            if (u.uspellprot) {
+                await message(`The ${hgolden} haze around you becomes more dense.`, state);
+            } else {
+                const pm = u.ustuck?.data;
+                const rmtyp = state.level.at(u.ux, u.uy).typ;
+                const atmosphere = pm && u.uswallow
+                    ? pm === state.mons[PM_FOG_CLOUD] ? 'mist'
+                        : is_whirly(pm) ? 'maelstrom'
+                            : dmgtype_fromattack(pm, AD_WRAP, AT_ENGL) ? 'folds'
+                                : is_animal(pm) ? 'maw' : 'ooze'
+                    : u.uinwater ? hliquid('water', displayEnv)
+                        : rmtyp === CLOUD ? 'cloud'
+                            : IS_TREE(rmtyp, state) ? 'vegetation'
+                                : IS_STWALL(rmtyp) ? 'stone' : 'air';
+                await message(`The ${atmosphere} around you begins to shimmer with ${an(hgolden)} haze.`, state);
+            }
+        }
+        u.uspellprot = (u.uspellprot + gain) & 0xff; // you.h uchar field.
+        u.uspmtime = P_SKILL(spell_skilltype(SPE_PROTECTION, state), state) === P_EXPERT
+            ? 20 : 10;
+        if (!u.usptime) u.usptime = u.uspmtime;
+        find_ac(state);
+    } else {
+        await message('Your skin feels warm for a moment.', state);
+    }
+}
+
+// C ref: spell.c spell_backfire() (1181-1217). Add confusion/stun timeouts
+// in source order; FALSE suppresses the setters' optional messages.
+export async function spell_backfire(spell, state = game, env = {}) {
+    const random = randomSource(env);
+    const duration = (spellev(spell, state) + 1) * 3;
+    const oldStun = (state.u.uprops[STUNNED]?.intrinsic ?? 0) & TIMEOUT;
+    const oldConf = (state.u.uprops[CONFUSION]?.intrinsic ?? 0) & TIMEOUT;
+    state.disp ??= {};
+    switch (random.rn2(10)) {
+    case 0: case 1: case 2: case 3:
+        await make_confused(oldConf + duration, false, state, env);
+        break;
+    case 4: case 5: case 6:
+        await make_confused(oldConf + Math.trunc(2 * duration / 3), false, state, env);
+        await make_stunned(oldStun + Math.trunc(duration / 3), false, state, env);
+        break;
+    case 7: case 8:
+        await make_stunned(oldStun + Math.trunc(2 * duration / 3), false, state, env);
+        await make_confused(oldConf + Math.trunc(duration / 3), false, state, env);
+        break;
+    case 9:
+        await make_stunned(oldStun + duration, false, state, env);
+        break;
+    }
+}
+
+// C ref: spell.c spelleffects_check() (1220-1380). The result object carries
+// C's boolean return and caller-owned res/energy out parameters. Amulet drain
+// sets res to ECMD_TIME before an insufficient-energy abort; hunger still
+// uses the base spell cost. Direct dotele casts supply no operation env.
+export async function spelleffects_check(spell, state = game, env = {}) {
+    env = { ...env, message: env.message ?? ttyPline };
+    const random = randomSource(env);
+    let res = ECMD_OK;
     const confused = Boolean(
         state.u?.uprops?.[CONFUSION]?.intrinsic,
     );
@@ -1260,17 +1477,20 @@ async function spelleffects_check(spell, state, env) {
     // Reject casting while stunned or with no free hands.
     if (spell === UNKNOWN_SPELL
         || await rejectcasting(state, env)) {
-        return { abort: true, res: ECMD_OK, energy: 0 };
+        return { abort: true, res: ECMD_OK, energy };
     }
 
     // SPELL_LEV_PW(lvl) = lvl * 5
     energy = spellev(spell, state) * 5; /* 5 <= energy <= 35 */
 
     if (spellknow(spell, state) <= 0) {
-        // Twisted knowledge: spell_backfire() and random energy loss.
-        throw new UnsupportedSpellCastError(
-            'casting a forgotten spell (spell_backfire)',
-        );
+        await env.message('Your knowledge of this spell is twisted.', state);
+        await env.message('It invokes nightmarish images in your mind...', state);
+        await spell_backfire(spell, state, env);
+        state.u.uen = Math.max(0, state.u.uen - random.rnd(energy));
+        state.disp ??= {};
+        state.disp.botl = true;
+        return { abort: true, res: ECMD_TIME, energy };
     } else if (spellknow(spell, state) <= Math.trunc(SPELL_KNOWLEDGE_KEEN / 200)) {
         await env.message('You strain to recall the spell.', state);
     } else if (spellknow(spell, state) <= Math.trunc(SPELL_KNOWLEDGE_KEEN / 40)) {
@@ -1284,21 +1504,23 @@ async function spelleffects_check(spell, state, env) {
     if (state.u.uhunger <= 10
         && spellid(spell, state) !== SPE_DETECT_FOOD) {
         await env.message('You are too hungry to cast that spell.', state);
-        return { abort: true, res: ECMD_OK, energy: 0 };
+        return { abort: true, res: ECMD_OK, energy };
     } else if (acurr(state, A_STR) < 4
         && spellid(spell, state) !== SPE_RESTORE_ABILITY) {
         await env.message('You lack the strength to cast spells.', state);
-        return { abort: true, res: ECMD_OK, energy: 0 };
+        return { abort: true, res: ECMD_OK, energy };
     } else if (await check_capacity(
         'Your concentration falters while carrying so much stuff.', state)) {
-        return { abort: true, res: ECMD_TIME, energy: 0 };
+        return { abort: true, res: ECMD_TIME, energy };
     }
 
     // Amulet of Yendor energy drain
     if (state.u.uhave?.amulet && state.u.uen >= energy) {
-        throw new UnsupportedSpellCastError(
-            'the Amulet of Yendor energy drain during casting',
-        );
+        await env.message('You feel the amulet draining your energy away.', state);
+        state.u.uen = Math.max(0, state.u.uen - random.rnd(2 * energy));
+        state.disp ??= {};
+        state.disp.botl = true;
+        res = ECMD_TIME;
     }
 
     if (energy > state.u.uen) {
@@ -1309,7 +1531,7 @@ async function spelleffects_check(spell, state, env) {
             `You don't have enough energy to cast that spell${suffix}.`,
             state,
         );
-        return { abort: true, res: ECMD_OK, energy: 0 };
+        return { abort: true, res, energy };
     }
 
     // Deduct hunger for casting (detect food is exempt).
@@ -1336,7 +1558,7 @@ async function spelleffects_check(spell, state, env) {
     }
 
     const chance = percent_success(spell, state);
-    if (confused || (rnd(100) > chance)) {
+    if (confused || (random.rnd(100) > chance)) {
         await env.message(
             'You fail to cast the spell correctly.',
             state,
@@ -1344,9 +1566,9 @@ async function spelleffects_check(spell, state, env) {
         state.u.uen -= Math.trunc(energy / 2);
         state.disp = state.disp || {};
         state.disp.botl = true;
-        return { abort: true, res: ECMD_TIME, energy: 0 };
+        return { abort: true, res: ECMD_TIME, energy };
     }
-    return { abort: false, res: ECMD_OK, energy };
+    return { abort: false, res, energy };
 }
 
 // hack.h:1236 Maybe_Half_Phys(). youprop.h:341 defines Half_physical_damage
@@ -1557,6 +1779,22 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
         await peffects(pseudo, state);
         break;
 
+    case SPE_PROTECTION:
+        // C spell.c1581–1583: feedback/state complete before common cleanup.
+        await cast_protection(state, env);
+        break;
+
+    case SPE_JUMPING:
+        // C spell.c1584–1587 consumes jump's TIME bit before common cleanup.
+        if (!(await jump(Math.max(role_skill, 1), state, env) & ECMD_TIME))
+            await (env.message ?? ttyPline)(nothing_happens, state);
+        break;
+
+    // C spell.c1588–1590: independent of skill; common cleanup follows.
+    case SPE_CHAIN_LIGHTNING:
+        await cast_chain_lightning(state, env);
+        break;
+
     default:
         obfree(pseudo, null, { state });
         throw new UnsupportedSpellCastError(
@@ -1570,6 +1808,105 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
 
     obfree(pseudo, null, { state }); /* now, get rid of it */
     return ECMD_TIME;
+}
+
+// C ref: spell.c chain-lightning queue and terrain macros (917–947).
+// The queue limit stays below display.c TMP_AT_MAX_GLYPHS.
+const CHAIN_LIGHTNING_LIMIT = 100;
+
+// C ref: spell.c propagate_chain_lightning() (952–999). C passes zap by
+// value; both the caller's direction and strength survive this forward step.
+export async function propagate_chain_lightning(clq, sourceZap, state = game) {
+    const zap = { ...sourceZap };
+    zap.x += xdir[zap.dir];
+    zap.y += ydir[zap.dir];
+    if (clq.tail >= CHAIN_LIGHTNING_LIMIT) return;
+    if (!isok(zap.x, zap.y)) return;
+    const cell = state.level.at(zap.x, zap.y);
+    // rm.h doormask aliases flags; door generation and mutation use flags.
+    if (!(SPACE_POS(cell.typ) || cell.typ === POOL || cell.typ === MOAT
+          || cell.typ === DRAWBRIDGE_UP || cell.typ === LAVAPOOL
+          || (IS_DOOR(cell.typ) && !(cell.flags & (D_CLOSED | D_LOCKED)))))
+        return;
+    const mon = m_at(zap.x, zap.y, state);
+    if (mon && mon.mpeaceful) return;
+    if (mon && !Resists_Elem(mon, SHOCK_RES, state)
+        && !defended(mon, AD_ELEC, state)) zap.strength = 3;
+    else if (mon) zap.strength = 0;
+    if (!mon && !zap.strength) return;
+    for (let i = 0; i < clq.tail; i++) {
+        if (clq.q[i].x === zap.x && clq.q[i].y === zap.y) return;
+    }
+    clq.q[clq.tail++] = zap;
+    await tmp_at(DISP_CHANGE,
+        zapdir_to_glyph(xdir[zap.dir], ydir[zap.dir], clq.displayed_beam, state), state);
+    await tmp_at(zap.x, zap.y, state);
+}
+
+// C ref: spell.c cast_chain_lightning() (1003–1101). Process one breadth
+// wave per delay, retaining C's bhitpos-based head test and Pw decrement.
+export async function cast_chain_lightning(state = game, env = {}) {
+    const halluc = state.u.uprops[HALLUC];
+    const resistance = state.u.uprops[HALLUC_RES];
+    const clq = { q: [], head: 0, tail: 0,
+        displayed_beam: halluc.intrinsic && !(resistance.intrinsic || resistance.extrinsic)
+            ? rn2_on_display_rng(6, state) : AD_ELEC - 1 };
+    // Source TODO: no damage to the engulfer. Display RNG was already drawn.
+    if (state.u.uswallow) return;
+    await tmp_at(DISP_BEAM, zapdir_to_glyph(0, 1, clq.displayed_beam, state), state);
+    for (let dir = 0; dir < N_DIRS; dir++) {
+        await propagate_chain_lightning(clq,
+            { dir, x: state.u.ux, y: state.u.uy, strength: 2 }, state);
+    }
+    await nh_delay_output(state);
+    while (clq.head < clq.tail) {
+        const delay_tail = clq.tail;
+        while (clq.head < delay_tail) {
+            const zap = { ...clq.q[clq.head++] };
+            const mon = m_at(zap.x, zap.y, state);
+            if (mon) {
+                // decl.c gb starts zeroed; this may be the first ray to read
+                // bhitpos. Keep its prior position once another ray sets it.
+                state.gb.bhitpos ??= { x: 0, y: 0 };
+                state.gn.notonhead = mon.mx !== state.gb.bhitpos.x
+                    || mon.my !== state.gb.bhitpos.y;
+                // C BZ_U_SPELL(AD_ELEC - 1) = 10 + AD_ELEC - 1.
+                // zhitm's armor result is unused: electricity cannot destroy it.
+                const { damage: dmg } = await zhitm(mon, 10 + AD_ELEC - 1, 2,
+                    state, { d, rn2, rnd, ...env.random }, env);
+                if (dmg) {
+                    if (mon.mhp <= 0) await xkilled(mon, XKILL_GIVEMSG, state, env);
+                    else {
+                        await (env.message ?? ttyPline)(
+                            `You shock ${mon_nam(mon, state)}${exclam(dmg)}`, state);
+                        if (!canseemon(mon, state) && !state.gn.notonhead)
+                            map_invisible(zap.x, zap.y, state);
+                    }
+                } else if (canseemon(mon, state)) {
+                    await (env.message ?? ttyPline)(`${Monnam(mon, state)} resists.`, state);
+                }
+                if (mon.mhp > 0) {
+                    state.context.forcefight++;
+                    await wakeup(mon, false, { ...env, state });
+                    state.context.forcefight--;
+                }
+            }
+            if (!zap.strength) continue;
+            zap.strength--;
+            await propagate_chain_lightning(clq, zap, state);
+            if (zap.strength < 2) zap.strength = 0;
+            else if (state.u.uen > 0) state.u.uen--;
+            // C DIR_LEFT then DIR_RIGHT2 relative to that left direction.
+            zap.dir = (zap.dir + N_DIRS - 1) % N_DIRS;
+            await propagate_chain_lightning(clq, zap, state);
+            zap.dir = (zap.dir + 2) % N_DIRS;
+            await propagate_chain_lightning(clq, zap, state);
+        }
+        await nh_delay_output(state);
+    }
+    await nh_delay_output(state);
+    await nh_delay_output(state);
+    await tmp_at(DISP_END, 0, state);
 }
 
 // C ref: spell.c docast() (820-829). The #cast command entry point. Calls
@@ -1677,15 +2014,6 @@ export async function dowizcast(state = game, env = {}) {
     if (selected !== null && selected !== undefined)
         return spelleffects(selected, false, true, state, env);
     return ECMD_OK;
-}
-
-// Thrown where spell.c reads a display branch this port has not reached.
-export class UnsupportedSpellDisplayError extends Error {
-    constructor(branch) {
-        super(`spell display requires ${branch}`);
-        this.name = 'UnsupportedSpellDisplayError';
-        this.branch = branch;
-    }
 }
 
 // Thrown where spell.c reaches a casting branch this port has not reached.

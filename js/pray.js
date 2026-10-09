@@ -17,6 +17,7 @@
 // god_zaps_you() remains a source gap. pleased() is ported below;
 // its calls to helpers without a running-game owner use note_unported().
 
+import { you_unwere } from './were.js';
 import { buried_ball_to_freedom } from './dig.js';
 import {
     A_CHAOTIC,
@@ -131,7 +132,7 @@ import { paranoid_query, y_n } from './cmd.js';
 import { eaten_stat, floorfood } from './eat.js';
 import { newsym, xlev_to_rank } from './display.js';
 import { dropy, heal_legs } from './do.js';
-import { stuck_ring, unchanger } from './do_wear.js';
+import { stuck_ring, unchanger, setwornEnv } from './do_wear.js';
 import { In_hell } from './dungeon.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
@@ -214,6 +215,7 @@ import {
     make_hallucinated,
     make_sick,
     make_slimed,
+    make_stoned,
     make_stunned,
     set_itimeout,
 } from './potion.js';
@@ -247,7 +249,7 @@ import { cmap_to_type } from './mkroom.js';
 import { resist } from './zap.js';
 import { known_spell, spelleffects } from './spell.js';
 import { welded } from './wield.js';
-import { bimanual, which_armor } from './worn.js';
+import { bimanual, setnotworn, which_armor } from './worn.js';
 import { encumber_msg, rider_corpse_revival } from './pickup.js';
 import { init_uhunger } from './u_init.js';
 import { see_monsters } from './display.js';
@@ -1256,13 +1258,13 @@ function heroIsDeaf(state) {
 // in source order. Helpers whose C implementations are not yet available are
 // represented by note_unported(); helpers with live JavaScript owners are
 // called at their source point, including their asynchronous message order.
-export async function fix_worst_trouble(trouble, state = game) {
+export async function fix_worst_trouble(trouble, state = game, env = {}) {
     let otmp = null;
     let what = null;
 
     switch (trouble) {
     case TROUBLE_STONED:
-        note_unported('potion.c make_stoned');
+        await make_stoned(0, 'You feel more limber.', 0, null, state);
         break;
     case TROUBLE_SLIMED:
         await make_slimed(0, 'The slime disappears.', state);
@@ -1270,7 +1272,14 @@ export async function fix_worst_trouble(trouble, state = game) {
     case TROUBLE_STRANGLED:
         if (state.uamul && state.uamul.otyp === AMULET_OF_STRANGULATION) {
             await ttyPline('Your amulet vanishes!', state);
-            note_unported('invent.c useup');
+            // pray.c:391 -> useupall removes the worn slot before freeing
+            // the amulet; wait for that owner before announcing breathing.
+            await useup(state.uamul, {
+                state,
+                hooks: {
+                    setNotWorn: (obj, env) => setnotworn(obj, setwornEnv(env.state)),
+                },
+            });
         }
         await ttyPline('You can breathe again.', state);
         state.u.uprops[STRANGLED].intrinsic = 0;
@@ -1382,7 +1391,7 @@ export async function fix_worst_trouble(trouble, state = game) {
         await fix_curse_trouble(state.ublindf, null, state);
         break;
     case TROUBLE_LYCANTHROPE:
-        note_unported('were.c you_unwere');
+        await you_unwere(true, state, env);
         break;
     case TROUBLE_PUNISHED:
         await ttyPline('Your chain disappears.', state);

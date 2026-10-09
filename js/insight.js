@@ -9,6 +9,7 @@
 // ustatusline().
 // The same source file also owns the complete vanquished-monster family:
 // vanqsort_cmp(), set_vanq_order(), dovanquished(), and list_vanquished().
+// doborn() reports species birth/death counts through the wizard command.
 //
 // `doattributes()` is the normal caller, so `mode` is BASICENLIGHTENMENT, or
 // BASICENLIGHTENMENT | MAGICENLIGHTENMENT under playmode:explore and
@@ -262,6 +263,7 @@ import { carrying, currency, money_cnt } from './invent.js';
 import { makeplural } from './fruit.js';
 import {
     an, ansimpleoname, just_an, simple_typename, simpleonames, suit_simple_name, the,
+    shield_simple_name,
 } from './objnam.js';
 import { oc_to_str } from './options.js';
 import {
@@ -276,7 +278,6 @@ import {
     RIN_SUSTAIN_ABILITY,
     ROBE,
     SHIELD_OF_REFLECTION,
-    TOWEL,
     OBJ_NAME,
 } from './objects.js';
 import { fingers_or_gloves, stuck_ring } from './do_wear.js';
@@ -322,6 +323,7 @@ import {
     MZ_MEDIUM,
     MZ_SMALL,
     MZ_TINY,
+    NUMMONS,
     PM_LONG_WORM,
     PM_GREEN_SLIME,
     PM_HIGH_CLERIC,
@@ -347,7 +349,7 @@ import {
     displayTtyMenuTextWindow,
     displayTtyTextWindow,
 } from './tty_menu.js';
-import { select_menu } from './windows.js';
+import { select_menu, ttyMenuColorAttribute } from './windows.js';
 import {
     genders,
     ROLE_FEMALE,
@@ -1005,8 +1007,8 @@ function characteristics_enlightenment(mode, final, state, lines) {
         one_characteristic(mode, final, attrindx, state, lines);
 }
 
-// C ref: insight.c weapon_insight(). What the hero wields and how skilled
-// they are with it.
+// C ref: insight.c weapon_insight() (1270-1465). What the hero wields and
+// how skilled they are with it.
 function weapon_insight(final, state, lines) {
     const uwep = state.uwep;
 
@@ -1016,14 +1018,11 @@ function weapon_insight(final, state, lines) {
     } else if (state.u.twoweap) {
         you_are(lines, final, 'wielding two weapons at once', '');
     } else {
+        let what = weapon_descr(uwep, state);
         if (uwep.otyp === SHIELD_OF_REFLECTION)
-            throw new UnsupportedEnlightenmentError('shield_simple_name()');
-        // obj.h defines is_wet_towel(o) as otyp == TOWEL && spe > 0, so a dry
-        // towel keeps the weapon_descr() result below. The stop above tests
-        // otyp alone because insight.c:1288 does the same for the shield.
-        if (uwep.otyp === TOWEL && uwep.spe > 0)
-            throw new UnsupportedEnlightenmentError('is_wet_towel()');
-        const what = weapon_descr(uwep, state);
+            what = shield_simple_name(uwep, state);
+        else if (is_wet_towel(uwep))
+            what = 'wet towel';
 
         you_are(lines, final,
             (['armor', 'food', 'venom'].includes(what.toLowerCase()))
@@ -2474,7 +2473,7 @@ export async function list_vanquished(
     const classHeadingAttr = ask
         ? ATR_NONE
         : Number.isInteger(state.iflags?.menu_headings?.attr)
-            ? state.iflags.menu_headings.attr : ATR_INVERSE;
+            ? ttyMenuColorAttribute(state.iflags.menu_headings.attr) : ATR_INVERSE;
     let previousClass = 0;
     let hadUnique = false;
     let specialHeader = false;
@@ -2653,7 +2652,7 @@ export async function list_genocided(
         const classHeadingAttr = ask
             ? ATR_NONE
             : Number.isInteger(state.iflags?.menu_headings?.attr)
-                ? state.iflags.menu_headings.attr : ATR_INVERSE;
+                ? ttyMenuColorAttribute(state.iflags.menu_headings.attr) : ATR_INVERSE;
         let previousClass = null;
         for (const index of indexes) {
             const monster = state.mons?.[index] ?? {};
@@ -2687,6 +2686,30 @@ export async function list_genocided(
 export async function dogenocided(state = game, options = {}) {
     const defquery = state.iflags?.menu_requested ? 'a' : 'y';
     await list_genocided(defquery, false, state, options);
+    return ECMD_OK;
+}
+
+// C ref: insight.c doborn() (3145-3182). The tty NHW_TEXT owner displays and
+// destroys the window after dismissal, including display_nhwindow(FALSE)'s
+// blocking text-window behavior. Monster vitals are read in declaration order.
+export async function doborn(state = game,
+                              { displayTextWindow = displayTtyTextWindow } = {}) {
+    const lines = [{ text: 'died born' }];
+    const mvitals = monsterVitals(state);
+    for (let index = LOW_PM; index < NUMMONS; ++index) {
+        const vital = mvitals[index];
+        const born = vital?.born ?? 0;
+        const died = vital?.died ?? 0;
+        const gone = (vital?.mvflags ?? 0) & G_GONE;
+        if (!born && !died && !gone) continue;
+        const marker = gone === G_EXTINCT ? 'E'
+            : gone === G_GENOD ? 'G' : gone ? 'X' : ' ';
+        const name = state.mons[index].pmnames[NEUTRAL];
+        lines.push({ text: `${String(died).padStart(4)} ${String(born).padStart(4)} ${marker} ${name.padEnd(30)}` });
+    }
+    lines.push({ text: '' });
+    // C formats the accumulated totals into buf but never puts that line.
+    await displayTextWindow(state, lines);
     return ECMD_OK;
 }
 

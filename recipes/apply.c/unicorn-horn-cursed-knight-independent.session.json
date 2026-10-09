@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 18434001,
+      "datetime": "20601009143625",
+      "nethackrc": "OPTIONS=name:HornCon,role:Knight,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time,showexp\n",
+      "comment": "C-first fixed role/Constitution variation of cursed horn effects. Apply three times to exercise initial sickness or its existing-timeout arm; retain other C outcomes as adjacent behavior evidence. Seeds and inputs declared before C recording or JS comparison. C first stopped at the startup More prompt, so add its dismissal before the unchanged wish/application sequence.",
+      "moves": " \u0017cursed unicorn horn\naiaiai"
+    }
+  ]
+}

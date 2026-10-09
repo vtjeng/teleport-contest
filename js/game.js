@@ -71,6 +71,7 @@ export class GameMap {
         // C ref: region.c gr.regions[]/svn.n_regions. A new level owns a
         // fresh active-region list; visible gas clouds are not terrain.
         this.regions = [];
+        this.max_regions = 0; // C clear_regions(): fresh allocation capacity.
         this.flags = {
             nfountains: 0,
             nsinks: 0,

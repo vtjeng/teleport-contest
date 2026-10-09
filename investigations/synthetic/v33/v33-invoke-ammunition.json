@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v33/v33-invoke-ammunition",
+  "corpus": "synthetic",
+  "batch": "v33",
+  "caseId": "v33-invoke-ammunition",
+  "remainingScreens": 18,
+  "recordedSteps": 64,
+  "manifestPath": "challenges/manifests/v33.json",
+  "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+  "recordingSha256": "75fd8b5964f5023c8df584f0f1fd909659e2a89ad767100687248486124a6d42",
+  "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+  "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+  "status": "complete",
+  "commit": "7ad5bf12b6ea76944352d1c85ae5a26ff4844f37",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v33",
+    "caseId": "v33-invoke-ammunition",
+    "session": "synthetic/v33/v33-invoke-ammunition",
+    "manifestPath": "challenges/manifests/v33.json",
+    "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+    "recording": "challenges/cases/v33/v33-invoke-ammunition.session.json",
+    "recordingPath": "challenges/cases/v33/v33-invoke-ammunition.session.json",
+    "recordingSha256": "75fd8b5964f5023c8df584f0f1fd909659e2a89ad767100687248486124a6d42",
+    "recipe": "challenges/cases/v33/v33-invoke-ammunition.recipe.session.json",
+    "recipeSha256": "f340e16f202aa5ce413e0cb1045608f4909d537c66d580b7fbbbd8c403788d53",
+    "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+    "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+    "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+    "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+    "evaluationUtc": "2026-10-09T03:03:55.655Z",
+    "remainingScreens": 18,
+    "recordedSteps": 64,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 46,
+        "total": 64
+      },
+      "rng": {
+        "matched": 2392,
+        "total": 2430
+      },
+      "cursors": {
+        "matched": 46,
+        "total": 64
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: encumberMessage is not available for otyp 18",
+      "step": 46
+    },
+    "step": 46,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: encumberMessage is not available for otyp 18",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "invoke_create_ammo passes a bare state to canonical hold_another_object, leaving the required encumberMessage operation absent. C creates/adds arrows then calls encumber_msg before returning; JS stops at that tail at step46. The whole artifact helper can be reconciled with existing canonical creation, weight, drop and inventory owners.",
+  "source": {
+    "file": "artifact.c",
+    "functions": [
+      "invoke_create_ammo"
+    ],
+    "branch": "CREATE_AMMO invocation of blessed Longbow of Diana, generated arrows stay in inventory; hold_another_object successful tail requires encumber_msg after prinv/update_inventory.",
+    "callers": [
+      "artifact.c:arti_invoke:2166 CREATE_AMMO -> invoke_create_ammo; doinvoke:1757 -> arti_invoke"
+    ],
+    "dependencies": [
+      "Existing mkobj.c:mksobj/weight, objnam.c:aobjnam, invent.c:hold_another_object and do.c:dropx/dropCommandEnv. Preserve existing inherited owner frontiers, no additional source credit."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved baseline-66ac2b0bf-v33.json gives46/64 screens and2392/2430 RNG,46/64 cursors; immutable prepared trace and current saved queue first mismatch segment0 step46. No replay run for selection.",
+    "Whole artifact.c:1934–1962 creates initialized ARROW, copies blessing/curse/knowledge, resets both erosion fields, blessed clamps negative spe and adds rnd(10), cursed clamps positive spe without quantity draw, uncursed adds rnd(5), recomputes weight then holds with source fall message. nhUse(otmp) is a compile-time unused-value annotation.",
+    "js/artifacts.js:2498–2521 mirrors the body but mksobj/weight and hold receive bare state. Canonical obj.js objectEnv and invent.js inventoryEnv resolve env.state; hold successful tail explicitly requires hooks.encumberMessage at invent.js:4857. Passing bare state leaves hooks empty.",
+    "Canonical do.c dropCommandEnv supplies encumber_msg, floor extraction, newsym and setworn operations; use it with source-required dropObject:dropx and source-pinned inventory comparison feedback to admit hold branches without an invent/do owner edit.",
+    "Source counterpart invent.c:1208–1311 observes/adds the object before holding/burden decisions, normalizes and drops it on Fumbling/slot/burden failure and returns null. Preserve those decisions and return semantics in the owner; do not preflight a drop in the artifact helper.",
+    "Sole direct caller arti_invoke CREATE_AMMO at artifact.c:2166 is already awaited in JS. Scope remains the whole artifact helper and its canonical environment wiring, distinct from pending C160 healing and active B181 potion_dip/A179 empty forcefight."
+  ]
+}

@@ -2,6 +2,7 @@
 // C ref: region.c inside_rect()/inside_region(), create_region(), add_region(), run_regions(),
 // in_out_region(), m_in_out_region(), and the gas-cloud helpers.
 
+import { memoryLayout } from './wizcmds_data.js';
 import {
     ACCESSIBLE,
     BLINDED,
@@ -159,6 +160,7 @@ export function create_region(rectangles = []) {
         hero_inside: false,
         heros_fault: false,
         monsters: [],
+        max_monst: 0, // C NhRegion.max_monst: allocated ID slots, retained on removal.
         arg: 0,
         visible: false,
         // C's struct region.glyph holds a display.h glyph number; this holds
@@ -214,7 +216,11 @@ export function add_mon_to_reg(region, monster) {
         throw new TypeError('add_mon_to_reg requires a region');
     if (!monster || typeof monster !== 'object')
         throw new TypeError('add_mon_to_reg requires a monster');
-    if (!mon_in_region(region, monster)) region.monsters.push(monster.m_id);
+    if (!mon_in_region(region, monster)) {
+        if ((region.max_monst ?? 0) <= region.monsters.length)
+            region.max_monst = (region.max_monst ?? 0) + 5; // C MONST_INC.
+        region.monsters.push(monster.m_id);
+    }
     return region;
 }
 
@@ -249,6 +255,10 @@ export function add_region(region, state = game, rawEnv = {}) {
         ? requiredOperation(env, 'newsym') : null;
 
     state.level.regions ??= [];
+    // C gm.max_regions belongs to the current level's region allocation.
+    // JS stores it beside that level's array; restoration resets it below.
+    if ((state.level.max_regions ?? 0) <= state.level.regions.length)
+        state.level.max_regions = (state.level.max_regions ?? 0) + 10;
     state.level.regions.push(region);
 
     // region.c scans the bounding box x-major when activating a region. Long
@@ -1032,4 +1042,29 @@ export function create_gas_cloud_selection(selection, damage = 0, rawEnv = {}) {
         ...rawEnv,
         deferVisual: true,
     });
+}
+
+// Bounded region.c rest_regions() allocation metadata (807-808, 866).
+// C serializes live counts and restores exactly that capacity, irrespective
+// of the larger allocation retained before saving. No callbacks run here.
+export function rest_region_capacity(level) {
+    if (!level) return;
+    level.regions ??= [];
+    level.max_regions = level.regions.length;
+    for (const region of level.regions) region.max_monst = region.monsters.length;
+}
+
+// C ref: region.c region_stats() (899-922). Preserve sizeof(NhRegion)
+// in the capacity term even though the allocated array contains pointers.
+export function region_stats(headerFormat, state = game) {
+    const regions = state.level?.regions ?? [];
+    let size = (state.level?.max_regions ?? 0) * memoryLayout.NhRegion;
+    for (const region of regions) {
+        size += region.rects.length * memoryLayout.NhRect;
+        for (const message of [region.enter_msg, region.leave_msg])
+            if (message != null) size += new TextEncoder().encode(message).length + 1;
+        size += region.max_monst * memoryLayout.unsigned;
+    }
+    return { header: headerFormat.replace('%ld', String(memoryLayout.NhRegion))
+        .replace('%ld', String(memoryLayout.NhRect)), count: regions.length, size };
 }

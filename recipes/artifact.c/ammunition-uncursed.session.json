@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first artifact.c:invoke_create_ammo uncursed variation. Seed chosen directly, Ranger startup. Longbow selector g read from independent C setup; gauntlet selector h will be verified from C before comparison. Invoke uncursed Longbow and verify generated arrow BUC and source quantity draw. No challenge recipe copied.",
+  "segments": [
+    {
+      "seed": 16161017,
+      "datetime": "20560410154529",
+      "nethackrc": "OPTIONS=name:Fay,role:Ranger,race:human,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "      .\u0017uncursed Longbow of Diana\n  #invoke\ng    ."
+    }
+  ]
+}

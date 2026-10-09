@@ -1,0 +1,97 @@
+{
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-hea-goal",
+  "session": "synthetic/v36/v36-quest-hea-goal",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "0cd3f545242f45d9b1ad841595965e6f2f2bfe76106565637c5eaa608596feed",
+  "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+  "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+  "remainingScreens": 41,
+  "recordedSteps": 60,
+  "status": "complete",
+  "commit": "63f6546ee15b0d2b25101b74f08e99b0277e5edc",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-hea-goal",
+    "session": "synthetic/v36/v36-quest-hea-goal",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-hea-goal.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-hea-goal.session.json",
+    "recordingSha256": "0cd3f545242f45d9b1ad841595965e6f2f2bfe76106565637c5eaa608596feed",
+    "recipe": "challenges/cases/v36/v36-quest-hea-goal.recipe.session.json",
+    "recipeSha256": "ad08caa3ed0dd271e7c31a1bc9dbe4685d56d8e587ad6946c0242d54c98a1c70",
+    "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+    "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+    "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+    "evaluationArtifact": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+    "evaluationUtc": "2026-10-09T10:38:34.264Z",
+    "remainingScreens": 41,
+    "recordedSteps": 60,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 60
+      },
+      "rng": {
+        "matched": 2389,
+        "total": 6218
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Hea-goal\"",
+      "step": 19
+    },
+    "step": 19,
+    "kind": "stop",
+    "sourceFile": "Hea-goal.lua",
+    "function": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Hea-goal\"",
+    "cFile": null,
+    "luaFile": "Hea-goal.lua",
+    "line": null
+  },
+  "summary": "Hea-goal.lua is absent from QUEST_LEVEL_LOADERS, so forced Healer quest-goal arrival refuses at step 19 before the Lua program runs. Port the complete Hea-goal program, including joined mines initialization and its pool-map overlay, source-ordered artifact/object/trap/monster placement, and bounded registry wiring; existing des owners must be verified through runtime evidence.",
+  "goalKind": "lua-port",
+  "source": {
+    "file": "Hea-goal.lua",
+    "branch": "First generation of the Healer quest goal through wizard level teleportation: Is_special selects Hea-goal, but the JavaScript special-level registry has no loader. Every top-level Lua statement, including both initialization calls, is in scope.",
+    "functions": [
+      "Hea-goal.lua (whole program, lines 1-90)"
+    ],
+    "callers": [
+      "do.c:goto_level -> mklev.c:mklev/makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Hea-goal.lua",
+      "js/mklev.js:makelevel -> makemaz -> load_special -> QUEST_LEVEL_LOADERS[Hea-goal] (new registry entry)"
+    ],
+    "dependencies": [
+      "sp_lev.c:lspo_level_init/splev_initlev -> mkmap.c:mkmap; existing js/mklev.js mines initialization with joined=true, bg=P, smoothed=false, lit=1, walled=false",
+      "sp_lev.c:lspo_level_flags/lspo_map/lspo_region/lspo_stair/lspo_non_diggable; canonical des API in js/mklev.js, including C165 map-selection return and existing selection_area",
+      "sp_lev.c:lspo_object/create_object in js/sp_lev_object.js plus mkobj.c object generation and artifact.c naming for the blessed Staff of Aesculapius",
+      "sp_lev.c:lspo_trap/create_trap, lspo_monster/create_monster, and makemon.c runtime creation: verify Cyclops and aquatic/class-random populations rather than assuming matching declarations establish completion",
+      "sp_lev.c:load_special finalization uses existing des.finish; broader special-level helper credit remains outside the Lua task. Later callee mismatches require separate reported scope expansion before edits."
+    ]
+  },
+  "evidence": [
+    "Current saved queue /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json reports 19/60 screens and cursors, 2389/6218 RNG calls, with unsupported loader stop at segment 0 step 19 (key A). Evaluation challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json measured admitted baseline ac836655676993fda791c76b619905969c841859. No aggregate replay was run for this investigation.",
+    "Recipe challenges/cases/v36/v36-quest-hea-goal.recipe.session.json SHA256 ad08caa3ed0dd271e7c31a1bc9dbe4685d56d8e587ad6946c0242d54c98a1c70; recording challenges/cases/v36/v36-quest-hea-goal.session.json SHA256 0cd3f545242f45d9b1ad841595965e6f2f2bfe76106565637c5eaa608596feed; both hashes verified. Its independently designed Healer debug route selects Hea-goal then #wizmap; forced arrival is the exercised entry, not earned quest permission.",
+    "js/mklev.js:650-685 checks SPECIAL_LEVEL_LOADERS before dispatch and throws UnsupportedLevelChangeError for Hea-goal. ensureSpecialLevelLoaders1732-1770 imports QUEST_LEVEL_LOADERS; js/quest_levels.js1910-1941 registers Bar/Arc/Kni/Pri/Wiz and other existing programs but has no Hea-goal entry. A repository search for Hea-goal/heaGoal finds no corresponding implementation in this owner.",
+    "Upstream mklev.c1266-1271 selects makemaz(slev->proto); mkmaze.c1184-1193 appends the Lua extension and calls load_special; sp_lev.c6454-6503 initializes coder, runs Lua, and finalizes map/flip/features/fixup. The missing program is the first cause; no C RNG annotation should be substituted for its entire Lua execution.",
+    "dat/Hea-goal.lua6-12 performs solidfill(P), mazelevel, then mines(fg=.,bg=P,smoothed=false,joined=true,lit=1,walled=false). Lines14-27 apply the exact 12-by-41 fixed map. Lines29-90 perform lit region, up stairs39/10, non-diggable area, 16 object calls (blessed named quarterstaff20/6, lightning wand20/6, then random objects), six random trap calls, and 32 monster calls (hostile Cyclops20/6, rats, eels, sharks, hostile random classes) in source order. No seed or screen special case is needed.",
+    "Existing Pri-goal and Kni-goal loaders in js/quest_levels.js provide des-API usage examples. scripts/generate-kni-goal-level.mjs and its generation test establish the deterministic source-map generator/check pattern; Hea-goal needs its own fixed-map artifact and generated-output check, not hand-copied rows.",
+    "Proposed smallest implementation: whole dat/Hea-goal.lua only in established js/quest_levels.js (heaGoal and registry entry), deterministic js/hea_goal_level_data.js plus scripts/generate-hea-goal-level.mjs, focused scripts/hea-goal-level-generation.test.mjs, runtime scripts/run-hea-goal-level-load.mjs, recipes/Hea-goal.lua/ and recordings/Hea-goal.lua/. No whole C helper credit and no initial mklev/sp_lev/makemon edits.",
+    "Runtime evidence plan: recheck admitted segment0 steps19-59 after implementation; create independent C-first Healer goal-arrival recipe with different relevant role/character options and an additional source-proven alternate arrival route or map/rearrival history. Assert quest identity, mines/pool terrain and lighting, up stairs, non-diggable cells, Staff and lightning wand, six traps and source populations. Verify C replays and complete RNG/screens/cursors/animations. Preserve an unported adjacent Hea-loca route as the outside-limit recipe if it remains blocked.",
+    "C168 concurrently reserved the oldest Cav-goal session, so B194 selected the distinct Hea-goal program after atomic collision refusal. Shared js/quest_levels.js imports/registry are bounded disjoint seams requiring coordination; source reservation proposed is source:Hea-goal.lua and contract:healer-quest-goal-loader."
+  ]
+}

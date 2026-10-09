@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source mission: view configuration-format rules and remove by temporary identity. Seed18032031+index and clock20561117132435 chosen before JS comparison; cheap role/menu variations preserve causal independence.",
+  "segments": [
+    {
+      "seed": 18032035,
+      "datetime": "20561117132435",
+      "nethackrc": "OPTIONS=name:Lysa,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=hilite_status:hitpoints/always/red&bold condition/blind+stone/blue&dim\n",
+      "moves": ".#optionsfull\n:status highlight rules\n\n\u001ba :hitpoints\naX\n\u001b."
+    }
+  ]
+}
