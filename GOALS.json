@@ -231038,16 +231038,20 @@
     {
       "id": "port-wizard3-special-level-v35-20261009",
       "kind": "lua-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port the bottom Wizard Tower level and its generation registry.",
       "luaFile": "wizard3.lua",
       "sessions": [
         "synthetic/v35/v35-gehennom-wizard3"
       ],
-      "selectionReason": "Resume the older A188 seed after accepted C165 supplied canonical map-return selection; the current v35 evaluation stops at the missing wizard3 loader on step 68 with 41 screens remaining.",
+      "selectionReason": "A188 is the oldest dependency-ready implementation delivery; the current queue has 17 candidate groups for three workers, so prepared-batch admission does not take priority.",
       "detail": "Port all of dat/wizard3.lua in source order and register it in the existing special-level dispatcher, preserving map selection, arrival room, beehive, portal, and protected hell_tweaks behavior.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "968047bb6206e0f47c497c7e2fbc718743f35149",
+      "openStanding": {
+        "sha": "b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -231072,7 +231076,165 @@
           "evaluationPath": "challenges/evaluations/accepted-711b9702dc92992c64fad92625f1eb2e8f9baea8-v35.json",
           "evaluationCommit": "711b9702dc92992c64fad92625f1eb2e8f9baea8"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v35",
+          "caseId": "v35-gehennom-wizard3",
+          "session": "synthetic/v35/v35-gehennom-wizard3",
+          "manifestPath": "challenges/manifests/v35.json",
+          "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+          "recording": "challenges/cases/v35/v35-gehennom-wizard3.session.json",
+          "recordingPath": "challenges/cases/v35/v35-gehennom-wizard3.session.json",
+          "recordingSha256": "e8689a7c8fea9184fad869f1fea3263ff664061c404e1dcf18e678a52fbdf28c",
+          "recipe": "challenges/cases/v35/v35-gehennom-wizard3.recipe.session.json",
+          "recipeSha256": "6ffe00711dafcb1a00c1953c1fb0e69818aee1876a589c7297da92411a8e022e",
+          "replayInputSha256": "ec40d8588803baad51273a1c80d3ed7c7423fbd849cdec5afd6598229908d468",
+          "evaluationPath": "challenges/evaluations/accepted-b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0-v35.json",
+          "evaluationCommit": "b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0",
+          "evaluationArtifact": "challenges/evaluations/accepted-b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0-v35.json",
+          "evaluationUtc": "2026-10-09T13:17:30.447Z",
+          "remainingScreens": 41,
+          "recordedSteps": 109,
+          "previousScreensMatched": 68,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 68,
+              "total": 109
+            },
+            "rng": {
+              "matched": 15295,
+              "total": 17012
+            },
+            "cursors": {
+              "matched": 68,
+              "total": 109
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"wizard3\"",
+            "step": 68
+          },
+          "step": 68,
+          "kind": "stop",
+          "sourceFile": "wizard3.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"wizard3\"",
+          "cFile": null,
+          "luaFile": "wizard3.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v35/v35-gehennom-wizard3.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v35",
+              "caseId": "v35-gehennom-wizard3",
+              "session": "synthetic/v35/v35-gehennom-wizard3",
+              "manifestPath": "challenges/manifests/v35.json",
+              "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+              "recordingSha256": "e8689a7c8fea9184fad869f1fea3263ff664061c404e1dcf18e678a52fbdf28c",
+              "evaluationPath": "challenges/evaluations/accepted-711b9702dc92992c64fad92625f1eb2e8f9baea8-v35.json",
+              "evaluationCommit": "711b9702dc92992c64fad92625f1eb2e8f9baea8",
+              "remainingScreens": 41,
+              "recordedSteps": 109,
+              "commit": "09d60e4570fd39a05417cc9f8688896b9fd21e33",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v35",
+                "caseId": "v35-gehennom-wizard3",
+                "session": "synthetic/v35/v35-gehennom-wizard3",
+                "manifestPath": "challenges/manifests/v35.json",
+                "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+                "recording": "challenges/cases/v35/v35-gehennom-wizard3.session.json",
+                "recordingPath": "challenges/cases/v35/v35-gehennom-wizard3.session.json",
+                "recordingSha256": "e8689a7c8fea9184fad869f1fea3263ff664061c404e1dcf18e678a52fbdf28c",
+                "recipe": "challenges/cases/v35/v35-gehennom-wizard3.recipe.session.json",
+                "recipeSha256": "6ffe00711dafcb1a00c1953c1fb0e69818aee1876a589c7297da92411a8e022e",
+                "replayInputSha256": "b5f702e8184946547b5d998a1e25ec9be0b2ea99df934de0951109b053584071",
+                "evaluationPath": "challenges/evaluations/accepted-711b9702dc92992c64fad92625f1eb2e8f9baea8-v35.json",
+                "evaluationCommit": "711b9702dc92992c64fad92625f1eb2e8f9baea8",
+                "evaluationArtifact": "challenges/evaluations/accepted-711b9702dc92992c64fad92625f1eb2e8f9baea8-v35.json",
+                "evaluationUtc": "2026-10-09T10:23:37.397Z",
+                "remainingScreens": 41,
+                "recordedSteps": 109,
+                "previousScreensMatched": 68,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 68,
+                    "total": 109
+                  },
+                  "rng": {
+                    "matched": 15295,
+                    "total": 17012
+                  },
+                  "cursors": {
+                    "matched": 68,
+                    "total": 109
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"wizard3\"",
+                  "step": 68
+                },
+                "step": 68,
+                "kind": "stop",
+                "sourceFile": "wizard3.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"wizard3\"",
+                "cFile": null,
+                "luaFile": "wizard3.lua",
+                "line": null
+              },
+              "status": "complete",
+              "goalKind": "lua-port",
+              "summary": "Named level teleport reaches Wizard Tower bottom level wizard3, but the special-level registry has no loader at step68. Port the complete dat/wizard3.lua program in source order and register it in the existing special-level dispatcher. Preserve the returned map selection, including transparent-cell exclusions, arrival-room callback, beehive fill, portal, and final protected hell_tweaks call.",
+              "source": {
+                "file": "wizard3.lua",
+                "functions": [
+                  "wizard3.lua"
+                ],
+                "branch": "The dungeon special-level record names wizard3 and level generation invokes its Lua loader. Initial mazegrid and flags precede pre-map bounds selection. Centered map contents register outside-tower stairs/branch/teleport region, fakewiz1 portal, mazewalk, morgue/beehive/arrival rooms, random north-or-west secret door, ladder, protected wall areas, monsters/traps/loot. The final protected selection excludes infernal tweaks from actual map cells.",
+                "callers": [
+                  "teleport.c level_tele -> do.c deferred_goto/goto_level -> mklev.c makelevel1267-1270 -> mkmaze.c makemaz -> sp_lev.c load_special6454+. JS cmd.js wizard levelport -> teleport.js level_tele -> allmain.js deferred-goto turn boundary -> do.js goto_level -> mklev.js makelevel/makemaz/load_special; ensureSpecialLevelLoaders is missing the wizard3 registry key.",
+                  "Natural entry to the same generated dungeon special record reuses makelevel/load_special; the program has no separate command/caller implementation. Portal traversal to fakewiz1 is downstream of wizard3 generation and is not required to execute this Lua entry."
+                ],
+                "dependencies": [
+                  "Existing des.level_init/level_flags/map/levregion/teleport_region/mazewalk/region/door/ladder/non_diggable/non_passwall/monster/trap/object/terrain operations in mklev.js createSpecialLevelApi. Await every callback/descriptor in source order. Reuse existing helpers and preserve their canonical level RNG and frame state; no injected no-op API or parallel generation state.",
+                  "Consumed returns: selection.match/bounds/fillrect/negate/union and des.map selection. Existing selection_match(bigrm.js) and ThemeroomSelection(themerooms.js) cover this source usage. sp_lev.c6279-6293 excludes invalid/transparent map characters before setting return selection points; all13 trailing x cells must remain unprotected. Accepted C165 publishes the canonical absolute ThemeroomSelection as map return placement.selection in mklev.js4435/4490-4510. Consume that returned value directly for wizard3.",
+                  "dat/nhlib.lua percent43-45 draws math.random(0,99), hence one canonical rn2(100)<50 in the arrival room before the door operation. Existing hellTweaks(asmodeus_levels.js) implements nhlib.lua57-138 in RNG order; final protected area is bounds2:negate() union actual returned map selection, computed after map callback/frame restoration.",
+                  "Morgue filled=2 sets the room flag without fill_zoo; beehive filled=1 fills after fixup_special. mklev.js fill_special_room519+ implements both source paths, as sp_lev.c2749-2792 specifies. Arrival room creates actual room/croom and awaits its contents through spo_endroom. Existing lspo_door3194+ supports secret wall-only door placement.",
+                  "Portal levregion name fakewiz1 goes through canonical mkmaze.js fixup_special -> find_level/mkportal. dungeon.lua156+ and generated dungeon_data.js already define destination; loading/traversing fakewiz1 is a separate downstream boundary, not a consumed return needed to generate wizard3."
+                ]
+              },
+              "evidence": [
+                "Bounded assigned-session replay run-Gi9GTN at worker12f9446b reproduces68/109 screens/cursors and15295/17012 RNG. First missing screen/cursor is segment0 step68 Enter; boundary explicitly names absent wizard3 loader. C next draw is rn2(3)=0 at nhlib.lua8 parent shuffle19, the private alignment initialization before the new Lua program. .cache/A188/probe.json/.log and /tmp/teleport-validation-1000/run-Gi9GTN/receipt.json retain the diagnostic.",
+                "Read entire authoritative dat/wizard3.lua1-90, including all top-level statements and contents callbacks. Source29-33 stores stair-up/stair-down/branch and teleport exclusions before portal;34 mazewalk;35 morgue flag-only;36 beehive fill;38-44 arrival room and percent(50) wall;45 closed door;46 up ladder;49-57 protected walls;59-72 fixed/class monsters;74-77 board traps;79-85 loot;89-90 protected union and hell_tweaks.",
+                "Production js/mklev.js makelevel666-682 checks the special proto registry before makemaz and refuses the absent key. ensureSpecialLevelLoaders1732-1769 imports/registers wizard1 and wizard2 only; load_special1776-1799 already performs alignment shuffle, constructs the canonical API, awaits loader and post-processing. Add one wizard3 module/registry entry rather than replacing makelevel or inventing level data in teleport.",
+                "Existing verified whole wizard1.lua and wizard2.lua goal evidence establishes the shared descriptor/selection/hell_tweaks route. Read the relevant current implementations. C165 independently reproduced109/109 Wizard1 screens/cursors and16738 RNG after excluding13 transparent trailing x cells. Its accepted implementation publishes actual written-cell selection on the existing map return record. The bounded wizard3 registry import/key is disjoint; consume the accepted placement.selection value without another selection owner.",
+                "Actionable whole task: reserve source:wizard3.lua and contract:wizard3-level-generation; js/wizard3_levels.js, bounded js/mklev.js registry import/key, exact source-pinned descriptor test and independent runtime runner, recipes/wizard3.lua and recordings/wizard3.lua. Match map literal and every descriptor/area value directly to source; test both percent outcomes and returned-map/protected-area geometry. No whole mklev/sp_lev/nhlib completion credit.",
+                "Validation plan: fail-first registry/source-map/order and source-pinned north/west percent/range tests; selected full109-step replay or exact named downstream blocker; independent C-first named wizard3 arrival using new seed/date/role and a cheap generation variation, then source-derived assert of portal destination, beehive/morgue flags, arrival room, wall constraints and ladder/descriptor facts. Preserve RNG screens/cursors and frames in strict fresh comparisons. Reuse existing wizard1/wizard2/mklev selection tests only as affected checks; no aggregate checkpoint or scoring.",
+                "Evidence limits: no game implementation or C recording created in this investigation. Selected replay stops before generating wizard3, so runtime helper reachability is not established. C165 is accepted and its canonical placement.selection is present at the examined commit. If fresh generation exposes another required helper defect, request its exact supporting owner before edits. Pending A186/A190 are immutable ancestors outside this Lua scope.",
+                "Accepted C165 dependency review: js/mklev.js4435 creates an absolute ThemeroomSelection, map loop skips INVALID_TYPE and >=MAX_TYPE before selection.set; placed.selection is captured before contents/reset and returned unchanged. js/wizard1_levels.js uses wiz1.selection for protected union. Current saved accepted-711b9702 v35 evaluation retains the same41 unmatched Wizard3 screens and recording/manifest digests, so the source diagnosis remains eligible without repeating the unchanged replay."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-hea-goal-lua-v36-20261009",
