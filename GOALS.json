@@ -239599,6 +239599,209 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-sam-loca-quest-locate-v36-20261009",
+      "kind": "lua-port",
+      "status": "open",
+      "summary": "Port the complete Samurai quest locate level",
+      "luaFile": "Sam-loca.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-sam-loca"
+      ],
+      "selectionReason": "The current accepted v36 replay stops at step 19 because load_special has no Sam-loca loader; A195 ports the whole source-named Lua program and both production entry paths.",
+      "detail": "Current accepted-97fe6973 v36 evaluation matches 19/60 screens and cursors and 2986/4121 RNG before the missing loader. The complete dat/Sam-loca.lua program is lines 1-141.",
+      "openedAt": "6b32c4cb29431862de0b2ffd556534d99a44bc9c",
+      "openStanding": {
+        "sha": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Sam-loca.lua",
+          "line": 1,
+          "endLine": 141,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-sam-loca": {
+          "session": "synthetic/v36/v36-quest-sam-loca",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-sam-loca",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-sam-loca.session.json",
+          "recordingSha256": "d8d51066629a54b7beaef0f33a850f74f70db249b72ee3c3062421ed50e28615",
+          "evaluationPath": "challenges/evaluations/accepted-97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3-v36.json",
+          "evaluationCommit": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3"
+        }
+      },
+      "activeStanding": {
+        "sha": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-sam-loca",
+          "session": "synthetic/v36/v36-quest-sam-loca",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-sam-loca.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-sam-loca.session.json",
+          "recordingSha256": "d8d51066629a54b7beaef0f33a850f74f70db249b72ee3c3062421ed50e28615",
+          "recipe": "challenges/cases/v36/v36-quest-sam-loca.recipe.session.json",
+          "recipeSha256": "b985a1a1369694c96043c489a38539b646f706f7bc6782598e2b34992dba9e9c",
+          "replayInputSha256": "6af5cb89a11d0ff671dc7e20f6a2f6924b7dae54b35aefbfcb983d7cb5d679f9",
+          "evaluationPath": "challenges/evaluations/accepted-97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3-v36.json",
+          "evaluationCommit": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3",
+          "evaluationArtifact": "challenges/evaluations/accepted-97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3-v36.json",
+          "evaluationUtc": "2026-10-09T20:02:27.149Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2986,
+              "total": 4121
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Sam-loca\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Sam-loca.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Sam-loca\"",
+          "cFile": null,
+          "luaFile": "Sam-loca.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-sam-loca.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-sam-loca",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "d8d51066629a54b7beaef0f33a850f74f70db249b72ee3c3062421ed50e28615",
+              "evaluationPath": "challenges/evaluations/accepted-97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3-v36.json",
+              "evaluationCommit": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "session": "synthetic/v36/v36-quest-sam-loca",
+              "commit": "293e7b73eaf8fde113a74a7f18f8252aed7fad95",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-sam-loca",
+                "session": "synthetic/v36/v36-quest-sam-loca",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-sam-loca.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-sam-loca.session.json",
+                "recordingSha256": "d8d51066629a54b7beaef0f33a850f74f70db249b72ee3c3062421ed50e28615",
+                "recipe": "challenges/cases/v36/v36-quest-sam-loca.recipe.session.json",
+                "recipeSha256": "b985a1a1369694c96043c489a38539b646f706f7bc6782598e2b34992dba9e9c",
+                "replayInputSha256": "6af5cb89a11d0ff671dc7e20f6a2f6924b7dae54b35aefbfcb983d7cb5d679f9",
+                "evaluationPath": "challenges/evaluations/accepted-97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3-v36.json",
+                "evaluationCommit": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3",
+                "evaluationArtifact": "challenges/evaluations/accepted-97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3-v36.json",
+                "evaluationUtc": "2026-10-09T20:02:27.149Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2986,
+                    "total": 4121
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Sam-loca\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Sam-loca.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Sam-loca\"",
+                "cFile": null,
+                "luaFile": "Sam-loca.lua",
+                "line": null
+              },
+              "status": "complete",
+              "goalKind": "lua-port",
+              "summary": "Samurai locate arrival selects Sam-loca, but its whole Lua loader is missing. Port the complete Sam-loca.lua fortress map, lit/nondiggable region, sixteen locked and eight closed doors, two fixed stairs, thirty-two class-selected objects, six traps, and source-ordered ninjas, wolves, canine, stalkers and samurai guards.",
+              "source": {
+                "file": "Sam-loca.lua",
+                "functions": [
+                  "Sam-loca.lua"
+                ],
+                "branch": "Valid Samurai quest locate arrival reaches load_special for Sam-loca. Lua fills solid stone, sets mazelevel/hardfloor, places its centered 76x20 fortress map, lights the region, sets the source door states, creates up then down stairs, marks walls nondiggable, and runs object/trap/monster descriptors in source order.",
+                "callers": [
+                  "do.c goto_level -> mklev.c makelevel -> mkmaze.c makemaz -> sp_lev.c load_special -> dat/Sam-loca.lua. JS allmain deferred-goto -> do goto_level -> mklev makelevel/makemaz/load_special -> QUEST_LEVEL_LOADERS lacks Sam-loca.",
+                  "Accepted wizcmds.c wiz_load_splua invokes load_special directly for the source-named program. Natural quest arrival and wizard travel converge on generation; no distinct Lua callback or extra program entry."
+                ],
+                "dependencies": [
+                  "Existing createSpecialLevelApi solidfill, level_flags mazelevel/hardfloor, array-form map, relative selection area, region, door, stair, non_diggable, object, trap and monster methods cover the program. No external helper or source contract edit identified.",
+                  "The array-form map uses canonical mapFromRows centered placement with the exact 76x20 rows and wall, secret-door, ordinary-door and pool glyphs. Lua discards its returned placement; selection.area(0,0,75,19) is the existing canonical relative selection.",
+                  "lspo_door positional forms read locked/closed mask and exact coordinates, then get_location_coord and sel_set_door. Source-fixed masks do not draw rnddoor; preserve both secret and ordinary door map context and descriptor order. The two stair positional forms use existing l_create_stairway and source trap removal/location semantics.",
+                  "Object positional strings map through def_char_to_objclass: star selects gems, bracket armor, closing parenthesis weapons, opening parenthesis tools. Eight fixed positions per group go through canonical lspo_object and mkobj_at. Preserve source class and call order, not fixed object substitutes; no explicit tin, artifact name or alignment expression exists.",
+                  "lspo_monster must preserve table id forms with peaceful=0 for ninjas/samurai, positional wolf forms with default peaceful handling, positional class d at (59,14), and one-string stalker forms with random coordinates. Existing class selection, parser gender and makemon state are reused, including stalker invisibility. No source result is replaced with a placeholder.",
+                  "Lua consumes only selection.area results and ignores every descriptor result. Canonical internal coordinate, class and monster creation results remain source-owned dependencies; runtime validation must establish combined behavior before completion.",
+                  "B199 owns the distinct Sam-goal program; C175 Rog-strt, C174 Rog-goal, C169/C170/B195 and the parked reports remain separate source units. Only an adjacent quest_levels import/function/key is proposed; no generic descriptor, alignment macro or non-species tin seam is touched."
+                ]
+              },
+              "evidence": [
+                "Assigned replay run-xUYhbQ at examined3033bd513 reproduces 19/60 screens and cursors and 2986/4121 RNG calls. At segment 0, step 19, key z confirms the destination. C next reaches rn2(3)=0 in nhlib.lua private alignment shuffle; JS stops before it because makelevel/load_special lacks Sam-loca. Exact stack and comparisons are .cache/A195/probe.json and probe.log.",
+                "Read entire dat/Sam-loca.lua lines 1-141: line 6 solidfill; 8 mazelevel/hardfloor; 10-31 fixed map; 33 lit region; 35-50 sixteen locked doors; 51-58 eight closed doors; 60 up stair (10,10); 61 down stair (25,14); 63 nondiggable region; 65-72 eight gems; 74-81 eight armor items; 83-90 eight weapons; 92-99 eight tools; 101-106 six traps; 108-125 interleaved eight hostile ninjas, nine wolves and one canine-class descriptor; 126-134 nine stalkers; 136-141 six hostile samurai courtyard guards. No explicit final wallify statement or source callback is defined.",
+                "Source parsing confirms twenty rows of exactly 76 columns, 24 door calls, 32 object descriptors, six trap descriptors and 33 monster descriptors. Generate the fixed map from authoritative Lua and pin every row/space/glyph. Class groups must retain their stated coordinates and definition order; group loops must not transpose the two source rows.",
+                "Reviewed current lspo_door positional branch and fixed mask gate, l_create_stairway positional coordinates, object class string handling, and lspo_monster one-string/positional/table forms. Existing source owners provide consumed internal results. No Unsupported refusal was found in these selected descriptor branches; helper review is not runtime completion evidence.",
+                "Actionable scope: whole Sam-loca.lua lines 1-141, samLoca and registry key in existing js/quest_levels.js, generated sam_loca_level_data.js with deterministic generator, source-pinned test and runtime fresh runner, recipes/Sam-loca.lua and recordings/Sam-loca.lua. No whole generic helper, quest permission, teleport or quest_levels ownership credit.",
+                "Validation plan: fail first on missing module/loader; pin generated source map, all 24 door calls, source-fixed stairs and complete class-object/monster order including their distinct argument forms. Verify admitted segment 0, steps 19-59. Add independently chosen lawful human male/female Samurai C-first arrival/direct-des variations, comparing complete RNG/screens/cursors/frames. Assert door masks and coordinates, stair directions, object class groups and source monster population/invisibility. Neighboring Sam-goal is outside this program and remains a blocked recipe if the B199 loader is still absent.",
+                "Evidence limits: session-only investigation and assigned replay, no source edit or new C game. Replay stops before program generation, so actual impure reachability and complete comparisons are still required by the implementation plan. Any confirmed external source deficiency requires central supporting scope before edits.",
+                "Current accepted-97fe6973 evaluation retains 19/60 screens and cursors, 2986/4121 RNG at step 19, matching the saved source diagnosis after C174. All Sam-loca statements reuse canonical descriptors; there is no named-species, non-species tin, numeric selection or alignment dependency. Sam-goal has accepted completion evidence and supplies a matching outside-program variation."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
