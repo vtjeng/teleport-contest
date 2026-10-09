@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first whole pickup-types request witness. Unsearched seed17932013 and fixed weekday clock20531018112133 were chosen before JS comparison. Valkyrie rc menustyle:combination,pickup_types:$ reaches startup set/get and pickup-types-combination-menu; command choices follow source menu/prompt semantics.",
+  "segments": [
+    {
+      "seed": 17932013,
+      "datetime": "20531018112133",
+      "nethackrc": "OPTIONS=name:Mara,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,menustyle:combination,pickup_types:$\n",
+      "moves": ".#optionsfull\n:pickup_types\n\nm\n%\n."
+    }
+  ]
+}

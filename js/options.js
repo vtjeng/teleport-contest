@@ -744,6 +744,8 @@ function defaultResult() {
     // allopt_array_init() invokes this compound handler's do_init arm after
     // the instance-flags struct has been zeroed.
     set_menuobjsyms_flags(result, 4);
+    // options.c allopt_array_init():7428 invokes each compound do_init.
+    optfn_pickup_types(result, DO_INIT);
     return result;
 }
 
@@ -6358,25 +6360,7 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
     } else if (name === 'windowcolors') {
         optfn_windowcolors(result, statement);
     } else if (name === 'pickup_types') {
-        // optfn_pickup_types() clears the restriction before looking for its
-        // value.  During startup a missing or empty value still reports the
-        // mandatory-parameter error, then enables autopickup for all classes
-        // instead of opening the interactive class menu.
-        result.flags.pickup_types = [];
-        const op = string_for_opt(statement, false, result);
-        if (op === '') {
-            result.flags.pickup = true;
-        } else {
-            const parsed = pickupTypesFromSymbols(op);
-            result.flags.pickup_types = parsed.types;
-            if (parsed.badopt) {
-                // `op` points at its terminating NUL after C's loop, so the
-                // reported parameter is empty even when earlier bytes failed.
-                configErrorAdd(
-                    result, "Unknown pickup_types parameter ''",
-                );
-            }
-        }
+        optfn_pickup_types(result, DO_SET, negated, statement);
     } else if (name === 'pile_limit') {
         setPileLimit(result, statement, negated);
     } else if (name === 'player_selection') {
@@ -7654,10 +7638,7 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
         `attribute ${state.iflags.wc2_petattr}`,
     ),
     pickup_burden: (state) => burdentype[state.flags.pickup_burden],
-    pickup_types: (state) => {
-        const ocl = oc_to_str(state.flags.pickup_types);
-        return ocl || 'all';
-    },
+    pickup_types: (state) => optfn_pickup_types(state, GET_VAL),
     pile_limit: (state) => `${state.flags.pile_limit}`,
     roguesymset: (state) => symsetValue(state, ROGUESET, false),
     runmode: (state) => runmodes[state.flags.runmode],
@@ -8356,59 +8337,82 @@ async function optfn_boolean(state, optidx, negated, opts, helpers) {
     return optn_ok;
 }
 
-// C ref: options.c optfn_pickup_types() (3307-3402), the do_set request.  The
-// do_init and get_val requests need no arm here: get_val is what
-// OPTION_VALUE_HANDLERS.pickup_types already answers for the menu's value
-// column, and do_init returns at once.
-//
-// handler_pickup_types() below is this arm's only caller, and it always
-// spells the statement 'pickup_types' in full.  Three of C's branches cannot
-// be reached from it and are left out rather than written dead:
-//   - a statement carrying a ':' or '=' value.  The guard below is what would
-//     notice a caller that started passing one.
-//   - options.c:3327-3332, where an empty value means "pick up everything"
-//     rather than "ask".  It needs `compat` -- strlen(opts) <= 6, and the
-//     statement is twelve bytes -- or go.opt_initial, which parseoptions()
-//     refuses along with tinitial, or `negated`.
-//   - options.c:3364-3367's bad_negation() arm.  `negated` cannot be true
-//     here either: allopt[]'s negateok is false for this option, so
-//     parseoptions() rejects a negated statement before the handler runs.
-//     The parameter stays so every OPTION_SET_HANDLERS entry takes C's
-//     argument list.
-async function optfn_pickup_types(state, optidx, negated, opts, helpers) {
-    /* types of objects to pick up automatically */
+// C ref: options.c optfn_pickup_types() (3308-3402). The startup parser and
+// value callers are synchronous; only the interactive do_set/do_handler
+// requests return promises. GET requests return C's output buffer string,
+// matching the other option handlers' JavaScript interface.
+export function optfn_pickup_types(
+    state, request, negated = false, opts = '',
+    optidx = allopt.findIndex(option => option.name === 'pickup_types'), helpers,
+) {
+    if (request === DO_INIT) return optn_ok;
+    if (request === GET_VAL || request === GET_CNF_VAL)
+        return oc_to_str(state.flags.pickup_types) || 'all';
+    if (request === DO_HANDLER) return handler_pickup_types(state, helpers);
+    if (request !== DO_SET) return optn_ok;
+
+    const initial = Boolean(state.go?.opt_initial);
+    const compat = encodeUtf8ByteString(opts).length <= 6;
     const tbuf = oc_to_str(state.flags.pickup_types);
     state.flags.pickup_types = []; /* all */
-    if (string_for_opt(opts, true) !== '') {
-        throw new UnsupportedOptionMenuError(
-            `optfn_${allopt[optidx].optfn}() with an explicit value`,
-        );
-    }
+    let op = string_for_opt(opts, compat || !initial, state);
 
-    const inv_order_symbols = oc_to_str(state.flags.inv_order);
-    // VENOM_SYM.  Venom is not in def_inv_order[], so a wizard picking up
-    // splashes of venom needs the class appended by hand.
-    const venom = oc_to_str([VENOM_CLASS]);
-    const ocl = (state.wizard && !inv_order_symbols.includes(venom))
-        ? inv_order_symbols + venom
-        : inv_order_symbols;
-    if (state.flags.menu_style === MENU_TRADITIONAL
-        || state.flags.menu_style === MENU_COMBINATION) {
-        // options.c:3337-3356 asks getlin() for the class list instead, and
-        // only answering 'm' there reaches the menu below.
-        throw new UnsupportedOptionMenuError(
-            'optfn_pickup_types()\'s getlin("New %s: [%s am] (%s)")',
-        );
+    // options.c:3364-3389, shared after either explicit or prompted input.
+    const finish = (symbols) => {
+        if (negated) {
+            if (initial) bad_negation(state, allopt[optidx].name, true);
+            else note_unported('options.c bad_negation');
+            return optn_err;
+        }
+        const parsed = pickupTypesFromSymbols(symbols);
+        state.flags.pickup_types = parsed.types;
+        if (parsed.badopt) {
+            // C advances op to its terminating NUL before reporting it.
+            if (initial) configErrorAdd(
+                state, `Unknown ${allopt[optidx].name} parameter ''`,
+            );
+            else note_unported('cfgfiles.c config_error_add');
+            return optn_err;
+        }
+        return optn_ok;
+    };
+
+    if (op !== '') return finish(op);
+    if (compat || negated || initial) {
+        state.flags.pickup = !negated;
+        return optn_ok;
     }
-    const op = await choose_classes_menu(
-        state, 'Autopickup what?', ocl, tbuf, helpers,
-    );
-    const parsed = pickupTypesFromSymbols(op);
-    state.flags.pickup_types = parsed.types;
-    // Outside a configuration-file frame, config_error_add() writes through
-    // pline().  That interactive message remains outside this startup slice;
-    // parseoptions() still receives C's optn_err answer here.
-    return parsed.badopt ? optn_err : optn_ok;
+    return (async () => {
+        let ocl = oc_to_str(state.flags.inv_order);
+        let use_menu = true;
+        if (state.flags.menu_style === MENU_TRADITIONAL
+            || state.flags.menu_style === MENU_COMBINATION) {
+            use_menu = false;
+            const answer = await getlin(
+                `New ${allopt[optidx].name}: [${ocl} am] (${tbuf || 'all'})`,
+                state,
+            );
+            const wasspace = answer.startsWith(' ');
+            op = mungspaces(answer);
+            if (wasspace && !op) {
+                // Leading whitespace explicitly clears the old restriction.
+            } else if (!op || op.startsWith('\x1b')) {
+                op = tbuf;
+            } else if (op.startsWith('m')) {
+                use_menu = true;
+            }
+        }
+        if (use_menu) {
+            const venom = oc_to_str([VENOM_CLASS]);
+            if (state.wizard && !ocl.includes(venom)) ocl += venom;
+            // C discards the count but consumes the rewritten class_select
+            // buffer; the canonical JS operation returns that buffer.
+            op = await choose_classes_menu(
+                state, 'Autopickup what?', ocl, tbuf, helpers,
+            );
+        }
+        return finish(op);
+    })();
 }
 
 function setMenuOptionFromParse(state, optidx, negated, opts, helpers) {
@@ -8460,7 +8464,9 @@ const OPTION_SET_HANDLERS = Object.freeze({
     palette: (state, optidx, negated, opts) => optfn_palette(
         state, optidx, DO_SET, negated, opts,
     ),
-    pickup_types: optfn_pickup_types,
+    pickup_types: (state, optidx, negated, opts, helpers) => optfn_pickup_types(
+        state, DO_SET, negated, opts, optidx, helpers,
+    ),
     ...MENU_OPTION_SET_HANDLERS,
 });
 
@@ -8560,7 +8566,7 @@ export async function parseoptions(
 // flags.pickup_types itself, it asks parseoptions() to run the same do_set arm
 // a configuration file would, which is where the class menu lives.  C's
 // comment: "parseoptions will prompt for the list of types".
-async function handler_pickup_types(state, helpers) {
+export async function handler_pickup_types(state, helpers) {
     await parseoptions(state, 'pickup_types', false, false, helpers);
     return optn_ok;
 }
@@ -8594,7 +8600,9 @@ const OPTION_HANDLERS = Object.freeze({
     paranoid_confirmation: handler_paranoid_confirmation,
     perminv_mode: handler_perminv_mode,
     pickup_burden: handler_pickup_burden,
-    pickup_types: handler_pickup_types,
+    pickup_types: (state, helpers) => optfn_pickup_types(
+        state, DO_HANDLER, false, '', undefined, helpers,
+    ),
     menu_headings: (state, helpers) => handler_menu_headings(state, helpers),
 });
 

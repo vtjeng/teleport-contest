@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first whole pickup-types request witness. Unsearched seed17932011 and fixed weekday clock20531018112133 were chosen before JS comparison. Healer rc menustyle:traditional,pickup_types:) reaches startup set/get and pickup-types-traditional-full; command choices follow source menu/prompt semantics.",
+  "segments": [
+    {
+      "seed": 17932011,
+      "datetime": "20531018112133",
+      "nethackrc": "OPTIONS=name:Mara,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,menustyle:traditional,pickup_types:)\n",
+      "moves": ".#optionsfull\n:pickup_types\n\n%\n."
+    }
+  ]
+}

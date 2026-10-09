@@ -253,7 +253,7 @@ import {
     menuTitleStyle,
     ttyMenuLayout,
 } from './tty_menu.js';
-import { ttyPline, ttyPutmixed } from './tty_message.js';
+import { displayPendingTtyMessageWindow, ttyPline, ttyPutmixed } from './tty_message.js';
 import { doextversion } from './version.js';
 import {
     t_at,
@@ -2133,24 +2133,47 @@ export function dowhatdoes_core(q, state = game) {
     return `${key2txt(q).padEnd(8)}${description}.`;
 }
 
-// C ref: pager.c dowhatdoes() (2657-2719), through the ordinary one-line `i`
-// query exercised by the help menu. The alternate-meta, help expansion,
-// unknown-command, and embedded-newline output arms remain fail-closed.
+// C ref: pager.c whatdoes_help() (2421-2444). The generated keyhelp lines
+// apply this helper's leading-blank filtering rather than tty_display_file's
+// tab expansion; the existing text-window owner displays and destroys them.
+export async function whatdoes_help(state = game) {
+    const lines = HELP_TEXT_FILES.keyhelp;
+    if (!lines) {
+        await ttyPline('Cannot open "keyhelp" data file!', state);
+        await displayPendingTtyMessageWindow(state);
+        return;
+    }
+    await displayTtyTextWindow(state, lines.map(text => ({ text })));
+}
+
+// C ref: pager.c dowhatdoes() (2659-2717).
 export async function dowhatdoes(state = game) {
     if (!state._dowhatdoesAsked) {
-        await ttyPline("Ask about '&' or '?' to get more info.", state);
+        await ttyPline("Ask about '&' or '?' to get more info."
+            + (state.iflags.altmeta ? '  (For ESC, type it twice.)' : ''), state);
         state._dowhatdoesAsked = true;
     }
     // introff()/intron() only change the native terminal's signal handling.
     // The browser and replay input sources do not install that handler.
-    const q = await yn_function('What command?', null, '\0', true, state);
-    if (q !== 0x69) {
-        throw new UnsupportedHelpError(
-            `whatdoes query ${key2txt(q)} outside ordinary inventory lookup`,
-        );
+    let q = await yn_function('What command?', null, '\0', true, state);
+    if (q === 0x1b && state.iflags.altmeta) {
+        q = await yn_function(']', null, '\0', true, state);
+        if (q !== 0x1b) q = (q | 0x80) & 0xff;
     }
     const result = dowhatdoes_core(q, state);
-    await ttyPline(result, state);
+    if (result !== null) {
+        const newline = result.indexOf('\n');
+        if (q === 0x26 || q === 0x3f) await whatdoes_help(state);
+        if (newline < 0) {
+            await ttyPline(result, state);
+        } else {
+            await ttyPline(result.slice(0, newline) + ',', state);
+            await ttyPline(result.slice(0, 8) + result.slice(newline + 1), state);
+        }
+    } else {
+        const byte = q & 0xff;
+        await ttyPline(`No such command '${visctrl(q)}', char code ${byte} (0${byte.toString(8).padStart(3, '0')} or 0x${byte.toString(16).padStart(2, '0')}).`, state);
+    }
     return ECMD_OK;
 }
 
