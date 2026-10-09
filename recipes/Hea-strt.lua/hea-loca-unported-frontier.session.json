@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside C170 whole Hea-strt.lua scope: dat/Hea-loca.lua is not yet registered on this worker lineage and is owned by B195. This independent C-first adjacent-program input remains blocked evidence only; no Hea-loca or loader/finalizer completion claim.",
+  "segments": [
+    {
+      "seed": 17091023,
+      "datetime": "20660918162631",
+      "nethackrc": "OPTIONS=name:HeaStrtProbe,role:Healer,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizloaddes\nHea-loca.lua\n            #wizmap\n        "
+    }
+  ]
+}
