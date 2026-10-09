@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T05:40:54.268Z",
+  "capturedAt": "2026-10-09T05:56:44.731Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -70826,22 +70826,59 @@
         "task": "B159",
         "phase": "done",
         "reason": "v34 admitted and its first saved evaluation recorded."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-A181-review-20261009",
+        "type": "activity",
+        "at": "2026-10-09T05:42:55.465Z",
+        "task": "A181",
+        "phase": "review",
+        "reason": "Reviewing the pool dip confirmation correction and its source evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A181-efa4bc63d-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T05:45:40.003Z",
+        "task": "A181",
+        "integration": "efa4bc63d54d5558476e891f882625dde9ccd5a4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A181-1b64b1117-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T05:46:22.089Z",
+        "task": "A181",
+        "integration": "1b64b111784f2179ae9353fc4277fd495bda5d25"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A181-1b64b111-37890194846",
+        "type": "validated",
+        "at": "2026-10-09T05:52:45.622Z",
+        "task": "A181",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A181-1b64b111784f2179ae9353fc4277fd495bda5d25-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T05:55:51.478Z",
+        "task": "A181"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A184-idle-after-A181-bee98426",
+        "type": "turn",
+        "at": "2026-10-09T05:56:35.278Z",
+        "worker": "A2",
+        "state": "idle"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "A181",
-        "worker": "A2",
-        "goal": "fix-potion-pool-dip-confirmation-v33-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "71fee968e1449c39945df1fb628663e91d53536e",
-        "since": "2026-10-09T03:44:00.854Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "B182",
         "worker": "B",
@@ -70861,9 +70898,7 @@
         "status": "ready",
         "delivery": "d64539f8556f0c32fa865c4c542abee0d2298670",
         "since": "2026-10-09T03:59:22.274Z",
-        "blockedBy": [
-          "A181"
-        ],
+        "blockedBy": [],
         "unblocks": 1
       },
       {
@@ -71163,8 +71198,8 @@
     ]
   },
   "development": {
-    "executionCommit": "2cdcba614b447508fcfa411849feafef48cb486d",
-    "measuredAt": "2026-10-09T05:24:16.206Z",
+    "executionCommit": "1b64b111784f2179ae9353fc4277fd495bda5d25",
+    "measuredAt": "2026-10-09T05:50:58.906Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
