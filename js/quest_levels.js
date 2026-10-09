@@ -102,6 +102,9 @@ import { TOU_LOCA_DOORS, TOU_LOCA_LEVEL_MAP } from './tou_loca_level_data.js';
 import { l_selection_or, l_selection_sub } from './nhlsel.js';
 import { SAM_LOCA_LEVEL_MAP, SAM_LOCA_LEVEL_DOORS,
     SAM_LOCA_LEVEL_OBJECTS, SAM_LOCA_LEVEL_MONSTERS } from './sam_loca_level_data.js';
+import {
+    TOU_GOAL_LEVEL_DOORS, TOU_GOAL_LEVEL_MAP, TOU_GOAL_LEVEL_MONSTERS,
+} from './tou_goal_level_data.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
 // that draws a random zig-zag path from (x1,y1) to (x2,y2).
@@ -2468,6 +2471,75 @@ async function touLoca(des, state) {
     await des.monster('s');
 }
 
+// C ref: dat/Tou-goal.lua, whole program. The natural quest-level caller
+// loads this through mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special.
+async function touGoal(des, state) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel');
+    await des.map(TOU_GOAL_LEVEL_MAP);
+
+    await des.region(selection_area(0, 0, 75, 19), 'lit');
+    await des.region(selection_area(1, 1, 9, 2), 'lit');
+    await des.region({ region: [1, 4, 9, 5], lit: 1,
+        type: 'barracks', filled: 1 });
+    await des.region(selection_area(1, 7, 2, 10), 'unlit');
+    await des.region(selection_area(7, 7, 9, 10), 'unlit');
+    await des.region(selection_area(1, 14, 2, 15), 'unlit');
+    await des.region(selection_area(7, 14, 9, 15), 'unlit');
+    await des.region(selection_area(1, 17, 2, 18), 'unlit');
+    await des.region(selection_area(7, 17, 9, 18), 'unlit');
+
+    await des.region({ region: [11, 1, 19, 2], lit: 0,
+        type: 'barracks', filled: 1 });
+    await des.region(selection_area(21, 1, 30, 2), 'unlit');
+    await des.region({ region: [11, 17, 19, 18], lit: 0,
+        type: 'barracks', filled: 1 });
+    await des.region(selection_area(21, 17, 30, 18), 'unlit');
+
+    await des.region(selection_area(18, 7, 25, 11), 'lit');
+    await des.region(selection_area(18, 13, 19, 13), 'unlit');
+    await des.region(selection_area(21, 13, 22, 13), 'unlit');
+    await des.region(selection_area(24, 13, 25, 13), 'unlit');
+
+    await des.region(selection_area(42, 3, 47, 6), 'unlit');
+    await des.region(selection_area(42, 8, 50, 11), 'unlit');
+    await des.region({ region: [37, 16, 41, 18], lit: 0,
+        type: 'morgue', filled: 1 });
+    await des.region(selection_area(47, 16, 55, 18), 'unlit');
+    await des.region(selection_area(55, 1, 62, 3), 'unlit');
+    await des.region(selection_area(64, 1, 71, 3), 'unlit');
+    await des.region({ region: [60, 14, 71, 15], lit: 1,
+        type: 'shop', filled: 1 });
+    await des.region({ region: [60, 17, 71, 18], lit: 1,
+        type: 'shop', filled: 1 });
+
+    await des.non_diggable(selection_area(0, 0, 75, 19));
+    await des.stair('up', 70, 8);
+    for (const door of TOU_GOAL_LEVEL_DOORS) await des.door(...door);
+
+    await des.object({ id: 'credit card', x: 4, y: 1, buc: 'blessed',
+        spe: 0, name: 'The Platinum Yendorian Express Card' });
+    for (let i = 0; i < 14; ++i) await des.object();
+
+    // C sp_lev.c maps the source map character '.' to ROOM. The selection
+    // remains map-fragment-relative until des.trap resolves the coordinates.
+    const floorSquares = selection_area(0, 0, 75, 19).filter_mapchar(
+        ROOM, (x, y) => state.level.at(des.frame.xstart + x,
+                                      des.frame.ystart + y),
+    );
+    // Preserve the complete bounding rectangle from Tou-goal.lua, including
+    // the corridor between its two shops, outside the trap-selection points.
+    const validTraps = l_selection_sub(
+        floorSquares, selection_area(60, 14, 71, 18),
+    );
+    for (let i = 0; i < 6; ++i)
+        await des.trap(validTraps.rndcoord(true, rn2));
+
+    for (const monster of TOU_GOAL_LEVEL_MONSTERS)
+        await des.monster(...monster);
+    await des.wallify();
+}
+
 // C ref: dat/astral.lua, whole program.
 async function astral(des, state) {
     await des.level_init({ style: 'solidfill', fg: ' ' });
@@ -2832,6 +2904,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Sam-goal': samGoal,
     'Tou-strt': touStrt,
     'Tou-loca': touLoca,
+    'Tou-goal': touGoal,
     'Kni-loca': kniLoca,
     'Ran-loca': ranLoca,
     'Ran-goal': ranGoal,

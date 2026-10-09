@@ -148,6 +148,7 @@ import {
     PM_KOBOLD,
     PM_KOBOLD_MUMMY,
     PM_KOBOLD_ZOMBIE,
+    PM_KEYSTONE_KOP,
     PM_LICH,
     PM_LICHEN,
     PM_LEPRECHAUN,
@@ -221,6 +222,7 @@ import {
     CLOAK_OF_PROTECTION,
     CROSSBOW,
     CROSSBOW_BOLT,
+    CREAM_PIE,
     C_RATION,
     DAGGER,
     DENTED_POT,
@@ -264,6 +266,7 @@ import {
     POT_OBJECT_DETECTION,
     POT_WATER,
     RANSEUR,
+    RUBBER_HOSE,
     RING_MAIL,
     RING_CLASS,
     ROCK,
@@ -4960,6 +4963,159 @@ test('trolls preserve the outer no-weapon gate and all four polearm arms', () =>
             ],
             `${scenario.name}: generic inventory continuation`,
         );
+    }
+});
+
+test('Keystone Kops preserve C cream-pie and weapon gates in source order', () => {
+    const sourceStart = MAKEMON_C_SOURCE.indexOf(
+        'm_initweap(struct monst *mtmp)\n{',
+    );
+    const sourceEnd = MAKEMON_C_SOURCE.indexOf(
+        '\n/* create a new stack of gold', sourceStart,
+    );
+    const source = MAKEMON_C_SOURCE.slice(sourceStart, sourceEnd);
+    assert.ok(sourceStart >= 0 && sourceEnd > sourceStart);
+    assert.match(
+        source,
+        /case S_KOP:[\s\S]*?if \(!rn2\(4\)\)\s*m_initthrow\(mtmp, CREAM_PIE, 2\);[\s\S]*?if \(!rn2\(3\)\)\s*\(void\) mongets\(mtmp, \(rn2\(2\)\) \? CLUB : RUBBER_HOSE\);[\s\S]*?break;/u,
+    );
+
+    const implementationStart = MAKEMON_JS_SOURCE.indexOf(
+        'function m_initweap(monster, normalized) {',
+    );
+    const implementationEnd = MAKEMON_JS_SOURCE.indexOf(
+        '\nfunction rejectsRandomUseItems', implementationStart,
+    );
+    const implementation = MAKEMON_JS_SOURCE.slice(
+        implementationStart, implementationEnd,
+    );
+    assert.ok(implementationStart >= 0 && implementationEnd > implementationStart);
+    assert.match(
+        implementation,
+        /case S_KOP:[\s\S]*?if \(!random\.rn2\(4\)\) m_initthrow\(monster, CREAM_PIE, 2, normalized\);[\s\S]*?if \(!random\.rn2\(3\)\) \{[\s\S]*?random\.rn2\(2\) \? CLUB : RUBBER_HOSE[\s\S]*?break;/u,
+    );
+
+    const cases = [
+        {
+            name: 'no pies or weapon',
+            pieGate: 1,
+            weaponGate: 1,
+            weaponChoice: 0,
+            expected: [],
+        },
+        {
+            name: 'pies without weapon',
+            pieGate: 0,
+            weaponGate: 1,
+            weaponChoice: 0,
+            expected: [CREAM_PIE],
+        },
+        {
+            name: 'club without pies',
+            pieGate: 1,
+            weaponGate: 0,
+            weaponChoice: 1,
+            expected: [CLUB],
+        },
+        {
+            name: 'hose without pies',
+            pieGate: 1,
+            weaponGate: 0,
+            weaponChoice: 0,
+            expected: [RUBBER_HOSE],
+        },
+        {
+            name: 'pies and club',
+            pieGate: 0,
+            weaponGate: 0,
+            weaponChoice: 1,
+            expected: [CLUB, CREAM_PIE],
+        },
+        {
+            name: 'pies and hose',
+            pieGate: 0,
+            weaponGate: 0,
+            weaponChoice: 0,
+            expected: [RUBBER_HOSE, CREAM_PIE],
+        },
+    ];
+
+    for (const scenario of cases) {
+        const state = initialLevelState();
+        let pieGatePending = true;
+        let pieSelected = false;
+        let weaponGatePending = false;
+        let weaponChoicePending = false;
+        const sourceDraws = [];
+        const random = recordingRandom({
+            rn1Result: (range, base) => {
+                if (pieSelected && range === 2 && base === 3) {
+                    pieSelected = false;
+                    weaponGatePending = true;
+                    sourceDraws.push(['rn1', range, base, 4]);
+                    return 4;
+                }
+                return base;
+            },
+            rn2Result: (bound) => {
+                if (pieGatePending && bound === 4) {
+                    pieGatePending = false;
+                    pieSelected = scenario.pieGate === 0;
+                    weaponGatePending = !pieSelected;
+                    sourceDraws.push(['rn2', 4, scenario.pieGate]);
+                    return scenario.pieGate;
+                }
+                if (weaponGatePending && bound === 3) {
+                    weaponGatePending = false;
+                    weaponChoicePending = scenario.weaponGate === 0;
+                    sourceDraws.push(['rn2', 3, scenario.weaponGate]);
+                    return scenario.weaponGate;
+                }
+                if (weaponChoicePending && bound === 2) {
+                    weaponChoicePending = false;
+                    sourceDraws.push(['rn2', 2, scenario.weaponChoice]);
+                    return scenario.weaponChoice;
+                }
+                return Math.max(0, bound - 1);
+            },
+        });
+        const monster = makemon(
+            state.mons[PM_KEYSTONE_KOP],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
+            { state, random: random.random, _rndmonMklev: true },
+        );
+        const inventory = monsterInventory(monster);
+        const loadout = inventory
+            .map((obj) => obj.otyp)
+            .filter((otyp) => [CREAM_PIE, CLUB, RUBBER_HOSE].includes(otyp));
+
+        assert.deepEqual(loadout, scenario.expected, scenario.name);
+        assert.deepEqual(
+            sourceDraws,
+            [
+                ['rn2', 4, scenario.pieGate],
+                ...(scenario.pieGate === 0 ? [['rn1', 2, 3, 4]] : []),
+                ['rn2', 3, scenario.weaponGate],
+                ...(scenario.weaponGate === 0
+                    ? [['rn2', 2, scenario.weaponChoice]] : []),
+            ],
+            `${scenario.name}: source RNG gates and order`,
+        );
+        const pie = inventory.find((obj) => obj.otyp === CREAM_PIE);
+        if (scenario.pieGate === 0) {
+            assert.equal(pie?.quan, 4, scenario.name);
+            assert.equal(
+                pie?.owt,
+                state.objects[CREAM_PIE].oc_weight * 4,
+                scenario.name,
+            );
+        } else {
+            assert.equal(pie, undefined, scenario.name);
+        }
+        assert.equal(weaponGatePending, false, scenario.name);
+        assert.equal(weaponChoicePending, false, scenario.name);
     }
 });
 
