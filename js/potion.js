@@ -3315,6 +3315,7 @@ export async function dodip(state = game, rawEnv = {}) {
             }
             ++drink_ok_extra;
         } else if (atPool) {
+            const { y_n } = await import('./cmd.js');
             const pooltype = waterbody_name(hero.ux, hero.uy, state);
             const prompt = 'Dip ' + (state.flags.verbose ? obuf : shortestName)
                 + ' into the ' + pooltype + '?';

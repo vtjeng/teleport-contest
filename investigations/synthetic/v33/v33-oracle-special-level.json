@@ -1,0 +1,129 @@
+{
+  "corpus": "synthetic",
+  "batch": "v33",
+  "caseId": "v33-oracle-special-level",
+  "session": "synthetic/v33/v33-oracle-special-level",
+  "manifestPath": "challenges/manifests/v33.json",
+  "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+  "recording": "challenges/cases/v33/v33-oracle-special-level.session.json",
+  "recordingPath": "challenges/cases/v33/v33-oracle-special-level.session.json",
+  "recordingSha256": "b8c09b73fd7252d72082009fdf17b666f21c96ce84a7ec4313d408a6760ab8ef",
+  "recipe": "challenges/cases/v33/v33-oracle-special-level.recipe.session.json",
+  "recipeSha256": "af094fcb7eb68eb0981e83e8767fe1e74b74146d46868d3eec624c5a366a12ac",
+  "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+  "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+  "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+  "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+  "evaluationUtc": "2026-10-09T03:03:55.655Z",
+  "remainingScreens": 55,
+  "recordedSteps": 55,
+  "previousScreensMatched": null,
+  "regression": false,
+  "passed": false,
+  "error": "Cannot set properties of undefined (setting 'rtype')",
+  "metrics": {
+    "screens": {
+      "matched": 0,
+      "total": 55
+    },
+    "rng": {
+      "matched": 0,
+      "total": 5109
+    },
+    "cursors": {
+      "matched": 0,
+      "total": 55
+    }
+  },
+  "firstMismatch": {
+    "kind": "stop",
+    "message": "Replay error: Cannot set properties of undefined (setting 'rtype')",
+    "step": null
+  },
+  "step": null,
+  "kind": "stop",
+  "sourceFile": null,
+  "function": null,
+  "message": "Replay error: Cannot set properties of undefined (setting 'rtype')",
+  "cFile": null,
+  "luaFile": null,
+  "line": null,
+  "status": "complete",
+  "commit": "eca66a2ef4cde6a2cdded5c61babf646b9b20fb8",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v33",
+    "caseId": "v33-oracle-special-level",
+    "session": "synthetic/v33/v33-oracle-special-level",
+    "manifestPath": "challenges/manifests/v33.json",
+    "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+    "recording": "challenges/cases/v33/v33-oracle-special-level.session.json",
+    "recordingPath": "challenges/cases/v33/v33-oracle-special-level.session.json",
+    "recordingSha256": "b8c09b73fd7252d72082009fdf17b666f21c96ce84a7ec4313d408a6760ab8ef",
+    "recipe": "challenges/cases/v33/v33-oracle-special-level.recipe.session.json",
+    "recipeSha256": "af094fcb7eb68eb0981e83e8767fe1e74b74146d46868d3eec624c5a366a12ac",
+    "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+    "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+    "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+    "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+    "evaluationUtc": "2026-10-09T03:03:55.655Z",
+    "remainingScreens": 55,
+    "recordedSteps": 55,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": "Cannot set properties of undefined (setting 'rtype')",
+    "metrics": {
+      "screens": {
+        "matched": 0,
+        "total": 55
+      },
+      "rng": {
+        "matched": 0,
+        "total": 5109
+      },
+      "cursors": {
+        "matched": 0,
+        "total": 55
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "Replay error: Cannot set properties of undefined (setting 'rtype')",
+      "step": null
+    },
+    "step": null,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "Replay error: Cannot set properties of undefined (setting 'rtype')",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "goalKind": "divergence-fix",
+  "summary": "Oracle arrival reaches hack.c:check_special_room at step23. Room type is read through the canonical persisted subroom resolver, but its one-time rtype reset writes the top-level array directly; the Oracle subroom index is absent there. Resolve one source room pointer and reuse it for reads and rtype mutation.",
+  "source": {
+    "file": "hack.c",
+    "functions": [
+      "check_special_room"
+    ],
+    "branch": "Entering DELPHI subroom on Oracle level resolves C conceptual room index above top-level array. C prints Oracle welcome, records discovery and resets that same svr.rooms[roomno] pointer to OROOM.",
+    "callers": [
+      "teleport.c:level_tele -> do.c:goto_level -> hack.c:check_special_room(newlev), via production #wizlevelport to Oracle. Ordinary movement reaches the same owner through hack.c:spoteffects and move_update."
+    ],
+    "dependencies": [
+      "Existing dungeon.js:mapseen_room2439–2462 resolves the C contiguous rooms/subrooms index through persisted parent graph, already used by rooms.js:roomType100 for reads and room_discovered. Reuse canonical result for writes; no duplicate room state or new resolver. Pure lookup has no RNG/output/state effects.",
+      "Existing monstinroom consumes conceptual index and finds the Oracle before current failure; source Hello/SetVoice/message/discovery owners already operate. No source/Lua generation reimplementation is required.",
+      "C clears rtype in the common tail3738 for every nonzero special type. JS partial owner duplicates mutations across COURT/MORGUE/BARRACKS/DELPHI, with direct top-level references261/313/357/379. Reconcile the same source pointer consistently in those existing arms; preserve their distinct messages/discovery/flags/wakeup ordering.",
+      "Whole check_special_room, other unported room entry arms, oracle.lua/quest_levels generation and dungeon/mapseen completion remain outside bounded room-pointer defect."
+    ]
+  },
+  "evidence": [
+    "Saved baseline reports0/55screens due uncaught undefined rtype exception; prepared trace locates actual segment0 step23 space after materialization22. C prints peaceful Oracle welcome at23 before source room-state reset. Manifest sourceTrace identifies rooms.js379 direct write to undefined top-level entry.",
+    "Read complete hack.c:check_special_room3624–3777. Source roomno=*ptr-ROOMOFFSET, rt=svr.rooms[roomno].rtype3663; optional DELPHI welcome/SetVoice3708–3723; msg_given discovery3735, same room rtype OROOM3738. Oracle room is a valid C subroom in the unified room allocation, not a missing special-level program.",
+    "JS rooms.js:roomType uses mapseen_room(roomno-ROOMOFFSET,state). The DELPHI arm therefore correctly dispatches and finds/welcomes Oracle, then state.level.rooms[roomIndex].rtype assignment fails because mapseen_room located a nested room. The same pointer discrepancy exists in the already-ported Court/Morgue/Barracks mutation arms.",
+    "Actionable bounded scope source:hack.c:check_special_room / contract:special-room-persisted-identity, js/rooms.js, scripts/rooms.test.mjs, focused runtime runner and recipes/hack.c/recordings/hack.c. Use existing resolver once per entered room; no game state shadow or new room index. Whole owner excluded.",
+    "Validation: source-pinned nested Delphi entry first fails current undefined write, then proves same object rtype reset, parent unchanged, mapseen discovery and single welcome on repeated entry. Existing Court/Morgue/Barracks tests guard top-level behavior. Selected55-step replay plus independent C-first named Oracle levelports in different role/date/seed establish runtime and persisted subroom path."
+  ]
+}

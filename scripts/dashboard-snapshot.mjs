@@ -6,6 +6,9 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { summarizeLedger } from './worker-state.mjs';
+import { pendingMainWork } from './worker-backlog.mjs';
+import { admittedBatchIds } from './challenge-results.mjs';
 
 const EVENT_TYPES = new Set([
   'assign', 'implement', 'ready', 'received', 'feedback', 'resume', 'park',
@@ -31,7 +34,7 @@ export function activityFromLedger(ledger) {
       ...(event.passed !== undefined ? { passed: event.passed } : {}),
       ...(event.phase ? { phase: event.phase } : {}),
       ...(event.state ? { state: event.state } : {}),
-      ...(event.type === 'activity' ? { reason: event.reason } : {}),
+      ...(['activity', 'park'].includes(event.type) ? { reason: event.reason } : {}),
       ...(event.type === 'turn' && event.summary ? { reason: event.summary } : {}),
       ...(['register', 'observe'].includes(event.type)
         ? { live: event.handle !== null || Boolean(event.processes?.length) } : {}),
@@ -106,6 +109,7 @@ function main(args) {
     version: 1,
     capturedAt: new Date().toISOString(),
     activity: mergeActivity(previous?.activity, activityFromLedger(ledger)),
+    pendingMainWork: pendingMainWork(summarizeLedger(ledger), admittedBatchIds(process.cwd())),
     development: developmentFromCheckpoint(summary, results, resultBytes),
   };
   writeFileSync(outputPath, JSON.stringify(snapshot, null, 2) + '\n');

@@ -84,9 +84,11 @@ function readManifest(root, manifestPath, batch, parsed = null) {
     };
 }
 
-export function readChallengeBatches(root) {
-    const batches = existsSync(challengePath(root, 'challenges/manifest.json'))
-        ? [readManifest(root, 'challenges/manifest.json', 'v1')] : [];
+function challengeManifests(root) {
+    const first = challengePath(root, 'challenges/manifest.json');
+    if (existsSync(first) && !lstatSync(first).isFile())
+        throw new Error('challenge manifest must be a regular file: manifest.json');
+    const batches = existsSync(first) ? [{ batch: 'v1', path: 'challenges/manifest.json' }] : [];
     const directory = challengePath(root, 'challenges/manifests');
     if (!existsSync(directory)) return batches;
     for (const entry of readdirSync(directory, { withFileTypes: true }).sort((a, b) =>
@@ -94,9 +96,18 @@ export function readChallengeBatches(root) {
         if (!entry.name.endsWith('.json') || !FUTURE_BATCH.test(entry.name.slice(0, -5))) continue;
         if (!entry.isFile()) throw new Error('challenge manifest must be a regular file: ' + entry.name);
         const batch = entry.name.slice(0, -5);
-        batches.push(readManifest(root, 'challenges/manifests/' + entry.name, batch));
+        batches.push({ batch, path: 'challenges/manifests/' + entry.name });
     }
     return batches;
+}
+
+// Listing admission identities does not replay or hash the recordings corpus.
+export function admittedBatchIds(root) {
+    return challengeManifests(root).map(entry => entry.batch);
+}
+
+export function readChallengeBatches(root) {
+    return challengeManifests(root).map(entry => readManifest(root, entry.path, entry.batch));
 }
 
 export function validatePreparedBatch(root, manifest, batch) {

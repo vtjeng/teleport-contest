@@ -5,7 +5,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { DAGGER, POT_ACID, SPEAR } from '../js/objects.js';
+import { DAGGER, POT_ACID, SPEAR, TOWEL } from '../js/objects.js';
+import { compareSessionOutputs, validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 const cases = [
@@ -36,6 +37,41 @@ export async function runDipCommandMatrix() {
         summaryLabel: 'ACID DIP',
         verifySegment: verifyAcidDip,
         chunkLimit: 1, // Debug termination saves; isolate each source case.
+    });
+}
+
+// potion.c:dodip2341: both roles accept a pool's canonical y_n prompt.
+// Role changes the surviving inventory and the subsequent liquid effects.
+export async function runPoolDipCommandMatrix() {
+    const roles = ['barbarian', 'knight'];
+    return runFreshMatrix({
+        entries: roles.map(role => ({ label: `pool towel ${role}`,
+            recipe: validateCleanRecipe(JSON.parse(readFileSync(new URL(
+                `../recipes/potion.c/pool-dip-towel-${role}.session.json`, import.meta.url,
+            )))),
+        })),
+        summaryLabel: 'POOL DIP', chunkLimit: 1,
+        verifySegment: async segment => {
+            const role = roles.find(role =>
+                segment.nethackrc.toLowerCase().includes(`role:${role},`));
+            const reference = JSON.parse(readFileSync(new URL(
+                `../recordings/potion.c/pool-dip-towel-${role}.session.json`, import.meta.url,
+            )));
+            let boundary;
+            const output = await runSegment(segment, { onBoundary(error) { boundary = error; } });
+            if (boundary) throw boundary;
+            const comparison = compareSessionOutputs(reference, {
+                rng: output.getRngLog(), screens: output.getScreens(), cursors: output.getCursors(),
+                animFrames: output.getAnimationFramesByStep(),
+            });
+            assert.equal(comparison.passed, true, JSON.stringify(comparison));
+            assert.ok(output.getScreens().some(screen =>
+                screen.includes('Dip a towel into the pool of water?')));
+            assert.ok(output.getScreens().some(screen => screen.includes('Your towel gets wet.')));
+            const inventory = [];
+            for (let obj = game.invent; obj; obj = obj.nobj) inventory.push(obj);
+            assert.ok(inventory.some(obj => obj.otyp === TOWEL && obj.spe > 0));
+        },
     });
 }
 runMatrixCli(import.meta.url, runDipCommandMatrix, 'acid dip');

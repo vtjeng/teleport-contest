@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Oracle subroom entry: role/seed/date fixed before comparison. Named debug levelport followed by canonical controlled teleport onto a child floor corner exercises hack.c check_special_room one-time persisted room reset. The getpos offsets come from the C-only arrival map, not JavaScript output. The retained untracked overview probe reaches a later dungeon.c overview layout difference after the Delphi entry has matched; the regression witness ends after the owned entry continuation.",
+  "segments": [
+    {
+      "seed": 18233001,
+      "datetime": "20440905121314",
+      "nethackrc": "OPTIONS=name:OracleProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "        #wizlevelport\nOracle\n        \u0014        hhhhhhhhhhhhhhhhhhjjj.        "
+    }
+  ]
+}

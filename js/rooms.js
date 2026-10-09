@@ -250,7 +250,10 @@ export async function check_special_room(
 
     for (const roomno of entered) {
         const roomIndex = roomno - ROOMOFFSET;
-        const rt = roomType(roomno, state);
+        // C's svr.rooms[] includes subrooms. Resolve the persisted source
+        // pointer once, so the type read and one-time reset share one owner.
+        const room = mapseen_room(roomIndex, state);
+        const rt = room?.rtype;
         // Every arm of the entry switch that prints, sets a level flag, wakes
         // a monster or calls room_discovered() is named here. C's `default`
         // arm covers the rest, and for a room type that is neither TEMPLE nor
@@ -258,7 +261,6 @@ export async function check_special_room(
         // below the switch does nothing -- which is why OROOM and THEMEROOM
         // fall through this loop rather than being listed as exceptions.
         if (rt === COURT) {
-            const room = state.level.rooms[roomIndex];
             const hasThrone = furniture_present(THRONE, roomIndex, state);
             await message(
                 `You enter an opulent${hasThrone ? ' throne' : ''} room!`,
@@ -310,7 +312,7 @@ export async function check_special_room(
                 await message('You have an uncanny feeling...', state);
             }
             room_discovered(roomIndex, state);
-            state.level.rooms[roomIndex].rtype = OROOM;
+            room.rtype = OROOM;
             if (!search_special(MORGUE, state))
                 state.level.flags.has_morgue = false;
 
@@ -354,7 +356,7 @@ export async function check_special_room(
                 state,
             );
             room_discovered(roomIndex, state);
-            state.level.rooms[roomIndex].rtype = OROOM;
+            room.rtype = OROOM;
             if (!state.level.rooms.some(
                 (candidate) => candidate?.rtype === BARRACKS,
             )) state.level.flags.has_barracks = false;
@@ -376,7 +378,7 @@ export async function check_special_room(
                 );
                 room_discovered(roomIndex, state);
             }
-            state.level.rooms[roomIndex].rtype = OROOM;
+            room.rtype = OROOM;
             continue;
         }
         if (rt === TEMPLE) {
