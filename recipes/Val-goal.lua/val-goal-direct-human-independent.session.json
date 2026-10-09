@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first direct wizard load of dat/Val-goal.lua through #wizloaddes. Seed 64019037, date 20520819112233, and a female human neutral Valkyrie were selected to exercise the explicit source level without reusing a recorded session.",
+  "segments": [
+    {
+      "seed": 64019037,
+      "datetime": "20520819112233",
+      "nethackrc": "OPTIONS=name:ValGoalHuman,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizloaddes\nVal-goal.lua\n "
+    }
+  ]
+}

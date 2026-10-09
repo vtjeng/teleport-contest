@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "BLOCKED outside the completed Val-loca program: mklev.c load_special has no Val-strt loader in this worktree. Val-strt is a separately owned pending program; this independent source-named route receives no completion credit.",
+  "segments": [
+    {
+      "seed": 19636147,
+      "datetime": "20531009141523",
+      "nethackrc": "OPTIONS=name:IceLocate,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "   #wizloaddes\nVal-strt.lua\n                #wizmap\n                "
+    }
+  ]
+}
