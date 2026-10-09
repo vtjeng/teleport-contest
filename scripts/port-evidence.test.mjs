@@ -205,6 +205,27 @@ test('Lua programs require an explicit JavaScript function or data symbol', (t) 
     assert.throws(() => validatePortEvidence(goal, { functions: [] }, { root }), /source.*missing/u);
 });
 
+test('Lua programs may include required C source functions', (t) => {
+    const { root, write, evidence } = fixture(t);
+    const goal = { kind: 'lua-port', luaFile: 'Arc-loca.lua',
+        functions: [{ name: 'Arc-loca.lua' }],
+        requiredFunctions: [{ sourceFile: 'widget.c', name: 'helper' }] };
+    write('js/widget.js', 'export const ARC_LOCA = [];\nexport function helper() {}\n');
+    const lua = {
+        name: 'Arc-loca.lua', implementation: 'js/widget.js', symbol: 'ARC_LOCA',
+        sourceReview: 'Reviewed the complete Lua program and its loader wiring.',
+        callers: [{ path: 'js/driver.js', symbol: 'run', source: 'sp_lev.c load_special' }],
+        pure: false, tests: [], recordings: ['recordings/widget/entry.session.json'],
+    };
+    const helper = { ...structuredClone(evidence.functions[0]), sourceFile: 'widget.c' };
+    const result = validatePortEvidence(goal, { functions: [lua, helper] }, { root });
+    assert.deepEqual(result.functions.map(entry => entry.sourceFile ?? goal.luaFile),
+        ['Arc-loca.lua', 'widget.c']);
+    goal.requiredFunctions = [{ sourceFile: 'other.lua', name: 'helper' }];
+    assert.throws(() => validatePortEvidence(goal, { functions: [lua] }, { root }),
+        /required source file must be a C basename/u);
+});
+
 test('entry points may be planned before completion and must name goal source units', (t) => {
     const { root, goal, evidence } = fixture(t);
     evidence.entryPointReview = 'Reviewed commands and startup calls for this file.';

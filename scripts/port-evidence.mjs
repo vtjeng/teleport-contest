@@ -86,11 +86,16 @@ function goalScope(goal) {
     if (lua && (names.size !== 1 || !names.has(file))) {
         throw new Error('a Lua goal must name its whole source program in functions');
     }
+    for (const entry of goal.requiredFunctions ?? []) {
+        if (!/^[A-Za-z0-9_-]+\.c$/u.test(entry.sourceFile ?? '')) {
+            throw new Error('required source file must be a C basename');
+        }
+    }
     const units = new Set();
     for (const entry of sourceUnits(goal)) {
         text(entry.name, 'goal function name');
         if (!/^[A-Za-z0-9_-]+\.(?:c|lua)$/u.test(entry.sourceFile)
-            || (entry.sourceFile !== file && (lua || !entry.sourceFile.endsWith('.c')))) {
+            || (entry.sourceFile !== file && !entry.sourceFile.endsWith('.c'))) {
             throw new Error('required source file must be a C basename');
         }
         const key = sourceUnitKey(goal, entry);
@@ -104,7 +109,7 @@ function functionEvidence(record, scope) {
     const name = text(record?.name, 'function name');
     const sourceFile = record.sourceFile ?? scope.file;
     if (!scope.units.has(`${sourceFile}:${name}`)) throw new Error(`goal does not contain source unit ${sourceFile}:${name}`);
-    const symbol = identifier(record.symbol ?? (scope.lua ? undefined : name), `${name} symbol`);
+    const symbol = identifier(record.symbol ?? (sourceFile.endsWith('.c') ? name : undefined), `${name} symbol`);
     const implementation = safePath(record.implementation, 'js', '.js', `${name} implementation`);
     const sourceReview = text(record.sourceReview, `${name} sourceReview`);
     if (typeof record.pure !== 'boolean') throw new Error(`${name} pure must be a boolean`);

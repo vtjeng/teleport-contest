@@ -4,12 +4,16 @@ import test from 'node:test';
 import {
     AIR,
     ALTAR,
+    A_LAWFUL,
+    A_NEUTRAL,
+    A_ORIGINAL,
     FEMALE,
     NON_PM,
     SP_COORD_PACK,
     AM_CHAOTIC,
     AM_LAWFUL,
     AM_NEUTRAL,
+    AM_SPLEV_NONCO,
     ARROW_TRAP,
     BURN,
     BURN_OBJECT,
@@ -75,6 +79,7 @@ import {
     initialize_themeroom_postprocess_branch,
     run_themeroom_fill,
     run_themeroom_postprocess,
+    sp_amask_to_amask,
     themeroom_fill,
 } from '../js/themeroom_fill.js';
 import { lspo_monster } from '../js/mklev.js';
@@ -2837,4 +2842,54 @@ test('create_monster with no species passes MM_NOGRP so preflightCreation accept
     // makemon returns null because rndmongen is false, not because
     // preflightCreation refused the call.
     assert.equal(monster, null);
+});
+
+test('noncoaligned masks preserve Align2amask macro random evaluation order', () => {
+    // C ref: sp_lev.c:1915 passes noncoalignment() to Align2amask;
+    // align.h:50-53 reevaluates that argument in each nested condition and
+    // in the final addition when neither comparison matches.
+    const cases = [
+        {
+            alignment: A_NEUTRAL,
+            draws: [1, 0],
+            expectedMask: AM_LAWFUL,
+        },
+        {
+            alignment: A_NEUTRAL,
+            draws: [1, 1, 0],
+            expectedMask: AM_CHAOTIC | AM_NEUTRAL,
+        },
+        {
+            alignment: A_LAWFUL,
+            draws: [0, 0, 1],
+            expectedMask: AM_CHAOTIC,
+        },
+    ];
+
+    for (const { alignment, draws, expectedMask } of cases) {
+        const pending = [...draws];
+        const bounds = [];
+        const unexpected = (name) => () => assert.fail(`unexpected ${name} call`);
+        const random = {
+            d: unexpected('d'),
+            rn1: unexpected('rn1'),
+            rn2(bound) {
+                bounds.push(bound);
+                assert.equal(bound, 2);
+                assert.ok(pending.length, 'C macro made more draws than expected');
+                return pending.shift();
+            },
+            rnd: unexpected('rnd'),
+            rne: unexpected('rne'),
+            rnz: unexpected('rnz'),
+        };
+        const state = { u: { ualignbase: { [A_ORIGINAL]: alignment } } };
+
+        assert.equal(
+            sp_amask_to_amask(AM_SPLEV_NONCO, { state, random }),
+            expectedMask,
+        );
+        assert.deepEqual(bounds, Array(draws.length).fill(2));
+        assert.deepEqual(pending, []);
+    }
 });

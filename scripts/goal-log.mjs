@@ -85,7 +85,7 @@ export function validateGoals(store) {
                 throw new Error(`goal ${goal.id} needs a functions array`);
             }
             if (goal.requiredFunctions !== undefined) {
-                if (goal.kind !== 'file-port' || !Array.isArray(goal.requiredFunctions)) {
+                if (!isSourcePort(goal) || !Array.isArray(goal.requiredFunctions)) {
                     throw new Error(`goal ${goal.id} needs a C requiredFunctions array`);
                 }
                 const keys = new Set((goal.functions ?? [])
@@ -551,6 +551,7 @@ const COMMAND_HELP = {
                   [--required-functions <file.c:function,...>]
                   Omitted bounds select the start/end of the C file.
   lua-port        --lua-file <name.lua>
+                  [--required-functions <file.c:function,...>]
                   Covers the whole Lua program, including top-level statements.
   divergence-fix  --c-file <name.c> --function <name> --session <id-or-path>
                   [--step <input-step>]
@@ -711,20 +712,6 @@ function newGoal(options) {
         if (!functions.length) throw new Error(`${goal.cFile} has no function definitions`);
         goal.functions = markDeclared(functions, jsFunctionNames());
         goal.range = { from: functions[0].line, to: functions.at(-1).endLine };
-        if (options['required-functions']) {
-            goal.requiredFunctions = commaSeparated(options['required-functions']).map(unit => {
-                const match = unit.match(/^([A-Za-z0-9_-]+\.c):([A-Za-z_][A-Za-z0-9_]*)$/u);
-                if (!match) throw new Error('--required-functions entries must be file.c:function');
-                const [, file, name] = match;
-                if (file === goal.cFile && functions.some(entry => entry.name === name))
-                    throw new Error(`required source function ${unit} is already selected in the primary range`);
-                const definition = cFunctions(file).find(entry => entry.name === name);
-                if (!definition) throw new Error(`no function named ${name} in ${file}`);
-                return { ...markDeclared([definition], jsFunctionNames())[0], sourceFile: file };
-            });
-            const keys = goal.requiredFunctions.map(entry => sourceUnitKey(goal, entry));
-            if (new Set(keys).size !== keys.length) throw new Error('duplicate required source function');
-        }
     } else if (goal.kind === 'lua-port') {
         goal.functions = [luaProgram(goal.luaFile)];
     } else {
@@ -733,8 +720,21 @@ function newGoal(options) {
         goal.session = sessionIdentifier(options.session);
         if (options.step !== undefined) goal.step = Number(options.step);
     }
-    if (options['required-functions'] && goal.kind !== 'file-port') {
-        throw new Error('--required-functions requires a C file-port');
+    if (options['required-functions'] && isSourcePort(goal)) {
+        goal.requiredFunctions = commaSeparated(options['required-functions']).map(unit => {
+            const match = unit.match(/^([A-Za-z0-9_-]+\.c):([A-Za-z_][A-Za-z0-9_]*)$/u);
+            if (!match) throw new Error('--required-functions entries must be file.c:function');
+            const [, file, name] = match;
+            if (file === sourceFile(goal) && goal.functions.some(entry => entry.name === name))
+                throw new Error(`required source function ${unit} is already selected in the primary range`);
+            const definition = cFunctions(file).find(entry => entry.name === name);
+            if (!definition) throw new Error(`no function named ${name} in ${file}`);
+            return { ...markDeclared([definition], jsFunctionNames())[0], sourceFile: file };
+        });
+        const keys = goal.requiredFunctions.map(entry => sourceUnitKey(goal, entry));
+        if (new Set(keys).size !== keys.length) throw new Error('duplicate required source function');
+    } else if (options['required-functions']) {
+        throw new Error('--required-functions requires a C or Lua source port');
     }
     return goal;
 }
