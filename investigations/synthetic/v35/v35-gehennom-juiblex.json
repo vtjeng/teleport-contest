@@ -81,7 +81,7 @@
     "line": null
   },
   "goalKind": "divergence-fix",
-  "summary": "Juiblex magic mapping overflows the recorder patch's6144-byte nomux screen buffer and overwrites its raw cursor globals with water glyph bytes. All18153 RNG calls and all109 rendered screens match; nine stored C cursor entries are0x7d7d7d7d. This requires a recorder/tooling and corpus-provenance decision, not a JavaScript game port.",
+  "summary": "Juiblex magic mapping overflowed the recorder patch's 6144-byte screen buffer and overwrote its raw cursor globals with water glyph bytes. All 18153 RNG calls and all 109 rendered screens matched. The recorder now allocates its proven serializer maximum and rejects future prepared cases with invalid cursors; the immutable admitted recording remains historical defective evidence rather than a JavaScript game task.",
   "source": {
     "file": "win/tty/termcap.c",
     "functions": [
@@ -94,8 +94,8 @@
       "Patch006:nomux_capture_write_input_boundary -> nomux_emit_marker captures the complete screen before calling nomux_get_cursor; patch lines141–150 writes the resulting CX/CY marker fields. scripts/record-session.mjs:onMarker reads those numeric fields directly and preserves them in the session cursor."
     ],
     "dependencies": [
-      "Recorder/tooling policy: Main must approve a bounded checked serializer buffer correction and decide how to preserve/reconcile the admitted recording produced by the defective recorder. No worker should encode corrupted pointer/storage bytes in JS or mutate admitted challenges.",
-      "Native ordinary tty cursor fields are short (upstream include/wintty.h93), while patch raw coordinates are int. This case is unrelated to parked alloc.c:fmt_ptr native-address diagnostics or any missing Juiblex Lua/arrival behavior."
+      "The immutable admitted recipe, recording, manifest, and evaluations retain the original defective cursor evidence. The mismatch remains visible in historical scoring and is not eligible for a JavaScript game port.",
+      "Native ordinary tty cursor fields are short (upstream include/wintty.h:93), while patch raw coordinates are int. This case is unrelated to parked alloc.c:fmt_ptr native-address diagnostics or any missing Juiblex Lua or arrival behavior."
     ]
   },
   "evidence": [
@@ -104,6 +104,12 @@
     "Patch006 lines255–316 defines static char nomux_out[24*256] (6144 bytes) and serializes rows with unchecked sprintf plus *p++ writes; no capacity check exists. Step100's stored ANSI screen already has6304 bytes. Expanding its CSI-space compression reconstructs6309 bytes; bytes at offset6144–6155 are twelve water glyphs. Artifact .cache/B193/expanded-step-100.txt retains the reconstruction without recording a new game.",
     "Read-only nm -n /tmp/b121-recorder-worker-b/nethack confirms contiguous symbol addresses: nomux_out0x5791f0, nomux_raw_active0x57a9f0 (out+6144), nomux_raw_row0x57a9f4 (out+6148), nomux_raw_col0x57a9f8 (out+6152). Thus the same overrun reaches the exact globals used by the raw getter. Patch006 lines411–418 selects them when raw-active is nonzero. Normal ttyDisplay cursor shorts cannot represent0x7d7d7d7d.",
     "Counter-evidence to a JS generation/map-owner claim: all screen cells and every RNG call match, the preceding Juiblex arrival uses normal cursor positions, and the cursor first corrupts only after serialization of the complete dense magic map. JS retains the live hero/map cursor; no source contract instructs it to reproduce C buffer overflow bytes.",
-    "Actionable scope is a separately authorized recorder correction to nomux_capture_screen plus focused serializer bounds coverage and canonical capture checks, followed by a Main-owned evidence/corpus decision. Preserve original admitted recipes/recordings/evaluations. Do not select a whole JS detect, display, wiz_map or Lua port for this failure; there is no missing game branch to credit."
-  ]
+    "Actionable scope is a separately authorized recorder correction to nomux_capture_screen plus focused serializer bounds coverage and canonical capture checks, followed by a Main-owned evidence/corpus decision. Preserve original admitted recipes/recordings/evaluations. Do not select a whole JS detect, display, wiz_map or Lua port for this failure; there is no missing game branch to credit.",
+    "Main rebuilt the recorder with the bounded buffer and replayed the unchanged v35-gehennom-juiblex recipe into /tmp. All 109 screens and every per-step RNG array remained byte-for-byte equal to the admitted recording. Cursor steps 100-108 changed from [2105376125,2105376125,1] to valid [69,12,1], and no fresh cursor was outside the 24x80 grid. Bounded focused run run-znCQ3O passed the serializer-bound and admission-guard suites."
+  ],
+  "resolution": {
+    "kind": "recorder-defect",
+    "repair": "nethack-c/patches/006-nomux-capture.patch now sizes nomux_out for the serializer's 44,304-byte worst case, and challenge admission rejects invalid 24x80 C cursor coordinates.",
+    "corpus": "Preserve the admitted v35 recording, manifest, and evaluations unchanged. Treat its nine out-of-bounds cursors as historical defective recorder evidence, not behavior for the JavaScript port to reproduce."
+  }
 }

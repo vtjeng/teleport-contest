@@ -141,6 +141,13 @@ test('admission verifies sequential batches, prepared hashes and matching replay
             recipe.segments[0].moves = 'z';
             entry.recipeSha256 = f.save(entry.recipe, recipe);
         }, /inputs differ/],
+        ['out-of-bounds cursor', f => {
+            const entry = f.prepared.cases[0];
+            const recording = JSON.parse(readFileSync(join(f.root, entry.recording)));
+            // Column 80 is one past the final column of the recorder's 24x80 grid.
+            recording.segments[0].steps[0].cursor = [80, 0, 1];
+            entry.recordingSha256 = f.save(entry.recording, recording);
+        }, /valid 24x80 C cursor/],
     ];
     for (const [name, mutate, error] of mutations) await t.test(name, t => {
         const f = fixture(t); mutate(f);
