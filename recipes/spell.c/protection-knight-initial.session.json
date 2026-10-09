@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first spell.c:cast_protection variation: knight-initial. Seeds16491013/19/27/31 and clock20570917181923 chosen before comparisons; forced low-level/repeated/blind and learned ordinary-casting routes are distinct source entries. Setup corrections are based only on C output. ",
+  "segments": [
+    {
+      "seed": 16491019,
+      "datetime": "20570917181923",
+      "nethackrc": "OPTIONS=name:Protknightinitial,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,!tips\n",
+      "moves": "  #wizcast\n q "
+    }
+  ]
+}
