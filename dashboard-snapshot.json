@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T01:22:56.883Z",
+  "capturedAt": "2026-10-09T01:39:39.897Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -69477,12 +69477,70 @@
         "at": "2026-10-09T01:22:52.326Z",
         "task": "C159",
         "delivery": "8f99d9c4e8d275647ed404ff728a1dc1a07ca0c5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C159-c155-merge-cleanup-20261009",
+        "type": "turn",
+        "at": "2026-10-09T01:23:35.985Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Removing duplicate command case introduced by accepted-main merge; submitted deliveries remain immutable."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C159-ready-idle-c155-boundary-20261009",
+        "type": "turn",
+        "at": "2026-10-09T01:24:22.045Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C156 and C159 submitted. Remaining admitted work belongs to A177, B179, or B180; native pointer diagnostics and version-build configuration are parked on unresolved contracts."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C155-9b586364-20261009",
+        "type": "published",
+        "at": "2026-10-09T01:24:28.063Z",
+        "task": "C155",
+        "commit": "9b586364ad6065c7cc31e1db51ff9ca85f96662e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-B179-review-20261009",
+        "type": "activity",
+        "at": "2026-10-09T01:25:28.185Z",
+        "task": "B179",
+        "phase": "review",
+        "reason": "Reviewing the immutable pickup-types delivery, source evidence, and current-main integration conflicts."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B179-1284e60b-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T01:30:25.662Z",
+        "task": "B179",
+        "integration": "1284e60b42ebde4775c7978300ed09913f893ebc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B179-37870198359-20261009",
+        "type": "validated",
+        "at": "2026-10-09T01:35:47.473Z",
+        "task": "B179",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B179-1284e60b42ebde4775c7978300ed09913f893ebc-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T01:39:17.055Z",
+        "task": "B179"
       }
     ]
   },
   "development": {
-    "executionCommit": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd",
-    "measuredAt": "2026-10-09T01:19:26.348Z",
+    "executionCommit": "1284e60b42ebde4775c7978300ed09913f893ebc",
+    "measuredAt": "2026-10-09T01:35:17.592Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
