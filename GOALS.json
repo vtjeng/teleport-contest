@@ -231077,7 +231077,7 @@
     {
       "id": "port-hea-goal-lua-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Healer quest goal level and its loader registration.",
       "luaFile": "Hea-goal.lua",
       "sessions": [
@@ -231091,15 +231091,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Hea-goal.lua",
           "line": 1,
           "endLine": 90,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -231274,7 +231277,79 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Hea-goal.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "heaGoal",
+            "sourceReview": "Read all dat/Hea-goal.lua1-90 including two initializers: solidfill P then mazelevel then joined unsmoothed lit mines . over P. Generated fixed 12x41 map directly from upstream; await source-ordered map, region(selection.area0/0..40/11) lit, up stair39/10, non-diggable selection, blessed quarterstaff20/6 spe0 Staff of Aesculapius, lightning wand20/6,14 random objects,6 random traps, hostile Cyclops20/6,3 rabid rats,2 hostile class r,6 giant eels,2 electric eels,2 sharks,hostile class ;,5 hostile D,10 hostile S. Preserve source names/class letters for lspo_monster name-resolution gender RNG rather than passing pre-resolved PM constants. Every des call awaited. No new gap, injected operation or swallowed refusal introduced. Entire prior missing registry entry replaced by source-derived loader; other Lua programs remain refused. Existing level_init/splev_initlev/mkmap, C165 map-selection, region/stair/non-diggable/object/trap/monster and finish owners inspected; two independent live C recordings and assigned full admitted replay establish their consumed branches without whole C completion credit.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "dat/Hea-goal.lua whole program selected by sp_lev.c:load_special6454; new Hea-goal key points to heaGoal. Existing js/mklev.js:ensureSpecialLevelLoaders imports registry and load_special awaits loader plus finish."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "mklev.c:makelevel1266-1271 -> mkmaze.c:makemaz1184-1193 -> sp_lev.c:load_special6454-6503; existing dispatch now admits registered Hea-goal without a new C helper claim."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hea-goal-level-generation.test.mjs",
+              "scripts/kni-goal-level-generation.test.mjs",
+              "scripts/special-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Hea-goal.lua/hea-goal-human-independent.session.json",
+              "recordings/Hea-goal.lua/hea-goal-gnome-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-hea-goal",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "teleport.c:level_tele -> do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Hea-goal.lua plus finalization; subsequent #wizmap displays complete source terrain."
+              }
+            ],
+            "checkedAt": "b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0"
+          }
+        ],
+        "entryPointReview": "The source program has one level-generation entry via makelevel/makemaz/load_special. Wizard forced arrival is an active route to the same level feature: typed #wizlevelport (human male Healer) and direct Ctrl-V (gnome female Healer) independent recipes execute full Lua generation, finalization, arrival quest text and #wizmap. Earned quest permission governs arrival callers outside this whole program and is not newly claimed. Other role levels/Hea-loca program remain outside limits. The source has no conditional top-level branch or inactive build arm; every object/trap/monster descriptor runs in both strict-perfect recordings. Descriptor tests pin all top-level order; generated map test compares exact fresh source output. No hidden loader or first-entry-only shortcut added.",
+        "entryPoints": [
+          {
+            "name": "Healer quest goal first generation and mapped terrain through normal special-level dispatch",
+            "functions": [
+              "Hea-goal.lua"
+            ],
+            "recordings": [
+              "recordings/Hea-goal.lua/hea-goal-human-independent.session.json",
+              "recordings/Hea-goal.lua/hea-goal-gnome-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-hea-goal",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "teleport.c:level_tele -> do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Hea-goal.lua plus finalization; subsequent #wizmap displays complete source terrain."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-cav-goal-quest-level-v36-20261009",

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T13:05:21.924Z",
+  "capturedAt": "2026-10-09T13:24:56.737Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -73282,22 +73282,85 @@
         "type": "accepted",
         "at": "2026-10-09T13:04:05.590Z",
         "task": "C168"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C171-C170-acceptance-20261009",
+        "type": "park",
+        "at": "2026-10-09T13:06:27.867Z",
+        "task": "C171",
+        "reason": "Complete Knight locate report de507bd7c preserved; Main prohibits source edits until C1702913f041d is accepted. No source scope claimed. Resume prior report priority after that dependency/central source gate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C172-mon-loca-20261009",
+        "type": "assign",
+        "at": "2026-10-09T13:06:29.401Z",
+        "task": "C172",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C172-investigation-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T13:06:31.018Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the independent Monk quest locate-level mismatch; Knight locate source work awaits C170 acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C168-2e2045df0-20261009",
+        "type": "published",
+        "at": "2026-10-09T13:07:58.413Z",
+        "task": "C168",
+        "commit": "2e2045df0eee70977629d5895367ba5e11237829"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C172-source-gate-hold-20261009",
+        "type": "turn",
+        "at": "2026-10-09T13:10:41.587Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "Monk locate investigation is complete; Main must approve its required spinach-tin descriptor support. Knight locate remains parked on C170 acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B194-d800fc524-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T13:12:53.257Z",
+        "task": "B194",
+        "integration": "d800fc524efd0b66483d1f2a87ba55033ed9de36"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B194-b25f66f0e-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T13:13:31.436Z",
+        "task": "B194",
+        "integration": "b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B194-b25f66f0e-20261009",
+        "type": "validated",
+        "at": "2026-10-09T13:19:45.238Z",
+        "task": "B194",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B194-b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T13:24:42.782Z",
+        "task": "B194"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B194",
-        "worker": "B",
-        "goal": "port-hea-goal-lua-v36-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "886a35eaa110facdc58e3089f54f492b7e252fef",
-        "since": "2026-10-09T10:56:50.168Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "A188",
         "worker": "A2",
@@ -73341,9 +73404,7 @@
         "status": "ready",
         "delivery": "012b37ee9920e63a8966c179df9a0f8160e41e06",
         "since": "2026-10-09T11:24:57.663Z",
-        "blockedBy": [
-          "B194"
-        ],
+        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -73648,12 +73709,23 @@
         "since": "2026-10-09T09:56:14.779Z",
         "blockedBy": [],
         "reason": "Complete source report07845e90b: patch006 nomux_capture_screen overflows6144-byte buffer into raw cursor globals after dense Juiblex mapping. RNG/screens match; Main owns recorder repair and admitted-corpus provenance decision. No JavaScript source task is eligible for this cursor corruption."
+      },
+      {
+        "task": "C171",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T13:06:27.867Z",
+        "blockedBy": [],
+        "reason": "Complete Knight locate report de507bd7c preserved; Main prohibits source edits until C1702913f041d is accepted. No source scope claimed. Resume prior report priority after that dependency/central source gate."
       }
     ]
   },
   "development": {
-    "executionCommit": "61750b3c94588b56b72831b9a3754af8f9cd6770",
-    "measuredAt": "2026-10-09T12:58:38.408Z",
+    "executionCommit": "b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0",
+    "measuredAt": "2026-10-09T13:18:53.816Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
