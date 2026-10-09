@@ -89,7 +89,8 @@
       "botl.c:status_hilite_linestr_gather3570-3586 discarded-return state/output support, distinct from required return closure.",
       "botl.c:status_hilites_viewall4456-4474 discarded-return state/output support, distinct from required return closure.",
       "Canonical windows.c menus and getlin/pline; no invented source menu IDs or random calls.",
-      "Existing state.iflags.status_hilites/condition-rule storage and display.js botl renderer are the canonical state seam; no second rule store."
+      "Existing state.iflags.status_hilites/condition-rule storage and display.js botl renderer are the canonical state seam; no second rule store.",
+      "coloratt.c:basic_menu_colors530-580 source temporary-pattern and use_menu_color save/restore is necessary for realistic color-query evidence; add_menu_coloring_parsed is an existing canonical owner."
     ]
   },
   "evidence": [
@@ -101,7 +102,8 @@
     "Existing js/options.js:status_hilite_linestr_gather7405/count_status_hilites7418 creates opaque count entries, not C temporary records {id,fld,hl,mask,str}. That suffices only count-only current reads, not nested menu/remove/viewall contracts. Replace it with one canonical botl owner; js/display.js header establishes display.js as existing botl.c owner. Do not duplicate rule state or preserve obsolete count-only producer.",
     "Existing query_color/query_attr private helpers in options.js2866+ are coloratt.c ports used by menu headings. Full consumed-helper reconciliation must verify source pick-count/preselection and attribute domain, place canonical coloratt helpers in js/coloratt.js, and preserve bounded existing options caller adapters. No claim to whole options parser or display renderer.",
     "Admitted case covers empty top-level status menu paging/Escape only. Independent C-first variations are required for nonempty field rule creation/deletion, condition masks, numeric/text/color/attribute cancellation, viewall and ordinary O simple menu. Startup preset hilite rules provide cheap variation and pure format assertions. Broader #saveoptions/all_options_statushilites persistence remains an explicit outside-limit caller, not an invented file writer.",
-    "Counter-evidence: accepted B173 also makes related v32-options-status-duration-prompt48/48 exact; no duration grouping, no optfn_statushilites scope. C156 scores, C155 pager/key description and A177 lycanthropy remain disjoint reserved families."
+    "Counter-evidence: accepted B173 also makes related v32-options-status-duration-prompt48/48 exact; no duration grouping, no optfn_statushilites scope. C156 scores, C155 pager/key description and A177 lycanthropy remain disjoint reserved families.",
+    "Additional caller audit: coloratt.c query_color_attr304-317 consumes both selectors and is called by options.c handler_menu_headings5780+; handler_petattr6152+ consumes query_attr; handler_menu_colors6407+ consumes both. menu_headings is currently wired through private options helpers, while petattr/menu-colors do_handler arms remain unported. Keep their wider source handlers as named frontiers unless explicitly expanded; no whole helper credit without caller reconciliation. Attribute menu values must distinguish C ATR enum from terminal encoding, and source PICK_ONE can return two picks when a preselected entry survives. Source basic_menu_colors530-580 temporarily enables/pushes canonical color patterns and restores them; skips only black/white/no-color, not gray. Existing helper shortcut uses explicit colors and skips gray too, so it is not sufficient whole-source selector verification."
   ],
   "proposal": {
     "goalId": "port-options-status-hilite-menu-v32-20261009",
@@ -267,6 +269,12 @@
         "name": "status_hilites_viewall",
         "start": 4456,
         "end": 4474
+      },
+      {
+        "file": "coloratt.c",
+        "name": "basic_menu_colors",
+        "start": 530,
+        "end": 580
       }
     ],
     "proposedReservations": [
@@ -298,7 +306,8 @@
       "source:botl.c:status_hilite_linestr_gather",
       "source:botl.c:status_hilites_viewall",
       "contract:status-highlight-rule-menu",
-      "contract:status-highlight-temporary-rule-identity"
+      "contract:status-highlight-temporary-rule-identity",
+      "source:coloratt.c:basic_menu_colors"
     ],
     "proposedPaths": [
       "js/options.js",
