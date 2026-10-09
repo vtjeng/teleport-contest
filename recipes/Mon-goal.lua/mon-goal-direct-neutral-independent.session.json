@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first direct wizard load of dat/Mon-goal.lua through #wizloaddes. Seed 64018317, date 20380714103220, and a female human neutral Monk were chosen for this reproduction; the explicit filename reaches wiz_load_splua without relying on quest arrival.",
+  "segments": [
+    {
+      "seed": 64018317,
+      "datetime": "20380714103220",
+      "nethackrc": "OPTIONS=name:MonGoalNeutral,role:Monk,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizloaddes\nMon-goal.lua\n "
+    }
+  ]
+}

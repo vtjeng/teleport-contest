@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first direct wizard load of dat/Mon-goal.lua through #wizloaddes. Seed 64018341, date 20510429151733, and a male human lawful Monk vary startup state while preserving the same explicit loader path.",
+  "segments": [
+    {
+      "seed": 64018341,
+      "datetime": "20510429151733",
+      "nethackrc": "OPTIONS=name:MonGoalLawful,role:Monk,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizloaddes\nMon-goal.lua\n "
+    }
+  ]
+}
