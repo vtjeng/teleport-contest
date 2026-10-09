@@ -197,6 +197,8 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
     const receipt = acceptTask(options, root);
     assert.equal(receipt.handle, 'existing-worker');
     assert.equal(receipt.commit, commit);
+    assert.deepEqual(receipt.handoff, { turn: null, currentTask: null, action: 'inspect-turn' },
+        'a missing observed turn is not proof that a worker is idle');
     const rows = readRows(join(root, 'SCORE.tsv'));
     assert.deepEqual(rows.map(row => row.event), ['challenge', 'challenge', 'goal']);
     assert.equal(rows[2].screens_matched, '2');

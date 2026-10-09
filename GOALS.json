@@ -234961,7 +234961,7 @@
     {
       "id": "port-medusa-4-lua-v37-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete and verify the Medusa-4 special level, including its final moat row.",
       "luaFile": "medusa-4.lua",
       "sessions": [
@@ -234975,15 +234975,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b581facde072156e518fc16846e3a5ca02455f81",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "medusa-4.lua",
           "line": 1,
           "endLine": 152,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -235256,30 +235259,121 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "medusa-4.lua",
+            "implementation": "js/medusa_levels.js",
+            "symbol": "medusa4",
+            "sourceReview": "Read whole dat/medusa-4.lua1–152 in order: solid stone fill and noteleport/mazelevel flags; generated exact21x76 map including final moat row; four-point selection with two distinct removed coordinates; lit map and irregular room; separate up/down teleport regions; up levregion, down stair at medloc, seven locked doors, branch region and nondiggable palace; crystal ball; historic male uncursed knight Perseus statue with75/25/50/50 conditional contents; seven empty statues and eight random objects; seven random traps; sleeping Medusa first, kraken, sleeping yellow dragon,50/25 baby gates and50/25 extra egg gates; two eels, two jellyfish,14 snakes and four interleaved black-naga/hatchling pairs. Every impure descriptor and contents callback is awaited in source order. Existing canonical descriptors consume resolved object/species IDs, while source positional string descriptors preserve default parsing. Lua contents=0 opens/closes an empty container through the equivalent empty callback. No stub or unported consumed result remains in the Lua unit.",
+            "callers": [
+              {
+                "path": "js/medusa_levels.js",
+                "symbol": "MEDUSA_LEVEL_LOADERS",
+                "source": "Existing medusa-4 registry resolves the source-named Lua program. All four program registrations remain intact."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "makelevel/makemaz -> sp_lev.c load_special -> nhlua load_lua -> whole medusa-4.lua. Canonical loader creates the descriptor API and private alignment shuffle, then finishes level generation. Matching selected arrival and independent Wizard arrival establish this production route."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "wizcmds.c wiz_load_splua calls source-named load_special after level reset. Independent Valkyrie direct loading matches through whole generation and map display."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/medusa4-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/medusa-4.lua/medusa4-valkyrie-independent.session.json",
+              "recordings/medusa-4.lua/medusa4-wizard-arrival-independent.session.json"
+            ],
+            "sourceFile": "medusa-4.lua",
+            "synthetic": [
+              {
+                "batch": "v37",
+                "caseId": "v37-medusa",
+                "segment": 0,
+                "fromStep": 18,
+                "throughStep": 26,
+                "source": "Natural Medusa arrival via level_tele/deferred_goto/goto_level -> makelevel/makemaz/load_special -> whole dat/medusa-4.lua and finish. Full selected replay matches27 screens/cursors and7466 RNG calls."
+              }
+            ],
+            "checkedAt": "b581facde072156e518fc16846e3a5ca02455f81"
+          }
+        ],
+        "entryPointReview": "The whole Lua generation entry is reachable through natural Medusa level creation and direct source-named debug loading. Selected admitted arrival and independently selected Wizard arrival cover natural generation; independent Valkyrie direct loading covers wiz_load_splua. Source-derived tests establish all descriptor values/order, removed selection coordinates and percent gates. Runtime assertions verify sleeping Medusa, nesting dragon, flags, down stair at Medusa and full-width final moat row. No whole generic descriptor, Medusa variants1–3, coordinate, reset or command credit.",
+        "entryPoints": [
+          {
+            "name": "Natural Medusa-level arrival generation",
+            "functions": [
+              "medusa-4.lua"
+            ],
+            "recordings": [
+              "recordings/medusa-4.lua/medusa4-wizard-arrival-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v37",
+                "caseId": "v37-medusa",
+                "segment": 0,
+                "fromStep": 18,
+                "throughStep": 26,
+                "source": "Natural Medusa arrival via level_tele/deferred_goto/goto_level -> makelevel/makemaz/load_special -> whole dat/medusa-4.lua and finish. Full selected replay matches27 screens/cursors and7466 RNG calls."
+              }
+            ]
+          },
+          {
+            "name": "Direct source-named special-level loading",
+            "functions": [
+              "medusa-4.lua"
+            ],
+            "recordings": [
+              "recordings/medusa-4.lua/medusa4-valkyrie-independent.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b581facde072156e518fc16846e3a5ca02455f81",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-wizcmds-wiz-show-nhuuid-v34-20261009",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port the wizard game UUID display command and canonical saved UUID state.",
       "cFile": "wizcmds.c",
       "sessions": [
         "synthetic/v34/v34-game-uuid"
       ],
-      "selectionReason": "B186 refreshed the complete v34 UUID investigation after B185 was accepted; wizcmds.c wiz_show_nhuuid is now dependency-ready and has no overlapping live reservation.",
+      "selectionReason": "B186 whole wizcmds.c wiz_show_nhuuid source delivery 747065a01f2df1ee7b66ecc44106fe1dd4d782d8",
       "detail": "Port whole wiz_show_nhuuid, wire its typed and rebound command dispatch, and add the one canonical svn.nhuuid reset/save/restore field used by the source command. The recorder build leaves generation empty; preserve arbitrary stored values without inventing native UUID behavior.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "6a3376788cd3e39986b97106fce036a4c0db779d",
+      "openStanding": {
+        "sha": "b581facde072156e518fc16846e3a5ca02455f81",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "aa078be24751cc723362b906245b9eb53d03ec6e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_show_nhuuid",
           "line": 1782,
           "endLine": 1789,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -235299,6 +235393,1097 @@
           "evaluationPath": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v34.json",
           "evaluationCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd"
         }
+      },
+      "activeStanding": {
+        "sha": "b581facde072156e518fc16846e3a5ca02455f81",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v34",
+          "caseId": "v34-game-uuid",
+          "session": "synthetic/v34/v34-game-uuid",
+          "manifestPath": "challenges/manifests/v34.json",
+          "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+          "recording": "challenges/cases/v34/v34-game-uuid.session.json",
+          "recordingPath": "challenges/cases/v34/v34-game-uuid.session.json",
+          "recordingSha256": "a3502cee25b5e748a333a0b3b750ed2cdc98e1ddfbad71440b4b1642bf2dff7a",
+          "recipe": "challenges/cases/v34/v34-game-uuid.recipe.session.json",
+          "recipeSha256": "4fddd1988a2918e73cb2b823b35a4b8afb80d8b88fc221f0b63d563d5bbf5aa2",
+          "replayInputSha256": "7a540068dabc7346a41d1a79217af7c22a9bf4dcf0dd797a576c3bc9b8638438",
+          "evaluationPath": "challenges/evaluations/accepted-b581facde072156e518fc16846e3a5ca02455f81-v34.json",
+          "evaluationCommit": "b581facde072156e518fc16846e3a5ca02455f81",
+          "evaluationArtifact": "challenges/evaluations/accepted-b581facde072156e518fc16846e3a5ca02455f81-v34.json",
+          "evaluationUtc": "2026-10-09T15:46:56.484Z",
+          "remainingScreens": 23,
+          "recordedSteps": 39,
+          "previousScreensMatched": 16,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 16,
+              "total": 39
+            },
+            "rng": {
+              "matched": 2596,
+              "total": 2596
+            },
+            "cursors": {
+              "matched": 16,
+              "total": 39
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_show_nhuuid() for the extended command 'wizshownhuuid' is not ported",
+            "step": 16
+          },
+          "step": 16,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_show_nhuuid",
+          "message": "unsupported hero command: wiz_show_nhuuid() for the extended command 'wizshownhuuid' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v34/v34-game-uuid.json",
+            "result": {
+              "session": "synthetic/v34/v34-game-uuid",
+              "corpus": "synthetic",
+              "batch": "v34",
+              "caseId": "v34-game-uuid",
+              "manifestPath": "challenges/manifests/v34.json",
+              "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+              "recordingSha256": "a3502cee25b5e748a333a0b3b750ed2cdc98e1ddfbad71440b4b1642bf2dff7a",
+              "evaluationPath": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v34.json",
+              "evaluationCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+              "remainingScreens": 23,
+              "recordedSteps": 39,
+              "status": "complete",
+              "commit": "9f67337b46c581f4e8f758d40bdbd8268c2f7cff",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v34",
+                "caseId": "v34-game-uuid",
+                "session": "synthetic/v34/v34-game-uuid",
+                "manifestPath": "challenges/manifests/v34.json",
+                "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+                "recording": "challenges/cases/v34/v34-game-uuid.session.json",
+                "recordingPath": "challenges/cases/v34/v34-game-uuid.session.json",
+                "recordingSha256": "a3502cee25b5e748a333a0b3b750ed2cdc98e1ddfbad71440b4b1642bf2dff7a",
+                "recipe": "challenges/cases/v34/v34-game-uuid.recipe.session.json",
+                "recipeSha256": "4fddd1988a2918e73cb2b823b35a4b8afb80d8b88fc221f0b63d563d5bbf5aa2",
+                "replayInputSha256": "5623f5ede977f3c58866b0af64e557c8173159f38f84136518296dc46ca75b89",
+                "evaluationPath": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v34.json",
+                "evaluationCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+                "evaluationArtifact": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v34.json",
+                "evaluationUtc": "2026-10-09T14:57:30.193Z",
+                "remainingScreens": 23,
+                "recordedSteps": 39,
+                "previousScreensMatched": 16,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 16,
+                    "total": 39
+                  },
+                  "rng": {
+                    "matched": 2596,
+                    "total": 2596
+                  },
+                  "cursors": {
+                    "matched": 16,
+                    "total": 39
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: wiz_show_nhuuid() for the extended command 'wizshownhuuid' is not ported",
+                  "step": 16
+                },
+                "step": 16,
+                "kind": "stop",
+                "sourceFile": "wizcmds.c",
+                "function": "wiz_show_nhuuid",
+                "message": "unsupported hero command: wiz_show_nhuuid() for the extended command 'wizshownhuuid' is not ported",
+                "cFile": "wizcmds.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The wizard game-UUID display command is missing. C prints the stored svn.nhuuid, which is empty in the recorder’s minimal build; JS refuses before the message. Its single stored value must survive save/restore rather than be replaced by a fixed display string.",
+              "source": {
+                "file": "wizcmds.c",
+                "branch": "wiz_show_nhuuid1782–1786, wizard command admitted only when not buried: print svn.nhuuid and return ECMD_OK without RNG or elapsed game time.",
+                "functions": [
+                  "wiz_show_nhuuid"
+                ],
+                "callers": [
+                  "cmd.c:doextcmd491–521 invokes the extcmdlist function pointer for wizshownhuuid1992–1993. js/extcmdlist_data.js176 has the correct AUTOCOMPLETE|WIZMODECMD row, but js/cmd.js lacks its typed switch arm.",
+                  "cmd.c:rhack3682–3825 resolves rebound/canned command rows, invokes the handler, and clears count after ECMD_OK. js/cmd.js needs only the bounded wizshownhuuid import/admission/rebound arm and existing result/reset behavior, including its no-time counted path."
+                ],
+                "dependencies": [
+                  "Existing pline owner supplies the discarded output call; use the canonical awaited tty message path. The selected function has no consumed-return callee.",
+                  "C decl.c928–934 initializes svn.nhuuid to a zero-filled NHUUIDSZ37 buffer, include/decl.h1173 declares the single saved field, and allmain.c:newgame778 calls get_nhuuid. Unix get_nhuuid849–871 is compile-time inactive without NHUUID. Both recorder minimal hints omit -DNHUUID; the private Linux recorder disassembly shows get_nhuuid only pushes/pops its frame then returns. No native UUID generation is needed for this build.",
+                  "C save.c:savegamestate273 writes svn.nhuuid before moves and restore.c:restgamestate539 restores it before moves. JS gstate/resetGame currently creates no UUID field; serializeGameState and dorestore also omit it. Proposed supporting closure initializes one canonical state.svn.nhuuid empty string and transports that value through the existing snapshot. No duplicate cached UUID or command-local literal.",
+                  "C save.c:freedynamicdata1170 calls free_nhuuid and bones.c614/636/678 writes/reads ancestor UUID metadata. Broader shutdown/bones ownership and NHUUID-enabled native generation remain explicit outside limits; no completion credit for those functions or whole startup/save/restore."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Accepted B195 evidence challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v34.json retains 16/39 screens and cursors,2596/2596 RNG:23 remaining. Saved current-work-queue identifies the same missing wiz_show_nhuuid at segment0 step16; no replay was repeated during this refresh. Earlier assigned-base diagnostic .cache/B186/current-scan.json at0f268f2c confirmed this source owner and expected stored-value message. Recording and recipe hashes remain unchanged.",
+                "Read complete wizcmds.c:wiz_show_nhuuid1782–1786: one pline with %s and svn.nhuuid, followed by ECMD_OK. rg for wiz_show_nhuuid/nhuuid in JS and focused tests finds only the generated command-table row and unrelated source-boundary/prompt tests; no implementation or stored UUID field exists.",
+                "Recorder source nethack-c/build-recorder.sh selects upstream sys/unix/hints/linux-minimal or nethack-c/macosx-minimal. Their CFLAGS do not define NHUUID and their link libraries do not include UUID support. Unlike full linux.500/macOS.500 hints, they do not conditionally add it. Read complete unixmain.c:get_nhuuid/free_nhuuid849–881; get_nhuuid’s body is wrapped by #if defined(NHUUID). objdump -d --disassemble=get_nhuuid /tmp/b121-recorder-worker-b/nethack confirms the actual private recorder body has no writes or UUID calls. This is a compile-time source fact, not a seed/session special case.",
+                "C’s initialized saved field remains empty in the supported recorder build, but wiz_show_nhuuid reads whatever is stored. Source-pinned tests should verify a nonempty supplied field is formatted unchanged, reset owns one fresh empty value, and save/restore preserves it without overwriting another saved-n field. Native generation is excluded from source completion.",
+                "Production command table uses AUTOCOMPLETE|WIZMODECMD without IFBURIED. Preserve existing wizard/buried admission, cancellation, no-time return, count reset, and normal message/More handling. There is no dedicated C producer of a queued UUID command; generic canned/repeat routing shares rhack’s row dispatch.",
+                "Independent evidence after central assignment: C-first typed command with different relevant role/options, rebound BINDINGS=V:wizshownhuuid with a count, repeated display, and a save/restore multi-segment variation showing the same stored field. Retain the admitted range through step38. Native UUID-enabled builds and bones/shutdown consumers stay named frontiers, without invented randomness or native operations.",
+                "Rechecked source and production state at merged accepted-B195 worker HEAD9f67337b46c581f4e8f758d40bdbd8268c2f7cff. rg nhuuid/wiz_show_nhuuid in js/gstate.js,save.js,restore.js,cmd.js,wizcmds.js finds no field/helper/caller; only extcmdlist_data.js has the source metadata row. Accepted B185 panic is wired at distinct doextcmd and rhack arms. The proposed UUID command requires only its own import/admission/typed/rebound arm, preserving those existing arms and source no-time return/count-reset behavior.",
+                "Current source review confirms decl.c init_svn928–934 zero-filled37byte nhuuid; save.c273 writes it before moves and restore.c539 reads it before moves. gstate.resetGame currently returns only item_action_in_progress; serializeGameState begins with moves and dorestore begins restoring moves. Add one canonical saved-n UUID field and only bounded persistence writes/reads,with nonempty supplied-state/save-restore tests. Source SHA for wizcmds.c is 4611d620caedc59dc270f5d6b6f9a2497831dc88325edc90f3770e75afd9b71f. Broader NHUUID generation,bones,shutdown and whole save/restore remain outside completion credit."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_show_nhuuid",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_show_nhuuid",
+            "sourceReview": "Read whole wizcmds.c:wiz_show_nhuuid1781–1786, the cmd.c command row/doextcmd/rhack, decl.c:init_svn928–934, save.c:savegamestate273 and restore.c:restgamestate539, allmain.c:newgame778 and sys/unix/unixmain.c:get_nhuuid849–871/free_nhuuid. The function reads the stored UUID, awaits the exact pline output, and returns ECMD_OK without RNG, state mutation or time. Wire typed doextcmd and bound/canned rhack resolution with source metadata admission and no-time count reset. One canonical state.svn.nhuuid is initialized empty by resetGame; save transport writes and restore reads it before moves, as C does. No generated metadata, duplicate runtime state, compatibility fallback or injected operation. Existing generic unsupported default remains for unrelated commands; search of scripts/*test.mjs found no stale UUID refusal assertion.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c:doextcmd491–523 resolves wizshownhuuid command row (AUTOCOMPLETE|WIZMODECMD, without IFBURIED) and consumes ECMD_OK."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:rhack3682–3825 resolves rebound/canned command row, checks wizard/buried admission, calls handler and clears count on ECMD_OK."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-show-nhuuid.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-game-uuid-typed-independent.session.json",
+              "recordings/wizcmds.c/wizard-game-uuid-bound-independent.session.json",
+              "recordings/wizcmds.c/wizard-game-uuid-restore-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v34",
+                "caseId": "v34-game-uuid",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 38,
+                "source": "cmd.c:doextcmd -> wizcmds.c:wiz_show_nhuuid1781–1786, then subsequent recorded commands."
+              }
+            ],
+            "checkedAt": "aa078be24751cc723362b906245b9eb53d03ec6e"
+          }
+        ],
+        "entryPointReview": "The C references are the function declaration/body and extcmdlist row. Typed #wizshownhuuid and a configured bound key are active command entries. Both are strict-perfect C recordings, including positive-count cancellation. Source rhack shares row handling with canned/rebound commands; no C producer separately queues this owner. Ordinary save and startup restore preserve the field across runSegment storage and have a two-segment strict-perfect recording. The reference minimal recorder does not define NHUUID, so native generation is compile-time inactive and the field remains empty. A source-pinned production save/restore test additionally transports a valid nonempty 36-byte value. No native-generator completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "typed wizard UUID command",
+            "functions": [
+              "wiz_show_nhuuid"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-game-uuid-typed-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v34",
+                "caseId": "v34-game-uuid",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 38,
+                "source": "cmd.c:doextcmd -> wizcmds.c:wiz_show_nhuuid1781–1786, then subsequent recorded commands."
+              }
+            ]
+          },
+          {
+            "name": "counted rebound wizard UUID command",
+            "functions": [
+              "wiz_show_nhuuid"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-game-uuid-bound-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "UUID command after saved-game restore",
+            "functions": [
+              "wiz_show_nhuuid"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-game-uuid-restore-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "aa078be24751cc723362b906245b9eb53d03ec6e",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-kni-loca-quest-level-v36-20261009",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the complete Knight quest locate level from Lua.",
+      "luaFile": "Kni-loca.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-kni-loca"
+      ],
+      "selectionReason": "C171 traced the v36 Knight locate stop to the missing Kni-loca loader; the whole Lua program uses existing descriptor owners and has no live reservation overlap.",
+      "detail": "Port all dat/Kni-loca.lua top-level statements and register the production quest loader. Preserve source order, generate the fixed map and tables from source, and verify natural Knight arrival plus independent male and female direct loads.",
+      "openedAt": "78d32241e78114dc1fd60c5443ffbae9a42f99ab",
+      "openStanding": {
+        "sha": "7c789590bf2ff0b12c9c8c1ddbb81a41a51b609a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "12b580fd16db4d603164821a223688d1d9167cdc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "Kni-loca.lua",
+          "line": 1,
+          "endLine": 137,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-kni-loca": {
+          "session": "synthetic/v36/v36-quest-kni-loca",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-kni-loca",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-kni-loca.session.json",
+          "recordingSha256": "d4614f2ccb4abc35c097705db11890113bed01144d3fa40c6c4d9ae4f29bc856",
+          "evaluationPath": "challenges/evaluations/accepted-b581facde072156e518fc16846e3a5ca02455f81-v36.json",
+          "evaluationCommit": "b581facde072156e518fc16846e3a5ca02455f81"
+        }
+      },
+      "activeStanding": {
+        "sha": "7c789590bf2ff0b12c9c8c1ddbb81a41a51b609a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-kni-loca",
+          "session": "synthetic/v36/v36-quest-kni-loca",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-kni-loca.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-kni-loca.session.json",
+          "recordingSha256": "d4614f2ccb4abc35c097705db11890113bed01144d3fa40c6c4d9ae4f29bc856",
+          "recipe": "challenges/cases/v36/v36-quest-kni-loca.recipe.session.json",
+          "recipeSha256": "599bc74f8b4745ae9a2475c890820a8a26e82ba2dac5cd6a582d4493eda44da9",
+          "replayInputSha256": "de6626e1fc447e635e0f237e6882ed2759cf1c6a36561e84aba35c46d861aca8",
+          "evaluationPath": "challenges/evaluations/hosted-37958786478-1-v36.json",
+          "evaluationCommit": "7c789590bf2ff0b12c9c8c1ddbb81a41a51b609a",
+          "evaluationArtifact": "challenges/evaluations/hosted-37958786478-1-v36.json",
+          "evaluationUtc": "2026-10-09T16:26:15.802Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2723,
+              "total": 6160
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Kni-loca\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Kni-loca.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Kni-loca\"",
+          "cFile": null,
+          "luaFile": "Kni-loca.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-kni-loca.json",
+            "result": {
+              "session": "synthetic/v36/v36-quest-kni-loca",
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-kni-loca",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "d4614f2ccb4abc35c097705db11890113bed01144d3fa40c6c4d9ae4f29bc856",
+              "evaluationPath": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v36.json",
+              "evaluationCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "4b8e78b3436a3badbcadb94bff93da388213ba19",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-kni-loca",
+                "session": "synthetic/v36/v36-quest-kni-loca",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-kni-loca.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-kni-loca.session.json",
+                "recordingSha256": "d4614f2ccb4abc35c097705db11890113bed01144d3fa40c6c4d9ae4f29bc856",
+                "recipe": "challenges/cases/v36/v36-quest-kni-loca.recipe.session.json",
+                "recipeSha256": "599bc74f8b4745ae9a2475c890820a8a26e82ba2dac5cd6a582d4493eda44da9",
+                "replayInputSha256": "f112774e38e68525fbe6057cb11c8737381e0c523632d15530429a0fce484b5a",
+                "evaluationPath": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v36.json",
+                "evaluationCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+                "evaluationArtifact": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v36.json",
+                "evaluationUtc": "2026-10-09T14:57:31.066Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2723,
+                    "total": 6160
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Kni-loca\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Kni-loca.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Kni-loca\"",
+                "cFile": null,
+                "luaFile": "Kni-loca.lua",
+                "line": null
+              },
+              "goalKind": "lua-port",
+              "summary": "Kni-loca has no registered loader, so Knight quest locate arrival stops before its whole swamp/Isle-of-Glass Lua program. Port the program through existing mines initialization, transparent map, temple/shrine, trap and monster descriptor owners.",
+              "source": {
+                "file": "Kni-loca.lua",
+                "branch": "Knight quest locate generation or registered wizard des-file load of Kni-loca.",
+                "functions": [
+                  "Kni-loca.lua"
+                ],
+                "callers": [
+                  "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Kni-loca.lua",
+                  "wizcmds.c:wiz_load_splua -> load_special -> registered Kni-loca Lua program"
+                ],
+                "dependencies": [
+                  "Existing mines mkmap with joined=true, transparent map descriptor, lit rectangle and filled=2 temple region, shrine create_altar/priestini, and stair/object/trap/monster owners. No supporting owner edits identified by source review."
+                ]
+              },
+              "evidence": [
+                "Saved evaluation challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v36.json at c08963f94b25f12e3bbccc94c0a4469ac664c8cd records 19/60 matching screens and 41 remaining, with the missing Kni-loca loader at zero-based step 19. Recording SHA256 d4614f2ccb4abc35c097705db11890113bed01144d3fa40c6c4d9ae4f29bc856; admitted corpus digest 58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c. Accepted C179 checkout 4b8e78b3436a3badbcadb94bff93da388213ba19 still has no Kni-loca registry entry.",
+                "Read whole dat/Kni-loca.lua1–137, SHA256c863d9c364c7a6165f4044fd4c2cf02464ee9074335f8753a1c8d0a6fd1d6575: solidfill before mazelevel/hardfloor flags, then mines foreground floor/background pool with smoothed=false,joined=true,lit1,walled=false. Exact40×12 transparent-x map; lit full fragment and lit temple region9,2..27,9 filled2; up38,0/down18,5 stairs; neutral shrine17,5 creates priest;15random objects;45fixed magic traps guarding S/W/N and7random anti-magic traps;17hostile quasits, classi/j,sevenhostile ochre jellies and final classj. No explicit wallify statement.",
+                "The existing QUEST_LEVEL_LOADERS registry in js/quest_levels.js has Kni-goal but no Kni-loca. Proposed whole kniLoca program in that file, a distinct registry key, and deterministic generated fixed map/trap/monster data. The shared descriptor owners remain unchanged.",
+                "Audited existing lspo_level_init mines dispatch/mkmap passes/join/finish, mapFromRows transparent INVALID_TYPE skip and actual-written selection contract, lspo_region table filled2 room fields/topology, create_altar temple discovery/priestini/AM_SHRINE, fill_special_room flags-only behavior for filled2. These forms already have owners; fresh runtime must verify them. No whole mkmap/sp_lev/priest credit or ownership relocation planned.",
+                "Plan male/female human lawful Knight independent C-first wizard-load recipes, fixed new seeds/clocks and explicit/extensionless names before comparison. Runtime checks must prove temple/shrine/priest, pool background and fixed trap/monster quantities. Admitted forced Knight quest locate arrival covers makelevel route; independent wizard-load recipes cover the other production entry. Report any required shared dependency change before owner expansion.",
+                "Rechecked current lspo_level_init, mapFromRows, lspo_region, create_altar and fill_special_room implementations against the required forms. The program requires no numeric selection algebra, tin species override, random-alignment macro, or native pointer formatting. C170 is accepted; the original dependency no longer prevents an implementation based on accepted main. Runtime evidence must still establish descriptor behavior and every program entry."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Kni-loca.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "kniLoca",
+            "sourceReview": "Read the complete upstream dat/Kni-loca.lua, lines 1-137, and preserved the top-level evaluation order: solid fill; mazelevel/hardfloor; joined mines floor/pool initialization; transparent 40x12 map; lit whole-map and filled=2 temple regions; up/down stairs; neutral shrine; 15 random objects; 45 fixed magic-trap descriptors; seven random anti-magic trap calls; and 27 hostile monster descriptors. The deterministic generator parses the map, fixed trap coordinates, and ordered monster descriptors directly from the Lua source. Existing des descriptor owners remain the implementation dependencies; no generic descriptor behavior was moved or newly claimed. The file has no branches or helper functions and no unported calls.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special dispatches the Kni-loca special-level name to the registered loader."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "wizcmds.c:wiz_load_splua calls sp_lev.c:load_special for a wizard-specified des-file name."
+              },
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "dat/Kni-loca.lua is registered under its special-level name for load_special dispatch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/kni-loca-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Kni-loca.lua/kni-loca-male-independent.session.json",
+              "recordings/Kni-loca.lua/kni-loca-female-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-kni-loca",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 20,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Kni-loca.lua"
+              }
+            ],
+            "checkedAt": "12b580fd16db4d603164821a223688d1d9167cdc"
+          }
+        ],
+        "entryPointReview": "The whole program has two active production entries in the reference recorder. Ordinary Knight quest locate arrival reaches makelevel/makemaz/load_special and is replay-verified by admitted v36 case v36-quest-kni-loca through the initial Kni-loca level screen at segment 0, step 20. Debug wizard command wiz_load_splua reaches load_special with the requested file name; independent male and female Knight recordings exercise that dispatch. Both caller paths are enabled in the patched recorder. Kni-loca.lua has only top-level descriptor statements; all descriptors use existing owners, and this task does not claim those generic owners.",
+        "entryPoints": [
+          {
+            "name": "Knight quest locate arrival",
+            "functions": [
+              "Kni-loca.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-kni-loca",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 20,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Kni-loca.lua"
+              }
+            ]
+          },
+          {
+            "name": "Wizard #wizloaddes direct load",
+            "functions": [
+              "Kni-loca.lua"
+            ],
+            "recordings": [
+              "recordings/Kni-loca.lua/kni-loca-male-independent.session.json",
+              "recordings/Kni-loca.lua/kni-loca-female-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "12b580fd16db4d603164821a223688d1d9167cdc",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-mon-goal-quest-goal-v36-20261009",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the complete Monk quest goal level from Lua.",
+      "luaFile": "Mon-goal.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-mon-goal"
+      ],
+      "selectionReason": "A192 traced the v36 Monk quest goal stop to the missing Mon-goal loader; the whole Lua program uses existing descriptor owners and does not overlap B186 or C171.",
+      "detail": "Port all dat/Mon-goal.lua top-level statements and register the production quest loader. Preserve its single shared two-position draw for the artifact, Master Kaen, and altar; generate fixed tables from source and verify natural arrival plus independent direct loads.",
+      "openedAt": "45011934009b4033019f87f1cd7b402d96741616",
+      "openStanding": {
+        "sha": "12b580fd16db4d603164821a223688d1d9167cdc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "a8f1dafa0ebb86146dc236746b036776a2d115ff",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "Mon-goal.lua",
+          "line": 1,
+          "endLine": 75,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-mon-goal": {
+          "session": "synthetic/v36/v36-quest-mon-goal",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-mon-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-mon-goal.session.json",
+          "recordingSha256": "daf2d29044a317edaf6598177fb6c24d2a290406534b6bafa42b3408d11db3f8",
+          "evaluationPath": "challenges/evaluations/accepted-b581facde072156e518fc16846e3a5ca02455f81-v36.json",
+          "evaluationCommit": "b581facde072156e518fc16846e3a5ca02455f81"
+        }
+      },
+      "activeStanding": {
+        "sha": "12b580fd16db4d603164821a223688d1d9167cdc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-mon-goal",
+          "session": "synthetic/v36/v36-quest-mon-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-mon-goal.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-mon-goal.session.json",
+          "recordingSha256": "daf2d29044a317edaf6598177fb6c24d2a290406534b6bafa42b3408d11db3f8",
+          "recipe": "challenges/cases/v36/v36-quest-mon-goal.recipe.session.json",
+          "recipeSha256": "3090d1f7b67924da061bd6cd280fc70a3e8b95299ce394cebacba671f5a8a0d5",
+          "replayInputSha256": "095f603ae48c47f0cf3e8b8e392deb44af3f769c5d16c0d742e2959d3d7124e1",
+          "evaluationPath": "challenges/evaluations/accepted-12b580fd16db4d603164821a223688d1d9167cdc-v36.json",
+          "evaluationCommit": "12b580fd16db4d603164821a223688d1d9167cdc",
+          "evaluationArtifact": "challenges/evaluations/accepted-12b580fd16db4d603164821a223688d1d9167cdc-v36.json",
+          "evaluationUtc": "2026-10-09T16:40:28.173Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2210,
+              "total": 4201
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-goal\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Mon-goal.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-goal\"",
+          "cFile": null,
+          "luaFile": "Mon-goal.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-mon-goal.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-mon-goal",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "daf2d29044a317edaf6598177fb6c24d2a290406534b6bafa42b3408d11db3f8",
+              "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+              "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "session": "synthetic/v36/v36-quest-mon-goal",
+              "commit": "99b851f8a743df7a2becc3f43da8f1013790deed",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-mon-goal",
+                "session": "synthetic/v36/v36-quest-mon-goal",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-mon-goal.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-mon-goal.session.json",
+                "recordingSha256": "daf2d29044a317edaf6598177fb6c24d2a290406534b6bafa42b3408d11db3f8",
+                "recipe": "challenges/cases/v36/v36-quest-mon-goal.recipe.session.json",
+                "recipeSha256": "3090d1f7b67924da061bd6cd280fc70a3e8b95299ce394cebacba671f5a8a0d5",
+                "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+                "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+                "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+                "evaluationArtifact": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+                "evaluationUtc": "2026-10-09T10:38:34.264Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2210,
+                    "total": 4201
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-goal\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Mon-goal.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-goal\"",
+                "cFile": null,
+                "luaFile": "Mon-goal.lua",
+                "line": null
+              },
+              "status": "complete",
+              "goalKind": "lua-port",
+              "summary": "Quest goal arrival selects Mon-goal, but its Lua program is absent from the special-level registry. Port the whole Mon-goal.lua lava-cave generator, transparent map fragment, shared two-position artifact/nemesis/altar choice, fourteen random objects, six traps and eighteen elemental/xorn monsters.",
+              "source": {
+                "file": "Mon-goal.lua",
+                "functions": [
+                  "Mon-goal.lua"
+                ],
+                "branch": "The Monk quest goal special-level record names Mon-goal. At the destination-menu confirmation load_special needs that registered program before private nhlib alignment shuffle. Source executes mazelevel then unsmoothed/unjoined mines-style lava/floor initialization, the fixed transparent cave map and one shared two-position random choice before the stair, artifact, random objects/traps, Master Kaen/altar and elemental/xorn population.",
+                "callers": [
+                  "do.c goto_level -> mklev.c makelevel -> mkmaze.c makemaz -> sp_lev.c load_special -> dat/Mon-goal.lua. JS allmain deferred-goto -> do goto_level -> mklev makelevel/makemaz/load_special -> QUEST_LEVEL_LOADERS currently lacks Mon-goal.",
+                  "Accepted wizcmds.c wiz_load_splua invokes load_special directly for the named program; natural quest branch and wizard travel converge at generation. No alternate Lua entry or callback."
+                ],
+                "dependencies": [
+                  "Canonical createSpecialLevelApi level_flags, level_init -> splev_initlev LVLINIT_MINES -> mkmap, array-form map -> mapFromRows, region, stair, object, trap, monster and altar are already present. The identical unsmoothed lava initialization and map shape are used by verified Pri-goal; no generic owner edit is currently required.",
+                  "Consumed math.random(1,#place) is nhlib.lua5–10 nh.random(1,2), equivalent to 1+rn2(2); subtract one for the JS index and retain the same coordinate for the Eyes artifact, Master Kaen and noalign altar. No second random placement call is source-valid. des.random.rn2(2) is the existing canonical facade.",
+                  "Transparent x cells remain existing mapFromRows/lspo_map handling; Lua discards map return so no map selection result is consumed. selection.area uses the canonical relative selection with 26x11 fragment bounds.",
+                  "lspo_monster string+coordinate-array positional branch resolves Master Kaen using get_coord/readParamstr; preserve that source form and gender RNG. Object table carries blessed lenses spe0 plus named quest artifact; source o_arti selection is canonical sp_lev object handling.",
+                  "Noalign altar uses existing get_table_align noalign AM_NONE -> sp_amask_to_amask; altar type has no shrine and creates no priest. Reuse shared random coordinate rather than add a temple path.",
+                  "Pending C171 Kni-loca and B196 Kni-strt modify distinct quest_levels imports/functions/registry keys only. A191 source is immutable, its loader unrelated. No shared descriptor or program ownership conflict."
+                ]
+              },
+              "evidence": [
+                "Assigned replay run-dvpQxV at examined99b851f8a reproduces19/60screens/cursors2210/4201RNG. Segment0 step19 keyA selects goal; next C rn2(3)=1 is nhlib.lua alignment shuffle; JS stops before it with absent Mon-goal load_special. Exact comparison and stack .cache/A192/probe.json/probe.log.",
+                "Read complete dat/Mon-goal.lua1–75. Commented solidfill atline6 is inactive and must not be added. line8mazelevel precedes line10mines initialization with fgL/bgfloor and all four smoothing/joining/light/wall booleansfalse. lines12–24are exact26x11map with transparentx. lines26–27sharedcoordinatechoice;29unlitregion;31upstair20,5;33blessedlenses spe0 named Eyes;34–47fourteenrandomobjects;49–54fourfiretraps+two random;56MasterKaen atsharedcoord;57noalignplainaltar there;58–66nine earth elementals;67–75nine xorns.",
+                "Exact source count review: source58–66nine earth elementals and67–75nine xorns; whole file has75 lines. Pin the full descriptor list from source before implementing; no completion credit currently asserted.",
+                "Actionable scope whole Mon-goal.lua1–75, monGoal and registry in js/quest_levels.js, generated map data/script and source-pinned test, runtime fresh runner, recipes/Mon-goal.lua and recordings/Mon-goal.lua. No helper, teleport, quest permission or whole quest_levels completion credit.",
+                "Validation plan fail-first absent loader/module; generated26x11map comparison and source-pinned complete descriptor/source order; deterministic canonical RNG test both place indices and exactly one rn2(2) after map and before region. Full admitted segment0steps19–59 plus independent neutralhuman/lawfulhuman Monk variations through arrival/direct des loading. Assert namedartifact/nemesis/altar share coordinate, six traps, source monster classes and exact descriptor counts; strict RNG/screens/cursors/frames. Neighbor Mon-loca remains separate blocked source frontier if absent.",
+                "Evidence limits read-only source investigation and assigned replay only. No implementation/C recorder or runtime completion yet; helper reachability proposed from source/verified dependencies. Any later generic owner defect requires explicit scope expansion."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Mon-goal.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "monGoal",
+            "sourceReview": "Read and ported the complete dat/Mon-goal.lua program, lines 1-75. Preserved its descriptor order, the 11x26 source map, one math.random(1,#place) draw represented by one rn2(2), and reuse of that selected coordinate for the Eyes, Master Kaen, and altar. The commented solidfill line remains inactive. The program has no unported descriptor callees. Its Master Kaen creation reaches the existing makemon.c m_initinv implementation; added only the source-defined Monk quest-representative branch (m_initinv lines 728-729) required by the selected session, without claiming a separate whole-function port.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c makelevel -> mkmaze.c makemaz/load_special (mkmaze.c:1188); special-level registry selects the Mon-goal.lua program."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "wizcmds.c wiz_load_splua (wizcmds.c:376-389) -> load_special('Mon-goal.lua') -> registered Mon-goal.lua program."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-goal-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Mon-goal.lua/mon-goal-direct-neutral-independent.session.json",
+              "recordings/Mon-goal.lua/mon-goal-direct-lawful-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-mon-goal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "dat/Mon-goal.lua via mklev.c makelevel -> mkmaze.c makemaz/load_special"
+              }
+            ],
+            "checkedAt": "a8f1dafa0ebb86146dc236746b036776a2d115ff"
+          }
+        ],
+        "entryPointReview": "The active entry points are ordinary special-level generation of the Monk Quest Goal and the wizard #wizloaddes direct loader. Both resolve the Mon-goal.lua registry entry to monGoal. The admitted v36 case exercises natural special-level arrival through the production level-generation path and now matches through its final step. Two independently selected neutral and lawful Monk recipes exercise wizcmds.c wiz_load_splua through the same production registry; their C recordings were generated after complete fresh C/JavaScript matrix matches. No source caller is excluded from the recorder.",
+        "entryPoints": [
+          {
+            "name": "Monk Quest Goal special-level arrival",
+            "functions": [
+              "Mon-goal.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-mon-goal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "dat/Mon-goal.lua via mklev.c makelevel -> mkmaze.c makemaz/load_special"
+              }
+            ]
+          },
+          {
+            "name": "Wizard direct Mon-goal.lua load",
+            "functions": [
+              "Mon-goal.lua"
+            ],
+            "recordings": [
+              "recordings/Mon-goal.lua/mon-goal-direct-neutral-independent.session.json",
+              "recordings/Mon-goal.lua/mon-goal-direct-lawful-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "a8f1dafa0ebb86146dc236746b036776a2d115ff",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-ran-loca-quest-level-v36-20261009",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the complete Ranger quest locate level from Lua.",
+      "luaFile": "Ran-loca.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-ran-loca-search"
+      ],
+      "selectionReason": "The current v36 Ranger locate case stops at the missing Ran-loca special-level loader after 27 of 68 screens; this whole Lua program is the source owner.",
+      "detail": "",
+      "openedAt": "77e9ff7a475c24511138c09ff31fb87b32ce31ce",
+      "openStanding": {
+        "sha": "a8f1dafa0ebb86146dc236746b036776a2d115ff",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "07a7711f3c33616a45a45bdd323eee7001502b7c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "Ran-loca.lua",
+          "line": 1,
+          "endLine": 79,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-ran-loca-search": {
+          "session": "synthetic/v36/v36-quest-ran-loca-search",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-ran-loca-search",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-ran-loca-search.session.json",
+          "recordingSha256": "69c543359ea056b393d6a6e02be3d4f229a17fd6f7629251b9134209a86ed30e",
+          "evaluationPath": "challenges/evaluations/accepted-a8f1dafa0ebb86146dc236746b036776a2d115ff-v36.json",
+          "evaluationCommit": "a8f1dafa0ebb86146dc236746b036776a2d115ff"
+        }
+      },
+      "activeStanding": {
+        "sha": "a8f1dafa0ebb86146dc236746b036776a2d115ff",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-ran-loca-search",
+          "session": "synthetic/v36/v36-quest-ran-loca-search",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-ran-loca-search.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-ran-loca-search.session.json",
+          "recordingSha256": "69c543359ea056b393d6a6e02be3d4f229a17fd6f7629251b9134209a86ed30e",
+          "recipe": "challenges/cases/v36/v36-quest-ran-loca-search.recipe.session.json",
+          "recipeSha256": "bf45a7605692391f99b822246d54e1e8248d23aa639c9daedf551640d29f09d1",
+          "replayInputSha256": "d7fcd37c680d5a4aaaf24e0a1990d80b03f80ba2bf65050e66647c93b56e1480",
+          "evaluationPath": "challenges/evaluations/accepted-a8f1dafa0ebb86146dc236746b036776a2d115ff-v36.json",
+          "evaluationCommit": "a8f1dafa0ebb86146dc236746b036776a2d115ff",
+          "evaluationArtifact": "challenges/evaluations/accepted-a8f1dafa0ebb86146dc236746b036776a2d115ff-v36.json",
+          "evaluationUtc": "2026-10-09T16:51:41.566Z",
+          "remainingScreens": 41,
+          "recordedSteps": 68,
+          "previousScreensMatched": 27,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 27,
+              "total": 68
+            },
+            "rng": {
+              "matched": 4641,
+              "total": 5358
+            },
+            "cursors": {
+              "matched": 27,
+              "total": 68
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-loca\"",
+            "step": 27
+          },
+          "step": 27,
+          "kind": "stop",
+          "sourceFile": "Ran-loca.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-loca\"",
+          "cFile": null,
+          "luaFile": "Ran-loca.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-ran-loca-search.json",
+            "result": {
+              "session": "synthetic/v36/v36-quest-ran-loca-search",
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-ran-loca-search",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "69c543359ea056b393d6a6e02be3d4f229a17fd6f7629251b9134209a86ed30e",
+              "evaluationPath": "challenges/evaluations/accepted-c65c2b3a1cdd449def877087461571f57c3f88b6-v36.json",
+              "evaluationCommit": "c65c2b3a1cdd449def877087461571f57c3f88b6",
+              "remainingScreens": 41,
+              "recordedSteps": 68,
+              "status": "complete",
+              "commit": "dba4e7dd8fca621c2600f2b7329c71c17ffe5e64",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-ran-loca-search",
+                "session": "synthetic/v36/v36-quest-ran-loca-search",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-ran-loca-search.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-ran-loca-search.session.json",
+                "recordingSha256": "69c543359ea056b393d6a6e02be3d4f229a17fd6f7629251b9134209a86ed30e",
+                "recipe": "challenges/cases/v36/v36-quest-ran-loca-search.recipe.session.json",
+                "recipeSha256": "bf45a7605692391f99b822246d54e1e8248d23aa639c9daedf551640d29f09d1",
+                "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+                "evaluationPath": "challenges/evaluations/accepted-c65c2b3a1cdd449def877087461571f57c3f88b6-v36.json",
+                "evaluationCommit": "c65c2b3a1cdd449def877087461571f57c3f88b6",
+                "evaluationArtifact": "challenges/evaluations/accepted-c65c2b3a1cdd449def877087461571f57c3f88b6-v36.json",
+                "evaluationUtc": "2026-10-09T13:34:54.250Z",
+                "remainingScreens": 41,
+                "recordedSteps": 68,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 27,
+                    "total": 68
+                  },
+                  "rng": {
+                    "matched": 4641,
+                    "total": 5358
+                  },
+                  "cursors": {
+                    "matched": 27,
+                    "total": 68
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-loca\"",
+                  "step": 27
+                },
+                "step": 27,
+                "kind": "stop",
+                "sourceFile": "Ran-loca.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-loca\"",
+                "cFile": null,
+                "luaFile": "Ran-loca.lua",
+                "line": null
+              },
+              "goalKind": "lua-port",
+              "summary": "Ran-loca has no registered loader. Port its whole Ranger quest locate program, preserving the narrow lit maze, fixed stairs, typed random traps and sleeping hostile wumpus.",
+              "source": {
+                "file": "Ran-loca.lua",
+                "branch": "Ranger quest locate arrival or registered wizard load of Ran-loca, with wumpus sleeping on the fixed down-stair coordinate.",
+                "functions": [
+                  "Ran-loca.lua"
+                ],
+                "callers": [
+                  "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Ran-loca.lua",
+                  "wizcmds.c:wiz_load_splua -> load_special -> registered Ran-loca Lua program"
+                ],
+                "dependencies": [
+                  "Reuse existing solidfill/level_flags/map/region/stair/nondiggable/object/trap/monster owners and load_special finalization. No supporting owner change identified by source review."
+                ]
+              },
+              "evidence": [
+                "Saved challenges/evaluations/accepted-c65c2b3a1cdd449def877087461571f57c3f88b6-v36.json at c65c2b3a1cdd449def877087461571f57c3f88b6 retains missing Ran-loca loader at zero-based27:27/68matching screens and41remaining,4641/5358matching RNG calls. Recordingchallenges/cases/v36/v36-quest-ran-loca-search.session.json, digest69c543359ea056b393d6a6e02be3d4f229a17fd6f7629251b9134209a86ed30e; manifest corpus digest58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c. Examined report lineage includes accepted C169; case identity/count unchanged. No replay or new C recording during investigation.",
+                "Read whole dat/Ran-loca.lua1–79, SHA256a9889a80852b543a43919c969c4dac2351286d60fbb35457a2b665a2e6fdbea6. Solidfill stone,mazelevel/hardfloor and exact55×20 floor/stone map precede lit full local0,0..54,19, fixed up25,5/down27,18 and nondiggable same local bounds. Preserve all spaces and narrow-map frame; deterministically generate map and monster descriptors from source. No explicit wallify call or no-teleport flag.",
+                "Ran-loca.lua40–54 creates eight random objects, then two random-location spiked-pit traps,two teleport traps,two arrow traps in that exact sequence. Trap names resolve through existing lspo_trap/get_traptype_byname/create_trap owners. These are typed placements, not six fully random trap descriptors; retain the source placement/type RNG difference.",
+                "Ran-loca.lua56–78 creates a hostile asleep wumpus at27,18, then four hostile giant bats,four hostile forest centaurs,eight hostile mountain centaurs,four hostile scorpions,two hostile s-class monsters. Existing lspo_monster2141+ reads peaceful/asleep fields before species resolution; create_monster727–733 sets mpeaceful/resets malign and msleeping in source order. Preserve named-versus-class lookup and default gender RNG; do not pre-resolve species in a way that skips owner calls.",
+                "Production change is a distinct ranLoca import/body/key in existing QUEST_LEVEL_LOADERS; rg -n Ran-loca|ranLoca js/quest_levels.js found no loader. Existing makelevel/makemaz/load_special and wizard load-splua dispatchers reach registered programs. No source edit required for pending C170/B195/A191, alignment macros, object montype or selection algebra. No additional C helper completion credit is proposed.",
+                "The admitted recipe uses wizard destination-menu arrival and later wizard map reveal; its first stop is loader absence at27, before those later actions. The task addresses whole level generation. Do not claim search/mapping owners or unrelated later effects from the case identity. Cite the matching admitted prefix only after replay verifies the completed load, and retain any later source-owned divergence separately.",
+                "Plan fail-first registry/program-sequence tests, deterministic generated-map/monster equality, exact flag/local-region/stair coordinates, typed trap ordering and awaited descriptor sequencing, plus a runtime wumpus asleep/hostile assertion before ordinary action changes it. Use admitted destination arrival and independent male/female human Ranger #wizloaddes C-first recordings with independent seeds/time/inputs. Runtime support for this program remains unverified; preserve concrete new blockers rather than invent behavior. Adjacent Ran-goal source belongs to parked C173; keep it outside completion scope."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Ran-loca.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "ranLoca",
+            "sourceReview": "Read the complete upstream dat/Ran-loca.lua, lines 1-79, and preserved top-level source order: solid fill; mazelevel/hardfloor; literal 55x20 map; lit whole-map region; up/down stair descriptors; nondiggable whole-map selection; eight random objects; two spiked-pit, two teleport, and two arrow trap descriptors; then 23 ordered hostile monster descriptors, including the sleeping fixed-coordinate wumpus and two s-class requests. The deterministic generator extracts the map and ordered object/trap/monster descriptor data from this Lua source. Named species and classes pass through the existing des.monster owner; no generic descriptor owner is claimed. All descriptor calls are awaited in source order; the Lua program has no helper functions or unported calls.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "mkmaze.c:makemaz calls sp_lev.c:load_special for the selected special-level prototype during natural level generation; the registered Ran-loca program runs before special-level post-processing."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "wizcmds.c:wiz_load_splua calls sp_lev.c:load_special with a wizard-selected des-file name."
+              },
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "The dat/Ran-loca.lua program is registered under the exact special-level name used by load_special dispatch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/ran-loca-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Ran-loca.lua/ran-loca-male-independent.session.json",
+              "recordings/Ran-loca.lua/ran-loca-female-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-ran-loca-search",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 27,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Ran-loca.lua"
+              }
+            ],
+            "checkedAt": "07a7711f3c33616a45a45bdd323eee7001502b7c"
+          }
+        ],
+        "entryPointReview": "Ran-loca.lua has one whole top-level descriptor program and two active production entry paths in the reference recorder. Natural Ranger quest locate arrival reaches makelevel/makemaz/load_special and is replay-verified by admitted v36 case v36-quest-ran-loca-search. The debug wizard command wiz_load_splua reaches load_special with the specified file name; independent male and female recordings exercise that dispatch. Both callers are enabled in the patched recorder. This task implements only Ran-loca.lua and its specific registered key, leaving generic descriptor owners unchanged.",
+        "entryPoints": [
+          {
+            "name": "Ranger quest locate arrival",
+            "functions": [
+              "Ran-loca.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-ran-loca-search",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 27,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Ran-loca.lua"
+              }
+            ]
+          },
+          {
+            "name": "Wizard #wizloaddes direct load",
+            "functions": [
+              "Ran-loca.lua"
+            ],
+            "recordings": [
+              "recordings/Ran-loca.lua/ran-loca-male-independent.session.json",
+              "recordings/Ran-loca.lua/ran-loca-female-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "07a7711f3c33616a45a45bdd323eee7001502b7c",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

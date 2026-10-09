@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first whole Kni-loca.lua plan fixed before recording or JS comparison: male human lawful Knight, Kni-loca.lua wizard-load name, explicit no-pet/no ambient-monster options. Covers joined floor/pool mines, transparent Isle-of-Glass fragment, lit filled=2 temple, neutral shrine/priest, fixed magic traps and hostile monsters. The admitted quest-arrival case separately covers ordinary makelevel entry. Shortened at the post-load prompt so only Kni-loca generation, not later wizard wait turns, is in scope.",
+  "segments": [
+    {
+      "seed": 17110111,
+      "datetime": "20661008171931",
+      "nethackrc": "OPTIONS=name:KniLocaProbe,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\n#wizloaddes\nKni-loca.lua\n"
+    }
+  ]
+}

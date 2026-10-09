@@ -163,8 +163,9 @@ Acceptance does not mean the work has been pushed or that CI has passed.
 If corrections are requested while you are working on another task, finish
 or deliberately park that task before making the correction. Use new commits
 and identify affected dependent work; never amend a submitted commit. Merge
-validated main into your worktree at clean task boundaries, preserving
-pending work and history.
+the commit returned by `worker-state.mjs accepted-main --file <shared-ledger>`
+into your worktree at clean task boundaries before selecting new work,
+preserving pending work and history. Do not merge an unaccepted Main HEAD.
 
 ## Subagents
 

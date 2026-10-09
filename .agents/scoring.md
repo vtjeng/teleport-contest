@@ -86,7 +86,8 @@ node scripts/score-challenges.mjs --record challenges/evaluations/<new-name>.jso
 
 The evaluator requires committed inputs, refuses to overwrite an artifact, and
 records runner failures without aggregate counts. The all-batch command prints
-one artifact path per batch; import each separately. New evaluations include
+one artifact path per batch. The acceptance helper imports reviewed batches
+together; outside acceptance, import each with `--record`. New evaluations include
 a replay-input digest: report-only commits leave them current, while changed
 game, scorer, or manifest inputs require reassessment. Legacy artifacts remain
 in history and need a new evaluation before they can authorize selection.
