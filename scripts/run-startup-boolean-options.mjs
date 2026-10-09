@@ -75,7 +75,8 @@ export const STARTUP_BOOLEAN_CASES = Object.freeze([
             'iflags.wc_ascii_map': true,
             'iflags.wc_hilite_pet': true,
             'iflags.wc_tiled_map': false,
-            'iflags.wc2_petattr': 1,
+            // options.c opt_hilite_pet sets source ATR_INVERSE (wintype.h7).
+            'iflags.wc2_petattr': 7,
         }),
         absentFlags: Object.freeze(['hilite_pet', 'tiled_map']),
     }),
