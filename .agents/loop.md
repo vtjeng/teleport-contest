@@ -8,9 +8,9 @@ in `.claude/agents/span-worker.md`.
 
 Complete source behavior exposed by synthetic local holdout mismatches while
 preserving accepted fixed-workload and regression-recording matches. Prepare a
-new versioned batch before assignable work runs out; admit and baseline the
-oldest ready batch at the next safe integration boundary without delaying a
-ready implementation delivery. Follow
+new versioned batch before workers run out of independent next tasks. Admit
+and baseline prepared batches under `.agents/selection.md`, "Generating the
+next synthetic batch". Follow
 `.agents/selection.md` for task choice, batch generation, and required tooling
 support; `.agents/scoring.md` owns measurement and historical comparisons.
 An empty fixed-workload queue does not mean there is no implementation work.
@@ -44,9 +44,10 @@ task ID, absolute worktree path, branch, base commit,
 allowed edits, dependencies, and reserved functions or shared interfaces in
 the ledger assignment. A preparation task instead names its future batch and
 allowed `challenges/cases/<batch>/` paths. Implementation
-workers prepare later tasks under `.agents/selection.md`, “Seed continuation”,
-without waiting for you to open the central goal. For an unresolved session,
-provide its saved queue entry and findings instead of a source task context.
+workers can claim independent work under `.agents/selection.md`, “Seed continuation”,
+without waiting for you to create a goal. You create the goal during integration.
+For an unresolved session, provide its saved queue entry and findings instead
+of a source task context.
 The worker claims the session, investigates it, then claims its source scope
 before editing code, following its guide.
 
@@ -84,7 +85,8 @@ Update the turn when work resumes. The dashboard distinguishes these reported
 waits from unrecorded time; neither assignment nor a blank interval measures
 CPU use. Include Prep in the shared ledger and snapshot like the other workers.
 
-Use `next` for routine coordination and `status` when the full ownership
+Use `next` for routine coordination, including pending deliveries, parked
+tasks, and ready batches awaiting admission. Use `status` when the full ownership
 state is needed. Event and submission commands currently print the full
 state: capture stdout in one reusable worktree-local `.cache/` file, keep
 stderr visible, and inspect the exit status and affected task or delivery.
@@ -112,10 +114,9 @@ does not include pending work.
 At each evaluation and handoff, apply `.agents/selection.md`'s preparation
 trigger: at most 12 unmatched sessions across admitted batches, or too few
 selectable investigations and source tasks for the implementation workers.
-Admit a ready batch at the next safe integration boundary, immediately when main has no ready
-implementation delivery. Do not hold it for a lower mismatch count or delay
-a ready implementation delivery to admit it. Preserve validation and baseline
-requirements. Continue assigning fixes from older batches.
+Apply the admission priority in `.agents/selection.md` at each safe integration
+boundary. Preserve validation and baseline requirements. Continue assigning
+fixes from older batches.
 The preparation worker does not monitor implementation assignments. If it
 reports that it cannot find 12 locally mismatching sessions with distinct
 source-traced first mismatch behaviors after switching to other plausible
@@ -142,8 +143,9 @@ worker's guide defines the required checks and evidence. Record `received`
 for the exact commit and reply `QUEUED_FOR_MERGE`. A saved submission remains
 valid even if its notification fails.
 
-Take ready deliveries one at a time: dependencies first, then oldest ready
-first. Do not make an independent delivery wait for an unfinished goal.
+Take ready deliveries one at a time, after their dependencies are accepted.
+Integrate deliveries that unblock other tasks first, then the oldest ready
+delivery. Do not make an independent delivery wait for an unfinished goal.
 Integrate exact submitted commits rather than a moving branch tip. Merge
 only when every included commit belongs in the delivery; otherwise
 cherry-pick the required commits.
@@ -300,7 +302,8 @@ separately from other goals.
    reports.
 
 After publication and the required one-shot CI status check, run
-`worker-state.mjs next` and start the next dependency-ready delivery.
+`worker-state.mjs next`. Check batch admission priority under
+`.agents/selection.md` before starting the next dependency-ready delivery.
 Handle worker handoffs promptly, but do not defer a ready integration for
 optional investigations or housekeeping. If integration cannot proceed,
 record the blocker in the existing ledger and resolve it or take another

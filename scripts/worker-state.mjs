@@ -9,6 +9,8 @@ import { dirname, isAbsolute, relative, resolve } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { preflightDelivery, resolveEventCommits, submitDelivery, syncMain, verifyEvent } from './worker-delivery.mjs';
+import { admittedBatchIds } from './challenge-results.mjs';
+import { acceptedDependency, pendingMainWork } from './worker-backlog.mjs';
 
 export const USAGE = `Usage (run from the coordinator or assigned worker checkout root):
   node scripts/worker-state.mjs init --run <run-id> [--file <ledger.json>]
@@ -205,15 +207,6 @@ function checkOwnership(state, task) {
         for (const key of task.reservations) check(!other.reservations.includes(key),
             `${key} is reserved by worker ${other.worker} task ${other.id}`);
     }
-}
-
-export function acceptedDependency(state, sha) {
-    const delivery = state.deliveries[sha];
-    if (!delivery) return false;
-    // A corrected task is accepted as a whole. Its failed original snapshot is
-    // not relabelled as a pass; dependants validate against the accepted repair.
-    const latest = state.tasks[delivery.task]?.deliveries.at(-1);
-    return Boolean(delivery.acceptedAt || state.deliveries[latest]?.acceptedAt);
 }
 
 function dependsOnTask(state, deliverySha, taskId, seen = new Set()) {
@@ -464,14 +457,13 @@ export function summarizeLedger(ledger) {
 
 // This is a work list, not a claim about live processes. The orchestrator feeds
 // observed turn completions into the ledger and uses its own collaboration tools.
-export function nextActions(state) {
+export function nextActions(state, admittedBatches = []) {
     const tasks = Object.values(state.tasks);
     const deliveries = Object.values(state.deliveries);
     const slot = tasks.find(task => ['integrating', 'validated'].includes(task.status));
-    const ready = tasks.filter(task => task.status === 'ready')
-        .map(task => state.deliveries[task.deliveries.at(-1)])
-        .filter(delivery => delivery.dependencies.every(sha => acceptedDependency(state, sha)))
-        .sort((a, b) => a.readyAt.localeCompare(b.readyAt));
+    const pending = pendingMainWork(state, admittedBatches);
+    const ready = pending.deliveries.filter(row => row.status === 'ready' && !row.blockedBy.length)
+        .sort((a, b) => b.unblocks - a.unblocks || a.since.localeCompare(b.since));
     return {
         connections: Object.values(state.workers).filter(w => w.connectionRequestedAt && !w.connectedAt)
             .map(w => ({ worker: w.worker, handle: w.handle })),
@@ -489,6 +481,9 @@ export function nextActions(state) {
             task: tasks.find(t => t.worker === w.worker && t.status === 'working')?.id ?? null })),
         integration: slot ? { task: slot.id, status: slot.status } : ready[0]
             ? { task: ready[0].task, delivery: ready[0].delivery, status: 'ready' } : null,
+        pendingMainWork: { ...pending,
+            // Keep routine coordination compact; status and the dashboard retain reasons.
+            parkedTasks: pending.parkedTasks.map(({ task, worker, since }) => ({ task, worker, since })) },
     };
 }
 
@@ -582,7 +577,7 @@ export function main(argv = process.argv.slice(2)) {
         const state = summarizeLedger(JSON.parse(readFileSync(file, 'utf8')));
         let result = { file, ...state };
         if (command !== 'status') check(root === state.coordinatorRoot, 'only coordinator may run this command');
-        if (command === 'next') result = nextActions(state);
+        if (command === 'next') result = nextActions(state, admittedBatchIds(root));
         if (command === 'preflight') {
             result = preflightDelivery({ root, state, taskId: options['--task'],
                 commit: options['--commit'], previousCheckpoint: options['--previous-checkpoint'] });

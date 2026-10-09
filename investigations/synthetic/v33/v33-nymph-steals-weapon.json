@@ -1,0 +1,131 @@
+{
+  "session": "synthetic/v33/v33-nymph-steals-weapon",
+  "corpus": "synthetic",
+  "batch": "v33",
+  "caseId": "v33-nymph-steals-weapon",
+  "remainingScreens": 3,
+  "recordedSteps": 236,
+  "manifestPath": "challenges/manifests/v33.json",
+  "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+  "recordingSha256": "baed492a69a402d3c9b731a6d5423577dd3f01b08854be78bcf1d96ea54982f1",
+  "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+  "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+  "status": "complete",
+  "commit": "61421bbc25ba1f590eb3cca30e1aed37af2b447d",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v33",
+    "caseId": "v33-nymph-steals-weapon",
+    "session": "synthetic/v33/v33-nymph-steals-weapon",
+    "manifestPath": "challenges/manifests/v33.json",
+    "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+    "recording": "challenges/cases/v33/v33-nymph-steals-weapon.session.json",
+    "recordingPath": "challenges/cases/v33/v33-nymph-steals-weapon.session.json",
+    "recordingSha256": "baed492a69a402d3c9b731a6d5423577dd3f01b08854be78bcf1d96ea54982f1",
+    "recipe": "challenges/cases/v33/v33-nymph-steals-weapon.recipe.session.json",
+    "recipeSha256": "fd6633fa6f48265a3cdeefc69bfff97f00743a6cc5add480f47b518c03e999e2",
+    "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+    "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+    "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+    "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+    "evaluationUtc": "2026-10-09T03:03:55.655Z",
+    "remainingScreens": 3,
+    "recordedSteps": 236,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 233,
+        "total": 236
+      },
+      "rng": {
+        "matched": 3634,
+        "total": 3634
+      },
+      "cursors": {
+        "matched": 234,
+        "total": 236
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 85,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 85,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 4,
+        "cCell": {
+          "ch": "p",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "m",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 85,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 85,
+          "key": " "
+        },
+        "cCursor": [
+          75,
+          0,
+          1
+        ],
+        "jsCursor": [
+          77,
+          0,
+          1
+        ]
+      }
+    },
+    "step": 85,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "missum omits the canonical could_seduce predicate under an incorrect assumption that the hero is never polymorphed. A wood-nymph hero therefore prints a normal miss instead of pretending friendship. Restore the whole helper’s source message/naming/wakeup order through its existing live callers.",
+  "source": {
+    "file": "uhitm.c",
+    "functions": [
+      "missum"
+    ],
+    "branch": "Polymorphed nymph hero misses a steal/seduction attack; nonzero could_seduce takes precedence over visibility and verbose feedback.",
+    "callers": [
+      "uhitm.c:known_hitum610 -> missum; JS known_hitum2338 awaits it.",
+      "uhitm.c:hmonas5667 contact attack miss and5792 engulf miss -> missum; JS hmonas1944/2055 await it.",
+      "dokick.c:kick_monster218 polymorphed kick miss -> missum; JS kick_monster481 awaits it."
+    ],
+    "dependencies": [
+      "Existing mhitu.c:could_seduce1934–1982 is a pure consumed-return predicate with canonical identity/gender/invisibility/attack species rules, read unchanged.",
+      "Existing do_name.c:mon_nam1042–1046, mon.c:wakeup and helpless macro owners reused; no new owner completion credit."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved baseline and queue show first screen mismatch segment0 step85 column4 (C p, JS m),233/236 screens,3634/3634 RNG,234/236 cursors. Immutable prepared trace identifies friendly feedback; no replay used for selection.",
+    "Whole uhitm.c5198–5215 first prints the cumbersome armor warning when needed, then could_seduce(youmonst,mdef,mattk), then named verbose miss or generic miss, and wakes only non-helpless targets.",
+    "Current js/uhitm.js7202–7228 explicitly omits could_seduce under an Upolyd-false assumption; hmonas has active polymorph callers. The pure canonical mhitu.js704–755 reads the hero’s form and returns1 or2 for eligible nymph attacks; both are truthy in C.",
+    "Use existing mon_nam with env for all named messages so display RNG and planned feedback stay canonical; default monsterCommonName is otherwise the same x_monnam wrapper. Preserve awaited warning/message/wakeup order and add no RNG.",
+    "Related v33-nymph-wielded-goblin-combat has identical first cause at segment0 step57,89/100 screens,3222/3222 RNG,89/100 cursors. Its prepared trace repeats step85 from the other case; current queue’s exact step57 is authoritative.",
+    "Whole helper scope is independently assignable from A180 monster-flight, B182 spell menus and pending C160/C161 artifact functions. No earlier verified sourceReview completion record for missum is present in GOALS; historical known_hitum ownership excluded polymorph branch."
+  ]
+}

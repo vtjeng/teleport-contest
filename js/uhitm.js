@@ -7226,14 +7226,8 @@ export async function damageum(
     return M_ATTK_HIT;
 }
 
-// C ref: uhitm.c missum() (5197-5214). Reports a swing that did not land and
+// C ref: uhitm.c missum() (5198-5215). Reports a swing that did not land and
 // wakes the target.
-//
-// mhitu.c could_seduce() at 5206 is constantly 0 here. Its last test rejects
-// any aggressor that is neither an S_NYMPH nor PM_AMOROUS_DEMON, and the
-// aggressor is gy.youmonst, whose data is the role's own species while
-// Upolyd() is false. No role is either, so the call is left out rather than
-// restated.
 export async function missum(
     mdef,
     mattk,
@@ -7246,8 +7240,10 @@ export async function missum(
     if (wouldhavehit) /* monk is missing due to penalty for wearing suit */
         await message('Your armor is rather cumbersome...', state);
 
-    if (canspotmon(mdef, state) && state.flags?.verbose)
-        await message(`You miss ${monsterCommonName(mdef, state)}.`, state);
+    if (could_seduce(state.youmonst, mdef, mattk, { ...env, state }))
+        await message(`You pretend to be friendly to ${mon_nam(mdef, state, env)}.`, state);
+    else if (canspotmon(mdef, state) && state.flags?.verbose)
+        await message(`You miss ${mon_nam(mdef, state, env)}.`, state);
     else
         await message('You miss it.', state);
     if (!helpless(mdef)) await wakeup(mdef, true, { ...env, state });

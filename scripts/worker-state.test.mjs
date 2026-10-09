@@ -340,6 +340,10 @@ test('prepared batch identities stay unique while accepted batches wait for admi
         commits: [FIRST], paths: ['challenges/cases/v2/one.json'],
         evidence: `${ROOT}/batch-v2.json`, dependencies: [] });
     f.accept('batch-v2');
+    assert.deepEqual(nextActions(summarizeLedger(f.ledger())).pendingMainWork.preparedBatches
+        .map(row => row.batch), ['v2'], 'accepted preparation is still awaiting admission');
+    assert.equal(nextActions(summarizeLedger(f.ledger()), ['v2'])
+        .pendingMainWork.preparedBatches.length, 0, 'the admitted manifest removes the reserve');
     prepare('batch-v3', 'B', 'v3');
     assert.throws(() => prepare('duplicate-v2', 'A', 'v2'), /identity already used/);
 });
