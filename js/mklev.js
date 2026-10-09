@@ -326,6 +326,7 @@ import {
 import { create_drawbridge } from './dbridge.js';
 import { priestini } from './priest.js';
 import { makeroguerooms, makerogueghost } from './extralev.js';
+import { note_unported } from './unported.js';
 
 const XLIM = 4;
 const YLIM = 3;
@@ -1773,10 +1774,17 @@ async function ensureSpecialLevelLoaders() {
 // level definition loader (the JS equivalent of load_lua), and applies
 // post-processing. Returns true when the level loaded, false when no
 // loader exists for the given name.
-export async function load_special(name, state) {
+export async function load_special(name, state, callerEnv = null) {
     await ensureSpecialLevelLoaders();
-    const loader = SPECIAL_LEVEL_LOADERS[name];
-    if (!loader) return false; // C: !load_lua() -> give_up
+    // C's DLB filenames have .lua; the existing port registry uses the
+    // same program names without the extension. Preserve case and whitespace.
+    const loader = SPECIAL_LEVEL_LOADERS[name.endsWith('.lua') ? name.slice(0, -4) : name];
+    if (!loader) {
+        // Arbitrary Lua execution and nhl_loadlua's file-error output have
+        // no owner. wiz_load_splua discards this load result and continues.
+        note_unported('nhlua.c nhl_loadlua');
+        return false;
+    }
 
     // C ref: nhlua.c nhl_init(); dat/nhlib.lua. The Lua state shuffles
     // its private alignment table before evaluating the level file.
@@ -1785,6 +1793,9 @@ export async function load_special(name, state) {
     state.specialLevelAlign = align;
 
     const specialLevelApi = createSpecialLevelApi(state);
+    // sp_lev.c SpLev_Map survives freeing gc.coder. Pass the same frame
+    // to the command's NULL-state finalizer without making another map copy.
+    if (callerEnv) callerEnv.frame = specialLevelApi.frame;
     await loader(specialLevelApi, state);
 
     // Post-processing: finish() covers link_doors_rooms,
@@ -4255,8 +4266,8 @@ export function lspo_wallify(args, env) {
 
 // C ref: sp_lev.c lspo_reset_level(). "Only needed for testing purposes":
 // des.reset_level() in the Lua test scripts, and wizcmds.c
-// wiz_load_splua(), which is not ported, with no Lua state. Marks Lua
-// testing, remakes the coder, and clears the level for a fresh generation.
+// wiz_load_splua() with no Lua state. Only the Lua caller remakes the coder;
+// both mark Lua testing and clear the level for a fresh generation.
 // The port's coder is the object createSpecialLevelApi() made, shared with
 // its closures, so the remake writes sp_level_coder_init()'s fields into
 // it in place and clears the SpLev_Map the frame holds.
@@ -4267,12 +4278,13 @@ export async function lspo_reset_level(args, env) {
     state.iflags ??= {};
     state.iflags.lua_testing = true;
     // C: if (L) { Free(gc.coder); gc.coder = NULL; create_des_coder(); }
-    Object.assign(coder, sp_level_coder_init(state, frame));
+    if (args !== null) Object.assign(coder, sp_level_coder_init(state, frame));
     // Dynamic import keeps cmd.c's port in js/cmd.js without adding a static
     // cmd -> do -> mklev -> cmd initialization cycle.
     const { makemap_prepost } = await import('./cmd.js');
     await makemap_prepost(true, wtower, state);
-    for (const column of frame.splevMap) column.fill(0);
+    if (args !== null)
+        for (const column of frame.splevMap) column.fill(0);
     state.in_mklev = true;
     oinit(state); /* assign level dependent obj probabilities */
     clear_level_structures();
@@ -4280,10 +4292,9 @@ export async function lspo_reset_level(args, env) {
 
 // C ref: sp_lev.c lspo_finalize_level(). "Only needed for testing
 // purposes": des.finalize_level() in the Lua test scripts, and wizcmds.c
-// wiz_load_splua(), which is not ported, with no Lua state; that caller's
+// wiz_load_splua() with no Lua state; that caller's
 // L-less arms skip the coder's inaccessibles, flip, solidify, and premap
-// steps, and the port, with only the Lua caller, runs every arm. The
-// sequence up to premap_detect() is the one load_special() runs in
+// steps. The sequence up to premap_detect() is the one load_special() runs in
 // finish(); this adds level_finalize_topology() and the special-room
 // fills.
 export async function lspo_finalize_level(args, env) {
@@ -4294,7 +4305,7 @@ export async function lspo_finalize_level(args, env) {
     remove_boundary_syms(frame, state);
 
     /* TODO: ensure_way_out() needs rewrite */
-    if (coder.check_inaccessibles)
+    if (args !== null && coder.check_inaccessibles)
         ensure_way_out(env);
 
     map_cleanup(state);
@@ -4308,18 +4319,18 @@ export async function lspo_finalize_level(args, env) {
     if (!state.level.flags.corrmaze)
         wallification(1, 0, COLNO - 1, ROWNO - 1);
 
-    await flip_level_rnd(coder.allow_flips, false, state);
+    if (args !== null) await flip_level_rnd(coder.allow_flips, false, state);
 
     count_level_features(state);
 
-    if (coder.solidify)
+    if (args !== null && coder.solidify)
         solidify_map(state);
 
     /* This must be done before premap_detect(),
      * otherwise branch stairs won't be premapped. */
     await finishFixupSpecial(state);
 
-    if (coder.premapped)
+    if (args !== null && coder.premapped)
         premap_detect(state);
 
     level_finalize_topology();

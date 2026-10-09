@@ -377,7 +377,7 @@ import {
 } from './polyself.js';
 import {
     wiz_detect, wiz_flip_level, wiz_genesis, wiz_identify, wiz_intrinsic, wiz_level_change, wiz_kill, wiz_smell, wiz_show_seenv, wiz_show_vision, wiz_show_stats, wiz_show_wmodes, wiz_objprobs, wiz_display_macros, wiz_mon_diff, wiz_telekinesis, wiz_custom,
-    wiz_level_tele, wiz_makemap, wiz_map, wiz_polyself, wiz_wish, wiz_where, wiz_rumor_check, wiz_migrate_mons,
+    wiz_level_tele, wiz_load_splua, wiz_makemap, wiz_map, wiz_polyself, wiz_wish, wiz_where, wiz_rumor_check, wiz_migrate_mons,
     wiz_map_levltyp, wiz_levltyp_legend,
 } from './wizcmds.js';
 import {
@@ -5230,6 +5230,8 @@ async function doextcmd(key, state) {
         return await runLevelChangeCommand(key, state);
     case 'wiz_level_tele':
         return await runLevelTeleCommand(key, state);
+    case 'wiz_load_splua':
+        return await wiz_load_splua(state);
     case 'wiz_wish':
         return await runWishCommand(key, state);
     case 'wiz_identify':
