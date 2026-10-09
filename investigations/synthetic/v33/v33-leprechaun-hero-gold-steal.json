@@ -1,0 +1,92 @@
+{
+  "session": "synthetic/v33/v33-leprechaun-hero-gold-steal",
+  "corpus": "synthetic",
+  "batch": "v33",
+  "caseId": "v33-leprechaun-hero-gold-steal",
+  "remainingScreens": 69,
+  "recordedSteps": 254,
+  "manifestPath": "challenges/manifests/v33.json",
+  "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+  "recordingSha256": "f67dbcbdb3f9965b87e3a31873f9a87791a5ef77de157c354d9c3fe024f5eab5",
+  "evaluationPath": "challenges/evaluations/accepted-f091b997ca1571fc6198fe3189ad06fe2dba532c-v33.json",
+  "evaluationCommit": "f091b997ca1571fc6198fe3189ad06fe2dba532c",
+  "status": "complete",
+  "commit": "3376c8362060e2f28fd28ec38aebdd68bb920078",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v33",
+    "caseId": "v33-leprechaun-hero-gold-steal",
+    "session": "synthetic/v33/v33-leprechaun-hero-gold-steal",
+    "manifestPath": "challenges/manifests/v33.json",
+    "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+    "recording": "challenges/cases/v33/v33-leprechaun-hero-gold-steal.session.json",
+    "recordingPath": "challenges/cases/v33/v33-leprechaun-hero-gold-steal.session.json",
+    "recordingSha256": "f67dbcbdb3f9965b87e3a31873f9a87791a5ef77de157c354d9c3fe024f5eab5",
+    "recipe": "challenges/cases/v33/v33-leprechaun-hero-gold-steal.recipe.session.json",
+    "recipeSha256": "407e6a4d7e888a383da5e627f0e076080f95ad82de0fa2befca0e11801627ac0",
+    "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+    "evaluationPath": "challenges/evaluations/accepted-f091b997ca1571fc6198fe3189ad06fe2dba532c-v33.json",
+    "evaluationCommit": "f091b997ca1571fc6198fe3189ad06fe2dba532c",
+    "evaluationArtifact": "challenges/evaluations/accepted-f091b997ca1571fc6198fe3189ad06fe2dba532c-v33.json",
+    "evaluationUtc": "2026-10-09T03:23:04.919Z",
+    "remainingScreens": 69,
+    "recordedSteps": 254,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 185,
+        "total": 254
+      },
+      "rng": {
+        "matched": 2851,
+        "total": 2985
+      },
+      "cursors": {
+        "matched": 185,
+        "total": 254
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero move: uhitm.c mhitm_ad_sgld()",
+      "step": 185
+    },
+    "step": 185,
+    "kind": "stop",
+    "sourceFile": "uhitm.c",
+    "function": "mhitm_ad_sgld",
+    "message": "unsupported hero move: uhitm.c mhitm_ad_sgld()",
+    "cFile": "uhitm.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The shared AD_SGLD dispatcher refuses the missing whole mhitm_ad_sgld handler. The admitted leprechaun hero hits a dwarf with no gold: C still exercises Dexterity and clears damage, then continues; JS stops. Port the whole three-direction handler through existing inventory/message/teleport owners, with the void unported stealgold call retained as an explicit source gap.",
+  "source": {
+    "file": "uhitm.c",
+    "functions": [
+      "mhitm_ad_sgld"
+    ],
+    "branch": "Polymorphed leprechaun hero lands AD_SGLD on a no-gold dwarf; handler must finish with exercise(A_DEX,TRUE) then damage0. Other source arms transfer monster gold, report incoming attacks and perform monster-pair gold theft/teleport.",
+    "callers": [
+      "uhitm.c:mhitm_adtyping4800 AD_SGLD -> mhitm_ad_sgld; JS dispatch7048 currently refuses.",
+      "uhitm.c:damageum -> shared dispatcher for hero attacks; mhitu.c:hitmu and mhitm.c:mdamagem consume the same handler through shared dispatch."
+    ],
+    "dependencies": [
+      "Consumed findgold, merge_choice, inv_cnt, tele_restrict/canspotmon already have canonical owners; audit and reuse unchanged.",
+      "Reuse existing obj_extract_self, addinv_runtime, add_to_minv, dropy/dropCommandEnv, hitmsg, exercise, naming, rloc. Source gold extraction is ordinary obj_extract_self, not worn-item theft extraction.",
+      "steal.c:stealgold58–123 has no JS owner; C discards this call, so record note_unported(steal.c stealgold) for the uncanceled non-leprechaun incoming branch. No invented gold amount/RNG/teleport substitute or steal owner completion credit."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Latest accepted-f091 v33 evaluation retains185/254 screens,2851/2985 RNG,185/254 cursors; saved combined baseline diagnostic stops at segment0 step185 keyn on mhitm_ad_sgld refusal. Manifest/recording identity unchanged and current handler still absent.",
+    "Whole upstream uhitm.c2790–2855 snapshots attacker/defender species, hero finds first gold, extracts before merge/slot check, adds or reports full knapsack/drops, always exercises then clears damage. Incoming branch prints hit before same-species return and cancellation; monster pair clears damage before cancellation/no-gold returns, extracts/adds gold, clears WAITFORU, names/reports, then conditionally sets AGR_DONE and relocates before disappearance feedback.",
+    "Current js/uhitm.js7048 rejects AD_SGLD through unported instead of dispatch; damageum7159, mhitu.js hitmu2632 and mhitm.js mdamagem1409 already await the canonical shared dispatcher. Replace exactly this refusal with the whole source owner.",
+    "findgold in steal.js1005 is a pure first-gold chain search pinned by steal.test; merge_choice invent.js3603 and inv_cnt hack.js701 provide existing source merge/slot contracts. addinv_runtime supplies awaited live merge semantics. obj_extract_self invent.js3330 clears minvent ownership in source order; add_to_minv admits only OBJ_FREE.",
+    "The missing stealgold owner is a discarded-call gap under project rules, not a consumed-return prerequisite. Independent runtime evidence must distinguish its bounded supported incoming no-op/same-species path from the unported populated theft behavior.",
+    "Independent evidence plan: leprechaun-hero no-gold admitted range plus newly chosen positive gold-carrying leprechaun target; incoming leprechaun attack with source same-species return/no steal; conflict-induced monster pair with no-gold return and, where bounded, gold transfer. Focused source pins cover cancellation, slot52 boundary, extraction ownership, damage/hitflags and message/RNG order."
+  ]
+}
