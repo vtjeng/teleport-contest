@@ -994,70 +994,75 @@ async function finishElapsedTurnAfterTimeout(
     }
     await regen_pw(wtcap, state, regenEnv);
 
-    // C ref: allmain.c moveloop_core():307-320. Teleportation is the union of
-    // the intrinsic and extrinsic property bits. Keep invulnerability as the
-    // outer short-circuit so it suppresses rn2(85), and consume that draw
-    // before delayed polymorph, searching, warning, hunger, and engraving.
-    if (!state.u.uinvulnerable
-        && propertyActive(state, TELEPORT)
-        && !random.rn2(85)) {
-        const oldUx = state.u.ux;
-        const oldUy = state.u.uy;
+    // C ref: allmain.c:307-340. Prayer invulnerability suppresses both
+    // periodic teleportation and every delayed-change check, including
+    // invalidating an existing pending change.
+    if (!state.u.uinvulnerable) {
+        // C ref: allmain.c moveloop_core():307-320. Teleportation is the union of
+        // the intrinsic and extrinsic property bits. Keep invulnerability as the
+        // outer short-circuit so it suppresses rn2(85), and consume that draw
+        // before delayed polymorph, searching, warning, hunger, and engraving.
+        if (propertyActive(state, TELEPORT)
+            && !random.rn2(85)) {
+            const oldUx = state.u.ux;
+            const oldUy = state.u.uy;
 
-        // teleport.c:tele() is a discarded void call. Its current
-        // scrolltele()/safe_teleds() path bypasses this cloned turn's random
-        // context and uses shared display/input, so it cannot run safely from
-        // the allmain planning pass. Record the exact gap instead of inventing
-        // draws, messages, or a destination. The zero-result recipe under
-        // recipes/allmain.c/ documents the first blocked source entry.
-        note_unported('teleport.c tele');
+            // teleport.c:tele() is a discarded void call. Its current
+            // scrolltele()/safe_teleds() path bypasses this cloned turn's random
+            // context and uses shared display/input, so it cannot run safely from
+            // the allmain planning pass. Record the exact gap instead of inventing
+            // draws, messages, or a destination. The zero-result recipe under
+            // recipes/allmain.c/ documents the first blocked source entry.
+            note_unported('teleport.c tele');
 
-        // Keep the source's moved-square aftermath in order for when tele()
-        // is plan-safe: unchanged coordinates leave both queues untouched.
-        if (state.u.ux !== oldUx || state.u.uy !== oldUy) {
-            if (!next_to_u(state))
-                note_unported('dog.c check_leash');
-            cmdq_clear(CQ_CANNED, state);
-            cmdq_clear(CQ_REPEAT, state);
+            // Keep the source's moved-square aftermath in order for when tele()
+            // is plan-safe: unchanged coordinates leave both queues untouched.
+            if (state.u.ux !== oldUx || state.u.uy !== oldUy) {
+                if (!next_to_u(state))
+                    note_unported('dog.c check_leash');
+                cmdq_clear(CQ_CANNED, state);
+                cmdq_clear(CQ_REPEAT, state);
+            }
         }
-    }
 
-    // C ref: allmain.c moveloop_core():322-339. `mvl_change` is a C static,
-    // so keep its per-game, nonsaved value on the game object. planningState()
-    // shallow-copies top-level scalars, giving the dry run its own pending
-    // value without changing the monster-action planning contract. The save
-    // serializer intentionally omits this transient field, as C's static is
-    // reset when a saved game is restored.
-    state.mvl_change ??= 0;
-    if ((state.mvl_change === 1 && !propertyActive(state, POLYMORPH))
-        || (state.mvl_change === 2 && state.u.ulycn === NON_PM)) {
-        state.mvl_change = 0;
-    }
-    if (propertyActive(state, POLYMORPH) && !random.rn2(100)) {
-        state.mvl_change = 1;
-    } else if (ismnum(state.u.ulycn) && !Upolyd(state.u)
-        && !random.rn2(80 - (20 * Number(night(state))))) {
-        state.mvl_change = 2;
-    }
-    if (state.mvl_change && !propertyActive(state, UNCHANGING)
-        && (state.multi ?? 0) >= 0) {
-        await stop_occupation(state, { message: turnMessage });
-        if (state.mvl_change === 1) {
-            // The C call discards polyself()'s return. Its existing body
-            // owns the transition; this caller does not inspect that value.
-            // polyself() currently draws from the live core context, so do
-            // not invoke it while simulating a planning clone.
-            if (planning)
-                elapsedTurnBoundary('delayed polymorph needs clone-owned RNG');
-            await polyself(POLY_NOFLAGS, state);
-        } else {
-            // Confirmation reads input, so defer the transition to the live
-            // turn just as the polymorph dispatch above does.
-            if (planning)
-                elapsedTurnBoundary('delayed lycanthropy needs live input');
-            await you_were(state, { random, message: turnMessage });
+        // C ref: allmain.c moveloop_core():322-339. `mvl_change` is a C static,
+        // so keep its per-game, nonsaved value on the game object. planningState()
+        // shallow-copies top-level scalars, giving the dry run its own pending
+        // value without changing the monster-action planning contract. The save
+        // serializer intentionally omits this transient field, as C's static is
+        // reset when a saved game is restored.
+        state.mvl_change ??= 0;
+        if ((state.mvl_change === 1 && !propertyActive(state, POLYMORPH))
+            || (state.mvl_change === 2 && state.u.ulycn === NON_PM)) {
+            state.mvl_change = 0;
         }
-        state.mvl_change = 0;
+        if (propertyActive(state, POLYMORPH) && !random.rn2(100)) {
+            state.mvl_change = 1;
+        } else if (ismnum(state.u.ulycn) && !Upolyd(state.u)
+            && !random.rn2(80 - (20 * Number(night(state))))) {
+            state.mvl_change = 2;
+        }
+        if (state.mvl_change && !propertyActive(state, UNCHANGING)
+            && (state.multi ?? 0) >= 0) {
+            await stop_occupation(state, { message: turnMessage });
+            if (state.mvl_change === 1) {
+                // The C call discards polyself()'s return. Its existing body
+                // owns the transition; this caller does not inspect that value.
+                // polyself() currently draws from the live core context, so do
+                // not invoke it while simulating a planning clone.
+                if (planning)
+                    elapsedTurnBoundary('delayed polymorph needs clone-owned RNG');
+                await polyself(POLY_NOFLAGS, state);
+            } else {
+                // Confirmation reads input, so defer the transition to the live
+                // turn just as the polymorph dispatch above does.
+                if (planning)
+                    elapsedTurnBoundary('delayed lycanthropy needs live input');
+                await you_were(state, { random, message: turnMessage });
+            }
+            state.mvl_change = 0;
+        }
+
     }
 
     // C ref: allmain.c moveloop_core():342-346. A Ranger or an Archeologist

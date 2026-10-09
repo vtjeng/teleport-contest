@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked independent outside route: repeated entry into a seen fire trap reaches the currently refused trap.c:dotrap seen-trap escape gate. No passing recording or A177 completion credit. Separate fresh-trap movement evidence avoids that frontier.",
+  "segments": [
+    {
+      "seed": 81773003,
+      "datetime": "20890317113000",
+      "nethackrc": "OPTIONS=name:unwere-vapor,role:Wizard,race:human,gender:female,align:neutral,pauper,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,debug_mongen,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017blessed tin opener\n\u0017blessed homemade tin of human wererat meat\nwa eb y \u0017+20 ring of protection\nPcl\u0017blessed potion of water\n #wizintrinsic\n>500i\n #polyself\nwererat\n   hhh\u0017fire trap\nh    l    \u001b\u001bh    l    \u001b\u001bh    l    \u001b\u001bh    l    \u001b\u001bh    l    \u001b\u001bh    l    \u001b\u001bh    l    \u001b\u001bh    l    \u001b\u001bh    l    \u001b\u001bh    l    \u001b\u001b.."
+    }
+  ]
+}

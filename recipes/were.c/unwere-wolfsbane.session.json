@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first wolfsbane entry: pauper Wizard wields a blessed opener, eats a human wererat tin, then consumes a wished sprig. eat.c:fpostfx calls you_unwere(true). The recipe retains observed C tin and meal pager acknowledgments.",
+  "segments": [
+    {
+      "seed": 81773000,
+      "datetime": "20890317113000",
+      "nethackrc": "OPTIONS=name:unwere-wolfsbane,role:Wizard,race:human,gender:female,align:neutral,pauper,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!debug_mongen,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017blessed tin opener\n\u0017blessed homemade tin of human wererat meat\nwa eb y \u0017sprig of wolfsbane\nec   .."
+    }
+  ]
+}

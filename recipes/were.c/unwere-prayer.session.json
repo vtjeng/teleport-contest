@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first neutral Wizard prayer cure after a wererat tin. Forced successful prayer selects TROUBLE_LYCANTHROPE and you_unwere(true); acknowledged C prayer pagers finish the production path.",
+  "segments": [
+    {
+      "seed": 81773004,
+      "datetime": "20890317113000",
+      "nethackrc": "OPTIONS=name:unwere-prayer,role:Wizard,race:human,gender:female,align:neutral,pauper,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!debug_mongen,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017blessed tin opener\n\u0017blessed homemade tin of human wererat meat\nwa eb y #pray\ny y     .."
+    }
+  ]
+}

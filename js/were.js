@@ -1,5 +1,5 @@
 // Hero lycanthropy and lycanthrope summoning.
-// C ref: were.c you_were(), set_ulycn(), were_summon(). were_change() and its helpers were ported
+// C ref: were.c you_were(), you_unwere(), set_ulycn(), were_summon(). were_change() and its helpers were ported
 // earlier into js/mon.js; that split predates this file.
 
 import {
@@ -27,14 +27,16 @@ import {
     PM_WINTER_WOLF_CUB,
     PM_WOLF,
 } from './monsters.js';
-import { rn2, rnd } from './rng.js';
+import { rn1, rn2, rnd } from './rng.js';
 
-import { polymon, set_uasmon } from './polyself.js';
+import { polymon, rehumanize, set_uasmon } from './polyself.js';
 import { canseemon } from './display.js';
 import { monster_nearby } from './hack.js';
 import { paranoid_query } from './cmd.js';
 import { an } from './objnam.js';
 import { heroUnaware } from './pline.js';
+import { is_were } from './mondata.js';
+import { ttyPline } from './tty_message.js';
 
 // C ref: were.c you_were() (192-212). Controlled changes ask before testing
 // nearby monsters; an uncontrolled change is suppressed by that test.
@@ -56,6 +58,45 @@ export async function you_were(state = game, env = {}) {
     }
     state.gw.were_changes++;
     await polymon(state.u.ulycn, state, env);
+}
+
+// C ref: were.c you_unwere() (213-228). Purification cures the infection
+// before deciding whether to leave beast form; Unchanging blocks only that
+// form change. A retained beast gets a fallback timer only when none remains.
+export async function you_unwere(purify, state = game, env = {}) {
+    const active = (property) => Boolean(state.u.uprops[property].intrinsic
+        || state.u.uprops[property].extrinsic);
+    const controllable_poly = active(POLYMORPH_CONTROL)
+        && !(active(STUNNED) || heroUnaware(state));
+    const message = env.message ?? (env.planning ? async () => {} : ttyPline);
+    if (purify) {
+        await message('You feel purified.', state);
+        set_ulycn(NON_PM, state);
+    }
+    let leaveBeast = false;
+    if (!active(UNCHANGING) && is_were(state.youmonst.data)
+        && !monster_nearby(state)) {
+        if (controllable_poly) {
+            // Canonical paranoid_query reads live input. Defer only when C
+            // actually reaches that query, preserving the preceding gates.
+            if (env.planning) {
+                if (typeof env.requestPlanningInput !== 'function')
+                    throw new TypeError('planned you_unwere requires an input boundary');
+                env.requestPlanningInput('you_unwere');
+            }
+            leaveBeast = !await paranoid_query(
+                Boolean(state.flags.paranoia_bits & PARANOID_WERECHANGE),
+                'Remain in beast form?', state,
+            );
+        } else {
+            leaveBeast = true;
+        }
+    }
+    if (leaveBeast) {
+        await rehumanize(state, env);
+    } else if (is_were(state.youmonst.data) && !state.u.mtimedone) {
+        state.u.mtimedone = (env.random?.rn1 ?? rn1)(200, 200);
+    }
 }
 
 // C ref: were.c set_ulycn() (232-237). Keep u.ulycn in its canonical state

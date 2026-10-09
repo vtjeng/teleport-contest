@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first matching beast attacked by a genetic engineer. The blessed opener makes the tin immediate; waits allow any slippery fingers to expire before debug polymorph. mon_poly natural urge calls you_unwere(false), whose adjacent-hostile gate retains beast form.",
+  "segments": [
+    {
+      "seed": 81773005,
+      "datetime": "20890317113000",
+      "nethackrc": "OPTIONS=name:unwere-engineer,role:Wizard,race:human,gender:female,align:neutral,pauper,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!debug_mongen,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017blessed tin opener\n\u0017blessed homemade tin of human wererat meat\nwa eb y .........................  #polyself\nwererat\n   \u0007hostile genetic engineer\n..       .       .       "
+    }
+  ]
+}

@@ -6,6 +6,7 @@
 // verify every draw without replacing the queue representation. stop_timer()
 // and obj_stop_timers() also accept cleanup integration through `{ hooks }`.
 
+import { you_unwere } from './were.js';
 import { memoryLayout } from './wizcmds_data.js';
 import {
     ACCESSIBLE,
@@ -1453,8 +1454,7 @@ export function nh_timeout_requires_live_state(state = game) {
                 || (timer.func_index === ROT_CORPSE && timer.arg.where === OBJ_INVENT)))
             return true;
     }
-    if (u.mtimedone === 1 && !propertySource(state, UNCHANGING)
-        && !is_were(state.youmonst.data)) return true;
+    if (u.mtimedone === 1 && !propertySource(state, UNCHANGING)) return true;
     if (u.uprops?.[STONED]?.intrinsic) return true;
     if (u.uprops?.[STRANGLED]?.intrinsic) return true;
     if (u.uprops?.[VOMITING]?.intrinsic) return true;
@@ -1802,7 +1802,8 @@ export async function nh_timeout(state = game, env = {}) {
         if (propertySource(state, UNCHANGING))
             u.mtimedone = random.rnd(100 * state.youmonst.data.mlevel + 1);
         else if (is_were(state.youmonst.data)) {
-            if (!env.planning) note_unported('were.c you_unwere');
+            await you_unwere(false, state, { ...displayEnv, random, message });
+            if (state.program_state?.gameover) return;
         } else {
             await rehumanize(state);
             if (state.program_state?.gameover) return;

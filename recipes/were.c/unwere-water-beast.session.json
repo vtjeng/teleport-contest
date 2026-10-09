@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first chaotic-beast holy-water entry: wield blessed opener and eat wererat tin, let slippery fingers expire, then debug-transform to the matching beast and drink blessed water. peffect_water calls you_unwere(false) before clearing infection and applying damage. Escape closes the C naming prompt.",
+  "segments": [
+    {
+      "seed": 81773002,
+      "datetime": "20890317113000",
+      "nethackrc": "OPTIONS=name:unwere-water-beast,role:Wizard,race:human,gender:female,align:chaotic,pauper,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!debug_mongen,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017blessed tin opener\n\u0017blessed homemade tin of human wererat meat\nwa eb y .........................  #polyself\nwererat\n   \u0017blessed potion of water\n qc   \u001b.."
+    }
+  ]
+}
