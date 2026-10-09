@@ -221033,7 +221033,7 @@
     {
       "id": "fix-cmd-doextcmd-history-dispatch-v32-20261008",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Dispatch the typed game history command",
       "cFile": "cmd.c",
       "sessions": [
@@ -221047,8 +221047,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "01a1e0ff0fc9213a17a9ef3378383804e778f0ac",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "doextcmd",
       "session": "synthetic/v32/v32-game-history",
       "step": 10,
@@ -221239,7 +221242,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "01a1e0ff0fc9213a17a9ef3378383804e778f0ac",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
