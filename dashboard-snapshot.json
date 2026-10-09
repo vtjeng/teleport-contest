@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T02:26:19.515Z",
+  "capturedAt": "2026-10-09T02:56:48.078Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -69708,12 +69708,161 @@
         "type": "accepted",
         "at": "2026-10-09T02:26:00.922Z",
         "task": "C159"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C159-accepted-boundary-no-independent-work-20261009",
+        "type": "turn",
+        "at": "2026-10-09T02:26:43.395Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Fruit fix accepted and merged. Remaining admitted mismatches are B180 status highlights and unresolved native-pointer/build-configuration contracts; awaiting coordinator admission or contract handoff."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C159-published-1c0f7f0f1",
+        "type": "published",
+        "at": "2026-10-09T02:27:19.584Z",
+        "task": "C159",
+        "commit": "1c0f7f0f1ea72e5fdd1c9ffc1bf4f438b112ecd7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B180-received-d4b86059e",
+        "type": "received",
+        "at": "2026-10-09T02:27:45.851Z",
+        "task": "B180",
+        "delivery": "d4b86059e128e9a09b167d8028a8a1c7116f046c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B180-integrating-e7f4fb0fa",
+        "type": "integrating",
+        "at": "2026-10-09T02:33:58.438Z",
+        "task": "B180",
+        "integration": "e7f4fb0fafd40809188320bf02d223b151d0864a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B180-correction-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T02:42:09.538Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B180 correction is active: tracing import initialization and stale option-state assertions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B180-e7f4fb0f-failed-37875267823",
+        "type": "validated",
+        "at": "2026-10-09T02:43:43.994Z",
+        "task": "B180",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-B180-e7f4fb0f-hosted-tests",
+        "type": "feedback",
+        "at": "2026-10-09T02:43:52.352Z",
+        "task": "B180",
+        "delivery": "d4b86059e128e9a09b167d8028a8a1c7116f046c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B180-hosted-correction-20261009",
+        "type": "resume",
+        "at": "2026-10-09T02:44:08.542Z",
+        "task": "B180"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5e5a6e45954d540c2be8887a39c856068df1748e",
+        "type": "ready",
+        "at": "2026-10-09T02:46:09.631Z",
+        "task": "B180",
+        "delivery": "5e5a6e45954d540c2be8887a39c856068df1748e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B180-correction-ready-idle-20261009",
+        "type": "turn",
+        "at": "2026-10-09T02:46:23.486Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B180 correction is ready for integration; all five affected test files pass."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B180-correction-5e5a6e459-20261009",
+        "type": "received",
+        "at": "2026-10-09T02:46:50.598Z",
+        "task": "B180",
+        "delivery": "5e5a6e45954d540c2be8887a39c856068df1748e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-B180-correction-review-20261009",
+        "type": "activity",
+        "at": "2026-10-09T02:46:55.250Z",
+        "task": "B180",
+        "phase": "review",
+        "reason": "Reviewing the bounded hosted-checkpoint correction, import-cycle repair, and canonical state-oracle updates."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B180-ab7c3b600-retry-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T02:47:08.834Z",
+        "task": "B180",
+        "integration": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B180-ab7c3b600-hosted-37876247963",
+        "type": "validated",
+        "at": "2026-10-09T02:52:00.686Z",
+        "task": "B180",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B180-ab7c3b6001f4fb32a299c807f2d4350025858ab0-partial",
+        "type": "accepted",
+        "at": "2026-10-09T02:55:10.438Z",
+        "task": "B180"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B181-selection-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T02:56:06.588Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Selecting the next unresolved synthetic source task after accepted B180."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C159-b180-accepted-await-evaluations-20261009",
+        "type": "turn",
+        "at": "2026-10-09T02:56:26.151Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Accepted status-highlight work merged. Awaiting refreshed accepted evaluations to select independent admitted work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-B180-20261009",
+        "type": "turn",
+        "at": "2026-10-09T02:56:32.997Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Accepted B180 and C159 are synchronized. Awaiting the coordinator’s published closure evaluations before selecting the next eligible task."
       }
     ]
   },
   "development": {
-    "executionCommit": "327cea6c9e23c151101e065443b86dbea4996ed4",
-    "measuredAt": "2026-10-09T02:23:08.346Z",
+    "executionCommit": "ab7c3b6001f4fb32a299c807f2d4350025858ab0",
+    "measuredAt": "2026-10-09T02:51:27.581Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
