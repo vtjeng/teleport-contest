@@ -236489,7 +236489,7 @@
     {
       "id": "port-kni-strt-lua-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Knight quest start level from Lua.",
       "luaFile": "Kni-strt.lua",
       "sessions": [
@@ -236503,15 +236503,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "6c8194f5c2a6dd256804398b6b00b5ef9c320128",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Kni-strt.lua",
           "line": 1,
           "endLine": 109,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -236687,7 +236690,51 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Kni-strt.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "kniStrt",
+            "sourceReview": "Read the complete 109-line Lua program in source order, including map dimensions, descriptor order, monsters, objects, stairs and messages; no unported calls.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "kniStrt",
+                "source": "The source program is registered as QUEST_LEVEL_LOADERS['Kni-strt'] and invoked by the special-level dispatcher."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/Kni-strt.lua/knight-start-male-typed.session.json",
+              "recordings/Kni-strt.lua/knight-start-female-key.session.json"
+            ],
+            "checkedAt": "6c8194f5c2a6dd256804398b6b00b5ef9c320128"
+          }
+        ],
+        "entryPointReview": "Completed runtime entry points: Kni-strt.lua quest-start loader and special-level descriptor creation, covered by both Kni-strt recordings; Astral endgame arrival, create_mplayers(special=true), message conversion and both guardian branches, covered by the independent positive and Conflict Astral recordings. dogmove.c:dog_move gained its production lose_guardian_angel wiring and a source-pinned test, but live dog-move entry evidence is blocked by the earlier mplayer.c:mk_mplayer RNG mismatch for the independent pettype:dog input. The blocked recipe is preserved at recipes/minion.c/guardian-angel-conflict-dogmove-blocked.session.json with no recording and is not completion evidence. final_level retains the explicit void reset_hostility gap.",
+        "entryPoints": [
+          {
+            "name": "Knight quest-start special-level load",
+            "functions": [
+              "Kni-strt.lua"
+            ],
+            "recordings": [
+              "recordings/Kni-strt.lua/knight-start-male-typed.session.json",
+              "recordings/Kni-strt.lua/knight-start-female-key.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6c8194f5c2a6dd256804398b6b00b5ef9c320128",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

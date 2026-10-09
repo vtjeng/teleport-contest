@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T17:11:55.310Z",
+  "capturedAt": "2026-10-09T17:47:39.202Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -74977,19 +74977,227 @@
         "worker": "B",
         "state": "idle",
         "reason": "B196 ready; focused checks and both Kni/Astral differentials pass."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C173-after-C178-accepted-20261009",
+        "type": "resume",
+        "at": "2026-10-09T17:13:05.622Z",
+        "task": "C173"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C173-active-after-C178-accepted-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:13:09.194Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Resuming the independent Ran-goal Lua port after C178 acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C173-ran-goal-20261009",
+        "type": "implement",
+        "at": "2026-10-09T17:13:26.086Z",
+        "task": "C173",
+        "goal": "port-ran-goal-quest-level-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C178-58763b4f62d4ba57e88e184ad443c74985aa8fa2",
+        "type": "published",
+        "at": "2026-10-09T17:13:39.098Z",
+        "task": "C178",
+        "commit": "58763b4f62d4ba57e88e184ad443c74985aa8fa2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B196-e84eeab5bf0ce77e044b66206a446fc97c55931c",
+        "type": "received",
+        "at": "2026-10-09T17:14:36.334Z",
+        "task": "B196",
+        "delivery": "e84eeab5bf0ce77e044b66206a446fc97c55931c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B196-1c9a3d0c492d1529f8ee30941d78c92fc4f7248a",
+        "type": "integrating",
+        "at": "2026-10-09T17:19:54.383Z",
+        "task": "B196",
+        "integration": "1c9a3d0c492d1529f8ee30941d78c92fc4f7248a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-dcf34a66e1166a1246771fe6a2567ce383847cc9",
+        "type": "ready",
+        "at": "2026-10-09T17:20:37.228Z",
+        "task": "C173",
+        "delivery": "dcf34a66e1166a1246771fe6a2567ce383847cc9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C177-after-C173-delivery-20261009",
+        "type": "resume",
+        "at": "2026-10-09T17:22:12.707Z",
+        "task": "C177"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C177-active-after-C173-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:22:16.157Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Resuming the independent Val-goal Lua port after C173 delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C177-val-goal-20261009",
+        "type": "implement",
+        "at": "2026-10-09T17:23:04.751Z",
+        "task": "C177",
+        "goal": "port-val-goal-quest-level-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B196-78c3c3508-source-correction",
+        "type": "integrating",
+        "at": "2026-10-09T17:28:41.782Z",
+        "task": "B196",
+        "integration": "78c3c3508ddba183d0f3b6bfbdec154f3c6c75b6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-567a382b931bb18598a54cf2e29c80c36fb01846",
+        "type": "ready",
+        "at": "2026-10-09T17:30:21.162Z",
+        "task": "C177",
+        "delivery": "567a382b931bb18598a54cf2e29c80c36fb01846"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-after-C177-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:30:42.735Z",
+        "worker": "C",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-active-C180-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:33:54.697Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the remaining version feature report mismatch from saved v35 evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C180-version-feature-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T17:34:03.328Z",
+        "task": "C180",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B196-6c8194f5c-hosted-fix",
+        "type": "integrating",
+        "at": "2026-10-09T17:37:30.977Z",
+        "task": "B196",
+        "integration": "6c8194f5c2a6dd256804398b6b00b5ef9c320128"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C180-version-port-id-blocker-20261009",
+        "type": "park",
+        "at": "2026-10-09T17:38:16.049Z",
+        "task": "C180",
+        "reason": "Source trace confirms v35 version-feature mismatch is the same cross-platform PORT_ID/build-provenance conflict already diagnosed by B172; source implementation cannot choose a single Unix/MacOS identity without a shared replay build-provenance contract. Report is committed at 9f78c78b7; no game edits."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-blocked-after-C180-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:38:40.853Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "No independent C task is ready; the coordinator must clear a source gate or provide another eligible session."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-Rog-goal-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:43:27.584Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A192 accepted and A2 synced to published Main; investigating an independent Rogue quest goal loader mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A198-rog-goal-20261009",
+        "type": "assign",
+        "at": "2026-10-09T17:43:29.134Z",
+        "task": "A198",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validate-B196-hosted-37967787462",
+        "type": "validated",
+        "at": "2026-10-09T17:44:49.017Z",
+        "task": "B196",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A198-lspo-object-dependency-20261009",
+        "type": "park",
+        "at": "2026-10-09T17:46:04.357Z",
+        "task": "A198",
+        "reason": "The full Rog-goal Lua program reaches an object descriptor that sets tin montype=\"chameleon\" at dat/Rog-goal.lua:45. Upstream sp_lev.c:lspo_object resolves named species to a species index; current JavaScript carries that name string through the corpsenm path. This shared source contract overlaps parked C172. A198 remains blocked until the orchestrator adjudicates C172; do not edit or reserve sp_lev.c:lspo_object while that task is parked/shared."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B196-6c8194f5c2a6dd256804398b6b00b5ef9c320128-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T17:46:43.504Z",
+        "task": "B196"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-blocked-no-free-queued-lua-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:47:30.049Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "A198 parked on shared descriptor dependency; refreshed Val-loca proposal awaits central handoff."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "B196",
-        "worker": "B",
-        "goal": "port-kni-strt-lua-v36-20261009",
+        "task": "C173",
+        "worker": "C",
+        "goal": "port-ran-goal-quest-level-v36-20261009",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "e84eeab5bf0ce77e044b66206a446fc97c55931c",
-        "since": "2026-10-09T17:11:19.176Z",
+        "delivery": "dcf34a66e1166a1246771fe6a2567ce383847cc9",
+        "since": "2026-10-09T17:20:37.228Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C177",
+        "worker": "C",
+        "goal": "port-val-goal-quest-level-v36-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "567a382b931bb18598a54cf2e29c80c36fb01846",
+        "since": "2026-10-09T17:30:21.162Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -75393,17 +75601,6 @@
         "reason": "Main received the complete report and directed parking pending central goal/context gate; preserve clean report9e62b822 and select independent work."
       },
       {
-        "task": "C177",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T14:09:20.112Z",
-        "blockedBy": [],
-        "reason": "Complete independent reportdba4e7dd8 and whole Val-goal proposal received; Main directs parking pending central source context and next independent investigation. No source claim/edit."
-      },
-      {
         "task": "A196",
         "worker": "A2",
         "goal": null,
@@ -75437,21 +75634,32 @@
         "reason": "Thirteen distinct reproducible C cases replay byte-identically but all pass current JavaScript; zero qualify as first-mismatch runway after reviewing v37 and all 30 unresolved queue cases. Preserve commit 8c08f73d16cd2b8a1f3f85c120ad21a02df29279 and private manifest/crosswalk; do not admit or integrate."
       },
       {
-        "task": "C173",
+        "task": "C180",
         "worker": "C",
         "goal": null,
         "kind": "investigation",
         "status": "parked",
         "delivery": null,
-        "since": "2026-10-09T16:59:12.873Z",
+        "since": "2026-10-09T17:38:16.049Z",
         "blockedBy": [],
-        "reason": "C178 is submitted and the orchestrator requires this worker to remain idle until C178 is accepted. Preserve the complete Ran-goal report and proposal without source edits."
+        "reason": "Source trace confirms v35 version-feature mismatch is the same cross-platform PORT_ID/build-provenance conflict already diagnosed by B172; source implementation cannot choose a single Unix/MacOS identity without a shared replay build-provenance contract. Report is committed at 9f78c78b7; no game edits."
+      },
+      {
+        "task": "A198",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T17:46:04.357Z",
+        "blockedBy": [],
+        "reason": "The full Rog-goal Lua program reaches an object descriptor that sets tin montype=\"chameleon\" at dat/Rog-goal.lua:45. Upstream sp_lev.c:lspo_object resolves named species to a species index; current JavaScript carries that name string through the corpsenm path. This shared source contract overlaps parked C172. A198 remains blocked until the orchestrator adjudicates C172; do not edit or reserve sp_lev.c:lspo_object while that task is parked/shared."
       }
     ]
   },
   "development": {
-    "executionCommit": "07a7711f3c33616a45a45bdd323eee7001502b7c",
-    "measuredAt": "2026-10-09T17:09:02.539Z",
+    "executionCommit": "6c8194f5c2a6dd256804398b6b00b5ef9c320128",
+    "measuredAt": "2026-10-09T17:43:27.104Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
