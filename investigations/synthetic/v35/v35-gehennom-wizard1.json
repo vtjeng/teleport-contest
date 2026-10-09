@@ -1,0 +1,142 @@
+{
+  "session": "synthetic/v35/v35-gehennom-wizard1",
+  "corpus": "synthetic",
+  "batch": "v35",
+  "caseId": "v35-gehennom-wizard1",
+  "remainingScreens": 41,
+  "recordedSteps": 109,
+  "manifestPath": "challenges/manifests/v35.json",
+  "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+  "recordingSha256": "dafcb950600f277719825127d85eedb25e2e07bffdbee083afbc02e1c670ec67",
+  "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+  "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+  "status": "complete",
+  "commit": "076bb7b14176757da7ab451fa729b43e5b932111",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v35",
+    "caseId": "v35-gehennom-wizard1",
+    "session": "synthetic/v35/v35-gehennom-wizard1",
+    "manifestPath": "challenges/manifests/v35.json",
+    "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+    "recording": "challenges/cases/v35/v35-gehennom-wizard1.session.json",
+    "recordingPath": "challenges/cases/v35/v35-gehennom-wizard1.session.json",
+    "recordingSha256": "dafcb950600f277719825127d85eedb25e2e07bffdbee083afbc02e1c670ec67",
+    "recipe": "challenges/cases/v35/v35-gehennom-wizard1.recipe.session.json",
+    "recipeSha256": "b59fa05a48b1a48057a3be2e19c8245f2a85f74896f5a132dd3e5c56e2b6ed8c",
+    "replayInputSha256": "9a345b9f1c2c4f64668854b1f41843898e09b9498646789c8c4a14892bfcd5a5",
+    "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+    "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+    "evaluationArtifact": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+    "evaluationUtc": "2026-10-09T08:22:23.377Z",
+    "remainingScreens": 41,
+    "recordedSteps": 109,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 68,
+        "total": 109
+      },
+      "rng": {
+        "matched": 16720,
+        "total": 16738
+      },
+      "cursors": {
+        "matched": 76,
+        "total": 109
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 68,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 68,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 5,
+        "column": 23,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 16691,
+        "cEntry": "rnd(2)=1",
+        "cCaller": "next_ident(mkobj.c:521)",
+        "jsEntry": "rn2(100)=32",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 68,
+          "key": "\n"
+        },
+        "stepIndex": 68
+      },
+      "cursor": {
+        "index": 69,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 69,
+          "key": " "
+        },
+        "cCursor": [
+          24,
+          6,
+          1
+        ],
+        "jsCursor": [
+          67,
+          12,
+          1
+        ]
+      }
+    },
+    "step": 68,
+    "kind": "rng",
+    "sourceFile": "mkobj.c",
+    "function": "next_ident",
+    "message": null,
+    "cFile": "mkobj.c",
+    "luaFile": null,
+    "line": 521
+  },
+  "goalKind": "divergence-fix",
+  "summary": "Wizard1 protects transparent map cells as though des.map wrote them. C lspo_map excludes INVALID_TYPE/MAX_TYPE cells from its returned selection; JS reconstructs the full29-by13 rectangle, protecting13 trailing transparent cells. The resulting missing boulders shift next_ident RNG and terrain at step68.",
+  "source": {
+    "file": "sp_lev.c",
+    "functions": [
+      "lspo_map"
+    ],
+    "branch": "The table-form des.map returns the selection of actually written map cells; Wizard1 unions that selection with its protected border before hell_tweaks wall-to-boulder processing.",
+    "callers": [
+      "dat/wizard1.lua:19–99 des.map table, then lines101–102 protected=negated bounds2 | wiz1 and hell_tweaks(protected).",
+      "dat/nhlib.lua:121–129 selection of wall-to-boulder squares calls des.object and mkobj.c:next_ident; the RNG caller annotation is downstream, not the defective owner."
+    ],
+    "dependencies": [
+      "Existing map fragment parser/character conversion and ThemeroomSelection; existing canonical next_ident is correct. A188 new Wizard3 registration is disjoint from descriptor map method; coordinate shared map-return contract before expansion."
+    ]
+  },
+  "evidence": [
+    "Authoritative challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json at 672aef01d1f3f575387d05eaa9690ed396d64a25 reports68/109 screens,76/109 cursors,16720/16738 RNG; first step68 compares C rnd(2) at next_ident521 with JS rn2(100). Manifest corpus digest a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e; immutable recording digest dafcb950600f277719825127d85eedb25e2e07bffdbee083afbc02e1c670ec67.",
+    "Fresh single-case diagnostic at076bb7b14176757da7ab451fa729b43e5b932111 in .cache/C165-wizard1-baseline.json reproduces first screen68 and RNG16691; baseline JS generates all109 boundaries but differing terrain/arrival consumes additional RNG downstream. No boundary refusal.",
+    "Whole mkobj.c:next_ident509–531 was read against js/obj.js1124–1134: old unsigned ID return, rnd(2) uint32 increment and wrap-zero rnd(2)+1 match. Object allocation is not the source defect.",
+    "sp_lev.c:lspo_map6279–6293 skips INVALID_TYPE and mptyp>=MAX_TYPE before painting/selection_setpoint, then6314–6317 returns that selection after contents/frame reset. js/mklev.js map4475–4510 skips those same cells when painting but returns only rectangle placement fields. js/wizard1_levels.js50–57 mapSelection fills every rectangular cell, including source literal trailing x in all13 rows.",
+    "Cache-only module-loader probe .cache/C165-transparent-map-loader.mjs removes just the transparent final column from Wizard1 reconstructed selection; .cache/C165-wizard1-transparent.json strictly matches109/109 screens/cursors,16738/16738 RNG and0 animation frames. Probe does not modify game source and only establishes the causal returned-mask correction; no session-specific runtime behavior is proposed.",
+    "dat/wizard1.lua contains29-by13 literal with28 real cells and trailing transparent x per row. Correct mask has364 points, not377; transparent maze cells remain eligible for hell_tweaks boulder/terrain processing. Bounds/frame conversion and RNG percentage loops otherwise retain their existing order.",
+    "Proposed bounded correction: map table return exposes an absolute selection captured at the same point as C selection_setpoint, before contents callbacks; Wizard1 consumes it instead of constructing a rectangular mask. Preserve placement metadata used by existing adapters. No whole lspo_map, wizard1.lua or hell_tweaks completion credit. Source-pinned tests must cover transparency/invalid characters, already-painted underlying terrain, clipped placement and async contents/reset lifetime.",
+    "Related Wizard2 reconstructs the same transparent-column rectangle; include its bounded same-contract caller correction only if scoped and backed by independent C-first reachability. Asmodeus/Orcus literals have no transparent cells; any canonical return-selector adoption there must preserve their existing masks and timing. A188 should consume the canonical mask for its newly ported Wizard3. No unrelated map placement/themeroom behavior is in this fix."
+  ]
+}
