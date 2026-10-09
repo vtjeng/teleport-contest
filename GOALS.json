@@ -226764,14 +226764,18 @@
     {
       "id": "fix-monmove-monster-flight-caller-v33-20261009",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Wire the simple monster adapter to canonical monster flight for Sunsword fear.",
       "cFile": "monmove.c",
       "sessions": [],
       "selectionReason": "The v33 Sunsword case first stops at distfleeck monster flight, where the simple monster adapter still injects an unsupported operation although canonical monflee exists; this caller fix is independent of the potion, artifact and spell scopes.",
       "detail": "Preserve distfleeck RNG order and wire the shared live/clone dochug adapter to canonical monflee state, random, visibility, and silent planning output. Retain region create_gas_cloud, expels, and hmon_hitmon_msg_lightobj as named gaps; take no whole-function source credit.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "5a37a50f21d3c5fd0fa50c88c35e13aad0c6d56e",
+      "openStanding": {
+        "sha": "461a0d2ad755547a69c0c623c64643e40b0be515",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "distfleeck",
@@ -226790,7 +226794,199 @@
           "evaluationPath": "challenges/evaluations/accepted-f091b997ca1571fc6198fe3189ad06fe2dba532c-v33.json",
           "evaluationCommit": "f091b997ca1571fc6198fe3189ad06fe2dba532c"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "461a0d2ad755547a69c0c623c64643e40b0be515",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-sunsword-light-sears",
+          "session": "synthetic/v33/v33-sunsword-light-sears",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recording": "challenges/cases/v33/v33-sunsword-light-sears.session.json",
+          "recordingPath": "challenges/cases/v33/v33-sunsword-light-sears.session.json",
+          "recordingSha256": "bc8424cd4e00006ad99e00ffaa8e1389d3163a8b7279739bad99d12e25d06a4c",
+          "recipe": "challenges/cases/v33/v33-sunsword-light-sears.recipe.session.json",
+          "recipeSha256": "5198b730e8477c3231a9541d58e82d9720a21c841dc15b086686e202e8f0744e",
+          "replayInputSha256": "12eea8bbce9032a12eec011fb36e7d74103ca127ec63787a2e21cff9a0e2d905",
+          "evaluationPath": "challenges/evaluations/accepted-461a0d2ad755547a69c0c623c64643e40b0be515-v33.json",
+          "evaluationCommit": "461a0d2ad755547a69c0c623c64643e40b0be515",
+          "evaluationArtifact": "challenges/evaluations/accepted-461a0d2ad755547a69c0c623c64643e40b0be515-v33.json",
+          "evaluationUtc": "2026-10-09T04:14:24.506Z",
+          "remainingScreens": 160,
+          "recordedSteps": 213,
+          "previousScreensMatched": 53,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 53,
+              "total": 213
+            },
+            "rng": {
+              "matched": 2964,
+              "total": 3436
+            },
+            "cursors": {
+              "matched": 53,
+              "total": 213
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires monster flight",
+            "step": 53
+          },
+          "step": 53,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires monster flight",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v33/v33-sunsword-light-sears.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v33",
+              "caseId": "v33-sunsword-light-sears",
+              "session": "synthetic/v33/v33-sunsword-light-sears",
+              "manifestPath": "challenges/manifests/v33.json",
+              "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+              "recording": "challenges/cases/v33/v33-sunsword-light-sears.session.json",
+              "recordingPath": "challenges/cases/v33/v33-sunsword-light-sears.session.json",
+              "recordingSha256": "bc8424cd4e00006ad99e00ffaa8e1389d3163a8b7279739bad99d12e25d06a4c",
+              "recipe": "challenges/cases/v33/v33-sunsword-light-sears.recipe.session.json",
+              "recipeSha256": "5198b730e8477c3231a9541d58e82d9720a21c841dc15b086686e202e8f0744e",
+              "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+              "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+              "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+              "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+              "evaluationUtc": "2026-10-09T03:03:55.655Z",
+              "remainingScreens": 160,
+              "recordedSteps": 213,
+              "previousScreensMatched": null,
+              "regression": false,
+              "passed": false,
+              "error": null,
+              "metrics": {
+                "screens": {
+                  "matched": 53,
+                  "total": 213
+                },
+                "rng": {
+                  "matched": 2964,
+                  "total": 3436
+                },
+                "cursors": {
+                  "matched": 53,
+                  "total": 213
+                }
+              },
+              "firstMismatch": {
+                "kind": "stop",
+                "message": "simple monster action requires monster flight",
+                "step": 53
+              },
+              "step": 53,
+              "kind": "stop",
+              "sourceFile": null,
+              "function": null,
+              "message": "simple monster action requires monster flight",
+              "cFile": null,
+              "luaFile": null,
+              "line": null,
+              "status": "complete",
+              "commit": "c94140ed8045377f1f5e6c02eb62e97a88ec692b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v33",
+                "caseId": "v33-sunsword-light-sears",
+                "session": "synthetic/v33/v33-sunsword-light-sears",
+                "manifestPath": "challenges/manifests/v33.json",
+                "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+                "recording": "challenges/cases/v33/v33-sunsword-light-sears.session.json",
+                "recordingPath": "challenges/cases/v33/v33-sunsword-light-sears.session.json",
+                "recordingSha256": "bc8424cd4e00006ad99e00ffaa8e1389d3163a8b7279739bad99d12e25d06a4c",
+                "recipe": "challenges/cases/v33/v33-sunsword-light-sears.recipe.session.json",
+                "recipeSha256": "5198b730e8477c3231a9541d58e82d9720a21c841dc15b086686e202e8f0744e",
+                "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+                "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+                "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+                "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+                "evaluationUtc": "2026-10-09T03:03:55.655Z",
+                "remainingScreens": 160,
+                "recordedSteps": 213,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 53,
+                    "total": 213
+                  },
+                  "rng": {
+                    "matched": 2964,
+                    "total": 3436
+                  },
+                  "cursors": {
+                    "matched": 53,
+                    "total": 213
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires monster flight",
+                  "step": 53
+                },
+                "step": 53,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "simple monster action requires monster flight",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "goalKind": "divergence-fix",
+              "summary": "At step53 the nearby gremlin flees from Sunsword under monmove.c:distfleeck. The simple monster adapter still injects an unsupported monFlee operation, although canonical monflee and its source message already exist. Wire the live/clone callback with canonical state, random, visibility and silent planning output.",
+              "source": {
+                "file": "monmove.c",
+                "functions": [
+                  "distfleeck",
+                  "dochug"
+                ],
+                "branch": "A nearby seeing gremlin can see the hero whose wielded Sunsword emits artifact light; bravegremlin rn2(5) is nonzero, so distfleeck calls monflee(rnd(rn2(7)?10:100),TRUE,TRUE).",
+                "callers": [
+                  "allmain.c:moveloop_core -> mon.c:movemon -> dochugw -> monmove.c:dochug791/834/915 -> distfleeck564 -> monflee. JS unported_monster_actions executeSimpleMonsterAction supplies dochug operations for both clone preflight and live pass."
+                ],
+                "dependencies": [
+                  "Existing monmove.c:monflee462–530 / js/monmove.js2055–2159 implements flee timer saturation, source first flag, release, visibility, light messages and tracking. Its required canSeeMonster/fleeMessage operations must be supplied with cloned/live state. Canonical monfleeMessage2019–2053 supports painful light and Bright light; planning returns before terminal input/output.",
+                  "Canonical distfleeck533–567 and dochug callers already await the monFlee operation and consume no fabricated return. Canonical state/random forwarding must preserve rn2(5),rn2(7),rnd(10),rn2(10) at step53.",
+                  "Retain source-discarded region.c:create_gas_cloud and swallowed mhitu.c:expels gaps, without expanding their owners. Ordinary fear/timer refresh can reuse the same complete source callback.",
+                  "Manifest target hmon_hitmon_msg_lightobj1702–1727 is not the first cause. Its existing discarded gap remains explicit; the recorded route shows painful-light fleeing at54/131 and no radiance/flesh message boundary. Do not preemptively expand into light-hit wording."
+                ]
+              },
+              "evidence": [
+                "Current saved baseline-66ac2b0bf-v33 records53/213 screens/cursors and2964/3436 RNG. Saved queue stops at zero-based53 with simple monster action requires monster flight. Source changes through c94140ed concern only unrelated hero empty-forcefight; no claimed-source changes after baseline. No corpus scan or recording performed.",
+                "C recording step53 input l after F prints You attack thin air.--More-- and logs rn2(5)=3 at distfleeck538, rn2(7)=5/rnd(10)=9 at564, then rn2(10)=8 at monflee499. Step54 displays The gremlin flees from the painful light of Sunsword. These calls identify monmove owner before later weapon-hit message arms.",
+                "JS unported_monster_actions.js1573 installs monFlee:()=>unsupported(monster flight) in the shared dochug adapter. monmove.js distfleeck2251 awaits that operation after source flee-time draws. The canonical monflee function and monfleeMessage already implement the required source behavior; obsolete adapter prevents production entry.",
+                "Actionable bounded scope: replace the monster flight injection with canonical monflee, binding canseemon to supplied state, monfleeMessage and canonical random/message/planning context. Preserve clone-only state/RNG and silent output; canonical callbacks perform mutation/message only in corresponding pass. No whole monmove/dochug/distfleeck/monflee credit.",
+                "Validation plan: fail-first valid nearby Sunsword/gremlin transition, exact rn2/rnd trace and mflee/mfleetim/mtrack mutation, clone/live isolation and no planner More input. Replay selected complete213-step case after fix. Independent C-first seed/role/clock variation reaches painful-light flight, with ordinary fear outside-limit test and explicit discarded void limits. If later light-hit message is reached, report its exact owner before scope expansion."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-artifact-invoke-create-ammo-v33-20261009",
