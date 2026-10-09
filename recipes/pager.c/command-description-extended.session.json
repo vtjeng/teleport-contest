@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pager.c dowhatdoes/whatdoes_help and cmd.c key2extcmddesc witness: extended. Inputs chosen before JavaScript comparison; different role and command history exercise source dispatch and formatting. Each command query returns ECMD_OK without using game time.",
+  "segments": [
+    {
+      "seed": 15533013,
+      "datetime": "20541107213243",
+      "nethackrc": "OPTIONS=name:Lex,role:Ranger,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#whatdoes\n i      ."
+    }
+  ]
+}
