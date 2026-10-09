@@ -229289,6 +229289,37 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-apply-cursed-unicorn-horn-con-call-v34-20261009",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Use current Constitution for cursed unicorn-horn sickness duration",
+      "cFile": "apply.c",
+      "sessions": [],
+      "selectionReason": "Independent admitted v34 RNG-only mismatch; the complete investigation traces apply.c:use_unicorn_horn line 2272 to one reversed acurr caller, with no whole-function credit.",
+      "detail": "Cursed unicorn horn newly induces sickness using current Constitution. The JavaScript caller reverses acurr state and index arguments, changing C rn2(17) to rn2(3) while screens and cursors match.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "use_unicorn_horn",
+      "session": "synthetic/v34/v34-cursed-unicorn-horn",
+      "step": 24,
+      "syntheticProvenance": {
+        "synthetic/v34/v34-cursed-unicorn-horn": {
+          "session": "synthetic/v34/v34-cursed-unicorn-horn",
+          "corpus": "synthetic",
+          "batch": "v34",
+          "caseId": "v34-cursed-unicorn-horn",
+          "manifestPath": "challenges/manifests/v34.json",
+          "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+          "recordingPath": "challenges/cases/v34/v34-cursed-unicorn-horn.session.json",
+          "recordingSha256": "1b933259099dbe42fe48e426e46d6611711f55f38b9b51d12b2397a6b9b260ce",
+          "evaluationPath": "challenges/evaluations/accepted-1fca795f45379c5d8364836c74c8ac61910620cd-v34.json",
+          "evaluationCommit": "1fca795f45379c5d8364836c74c8ac61910620cd"
+        }
+      }
     }
   ]
 }
