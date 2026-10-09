@@ -734,7 +734,9 @@ test('activity keeps one row per agent across panning and zooming', () => {
     const replacementIndex = data.activity.stages.findIndex(row => row.task === 'replacement-A');
     timeline.listeners.click[0]({ target: { classList: { contains: value => value === 'activity-bar' },
         dataset: { segment: String(replacementIndex) } } });
-    assert.match(rendered.get('timelineReadout').innerHTML, /replacement-A<\/strong> · A2/u);
+    assert.match(rendered.get('timelineReadout').innerHTML, /<dt>Task<\/dt><dd><strong>replacement-A<\/strong><\/dd>/u);
+    assert.match(rendered.get('timelineReadout').innerHTML, /<dt>Worker<\/dt><dd>A<\/dd>/u);
+    assert.doesNotMatch(rendered.get('timelineReadout').innerHTML, /A2/u);
     assert.doesNotMatch(timeline.innerHTML, /Delivery pending for replacement-A/u);
     const barPosition = index => {
         const bar = timeline.innerHTML.match(new RegExp(
@@ -773,6 +775,39 @@ test('activity keeps one row per agent across panning and zooming', () => {
             assert.deepEqual(barPosition(index), position, 'zoom preserves task rows');
         }
     }
+});
+
+test('activity details distinguish idle workers from tasks and Main stages from task ownership', () => {
+    const data = sourceDashboardData();
+    // A2 is the replacement worker; a delivery creates an idle gap before Main integrates it.
+    // Escaping the goal and report also prevents metadata from becoming markup.
+    const at = minute => `2026-09-25T10:${minute}:00Z`;
+    data.activity = activityTimeline({ events: [
+        { type: 'assign', task: 'A177', worker: 'A2', goal: 'source <port>', at: at('00') },
+        { type: 'ready', task: 'A177', at: at('05') },
+        { type: 'turn', worker: 'A2', state: 'idle', reason: 'Await <caller>.', at: at('05') },
+        { type: 'integrating', task: 'A177', at: at('10') },
+    ] }, at('15'));
+    const rendered = renderDashboard(data);
+    const select = phase => rendered.get('timeline').listeners.click[0]({ target: {
+        classList: { contains: value => value === 'activity-bar' },
+        dataset: { segment: String(data.activity.stages.findIndex(row => row.phase === phase)) },
+    } });
+    select('idle');
+    let html = rendered.get('timelineReadout').innerHTML;
+    assert.match(html, /<dt>Task<\/dt><dd>None<\/dd>/u);
+    assert.match(html, /<dt>Worker<\/dt><dd>A<\/dd>/u);
+    assert.match(html, /<dt>Stage<\/dt><dd>Idle \(worker report\)<\/dd>/u);
+    assert.match(html, /Await &lt;caller&gt;\./u);
+    assert.doesNotMatch(html, /<strong>A2?<\/strong>|A2/u);
+    assert.doesNotMatch(rendered.get('timeline').innerHTML, /for A2|>A2<\/div>/u);
+    select('integrating');
+    html = rendered.get('timelineReadout').innerHTML;
+    assert.match(html, /<dt>Task<\/dt><dd><strong>A177<\/strong><\/dd>/u);
+    assert.match(html, /<dt>Worker<\/dt><dd>A<\/dd>/u);
+    assert.match(html, /<dt>Stage<\/dt><dd>Main · Integration and checks<\/dd>/u);
+    assert.match(html, /<dt>Status<\/dt><dd>integrating<\/dd>/u);
+    assert.match(html, /<dt>Goal<\/dt><dd>source &lt;port&gt;<\/dd>/u);
 });
 
 function sourceFileRows(table) {
