@@ -646,33 +646,31 @@ test('the menu reads configured booleans from their generated addresses',
             assert.equal(valueOf(items, name), 'false', name);
     });
 
-// C ref: options.c doset()'s fmtstr_doset choice. menu_tab_sep's set_wizonly
-// restriction keeps doset() from listing the option, not from acting on it,
-// and a configuration file can turn it on in an ordinary game.
-test('the menu refuses the tab-separated layout menu_tab_sep asks for',
-    async () => {
-        const configured = await startGameWithConfig('OPTIONS=menu_tab_sep');
-        // The parse writes iflags.menu_tab_sep, so the format helper reaches
-        // the tab-separated layout branch itself.  That layout remains
-        // outside this slice.
-        assert.throws(
-            () => dosetMenuItems(configured, menuHelpers(), false),
-            (error) => error instanceof UnsupportedOptionMenuError
-                && error.what
-                    === 'doset() with menu_tab_sep',
-        );
-        // With the flag itself on, C drops the four-space indent and formats
-        // every line "%s%s\t[%s]". That branch is not ported.
-        const state = await startConfiguredGame(STOCK);
-        state.iflags.menu_tab_sep = true;
-        assert.throws(
-            () => dosetMenuItems(state, menuHelpers(), false),
-            (error) => error instanceof UnsupportedOptionMenuError
-                && error.what === 'doset() with menu_tab_sep',
-        );
-        state.iflags.menu_tab_sep = false;
-        assert.equal(dosetMenuItems(state, menuHelpers(), false).length, 150);
-    });
+// options.c:8822-8852 chooses "%s%s\t[%s]" and drops only the
+// read-only Boolean indent. doset_add_menu():9060 keeps its own indent.
+test('the full menu uses raw tab separators and source indentation', async () => {
+    const state = await startConfiguredGame(STOCK);
+    const ordinary = dosetMenuItems(state, menuHelpers(), false);
+    state.iflags.menu_tab_sep = true;
+    const tabbed = dosetMenuItems(state, menuHelpers(), false);
+    assert.equal(tabbed.length, ordinary.length);
+    for (let index = 0; index < ordinary.length; ++index) {
+        const item = ordinary[index];
+        const match = /^( *)(\S.*?) +(\[[^\n]*\])$/u.exec(item.text);
+        let text = item.text;
+        if (match) {
+            const option = allopt.find(option => option.name === match[2]);
+            const indent = option?.opttyp === 'BoolOpt' ? '' : match[1];
+            text = `${indent}${match[2]}\t${match[3]}`;
+        }
+        assert.deepEqual(tabbed[index], { ...item, text });
+    }
+    // optlist.h permits rc activation although ordinary menus hide the flag.
+    const configured = await startGameWithConfig('OPTIONS=menu_tab_sep');
+    assert.equal(configured.iflags.menu_tab_sep, true);
+    assert.ok(dosetMenuItems(configured, menuHelpers(), false)
+        .some(item => item.text.includes('\t[')));
+});
 
 // C ref: coloratt.c count_menucolors(). Every valid direct configuration row
 // prepends one node, including a duplicate pattern.
