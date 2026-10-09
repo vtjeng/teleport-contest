@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T06:50:05.567Z",
+  "capturedAt": "2026-10-09T07:07:57.659Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -71020,22 +71020,77 @@
         "type": "accepted",
         "at": "2026-10-09T06:49:29.244Z",
         "task": "B182"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B184-cursed-unicorn-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T06:51:42.112Z",
+        "task": "B184",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B184-cursed-unicorn-investigation-20261009",
+        "type": "turn",
+        "at": "2026-10-09T06:51:43.278Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating cursed unicorn-horn sickness draw"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B182-cc39a6fd0-20261009",
+        "type": "published",
+        "at": "2026-10-09T06:53:32.439Z",
+        "task": "B182",
+        "commit": "cc39a6fd08e50c3784f2870086fb18475154b79d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A184-c0b86e4b6-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T06:54:45.285Z",
+        "task": "A184",
+        "integration": "c0b86e4b6e17f62614b332ad0b9a4b17a693b0e9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B184-source-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T06:55:09.450Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "B184 diagnosis complete; Main is opening its source goal"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A184-1fca795f4-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T06:57:42.472Z",
+        "task": "A184",
+        "integration": "1fca795f45379c5d8364836c74c8ac61910620cd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A184-1fca795f4-20261009",
+        "type": "validated",
+        "at": "2026-10-09T07:03:19.057Z",
+        "task": "A184",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A184-1fca795f45379c5d8364836c74c8ac61910620cd-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T07:06:57.134Z",
+        "task": "A184"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "A184",
-        "worker": "A2",
-        "goal": "port-uhitm-hmon-hitmon-msg-silver-v33-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "f2e040ad62dca7eb4089c3943bd2438be15e9541",
-        "since": "2026-10-09T04:11:51.951Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "B183",
         "worker": "B",
@@ -71318,8 +71373,8 @@
     ]
   },
   "development": {
-    "executionCommit": "3ef1ebdbffb1bf6d15c3f591ec568f182fa36148",
-    "measuredAt": "2026-10-09T06:45:43.515Z",
+    "executionCommit": "1fca795f45379c5d8364836c74c8ac61910620cd",
+    "measuredAt": "2026-10-09T07:02:31.489Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
