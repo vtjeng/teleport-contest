@@ -4,21 +4,21 @@
   "batch": "v34",
   "caseId": "v34-wizard-jump",
   "manifestPath": "challenges/manifests/v34.json",
-  "manifestSha256": "7e5fb2970d9aca920c72ecd848657840593f32b577b8b338b048078f8788aaf9",
+  "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
   "recordingSha256": "e38556e67e0e1351daab1d02440ccd64afc8baf3e7e9d6e8c975568eb9650f54",
   "evaluationPath": "challenges/evaluations/accepted-1fca795f45379c5d8364836c74c8ac61910620cd-v34.json",
   "evaluationCommit": "1fca795f45379c5d8364836c74c8ac61910620cd",
   "remainingScreens": 32,
   "recordedSteps": 105,
   "status": "complete",
-  "commit": "6469cdc68f2dd2bbfb5011d6fbebf41ba24085e9",
+  "commit": "1fca795f45379c5d8364836c74c8ac61910620cd",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v34",
     "caseId": "v34-wizard-jump",
     "session": "synthetic/v34/v34-wizard-jump",
     "manifestPath": "challenges/manifests/v34.json",
-    "manifestSha256": "7e5fb2970d9aca920c72ecd848657840593f32b577b8b338b048078f8788aaf9",
+    "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
     "recording": "challenges/cases/v34/v34-wizard-jump.session.json",
     "recordingPath": "challenges/cases/v34/v34-wizard-jump.session.json",
     "recordingSha256": "e38556e67e0e1351daab1d02440ccd64afc8baf3e7e9d6e8c975568eb9650f54",
@@ -108,7 +108,7 @@
       "segmentMismatch": null
     }
   },
-  "summary": "Forced jumping reaches spell.c spelleffects SPE_JUMPING at step73, but JavaScript falls into its unsupported default instead of awaiting canonical apply.c jump(max(role_skill,1)). Restore the bounded caller and test the returned ECMD_TIME bit before Nothing happens feedback; retain normal cast skill gain and pseudo-book cleanup. Canonical jumping and landing helpers already exist, so this scope does not claim whole spelleffects or jump.",
+  "summary": "Forced jumping reaches spell.c spelleffects SPE_JUMPING at step73, but JavaScript falls into its unsupported default instead of awaiting canonical apply.c jump(max(role_skill,1)). Restore the bounded caller and test the returned ECMD_TIME bit before Nothing happens feedback; retain normal cast skill gain and pseudo-book cleanup. Canonical jumping and landing helpers already exist, so this scope does not claim whole spelleffects or jump. Supporting source reconciliation is needed at apply.c jump2150: pass one flat mutable integer range to hurtle_jump/hurtle_step, so a one-cell jump reaches zero and emits no delay frame.",
   "goalKind": "divergence-fix",
   "source": {
     "file": "spell.c",
@@ -122,7 +122,8 @@
     ],
     "dependencies": [
       "apply.c jump1988-2163 supplies the consumed ECMD_* return, with getpos/is_valid_jump_pos, dothrow.c walk_path/hurtle_jump/hurtle_step, teleport.c teleds, nomul and eat.c morehungry. These canonical owners are reused without whole-function completion credit.",
-      "const ECMD_TIME and nothing_happens; max(role_skill,1) is a clamp before the caller. Preserve skill award, pseudo-book lifetime and cast-check order outside the selected arm."
+      "const ECMD_TIME and nothing_happens; max(role_skill,1) is a clamp before the caller. Preserve skill award, pseudo-book lifetime and cast-check order outside the selected arm.",
+      "Bounded apply.c jump2150 callback argument correction: existing jumpLandingPath nested range object feeds NaN into dothrow.c hurtle_step range and creates a spurious one-cell delay. Preserve the canonical single mutable integer pointer, with no whole jump/dothrow credit."
     ]
   },
   "evidence": [
@@ -131,6 +132,7 @@
     "JavaScript js/spell.js spelleffects currently lacks SPE_JUMPING and reaches default1692-1697, freeing the pseudo-book before throwing. The first73 screens and3250 RNG agree, locating the caller rather than prior cast checks/menu selection.",
     "Source apply.c jump1988-2163 and js/apply.js jump2833-2993 already implement magical guards, getpos target, source skill distance6+3*magic, trap/in-place behavior, canonical walk_path/hurtle_jump/hurtle_step and teleds landing, nomul and rnd(25) hunger. Existing physical-jump evidence does not establish this newly wired spell entry. Recheck magical runtime evidence independently.",
     "Bounded proposal: reserve source:spell.c:spelleffects and contract:magical-jump-casting-result; change js/spell.js and exact focused spell test/runner, recipes/spell.c and recordings/spell.c. No edit or ownership for canonical apply.c helpers unless fresh runtime evidence shows a required dependency defect.",
-    "Validation plan: fail-first source-pinned magical caller tests for skill clamp, awaited return mask, no-time feedback, outer ECMD_TIME and cleanup order; admitted selected full105-step replay; independent C-first forced adjacent jump and a cheap cancellation/in-place variation, plus learned casting/#jump fallback caller witness or explicitly blocked evidence if an inherited boundary prevents it. Focused existing apply-jump/spell/cmd checks, lint/quality and fresh strict comparisons. Retain ordinary unported spells outside this bounded caller scope."
+    "Validation plan: fail-first source-pinned magical caller tests for skill clamp, awaited return mask, no-time feedback, outer ECMD_TIME and cleanup order; admitted selected full105-step replay; independent C-first forced adjacent jump and a cheap cancellation/in-place variation, plus learned casting/#jump fallback caller witness or explicitly blocked evidence if an inherited boundary prevents it. Focused existing apply-jump/spell/cmd checks, lint/quality and fresh strict comparisons. Retain ordinary unported spells outside this bounded caller scope.",
+    "Supporting source trace: apply.c2140-2150 computes max(abs(dx),abs(dy)) into an int and passes &range to walk_path/hurtle_jump. C dothrow.c968-971 decrements that int before conditional delay. JS jumpLandingPath originally nested range as {state,range:{range:distance}}; canonical rangePointer selects the outer object and Math.trunc(pointer.range) becomes NaN. A flat {state,range:distance} preserves the existing pointer owner and no-delay final cell. Strict selected replay first exposed this extra animation while stable screens/RNG already matched."
   ]
 }

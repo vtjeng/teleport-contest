@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside A185 magical-jump caller scope: spell.c cast_protection is still unported; do not include this recipe in passing recordings.",
+  "segments": [
+    {
+      "seed": 18541035,
+      "datetime": "20490319145537",
+      "nethackrc": "OPTIONS=name:JumpWitness,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,!tips\n",
+      "moves": "  #wizcast\n q"
+    }
+  ]
+}
