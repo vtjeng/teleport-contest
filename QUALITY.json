@@ -341,6 +341,7 @@
         "js/glyph_ids.js",
         "js/glyph_offsets.js",
         "js/glyphs.js",
+        "js/status_field_data.js",
         "js/symbol_data.js",
         "js/symbols.js"
       ],

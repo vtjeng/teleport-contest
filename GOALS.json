@@ -223347,7 +223347,7 @@
     {
       "id": "port-were-you-unwere-prayer-v32-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port lycanthropy purification and preserve protected-prayer RNG",
       "cFile": "were.c",
       "sessions": [
@@ -223361,15 +223361,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "37f1b1fe268666f0e8fa0eed9b45e336d3d07129",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "you_unwere",
           "line": 213,
           "endLine": 231,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -223598,6 +223601,1142 @@
                 "Planning adapter dependency: timeout.js nh_timeout_requires_live_state currently excludes were forms at mtimedone1 because it skipped this helper. The now-executable were expiry must hand off live before confirmation/form output, alongside ordinary rehumanize. Only the mtimedone call/classifier branch needs reconciliation; timeout fatal helper ownership is excluded. mon_poly already defers planning input, while peffect_water/potionbreathe must forward their canonical random/message/planning environment and defer only a genuinely reached controlled query.",
                 "Expanded independent validation plan: prayer under human lycanthropy; wolfsbane purification after food-derived lycanthropy; blessed water purification and chaotic beast holy-water reversion; blessed-water vapor while in matching were form; timed beast expiry; mon_poly natural-urge reversion from genetic engineer. Each active entry requires a matching admitted range or independent C-first recipe/cheap variation, with exact blockers retained if surrounding source cannot execute. Pure helper and mocked-order tests cannot stand in for runtime callers."
               ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "you_unwere",
+            "implementation": "js/were.js",
+            "symbol": "you_unwere",
+            "sourceReview": "Read complete were.c213–228. Compute control before purification; message precedes canonical set_ulycn. Preserve !Unchanging/is_were/!monster_nearby/control/query short circuits, canonical rehumanize, and only-zero retained beast rn1(200,200). monster_nearby consumed predicate audited against hack.c4106–4129; paranoid_query consumed boolean audited against cmd.c5655–5658. Reuse canonical set_uasmon and rehumanize. Only actually reached controlled queries defer planned input; supplied message and random operations preserve cloned output/state/RNG. No you_unwere placeholder or injected substitute remains. All seven source call sites are awaited. Existing rehumanize retouch_equipment/selftouch discarded-return gaps remain named in their owners.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "fix_worst_trouble",
+                "source": "pray.c515 TROUBLE_LYCANTHROPE calls true; existing pleased dispatcher awaits fix helper. Preserve C158 strangulation arm."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "fpostfx",
+                "source": "eat.c2515 calls true after a wolfsbane meal; existing doeat/done_eating runtime owns meal completion and forwards effectEnv."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_water",
+                "source": "potion.c735 matching chaotic/hates-blessings beast calls false before set_ulycn(NON_PM)/damage; potion.c754 neutral/lawful blessed-water calls true after sickness cure/exercises. dodrink dispatch retained."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "potionbreathe",
+                "source": "potion.c2087 blessed-water vapor in the matching were form calls false; preserves in_use and forwarded RNG/message/planning environment. Runtime witness: hack movement -> dotrap -> dofiretrap -> destroy_items/maybe_destroy_item -> potionbreathe."
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c645 expired were form calls false; classifier now hands were expiry to live state, alongside ordinary rehumanize. Unchanging rearming precedes the helper, invulnerability suppresses all timeout work. Existing fatal-timeout ownership retained."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mon_poly",
+                "source": "mhitm.c1142 natural urge in matching were form calls false after message and before damage0. Genetic engineer AD_POLY -> mhitm_ad_poly -> mon_poly; existing planner input handoff precedes the hero effect."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/were-you-were.test.mjs",
+              "scripts/were-you-unwere.test.mjs",
+              "scripts/pray.test.mjs",
+              "scripts/allmain-turn.test.mjs",
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/potion.test.mjs",
+              "scripts/timeout.test.mjs",
+              "scripts/mhitm.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/were.c/unwere-wolfsbane.session.json",
+              "recordings/were.c/unwere-wolfsbane-variation.session.json",
+              "recordings/were.c/unwere-water-purify.session.json",
+              "recordings/were.c/unwere-water-beast.session.json",
+              "recordings/were.c/unwere-vapor.session.json",
+              "recordings/were.c/unwere-prayer.session.json",
+              "recordings/were.c/unwere-engineer.session.json",
+              "recordings/were.c/unwere-expiry.session.json"
+            ],
+            "sourceFile": "were.c",
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-prayer-lycanthropy",
+                "segment": 0,
+                "fromStep": 52,
+                "throughStep": 68,
+                "source": "pray.c:prayer_done -> pleased -> fix_worst_trouble515 -> were.c:you_unwere(true). Full selected replay also matches the preceding invulnerable allmain307–340 gate at51."
+              }
+            ],
+            "checkedAt": "37f1b1fe268666f0e8fa0eed9b45e336d3d07129"
+          }
+        ],
+        "entryPointReview": "The selected helper has seven active caller sites: pray515, eat2515, potion735/754/2087, timeout645, mhitm1142. All are wired and have matching runtime entry evidence. No caller is declared inactive. Each entry below credits only you_unwere and bounded caller reconciliation, excluding whole enclosing functions. Source-owned pure monster_nearby/paranoid_query predicates are reused after complete consumed-return audit. Protected prayer additionally needs allmain307–340 envelope reconciliation: both periodic teleportation and every delayed change are suppressed while invulnerable, including invalidation of the pending C static. Timeout live-state adapter accounts for newly executable were expiry.",
+        "entryPoints": [
+          {
+            "name": "Prayer purification",
+            "functions": [
+              "you_unwere"
+            ],
+            "recordings": [
+              "recordings/were.c/unwere-prayer.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-prayer-lycanthropy",
+                "segment": 0,
+                "fromStep": 52,
+                "throughStep": 68,
+                "source": "pray.c:prayer_done -> pleased -> fix_worst_trouble515 -> were.c:you_unwere(true). Full selected replay also matches the preceding invulnerable allmain307–340 gate at51."
+              }
+            ]
+          },
+          {
+            "name": "Finished wolfsbane meal",
+            "functions": [
+              "you_unwere"
+            ],
+            "recordings": [
+              "recordings/were.c/unwere-wolfsbane.session.json",
+              "recordings/were.c/unwere-wolfsbane-variation.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Blessed water neutral infected human",
+            "functions": [
+              "you_unwere"
+            ],
+            "recordings": [
+              "recordings/were.c/unwere-water-purify.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Blessed water chaotic matching beast",
+            "functions": [
+              "you_unwere"
+            ],
+            "recordings": [
+              "recordings/were.c/unwere-water-beast.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Blessed-water vapor matching beast",
+            "functions": [
+              "you_unwere"
+            ],
+            "recordings": [
+              "recordings/were.c/unwere-vapor.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Timed were-form expiry",
+            "functions": [
+              "you_unwere"
+            ],
+            "recordings": [
+              "recordings/were.c/unwere-expiry.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Genetic-engineer natural urge",
+            "functions": [
+              "you_unwere"
+            ],
+            "recordings": [
+              "recordings/were.c/unwere-engineer.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "37f1b1fe268666f0e8fa0eed9b45e336d3d07129",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-options-fruit-live-feedback-v32-20261009",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Restore source-ordered live fruit option feedback",
+      "cFile": "options.c",
+      "sessions": [],
+      "selectionReason": "The admitted v32 fruit case has one remaining screen mismatch at the successful live optfn_fruit branch; C prints the post-fruitadd confirmation while JavaScript omits it.",
+      "detail": "Restore only options.c optfn_fruit's source-ordered successful in-game feedback after fruitadd. Preserve quiet startup and simple-menu behavior, and retain the native saveoptions and broader fruit diagnostics as named frontiers.",
+      "openedAt": "3d132dcfdcb6deb4214c4e8382e6a29201b39da4",
+      "openStanding": {
+        "sha": "37f1b1fe268666f0e8fa0eed9b45e336d3d07129",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "327cea6c9e23c151101e065443b86dbea4996ed4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "optfn_fruit",
+      "session": "synthetic/v32/v32-options-fruit",
+      "step": 33,
+      "syntheticProvenance": {
+        "synthetic/v32/v32-options-fruit": {
+          "session": "synthetic/v32/v32-options-fruit",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-options-fruit",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-options-fruit.session.json",
+          "recordingSha256": "9a613ee4fb1fa15dbbe7692645cbe7d3950c65f10ced9e3ece1d9d5e52b8522e",
+          "evaluationPath": "challenges/evaluations/accepted-37f1b1fe268666f0e8fa0eed9b45e336d3d07129-v32.json",
+          "evaluationCommit": "37f1b1fe268666f0e8fa0eed9b45e336d3d07129"
+        }
+      },
+      "activeStanding": {
+        "sha": "37f1b1fe268666f0e8fa0eed9b45e336d3d07129",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-options-fruit",
+          "session": "synthetic/v32/v32-options-fruit",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recording": "challenges/cases/v32/v32-options-fruit.session.json",
+          "recordingPath": "challenges/cases/v32/v32-options-fruit.session.json",
+          "recordingSha256": "9a613ee4fb1fa15dbbe7692645cbe7d3950c65f10ced9e3ece1d9d5e52b8522e",
+          "recipe": "challenges/cases/v32/v32-options-fruit.recipe.session.json",
+          "recipeSha256": "67bfcb671aa5c5a6662e6e6ad81b98c86498126b6b107412b57567a7bc821020",
+          "replayInputSha256": "40365097580a3f58b6eb05035c58b55595b5f90241be83e929d91a5e2f1682e0",
+          "evaluationPath": "challenges/evaluations/accepted-37f1b1fe268666f0e8fa0eed9b45e336d3d07129-v32.json",
+          "evaluationCommit": "37f1b1fe268666f0e8fa0eed9b45e336d3d07129",
+          "evaluationArtifact": "challenges/evaluations/accepted-37f1b1fe268666f0e8fa0eed9b45e336d3d07129-v32.json",
+          "evaluationUtc": "2026-10-09T02:04:13.145Z",
+          "remainingScreens": 1,
+          "recordedSteps": 53,
+          "previousScreensMatched": 52,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 52,
+              "total": 53
+            },
+            "rng": {
+              "matched": 2664,
+              "total": 2664
+            },
+            "cursors": {
+              "matched": 53,
+              "total": 53
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "F",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 33,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v32/v32-options-fruit.json",
+            "result": {
+              "session": "synthetic/v32/v32-options-fruit",
+              "corpus": "synthetic",
+              "batch": "v32",
+              "caseId": "v32-options-fruit",
+              "manifestPath": "challenges/manifests/v32.json",
+              "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+              "recordingSha256": "9a613ee4fb1fa15dbbe7692645cbe7d3950c65f10ced9e3ece1d9d5e52b8522e",
+              "evaluationPath": "challenges/evaluations/accepted-6f43faf156d28688e1e9bf2470077de98e6cc4b2-v32.json",
+              "evaluationCommit": "6f43faf156d28688e1e9bf2470077de98e6cc4b2",
+              "remainingScreens": 1,
+              "recordedSteps": 53,
+              "status": "complete",
+              "commit": "e206b5cc7595c734671904a08e9c30e1330ac8a5",
+              "mismatch": {
+                "version": 1,
+                "corpus": "synthetic",
+                "batch": "v32",
+                "caseId": "v32-options-fruit",
+                "manifestPath": "challenges/manifests/v32.json",
+                "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+                "recordingPath": "challenges/cases/v32/v32-options-fruit.session.json",
+                "recordingSha256": "9a613ee4fb1fa15dbbe7692645cbe7d3950c65f10ced9e3ece1d9d5e52b8522e",
+                "recipeSha256": "67bfcb671aa5c5a6662e6e6ad81b98c86498126b6b107412b57567a7bc821020",
+                "evaluationPath": "challenges/evaluations/accepted-6f43faf156d28688e1e9bf2470077de98e6cc4b2-v32.json",
+                "evaluationCommit": "6f43faf156d28688e1e9bf2470077de98e6cc4b2",
+                "evaluationUtc": "2026-10-09T01:03:32.526Z",
+                "session": "synthetic/v32/v32-options-fruit",
+                "remainingScreens": 1,
+                "recordedSteps": 53,
+                "metrics": {
+                  "screens": {
+                    "matched": 52,
+                    "total": 53
+                  },
+                  "rng": {
+                    "matched": 2664,
+                    "total": 2664
+                  },
+                  "cursors": {
+                    "matched": 53,
+                    "total": 53
+                  }
+                },
+                "step": 33,
+                "kind": "screen",
+                "sourceFile": "options.c",
+                "function": "optfn_fruit",
+                "line": 1760,
+                "message": "Source live Fruit is now message is absent; current give_opt_msg true and startupEvents absent.",
+                "diagnosticToolSha256": "01cb5004cc11a812f50a8e119ea49eb9700d913dc19487543ad6f877b06e6a82",
+                "replayCommit": "e206b5cc7595c734671904a08e9c30e1330ac8a5"
+              },
+              "summary": "The accepted full-options path now sets the fruit correctly. At step 33, C prints Fruit is now after fruitadd; JS queues that live feedback only when startupEvents exists, so the ordinary game omits the message. Restore source-ordered awaited live output without changing startup parsing or fruit ownership.",
+              "goalKind": "divergence-fix",
+              "source": {
+                "file": "options.c",
+                "functions": [
+                  "optfn_fruit"
+                ],
+                "branch": "DO_SET with go.opt_initial FALSE successfully renames the fruit and calls fruitadd, then give_opt_msg TRUE requires pline. JavaScript requires startupEvents and appends a deferred event instead of calling the live message owner.",
+                "callers": [
+                  "options.c:doset8939–8951 -> parseoptions638–647 -> allopt fruit DO_SET. JS existing OPTION_SET_HANDLERS.fruit forwards the owner result and parseoptions already awaits it.",
+                  "options.c:parseoptions configuration-file DO_SET is adapted by JS applyOption/parseNethackrc. Source startup never prints this live feedback; preserve its synchronous return.",
+                  "options.c:doset_simple8722–8733 brackets give_opt_msg FALSE/TRUE; the live quiet/simple-menu branch must remain silent and source order unchanged."
+                ],
+                "dependencies": [
+                  "Canonical ttyPline, fruitadd, naming and option-menu owners are already present; do not edit them or B179/B180 handlers.",
+                  "Keep the correction to successful live feedback. Existing fruit-limit/error diagnostics, native configuration serialization and broader optfn_fruit completion are outside this divergence-fix claim."
+                ]
+              },
+              "evidence": [
+                "challenges/evaluations/accepted-6f43faf156d28688e1e9bf2470077de98e6cc4b2-v32.json at 6f43faf156d28688e1e9bf2470077de98e6cc4b2: 52/53 screens,2664/2664 RNG,53/53 cursors; one unmatched screen with unchanged corpus/recording identity.",
+                ".cache/C159-selected-before.log at worker e206b5cc7595c734671904a08e9c30e1330ac8a5 runs all 53 boundaries without refusal and first differs at segment0 step33, newline after the selected fruit name; C cell(0,0)=F, JS blank, RNG and cursor mismatch null.",
+                "Recorded C step33 first line is Fruit is now \"cloudberry\". .cache/C159-fruit-state-probe.log confirms current runtime give_opt_msg=true, startupEvents absent, fruit=cloudberry, and blank JS first line at33. State selection and fruit mutation already agree; no rendering/RNG defect is inferred.",
+                "Read whole C options.c:optfn_fruit1706–1774. At1758 discarded fruitadd runs before give_opt_msg conditional pline1759–1760. JS options.js1624–1629 appends a message to startupEvents only if that startup-only array exists; a live successful update takes no message path. Existing live parseoptions awaits the returned owner, so source-ordered live output can be restored without changing the synchronous startup setter.",
+                "Read options.c give_opt_msg static TRUE108 and doset_simple8722–8733 FALSE/TRUE bracket; current JS source-equivalent simple-menu bracket is retained. Independent full-options message and quiet simple-menu variations should pin the bounded correction.",
+                "Earlier B173 dispatcher refusal at14 is accepted and resolved; keep the original diagnosis as history, do not reopen its cmd.c doextcmd owner. B178 menu formatting is also accepted; preserve both caller bodies and pending C155/C156 deliveries."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "327cea6c9e23c151101e065443b86dbea4996ed4",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-options-status-hilite-menu-v32-20261009",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port the status-highlight option menu and canonical option attributes",
+      "cFile": "options.c",
+      "sessions": [
+        "synthetic/v32/v32-options-status-hilites"
+      ],
+      "selectionReason": "Oldest dependency-ready admitted mismatch after C159 acceptance; v32 reaches options.c optfn_o_status_hilites at step 39 with 18 screens remaining.",
+      "detail": "Port the status-highlight callback and complete nested menu return closure across botl.c and coloratt.c, reconcile canonical C option attributes at existing drawing boundaries, and verify live menu callers. Retain #saveoptions, dormant choose-field, renderer timer, and broader parser frontiers without source completion credit.",
+      "openedAt": "9779f93fd2281dfead9692d18690c6ec035ce73d",
+      "openStanding": {
+        "sha": "327cea6c9e23c151101e065443b86dbea4996ed4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "optfn_o_status_hilites",
+          "line": 8446,
+          "endLine": 8480,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 8446,
+        "to": 8480
+      },
+      "requiredFunctions": [
+        {
+          "name": "s_to_anything",
+          "line": 1930,
+          "endLine": 1976,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "split_clridx",
+          "line": 2576,
+          "endLine": 2592,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "query_arrayvalue",
+          "line": 2747,
+          "endLine": 2783,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "query_conditions",
+          "line": 3109,
+          "endLine": 3140,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "conditionbitmask2str",
+          "line": 3141,
+          "endLine": 3170,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "hlattr2attrname",
+          "line": 3369,
+          "endLine": 3416,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_linestr_countfield",
+          "line": 3462,
+          "endLine": 3476,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "count_status_hilites",
+          "line": 3477,
+          "endLine": 3487,
+          "declared": true,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite2str",
+          "line": 3590,
+          "endLine": 3671,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_menu_choose_field",
+          "line": 3672,
+          "endLine": 3706,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_menu_choose_behavior",
+          "line": 3707,
+          "endLine": 3810,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_menu_choose_updownboth",
+          "line": 3811,
+          "endLine": 3889,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_menu_add",
+          "line": 3890,
+          "endLine": 4304,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_remove",
+          "line": 4305,
+          "endLine": 4356,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_menu_fld",
+          "line": 4357,
+          "endLine": 4455,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_menu",
+          "line": 4498,
+          "endLine": 4583,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "query_attr",
+          "line": 396,
+          "endLine": 474,
+          "declared": true,
+          "sourceFile": "coloratt.c",
+          "complete": false
+        },
+        {
+          "name": "query_color",
+          "line": 475,
+          "endLine": 529,
+          "declared": true,
+          "sourceFile": "coloratt.c",
+          "complete": false
+        },
+        {
+          "name": "optfn_menu_headings",
+          "line": 2183,
+          "endLine": 2224,
+          "declared": true,
+          "sourceFile": "options.c",
+          "complete": false
+        },
+        {
+          "name": "optfn_petattr",
+          "line": 3138,
+          "endLine": 3196,
+          "declared": false,
+          "sourceFile": "options.c",
+          "complete": false
+        },
+        {
+          "name": "handler_menu_headings",
+          "line": 5780,
+          "endLine": 5794,
+          "declared": true,
+          "sourceFile": "options.c",
+          "complete": false
+        },
+        {
+          "name": "handler_petattr",
+          "line": 6152,
+          "endLine": 6166,
+          "declared": false,
+          "sourceFile": "options.c",
+          "complete": false
+        },
+        {
+          "name": "handler_menu_colors",
+          "line": 6407,
+          "endLine": 6501,
+          "declared": false,
+          "sourceFile": "options.c",
+          "complete": false
+        },
+        {
+          "name": "handle_add_list_remove",
+          "line": 9208,
+          "endLine": 9255,
+          "declared": false,
+          "sourceFile": "options.c",
+          "complete": false
+        },
+        {
+          "name": "test_regex_pattern",
+          "line": 7871,
+          "endLine": 7904,
+          "declared": false,
+          "sourceFile": "options.c",
+          "complete": false
+        },
+        {
+          "name": "query_color_attr",
+          "line": 304,
+          "endLine": 319,
+          "declared": true,
+          "sourceFile": "coloratt.c",
+          "complete": false
+        },
+        {
+          "name": "attr2attrname",
+          "line": 320,
+          "endLine": 337,
+          "declared": false,
+          "sourceFile": "coloratt.c",
+          "complete": false
+        },
+        {
+          "name": "color_attr_to_str",
+          "line": 249,
+          "endLine": 260,
+          "declared": true,
+          "sourceFile": "coloratt.c",
+          "complete": false
+        },
+        {
+          "name": "color_attr_parse_str",
+          "line": 261,
+          "endLine": 303,
+          "declared": true,
+          "sourceFile": "coloratt.c",
+          "complete": false
+        },
+        {
+          "name": "free_one_menu_coloring",
+          "line": 684,
+          "endLine": 708,
+          "declared": false,
+          "sourceFile": "coloratt.c",
+          "complete": false
+        },
+        {
+          "name": "reset_status_hilites",
+          "line": 2321,
+          "endLine": 2335,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_add_threshold",
+          "line": 2784,
+          "endLine": 2813,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_linestr_add",
+          "line": 3417,
+          "endLine": 3447,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_linestr_done",
+          "line": 3448,
+          "endLine": 3461,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_linestr_gather_conditions",
+          "line": 3488,
+          "endLine": 3569,
+          "declared": true,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_linestr_gather",
+          "line": 3570,
+          "endLine": 3589,
+          "declared": true,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilites_viewall",
+          "line": 4456,
+          "endLine": 4476,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "basic_menu_colors",
+          "line": 530,
+          "endLine": 584,
+          "declared": false,
+          "sourceFile": "coloratt.c",
+          "complete": false
+        },
+        {
+          "name": "optfn_o_menu_colors",
+          "line": 8368,
+          "endLine": 8388,
+          "declared": false,
+          "sourceFile": "options.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v32/v32-options-status-hilites": {
+          "session": "synthetic/v32/v32-options-status-hilites",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-options-status-hilites",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-options-status-hilites.session.json",
+          "recordingSha256": "9e6aabd7add0432bbd3c97bbd6d05c40d87338a4e2858732bc82fb0a9ab8b20e",
+          "evaluationPath": "challenges/evaluations/accepted-327cea6c9e23c151101e065443b86dbea4996ed4-v32.json",
+          "evaluationCommit": "327cea6c9e23c151101e065443b86dbea4996ed4"
+        }
+      },
+      "activeStanding": {
+        "sha": "327cea6c9e23c151101e065443b86dbea4996ed4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-options-status-hilites",
+          "session": "synthetic/v32/v32-options-status-hilites",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recording": "challenges/cases/v32/v32-options-status-hilites.session.json",
+          "recordingPath": "challenges/cases/v32/v32-options-status-hilites.session.json",
+          "recordingSha256": "9e6aabd7add0432bbd3c97bbd6d05c40d87338a4e2858732bc82fb0a9ab8b20e",
+          "recipe": "challenges/cases/v32/v32-options-status-hilites.recipe.session.json",
+          "recipeSha256": "87050e2ec279fe23359a2cad99f5c1e0dc20eebb84aa74a2022c8fa5c9ae9248",
+          "replayInputSha256": "1085df9a9685d272b8307e8b81be3951cf72efde750b7e72d670fa5d463949ab",
+          "evaluationPath": "challenges/evaluations/accepted-327cea6c9e23c151101e065443b86dbea4996ed4-v32.json",
+          "evaluationCommit": "327cea6c9e23c151101e065443b86dbea4996ed4",
+          "evaluationArtifact": "challenges/evaluations/accepted-327cea6c9e23c151101e065443b86dbea4996ed4-v32.json",
+          "evaluationUtc": "2026-10-09T02:21:46.735Z",
+          "remainingScreens": 18,
+          "recordedSteps": 57,
+          "previousScreensMatched": 39,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 39,
+              "total": 57
+            },
+            "rng": {
+              "matched": 2577,
+              "total": 2577
+            },
+            "cursors": {
+              "matched": 39,
+              "total": 57
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: the options menu requires optfn_o_status_hilites()'s do_handler request",
+            "step": 39
+          },
+          "step": 39,
+          "kind": "stop",
+          "sourceFile": "options.c",
+          "function": "optfn_o_status_hilites",
+          "message": "unsupported hero command: an unported branch of this command: the options menu requires optfn_o_status_hilites()'s do_handler request",
+          "cFile": "options.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v32/v32-options-status-hilites.json",
+            "result": {
+              "session": "synthetic/v32/v32-options-status-hilites",
+              "corpus": "synthetic",
+              "batch": "v32",
+              "caseId": "v32-options-status-hilites",
+              "remainingScreens": 18,
+              "recordedSteps": 57,
+              "manifestPath": "challenges/manifests/v32.json",
+              "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+              "recordingSha256": "9e6aabd7add0432bbd3c97bbd6d05c40d87338a4e2858732bc82fb0a9ab8b20e",
+              "recipeSha256": "87050e2ec279fe23359a2cad99f5c1e0dc20eebb84aa74a2022c8fa5c9ae9248",
+              "evaluationPath": "challenges/evaluations/accepted-4e29cc141937e87b623f827cf27d4c229d5e290a-v32.json",
+              "evaluationCommit": "4e29cc141937e87b623f827cf27d4c229d5e290a",
+              "status": "complete",
+              "commit": "1ec1b11966707feb353712d9249c478076539236",
+              "mismatch": {
+                "version": 1,
+                "corpus": "synthetic",
+                "batch": "v32",
+                "caseId": "v32-options-status-hilites",
+                "session": "synthetic/v32/v32-options-status-hilites",
+                "manifestPath": "challenges/manifests/v32.json",
+                "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+                "recordingPath": "challenges/cases/v32/v32-options-status-hilites.session.json",
+                "recordingSha256": "9e6aabd7add0432bbd3c97bbd6d05c40d87338a4e2858732bc82fb0a9ab8b20e",
+                "recipeSha256": "87050e2ec279fe23359a2cad99f5c1e0dc20eebb84aa74a2022c8fa5c9ae9248",
+                "evaluationPath": "challenges/evaluations/accepted-4e29cc141937e87b623f827cf27d4c229d5e290a-v32.json",
+                "evaluationCommit": "4e29cc141937e87b623f827cf27d4c229d5e290a",
+                "evaluationUtc": "2026-10-09T00:52:25.882Z",
+                "remainingScreens": 18,
+                "recordedSteps": 57,
+                "metrics": {
+                  "screens": {
+                    "matched": 39,
+                    "total": 57
+                  },
+                  "rng": {
+                    "matched": 2577,
+                    "total": 2577
+                  },
+                  "cursors": {
+                    "matched": 39,
+                    "total": 57
+                  }
+                },
+                "step": 39,
+                "kind": "stop",
+                "sourceFile": "options.c",
+                "function": "optfn_o_status_hilites",
+                "message": "The options menu requires optfn_o_status_hilites()'s do_handler request"
+              },
+              "goalKind": "file-port",
+              "summary": "Full options selection reaches the status-highlight rule row, then refuses its missing do_handler. Whole options.c:optfn_o_status_hilites consumes botl.c:status_hilite_menu, whose nested field/rule edit returns require a coherent menu family. The existing opaque count-only gather cannot provide source field IDs and rule-removal identity.",
+              "source": {
+                "file": "options.c",
+                "branch": "STATUS_HILITES enabled; select o_status_hilites in doset after typed #optionsfull, with initially no configured rules. do_handler consumes status_hilite_menu Boolean; the recorded case first stops at step39.",
+                "functions": [
+                  "optfn_o_status_hilites"
+                ],
+                "callers": [
+                  "options.c:doset selected compound option do_handler through allopt[optidx].optfn -> optfn_o_status_hilites8446-8474; js/options.js:OPTION_HANDLERS currently lacks o_status_hilites.",
+                  "options.c:doset_simple_menu same callback registry for the source option row.",
+                  "options.c:get_option_value8497 GET_VAL/GET_CNF_VAL and allopt_array_init7428 DO_INIT; current value adapter calls private count_status_hilites only."
+                ],
+                "dependencies": [
+                  "botl.c:s_to_anything1930-1972 whole consumed-result dependency or source mutation/output-buffer helper.",
+                  "botl.c:split_clridx2576-2582 whole consumed-result dependency or source mutation/output-buffer helper.",
+                  "botl.c:query_arrayvalue2747-2781 whole consumed-result dependency or source mutation/output-buffer helper.",
+                  "botl.c:query_conditions3109-3138 whole consumed-result dependency or source mutation/output-buffer helper.",
+                  "botl.c:conditionbitmask2str3141-3168 whole consumed-result dependency or source mutation/output-buffer helper.",
+                  "botl.c:hlattr2attrname3369-3401 whole consumed-result dependency or source mutation/output-buffer helper.",
+                  "botl.c:status_hilite_linestr_countfield3462-3473 whole consumed-result dependency or source mutation/output-buffer helper.",
+                  "botl.c:count_status_hilites3477-3485 whole consumed-result dependency or source mutation/output-buffer helper.",
+                  "botl.c:status_hilite2str3590-3669 whole consumed-result dependency or source mutation/output-buffer helper.",
+                  "botl.c:status_hilite_menu_choose_field3672-3704 whole consumed-result dependency or source mutation/output-buffer helper.",
+                  "botl.c:status_hilite_menu_choose_behavior3707-3808 whole consumed-result dependency or source mutation/output-buffer helper.",
+                  "botl.c:status_hilite_menu_choose_updownboth3811-3887 whole consumed-result dependency or source mutation/output-buffer helper.",
+                  "botl.c:status_hilite_menu_add3890-4302 whole consumed-result dependency or source mutation/output-buffer helper.",
+                  "botl.c:status_hilite_remove4305-4354 whole consumed-result dependency or source mutation/output-buffer helper.",
+                  "botl.c:status_hilite_menu_fld4357-4453 whole consumed-result dependency or source mutation/output-buffer helper.",
+                  "botl.c:status_hilite_menu4498-4578 whole consumed-result dependency or source mutation/output-buffer helper.",
+                  "coloratt.c:query_attr396-472 whole consumed-result dependency or source mutation/output-buffer helper.",
+                  "coloratt.c:query_color475-518 whole consumed-result dependency or source mutation/output-buffer helper.",
+                  "botl.c:reset_status_hilites2321-2331 discarded-return state/output support, distinct from required return closure.",
+                  "botl.c:status_hilite_add_threshold2784-2811 discarded-return state/output support, distinct from required return closure.",
+                  "botl.c:status_hilite_linestr_add3417-3445 discarded-return state/output support, distinct from required return closure.",
+                  "botl.c:status_hilite_linestr_done3448-3459 discarded-return state/output support, distinct from required return closure.",
+                  "botl.c:status_hilite_linestr_gather_conditions3488-3567 discarded-return state/output support, distinct from required return closure.",
+                  "botl.c:status_hilite_linestr_gather3570-3586 discarded-return state/output support, distinct from required return closure.",
+                  "botl.c:status_hilites_viewall4456-4474 discarded-return state/output support, distinct from required return closure.",
+                  "Canonical windows.c menus and getlin/pline; no invented source menu IDs or random calls.",
+                  "Existing state.iflags.status_hilites/condition-rule storage and display.js botl renderer are the canonical state seam; no second rule store.",
+                  "coloratt.c:basic_menu_colors530-580 source temporary-pattern and use_menu_color save/restore is necessary for realistic color-query evidence; add_menu_coloring_parsed is an existing canonical owner."
+                ]
+              },
+              "evidence": [
+                "Authoritative accepted B173 measured artifact /home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/4e29cc141937e87b623f827cf27d4c229d5e290a/run-hosted-BNDCjI/synthetic/ci-v32.json at 2026-10-09T00:52:25.882Z has39/57 screens and cursors, all2577 RNG; remaining18. Canonical evaluationPath names its coordinator publication import, not a worker-created evaluation. Raw recipe/recording SHA256 checked against admitted manifest; corpus manifestSha256 is the evaluation digest, not raw-file digest.",
+                "Focused read-only worker replay .cache/B180/scan.json/log on3b6f3aa0 emitted39/57 with no earlier divergence, then exact UnsupportedOptionMenuError do_handler refusal. Merge to1ec1b119 changes no js/scripts/recipes/recordings execution input, so source observation remains current; B178/B179 immutable ancestors are preserved.",
+                "Read whole optfn_o_status_hilites8446-8474: DO_INIT/no-op SET/default return optn_ok; GET/GET_CNF reject null output and format source count; DO_HANDLER must consume !status_hilite_menu, then discard preference_update if wc2_supported. STATUS_HILITES is enabled in config.h616. Build excludes SCORE_ON_BOTL, so source hides empty score field and allows deletion-only for configured score rules.",
+                "Read whole botl.c:status_hilite_menu4498-4578: gather before count/menu; optional viewall item; initblstats definition-order fields, width18 and per-field defined counts; pick field+1 sentinel conversion; consume status_hilite_menu_fld before reset; destroy/count/done; source redo except debug_fuzzer; nonempty rules enable hilite_delta3 when zero.",
+                "Required return closure read completely: status_hilite_menu_fld4357-4453 consumes add and remove; add3890-4302 consumes choose_field3672-3704, choose_behavior3707-3808, choose_updownboth3811-3887, query_conditions3109-3138, query_arrayvalue2747-2781, query_color/coloratt475-518 and query_attr396-472, and the rule formatter3590-3669. Preserve source cancellation/retry/goto order, numeric percent bounds, title male/female split, color-before-attribute, condition masks, deletion identity and returned Boolean. Pure helpers need source-pinned result tests; impure nested menus need independent runtime records.",
+                "Existing js/options.js:status_hilite_linestr_gather7405/count_status_hilites7418 creates opaque count entries, not C temporary records {id,fld,hl,mask,str}. That suffices only count-only current reads, not nested menu/remove/viewall contracts. Replace it with one canonical botl owner; js/display.js header establishes display.js as existing botl.c owner. Do not duplicate rule state or preserve obsolete count-only producer.",
+                "Existing query_color/query_attr private helpers in options.js2866+ are coloratt.c ports used by menu headings. Full consumed-helper reconciliation must verify source pick-count/preselection and attribute domain, place canonical coloratt helpers in js/coloratt.js, and preserve bounded existing options caller adapters. No claim to whole options parser or display renderer.",
+                "Admitted case covers empty top-level status menu paging/Escape only. Independent C-first variations are required for nonempty field rule creation/deletion, condition masks, numeric/text/color/attribute cancellation, viewall and ordinary O simple menu. Startup preset hilite rules provide cheap variation and pure format assertions. Broader #saveoptions/all_options_statushilites persistence remains an explicit outside-limit caller, not an invented file writer.",
+                "Counter-evidence: accepted B173 also makes related v32-options-status-duration-prompt48/48 exact; no duration grouping, no optfn_statushilites scope. C156 scores, C155 pager/key description and A177 lycanthropy remain disjoint reserved families.",
+                "Additional caller audit: coloratt.c query_color_attr304-317 consumes both selectors and is called by options.c handler_menu_headings5780+; handler_petattr6152+ consumes query_attr; handler_menu_colors6407+ consumes both. menu_headings is currently wired through private options helpers, while petattr/menu-colors do_handler arms remain unported. Keep their wider source handlers as named frontiers unless explicitly expanded; no whole helper credit without caller reconciliation. Attribute menu values must distinguish C ATR enum from terminal encoding, and source PICK_ONE can return two picks when a preselected entry survives. Source basic_menu_colors530-580 temporarily enables/pushes canonical color patterns and restores them; skips only black/white/no-color, not gray. Existing helper shortcut uses explicit colors and skips gray too, so it is not sufficient whole-source selector verification."
+              ],
+              "proposal": {
+                "goalId": "port-options-status-hilite-menu-v32-20261009",
+                "summary": "Port the status-highlight option callback and its complete nested menu return closure.",
+                "selectionReason": "Oldest independent remaining v32 options-family owner after immutable B173/B178/B179; exclude C156 scores, C155 command descriptions and A177 prayer. B173 acceptance reveals18 remaining status menu screens.",
+                "sourceUnits": [
+                  {
+                    "file": "options.c",
+                    "name": "optfn_o_status_hilites",
+                    "start": 8446,
+                    "end": 8474
+                  }
+                ],
+                "requiredSourceUnits": [
+                  {
+                    "file": "botl.c",
+                    "name": "s_to_anything",
+                    "start": 1930,
+                    "end": 1972
+                  },
+                  {
+                    "file": "botl.c",
+                    "name": "split_clridx",
+                    "start": 2576,
+                    "end": 2582
+                  },
+                  {
+                    "file": "botl.c",
+                    "name": "query_arrayvalue",
+                    "start": 2747,
+                    "end": 2781
+                  },
+                  {
+                    "file": "botl.c",
+                    "name": "query_conditions",
+                    "start": 3109,
+                    "end": 3138
+                  },
+                  {
+                    "file": "botl.c",
+                    "name": "conditionbitmask2str",
+                    "start": 3141,
+                    "end": 3168
+                  },
+                  {
+                    "file": "botl.c",
+                    "name": "hlattr2attrname",
+                    "start": 3369,
+                    "end": 3401
+                  },
+                  {
+                    "file": "botl.c",
+                    "name": "status_hilite_linestr_countfield",
+                    "start": 3462,
+                    "end": 3473
+                  },
+                  {
+                    "file": "botl.c",
+                    "name": "count_status_hilites",
+                    "start": 3477,
+                    "end": 3485
+                  },
+                  {
+                    "file": "botl.c",
+                    "name": "status_hilite2str",
+                    "start": 3590,
+                    "end": 3669
+                  },
+                  {
+                    "file": "botl.c",
+                    "name": "status_hilite_menu_choose_field",
+                    "start": 3672,
+                    "end": 3704
+                  },
+                  {
+                    "file": "botl.c",
+                    "name": "status_hilite_menu_choose_behavior",
+                    "start": 3707,
+                    "end": 3808
+                  },
+                  {
+                    "file": "botl.c",
+                    "name": "status_hilite_menu_choose_updownboth",
+                    "start": 3811,
+                    "end": 3887
+                  },
+                  {
+                    "file": "botl.c",
+                    "name": "status_hilite_menu_add",
+                    "start": 3890,
+                    "end": 4302
+                  },
+                  {
+                    "file": "botl.c",
+                    "name": "status_hilite_remove",
+                    "start": 4305,
+                    "end": 4354
+                  },
+                  {
+                    "file": "botl.c",
+                    "name": "status_hilite_menu_fld",
+                    "start": 4357,
+                    "end": 4453
+                  },
+                  {
+                    "file": "botl.c",
+                    "name": "status_hilite_menu",
+                    "start": 4498,
+                    "end": 4578
+                  },
+                  {
+                    "file": "coloratt.c",
+                    "name": "query_attr",
+                    "start": 396,
+                    "end": 472
+                  },
+                  {
+                    "file": "coloratt.c",
+                    "name": "query_color",
+                    "start": 475,
+                    "end": 518
+                  }
+                ],
+                "supportingSourceUnits": [
+                  {
+                    "file": "botl.c",
+                    "name": "reset_status_hilites",
+                    "start": 2321,
+                    "end": 2331
+                  },
+                  {
+                    "file": "botl.c",
+                    "name": "status_hilite_add_threshold",
+                    "start": 2784,
+                    "end": 2811
+                  },
+                  {
+                    "file": "botl.c",
+                    "name": "status_hilite_linestr_add",
+                    "start": 3417,
+                    "end": 3445
+                  },
+                  {
+                    "file": "botl.c",
+                    "name": "status_hilite_linestr_done",
+                    "start": 3448,
+                    "end": 3459
+                  },
+                  {
+                    "file": "botl.c",
+                    "name": "status_hilite_linestr_gather_conditions",
+                    "start": 3488,
+                    "end": 3567
+                  },
+                  {
+                    "file": "botl.c",
+                    "name": "status_hilite_linestr_gather",
+                    "start": 3570,
+                    "end": 3586
+                  },
+                  {
+                    "file": "botl.c",
+                    "name": "status_hilites_viewall",
+                    "start": 4456,
+                    "end": 4474
+                  },
+                  {
+                    "file": "coloratt.c",
+                    "name": "basic_menu_colors",
+                    "start": 530,
+                    "end": 580
+                  }
+                ],
+                "proposedReservations": [
+                  "session:synthetic/v32/v32-options-status-hilites",
+                  "source:options.c:optfn_o_status_hilites",
+                  "source:botl.c:s_to_anything",
+                  "source:botl.c:split_clridx",
+                  "source:botl.c:query_arrayvalue",
+                  "source:botl.c:query_conditions",
+                  "source:botl.c:conditionbitmask2str",
+                  "source:botl.c:hlattr2attrname",
+                  "source:botl.c:status_hilite_linestr_countfield",
+                  "source:botl.c:count_status_hilites",
+                  "source:botl.c:status_hilite2str",
+                  "source:botl.c:status_hilite_menu_choose_field",
+                  "source:botl.c:status_hilite_menu_choose_behavior",
+                  "source:botl.c:status_hilite_menu_choose_updownboth",
+                  "source:botl.c:status_hilite_menu_add",
+                  "source:botl.c:status_hilite_remove",
+                  "source:botl.c:status_hilite_menu_fld",
+                  "source:botl.c:status_hilite_menu",
+                  "source:coloratt.c:query_attr",
+                  "source:coloratt.c:query_color",
+                  "source:botl.c:reset_status_hilites",
+                  "source:botl.c:status_hilite_add_threshold",
+                  "source:botl.c:status_hilite_linestr_add",
+                  "source:botl.c:status_hilite_linestr_done",
+                  "source:botl.c:status_hilite_linestr_gather_conditions",
+                  "source:botl.c:status_hilite_linestr_gather",
+                  "source:botl.c:status_hilites_viewall",
+                  "contract:status-highlight-rule-menu",
+                  "contract:status-highlight-temporary-rule-identity",
+                  "source:coloratt.c:basic_menu_colors"
+                ],
+                "proposedPaths": [
+                  "js/options.js",
+                  "js/display.js",
+                  "js/coloratt.js",
+                  "scripts/options*.test.mjs",
+                  "scripts/coloratt*.test.mjs",
+                  "scripts/status*.test.mjs",
+                  "scripts/run-status-hilite-menu.mjs",
+                  "recipes/options.c/",
+                  "recordings/options.c/",
+                  "recipes/botl.c/",
+                  "recordings/botl.c/",
+                  "recipes/coloratt.c/",
+                  "recordings/coloratt.c/",
+                  "investigations/synthetic/v32/v32-options-status-hilites.json",
+                  ".cache/"
+                ],
+                "dependencies": [
+                  "b7bf47b1017496f2afa0873382808c729b67f175",
+                  "ed37416126b9d0ef4f00167695d6d27705dcf9ae"
+                ],
+                "limits": [
+                  "No statushilites-duration request implementation; its admitted case now matches.",
+                  "No whole doset/parseoptions/rendering/startup persistence credit.",
+                  "all_options_statushilites4477-4495 is a distinct #saveoptions writer, excluded from the noncontiguous selected return closure.",
+                  "Discarded preference_update and impossible callbacks remain named gaps if their canonical source owner is incomplete."
+                ]
+              }
             }
           }
         }

@@ -4,7 +4,7 @@
 // check_enhanced_colors(), wc_color_name(), and the complete colornames[]
 // table those functions reach.
 
-import { BUFSZ, CLR_MAX, NH_BASIC_COLOR } from './const.js';
+import { BUFSZ, CLR_MAX, NH_BASIC_COLOR, PICK_ONE, PICK_ANY, HL_NONE, HL_BOLD, HL_DIM, HL_ITALIC, HL_ULINE, HL_BLINK, HL_INVERSE } from './const.js';
 import { COLOR_NAMES, COLOR_TABLE } from './color_data.js';
 import {
     fuzzymatch,
@@ -281,4 +281,160 @@ export function wc_color_name(colorindx) {
     return `#${r.toString(16).padStart(2, '0')}`
         + `${g.toString(16).padStart(2, '0')}`
         + `${b.toString(16).padStart(2, '0')}`;
+}
+
+// C ref: coloratt.c attr2attrname(). The null separator participates in
+// lookup, so ATR_NONE still resolves to the earlier canonical name.
+export function attr2attrname(attr) {
+    return MENU_COLOR_ATTRIBUTES.find(row => row.attr === attr)?.name ?? null;
+}
+
+// C ref: coloratt.c color_attr_to_str().
+export function color_attr_to_str(ca) {
+    return `${clr2colorname(ca.color)}&${attr2attrname(ca.attr)}`;
+}
+
+// C ref: coloratt.c color_attr_parse_str(). Null is FALSE; the caller owns
+// configuration feedback, while the returned pair holds C's ATR enum.
+export function color_attr_parse_str(str, report = null) {
+    const buf = truncateByteString(str, BUFSZ - 1);
+    const amp = buf.indexOf('&');
+    let color = NO_COLOR, attr = 0;
+    if (amp >= 0) {
+        const head = buf.slice(0, amp), tail = buf.slice(amp + 1);
+        color = match_str2clr(head, false, report);
+        attr = match_str2attr(tail, true, report);
+        if (color === null && attr === null) {
+            color = match_str2clr(tail, false, report);
+            attr = match_str2attr(head, true, report);
+        }
+        if (color === null || attr === null) return null;
+    } else {
+        const found = match_str2attr(buf);
+        if (found === null) {
+            color = match_str2clr(buf, false, report);
+            if (color === null) return null;
+        } else attr = found;
+    }
+    return { color, attr };
+}
+
+// C ref: coloratt.c basic_menu_colors(). Cached alternate coloring nodes
+// are distinct from the user's list; gs holds the source's saved pointers.
+export function basic_menu_colors(state, load) {
+    state.gs ??= {};
+    state.gc ??= {};
+    state.gm ??= {};
+    if (load) {
+        state.gs.save_menucolors = state.iflags.use_menu_color;
+        state.gs.save_colorings = state.gm.menu_colorings;
+        state.iflags.use_menu_color = true;
+        if (state.gc.color_colorings) {
+            state.gm.menu_colorings = state.gc.color_colorings;
+        } else {
+            state.gm.menu_colorings = null;
+            for (const { name, color } of COLOR_NAMES) {
+                if (name === null) break;
+                if (color === 0 || color === 15 || color === NO_COLOR) continue;
+                add_menu_coloring_parsed(state, name, color, 0);
+            }
+            state.gc.color_colorings = state.gm.menu_colorings;
+        }
+    } else {
+        state.iflags.use_menu_color = state.gs.save_menucolors;
+        state.gm.menu_colorings = state.gs.save_colorings;
+    }
+}
+
+async function queryMenu(state, spec, helpers) {
+    if (helpers?.selectMenu) return helpers.selectMenu(spec);
+    // Symbol initialization reads color parsers through glyphs.js. Load the
+    // window port only when a live query needs it, after symbols initialize.
+    const { select_menu } = await import('./windows.js');
+    return select_menu(state, {
+        ...spec, overlay: state.iflags?.menu_overlay !== false,
+    });
+}
+function pickedValues(picks) {
+    if (picks === null || picks === undefined) return null;
+    return (Array.isArray(picks) ? picks : [picks]).map(p => typeof p === 'object' ? p.value : p);
+}
+
+// C ref: coloratt.c query_attr(). Values are row identifiers, never drawing
+// masks; PICK_ANY returns the separate source HL bit vocabulary.
+export async function query_attr(state, prompt, dflt, helpers) {
+    const { ttyMenuColorAttribute } = await import('./windows.js');
+    const allowMany = Boolean(prompt && prompt.slice(0, 6).toLowerCase() === 'choose');
+    const rows = MENU_COLOR_ATTRIBUTES.slice(0, MENU_COLOR_ATTRIBUTES.findIndex(row => row.name === null));
+    const picks = pickedValues(await queryMenu(state, {
+        items: rows.map(({ name, attr }, i) => ({ text: name, value: i + 1,
+            attr: ttyMenuColorAttribute(attr), color: NO_COLOR, selected: attr === dflt })),
+        title: prompt || 'Pick an attribute', how: allowMany ? PICK_ANY : PICK_ONE,
+        preselected: rows.findIndex(row => row.attr === dflt) + 1, cancelValue: null,
+    }, helpers));
+    if (picks?.length) {
+        if (!allowMany) {
+            let index = picks[0] - 1;
+            if (picks.length === 2 && rows[index].attr === dflt) index = picks[1] - 1;
+            return rows[index].attr;
+        }
+        let bits = 0;
+        for (const id of picks) {
+            const attr = rows[id - 1].attr;
+            if (attr !== 0 || picks.length === 1) {
+                if (attr === 0) bits = HL_NONE;
+                else bits |= attr === 1 ? HL_BOLD : attr === 2 ? HL_DIM
+                    : attr === 3 ? HL_ITALIC : attr === 4 ? HL_ULINE
+                        : attr === 5 ? HL_BLINK : attr === 7 ? HL_INVERSE : 0;
+            }
+        }
+        return bits;
+    }
+    return picks !== null && !allowMany ? dflt : -1;
+}
+
+// C ref: coloratt.c query_color(). Temporarily changes the real coloring
+// list rather than drawing an invented preview style.
+export async function query_color(state, prompt, dflt, helpers) {
+    basic_menu_colors(state, true);
+    const rows = COLOR_NAMES.slice(0, COLOR_NAMES.findIndex(row => row.name === null));
+    const picks = pickedValues(await queryMenu(state, {
+        items: rows.map(({ name, color }, i) => ({ text: name, value: i + 1,
+            color: NO_COLOR, attr: 0, selected: color === dflt })),
+        title: prompt || 'Pick a color', how: PICK_ONE,
+        preselected: rows.findIndex(row => row.color === dflt) + 1, cancelValue: null,
+    }, helpers));
+    basic_menu_colors(state, false);
+    if (picks?.length) {
+        let color = rows[picks[0] - 1].color;
+        if (picks.length === 2 && color === NO_COLOR) color = rows[picks[1] - 1].color;
+        return color;
+    }
+    return picks !== null ? dflt : -1;
+}
+
+// C ref: coloratt.c query_color_attr(). The pair changes only after both
+// queries succeed, including cancellation at the second prompt.
+export async function query_color_attr(state, ca, prompt, helpers) {
+    const color = await query_color(state, prompt, ca.color, helpers);
+    if (color === -1) return false;
+    const attr = await query_attr(state, prompt, ca.attr, helpers);
+    if (attr === -1) return false;
+    ca.color = color;
+    ca.attr = attr;
+    return true;
+}
+
+// C ref: coloratt.c free_one_menu_coloring(). The regex/node allocations
+// have JavaScript lifetime; unlink precisely the selected source list node.
+export function free_one_menu_coloring(state, idx) {
+    let prev = null;
+    for (let node = state.gm?.menu_colorings; node; node = node.next, --idx) {
+        if (idx === 0) {
+            if (prev) prev.next = node.next;
+            else state.gm.menu_colorings = node.next;
+            return;
+        }
+        prev = node;
+    }
 }

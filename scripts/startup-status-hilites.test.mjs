@@ -41,3 +41,13 @@ test('each startup status highlight case reaches its optionsfull count',
         for (const segment of loadStartupStatusHiliteRecipe().segments)
             await verifyStartupStatusHiliteSegment(segment);
     });
+
+test('startup parser delegates source integer widths and threshold insertion', () => {
+    // LP64 long values survive beyond JS safe integers as decimal strings;
+    // 4294967297 is narrowed to a_int1 for an integer HP threshold.
+    const parsed = parseNethackrc('OPTIONS=hilite_status:gold/>9007199254740993/red hitpoints/>4294967297/blue\n');
+    assert.deepEqual(parsed.iflags.status_hilites.map(rule => rule.value), ['9007199254740993', 1]);
+    // glibc atol saturates a value one beyond LONG_MAX before storage.
+    const saturated = parseNethackrc('OPTIONS=hilite_status:gold/>9223372036854775808/green\n');
+    assert.equal(saturated.iflags.status_hilites[0].value, '9223372036854775807');
+});

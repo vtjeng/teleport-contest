@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside this bounded live-feedback correction: native #saveoptions asks its source overwrite query, then JS do_write_config_file records cfgfiles.c fopen and does not reach options.c all_options_strbuf/get_option_value GET_CNF_VAL. No native serialization caller or whole optfn_fruit completion credit; retain this source-shaped route for the missing file owner. C-only setup correction: paranoid_query(TRUE) requires the complete yes line; the initial y plus gameplay byte stayed inside that input prompt and is retained only as setup provenance.",
+  "segments": [
+    {
+      "seed": 15941029,
+      "datetime": "20560220114031",
+      "nethackrc": "OPTIONS=name:Fay,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,suppress_alert:3.7.0,fruit:dragonberry\n",
+      "moves": ".#saveoptions\nyes\n."
+    }
+  ]
+}

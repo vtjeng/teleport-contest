@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T01:56:44.542Z",
+  "capturedAt": "2026-10-09T02:26:19.515Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -69620,12 +69620,100 @@
         "worker": "C",
         "state": "idle",
         "reason": "Accepted scores option work merged. Fruit fix remains submitted and awaits integration; no overlapping new work claimed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C156-published-d7ecef7c0",
+        "type": "published",
+        "at": "2026-10-09T01:57:31.636Z",
+        "task": "C156",
+        "commit": "d7ecef7c0f346d4e818a3c21768404a1236ee215"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A177-integrating-37f1b1fe2",
+        "type": "integrating",
+        "at": "2026-10-09T02:00:56.935Z",
+        "task": "A177",
+        "integration": "37f1b1fe268666f0e8fa0eed9b45e336d3d07129"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d4b86059e128e9a09b167d8028a8a1c7116f046c",
+        "type": "ready",
+        "at": "2026-10-09T02:02:00.377Z",
+        "task": "B180",
+        "delivery": "d4b86059e128e9a09b167d8028a8a1c7116f046c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B180-idle-after-C156-20261009",
+        "type": "turn",
+        "at": "2026-10-09T02:05:48.678Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B180 is queued for integration; accepted scores-menu changes are merged and all 223 overlap checks pass."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A177-validated-37872629763",
+        "type": "validated",
+        "at": "2026-10-09T02:06:35.391Z",
+        "task": "A177",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A177-37f1b1fe268666f0e8fa0eed9b45e336d3d07129-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T02:09:03.532Z",
+        "task": "A177"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A177-published-f059366da",
+        "type": "published",
+        "at": "2026-10-09T02:10:14.932Z",
+        "task": "A177",
+        "commit": "f059366da894719d99f8f19c345b415c51347838"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-selection-blocked-after-A177-20261009",
+        "type": "turn",
+        "at": "2026-10-09T02:10:21.597Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "No independent admitted task is eligible: B180 owns status hilites; C159 owns fruit; the v31 light diagnostic needs the coordinator’s native-pointer contract decision. The version mismatch is parked platform provenance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C159-integrating-327cea6c9",
+        "type": "integrating",
+        "at": "2026-10-09T02:15:34.913Z",
+        "task": "C159",
+        "integration": "327cea6c9e23c151101e065443b86dbea4996ed4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C159-validated-37874014415",
+        "type": "validated",
+        "at": "2026-10-09T02:23:43.802Z",
+        "task": "C159",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C159-327cea6c9e23c151101e065443b86dbea4996ed4-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T02:26:00.922Z",
+        "task": "C159"
       }
     ]
   },
   "development": {
-    "executionCommit": "547456073ec6543fcaa52d181ccfeaafcc5a2718",
-    "measuredAt": "2026-10-09T01:52:30.171Z",
+    "executionCommit": "327cea6c9e23c151101e065443b86dbea4996ed4",
+    "measuredAt": "2026-10-09T02:23:08.346Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

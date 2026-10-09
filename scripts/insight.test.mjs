@@ -1921,7 +1921,7 @@ test('list_vanquished preserves C class-heading attributes', async () => {
     state.svm.mvitals[PM_WOLF].died = 1;
     state.svm.mvitals[PM_VAMPIRE].died = 1;
     state.flags = { vanq_sortmode: VANQ_MCLS_LTOH };
-    state.iflags = { menu_headings: { attr: ATR_BOLD } };
+    state.iflags = { menu_headings: { attr: 1 /* C ATR_BOLD */ } };
     state.program_state = {};
 
     let commandLines;
@@ -2293,7 +2293,7 @@ test('list_genocided preserves C class-heading attributes', async () => {
     state.svm.mvitals[PM_WOLF].mvflags = G_GENOD;
     state.svm.mvitals[PM_VAMPIRE].mvflags = G_GENOD;
     state.flags = { vanq_sortmode: VANQ_MCLS_LTOH };
-    state.iflags = { menu_headings: { attr: ATR_BOLD } };
+    state.iflags = { menu_headings: { attr: 1 /* C ATR_BOLD */ } };
     state.program_state = {};
 
     let commandLines;

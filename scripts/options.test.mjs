@@ -1,3 +1,5 @@
+// C wintype.h enum values for the option state asserted in this file.
+const ATR_BOLD = 1, ATR_INVERSE = 7, ATR_UNDERLINE = 4;
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -95,10 +97,7 @@ import {
     loadUnknownConfigStatementRecipe,
 } from './run-unknown-config-statements.mjs';
 import {
-    ATR_BOLD,
-    ATR_INVERSE,
     ATR_NONE,
-    ATR_UNDERLINE,
     CLR_BRIGHT_BLUE,
     CLR_BRIGHT_GREEN,
     CLR_BRIGHT_MAGENTA,
