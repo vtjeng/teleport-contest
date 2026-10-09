@@ -241470,6 +241470,218 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-val-strt-quest-start-v36-20261009",
+      "kind": "lua-port",
+      "status": "open",
+      "summary": "Port the complete Valkyrie quest-start level and random selection-point helper",
+      "luaFile": "Val-strt.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-val-strt"
+      ],
+      "selectionReason": "The accepted v36 Val-strt case stops at the missing special-level loader; accepted C176 selection algebra and C181 monster equipment support are prerequisites.",
+      "detail": "Port all of dat/Val-strt.lua, wire its production loader and coder-frame selection binding, and port complete nhlsel.c:l_selection_setpoint.",
+      "openedAt": "6dcaa1bdccd12cd228f54bfcf30c819fb4dd912b",
+      "openStanding": {
+        "sha": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Val-strt.lua",
+          "line": 1,
+          "endLine": 100,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "requiredFunctions": [
+        {
+          "name": "l_selection_setpoint",
+          "line": 159,
+          "endLine": 202,
+          "declared": false,
+          "sourceFile": "nhlsel.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-val-strt": {
+          "session": "synthetic/v36/v36-quest-val-strt",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-val-strt",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-val-strt.session.json",
+          "recordingSha256": "bd018419e6b072d055d445683d58fddf50dd9a14c43ee1d19997ab1149a3f571",
+          "evaluationPath": "challenges/evaluations/accepted-438d5d0cd3f837bbc821b6ff78ce82940470a5f8-v36.json",
+          "evaluationCommit": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8"
+        }
+      },
+      "activeStanding": {
+        "sha": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-val-strt",
+          "session": "synthetic/v36/v36-quest-val-strt",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-val-strt.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-val-strt.session.json",
+          "recordingSha256": "bd018419e6b072d055d445683d58fddf50dd9a14c43ee1d19997ab1149a3f571",
+          "recipe": "challenges/cases/v36/v36-quest-val-strt.recipe.session.json",
+          "recipeSha256": "c95b86e0f842d5772b63621ec8a8c7b1a5f61e6ae4d6ffbabc7781ebfb75ff3b",
+          "replayInputSha256": "9299114292d48ed5d2ef8837dbf5d5a9fc51f0426ecbc4ada07cae91f32e62e1",
+          "evaluationPath": "challenges/evaluations/accepted-438d5d0cd3f837bbc821b6ff78ce82940470a5f8-v36.json",
+          "evaluationCommit": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8",
+          "evaluationArtifact": "challenges/evaluations/accepted-438d5d0cd3f837bbc821b6ff78ce82940470a5f8-v36.json",
+          "evaluationUtc": "2026-10-09T22:13:29.907Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2205,
+              "total": 2942
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Val-strt\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Val-strt.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Val-strt\"",
+          "cFile": null,
+          "luaFile": "Val-strt.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-val-strt.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-val-strt",
+              "session": "synthetic/v36/v36-quest-val-strt",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "bd018419e6b072d055d445683d58fddf50dd9a14c43ee1d19997ab1149a3f571",
+              "evaluationPath": "challenges/evaluations/accepted-181abf1682eb7370613252862afb7bece56983d7-v36.json",
+              "evaluationCommit": "181abf1682eb7370613252862afb7bece56983d7",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "181abf1682eb7370613252862afb7bece56983d7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-val-strt",
+                "session": "synthetic/v36/v36-quest-val-strt",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-val-strt.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-val-strt.session.json",
+                "recordingSha256": "bd018419e6b072d055d445683d58fddf50dd9a14c43ee1d19997ab1149a3f571",
+                "recipe": "challenges/cases/v36/v36-quest-val-strt.recipe.session.json",
+                "recipeSha256": "c95b86e0f842d5772b63621ec8a8c7b1a5f61e6ae4d6ffbabc7781ebfb75ff3b",
+                "replayInputSha256": "e09a2d210a07e32a3d115f345be71c6ca4ff17f8a0bd9a57a358babdd8f1f795",
+                "evaluationPath": "challenges/evaluations/accepted-181abf1682eb7370613252862afb7bece56983d7-v36.json",
+                "evaluationCommit": "181abf1682eb7370613252862afb7bece56983d7",
+                "evaluationArtifact": "challenges/evaluations/accepted-181abf1682eb7370613252862afb7bece56983d7-v36.json",
+                "evaluationUtc": "2026-10-09T21:47:44.425Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2205,
+                    "total": 2942
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Val-strt\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Val-strt.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Val-strt\"",
+                "cFile": null,
+                "luaFile": "Val-strt.lua",
+                "line": null
+              },
+              "summary": "The current v36 evaluation still stops at step 19 because Val-strt.lua has no loader; 41 of 60 screens remain. C176 has since accepted the numeric selection storage and OR/sub operations, clearing the old shared selection-algebra blocker. Completing the whole level also runs two fixed fire giants through makemon.c:m_initweap, which C181 currently owns, while the established quest loader registry is in C181-owned js/quest_levels.js. Keep this as session-only investigation until that owner finishes or Main sequences the overlapping scope.",
+              "goalKind": "lua-port",
+              "source": {
+                "file": "Val-strt.lua",
+                "branch": "Loading the whole Valkyrie quest-start program at makelevel() for the Val-strt special level; its initial random selection points are generated in the level coder frame before the overlay map is placed.",
+                "functions": [
+                  "Val-strt.lua (whole program, lines 1–100)",
+                  "nhlsel.c:l_selection_setpoint (whole function, lines 159–200)"
+                ],
+                "callers": [
+                  "C: do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Val-strt.lua.",
+                  "JS: mklev.js:ensureSpecialLevelLoaders/load_special -> QUEST_LEVEL_LOADERS[\"Val-strt\"] in js/quest_levels.js; C181 currently owns that shared registry file.",
+                  "C: nhlsel.c:l_selection_setpoint is registered as selection.set; Val-strt calls it for selection:set() and selection.set(selection.new()). The helper obtains its random or explicit coordinate with sp_lev.c:get_location_coord and current gc.coder->croom."
+                ],
+                "dependencies": [
+                  "Accepted C176 at 35162f9194bc8a959469d0c48716c29bf7af0bd7 now implements nhlsel.c:l_selection_or/l_selection_sub and numeric selection storage in js/nhlsel.js and js/themerooms.js. This clears the prior shared selection-algebra blocker; l_selection_setpoint remains unimplemented.",
+                  "C181 actively reserves source:makemon.c:m_initweap and js/makemon_create.js. Val-strt.lua creates two fixed fire giants (lines 98–99); upstream makemon.c:1443–1444 calls m_initweap for armed monsters before m_initinv. Do not edit or claim this source while C181 owns it.",
+                  "C181 actively owns js/quest_levels.js, the established QUEST_LEVEL_LOADERS registry used by mklev.js:ensureSpecialLevelLoaders. A separate module and mklev registry hook could avoid touching that file, but does not remove the active m_initweap dependency from the complete Val-strt runtime path.",
+                  "nhlsel.c:l_selection_setpoint uses existing sp_lev.c:get_location_coord; js/room_coordinates.js:get_location_coord already accepts ANY_LOC, the coder frame, current level state, and injected rn2. No room-coordinate implementation is presently required."
+                ]
+              },
+              "evidence": [
+                "Current saved queue challenges/evaluations/accepted-181abf1682eb7370613252862afb7bece56983d7-v36.json at 181abf1682eb7370613252862afb7bece56983d7 retains this case at 19/60 screens and cursors and 2205/2942 RNG, with 41 screens remaining over 60 steps. Its current first mismatch is the missing Val-strt loader at segment 0 step 19. Manifest SHA-256 58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c; recording SHA-256 bd018419e6b072d055d445683d58fddf50dd9a14c43ee1d19997ab1149a3f571; recipe SHA-256 c95b86e0f842d5772b63621ec8a8c7b1a5f61e6ae4d6ffbabc7781ebfb75ff3b; replay input SHA-256 e09a2d210a07e32a3d115f345be71c6ca4ff17f8a0bd9a57a358babdd8f1f795.",
+                "Read the complete upstream dat/Val-strt.lua (source SHA-256 33bc072378baf232f08fe3ca819ffdfe7e55d8c52fa0ac291a6d2512054b608e). It sets mazelevel, noteleport, hardfloor and icedpools before solidfill I; draws thirteen random setpoints and three additional selection points, then grows and unions those selections before painting P and L terrain and applying the 76-by-20 overlay map.",
+                "nhlsel.c:l_selection_setpoint lines 159–200 handles zero, one, two, and three-or-more Lua arguments, defaults point value to 1, calls get_location_coord with ANY_LOC and the active coder room/frame, mutates the chosen selection, and returns that selection. Its zero-argument form calls l_selection_new but then raises Selection setpoint error because sel is null. Implement the complete wrapper and preserve this error path.",
+                "For the recorded Val-strt sequence, the initial coder frame is xstart=1, ystart=0, xsize=79, ysize=21. Source setpoint calls consume thirteen plus three independent rn2(79), rn2(21) pairs; the second point has y=20, outside the later 20-row map. The subsequent random_wdir consumes rn2(4)=3, selecting west. These values diagnose the source sequence only; implementation must use the injected RNG and current frame.",
+                "C176 accepted the numeric selection storage, OR and subtraction operators at 35162f9194bc8a959469d0c48716c29bf7af0bd7. Current js/nhlsel.js contains l_selection_or and l_selection_sub; the remaining nhlsel.c wrapper l_selection_setpoint is absent.",
+                "The loader registry currently resides in js/quest_levels.js:2809 and is merged by mklev.js:ensureSpecialLevelLoaders. C181 has the live allowed path js/quest_levels.js. Val-strt.lua lines 98–99 place fire giants; upstream makemon.c:1443–1444 calls m_initweap before m_initinv when the species is armed. Ledger task C181 owns source:makemon.c:m_initweap and js/makemon_create.js.",
+                "The full source order after selections includes the mapped terrain, branch arrival, down stair, fountain, locked doors, Norn and her two custom inventory objects, chest, eight Valkyrie warriors, non-diggable hall, six fire traps, ten fire ants, and two hostile fire giants. Existing lspo_* callers handle these descriptor forms; investigate any newly reached refusal or mismatch without taking C181-owned source.",
+                "No C replay, new recipe, or game-code edit was made in this investigation update. The original C-first diagnosis and saved hashes remain in the prior B202 report commit 2494462c6277e2a43a7b1ae90f2f89128cdb9216; the current queue above refreshes its evaluation identity and unchanged first mismatch against accepted B203."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
