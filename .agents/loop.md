@@ -302,7 +302,8 @@ separately from other goals.
    reports.
 
 After publication and the required one-shot CI status check, run
-`worker-state.mjs next` and start the next dependency-ready delivery.
+`worker-state.mjs next`. Check batch admission priority under
+`.agents/selection.md` before starting the next dependency-ready delivery.
 Handle worker handoffs promptly, but do not defer a ready integration for
 optional investigations or housekeeping. If integration cannot proceed,
 record the blocker in the existing ledger and resolve it or take another
