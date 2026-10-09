@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T22:47:11.982Z",
+  "capturedAt": "2026-10-09T23:00:50.402Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -76995,6 +76995,24 @@
         "worker": "A2",
         "state": "blocked",
         "reason": "No independent source task remains in the fresh queue: queued cases await Main-owned pointer-formatting, recorder-cursor, or platform-provenance decisions; Prep2 owns v38 preparation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-main-b193-recorder-review-20261009",
+        "type": "activity",
+        "at": "2026-10-09T22:51:56.920Z",
+        "task": "B193",
+        "phase": "review",
+        "reason": "Reviewing the Juiblex capture overflow and a general recorder bounds repair before deciding how to retain its admitted historical evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-main-b193-recorder-done-20261009",
+        "type": "activity",
+        "at": "2026-10-09T23:00:45.506Z",
+        "task": "B193",
+        "phase": "done",
+        "reason": "Bounded recorder screen capture output, rejected future out-of-range cursors, preserved admitted v35 evidence as historical, and verified the fresh Juiblex replay plus hosted checkpoint."
       }
     ]
   },
