@@ -577,7 +577,7 @@ canvas {
 .activity-legend-group { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 16px; align-items: baseline; }
 .activity-legend-group > strong { font-size: 11px; font-weight: 600; }
 .activity-legend-items { display: flex; flex-wrap: wrap; gap: 8px 16px; }
-.activity-backlog { margin: 16px 0 20px; font-size: 12px; line-height: 1.6; }
+.activity-backlog { font-size: 14px; line-height: 1.6; }
 .activity-backlog p { margin: 4px 0; }
 .activity-backlog summary { cursor: pointer; }
 .activity-backlog-table { max-height: 220px; overflow: auto; margin-top: 8px; }
@@ -938,10 +938,14 @@ canvas {
   </div>
 </details>
 
+<section class="section" aria-labelledby="pendingMainWorkTitle">
+  <h3 class="section-title" id="pendingMainWorkTitle">Pending Main work</h3>
+  <div class="activity-backlog" id="pendingMainWork"></div>
+</section>
+
 <div class="section">
   <h3 class="section-title">Worker activity</h3>
   <p class="subtitle">Observed task handoffs since the September 25 worker-ledger run. Bars show elapsed task stages, not continuous active work. Earlier progress remains in the score history above. <span id="activitySnapshotTime"></span></p>
-  <div class="activity-backlog" id="pendingMainWork" aria-label="Pending Main work"></div>
   <div class="activity-controls">
     <div class="activity-navigation">
       <span class="chart-range" id="activityWindowLabel"></span>
@@ -1676,11 +1680,11 @@ document.getElementById('stats').innerHTML = [
   const parked = backlog.parkedTasks;
   const blocked = deliveries.filter(row => row.blockedBy.length).length;
   const rows = [...deliveries, ...prepared, ...parked];
-  container.innerHTML = '<p><strong>Pending Main work</strong> — ' + deliveries.length
+  container.innerHTML = '<p>' + deliveries.length
     + ' submitted task' + (deliveries.length === 1 ? '' : 's')
     + (blocked ? ' (' + blocked + ' awaiting dependencies)' : '')
     + (deliveries.length ? '; oldest submission ' + age(deliveries[0]) + ' ago' : '') + '.</p>'
-    + '<p><strong>Ready batches awaiting admission:</strong> '
+    + '<p>Ready batches awaiting admission: '
     + (prepared.length ? prepared.map(row => esc(row.batch)).join(' · ')
       + '. Oldest accepted preparation: ' + age([...prepared].sort((a, b) => a.since.localeCompare(b.since))[0]) + ' ago.' : 'None.')
     + '</p>' + (rows.length ? '<details><summary>Tasks, batches, and blockers'

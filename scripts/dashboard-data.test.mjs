@@ -488,6 +488,11 @@ test('batch notices group repeated errors without repeating them in the score ca
 });
 
 test('Main backlog distinguishes unmerged deliveries, accepted reserve batches, and parked records', () => {
+    const template = readFileSync(TEMPLATE, 'utf8');
+    assert.ok(template.includes('<section class="section" aria-labelledby="pendingMainWorkTitle">'),
+        'pending work has its own named section');
+    assert.ok(template.includes('<h3 class="section-title" id="pendingMainWorkTitle">Pending Main work</h3>'),
+        'pending work uses the same heading level and style as Worker activity');
     const data = sourceDashboardData();
     // Snapshot ages, not the viewer's clock, determine the waits shown here.
     data.activity = { capturedAt: '2026-10-08T12:00:00Z', segments: [], tasks: [] };
@@ -497,13 +502,14 @@ test('Main backlog distinguishes unmerged deliveries, accepted reserve batches, 
         batch: 'v34', status: 'awaiting-admission', blockedBy: [] }],
         parkedTasks: [{ ...row, task: 'C1', status: 'parked', reason: 'Await <source> owner.' }] };
     const html = renderDashboard(data).get('pendingMainWork').innerHTML;
+    assert.doesNotMatch(html, /<strong>Pending Main work<\/strong>/u, 'the summary does not repeat the section heading');
     assert.match(html, /1 submitted task \(1 awaiting dependencies\)/u);
-    assert.match(html, /Ready batches awaiting admission:<\/strong> v34/u);
+    assert.match(html, /Ready batches awaiting admission: v34/u);
     assert.match(html, /oldest submission 1h 0m ago/u);
     assert.match(html, /1 parked task/u);
     assert.match(html, /Await &lt;source&gt; owner\./u);
     data.pendingMainWork = { deliveries: [], preparedBatches: [], parkedTasks: [] };
-    assert.match(renderDashboard(data).get('pendingMainWork').innerHTML, /admission:<\/strong> None\./u);
+    assert.match(renderDashboard(data).get('pendingMainWork').innerHTML, /admission: None\./u);
     data.pendingMainWork = null;
     assert.match(renderDashboard(data).get('pendingMainWork').textContent, /snapshot is refreshed/u);
 });
@@ -511,7 +517,7 @@ test('Main backlog distinguishes unmerged deliveries, accepted reserve batches, 
 test('primary dashboard sections put sessions before activity and historical detail', () => {
     const template = readFileSync(TEMPLATE, 'utf8');
     const positions = ['id="stats"', 'id="scoreHistoryTitle"', 'id="challengeTitle"',
-        'class="diagnostics"', 'id="sourceWorkDisclosure"', 'id="timeline"',
+        'class="diagnostics"', 'id="sourceWorkDisclosure"', 'id="pendingMainWorkTitle"', 'id="timeline"',
         'id="goalTable"', 'id="remainingWorkDisclosure"']
         .map(marker => template.indexOf(marker));
     assert.ok(positions.every(position => position >= 0));
