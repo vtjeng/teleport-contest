@@ -223982,7 +223982,7 @@
     {
       "id": "port-options-status-hilite-menu-v32-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port the status-highlight option menu and canonical option attributes",
       "cFile": "options.c",
       "sessions": [
@@ -224003,7 +224003,7 @@
           "name": "optfn_o_status_hilites",
           "line": 8446,
           "endLine": 8480,
-          "declared": false,
+          "declared": true,
           "complete": false
         }
       ],
@@ -224016,57 +224016,57 @@
           "name": "s_to_anything",
           "line": 1930,
           "endLine": 1976,
-          "declared": false,
+          "declared": true,
           "sourceFile": "botl.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "split_clridx",
           "line": 2576,
           "endLine": 2592,
-          "declared": false,
+          "declared": true,
           "sourceFile": "botl.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "query_arrayvalue",
           "line": 2747,
           "endLine": 2783,
-          "declared": false,
+          "declared": true,
           "sourceFile": "botl.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "query_conditions",
           "line": 3109,
           "endLine": 3140,
-          "declared": false,
+          "declared": true,
           "sourceFile": "botl.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "conditionbitmask2str",
           "line": 3141,
           "endLine": 3170,
-          "declared": false,
+          "declared": true,
           "sourceFile": "botl.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "hlattr2attrname",
           "line": 3369,
           "endLine": 3416,
-          "declared": false,
+          "declared": true,
           "sourceFile": "botl.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "status_hilite_linestr_countfield",
           "line": 3462,
           "endLine": 3476,
-          "declared": false,
+          "declared": true,
           "sourceFile": "botl.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "count_status_hilites",
@@ -224074,21 +224074,21 @@
           "endLine": 3487,
           "declared": true,
           "sourceFile": "botl.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "status_hilite2str",
           "line": 3590,
           "endLine": 3671,
-          "declared": false,
+          "declared": true,
           "sourceFile": "botl.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "status_hilite_menu_choose_field",
           "line": 3672,
           "endLine": 3706,
-          "declared": false,
+          "declared": true,
           "sourceFile": "botl.c",
           "complete": false
         },
@@ -224096,49 +224096,49 @@
           "name": "status_hilite_menu_choose_behavior",
           "line": 3707,
           "endLine": 3810,
-          "declared": false,
+          "declared": true,
           "sourceFile": "botl.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "status_hilite_menu_choose_updownboth",
           "line": 3811,
           "endLine": 3889,
-          "declared": false,
+          "declared": true,
           "sourceFile": "botl.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "status_hilite_menu_add",
           "line": 3890,
           "endLine": 4304,
-          "declared": false,
+          "declared": true,
           "sourceFile": "botl.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "status_hilite_remove",
           "line": 4305,
           "endLine": 4356,
-          "declared": false,
+          "declared": true,
           "sourceFile": "botl.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "status_hilite_menu_fld",
           "line": 4357,
           "endLine": 4455,
-          "declared": false,
+          "declared": true,
           "sourceFile": "botl.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "status_hilite_menu",
           "line": 4498,
           "endLine": 4583,
-          "declared": false,
+          "declared": true,
           "sourceFile": "botl.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "query_attr",
@@ -224146,7 +224146,7 @@
           "endLine": 474,
           "declared": true,
           "sourceFile": "coloratt.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "query_color",
@@ -224154,7 +224154,7 @@
           "endLine": 529,
           "declared": true,
           "sourceFile": "coloratt.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "optfn_menu_headings",
@@ -224168,7 +224168,7 @@
           "name": "optfn_petattr",
           "line": 3138,
           "endLine": 3196,
-          "declared": false,
+          "declared": true,
           "sourceFile": "options.c",
           "complete": false
         },
@@ -224178,39 +224178,39 @@
           "endLine": 5794,
           "declared": true,
           "sourceFile": "options.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "handler_petattr",
           "line": 6152,
           "endLine": 6166,
-          "declared": false,
+          "declared": true,
           "sourceFile": "options.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "handler_menu_colors",
           "line": 6407,
           "endLine": 6501,
-          "declared": false,
+          "declared": true,
           "sourceFile": "options.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "handle_add_list_remove",
           "line": 9208,
           "endLine": 9255,
-          "declared": false,
+          "declared": true,
           "sourceFile": "options.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "test_regex_pattern",
           "line": 7871,
           "endLine": 7904,
-          "declared": false,
+          "declared": true,
           "sourceFile": "options.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "query_color_attr",
@@ -224218,15 +224218,15 @@
           "endLine": 319,
           "declared": true,
           "sourceFile": "coloratt.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "attr2attrname",
           "line": 320,
           "endLine": 337,
-          "declared": false,
+          "declared": true,
           "sourceFile": "coloratt.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "color_attr_to_str",
@@ -224234,7 +224234,7 @@
           "endLine": 260,
           "declared": true,
           "sourceFile": "coloratt.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "color_attr_parse_str",
@@ -224242,47 +224242,47 @@
           "endLine": 303,
           "declared": true,
           "sourceFile": "coloratt.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "free_one_menu_coloring",
           "line": 684,
           "endLine": 708,
-          "declared": false,
+          "declared": true,
           "sourceFile": "coloratt.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "reset_status_hilites",
           "line": 2321,
           "endLine": 2335,
-          "declared": false,
+          "declared": true,
           "sourceFile": "botl.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "status_hilite_add_threshold",
           "line": 2784,
           "endLine": 2813,
-          "declared": false,
+          "declared": true,
           "sourceFile": "botl.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "status_hilite_linestr_add",
           "line": 3417,
           "endLine": 3447,
-          "declared": false,
+          "declared": true,
           "sourceFile": "botl.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "status_hilite_linestr_done",
           "line": 3448,
           "endLine": 3461,
-          "declared": false,
+          "declared": true,
           "sourceFile": "botl.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "status_hilite_linestr_gather_conditions",
@@ -224290,7 +224290,7 @@
           "endLine": 3569,
           "declared": true,
           "sourceFile": "botl.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "status_hilite_linestr_gather",
@@ -224298,29 +224298,29 @@
           "endLine": 3589,
           "declared": true,
           "sourceFile": "botl.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "status_hilites_viewall",
           "line": 4456,
           "endLine": 4476,
-          "declared": false,
+          "declared": true,
           "sourceFile": "botl.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "basic_menu_colors",
           "line": 530,
           "endLine": 584,
-          "declared": false,
+          "declared": true,
           "sourceFile": "coloratt.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "optfn_o_menu_colors",
           "line": 8368,
           "endLine": 8388,
-          "declared": false,
+          "declared": true,
           "sourceFile": "options.c",
           "complete": false
         }
@@ -224740,7 +224740,1172 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "s_to_anything",
+            "implementation": "js/display.js",
+            "symbol": "s_to_anything",
+            "sourceReview": "Read whole botl.c:1930-1976 at upstream16ff59115315917b93185d026aeefea06db9b0f4. No game state, RNG or output; glibc LP64 saturation followed by selected member narrowing/unsigned reinterpretation, including pointed-to caller locals. Startup caller preserves safe Number and unsafe long decimal strings.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "parse_status_hl2",
+                "source": "botl.c2944 startup numeric conversion"
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu_add",
+                "source": "botl.c4009 threshold union conversion"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs",
+              "scripts/startup-status-hilites.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "botl.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "split_clridx",
+            "implementation": "js/display.js",
+            "symbol": "split_clridx",
+            "sourceReview": "Read whole botl.c:2576-2592 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Translate complete source branches, traversal, result/state and screen/input order; use canonical called owners, without RNG substitutes or swallowed refusals.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite2str",
+                "source": "botl.c3657 packed color/attribute read"
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_linestr_gather_conditions",
+                "source": "botl.c3549 condition group formatting"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "botl.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "query_arrayvalue",
+            "implementation": "js/display.js",
+            "symbol": "query_arrayvalue",
+            "sourceReview": "Read whole botl.c:2747-2783 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Translate complete source branches, traversal, result/state and screen/input order; use canonical called owners, without RNG substitutes or swallowed refusals.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu_add",
+                "source": "botl.c4116-4192 capacity/alignment/hunger/title selection"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-title.session.json",
+              "recordings/options.c/status-menu-wizard-title-pair.session.json"
+            ],
+            "sourceFile": "botl.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "query_conditions",
+            "implementation": "js/display.js",
+            "symbol": "query_conditions",
+            "sourceReview": "Read whole botl.c:3109-3140 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Translate complete source branches, traversal, result/state and screen/input order; use canonical called owners, without RNG substitutes or swallowed refusals.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu_add",
+                "source": "botl.c4095 selected condition mask"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-condition.session.json"
+            ],
+            "sourceFile": "botl.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "conditionbitmask2str",
+            "implementation": "js/display.js",
+            "symbol": "conditionbitmask2str",
+            "sourceReview": "Read whole botl.c:3141-3170 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Translate complete source branches, traversal, result/state and screen/input order; use canonical called owners, without RNG substitutes or swallowed refusals.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu_add",
+                "source": "botl.c4103-4106 condition query prompts"
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_linestr_gather_conditions",
+                "source": "botl.c3559 gathered condition formatting"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "botl.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "hlattr2attrname",
+            "implementation": "js/display.js",
+            "symbol": "hlattr2attrname",
+            "sourceReview": "Read whole botl.c:3369-3416 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Translate complete source branches, traversal, result/state and screen/input order; use canonical called owners, without RNG substitutes or swallowed refusals.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite2str",
+                "source": "botl.c3660 attribute suffix"
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu_add",
+                "source": "botl.c4271 Added hilite condition suffix"
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_linestr_gather_conditions",
+                "source": "botl.c3553 gathered attribute suffix"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "botl.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "status_hilite_linestr_countfield",
+            "implementation": "js/display.js",
+            "symbol": "status_hilite_linestr_countfield",
+            "sourceReview": "Read whole botl.c:3462-3476 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Translate complete source branches, traversal, result/state and screen/input order; use canonical called owners, without RNG substitutes or swallowed refusals.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "count_status_hilites",
+                "source": "botl.c3482 global count"
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu_fld",
+                "source": "botl.c4363 field count"
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu",
+                "source": "botl.c4515/4531/4563 counts"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "botl.c",
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-options-status-hilites",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 56,
+                "source": "cmd.c optionsfull -> options.c doset -> optfn_o_status_hilites8446-8474 -> botl.c status_hilite_menu4498-4578, empty list and field-choice cancellation, then full option value redraw."
+              }
+            ],
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "count_status_hilites",
+            "implementation": "js/display.js",
+            "symbol": "count_status_hilites",
+            "sourceReview": "Read whole botl.c:3477-3487 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Translate complete source branches, traversal, result/state and screen/input order; use canonical called owners, without RNG substitutes or swallowed refusals.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "optfn_o_status_hilites",
+                "source": "options.c8462 GET_VAL and GET_CNF_VAL count"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-empty-full.session.json",
+              "recordings/options.c/status-menu-hp-percent.session.json",
+              "recordings/options.c/status-menu-ac-number.session.json",
+              "recordings/options.c/status-menu-condition.session.json",
+              "recordings/options.c/status-menu-existing-view-remove.session.json",
+              "recordings/options.c/status-menu-title.session.json",
+              "recordings/options.c/status-menu-empty-simple.session.json",
+              "recordings/options.c/status-menu-value-change.session.json",
+              "recordings/options.c/status-menu-wizard-title-pair.session.json"
+            ],
+            "sourceFile": "botl.c",
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-options-status-hilites",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 56,
+                "source": "cmd.c optionsfull -> options.c doset -> optfn_o_status_hilites8446-8474 -> botl.c status_hilite_menu4498-4578, empty list and field-choice cancellation, then full option value redraw."
+              }
+            ],
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "status_hilite2str",
+            "implementation": "js/display.js",
+            "symbol": "status_hilite2str",
+            "sourceReview": "Read whole botl.c:3590-3671 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Read signed low32 union value even for ANY_LONG, preserve relation spelling, title spaces and no-color/normal suffix. Impossible error output is a named discarded pline.c gap.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_linestr_gather",
+                "source": "botl.c3580 threshold formatting"
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu_add",
+                "source": "botl.c4289/4298 Added hilite text"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-empty-full.session.json",
+              "recordings/options.c/status-menu-hp-percent.session.json",
+              "recordings/options.c/status-menu-ac-number.session.json",
+              "recordings/options.c/status-menu-condition.session.json",
+              "recordings/options.c/status-menu-existing-view-remove.session.json",
+              "recordings/options.c/status-menu-title.session.json",
+              "recordings/options.c/status-menu-empty-simple.session.json",
+              "recordings/options.c/status-menu-value-change.session.json",
+              "recordings/options.c/status-menu-wizard-title-pair.session.json"
+            ],
+            "sourceFile": "botl.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "status_hilite_menu_choose_behavior",
+            "implementation": "js/display.js",
+            "symbol": "status_hilite_menu_choose_behavior",
+            "sourceReview": "Read whole botl.c:3707-3810 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Translate complete source branches, traversal, result/state and screen/input order; use canonical called owners, without RNG substitutes or swallowed refusals.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu_add",
+                "source": "botl.c3927 behavior request and retry"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-empty-full.session.json",
+              "recordings/options.c/status-menu-hp-percent.session.json",
+              "recordings/options.c/status-menu-ac-number.session.json",
+              "recordings/options.c/status-menu-condition.session.json",
+              "recordings/options.c/status-menu-existing-view-remove.session.json",
+              "recordings/options.c/status-menu-title.session.json",
+              "recordings/options.c/status-menu-empty-simple.session.json",
+              "recordings/options.c/status-menu-value-change.session.json",
+              "recordings/options.c/status-menu-wizard-title-pair.session.json"
+            ],
+            "sourceFile": "botl.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "status_hilite_menu_choose_updownboth",
+            "implementation": "js/display.js",
+            "symbol": "status_hilite_menu_choose_updownboth",
+            "sourceReview": "Read whole botl.c:3811-3889 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Retain omitted-row IDs10+rel, AC better/worse labels, time lower disabled and cancellation NO_LTEQGT.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu_add",
+                "source": "botl.c4055 numeric relation and4083 temporary change relation"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-ac-number.session.json",
+              "recordings/options.c/status-menu-value-change.session.json"
+            ],
+            "sourceFile": "botl.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "status_hilite_menu_add",
+            "implementation": "js/display.js",
+            "symbol": "status_hilite_menu_add",
+            "sourceReview": "Read whole botl.c:3890-4304 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Preserve field/behavior/value/color retry labels, retry++>5, ASCII space/tab trim, numeric relation and source integer widths; title female/male split creates two copied tail rules; conditions accumulate source color and HL writes; message then reset.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu_fld",
+                "source": "botl.c4369 initial creation and4445 repeated Add mode"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-empty-full.session.json",
+              "recordings/options.c/status-menu-hp-percent.session.json",
+              "recordings/options.c/status-menu-ac-number.session.json",
+              "recordings/options.c/status-menu-condition.session.json",
+              "recordings/options.c/status-menu-existing-view-remove.session.json",
+              "recordings/options.c/status-menu-title.session.json",
+              "recordings/options.c/status-menu-empty-simple.session.json",
+              "recordings/options.c/status-menu-value-change.session.json",
+              "recordings/options.c/status-menu-wizard-title-pair.session.json"
+            ],
+            "sourceFile": "botl.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "status_hilite_remove",
+            "implementation": "js/display.js",
+            "symbol": "status_hilite_remove",
+            "sourceReview": "Read whole botl.c:4305-4356 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Remove by temporary rule identity; clear all condition color/attribute writes for the selected mask; threshold removal clears selected-rule/time bank references without replacing other rule objects.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu_fld",
+                "source": "botl.c4440 delete mode consumes returned Boolean"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-existing-view-remove.session.json"
+            ],
+            "sourceFile": "botl.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "status_hilite_menu_fld",
+            "implementation": "js/display.js",
+            "symbol": "status_hilite_menu_fld",
+            "sourceReview": "Read whole botl.c:4357-4455 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Translate complete source branches, traversal, result/state and screen/input order; use canonical called owners, without RNG substitutes or swallowed refusals.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu",
+                "source": "botl.c4556 chosen field request"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-empty-full.session.json",
+              "recordings/options.c/status-menu-hp-percent.session.json",
+              "recordings/options.c/status-menu-ac-number.session.json",
+              "recordings/options.c/status-menu-condition.session.json",
+              "recordings/options.c/status-menu-existing-view-remove.session.json",
+              "recordings/options.c/status-menu-title.session.json",
+              "recordings/options.c/status-menu-empty-simple.session.json",
+              "recordings/options.c/status-menu-value-change.session.json",
+              "recordings/options.c/status-menu-wizard-title-pair.session.json"
+            ],
+            "sourceFile": "botl.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "status_hilite_menu",
+            "implementation": "js/display.js",
+            "symbol": "status_hilite_menu",
+            "sourceReview": "Read whole botl.c:4498-4583 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Translate complete source branches, traversal, result/state and screen/input order; use canonical called owners, without RNG substitutes or swallowed refusals.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "optfn_o_status_hilites",
+                "source": "options.c8466 do_handler consumes menu result"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-empty-full.session.json",
+              "recordings/options.c/status-menu-hp-percent.session.json",
+              "recordings/options.c/status-menu-ac-number.session.json",
+              "recordings/options.c/status-menu-condition.session.json",
+              "recordings/options.c/status-menu-existing-view-remove.session.json",
+              "recordings/options.c/status-menu-title.session.json",
+              "recordings/options.c/status-menu-empty-simple.session.json",
+              "recordings/options.c/status-menu-value-change.session.json",
+              "recordings/options.c/status-menu-wizard-title-pair.session.json"
+            ],
+            "sourceFile": "botl.c",
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-options-status-hilites",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 56,
+                "source": "cmd.c optionsfull -> options.c doset -> optfn_o_status_hilites8446-8474 -> botl.c status_hilite_menu4498-4578, empty list and field-choice cancellation, then full option value redraw."
+              }
+            ],
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "query_attr",
+            "implementation": "js/coloratt.js",
+            "symbol": "query_attr",
+            "sourceReview": "Read whole coloratt.c:396-474 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Use attrnames row+1 IDs; PICK_ONE returns canonical ATR enum and PICK_ANY returns C HL bits. Preserve preselected double picks, none suppression and all cancellation cases.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu_add",
+                "source": "botl.c4241 PICK_ANY source HL bitset"
+              },
+              {
+                "path": "js/options.js",
+                "symbol": "handler_petattr",
+                "source": "options.c6155 PICK_ONE source ATR enum"
+              },
+              {
+                "path": "js/options.js",
+                "symbol": "handler_menu_colors",
+                "source": "options.c6440 source ATR enum"
+              },
+              {
+                "path": "js/coloratt.js",
+                "symbol": "query_color_attr",
+                "source": "coloratt.c311 color-and-attribute query"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/coloratt-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-empty-full.session.json",
+              "recordings/options.c/status-menu-hp-percent.session.json",
+              "recordings/options.c/status-menu-ac-number.session.json",
+              "recordings/options.c/status-menu-condition.session.json",
+              "recordings/options.c/status-menu-existing-view-remove.session.json",
+              "recordings/options.c/status-menu-title.session.json",
+              "recordings/options.c/menu-attribute-headings.session.json",
+              "recordings/options.c/menu-attribute-pet.session.json",
+              "recordings/options.c/menu-color-add-remove.session.json",
+              "recordings/options.c/status-menu-empty-simple.session.json",
+              "recordings/options.c/menu-color-list.session.json",
+              "recordings/options.c/status-menu-value-change.session.json",
+              "recordings/options.c/menu-attributes-startup-simple.session.json",
+              "recordings/options.c/status-menu-wizard-title-pair.session.json"
+            ],
+            "sourceFile": "coloratt.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "query_color",
+            "implementation": "js/coloratt.js",
+            "symbol": "query_color",
+            "sourceReview": "Read whole coloratt.c:475-529 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Temporarily swap the actual gm.menu_colorings/use_menu_color state; create source color-name regex list once, restore saved state after selection before reading result. Canonical CLR_GRAY7 is projected only in windows add_menu using recorder006 capture semantics.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu_add",
+                "source": "botl.c4234 color request"
+              },
+              {
+                "path": "js/options.js",
+                "symbol": "handler_menu_colors",
+                "source": "options.c6439 color request"
+              },
+              {
+                "path": "js/coloratt.js",
+                "symbol": "query_color_attr",
+                "source": "coloratt.c308 color request"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/coloratt-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-empty-full.session.json",
+              "recordings/options.c/status-menu-hp-percent.session.json",
+              "recordings/options.c/status-menu-ac-number.session.json",
+              "recordings/options.c/status-menu-condition.session.json",
+              "recordings/options.c/status-menu-existing-view-remove.session.json",
+              "recordings/options.c/status-menu-title.session.json",
+              "recordings/options.c/menu-attribute-headings.session.json",
+              "recordings/options.c/menu-attribute-pet.session.json",
+              "recordings/options.c/menu-color-add-remove.session.json",
+              "recordings/options.c/status-menu-empty-simple.session.json",
+              "recordings/options.c/menu-color-list.session.json",
+              "recordings/options.c/status-menu-value-change.session.json",
+              "recordings/options.c/menu-attributes-startup-simple.session.json",
+              "recordings/options.c/status-menu-wizard-title-pair.session.json"
+            ],
+            "sourceFile": "coloratt.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "handler_menu_headings",
+            "implementation": "js/options.js",
+            "symbol": "handler_menu_headings",
+            "sourceReview": "Read whole options.c:5780-5794 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Store canonical C ATR/color pair and retain source update_inventory then adjust_menu_promptstyle order. No whole persistent inventory or window-port credit.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "optfn_menu_headings",
+                "source": "options.c2222 do_handler callback"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/options-toggle.test.mjs",
+              "scripts/coloratt-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/menu-attribute-headings.session.json"
+            ],
+            "sourceFile": "options.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "handler_petattr",
+            "implementation": "js/options.js",
+            "symbol": "handler_petattr",
+            "sourceReview": "Read whole options.c:6152-6166 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Translate complete source branches, traversal, result/state and screen/input order; use canonical called owners, without RNG substitutes or swallowed refusals.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "optfn_petattr",
+                "source": "options.c3193 do_handler callback"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/options-toggle.test.mjs",
+              "scripts/coloratt-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/menu-attribute-pet.session.json",
+              "recordings/options.c/menu-attributes-startup-simple.session.json"
+            ],
+            "sourceFile": "options.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "handler_menu_colors",
+            "implementation": "js/options.js",
+            "symbol": "handler_menu_colors",
+            "sourceReview": "Read whole options.c:6407-6501 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Source add/list/remove/exit loop; list PICK_NONE, remove PICK_ANY with index correction after each removal, bounded byte truncation and attribute suffix. Discarded update_inventory and wait_synch remain named when their owners are incomplete.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "optfn_o_menu_colors",
+                "source": "options.c8384 do_handler callback"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/options-toggle.test.mjs",
+              "scripts/coloratt-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/menu-color-add-remove.session.json",
+              "recordings/options.c/menu-color-list.session.json"
+            ],
+            "sourceFile": "options.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "handle_add_list_remove",
+            "implementation": "js/options.js",
+            "symbol": "handle_add_list_remove",
+            "sourceReview": "Read whole options.c:9208-9255 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Translate complete source branches, traversal, result/state and screen/input order; use canonical called owners, without RNG substitutes or swallowed refusals.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "handler_menu_colors",
+                "source": "options.c6420 action choice with skipped rows"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/options-toggle.test.mjs",
+              "scripts/coloratt-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/menu-color-add-remove.session.json",
+              "recordings/options.c/menu-color-list.session.json"
+            ],
+            "sourceFile": "options.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "test_regex_pattern",
+            "implementation": "js/options.js",
+            "symbol": "test_regex_pattern",
+            "sourceReview": "Read whole options.c:7871-7904 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Compile a temporary existing canonical regex, release by JS lifetime, then issue source configuration feedback on failure; preserve null/default error message. Runtime invalid feedback is a named outside-limit config_error_add frontier.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "handler_menu_colors",
+                "source": "options.c6438 consumed temporary regex validation"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/options-toggle.test.mjs",
+              "scripts/coloratt-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/menu-color-add-remove.session.json"
+            ],
+            "sourceFile": "options.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "query_color_attr",
+            "implementation": "js/coloratt.js",
+            "symbol": "query_color_attr",
+            "sourceReview": "Read whole coloratt.c:304-319 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Translate complete source branches, traversal, result/state and screen/input order; use canonical called owners, without RNG substitutes or swallowed refusals.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "handler_menu_headings",
+                "source": "options.c5782 pair query; cancellation leaves state unchanged"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/coloratt-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-empty-full.session.json",
+              "recordings/options.c/status-menu-hp-percent.session.json",
+              "recordings/options.c/status-menu-ac-number.session.json",
+              "recordings/options.c/status-menu-condition.session.json",
+              "recordings/options.c/status-menu-existing-view-remove.session.json",
+              "recordings/options.c/status-menu-title.session.json",
+              "recordings/options.c/menu-attribute-headings.session.json",
+              "recordings/options.c/menu-attribute-pet.session.json",
+              "recordings/options.c/menu-color-add-remove.session.json",
+              "recordings/options.c/status-menu-empty-simple.session.json",
+              "recordings/options.c/menu-color-list.session.json",
+              "recordings/options.c/status-menu-value-change.session.json",
+              "recordings/options.c/menu-attributes-startup-simple.session.json",
+              "recordings/options.c/status-menu-wizard-title-pair.session.json"
+            ],
+            "sourceFile": "coloratt.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "attr2attrname",
+            "implementation": "js/coloratt.js",
+            "symbol": "attr2attrname",
+            "sourceReview": "Read whole coloratt.c:320-337 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Translate complete source branches, traversal, result/state and screen/input order; use canonical called owners, without RNG substitutes or swallowed refusals.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "optfn_petattr",
+                "source": "options.c3183 tty getter"
+              },
+              {
+                "path": "js/options.js",
+                "symbol": "handler_menu_colors",
+                "source": "options.c6460 suffix attribute"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/coloratt-menu.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "coloratt.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "color_attr_to_str",
+            "implementation": "js/coloratt.js",
+            "symbol": "color_attr_to_str",
+            "sourceReview": "Read whole coloratt.c:249-260 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Translate complete source branches, traversal, result/state and screen/input order; use canonical called owners, without RNG substitutes or swallowed refusals.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "optfn_menu_headings",
+                "source": "options.c2215 getter formatting"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/coloratt-menu.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "coloratt.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "color_attr_parse_str",
+            "implementation": "js/coloratt.js",
+            "symbol": "color_attr_parse_str",
+            "sourceReview": "Read whole coloratt.c:261-303 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Preserve bounded input, first ampersand, attribute/color reverse fallback and diagnostic order. Runtime invalid configuration feedback remains the existing incomplete config_error_add ownership, with no broader parser credit.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "color_attr_parse_str",
+                "source": "options.c2210 startup option wrapper composes existing configuration feedback"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/coloratt-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/menu-attributes-startup-simple.session.json"
+            ],
+            "sourceFile": "coloratt.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "free_one_menu_coloring",
+            "implementation": "js/coloratt.js",
+            "symbol": "free_one_menu_coloring",
+            "sourceReview": "Read whole coloratt.c:684-708 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Translate complete source branches, traversal, result/state and screen/input order; use canonical called owners, without RNG substitutes or swallowed refusals.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "handler_menu_colors",
+                "source": "options.c6489 source selected-index minus earlier removals"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/coloratt-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/menu-color-add-remove.session.json"
+            ],
+            "sourceFile": "coloratt.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "reset_status_hilites",
+            "implementation": "js/display.js",
+            "symbol": "reset_status_hilites",
+            "sourceReview": "Read whole botl.c:2321-2335 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Clear both source per-field time banks only when hilite_delta is nonzero, then gu.update_all and disp.botlx in source order. get_hilite timer consumption is a named separate rendering frontier.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu_add",
+                "source": "botl.c4300 reset after insertion"
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu",
+                "source": "botl.c4557 after acted field"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-empty-full.session.json",
+              "recordings/options.c/status-menu-hp-percent.session.json",
+              "recordings/options.c/status-menu-ac-number.session.json",
+              "recordings/options.c/status-menu-condition.session.json",
+              "recordings/options.c/status-menu-existing-view-remove.session.json",
+              "recordings/options.c/status-menu-title.session.json",
+              "recordings/options.c/status-menu-empty-simple.session.json",
+              "recordings/options.c/status-menu-value-change.session.json",
+              "recordings/options.c/status-menu-wizard-title-pair.session.json"
+            ],
+            "sourceFile": "botl.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "status_hilite_add_threshold",
+            "implementation": "js/display.js",
+            "symbol": "status_hilite_add_threshold",
+            "sourceReview": "Read whole botl.c:2784-2813 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Translate complete source branches, traversal, result/state and screen/input order; use canonical called owners, without RNG substitutes or swallowed refusals.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu_add",
+                "source": "botl.c4288/4297 copied tail insertion; title pair"
+              },
+              {
+                "path": "js/options.js",
+                "symbol": "parse_status_hl2",
+                "source": "botl.c3099 startup insertion"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs",
+              "scripts/startup-status-hilites.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-empty-full.session.json",
+              "recordings/options.c/status-menu-hp-percent.session.json",
+              "recordings/options.c/status-menu-ac-number.session.json",
+              "recordings/options.c/status-menu-condition.session.json",
+              "recordings/options.c/status-menu-existing-view-remove.session.json",
+              "recordings/options.c/status-menu-title.session.json",
+              "recordings/options.c/status-menu-empty-simple.session.json",
+              "recordings/options.c/status-menu-value-change.session.json",
+              "recordings/options.c/status-menu-wizard-title-pair.session.json"
+            ],
+            "sourceFile": "botl.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "status_hilite_linestr_add",
+            "implementation": "js/display.js",
+            "symbol": "status_hilite_linestr_add",
+            "sourceReview": "Read whole botl.c:3417-3447 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Translate complete source branches, traversal, result/state and screen/input order; use canonical called owners, without RNG substitutes or swallowed refusals.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_linestr_gather",
+                "source": "botl.c3580 threshold lines"
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_linestr_gather_conditions",
+                "source": "botl.c3561 condition mask lines"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-empty-full.session.json",
+              "recordings/options.c/status-menu-hp-percent.session.json",
+              "recordings/options.c/status-menu-ac-number.session.json",
+              "recordings/options.c/status-menu-condition.session.json",
+              "recordings/options.c/status-menu-existing-view-remove.session.json",
+              "recordings/options.c/status-menu-title.session.json",
+              "recordings/options.c/status-menu-empty-simple.session.json",
+              "recordings/options.c/status-menu-value-change.session.json",
+              "recordings/options.c/status-menu-wizard-title-pair.session.json"
+            ],
+            "sourceFile": "botl.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "status_hilite_linestr_done",
+            "implementation": "js/display.js",
+            "symbol": "status_hilite_linestr_done",
+            "sourceReview": "Read whole botl.c:3448-3461 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Translate complete source branches, traversal, result/state and screen/input order; use canonical called owners, without RNG substitutes or swallowed refusals.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "count_status_hilites",
+                "source": "botl.c3483 list cleanup"
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_linestr_gather",
+                "source": "botl.c3575 list reset"
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu",
+                "source": "botl.c4564 cleanup"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-empty-full.session.json",
+              "recordings/options.c/status-menu-hp-percent.session.json",
+              "recordings/options.c/status-menu-ac-number.session.json",
+              "recordings/options.c/status-menu-condition.session.json",
+              "recordings/options.c/status-menu-existing-view-remove.session.json",
+              "recordings/options.c/status-menu-title.session.json",
+              "recordings/options.c/status-menu-empty-simple.session.json",
+              "recordings/options.c/status-menu-value-change.session.json",
+              "recordings/options.c/status-menu-wizard-title-pair.session.json"
+            ],
+            "sourceFile": "botl.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "status_hilite_linestr_gather_conditions",
+            "implementation": "js/display.js",
+            "symbol": "status_hilite_linestr_gather_conditions",
+            "sourceReview": "Read whole botl.c:3488-3569 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Replay existing single canonical condition rule list as C bit writes; minimum color wins, none clears prior attributes, coalesce identical packed styles in condition table order.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_linestr_gather",
+                "source": "botl.c3585 gathers final condition color/attribute bits"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-empty-full.session.json",
+              "recordings/options.c/status-menu-hp-percent.session.json",
+              "recordings/options.c/status-menu-ac-number.session.json",
+              "recordings/options.c/status-menu-condition.session.json",
+              "recordings/options.c/status-menu-existing-view-remove.session.json",
+              "recordings/options.c/status-menu-title.session.json",
+              "recordings/options.c/status-menu-empty-simple.session.json",
+              "recordings/options.c/status-menu-value-change.session.json",
+              "recordings/options.c/status-menu-wizard-title-pair.session.json"
+            ],
+            "sourceFile": "botl.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "status_hilite_linestr_gather",
+            "implementation": "js/display.js",
+            "symbol": "status_hilite_linestr_gather",
+            "sourceReview": "Read whole botl.c:3570-3589 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Traverse numeric field slots0..26, not initblstats display order; append copied threshold descriptions then condition groups. Temporary IDs reset only on done.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "count_status_hilites",
+                "source": "botl.c3481 count preparation"
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu",
+                "source": "botl.c4514 menu preparation"
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilites_viewall",
+                "source": "botl.c4463 display preparation"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-empty-full.session.json",
+              "recordings/options.c/status-menu-hp-percent.session.json",
+              "recordings/options.c/status-menu-ac-number.session.json",
+              "recordings/options.c/status-menu-condition.session.json",
+              "recordings/options.c/status-menu-existing-view-remove.session.json",
+              "recordings/options.c/status-menu-title.session.json",
+              "recordings/options.c/status-menu-empty-simple.session.json",
+              "recordings/options.c/status-menu-value-change.session.json",
+              "recordings/options.c/status-menu-wizard-title-pair.session.json"
+            ],
+            "sourceFile": "botl.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "status_hilites_viewall",
+            "implementation": "js/display.js",
+            "symbol": "status_hilites_viewall",
+            "sourceReview": "Read whole botl.c:4456-4476 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Translate complete source branches, traversal, result/state and screen/input order; use canonical called owners, without RNG substitutes or swallowed refusals.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu",
+                "source": "botl.c4554 negative menu ID requests configuration-format view"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-existing-view-remove.session.json"
+            ],
+            "sourceFile": "botl.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          },
+          {
+            "name": "basic_menu_colors",
+            "implementation": "js/coloratt.js",
+            "symbol": "basic_menu_colors",
+            "sourceReview": "Read whole coloratt.c:530-584 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Translate complete source branches, traversal, result/state and screen/input order; use canonical called owners, without RNG substitutes or swallowed refusals.",
+            "callers": [
+              {
+                "path": "js/coloratt.js",
+                "symbol": "query_color",
+                "source": "coloratt.c483/506 alternate color-name list save/replace/restore"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/coloratt-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-empty-full.session.json",
+              "recordings/options.c/status-menu-hp-percent.session.json",
+              "recordings/options.c/status-menu-ac-number.session.json",
+              "recordings/options.c/status-menu-condition.session.json",
+              "recordings/options.c/status-menu-existing-view-remove.session.json",
+              "recordings/options.c/status-menu-title.session.json",
+              "recordings/options.c/menu-attribute-headings.session.json",
+              "recordings/options.c/menu-attribute-pet.session.json",
+              "recordings/options.c/menu-color-add-remove.session.json",
+              "recordings/options.c/status-menu-empty-simple.session.json",
+              "recordings/options.c/menu-color-list.session.json",
+              "recordings/options.c/status-menu-value-change.session.json",
+              "recordings/options.c/menu-attributes-startup-simple.session.json",
+              "recordings/options.c/status-menu-wizard-title-pair.session.json"
+            ],
+            "sourceFile": "coloratt.c",
+            "checkedAt": "ab7c3b6001f4fb32a299c807f2d4350025858ab0"
+          }
+        ],
+        "entryPointReview": "Inspected every selected source request and direct helper caller. Active full #optionsfull and ordinary O option callbacks, startup explicit menu_headings/petattr/status rules, nested rule field/behavior/relation/color/attribute/text/condition creation, config-format viewing, identity removal, menu-color add/list/remove and caption/pet projections are recorded. GET_CNF_VAL remains active through #saveoptions writer ownership and is withheld below. choose_field requires origfld BL_FLUSH but both active menu_add sites pass an actual field; no runtime entry is invented. Parser2944/3099 wiring is supporting only. Existing non-selected option/action consumers of handle_add_list_remove/test_regex_pattern remain owner frontiers; no unrelated options handler completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "Full status highlight menu, field/rule creation, viewing and removal",
+            "functions": [
+              {
+                "sourceFile": "botl.c",
+                "name": "status_hilite_menu"
+              }
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-empty-full.session.json",
+              "recordings/options.c/status-menu-hp-percent.session.json",
+              "recordings/options.c/status-menu-ac-number.session.json",
+              "recordings/options.c/status-menu-condition.session.json",
+              "recordings/options.c/status-menu-existing-view-remove.session.json",
+              "recordings/options.c/status-menu-title.session.json",
+              "recordings/options.c/status-menu-empty-simple.session.json",
+              "recordings/options.c/status-menu-value-change.session.json",
+              "recordings/options.c/status-menu-wizard-title-pair.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-options-status-hilites",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 56,
+                "source": "cmd.c optionsfull -> options.c doset -> optfn_o_status_hilites8446-8474 -> botl.c status_hilite_menu4498-4578, empty list and field-choice cancellation, then full option value redraw."
+              }
+            ]
+          },
+          {
+            "name": "Ordinary O status-highlight menu callback",
+            "functions": [
+              "optfn_o_status_hilites"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-empty-simple.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Menu and pet canonical attribute startup and live selectors",
+            "functions": [
+              {
+                "sourceFile": "options.c",
+                "name": "handler_menu_headings"
+              },
+              {
+                "sourceFile": "options.c",
+                "name": "handler_petattr"
+              },
+              {
+                "sourceFile": "coloratt.c",
+                "name": "color_attr_parse_str"
+              }
+            ],
+            "recordings": [
+              "recordings/options.c/menu-attribute-headings.session.json",
+              "recordings/options.c/menu-attribute-pet.session.json",
+              "recordings/options.c/menu-attributes-startup-simple.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Menu-color live add/list/remove and source selector returns",
+            "functions": [
+              {
+                "sourceFile": "options.c",
+                "name": "handler_menu_colors"
+              }
+            ],
+            "recordings": [
+              "recordings/options.c/menu-color-add-remove.session.json",
+              "recordings/options.c/menu-color-list.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Active #saveoptions configuration getter/writer",
+            "functions": [
+              "optfn_o_status_hilites",
+              {
+                "sourceFile": "options.c",
+                "name": "optfn_o_menu_colors"
+              },
+              {
+                "sourceFile": "options.c",
+                "name": "optfn_menu_headings"
+              },
+              {
+                "sourceFile": "options.c",
+                "name": "optfn_petattr"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "ab7c3b6001f4fb32a299c807f2d4350025858ab0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Verified 35 of 40 source units. options.c optfn_o_status_hilites, optfn_menu_headings, optfn_petattr, and optfn_o_menu_colors remain active through the unported #saveoptions GET_CNF_VAL writer; botl.c status_hilite_menu_choose_field has no active runtime caller with origfld BL_FLUSH. Preserve their blocked recipes for the owning follow-up ports."
     }
   ]
 }
