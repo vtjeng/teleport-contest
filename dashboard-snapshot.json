@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T00:31:25.747Z",
+  "capturedAt": "2026-10-09T00:45:27.509Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -69041,12 +69041,127 @@
         "type": "accepted",
         "at": "2026-10-09T00:31:09.464Z",
         "task": "B175"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B175-a4eba1a0-20261008",
+        "type": "published",
+        "at": "2026-10-09T00:32:09.842Z",
+        "task": "B175",
+        "commit": "a4eba1a068061b8d10574661ddbd892ad7656353"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B178-tab-option-format-20261009",
+        "type": "implement",
+        "at": "2026-10-09T00:32:32.778Z",
+        "task": "B178",
+        "goal": "fix-options-tab-separated-menu-format-v32-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b7bf47b1017496f2afa0873382808c729b67f175",
+        "type": "ready",
+        "at": "2026-10-09T00:36:50.133Z",
+        "task": "B178",
+        "delivery": "b7bf47b1017496f2afa0873382808c729b67f175"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C158-f18647f6-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T00:37:13.502Z",
+        "task": "C158",
+        "integration": "f18647f65477b3df69e7e30365e4e3993863a852"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B178-b7bf47b1-20261009",
+        "type": "received",
+        "at": "2026-10-09T00:37:16.435Z",
+        "task": "B178",
+        "delivery": "b7bf47b1017496f2afa0873382808c729b67f175"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B179-pickup-options-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T00:37:22.338Z",
+        "task": "B179",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c1db4f89dfe0485110680c35416adfa825a85ec3",
+        "type": "ready",
+        "at": "2026-10-09T00:37:32.084Z",
+        "task": "C155",
+        "delivery": "c1db4f89dfe0485110680c35416adfa825a85ec3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B179-pickup-options-audit-20261009",
+        "type": "turn",
+        "at": "2026-10-09T00:37:34.967Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the traditional pickup option input path."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C155-c1db4f89-20261009",
+        "type": "received",
+        "at": "2026-10-09T00:38:34.091Z",
+        "task": "C155",
+        "delivery": "c1db4f89dfe0485110680c35416adfa825a85ec3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C155-b175-boundary-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T00:39:11.776Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C155 delivered; accepted B175 merged cleanly. Checking affected drops and related command-description replay."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C155-ready-dependency-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T00:41:31.365Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C155 is ready behind C158 validation. Remaining options cases depend on B173 full-options dispatch and B178 menu formatting; B179 owns pickup options. C156 scores remains parked until those entries are accepted. Native pointer diagnostics and build-configuration contracts remain unresolved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B179-whole-pickup-types-20261009",
+        "type": "implement",
+        "at": "2026-10-09T00:42:17.930Z",
+        "task": "B179",
+        "goal": "port-options-pickup-types-whole-v32-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C158-f18647f6-20261009",
+        "type": "validated",
+        "at": "2026-10-09T00:42:37.861Z",
+        "task": "C158",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C158-f18647f65477b3df69e7e30365e4e3993863a852-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T00:45:06.301Z",
+        "task": "C158"
       }
     ]
   },
   "development": {
-    "executionCommit": "ff3dff0c8b71af1b0e8abbf0441ed286ce7f8385",
-    "measuredAt": "2026-10-09T00:28:18.798Z",
+    "executionCommit": "f18647f65477b3df69e7e30365e4e3993863a852",
+    "measuredAt": "2026-10-09T00:41:58.252Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

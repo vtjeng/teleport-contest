@@ -292,6 +292,7 @@ import {
 import { dodiscovered, UnsupportedDiscoveryDisplayError } from './o_init.js';
 import { donameFresh, UnsupportedObjectNameError } from './objnam.js';
 import {
+    doset,
     doset_simple,
     dotogglepickup,
     toggle_bool_option,
@@ -3670,12 +3671,12 @@ async function runEnhanceCommand(key, state) {
     }));
 }
 
-// C ref: options.c doset_simple(), the 'O' command. Both it and the doset()
-// its menu_requested arm hands off to format the whole menu before
+// C ref: options.c doset_simple() ('O') and doset() ('#optionsfull'). Both
+// preserve their own menu_requested inversion and format the menu before
 // select_menu() draws anything, so an unported option value stops before any
 // output.
-async function runOptionsCommand(key, state) {
-    return failClosedCommand(key, state, () => doset_simple(state, {
+async function runOptionsCommand(key, state, handler = doset_simple) {
+    return failClosedCommand(key, state, () => handler(state, {
         // add_menu_heading() draws each section heading with
         // iflags.menu_headings, which menuTitleStyle() reads.
         headingStyle: {
@@ -5123,6 +5124,8 @@ async function doextcmd(key, state) {
         return await dohistory(state);
     case 'dowhatdoes':
         return await dowhatdoes(state);
+    case 'doset':
+        return await runOptionsCommand(key, state, doset);
     case 'dowhatis':
         return await runWhatisCommand(key, state);
     case 'doquickwhatis':
