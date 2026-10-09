@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first natural Samurai quest-goal arrival through typed level teleport destination menu, followed by wizard map observation. Seed, date, female character and input history are independently selected; direct wizard-load variations cover the other entry.",
+  "segments": [
+    {
+      "seed": 69935051,
+      "datetime": "20540812102913",
+      "nethackrc": "OPTIONS=name:SamNatural,role:Samurai,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizlevelport\n?\n>A    #wizmap\n    "
+    }
+  ]
+}

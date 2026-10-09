@@ -3,7 +3,7 @@
 //         dat/Bar-goal.lua, dat/Bar-loca.lua, dat/Arc-strt.lua,
 //         dat/Arc-loca.lua, dat/Arc-fila.lua, dat/Arc-filb.lua,
 //         dat/Arc-goal.lua, dat/Cav-goal.lua, dat/Cav-loca.lua,
-//         dat/Cav-strt.lua, dat/Mon-goal.lua, dat/astral.lua,
+//         dat/Cav-strt.lua, dat/Mon-goal.lua, dat/Sam-goal.lua, dat/astral.lua,
 //         dat/Hea-goal.lua, dat/Hea-loca.lua, dat/Hea-strt.lua,
 //         dat/Kni-loca.lua, dat/Kni-strt.lua, dat/Ran-loca.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
@@ -67,6 +67,7 @@ import {
     KNI_LOCA_FIXED_TRAPS, KNI_LOCA_LEVEL_MAP, KNI_LOCA_MONSTERS,
 } from './kni_loca_level_data.js';
 import { MON_GOAL_LEVEL_MAP } from './mon_goal_level_data.js';
+import { SAM_GOAL_LEVEL_MAP } from './sam_goal_level_data.js';
 import {
     RAN_LOCA_LEVEL_MAP, RAN_LOCA_MONSTERS, RAN_LOCA_OBJECT_COUNT, RAN_LOCA_TRAPS,
 } from './ran_loca_level_data.js';
@@ -1247,6 +1248,42 @@ async function kniGoal(des) {
     await des.monster({ class: 'j', peaceful: 0 });
 }
 
+// C ref: dat/Sam-goal.lua. Draw each stair/ring choice where Lua does,
+// before the corresponding descriptor calls; retain names for canonical
+// object and monster parsing and gender draws.
+async function samGoal(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noteleport');
+    await des.map(SAM_GOAL_LEVEL_MAP);
+    const upstairs = [[2, 11], [42, 9]][rn2(2)];
+    await des.region(selection_area(0, 0, 44, 19), 'unlit');
+    await des.door('closed', 19, 10);
+    await des.door('closed', 22, 8);
+    await des.door('closed', 22, 12);
+    await des.door('closed', 25, 10);
+    await des.stair({ dir: 'up', coord: upstairs });
+
+    await des.terrain([[22, 14], [30, 10], [22, 6], [14, 10]][rn2(4)], '.');
+    await des.terrain([[22, 4], [35, 10], [22, 16], [9, 10]][rn2(4)], '.');
+    await des.terrain([[22, 2], [22, 18]][rn2(2)], '.');
+    await des.non_diggable(selection_area(0, 0, 44, 19));
+    await des.object({ id: 'tsurugi', x: 22, y: 10, buc: 'blessed', spe: 0,
+        name: 'The Tsurugi of Muramasa' });
+    for (let i = 0; i < 14; ++i) await des.object();
+    await des.trap('board', 22, 9);
+    await des.trap('board', 24, 10);
+    await des.trap('board', 22, 11);
+    for (let i = 0; i < 6; ++i) await des.trap();
+
+    await des.monster('Ashikaga Takauji', 22, 10);
+    for (let i = 0; i < 5; ++i) await des.monster({ id: 'samurai', peaceful: 0 });
+    for (let i = 0; i < 5; ++i) await des.monster({ id: 'ninja', peaceful: 0 });
+    for (let i = 0; i < 4; ++i) await des.monster('wolf');
+    await des.monster('d');
+    await des.monster('d');
+    for (let i = 0; i < 9; ++i) await des.monster('stalker');
+}
+
 // C ref: dat/Kni-loca.lua. Retain the initialization, terrain, region,
 // population, and trap calls in source order; the static tables are generated
 // from the Lua program so the transparent map and explicit descriptors stay
@@ -2378,6 +2415,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Arc-filb': arcFilb,
     'Arc-goal': arcGoal,
     'Kni-goal': kniGoal,
+    'Sam-goal': samGoal,
     'Kni-loca': kniLoca,
     'Ran-loca': ranLoca,
     'Hea-goal': heaGoal,

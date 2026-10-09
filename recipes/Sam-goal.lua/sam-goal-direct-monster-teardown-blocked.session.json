@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Samurai direct wizard load of whole Sam-goal.lua; gender and seed vary startup and population RNG. The admitted case covers natural quest arrival separately. BLOCKED before Lua entry by wizcmds.c:makemap_remove_mons -> makemap_unmakemon -> mon.c:mongone inventory obj_resists draws omitted in cmd.c:makemap_prepost. Preserve this outside-limit input; no failed recording is committed.",
+  "segments": [
+    {
+      "seed": 69934051,
+      "datetime": "20530721134137",
+      "nethackrc": "OPTIONS=name:SamGoalmale,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizloaddes\nSam-goal.lua\n "
+    }
+  ]
+}
