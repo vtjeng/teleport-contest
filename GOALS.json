@@ -154560,7 +154560,16 @@
         "sha": "62092f3c6a618f508c18f57463366227f24d3f87",
         "screens": 11405,
         "rng": 792838
-      }
+      },
+      "invalidatedFunctions": [
+        {
+          "name": "strncmpi",
+          "sourceFile": "hacklib.c",
+          "reason": "spell.c sorting uses global.h strcmpi as strncmpi(...,-1); the JavaScript remaining-- > 0 loop returns equality immediately for -1, unlike hacklib.c while(n--), so the accepted negative-count branch was not covered.",
+          "followupGoal": "port-spell-sort-menu-family-v33-20261009",
+          "at": "530b08111d53ee433b0550e8eef2af1a5dea1ae4"
+        }
+      ]
     },
     {
       "id": "port-uhitm-mhitm-ad-heal-v20-20261003",
@@ -226258,6 +226267,176 @@
         "sha": "f091b997ca1571fc6198fe3189ad06fe2dba532c",
         "screens": 11405,
         "rng": 792838
+      }
+    },
+    {
+      "id": "port-spell-sort-menu-family-v33-20261009",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port known-spell sorting, letter reassignment, swapping and complete menu columns.",
+      "cFile": "spell.c",
+      "sessions": [
+        "synthetic/v33/v33-spell-sort-menu"
+      ],
+      "selectionReason": "After B181 matched both potion cases, v33 spell-sort-menu remains 27 screens short; the complete spell menu family and consumed case-insensitive comparator are independent of the active monster and artifact scopes.",
+      "detail": "Port spell.c spell_cmp through dospellmenu in definition order, including inactive show_spells, verify spelltypemnemonic default behavior, and correct hacklib.c strncmpi negative-count semantics consumed by strcmpi. Preserve temporary display sorting, permanent letter reassignment, swapping, menu columns, preselected current/alternate/Enter/Esc returns, and existing casting-effect frontiers.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "spell_cmp",
+          "line": 1870,
+          "endLine": 1926,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "sortspells",
+          "line": 1927,
+          "endLine": 1975,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "spellsortmenu",
+          "line": 1976,
+          "endLine": 2020,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "dovspell",
+          "line": 2021,
+          "endLine": 2058,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "show_spells",
+          "line": 2059,
+          "endLine": 2074,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "dospellmenu",
+          "line": 2075,
+          "endLine": 2172,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1870,
+        "to": 2172
+      },
+      "requiredFunctions": [
+        {
+          "name": "spelltypemnemonic",
+          "line": 832,
+          "endLine": 855,
+          "declared": true,
+          "sourceFile": "spell.c",
+          "complete": false
+        },
+        {
+          "name": "strncmpi",
+          "line": 717,
+          "endLine": 739,
+          "declared": true,
+          "sourceFile": "hacklib.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v33/v33-spell-sort-menu": {
+          "session": "synthetic/v33/v33-spell-sort-menu",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-spell-sort-menu",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-spell-sort-menu.session.json",
+          "recordingSha256": "0ac28d7e7c3791b84b96795debb518d2a1c6e3a3d45f7965b89605d7ebe16a8b",
+          "evaluationPath": "challenges/evaluations/accepted-f091b997ca1571fc6198fe3189ad06fe2dba532c-v33.json",
+          "evaluationCommit": "f091b997ca1571fc6198fe3189ad06fe2dba532c"
+        }
+      }
+    },
+    {
+      "id": "fix-monmove-monster-flight-caller-v33-20261009",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Wire the simple monster adapter to canonical monster flight for Sunsword fear.",
+      "cFile": "monmove.c",
+      "sessions": [],
+      "selectionReason": "The v33 Sunsword case first stops at distfleeck monster flight, where the simple monster adapter still injects an unsupported operation although canonical monflee exists; this caller fix is independent of the potion, artifact and spell scopes.",
+      "detail": "Preserve distfleeck RNG order and wire the shared live/clone dochug adapter to canonical monflee state, random, visibility, and silent planning output. Retain region create_gas_cloud, expels, and hmon_hitmon_msg_lightobj as named gaps; take no whole-function source credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "distfleeck",
+      "session": "synthetic/v33/v33-sunsword-light-sears",
+      "step": 53,
+      "syntheticProvenance": {
+        "synthetic/v33/v33-sunsword-light-sears": {
+          "session": "synthetic/v33/v33-sunsword-light-sears",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-sunsword-light-sears",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-sunsword-light-sears.session.json",
+          "recordingSha256": "bc8424cd4e00006ad99e00ffaa8e1389d3163a8b7279739bad99d12e25d06a4c",
+          "evaluationPath": "challenges/evaluations/accepted-f091b997ca1571fc6198fe3189ad06fe2dba532c-v33.json",
+          "evaluationCommit": "f091b997ca1571fc6198fe3189ad06fe2dba532c"
+        }
+      }
+    },
+    {
+      "id": "port-artifact-invoke-create-ammo-v33-20261009",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete artifact ammunition invocation and canonical inventory acquisition.",
+      "cFile": "artifact.c",
+      "sessions": [
+        "synthetic/v33/v33-invoke-ammunition"
+      ],
+      "selectionReason": "The v33 ammunition invocation stops at its canonical encumbrance acquisition boundary; the whole artifact.c invoke_create_ammo helper is independent of the active monster and spell tasks.",
+      "detail": "Port artifact.c invoke_create_ammo lines 1934-1962 completely and wire the existing CREATE_AMMO dispatcher. Preserve beatitude/type/quantity RNG, mksobj state, hold/drop behavior, comparison operations, and source-ordered messages without taking broader invent or command credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "invoke_create_ammo",
+          "line": 1934,
+          "endLine": 1962,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1934,
+        "to": 1962
+      },
+      "syntheticProvenance": {
+        "synthetic/v33/v33-invoke-ammunition": {
+          "session": "synthetic/v33/v33-invoke-ammunition",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-invoke-ammunition",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-invoke-ammunition.session.json",
+          "recordingSha256": "75fd8b5964f5023c8df584f0f1fd909659e2a89ad767100687248486124a6d42",
+          "evaluationPath": "challenges/evaluations/accepted-f091b997ca1571fc6198fe3189ad06fe2dba532c-v33.json",
+          "evaluationCommit": "f091b997ca1571fc6198fe3189ad06fe2dba532c"
+        }
       }
     }
   ]

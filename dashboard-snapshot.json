@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T03:35:01.684Z",
+  "capturedAt": "2026-10-09T03:38:32.376Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -70153,6 +70153,32 @@
         "type": "accepted",
         "at": "2026-10-09T03:34:22.703Z",
         "task": "C160"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e68c695c38ed22a9e99e7c37e3956cb28e2c1239",
+        "type": "ready",
+        "at": "2026-10-09T03:36:28.634Z",
+        "task": "A180",
+        "delivery": "e68c695c38ed22a9e99e7c37e3956cb28e2c1239"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A181-da9e7367",
+        "type": "assign",
+        "at": "2026-10-09T03:37:15.329Z",
+        "task": "A181",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A181-pool-trace",
+        "type": "turn",
+        "at": "2026-10-09T03:37:16.601Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Tracing pool-entry confirmation and towel wetting."
       }
     ]
   },
