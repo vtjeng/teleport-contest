@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T22:18:21.031Z",
+  "capturedAt": "2026-10-09T22:21:47.943Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -76845,6 +76845,56 @@
         "type": "accepted",
         "at": "2026-10-09T22:17:49.133Z",
         "task": "C181"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C181-3bd480470",
+        "type": "published",
+        "at": "2026-10-09T22:19:01.112Z",
+        "task": "C181",
+        "commit": "3bd48047086ab1745d2cbe0deb7b86f38dd7bd41"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A200-Val-strt-after-C181-20261009",
+        "type": "resume",
+        "at": "2026-10-09T22:19:38.101Z",
+        "task": "A200"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A200-Val-strt-source-scope-20261009",
+        "type": "implement",
+        "at": "2026-10-09T22:20:55.067Z",
+        "task": "A200",
+        "goal": "port-val-strt-quest-start-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A200-Val-strt-implementation-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:20:58.946Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Implementing the complete Valkyrie quest-start loader and its random selection-point helper."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C181-accepted-next-select-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:21:00.667Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Selecting the next independent source task from the current accepted mismatch queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B204-resume-C181-accepted-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:21:22.341Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "C181 is published. Syncing accepted Main and checking the refreshed queue for independent work."
       }
     ]
   },
@@ -77159,17 +77209,6 @@
         "since": "2026-10-09T17:46:04.357Z",
         "blockedBy": [],
         "reason": "The full Rog-goal Lua program reaches an object descriptor that sets tin montype=\"chameleon\" at dat/Rog-goal.lua:45. Upstream sp_lev.c:lspo_object resolves named species to a species index; current JavaScript carries that name string through the corpsenm path. This shared source contract overlaps parked C172. A198 remains blocked until the orchestrator adjudicates C172; do not edit or reserve sp_lev.c:lspo_object while that task is parked/shared."
-      },
-      {
-        "task": "A200",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T21:56:52.122Z",
-        "blockedBy": [],
-        "reason": "Refreshed Val-strt report in 3e1923639d6580f79d3f8f77c0ce09d1f40eb90c. Keep this session-only: the whole program places two armed fire giants that execute makemon.c:m_initweap, actively reserved by C181 along with js/makemon_create.js; the standard quest loader registry path js/quest_levels.js is also in C181’s active write set. C176 selection algebra is accepted and no longer blocks it."
       }
     ]
   },
