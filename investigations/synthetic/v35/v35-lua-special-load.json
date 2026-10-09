@@ -1,0 +1,94 @@
+{
+  "session": "synthetic/v35/v35-lua-special-load",
+  "corpus": "synthetic",
+  "batch": "v35",
+  "caseId": "v35-lua-special-load",
+  "remainingScreens": 35,
+  "recordedSteps": 48,
+  "manifestPath": "challenges/manifests/v35.json",
+  "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+  "recordingSha256": "e3c855473e98611514785b79b99922f19cf7e565c42b6619f5ea01eec64ba968",
+  "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+  "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+  "status": "complete",
+  "commit": "d503206ea0d066a489a1bef6cb91488d78c55bb5",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v35",
+    "caseId": "v35-lua-special-load",
+    "session": "synthetic/v35/v35-lua-special-load",
+    "manifestPath": "challenges/manifests/v35.json",
+    "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+    "recording": "challenges/cases/v35/v35-lua-special-load.session.json",
+    "recordingPath": "challenges/cases/v35/v35-lua-special-load.session.json",
+    "recordingSha256": "e3c855473e98611514785b79b99922f19cf7e565c42b6619f5ea01eec64ba968",
+    "recipe": "challenges/cases/v35/v35-lua-special-load.recipe.session.json",
+    "recipeSha256": "037c5bdde9ad64a8ebb7c1aacc310ae1a725078d79d2da77e3f0c642f2b42afc",
+    "replayInputSha256": "9a345b9f1c2c4f64668854b1f41843898e09b9498646789c8c4a14892bfcd5a5",
+    "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+    "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+    "evaluationArtifact": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+    "evaluationUtc": "2026-10-09T08:22:23.377Z",
+    "remainingScreens": 35,
+    "recordedSteps": 48,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 13,
+        "total": 48
+      },
+      "rng": {
+        "matched": 2359,
+        "total": 3335
+      },
+      "cursors": {
+        "matched": 13,
+        "total": 48
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: wiz_load_splua() for the extended command 'wizloaddes' is not ported",
+      "step": 13
+    },
+    "step": 13,
+    "kind": "stop",
+    "sourceFile": "wizcmds.c",
+    "function": "wiz_load_splua",
+    "message": "unsupported hero command: wiz_load_splua() for the extended command 'wizloaddes' is not ported",
+    "cFile": "wizcmds.c",
+    "luaFile": null,
+    "line": null
+  },
+  "goalKind": "file-port",
+  "summary": "The wizard #wizloaddes dispatcher has no wiz_load_splua owner. Whole command wiring requires the source null-Lua-state reset/finalize branches before and after the existing special-level loader. The admitted file is already ported bigrm-1.lua; arbitrary Lua/file-error handling remains a separately named discarded-load frontier.",
+  "source": {
+    "file": "wizcmds.c",
+    "functions": [
+      "wiz_load_splua"
+    ],
+    "branch": "Wizard extended command prompts for a filename, cancels on ESC/empty, appends .lua only if no period, then calls lspo_reset_level(NULL), discards load_special(filename), and calls lspo_finalize_level(NULL); nonwizard direct calls use the existing unavailable-command message and return ECMD_OK.",
+    "callers": [
+      "cmd.c:1972–1973 extcmdlist wizloaddes -> cmd.c:doextcmd executes its row function; js/cmd.js doextcmd default currently raises at line5317.",
+      "sp_lev.c:5993–6074 reset/finalize have active des.reset_level/des.finalize_level Lua callers plus the newly required NULL command caller."
+    ],
+    "dependencies": [
+      "Existing bigrm-1.lua port, special-level loader registry, canonical makemap_prepost and existing room/object/monster generation owners.",
+      "Bounded supporting NULL-state corrections in existing lspo_reset_level/lspo_finalize_level: skip coder recreation/reset in reset and skip coder-gated ensure_way_out/flip/solidify/premap in finalize; preserve source order.",
+      "Existing loader keys omit .lua while C command passes the extension; use a source-traced generic registered-file adapter, with no arbitrary Lua interpreter or filesystem substitution.",
+      "B185 owns distinct wiz_panic and command dispatcher seam; proposed wizloaddes import/arm is separate but shared wizcmds/cmd modules require coordinator confirmation. C165 map-selection owner remains immutable."
+    ]
+  },
+  "evidence": [
+    "Accepted v35 baseline challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json at 672aef01d1f3f575387d05eaa9690ed396d64a25 reports13/48 screens/cursors and2359/3335 RNG, with first stop at step13. Manifest corpus digest a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e; recording SHA-256 e3c855473e98611514785b79b99922f19cf7e565c42b6619f5ea01eec64ba968.",
+    "Fresh one-case replay at d503206ea0d066a489a1bef6cb91488d78c55bb5 (.cache/C166-lua-special-baseline.json/log) reproduces the exact UnsupportedHeroCommandBoundaryError in doextcmd. C step13 shows Load which des lua file?; first later RNG2359 at step25 is nhlib.lua alignment shuffle. No game edit or C recording used in this investigation.",
+    "wizcmds.c:376–395 is the whole source unit. It preserves raw getlin text (no mungspaces), checks first-byte ESC/empty, tests strchr for any period, appends .lua if absent, and awaits reset/load/finalize in that order. load_special result is explicitly discarded; missing arbitrary Lua/file-error functionality can remain a precisely named skipped-callee gap under the project rule rather than invented output or a fake loader result.",
+    "sp_lev.c:5993–6011 recreates the coder only if L is non-NULL; the NULL command caller must not do the current unconditional Object.assign(sp_level_coder_init) or SpLev_Map reset. sp_lev.c:6014–6072 recreates coder only if L and guards ensure_way_out, flip_level_rnd, solidify_map and premap_detect with L. Existing js/mklev.js:4263–4336 assumes a non-NULL descriptor environment and unconditionally executes those conditional steps; caller compatibility requires explicit source NULL mode, without whole sp_lev credit.",
+    "sp_lev.c:6454–6502 load_special creates a coder, consumes load_lua result and runs generation postprocessing; existing js/mklev.js:1776–1801 has a production loader registry and equivalent supported-file generation path. Its keys are extensionless, including bigrm-1. dat/bigrm-1.lua is already represented by js/bigrm.js:bigrm1. Source command must normalize only the registered .lua filename boundary, not select a special behavior by session or expected output.",
+    "Proposed independent runtime matrix: cancel/empty prompt (no level reset), successful explicit-extension and omitted-extension filenames for two already ported special levels with independent roles/seeds, and nonwizard command rejection. Source-pinned tests must verify raw filename handling, NULL reset/finalize conditions, awaited ordering, and preservation of the existing non-NULL descriptor route. Retain an independently chosen unknown-file recipe as the named nhlua.c:nhl_loadlua error-output frontier if it cannot strictly match.",
+    "Proposed whole source scope is wizcmds.c:wiz_load_splua only, with bounded cmd.c doextcmd dispatcher and existing sp_lev.c null-caller/registered-file support. Do not claim whole reset/finalize/load_special/nhlua or Lua program completion. wiz_load_lua is a separate higher-memory generic Lua command and remains outside this task."
+  ]
+}
