@@ -154560,7 +154560,16 @@
         "sha": "62092f3c6a618f508c18f57463366227f24d3f87",
         "screens": 11405,
         "rng": 792838
-      }
+      },
+      "invalidatedFunctions": [
+        {
+          "name": "strncmpi",
+          "sourceFile": "hacklib.c",
+          "reason": "spell.c sorting uses global.h strcmpi as strncmpi(...,-1); the JavaScript remaining-- > 0 loop returns equality immediately for -1, unlike hacklib.c while(n--), so the accepted negative-count branch was not covered.",
+          "followupGoal": "port-spell-sort-menu-family-v33-20261009",
+          "at": "530b08111d53ee433b0550e8eef2af1a5dea1ae4"
+        }
+      ]
     },
     {
       "id": "port-uhitm-mhitm-ad-heal-v20-20261003",
@@ -225972,7 +225981,7 @@
     {
       "id": "port-artifact-invoke-healing-v33-20261009",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Complete artifact healing invocation feedback and polymorph health behavior.",
       "cFile": "artifact.c",
       "sessions": [
@@ -225980,17 +225989,24 @@
       ],
       "selectionReason": "Admitted v33 invoke-healing case has one remaining screen at step 87; the complete artifact.c invoke_healing owner is independently assignable and does not overlap A179 or B181.",
       "detail": "Port artifact.c invoke_healing lines 1780-1817 completely and retain the existing HEALING dispatcher. Preserve both independent blindness feedback conditions, awaited curing order, max-HP healing, carried blessed uncursing, and Upolyd health selection. The v33 case exercises temporary blindness with no cream through step 87; add source-pinned polymorph coverage.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "e0e15a182489d6becbf9e00424edaed207b97ca9",
+      "openStanding": {
+        "sha": "e0e15a182489d6becbf9e00424edaed207b97ca9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "f091b997ca1571fc6198fe3189ad06fe2dba532c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "invoke_healing",
           "line": 1780,
           "endLine": 1817,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -226009,6 +226025,417 @@
           "recordingSha256": "faff54cc482400999c96e696dd41b06b96a646faf2e1f7be79d06c89e541ab60",
           "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
           "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66"
+        }
+      },
+      "activeStanding": {
+        "sha": "e0e15a182489d6becbf9e00424edaed207b97ca9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-invoke-healing-blindness",
+          "session": "synthetic/v33/v33-invoke-healing-blindness",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recording": "challenges/cases/v33/v33-invoke-healing-blindness.session.json",
+          "recordingPath": "challenges/cases/v33/v33-invoke-healing-blindness.session.json",
+          "recordingSha256": "faff54cc482400999c96e696dd41b06b96a646faf2e1f7be79d06c89e541ab60",
+          "recipe": "challenges/cases/v33/v33-invoke-healing-blindness.recipe.session.json",
+          "recipeSha256": "9824b11634740afa4d0151dd5dffac376308dfab22677c4dd481a0f06b9ad6f6",
+          "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+          "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+          "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+          "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+          "evaluationUtc": "2026-10-09T03:03:55.655Z",
+          "remainingScreens": 1,
+          "recordedSteps": 99,
+          "previousScreensMatched": null,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 98,
+              "total": 99
+            },
+            "rng": {
+              "matched": 1854,
+              "total": 1854
+            },
+            "cursors": {
+              "matched": 99,
+              "total": 99
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 87,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 87,
+                "key": "k"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 18,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 87,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v33/v33-invoke-healing-blindness.json",
+            "result": {
+              "session": "synthetic/v33/v33-invoke-healing-blindness",
+              "corpus": "synthetic",
+              "batch": "v33",
+              "caseId": "v33-invoke-healing-blindness",
+              "remainingScreens": 1,
+              "recordedSteps": 99,
+              "manifestPath": "challenges/manifests/v33.json",
+              "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+              "recordingSha256": "faff54cc482400999c96e696dd41b06b96a646faf2e1f7be79d06c89e541ab60",
+              "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+              "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+              "status": "complete",
+              "commit": "965f2a701a90a8344b813383eebd4159a5aa8c92",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v33",
+                "caseId": "v33-invoke-healing-blindness",
+                "session": "synthetic/v33/v33-invoke-healing-blindness",
+                "manifestPath": "challenges/manifests/v33.json",
+                "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+                "recording": "challenges/cases/v33/v33-invoke-healing-blindness.session.json",
+                "recordingPath": "challenges/cases/v33/v33-invoke-healing-blindness.session.json",
+                "recordingSha256": "faff54cc482400999c96e696dd41b06b96a646faf2e1f7be79d06c89e541ab60",
+                "recipe": "challenges/cases/v33/v33-invoke-healing-blindness.recipe.session.json",
+                "recipeSha256": "9824b11634740afa4d0151dd5dffac376308dfab22677c4dd481a0f06b9ad6f6",
+                "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+                "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+                "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+                "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+                "evaluationUtc": "2026-10-09T03:03:55.655Z",
+                "remainingScreens": 1,
+                "recordedSteps": 99,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 98,
+                    "total": 99
+                  },
+                  "rng": {
+                    "matched": 1854,
+                    "total": 1854
+                  },
+                  "cursors": {
+                    "matched": 99,
+                    "total": 99
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 87,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 87,
+                      "key": "k"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 18,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 87,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "artifact.c:invoke_healing has two independent feedback conditions. JS omits the first, so temporary blindness with no cream produces one You feel better message rather than both at step 87. The whole helper and existing invocation dispatcher can be reconciled independently.",
+              "source": {
+                "file": "artifact.c",
+                "functions": [
+                  "invoke_healing"
+                ],
+                "branch": "HEALING invocation after temporary blindness, u.ucreamed == 0; both Blinded > creamed and BlindedTimeout > creamed are true. The first comparison uses the boolean Blinded macro, not raw timeout.",
+                "callers": [
+                  "artifact.c:arti_invoke:2156 HEALING -> invoke_healing; doinvoke:1757 -> arti_invoke"
+                ],
+                "dependencies": [
+                  "Existing artifact.c:nothing_special, potion.c:make_sick/make_slimed/make_blinded and carried/Upolyd owners; no new source owner required."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Committed baseline-66ac2b0bf-v33.json reports 98/99 screens, 1854/1854 RNG and 99/99 cursors; saved queue first mismatch segment 0 step 87 column 18. No replay was run for selection.",
+                "Admitted v33 manifest saved prepared trace at artifact.c:1780-1816 and source-pinned first screen diagnostic identify two You_feel calls; recipe and recording digests are retained in mismatch.",
+                "Upstream artifact.c:1782-1816 computes hero/polymorph half healing, first You_feel at 1789-1790, independent timeout condition at 1791-1802, then HP/sickness/slime/blindness updates and disp.botl in source order.",
+                "youprop.h:87-93 defines Blinded as HBlinded && !BBlinded, a boolean; comparing it with creamed must preserve that boolean and the Eyes of the Overworld blocker, rather than substitute Blind or the timeout.",
+                "js/artifacts.js:2348-2394 computes healing and only the second condition. Existing arti_invoke:2692 awaits invoke_healing; doinvoke already awaits the dispatcher. No other direct call exists in C or JS.",
+                "Whole-function audit scope: restore first awaited ordinary message, retain the second conditional/slightly feedback/no-op early return, HP form selection, canonical make_sick/make_slimed/make_blinded calls and status flag. Fresh variations will cover no-effect and permanent-blind controls beyond admitted temporary blindness."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "invoke_healing",
+            "implementation": "js/artifacts.js",
+            "symbol": "invoke_healing",
+            "sourceReview": "Read whole artifact.c:1780–1817 in definition order, plus direct arti_invoke HEALING call at2156 and doinvoke at1757. Preserved ordinary/polymorph rounded half healing, creamed long value, independent initial Blinded boolean gate and BlindedTimeout/slightly condition, carried no-effect early return, HP then sickness/slime/blindness/status update order and ECMD_TIME. Fixed both Upolyd arguments to canonical hero struct. Source-pinned booleans/cream/blocked/high-bit flags and no-effect input wait. Existing nothing_special, carried, make_sick(SICK_ALL), make_slimed and make_blinded owners reused; no new discarded gaps, injected operations or refusal sites. No source credit for callees or dispatcher bodies.",
+            "callers": [
+              {
+                "path": "js/artifacts.js",
+                "symbol": "arti_invoke",
+                "source": "artifact.c:2156 HEALING switch arm awaits invoke_healing; production command doinvoke1757 reaches arti_invoke after getobj/retouch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/artifact-healing.test.mjs",
+              "scripts/artifact-invoke.test.mjs"
+            ],
+            "recordings": [
+              "recordings/artifact.c/healing-no-effect.session.json",
+              "recordings/artifact.c/healing-permanent-blind.session.json",
+              "recordings/artifact.c/healing-temporary-blind.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-invoke-healing-blindness",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 98,
+                "source": "cmd.c #invoke -> artifact.c:doinvoke -> arti_invoke HEALING -> invoke_healing after potion temporary blindness; both feedback gates and make_blinded return."
+              }
+            ],
+            "checkedAt": "f091b997ca1571fc6198fe3189ad06fe2dba532c"
+          }
+        ],
+        "entryPointReview": "Helper-only whole source unit: sole C caller is artifact.c:arti_invoke HEALING. Production doinvoke command and cooldown reach this helper. Independent Healer C-first recordings cover no-effect, permanent-blind first feedback/More/no-effect, and temporary-blind double feedback/cure. Source-pinned tests cover HP truncation, polymorph HP, sickness/slime clearing, blocked boolean blindness, one cream versus boolean TRUE, and permanent timed blindness slightly prefix. No broader artifact invocation or potion/display completion credit.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "f091b997ca1571fc6198fe3189ad06fe2dba532c",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-spell-sort-menu-family-v33-20261009",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port known-spell sorting, letter reassignment, swapping and complete menu columns.",
+      "cFile": "spell.c",
+      "sessions": [
+        "synthetic/v33/v33-spell-sort-menu"
+      ],
+      "selectionReason": "After B181 matched both potion cases, v33 spell-sort-menu remains 27 screens short; the complete spell menu family and consumed case-insensitive comparator are independent of the active monster and artifact scopes.",
+      "detail": "Port spell.c spell_cmp through dospellmenu in definition order, including inactive show_spells, verify spelltypemnemonic default behavior, and correct hacklib.c strncmpi negative-count semantics consumed by strcmpi. Preserve temporary display sorting, permanent letter reassignment, swapping, menu columns, preselected current/alternate/Enter/Esc returns, and existing casting-effect frontiers.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "spell_cmp",
+          "line": 1870,
+          "endLine": 1926,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "sortspells",
+          "line": 1927,
+          "endLine": 1975,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "spellsortmenu",
+          "line": 1976,
+          "endLine": 2020,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "dovspell",
+          "line": 2021,
+          "endLine": 2058,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "show_spells",
+          "line": 2059,
+          "endLine": 2074,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "dospellmenu",
+          "line": 2075,
+          "endLine": 2172,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1870,
+        "to": 2172
+      },
+      "requiredFunctions": [
+        {
+          "name": "spelltypemnemonic",
+          "line": 832,
+          "endLine": 855,
+          "declared": true,
+          "sourceFile": "spell.c",
+          "complete": false
+        },
+        {
+          "name": "strncmpi",
+          "line": 717,
+          "endLine": 739,
+          "declared": true,
+          "sourceFile": "hacklib.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v33/v33-spell-sort-menu": {
+          "session": "synthetic/v33/v33-spell-sort-menu",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-spell-sort-menu",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-spell-sort-menu.session.json",
+          "recordingSha256": "0ac28d7e7c3791b84b96795debb518d2a1c6e3a3d45f7965b89605d7ebe16a8b",
+          "evaluationPath": "challenges/evaluations/accepted-f091b997ca1571fc6198fe3189ad06fe2dba532c-v33.json",
+          "evaluationCommit": "f091b997ca1571fc6198fe3189ad06fe2dba532c"
+        }
+      }
+    },
+    {
+      "id": "fix-monmove-monster-flight-caller-v33-20261009",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Wire the simple monster adapter to canonical monster flight for Sunsword fear.",
+      "cFile": "monmove.c",
+      "sessions": [],
+      "selectionReason": "The v33 Sunsword case first stops at distfleeck monster flight, where the simple monster adapter still injects an unsupported operation although canonical monflee exists; this caller fix is independent of the potion, artifact and spell scopes.",
+      "detail": "Preserve distfleeck RNG order and wire the shared live/clone dochug adapter to canonical monflee state, random, visibility, and silent planning output. Retain region create_gas_cloud, expels, and hmon_hitmon_msg_lightobj as named gaps; take no whole-function source credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "distfleeck",
+      "session": "synthetic/v33/v33-sunsword-light-sears",
+      "step": 53,
+      "syntheticProvenance": {
+        "synthetic/v33/v33-sunsword-light-sears": {
+          "session": "synthetic/v33/v33-sunsword-light-sears",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-sunsword-light-sears",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-sunsword-light-sears.session.json",
+          "recordingSha256": "bc8424cd4e00006ad99e00ffaa8e1389d3163a8b7279739bad99d12e25d06a4c",
+          "evaluationPath": "challenges/evaluations/accepted-f091b997ca1571fc6198fe3189ad06fe2dba532c-v33.json",
+          "evaluationCommit": "f091b997ca1571fc6198fe3189ad06fe2dba532c"
+        }
+      }
+    },
+    {
+      "id": "port-artifact-invoke-create-ammo-v33-20261009",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete artifact ammunition invocation and canonical inventory acquisition.",
+      "cFile": "artifact.c",
+      "sessions": [
+        "synthetic/v33/v33-invoke-ammunition"
+      ],
+      "selectionReason": "The v33 ammunition invocation stops at its canonical encumbrance acquisition boundary; the whole artifact.c invoke_create_ammo helper is independent of the active monster and spell tasks.",
+      "detail": "Port artifact.c invoke_create_ammo lines 1934-1962 completely and wire the existing CREATE_AMMO dispatcher. Preserve beatitude/type/quantity RNG, mksobj state, hold/drop behavior, comparison operations, and source-ordered messages without taking broader invent or command credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "invoke_create_ammo",
+          "line": 1934,
+          "endLine": 1962,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1934,
+        "to": 1962
+      },
+      "syntheticProvenance": {
+        "synthetic/v33/v33-invoke-ammunition": {
+          "session": "synthetic/v33/v33-invoke-ammunition",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-invoke-ammunition",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-invoke-ammunition.session.json",
+          "recordingSha256": "75fd8b5964f5023c8df584f0f1fd909659e2a89ad767100687248486124a6d42",
+          "evaluationPath": "challenges/evaluations/accepted-f091b997ca1571fc6198fe3189ad06fe2dba532c-v33.json",
+          "evaluationCommit": "f091b997ca1571fc6198fe3189ad06fe2dba532c"
         }
       }
     }

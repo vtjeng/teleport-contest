@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T03:04:26.887Z",
+  "capturedAt": "2026-10-09T03:38:32.376Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -69892,12 +69892,299 @@
         "task": "B158",
         "phase": "done",
         "reason": "Admitted v33 with 45 cases and saved its first baseline: 30/45 sessions and 3592/4395 screens match."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B181-amethyst-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T03:06:16.090Z",
+        "task": "B181",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B181-investigation-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T03:06:17.425Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the admitted amethyst-booze failure and its potion caller."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C160-invoke-healing-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T03:06:32.987Z",
+        "task": "C160",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C160-invoke-healing-investigation-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T03:06:45.473Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating healing artifact feedback after temporary blindness."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A179-black-light-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T03:07:08.993Z",
+        "task": "A179",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C160-invoke-healing-20261009",
+        "type": "implement",
+        "at": "2026-10-09T03:08:26.313Z",
+        "task": "C160",
+        "goal": "port-artifact-invoke-healing-v33-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A179-empty-explosion-20261009",
+        "type": "implement",
+        "at": "2026-10-09T03:10:44.460Z",
+        "task": "A179",
+        "goal": "fix-hack-empty-forcefight-explosion-v33-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A179-source-implementation-20261009",
+        "type": "turn",
+        "at": "2026-10-09T03:10:45.998Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B181-potion-dummy-20261009",
+        "type": "implement",
+        "at": "2026-10-09T03:12:02.045Z",
+        "task": "B181",
+        "goal": "fix-potion-dip-old-appearance-dummy-v33-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c488c60227b5192ed0b601e37d1e22d6e775c709",
+        "type": "ready",
+        "at": "2026-10-09T03:16:49.771Z",
+        "task": "C160",
+        "delivery": "c488c60227b5192ed0b601e37d1e22d6e775c709"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C160-c488c602-20261009",
+        "type": "received",
+        "at": "2026-10-09T03:17:15.728Z",
+        "task": "C160",
+        "delivery": "c488c60227b5192ed0b601e37d1e22d6e775c709"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C161-invoke-ammunition-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T03:18:06.617Z",
+        "task": "C161",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C161-invoke-ammunition-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T03:18:32.568Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating ammunition artifact inventory acquisition and encumbrance feedback."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-C160-review-c488c602-20261009",
+        "type": "activity",
+        "at": "2026-10-09T03:19:02.457Z",
+        "task": "C160",
+        "phase": "review",
+        "reason": "Reviewing the bounded artifact healing delivery and its recorded C evidence before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b62cc723e2707e3254e8cf829987e96e607e5365",
+        "type": "ready",
+        "at": "2026-10-09T03:19:10.573Z",
+        "task": "B181",
+        "delivery": "b62cc723e2707e3254e8cf829987e96e607e5365"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C160-f091b997-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T03:19:33.109Z",
+        "task": "C160",
+        "integration": "f091b997ca1571fc6198fe3189ad06fe2dba532c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B182-spell-sort-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T03:20:12.352Z",
+        "task": "B182",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B182-spell-sort-audit-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T03:20:14.181Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the admitted spell-sort menu refusal; B181 remains immutable."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C161-invoke-create-ammo-20261009",
+        "type": "implement",
+        "at": "2026-10-09T03:20:47.707Z",
+        "task": "C161",
+        "goal": "port-artifact-invoke-create-ammo-v33-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B181-b62cc723-20261009",
+        "type": "received",
+        "at": "2026-10-09T03:21:51.613Z",
+        "task": "B181",
+        "delivery": "b62cc723e2707e3254e8cf829987e96e607e5365"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-64f0f93f294580e135b7b1fc72c54f23fbb4f212",
+        "type": "ready",
+        "at": "2026-10-09T03:27:38.784Z",
+        "task": "A179",
+        "delivery": "64f0f93f294580e135b7b1fc72c54f23fbb4f212"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A180-c94140ed",
+        "type": "assign",
+        "at": "2026-10-09T03:28:45.266Z",
+        "task": "A180",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A180-source-trace-c94140ed",
+        "type": "turn",
+        "at": "2026-10-09T03:28:47.289Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating Sunsword light combat and monster flight."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-61421bbc25ba1f590eb3cca30e1aed37af2b447d",
+        "type": "ready",
+        "at": "2026-10-09T03:29:18.481Z",
+        "task": "C161",
+        "delivery": "61421bbc25ba1f590eb3cca30e1aed37af2b447d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B182-source-queue-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T03:30:48.104Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Spell-menu source investigation complete; coordinator is queueing the goal before implementation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A180-flight-c94140ed",
+        "type": "implement",
+        "at": "2026-10-09T03:31:04.232Z",
+        "task": "A180",
+        "goal": "fix-monmove-monster-flight-caller-v33-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C160-f091b997ca1571fc6198fe3189ad06fe2dba532c-validated",
+        "type": "validated",
+        "at": "2026-10-09T03:31:32.490Z",
+        "task": "C160",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C162-nymph-missum-20261009",
+        "type": "assign",
+        "at": "2026-10-09T03:32:23.866Z",
+        "task": "C162",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C162-nymph-missum-20261009",
+        "type": "turn",
+        "at": "2026-10-09T03:32:25.362Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C162-missum-20261009",
+        "type": "implement",
+        "at": "2026-10-09T03:33:54.973Z",
+        "task": "C162",
+        "goal": "port-uhitm-missum-seduction-v33-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C160-f091b997ca1571fc6198fe3189ad06fe2dba532c-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T03:34:22.703Z",
+        "task": "C160"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e68c695c38ed22a9e99e7c37e3956cb28e2c1239",
+        "type": "ready",
+        "at": "2026-10-09T03:36:28.634Z",
+        "task": "A180",
+        "delivery": "e68c695c38ed22a9e99e7c37e3956cb28e2c1239"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A181-da9e7367",
+        "type": "assign",
+        "at": "2026-10-09T03:37:15.329Z",
+        "task": "A181",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A181-pool-trace",
+        "type": "turn",
+        "at": "2026-10-09T03:37:16.601Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Tracing pool-entry confirmation and towel wetting."
       }
     ]
   },
   "development": {
-    "executionCommit": "6d7da9e0b0013c20926f22847d5246717e8af47e",
-    "measuredAt": "2026-10-09T03:02:40.451Z",
+    "executionCommit": "f091b997ca1571fc6198fe3189ad06fe2dba532c",
+    "measuredAt": "2026-10-09T03:24:52.646Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
