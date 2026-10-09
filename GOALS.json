@@ -226764,7 +226764,7 @@
     {
       "id": "fix-monmove-monster-flight-caller-v33-20261009",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Wire the simple monster adapter to canonical monster flight for Sunsword fear.",
       "cFile": "monmove.c",
       "sessions": [],
@@ -226776,8 +226776,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "68b87a3eb85817e3009cee89a52281e78e23d03c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "distfleeck",
       "session": "synthetic/v33/v33-sunsword-light-sears",
       "step": 53,
@@ -226986,7 +226989,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "68b87a3eb85817e3009cee89a52281e78e23d03c",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-artifact-invoke-create-ammo-v33-20261009",
