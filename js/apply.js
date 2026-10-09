@@ -3379,7 +3379,7 @@ export async function use_unicorn_horn(obj, state = game, env = {}) {
             // C evaluates the timeout (and its conditional RNG) before xname.
             const sicknessDuration = sickTimeout
                 ? Math.trunc(sickTimeout / 3) + 1
-                : rn1(acurr(A_CON, state), 20);
+                : rn1(acurr(state, A_CON), 20);
             const cause = xnameFresh(obj, state);
             await make_sick(
                 sicknessDuration, cause, true, SICK_NONVOMITABLE, state, env,

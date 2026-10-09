@@ -1,0 +1,143 @@
+{
+  "corpus": "synthetic",
+  "batch": "v34",
+  "caseId": "v34-genocide-no-such-species",
+  "session": "synthetic/v34/v34-genocide-no-such-species",
+  "manifestPath": "challenges/manifests/v34.json",
+  "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+  "recordingSha256": "2889b7946ebfcd8ad2067a88618ab4a538cacfb3bbe8061749248c63a9523d6a",
+  "evaluationPath": "challenges/evaluations/accepted-1fca795f45379c5d8364836c74c8ac61910620cd-v34.json",
+  "evaluationCommit": "1fca795f45379c5d8364836c74c8ac61910620cd",
+  "remainingScreens": 22,
+  "recordedSteps": 76,
+  "status": "complete",
+  "commit": "2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v34",
+    "caseId": "v34-genocide-no-such-species",
+    "session": "synthetic/v34/v34-genocide-no-such-species",
+    "manifestPath": "challenges/manifests/v34.json",
+    "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+    "recordingPath": "challenges/cases/v34/v34-genocide-no-such-species.session.json",
+    "recording": "challenges/cases/v34/v34-genocide-no-such-species.session.json",
+    "recordingSha256": "2889b7946ebfcd8ad2067a88618ab4a538cacfb3bbe8061749248c63a9523d6a",
+    "evaluationPath": "challenges/evaluations/accepted-1fca795f45379c5d8364836c74c8ac61910620cd-v34.json",
+    "evaluationCommit": "1fca795f45379c5d8364836c74c8ac61910620cd",
+    "evaluationUtc": "2026-10-09T07:01:02.149Z",
+    "remainingScreens": 22,
+    "recordedSteps": 76,
+    "metrics": {
+      "screens": {
+        "matched": 54,
+        "total": 76
+      },
+      "rng": {
+        "matched": 2406,
+        "total": 2406
+      },
+      "cursors": {
+        "matched": 54,
+        "total": 76
+      }
+    },
+    "step": 54,
+    "kind": "screen",
+    "sourceFile": "read.c",
+    "function": "do_genocide",
+    "line": 2860,
+    "message": "The cmdassist retry hint omits the source apostrophes around '?'.",
+    "firstMismatch": {
+      "passed": false,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2406,
+          "js": 2406
+        },
+        "screens": {
+          "c": 76,
+          "js": 76
+        },
+        "cursors": {
+          "c": 76,
+          "js": 76
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": null,
+      "screenMismatch": {
+        "index": 54,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 54,
+          "key": "\u001b"
+        },
+        "kind": "ch",
+        "row": 1,
+        "column": 8,
+        "cCell": {
+          "ch": "'",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "?",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "cursorMismatch": {
+        "index": 54,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 54,
+          "key": "\u001b"
+        },
+        "cCursor": [
+          13,
+          1,
+          1
+        ],
+        "jsCursor": [
+          11,
+          1,
+          1
+        ]
+      },
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  "summary": "The genocide retry prompt at step54 omits C's apostrophes around '?' when cmdassist is enabled, shifting the wrapped line and cursor. Restore the exact quoted hint in read.c do_genocide and the identical omission in do_class_genocide. The parser, More handling and getlin repaint already reach this source branch; this is a bounded prompt-text divergence with no whole-function credit.",
+  "goalKind": "divergence-fix",
+  "source": {
+    "file": "read.c",
+    "functions": [
+      "do_genocide (bounded cmdassist retry prompt2857-2861)",
+      "do_class_genocide (bounded cmdassist retry prompt2652-2657)"
+    ],
+    "branch": "An uncursed genocide effect requests a monster name; a nonexistent or empty answer consumes an attempt. For attempt>0, iflags.cmdassist appends the quoted question-mark hint. The blessed/class route performs the same quoted hint construction after a failed class attempt. First prompts and cmdassist-disabled hints remain as C defines them.",
+    "callers": [
+      "read.c seffect_genocide1722-1738 selects do_class_genocide for blessed effects or do_genocide for uncursed/cursed/confused effects; JS read.js seffect_genocide3053-3068 already awaits both. Production read command calls seffects through the existing scroll effect dispatch.",
+      "sit.c dosit case8 line131 calls do_genocide(5); JS sit.js dosit case8 line491 already awaits the same owner. Its prompt text depends on the same attempt/cmdassist branch; no caller edit is required."
+    ],
+    "dependencies": [
+      "windows.js getlin157 -> getline.js tty_getlin/hooked_tty_getlin wraps the supplied query, after dismissing pending More; consumed string then passes through canonical hacklib.js mungspaces. No TTY input/display owner changes are needed for the confirmed text mismatch.",
+      "read.c names/parser helpers and later genocide mutation are outside this prompt divergence. Preserve all attempt counts, getlin lifetime, RNG, monster eligibility, messages, scroll consumption and existing caller order."
+    ]
+  },
+  "evidence": [
+    "Assigned-session bounded replay run-b1R1Cd at worker d8a78e1e reproduces exact2406/2406 RNG and all76 emitted input screens/cursors, with first differing screen54. C row1 column8 is an apostrophe; JS is question mark. C cursor[13,1,1], JS[11,1,1]. Diagnostics .cache/A187/probe.json/.log; receipt /tmp/teleport-validation-1000/run-b1R1Cd/receipt.json. Accepted1fca evaluation measures54/76 matched screens/cursors and22 remaining.",
+    "Authoritative read.c2855-2862 formats the query and, on i>0, appends [enter the name of a type of monster, or '?'] for cmdassist. JS read.js2895-2901 instead appends unquoted ?. C read.c2651-2658 class prompt contains [enter the symbol or name representing a class, or '?']; JS2694-2699 also omits both apostrophes. Both defects are in the source caller strings, before canonical getlin receives them.",
+    "Counter-evidence to a global getlin/parser attribution: recording step52 shows the full nonexistent name typed correctly; step53 prints Such creatures do not exist in this world.--More-- in both runtimes. Step54 Escape dismisses that pending More and opens the second prompt; it does not cancel the new getlin. The subsequent spaces stay in that wrapped prompt, so the final selected recording does not establish cancellation. RNG remains exact throughout.",
+    "Actionable scope: reserve source:read.c:do_genocide, source:read.c:do_class_genocide and contract:genocide-retry-prompt-text; edit only the two cmdassist hint literals in js/read.js, source-pinned/runtime tests in scripts/read.test.mjs, and independent read.c recipes/recordings. Add a state-verifying fresh runner only if runtime assertions require it. No whole do_genocide/do_class_genocide/getlin completion claim or source dependency port.",
+    "Validation plan: fail-first source pins compare both quoted C literals; live retry coverage for species and class input with cmdassist enabled and disabled; verify first prompt unchanged, exact wrapped cursor, retry count and no added RNG. Replay selected76-step case completely. Independently record uncursed nonexistent-species retry then actual cancel, and a blessed class retry variation with a newly chosen seed/date/role. Also exercise cmdassist-disabled short hint. Run affected read-command/read/TTY focused tests, lint/quality and strict fresh comparison. Existing throne caller is reused unchanged; evidence credit remains bounded prompt text.",
+    "Evidence limits: this read-only investigation has not recorded fresh C games or verified the proposed class/disabled variations. It diagnoses two directly read source literals; later genocide behavior and unrelated source frontiers remain outside the task. No source/game edits or implementation scope claim have occurred."
+  ]
+}

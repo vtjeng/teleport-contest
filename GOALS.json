@@ -229505,16 +229505,23 @@
     {
       "id": "fix-apply-cursed-unicorn-horn-con-call-v34-20261009",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Use current Constitution for cursed unicorn-horn sickness duration",
       "cFile": "apply.c",
       "sessions": [],
-      "selectionReason": "Independent admitted v34 RNG-only mismatch; the complete investigation traces apply.c:use_unicorn_horn line 2272 to one reversed acurr caller, with no whole-function credit.",
+      "selectionReason": "Oldest dependency-ready delivery after accepted C163; source-traced apply.c use_unicorn_horn Constitution argument mismatch in admitted v34.",
       "detail": "Cursed unicorn horn newly induces sickness using current Constitution. The JavaScript caller reverses acurr state and index arguments, changing C rn2(17) to rn2(3) while screens and cursors match.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "0ed7341da1cc0167a8f0c63222144234fe9ecd4f",
+      "openStanding": {
+        "sha": "2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "61748d768be8dde676d67309b0a15965d6f0931b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "use_unicorn_horn",
       "session": "synthetic/v34/v34-cursed-unicorn-horn",
       "step": 24,
@@ -229531,6 +229538,167 @@
           "evaluationPath": "challenges/evaluations/accepted-1fca795f45379c5d8364836c74c8ac61910620cd-v34.json",
           "evaluationCommit": "1fca795f45379c5d8364836c74c8ac61910620cd"
         }
+      },
+      "activeStanding": {
+        "sha": "2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v34",
+          "caseId": "v34-cursed-unicorn-horn",
+          "session": "synthetic/v34/v34-cursed-unicorn-horn",
+          "manifestPath": "challenges/manifests/v34.json",
+          "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+          "recording": "challenges/cases/v34/v34-cursed-unicorn-horn.session.json",
+          "recordingPath": "challenges/cases/v34/v34-cursed-unicorn-horn.session.json",
+          "recordingSha256": "1b933259099dbe42fe48e426e46d6611711f55f38b9b51d12b2397a6b9b260ce",
+          "recipe": "challenges/cases/v34/v34-cursed-unicorn-horn.recipe.session.json",
+          "recipeSha256": "3a5d7e18353ca7c017921c78376d6398c879b45a60fcba86a14e7223ff2b52d9",
+          "replayInputSha256": "1c655735a9c6823a35bee650feb855882697c5cc06c28055277baa135c8d746c",
+          "evaluationPath": "challenges/evaluations/accepted-2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a-v34.json",
+          "evaluationCommit": "2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a",
+          "evaluationArtifact": "challenges/evaluations/accepted-2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a-v34.json",
+          "evaluationUtc": "2026-10-09T07:54:08.123Z",
+          "remainingScreens": 0,
+          "recordedSteps": 52,
+          "previousScreensMatched": 52,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 52,
+              "total": 52
+            },
+            "rng": {
+              "matched": 2062,
+              "total": 2063
+            },
+            "cursors": {
+              "matched": 52,
+              "total": 52
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2054,
+              "cEntry": "rn2(17)=7",
+              "cCaller": "use_unicorn_horn(apply.c:2272)",
+              "jsEntry": "rn2(3)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 24,
+                "key": "e"
+              },
+              "stepIndex": 24
+            },
+            "cursor": null
+          },
+          "step": 24,
+          "kind": "rng",
+          "sourceFile": "apply.c",
+          "function": "use_unicorn_horn",
+          "message": null,
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": 2272,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v34/v34-cursed-unicorn-horn.json",
+            "result": {
+              "session": "synthetic/v34/v34-cursed-unicorn-horn",
+              "corpus": "synthetic",
+              "batch": "v34",
+              "caseId": "v34-cursed-unicorn-horn",
+              "manifestPath": "challenges/manifests/v34.json",
+              "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+              "recordingSha256": "1b933259099dbe42fe48e426e46d6611711f55f38b9b51d12b2397a6b9b260ce",
+              "evaluationPath": "challenges/evaluations/accepted-993ad924fd08f999b0beeaa0945abc04eb2e5ec0-v34.json",
+              "evaluationCommit": "993ad924fd08f999b0beeaa0945abc04eb2e5ec0",
+              "remainingScreens": 0,
+              "recordedSteps": 52,
+              "status": "complete",
+              "commit": "1fca795f45379c5d8364836c74c8ac61910620cd",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v34",
+                "caseId": "v34-cursed-unicorn-horn",
+                "session": "synthetic/v34/v34-cursed-unicorn-horn",
+                "manifestPath": "challenges/manifests/v34.json",
+                "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+                "recording": "challenges/cases/v34/v34-cursed-unicorn-horn.session.json",
+                "recordingPath": "challenges/cases/v34/v34-cursed-unicorn-horn.session.json",
+                "recordingSha256": "1b933259099dbe42fe48e426e46d6611711f55f38b9b51d12b2397a6b9b260ce",
+                "recipe": "challenges/cases/v34/v34-cursed-unicorn-horn.recipe.session.json",
+                "recipeSha256": "3a5d7e18353ca7c017921c78376d6398c879b45a60fcba86a14e7223ff2b52d9",
+                "evaluationPath": "challenges/evaluations/accepted-993ad924fd08f999b0beeaa0945abc04eb2e5ec0-v34.json",
+                "evaluationCommit": "993ad924fd08f999b0beeaa0945abc04eb2e5ec0",
+                "evaluationUtc": "2026-10-09T06:10:40.516Z",
+                "remainingScreens": 0,
+                "recordedSteps": 52,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 52,
+                    "total": 52
+                  },
+                  "rng": {
+                    "matched": 2062,
+                    "total": 2063
+                  },
+                  "cursors": {
+                    "matched": 52,
+                    "total": 52
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "rng",
+                  "step": 24,
+                  "segment": 0,
+                  "index": 2054,
+                  "cEntry": "rn2(17)=7",
+                  "jsEntry": "rn2(3)=0",
+                  "source": "use_unicorn_horn(apply.c:2272)"
+                }
+              },
+              "summary": "Cursed unicorn horn newly induces sickness using current Constitution. The JavaScript caller reverses acurr’s state/index arguments, changing C’s rn2(17) to rn2(3) while all screens and cursors still match.",
+              "source": {
+                "file": "apply.c",
+                "branch": "use_unicorn_horn cursed case0; Sick & TIMEOUT is zero, so duration consumes rn1(ACURR(A_CON),20) after rn1(90,10) and rn2(13)/2.",
+                "functions": [
+                  "use_unicorn_horn"
+                ],
+                "callers": [
+                  "apply.c:doapply4371 UNICORN_HORN arm -> js/apply.js5023 awaited use_unicorn_horn(obj,state,env), retaining ECMD_TIME."
+                ],
+                "dependencies": [
+                  "Existing pure attrib.c:acurr1200–1244 -> js/attrib.js766–805 reads state.u.acurr/abon/atemp and Constitution artifact override; correct JavaScript signature is acurr(state,chridx). No helper expansion required.",
+                  "Existing potion.c:make_sick effect remains in its canonical owner; preserve duration evaluation before xnameFresh and make_sick without changing this dependency."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Assigned-base targeted replay at 7e9dc2331f6e27bdd628582b8cdd16ad36434bad confirms only RNG disagreement:52/52 screens,52/52 cursors and2062/2063 random calls match; .cache/B184/assigned-base-replay.log (run-OUj8LN). No aggregate replay or new C recording.",
+                "Current one-case scan .cache/B184/current-scan.json (run-rng diagnostic in current-scan.log) locates segment0 step24, key e, RNG index2054: C rn2(17)=7 @ use_unicorn_horn(apply.c:2272); JS rn2(3)=0. No refusal, screen or cursor mismatch.",
+                "Complete C use_unicorn_horn2259–2396 was read. C first draws rn1(90,10), then rn2(13)/2. In cursed case0 with no sickness timeout, it draws rn1(ACURR(A_CON),20); existing sickness instead shortens timeout without this draw. Argument evaluation precedes cause naming and make_sick.",
+                "js/apply.js3382 calls acurr(A_CON,state), whereas js/attrib.js766 exports acurr(state=game,chridx). With reversed arguments, the state parameter is the numeric attribute index and the index parameter is the game object. The helper therefore finds no attribute arrays and clamps zero to3. The correct caller must use acurr(state,A_CON); no C arithmetic/RNG change is needed.",
+                "C attrib.c1200–1244 is pure and corresponds to the existing helper: current+bonus+temporary, Constitution25 when wielding Ogresmasher, otherwise3..25 clamp. All other searched js/apply.js acurr calls pass state first; this is a bounded caller divergence rather than a missing whole use_unicorn_horn or attrib family.",
+                "Independent evidence plan after central implementation assignment: retain this admitted RNG-only witness; choose C-first cursed-horn new-sickness variations with a different relevant role/Constitution, test duration draw order at nontrivial Constitution including bonus/temporary contributions, and pin the existing-sickness no-extra-draw branch. Keep unchanged effect-helper gaps outside this bounded fix."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "61748d768be8dde676d67309b0a15965d6f0931b",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -229610,7 +229778,7 @@
     {
       "id": "port-uhitm-gold-theft-handler-v33-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port shared gold-theft attack handler",
       "cFile": "uhitm.c",
       "sessions": [
@@ -229624,15 +229792,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mhitm_ad_sgld",
           "line": 2790,
           "endLine": 2858,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -229806,7 +229977,129 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_sgld",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_sgld",
+            "sourceReview": "Whole uhitm.c2790–2855 direction branches and shared dispatcher; canonical owners reused, unported void stealgold callee remains named gap. All extracted gold is OBJ_MINVENT, whose canonical extraction branch is synchronous; awaited addinv/dropy and message boundaries preserve C owner order. Monster relocation reuses canonical rloc and planning-aware redraw without altering its RNG. No mhm.done write is invented. After accepted A180/C162, all three active runtime entries now have matching independent recordings. Bounded caller support removes only awake-leprechaun admission and restores monmove.c883–886 gold term before wanderer RNG; no monmove completion credit.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c4800 sole direct call in mhitm_adtyping; damageum5230–5400, mhitu.c hitmu and mhitm.c mdamagem reach the already-awaited canonical dispatcher. No direct caller body changed."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-sgld.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/gold-theft-hero-positive.session.json",
+              "recordings/uhitm.c/gold-theft-hero-hostile-variation.session.json",
+              "recordings/uhitm.c/gold-theft-hero-repeat.session.json",
+              "recordings/uhitm.c/gold-theft-incoming-same-species.session.json",
+              "recordings/uhitm.c/gold-theft-monster-pair.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-leprechaun-hero-gold-steal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 253,
+                "source": "hack.c melee -> uhitm.c:hmonas/damageum -> shared AD_SGLD dispatcher -> mhitm_ad_sgld no-gold hero branch."
+              }
+            ],
+            "checkedAt": "2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a"
+          }
+        ],
+        "entryPointReview": "Sole direct C site is shared mhitm_adtyping AD_SGLD at uhitm.c4800. Production damageum (hero), mhitu.c hitmu (incoming) and mhitm.c mdamagem (monster pair) already await that dispatcher. Admitted v33 and independent gold acquisitions prove hero route; incoming same-mlet C111 preserves damage and reduces poly HP13/14; conflict-driven C100/103/106 transfers gold and C101/104/107 relocates attackers. All three entries match completely. Discarded different-mlet stealgold gap remains explicitly named; no caller, inventory/teleport, or monmove source completion credit.",
+        "entryPoints": [
+          {
+            "name": "hero polymorphed gold-theft attack",
+            "functions": [
+              "mhitm_ad_sgld"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/gold-theft-hero-positive.session.json",
+              "recordings/uhitm.c/gold-theft-hero-hostile-variation.session.json",
+              "recordings/uhitm.c/gold-theft-hero-repeat.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-leprechaun-hero-gold-steal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 253,
+                "source": "hack.c melee -> uhitm.c:hmonas/damageum -> shared AD_SGLD dispatcher -> mhitm_ad_sgld no-gold hero branch."
+              }
+            ]
+          },
+          {
+            "name": "incoming same-mlet gold-theft hit",
+            "functions": [
+              "mhitm_ad_sgld"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/gold-theft-incoming-same-species.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "monster-pair gold theft",
+            "functions": [
+              "mhitm_ad_sgld"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/gold-theft-monster-pair.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-read-genocide-retry-quote-v34-20261009",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore the quoted question mark in genocide retry hints",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v34/v34-genocide-no-such-species"
+      ],
+      "selectionReason": "A187 selected the admitted v34 genocide prompt mismatch at step 54; source review traces both affected retry hints in do_genocide and do_class_genocide.",
+      "detail": "Restore the two source-faithful quoted question-mark literals only; preserve parser, prompt, retry, RNG, and genocide behavior without whole-function credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "do_genocide",
+      "session": "synthetic/v34/v34-genocide-no-such-species",
+      "step": 54,
+      "syntheticProvenance": {
+        "synthetic/v34/v34-genocide-no-such-species": {
+          "session": "synthetic/v34/v34-genocide-no-such-species",
+          "corpus": "synthetic",
+          "batch": "v34",
+          "caseId": "v34-genocide-no-such-species",
+          "manifestPath": "challenges/manifests/v34.json",
+          "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+          "recordingPath": "challenges/cases/v34/v34-genocide-no-such-species.session.json",
+          "recordingSha256": "2889b7946ebfcd8ad2067a88618ab4a538cacfb3bbe8061749248c63a9523d6a",
+          "evaluationPath": "challenges/evaluations/accepted-2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a-v34.json",
+          "evaluationCommit": "2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a"
+        }
+      }
     }
   ]
 }
