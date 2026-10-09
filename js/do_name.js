@@ -69,6 +69,7 @@ import {
     DEAF,
 } from './const.js';
 import { isok } from './cmd_isok.js';
+import { fmt_ptr } from './alloc.js';
 import { set_artifact_intrinsic,
     artifact_exists,
     artifact_name,
@@ -1183,16 +1184,7 @@ export function distant_monnam(
     return result;
 }
 
-function diagnosticPointer(value) {
-    if (value == null) return 'null';
-    if (value.m_id !== undefined) return `[mon#${value.m_id}]`;
-    return '[?]';
-}
-
-// C ref: do_name.c minimal_monnam() (1253-1285). This is a diagnostic helper;
-// source pointer ranges have no direct JavaScript equivalent, so the catalog
-// index and stable object id stand in for fmt_ptr() while preserving every
-// message branch and the long-worm-tail check.
+// C ref: do_name.c minimal_monnam() (1254-1285).
 export function minimal_monnam(monster, ckloc, state = game) {
     nextmbuf();
     const out = (value) => value;
@@ -1201,12 +1193,12 @@ export function minimal_monnam(monster, ckloc, state = game) {
     if (!species) return out('[Null mon->data]');
     const index = species.pmidx;
     if (!Number.isInteger(index) || index < 0) {
-        return out(`[Invalid mon.data ${diagnosticPointer(species)} < ${
-            diagnosticPointer(state.mons?.[0])}]`);
+        return out(`[Invalid mon->data ${fmt_ptr(species)} < ${
+            fmt_ptr(state.mons?.[0])}]`);
     }
     if (index >= NUMMONS) {
-        return out(`[Invalid mon.data ${diagnosticPointer(species)} >= ${
-            diagnosticPointer(state.mons?.[NUMMONS])}]`);
+        return out(`[Invalid mon->data ${fmt_ptr(species)} >= ${
+            fmt_ptr(state.mons?.[NUMMONS] ?? state.mons)}]`);
     }
     if (ckloc && index === PM_LONG_WORM && monster.mx
         && state.level?.monsters?.[monster.mx]?.[monster.my] !== monster) {
