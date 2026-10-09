@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v36/v36-quest-hea-strt",
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-hea-strt",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "c6291e0fc843de105c0aeea46673ec8c992520735fecae0f617aff79d345e61f",
+  "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+  "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+  "remainingScreens": 41,
+  "recordedSteps": 60,
+  "status": "complete",
+  "commit": "004a6da893c5dc420e260eb3ae0e285e85a56874",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-hea-strt",
+    "session": "synthetic/v36/v36-quest-hea-strt",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-hea-strt.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-hea-strt.session.json",
+    "recordingSha256": "c6291e0fc843de105c0aeea46673ec8c992520735fecae0f617aff79d345e61f",
+    "recipe": "challenges/cases/v36/v36-quest-hea-strt.recipe.session.json",
+    "recipeSha256": "75371cfb1a6b57ceaf0ba1da864a0a6425137f7921f691d7d202bf27e89f2574",
+    "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+    "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+    "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+    "evaluationArtifact": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+    "evaluationUtc": "2026-10-09T10:38:34.264Z",
+    "remainingScreens": 41,
+    "recordedSteps": 60,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 60
+      },
+      "rng": {
+        "matched": 2647,
+        "total": 4775
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Hea-strt\"",
+      "step": 19
+    },
+    "step": 19,
+    "kind": "stop",
+    "sourceFile": "Hea-strt.lua",
+    "function": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Hea-strt\"",
+    "cFile": null,
+    "luaFile": "Hea-strt.lua",
+    "line": null
+  },
+  "goalKind": "lua-port",
+  "summary": "Hea-strt has no registered loader, so Healer quest start arrival stops before the source Lua program. Port the whole program through existing quest descriptors, including the Hippocrates inventory callback and branch arrival region.",
+  "source": {
+    "file": "Hea-strt.lua",
+    "branch": "Healer quest start generation or registered wizard des-file load of Hea-strt.",
+    "functions": [
+      "Hea-strt.lua"
+    ],
+    "callers": [
+      "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Hea-strt.lua",
+      "wizcmds.c:wiz_load_splua -> load_special -> registered Hea-strt Lua program"
+    ],
+    "dependencies": [
+      "Existing des map/replace_terrain/region/stair/levregion/altar/door/monster/object/trap/nondiggable owners; pending C169 ancestry retained explicitly."
+    ]
+  },
+  "evidence": [
+    "Admitted evaluation challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json at ac836655676993fda791c76b619905969c841859 records missing Hea-strt loader at segment 0 step 19, with 41 remaining of 60 screens. Corpus digest 58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c; recording digest c6291e0fc843de105c0aeea46673ec8c992520735fecae0f617aff79d345e61f.",
+    "Read whole dat/Hea-strt.lua 1-109, SHA256 d78fbdb7b62e0a22e8068f63e18586e17c40a95cfe9866d7c45b231facb1e5bb: stone solidfill, mazelevel/noteleport/hardfloor, exact 76×20 pool/building map, 10 percent P-to-floor replacement in region 1,1..74,18, lit full map, down stair 37,9, fixed branch arrival 4,12, neutral altar 32,9, twelve locked/closed doors, Hippocrates at 37,10 with custom silver dagger spe5, chest and eight attendants, nondiggable whole map, six traps, ten rabid rats, giant eel/shark/class semicolon, five hostile D and five hostile S class monsters. No explicit wallify statement.",
+    "js/mklev.js already incorporates QUEST_LEVEL_LOADERS, but Hea-strt key is absent. Whole heaStrt plus import/key in established quest_levels owner and deterministic fixed map/door/attendant data are independently assignable from B195 Hea-loca and A191 Cav-strt. No generic descriptor change or whole support-owner credit is planned.",
+    "Audited sp_lev.c:lspo_replace_terrain 5051ff x-major/y-minor matching-cell rn2(100) and existing JS owner; lspo_levregion 5472ff branch type and fixed rectangle; lspo_altar 4283ff neutral ordinary altar; lspo_monster 3214ff CUSTOM_INVENT with callback after create_monster. Existing JS awaits promise-returning creation and inventory before spo_end_moninvent clears the carrier. Source strings retain existing name/gender RNG resolution.",
+    "Plan independent C-first human/gnome Healer inputs with different sex and explicit/extensionless names; runtime checks must confirm Hippocrates custom dagger, attendants, flags and neutral altar. Admitted forced quest start arrival covers makelevel; independent #wizloaddes cases cover the other production load route. Report any source-required shared support defect before expanding ownership."
+  ]
+}
