@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first neutral-human blessed-water entry after food-derived wererat infection: potion.c:peffect_water calls you_unwere(true). New seed and fixed clock precede comparison.",
+  "segments": [
+    {
+      "seed": 81773001,
+      "datetime": "20890317113000",
+      "nethackrc": "OPTIONS=name:unwere-water-purify,role:Wizard,race:human,gender:female,align:neutral,pauper,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!debug_mongen,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017blessed tin opener\n\u0017blessed homemade tin of human wererat meat\nwa eb y \u0017blessed potion of water\nqc  .."
+    }
+  ]
+}

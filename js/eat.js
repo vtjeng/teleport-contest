@@ -170,7 +170,7 @@ import {
     INVLET_BASIC, addinv_nomerge, carrying, feel_cockatrice, freeinv, getobj, hands_obj, obj_extract_self, obj_here, stackobj, useup, useupall, useupf, will_feel_cockatrice, } from './invent.js';
 import { dropx, dropy, heal_legs, trycall } from './do.js';
 import { makeplural } from './fruit.js';
-import { set_ulycn, were_beastie } from './were.js';
+import { set_ulycn, were_beastie, you_unwere } from './were.js';
 import { staleEgg } from './dogfood.js';
 import {
     iter_mons_safe, mon_offmap, mondied, monstone, pm_to_cham, rescham,
@@ -3074,8 +3074,7 @@ async function eatcorpse(otmp, state, env = {}) {
 }
 
 // C ref: eat.c fpostfx() (2510-2595), the effects that follow a finished
-// non-corpse meal. The source-discarded were.c you_unwere() call remains an
-// explicit gap; its return is void and no result is used here.
+// non-corpse meal. Wolfsbane uses canonical lycanthropy purification.
 async function fpostfx(otmp, state, env = {}) {
     const random = { rn1, rn2, rnd, ...(env.random ?? {}) };
     const effectEnv = { ...env, random };
@@ -3083,7 +3082,7 @@ async function fpostfx(otmp, state, env = {}) {
     switch (otmp.otyp) {
     case SPRIG_OF_WOLFSBANE:
         if (ismnum(state.u.ulycn) || is_were(state.youmonst.data))
-            note_unported('were.c you_unwere');
+            await you_unwere(true, state, effectEnv);
         break;
     case CARROT:
         if (!state.u.uswallow
