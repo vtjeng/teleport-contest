@@ -232290,25 +232290,32 @@
     {
       "id": "port-hea-loca-lua-v36-20261009",
       "kind": "lua-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port the complete Healer quest locate level and register its loader.",
       "luaFile": "Hea-loca.lua",
       "sessions": [
         "synthetic/v36/v36-quest-hea-loca"
       ],
-      "selectionReason": "The completed v36 investigation traces the first mismatch to the absent Hea-loca loader.",
+      "selectionReason": "B195 selected the independent v36 Healer quest locate mismatch and delivered the complete Lua program.",
       "detail": "Port all top-level Hea-loca.lua statements, generate its fixed map from source, and wire only the source-named quest loader.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+      "openStanding": {
+        "sha": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Hea-loca.lua",
           "line": 1,
           "endLine": 97,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -232324,6 +232331,86 @@
           "evaluationPath": "challenges/evaluations/accepted-004a6da893c5dc420e260eb3ae0e285e85a56874-v36.json",
           "evaluationCommit": "004a6da893c5dc420e260eb3ae0e285e85a56874"
         }
+      },
+      "activeStanding": {
+        "sha": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Hea-loca.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "heaLoca",
+            "sourceReview": "Read all dat/Hea-loca.lua1-97: solidfill space, mazelevel/hardfloor flags, smoothed joined lit mines . over P, generated 10x31 map, lit region0/0..30/9, filled temple12/3..20/6, two closed doors9/4 and9/5, two locked secret doors11/3 and11/6, up stair4/4, down stair20/6, non-diggable selection11/2..21/7, chaotic shrine13/5,15 random objects,6 random traps,8 rabid rats, hostile r,5 giant eels,2 electric eels,kraken,2 sharks,2 hostile ;,5 hostile D,9 hostile S. Every descriptor is awaited in source order. Preserve source names/class letters for canonical name-resolution gender RNG. Read supporting existing level_init/splev_initlev/mkmap/map/region/door/stair/non_diggable/create_altar/priestini helpers and production load_special dispatch; their consumed branches are exercised by two completely exact independent recordings, not newly credited as whole C functions. No new substitute, injected operation, gap or swallowed refusal introduced; register the formerly missing Hea-loca loader.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "dat/Hea-loca.lua whole program selected by sp_lev.c:load_special6454; new Hea-loca key points to heaLoca. Existing js/mklev.js:ensureSpecialLevelLoaders imports registry and load_special awaits loader plus finish."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "mklev.c:makelevel1266-1271 -> mkmaze.c:makemaz1184-1193 -> sp_lev.c:load_special6454-6503; existing dispatch now admits registered Hea-loca without a new C helper claim."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hea-loca-level-generation.test.mjs",
+              "scripts/hea-goal-level-generation.test.mjs",
+              "scripts/special-level.test.mjs",
+              "scripts/sp-lev-reset-finalize-level.test.mjs",
+              "scripts/wizard1-level-generation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Hea-loca.lua/hea-loca-human-independent.session.json",
+              "recordings/Hea-loca.lua/hea-loca-gnome-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-hea-loca",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "teleport.c:level_tele -> do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Hea-loca.lua plus finalization; subsequent #wizmap displays complete source terrain."
+              }
+            ],
+            "checkedAt": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd"
+          }
+        ],
+        "entryPointReview": "One Lua level-generation entry through makelevel/makemaz/load_special. Independent human male and gnome female neutral Healers enter using typed #wizlevelport and direct Ctrl-V; both execute every descriptor, finalization, arrival and #wizmap. Live checks establish mazelevel/hardfloor/lit pools, two stairs, temple membership, chaotic shrine priest identity/alignment/location, doors, non-diggable walls, six traps and monster populations. Both complete recordings match all RNG/screens/cursors/animation frames. Source has no conditional top-level arm. Earned quest eligibility remains outside this program. Adjacent Hea-strt remains C170-owned and unregistered in this worker; retain only its outside-limit blocked recipe.",
+        "entryPoints": [
+          {
+            "name": "Healer quest goal first generation and mapped terrain through normal special-level dispatch",
+            "functions": [
+              "Hea-loca.lua"
+            ],
+            "recordings": [
+              "recordings/Hea-loca.lua/hea-loca-human-independent.session.json",
+              "recordings/Hea-loca.lua/hea-loca-gnome-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-hea-loca",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "teleport.c:level_tele -> do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Hea-loca.lua plus finalization; subsequent #wizmap displays complete source terrain."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -234631,6 +234718,119 @@
         "sha": "025a63365add2839073372ffca68abfb01dd6729",
         "screens": 11405,
         "rng": 792838
+      }
+    },
+    {
+      "id": "fix-display-newsym-suppression-v37-20261009",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Suppress newsym map-memory writes during replacement-level generation.",
+      "cFile": "display.c",
+      "sessions": [],
+      "selectionReason": "C179 traced the final v37 replacement-map screen mismatch to display.c newsym missing the source map-output suppression guard; existing suppressMapOutput provides the exact four-state predicate.",
+      "detail": "Add the source guard before location lookup and memory/output changes, preserve ordinary redraw behavior, and validate the admitted case plus independent replacement-map variations.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "newsym",
+      "session": "synthetic/v37/v37-wizmap-after-monster-reset",
+      "step": 30,
+      "syntheticProvenance": {
+        "synthetic/v37/v37-wizmap-after-monster-reset": {
+          "session": "synthetic/v37/v37-wizmap-after-monster-reset",
+          "corpus": "synthetic",
+          "batch": "v37",
+          "caseId": "v37-wizmap-after-monster-reset",
+          "manifestPath": "challenges/manifests/v37.json",
+          "manifestSha256": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202",
+          "recordingPath": "challenges/cases/v37/v37-wizmap-after-monster-reset.session.json",
+          "recordingSha256": "808f8b14507f9a00081fa5e5ffaa8bec61fb269a86141aeb8c7131f1eae15023",
+          "evaluationPath": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v37.json",
+          "evaluationCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd"
+        }
+      }
+    },
+    {
+      "id": "port-medusa-4-lua-v37-20261009",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Complete and verify the Medusa-4 special level, including its final moat row.",
+      "luaFile": "medusa-4.lua",
+      "sessions": [
+        "synthetic/v37/v37-medusa"
+      ],
+      "selectionReason": "A197 traced the v37 Medusa mismatch through sp_lev.c get_location to an incomplete medusa-4.lua caller payload: the JavaScript loader omits the source program final moat row. Complete whole-program review avoids the blocked partial-Lua divergence path.",
+      "detail": "Port and verify all top-level medusa-4.lua statements and production callers, restore the 21st 76-column moat row, generate fixed tables from source, and validate the admitted case plus independent direct loading.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "medusa-4.lua",
+          "line": 1,
+          "endLine": 152,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v37/v37-medusa": {
+          "session": "synthetic/v37/v37-medusa",
+          "corpus": "synthetic",
+          "batch": "v37",
+          "caseId": "v37-medusa",
+          "manifestPath": "challenges/manifests/v37.json",
+          "manifestSha256": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202",
+          "recordingPath": "challenges/cases/v37/v37-medusa.session.json",
+          "recordingSha256": "909484fcdd1aa2c61ba170fd11d3e82efe43ca2479e9ec94a1847c07d7d5b7f9",
+          "evaluationPath": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v37.json",
+          "evaluationCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd"
+        }
+      }
+    },
+    {
+      "id": "port-wizcmds-wiz-show-nhuuid-v34-20261009",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the wizard game UUID display command and canonical saved UUID state.",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v34/v34-game-uuid"
+      ],
+      "selectionReason": "B186 refreshed the complete v34 UUID investigation after B185 was accepted; wizcmds.c wiz_show_nhuuid is now dependency-ready and has no overlapping live reservation.",
+      "detail": "Port whole wiz_show_nhuuid, wire its typed and rebound command dispatch, and add the one canonical svn.nhuuid reset/save/restore field used by the source command. The recorder build leaves generation empty; preserve arbitrary stored values without inventing native UUID behavior.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_show_nhuuid",
+          "line": 1782,
+          "endLine": 1789,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1782,
+        "to": 1789
+      },
+      "syntheticProvenance": {
+        "synthetic/v34/v34-game-uuid": {
+          "session": "synthetic/v34/v34-game-uuid",
+          "corpus": "synthetic",
+          "batch": "v34",
+          "caseId": "v34-game-uuid",
+          "manifestPath": "challenges/manifests/v34.json",
+          "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+          "recordingPath": "challenges/cases/v34/v34-game-uuid.session.json",
+          "recordingSha256": "a3502cee25b5e748a333a0b3b750ed2cdc98e1ddfbad71440b4b1642bf2dff7a",
+          "evaluationPath": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v34.json",
+          "evaluationCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd"
+        }
       }
     }
   ]

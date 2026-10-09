@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B195 outside-limit probe: dat/Hea-strt.lua is a distinct quest start program, currently C170-owned and missing from this worker registry. No Hea-strt completion credit; preserve only this blocked recipe, not a failing recording.",
+  "segments": [
+    {
+      "seed": 19561119,
+      "datetime": "20471118113527",
+      "nethackrc": "OPTIONS=name:HeaLocahuman,role:Healer,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "    .#wizlevelport\n?\n>y    "
+    }
+  ]
+}

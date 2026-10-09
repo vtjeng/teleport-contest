@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B195 C-first human Healer locate-level arrival. Seed, fixed clock, character options and command route chosen before JS comparison. Source dat/Hea-loca.lua generates a smoothed joined-mines pool background plus temple island, four closed/locked doors, two stairs and chaotic shrine/priest before15 objects,6 traps and35 monsters. Map observation verifies terrain. human variation changes startup and generation RNG; no admitted challenge copied.",
+  "segments": [
+    {
+      "seed": 19561113,
+      "datetime": "20471116113527",
+      "nethackrc": "OPTIONS=name:HeaLocahuman,role:Healer,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizlevelport\n?\n>z    #wizmap\n    "
+    }
+  ]
+}
