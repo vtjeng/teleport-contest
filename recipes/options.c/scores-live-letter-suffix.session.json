@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first options.c optfn_scores live-letter-suffix witness. Seed 15641029, weekday clock20560120101433, Tourist and input were selected from the source token/reset branches before comparison. After setting, reopen the full menu and inspect scores 2 top/5 around/own; Escape ends each menu.",
+  "segments": [
+    {
+      "seed": 15641029,
+      "datetime": "20560120101433",
+      "nethackrc": "OPTIONS=name:Holt,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#optionsfull\n:scores\n\n2top@/5abracadabra/ocelot\n#optionsfull\n:scores\n\u001b\u001b."
+    }
+  ]
+}

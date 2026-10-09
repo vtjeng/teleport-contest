@@ -4595,65 +4595,90 @@ function setRunmode(result, value, negated) {
     result.flags.runmode = match[1];
 }
 
-// C ref: options.c optfn_scores() (3669-3760), its complete do_set arm.
-// string_for_opt(opts, FALSE) makes the value mandatory and leaves all three
-// fields alone when it is absent. Every entered handler resets the fields,
-// then walks its tokens left to right. A token accepts one optional inner
-// negation, a decimal count that defaults to 1, and any alphabetic suffix
-// after the significant t, a, o, or n initial.
-function optfn_scores(result, statement) {
-    const op = string_for_opt(statement, false, result);
-    if (op === '') return;
-
-    result.flags.end_top = 0;
-    result.flags.end_around = 0;
-    result.flags.end_own = false;
-
-    let index = 0;
-    while (index < op.length) {
-        let inum = 1;
-        const negated = op[index] === '!'
-            || equal_ncasechars(op.slice(index), 'no', 2);
-        if (negated) {
-            index += op[index] === '!'
-                ? 1 : (op[index + 2] !== '-' ? 2 : 3);
+// C ref: options.c optfn_scores() (3669-3760), all requests.
+// The source writes get_val/get_cnf_val into opts; returning the string is
+// the existing optionValue() adapter's equivalent. Startup and live setters
+// share this owner and preserve writes preceding a parse error.
+export function optfn_scores(result, optidx, req, negated, opts, op) {
+    if (req === DO_INIT) return optn_ok;
+    if (req === DO_SET) {
+        const reportError = message => {
+            if (result.go?.opt_initial === false) {
+                // cfgfiles.c:1554-1562 has a live pline()/wait_synch() arm.
+                // Its result is discarded; the existing frame-only owner
+                // cannot supply that output, so preserve the named gap.
+                note_unported('cfgfiles.c config_erradd');
+            } else {
+                configErrorAdd(result, message);
+            }
+        };
+        // string_for_opt(opts,FALSE) reports a missing value through the same
+        // discarded diagnostic owner. Read its value with TRUE and route that
+        // diagnostic here so a live call does not mutate a startup frame.
+        op = string_for_opt(opts, true);
+        if (op === '') {
+            reportError(`Missing parameter for '${opts}'`);
+            return optn_err;
         }
-
-        if (/^[0-9]$/u.test(op[index] ?? '')) {
-            inum = atoi(op.slice(index));
-            while (/^[0-9]$/u.test(op[index] ?? '')) ++index;
+        result.flags.end_top = 0;
+        result.flags.end_around = 0;
+        result.flags.end_own = false;
+        let index = negated ? op.length : 0;
+        while (index < op.length) {
+            let inum = 1;
+            negated = op[index] === '!'
+                || equal_ncasechars(op.slice(index), 'no', 2);
+            if (negated) {
+                index += op[index] === '!'
+                    ? 1 : (op[index + 2] !== '-' ? 2 : 3);
+            }
+            if (/^[0-9]$/u.test(op[index] ?? '')) {
+                inum = atoi(op.slice(index));
+                while (/^[0-9]$/u.test(op[index] ?? '')) ++index;
+            }
+            while (op[index] === ' ') ++index;
+            const initial = lowc(op[index] ?? '');
+            if (initial === 't') {
+                result.flags.end_top = negated ? 0 : inum;
+            } else if (initial === 'a') {
+                result.flags.end_around = negated ? 0 : inum;
+            } else if (initial === 'o') {
+                result.flags.end_own = !(negated || inum === 0);
+            } else if (initial === 'n') {
+                result.flags.end_top = 0;
+                result.flags.end_around = 0;
+                result.flags.end_own = false;
+            } else if (initial === '-'
+                       && /^[0-9]$/u.test(op[index + 1] ?? '')) {
+                reportError(
+                    `Values for ${allopt[optidx].name}:top and`
+                    + ` ${allopt[optidx].name}:around must not be negative`,
+                );
+                return optn_silenterr;
+            } else {
+                reportError(`Unknown ${allopt[optidx].name} parameter '${op.slice(index)}'`);
+                return optn_silenterr;
+            }
+            while (letter(op[index] ?? '')) ++index;
+            while (op[index] === ' ') ++index;
+            if (op[index] === '/') ++index;
         }
-        while (op[index] === ' ') ++index;
-
-        const initial = lowc(op[index] ?? '');
-        if (initial === 't') {
-            result.flags.end_top = negated ? 0 : inum;
-        } else if (initial === 'a') {
-            result.flags.end_around = negated ? 0 : inum;
-        } else if (initial === 'o') {
-            result.flags.end_own = !(negated || inum === 0);
-        } else if (initial === 'n') {
-            result.flags.end_top = 0;
-            result.flags.end_around = 0;
-            result.flags.end_own = false;
-        } else if (initial === '-'
-                   && /^[0-9]$/u.test(op[index + 1] ?? '')) {
-            configErrorAdd(
-                result,
-                'Values for scores:top and scores:around must not be negative',
-            );
-            return;
-        } else {
-            configErrorAdd(
-                result, `Unknown scores parameter '${op.slice(index)}'`,
-            );
-            return;
-        }
-
-        while (letter(op[index] ?? '')) ++index;
-        while (op[index] === ' ') ++index;
-        if (op[index] === '/') ++index;
+        return optn_ok;
     }
+    if (req === GET_VAL || req === GET_CNF_VAL) {
+        opts = '';
+        if (result.flags.end_top > 0) opts = `${result.flags.end_top} top`;
+        if (result.flags.end_around > 0) {
+            opts += `${result.flags.end_top > 0 ? '/' : ''}`
+                + `${result.flags.end_around} around`;
+        }
+        if (result.flags.end_own) {
+            opts += `${(result.flags.end_top > 0
+                || result.flags.end_around > 0) ? '/' : ''}own`;
+        }
+        return opts || 'none';
+    }
+    return optn_ok;
 }
 
 // C ref: options.c optfn_scroll_amount() and optfn_scroll_margin()
@@ -6324,7 +6349,10 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
     } else if (name === 'runmode') {
         setRunmode(result, value, negated);
     } else if (name === 'scores') {
-        optfn_scores(result, statement);
+        optfn_scores(
+            result, allopt.indexOf(matchedRow), DO_SET, negated,
+            statement, undefined,
+        );
     } else if (name === 'scroll_amount') {
         optfn_scroll_amount(result, statement, negated);
     } else if (name === 'scroll_margin') {
@@ -7642,19 +7670,9 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
     pile_limit: (state) => `${state.flags.pile_limit}`,
     roguesymset: (state) => symsetValue(state, ROGUESET, false),
     runmode: (state) => runmodes[state.flags.runmode],
-    scores: (state) => {
-        let opts = '';
-        if (state.flags.end_top > 0) opts = `${state.flags.end_top} top`;
-        if (state.flags.end_around > 0) {
-            opts += `${state.flags.end_top > 0 ? '/' : ''}`
-                + `${state.flags.end_around} around`;
-        }
-        if (state.flags.end_own) {
-            opts += `${(state.flags.end_top > 0
-                || state.flags.end_around > 0) ? '/' : ''}own`;
-        }
-        return opts || 'none';
-    },
+    scores: (state, option) => optfn_scores(
+        state, allopt.indexOf(option), GET_VAL, false, '', '',
+    ),
     scroll_amount: (state) => (state.iflags.wc_scroll_amount
         ? `${state.iflags.wc_scroll_amount}` : 'default'),
     scroll_margin: (state) => (state.iflags.wc_scroll_margin
@@ -8463,6 +8481,9 @@ const OPTION_SET_HANDLERS = Object.freeze({
     ),
     palette: (state, optidx, negated, opts) => optfn_palette(
         state, optidx, DO_SET, negated, opts,
+    ),
+    scores: (state, optidx, negated, opts) => optfn_scores(
+        state, optidx, DO_SET, negated, opts, undefined,
     ),
     pickup_types: (state, optidx, negated, opts, helpers) => optfn_pickup_types(
         state, DO_SET, negated, opts, optidx, helpers,

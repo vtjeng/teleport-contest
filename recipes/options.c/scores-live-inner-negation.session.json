@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first options.c optfn_scores live-inner-negation witness. Seed 15641021, weekday clock20560120101433, Barbarian and input were selected from the source token/reset branches before comparison. After setting, reopen the full menu and inspect scores none; Escape ends each menu.",
+  "segments": [
+    {
+      "seed": 15641021,
+      "datetime": "20560120101433",
+      "nethackrc": "OPTIONS=name:Holt,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#optionsfull\n:scores\n\n7top/4around/own no-top !around/0own\n#optionsfull\n:scores\n\u001b\u001b."
+    }
+  ]
+}

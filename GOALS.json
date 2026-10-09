@@ -222660,7 +222660,7 @@
     {
       "id": "port-options-pickup-types-whole-v32-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete the pickup-types option request handler",
       "cFile": "options.c",
       "sessions": [
@@ -222696,7 +222696,7 @@
           "endLine": 6123,
           "declared": true,
           "sourceFile": "options.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -222904,6 +222904,700 @@
                   "4f44a54aa3bff3ccd1d4252387a5e069b3d66a6b"
                 ]
               }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "handler_pickup_types",
+            "implementation": "js/options.js",
+            "symbol": "handler_pickup_types",
+            "sourceReview": "Read whole options.c:6114-6121 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Await the production parseoptions(\"pickup_types\",FALSE,FALSE) caller before returning optn_ok1, exactly source order. C discards parseoptions result; no whole parseoptions or doset credit. No RNG or output is added by the wrapper; the called option request provides the recorded output.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "optfn_pickup_types",
+                "source": "options.c:3398 do_handler returns handler_pickup_types; OPTION_HANDLERS routes the C allopt callback from doset full and simple menu pick loops."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/options-pickup-types.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/pickup-types-traditional-full.session.json",
+              "recordings/options.c/pickup-types-traditional-simple-restore.session.json",
+              "recordings/options.c/pickup-types-combination-menu.session.json",
+              "recordings/options.c/pickup-types-wizard-class-menu.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-options-pickup-traditional",
+                "segment": 0,
+                "fromStep": 29,
+                "throughStep": 45,
+                "source": "cmd.c:doextcmd optionsfull -> options.c:doset -> optfn_pickup_types do_handler -> handler_pickup_types6114-6121 -> parseoptions -> optfn_pickup_types do_set3308-3402 traditional getlin/class parsing, then full menu value redraw."
+              }
+            ],
+            "checkedAt": "1284e60b42ebde4775c7978300ed09913f893ebc"
+          }
+        ],
+        "entryPointReview": "All request sites inspected: allopt_array_init7428 DO_INIT (source no-op, defaultResult adapter and pinned result), startup parseoptions DO_SET (canonical applyOption adapter), full/simple option menus GET_VAL plus DO_HANDLER -> handler -> runtime parseoptions DO_SET (traditional, combination fallback, ordinary full, wizard full entries recorded). Runtime explicit DO_SET is result-pinned and existing focused parser tests. get_option_value(cnfvalid TRUE) GET_CNF_VAL is active through #saveoptions persistence, blocked and withheld from completion; it is not compile-time inactive. No separate registry/injected operation remains for pickup_types. Compatibility pickup<=6, initial empty/negated, explicit classes and a/A are source-pinned; invalid runtime output gaps are named, not fabricated.",
+        "entryPoints": [
+          {
+            "name": "Startup initialization and explicit pickup_types config",
+            "functions": [
+              "optfn_pickup_types"
+            ],
+            "recordings": [
+              "recordings/options.c/pickup-types-traditional-full.session.json",
+              "recordings/options.c/pickup-types-traditional-simple-restore.session.json",
+              "recordings/options.c/pickup-types-combination-menu.session.json",
+              "recordings/options.c/pickup-types-wizard-class-menu.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Typed full-options traditional pickup input and value redraw",
+            "functions": [
+              "optfn_pickup_types",
+              "handler_pickup_types"
+            ],
+            "recordings": [
+              "recordings/options.c/pickup-types-traditional-full.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-options-pickup-traditional",
+                "segment": 0,
+                "fromStep": 29,
+                "throughStep": 45,
+                "source": "cmd.c:doextcmd optionsfull -> options.c:doset -> optfn_pickup_types do_handler -> handler_pickup_types6114-6121 -> parseoptions -> optfn_pickup_types do_set3308-3402 traditional getlin/class parsing, then full menu value redraw."
+              }
+            ]
+          },
+          {
+            "name": "Ordinary O simple-options empty, spaces, class and Escape responses",
+            "functions": [
+              "optfn_pickup_types",
+              "handler_pickup_types"
+            ],
+            "recordings": [
+              "recordings/options.c/pickup-types-traditional-simple-restore.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Combination getlin m fallback to canonical class menu",
+            "functions": [
+              "optfn_pickup_types",
+              "handler_pickup_types"
+            ],
+            "recordings": [
+              "recordings/options.c/pickup-types-combination-menu.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Wizard class-menu venom admission and Escape restore",
+            "functions": [
+              "optfn_pickup_types",
+              "handler_pickup_types"
+            ],
+            "recordings": [
+              "recordings/options.c/pickup-types-wizard-class-menu.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Save configuration GET_CNF_VAL writer",
+            "functions": [
+              "optfn_pickup_types"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "1284e60b42ebde4775c7978300ed09913f893ebc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "handler_pickup_types is verified and the live pickup request behavior matches; optfn_pickup_types remains incomplete until cmd.c saveoptions and cfgfiles.c do_write_config_file reach its active GET_CNF_VAL caller, with runtime config_erradd output retained as a named discarded-return gap."
+    },
+    {
+      "id": "port-options-score-request-family-v32-20261009",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete the scores option request owner and existing callers",
+      "cFile": "options.c",
+      "sessions": [
+        "synthetic/v32/v32-options-scores"
+      ],
+      "selectionReason": "Dependency-ready after B179 acceptance; accepted v32 evidence reaches options.c optfn_scores at step 42 with 16 screens remaining, and C156 completes the canonical request owner.",
+      "detail": "Port whole options.c optfn_scores and consolidate startup, live setter, and value formatter callers. Preserve source reset, negation, token, signed-integer, separator, partial-write, return-status, and getter order; retain live config_erradd and native saveoptions file-writing frontiers without broader source credit.",
+      "openedAt": "fde75baae63c2fa1829beca96d064ab2dd10dc67",
+      "openStanding": {
+        "sha": "1284e60b42ebde4775c7978300ed09913f893ebc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "547456073ec6543fcaa52d181ccfeaafcc5a2718",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "optfn_scores",
+          "line": 3669,
+          "endLine": 3762,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3669,
+        "to": 3762
+      },
+      "syntheticProvenance": {
+        "synthetic/v32/v32-options-scores": {
+          "session": "synthetic/v32/v32-options-scores",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-options-scores",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-options-scores.session.json",
+          "recordingSha256": "74df6d4914cfa6607b788f00ef45a91d6303344e402987ca1d6a4f9cdcaae697",
+          "evaluationPath": "challenges/evaluations/accepted-1284e60b42ebde4775c7978300ed09913f893ebc-v32.json",
+          "evaluationCommit": "1284e60b42ebde4775c7978300ed09913f893ebc"
+        }
+      },
+      "activeStanding": {
+        "sha": "1284e60b42ebde4775c7978300ed09913f893ebc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-options-scores",
+          "session": "synthetic/v32/v32-options-scores",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recording": "challenges/cases/v32/v32-options-scores.session.json",
+          "recordingPath": "challenges/cases/v32/v32-options-scores.session.json",
+          "recordingSha256": "74df6d4914cfa6607b788f00ef45a91d6303344e402987ca1d6a4f9cdcaae697",
+          "recipe": "challenges/cases/v32/v32-options-scores.recipe.session.json",
+          "recipeSha256": "912513756dc131d0616f127a3aa035722f8398cfdce4fdcd063f42a6e0bcb428",
+          "replayInputSha256": "50f12a4d50ee2b0b7eefc6e242c67adb61b4cf4d4c14a76ff7f4f92fd096860d",
+          "evaluationPath": "challenges/evaluations/accepted-1284e60b42ebde4775c7978300ed09913f893ebc-v32.json",
+          "evaluationCommit": "1284e60b42ebde4775c7978300ed09913f893ebc",
+          "evaluationArtifact": "challenges/evaluations/accepted-1284e60b42ebde4775c7978300ed09913f893ebc-v32.json",
+          "evaluationUtc": "2026-10-09T01:33:49.752Z",
+          "remainingScreens": 16,
+          "recordedSteps": 58,
+          "previousScreensMatched": 42,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 42,
+              "total": 58
+            },
+            "rng": {
+              "matched": 2990,
+              "total": 2990
+            },
+            "cursors": {
+              "matched": 42,
+              "total": 58
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: the options menu requires optfn_scores()'s do_set request",
+            "step": 42
+          },
+          "step": 42,
+          "kind": "stop",
+          "sourceFile": "options.c",
+          "function": "optfn_scores",
+          "message": "unsupported hero command: an unported branch of this command: the options menu requires optfn_scores()'s do_set request",
+          "cFile": "options.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v32/v32-options-scores.json",
+            "result": {
+              "session": "synthetic/v32/v32-options-scores",
+              "corpus": "synthetic",
+              "batch": "v32",
+              "caseId": "v32-options-scores",
+              "manifestPath": "challenges/manifests/v32.json",
+              "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+              "recordingSha256": "74df6d4914cfa6607b788f00ef45a91d6303344e402987ca1d6a4f9cdcaae697",
+              "evaluationPath": "challenges/evaluations/accepted-4e29cc141937e87b623f827cf27d4c229d5e290a-v32.json",
+              "evaluationCommit": "4e29cc141937e87b623f827cf27d4c229d5e290a",
+              "remainingScreens": 16,
+              "recordedSteps": 58,
+              "status": "complete",
+              "commit": "6313682a28da199d50f22654046f75c003fa8a1b",
+              "mismatch": {
+                "session": "synthetic/v32/v32-options-scores",
+                "corpus": "synthetic",
+                "batch": "v32",
+                "caseId": "v32-options-scores",
+                "manifestPath": "challenges/manifests/v32.json",
+                "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+                "recordingPath": "challenges/cases/v32/v32-options-scores.session.json",
+                "recordingSha256": "74df6d4914cfa6607b788f00ef45a91d6303344e402987ca1d6a4f9cdcaae697",
+                "recipeSha256": "912513756dc131d0616f127a3aa035722f8398cfdce4fdcd063f42a6e0bcb428",
+                "evaluationPath": "challenges/evaluations/accepted-4e29cc141937e87b623f827cf27d4c229d5e290a-v32.json",
+                "evaluationCommit": "4e29cc141937e87b623f827cf27d4c229d5e290a",
+                "metrics": {
+                  "screens": {
+                    "matched": 42,
+                    "total": 58
+                  },
+                  "rng": {
+                    "matched": 2990,
+                    "total": 2990
+                  },
+                  "cursors": {
+                    "matched": 42,
+                    "total": 58
+                  }
+                },
+                "remainingScreens": 16,
+                "recordedSteps": 58,
+                "firstMismatch": {
+                  "step": 42,
+                  "kind": "behavioral-refusal",
+                  "message": "optfn_scores() do_set request is not admitted"
+                },
+                "step": 42,
+                "kind": "behavioral-refusal",
+                "evaluationUtc": "2026-10-09T00:52:25.882Z"
+              },
+              "summary": "Accepted full-options dispatch now reaches scores at step 42. The live request table omits optfn_scores do_set, while startup parsing and get_val are split partial implementations. Complete the whole scores request owner and its existing startup/live/value callers.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "options.c",
+                "functions": [
+                  "optfn_scores"
+                ],
+                "branch": "After selecting scores in #optionsfull and entering a valid value, doset calls parseoptions(scores:value,FALSE,FALSE), which dispatches optfn_scores do_set. The JS OPTION_SET_HANDLERS table omits scores and refuses before the three score flags change.",
+                "callers": [
+                  "options.c:parseoptions638–647 invokes allopt[].optfn do_set for configuration and in-game updates; JS parseNethackrc startup branch6324 and live OPTION_SET_HANDLERS8437 need one canonical scores handler.",
+                  "options.c:doset_add_menu9037 requests get_val; JS OPTION_VALUE_HANDLERS.scores7664 duplicates the formatter and must call the same source owner.",
+                  "options.c:initoptions_init7428 requests do_init; scores returns success with no state changes. options.c:get_option_value8481–8505 requests get_cnf_val/get_val through allopt. The config getter shares the menu formatter; broader native #saveoptions all_options_strbuf9678 serialization is stopped by existing cfgfiles.c fopen gap and receives no caller/owner credit."
+                ],
+                "dependencies": [
+                  "Existing string_for_opt/hacklib helpers provide consumed token values; preserve signed atoi narrowing, source letter classification and left-to-right partial writes.",
+                  "cfgfiles.c:config_erradd1554–1562 live diagnostic output is unported and its result is discarded. Retain a named note_unported gap for live missing/invalid scores diagnostics, preserve state and source return paths, and retain a blocked independent runtime variation. Do not expand into configuration-error owner completion.",
+                  "Keep B178 doset/doset_simple_menu and B179 pickup/B180 status-hilite owners read-only. C155 is an immutable ancestor dependency unrelated to scores behavior.",
+                  "Native #saveoptions serialization through get_option_value/all_options_strbuf remains outside this owner task, stopped by the existing cfgfiles.c fopen gap in JS do_write_config_file. Keep this broader caller boundary explicit and take no configuration-writing credit."
+                ]
+              },
+              "evidence": [
+                "Authoritative accepted evaluation challenges/evaluations/accepted-4e29cc141937e87b623f827cf27d4c229d5e290a-v32.json at 4e29cc141937e87b623f827cf27d4c229d5e290a records42/58 screens,2990/2990 RNG,42/58 cursors:16 remaining. Corpus, recording and recipe hashes are unchanged.",
+                ".cache/C156-B173-boundary-replay.log at worker6313682a28da199d50f22654046f75c003fa8a1b has divergence null and stops at step42 after input .#optionsfull\\n:scores\\n\\n5 top/2 around/own\\n; refused source request is optfn_scores do_set, beyond resolved B173 dispatch.",
+                "Read complete options.c:optfn_scores3669–3760: do_init/default return optn_ok; mandatory value is checked before reset, outer negation skips token parsing after reset; inner negation/count/space/letter/slash loop preserves each write before silent errors; getters format top/around/own or none.",
+                "JS options.js4596–4658 has only startup do_set, loses outer negation inside owner and returns no source request status. scores get_val7664–7676 is duplicated; live setter table8437–8465 has no scores entry. Consolidate these into the whole canonical optfn_scores with source request arguments and connect existing callers.",
+                "Read cfgfiles.c:config_erradd1544–1589; live errors add punctuation, call pline then wait_synch, unlike the startup frame path in JS cfgfiles.js315–329. The result is discarded: retain cfgfiles.c config_erradd as a named gap for live error output, preserving source state/return effects and blocking only invalid/missing runtime evidence. Startup frame output remains in scope through its existing owner.",
+                "Earlier report identified B173 first-owner doextcmd dispatch refusal at14. That source dependency is accepted and current replay proves reachability of the downstream scores owner. Do not reimplement the accepted dispatcher or bundle unrelated options."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "optfn_scores",
+            "implementation": "js/options.js",
+            "symbol": "optfn_scores",
+            "sourceReview": "Read complete options.c3669–3760 and allopt scores row. Preserve do_init/default no-ops, mandatory-value return before reset, reset all three flags then outer-negation eos, source inner prefix/count/signed-int/space/letter/slash order and writes before optn_silenterr, shared GET_VAL/GET_CNF_VAL formatter, and source statuses. Consolidate old startup setter/getter and admit existing live table scores arm. string_for_opt value read uses optional diagnostic mode, routing the identical mandatory error through this owner so startup frame reporting is preserved and absent live config_erradd output is precisely noted, not substituted. Discarded live cfgfiles.c config_erradd remains the sole task callee gap; no RNG/message stand-in. Broader native saveoptions serialization remains at existing cfgfiles.c fopen frontier with no completion credit.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "applyOption",
+                "source": "C options.c parseoptions638–647 -> allopt[].optfn DO_SET for initialization. Existing parseNethackrc/applyOption scores branch now forwards full source request arguments and outer negation."
+              },
+              {
+                "path": "js/options.js",
+                "symbol": "parseoptions",
+                "source": "C options.c parseoptions638–647 -> scores handler DO_SET during doset pick parsing at8929. OPTION_SET_HANDLERS.scores now calls the canonical owner."
+              },
+              {
+                "path": "js/options.js",
+                "symbol": "optionValue",
+                "source": "C options.c doset_add_menu/get_option_value GET_VAL through allopt. Existing OPTION_VALUE_HANDLERS.scores calls canonical source owner instead of duplicate formatter."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/options-scores.test.mjs",
+              "scripts/startup-scores.test.mjs",
+              "scripts/options-menu.test.mjs",
+              "scripts/config-error.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/scores-live-counts.session.json",
+              "recordings/options.c/scores-live-none.session.json",
+              "recordings/options.c/scores-live-inner-negation.session.json",
+              "recordings/options.c/scores-live-signed-counts.session.json",
+              "recordings/options.c/scores-live-letter-suffix.session.json"
+            ],
+            "sourceFile": "options.c",
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-options-scores",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 57,
+                "source": "Typed #optionsfull -> cmd.c doextcmd -> options.c doset -> parseoptions optfn_scores DO_SET at step 42, then source value formatter and remaining menus; entire58 boundary replay matches."
+              }
+            ],
+            "checkedAt": "547456073ec6543fcaa52d181ccfeaafcc5a2718"
+          }
+        ],
+        "entryPointReview": "Active supported entries are configuration-file scores startup parsing and in-game selected scores value via existing full/simple options dispatch, plus the menu value formatter. Independent live-none starts with 9top/8around/own in RC before replacing all parts; all five recordings exercise live and value calls. DO_INIT/default requests have no effects and tests pin source result/state; native init loop discards the no-op result. Both getter requests share the same side-effect-free formatter, pinned independently. GET_CNF_VAL broader native #saveoptions serialization cannot reach this owner in JS: do_write_config_file stops at its already named cfgfiles.c fopen gap before all_options_strbuf/get_option_value; retain that existing caller frontier, no configuration-writing credit. Live missing/invalid-value diagnostic is a discarded cfgfiles.c config_erradd callee gap, not a new function/entry-point claim; preserve blocked recipes and source state/return tests.",
+        "entryPoints": [
+          {
+            "name": "scores configuration-file startup parsing",
+            "functions": [
+              "optfn_scores"
+            ],
+            "recordings": [
+              "recordings/options.c/scores-live-none.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "in-game scores value setting through options menu",
+            "functions": [
+              "optfn_scores"
+            ],
+            "recordings": [
+              "recordings/options.c/scores-live-counts.session.json",
+              "recordings/options.c/scores-live-none.session.json",
+              "recordings/options.c/scores-live-inner-negation.session.json",
+              "recordings/options.c/scores-live-signed-counts.session.json",
+              "recordings/options.c/scores-live-letter-suffix.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-options-scores",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 57,
+                "source": "Typed #optionsfull -> cmd.c doextcmd -> options.c doset -> parseoptions optfn_scores DO_SET at step 42, then source value formatter and remaining menus; entire58 boundary replay matches."
+              }
+            ]
+          },
+          {
+            "name": "scores option menu value formatting",
+            "functions": [
+              "optfn_scores"
+            ],
+            "recordings": [
+              "recordings/options.c/scores-live-counts.session.json",
+              "recordings/options.c/scores-live-none.session.json",
+              "recordings/options.c/scores-live-inner-negation.session.json",
+              "recordings/options.c/scores-live-signed-counts.session.json",
+              "recordings/options.c/scores-live-letter-suffix.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-options-scores",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 57,
+                "source": "Typed #optionsfull -> cmd.c doextcmd -> options.c doset -> parseoptions optfn_scores DO_SET at step 42, then source value formatter and remaining menus; entire58 boundary replay matches."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "547456073ec6543fcaa52d181ccfeaafcc5a2718",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-were-you-unwere-prayer-v32-20261008",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port lycanthropy purification and preserve protected-prayer RNG",
+      "cFile": "were.c",
+      "sessions": [
+        "synthetic/v32/v32-prayer-lycanthropy"
+      ],
+      "selectionReason": "The v32 prayer-lycanthropy mismatch first diverges in allmain's invulnerable delayed-change gate, then reaches the absent whole were.c you_unwere helper through prayer; the helper's seven source callers form one coherent lycanthropy-removal scope.",
+      "detail": "At step 51 JavaScript consumed delayed lycanthropy RNG while C prayer invulnerability suppressed the allmain change block. At step 52 prayer reaches were.c you_unwere; the task ports the whole helper, wires all seven active callers, and reconciles only the bounded allmain gate and timeout live-state adapter.",
+      "openedAt": "821301aa38d446fdbc15029db158ba74a8a9a0a6",
+      "openStanding": {
+        "sha": "547456073ec6543fcaa52d181ccfeaafcc5a2718",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "you_unwere",
+          "line": 213,
+          "endLine": 231,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 213,
+        "to": 231
+      },
+      "syntheticProvenance": {
+        "synthetic/v32/v32-prayer-lycanthropy": {
+          "session": "synthetic/v32/v32-prayer-lycanthropy",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-prayer-lycanthropy",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-prayer-lycanthropy.session.json",
+          "recordingSha256": "89ca7ed7d46082455ff5539d946974a08a8ea196f3100035ae30e2c250fc4fcc",
+          "evaluationPath": "challenges/evaluations/accepted-547456073ec6543fcaa52d181ccfeaafcc5a2718-v32.json",
+          "evaluationCommit": "547456073ec6543fcaa52d181ccfeaafcc5a2718"
+        }
+      },
+      "activeStanding": {
+        "sha": "547456073ec6543fcaa52d181ccfeaafcc5a2718",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-prayer-lycanthropy",
+          "session": "synthetic/v32/v32-prayer-lycanthropy",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recording": "challenges/cases/v32/v32-prayer-lycanthropy.session.json",
+          "recordingPath": "challenges/cases/v32/v32-prayer-lycanthropy.session.json",
+          "recordingSha256": "89ca7ed7d46082455ff5539d946974a08a8ea196f3100035ae30e2c250fc4fcc",
+          "recipe": "challenges/cases/v32/v32-prayer-lycanthropy.recipe.session.json",
+          "recipeSha256": "bb0cf6ec4150a4fde16132e924b1103ab1bd2f2b799d724182d8c9aa871c51e3",
+          "replayInputSha256": "db736d90b63ca285d6efc8d2ef958cc3bccdb0a5a3a0db4c062b39090ace7999",
+          "evaluationPath": "challenges/evaluations/accepted-547456073ec6543fcaa52d181ccfeaafcc5a2718-v32.json",
+          "evaluationCommit": "547456073ec6543fcaa52d181ccfeaafcc5a2718",
+          "evaluationArtifact": "challenges/evaluations/accepted-547456073ec6543fcaa52d181ccfeaafcc5a2718-v32.json",
+          "evaluationUtc": "2026-10-09T01:50:54.679Z",
+          "remainingScreens": 1,
+          "recordedSteps": 69,
+          "previousScreensMatched": 68,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 68,
+              "total": 69
+            },
+            "rng": {
+              "matched": 2609,
+              "total": 2652
+            },
+            "cursors": {
+              "matched": 69,
+              "total": 69
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 52,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 52,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 32,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2609,
+              "cEntry": "rn2(88)=29",
+              "cCaller": "moveloop_core(allmain.c:360)",
+              "jsEntry": "rn2(80)=29",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 51,
+                "key": "y"
+              },
+              "stepIndex": 51
+            },
+            "cursor": null
+          },
+          "step": 51,
+          "kind": "rng",
+          "sourceFile": "allmain.c",
+          "function": "moveloop_core",
+          "message": null,
+          "cFile": "allmain.c",
+          "luaFile": null,
+          "line": 360,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v32/v32-prayer-lycanthropy.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v32",
+              "caseId": "v32-prayer-lycanthropy",
+              "session": "synthetic/v32/v32-prayer-lycanthropy",
+              "manifestPath": "challenges/manifests/v32.json",
+              "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+              "recordingPath": "challenges/cases/v32/v32-prayer-lycanthropy.session.json",
+              "recording": "challenges/cases/v32/v32-prayer-lycanthropy.session.json",
+              "recordingSha256": "89ca7ed7d46082455ff5539d946974a08a8ea196f3100035ae30e2c250fc4fcc",
+              "evaluationPath": "challenges/evaluations/accepted-e07a3433218418185470f93e6ed7061c6e1982cb-v32.json",
+              "evaluationCommit": "e07a3433218418185470f93e6ed7061c6e1982cb",
+              "remainingScreens": 1,
+              "recordedSteps": 69,
+              "passed": false,
+              "metrics": {
+                "screens": {
+                  "matched": 68,
+                  "total": 69
+                },
+                "rng": {
+                  "matched": 2609,
+                  "total": 2652
+                },
+                "cursors": {
+                  "matched": 69,
+                  "total": 69
+                }
+              },
+              "error": null,
+              "step": 51,
+              "kind": "rng",
+              "firstMismatch": {
+                "kind": "rng",
+                "step": 51,
+                "cEntry": "rn2(88)=29",
+                "cCaller": "moveloop_core(allmain.c:360)",
+                "jsEntry": "rn2(80)=29",
+                "jsSource": "allmain.js lycanthropy-change gate"
+              },
+              "status": "complete",
+              "commit": "5a4bce88d5df2907f8d2d1161f9747f84c9bd683",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v32",
+                "caseId": "v32-prayer-lycanthropy",
+                "session": "synthetic/v32/v32-prayer-lycanthropy",
+                "manifestPath": "challenges/manifests/v32.json",
+                "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+                "recordingPath": "challenges/cases/v32/v32-prayer-lycanthropy.session.json",
+                "recording": "challenges/cases/v32/v32-prayer-lycanthropy.session.json",
+                "recordingSha256": "89ca7ed7d46082455ff5539d946974a08a8ea196f3100035ae30e2c250fc4fcc",
+                "evaluationPath": "challenges/evaluations/accepted-e07a3433218418185470f93e6ed7061c6e1982cb-v32.json",
+                "evaluationCommit": "e07a3433218418185470f93e6ed7061c6e1982cb",
+                "remainingScreens": 1,
+                "recordedSteps": 69,
+                "passed": false,
+                "metrics": {
+                  "screens": {
+                    "matched": 68,
+                    "total": 69
+                  },
+                  "rng": {
+                    "matched": 2609,
+                    "total": 2652
+                  },
+                  "cursors": {
+                    "matched": 69,
+                    "total": 69
+                  }
+                },
+                "error": null,
+                "step": 51,
+                "kind": "rng",
+                "firstMismatch": {
+                  "kind": "rng",
+                  "step": 51,
+                  "cEntry": "rn2(88)=29",
+                  "cCaller": "moveloop_core(allmain.c:360)",
+                  "jsEntry": "rn2(80)=29",
+                  "jsSource": "allmain.js lycanthropy-change gate"
+                }
+              },
+              "summary": "Invulnerable prayer incorrectly consumes delayed lycanthropy RNG at51 because the C allmain protection envelope is missing around delayed changes. A second defect at52 omits the whole were.c:you_unwere purification helper and its pray.c caller.",
+              "source": {
+                "file": "allmain.c",
+                "branch": "Human hero acquired lycanthropy from werewolf tin and is invulnerable during three-turn successful prayer; POLYMORPH or ismnum(ulycn) must not evaluate random change or pending-change validity/dispatch inside the C !uinvulnerable block.",
+                "functions": [
+                  "moveloop_core",
+                  "were.c:you_unwere"
+                ],
+                "callers": [
+                  "js/jsmain.js runSegment -> js/allmain.js moveloop_core -> advanceElapsedTurn -> finishElapsedTurnAfterTimeout -> currently unguarded delayed-change block",
+                  "C allmain.c:moveloop_core307–340, between regen_pw305 and searching342; same loop executes every protected prayer turn"
+                ],
+                "dependencies": [
+                  "Existing canonical property checks, night, ismnum, Upolyd, stop_occupation, polyself and you_were are reused; bounded guard requires no new return-valued helper.",
+                  "Next independent screen owner: pray.c fix_worst_trouble515 -> whole were.c you_unwere213–228 (currently absent). Existing set_ulycn and canonical monster_nearby/paranoid_query/rehumanize supply consumed/source operations; caller reconciliation must include eat2515,potion735/754/2087,timeout645,mhitm1142 and pray515.",
+                  "Existing source-discarded teleport.c tele and dog.c check_leash gaps remain outside the bounded protection guard task."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Authoritative accepted-e07a v32 evaluation records1 remaining screen (68/69),2609/2652RNG and69/69cursors. Focused replay at5a4bce88: .cache/A177/selected-after-A175.json; no input boundary refusal; first RNG difference2609 at zero-based51, first screen52 row0col32 C Y versus JS space.",
+                "C allmain307 opens !u.uinvulnerable and closes340 after pending-change invalidation322–324, polymorph/lycanthropy RNG325–329 and change dispatch330–339. JS allmain1001 guards teleport only; its delayed-change block1031–1063 has no invulnerability condition. Extra rn2(80) is the daytime lycanthropy gate, not the engraving gate or incorrect Dexterity.",
+                "Read source state setup: immutable case eats blessed werewolf tin, cpostfx -> canonical set_ulycn sets species21; hero remains human. Protected prayer p_type3 sets uinvulnerable during nominal three turns. C next calls engraving rn2(40+16*3)=rn2(88); JS first spends forbidden lycanthropy rn2(80), displacing subsequent draws.",
+                "Read-only same-session boundary probes .cache/A177/state.log (run-Lcm8qf): Dexterity16 at35,43,50,51,52/end69; umonnum332 human; ulycn21 remains unchanged after missing purification. This rejects an attrib.c/initial Dexterity cause. No challenge modification or C re-recording.",
+                "Actionable bounded first-owner task: restore one source-order !uinvulnerable envelope around both teleport and delayed-change checks/dispatch in js/allmain.js; reserve source:allmain.c:moveloop_core + contract:invulnerable-delayed-transformation. Tests scripts/allmain-turn.test.mjs and scripts/pray.test.mjs; independent recipes/recordings allmain.c plus fresh runner if live state inspected. Do not claim whole moveloop_core, tele, polyself, or you_were completion. Preserve pending mvl_change while protected, no RNG/messages/stopOccupation/form state changes; normal unprotected path remains ordered.",
+                "Source-pinned tests must cover protected POLYMORPH and human lycanthropy, pending changes that would otherwise clear (inactive polymorph or cured ulycn), UNCHANGING, negative multi and normal unprotected daytime/night change bounds. Assert exact draw absence/order, clone-owned mvl_change and no live callbacks. Independent runtime: wizard prayer under controlled lycanthropy acquired from independently chosen tin/role/date, variation with polymorph intrinsic, and unprotected outside turn; derive keys from C before JS comparison.",
+                "Next screen frontier is separate: C pray515 calls you_unwere(TRUE), were213–228 emits purified then set_ulycn(NON_PM), checks Unchanging/were form/nearby monster/control confirmation and rehumanize or rn1(200,200) fallback. JS pray1386 retains note_unported and were.js has no you_unwere definition. Full source helper scope/callers needed; no bounded message-only substitute.",
+                "The selected C case reaches purification at52, prints You feel purified, then ends with ordinary unknown-space commands. This report does not establish that the allmain guard alone makes the full selected case match; it diagnoses the first source defect and retains the downstream missing whole helper. No implementation edits or new passing recordings.",
+                "Complete dependency/caller audit after the earlier stoning caller fix: were.c:you_unwere213–228 consumes monster_nearby and paranoid_query results, both existing canonical owners. is_were/hero condition macros are source-pinned pure helpers; set_ulycn -> set_uasmon and rehumanize are canonical. Preserve existing rehumanize discarded retouch_equipment/selftouch gaps; no substitute state or RNG. Control is computed before purification; purified feedback precedes set_ulycn(NON_PM); short-circuit Unchanging/were/nearby/control query before rehumanize; remaining were form with zero mtimedone draws rn1(200,200) exactly once.",
+                "Every active helper caller must be wired in the same source port: eat.c:fpostfx2515(true), potion.c:peffect_water735(false)/754(true), potion.c:potionbreathe2087(false), pray.c:fix_worst_trouble515(true), timeout.c:nh_timeout645(false), mhitm.c:mon_poly1142(false). Current JS retains a named you_unwere gap at all seven sites; no hidden implementation exists in were.js. Bounded caller credit only.",
+                "Planning adapter dependency: timeout.js nh_timeout_requires_live_state currently excludes were forms at mtimedone1 because it skipped this helper. The now-executable were expiry must hand off live before confirmation/form output, alongside ordinary rehumanize. Only the mtimedone call/classifier branch needs reconciliation; timeout fatal helper ownership is excluded. mon_poly already defers planning input, while peffect_water/potionbreathe must forward their canonical random/message/planning environment and defer only a genuinely reached controlled query.",
+                "Expanded independent validation plan: prayer under human lycanthropy; wolfsbane purification after food-derived lycanthropy; blessed water purification and chaotic beast holy-water reversion; blessed-water vapor while in matching were form; timed beast expiry; mon_poly natural-urge reversion from genetic engineer. Each active entry requires a matching admitted range or independent C-first recipe/cheap variation, with exact blockers retained if surrounding source cannot execute. Pure helper and mocked-order tests cannot stand in for runtime callers."
+              ]
             }
           }
         }
