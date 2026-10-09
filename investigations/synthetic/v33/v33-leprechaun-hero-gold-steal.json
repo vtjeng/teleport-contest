@@ -11,7 +11,7 @@
   "evaluationPath": "challenges/evaluations/accepted-f091b997ca1571fc6198fe3189ad06fe2dba532c-v33.json",
   "evaluationCommit": "f091b997ca1571fc6198fe3189ad06fe2dba532c",
   "status": "complete",
-  "commit": "3376c8362060e2f28fd28ec38aebdd68bb920078",
+  "commit": "bc2ce8fb5ecd42fec92c2db427c427b566e0d645",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v33",
