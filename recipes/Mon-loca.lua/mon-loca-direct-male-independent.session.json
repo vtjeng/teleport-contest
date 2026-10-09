@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first male human neutral Monk load of whole Mon-loca.lua; seed 17209103 and clock chosen before comparison. Explicit versus extensionless registered-name entry; no seed search. Verifies non-species spinach descriptor, paired engraving, random stair/object/trap and elemental/xorn source order.",
+  "segments": [
+    {
+      "seed": 17209103,
+      "datetime": "20581009174211",
+      "nethackrc": "OPTIONS=name:MonLocaProbe,role:Monk,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizloaddes\nMon-loca.lua\n "
+    }
+  ]
+}

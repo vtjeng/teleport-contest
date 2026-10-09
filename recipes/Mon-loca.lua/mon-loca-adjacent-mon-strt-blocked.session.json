@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside whole Mon-loca program: adjacent Mon-strt.lua load remains blocked by missing Mon-strt production loader, assigned separately to B197. Source non-species support does not establish whole lspo_object/create_object or Mon-strt completion; this recipe is excluded from matching evidence.",
+  "segments": [
+    {
+      "seed": 17209119,
+      "datetime": "20601009190231",
+      "nethackrc": "OPTIONS=name:MonLocaProbe,role:Monk,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizloaddes\nMon-strt.lua\n "
+    }
+  ]
+}
