@@ -223343,6 +223343,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-were-you-unwere-prayer-v32-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port lycanthropy purification and preserve protected-prayer RNG",
+      "cFile": "were.c",
+      "sessions": [
+        "synthetic/v32/v32-prayer-lycanthropy"
+      ],
+      "selectionReason": "The v32 prayer-lycanthropy mismatch first diverges in allmain's invulnerable delayed-change gate, then reaches the absent whole were.c you_unwere helper through prayer; the helper's seven source callers form one coherent lycanthropy-removal scope.",
+      "detail": "At step 51 JavaScript consumed delayed lycanthropy RNG while C prayer invulnerability suppressed the allmain change block. At step 52 prayer reaches were.c you_unwere; the task ports the whole helper, wires all seven active callers, and reconciles only the bounded allmain gate and timeout live-state adapter.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "you_unwere",
+          "line": 213,
+          "endLine": 231,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 213,
+        "to": 231
+      },
+      "syntheticProvenance": {
+        "synthetic/v32/v32-prayer-lycanthropy": {
+          "session": "synthetic/v32/v32-prayer-lycanthropy",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-prayer-lycanthropy",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-prayer-lycanthropy.session.json",
+          "recordingSha256": "89ca7ed7d46082455ff5539d946974a08a8ea196f3100035ae30e2c250fc4fcc",
+          "evaluationPath": "challenges/evaluations/accepted-547456073ec6543fcaa52d181ccfeaafcc5a2718-v32.json",
+          "evaluationCommit": "547456073ec6543fcaa52d181ccfeaafcc5a2718"
+        }
+      }
     }
   ]
 }
