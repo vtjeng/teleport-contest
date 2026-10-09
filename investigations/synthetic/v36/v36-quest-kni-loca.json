@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v36/v36-quest-kni-loca",
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-kni-loca",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "d4614f2ccb4abc35c097705db11890113bed01144d3fa40c6c4d9ae4f29bc856",
+  "evaluationPath": "challenges/evaluations/accepted-004a6da893c5dc420e260eb3ae0e285e85a56874-v36.json",
+  "evaluationCommit": "004a6da893c5dc420e260eb3ae0e285e85a56874",
+  "remainingScreens": 41,
+  "recordedSteps": 60,
+  "status": "complete",
+  "commit": "1c11f5ac12abebc3b0304effb736b8c67e4b4d32",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-kni-loca",
+    "session": "synthetic/v36/v36-quest-kni-loca",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-kni-loca.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-kni-loca.session.json",
+    "recordingSha256": "d4614f2ccb4abc35c097705db11890113bed01144d3fa40c6c4d9ae4f29bc856",
+    "recipe": "challenges/cases/v36/v36-quest-kni-loca.recipe.session.json",
+    "recipeSha256": "599bc74f8b4745ae9a2475c890820a8a26e82ba2dac5cd6a582d4493eda44da9",
+    "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+    "evaluationPath": "challenges/evaluations/accepted-004a6da893c5dc420e260eb3ae0e285e85a56874-v36.json",
+    "evaluationCommit": "004a6da893c5dc420e260eb3ae0e285e85a56874",
+    "evaluationArtifact": "challenges/evaluations/accepted-004a6da893c5dc420e260eb3ae0e285e85a56874-v36.json",
+    "evaluationUtc": "2026-10-09T11:03:32.443Z",
+    "remainingScreens": 41,
+    "recordedSteps": 60,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 60
+      },
+      "rng": {
+        "matched": 2723,
+        "total": 6160
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Kni-loca\"",
+      "step": 19
+    },
+    "step": 19,
+    "kind": "stop",
+    "sourceFile": "Kni-loca.lua",
+    "function": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Kni-loca\"",
+    "cFile": null,
+    "luaFile": "Kni-loca.lua",
+    "line": null
+  },
+  "goalKind": "lua-port",
+  "summary": "Kni-loca has no registered loader, so Knight quest locate arrival stops before its whole swamp/Isle-of-Glass Lua program. Port the program through existing mines initialization, transparent map, temple/shrine, trap and monster descriptor owners.",
+  "source": {
+    "file": "Kni-loca.lua",
+    "branch": "Knight quest locate generation or registered wizard des-file load of Kni-loca.",
+    "functions": [
+      "Kni-loca.lua"
+    ],
+    "callers": [
+      "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Kni-loca.lua",
+      "wizcmds.c:wiz_load_splua -> load_special -> registered Kni-loca Lua program"
+    ],
+    "dependencies": [
+      "Existing mines mkmap with joined=true; transparent map descriptor; lit selection/temple filled2 region; shrine create_altar/priestini; stair/object/trap/monster owners. Pending C170 worker ancestry explicit; no shared helper edits currently required."
+    ]
+  },
+  "evidence": [
+    "Current accepted evaluation challenges/evaluations/accepted-004a6da893c5dc420e260eb3ae0e285e85a56874-v36.json at 004a6da893c5dc420e260eb3ae0e285e85a56874 records19/60screens and41remaining, same missing Kni-loca loader at step19. RecordingSHAd4614f2ccb4abc35c097705db11890113bed01144d3fa40c6c4d9ae4f29bc856, admitted corpus digest58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c.",
+    "Read whole dat/Kni-loca.lua1–137, SHA256c863d9c364c7a6165f4044fd4c2cf02464ee9074335f8753a1c8d0a6fd1d6575: solidfill before mazelevel/hardfloor flags, then mines foreground floor/background pool with smoothed=false,joined=true,lit1,walled=false. Exact40×12 transparent-x map; lit full fragment and lit temple region9,2..27,9 filled2; up38,0/down18,5 stairs; neutral shrine17,5 creates priest;15random objects;45fixed magic traps guarding S/W/N and7random anti-magic traps;17hostile quasits, classi/j,sevenhostile ochre jellies and final classj. No explicit wallify statement.",
+    "js/mklev.js registry contains QUEST_LEVEL_LOADERS but lacks Kni-loca. Proposed whole kniLoca in existing quest_levels.js plus distinct import/key and deterministic fixed map/trap/monster data; no source overlap with A191 Cav-strt or B195 Hea-loca.",
+    "Audited existing lspo_level_init mines dispatch/mkmap passes/join/finish, mapFromRows transparent INVALID_TYPE skip and actual-written selection contract, lspo_region table filled2 room fields/topology, create_altar temple discovery/priestini/AM_SHRINE, fill_special_room flags-only behavior for filled2. These forms already have owners; fresh runtime must verify them. No whole mkmap/sp_lev/priest credit or ownership relocation planned.",
+    "Plan male/female human lawful Knight independent C-first wizard-load recipes, fixed new seeds/clocks and explicit/extensionless names before comparison. Runtime checks must prove temple/shrine/priest, pool background and fixed trap/monster quantities. Admitted forced Knight quest locate arrival covers makelevel route; independent wizard-load recipes cover the other production entry. Report any required shared dependency change before owner expansion."
+  ]
+}
