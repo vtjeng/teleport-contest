@@ -227908,8 +227908,8 @@
           "name": "hmon_hitmon_msg_silver",
           "line": 1663,
           "endLine": 1701,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -228184,7 +228184,47 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "hmon_hitmon_msg_silver",
+            "implementation": "js/uhitm.js",
+            "symbol": "hmon_hitmon_msg_silver",
+            "sourceReview": "Read whole uhitm.c1663–1700 and sole caller1878. Evaluate canonical mon_nam first, then canspotmon; choose one/two rings, named object with case-insensitive silver detection and canonical vtense, generic or unseen capitalization. Preserve C buffer truncation, percent escaping and appended target slot before possessive flesh guard for corporeal/non-amorphous target. Emit one awaited canonical env message; no invented RNG/state. String representation replaces C mutable buffers without a second game owner. Reuse consumed canonical naming/visibility/grammar/species predicates; no missing consumed-result placeholder. Remove source-discarded note_unported helper call and wire awaited function between msg_hit/dry_a_towel and light/poison/kill tail. Adjacent light helper retains its named void gap.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon",
+                "source": "uhitm.c1877–1878 sole static helper caller, guarded by hmd.silvermsg from silver weapon/ring/misc damage producers. Common runtime melee/ranged/applied caller state already owns hmd and saved_oname; bounded await wiring, no whole hmon_hitmon completion credit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-hmon.test.mjs",
+              "scripts/hostile-melee-hit.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/silver-hit-caveman.session.json",
+              "recordings/uhitm.c/silver-hit-valkyrie.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-silver-dagger-sears",
+                "segment": 0,
+                "fromStep": 144,
+                "throughStep": 212,
+                "source": "cmd.c rhack forcefight -> hack.c domove -> uhitm.c attack/hitum/known_hitum -> hmon/hmon_hitmon1878 -> hmon_hitmon_msg_silver1663–1700 -> mon.c killed"
+              }
+            ],
+            "checkedAt": "9e495f02476c583f837d7ec8ef38fe269aad1d5c"
+          }
+        ],
+        "entryPointReview": "Helper-only selected source range, so entryPoints is empty. Sole hmon_hitmon call is wired for every existing hmd.silvermsg producer (barehand silver ring counts, weapon melee/ranged and misc silver object). Selected admitted fatal melee and independent singular/plural weapons establish production feedback before killed. Source-pinned direct branch tests isolate grammar and invisible/noncorporeal/amorphous guards; existing hmon tests exercise shade, silver rings and weapon damage paths. No current object-table ring material is silver; direct source-field tests preserve one/two ring branches without inventing a production silver ring wish. Outer command/weapon owners retain their own evidence.",
+        "entryPoints": []
+      }
     },
     {
       "id": "port-uhitm-missum-seduction-v33-20261009",
