@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T10:42:32.022Z",
+  "capturedAt": "2026-10-09T10:48:27.733Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -72554,6 +72554,98 @@
         "worker": "B",
         "state": "active",
         "reason": "Investigating the Healer quest goal Lua loader; Caveman goal is owned by C168."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A188-C165-accepted-09d60e457",
+        "type": "resume",
+        "at": "2026-10-09T10:42:32.633Z",
+        "task": "A188"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A188-source-refresh-09d60e457",
+        "type": "turn",
+        "at": "2026-10-09T10:42:34.062Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Resuming Wizard3 source investigation after accepted C165 released its map-selection prerequisite."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B161-v36-admission-baseline-20261009",
+        "type": "activity",
+        "at": "2026-10-09T10:43:35.349Z",
+        "task": "B161",
+        "phase": "baseline",
+        "reason": "Admitted the accepted 68-case v36 batch and published its first evaluation: 42 of 68 sessions, 2,983 of 4,025 screens, and 231,412 of 280,903 RNG calls match."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A188-central-gate-339677290",
+        "type": "turn",
+        "at": "2026-10-09T10:43:57.793Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "Wizard3 investigation is complete; waiting for Main to queue its whole Lua source scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C168-cav-goal-20261009",
+        "type": "implement",
+        "at": "2026-10-09T10:44:02.381Z",
+        "task": "C168",
+        "goal": "port-cav-goal-quest-level-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B192-5d699058-20261009",
+        "type": "received",
+        "at": "2026-10-09T10:44:12.072Z",
+        "task": "B192",
+        "delivery": "5d699058e1a189f60bb603928cce0508e9599d39"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A190-f996acd4-20261009",
+        "type": "received",
+        "at": "2026-10-09T10:44:18.029Z",
+        "task": "A190",
+        "delivery": "f996acd4c1821cd43c5cc9bf3cb80a80e730684a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B194-source-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T10:44:42.961Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Healer quest goal diagnosis complete; waiting for Main to queue the whole Lua source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A188-wizard3-339677290",
+        "type": "implement",
+        "at": "2026-10-09T10:47:53.038Z",
+        "task": "A188",
+        "goal": "port-wizard3-special-level-v35-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A188-implementation-339677290",
+        "type": "turn",
+        "at": "2026-10-09T10:47:54.433Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Porting the complete Wizard3 Lua program with canonical map-selection protection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B194-hea-goal-20261009",
+        "type": "implement",
+        "at": "2026-10-09T10:48:26.909Z",
+        "task": "B194",
+        "goal": "port-hea-goal-lua-v36-20261009"
       }
     ]
   },
@@ -72887,17 +72979,6 @@
         "since": "2026-10-09T08:29:42.686Z",
         "blockedBy": [],
         "reason": "Whole timeout queue family consumes alloc.c:fmt_ptr native addresses for populated rows; matching IDs are not equivalent. Canonical property table relocation also awaits B185 wizcmds owner. No partial timeout source credit."
-      },
-      {
-        "task": "A188",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T08:31:32.610Z",
-        "blockedBy": [],
-        "reason": "Waiting for C165 canonical written-cell des.map return selection before wizard3 Lua implementation"
       },
       {
         "task": "B188",
