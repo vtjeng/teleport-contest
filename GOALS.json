@@ -223347,7 +223347,7 @@
     {
       "id": "port-were-you-unwere-prayer-v32-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port lycanthropy purification and preserve protected-prayer RNG",
       "cFile": "were.c",
       "sessions": [
@@ -223361,15 +223361,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "37f1b1fe268666f0e8fa0eed9b45e336d3d07129",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "you_unwere",
           "line": 213,
           "endLine": 231,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -223601,7 +223604,172 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "you_unwere",
+            "implementation": "js/were.js",
+            "symbol": "you_unwere",
+            "sourceReview": "Read complete were.c213–228. Compute control before purification; message precedes canonical set_ulycn. Preserve !Unchanging/is_were/!monster_nearby/control/query short circuits, canonical rehumanize, and only-zero retained beast rn1(200,200). monster_nearby consumed predicate audited against hack.c4106–4129; paranoid_query consumed boolean audited against cmd.c5655–5658. Reuse canonical set_uasmon and rehumanize. Only actually reached controlled queries defer planned input; supplied message and random operations preserve cloned output/state/RNG. No you_unwere placeholder or injected substitute remains. All seven source call sites are awaited. Existing rehumanize retouch_equipment/selftouch discarded-return gaps remain named in their owners.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "fix_worst_trouble",
+                "source": "pray.c515 TROUBLE_LYCANTHROPE calls true; existing pleased dispatcher awaits fix helper. Preserve C158 strangulation arm."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "fpostfx",
+                "source": "eat.c2515 calls true after a wolfsbane meal; existing doeat/done_eating runtime owns meal completion and forwards effectEnv."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_water",
+                "source": "potion.c735 matching chaotic/hates-blessings beast calls false before set_ulycn(NON_PM)/damage; potion.c754 neutral/lawful blessed-water calls true after sickness cure/exercises. dodrink dispatch retained."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "potionbreathe",
+                "source": "potion.c2087 blessed-water vapor in the matching were form calls false; preserves in_use and forwarded RNG/message/planning environment. Runtime witness: hack movement -> dotrap -> dofiretrap -> destroy_items/maybe_destroy_item -> potionbreathe."
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c645 expired were form calls false; classifier now hands were expiry to live state, alongside ordinary rehumanize. Unchanging rearming precedes the helper, invulnerability suppresses all timeout work. Existing fatal-timeout ownership retained."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mon_poly",
+                "source": "mhitm.c1142 natural urge in matching were form calls false after message and before damage0. Genetic engineer AD_POLY -> mhitm_ad_poly -> mon_poly; existing planner input handoff precedes the hero effect."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/were-you-were.test.mjs",
+              "scripts/were-you-unwere.test.mjs",
+              "scripts/pray.test.mjs",
+              "scripts/allmain-turn.test.mjs",
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/potion.test.mjs",
+              "scripts/timeout.test.mjs",
+              "scripts/mhitm.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/were.c/unwere-wolfsbane.session.json",
+              "recordings/were.c/unwere-wolfsbane-variation.session.json",
+              "recordings/were.c/unwere-water-purify.session.json",
+              "recordings/were.c/unwere-water-beast.session.json",
+              "recordings/were.c/unwere-vapor.session.json",
+              "recordings/were.c/unwere-prayer.session.json",
+              "recordings/were.c/unwere-engineer.session.json",
+              "recordings/were.c/unwere-expiry.session.json"
+            ],
+            "sourceFile": "were.c",
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-prayer-lycanthropy",
+                "segment": 0,
+                "fromStep": 52,
+                "throughStep": 68,
+                "source": "pray.c:prayer_done -> pleased -> fix_worst_trouble515 -> were.c:you_unwere(true). Full selected replay also matches the preceding invulnerable allmain307–340 gate at51."
+              }
+            ],
+            "checkedAt": "37f1b1fe268666f0e8fa0eed9b45e336d3d07129"
+          }
+        ],
+        "entryPointReview": "The selected helper has seven active caller sites: pray515, eat2515, potion735/754/2087, timeout645, mhitm1142. All are wired and have matching runtime entry evidence. No caller is declared inactive. Each entry below credits only you_unwere and bounded caller reconciliation, excluding whole enclosing functions. Source-owned pure monster_nearby/paranoid_query predicates are reused after complete consumed-return audit. Protected prayer additionally needs allmain307–340 envelope reconciliation: both periodic teleportation and every delayed change are suppressed while invulnerable, including invalidation of the pending C static. Timeout live-state adapter accounts for newly executable were expiry.",
+        "entryPoints": [
+          {
+            "name": "Prayer purification",
+            "functions": [
+              "you_unwere"
+            ],
+            "recordings": [
+              "recordings/were.c/unwere-prayer.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-prayer-lycanthropy",
+                "segment": 0,
+                "fromStep": 52,
+                "throughStep": 68,
+                "source": "pray.c:prayer_done -> pleased -> fix_worst_trouble515 -> were.c:you_unwere(true). Full selected replay also matches the preceding invulnerable allmain307–340 gate at51."
+              }
+            ]
+          },
+          {
+            "name": "Finished wolfsbane meal",
+            "functions": [
+              "you_unwere"
+            ],
+            "recordings": [
+              "recordings/were.c/unwere-wolfsbane.session.json",
+              "recordings/were.c/unwere-wolfsbane-variation.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Blessed water neutral infected human",
+            "functions": [
+              "you_unwere"
+            ],
+            "recordings": [
+              "recordings/were.c/unwere-water-purify.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Blessed water chaotic matching beast",
+            "functions": [
+              "you_unwere"
+            ],
+            "recordings": [
+              "recordings/were.c/unwere-water-beast.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Blessed-water vapor matching beast",
+            "functions": [
+              "you_unwere"
+            ],
+            "recordings": [
+              "recordings/were.c/unwere-vapor.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Timed were-form expiry",
+            "functions": [
+              "you_unwere"
+            ],
+            "recordings": [
+              "recordings/were.c/unwere-expiry.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Genetic-engineer natural urge",
+            "functions": [
+              "you_unwere"
+            ],
+            "recordings": [
+              "recordings/were.c/unwere-engineer.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "37f1b1fe268666f0e8fa0eed9b45e336d3d07129",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

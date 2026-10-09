@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T01:56:44.542Z",
+  "capturedAt": "2026-10-09T02:09:20.265Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -69620,12 +69620,60 @@
         "worker": "C",
         "state": "idle",
         "reason": "Accepted scores option work merged. Fruit fix remains submitted and awaits integration; no overlapping new work claimed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C156-published-d7ecef7c0",
+        "type": "published",
+        "at": "2026-10-09T01:57:31.636Z",
+        "task": "C156",
+        "commit": "d7ecef7c0f346d4e818a3c21768404a1236ee215"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A177-integrating-37f1b1fe2",
+        "type": "integrating",
+        "at": "2026-10-09T02:00:56.935Z",
+        "task": "A177",
+        "integration": "37f1b1fe268666f0e8fa0eed9b45e336d3d07129"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d4b86059e128e9a09b167d8028a8a1c7116f046c",
+        "type": "ready",
+        "at": "2026-10-09T02:02:00.377Z",
+        "task": "B180",
+        "delivery": "d4b86059e128e9a09b167d8028a8a1c7116f046c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B180-idle-after-C156-20261009",
+        "type": "turn",
+        "at": "2026-10-09T02:05:48.678Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B180 is queued for integration; accepted scores-menu changes are merged and all 223 overlap checks pass."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A177-validated-37872629763",
+        "type": "validated",
+        "at": "2026-10-09T02:06:35.391Z",
+        "task": "A177",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A177-37f1b1fe268666f0e8fa0eed9b45e336d3d07129-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T02:09:03.532Z",
+        "task": "A177"
       }
     ]
   },
   "development": {
-    "executionCommit": "547456073ec6543fcaa52d181ccfeaafcc5a2718",
-    "measuredAt": "2026-10-09T01:52:30.171Z",
+    "executionCommit": "37f1b1fe268666f0e8fa0eed9b45e336d3d07129",
+    "measuredAt": "2026-10-09T02:05:53.893Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
