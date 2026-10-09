@@ -478,7 +478,8 @@ for (const task of activity.tasks) {
 const output = {
   progress, scoreHistory, workGoals, summary, scores,
   challenges: challengeDashboardPayload(challenges),
-  activity, activityGoals: [...activityGoals.values()],
+  activity, pendingMainWork: snapshot?.pendingMainWork ?? null,
+  activityGoals: [...activityGoals.values()],
   developmentSessions,
 };
 

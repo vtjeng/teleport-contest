@@ -487,10 +487,39 @@ test('batch notices group repeated errors without repeating them in the score ca
     assert.match(renderDashboard(data).get('stats').innerHTML, /aggregate evaluation failed/u);
 });
 
+test('Main backlog distinguishes unmerged deliveries, accepted reserve batches, and parked records', () => {
+    const template = readFileSync(TEMPLATE, 'utf8');
+    assert.ok(template.includes('<section class="section" aria-labelledby="pendingMainWorkTitle">'),
+        'pending work has its own named section');
+    assert.ok(template.includes('<h3 class="section-title" id="pendingMainWorkTitle">Pending Main work</h3>'),
+        'pending work uses the same heading level and style as Worker activity');
+    // Keep the original compact summary size; only the section title is a heading.
+    assert.ok(template.includes('.activity-backlog { font-size: 12px;'), 'summary text is not enlarged');
+    const data = sourceDashboardData();
+    // Snapshot ages, not the viewer's clock, determine the waits shown here.
+    data.activity = { capturedAt: '2026-10-08T12:00:00Z', segments: [], tasks: [] };
+    const row = { task: 'A1', worker: 'A', status: 'ready',
+        since: '2026-10-08T11:00:00Z', blockedBy: ['B1'], delivery: 'a'.repeat(40) };
+    data.pendingMainWork = { deliveries: [row], preparedBatches: [{ ...row, task: 'Prep1',
+        batch: 'v34', status: 'awaiting-admission', blockedBy: [] }],
+        parkedTasks: [{ ...row, task: 'C1', status: 'parked', reason: 'Await <source> owner.' }] };
+    const html = renderDashboard(data).get('pendingMainWork').innerHTML;
+    assert.doesNotMatch(html, /<strong>Pending Main work<\/strong>/u, 'the summary does not repeat the section heading');
+    assert.match(html, /1 submitted task \(1 awaiting dependencies\)/u);
+    assert.match(html, /Ready batches awaiting admission: v34/u);
+    assert.match(html, /oldest submission 1h 0m ago/u);
+    assert.match(html, /<summary>Details · 1 parked<\/summary>/u);
+    assert.match(html, /Await &lt;source&gt; owner\./u);
+    data.pendingMainWork = { deliveries: [], preparedBatches: [], parkedTasks: [] };
+    assert.match(renderDashboard(data).get('pendingMainWork').innerHTML, /admission: None\./u);
+    data.pendingMainWork = null;
+    assert.match(renderDashboard(data).get('pendingMainWork').textContent, /snapshot is refreshed/u);
+});
+
 test('primary dashboard sections put sessions before activity and historical detail', () => {
     const template = readFileSync(TEMPLATE, 'utf8');
     const positions = ['id="stats"', 'id="scoreHistoryTitle"', 'id="challengeTitle"',
-        'class="diagnostics"', 'id="sourceWorkDisclosure"', 'id="timeline"',
+        'class="diagnostics"', 'id="sourceWorkDisclosure"', 'id="pendingMainWorkTitle"', 'id="timeline"',
         'id="goalTable"', 'id="remainingWorkDisclosure"']
         .map(marker => template.indexOf(marker));
     assert.ok(positions.every(position => position >= 0));
@@ -705,7 +734,9 @@ test('activity keeps one row per agent across panning and zooming', () => {
     const replacementIndex = data.activity.stages.findIndex(row => row.task === 'replacement-A');
     timeline.listeners.click[0]({ target: { classList: { contains: value => value === 'activity-bar' },
         dataset: { segment: String(replacementIndex) } } });
-    assert.match(rendered.get('timelineReadout').innerHTML, /replacement-A<\/strong> · A2/u);
+    assert.match(rendered.get('timelineReadout').innerHTML, /<dt>Task<\/dt><dd><strong>replacement-A<\/strong><\/dd>/u);
+    assert.match(rendered.get('timelineReadout').innerHTML, /<dt>Worker<\/dt><dd>A<\/dd>/u);
+    assert.doesNotMatch(rendered.get('timelineReadout').innerHTML, /A2/u);
     assert.doesNotMatch(timeline.innerHTML, /Delivery pending for replacement-A/u);
     const barPosition = index => {
         const bar = timeline.innerHTML.match(new RegExp(
@@ -744,6 +775,39 @@ test('activity keeps one row per agent across panning and zooming', () => {
             assert.deepEqual(barPosition(index), position, 'zoom preserves task rows');
         }
     }
+});
+
+test('activity details distinguish idle workers from tasks and Main stages from task ownership', () => {
+    const data = sourceDashboardData();
+    // A2 is the replacement worker; a delivery creates an idle gap before Main integrates it.
+    // Escaping the goal and report also prevents metadata from becoming markup.
+    const at = minute => `2026-09-25T10:${minute}:00Z`;
+    data.activity = activityTimeline({ events: [
+        { type: 'assign', task: 'A177', worker: 'A2', goal: 'source <port>', at: at('00') },
+        { type: 'ready', task: 'A177', at: at('05') },
+        { type: 'turn', worker: 'A2', state: 'idle', reason: 'Await <caller>.', at: at('05') },
+        { type: 'integrating', task: 'A177', at: at('10') },
+    ] }, at('15'));
+    const rendered = renderDashboard(data);
+    const select = phase => rendered.get('timeline').listeners.click[0]({ target: {
+        classList: { contains: value => value === 'activity-bar' },
+        dataset: { segment: String(data.activity.stages.findIndex(row => row.phase === phase)) },
+    } });
+    select('idle');
+    let html = rendered.get('timelineReadout').innerHTML;
+    assert.match(html, /<dt>Task<\/dt><dd>None<\/dd>/u);
+    assert.match(html, /<dt>Worker<\/dt><dd>A<\/dd>/u);
+    assert.match(html, /<dt>Stage<\/dt><dd>Idle \(worker report\)<\/dd>/u);
+    assert.match(html, /Await &lt;caller&gt;\./u);
+    assert.doesNotMatch(html, /<strong>A2?<\/strong>|A2/u);
+    assert.doesNotMatch(rendered.get('timeline').innerHTML, /for A2|>A2<\/div>/u);
+    select('integrating');
+    html = rendered.get('timelineReadout').innerHTML;
+    assert.match(html, /<dt>Task<\/dt><dd><strong>A177<\/strong><\/dd>/u);
+    assert.match(html, /<dt>Worker<\/dt><dd>A<\/dd>/u);
+    assert.match(html, /<dt>Stage<\/dt><dd>Main · Integration and checks<\/dd>/u);
+    assert.match(html, /<dt>Status<\/dt><dd>integrating<\/dd>/u);
+    assert.match(html, /<dt>Goal<\/dt><dd>source &lt;port&gt;<\/dd>/u);
 });
 
 function sourceFileRows(table) {

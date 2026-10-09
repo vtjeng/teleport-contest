@@ -1,5 +1,6 @@
 // Runtime spell-memory upkeep, the known-spell display, and spell casting.
 // C ref: spell.c age_spells(), dovspell(), dospellmenu(), percent_success(),
+// spell_cmp(), sortspells(), spellsortmenu(), show_spells(),
 // spellretention(), spelltypemnemonic(), study_book(), docast(), getspell(),
 // spelleffects_check(), spelleffects(), rejectcasting(), spell_let_to_idx(),
 // and spell_idx().
@@ -63,7 +64,7 @@ import { freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { shieldeff, cmap_to_glyph, map_glyphinfo, tmp_at, canspotmon } from './display.js';
 import { check_capacity, invocation_pos, losehp, nomul } from './hack.js';
-import { dist2, distmin, isqrt, sgn } from './hacklib.js';
+import { dist2, distmin, isqrt, sgn, strncmpi } from './hacklib.js';
 import { obfree, update_inventory, useup } from './invent.js';
 import {
     can_chant,
@@ -183,8 +184,8 @@ import { clearTtyMessageWindow } from './tty_message.js';
 import { S_goodpos } from './symbols.js';
 
 // C ref: spell.c's spellmenu arguments. 0..MAXSPELL-1 double as svs.spl_book[]
-// indices while swapping two spells; SPELLMENU_DUMP (-3) belongs to
-// show_spells(), which is not ported.
+// indices while swapping two spells.
+const SPELLMENU_DUMP = -3;
 const SPELLMENU_CAST = -2;
 const SPELLMENU_VIEW = -1;
 const SPELLMENU_SORT = MAXSPELL;
@@ -946,10 +947,8 @@ export function spelltypemnemonic(skill) {
     case P_MATTER_SPELL:
         return 'matter';
     default:
-        // C reports impossible() and returns "". No spellbook a hero can
-        // learn from carries another oc_skill, so reaching this is a bug in
-        // the caller rather than a game state to render.
-        throw new RangeError(`Unknown spell skill, ${skill};`);
+        note_unported('pline.c impossible');
+        return '';
     }
 }
 
@@ -1069,110 +1068,243 @@ export function spellretention(idx, state = game) {
     return `${percent - accuracy + 1}%-${percent}%`;
 }
 
-// C ref: spell.c dospellmenu(). Covers SPELLMENU_VIEW (the `+` listing) and
-// SPELLMENU_CAST (the getspell() casting menu). The swap prompt and the
-// dumplog listing pass another splaction and stop.
-//
-// The whole menu is built before the window owner draws anything, the shape
-// display_pickinv() uses, so an unported column stops with the screen
-// untouched. Returns { ok, spell_no }: `ok` is C's boolean result and
-// `spell_no` is C's *spell_no out-parameter.
-async function dospellmenu(prompt, splaction, state, menu) {
-    if (splaction !== SPELLMENU_VIEW && splaction !== SPELLMENU_CAST)
-        throw new UnsupportedSpellDisplayError('a preselected spell menu');
-    // The tab-separated column layout belongs to iflags.menu_tab_sep, whose
-    // options.c boolean handler is not ported.
-    if (state.iflags?.menu_tab_sep)
-        throw new UnsupportedSpellDisplayError('menu_tab_sep columns');
-    const sep = ' ';
+// C ref: spell.c spl_sort_types and spl_sortchoices (1840-1866).
+export const SORTBY_LETTER = 0;
+export const SORTBY_ALPHA = 1;
+export const SORTBY_LVL_LO = 2;
+export const SORTBY_LVL_HI = 3;
+export const SORTBY_SKL_AL = 4;
+export const SORTBY_SKL_LO = 5;
+export const SORTBY_SKL_HI = 6;
+export const SORTBY_CURRENT = 7;
+export const SORTRETAINORDER = 8;
+const spl_sortchoices = [
+    'by casting letter',
+    'alphabetically',
+    'by level, low to high',
+    'by level, high to low',
+    'by skill group, alphabetized within each group',
+    'by skill group, low to high level within group',
+    'by skill group, high to low level within group',
+    'maintain current ordering',
+    'reassign casting letters to retain current order',
+];
 
-    // The column spacing assumes a monospaced font and a four-character
-    // "a - " selector prefix. C drops the matching indent for SPELLMENU_DUMP,
-    // whose entries carry no such prefix.
-    let heading = `    ${'Name'.padEnd(20)} Level `
-        + `${'Category'.padEnd(12)} Fail Retention`;
-    if (state.wizard) heading += `${sep}${'turns'.padStart(6)}`;
-
-    const items = [{ text: heading, heading: true }];
-    for (let i = 0; i < MAXSPELL && spellid(i, state) !== NO_SPELL; ++i) {
-        // C reads gs.spl_orderindx[i] when a sort has allocated it.
-        // sortspells() is unported and nothing else allocates it, so the
-        // index is always the slot itself.
-        const splnum = i;
-        let text = `${spellname(splnum, state).padEnd(20)}  `
-            + `${String(spellev(splnum, state)).padStart(2)}   `
-            + `${spelltypemnemonic(
-                spell_skilltype(spellid(splnum, state), state),
-            ).padEnd(12)} `
-            + `${String(100 - percent_success(splnum, state)).padStart(3)}% `
-            + `${spellretention(splnum, state).padStart(9)}`;
-        // C indexes spellknow() with the loop counter rather than splnum, so
-        // a sorted list shows retention turns against the wrong row.
-        if (state.wizard)
-            text += `${sep}${String(spellknow(i, state)).padStart(6)}`;
-
-        // C preselects the entry whose index equals splaction, which
-        // SPELLMENU_VIEW never matches.
-        items.push({
-            selector: spellet(splnum),
-            label: text,
-            value: splnum + 1, /* must be non-zero */
-        });
-    }
-
-    let how = PICK_ONE;
-    if (splaction === SPELLMENU_VIEW) {
-        if (spellid(1, state) === NO_SPELL) {
-            /* only one spell => nothing to swap with */
-            how = PICK_NONE;
-        } else {
-            /* more than 1 spell, add an extra menu entry */
-            items.push({
-                selector: '+',
-                label: '[sort spells]',
-                value: SPELLMENU_SORT + 1,
-            });
-        }
-    }
-    /* SPELLMENU_CAST: always PICK_ONE, no [sort spells] entry */
-
-    const chosen = await menu(items, how, prompt, state);
-    // C's `*spell_no == splaction` test detects that the hero left the
-    // preselected spell alone; with no preselection every answer other than
-    // "nothing chosen" is a real choice.
-    if (chosen != null) return { ok: true, spell_no: chosen - 1 };
-    return { ok: false, spell_no: splaction };
+// decl.c gs.spl_sortmode/gs.spl_orderindx start at 0/NULL. They describe
+// temporary display order, independently of the persistent svs.spl_book.
+function spellSortState(state) {
+    state.gs ??= {};
+    state.gs.spl_sortmode ??= SORTBY_LETTER;
+    state.gs.spl_orderindx ??= null;
+    return state.gs;
 }
 
-// C ref: spell.c dovspell(), bound to '+'. A hero who knows no spell is told
-// so; a hero who knows one or more sees the spell list. Returns whether the
-// command took game time, which for this one is never.
-export async function dovspell(state = game, { message, menu } = {}) {
-    if (typeof message !== 'function')
-        throw new TypeError('dovspell needs a message owner');
+// C ref: spell.c spell_cmp(). position1/2 represent the callback's pointers
+// into the original index array, as patch002's stable qsort wrapper passes
+// them. SORTBY_CURRENT ordinarily returns before calling the comparator.
+export function spell_cmp(indx1, indx2, state = game,
+    position1 = indx1, position2 = indx2) {
+    const otyp1 = spellid(indx1, state), otyp2 = spellid(indx2, state);
+    const obj1 = objectType(otyp1, state), obj2 = objectType(otyp2, state);
+    const levl1 = obj1.oc_level, levl2 = obj2.oc_level;
+    const skil1 = obj1.oc_skill, skil2 = obj2.oc_skill;
+    switch (state.gs?.spl_sortmode ?? SORTBY_LETTER) {
+    case SORTBY_LETTER: return indx1 - indx2;
+    case SORTBY_ALPHA: break;
+    case SORTBY_LVL_LO:
+        if (levl1 !== levl2) return levl1 - levl2;
+        break;
+    case SORTBY_LVL_HI:
+        if (levl1 !== levl2) return levl2 - levl1;
+        break;
+    case SORTBY_SKL_AL:
+        if (skil1 !== skil2) return skil1 - skil2;
+        break;
+    case SORTBY_SKL_LO:
+        if (skil1 !== skil2) return skil1 - skil2;
+        if (levl1 !== levl2) return levl1 - levl2;
+        break;
+    case SORTBY_SKL_HI:
+        if (skil1 !== skil2) return skil1 - skil2;
+        if (levl1 !== levl2) return levl2 - levl1;
+        break;
+    default:
+        return position1 < position2 ? -1 : Number(position1 > position2);
+    }
+    // include/global.h strcmpi is strncmpi(a,b,-1), with ASCII lowc().
+    return strncmpi(OBJ_NAME(obj1, state), OBJ_NAME(obj2, state), -1);
+}
+
+// C ref: spell.c sortspells(). Only RETAIN changes casting letters.
+export function sortspells(state = game) {
+    const gs = spellSortState(state);
+    if (gs.spl_sortmode === SORTBY_CURRENT) return;
+    let n = 0;
+    while (n < MAXSPELL && spellid(n, state) !== NO_SPELL) ++n;
+    if (n < 2) return;
+    if (!gs.spl_orderindx) {
+        if (gs.spl_sortmode === SORTBY_LETTER
+            || gs.spl_sortmode === SORTRETAINORDER) return;
+        gs.spl_orderindx = Array.from({ length: MAXSPELL }, (_, i) => i);
+    }
+    if (gs.spl_sortmode === SORTRETAINORDER) {
+        // C copies structs by value, including all unused slots.
+        const tmp_book = gs.spl_orderindx.map(
+            (index) => ({ ...state.svs.spl_book[index] }),
+        );
+        for (let i = 0; i < MAXSPELL; ++i) {
+            state.svs.spl_book[i] = tmp_book[i];
+            gs.spl_orderindx[i] = i;
+        }
+        gs.spl_sortmode = SORTBY_LETTER;
+        return;
+    }
+    // ES sort is stable, matching patch002's original-position tie-break.
+    const order = gs.spl_orderindx.slice(0, n)
+        .sort((a, b) => spell_cmp(a, b, state));
+    for (let i = 0; i < n; ++i) gs.spl_orderindx[i] = order[i];
+}
+
+// Bounded window seam for spell.c's menu calls. Import at the async call
+// boundary so this does not add a startup cycle through cmd/display.
+async function spellMenu(items, how, prompt, state, selection = {}) {
+    const { select_menu } = await import('./windows.js');
+    const { menuTitleStyle } = await import('./tty_menu.js');
+    const style = menuTitleStyle(state);
+    return select_menu(state, {
+        items: items.map((item) => item.heading
+            ? { ...item, attr: style.titleAttr, color: style.titleColor }
+            : item),
+        how, title: prompt, ...style, ...selection,
+        cancelValue: null,
+        overlay: state.iflags?.menu_overlay !== false,
+    });
+}
+
+// Production menus return C's ordered selected[] rows, including their counts.
+// A scalar remains usable by an injected caller, but cannot imply deselection.
+function spellMenuValues(chosen) {
+    if (Array.isArray(chosen)) return chosen.map(item => item.value);
+    if (chosen == null) return [];
+    return [typeof chosen === 'object' ? chosen.value : chosen];
+}
+
+// C ref: spell.c spellsortmenu().
+export async function spellsortmenu(state = game, menu = spellMenu) {
+    const gs = spellSortState(state);
+    const items = [];
+    for (let i = 0; i < spl_sortchoices.length; ++i) {
+        if (i === SORTRETAINORDER) items.push({ text: '' });
+        items.push({
+            selector: i === SORTRETAINORDER ? 'z' : String.fromCharCode(97 + i),
+            value: i + 1,
+            label: spl_sortchoices[i],
+            selected: i === gs.spl_sortmode,
+        });
+    }
+    const selected = spellMenuValues(await menu(
+        items, PICK_ONE, 'View known spells list sorted', state,
+        { returnSelections: true },
+    ));
+    if (!selected.length) return false;
+    let choice = selected[0] - 1;
+    if (selected.length > 1 && choice === gs.spl_sortmode)
+        choice = selected[1] - 1;
+    gs.spl_sortmode = choice;
+    return true;
+}
+
+// C ref: spell.c dovspell(). Returns ECMD_OK without taking game time.
+export async function dovspell(state = game,
+    { message = ttyPline, menu = spellMenu } = {}) {
+    const gs = spellSortState(state);
     if (spellid(0, state) === NO_SPELL) {
         await message("You don't know any spells right now.", state);
     } else {
-        if (typeof menu !== 'function')
-            throw new TypeError('dovspell needs a menu owner');
-        // C loops until dospellmenu() answers FALSE. Both loop bodies are
-        // unported, so the loop here runs at most once: the '[sort spells]'
-        // entry needs spellsortmenu() and sortspells(), and picking a spell
-        // starts the reordering swap through a second dospellmenu().
-        const { ok, spell_no } = await dospellmenu(
-            'Currently known spells', SPELLMENU_VIEW, state, menu,
-        );
-        if (ok) {
-            throw new UnsupportedSpellDisplayError(
-                spell_no === SPELLMENU_SORT
-                    ? 'spellsortmenu()'
-                    : 'the spell reordering swap',
+        for (;;) {
+            const result = await dospellmenu(
+                'Currently known spells', SPELLMENU_VIEW, state, menu,
             );
+            if (!result.ok) break;
+            const splnum = result.spell_no;
+            if (splnum === SPELLMENU_SORT) {
+                if (await spellsortmenu(state, menu)) sortspells(state);
+            } else {
+                const other = await dospellmenu(
+                    `Reordering spells; swap '${spellet(splnum)}' with`,
+                    splnum, state, menu,
+                );
+                if (!other.ok) break;
+                const spl_tmp = state.svs.spl_book[splnum];
+                state.svs.spl_book[splnum] = state.svs.spl_book[other.spell_no];
+                state.svs.spl_book[other.spell_no] = spl_tmp;
+            }
         }
     }
-    // C frees gs.spl_orderindx and resets gs.spl_sortmode here; the port
-    // allocates neither, because sortspells() is what would set them.
-    return false;
+    gs.spl_orderindx = null;
+    gs.spl_sortmode = SORTBY_LETTER;
+    return ECMD_OK;
+}
+
+// C ref: spell.c show_spells(). end.c's caller is DUMPLOG-inactive in the
+// reference build; preserve the function and its source menu call anyway.
+export async function show_spells(state = game,
+    { message = ttyPline, menu = spellMenu } = {}) {
+    if (spellid(0, state) === NO_SPELL) {
+        await message("You didn't know any spells.", state);
+        await message('', state);
+    } else {
+        await message('Spells:', state);
+        await dospellmenu('', SPELLMENU_DUMP, state, menu);
+    }
+}
+
+// C ref: spell.c dospellmenu(). The boolean and out-index are {ok,spell_no}.
+export async function dospellmenu(prompt, splaction, state = game,
+    menu = spellMenu) {
+    const sep = state.iflags?.menu_tab_sep ? '\t' : ' ';
+    let heading = sep === '\t' ? 'Name\tLevel\tCategory\tFail\tRetention'
+        : `${splaction === SPELLMENU_DUMP ? '' : '    '}${'Name'.padEnd(20)}`
+            + ` Level ${'Category'.padEnd(12)} Fail Retention`;
+    if (state.wizard) heading += `${sep}${'turns'.padStart(6)}`;
+    const items = [{ text: heading, heading: true }];
+    for (let i = 0; i < MAXSPELL && spellid(i, state) !== NO_SPELL; ++i) {
+        const splnum = state.gs?.spl_orderindx ? state.gs.spl_orderindx[i] : i;
+        const name = spellname(splnum, state);
+        const level = spellev(splnum, state);
+        const category = spelltypemnemonic(
+            spell_skilltype(spellid(splnum, state), state),
+        );
+        const fail = 100 - percent_success(splnum, state);
+        const retention = spellretention(splnum, state);
+        let text = sep === '\t'
+            ? `${name}\t${level}\t${category}\t${fail}%\t${retention}`
+            : `${name.padEnd(20)}  ${String(level).padStart(2)}   `
+                + `${category.padEnd(12)} ${String(fail).padStart(3)}% `
+                + retention.padStart(9);
+        // Preserve C's loop index, even when splnum has been sorted.
+        if (state.wizard) text += `${sep}${String(spellknow(i, state)).padStart(6)}`;
+        items.push({ selector: spellet(splnum), label: text,
+            value: splnum + 1, selected: splnum === splaction });
+    }
+    let how = PICK_ONE;
+    if (splaction === SPELLMENU_VIEW) {
+        if (spellid(1, state) === NO_SPELL) how = PICK_NONE;
+        else items.push({ selector: '+', label: '[sort spells]',
+            value: SPELLMENU_SORT + 1 });
+    }
+    const selection = { returnSelections: true };
+    const selected = spellMenuValues(await menu(
+        items, how, prompt, state, selection,
+    ));
+    if (selected.length) {
+        let spell_no = selected[0] - 1;
+        if (selected.length > 1 && spell_no === splaction)
+            spell_no = selected[1] - 1;
+        return { ok: spell_no !== splaction, spell_no };
+    }
+    if (splaction >= 0) return { ok: true, spell_no: splaction };
+    return { ok: false, spell_no: splaction };
 }
 
 // C ref: spell.c spell_let_to_idx() (115-126). Converts a letter ('a'..'z' or
@@ -1677,15 +1809,6 @@ export async function dowizcast(state = game, env = {}) {
     if (selected !== null && selected !== undefined)
         return spelleffects(selected, false, true, state, env);
     return ECMD_OK;
-}
-
-// Thrown where spell.c reads a display branch this port has not reached.
-export class UnsupportedSpellDisplayError extends Error {
-    constructor(branch) {
-        super(`spell display requires ${branch}`);
-        this.name = 'UnsupportedSpellDisplayError';
-        this.branch = branch;
-    }
 }
 
 // Thrown where spell.c reaches a casting branch this port has not reached.

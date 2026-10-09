@@ -226668,7 +226668,7 @@
     {
       "id": "port-spell-sort-menu-family-v33-20261009",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port known-spell sorting, letter reassignment, swapping and complete menu columns.",
       "cFile": "spell.c",
       "sessions": [
@@ -226676,52 +226676,59 @@
       ],
       "selectionReason": "After B181 matched both potion cases, v33 spell-sort-menu remains 27 screens short; the complete spell menu family and consumed case-insensitive comparator are independent of the active monster and artifact scopes.",
       "detail": "Port spell.c spell_cmp through dospellmenu in definition order, including inactive show_spells, verify spelltypemnemonic default behavior, and correct hacklib.c strncmpi negative-count semantics consumed by strcmpi. Preserve temporary display sorting, permanent letter reassignment, swapping, menu columns, preselected current/alternate/Enter/Esc returns, and existing casting-effect frontiers.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "48ae2fb1d27693bd5b09a55890410acc1f447164",
+      "openStanding": {
+        "sha": "48ae2fb1d27693bd5b09a55890410acc1f447164",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "3ef1ebdbffb1bf6d15c3f591ec568f182fa36148",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "spell_cmp",
           "line": 1870,
           "endLine": 1926,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "sortspells",
           "line": 1927,
           "endLine": 1975,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "spellsortmenu",
           "line": 1976,
           "endLine": 2020,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "dovspell",
           "line": 2021,
           "endLine": 2058,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "show_spells",
           "line": 2059,
           "endLine": 2074,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "dospellmenu",
           "line": 2075,
           "endLine": 2172,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -226735,7 +226742,7 @@
           "endLine": 855,
           "declared": true,
           "sourceFile": "spell.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "strncmpi",
@@ -226743,7 +226750,7 @@
           "endLine": 739,
           "declared": true,
           "sourceFile": "hacklib.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -226759,6 +226766,607 @@
           "evaluationPath": "challenges/evaluations/accepted-f091b997ca1571fc6198fe3189ad06fe2dba532c-v33.json",
           "evaluationCommit": "f091b997ca1571fc6198fe3189ad06fe2dba532c"
         }
+      },
+      "activeStanding": {
+        "sha": "48ae2fb1d27693bd5b09a55890410acc1f447164",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-spell-sort-menu",
+          "session": "synthetic/v33/v33-spell-sort-menu",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recording": "challenges/cases/v33/v33-spell-sort-menu.session.json",
+          "recordingPath": "challenges/cases/v33/v33-spell-sort-menu.session.json",
+          "recordingSha256": "0ac28d7e7c3791b84b96795debb518d2a1c6e3a3d45f7965b89605d7ebe16a8b",
+          "recipe": "challenges/cases/v33/v33-spell-sort-menu.recipe.session.json",
+          "recipeSha256": "70a50565e11d5052e1a2640dcaff18b8c9ec2cee4c14c3908d77648120f8bca5",
+          "replayInputSha256": "935bf44cbb6e8bb51cd109357c6e847feb8c3b0fc9d1718fe69c6ddaf6757efe",
+          "evaluationPath": "challenges/evaluations/accepted-993ad924fd08f999b0beeaa0945abc04eb2e5ec0-v33.json",
+          "evaluationCommit": "993ad924fd08f999b0beeaa0945abc04eb2e5ec0",
+          "evaluationArtifact": "challenges/evaluations/accepted-993ad924fd08f999b0beeaa0945abc04eb2e5ec0-v33.json",
+          "evaluationUtc": "2026-10-09T06:10:33.322Z",
+          "remainingScreens": 27,
+          "recordedSteps": 30,
+          "previousScreensMatched": 3,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 3,
+              "total": 30
+            },
+            "rng": {
+              "matched": 2521,
+              "total": 2521
+            },
+            "cursors": {
+              "matched": 3,
+              "total": 30
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: spell display requires spellsortmenu()",
+            "step": 3
+          },
+          "step": 3,
+          "kind": "stop",
+          "sourceFile": "spell.c",
+          "function": "spellsortmenu",
+          "message": "unsupported hero command: an unported branch of this command: spell display requires spellsortmenu()",
+          "cFile": "spell.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v33/v33-spell-sort-menu.json",
+            "result": {
+              "session": "synthetic/v33/v33-spell-sort-menu",
+              "corpus": "synthetic",
+              "batch": "v33",
+              "caseId": "v33-spell-sort-menu",
+              "manifestPath": "challenges/manifests/v33.json",
+              "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+              "recordingSha256": "0ac28d7e7c3791b84b96795debb518d2a1c6e3a3d45f7965b89605d7ebe16a8b",
+              "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+              "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+              "remainingScreens": 27,
+              "recordedSteps": 30,
+              "status": "complete",
+              "commit": "b62cc723e2707e3254e8cf829987e96e607e5365",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v33",
+                "caseId": "v33-spell-sort-menu",
+                "session": "synthetic/v33/v33-spell-sort-menu",
+                "manifestPath": "challenges/manifests/v33.json",
+                "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+                "recording": "challenges/cases/v33/v33-spell-sort-menu.session.json",
+                "recordingPath": "challenges/cases/v33/v33-spell-sort-menu.session.json",
+                "recordingSha256": "0ac28d7e7c3791b84b96795debb518d2a1c6e3a3d45f7965b89605d7ebe16a8b",
+                "recipe": "challenges/cases/v33/v33-spell-sort-menu.recipe.session.json",
+                "recipeSha256": "70a50565e11d5052e1a2640dcaff18b8c9ec2cee4c14c3908d77648120f8bca5",
+                "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+                "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+                "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+                "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+                "evaluationUtc": "2026-10-09T03:03:55.655Z",
+                "remainingScreens": 27,
+                "recordedSteps": 30,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 3,
+                    "total": 30
+                  },
+                  "rng": {
+                    "matched": 2521,
+                    "total": 2521
+                  },
+                  "cursors": {
+                    "matched": 3,
+                    "total": 30
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: spell display requires spellsortmenu()",
+                  "step": 3
+                },
+                "step": 3,
+                "kind": "stop",
+                "sourceFile": "spell.c",
+                "function": "spellsortmenu",
+                "message": "unsupported hero command: an unported branch of this command: spell display requires spellsortmenu()",
+                "cFile": "spell.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Choosing [sort spells] reaches missing spell.c:spellsortmenu/sortspells. The source closure is the whole spell_cmp..dospellmenu family, including temporary display order, permanent letter reassignment, swap selection and tab columns. Existing strncmpi also needs the negative-count strcmpi contract; canonical menu adapters must distinguish retained preselection from explicit deselection.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "spell.c",
+                "functions": [
+                  "spell_cmp",
+                  "sortspells",
+                  "spellsortmenu",
+                  "dovspell",
+                  "show_spells",
+                  "dospellmenu"
+                ],
+                "branch": "Hero knows at least two spells; + or #showspells opens the known-spell list, then + selects [sort spells]. C builds a sort-choice menu, consumes its selection, sorts only the known prefix of the display index or retains it in the full spellbook, redraws and resets temporary sort state on exit.",
+                "callers": [
+                  "cmd.c extcmdlist1870–1871 showspells (default +) -> spell.c:dovspell2021–2053; JS cmd.js runShowspellsCommand3071 and direct/typed dispatch already reach dovspell.",
+                  "spell.c:dovspell2030 consumes dospellmenu VIEW;2033 consumes spellsortmenu then sortspells;2038 consumes preselected dospellmenu and swaps full spell structs.",
+                  "spell.c:getspell781 -> dospellmenu CAST, reached by docast and cmd.js runCastCommand3317; reconcile the bounded shared menu adapter in both production command families.",
+                  "spell.c:show_spells2067 -> dospellmenu DUMP; end.c:dump_everything601 calls show_spells only inside #ifdef DUMPLOG, inactive in the reference recorder."
+                ],
+                "dependencies": [
+                  "hacklib.c:strncmpi717–736 is required by include/global.h113 strcmpi(a,b)=strncmpi(a,b,-1). JS hacklib.js525 presently loops remaining-- > 0, so -1 wrongly returns0 for all names. Correct and source-pin the whole pure helper; positive-count existing callers retain their semantics.",
+                  "spell.c:spelltypemnemonic832–853 supplies consumed menu category strings. Existing JS maps all seven valid categories, but its default throws RangeError instead of C discarded impossible then empty-string return. Include whole helper verification and the bounded default reconciliation.",
+                  "Existing spellid/spellknow/spellev/spellname/spellet, startup_skills.spell_skilltype, percent_success958 and spellretention1045 match the source calculations used by menu rows. Read source percent_success2173–2292 and spellretention2295–2341 plus existing tests; preserve integer truncation, role/equipment modifiers and knowledge intervals.",
+                  "Reuse canonical windows.select_menu and tty_menu.selectTtyMenu. Existing preselected/emptyValue completion fields distinguish an accepted default from an explicit selector; a bounded adapter must preserve C retained-current FALSE versus zero-selection current TRUE in dospellmenu and FALSE in spellsortmenu. No whole menu-owner expansion is needed for this projection.",
+                  "Patch002 replaces qsort with a stable original-position wrapper. spell_cmp uses mode-specific level/skill differences and case-insensitive name tie-breaks; CURRENT pointer-order default reads original array positions, while sortspells returns before sorting CURRENT.",
+                  "State corresponds to decl.c723–724/include decl.h909–910 gs.spl_sortmode and gs.spl_orderindx, separate from persistent svs.spl_book. Keep one canonical location for each, free/reset at dovspell exit and copy all MAXSPELL records when retaining order."
+                ]
+              },
+              "evidence": [
+                "Saved coordinator queue .cache/mismatch-queue-v33-3ab0909e.json retains27 unmatched of30screens,3matchedscreens/cursors and2521/2521RNG. First stop is segment0step3 with UnsupportedHeroCommandBoundaryError: spell display requires spellsortmenu(). Recording and recipe SHA256 were checked against that queue before writing this report.",
+                "Read immutable admitted recipe .++b followed by menu acknowledgments and B158 preparation sourceTrace/localComparison in packet cabd31a8. It independently identified the same segment0step3 second + selection; current JS spell.js1158–1174 still throws there. No replay or recipe mutation was needed to rediscover it.",
+                "Read complete C spell_cmp1870–1921, sortspells1927–1972, spellsortmenu1976–2017, dovspell2021–2053, show_spells2059–2069, dospellmenu2075–2168 in definition order. JS has no spell_cmp/sortspells/spellsortmenu; dospellmenu rejects preselection/tabs and dovspell stops after one menu. These are missing whole functions/family, not a message-only divergence.",
+                "C sortspells counts known contiguous spells, allocates/reset52 indices, leaves LETTER/RETAIN alone before allocation, sorts only the known prefix, and copies the full52-record book for RETAIN. dovspell exchanges entire records, loops, frees display indices and resets LETTER even for an empty book. dospellmenu shows wizard spellknow(i), deliberately using loop index instead of sorted splnum; preserve this source behavior.",
+                "C source offers9 sort choices with explicit a–h and z selector plus separator; retains selected mode and skips first preselected result when another is chosen. dospellmenu consumes boolean/out-index including nonpositive selection for a preselected spell. Scalar TTY projection must preserve retained default, explicitly deselected same spell, alternate pick and Esc rather than treating every null alike.",
+                "Reference recorder include/config.h669 comments out DUMPLOG, config.h269 enables only DUMPLOG_CORE, and recorder src/Makefile CFLAGS=-g -I../include / SYSCFLAGS=-DLUA_USE_POSIX add no DUMPLOG flag; build-recorder.sh and patches contain no DUMPLOG enabling change. end.c516 begins the guarded dump unit. show_spells remains in the selected complete range with compile-inactive caller evidence and source-pinned tests.",
+                "Companion v33-spell-tab-columns has27 unmatched of29screens, first stop segment0step2, same immutable manifest/evaluation and dospellmenu2101–2113 owner. Its report path is not yet assigned; retain a cache draft only, add source/session/report scope atomically before game edits after central queueing.",
+                "Current ledger snapshot .cache/B182/ledger.json shows only A179 hack empty-forcefight and C160/C161 artifact invocation scopes alongside immutable B181. None overlaps this spell family or hacklib helper. B181 submitted history stays immutable; this investigation changes only its assigned report."
+              ],
+              "proposal": {
+                "goalId": "port-spell-sort-menu-family-v33-20261009",
+                "summary": "Port known-spell sorting, letter reassignment, swapping and complete menu columns.",
+                "selectionReason": "Seed continuation after the submitted B181 naming divergence fully matched both selected cases. The saved v33 queue gives spell-sort-menu27 remaining screens; the complete spell menu family is independent of A179 and C160/C161. The same dospellmenu owner also blocks tab-columns27remaining, to be grouped only after its investigation path is authorized.",
+                "detail": "At synthetic/v33/v33-spell-sort-menu segment0step3, the second + chooses [sort spells]. JS dovspell stops instead of executing C spellsortmenu1976–2017 and sortspells1927–1972. Port the whole spell_cmp..dospellmenu range in source order, including compile-inactive show_spells, required spelltypemnemonic verification/default reconciliation and hacklib strncmpi negative-count semantics used by strcmpi. Preserve temporary display order versus permanent letter reassignment and all consumed menu return cases.",
+                "sourceBounds": {
+                  "file": "spell.c",
+                  "fromFunction": "spell_cmp",
+                  "toFunction": "dospellmenu",
+                  "range": "1870–2168",
+                  "requiredFunctions": [
+                    "spelltypemnemonic"
+                  ],
+                  "requiredHelper": {
+                    "file": "hacklib.c",
+                    "name": "strncmpi",
+                    "range": "717–736"
+                  }
+                },
+                "sessions": [
+                  "synthetic/v33/v33-spell-sort-menu"
+                ],
+                "companionSession": "synthetic/v33/v33-spell-tab-columns",
+                "proposedReservations": [
+                  "session:synthetic/v33/v33-spell-sort-menu",
+                  "source:spell.c:spell_cmp",
+                  "source:spell.c:sortspells",
+                  "source:spell.c:spellsortmenu",
+                  "source:spell.c:dovspell",
+                  "source:spell.c:show_spells",
+                  "source:spell.c:dospellmenu",
+                  "source:spell.c:spelltypemnemonic",
+                  "source:hacklib.c:strncmpi",
+                  "contract:spell-display-order-and-casting-letters",
+                  "contract:spell-menu-preselected-results"
+                ],
+                "proposedPaths": [
+                  "js/spell.js",
+                  "js/cmd.js",
+                  "js/hacklib.js",
+                  "scripts/spell*.test.mjs",
+                  "scripts/hacklib-math.test.mjs",
+                  "scripts/cmd*.test.mjs",
+                  "scripts/run-spell-menu.mjs",
+                  "recipes/spell.c/",
+                  "recordings/spell.c/",
+                  "investigations/synthetic/v33/v33-spell-sort-menu.json",
+                  ".cache/"
+                ],
+                "dependencies": [],
+                "limits": [
+                  "No whole cmd.c, windows.c, tty_menu.c, docast or getspell completion credit. Existing casting effect frontiers remain outside scope.",
+                  "DUMPLOG show_spells caller inactive in recorder; translate source and pin output/call order without inventing an active endgame caller.",
+                  "No whole hacklib diagnostic credit; spelltypemnemonic default skips discarded impossible through note_unported and retains its empty-string return."
+                ],
+                "evidencePlan": [
+                  "C-first independent showspells inputs cover alphabetic/level/skill sorting, current-order mode, retain/reassign letters, spell swap and its default/deselected/cancel return paths; vary role or repertoire.",
+                  "Existing admitted sort-menu covers mode selection; tab-column companion covers raw tab layout after path authorization. Create independent tab-column showspells variation.",
+                  "MENU_FULL docast/getspell uses the same completed menu; use independent casting menu cancellation and a matching already-supported spell cast, without expanding spell effects.",
+                  "Pure spell_cmp and required strncmpi receive source-pinned comparator/tie/negative-count tests; show_spells receives source-pinned inactive helper coverage."
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "spell_cmp",
+            "implementation": "js/spell.js",
+            "symbol": "spell_cmp",
+            "sourceReview": "Read complete spell.c selected range1870–2168 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Preserve all branches, canonical gs display-index/mode versus svs persistent spellbook,52-slot retain copy, source input/window order and zero/nonzero/preselected selector results. Delete UnsupportedSpellDisplayError and its cmd imports/registry plus old stub behavior; no skipped selected owner calls.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "sortspells",
+                "source": "spell.c1970 qsort comparator; patch002 stable original-position ties"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/spell-sort.test.mjs",
+              "scripts/spell.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "spell.c",
+            "synthetic": [],
+            "checkedAt": "b854d6823111350fd9523fffea48e6ef3ec5bb82"
+          },
+          {
+            "name": "sortspells",
+            "implementation": "js/spell.js",
+            "symbol": "sortspells",
+            "sourceReview": "Read complete spell.c selected range1870–2168 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Preserve all branches, canonical gs display-index/mode versus svs persistent spellbook,52-slot retain copy, source input/window order and zero/nonzero/preselected selector results. Delete UnsupportedSpellDisplayError and its cmd imports/registry plus old stub behavior; no skipped selected owner calls.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "dovspell",
+                "source": "spell.c2034 after successful spellsortmenu"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/spell-sort.test.mjs",
+              "scripts/spell.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/menu-sort-retain-swap-independent.session.json",
+              "recordings/spell.c/menu-typed-showspells-independent.session.json"
+            ],
+            "sourceFile": "spell.c",
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-spell-sort-menu",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 29,
+                "source": "cmd.c showspells + -> spell.c:dovspell -> dospellmenu VIEW -> spellsortmenu alphabetic selection -> sortspells/spell_cmp, then normal exit/reset."
+              }
+            ],
+            "checkedAt": "b854d6823111350fd9523fffea48e6ef3ec5bb82"
+          },
+          {
+            "name": "spellsortmenu",
+            "implementation": "js/spell.js",
+            "symbol": "spellsortmenu",
+            "sourceReview": "Read complete spell.c selected range1870–2168 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Preserve all branches, canonical gs display-index/mode versus svs persistent spellbook,52-slot retain copy, source input/window order and zero/nonzero/preselected selector results. Delete UnsupportedSpellDisplayError and its cmd imports/registry plus old stub behavior; no skipped selected owner calls. Correction: consume the actual tty_select_menu selected rows/counts after bulk deselection and counted default toggling, without scalar equality or fixed retained payload inference.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "dovspell",
+                "source": "spell.c2033 consumes selected mode boolean"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/spell-sort.test.mjs",
+              "scripts/spell.test.mjs",
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/menu-sort-retain-swap-independent.session.json",
+              "recordings/spell.c/menu-typed-showspells-independent.session.json",
+              "recordings/spell.c/menu-swap-unselect-all-independent.session.json",
+              "recordings/spell.c/menu-swap-unselect-page-independent.session.json",
+              "recordings/spell.c/menu-swap-counted-default-independent.session.json",
+              "recordings/spell.c/menu-sort-unselect-all-independent.session.json",
+              "recordings/spell.c/menu-sort-unselect-page-independent.session.json",
+              "recordings/spell.c/menu-sort-counted-default-independent.session.json"
+            ],
+            "sourceFile": "spell.c",
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-spell-sort-menu",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 29,
+                "source": "cmd.c showspells + -> spell.c:dovspell -> dospellmenu VIEW -> spellsortmenu alphabetic selection -> sortspells/spell_cmp, then normal exit/reset."
+              }
+            ],
+            "checkedAt": "b854d6823111350fd9523fffea48e6ef3ec5bb82"
+          },
+          {
+            "name": "dovspell",
+            "implementation": "js/spell.js",
+            "symbol": "dovspell",
+            "sourceReview": "Read complete spell.c selected range1870–2168 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Preserve all branches, canonical gs display-index/mode versus svs persistent spellbook,52-slot retain copy, source input/window order and zero/nonzero/preselected selector results. Delete UnsupportedSpellDisplayError and its cmd imports/registry plus old stub behavior; no skipped selected owner calls. Correction: consume the actual tty_select_menu selected rows/counts after bulk deselection and counted default toggling, without scalar equality or fixed retained payload inference.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runShowspellsCommand",
+                "source": "cmd.c extcmdlist1870–1871 showspells; direct + rhack and typed doextcmd await ECMD_OK owner"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/spell-sort.test.mjs",
+              "scripts/spell.test.mjs",
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/menu-sort-retain-swap-independent.session.json",
+              "recordings/spell.c/menu-typed-showspells-independent.session.json",
+              "recordings/spell.c/menu-swap-default-independent.session.json",
+              "recordings/spell.c/menu-swap-deselect-independent.session.json",
+              "recordings/spell.c/menu-no-spells-independent.session.json",
+              "recordings/spell.c/menu-swap-unselect-all-independent.session.json",
+              "recordings/spell.c/menu-swap-unselect-page-independent.session.json",
+              "recordings/spell.c/menu-swap-counted-default-independent.session.json",
+              "recordings/spell.c/menu-sort-unselect-all-independent.session.json",
+              "recordings/spell.c/menu-sort-unselect-page-independent.session.json",
+              "recordings/spell.c/menu-sort-counted-default-independent.session.json"
+            ],
+            "sourceFile": "spell.c",
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-spell-sort-menu",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 29,
+                "source": "cmd.c showspells + -> spell.c:dovspell -> dospellmenu VIEW -> spellsortmenu alphabetic selection -> sortspells/spell_cmp, then normal exit/reset."
+              },
+              {
+                "batch": "v33",
+                "caseId": "v33-spell-tab-columns",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 28,
+                "source": "cmd.c showspells + -> spell.c:dovspell -> dospellmenu VIEW with iflags.menu_tab_sep and wizard turns."
+              }
+            ],
+            "checkedAt": "b854d6823111350fd9523fffea48e6ef3ec5bb82"
+          },
+          {
+            "name": "show_spells",
+            "implementation": "js/spell.js",
+            "symbol": "show_spells",
+            "sourceReview": "Read complete spell.c selected range1870–2168 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Preserve all branches, canonical gs display-index/mode versus svs persistent spellbook,52-slot retain copy, source input/window order and zero/nonzero/preselected selector results. Delete UnsupportedSpellDisplayError and its cmd imports/registry plus old stub behavior; no skipped selected owner calls.",
+            "callers": [],
+            "pure": false,
+            "tests": [
+              "scripts/spell-sort.test.mjs",
+              "scripts/spell.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "spell.c",
+            "synthetic": [],
+            "inactiveReason": "Only production caller end.c:dump_everything601 is inside #ifdef DUMPLOG from end.c516. Reference recorder include/config.h669 leaves DUMPLOG commented; DUMPLOG_CORE269 enables message history only. Recorder src/Makefile CFLAGS=-g -I../include, SYSCFLAGS=-DLUA_USE_POSIX and patch/build sources do not enable DUMPLOG. Source-pinned focused tests establish source message/menu order and DUMP heading without inventing an active endgame caller.",
+            "checkedAt": "b854d6823111350fd9523fffea48e6ef3ec5bb82"
+          },
+          {
+            "name": "dospellmenu",
+            "implementation": "js/spell.js",
+            "symbol": "dospellmenu",
+            "sourceReview": "Read complete spell.c selected range1870–2168 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Preserve all branches, canonical gs display-index/mode versus svs persistent spellbook,52-slot retain copy, source input/window order and zero/nonzero/preselected selector results. Delete UnsupportedSpellDisplayError and its cmd imports/registry plus old stub behavior; no skipped selected owner calls. Correction: consume the actual tty_select_menu selected rows/counts after bulk deselection and counted default toggling, without scalar equality or fixed retained payload inference.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "dovspell",
+                "source": "spell.c2030 VIEW and2038 preselected swap consume boolean/out-index"
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "getspell",
+                "source": "spell.c781 CAST from docast/nontraditional menu path"
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "show_spells",
+                "source": "spell.c2067 compile-inactive DUMP menu"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/spell-sort.test.mjs",
+              "scripts/spell.test.mjs",
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/menu-sort-retain-swap-independent.session.json",
+              "recordings/spell.c/menu-swap-default-independent.session.json",
+              "recordings/spell.c/menu-swap-deselect-independent.session.json",
+              "recordings/spell.c/menu-sort-healer-independent.session.json",
+              "recordings/spell.c/menu-tab-columns-independent.session.json",
+              "recordings/spell.c/menu-cast-cancel-independent.session.json",
+              "recordings/spell.c/menu-cast-healing-independent.session.json",
+              "recordings/spell.c/menu-swap-unselect-all-independent.session.json",
+              "recordings/spell.c/menu-swap-unselect-page-independent.session.json",
+              "recordings/spell.c/menu-swap-counted-default-independent.session.json",
+              "recordings/spell.c/menu-sort-unselect-all-independent.session.json",
+              "recordings/spell.c/menu-sort-unselect-page-independent.session.json",
+              "recordings/spell.c/menu-sort-counted-default-independent.session.json"
+            ],
+            "sourceFile": "spell.c",
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-spell-sort-menu",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 29,
+                "source": "cmd.c showspells + -> spell.c:dovspell -> dospellmenu VIEW -> spellsortmenu alphabetic selection -> sortspells/spell_cmp, then normal exit/reset."
+              },
+              {
+                "batch": "v33",
+                "caseId": "v33-spell-tab-columns",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 28,
+                "source": "cmd.c showspells + -> spell.c:dovspell -> dospellmenu VIEW with iflags.menu_tab_sep and wizard turns."
+              }
+            ],
+            "checkedAt": "b854d6823111350fd9523fffea48e6ef3ec5bb82"
+          },
+          {
+            "name": "spelltypemnemonic",
+            "implementation": "js/spell.js",
+            "symbol": "spelltypemnemonic",
+            "sourceReview": "Read whole spell.c832–853 seven category returns and default discarded impossible then empty string. Existing valid category implementation verified; remove non-C RangeError default, record note_unported(pline.c impossible), retain empty string. No broader diagnostic completion; impure classification reflects source default diagnostic.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "dospellmenu",
+                "source": "spell.c2121 category formatting"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/spell-sort.test.mjs",
+              "scripts/spell.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/menu-tab-columns-independent.session.json",
+              "recordings/spell.c/menu-sort-retain-swap-independent.session.json"
+            ],
+            "sourceFile": "spell.c",
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-spell-sort-menu",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 29,
+                "source": "cmd.c showspells + -> spell.c:dovspell -> dospellmenu VIEW -> spellsortmenu alphabetic selection -> sortspells/spell_cmp, then normal exit/reset."
+              },
+              {
+                "batch": "v33",
+                "caseId": "v33-spell-tab-columns",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 28,
+                "source": "cmd.c showspells + -> spell.c:dovspell -> dospellmenu VIEW with iflags.menu_tab_sep and wizard turns."
+              }
+            ],
+            "checkedAt": "b854d6823111350fd9523fffea48e6ef3ec5bb82"
+          },
+          {
+            "name": "strncmpi",
+            "implementation": "js/hacklib.js",
+            "symbol": "strncmpi",
+            "sourceReview": "Read whole hacklib.c717–734 and global.h113 strcmpi macro. C while(n--) includes negative counts through NUL; correct existing >0 loop to !==0, preserving ASCII lowc, lexical sign, NUL-first checks and positive/zero count behavior. No RNG, output or state mutation.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "spell_cmp",
+                "source": "spell.c1920 strcmpi(a,b), macro strncmpi(a,b,-1)"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/spell-sort.test.mjs",
+              "scripts/hacklib-math.test.mjs",
+              "scripts/hacklib-strings.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "hacklib.c",
+            "synthetic": [],
+            "checkedAt": "b854d6823111350fd9523fffea48e6ef3ec5bb82"
+          }
+        ],
+        "entryPointReview": "Active source command families are known-spell viewing/sorting/swapping (+ and typed #showspells), the same command with no known spells, and dospellmenu CAST through docast/getspell nontraditional menu branch. Independent recordings exercise both dispatch paths, all sort choices other than initial LETTER (focused test covers it), retain, swap alternate/default/deselection, tabs and casting choose/cancel. DUMPLOG caller end.c601 is compile inactive; show_spells retains whole translation with source-pinned tests. No whole cmd.c/docast/getspell/window-port credit. The preexisting getspell749–780 traditional yn_function prompt/retry arm is outside the selected range and remains a named active caller frontier, with a C-first blocked * fallback recipe; its source prompt cannot yet match, so no traditional caller credit.",
+        "entryPoints": [
+          {
+            "name": "Known-spell viewing, sorting and swapping through +/#showspells",
+            "functions": [
+              "dovspell",
+              "dospellmenu",
+              "spellsortmenu",
+              "sortspells",
+              "spell_cmp",
+              "spelltypemnemonic"
+            ],
+            "recordings": [
+              "recordings/spell.c/menu-sort-retain-swap-independent.session.json",
+              "recordings/spell.c/menu-typed-showspells-independent.session.json",
+              "recordings/spell.c/menu-swap-default-independent.session.json",
+              "recordings/spell.c/menu-swap-deselect-independent.session.json",
+              "recordings/spell.c/menu-sort-healer-independent.session.json",
+              "recordings/spell.c/menu-tab-columns-independent.session.json",
+              "recordings/spell.c/menu-swap-unselect-all-independent.session.json",
+              "recordings/spell.c/menu-swap-unselect-page-independent.session.json",
+              "recordings/spell.c/menu-swap-counted-default-independent.session.json",
+              "recordings/spell.c/menu-sort-unselect-all-independent.session.json",
+              "recordings/spell.c/menu-sort-unselect-page-independent.session.json",
+              "recordings/spell.c/menu-sort-counted-default-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-spell-sort-menu",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 29,
+                "source": "cmd.c showspells + -> spell.c:dovspell -> dospellmenu VIEW -> spellsortmenu alphabetic selection -> sortspells/spell_cmp, then normal exit/reset."
+              },
+              {
+                "batch": "v33",
+                "caseId": "v33-spell-tab-columns",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 28,
+                "source": "cmd.c showspells + -> spell.c:dovspell -> dospellmenu VIEW with iflags.menu_tab_sep and wizard turns."
+              }
+            ]
+          },
+          {
+            "name": "Known-spell command with an empty spellbook",
+            "functions": [
+              "dovspell"
+            ],
+            "recordings": [
+              "recordings/spell.c/menu-no-spells-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Nontraditional docast/getspell casting menu",
+            "functions": [
+              "dospellmenu",
+              "spelltypemnemonic"
+            ],
+            "recordings": [
+              "recordings/spell.c/menu-cast-cancel-independent.session.json",
+              "recordings/spell.c/menu-cast-healing-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "3ef1ebdbffb1bf6d15c3f591ec568f182fa36148",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -227248,16 +227856,23 @@
     {
       "id": "fix-dothrow-toss-up-petrifier-drop-env-v33-20261009",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Supply canonical drop operations before upward-corpse petrification.",
       "cFile": "dothrow.c",
       "sessions": [],
       "selectionReason": "Current unreserved v33 cockatrice-upward divergence; the complete report traces missing canonical drop operations in toss_up petrification and is independent of queued owners.",
       "detail": "At segment 0 step 58, C toss_up drops the surviving corpse, clears thrownobj, then calls done(STONING). JavaScript passes raw state to env-shaped dropy. Compose dropCommandEnv at this caller while preserving placement, redraw, thrownobj clear, and terminal order; no whole toss_up, drop-family, or end.c credit.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "566dfde0ec682618adee4ddafaff78e9f965058f",
+      "openStanding": {
+        "sha": "1fca795f45379c5d8364836c74c8ac61910620cd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "bc2ce8fb5ecd42fec92c2db427c427b566e0d645",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "toss_up",
       "session": "synthetic/v33/v33-cockatrice-corpse-upward",
       "step": 58,
@@ -227274,12 +227889,217 @@
           "evaluationPath": "challenges/evaluations/accepted-7af2dcb832c469033b652c131fe1feeae0d47ed3-v33.json",
           "evaluationCommit": "7af2dcb832c469033b652c131fe1feeae0d47ed3"
         }
+      },
+      "activeStanding": {
+        "sha": "1fca795f45379c5d8364836c74c8ac61910620cd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-cockatrice-corpse-upward",
+          "session": "synthetic/v33/v33-cockatrice-corpse-upward",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recording": "challenges/cases/v33/v33-cockatrice-corpse-upward.session.json",
+          "recordingPath": "challenges/cases/v33/v33-cockatrice-corpse-upward.session.json",
+          "recordingSha256": "8628af8f2ac28a64cbb0a6c17665fb656f2b0132326ecb45cfb70f45a7d0cfec",
+          "recipe": "challenges/cases/v33/v33-cockatrice-corpse-upward.recipe.session.json",
+          "recipeSha256": "1ab35baaa1b981275b0e167cf352476e36ea8ed6b80135c83a8ff1a04f83ac44",
+          "replayInputSha256": "456263ce16a9e938258230439128be886eb6bd6fd46ba402d6b97a796dca66f9",
+          "evaluationPath": "challenges/evaluations/accepted-1fca795f45379c5d8364836c74c8ac61910620cd-v33.json",
+          "evaluationCommit": "1fca795f45379c5d8364836c74c8ac61910620cd",
+          "evaluationArtifact": "challenges/evaluations/accepted-1fca795f45379c5d8364836c74c8ac61910620cd-v33.json",
+          "evaluationUtc": "2026-10-09T07:00:53.923Z",
+          "remainingScreens": 32,
+          "recordedSteps": 90,
+          "previousScreensMatched": 58,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 58,
+              "total": 90
+            },
+            "rng": {
+              "matched": 2714,
+              "total": 2723
+            },
+            "cursors": {
+              "matched": 58,
+              "total": 90
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported drop: missing newsym operation",
+            "step": 58
+          },
+          "step": 58,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported drop: missing newsym operation",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v33/v33-cockatrice-corpse-upward.json",
+            "result": {
+              "session": "synthetic/v33/v33-cockatrice-corpse-upward",
+              "corpus": "synthetic",
+              "batch": "v33",
+              "caseId": "v33-cockatrice-corpse-upward",
+              "manifestPath": "challenges/manifests/v33.json",
+              "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+              "recordingSha256": "8628af8f2ac28a64cbb0a6c17665fb656f2b0132326ecb45cfb70f45a7d0cfec",
+              "evaluationPath": "challenges/evaluations/accepted-4c02dfca96bd54300b882ccce1f536aef50b9791-v33.json",
+              "evaluationCommit": "4c02dfca96bd54300b882ccce1f536aef50b9791",
+              "remainingScreens": 32,
+              "recordedSteps": 90,
+              "status": "complete",
+              "commit": "8980c83bc03676f29f3bfa402bda2a6ad633f21f",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v33",
+                "caseId": "v33-cockatrice-corpse-upward",
+                "session": "synthetic/v33/v33-cockatrice-corpse-upward",
+                "manifestPath": "challenges/manifests/v33.json",
+                "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+                "recording": "challenges/cases/v33/v33-cockatrice-corpse-upward.session.json",
+                "recordingPath": "challenges/cases/v33/v33-cockatrice-corpse-upward.session.json",
+                "recordingSha256": "8628af8f2ac28a64cbb0a6c17665fb656f2b0132326ecb45cfb70f45a7d0cfec",
+                "recipe": "challenges/cases/v33/v33-cockatrice-corpse-upward.recipe.session.json",
+                "recipeSha256": "1ab35baaa1b981275b0e167cf352476e36ea8ed6b80135c83a8ff1a04f83ac44",
+                "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+                "evaluationPath": "challenges/evaluations/accepted-4c02dfca96bd54300b882ccce1f536aef50b9791-v33.json",
+                "evaluationCommit": "4c02dfca96bd54300b882ccce1f536aef50b9791",
+                "evaluationArtifact": "challenges/evaluations/accepted-4c02dfca96bd54300b882ccce1f536aef50b9791-v33.json",
+                "evaluationUtc": "2026-10-09T03:51:19.671Z",
+                "remainingScreens": 32,
+                "recordedSteps": 90,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 58,
+                    "total": 90
+                  },
+                  "rng": {
+                    "matched": 2714,
+                    "total": 2723
+                  },
+                  "cursors": {
+                    "matched": 58,
+                    "total": 90
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported drop: missing newsym operation",
+                  "step": 58
+                },
+                "step": 58,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported drop: missing newsym operation",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Upward cockatrice-corpse petrification reaches an env-shaped dropy caller supplied only the raw game state. Compose canonical dropCommandEnv at toss_up’s surviving-object petrification tail to preserve floor placement/redraw before thrownobj clear and done(STONING). The complete source review establishes a bounded caller divergence; prepared throw_up/instapetrify labels do not describe this branch.",
+              "goalKind": "divergence-fix",
+              "source": {
+                "file": "dothrow.c",
+                "functions": [
+                  "toss_up"
+                ],
+                "branch": "An upward-thrown petrifying CORPSE survives breaktest and hits an unhelmeted hero without Stone_resistance or a successful stone-golem escape. The surviving obj is detached, printed as turning the hero to stone and dropped before done(STONING).",
+                "callers": [
+                  "cmd.c extcmdlist1902 throw/default t -> dothrow.c:dothrow350–376 -> throw_obj -> throwit1589 -> toss_up1256–1431; JS cmd.js6103 -> dothrow -> throw_obj -> throwit2640 -> toss_up.",
+                  "dothrow.c:throwit1589 discards toss_up’s Boolean; toss_up1409–1410 calls dropy for the surviving object,1411 clears gt.thrownobj,1412 calls done(STONING). JS splits this common source label into toss_up_petrify1416–1424, reached from egg and surviving corpse arms."
+                ],
+                "dependencies": [
+                  "Canonical js/do.js:dropCommandEnv1555–1570 composes setworn inventory hooks plus encumber_msg, remove_object and newsym while preserving caller overrides. Use it at this single caller; dropy2126 -> dropz2203 -> preflight_dropx1885 requires those operations and then places/stacks/redraws the detached object.",
+                  "C do.c:dropy799–804 simply calls dropz(FALSE); dropz806–842 owns flooreffects, place_object, stacking, newsym then encumber_msg. Existing ordinary-floor owner handles the selected corpse state; no missing consumed-return helper needs new porting for this divergence.",
+                  "Existing js/end.js:done715 and source end.c:done preserve the selected STONING/debug-survival path. C’s done return is discarded; do not expand terminal behavior or instantiate trap.c:instapetrify, which is not called in this C branch."
+                ]
+              },
+              "evidence": [
+                "Coordinator saved queue .cache/mismatch-queue-v33-3ab0909e.json and latest accepted-4c02dfca-v33 evaluation agree:58/90screens,58/90cursors,2714/2723RNG,32remaining. Recording8628af8f and recipe1ab35baa SHA256 verified byte-for-byte; manifest digest carried from the admitted queue, not a raw manifest file hash.",
+                "Bounded one-case run-041mTw at examined HEAD8980c83b (receipt /tmp/teleport-validation-1000/run-041mTw/receipt.json, diagnostic .cache/B183/scan.json) reproduces58 emitted of90screens and exactly the missing-newsym refusal at segment0step58; command sequence is wish gloves,wear,wish corpse,throw upward. No C recording, aggregate replay or game edit was performed.",
+                "Read complete upstream C dothrow.c:toss_up1256–1431 and JS toss_up1207–1411 plus common petrification helper1416–1424. C1404–1413’s surviving corpse tail has killer assignment,message,dropy,thrownobj reset,done in that order. JS1421 calls dropy(obj,state), but do.js:dropEnv1536 expects env.state and env.hooks; preflight_dropx2020 requires newsym before placement. The global-state fallback and absent hooks explain this deterministic refusal before the terminal call.",
+                "The independent C recording shows step57 ceiling/head-hit More,step58 You turn to stone More,step59 Die? andstep60 debug survival. The later first-unmatched rn2(5) distfleeck call at RNGindex2714 is downstream after debug survival; it does not establish a monster-flight owner for this failure.",
+                "Prepared B158 manifest sourceTrace identified a fatal-path drop refusal but its sourceBucket/mission referenced throw_up and instapetrify. Complete source review corrects that attribution to toss_up’s direct done(STONING) label; do not repeat the nonexistent throw_up function or expand trap.c ownership.",
+                "Read do.c:dropy799–804/dropz806–842 and JS counterparts2126–2233 including all ordinary floor preflight guards. Canonical dropCommandEnv provides the exact downstream hook bundle without changing RNG or source drop behavior; caller env/random/message overrides must survive composition.",
+                "Sibling hitfloor soft-floor dropy and throwit failed-return dropy calls remain separate bounded caller defects. The selected dry-floor surviving-petrifier tail can be corrected independently; existing broad parked throwit and hitfloor goals retain their unrecorded/special-entry limits.",
+                "Read successful B183 claim snapshot: A179 hack empty-forcefight,A180 monmove flight,A181 potion pool,A182 special-room identity,C161 artifact ammunition,C162 missum,C163 gold theft and B182 spell family do not overlap toss_up or this drop environment contract. Implementation remains behind central queue/assignment gate."
+              ],
+              "proposal": {
+                "goalId": "fix-dothrow-toss-up-petrifier-drop-env-v33-20261009",
+                "summary": "Supply canonical drop operations before upward-corpse petrification.",
+                "selectionReason": "Seed continuation after immutable B182 spells submission: its two selected cases now match completely on the worker branch. The saved v33 cockatrice-upward case has32 remaining screens; accepted B181 evaluation preserves that count and the source cause is independent of A179–A182 and C161–C163 reservations.",
+                "detail": "At synthetic/v33/v33-cockatrice-corpse-upward segment0step58, C toss_up1404–1413 sets the elementary-physics killer, prints turn-to-stone, drops the surviving corpse with dropy, clears thrownobj, then calls done(STONING). JS dothrow.js:toss_up_petrify passes state directly to env-shaped dropy1421, so do.js drops through default global state without its required newsym/encumber/extraction hooks and refuses before done. Compose canonical dropCommandEnv(state,rawEnv) at this exact caller, preserving message, placement, redraw, thrownobj clear and terminal/recovery order. No whole toss_up, drop-family, or end.c credit.",
+                "sourceBounds": {
+                  "file": "dothrow.c",
+                  "function": "toss_up",
+                  "range": "1256–1431",
+                  "branchRange": "1404–1413"
+                },
+                "sessions": [
+                  "synthetic/v33/v33-cockatrice-corpse-upward"
+                ],
+                "reservations": [
+                  "session:synthetic/v33/v33-cockatrice-corpse-upward",
+                  "source:dothrow.c:toss_up",
+                  "contract:upward-petrifier-drop-death-order"
+                ],
+                "allowedPaths": [
+                  "js/dothrow.js",
+                  "scripts/dothrow.test.mjs",
+                  "scripts/drop-command.test.mjs",
+                  "scripts/run-upward-petrifier-drop.mjs",
+                  "recipes/dothrow.c/",
+                  "recordings/dothrow.c/",
+                  "investigations/synthetic/v33/v33-cockatrice-corpse-upward.json",
+                  ".cache/"
+                ],
+                "dependencies": [],
+                "outsideLimits": [
+                  "dothrow.c:hitfloor611 soft-terrain dropy caller currently forwards rawEnv without canonical drop hooks; independent source caller frontier, outside this petrification correction.",
+                  "dothrow.c:throwit1756 failed-return dropy caller currently passes {state}; separate returning-weapon caller frontier.",
+                  "do.c:dropz ordinary-floor admission still refuses special terrain, attached equipment and generic timed merges. Reuse its bounded admitted floor tail; no broader admission change.",
+                  "end.c:done terminal shutdown, restore/recovery and other source callers retain existing limits; verify selected debug-survival or lifesaving witness without claiming whole end.c."
+                ],
+                "evidencePlan": [
+                  "Admitted case segment0steps57–60 reaches ceiling hit, turn-to-stone, debug Die? and survival; replay through remaining inputs after the bounded fix.",
+                  "Independent C-first cockatrice and chickatrice corpse setups with different character/helm state to cover surviving-object drop and cheap petrifier variation. Record and fully replay before fresh comparisons.",
+                  "Focused initialized-state/source-order test pins corpse OBJ_FLOOR placement, original state identity, timer ownership, newsym/encumbrance before thrownobj=null/done, and preservation of caller hooks.",
+                  "Representative helmet-protected upward corpse probe establishes the existing alternate toss_up branch; retain a blocked recipe if a distinct dependency prevents complete matching."
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "bc2ce8fb5ecd42fec92c2db427c427b566e0d645",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-uhitm-hmon-hitmon-msg-silver-v33-20261009",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port silver-hit feedback and wire its sole bounded melee caller.",
       "cFile": "uhitm.c",
       "sessions": [
@@ -227287,17 +228107,24 @@
       ],
       "selectionReason": "Current unreserved v33 silver-dagger mismatch; the complete report identifies the whole 38-line silver feedback helper and its sole bounded caller, disjoint from other uhitm owners.",
       "detail": "Port uhitm.c hmon_hitmon_msg_silver lines 1663-1700 and await it at the existing hmon_hitmon silvermsg branch before poison and kill messages. Preserve visible ring, named silver object, generic silver, unseen target, and corporeal flesh wording; take no whole hmon_hitmon or light-object credit.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "cc39a6fd08e50c3784f2870086fb18475154b79d",
+      "openStanding": {
+        "sha": "3ef1ebdbffb1bf6d15c3f591ec568f182fa36148",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "1fca795f45379c5d8364836c74c8ac61910620cd",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "hmon_hitmon_msg_silver",
           "line": 1663,
           "endLine": 1701,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -227317,12 +228144,313 @@
           "evaluationPath": "challenges/evaluations/accepted-7af2dcb832c469033b652c131fe1feeae0d47ed3-v33.json",
           "evaluationCommit": "7af2dcb832c469033b652c131fe1feeae0d47ed3"
         }
+      },
+      "activeStanding": {
+        "sha": "3ef1ebdbffb1bf6d15c3f591ec568f182fa36148",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-silver-dagger-sears",
+          "session": "synthetic/v33/v33-silver-dagger-sears",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recording": "challenges/cases/v33/v33-silver-dagger-sears.session.json",
+          "recordingPath": "challenges/cases/v33/v33-silver-dagger-sears.session.json",
+          "recordingSha256": "6b9d174c8154e3bcc8cb33324343ecf9571b46b43ab535e0c22ebbd0342875b9",
+          "recipe": "challenges/cases/v33/v33-silver-dagger-sears.recipe.session.json",
+          "recipeSha256": "37c825040c239b94357d460963824472b9ffd9068aa074db7e7a95590e229ff3",
+          "replayInputSha256": "6ee149fa24841c65e3a88925f31a71939482f6a4612a22943f67c816a9e256a5",
+          "evaluationPath": "challenges/evaluations/accepted-3ef1ebdbffb1bf6d15c3f591ec568f182fa36148-v33.json",
+          "evaluationCommit": "3ef1ebdbffb1bf6d15c3f591ec568f182fa36148",
+          "evaluationArtifact": "challenges/evaluations/accepted-3ef1ebdbffb1bf6d15c3f591ec568f182fa36148-v33.json",
+          "evaluationUtc": "2026-10-09T06:44:43.578Z",
+          "remainingScreens": 1,
+          "recordedSteps": 213,
+          "previousScreensMatched": 212,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 212,
+              "total": 213
+            },
+            "rng": {
+              "matched": 3111,
+              "total": 3111
+            },
+            "cursors": {
+              "matched": 213,
+              "total": 213
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 144,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 144,
+                "key": "b"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 3,
+              "cCell": {
+                "ch": "r",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 144,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v33/v33-silver-dagger-sears.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v33",
+              "caseId": "v33-silver-dagger-sears",
+              "session": "synthetic/v33/v33-silver-dagger-sears",
+              "manifestPath": "challenges/manifests/v33.json",
+              "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+              "recording": "challenges/cases/v33/v33-silver-dagger-sears.session.json",
+              "recordingPath": "challenges/cases/v33/v33-silver-dagger-sears.session.json",
+              "recordingSha256": "6b9d174c8154e3bcc8cb33324343ecf9571b46b43ab535e0c22ebbd0342875b9",
+              "recipe": "challenges/cases/v33/v33-silver-dagger-sears.recipe.session.json",
+              "recipeSha256": "37c825040c239b94357d460963824472b9ffd9068aa074db7e7a95590e229ff3",
+              "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+              "evaluationPath": "challenges/evaluations/accepted-4c02dfca96bd54300b882ccce1f536aef50b9791-v33.json",
+              "evaluationCommit": "4c02dfca96bd54300b882ccce1f536aef50b9791",
+              "evaluationArtifact": "challenges/evaluations/accepted-4c02dfca96bd54300b882ccce1f536aef50b9791-v33.json",
+              "evaluationUtc": "2026-10-09T03:51:19.671Z",
+              "remainingScreens": 1,
+              "recordedSteps": 213,
+              "previousScreensMatched": null,
+              "regression": false,
+              "passed": false,
+              "error": null,
+              "metrics": {
+                "screens": {
+                  "matched": 212,
+                  "total": 213
+                },
+                "rng": {
+                  "matched": 3111,
+                  "total": 3111
+                },
+                "cursors": {
+                  "matched": 213,
+                  "total": 213
+                }
+              },
+              "firstMismatch": {
+                "screen": {
+                  "index": 144,
+                  "location": {
+                    "segmentIndex": 0,
+                    "stepIndex": 144,
+                    "key": "b"
+                  },
+                  "kind": "ch",
+                  "row": 0,
+                  "column": 3,
+                  "cCell": {
+                    "ch": "r",
+                    "color": 8,
+                    "attr": 0,
+                    "decgfx": 0
+                  },
+                  "jsCell": {
+                    "ch": " ",
+                    "color": 8,
+                    "attr": 0,
+                    "decgfx": 0
+                  }
+                },
+                "rng": null,
+                "cursor": null
+              },
+              "step": 144,
+              "kind": "screen",
+              "sourceFile": null,
+              "function": null,
+              "message": null,
+              "cFile": null,
+              "luaFile": null,
+              "line": null,
+              "status": "complete",
+              "commit": "d84b3350e8f26f3028bfc0aaaf0e00e73052f6e7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v33",
+                "caseId": "v33-silver-dagger-sears",
+                "session": "synthetic/v33/v33-silver-dagger-sears",
+                "manifestPath": "challenges/manifests/v33.json",
+                "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+                "recording": "challenges/cases/v33/v33-silver-dagger-sears.session.json",
+                "recordingPath": "challenges/cases/v33/v33-silver-dagger-sears.session.json",
+                "recordingSha256": "6b9d174c8154e3bcc8cb33324343ecf9571b46b43ab535e0c22ebbd0342875b9",
+                "recipe": "challenges/cases/v33/v33-silver-dagger-sears.recipe.session.json",
+                "recipeSha256": "37c825040c239b94357d460963824472b9ffd9068aa074db7e7a95590e229ff3",
+                "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+                "evaluationPath": "challenges/evaluations/accepted-4c02dfca96bd54300b882ccce1f536aef50b9791-v33.json",
+                "evaluationCommit": "4c02dfca96bd54300b882ccce1f536aef50b9791",
+                "evaluationArtifact": "challenges/evaluations/accepted-4c02dfca96bd54300b882ccce1f536aef50b9791-v33.json",
+                "evaluationUtc": "2026-10-09T03:51:19.671Z",
+                "remainingScreens": 1,
+                "recordedSteps": 213,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 212,
+                    "total": 213
+                  },
+                  "rng": {
+                    "matched": 3111,
+                    "total": 3111
+                  },
+                  "cursors": {
+                    "matched": 213,
+                    "total": 213
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 144,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 144,
+                      "key": "b"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 3,
+                    "cCell": {
+                      "ch": "r",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 144,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "goalKind": "file-port",
+              "summary": "Silver dagger kill at step144 omits uhitm.c:hmon_hitmon_msg_silver. C prints silver searing feedback before killed; JavaScript records only note_unported for that discarded helper. Port whole source helper and await its sole hmon_hitmon caller before poison/kill messages.",
+              "source": {
+                "file": "uhitm.c",
+                "functions": [
+                  "hmon_hitmon_msg_silver"
+                ],
+                "branch": "hmd.silvermsg set by silver weapon/ring/object damage. Message selects visible rings/named silver object/generic silver, unseen target capitalization, and corporeal non-amorphous possessive flesh.",
+                "callers": [
+                  "uhitm.c:hmon_hitmon1878 -> hmon_hitmon_msg_silver1663–1700; hero melee, thrown, applied and barehand ring hit producers set the shared hmd fields. Existing js/uhitm.js3709 records note_unported in this sole source caller."
+                ],
+                "dependencies": [
+                  "Consumed mon_nam/canspotmon/vtense/strstri/s_suffix/noncorporeal/amorphous have canonical existing owners and are reused in source order. strstri JS returns index/-1, so explicitly compare >=0 rather than C pointer truthiness.",
+                  "C Snprintf/strNsubst escapes percent in saved_oname before appending sole %s substitution. JavaScript must preserve literal names and C BUFSZ capacity, without treating object names as format arguments or recording a fabricated helper effect. Source-discarded string helper can be reconciled by equivalent string representation; audit output capacity before implementation.",
+                  "Adjacent hmon_hitmon_msg_lightobj remains a separate named source-discarded gap. No whole hmon/hmon_hitmon credit; C163 gold-theft and C162 missum scopes are disjoint within uhitm.js."
+                ]
+              },
+              "evidence": [
+                "Current accepted B181 evaluation at4c02dfca remains212/213screens with3111/3111RNG and213/213cursors. Current selected-only replay .cache/A184/probe.json confirms same step144, keyb, C row0 Your silver dagger sears the manes' flesh!  You destroy the manes!, JS row0 You destroy the manes!; no random/state/cursor mismatch.",
+                "Read full uhitm.c1663–1700. mon_nam is evaluated before visibility branch. One/two rings choose sears/sear; object prefix omits duplicate silver using case-insensitive substring; vtense follows saved object quantity/name; unseen capitalizes target before possessive flesh condition. pline emits one message, no source RNG beyond canonical naming visibility dependencies.",
+                "Sole production call uhitm.c1877–1878 lies after msg_hit/dry_a_towel and before light/poison/kill tail. JS hmd.silvermsg setters and saved_oname already exist; replacing note_unported with awaited helper preserves shared transient C hmd owner.",
+                "Independent C-first evidence plan uses different source-valid seed/date/role with silver dagger versus silver barehand ring or renamed silver object variations; selected full213-step case covers the fatal production order. Source-pinned coverage must cover one/two rings, named percent/silver/plural object, amorphous/noncorporeal and unseen targets, preserving mon_nam evaluation and message callback semantics. Outside-light helper remains blocked separately."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "hmon_hitmon_msg_silver",
+            "implementation": "js/uhitm.js",
+            "symbol": "hmon_hitmon_msg_silver",
+            "sourceReview": "Read whole uhitm.c1663–1700 and sole caller1878. Evaluate canonical mon_nam first, then canspotmon; choose one/two rings, named object with case-insensitive silver detection and canonical vtense, generic or unseen capitalization. Preserve C buffer truncation, percent escaping and appended target slot before possessive flesh guard for corporeal/non-amorphous target. Emit one awaited canonical env message; no invented RNG/state. String representation replaces C mutable buffers without a second game owner. Reuse consumed canonical naming/visibility/grammar/species predicates; no missing consumed-result placeholder. Remove source-discarded note_unported helper call and wire awaited function between msg_hit/dry_a_towel and light/poison/kill tail. Adjacent light helper retains its named void gap.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon",
+                "source": "uhitm.c1877–1878 sole static helper caller, guarded by hmd.silvermsg from silver weapon/ring/misc damage producers. Common runtime melee/ranged/applied caller state already owns hmd and saved_oname; bounded await wiring, no whole hmon_hitmon completion credit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-hmon.test.mjs",
+              "scripts/hostile-melee-hit.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/silver-hit-caveman.session.json",
+              "recordings/uhitm.c/silver-hit-valkyrie.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-silver-dagger-sears",
+                "segment": 0,
+                "fromStep": 144,
+                "throughStep": 212,
+                "source": "cmd.c rhack forcefight -> hack.c domove -> uhitm.c attack/hitum/known_hitum -> hmon/hmon_hitmon1878 -> hmon_hitmon_msg_silver1663–1700 -> mon.c killed"
+              }
+            ],
+            "checkedAt": "9e495f02476c583f837d7ec8ef38fe269aad1d5c"
+          }
+        ],
+        "entryPointReview": "Helper-only selected source range, so entryPoints is empty. Sole hmon_hitmon call is wired for every existing hmd.silvermsg producer (barehand silver ring counts, weapon melee/ranged and misc silver object). Selected admitted fatal melee and independent singular/plural weapons establish production feedback before killed. Source-pinned direct branch tests isolate grammar and invisible/noncorporeal/amorphous guards; existing hmon tests exercise shade, silver rings and weapon damage paths. No current object-table ring material is silver; direct source-field tests preserve one/two ring branches without inventing a production silver ring wish. Outer command/weapon owners retain their own evidence.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1fca795f45379c5d8364836c74c8ac61910620cd",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-uhitm-missum-seduction-v33-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port source-ordered monster miss feedback and wakeup behavior.",
       "cFile": "uhitm.c",
       "sessions": [
@@ -227337,15 +228465,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "079b743c5b009b939ce1d9763ef0a11f2484447f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "missum",
           "line": 5198,
           "endLine": 5217,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -227830,6 +228961,847 @@
                 "Use existing mon_nam with env for all named messages so display RNG and planned feedback stay canonical; default monsterCommonName is otherwise the same x_monnam wrapper. Preserve awaited warning/message/wakeup order and add no RNG.",
                 "Related v33-nymph-wielded-goblin-combat has identical first cause at segment0 step57,89/100 screens,3222/3222 RNG,89/100 cursors. Its prepared trace repeats step85 from the other case; current queue’s exact step57 is authoritative.",
                 "Whole helper scope is independently assignable from A180 monster-flight, B182 spell menus and pending C160/C161 artifact functions. No earlier verified sourceReview completion record for missum is present in GOALS; historical known_hitum ownership excluded polymorph branch."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "missum",
+            "implementation": "js/uhitm.js",
+            "symbol": "missum",
+            "sourceReview": "Whole uhitm.c:5198–5215 in source order: awaited cumbersome-armor warning, canonical could_seduce before visibility/verbose, awaited friendly/named/generic feedback, non-helpless wakeup. Pure mhitu.c could_seduce is unchanged and consumed through canonical env.state; mon_nam gets env for display RNG. No added RNG/state, unported gap, or callee completion credit.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "known_hitum",
+                "source": "uhitm.c:610 ordinary melee miss; already awaited."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmonas",
+                "source": "uhitm.c:5667 contact attack miss and 5792 engulf miss; both already awaited."
+              },
+              {
+                "path": "js/dokick.js",
+                "symbol": "kick_monster",
+                "source": "dokick.c:218 polymorphed kick miss; already awaited."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-missum.test.mjs",
+              "scripts/uhitm-to-hit.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/missum-wood-nymph.session.json",
+              "recordings/uhitm.c/missum-water-nymph.session.json",
+              "recordings/uhitm.c/missum-sasquatch-kick.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-nymph-steals-weapon",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 235,
+                "source": "hack.c melee -> uhitm.c:hmonas -> missum for polymorphed wood-nymph theft/seduction attack."
+              },
+              {
+                "batch": "v33",
+                "caseId": "v33-nymph-wielded-goblin-combat",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 99,
+                "source": "hack.c melee -> uhitm.c:hmonas -> missum polymorphed armed nymph contact-attack miss."
+              }
+            ],
+            "checkedAt": "079b743c5b009b939ce1d9763ef0a11f2484447f"
+          }
+        ],
+        "entryPointReview": "Helper-only source unit. Live callers are known_hitum, hmonas contact/engulf misses and kick_monster. Both admitted nymph cases reach hmonas; independent nymph and Sasquatch recordings prove hmonas/known_hitum and the polymorphed kick caller. No broader caller source completion credit.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "079b743c5b009b939ce1d9763ef0a11f2484447f",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-potion-pool-dip-confirmation-v33-20261009",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Restore the canonical pool dip confirmation path.",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v33/v33-pool-wets-towel"
+      ],
+      "selectionReason": "The highest unreserved v33 mismatch stops in potion.c:dodip because the pool branch lacks its existing y_n dependency.",
+      "detail": "The C pool branch prompts before water_damage. JavaScript already uses the same dynamic cmd import in adjacent fountain and sink branches, but omitted it for pools.",
+      "openedAt": "a665170ef5bcb22ad762fc2a310c5a3983b7562c",
+      "openStanding": {
+        "sha": "2cdcba614b447508fcfa411849feafef48cb486d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "1b64b111784f2179ae9353fc4277fd495bda5d25",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "dodip",
+      "session": "synthetic/v33/v33-pool-wets-towel",
+      "syntheticProvenance": {
+        "synthetic/v33/v33-pool-wets-towel": {
+          "session": "synthetic/v33/v33-pool-wets-towel",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-pool-wets-towel",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-pool-wets-towel.session.json",
+          "recordingSha256": "08b72209736804b30773f1d203f8eea3b0a96bd8bc30dcdc6e3b4987df5f72e7",
+          "evaluationPath": "challenges/evaluations/runway-2cdcba614-v33.json",
+          "evaluationCommit": "2cdcba614b447508fcfa411849feafef48cb486d"
+        }
+      },
+      "activeStanding": {
+        "sha": "2cdcba614b447508fcfa411849feafef48cb486d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-pool-wets-towel",
+          "session": "synthetic/v33/v33-pool-wets-towel",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recording": "challenges/cases/v33/v33-pool-wets-towel.session.json",
+          "recordingPath": "challenges/cases/v33/v33-pool-wets-towel.session.json",
+          "recordingSha256": "08b72209736804b30773f1d203f8eea3b0a96bd8bc30dcdc6e3b4987df5f72e7",
+          "recipe": "challenges/cases/v33/v33-pool-wets-towel.recipe.session.json",
+          "recipeSha256": "affeebc0a1adbe7d0d66acd1000cdee7ee99772c819d37f9e8f8cb86005de550",
+          "replayInputSha256": "21ba99d02be14208de16c6819755004042a4ee38b10511ed1c6d0522c962d82d",
+          "evaluationPath": "challenges/evaluations/runway-2cdcba614-v33.json",
+          "evaluationCommit": "2cdcba614b447508fcfa411849feafef48cb486d",
+          "evaluationArtifact": "challenges/evaluations/runway-2cdcba614-v33.json",
+          "evaluationUtc": "2026-10-09T05:22:49.391Z",
+          "remainingScreens": 83,
+          "recordedSteps": 83,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": "y_n is not defined",
+          "metrics": {
+            "screens": {
+              "matched": 0,
+              "total": 83
+            },
+            "rng": {
+              "matched": 0,
+              "total": 1911
+            },
+            "cursors": {
+              "matched": 0,
+              "total": 83
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "Replay error: y_n is not defined",
+            "step": null
+          },
+          "step": null,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "Replay error: y_n is not defined",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v33/v33-pool-wets-towel.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v33",
+              "caseId": "v33-pool-wets-towel",
+              "session": "synthetic/v33/v33-pool-wets-towel",
+              "manifestPath": "challenges/manifests/v33.json",
+              "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+              "recording": "challenges/cases/v33/v33-pool-wets-towel.session.json",
+              "recordingPath": "challenges/cases/v33/v33-pool-wets-towel.session.json",
+              "recordingSha256": "08b72209736804b30773f1d203f8eea3b0a96bd8bc30dcdc6e3b4987df5f72e7",
+              "recipe": "challenges/cases/v33/v33-pool-wets-towel.recipe.session.json",
+              "recipeSha256": "affeebc0a1adbe7d0d66acd1000cdee7ee99772c819d37f9e8f8cb86005de550",
+              "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+              "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+              "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+              "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+              "evaluationUtc": "2026-10-09T03:03:55.655Z",
+              "remainingScreens": 83,
+              "recordedSteps": 83,
+              "previousScreensMatched": null,
+              "regression": false,
+              "passed": false,
+              "error": "y_n is not defined",
+              "metrics": {
+                "screens": {
+                  "matched": 0,
+                  "total": 83
+                },
+                "rng": {
+                  "matched": 0,
+                  "total": 1911
+                },
+                "cursors": {
+                  "matched": 0,
+                  "total": 83
+                }
+              },
+              "firstMismatch": {
+                "kind": "stop",
+                "message": "Replay error: y_n is not defined",
+                "step": null
+              },
+              "step": null,
+              "kind": "stop",
+              "sourceFile": null,
+              "function": null,
+              "message": "Replay error: y_n is not defined",
+              "cFile": null,
+              "luaFile": null,
+              "line": null,
+              "status": "complete",
+              "commit": "da9e73672354b82404810ffd59f9a8292f20e55f",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v33",
+                "caseId": "v33-pool-wets-towel",
+                "session": "synthetic/v33/v33-pool-wets-towel",
+                "manifestPath": "challenges/manifests/v33.json",
+                "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+                "recording": "challenges/cases/v33/v33-pool-wets-towel.session.json",
+                "recordingPath": "challenges/cases/v33/v33-pool-wets-towel.session.json",
+                "recordingSha256": "08b72209736804b30773f1d203f8eea3b0a96bd8bc30dcdc6e3b4987df5f72e7",
+                "recipe": "challenges/cases/v33/v33-pool-wets-towel.recipe.session.json",
+                "recipeSha256": "affeebc0a1adbe7d0d66acd1000cdee7ee99772c819d37f9e8f8cb86005de550",
+                "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+                "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+                "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+                "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+                "evaluationUtc": "2026-10-09T03:03:55.655Z",
+                "remainingScreens": 83,
+                "recordedSteps": 83,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": "y_n is not defined",
+                "metrics": {
+                  "screens": {
+                    "matched": 0,
+                    "total": 83
+                  },
+                  "rng": {
+                    "matched": 0,
+                    "total": 1911
+                  },
+                  "cursors": {
+                    "matched": 0,
+                    "total": 83
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "Replay error: y_n is not defined",
+                  "step": null
+                },
+                "step": null,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "Replay error: y_n is not defined",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "goalKind": "divergence-fix",
+              "summary": "The pool-water #dip branch in potion.c:dodip calls y_n at step57; JavaScript references it without the dynamic cmd import already present in the fountain/sink arms. The exception prevents the source confirmation prompt and canonical water_damage/wet_a_towel path.",
+              "source": {
+                "file": "potion.c",
+                "functions": [
+                  "dodip"
+                ],
+                "branch": "Hero selects a dry towel while standing in a pool, can reach the floor, and has not requested m-prefix inventory-only dipping. Pool branch formats waterbody_name prompt then awaits y_n before water_damage.",
+                "callers": [
+                  "cmd.c:doextcmd -> potion.c:dodip2267–2372; JS canonical #dip dispatcher reaches js/potion.js:dodip3268–3352."
+                ],
+                "dependencies": [
+                  "Canonical cmd.c y_n macro -> yn_function, exported JS async y_n881–886 returns a character byte and default No. Fountain/sink sibling branches dynamically import it; pool must do likewise to preserve ES module cycle initialization.",
+                  "Canonical trap.c:water_damage4712–4852 is already reused with consumed ER_DESTROYED result; towel branch calls canonical weapon.c:wet_a_towel, with existing RNG/message and source pickup_prev/in_use semantics. No owner reimplementation or whole-source credit.",
+                  "Shared potion.js edits are disjoint from B181 source:potion.c:potion_dip old-appearance helper. Only pool branch lexical import is needed; no module-level import or helper change."
+                ]
+              },
+              "evidence": [
+                "Authoritative saved baseline reports replay exception y_n is not defined with0/83screens; this masks the actual first boundary. Prepared C/JS trace identifies zero-based57 towel selection, C prompt Dip a towel into the pool of water? [yn] (n), then answer y at58 and towel wetting/drowning resistance continuation.",
+                "Read complete C potion.c:dodip2267–2372. y_n2341 follows formatted pool prompt; if y, it preserves Levitation/steed/hands guards, pickup_prev clear, optional acid in_use, and consumed water_damage result before ECMD_TIME. JavaScript pool arm3321 calls unbound y_n while siblings3298/3308 dynamically import it. Exact minimal correction is the same pool-local import before prompt formatting; retain all control/order.",
+                "Manifest prepared sourceTrace and current source establish true owner without replaying another session or scanning corpus. All unrelated changes in accepted/pending ancestry are outside dodip.",
+                "Bounded task reservation source:potion.c:dodip and contract:pool-dip-confirmation; paths js/potion.js, scripts/dip.test.mjs, scripts/potion.test.mjs, scripts/run-dip-command.mjs, recipes/potion.c/, recordings/potion.c/ and report/cache. No whole dodip/water_damage/y_n credit.",
+                "Validation: fail-first source-pinned valid pool confirmation call, selected83-step full replay, independent C-first aquatic towel #dip with distinct seed/date/role plus cheap variation, reject/fountain/sink regression checks. Keep menu-only and inaccessible floor behavior unchanged."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1b64b111784f2179ae9353fc4277fd495bda5d25",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-hack-special-room-subroom-reset-v33-20261009",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Restore special-room resets through the persisted subroom owner.",
+      "cFile": "hack.c",
+      "sessions": [
+        "synthetic/v33/v33-oracle-special-level"
+      ],
+      "selectionReason": "The highest unreserved v33 mismatch stops after Delphi entry because check_special_room writes an encoded subroom index through the top-level room array.",
+      "detail": "The C function reads and resets the same svr.rooms[roomno] object. JavaScript resolves the child for its type read but wrote the reset through state.level.rooms[roomIndex], which excludes persisted subrooms.",
+      "openedAt": "1b52a579c0cf946558057be3255f3b87d8ca2e4f",
+      "openStanding": {
+        "sha": "1b64b111784f2179ae9353fc4277fd495bda5d25",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "993ad924fd08f999b0beeaa0945abc04eb2e5ec0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "check_special_room",
+      "session": "synthetic/v33/v33-oracle-special-level",
+      "syntheticProvenance": {
+        "synthetic/v33/v33-oracle-special-level": {
+          "session": "synthetic/v33/v33-oracle-special-level",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-oracle-special-level",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-oracle-special-level.session.json",
+          "recordingSha256": "b8c09b73fd7252d72082009fdf17b666f21c96ce84a7ec4313d408a6760ab8ef",
+          "evaluationPath": "challenges/evaluations/accepted-1b64b111784f2179ae9353fc4277fd495bda5d25-v33.json",
+          "evaluationCommit": "1b64b111784f2179ae9353fc4277fd495bda5d25"
+        }
+      },
+      "activeStanding": {
+        "sha": "1b64b111784f2179ae9353fc4277fd495bda5d25",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-oracle-special-level",
+          "session": "synthetic/v33/v33-oracle-special-level",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recording": "challenges/cases/v33/v33-oracle-special-level.session.json",
+          "recordingPath": "challenges/cases/v33/v33-oracle-special-level.session.json",
+          "recordingSha256": "b8c09b73fd7252d72082009fdf17b666f21c96ce84a7ec4313d408a6760ab8ef",
+          "recipe": "challenges/cases/v33/v33-oracle-special-level.recipe.session.json",
+          "recipeSha256": "af094fcb7eb68eb0981e83e8767fe1e74b74146d46868d3eec624c5a366a12ac",
+          "replayInputSha256": "86b323cbeab63a48e7bbd133d003aa808bdba1b822d9cbb141a1a3f092d497e4",
+          "evaluationPath": "challenges/evaluations/accepted-1b64b111784f2179ae9353fc4277fd495bda5d25-v33.json",
+          "evaluationCommit": "1b64b111784f2179ae9353fc4277fd495bda5d25",
+          "evaluationArtifact": "challenges/evaluations/accepted-1b64b111784f2179ae9353fc4277fd495bda5d25-v33.json",
+          "evaluationUtc": "2026-10-09T05:49:10.486Z",
+          "remainingScreens": 55,
+          "recordedSteps": 55,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": "Cannot set properties of undefined (setting 'rtype')",
+          "metrics": {
+            "screens": {
+              "matched": 0,
+              "total": 55
+            },
+            "rng": {
+              "matched": 0,
+              "total": 5109
+            },
+            "cursors": {
+              "matched": 0,
+              "total": 55
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "Replay error: Cannot set properties of undefined (setting 'rtype')",
+            "step": null
+          },
+          "step": null,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "Replay error: Cannot set properties of undefined (setting 'rtype')",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v33/v33-oracle-special-level.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v33",
+              "caseId": "v33-oracle-special-level",
+              "session": "synthetic/v33/v33-oracle-special-level",
+              "manifestPath": "challenges/manifests/v33.json",
+              "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+              "recording": "challenges/cases/v33/v33-oracle-special-level.session.json",
+              "recordingPath": "challenges/cases/v33/v33-oracle-special-level.session.json",
+              "recordingSha256": "b8c09b73fd7252d72082009fdf17b666f21c96ce84a7ec4313d408a6760ab8ef",
+              "recipe": "challenges/cases/v33/v33-oracle-special-level.recipe.session.json",
+              "recipeSha256": "af094fcb7eb68eb0981e83e8767fe1e74b74146d46868d3eec624c5a366a12ac",
+              "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+              "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+              "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+              "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+              "evaluationUtc": "2026-10-09T03:03:55.655Z",
+              "remainingScreens": 55,
+              "recordedSteps": 55,
+              "previousScreensMatched": null,
+              "regression": false,
+              "passed": false,
+              "error": "Cannot set properties of undefined (setting 'rtype')",
+              "metrics": {
+                "screens": {
+                  "matched": 0,
+                  "total": 55
+                },
+                "rng": {
+                  "matched": 0,
+                  "total": 5109
+                },
+                "cursors": {
+                  "matched": 0,
+                  "total": 55
+                }
+              },
+              "firstMismatch": {
+                "kind": "stop",
+                "message": "Replay error: Cannot set properties of undefined (setting 'rtype')",
+                "step": null
+              },
+              "step": null,
+              "kind": "stop",
+              "sourceFile": null,
+              "function": null,
+              "message": "Replay error: Cannot set properties of undefined (setting 'rtype')",
+              "cFile": null,
+              "luaFile": null,
+              "line": null,
+              "status": "complete",
+              "commit": "eca66a2ef4cde6a2cdded5c61babf646b9b20fb8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v33",
+                "caseId": "v33-oracle-special-level",
+                "session": "synthetic/v33/v33-oracle-special-level",
+                "manifestPath": "challenges/manifests/v33.json",
+                "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+                "recording": "challenges/cases/v33/v33-oracle-special-level.session.json",
+                "recordingPath": "challenges/cases/v33/v33-oracle-special-level.session.json",
+                "recordingSha256": "b8c09b73fd7252d72082009fdf17b666f21c96ce84a7ec4313d408a6760ab8ef",
+                "recipe": "challenges/cases/v33/v33-oracle-special-level.recipe.session.json",
+                "recipeSha256": "af094fcb7eb68eb0981e83e8767fe1e74b74146d46868d3eec624c5a366a12ac",
+                "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+                "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+                "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+                "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+                "evaluationUtc": "2026-10-09T03:03:55.655Z",
+                "remainingScreens": 55,
+                "recordedSteps": 55,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": "Cannot set properties of undefined (setting 'rtype')",
+                "metrics": {
+                  "screens": {
+                    "matched": 0,
+                    "total": 55
+                  },
+                  "rng": {
+                    "matched": 0,
+                    "total": 5109
+                  },
+                  "cursors": {
+                    "matched": 0,
+                    "total": 55
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "Replay error: Cannot set properties of undefined (setting 'rtype')",
+                  "step": null
+                },
+                "step": null,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "Replay error: Cannot set properties of undefined (setting 'rtype')",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "goalKind": "divergence-fix",
+              "summary": "Oracle arrival reaches hack.c:check_special_room at step23. Room type is read through the canonical persisted subroom resolver, but its one-time rtype reset writes the top-level array directly; the Oracle subroom index is absent there. Resolve one source room pointer and reuse it for reads and rtype mutation.",
+              "source": {
+                "file": "hack.c",
+                "functions": [
+                  "check_special_room"
+                ],
+                "branch": "Entering DELPHI subroom on Oracle level resolves C conceptual room index above top-level array. C prints Oracle welcome, records discovery and resets that same svr.rooms[roomno] pointer to OROOM.",
+                "callers": [
+                  "teleport.c:level_tele -> do.c:goto_level -> hack.c:check_special_room(newlev), via production #wizlevelport to Oracle. Ordinary movement reaches the same owner through hack.c:spoteffects and move_update."
+                ],
+                "dependencies": [
+                  "Existing dungeon.js:mapseen_room2439–2462 resolves the C contiguous rooms/subrooms index through persisted parent graph, already used by rooms.js:roomType100 for reads and room_discovered. Reuse canonical result for writes; no duplicate room state or new resolver. Pure lookup has no RNG/output/state effects.",
+                  "Existing monstinroom consumes conceptual index and finds the Oracle before current failure; source Hello/SetVoice/message/discovery owners already operate. No source/Lua generation reimplementation is required.",
+                  "C clears rtype in the common tail3738 for every nonzero special type. JS partial owner duplicates mutations across COURT/MORGUE/BARRACKS/DELPHI, with direct top-level references261/313/357/379. Reconcile the same source pointer consistently in those existing arms; preserve their distinct messages/discovery/flags/wakeup ordering.",
+                  "Whole check_special_room, other unported room entry arms, oracle.lua/quest_levels generation and dungeon/mapseen completion remain outside bounded room-pointer defect."
+                ]
+              },
+              "evidence": [
+                "Saved baseline reports0/55screens due uncaught undefined rtype exception; prepared trace locates actual segment0 step23 space after materialization22. C prints peaceful Oracle welcome at23 before source room-state reset. Manifest sourceTrace identifies rooms.js379 direct write to undefined top-level entry.",
+                "Read complete hack.c:check_special_room3624–3777. Source roomno=*ptr-ROOMOFFSET, rt=svr.rooms[roomno].rtype3663; optional DELPHI welcome/SetVoice3708–3723; msg_given discovery3735, same room rtype OROOM3738. Oracle room is a valid C subroom in the unified room allocation, not a missing special-level program.",
+                "JS rooms.js:roomType uses mapseen_room(roomno-ROOMOFFSET,state). The DELPHI arm therefore correctly dispatches and finds/welcomes Oracle, then state.level.rooms[roomIndex].rtype assignment fails because mapseen_room located a nested room. The same pointer discrepancy exists in the already-ported Court/Morgue/Barracks mutation arms.",
+                "Actionable bounded scope source:hack.c:check_special_room / contract:special-room-persisted-identity, js/rooms.js, scripts/rooms.test.mjs, focused runtime runner and recipes/hack.c/recordings/hack.c. Use existing resolver once per entered room; no game state shadow or new room index. Whole owner excluded.",
+                "Validation: source-pinned nested Delphi entry first fails current undefined write, then proves same object rtype reset, parent unchanged, mapseen discovery and single welcome on repeated entry. Existing Court/Morgue/Barracks tests guard top-level behavior. Selected55-step replay plus independent C-first named Oracle levelports in different role/date/seed establish runtime and persisted subroom path."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "993ad924fd08f999b0beeaa0945abc04eb2e5ec0",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-apply-cursed-unicorn-horn-con-call-v34-20261009",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Use current Constitution for cursed unicorn-horn sickness duration",
+      "cFile": "apply.c",
+      "sessions": [],
+      "selectionReason": "Independent admitted v34 RNG-only mismatch; the complete investigation traces apply.c:use_unicorn_horn line 2272 to one reversed acurr caller, with no whole-function credit.",
+      "detail": "Cursed unicorn horn newly induces sickness using current Constitution. The JavaScript caller reverses acurr state and index arguments, changing C rn2(17) to rn2(3) while screens and cursors match.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "use_unicorn_horn",
+      "session": "synthetic/v34/v34-cursed-unicorn-horn",
+      "step": 24,
+      "syntheticProvenance": {
+        "synthetic/v34/v34-cursed-unicorn-horn": {
+          "session": "synthetic/v34/v34-cursed-unicorn-horn",
+          "corpus": "synthetic",
+          "batch": "v34",
+          "caseId": "v34-cursed-unicorn-horn",
+          "manifestPath": "challenges/manifests/v34.json",
+          "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+          "recordingPath": "challenges/cases/v34/v34-cursed-unicorn-horn.session.json",
+          "recordingSha256": "1b933259099dbe42fe48e426e46d6611711f55f38b9b51d12b2397a6b9b260ce",
+          "evaluationPath": "challenges/evaluations/accepted-1fca795f45379c5d8364836c74c8ac61910620cd-v34.json",
+          "evaluationCommit": "1fca795f45379c5d8364836c74c8ac61910620cd"
+        }
+      }
+    },
+    {
+      "id": "fix-spell-jumping-caller-v34-20261009",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Wire the magical jumping spell to canonical jump and consume its ECMD_TIME return",
+      "cFile": "spell.c",
+      "sessions": [],
+      "selectionReason": "Independent admitted v34 mismatch after accepted A184; the complete investigation traces the first missing screen to the omitted SPE_JUMPING caller into canonical apply.c jump, disjoint from B184, B183, and C163.",
+      "detail": "Forced jumping reaches spell.c spelleffects SPE_JUMPING, but JavaScript falls into its unsupported default instead of awaiting jump(max(role_skill,1)). Restore the bounded caller and test ECMD_TIME before Nothing happens feedback; retain normal cleanup and skill gain without whole-function credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "spelleffects",
+      "session": "synthetic/v34/v34-wizard-jump",
+      "step": 73,
+      "syntheticProvenance": {
+        "synthetic/v34/v34-wizard-jump": {
+          "session": "synthetic/v34/v34-wizard-jump",
+          "corpus": "synthetic",
+          "batch": "v34",
+          "caseId": "v34-wizard-jump",
+          "manifestPath": "challenges/manifests/v34.json",
+          "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+          "recordingPath": "challenges/cases/v34/v34-wizard-jump.session.json",
+          "recordingSha256": "e38556e67e0e1351daab1d02440ccd64afc8baf3e7e9d6e8c975568eb9650f54",
+          "evaluationPath": "challenges/evaluations/accepted-1fca795f45379c5d8364836c74c8ac61910620cd-v34.json",
+          "evaluationCommit": "1fca795f45379c5d8364836c74c8ac61910620cd"
+        }
+      }
+    },
+    {
+      "id": "port-wizcmds-wiz-panic-v34-20261009",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port wizard panic confirmation and fuzzer recovery branch",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v34/v34-panic-declined"
+      ],
+      "selectionReason": "Independent admitted v34-panic-declined has 24 unmatched screens; source tracing identifies whole wizcmds.c:wiz_panic and bounded command dispatch with the existing paranoid_query dependency.",
+      "detail": "Port whole wiz_panic in source order. Wire only its bounded direct, typed, rebound, and canned dispatcher seams. Keep end.c:panic as the named discarded-result gap after positive confirmation, with no whole doextcmd, rhack, or end.c credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_panic",
+          "line": 534,
+          "endLine": 548,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 534,
+        "to": 548
+      },
+      "syntheticProvenance": {
+        "synthetic/v34/v34-panic-declined": {
+          "session": "synthetic/v34/v34-panic-declined",
+          "corpus": "synthetic",
+          "batch": "v34",
+          "caseId": "v34-panic-declined",
+          "manifestPath": "challenges/manifests/v34.json",
+          "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+          "recordingPath": "challenges/cases/v34/v34-panic-declined.session.json",
+          "recordingSha256": "8729211a0395f9723bdcd60599589b5dec8497864401f14aadcb504b27e5494b",
+          "evaluationPath": "challenges/evaluations/accepted-bc2ce8fb5ecd42fec92c2db427c427b566e0d645-v34.json",
+          "evaluationCommit": "bc2ce8fb5ecd42fec92c2db427c427b566e0d645"
+        }
+      }
+    },
+    {
+      "id": "port-uhitm-gold-theft-handler-v33-20261009",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port shared gold-theft attack handler",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v33/v33-leprechaun-hero-gold-steal"
+      ],
+      "selectionReason": "Oldest dependency-ready delivery; complete whole-function source review and all three runtime entry directions are present.",
+      "detail": "Port whole uhitm.c:mhitm_ad_sgld and its shared dispatcher. Preserve the discarded steal.c:stealgold gap for the different-species incoming arm. Restore only monmove.c:dochug gold movement ordering and remove the obsolete leprechaun action refusal; no broader monmove completion credit.",
+      "openedAt": "50d241ed3217a2a7fa23249ad24956f9e7d02f49",
+      "openStanding": {
+        "sha": "bc2ce8fb5ecd42fec92c2db427c427b566e0d645",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_sgld",
+          "line": 2790,
+          "endLine": 2858,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2790,
+        "to": 2858
+      },
+      "syntheticProvenance": {
+        "synthetic/v33/v33-leprechaun-hero-gold-steal": {
+          "session": "synthetic/v33/v33-leprechaun-hero-gold-steal",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-leprechaun-hero-gold-steal",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-leprechaun-hero-gold-steal.session.json",
+          "recordingSha256": "f67dbcbdb3f9965b87e3a31873f9a87791a5ef77de157c354d9c3fe024f5eab5",
+          "evaluationPath": "challenges/evaluations/accepted-bc2ce8fb5ecd42fec92c2db427c427b566e0d645-v33.json",
+          "evaluationCommit": "bc2ce8fb5ecd42fec92c2db427c427b566e0d645"
+        }
+      },
+      "activeStanding": {
+        "sha": "bc2ce8fb5ecd42fec92c2db427c427b566e0d645",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-leprechaun-hero-gold-steal",
+          "session": "synthetic/v33/v33-leprechaun-hero-gold-steal",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recording": "challenges/cases/v33/v33-leprechaun-hero-gold-steal.session.json",
+          "recordingPath": "challenges/cases/v33/v33-leprechaun-hero-gold-steal.session.json",
+          "recordingSha256": "f67dbcbdb3f9965b87e3a31873f9a87791a5ef77de157c354d9c3fe024f5eab5",
+          "recipe": "challenges/cases/v33/v33-leprechaun-hero-gold-steal.recipe.session.json",
+          "recipeSha256": "407e6a4d7e888a383da5e627f0e076080f95ad82de0fa2befca0e11801627ac0",
+          "replayInputSha256": "61d574352be6e513dbf9160732767e11cccc3506530bbd5158d6466427eeac5b",
+          "evaluationPath": "challenges/evaluations/accepted-bc2ce8fb5ecd42fec92c2db427c427b566e0d645-v33.json",
+          "evaluationCommit": "bc2ce8fb5ecd42fec92c2db427c427b566e0d645",
+          "evaluationArtifact": "challenges/evaluations/accepted-bc2ce8fb5ecd42fec92c2db427c427b566e0d645-v33.json",
+          "evaluationUtc": "2026-10-09T07:34:01.310Z",
+          "remainingScreens": 69,
+          "recordedSteps": 254,
+          "previousScreensMatched": 185,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 185,
+              "total": 254
+            },
+            "rng": {
+              "matched": 2851,
+              "total": 2985
+            },
+            "cursors": {
+              "matched": 185,
+              "total": 254
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: uhitm.c mhitm_ad_sgld()",
+            "step": 185
+          },
+          "step": 185,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_sgld",
+          "message": "unsupported hero move: uhitm.c mhitm_ad_sgld()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v33/v33-leprechaun-hero-gold-steal.json",
+            "result": {
+              "session": "synthetic/v33/v33-leprechaun-hero-gold-steal",
+              "corpus": "synthetic",
+              "batch": "v33",
+              "caseId": "v33-leprechaun-hero-gold-steal",
+              "remainingScreens": 69,
+              "recordedSteps": 254,
+              "manifestPath": "challenges/manifests/v33.json",
+              "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+              "recordingSha256": "f67dbcbdb3f9965b87e3a31873f9a87791a5ef77de157c354d9c3fe024f5eab5",
+              "evaluationPath": "challenges/evaluations/accepted-f091b997ca1571fc6198fe3189ad06fe2dba532c-v33.json",
+              "evaluationCommit": "f091b997ca1571fc6198fe3189ad06fe2dba532c",
+              "status": "complete",
+              "commit": "bc2ce8fb5ecd42fec92c2db427c427b566e0d645",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v33",
+                "caseId": "v33-leprechaun-hero-gold-steal",
+                "session": "synthetic/v33/v33-leprechaun-hero-gold-steal",
+                "manifestPath": "challenges/manifests/v33.json",
+                "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+                "recording": "challenges/cases/v33/v33-leprechaun-hero-gold-steal.session.json",
+                "recordingPath": "challenges/cases/v33/v33-leprechaun-hero-gold-steal.session.json",
+                "recordingSha256": "f67dbcbdb3f9965b87e3a31873f9a87791a5ef77de157c354d9c3fe024f5eab5",
+                "recipe": "challenges/cases/v33/v33-leprechaun-hero-gold-steal.recipe.session.json",
+                "recipeSha256": "407e6a4d7e888a383da5e627f0e076080f95ad82de0fa2befca0e11801627ac0",
+                "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+                "evaluationPath": "challenges/evaluations/accepted-f091b997ca1571fc6198fe3189ad06fe2dba532c-v33.json",
+                "evaluationCommit": "f091b997ca1571fc6198fe3189ad06fe2dba532c",
+                "evaluationArtifact": "challenges/evaluations/accepted-f091b997ca1571fc6198fe3189ad06fe2dba532c-v33.json",
+                "evaluationUtc": "2026-10-09T03:23:04.919Z",
+                "remainingScreens": 69,
+                "recordedSteps": 254,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 185,
+                    "total": 254
+                  },
+                  "rng": {
+                    "matched": 2851,
+                    "total": 2985
+                  },
+                  "cursors": {
+                    "matched": 185,
+                    "total": 254
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: uhitm.c mhitm_ad_sgld()",
+                  "step": 185
+                },
+                "step": 185,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_sgld",
+                "message": "unsupported hero move: uhitm.c mhitm_ad_sgld()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The shared AD_SGLD dispatcher refuses the missing whole mhitm_ad_sgld handler. The admitted leprechaun hero hits a dwarf with no gold: C still exercises Dexterity and clears damage, then continues; JS stops. Port the whole three-direction handler through existing inventory/message/teleport owners, with the void unported stealgold call retained as an explicit source gap.",
+              "source": {
+                "file": "uhitm.c",
+                "functions": [
+                  "mhitm_ad_sgld"
+                ],
+                "branch": "Polymorphed leprechaun hero lands AD_SGLD on a no-gold dwarf; handler must finish with exercise(A_DEX,TRUE) then damage0. Other source arms transfer monster gold, report incoming attacks and perform monster-pair gold theft/teleport.",
+                "callers": [
+                  "uhitm.c:mhitm_adtyping4800 AD_SGLD -> mhitm_ad_sgld; JS dispatch7048 currently refuses.",
+                  "uhitm.c:damageum -> shared dispatcher for hero attacks; mhitu.c:hitmu and mhitm.c:mdamagem consume the same handler through shared dispatch."
+                ],
+                "dependencies": [
+                  "Consumed findgold, merge_choice, inv_cnt, tele_restrict/canspotmon already have canonical owners; audit and reuse unchanged.",
+                  "Reuse existing obj_extract_self, addinv_runtime, add_to_minv, dropy/dropCommandEnv, hitmsg, exercise, naming, rloc. Source gold extraction is ordinary obj_extract_self, not worn-item theft extraction.",
+                  "steal.c:stealgold58–123 has no JS owner; C discards this call, so record note_unported(steal.c stealgold) for the uncanceled non-leprechaun incoming branch. No invented gold amount/RNG/teleport substitute or steal owner completion credit."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Latest accepted-f091 v33 evaluation retains185/254 screens,2851/2985 RNG,185/254 cursors; saved combined baseline diagnostic stops at segment0 step185 keyn on mhitm_ad_sgld refusal. Manifest/recording identity unchanged and current handler still absent.",
+                "Whole upstream uhitm.c2790–2855 snapshots attacker/defender species, hero finds first gold, extracts before merge/slot check, adds or reports full knapsack/drops, always exercises then clears damage. Incoming branch prints hit before same-species return and cancellation; monster pair clears damage before cancellation/no-gold returns, extracts/adds gold, clears WAITFORU, names/reports, then conditionally sets AGR_DONE and relocates before disappearance feedback.",
+                "Current js/uhitm.js7048 rejects AD_SGLD through unported instead of dispatch; damageum7159, mhitu.js hitmu2632 and mhitm.js mdamagem1409 already await the canonical shared dispatcher. Replace exactly this refusal with the whole source owner.",
+                "findgold in steal.js1005 is a pure first-gold chain search pinned by steal.test; merge_choice invent.js3603 and inv_cnt hack.js701 provide existing source merge/slot contracts. addinv_runtime supplies awaited live merge semantics. obj_extract_self invent.js3330 clears minvent ownership in source order; add_to_minv admits only OBJ_FREE.",
+                "The missing stealgold owner is a discarded-call gap under project rules, not a consumed-return prerequisite. Independent runtime evidence must distinguish its bounded supported incoming no-op/same-species path from the unported populated theft behavior.",
+                "Independent evidence plan: leprechaun-hero no-gold admitted range plus newly chosen positive gold-carrying leprechaun target; incoming leprechaun attack with source same-species return/no steal; conflict-induced monster pair with no-gold return and, where bounded, gold transfer. Focused source pins cover cancellation, slot52 boundary, extraction ownership, damage/hitflags and message/RNG order."
               ]
             }
           }

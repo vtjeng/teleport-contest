@@ -35,6 +35,7 @@ import {
     ARTICLE_THE,
     ARTICLE_YOUR,
     BLINDED,
+    BUFSZ,
     COLD_RES,
     CONFUSION,
     DEAF,
@@ -237,7 +238,7 @@ import { in_rooms } from './rooms.js';
 import { dopay, tended_shop } from './shk.js';
 import { paranoid_query } from './cmd.js';
 import { Punished } from './steed.js';
-import { dist2, ing_suffix, s_suffix, sgn } from './hacklib.js';
+import { dist2, highc, ing_suffix, s_suffix, sgn, strstri } from './hacklib.js';
 import { change_luck } from './moveloop_preamble.js';
 import { hurtle, mhurtle, will_hurtle } from './dothrow.js';
 // js/mhitu.js imports mhitm_adtyping() and mhitm_knockback() from this file,
@@ -3541,6 +3542,36 @@ async function hmon_hitmon_msg_hit(hmd, mon, obj, state, env) {
     }
 }
 
+// C ref: uhitm.c hmon_hitmon_msg_silver() (1663-1700); obj is unused.
+export async function hmon_hitmon_msg_silver(hmd, mon, state = game, env = {}) {
+    let whom = mon_nam(mon, state, env);
+    let format;
+    if (canspotmon(mon, state)) {
+        if (hmd.barehand_silver_rings === 1)
+            format = 'Your silver ring sears %s!';
+        else if (hmd.barehand_silver_rings === 2)
+            format = 'Your silver rings sear %s!';
+        else if (hmd.silverobj && hmd.saved_oname) {
+            const prefix = strstri(hmd.saved_oname, 'silver') >= 0 ? '' : 'silver ';
+            // Match Snprintf, strNsubst and strncat capacity before replacing
+            // the sole target slot. Object-name percent bytes stay literal.
+            let buffer = `Your ${prefix}${hmd.saved_oname} ${vtense(hmd.saved_oname, 'sear')}`
+                .slice(0, BUFSZ - 1);
+            buffer = buffer.replaceAll('%', '%%').slice(0, BUFSZ - 1);
+            format = buffer + ' %s!'.slice(0, BUFSZ - (buffer.length + 1));
+        } else {
+            format = 'The silver sears %s!';
+        }
+    } else {
+        whom = highc(whom[0]) + whom.slice(1);
+        format = '%s is seared!';
+    }
+    if (!noncorporeal(hmd.mdat) && !amorphous(hmd.mdat))
+        whom = `${s_suffix(whom)} flesh`;
+    const text = format.replace(/%%|%s/gu, slot => slot === '%%' ? '%' : whom);
+    await requireAttackOperation(env, 'message')(text, state);
+}
+
 // C ref: uhitm.c hmon_hitmon() (1752-1935), the guts of hmon(). Everything
 // between the decision that a blow landed and the target's reaction to it.
 //
@@ -3555,8 +3586,7 @@ async function hmon_hitmon_msg_hit(hmd, mon, obj, state, env) {
 //   1821-1822 shade_miss() feedback, for a shade that took no damage.
 //   1826      hmon_hitmon_jousting(), which can move a mounted target through
 //             the return-valued mhurtle_to_doom() helper.
-//   1874-1877 hmon_hitmon_msg_silver() and hmon_hitmon_msg_lightobj(), the
-//             two "sears" messages a silver or Sunsword hit adds.
+//   1880      hmon_hitmon_msg_lightobj(), the remaining Sunsword feedback gap.
 //   1898-1907 the poison messages and xkilled(); hmon_hitmon_poison() sets
 //             those flags before this tail.
 //   1911      killed(), the kill itself, which mon.c owns.
@@ -3709,7 +3739,7 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
     }
 
     if (hmd.silvermsg)
-        note_unported('uhitm.c hmon_hitmon_msg_silver');
+        await hmon_hitmon_msg_silver(hmd, mon, state, env);
 
     if (hmd.lightobj)
         note_unported('uhitm.c hmon_hitmon_msg_lightobj');

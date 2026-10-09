@@ -83,6 +83,7 @@ import {
     throw_obj,
     throw_ok,
     throwit,
+    toss_up,
     walk_path,
 } from '../js/dothrow.js';
 import { GameMap } from '../js/game.js';
@@ -1024,6 +1025,60 @@ test('throwit runs the complete upward toss path before retiring the throw',
         assert.ok(state.u.uhp < hp);
         assert.equal(state._ttyToplines, 'A dagger hits the floor.');
         assert.equal(state.gt.thrownobj, null);
+    });
+
+test('toss_up drops a surviving petrifier through the supplied state and hooks',
+    async () => {
+        // dothrow.c:1404-1413 drops the corpse before clearing thrownobj and
+        // calling done(STONING). Stop after encumbrance to inspect that order
+        // without invoking the process-wide terminal death routine.
+        const state = arena();
+        const corpse = item(state, CORPSE, { corpsenm: PM_COCKATRICE });
+        timeout_globals_init(state);
+        state.gt.thrownobj = corpse;
+        start_timer(30, TIMER_OBJECT, ZOMBIFY_MON, corpse, state);
+        const timer = state.gt.timer_base;
+        const events = [];
+        const dropComplete = new Error('source drop completed');
+        await assert.rejects(toss_up(corpse, false, state, {
+            random: { rn2: () => 99 },
+            message: async (text) => { events.push(text); },
+            hooks: {
+                newsym(x, y, suppliedState) {
+                    assert.strictEqual(suppliedState, state);
+                    assert.deepEqual([x, y], [state.u.ux, state.u.uy]);
+                    assert.strictEqual(state.level.objects[x][y], corpse);
+                    assert.equal(corpse.where, OBJ_FLOOR);
+                    assert.strictEqual(state.gt.thrownobj, corpse);
+                    assert.equal(state.killer.name, 'elementary physics');
+                    events.push('redraw');
+                },
+                async encumberMessage(suppliedState) {
+                    assert.strictEqual(suppliedState, state);
+                    assert.strictEqual(state.gt.timer_base, timer);
+                    assert.strictEqual(timer.arg, corpse);
+                    assert.equal(peek_timer(ZOMBIFY_MON, corpse, state), 30);
+                    assert.strictEqual(state.gt.thrownobj, corpse);
+                    events.push('encumbrance');
+                    throw dropComplete;
+                },
+            },
+        }), (error) => error === dropComplete);
+        assert.deepEqual(events.slice(-3),
+            ['You turn to stone.', 'redraw', 'encumbrance']);
+    });
+
+test('toss_up petrification pins source drop, transit cleanup and death order',
+    () => {
+        const source = DOTHROW_C.slice(DOTHROW_C.indexOf(' petrify:'));
+        assert.match(source,
+            /You\("turn to stone\."\);\s*if \(obj\)\s*dropy\(obj\);[\s\S]*?gt\.thrownobj = 0;[\s\S]*?done\(STONING\);/u);
+        const helper = DOTHROW_JS.slice(
+            DOTHROW_JS.indexOf('async function toss_up_petrify('),
+            DOTHROW_JS.indexOf('// C ref: dothrow.c:30-34'),
+        );
+        assert.match(helper,
+            /if \(obj\) await dropy\(obj, dropCommandEnv\(state, rawEnv\)\);\s*state\.gt\.thrownobj = null;\s*await done\(STONING, state, rawEnv\);/u);
     });
 
 test('throwit() handles weapons that return to the hand', async () => {

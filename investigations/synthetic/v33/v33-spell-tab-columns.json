@@ -1,0 +1,167 @@
+{
+  "session": "synthetic/v33/v33-spell-tab-columns",
+  "corpus": "synthetic",
+  "batch": "v33",
+  "caseId": "v33-spell-tab-columns",
+  "manifestPath": "challenges/manifests/v33.json",
+  "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+  "recordingSha256": "b342accf71c1f89a0f6103743d816f2337ce12a7cc23c7148d64f3e95101a5ef",
+  "evaluationPath": "challenges/evaluations/accepted-f091b997ca1571fc6198fe3189ad06fe2dba532c-v33.json",
+  "evaluationCommit": "f091b997ca1571fc6198fe3189ad06fe2dba532c",
+  "remainingScreens": 27,
+  "recordedSteps": 29,
+  "status": "complete",
+  "commit": "aabc7548c92504dd55eaae6da14863cf4bab7e43",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v33",
+    "caseId": "v33-spell-tab-columns",
+    "session": "synthetic/v33/v33-spell-tab-columns",
+    "manifestPath": "challenges/manifests/v33.json",
+    "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+    "recording": "challenges/cases/v33/v33-spell-tab-columns.session.json",
+    "recordingPath": "challenges/cases/v33/v33-spell-tab-columns.session.json",
+    "recordingSha256": "b342accf71c1f89a0f6103743d816f2337ce12a7cc23c7148d64f3e95101a5ef",
+    "recipe": "challenges/cases/v33/v33-spell-tab-columns.recipe.session.json",
+    "recipeSha256": "d5d6b31923d06deb3d2060db7a6fb66258dd860a023bd94ce08e29777f6c6b85",
+    "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+    "evaluationPath": "challenges/evaluations/accepted-f091b997ca1571fc6198fe3189ad06fe2dba532c-v33.json",
+    "evaluationCommit": "f091b997ca1571fc6198fe3189ad06fe2dba532c",
+    "evaluationArtifact": "challenges/evaluations/accepted-f091b997ca1571fc6198fe3189ad06fe2dba532c-v33.json",
+    "evaluationUtc": "2026-10-09T03:03:55.655Z",
+    "remainingScreens": 27,
+    "recordedSteps": 29,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 2,
+        "total": 29
+      },
+      "rng": {
+        "matched": 2971,
+        "total": 2971
+      },
+      "cursors": {
+        "matched": 2,
+        "total": 29
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: spell display requires menu_tab_sep columns",
+      "step": 2
+    },
+    "step": 2,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: spell display requires menu_tab_sep columns",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The first + command reaches spell.c:dospellmenu tab-column formatting, but JS refuses menu_tab_sep before drawing. Complete the same spell_cmp..dospellmenu family selected by the sort-menu case, preserving raw tab bytes, sorted row/letter identity and preselected menu results.",
+  "goalKind": "file-port",
+  "source": {
+    "file": "spell.c",
+    "functions": [
+      "spell_cmp",
+      "sortspells",
+      "spellsortmenu",
+      "dovspell",
+      "show_spells",
+      "dospellmenu"
+    ],
+    "branch": "Hero knows spells and iflags.menu_tab_sep is set by startup options; +/#showspells reaches dospellmenu VIEW, which formats Name/Level/Category/Fail/Retention and wizard turns with source tab separators.",
+    "callers": [
+      "cmd.c extcmdlist1870–1871 showspells (default +) -> spell.c:dovspell2021–2053; JS cmd.js runShowspellsCommand3071 and direct/typed dispatch already reach dovspell.",
+      "spell.c:dovspell2030 consumes dospellmenu VIEW;2033 consumes spellsortmenu then sortspells;2038 consumes preselected dospellmenu and swaps full spell structs.",
+      "spell.c:getspell781 -> dospellmenu CAST, reached by docast and cmd.js runCastCommand3317; reconcile the bounded shared menu adapter in both production command families.",
+      "spell.c:show_spells2067 -> dospellmenu DUMP; end.c:dump_everything601 calls show_spells only inside #ifdef DUMPLOG, inactive in the reference recorder."
+    ],
+    "dependencies": [
+      "hacklib.c:strncmpi717–736 is required by include/global.h113 strcmpi(a,b)=strncmpi(a,b,-1). JS hacklib.js525 presently loops remaining-- > 0, so -1 wrongly returns0 for all names. Correct and source-pin the whole pure helper; positive-count existing callers retain their semantics.",
+      "spell.c:spelltypemnemonic832–853 supplies consumed menu category strings. Existing JS maps all seven valid categories, but its default throws RangeError instead of C discarded impossible then empty-string return. Include whole helper verification and the bounded default reconciliation.",
+      "Existing spellid/spellknow/spellev/spellname/spellet, startup_skills.spell_skilltype, percent_success958 and spellretention1045 match the source calculations used by menu rows. Read source percent_success2173–2292 and spellretention2295–2341 plus existing tests; preserve integer truncation, role/equipment modifiers and knowledge intervals.",
+      "Reuse canonical windows.select_menu and tty_menu.selectTtyMenu. Existing preselected/emptyValue completion fields distinguish an accepted default from an explicit selector; a bounded adapter must preserve C retained-current FALSE versus zero-selection current TRUE in dospellmenu and FALSE in spellsortmenu. No whole menu-owner expansion is needed for this projection.",
+      "Patch002 replaces qsort with a stable original-position wrapper. spell_cmp uses mode-specific level/skill differences and case-insensitive name tie-breaks; CURRENT pointer-order default reads original array positions, while sortspells returns before sorting CURRENT.",
+      "State corresponds to decl.c723–724/include decl.h909–910 gs.spl_sortmode and gs.spl_orderindx, separate from persistent svs.spl_book. Keep one canonical location for each, free/reset at dovspell exit and copy all MAXSPELL records when retaining order."
+    ]
+  },
+  "evidence": [
+    "Companion source branch is spell.c:dospellmenu2108–2112; JS spell.js1083–1086 refuses before the menu owner draws. Saved queue and immutable B158 trace agree on segment0step2,27 remaining of29screens,2971/2971RNG. Companion path/session were authorized by the atomic implementation transition before this report and game edits.",
+    "Saved coordinator queue .cache/mismatch-queue-v33-3ab0909e.json retains27 unmatched of30screens,3matchedscreens/cursors and2521/2521RNG. First stop is segment0step3 with UnsupportedHeroCommandBoundaryError: spell display requires spellsortmenu(). Recording and recipe SHA256 were checked against that queue before writing this report.",
+    "Read immutable admitted recipe .++b followed by menu acknowledgments and B158 preparation sourceTrace/localComparison in packet cabd31a8. It independently identified the same segment0step3 second + selection; current JS spell.js1158–1174 still throws there. No replay or recipe mutation was needed to rediscover it.",
+    "Read complete C spell_cmp1870–1921, sortspells1927–1972, spellsortmenu1976–2017, dovspell2021–2053, show_spells2059–2069, dospellmenu2075–2168 in definition order. JS has no spell_cmp/sortspells/spellsortmenu; dospellmenu rejects preselection/tabs and dovspell stops after one menu. These are missing whole functions/family, not a message-only divergence.",
+    "C sortspells counts known contiguous spells, allocates/reset52 indices, leaves LETTER/RETAIN alone before allocation, sorts only the known prefix, and copies the full52-record book for RETAIN. dovspell exchanges entire records, loops, frees display indices and resets LETTER even for an empty book. dospellmenu shows wizard spellknow(i), deliberately using loop index instead of sorted splnum; preserve this source behavior.",
+    "C source offers9 sort choices with explicit a–h and z selector plus separator; retains selected mode and skips first preselected result when another is chosen. dospellmenu consumes boolean/out-index including nonpositive selection for a preselected spell. Scalar TTY projection must preserve retained default, explicitly deselected same spell, alternate pick and Esc rather than treating every null alike.",
+    "Reference recorder include/config.h669 comments out DUMPLOG, config.h269 enables only DUMPLOG_CORE, and recorder src/Makefile CFLAGS=-g -I../include / SYSCFLAGS=-DLUA_USE_POSIX add no DUMPLOG flag; build-recorder.sh and patches contain no DUMPLOG enabling change. end.c516 begins the guarded dump unit. show_spells remains in the selected complete range with compile-inactive caller evidence and source-pinned tests.",
+    "Companion v33-spell-tab-columns has27 unmatched of29screens, first stop segment0step2, same immutable manifest/evaluation and dospellmenu2101–2113 owner. Its report path is not yet assigned; retain a cache draft only, add source/session/report scope atomically before game edits after central queueing.",
+    "Current ledger snapshot .cache/B182/ledger.json shows only A179 hack empty-forcefight and C160/C161 artifact invocation scopes alongside immutable B181. None overlaps this spell family or hacklib helper. B181 submitted history stays immutable; this investigation changes only its assigned report."
+  ],
+  "proposal": {
+    "goalId": "port-spell-sort-menu-family-v33-20261009",
+    "summary": "Port known-spell sorting, letter reassignment, swapping and complete menu columns.",
+    "selectionReason": "Seed continuation after the submitted B181 naming divergence fully matched both selected cases. The saved v33 queue gives spell-sort-menu27 remaining screens; the complete spell menu family is independent of A179 and C160/C161. The same dospellmenu owner also blocks tab-columns27remaining, to be grouped only after its investigation path is authorized.",
+    "detail": "At synthetic/v33/v33-spell-sort-menu segment0step3, the second + chooses [sort spells]. JS dovspell stops instead of executing C spellsortmenu1976–2017 and sortspells1927–1972. Port the whole spell_cmp..dospellmenu range in source order, including compile-inactive show_spells, required spelltypemnemonic verification/default reconciliation and hacklib strncmpi negative-count semantics used by strcmpi. Preserve temporary display order versus permanent letter reassignment and all consumed menu return cases.",
+    "sourceBounds": {
+      "file": "spell.c",
+      "fromFunction": "spell_cmp",
+      "toFunction": "dospellmenu",
+      "range": "1870–2168",
+      "requiredFunctions": [
+        "spelltypemnemonic"
+      ],
+      "requiredHelper": {
+        "file": "hacklib.c",
+        "name": "strncmpi",
+        "range": "717–736"
+      }
+    },
+    "sessions": [
+      "synthetic/v33/v33-spell-tab-columns"
+    ],
+    "companionSession": "synthetic/v33/v33-spell-sort-menu",
+    "proposedReservations": [
+      "session:synthetic/v33/v33-spell-sort-menu",
+      "source:spell.c:spell_cmp",
+      "source:spell.c:sortspells",
+      "source:spell.c:spellsortmenu",
+      "source:spell.c:dovspell",
+      "source:spell.c:show_spells",
+      "source:spell.c:dospellmenu",
+      "source:spell.c:spelltypemnemonic",
+      "source:hacklib.c:strncmpi",
+      "contract:spell-display-order-and-casting-letters",
+      "contract:spell-menu-preselected-results"
+    ],
+    "proposedPaths": [
+      "js/spell.js",
+      "js/cmd.js",
+      "js/hacklib.js",
+      "scripts/spell*.test.mjs",
+      "scripts/hacklib-math.test.mjs",
+      "scripts/cmd*.test.mjs",
+      "scripts/run-spell-menu.mjs",
+      "recipes/spell.c/",
+      "recordings/spell.c/",
+      "investigations/synthetic/v33/v33-spell-sort-menu.json",
+      ".cache/"
+    ],
+    "dependencies": [],
+    "limits": [
+      "No whole cmd.c, windows.c, tty_menu.c, docast or getspell completion credit. Existing casting effect frontiers remain outside scope.",
+      "DUMPLOG show_spells caller inactive in recorder; translate source and pin output/call order without inventing an active endgame caller.",
+      "No whole hacklib diagnostic credit; spelltypemnemonic default skips discarded impossible through note_unported and retains its empty-string return."
+    ],
+    "evidencePlan": [
+      "C-first independent showspells inputs cover alphabetic/level/skill sorting, current-order mode, retain/reassign letters, spell swap and its default/deselected/cancel return paths; vary role or repertoire.",
+      "Existing admitted sort-menu covers mode selection; tab-column companion covers raw tab layout after path authorization. Create independent tab-column showspells variation.",
+      "MENU_FULL docast/getspell uses the same completed menu; use independent casting menu cancellation and a matching already-supported spell cast, without expanding spell effects.",
+      "Pure spell_cmp and required strncmpi receive source-pinned comparator/tie/negative-count tests; show_spells receives source-pinned inactive helper coverage."
+    ]
+  }
+}

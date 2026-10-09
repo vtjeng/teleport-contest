@@ -336,7 +336,6 @@ import {
     spe_Unknown,
     spelleffects,
     UnsupportedSpellCastError,
-    UnsupportedSpellDisplayError,
 } from './spell.js';
 import {
     UnsupportedWeaponSkillError,
@@ -2829,7 +2828,6 @@ export function failClosedCommandRefusals() {
     return [
         UnsupportedFeatureDescriptionError,
         UnsupportedObjectNameError,
-        UnsupportedSpellDisplayError,
         // spell.c spelleffects_check() and spelleffects() raise this from
         // the forgotten-spell, amulet-drain, and non-healing spell paths
         // that this port has not reached.
@@ -3068,29 +3066,7 @@ async function runInventoryCommand(key, state) {
 
 // C ref: spell.c dovspell().
 async function runShowspellsCommand(key, state) {
-    return failClosedCommand(key, state, () => dovspell(state, {
-        message: ttyPline,
-        // spell.c dospellmenu() ends its menu with end_menu(prompt) and asks
-        // select_menu() for PICK_ONE, or PICK_NONE when only one spell is
-        // known; Escape answers null either way.
-        menu: (items, how, prompt) => select_menu(state, {
-            // add_menu_heading() draws the column heading with
-            // iflags.menu_headings, and allmain.c hands the same style to
-            // tty_end_menu()'s prompt line through adjust_menu_promptstyle().
-            items: items.map((item) => (item.heading
-                ? {
-                    ...item,
-                    attr: menuTitleStyle(state).titleAttr,
-                    color: menuTitleStyle(state).titleColor,
-                }
-                : item)),
-            how,
-            title: prompt,
-            ...menuTitleStyle(state),
-            cancelValue: null,
-            overlay: state.iflags?.menu_overlay !== false,
-        }),
-    }));
+    return failClosedCommand(key, state, () => dovspell(state));
 }
 
 // C ref: o_init.c dodiscovered().
@@ -3319,7 +3295,7 @@ async function runCastCommand(key, state) {
         message: ttyPline,
         // spell.c dospellmenu() for SPELLMENU_CAST: PICK_ONE menu with the
         // column heading styled by iflags.menu_headings.
-        menu: (items, how, prompt) => select_menu(state, {
+        menu: (items, how, prompt, _menuState, selection = {}) => select_menu(state, {
             items: items.map((item) => (item.heading
                 ? {
                     ...item,
@@ -3328,6 +3304,7 @@ async function runCastCommand(key, state) {
                 }
                 : item)),
             how,
+            ...selection,
             title: prompt,
             ...menuTitleStyle(state),
             cancelValue: null,
@@ -5107,7 +5084,7 @@ async function doextcmd(key, state) {
     case 'doperminv':
         return await doperminv(state);
     case 'dovspell':
-        return await runShowspellsCommand(key, state) ? ECMD_TIME : ECMD_OK;
+        return await runShowspellsCommand(key, state);
     case 'dodiscovered':
         return await runKnownCommand(key, state) ? ECMD_TIME : ECMD_OK;
     case 'dosearch':
@@ -6518,9 +6495,9 @@ export async function rhack(key, state = game) {
             return;
         }
         if (command === 'showspells') {
-            const elapsed = await runShowspellsCommand(key, state);
+            const result = await runShowspellsCommand(key, state);
             resetCommandVars(state);
-            if (elapsed) commandTookTime(state);
+            if (result & ECMD_TIME) commandTookTime(state);
             return;
         }
         if (command === 'known') {
