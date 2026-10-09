@@ -221473,7 +221473,7 @@
     {
       "id": "fix-pray-strangulation-amulet-consumption-v32-20261008",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Consume a worn strangulation amulet during prayer recovery",
       "cFile": "pray.c",
       "sessions": [
@@ -221487,8 +221487,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f18647f65477b3df69e7e30365e4e3993863a852",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "fix_worst_trouble",
       "session": "synthetic/v32/v32-prayer-strangulation",
       "step": 62,
@@ -221705,7 +221708,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "f18647f65477b3df69e7e30365e4e3993863a852",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
