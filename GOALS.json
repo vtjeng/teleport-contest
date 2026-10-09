@@ -228141,7 +228141,7 @@
     {
       "id": "fix-hack-special-room-subroom-reset-v33-20261009",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore special-room resets through the persisted subroom owner.",
       "cFile": "hack.c",
       "sessions": [
@@ -228155,8 +228155,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "993ad924fd08f999b0beeaa0945abc04eb2e5ec0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "check_special_room",
       "session": "synthetic/v33/v33-oracle-special-level",
       "syntheticProvenance": {
@@ -228363,7 +228366,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "993ad924fd08f999b0beeaa0945abc04eb2e5ec0",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
