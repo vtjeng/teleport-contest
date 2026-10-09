@@ -236207,7 +236207,7 @@
     {
       "id": "port-ran-loca-quest-level-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Ranger quest locate level from Lua.",
       "luaFile": "Ran-loca.lua",
       "sessions": [
@@ -236221,15 +236221,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "07a7711f3c33616a45a45bdd323eee7001502b7c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Ran-loca.lua",
           "line": 1,
           "endLine": 79,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -236398,7 +236401,90 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Ran-loca.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "ranLoca",
+            "sourceReview": "Read the complete upstream dat/Ran-loca.lua, lines 1-79, and preserved top-level source order: solid fill; mazelevel/hardfloor; literal 55x20 map; lit whole-map region; up/down stair descriptors; nondiggable whole-map selection; eight random objects; two spiked-pit, two teleport, and two arrow trap descriptors; then 23 ordered hostile monster descriptors, including the sleeping fixed-coordinate wumpus and two s-class requests. The deterministic generator extracts the map and ordered object/trap/monster descriptor data from this Lua source. Named species and classes pass through the existing des.monster owner; no generic descriptor owner is claimed. All descriptor calls are awaited in source order; the Lua program has no helper functions or unported calls.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "mkmaze.c:makemaz calls sp_lev.c:load_special for the selected special-level prototype during natural level generation; the registered Ran-loca program runs before special-level post-processing."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "wizcmds.c:wiz_load_splua calls sp_lev.c:load_special with a wizard-selected des-file name."
+              },
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "The dat/Ran-loca.lua program is registered under the exact special-level name used by load_special dispatch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/ran-loca-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Ran-loca.lua/ran-loca-male-independent.session.json",
+              "recordings/Ran-loca.lua/ran-loca-female-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-ran-loca-search",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 27,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Ran-loca.lua"
+              }
+            ],
+            "checkedAt": "07a7711f3c33616a45a45bdd323eee7001502b7c"
+          }
+        ],
+        "entryPointReview": "Ran-loca.lua has one whole top-level descriptor program and two active production entry paths in the reference recorder. Natural Ranger quest locate arrival reaches makelevel/makemaz/load_special and is replay-verified by admitted v36 case v36-quest-ran-loca-search. The debug wizard command wiz_load_splua reaches load_special with the specified file name; independent male and female recordings exercise that dispatch. Both callers are enabled in the patched recorder. This task implements only Ran-loca.lua and its specific registered key, leaving generic descriptor owners unchanged.",
+        "entryPoints": [
+          {
+            "name": "Ranger quest locate arrival",
+            "functions": [
+              "Ran-loca.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-ran-loca-search",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 27,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Ran-loca.lua"
+              }
+            ]
+          },
+          {
+            "name": "Wizard #wizloaddes direct load",
+            "functions": [
+              "Ran-loca.lua"
+            ],
+            "recordings": [
+              "recordings/Ran-loca.lua/ran-loca-male-independent.session.json",
+              "recordings/Ran-loca.lua/ran-loca-female-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "07a7711f3c33616a45a45bdd323eee7001502b7c",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
