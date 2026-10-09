@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T20:06:19.305Z",
+  "capturedAt": "2026-10-09T20:24:39.163Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -76194,23 +76194,135 @@
         "at": "2026-10-09T20:05:56.737Z",
         "task": "A195",
         "delivery": "8297a412828be8bff2ebda6dacec3989dbf02e3c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-after-C174-accepted-numeric-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:07:11.937Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "Next C-owned Tourist-locate task waits for Main’s numeric-selection contract decision shared with B200/B202. Other admitted mismatches have prior A/B owners or established tooling/provenance blockers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C174-c73aa43b72a0800387497d5aac7de214841a325e",
+        "type": "published",
+        "at": "2026-10-09T20:08:01.149Z",
+        "task": "C174",
+        "commit": "c73aa43b72a0800387497d5aac7de214841a325e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A195-review-c73aa43b",
+        "type": "activity",
+        "at": "2026-10-09T20:13:37.834Z",
+        "task": "A195",
+        "phase": "review",
+        "reason": "Verifying the immutable Sam-loca delivery against the published C174 boundary and current v36 mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A195-integrating-d28db928",
+        "type": "integrating",
+        "at": "2026-10-09T20:15:58.117Z",
+        "task": "A195",
+        "integration": "d28db9282c38ddf0cf2cc77330e258a9b66ebfad"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-resume-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:18:37.742Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Rechecking the admitted mismatch queue for an independent source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-resume-active-c73-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:19:08.561Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Rechecking the Monk start task after its shared object prerequisite was accepted."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-resume-blocked-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:21:47.472Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "No unowned independent queue item remains. Awaiting Main decision on whether C may claim the complete numeric-selection owner without taking B200/B202 sessions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B197-after-C172-20261009",
+        "type": "resume",
+        "at": "2026-10-09T20:22:04.254Z",
+        "task": "B197"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A195-validated-37985939395",
+        "type": "validated",
+        "at": "2026-10-09T20:22:12.903Z",
+        "task": "A195",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C176-approved-selection-owner-20261009",
+        "type": "resume",
+        "at": "2026-10-09T20:22:47.928Z",
+        "task": "C176"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C176-approved-selection-owner-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:22:50.685Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Implementing the approved selection algebra owner with numeric cell values and Tourist-locate runtime evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A195-d28db9282c38ddf0cf2cc77330e258a9b66ebfad-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T20:23:31.684Z",
+        "task": "A195"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B197-mon-strt-after-C172-20261009",
+        "type": "implement",
+        "at": "2026-10-09T20:23:32.802Z",
+        "task": "B197",
+        "goal": "port-mon-strt-lua-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C176-selection-algebra-owner-20261009",
+        "type": "implement",
+        "at": "2026-10-09T20:23:44.635Z",
+        "task": "C176",
+        "goal": "port-tou-loca-quest-level-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-resume-20261009-1",
+        "type": "turn",
+        "at": "2026-10-09T20:24:07.809Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Checking saved work and the accepted-main boundary before claiming the next source task."
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "A195",
-        "worker": "A2",
-        "goal": "port-sam-loca-quest-locate-v36-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "8297a412828be8bff2ebda6dacec3989dbf02e3c",
-        "since": "2026-10-09T20:04:53.969Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -76478,17 +76590,6 @@
         "reason": "Complete source report07845e90b: patch006 nomux_capture_screen overflows6144-byte buffer into raw cursor globals after dense Juiblex mapping. RNG/screens match; Main owns recorder repair and admitted-corpus provenance decision. No JavaScript source task is eligible for this cursor corruption."
       },
       {
-        "task": "B197",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T13:34:13.706Z",
-        "blockedBy": [],
-        "reason": "Complete Mon-strt report33119e37 preserved, awaiting central source gate and shared spinach-tin support approval. Main directs another independent investigation while current delivery queue validates."
-      },
-      {
         "task": "B198",
         "worker": "B",
         "goal": null,
@@ -76509,17 +76610,6 @@
         "since": "2026-10-09T14:04:52.682Z",
         "blockedBy": [],
         "reason": "Main received complete report and directed parking for shared numeric selection subtraction owner adjudication; preserve report3bc79386 and source proposal without game edits."
-      },
-      {
-        "task": "C176",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T14:05:01.442Z",
-        "blockedBy": [],
-        "reason": "Complete report8a066441a retained; Main requires adjudication of canonical numeric selection union/subtraction semantics before whole Tou-loca closure. No source claim/edit; parent directs independent investigation continuation."
       },
       {
         "task": "B202",
@@ -76568,8 +76658,8 @@
     ]
   },
   "development": {
-    "executionCommit": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3",
-    "measuredAt": "2026-10-09T20:04:00.526Z",
+    "executionCommit": "d28db9282c38ddf0cf2cc77330e258a9b66ebfad",
+    "measuredAt": "2026-10-09T20:21:24.185Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
