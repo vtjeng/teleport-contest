@@ -229320,6 +229320,37 @@
           "evaluationCommit": "1fca795f45379c5d8364836c74c8ac61910620cd"
         }
       }
+    },
+    {
+      "id": "fix-spell-jumping-caller-v34-20261009",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Wire the magical jumping spell to canonical jump and consume its ECMD_TIME return",
+      "cFile": "spell.c",
+      "sessions": [],
+      "selectionReason": "Independent admitted v34 mismatch after accepted A184; the complete investigation traces the first missing screen to the omitted SPE_JUMPING caller into canonical apply.c jump, disjoint from B184, B183, and C163.",
+      "detail": "Forced jumping reaches spell.c spelleffects SPE_JUMPING, but JavaScript falls into its unsupported default instead of awaiting jump(max(role_skill,1)). Restore the bounded caller and test ECMD_TIME before Nothing happens feedback; retain normal cleanup and skill gain without whole-function credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "spelleffects",
+      "session": "synthetic/v34/v34-wizard-jump",
+      "step": 73,
+      "syntheticProvenance": {
+        "synthetic/v34/v34-wizard-jump": {
+          "session": "synthetic/v34/v34-wizard-jump",
+          "corpus": "synthetic",
+          "batch": "v34",
+          "caseId": "v34-wizard-jump",
+          "manifestPath": "challenges/manifests/v34.json",
+          "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+          "recordingPath": "challenges/cases/v34/v34-wizard-jump.session.json",
+          "recordingSha256": "e38556e67e0e1351daab1d02440ccd64afc8baf3e7e9d6e8c975568eb9650f54",
+          "evaluationPath": "challenges/evaluations/accepted-1fca795f45379c5d8364836c74c8ac61910620cd-v34.json",
+          "evaluationCommit": "1fca795f45379c5d8364836c74c8ac61910620cd"
+        }
+      }
     }
   ]
 }
