@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first silver-hit witness: roles/seeds/date and object quantity chosen before observation or JavaScript comparison. Wield silver weapon and force-fight adjacent manes to exercise hmon_hitmon_msg_silver and fatal/surviving common tail. C-only inventory observation determines wished weapon letter.",
+  "segments": [
+    {
+      "seed": 18433002,
+      "datetime": "20451013141516",
+      "nethackrc": "OPTIONS=name:SilverProbe,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "        \u00172 uncursed silver daggers\n        we        \u0007manes\n        Fh     Fl     Fk     Fj     Fy     Fu     Fb     Fn     Fh     Fl     Fk     Fj     Fy     Fu     Fb     Fn     Fh     Fl     Fk     Fj     Fy     Fu     Fb     Fn     "
+    }
+  ]
+}

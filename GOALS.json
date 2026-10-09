@@ -226668,7 +226668,7 @@
     {
       "id": "port-spell-sort-menu-family-v33-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port known-spell sorting, letter reassignment, swapping and complete menu columns.",
       "cFile": "spell.c",
       "sessions": [
@@ -226682,8 +226682,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "3ef1ebdbffb1bf6d15c3f591ec568f182fa36148",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "spell_cmp",
@@ -227358,6 +227361,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "3ef1ebdbffb1bf6d15c3f591ec568f182fa36148",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -227878,7 +227887,7 @@
     {
       "id": "port-uhitm-hmon-hitmon-msg-silver-v33-20261009",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port silver-hit feedback and wire its sole bounded melee caller.",
       "cFile": "uhitm.c",
       "sessions": [
@@ -227886,8 +227895,12 @@
       ],
       "selectionReason": "Current unreserved v33 silver-dagger mismatch; the complete report identifies the whole 38-line silver feedback helper and its sole bounded caller, disjoint from other uhitm owners.",
       "detail": "Port uhitm.c hmon_hitmon_msg_silver lines 1663-1700 and await it at the existing hmon_hitmon silvermsg branch before poison and kill messages. Preserve visible ring, named silver object, generic silver, unseen target, and corporeal flesh wording; take no whole hmon_hitmon or light-object credit.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "cc39a6fd08e50c3784f2870086fb18475154b79d",
+      "openStanding": {
+        "sha": "3ef1ebdbffb1bf6d15c3f591ec568f182fa36148",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -227895,8 +227908,8 @@
           "name": "hmon_hitmon_msg_silver",
           "line": 1663,
           "endLine": 1701,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -227916,6 +227929,301 @@
           "evaluationPath": "challenges/evaluations/accepted-7af2dcb832c469033b652c131fe1feeae0d47ed3-v33.json",
           "evaluationCommit": "7af2dcb832c469033b652c131fe1feeae0d47ed3"
         }
+      },
+      "activeStanding": {
+        "sha": "3ef1ebdbffb1bf6d15c3f591ec568f182fa36148",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-silver-dagger-sears",
+          "session": "synthetic/v33/v33-silver-dagger-sears",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recording": "challenges/cases/v33/v33-silver-dagger-sears.session.json",
+          "recordingPath": "challenges/cases/v33/v33-silver-dagger-sears.session.json",
+          "recordingSha256": "6b9d174c8154e3bcc8cb33324343ecf9571b46b43ab535e0c22ebbd0342875b9",
+          "recipe": "challenges/cases/v33/v33-silver-dagger-sears.recipe.session.json",
+          "recipeSha256": "37c825040c239b94357d460963824472b9ffd9068aa074db7e7a95590e229ff3",
+          "replayInputSha256": "6ee149fa24841c65e3a88925f31a71939482f6a4612a22943f67c816a9e256a5",
+          "evaluationPath": "challenges/evaluations/accepted-3ef1ebdbffb1bf6d15c3f591ec568f182fa36148-v33.json",
+          "evaluationCommit": "3ef1ebdbffb1bf6d15c3f591ec568f182fa36148",
+          "evaluationArtifact": "challenges/evaluations/accepted-3ef1ebdbffb1bf6d15c3f591ec568f182fa36148-v33.json",
+          "evaluationUtc": "2026-10-09T06:44:43.578Z",
+          "remainingScreens": 1,
+          "recordedSteps": 213,
+          "previousScreensMatched": 212,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 212,
+              "total": 213
+            },
+            "rng": {
+              "matched": 3111,
+              "total": 3111
+            },
+            "cursors": {
+              "matched": 213,
+              "total": 213
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 144,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 144,
+                "key": "b"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 3,
+              "cCell": {
+                "ch": "r",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 144,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v33/v33-silver-dagger-sears.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v33",
+              "caseId": "v33-silver-dagger-sears",
+              "session": "synthetic/v33/v33-silver-dagger-sears",
+              "manifestPath": "challenges/manifests/v33.json",
+              "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+              "recording": "challenges/cases/v33/v33-silver-dagger-sears.session.json",
+              "recordingPath": "challenges/cases/v33/v33-silver-dagger-sears.session.json",
+              "recordingSha256": "6b9d174c8154e3bcc8cb33324343ecf9571b46b43ab535e0c22ebbd0342875b9",
+              "recipe": "challenges/cases/v33/v33-silver-dagger-sears.recipe.session.json",
+              "recipeSha256": "37c825040c239b94357d460963824472b9ffd9068aa074db7e7a95590e229ff3",
+              "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+              "evaluationPath": "challenges/evaluations/accepted-4c02dfca96bd54300b882ccce1f536aef50b9791-v33.json",
+              "evaluationCommit": "4c02dfca96bd54300b882ccce1f536aef50b9791",
+              "evaluationArtifact": "challenges/evaluations/accepted-4c02dfca96bd54300b882ccce1f536aef50b9791-v33.json",
+              "evaluationUtc": "2026-10-09T03:51:19.671Z",
+              "remainingScreens": 1,
+              "recordedSteps": 213,
+              "previousScreensMatched": null,
+              "regression": false,
+              "passed": false,
+              "error": null,
+              "metrics": {
+                "screens": {
+                  "matched": 212,
+                  "total": 213
+                },
+                "rng": {
+                  "matched": 3111,
+                  "total": 3111
+                },
+                "cursors": {
+                  "matched": 213,
+                  "total": 213
+                }
+              },
+              "firstMismatch": {
+                "screen": {
+                  "index": 144,
+                  "location": {
+                    "segmentIndex": 0,
+                    "stepIndex": 144,
+                    "key": "b"
+                  },
+                  "kind": "ch",
+                  "row": 0,
+                  "column": 3,
+                  "cCell": {
+                    "ch": "r",
+                    "color": 8,
+                    "attr": 0,
+                    "decgfx": 0
+                  },
+                  "jsCell": {
+                    "ch": " ",
+                    "color": 8,
+                    "attr": 0,
+                    "decgfx": 0
+                  }
+                },
+                "rng": null,
+                "cursor": null
+              },
+              "step": 144,
+              "kind": "screen",
+              "sourceFile": null,
+              "function": null,
+              "message": null,
+              "cFile": null,
+              "luaFile": null,
+              "line": null,
+              "status": "complete",
+              "commit": "d84b3350e8f26f3028bfc0aaaf0e00e73052f6e7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v33",
+                "caseId": "v33-silver-dagger-sears",
+                "session": "synthetic/v33/v33-silver-dagger-sears",
+                "manifestPath": "challenges/manifests/v33.json",
+                "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+                "recording": "challenges/cases/v33/v33-silver-dagger-sears.session.json",
+                "recordingPath": "challenges/cases/v33/v33-silver-dagger-sears.session.json",
+                "recordingSha256": "6b9d174c8154e3bcc8cb33324343ecf9571b46b43ab535e0c22ebbd0342875b9",
+                "recipe": "challenges/cases/v33/v33-silver-dagger-sears.recipe.session.json",
+                "recipeSha256": "37c825040c239b94357d460963824472b9ffd9068aa074db7e7a95590e229ff3",
+                "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+                "evaluationPath": "challenges/evaluations/accepted-4c02dfca96bd54300b882ccce1f536aef50b9791-v33.json",
+                "evaluationCommit": "4c02dfca96bd54300b882ccce1f536aef50b9791",
+                "evaluationArtifact": "challenges/evaluations/accepted-4c02dfca96bd54300b882ccce1f536aef50b9791-v33.json",
+                "evaluationUtc": "2026-10-09T03:51:19.671Z",
+                "remainingScreens": 1,
+                "recordedSteps": 213,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 212,
+                    "total": 213
+                  },
+                  "rng": {
+                    "matched": 3111,
+                    "total": 3111
+                  },
+                  "cursors": {
+                    "matched": 213,
+                    "total": 213
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 144,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 144,
+                      "key": "b"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 3,
+                    "cCell": {
+                      "ch": "r",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 144,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "goalKind": "file-port",
+              "summary": "Silver dagger kill at step144 omits uhitm.c:hmon_hitmon_msg_silver. C prints silver searing feedback before killed; JavaScript records only note_unported for that discarded helper. Port whole source helper and await its sole hmon_hitmon caller before poison/kill messages.",
+              "source": {
+                "file": "uhitm.c",
+                "functions": [
+                  "hmon_hitmon_msg_silver"
+                ],
+                "branch": "hmd.silvermsg set by silver weapon/ring/object damage. Message selects visible rings/named silver object/generic silver, unseen target capitalization, and corporeal non-amorphous possessive flesh.",
+                "callers": [
+                  "uhitm.c:hmon_hitmon1878 -> hmon_hitmon_msg_silver1663–1700; hero melee, thrown, applied and barehand ring hit producers set the shared hmd fields. Existing js/uhitm.js3709 records note_unported in this sole source caller."
+                ],
+                "dependencies": [
+                  "Consumed mon_nam/canspotmon/vtense/strstri/s_suffix/noncorporeal/amorphous have canonical existing owners and are reused in source order. strstri JS returns index/-1, so explicitly compare >=0 rather than C pointer truthiness.",
+                  "C Snprintf/strNsubst escapes percent in saved_oname before appending sole %s substitution. JavaScript must preserve literal names and C BUFSZ capacity, without treating object names as format arguments or recording a fabricated helper effect. Source-discarded string helper can be reconciled by equivalent string representation; audit output capacity before implementation.",
+                  "Adjacent hmon_hitmon_msg_lightobj remains a separate named source-discarded gap. No whole hmon/hmon_hitmon credit; C163 gold-theft and C162 missum scopes are disjoint within uhitm.js."
+                ]
+              },
+              "evidence": [
+                "Current accepted B181 evaluation at4c02dfca remains212/213screens with3111/3111RNG and213/213cursors. Current selected-only replay .cache/A184/probe.json confirms same step144, keyb, C row0 Your silver dagger sears the manes' flesh!  You destroy the manes!, JS row0 You destroy the manes!; no random/state/cursor mismatch.",
+                "Read full uhitm.c1663–1700. mon_nam is evaluated before visibility branch. One/two rings choose sears/sear; object prefix omits duplicate silver using case-insensitive substring; vtense follows saved object quantity/name; unseen capitalizes target before possessive flesh condition. pline emits one message, no source RNG beyond canonical naming visibility dependencies.",
+                "Sole production call uhitm.c1877–1878 lies after msg_hit/dry_a_towel and before light/poison/kill tail. JS hmd.silvermsg setters and saved_oname already exist; replacing note_unported with awaited helper preserves shared transient C hmd owner.",
+                "Independent C-first evidence plan uses different source-valid seed/date/role with silver dagger versus silver barehand ring or renamed silver object variations; selected full213-step case covers the fatal production order. Source-pinned coverage must cover one/two rings, named percent/silver/plural object, amorphous/noncorporeal and unseen targets, preserving mon_nam evaluation and message callback semantics. Outside-light helper remains blocked separately."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "hmon_hitmon_msg_silver",
+            "implementation": "js/uhitm.js",
+            "symbol": "hmon_hitmon_msg_silver",
+            "sourceReview": "Read whole uhitm.c1663–1700 and sole caller1878. Evaluate canonical mon_nam first, then canspotmon; choose one/two rings, named object with case-insensitive silver detection and canonical vtense, generic or unseen capitalization. Preserve C buffer truncation, percent escaping and appended target slot before possessive flesh guard for corporeal/non-amorphous target. Emit one awaited canonical env message; no invented RNG/state. String representation replaces C mutable buffers without a second game owner. Reuse consumed canonical naming/visibility/grammar/species predicates; no missing consumed-result placeholder. Remove source-discarded note_unported helper call and wire awaited function between msg_hit/dry_a_towel and light/poison/kill tail. Adjacent light helper retains its named void gap.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon",
+                "source": "uhitm.c1877–1878 sole static helper caller, guarded by hmd.silvermsg from silver weapon/ring/misc damage producers. Common runtime melee/ranged/applied caller state already owns hmd and saved_oname; bounded await wiring, no whole hmon_hitmon completion credit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-hmon.test.mjs",
+              "scripts/hostile-melee-hit.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/silver-hit-caveman.session.json",
+              "recordings/uhitm.c/silver-hit-valkyrie.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-silver-dagger-sears",
+                "segment": 0,
+                "fromStep": 144,
+                "throughStep": 212,
+                "source": "cmd.c rhack forcefight -> hack.c domove -> uhitm.c attack/hitum/known_hitum -> hmon/hmon_hitmon1878 -> hmon_hitmon_msg_silver1663–1700 -> mon.c killed"
+              }
+            ],
+            "checkedAt": "9e495f02476c583f837d7ec8ef38fe269aad1d5c"
+          }
+        ],
+        "entryPointReview": "Helper-only selected source range, so entryPoints is empty. Sole hmon_hitmon call is wired for every existing hmd.silvermsg producer (barehand silver ring counts, weapon melee/ranged and misc silver object). Selected admitted fatal melee and independent singular/plural weapons establish production feedback before killed. Source-pinned direct branch tests isolate grammar and invisible/noncorporeal/amorphous guards; existing hmon tests exercise shade, silver rings and weapon damage paths. No current object-table ring material is silver; direct source-field tests preserve one/two ring branches without inventing a production silver ring wish. Outer command/weapon owners retain their own evidence.",
+        "entryPoints": []
       }
     },
     {
