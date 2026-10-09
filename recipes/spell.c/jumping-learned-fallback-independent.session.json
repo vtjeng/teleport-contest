@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first learned SPE_JUMPING witness: wish/read a blessed jumping book, then #cast and #jump without physical jumping. Covers docast and apply.c jump spell fallback into the same canonical spell caller; in-place targets exercise ECMD_OK feedback and outer cast time. C-only correction: the first cast leaves insufficient energy for the fallback, so forty ordinary rest turns recharge before #jump. C-only correction: two leading spaces acknowledge the full-moon startup message before issuing #levelchange; the earlier prefix was consumed at startup. C-only correction: acknowledge each experience-level message before wishing/reading; unused acknowledgment spaces are ordinary commands.",
+  "segments": [
+    {
+      "seed": 18541034,
+      "datetime": "20490418144536",
+      "nethackrc": "OPTIONS=name:LearnedJump,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,!tips\n",
+      "moves": "  #levelchange\n15\n                        \u0017blessed spellbook of jumping\nrp ...#cast\nc.........................................#jump\n."
+    }
+  ]
+}

@@ -87,7 +87,11 @@ CPU use. Include Prep in the shared ledger and snapshot like the other workers.
 
 Use `next` for routine coordination, including pending deliveries, parked
 tasks, and ready batches awaiting admission. Use `status` when the full ownership
-state is needed. Event and submission commands currently print the full
+state is needed. At evaluation and handoff boundaries, run
+`next --queue <latest-saved-combined-queue.json>`. Check source independence
+and parked blockers before starting or resuming work.
+
+Event and submission commands currently print the full
 state: capture stdout in one reusable worktree-local `.cache/` file, keep
 stderr visible, and inspect the exit status and affected task or delivery.
 Keep recording required transitions and process handles; avoid copying the
