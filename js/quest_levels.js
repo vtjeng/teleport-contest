@@ -6,7 +6,8 @@
 //         dat/Cav-strt.lua, dat/Mon-goal.lua, dat/Sam-goal.lua, dat/Tou-strt.lua, dat/astral.lua,
 //         dat/Hea-goal.lua, dat/Hea-loca.lua, dat/Hea-strt.lua,
 //         dat/Kni-loca.lua, dat/Kni-strt.lua, dat/Ran-loca.lua,
-//         dat/Ran-goal.lua, dat/Val-goal.lua, dat/Val-loca.lua,
+//         dat/Ran-goal.lua, dat/Rog-strt.lua, dat/Val-goal.lua,
+//         dat/Val-loca.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
@@ -84,6 +85,10 @@ import {
 import { KNI_STRT_LEVEL_MAP } from './kni_strt_level_data.js';
 import { ASTRAL_LEVEL_MAP } from './astral_level_data.js';
 import { VAL_LOCA_LEVEL_MAP } from './val_loca_level_data.js';
+import {
+    ROG_STRT_DOORS, ROG_STRT_EXIT_MONSTERS, ROG_STRT_GUARDS,
+    ROG_STRT_LEVEL_MAP,
+} from './rog_strt_level_data.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
 // that draws a random zig-zag path from (x1,y1) to (x2,y2).
@@ -2514,7 +2519,43 @@ async function valLoca(des) {
     await des.monster({ class: 'H', peaceful: 0 });
 }
 
+// dat/Rog-strt.lua: whole Rogue quest start program, in source order.
+async function rogStrt(des, state) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noteleport', 'hardfloor', 'nommap');
+    await des.map(ROG_STRT_LEVEL_MAP);
+    const streets = selection_floodfill(0, 12, state, des.frame);
+    const place = [[33, 0], [0, 12], [25, 20], [75, 5]];
+    await des.shuffle(place);
+    await des.stair({ dir: 'down', coord: place[0] });
+    for (const [index, id] of ['giant mimic', 'large mimic', 'small mimic'].entries())
+        await des.monster({ id, coord: place[index + 1], appear_as: 'ter:staircase down' });
+    await des.levregion({ region: [19, 9, 19, 9], type: 'branch' });
+    for (const args of ROG_STRT_DOORS) await des.door(...args);
+    await des.monster({ id: 'Master of Thieves', coord: [36, 11], async inventory() {
+        await des.object({ id: 'leather armor', spe: 5 });
+        await des.object({ id: 'silver dagger', spe: 4 });
+        // nhlib.lua:d(2,4) makes two one-based math.random(4) draws.
+        await des.object({ id: 'dagger', spe: 2, quantity: 2 + rn2(4) + rn2(4), buc: 'not-cursed' });
+    } });
+    await des.object('chest', 36, 11);
+    for (const [x, y] of ROG_STRT_GUARDS) await des.monster('thug', x, y);
+    await des.non_diggable(selection_area(0, 0, 75, 20));
+    for (let i = 0; i < 16; ++i) await des.trap();
+    for (const monster of ROG_STRT_EXIT_MONSTERS) await des.monster(monster);
+    // Lua evaluates each numeric for-loop bound once, before its first body.
+    const pairedCount = 4 + rn2(4);
+    for (let i = 0; i < pairedCount; ++i) {
+        await des.monster({ id: 'water nymph', coord: streets.rndcoord(true), peaceful: 0 });
+        await des.monster({ id: 'leprechaun', coord: streets.rndcoord(true), peaceful: 0 });
+    }
+    const chameleonCount = 7 + rn2(4);
+    for (let i = 0; i < chameleonCount; ++i)
+        await des.monster({ id: 'chameleon', coord: streets.rndcoord(true), peaceful: 0 });
+}
+
 export const QUEST_LEVEL_LOADERS = {
+    'Rog-strt': rogStrt,
     'Val-loca': valLoca,
     'Hea-strt': heaStrt,
     'Cav-loca': cavLoca,

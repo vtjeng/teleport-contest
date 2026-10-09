@@ -237595,7 +237595,7 @@
     {
       "id": "port-sam-goal-lua-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Sam-goal has no registered loader. Port the complete Samurai quest goal program, preserving the concentric map, source-ordered location draws, doors, stair and wall openings, named Tsurugi, objects, traps, and inhabitants.",
       "luaFile": "Sam-goal.lua",
       "sessions": [
@@ -237609,15 +237609,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b134b4d3767f961f9fff0d5b043bb5050458b3cd",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Sam-goal.lua",
           "line": 1,
           "endLine": 111,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -237793,7 +237796,367 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Sam-goal.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "samGoal",
+            "sourceReview": "Read complete dat/Sam-goal.lua1–111 and nhlib.lua math.random compatibility, then canonical map/region/stair/terrain/door/non_diggable/object/trap/monster descriptor owners and makelevel registry dispatch. Preserve solidfill space initialization with unspecified lighting before mazelevel/noteleport flags and the exact20x45 map. Draw the up-stair rn2(2) before the unlit region and four closed doors, then three independent ring choices rn2(4),rn2(4),rn2(2) immediately before terrain writes; map flips/finalization remain canonical. Protect the map walls, create blessed spe0 named Tsurugi at22/10, fourteen random objects, three fixed boards and six random traps, then Ashikaga, five hostile samurai, five hostile ninja, four wolves, two dog-class monsters and nine stalkers in source order. Preserve source string IDs and classes, coordinate forms and awaited descriptor calls; no injected operations, guessed species IDs, removed RNG or obsolete guard. Canonical accepted mplayer/object helpers are reused without edits or source credit. The missing registry entry is replaced by samGoal in the established source-owner module; generated rows and generator check preserve all spaces.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c:makelevel1266–1271 -> mkmaze.c:makemaz1184–1193 -> sp_lev.c:load_special6454–6503; ensureSpecialLevelLoaders spreads QUEST_LEVEL_LOADERS and routes Sam-goal to samGoal."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "wizcmds.c:wiz_load_splua requests a special Lua file, canonical registered loader handling resolves Sam-goal.lua and awaits its descriptors."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/sam-goal-level-generation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Sam-goal.lua/sam-goal-male-independent.session.json",
+              "recordings/Sam-goal.lua/sam-goal-female-independent.session.json",
+              "recordings/Sam-goal.lua/sam-goal-natural-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-sam-goal",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "do.c:goto_level -> mklev.c:makelevel/mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Sam-goal.lua1–111 and canonical finalization/rearrival."
+              }
+            ],
+            "checkedAt": "b134b4d3767f961f9fff0d5b043bb5050458b3cd"
+          }
+        ],
+        "entryPointReview": "Whole Lua executes via natural quest-goal generation and direct wizard special-Lua loading. Natural Samurai quest arrival is the admitted matching v36 range; independent male/female human Samurai C recordings cover typed #wizloaddes and fully compare the complete generated level. Regeneration/rearrival uses the same makelevel registry owner, no per-session special handling. Source descriptor tests pin every top-level statement, all four random choices and complete descriptor order. A third independently chosen female Samurai records natural destination-menu arrival and wizard map observation; all three witnesses are strict-perfect.",
+        "entryPoints": [
+          {
+            "name": "natural Samurai quest goal generation",
+            "functions": [
+              "Sam-goal.lua"
+            ],
+            "recordings": [
+              "recordings/Sam-goal.lua/sam-goal-natural-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-sam-goal",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "do.c:goto_level -> mklev.c:makelevel/mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Sam-goal.lua1–111 and canonical finalization/rearrival."
+              }
+            ]
+          },
+          {
+            "name": "direct wizard special Lua load",
+            "functions": [
+              "Sam-goal.lua"
+            ],
+            "recordings": [
+              "recordings/Sam-goal.lua/sam-goal-male-independent.session.json",
+              "recordings/Sam-goal.lua/sam-goal-female-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b134b4d3767f961f9fff0d5b043bb5050458b3cd",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-rog-strt-quest-level-v36-20261009",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Rog-strt has no registered loader. Port the complete Rogue quest start program, preserving the shuffled exits and mimic disguises, all doors, leader inventory, street selection, traps, guards, and random street monsters.",
+      "luaFile": "Rog-strt.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-rog-strt"
+      ],
+      "selectionReason": "Integrate the oldest dependency-ready delivered task after B199 publication.",
+      "detail": "The accepted v36 case stops at step 19 in load_special because QUEST_LEVEL_LOADERS lacks Rog-strt; the delivery ports the whole 166-line Lua program using existing descriptor owners.",
+      "openedAt": "e5311bac7d577a7a84fbd9ae6791fe8fd40b45b7",
+      "openStanding": {
+        "sha": "b134b4d3767f961f9fff0d5b043bb5050458b3cd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "85927920dc3598224e264c7ca1ecd0a4c5a34239",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "Rog-strt.lua",
+          "line": 1,
+          "endLine": 166,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-rog-strt": {
+          "session": "synthetic/v36/v36-quest-rog-strt",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-rog-strt",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-rog-strt.session.json",
+          "recordingSha256": "4c9bc59e3036b960d3ba360df435b41ba1339b118f64142803ac845340674c2a",
+          "evaluationPath": "challenges/evaluations/accepted-b134b4d3767f961f9fff0d5b043bb5050458b3cd-v36.json",
+          "evaluationCommit": "b134b4d3767f961f9fff0d5b043bb5050458b3cd"
+        }
+      },
+      "activeStanding": {
+        "sha": "b134b4d3767f961f9fff0d5b043bb5050458b3cd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-rog-strt",
+          "session": "synthetic/v36/v36-quest-rog-strt",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-rog-strt.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-rog-strt.session.json",
+          "recordingSha256": "4c9bc59e3036b960d3ba360df435b41ba1339b118f64142803ac845340674c2a",
+          "recipe": "challenges/cases/v36/v36-quest-rog-strt.recipe.session.json",
+          "recipeSha256": "1fcbc3f7a3ab3ad84941436542fa493b0751faa4e94de6b462d38b545745e0ba",
+          "replayInputSha256": "dbc157b7bce3d6f33a607f343ac8e3996420e0f28139d10ebde27351bea58d4c",
+          "evaluationPath": "challenges/evaluations/accepted-b134b4d3767f961f9fff0d5b043bb5050458b3cd-v36.json",
+          "evaluationCommit": "b134b4d3767f961f9fff0d5b043bb5050458b3cd",
+          "evaluationArtifact": "challenges/evaluations/accepted-b134b4d3767f961f9fff0d5b043bb5050458b3cd-v36.json",
+          "evaluationUtc": "2026-10-09T18:36:33.385Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 4624,
+              "total": 5722
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Rog-strt\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Rog-strt.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Rog-strt\"",
+          "cFile": null,
+          "luaFile": "Rog-strt.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-rog-strt.json",
+            "result": {
+              "session": "synthetic/v36/v36-quest-rog-strt",
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-rog-strt",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "4c9bc59e3036b960d3ba360df435b41ba1339b118f64142803ac845340674c2a",
+              "evaluationPath": "challenges/evaluations/accepted-21d9906e28b3c03e57e651ade823f3a1ebb9bb2e-v36.json",
+              "evaluationCommit": "21d9906e28b3c03e57e651ade823f3a1ebb9bb2e",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "43522276d8a090c39c54fc61313be4faf0f5917f",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-rog-strt",
+                "session": "synthetic/v36/v36-quest-rog-strt",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-rog-strt.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-rog-strt.session.json",
+                "recordingSha256": "4c9bc59e3036b960d3ba360df435b41ba1339b118f64142803ac845340674c2a",
+                "recipe": "challenges/cases/v36/v36-quest-rog-strt.recipe.session.json",
+                "recipeSha256": "1fcbc3f7a3ab3ad84941436542fa493b0751faa4e94de6b462d38b545745e0ba",
+                "replayInputSha256": "219bfbd366ef1f25eac95c5d78b2ee241bc385a6b9709e00acf3ebc5f5b7ee6e",
+                "evaluationPath": "challenges/evaluations/accepted-21d9906e28b3c03e57e651ade823f3a1ebb9bb2e-v36.json",
+                "evaluationCommit": "21d9906e28b3c03e57e651ade823f3a1ebb9bb2e",
+                "evaluationArtifact": "challenges/evaluations/accepted-21d9906e28b3c03e57e651ade823f3a1ebb9bb2e-v36.json",
+                "evaluationUtc": "2026-10-09T17:58:26.507Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 4624,
+                    "total": 5722
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Rog-strt\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Rog-strt.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Rog-strt\"",
+                "cFile": null,
+                "luaFile": "Rog-strt.lua",
+                "line": null
+              },
+              "goalKind": "lua-port",
+              "summary": "Rog-strt has no registered loader. Port its whole Rogue quest start program, including shuffled stair exits, disguised mimics, leader inventory, street selection and removal-based monster placement.",
+              "source": {
+                "file": "Rog-strt.lua",
+                "branch": "Rogue quest start arrival or registered wizard load of Rog-strt; map-relative streets and exit coordinates establish stairs, stair mimics, leader and hostile street monsters.",
+                "functions": [
+                  "Rog-strt.lua"
+                ],
+                "callers": [
+                  "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Rog-strt.lua",
+                  "wizcmds.c:wiz_load_splua -> load_special -> registered Rog-strt Lua program"
+                ],
+                "dependencies": [
+                  "Existing map-relative quest selection_floodfill and ThemeroomSelection.rndcoord(true), shuffle/nhlib random equivalents, lspo_monster furniture mimic and custom inventory owners, map/flags/levregion/door/object/trap/nondiggable owners. No required supporting owner change identified by source review."
+                ]
+              },
+              "evidence": [
+                "Current saved evaluation challenges/evaluations/accepted-21d9906e28b3c03e57e651ade823f3a1ebb9bb2e-v36.json at 21d9906e28b3c03e57e651ade823f3a1ebb9bb2e still stops at zero-based step 19 before Rog-strt generation: 19/60 screens and 41 remaining. Immutable recording SHA256 4c9bc59e3036b960d3ba360df435b41ba1339b118f64142803ac845340674c2a; admitted manifest corpus digest 58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c.",
+                "Read whole dat/Rog-strt.lua1–166, SHA256e375e02db567addd2d087af7c5803d60e140bb3fdbb491810dd7a140cda8e55f. Solidfill stone,mazelevel/noteleport/hardfloor/nommap and exact76×21 map precede orthogonal same-terrain floodfill from relative0,12. Preserve all map spaces/doors/pools and top-level order. No lit region call or explicit wallify occurs. Generate the map,46literal door calls and fixed guard/exit tables deterministically from source; retain the duplicate closed door23,14 at lines92–93.",
+                "Lua43–55 captures the streets selection before shuffling exits33,0;0,12;25,20;75,5. nhlib.lua shuffle descends4,3,2 with one rn2(i) per iteration. The first shuffled coordinate becomes down stairs and the next three create giant/large/small mimics with appear_as ter:staircase down. Existing lspo_monster parses M_AP_FURNITURE, create_monster scans CMAP_EXPLANATIONS and assigns m_ap_type/mappearance. The branch region19,9 is map-relative. No role-alignment macro or tin descriptor is used.",
+                "nhlsel.c:l_selection_flood723–754 converts the relative start through get_location_coord, matches its terrain and uses diagonalsFALSE; existing quest_levels.js selection_floodfill108–138 supplies same-terrain cardinal floodfill in the current map frame. The selection result is relative, so ThemeroomSelection.rndcoord(true) without a second origin subtraction preserves nhlsel.c407–427 coordinate conversion. Its x-major point count/selection and removal match selvar.c284 onward. Pin the captured street set and removal against source rather than use a reconstructed rectangle.",
+                "Lua106–124 creates Master of Thieves at36,11 with inventory callback: leather armor spe5, silver dagger spe4 and dagger spe2 quantity d(2,4) not-cursed. nhlib.lua d uses two one-based rnd4 draws. Existing lspo_monster waits for creation and inventory, then clears the inventory carrier; chest and nine thug guards follow. All inventory object calls must be awaited before chest and later descriptors. No generic owner completion credit is proposed.",
+                "Lua126–166 applies nondiggable fullmap,16random traps, eight fixed hostile water nymph/leprechaun blockers. Evaluate4+rn2(4) once before the first loop; each iteration consumes streets:rndcoord(1), creates a water nymph, consumes/removes another coordinate and creates a leprechaun. Evaluate7+rn2(4) once before the second loop; remove one coordinate per hostile chameleon. Preserve loop-bound RNG lifetime, species creation order and source nhlib.lua/nhlua.c:nhl_random semantics.",
+                "Production change is a distinct rogStrt body/import/key in existing js/quest_levels.js and generated rog_strt_level_data.js; rg -n rogStrt|Rog-strt js/quest_levels.js found no loader. Existing makelevel/makemaz/load_special and wizard load-splua callers already reach registered programs. Source review identified no required edits to pending C169/C170, B195/A191, alignment or spinach owners. Runtime checks may expose a separate support blocker; preserve it rather than inventing behavior.",
+                "Plan fail-first registry and whole source-sequence tests, generated output equality, exit shuffle and mimic assignment, source street-selection/removal, one-time random loop bounds, awaited leader inventory and exact dice ordering. Cover admitted Rogue quest arrival plus independent male/female human Rogue #wizloaddes C-first recordings. Runtime state must prove one stair and three stair-disguised mimics, leader inventory and source flags. Adjacent Rog-loca belongs to A194; retain its outside-scope recipe boundary without taking source credit. Central context is required before implementation.",
+                "Rechecked the whole Lua program at accepted-C173 merged boundary 43522276d8a090c39c54fc61313be4faf0f5917f. The whole program does not use the pending numeric selection algebra, spinach/montype descriptor, mines metadata, or forced-stair support branches. No supporting owner edits are planned."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Rog-strt.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "rogStrt",
+            "sourceReview": "Read whole dat/Rog-strt.lua1–166 and nhlib.lua random/shuffle/dice adapters. Preserved exact map and all fixed tables, duplicate closed door23,14, flag/source call order, floodfill before shuffle/doors, mutated exit consumption, stair mimic descriptors, awaited leader inventory and two rn2(4) dice, sixteen traps, fixed guards/exit monsters, bounds evaluated once and removal-based selection. No helper-owner edits, substitute draws, new gap calls, or broader source credit.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "Rog-strt registry entry supplies whole dat/Rog-strt.lua to the existing registered special-level loader."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special invokes registered Rog-strt program. Wizard wiz_load_splua uses the same loader."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/rog-strt-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Rog-strt.lua/rog-strt-direct-male-independent.session.json",
+              "recordings/Rog-strt.lua/rog-strt-direct-female-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-rog-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Rog-strt.lua"
+              }
+            ],
+            "checkedAt": "85927920dc3598224e264c7ca1ecd0a4c5a34239"
+          }
+        ],
+        "entryPointReview": "Two active production entries: ordinary Rogue quest start arrival via makelevel/makemaz/load_special and debug des-file load via wizcmds.c:wiz_load_splua. The admitted v36 case covers ordinary arrival; independent male/female human chaotic Rogue recordings cover explicit and extensionless wizard filenames. Shared descriptors are existing owners and receive no new source completion credit. Adjacent Rog-loca is outside this whole-program scope and remains A194-owned.",
+        "entryPoints": [
+          {
+            "name": "ordinary Rogue quest start arrival",
+            "functions": [
+              "Rog-strt.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-rog-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Rog-strt.lua"
+              }
+            ]
+          },
+          {
+            "name": "wizard registered Rogue start load",
+            "functions": [
+              "Rog-strt.lua"
+            ],
+            "recordings": [
+              "recordings/Rog-strt.lua/rog-strt-direct-male-independent.session.json",
+              "recordings/Rog-strt.lua/rog-strt-direct-female-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "85927920dc3598224e264c7ca1ecd0a4c5a34239",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
