@@ -223037,7 +223037,7 @@
     {
       "id": "port-options-score-request-family-v32-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete the scores option request owner and existing callers",
       "cFile": "options.c",
       "sessions": [
@@ -223051,15 +223051,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "547456073ec6543fcaa52d181ccfeaafcc5a2718",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "optfn_scores",
           "line": 3669,
           "endLine": 3762,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -223221,7 +223224,125 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "optfn_scores",
+            "implementation": "js/options.js",
+            "symbol": "optfn_scores",
+            "sourceReview": "Read complete options.c3669–3760 and allopt scores row. Preserve do_init/default no-ops, mandatory-value return before reset, reset all three flags then outer-negation eos, source inner prefix/count/signed-int/space/letter/slash order and writes before optn_silenterr, shared GET_VAL/GET_CNF_VAL formatter, and source statuses. Consolidate old startup setter/getter and admit existing live table scores arm. string_for_opt value read uses optional diagnostic mode, routing the identical mandatory error through this owner so startup frame reporting is preserved and absent live config_erradd output is precisely noted, not substituted. Discarded live cfgfiles.c config_erradd remains the sole task callee gap; no RNG/message stand-in. Broader native saveoptions serialization remains at existing cfgfiles.c fopen frontier with no completion credit.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "applyOption",
+                "source": "C options.c parseoptions638–647 -> allopt[].optfn DO_SET for initialization. Existing parseNethackrc/applyOption scores branch now forwards full source request arguments and outer negation."
+              },
+              {
+                "path": "js/options.js",
+                "symbol": "parseoptions",
+                "source": "C options.c parseoptions638–647 -> scores handler DO_SET during doset pick parsing at8929. OPTION_SET_HANDLERS.scores now calls the canonical owner."
+              },
+              {
+                "path": "js/options.js",
+                "symbol": "optionValue",
+                "source": "C options.c doset_add_menu/get_option_value GET_VAL through allopt. Existing OPTION_VALUE_HANDLERS.scores calls canonical source owner instead of duplicate formatter."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/options-scores.test.mjs",
+              "scripts/startup-scores.test.mjs",
+              "scripts/options-menu.test.mjs",
+              "scripts/config-error.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/scores-live-counts.session.json",
+              "recordings/options.c/scores-live-none.session.json",
+              "recordings/options.c/scores-live-inner-negation.session.json",
+              "recordings/options.c/scores-live-signed-counts.session.json",
+              "recordings/options.c/scores-live-letter-suffix.session.json"
+            ],
+            "sourceFile": "options.c",
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-options-scores",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 57,
+                "source": "Typed #optionsfull -> cmd.c doextcmd -> options.c doset -> parseoptions optfn_scores DO_SET at step 42, then source value formatter and remaining menus; entire58 boundary replay matches."
+              }
+            ],
+            "checkedAt": "547456073ec6543fcaa52d181ccfeaafcc5a2718"
+          }
+        ],
+        "entryPointReview": "Active supported entries are configuration-file scores startup parsing and in-game selected scores value via existing full/simple options dispatch, plus the menu value formatter. Independent live-none starts with 9top/8around/own in RC before replacing all parts; all five recordings exercise live and value calls. DO_INIT/default requests have no effects and tests pin source result/state; native init loop discards the no-op result. Both getter requests share the same side-effect-free formatter, pinned independently. GET_CNF_VAL broader native #saveoptions serialization cannot reach this owner in JS: do_write_config_file stops at its already named cfgfiles.c fopen gap before all_options_strbuf/get_option_value; retain that existing caller frontier, no configuration-writing credit. Live missing/invalid-value diagnostic is a discarded cfgfiles.c config_erradd callee gap, not a new function/entry-point claim; preserve blocked recipes and source state/return tests.",
+        "entryPoints": [
+          {
+            "name": "scores configuration-file startup parsing",
+            "functions": [
+              "optfn_scores"
+            ],
+            "recordings": [
+              "recordings/options.c/scores-live-none.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "in-game scores value setting through options menu",
+            "functions": [
+              "optfn_scores"
+            ],
+            "recordings": [
+              "recordings/options.c/scores-live-counts.session.json",
+              "recordings/options.c/scores-live-none.session.json",
+              "recordings/options.c/scores-live-inner-negation.session.json",
+              "recordings/options.c/scores-live-signed-counts.session.json",
+              "recordings/options.c/scores-live-letter-suffix.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-options-scores",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 57,
+                "source": "Typed #optionsfull -> cmd.c doextcmd -> options.c doset -> parseoptions optfn_scores DO_SET at step 42, then source value formatter and remaining menus; entire58 boundary replay matches."
+              }
+            ]
+          },
+          {
+            "name": "scores option menu value formatting",
+            "functions": [
+              "optfn_scores"
+            ],
+            "recordings": [
+              "recordings/options.c/scores-live-counts.session.json",
+              "recordings/options.c/scores-live-none.session.json",
+              "recordings/options.c/scores-live-inner-negation.session.json",
+              "recordings/options.c/scores-live-signed-counts.session.json",
+              "recordings/options.c/scores-live-letter-suffix.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-options-scores",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 57,
+                "source": "Typed #optionsfull -> cmd.c doextcmd -> options.c doset -> parseoptions optfn_scores DO_SET at step 42, then source value formatter and remaining menus; entire58 boundary replay matches."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "547456073ec6543fcaa52d181ccfeaafcc5a2718",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
