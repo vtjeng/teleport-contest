@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first female human chaotic Rogue wizard load of whole Rog-goal.lua. Seed 17409113 and clock fixed before comparison; explicit/extensionless names vary registered entry. Named chameleon tin and Master Key precede random population. No search.",
+  "segments": [
+    {
+      "seed": 17409113,
+      "datetime": "20621009183119",
+      "nethackrc": "OPTIONS=name:RogGoalProbe,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizloaddes\nRog-goal\n "
+    }
+  ]
+}

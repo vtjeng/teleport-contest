@@ -47,6 +47,7 @@ import {
     set_wall_state,
 } from './display.js';
 import { def_char_to_monclass, def_char_to_objclass } from './drawing.js';
+import { MAXMCLASSES } from './symbols.js';
 import { add_to_container, obj_extract_self, obfree, sobj_at } from './invent.js';
 import { UnsupportedMonsterCreationError, makemon, dmonsfree } from './makemon_create.js';
 import { mkclass, rndmonnum } from './makemon.js';
@@ -123,6 +124,9 @@ import {
     BOULDER,
     CHEST,
     CORPSE,
+    EGG,
+    FIGURINE,
+    TIN,
     CRAM_RATION,
     FOOD_CLASS,
     FOOD_RATION,
@@ -4593,20 +4597,46 @@ function createSpecialLevelApi(state) {
             } else {
                 spec = lcheck_param_table(args);
             }
-            // C ref: sp_lev.c lspo_object(). When montype is a single
-            // character, resolve it as a monster class letter to a PM_ index
-            // the same way C does: mkclass(def_char_to_monclass(ch), flags).
-            let corpsenm = spec.montype;
-            if (typeof corpsenm === 'string' && corpsenm.length === 1) {
-                const cls = def_char_to_monclass(corpsenm);
-                const species = mkclass(cls, G_NOGEN | G_IGNORE, {
-                    state,
-                    random: SOURCE_THEMEROOM_RANDOM,
-                });
-                corpsenm = species
-                    ? state.mons.indexOf(species)
-                    : undefined;
+            // C ref: sp_lev.c lspo_object(): only these object types read
+            // montype. Species names use the source table directly, without
+            // find_montype's gender draw; non-species tokens stay with the
+            // canonical normalization in sp_lev_object.js.
+            const hasMontype = spec.montype != null;
+            const id = hasMontype ? get_table_objtype(spec, state) : spec.id;
+            let corpsenm;
+            if ([STATUE, EGG, CORPSE, TIN, FIGURINE].includes(id)) {
+                // Existing translated loaders may supply the resolved PM index.
+                const montype = Number.isInteger(spec.montype) ? spec.montype
+                    : get_table_str_opt(spec, 'montype', null);
+                if (Number.isInteger(montype)) corpsenm = montype;
+                const token = typeof montype === 'string' ? montype.toLowerCase() : null;
+                const nonpmobj = (id === TIN && (token === 'spinach' || token === 'empty'))
+                    || (id === EGG && token === 'empty');
+                if (token != null && !nonpmobj) {
+                    let species;
+                    const cls = montype.length === 1 ? def_char_to_monclass(montype) : MAXMCLASSES;
+                    if (montype.length === 1 && cls !== MAXMCLASSES) {
+                        species = mkclass(cls, G_NOGEN | G_IGNORE, {
+                            state,
+                            random: SOURCE_THEMEROOM_RANDOM,
+                        });
+                    } else {
+                        for (let i = LOW_PM; i < NUMMONS; ++i) {
+                            const names = state.mons[i].pmnames;
+                            if ([names[NEUTRAL], names[MALE], names[FEMALE]]
+                                .some(name => name != null && name.toLowerCase() === token)) {
+                                species = state.mons[i];
+                                break;
+                            }
+                        }
+                    }
+                    if (!species) throw new Error('Unknown montype');
+                    corpsenm = state.mons.indexOf(species);
+                }
+                spec = { ...spec, montype };
             }
+            // Reuse a parsed id rather than invoking its Lua callback again.
+            if (hasMontype) spec = { ...spec, id };
             const coordinate = get_table_xy_or_coord(spec);
             const normalized = {
                 ...spec,

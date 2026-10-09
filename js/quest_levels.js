@@ -6,7 +6,7 @@
 //         dat/Cav-strt.lua, dat/Mon-goal.lua, dat/Mon-loca.lua, dat/Sam-goal.lua, dat/Tou-strt.lua, dat/astral.lua,
 //         dat/Hea-goal.lua, dat/Hea-loca.lua, dat/Hea-strt.lua,
 //         dat/Kni-loca.lua, dat/Kni-strt.lua, dat/Ran-loca.lua,
-//         dat/Ran-goal.lua, dat/Ran-strt.lua, dat/Rog-strt.lua, dat/Val-goal.lua,
+//         dat/Ran-goal.lua, dat/Ran-strt.lua, dat/Rog-strt.lua, dat/Rog-goal.lua, dat/Val-goal.lua,
 //         dat/Val-loca.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
@@ -70,6 +70,7 @@ import {
 } from './kni_loca_level_data.js';
 import { MON_GOAL_LEVEL_MAP } from './mon_goal_level_data.js';
 import { MON_LOCA_LEVEL_MAP } from './mon_loca_level_data.js';
+import { ROG_GOAL_LEVEL_MAP, ROG_GOAL_MONSTERS } from './rog_goal_level_data.js';
 import { SAM_GOAL_LEVEL_MAP } from './sam_goal_level_data.js';
 import { TOU_STRT_LEVEL_MAP, TOU_STRT_DOORS, TOU_STRT_GUIDES } from './tou_strt_level_data.js';
 import {
@@ -2612,7 +2613,26 @@ async function monLoca(des, state) {
     for (let i = 0; i < 9; ++i) await des.monster('xorn');
 }
 
+// dat/Rog-goal.lua: whole Rogue quest goal program, in source order.
+async function rogGoal(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noteleport');
+    await des.map(ROG_GOAL_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 20), 'lit');
+    await des.levregion({ region: [1, 0, 15, 20], region_islev: 1,
+        exclude: [1, 18, 4, 20], type: 'stair-up' });
+    await des.non_diggable(selection_area(0, 0, 75, 20));
+    await des.trap('spiked pit', 37, 7);
+    await des.object({ id: 'skeleton key', x: 38, y: 10, buc: 'blessed', spe: 0,
+        name: 'The Master Key of Thievery' });
+    await des.object({ id: 'tin', x: 26, y: 12, montype: 'chameleon' });
+    for (let i = 0; i < 13; ++i) await des.object();
+    for (let i = 0; i < 11; ++i) await des.trap();
+    for (const monster of ROG_GOAL_MONSTERS) await des.monster({ ...monster });
+}
+
 export const QUEST_LEVEL_LOADERS = {
+    'Rog-goal': rogGoal,
     'Mon-loca': monLoca,
     'Ran-strt': ranStrt,
     'Rog-strt': rogStrt,
