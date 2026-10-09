@@ -311,6 +311,7 @@ import { dosave, dosave0, savelev } from './save.js';
 import {
     dohelp,
     dohistory,
+    doidtrap,
     dowhatdoes,
     doquickwhatis,
     do_screen_description,
@@ -377,7 +378,7 @@ import {
 } from './polyself.js';
 import {
     wiz_detect, wiz_flip_level, wiz_genesis, wiz_identify, wiz_intrinsic, wiz_level_change, wiz_kill, wiz_smell, wiz_show_seenv, wiz_show_vision, wiz_show_stats, wiz_show_wmodes, wiz_objprobs, wiz_display_macros, wiz_mon_diff, wiz_telekinesis, wiz_custom,
-    wiz_level_tele, wiz_makemap, wiz_map, wiz_polyself, wiz_wish, wiz_where, wiz_rumor_check, wiz_migrate_mons,
+    wiz_level_tele, wiz_load_splua, wiz_makemap, wiz_map, wiz_polyself, wiz_wish, wiz_where, wiz_rumor_check, wiz_migrate_mons,
     wiz_map_levltyp, wiz_levltyp_legend, wiz_panic,
 } from './wizcmds.js';
 import {
@@ -1860,7 +1861,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'options', 'autopickup',
     'wizwish', 'wizidentify', 'wizlevelport', 'wizgenesis', 'wizintrinsic', 'wizmap', 'wizwhere', 'wizcast', 'wizsmell', 'wizkill', 'fire', 'throw',
     'swap', 'kick', 'panic',
-    'save', 'wield', 'quiver', 'help', 'whatdoes', 'whatis', '#', 'loot', 'force', 'tip',
+    'save', 'wield', 'quiver', 'help', 'whatdoes', 'whatis', 'showtrap', '#', 'loot', 'force', 'tip',
     'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet',
     'seeall', 'seetools', 'teleport',
     'overview', 'chronicle', 'conduct', 'vanquished', 'genocided',
@@ -5099,12 +5100,14 @@ async function doextcmd(key, state) {
         return await runHelpCommand(key, state);
     case 'dohistory':
         return await dohistory(state);
-    case 'doset':
-        return await runOptionsCommand(key, state, doset);
     case 'dowhatdoes':
         return await dowhatdoes(state);
+    case 'doset':
+        return await runOptionsCommand(key, state, doset);
     case 'dowhatis':
         return await runWhatisCommand(key, state);
+    case 'doidtrap':
+        return await doidtrap(state);
     case 'doquickwhatis':
         return await runGlanceCommand(key, state);
     case 'doprgold':
@@ -5230,6 +5233,8 @@ async function doextcmd(key, state) {
         return await runLevelChangeCommand(key, state);
     case 'wiz_level_tele':
         return await runLevelTeleCommand(key, state);
+    case 'wiz_load_splua':
+        return await wiz_load_splua(state);
     case 'wiz_wish':
         return await runWishCommand(key, state);
     case 'wiz_identify':
@@ -5779,6 +5784,14 @@ export async function rhack(key, state = game) {
         if (command === 'whatis') {
             await runWhatisCommand(key, state);
             resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === 'showtrap') {
+            // C rhack3810-3825: cancellation resets normally; a successful
+            // description is ECMD_OK and never spends a turn.
+            const result = await doidtrap(state);
+            if (result & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else resetCommandVars(state, state.multi < 0);
             return;
         }
         if (command === 'glance') {
