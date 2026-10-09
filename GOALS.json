@@ -234723,7 +234723,7 @@
     {
       "id": "fix-display-newsym-suppression-v37-20261009",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Suppress newsym map-memory writes during replacement-level generation.",
       "cFile": "display.c",
       "sessions": [],
@@ -234735,8 +234735,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4b8e78b3436a3badbcadb94bff93da388213ba19",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "newsym",
       "session": "synthetic/v37/v37-wizmap-after-monster-reset",
       "step": 30,
@@ -234947,7 +234950,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4b8e78b3436a3badbcadb94bff93da388213ba19",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-medusa-4-lua-v37-20261009",
