@@ -3,7 +3,7 @@
 //         dat/Bar-goal.lua, dat/Bar-loca.lua, dat/Arc-strt.lua,
 //         dat/Arc-loca.lua, dat/Arc-fila.lua, dat/Arc-filb.lua,
 //         dat/Arc-goal.lua, dat/Cav-goal.lua, dat/Cav-loca.lua,
-//         dat/Hea-goal.lua,
+//         dat/Hea-goal.lua, dat/Hea-strt.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
@@ -58,6 +58,7 @@ import { KNI_GOAL_LEVEL_MAP } from './kni_goal_level_data.js';
 import { CAV_GOAL_LEVEL_MAP } from './cav_goal_level_data.js';
 import { HEA_GOAL_LEVEL_MAP } from './hea_goal_level_data.js';
 import { CAV_LOCA_LEVEL_MAP, CAV_LOCA_MONSTERS } from './cav_loca_level_data.js';
+import { HEA_STRT_LEVEL_MAP, HEA_STRT_DOORS, HEA_STRT_ATTENDANTS } from './hea_strt_level_data.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
 // that draws a random zig-zag path from (x1,y1) to (x2,y2).
@@ -1983,7 +1984,37 @@ async function cavLoca(des) {
     await des.wallify();
 }
 
+// C ref: dat/Hea-strt.lua, the besieged Healer quest start level.
+async function heaStrt(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noteleport', 'hardfloor');
+    await des.map(HEA_STRT_LEVEL_MAP);
+    await des.replace_terrain({ region: [1, 1, 74, 18], fromterrain: 'P', toterrain: '.', chance: 10 });
+    await des.region(selection_area(0, 0, 75, 19), 'lit');
+    await des.stair('down', 37, 9);
+    await des.levregion({ region: [4, 12, 4, 12], type: 'branch' });
+    await des.altar({ x: 32, y: 9, align: 'neutral', type: 'altar' });
+    for (const door of HEA_STRT_DOORS) await des.door(...door);
+    await des.monster({
+        id: 'Hippocrates', coord: [37, 10],
+        async inventory() {
+            await des.object({ id: 'silver dagger', spe: 5 });
+        },
+    });
+    await des.object('chest', 37, 10);
+    for (const coord of HEA_STRT_ATTENDANTS) await des.monster('attendant', ...coord);
+    await des.non_diggable(selection_area(0, 0, 75, 19));
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (let i = 0; i < 10; ++i) await des.monster('rabid rat');
+    await des.monster('giant eel');
+    await des.monster('shark');
+    await des.monster(';');
+    for (let i = 0; i < 5; ++i) await des.monster({ class: 'D', peaceful: 0 });
+    for (let i = 0; i < 5; ++i) await des.monster({ class: 'S', peaceful: 0 });
+}
+
 export const QUEST_LEVEL_LOADERS = {
+    'Hea-strt': heaStrt,
     'Cav-loca': cavLoca,
     'Cav-goal': cavGoal,
     'Bar-strt': barStrt,
