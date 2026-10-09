@@ -220,7 +220,14 @@ ready batches awaiting admission separately.
 
 Admit prepared batches in order at safe integration boundaries. Give admission
 priority over queued deliveries when too few independent next tasks are
-available for the implementation workers. After each admission, check whether
+available for the implementation workers. Count only unreserved work,
+not submitted deliveries.
+
+After saving a new batch's baseline, ask every idle implementation worker to
+reassess the updated queue at a clean task boundary. Do not wait for that
+worker's previous delivery to be accepted.
+
+After each admission, check whether
 every implementation worker has independent work available. Stop admitting
 when they do; otherwise admit the next ready batch. When workers have enough
 next tasks, prefer ready implementation deliveries. Do not interrupt an active
