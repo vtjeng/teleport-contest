@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Rogue generation witnesses chosen before JavaScript comparison. Human natural quest arrival and orc direct source loading vary startup, class selection, random stairs/objects/traps and initial chameleon forms. Seed/date are new; spaces acknowledge startup/travel messages and > advances the quest destination page. Rog-strt is the independently recorded outside-program boundary.",
+  "segments": [
+    {
+      "seed": 19436143,
+      "datetime": "20590810174031",
+      "nethackrc": "OPTIONS=name:CavernNagas,role:Rogue,race:orc,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "   #wizloaddes\nRog-loca.lua\n                #wizmap\n                "
+    }
+  ]
+}

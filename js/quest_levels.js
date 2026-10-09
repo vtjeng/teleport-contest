@@ -3,17 +3,18 @@
 //         dat/Bar-goal.lua, dat/Bar-loca.lua, dat/Arc-strt.lua,
 //         dat/Arc-loca.lua, dat/Arc-fila.lua, dat/Arc-filb.lua,
 //         dat/Arc-goal.lua, dat/Cav-goal.lua, dat/Cav-loca.lua,
-//         dat/Cav-strt.lua, dat/Mon-goal.lua, dat/Sam-goal.lua, dat/Tou-strt.lua, dat/astral.lua,
+//         dat/Cav-strt.lua, dat/Mon-goal.lua, dat/Mon-loca.lua, dat/Sam-goal.lua, dat/Tou-strt.lua, dat/astral.lua,
 //         dat/Hea-goal.lua, dat/Hea-loca.lua, dat/Hea-strt.lua,
 //         dat/Kni-loca.lua, dat/Kni-strt.lua, dat/Ran-loca.lua,
-//         dat/Ran-goal.lua, dat/Rog-strt.lua, dat/Val-goal.lua,
+//         dat/Ran-goal.lua, dat/Ran-strt.lua, dat/Rog-strt.lua, dat/Rog-loca.lua,
+//         dat/Rog-goal.lua, dat/Val-goal.lua,
 //         dat/Val-loca.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
 //         dat/tower1.lua, dat/tower2.lua, dat/tower3.lua.
 
-import { COLNO, FEMALE, G_GENOD, ROWNO } from './const.js';
+import { COLNO, FEMALE, G_GENOD, ROOM, ROWNO } from './const.js';
 import { mkclass } from './makemon.js';
 import {
     G_IGNORE,
@@ -57,7 +58,7 @@ import {
     MACE, MIRROR, ROBE, RUNESWORD, STATUE, TALLOW_CANDLE, WAX_CANDLE,
 } from './objects.js';
 import { rn2, rnd } from './rng.js';
-import { selection_area, ThemeroomSelection } from './themerooms.js';
+import { selection_area, selection_negate, ThemeroomSelection } from './themerooms.js';
 import { KNI_GOAL_LEVEL_MAP } from './kni_goal_level_data.js';
 import { CAV_GOAL_LEVEL_MAP } from './cav_goal_level_data.js';
 import { HEA_GOAL_LEVEL_MAP } from './hea_goal_level_data.js';
@@ -69,6 +70,8 @@ import {
     KNI_LOCA_FIXED_TRAPS, KNI_LOCA_LEVEL_MAP, KNI_LOCA_MONSTERS,
 } from './kni_loca_level_data.js';
 import { MON_GOAL_LEVEL_MAP } from './mon_goal_level_data.js';
+import { MON_LOCA_LEVEL_MAP } from './mon_loca_level_data.js';
+import { ROG_GOAL_LEVEL_MAP, ROG_GOAL_MONSTERS } from './rog_goal_level_data.js';
 import { SAM_GOAL_LEVEL_MAP } from './sam_goal_level_data.js';
 import { TOU_STRT_LEVEL_MAP, TOU_STRT_DOORS, TOU_STRT_GUIDES } from './tou_strt_level_data.js';
 import {
@@ -78,6 +81,9 @@ import {
     RAN_GOAL_DOORS, RAN_GOAL_LEVEL_MAP, RAN_GOAL_MONSTERS,
     RAN_GOAL_OBJECT_CALLS, RAN_GOAL_TRAP_COUNT,
 } from './ran_goal_level_data.js';
+import {
+    RAN_STRT_LEVEL_MAP, RAN_STRT_HUNTERS, RAN_STRT_FOREST_CENTAURS,
+} from './ran_strt_level_data.js';
 import {
     VAL_GOAL_DRAWBRIDGES, VAL_GOAL_LEVEL_MAP, VAL_GOAL_MONSTERS,
     VAL_GOAL_OBJECT_CALLS, VAL_GOAL_TRAPS,
@@ -89,6 +95,7 @@ import {
     ROG_STRT_DOORS, ROG_STRT_EXIT_MONSTERS, ROG_STRT_GUARDS,
     ROG_STRT_LEVEL_MAP,
 } from './rog_strt_level_data.js';
+import { ROG_LOCA_LEVEL_MAP } from './rog_loca_level_data.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
 // that draws a random zig-zag path from (x1,y1) to (x2,y2).
@@ -2519,6 +2526,41 @@ async function valLoca(des) {
     await des.monster({ class: 'H', peaceful: 0 });
 }
 
+// Whole dat/Ran-strt.lua1–101. Tree replacement uses the pre-map frame;
+// the branch region is absolute, while inhabitants use the map-relative frame.
+async function ranStrt(des) {
+    await des.level_init({ style: 'solidfill', fg: '.' });
+    await des.level_flags('mazelevel', 'noteleport', 'hardfloor', 'arboreal');
+    await des.level_init({ style: 'mines', fg: '.', bg: '.', smoothed: true,
+        joined: true, lit: 1, walled: false });
+    await des.replace_terrain({ region: [0, 0, 76, 19], fromterrain: '.',
+        toterrain: 'T', chance: 5 });
+    await des.map({ halign: 'left', valign: 'center', map: RAN_STRT_LEVEL_MAP.join('\n') });
+    await des.region(selection_area(0, 0, 40, 20), 'lit');
+    await des.stair('down', 10, 10);
+    await des.levregion({ region: [51, 2, 77, 18], region_islev: 1, type: 'branch' });
+    await des.monster({ id: 'Orion', coord: [20, 10],
+        async inventory() {
+            await des.object({ id: 'leather armor', spe: 4 });
+            await des.object({ id: 'yumi', spe: 4 });
+            await des.object({ id: 'ya', spe: 4, quantity: 50 });
+        } });
+    await des.object('chest', 20, 10);
+    for (const [x, y] of RAN_STRT_HUNTERS) await des.monster('hunter', x, y);
+    await des.non_diggable(selection_area(0, 0, 40, 20));
+    await des.trap('arrow', 30, 9);
+    await des.trap('arrow', 30, 10);
+    await des.trap('pit', 40, 9);
+    await des.trap('spiked pit');
+    await des.trap('bear');
+    await des.trap('bear');
+    await des.monster({ id: 'minotaur', x: 33, y: 9, peaceful: 0, asleep: 1 });
+    for (const [x, y] of RAN_STRT_FOREST_CENTAURS)
+        await des.monster({ id: 'forest centaur', x, y, peaceful: 0 });
+    for (let i = 0; i < 6; ++i) await des.monster({ id: 'plains centaur', peaceful: 0 });
+    for (let i = 0; i < 2; ++i) await des.monster({ id: 'scorpion', peaceful: 0 });
+}
+
 // dat/Rog-strt.lua: whole Rogue quest start program, in source order.
 async function rogStrt(des, state) {
     await des.level_init({ style: 'solidfill', fg: ' ' });
@@ -2554,7 +2596,69 @@ async function rogStrt(des, state) {
         await des.monster({ id: 'chameleon', coord: streets.rndcoord(true), peaceful: 0 });
 }
 
+// dat/Mon-loca.lua: whole Monk quest locate program, in source order.
+async function monLoca(des, state) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel');
+    await des.map(MON_LOCA_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 20), 'lit');
+    await des.stair('up');
+    await des.stair('down');
+    await des.non_diggable(selection_area(0, 0, 75, 20));
+    for (let i = 0; i < 15; ++i) await des.object();
+    const tinplace = selection_negate().filter_mapchar(ROOM, (x, y) => state.level.at(x, y));
+    const tinloc = tinplace.rndcoord(false, rn2, { x: des.frame.xstart, y: des.frame.ystart });
+    await des.object({ id: 'tin', coord: tinloc, quantity: 2, buc: 'blessed', montype: 'spinach' });
+    await des.engraving({ coord: tinloc, type: 'burn', text: 'Elbereth' });
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (let i = 0; i < 14; ++i) await des.monster('earth elemental');
+    for (let i = 0; i < 9; ++i) await des.monster('xorn');
+}
+
+// Whole dat/Rog-loca.lua lines 1–99. Stairs use independent random locations;
+// the fixed cursed scroll is map-relative and precedes all random objects.
+async function rogLoca(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel');
+    await des.map(ROG_LOCA_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 20), 'lit');
+    await des.stair('up');
+    await des.stair('down');
+    await des.non_diggable(selection_area(0, 0, 75, 20));
+    await des.object({ id: 'scroll of teleportation', x: 11, y: 18,
+        buc: 'cursed', spe: 0 });
+    for (let i = 0; i < 14; ++i) await des.object();
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (let i = 0; i < 17; ++i) await des.monster({ id: 'leprechaun', peaceful: 0 });
+    await des.monster({ class: 'l', peaceful: 0 });
+    for (let i = 0; i < 7; ++i) await des.monster({ id: 'guardian naga', peaceful: 0 });
+    for (let i = 0; i < 3; ++i) await des.monster({ class: 'N', peaceful: 0 });
+    for (let i = 0; i < 5; ++i) await des.monster({ id: 'chameleon', peaceful: 0 });
+}
+
+// dat/Rog-goal.lua: whole Rogue quest goal program, in source order.
+async function rogGoal(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noteleport');
+    await des.map(ROG_GOAL_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 20), 'lit');
+    await des.levregion({ region: [1, 0, 15, 20], region_islev: 1,
+        exclude: [1, 18, 4, 20], type: 'stair-up' });
+    await des.non_diggable(selection_area(0, 0, 75, 20));
+    await des.trap('spiked pit', 37, 7);
+    await des.object({ id: 'skeleton key', x: 38, y: 10, buc: 'blessed', spe: 0,
+        name: 'The Master Key of Thievery' });
+    await des.object({ id: 'tin', x: 26, y: 12, montype: 'chameleon' });
+    for (let i = 0; i < 13; ++i) await des.object();
+    for (let i = 0; i < 11; ++i) await des.trap();
+    for (const monster of ROG_GOAL_MONSTERS) await des.monster({ ...monster });
+}
+
 export const QUEST_LEVEL_LOADERS = {
+    'Rog-loca': rogLoca,
+    'Rog-goal': rogGoal,
+    'Mon-loca': monLoca,
+    'Ran-strt': ranStrt,
     'Rog-strt': rogStrt,
     'Val-loca': valLoca,
     'Hea-strt': heaStrt,

@@ -1,0 +1,98 @@
+{
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-ran-strt",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "209f5c07ed7ee8dd2e6e2d2315581d490fc99871bbb8d28c1203ea640124a19b",
+  "evaluationPath": "challenges/evaluations/accepted-e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef-v36.json",
+  "evaluationCommit": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef",
+  "remainingScreens": 41,
+  "recordedSteps": 60,
+  "session": "synthetic/v36/v36-quest-ran-strt",
+  "commit": "f6c9ebf7a19414316378a03c1a7ab63a387e8d1d",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-ran-strt",
+    "session": "synthetic/v36/v36-quest-ran-strt",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-ran-strt.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-ran-strt.session.json",
+    "recordingSha256": "209f5c07ed7ee8dd2e6e2d2315581d490fc99871bbb8d28c1203ea640124a19b",
+    "recipe": "challenges/cases/v36/v36-quest-ran-strt.recipe.session.json",
+    "recipeSha256": "f60ea10b876e5e1e5a5a352e9de8b27011a568d3c3959160b1685aa79daae04c",
+    "replayInputSha256": "e26183ba6c4493167ef0424f5d3b3a4e668392d321554d29ca59db9a67e41f86",
+    "evaluationPath": "challenges/evaluations/accepted-e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef-v36.json",
+    "evaluationCommit": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef",
+    "evaluationArtifact": "challenges/evaluations/accepted-e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef-v36.json",
+    "evaluationUtc": "2026-10-09T19:07:10.685Z",
+    "remainingScreens": 41,
+    "recordedSteps": 60,
+    "previousScreensMatched": 19,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 60
+      },
+      "rng": {
+        "matched": 2874,
+        "total": 6677
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-strt\"",
+      "step": 19
+    },
+    "step": 19,
+    "kind": "stop",
+    "sourceFile": "Ran-strt.lua",
+    "function": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-strt\"",
+    "cFile": null,
+    "luaFile": "Ran-strt.lua",
+    "line": null
+  },
+  "status": "complete",
+  "goalKind": "lua-port",
+  "summary": "Ranger quest-start arrival selects Ran-strt, but its whole Lua loader is absent. Port the complete Ran-strt.lua forest level: solidfill and joined/smoothed mines, five-percent tree replacement before its exact aligned map, branch arrival, Orion custom inventory, hunters, traps and hostile centaur siege.",
+  "source": {
+    "file": "Ran-strt.lua",
+    "functions": [
+      "Ran-strt.lua"
+    ],
+    "branch": "Valid Ranger quest-start arrival reaches load_special for Ran-strt. The program first fills floor, sets maze/noteleport/hardfloor/arboreal flags, generates a lit joined/smoothed floor cave and replaces matching floor with trees at chance5, then places its left/center map and source-ordered inhabitants/features. No alignment expression or spinach tin exists in this program.",
+    "callers": [
+      "do.c goto_level -> mklev.c makelevel -> mkmaze.c makemaz -> sp_lev.c load_special -> dat/Ran-strt.lua. JS allmain deferredgoto -> do goto_level -> mklev makelevel/makemaz/load_special uses QUEST_LEVEL_LOADERS with no Ran-strt key.",
+      "Accepted wizcmds.c wiz_load_splua can call load_special directly for the same program. Natural Ranger quest branch and wizard arrival converge on generation; program defines one inventory callback with no separate external entry."
+    ],
+    "dependencies": [
+      "Existing lspo_level_init -> splev_initlev LVLINIT_SOLIDFILL/LVLINIT_MINES -> mkmap handles exact style tables and source boolean values. lspo_level_flags already stores arboreal, mazelevel, noteleport and hardfloor. No external owner edit identified.",
+      "Existing lspo_replace_terrain sp_lev.c5051–5137 reads region0,0,76,19 and resolves it against the pre-map frame, iterates x then y, calls rn2(100) only for matching floor, compares<5, and writes TREE with default no-change lighting. It must run before the map, without a copied tree-mask or invented RNG.",
+      "The table-form map accepts halign left / valign center and the exact 41-column, 21-row source fragment. Current lspo_map parses the raw map, resets ystart to zero for its full-height overflow, preserves transparent x cells, returns the actual-written selection, and leaves frame coordinates available. Lua discards that map return; it consumes no map selection result.",
+      "selection.area(0,0,40,20) uses the existing relative selection. The branch region (51,2)-(77,18) explicitly has region_islev=1 and remains absolute level coordinates, without a second map offset.",
+      "Orion inventory is existing lspo_monster callback -> source object context: leather armor+4, yumi+4 and ya+4quantity50; close inventory before the floor chest at the same map coord. Canonical quantity/type/name handling already exists; no tin/spinach or new artifact/align path.",
+      "Existing monster/trap/source placement descriptors support hunters, hostile fixed and random centaurs, sleeping minotaur, scorpions and six source traps. The Lua ignores descriptor results; no missing consumed-result helper, new random helper or source-discarded gap was found.",
+      "Disjoint programs: C173 owns Ran-goal; B198 owns Bar-goal alignment macro supporting seam. Pending C169/C170/B195 are distinct loader keys/functions. A192 Mon-goal remains parked on central gate. No overlapping source function/contract; adjacent quest registry imports must preserve every pending key."
+    ]
+  },
+  "evidence": [
+    "Accepted B201 evaluation at e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef confirms 19/60 screens and cursors and 2874/6677 RNG calls, with 41 screens remaining. The first stop remains the missing Ran-strt loader at segment 0 step 19; this refresh uses saved accepted evidence.",
+    "Assigned replay run-RRjVPY at f6c9ebf7a reproduces 19/60 screens and cursors and 2874/6677 RNG calls. At segment 0, step 19, key y selects the destination. C next reaches rn2(3)=0 in nhlib.lua private alignment shuffle before evaluating the source. JS stops because makelevel/load_special has no Ran-strt loader. The exact stack and comparison are .cache/A193/probe.json and probe.log.",
+    "Read complete dat/Ran-strt.lua lines 1-101. Line 13 fills floor; 15 sets flags; 17 initializes joined, smoothed, lit mines floor; 18 replaces floor with trees at chance 5 over (0,0)-(76,19). Lines 20-41 place the left/center 41x21 map, including transparent x; 43 lights the region; 45 creates the down stair; 47 defines absolute branch arrival; 49-53 creates Orion and his inventory; 55 creates the floor chest; 57-64 creates eight hunters; 66 marks the nondiggable selection; 68-73 creates six traps; 75 creates a hostile sleeping minotaur; 76-93 creates eighteen fixed forest centaurs; 94-99 creates six random plains centaurs; 100-101 creates two random scorpions. There is no explicit final wallify call, chosen-position variable, or inactive statement to execute.",
+    "Source parsing confirms 21 rows of 41 columns, preserving trailing spaces; 36 monster descriptors; four object descriptors including three inventory objects; and six traps. Generate the large map deterministically from authoritative Lua and pin generated output rather than hand-copy geometry.",
+    "Whole-source audit compared current JS lspo_replace_terrain3539+ to C sp_lev.c5051–5137, map table placement4433+ and fullheight overflow to C6227–6238, and callback/region placement to already used Cav-strt/source paths. Source consumes only selection.area results, supplied by canonical ThemeroomSelection. All other descriptor results are discarded and no placeholder return is used by Lua.",
+    "Actionable scope whole Ran-strt.lua1–101, ranStrt and key in existing js/quest_levels.js, generated ran_strt_level_data.js with generator/source-pinned test, focused runtime runner, recipes/Ran-strt.lua and recordings/Ran-strt.lua. No whole mkmap/sp_lev/teleport/quest permission/quest_levels credit and no outside alignment/tin source edit.",
+    "Validation plan: fail first on the absent loader/module; pin the generated map, complete descriptor order and values, and awaited inventory callback. Preserve pre-map tree replacement and absolute branch region fields. Verify admitted segment 0, steps 19-59, plus independently chosen C-first neutral human and chaotic elf Ranger variations using arrival and direct des loading. Compare complete RNG, screens, cursors and animation frames. Assert arboreal/tree terrain, branch/downstairs, the leader inventory at +4 with 50 arrows, eight hunters, siege population and traps. Ran-loca is a separate program; keep its representative recipe blocked if its loader remains absent.",
+    "Evidence limits: read-only investigation with only assigned replay. No game edits, C recording or runtime completion credit. Required descriptor APIs appear canonical for selected branches, but implementation must verify production reachability and request source expansion for any newly confirmed external defect."
+  ]
+}

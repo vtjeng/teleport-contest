@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
     LOW_PM,
+    NON_PM,
     G_EXTINCT,
     MON_DETACH,
     OBJ_BURIED,
@@ -32,6 +33,8 @@ import { mksobj, weight } from '../js/obj.js';
 import { newMonster } from '../js/monst.js';
 import {
     APPLE,
+    TIN,
+    EGG,
     BAG_OF_HOLDING,
     CHEST,
     CORPSE,
@@ -1627,4 +1630,37 @@ test('exact troll corpses replace the generated timer, sex, and weight', async (
     assert.equal(state.gt.timer_base.func_index, REVIVE_MON);
     assert.equal(state.gt.timer_base.arg, corpse);
     assert.equal(state.gt.timer_base.next, null);
+});
+
+
+test('non-species tin and egg descriptors retain generated species and RNG order', () => {
+    for (const id of [TIN, EGG]) { // sp_lev.c nonpmobj applies only to these two kinds.
+        for (const token of id === TIN ? ['SpInAcH', 'eMpTy'] : ['EmPtY']) {
+            const build = (montype) => {
+                const { room, state } = roomState();
+                const random = quietGenerationRandom();
+                const draws = [];
+                const original = random.rn2;
+                random.rn2 = bound => {
+                    draws.push(bound);
+                    // Force ordinary tin contents (rn2(6)!=0), so the test
+                    // detects an incorrect NON_PM setter that clears them.
+                    return bound === 6 ? 1 : original(bound);
+                };
+                const obj = lspo_object({ id, coordinate: { x: 0, y: 0 },
+                    corpsenm: montype ?? NON_PM, montype,
+                    laid_by_you: true, quantity: 2, buc: 'blessed' }, room, { state, random });
+                return { obj, draws };
+            };
+            const generated = build(undefined);
+            const explicit = build(token);
+            assert.deepEqual(explicit.draws, generated.draws);
+            assert.equal(explicit.obj.corpsenm, generated.obj.corpsenm);
+            if (id === TIN) assert.notEqual(generated.obj.corpsenm, NON_PM);
+            assert.equal(explicit.obj.spe, id === EGG || token.toLowerCase() === 'spinach' ? 1 : 0);
+            assert.equal(generated.obj.spe, id === EGG ? 1 : 0);
+            assert.equal(explicit.obj.quan, generated.obj.quan);
+            assert.equal(explicit.obj.owt, generated.obj.owt);
+        }
+    }
 });

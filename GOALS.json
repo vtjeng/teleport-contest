@@ -238161,7 +238161,7 @@
     {
       "id": "port-tou-strt-lua-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Tourist quest start Lua program and wire natural and direct special-level loading with source-ordered room filling.",
       "luaFile": "Tou-strt.lua",
       "sessions": [
@@ -238175,15 +238175,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Tou-strt.lua",
           "line": 1,
           "endLine": 134,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -238362,7 +238365,1240 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Tou-strt.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "touStrt",
+            "sourceReview": "Read complete dat/Tou-strt.lua1–134, canonical descriptor owners and production loader dispatch. Preserve unspecified-lit solidfill, mazelevel/noteleport/hardfloor flags, exact 20x76 map, full-map lighting followed by deferred unlit morgue and room lighting, fixed down stair and branch arrival region, protected walls and all eighteen source doors. Preserve twelve giant spiders, two spider-class calls, eight forest centaurs and one centaur-class call before Twoflower. Await Twoflower's walking shoes +3 and Hawaiian shirt +3 custom inventory in order, then chest, eleven guides, two watchmen, five named aquatic placements and nine random trap calls. Keep source string IDs, classes, map coordinates, humidity and finalization owners. Generate map/door/guide tables deterministically from Lua, preserving spaces and the literal throne backslash at64/3. No top-level explicit Lua random call exists; canonical descriptors retain RNG. Production makelevel registry now routes Tou-strt to touStrt. Supporting correction follows sp_lev.c:load_special6454–6503 (no room fill), mklev.c:makelevel1414–1418 (common room fill after generation) and lspo_finalize_level6055–6059 (topology/mineralization before direct room fill); no shared owner completion credit.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c:makelevel1266–1271 -> mkmaze.c:makemaz1184–1193 -> sp_lev.c:load_special6454–6503; canonical quest registry resolves Tou-strt to touStrt."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "wizcmds.c:376–395 resets, loads and finalizes selected special Lua; existing loader resolves Tou-strt.lua to touStrt."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/tou-strt-level-generation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Tou-strt.lua/tou-strt-male-arrival-independent.session.json",
+              "recordings/Tou-strt.lua/tou-strt-female-arrival-independent.session.json",
+              "recordings/Tou-strt.lua/tou-strt-direct-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "do.c:goto_level -> mklev.c:makelevel/mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Tou-strt.lua1–134; canonical special-room fill and rearrival."
+              }
+            ],
+            "checkedAt": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef"
+          }
+        ],
+        "entryPointReview": "Natural quest-start generation is established by the admitted v36 range and two independently chosen C-first male/female Tourist arrivals. Direct wizard loading is established by a separate strict-perfect recording, including the morgue fill after topology/mineralization. All three recorded levels assert Twoflower custom inventory ownership, worn +3 boots/shirt, eleven guides, two krakens, source down stair, chest sharing the leader square and nondiggable walls. Existing Knight and Healer start fresh matrices exercise neighboring special-room callers. No synthetic case was copied into regression inputs.",
+        "entryPoints": [
+          {
+            "name": "natural Tourist quest start generation",
+            "functions": [
+              "Tou-strt.lua"
+            ],
+            "recordings": [
+              "recordings/Tou-strt.lua/tou-strt-male-arrival-independent.session.json",
+              "recordings/Tou-strt.lua/tou-strt-female-arrival-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "do.c:goto_level -> mklev.c:makelevel/mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Tou-strt.lua1–134; canonical special-room fill and rearrival."
+              }
+            ]
+          },
+          {
+            "name": "direct wizard special Lua load",
+            "functions": [
+              "Tou-strt.lua"
+            ],
+            "recordings": [
+              "recordings/Tou-strt.lua/tou-strt-direct-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-ran-strt-quest-start-v36-20261009",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the complete Ranger quest start level",
+      "luaFile": "Ran-strt.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-ran-strt"
+      ],
+      "selectionReason": "The accepted v36 Ranger quest-start case stops at step 19 because Ran-strt has no registered loader; A193 supplies the whole Lua program and its source-ordered quest loader.",
+      "detail": "Whole dat/Ran-strt.lua lines 1-101, unique loader and generated tables, with natural quest arrival and direct wizard loading verified by independent C-first recordings.",
+      "openedAt": "d2f72926e646644b0d1eece2eb40ded2a13705aa",
+      "openStanding": {
+        "sha": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "Ran-strt.lua",
+          "line": 1,
+          "endLine": 101,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-ran-strt": {
+          "session": "synthetic/v36/v36-quest-ran-strt",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-ran-strt",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-ran-strt.session.json",
+          "recordingSha256": "209f5c07ed7ee8dd2e6e2d2315581d490fc99871bbb8d28c1203ea640124a19b",
+          "evaluationPath": "challenges/evaluations/accepted-e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef-v36.json",
+          "evaluationCommit": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef"
+        }
+      },
+      "activeStanding": {
+        "sha": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-ran-strt",
+          "session": "synthetic/v36/v36-quest-ran-strt",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-ran-strt.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-ran-strt.session.json",
+          "recordingSha256": "209f5c07ed7ee8dd2e6e2d2315581d490fc99871bbb8d28c1203ea640124a19b",
+          "recipe": "challenges/cases/v36/v36-quest-ran-strt.recipe.session.json",
+          "recipeSha256": "f60ea10b876e5e1e5a5a352e9de8b27011a568d3c3959160b1685aa79daae04c",
+          "replayInputSha256": "e26183ba6c4493167ef0424f5d3b3a4e668392d321554d29ca59db9a67e41f86",
+          "evaluationPath": "challenges/evaluations/accepted-e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef-v36.json",
+          "evaluationCommit": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef",
+          "evaluationArtifact": "challenges/evaluations/accepted-e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef-v36.json",
+          "evaluationUtc": "2026-10-09T19:07:10.685Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2874,
+              "total": 6677
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-strt\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Ran-strt.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-strt\"",
+          "cFile": null,
+          "luaFile": "Ran-strt.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-ran-strt.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-ran-strt",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "209f5c07ed7ee8dd2e6e2d2315581d490fc99871bbb8d28c1203ea640124a19b",
+              "evaluationPath": "challenges/evaluations/accepted-e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef-v36.json",
+              "evaluationCommit": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "session": "synthetic/v36/v36-quest-ran-strt",
+              "commit": "f6c9ebf7a19414316378a03c1a7ab63a387e8d1d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-ran-strt",
+                "session": "synthetic/v36/v36-quest-ran-strt",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-ran-strt.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-ran-strt.session.json",
+                "recordingSha256": "209f5c07ed7ee8dd2e6e2d2315581d490fc99871bbb8d28c1203ea640124a19b",
+                "recipe": "challenges/cases/v36/v36-quest-ran-strt.recipe.session.json",
+                "recipeSha256": "f60ea10b876e5e1e5a5a352e9de8b27011a568d3c3959160b1685aa79daae04c",
+                "replayInputSha256": "e26183ba6c4493167ef0424f5d3b3a4e668392d321554d29ca59db9a67e41f86",
+                "evaluationPath": "challenges/evaluations/accepted-e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef-v36.json",
+                "evaluationCommit": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef",
+                "evaluationArtifact": "challenges/evaluations/accepted-e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef-v36.json",
+                "evaluationUtc": "2026-10-09T19:07:10.685Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2874,
+                    "total": 6677
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-strt\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Ran-strt.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-strt\"",
+                "cFile": null,
+                "luaFile": "Ran-strt.lua",
+                "line": null
+              },
+              "status": "complete",
+              "goalKind": "lua-port",
+              "summary": "Ranger quest-start arrival selects Ran-strt, but its whole Lua loader is absent. Port the complete Ran-strt.lua forest level: solidfill and joined/smoothed mines, five-percent tree replacement before its exact aligned map, branch arrival, Orion custom inventory, hunters, traps and hostile centaur siege.",
+              "source": {
+                "file": "Ran-strt.lua",
+                "functions": [
+                  "Ran-strt.lua"
+                ],
+                "branch": "Valid Ranger quest-start arrival reaches load_special for Ran-strt. The program first fills floor, sets maze/noteleport/hardfloor/arboreal flags, generates a lit joined/smoothed floor cave and replaces matching floor with trees at chance5, then places its left/center map and source-ordered inhabitants/features. No alignment expression or spinach tin exists in this program.",
+                "callers": [
+                  "do.c goto_level -> mklev.c makelevel -> mkmaze.c makemaz -> sp_lev.c load_special -> dat/Ran-strt.lua. JS allmain deferredgoto -> do goto_level -> mklev makelevel/makemaz/load_special uses QUEST_LEVEL_LOADERS with no Ran-strt key.",
+                  "Accepted wizcmds.c wiz_load_splua can call load_special directly for the same program. Natural Ranger quest branch and wizard arrival converge on generation; program defines one inventory callback with no separate external entry."
+                ],
+                "dependencies": [
+                  "Existing lspo_level_init -> splev_initlev LVLINIT_SOLIDFILL/LVLINIT_MINES -> mkmap handles exact style tables and source boolean values. lspo_level_flags already stores arboreal, mazelevel, noteleport and hardfloor. No external owner edit identified.",
+                  "Existing lspo_replace_terrain sp_lev.c5051–5137 reads region0,0,76,19 and resolves it against the pre-map frame, iterates x then y, calls rn2(100) only for matching floor, compares<5, and writes TREE with default no-change lighting. It must run before the map, without a copied tree-mask or invented RNG.",
+                  "The table-form map accepts halign left / valign center and the exact 41-column, 21-row source fragment. Current lspo_map parses the raw map, resets ystart to zero for its full-height overflow, preserves transparent x cells, returns the actual-written selection, and leaves frame coordinates available. Lua discards that map return; it consumes no map selection result.",
+                  "selection.area(0,0,40,20) uses the existing relative selection. The branch region (51,2)-(77,18) explicitly has region_islev=1 and remains absolute level coordinates, without a second map offset.",
+                  "Orion inventory is existing lspo_monster callback -> source object context: leather armor+4, yumi+4 and ya+4quantity50; close inventory before the floor chest at the same map coord. Canonical quantity/type/name handling already exists; no tin/spinach or new artifact/align path.",
+                  "Existing monster/trap/source placement descriptors support hunters, hostile fixed and random centaurs, sleeping minotaur, scorpions and six source traps. The Lua ignores descriptor results; no missing consumed-result helper, new random helper or source-discarded gap was found.",
+                  "Disjoint programs: C173 owns Ran-goal; B198 owns Bar-goal alignment macro supporting seam. Pending C169/C170/B195 are distinct loader keys/functions. A192 Mon-goal remains parked on central gate. No overlapping source function/contract; adjacent quest registry imports must preserve every pending key."
+                ]
+              },
+              "evidence": [
+                "Accepted B201 evaluation at e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef confirms 19/60 screens and cursors and 2874/6677 RNG calls, with 41 screens remaining. The first stop remains the missing Ran-strt loader at segment 0 step 19; this refresh uses saved accepted evidence.",
+                "Assigned replay run-RRjVPY at f6c9ebf7a reproduces 19/60 screens and cursors and 2874/6677 RNG calls. At segment 0, step 19, key y selects the destination. C next reaches rn2(3)=0 in nhlib.lua private alignment shuffle before evaluating the source. JS stops because makelevel/load_special has no Ran-strt loader. The exact stack and comparison are .cache/A193/probe.json and probe.log.",
+                "Read complete dat/Ran-strt.lua lines 1-101. Line 13 fills floor; 15 sets flags; 17 initializes joined, smoothed, lit mines floor; 18 replaces floor with trees at chance 5 over (0,0)-(76,19). Lines 20-41 place the left/center 41x21 map, including transparent x; 43 lights the region; 45 creates the down stair; 47 defines absolute branch arrival; 49-53 creates Orion and his inventory; 55 creates the floor chest; 57-64 creates eight hunters; 66 marks the nondiggable selection; 68-73 creates six traps; 75 creates a hostile sleeping minotaur; 76-93 creates eighteen fixed forest centaurs; 94-99 creates six random plains centaurs; 100-101 creates two random scorpions. There is no explicit final wallify call, chosen-position variable, or inactive statement to execute.",
+                "Source parsing confirms 21 rows of 41 columns, preserving trailing spaces; 36 monster descriptors; four object descriptors including three inventory objects; and six traps. Generate the large map deterministically from authoritative Lua and pin generated output rather than hand-copy geometry.",
+                "Whole-source audit compared current JS lspo_replace_terrain3539+ to C sp_lev.c5051–5137, map table placement4433+ and fullheight overflow to C6227–6238, and callback/region placement to already used Cav-strt/source paths. Source consumes only selection.area results, supplied by canonical ThemeroomSelection. All other descriptor results are discarded and no placeholder return is used by Lua.",
+                "Actionable scope whole Ran-strt.lua1–101, ranStrt and key in existing js/quest_levels.js, generated ran_strt_level_data.js with generator/source-pinned test, focused runtime runner, recipes/Ran-strt.lua and recordings/Ran-strt.lua. No whole mkmap/sp_lev/teleport/quest permission/quest_levels credit and no outside alignment/tin source edit.",
+                "Validation plan: fail first on the absent loader/module; pin the generated map, complete descriptor order and values, and awaited inventory callback. Preserve pre-map tree replacement and absolute branch region fields. Verify admitted segment 0, steps 19-59, plus independently chosen C-first neutral human and chaotic elf Ranger variations using arrival and direct des loading. Compare complete RNG, screens, cursors and animation frames. Assert arboreal/tree terrain, branch/downstairs, the leader inventory at +4 with 50 arrows, eight hunters, siege population and traps. Ran-loca is a separate program; keep its representative recipe blocked if its loader remains absent.",
+                "Evidence limits: read-only investigation with only assigned replay. No game edits, C recording or runtime completion credit. Required descriptor APIs appear canonical for selected branches, but implementation must verify production reachability and request source expansion for any newly confirmed external defect."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Ran-strt.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "ranStrt",
+            "sourceReview": "Read complete dat/Ran-strt.lua lines 1–101. Solid floor fill; mazelevel/noteleport/hardfloor/arboreal flags; joined smoothed lit unwalled floor mines; five-percent tree replacement over the pre-map frame; exact generated 41x21 map aligned left/center; lit and nondiggable rectangle selections; relative down stair and absolute branch region; Orion with awaited leather armor+4, yumi+4 and ya+4 quantity50 inventory; floor chest after inventory; eight hunters; two arrow traps, pit, random spiked pit and two bear traps; hostile sleeping minotaur, eighteen fixed forest centaurs, six random plains centaurs and two random scorpions. Every descriptor is awaited in source order, including callback objects. Fixed map and monster placement tables are generated deterministically from authoritative source. The table map uses the canonical string representation. No top-level statement, callback, consumed placeholder or source-discarded gap is omitted.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "Ran-strt source key maps to ranStrt; unique import/function/key added without altering other quest loaders."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "do.c goto_level -> mklev.c makelevel -> mkmaze.c makemaz -> sp_lev.c load_special -> nhlua whole Ran-strt program. Canonical descriptor creation, private alignment shuffle and finish remain unchanged. Selected and independent human natural arrival fully match."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "wizcmds.c wiz_load_splua calls source-named load_special and lspo_finalize_level. Independent chaotic elf direct loading fully matches the same whole program."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/ran-strt-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Ran-strt.lua/start-human-arrival.session.json",
+              "recordings/Ran-strt.lua/start-elf-des.session.json"
+            ],
+            "sourceFile": "Ran-strt.lua",
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-ran-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Ranger quest-start arrival via wizlevelport -> deferred_goto/goto_level -> makelevel/makemaz/load_special -> whole dat/Ran-strt.lua and canonical finish. Full 60 screens/cursors and 6677 RNG calls match."
+              }
+            ],
+            "checkedAt": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269"
+          }
+        ],
+        "entryPointReview": "The complete Lua program has two active production entries: quest-start generation through natural level arrival and direct source-named wizard loading. The inventory closure is part of both entries and awaits its three descriptor calls before the separate floor chest. Selected admitted arrival plus independently selected neutral human arrival establish the first entry; chaotic elf direct loading establishes the second. Runtime matrix asserts all four flags, trees,36 monsters with exact species counts, explicit hostile/sleep state, Orion inventory and floor chest, source trap counts and the down stair. A third independent direct Ran-loca recording verifies the separately accepted outside-program boundary.",
+        "entryPoints": [
+          {
+            "name": "Natural quest-start arrival generation",
+            "functions": [
+              "Ran-strt.lua"
+            ],
+            "recordings": [
+              "recordings/Ran-strt.lua/start-human-arrival.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-ran-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Ranger quest-start arrival via wizlevelport -> deferred_goto/goto_level -> makelevel/makemaz/load_special -> whole dat/Ran-strt.lua and canonical finish. Full 60 screens/cursors and 6677 RNG calls match."
+              }
+            ]
+          },
+          {
+            "name": "Direct source-named special-level generation",
+            "functions": [
+              "Ran-strt.lua"
+            ],
+            "recordings": [
+              "recordings/Ran-strt.lua/start-elf-des.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-mon-loca-quest-level-v36-20261009",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the complete Monk quest locate level",
+      "luaFile": "Mon-loca.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-mon-loca"
+      ],
+      "selectionReason": "The accepted v36 Monk quest-locate case stops at step 19 because Mon-loca has no registered loader; C172 supplies the whole Lua program and the source-defined non-species object descriptor seam it consumes.",
+      "detail": "Whole dat/Mon-loca.lua lines 1-98, unique loader and generated cave data, plus bounded sp_lev.c lspo_object spinach/empty tin and empty egg normalization verified by independent C-first recordings.",
+      "openedAt": "e2f86bf47bc5aa62fee0fb84a3a44d55f261b6df",
+      "openStanding": {
+        "sha": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "c7bb7471083822d944dd96d56cdbe4127349c7c1",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "Mon-loca.lua",
+          "line": 1,
+          "endLine": 98,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-mon-loca": {
+          "session": "synthetic/v36/v36-quest-mon-loca",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-mon-loca",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-mon-loca.session.json",
+          "recordingSha256": "54b55d138d3fe3c0dc5fcaa627e2ff795a610e12f2818fb0da24efd84b3ec14a",
+          "evaluationPath": "challenges/evaluations/accepted-9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269-v36.json",
+          "evaluationCommit": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269"
+        }
+      },
+      "activeStanding": {
+        "sha": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-mon-loca",
+          "session": "synthetic/v36/v36-quest-mon-loca",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-mon-loca.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-mon-loca.session.json",
+          "recordingSha256": "54b55d138d3fe3c0dc5fcaa627e2ff795a610e12f2818fb0da24efd84b3ec14a",
+          "recipe": "challenges/cases/v36/v36-quest-mon-loca.recipe.session.json",
+          "recipeSha256": "2d808bf881ad2734726e68fe0a1b675010d25d95b49d3b1c455605f4a9394cb6",
+          "replayInputSha256": "0007dc9110572c458d03957b9623040d4b49e21419f51f623fd6a786ab0c0471",
+          "evaluationPath": "challenges/evaluations/accepted-9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269-v36.json",
+          "evaluationCommit": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269",
+          "evaluationArtifact": "challenges/evaluations/accepted-9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269-v36.json",
+          "evaluationUtc": "2026-10-09T19:24:09.638Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 3107,
+              "total": 3671
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-loca\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Mon-loca.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-loca\"",
+          "cFile": null,
+          "luaFile": "Mon-loca.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-mon-loca.json",
+            "result": {
+              "session": "synthetic/v36/v36-quest-mon-loca",
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-mon-loca",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "54b55d138d3fe3c0dc5fcaa627e2ff795a610e12f2818fb0da24efd84b3ec14a",
+              "evaluationPath": "challenges/evaluations/accepted-9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269-v36.json",
+              "evaluationCommit": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "1feee1edafeb9af23e5fbe31120f5f5e1bae2614",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-mon-loca",
+                "session": "synthetic/v36/v36-quest-mon-loca",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-mon-loca.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-mon-loca.session.json",
+                "recordingSha256": "54b55d138d3fe3c0dc5fcaa627e2ff795a610e12f2818fb0da24efd84b3ec14a",
+                "recipe": "challenges/cases/v36/v36-quest-mon-loca.recipe.session.json",
+                "recipeSha256": "2d808bf881ad2734726e68fe0a1b675010d25d95b49d3b1c455605f4a9394cb6",
+                "replayInputSha256": "0007dc9110572c458d03957b9623040d4b49e21419f51f623fd6a786ab0c0471",
+                "evaluationPath": "challenges/evaluations/accepted-9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269-v36.json",
+                "evaluationCommit": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269",
+                "evaluationArtifact": "challenges/evaluations/accepted-9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269-v36.json",
+                "evaluationUtc": "2026-10-09T19:24:09.638Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 3107,
+                    "total": 3671
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-loca\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Mon-loca.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-loca\"",
+                "cFile": null,
+                "luaFile": "Mon-loca.lua",
+                "line": null
+              },
+              "goalKind": "lua-port",
+              "summary": "Mon-loca has no registered loader. Its whole Lua program also needs the existing object descriptor to implement source-defined spinach tin normalization; the current adapter passes the spinach token as a monster index.",
+              "source": {
+                "file": "Mon-loca.lua",
+                "branch": "Monk quest locate generation or registered wizard des-file load of Mon-loca, including blessed spinach tins and Elbereth at one selected floor coordinate.",
+                "functions": [
+                  "Mon-loca.lua"
+                ],
+                "callers": [
+                  "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Mon-loca.lua",
+                  "wizcmds.c:wiz_load_splua -> load_special -> registered Mon-loca Lua program"
+                ],
+                "dependencies": [
+                  "Existing selection_negate/filter_mapchar/rndcoord owners, with active map-frame origin subtraction as nhlsel.c:407–427 defines.",
+                  "Required bounded sp_lev.c:lspo_object non-species tin/egg descriptor correction: source3676–3684,3717–3719; js/mklev.js object adapter and js/sp_lev_object.js normalized fields currently omit it. Shared owner scope needs Main adjudication before editing.",
+                  "Existing map/region/stair/nondiggable/object/trap/monster/engraving owners. Current worker lineage contains immutable ready C175; any implementation delivery on this lineage must declare C175 as an explicit dependency until accepted."
+                ]
+              },
+              "evidence": [
+                "Accepted A193 evaluation at 9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269 confirms 19/60 screens and cursors and 3107/3671 RNG calls, with 41 screens remaining. The first stop remains the missing Mon-loca loader at segment 0 step 19; this refresh uses saved accepted evidence.",
+                "Current saved challenges/evaluations/accepted-dee8b310b3922f634c10f62fcab1a5e8ff4acc73-v36.json at dee8b310b3922f634c10f62fcab1a5e8ff4acc73 records 19/60 matching screens, 41 remaining and missing Mon-loca loader at step19. Recording digest 54b55d138d3fe3c0dc5fcaa627e2ff795a610e12f2818fb0da24efd84b3ec14a; manifest corpus digest 58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c.",
+                "Read whole dat/Mon-loca.lua1–98, SHA2563dbeb40cd45fe4b28c7c0d36bc8e6b182eebde70dfa6008a1b89a81293aaf140: solidfill stone, mazelevel, exact76×21 cave map including spaces and secret doors, lit full selection0,0..75,20, random up/down stairs, nondiggable fullmap,15random objects. Full-map selection.negate filtered to floor chooses one coordinate without removal; blessed quantity2 spinach tins and burned Elbereth use that same coordinate. Six random traps,14earth elementals and9xorns follow in exact order. No explicit wallify or hardfloor flags.",
+                "Selection consumed-return chain is already implemented: nhlsel.c:l_selection_not no-arg creates fullmap; selvar.c:selection_filter_mapchar scans matching ROOM cells x-major; selection_rndcoord consumes rn2(count), leaves selection unchanged for0; nhlsel.c subtracts active room/map origin before handing a coordinate to descriptors. JS ThemeroomSelection methods support those operations; loader must pass current des.frame origin rather than reconstruct a rectangle or use absolute coordinates as relative.",
+                "Concrete descriptor defect: source sp_lev.c3676–3684 treats case-insensitive tin spinach/empty and empty egg as nonpm objects with tmpobj.corpsenm=NON_PM and spe1/0;3718 excludes the generic tin/figurine spe0 reset. JS mklev object adapter assigns spec.montype to corpsenm, while sp_lev_object normalization has no nonpm override; create_object then calls set_corpsenm with the string spinach. Fix canonical descriptor semantics before claiming the whole program; no invented replacement object fields in monLoca. Preserve source creation/RNG order and existing corpsenm initialization quirks.",
+                "Bounded proposed supporting contract covers tin spinach/empty and empty egg, with resolved object type, case-insensitive token and source spe/NON_PM fields; retain every other descriptor restriction. No whole lspo_object/create_object completion credit. Main must approve that shared owner reservation/path addition before source edits.",
+                "Existing lspo_engraving handles coord/type burn/text and defaults degrade/guardobjects, resolves same relative coordinate and calls canonical make_engr_at. Plan source-pinned selection-coordinate identity, canonical tin regression and whole sequence/map generation tests; admitted quest arrival plus independent male/female human Monk #wizloaddes cases cover both active program load routes. No C recording or game edit during this investigation.",
+                "Accepted-main recheck: sp_lev.c:3676–3684 recognizes case-insensitive spinach/empty only for tin and empty only for egg. The descriptor becomes NON_PM and nonpmobj=true. Tin spe is1 for spinach and0 for empty; source3715–3719 still applies laid_by_you to egg before skipping the ordinary tin/figurine spe reset for nonpmobj. js/mklev.js still forwards the raw spinach string, and js/sp_lev_object.js:normalizedSpe still forces every tin to spe0. Both locations require the bounded source-defined correction. Existing create_object applies set_corpsenm only when the descriptor species differs from NON_PM; preserve that guard and creation-before-override RNG without inventing a NON_PM setter or forcibly clearing the generated object species.",
+                "No active reservation owns lspo_object or this object-descriptor contract. C174 Rog-goal named montype support and B197 Mon-strt spinach tins are related downstream reports; keep their existing source ownership and do not claim those Lua programs in this task. Main must adjudicate the bounded shared contract before implementation. Whole lspo_object/create_object credit remains excluded."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Mon-loca.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "monLoca",
+            "sourceReview": "Read whole dat/Mon-loca.lua1–98 and sp_lev.c:3680–3725 nonpmobj branch; preserved solidfill/maze flag, exact cave, lighting, random stairs and 15 objects, full-grid negate/filter with numeric ROOM and x-major nonremoved relative coordinate, blessed quantity2 spinach tin and shared burned engraving, six random traps,14 earth elementals and9 xorns. Bounded lspo_object normalization recognizes mixed-case spinach/empty tins and empty eggs, leaves create_object NON_PM setter skip intact, preserves tin spe1/0 and egg laid_by_you override, generated species and RNG. No whole descriptor/create_object credit.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "Mon-loca registry entry supplies whole dat/Mon-loca.lua to the existing registered special-level loader."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special invokes registered Mon-loca program. Wizard wiz_load_splua uses the same loader."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-loca-level.test.mjs",
+              "scripts/special-level.test.mjs",
+              "scripts/sp-lev-object.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Mon-loca.lua/mon-loca-direct-male-independent.session.json",
+              "recordings/Mon-loca.lua/mon-loca-direct-female-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-mon-loca",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Mon-loca.lua"
+              }
+            ],
+            "checkedAt": "c7bb7471083822d944dd96d56cdbe4127349c7c1"
+          }
+        ],
+        "entryPointReview": "Two active entries: natural Monk quest locate arrival through makelevel/makemaz/load_special and wizard wiz_load_splua registered-name loading. Admitted v36 covers natural arrival; independently fixed male/female human neutral Monk recipes cover explicit and extensionless registered-name entries. Descriptor supporting correction receives no whole C function credit. Named-monster descriptors, broader lspo_object and create_object completion remain outside this task; C174/B197 reports preserved.",
+        "entryPoints": [
+          {
+            "name": "ordinary Monk quest locate arrival",
+            "functions": [
+              "Mon-loca.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-mon-loca",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Mon-loca.lua"
+              }
+            ]
+          },
+          {
+            "name": "wizard registered Monk locate load",
+            "functions": [
+              "Mon-loca.lua"
+            ],
+            "recordings": [
+              "recordings/Mon-loca.lua/mon-loca-direct-male-independent.session.json",
+              "recordings/Mon-loca.lua/mon-loca-direct-female-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c7bb7471083822d944dd96d56cdbe4127349c7c1",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-rog-loca-quest-locate-v36-20261009",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the complete Rogue quest locate level",
+      "luaFile": "Rog-loca.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-rog-loca"
+      ],
+      "selectionReason": "The accepted v36 Rogue quest-locate case stops at step 19 because Rog-loca has no registered loader; A194 supplies the complete source program without expanding shared descriptor scope.",
+      "detail": "Whole dat/Rog-loca.lua lines 1-99, generated cave data and registered loader, verified by the admitted case and three independently chosen matching C recordings.",
+      "openedAt": "1811d5210d7a831093b0fd1213caefd67ab85bff",
+      "openStanding": {
+        "sha": "c7bb7471083822d944dd96d56cdbe4127349c7c1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "e0361e80225feef14b2837e65ab482f785575c7d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "Rog-loca.lua",
+          "line": 1,
+          "endLine": 99,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-rog-loca": {
+          "session": "synthetic/v36/v36-quest-rog-loca",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-rog-loca",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-rog-loca.session.json",
+          "recordingSha256": "ac97310261adf55d3764dce9e254db818e8b82668d804a6cb6781a8d7f8aadd5",
+          "evaluationPath": "challenges/evaluations/accepted-c7bb7471083822d944dd96d56cdbe4127349c7c1-v36.json",
+          "evaluationCommit": "c7bb7471083822d944dd96d56cdbe4127349c7c1"
+        }
+      },
+      "activeStanding": {
+        "sha": "c7bb7471083822d944dd96d56cdbe4127349c7c1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-rog-loca",
+          "session": "synthetic/v36/v36-quest-rog-loca",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-rog-loca.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-rog-loca.session.json",
+          "recordingSha256": "ac97310261adf55d3764dce9e254db818e8b82668d804a6cb6781a8d7f8aadd5",
+          "recipe": "challenges/cases/v36/v36-quest-rog-loca.recipe.session.json",
+          "recipeSha256": "42a067c889c37ec2efffcd583150776b32258aaf9c4d83624be6c467eeb05628",
+          "replayInputSha256": "789a42f9254142ffade5c76a41dec63d80646cb1f8e0aa2c2115bccba424a957",
+          "evaluationPath": "challenges/evaluations/accepted-c7bb7471083822d944dd96d56cdbe4127349c7c1-v36.json",
+          "evaluationCommit": "c7bb7471083822d944dd96d56cdbe4127349c7c1",
+          "evaluationArtifact": "challenges/evaluations/accepted-c7bb7471083822d944dd96d56cdbe4127349c7c1-v36.json",
+          "evaluationUtc": "2026-10-09T19:36:40.461Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2693,
+              "total": 3500
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Rog-loca\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Rog-loca.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Rog-loca\"",
+          "cFile": null,
+          "luaFile": "Rog-loca.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-rog-loca.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-rog-loca",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "ac97310261adf55d3764dce9e254db818e8b82668d804a6cb6781a8d7f8aadd5",
+              "evaluationPath": "challenges/evaluations/accepted-c7bb7471083822d944dd96d56cdbe4127349c7c1-v36.json",
+              "evaluationCommit": "c7bb7471083822d944dd96d56cdbe4127349c7c1",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "session": "synthetic/v36/v36-quest-rog-loca",
+              "commit": "dc21c912e9711b38e444febebcb738b1dac2123b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-rog-loca",
+                "session": "synthetic/v36/v36-quest-rog-loca",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-rog-loca.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-rog-loca.session.json",
+                "recordingSha256": "ac97310261adf55d3764dce9e254db818e8b82668d804a6cb6781a8d7f8aadd5",
+                "recipe": "challenges/cases/v36/v36-quest-rog-loca.recipe.session.json",
+                "recipeSha256": "42a067c889c37ec2efffcd583150776b32258aaf9c4d83624be6c467eeb05628",
+                "replayInputSha256": "789a42f9254142ffade5c76a41dec63d80646cb1f8e0aa2c2115bccba424a957",
+                "evaluationPath": "challenges/evaluations/accepted-c7bb7471083822d944dd96d56cdbe4127349c7c1-v36.json",
+                "evaluationCommit": "c7bb7471083822d944dd96d56cdbe4127349c7c1",
+                "evaluationArtifact": "challenges/evaluations/accepted-c7bb7471083822d944dd96d56cdbe4127349c7c1-v36.json",
+                "evaluationUtc": "2026-10-09T19:36:40.461Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2693,
+                    "total": 3500
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Rog-loca\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Rog-loca.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Rog-loca\"",
+                "cFile": null,
+                "luaFile": "Rog-loca.lua",
+                "line": null
+              },
+              "status": "complete",
+              "goalKind": "lua-port",
+              "summary": "Rogue locate arrival selects Rog-loca, but its whole Lua loader is absent. Port the complete Rog-loca.lua cavern map, lighting and nondiggable region, random up/down stairs, cursed teleportation scroll and fourteen random objects, six traps and hostile leprechaun/naga/chameleon population.",
+              "source": {
+                "file": "Rog-loca.lua",
+                "functions": [
+                  "Rog-loca.lua"
+                ],
+                "branch": "Valid Rogue quest locate arrival reaches load_special for Rog-loca. Lua fills solid stone, sets mazelevel, places the exact centered 76x21 cavern map, lights it, creates random up then down stairs, marks nondiggable cells, and executes the object/trap/monster descriptors in definition order.",
+                "callers": [
+                  "do.c goto_level -> mklev.c makelevel -> mkmaze.c makemaz -> sp_lev.c load_special -> dat/Rog-loca.lua. JS allmain deferred-goto -> do goto_level -> mklev makelevel/makemaz/load_special -> QUEST_LEVEL_LOADERS lacks Rog-loca.",
+                  "Accepted wizcmds.c wiz_load_splua invokes load_special directly for the same source-named program. Natural quest arrival and wizard destination choice converge on generation; no program callback or separate entry is defined."
+                ],
+                "dependencies": [
+                  "Canonical level_init solidfill, mazelevel flags, array-form map, relative selection area, region, stair, non_diggable, object, trap and monster descriptors already exist in createSpecialLevelApi. No external owner edit identified.",
+                  "Map array form preserves the 76-column, 21-row source, including trailing spaces and secret-door S glyphs. Existing mapFromRows full-height overflow handling resets ystart to zero and tracks written cells. Lua discards its returned placement; relative selections cover (0,0)-(75,20).",
+                  "lspo_stair string forms select random coordinates through canonical l_create_stairway and get_location. Preserve up before down and their avoidance of existing features. No injected random location or new stair dispatcher is required.",
+                  "The sole explicit object is a cursed scroll of teleportation at (11,18) with spe=0; fourteen no-argument descriptors use existing random object creation. No explicit tin, non-species spinach sentinel, artifact name, or source alignment expression occurs in this program.",
+                  "lspo_monster table id and class forms use existing find_montype/mkclass and canonical makemon. Preserve each independent descriptor and hostile peaceful=0 values. The class l and N descriptors consume canonical class-selection results internally; do not replace them with fixed species.",
+                  "Initial chameleons use makemon_create -> pm_to_cham -> existing newcham_initial -> newcham, which preserves the selected initial form and allowMinvent result. The existing classic Rogue-level refusal checks isRogueLevel, not the hero role; the Rogue quest dungeon is not that classic special level. Standard startup supplies the required light globals. Matching runtime evidence remains necessary before claiming this path complete.",
+                  "C174 owns distinct Rog-goal and wins that session priority; no source edits or report were made for it. C169/C170/B195, C173 Ran-goal, A193 Ran-strt and B198 alignment are disjoint source programs/contracts. A194 uses only existing descriptor APIs and proposes an adjacent registry key/import/function.",
+                  "Pending B201 delivery a912634e121d5c1bd9857b7a2a914c4c16761218 (candidate4f8612ae05a503736e028233bbc1da3c93d86919) relocates fill_special_room from load_special finish to makelevel and the existing direct-load finalizer, matching sp_lev.c6454–6503 and mklev.c1414–1418. Rog-loca uses solidfill, a string map and selection-only lit region; it creates no rooms. C lspo_region two-argument selection branch returns before room creation. With zero rooms, this moved loop has no program-specific effects. No shared room-fill owner scope is proposed; B201 remains pending and unmerged, and implementation validation must use the accepted caller order after handoff."
+                ]
+              },
+              "evidence": [
+                "Accepted C172 evaluation at c7bb7471083822d944dd96d56cdbe4127349c7c1 confirms 19/60 screens and cursors and 2693/3500 RNG calls, with 41 screens remaining. The first stop remains the missing Rog-loca loader at segment 0 step 19; this refresh uses saved accepted evidence.",
+                "Assigned replay run-NIxmMZ at examined398d1c8fc reproduces 19/60 screens and cursors and 2693/3500 RNG calls. Segment 0, step 19, key z confirms the destination. C next rn2(3)=1 belongs to nhlib.lua private alignment shuffle before the program. JS stops with absent Rog-loca load_special; .cache/A194/probe.json and probe.log contain the exact source stack and comparison.",
+                "Read whole dat/Rog-loca.lua lines 1-99: line 5 solidfill; 7 mazelevel; 11-33 exact cavern map; 35 lit relative region; 39-40 random up/down stairs; 42 nondiggable region; 44 cursed teleport scroll at (11,18), spe=0; 45-58 fourteen random objects; 60-65 six random traps; 67-83 seventeen hostile leprechauns; 84 one hostile class l; 85-91 seven hostile guardian nagas; 92-94 three hostile class N; 95-99 five hostile chameleons. Commented door example at 37 is inactive. There is no explicit final wallify call.",
+                "Source parsing confirms 21 rows of exactly 76 columns, 33 monster descriptors, 15 object descriptors, and six traps. Generate the large fixed map from authoritative Lua and compare generated output, preserving every space and glyph.",
+                "Consumed-return audit: Lua consumes canonical selection.area results only; all descriptor returns are ignored. Internal stair location, monster class and initial transformation results are supplied by existing canonical owners. Reviewed lspo_monster table/class handling and makemon_create initial chameleon/newcham path, including the distinction between classic Rogue level and Rogue quest dungeon. No new required helper scope is currently identified.",
+                "Actionable whole-source scope: Rog-loca.lua lines 1-99, rogLoca plus registry key in js/quest_levels.js; generated rog_loca_level_data.js and deterministic generator; source-pinned test and fresh runner; recipes/Rog-loca.lua and recordings/Rog-loca.lua. No whole generic descriptor, makemon/newcham, quest permission, or teleport credit.",
+                "Validation plan: fail first on missing module/loader; pin exact generated map, complete descriptor order, cursed scroll fields, and separate fixed/class species descriptors. Verify admitted segment 0, steps 19-59. Add independently chosen human chaotic and orc chaotic Rogue C-first arrival/direct-des variations; strict complete RNG, screens, cursors and frames. Assert two stair directions, lit/nondiggable geometry, scroll state, source population and five natural chameleon identities even after their initial shape changes. Rog-strt is now separately accepted; an independently selected direct Rog-strt recipe will provide a passing outside-program boundary.",
+                "Evidence limits: read-only source trace and the assigned replay only, with no C recording or game edit. The current replay stops before program generation, so helper review establishes proposed scope, not production completion. Rog-goal remains a separate source program. Any later confirmed shared-owner defect needs authorized source expansion.",
+                "Read-only refresh against accepted public C1756f932bf8b920c7caf10b4106d079702dbd20cbc1 at clean worker01cc1626c81a2ec09bb9299d8d7b8e161cfd539d: current accepted85927920 v36 evidence remains19/60screens/cursors and2693/3500RNG. Assigned-only replay run-YhiLJB reproduces absent Rog-loca atsegment0step19, keyz, with first C call rn2(3)=1 in nhlib shuffle. Full99-line source re-read identifies no changed source owner or dependency. A193 remains immutable; no game edits, C recording or implementation scope claim.",
+                "Pending B201 delivery a912634e121d5c1bd9857b7a2a914c4c16761218 (candidate4f8612ae05a503736e028233bbc1da3c93d86919) relocates fill_special_room from load_special finish to makelevel and the existing direct-load finalizer, matching sp_lev.c6454–6503 and mklev.c1414–1418. Rog-loca uses solidfill, a string map and selection-only lit region; it creates no rooms. C lspo_region two-argument selection branch returns before room creation. With zero rooms, this moved loop has no program-specific effects. No shared room-fill owner scope is proposed; B201 remains pending and unmerged, and implementation validation must use the accepted caller order after handoff.",
+                "Validation dependency framing: A1932f0a43c0ba81ea5ed1f4abe8d7680b32c80b133a is an unaccepted ancestor of this report lineage; preserve it as a delivery dependency until acceptance. Old A191 is accepted and no longer an external dependency. B201 is not an ancestor and no Rog-loca source behavior depends on its room-fill effects; nevertheless refresh accepted-main caller evidence before source implementation after the central gate.",
+                "Implementation-gate refresh: Main accepted A193 at9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269 and B201 room-fill source relocation. Clean history-preserving worker syncdc21c912e9711b38e444febebcb738b1dac2123b retains exact accepted quest module after loader ordering conflict;9adjacent focused tests pass run-rYjrQB. Accepted9a32ea9e v36 still has41remaining atstep19. A193 ancestry dependency is accepted; no external dependency remains. Proposed wholeRog-loca1–99 still requires no generic owner change."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Rog-loca.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "rogLoca",
+            "sourceReview": "Read complete dat/Rog-loca.lua lines 1–99. Solid stone fill; mazelevel flag; exact generated centered 76x21 map including trailing spaces and secret door; lit selection; random up then down stairs; nondiggable selection; map-relative cursed teleportation scroll at (11,18), spe=0; fourteen random objects; six random traps; seventeen hostile leprechauns and one class l draw; seven hostile guardian nagas and three class N draws; five hostile chameleons. Every descriptor is awaited in source definition order. Lua consumes canonical selection.area values and discards descriptor results. No active statement or required helper is skipped, and the missing registry refusal is replaced with the complete program.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "Rog-loca source key now resolves to rogLoca; unique data import/function/key without changing other quest loaders."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "do.c goto_level -> mklev.c makelevel -> mkmaze.c makemaz -> sp_lev.c load_special -> whole Lua program. Natural admitted and independent human arrival exercise canonical descriptor generation and finish."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "wizcmds.c wiz_load_splua resets the current level, calls source-named load_special, then lspo_finalize_level. Independent orc direct loading exercises the same program and canonical direct finalization."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/rog-loca-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Rog-loca.lua/locate-human-arrival.session.json",
+              "recordings/Rog-loca.lua/locate-orc-des.session.json"
+            ],
+            "sourceFile": "Rog-loca.lua",
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-rog-loca",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Rogue locate arrival via wizlevelport -> deferred_goto/goto_level -> makelevel/makemaz/load_special -> whole dat/Rog-loca.lua and canonical finish. All 60 screens/cursors and 3500 RNG calls match."
+              }
+            ],
+            "checkedAt": "e0361e80225feef14b2837e65ab482f785575c7d"
+          }
+        ],
+        "entryPointReview": "The whole program has two active production entries: quest-locate generation on natural arrival and direct source-named wizard loading. Admitted arrival and independent human arrival cover the first; independent orc loading covers the second. Runtime assertions verify mazelevel, zero room records, lit/nondiggable cells, both stair directions after finalization, fixed cursed scroll, six traps, 33 hostile monsters, fixed-species minima and five retained natural chameleon identities. Rog-strt direct loading provides the separately accepted outside-program variation.",
+        "entryPoints": [
+          {
+            "name": "Natural quest-locate arrival generation",
+            "functions": [
+              "Rog-loca.lua"
+            ],
+            "recordings": [
+              "recordings/Rog-loca.lua/locate-human-arrival.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-rog-loca",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Rogue locate arrival via wizlevelport -> deferred_goto/goto_level -> makelevel/makemaz/load_special -> whole dat/Rog-loca.lua and canonical finish. All 60 screens/cursors and 3500 RNG calls match."
+              }
+            ]
+          },
+          {
+            "name": "Direct source-named special-level generation",
+            "functions": [
+              "Rog-loca.lua"
+            ],
+            "recordings": [
+              "recordings/Rog-loca.lua/locate-orc-des.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e0361e80225feef14b2837e65ab482f785575c7d",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-rog-goal-quest-level-v36-20261009",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the complete Rogue quest goal level",
+      "luaFile": "Rog-goal.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-rog-goal"
+      ],
+      "selectionReason": "Select synthetic/v36/v36-quest-rog-goal from the complete investigation at investigations/synthetic/v36/v36-quest-rog-goal.json and accepted A194 evaluation challenges/evaluations/accepted-e0361e80225feef14b2837e65ab482f785575c7d-v36.json. The refusal remains at step 19 with 41 unmatched screens. Port all of dat/Rog-goal.lua lines 1-110 and wire its registered loader. Preserve exact source order, map and descriptors. The chameleon tin also requires the bounded sp_lev.c:lspo_object named-species parsing used by this Lua descriptor; keep accepted C172 non-species behavior and do not claim broader lspo_object or create_object completion. Manifest SHA256 58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c; recording SHA256 2e5a77c0616e7b8c0d153cf06d92c449d9ebd9691464c44f0136274aeeb4234a.",
+      "detail": "",
+      "openedAt": "d2a0eb5ceaa5876d57b815dc18cb3a70f19e55e2",
+      "openStanding": {
+        "sha": "e0361e80225feef14b2837e65ab482f785575c7d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "Rog-goal.lua",
+          "line": 1,
+          "endLine": 110,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-rog-goal": {
+          "session": "synthetic/v36/v36-quest-rog-goal",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-rog-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-rog-goal.session.json",
+          "recordingSha256": "2e5a77c0616e7b8c0d153cf06d92c449d9ebd9691464c44f0136274aeeb4234a",
+          "evaluationPath": "challenges/evaluations/accepted-e0361e80225feef14b2837e65ab482f785575c7d-v36.json",
+          "evaluationCommit": "e0361e80225feef14b2837e65ab482f785575c7d"
+        }
+      },
+      "activeStanding": {
+        "sha": "e0361e80225feef14b2837e65ab482f785575c7d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-rog-goal",
+          "session": "synthetic/v36/v36-quest-rog-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-rog-goal.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-rog-goal.session.json",
+          "recordingSha256": "2e5a77c0616e7b8c0d153cf06d92c449d9ebd9691464c44f0136274aeeb4234a",
+          "recipe": "challenges/cases/v36/v36-quest-rog-goal.recipe.session.json",
+          "recipeSha256": "57578d3b1b466c9b9123bf6f9593abd348f688212d13997f90294b8ae5d17ce0",
+          "replayInputSha256": "0f9e494fe6deae1c89e904df0a08b02a178e038d112715f96908dd65cb28a055",
+          "evaluationPath": "challenges/evaluations/accepted-e0361e80225feef14b2837e65ab482f785575c7d-v36.json",
+          "evaluationCommit": "e0361e80225feef14b2837e65ab482f785575c7d",
+          "evaluationArtifact": "challenges/evaluations/accepted-e0361e80225feef14b2837e65ab482f785575c7d-v36.json",
+          "evaluationUtc": "2026-10-09T19:48:11.034Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2315,
+              "total": 3136
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Rog-goal\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Rog-goal.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Rog-goal\"",
+          "cFile": null,
+          "luaFile": "Rog-goal.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-rog-goal.json",
+            "result": {
+              "session": "synthetic/v36/v36-quest-rog-goal",
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-rog-goal",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "2e5a77c0616e7b8c0d153cf06d92c449d9ebd9691464c44f0136274aeeb4234a",
+              "evaluationPath": "challenges/evaluations/accepted-e0361e80225feef14b2837e65ab482f785575c7d-v36.json",
+              "evaluationCommit": "e0361e80225feef14b2837e65ab482f785575c7d",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "e0361e80225feef14b2837e65ab482f785575c7d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-rog-goal",
+                "session": "synthetic/v36/v36-quest-rog-goal",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-rog-goal.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-rog-goal.session.json",
+                "recordingSha256": "2e5a77c0616e7b8c0d153cf06d92c449d9ebd9691464c44f0136274aeeb4234a",
+                "recipe": "challenges/cases/v36/v36-quest-rog-goal.recipe.session.json",
+                "recipeSha256": "57578d3b1b466c9b9123bf6f9593abd348f688212d13997f90294b8ae5d17ce0",
+                "replayInputSha256": "0f9e494fe6deae1c89e904df0a08b02a178e038d112715f96908dd65cb28a055",
+                "evaluationPath": "challenges/evaluations/accepted-e0361e80225feef14b2837e65ab482f785575c7d-v36.json",
+                "evaluationCommit": "e0361e80225feef14b2837e65ab482f785575c7d",
+                "evaluationArtifact": "challenges/evaluations/accepted-e0361e80225feef14b2837e65ab482f785575c7d-v36.json",
+                "evaluationUtc": "2026-10-09T19:48:11.034Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2315,
+                    "total": 3136
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Rog-goal\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Rog-goal.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Rog-goal\"",
+                "cFile": null,
+                "luaFile": "Rog-goal.lua",
+                "line": null
+              },
+              "goalKind": "lua-port",
+              "summary": "Rog-goal still lacks its whole-program loader. Its chameleon tin consumes the bounded named-species lspo_object branch; accepted C172 has released that owner and preserved non-species normalization.",
+              "source": {
+                "file": "Rog-goal.lua",
+                "branch": "Rogue quest goal generation or registered wizard load of Rog-goal; tin montype chameleon must resolve to the source species index before create_object.",
+                "functions": [
+                  "Rog-goal.lua"
+                ],
+                "callers": [
+                  "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Rog-goal.lua",
+                  "wizcmds.c:wiz_load_splua -> load_special -> registered Rog-goal Lua program"
+                ],
+                "dependencies": [
+                  "Source-required bounded sp_lev.c:lspo_object named-species branch: restrict to STATUE/EGG/CORPSE/TIN/FIGURINE; match case-insensitive neutral/male/female names without find_montype gender RNG, preserve existing monster-class resolution and error when unknown. C172 is accepted; non-species behavior remains intact.",
+                  "Reuse existing level/map/region/levregion/nondiggable/trap/object/monster and ONAME_LEVEL_DEF artifact owners."
+                ]
+              },
+              "evidence": [
+                "Current accepted evaluation challenges/evaluations/accepted-c7bb7471083822d944dd96d56cdbe4127349c7c1-v36.json at c7bb7471083822d944dd96d56cdbe4127349c7c1: missing Rog-goal loader at zero-based19,19/60matching screens,41remaining. Manifest corpus digest58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c; immutable recording challenges/cases/v36/v36-quest-rog-goal.session.json,digest2e5a77c0616e7b8c0d153cf06d92c449d9ebd9691464c44f0136274aeeb4234a.",
+                "Read whole dat/Rog-goal.lua1–110, SHA2564a9526d60f6802525e9964e428a5a15afef9d334441dd6c7e9ed8d1bad24d83e: solidfill stone,mazelevel/noteleport, exact76×21 map, lit full selection, absolute stair-up region1,0..15,20 with map-relative exclusion1,18..4,20, nondiggable fullmap, fixed spiked pit37,7. Blessed spe0 named skeleton key38,10 and chameleon tin26,12 precede13random objects and11random traps. Source monster order is Master Assassin,16leprechauns,2l-class,8guardian nagas,3N-class,5chameleons and4fixed sharks. No explicit wallify.",
+                "C sp_lev.c:lspo_object3689–3706 searches neutral/male/female species names case-insensitively and stores monsndx(pm), or errors on unknown montype. The current js/mklev.js object adapter4584–4604 only resolves one-character class tokens; longer strings become corpsenm unchanged. js/sp_lev_object.js normalization keeps that value and applyObjectFields calls js/obj.js:set_corpsenm, which stores it in TIN. Porting Rog-goal with an injected numeric PM_CHAMELEON would bypass canonical source descriptor behavior and leave the owner defect unresolved.",
+                "Canonical named-montype support must preserve source type restriction STATUE/EGG/CORPSE/TIN/FIGURINE, exact case-insensitive neutral/male/female search and Unknown montype error, existing class RNG and field-application order. No global name_to_monplus substitute: the object source does not consume its gender parser RNG. This supporting source reservation overlaps C172 lspo_object plan and must be adjudicated before implementation; it is not independent of the excluded descriptor seam.",
+                "Existing levregion adapter preserves region_islev1 and default exclude_islev0, so absolute stair region and map-relative exclusion remain distinct through fixup_special. Master Key artifact naming uses existing ONAME_LEVEL_DEF owner. Plan generated map/monster equality, fail-first registry/sequence tests, canonical chameleon tin source pin, admitted Rogue arrival range and independent male/female human Rogue #wizloaddes recordings after central gate. Keep blocked evidence and no generic descriptor completion credit.",
+                "After accepted C172, sp_lev_object normalization recognizes tin spinach/empty and egg empty but mklev des.object still forwards longer species names as raw corpsenm strings. Rog-goal named chameleon must use C neutral/male/female lookup before creation, not a hardcoded PM_CHAMELEON. Main has approved reopening the named-species gate; no existing active descriptor reservation remains.",
+                "Coordinator refreshed the complete source diagnosis against accepted A194 evaluation challenges/evaluations/accepted-e0361e80225feef14b2837e65ab482f785575c7d-v36.json at e0361e80225feef14b2837e65ab482f785575c7d: the Rog-goal refusal remains at zero-based step19 with 19/60 screens and cursors, 2315/3136 RNG calls, and 41 screens remaining."
+              ],
+              "sourceAuditHistory": {
+                "status": "complete",
+                "commit": "c7bb7471083822d944dd96d56cdbe4127349c7c1",
+                "summary": "Rog-goal still lacks its whole-program loader. Its chameleon tin consumes the bounded named-species lspo_object branch; accepted C172 has released that owner and preserved non-species normalization."
+              }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Rog-goal.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "rogGoal",
+            "sourceReview": "Read whole dat/Rog-goal.lua1–110 and sp_lev.c:lspo_object3680–3725. Preserved exact cave/lighting, mazelevel/noteleport, absolute up-stair region versus relative exclusion, nondiggable selection, fixed spiked pit, named blessed Master Key and named chameleon tin,13random objects,11random traps and all39source-ordered monsters including class draws/shapeshifters/fixed sharks. Bounded named-species descriptor parses only STATUE/EGG/CORPSE/TIN/FIGURINE, preserves existing resolved-index adapter and class draws, skips accepted C172 non-species tokens, searches neutral/male/female source names in index order without gender RNG and errors on unknown token. Resolved exact object kind reaches existing spe/field normalization. No whole lspo_object/create_object or other helper credit.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "Rog-goal registry entry supplies whole dat/Rog-goal.lua to the existing registered special-level loader."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special invokes registered Rog-goal program. Wizard wiz_load_splua uses the same loader."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/rog-goal-level.test.mjs",
+              "scripts/special-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Rog-goal.lua/rog-goal-direct-male-independent.session.json",
+              "recordings/Rog-goal.lua/rog-goal-direct-female-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-rog-goal",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Rog-goal.lua"
+              }
+            ],
+            "checkedAt": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3"
+          }
+        ],
+        "entryPointReview": "Two active entries: natural Rogue quest goal arrival through makelevel/makemaz/load_special and debug wiz_load_splua registered-name loading. Admitted v36 covers ordinary arrival; independent male/female human chaotic Rogue recipes cover explicit and extensionless filenames. Bounded descriptor support establishes named chameleon production path and source tests pin gender names, first matching species, unknown/class token error and unrelated-object type exclusion. C172 non-species behavior remains unchanged and has regression coverage. No broad descriptor ownership credit.",
+        "entryPoints": [
+          {
+            "name": "ordinary Rogue quest goal arrival",
+            "functions": [
+              "Rog-goal.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-rog-goal",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Rog-goal.lua"
+              }
+            ]
+          },
+          {
+            "name": "wizard registered Rogue goal load",
+            "functions": [
+              "Rog-goal.lua"
+            ],
+            "recordings": [
+              "recordings/Rog-goal.lua/rog-goal-direct-male-independent.session.json",
+              "recordings/Rog-goal.lua/rog-goal-direct-female-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
