@@ -223770,6 +223770,37 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-options-fruit-live-feedback-v32-20261009",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore source-ordered live fruit option feedback",
+      "cFile": "options.c",
+      "sessions": [],
+      "selectionReason": "The admitted v32 fruit case has one remaining screen mismatch at the successful live optfn_fruit branch; C prints the post-fruitadd confirmation while JavaScript omits it.",
+      "detail": "Restore only options.c optfn_fruit's source-ordered successful in-game feedback after fruitadd. Preserve quiet startup and simple-menu behavior, and retain the native saveoptions and broader fruit diagnostics as named frontiers.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "optfn_fruit",
+      "session": "synthetic/v32/v32-options-fruit",
+      "step": 33,
+      "syntheticProvenance": {
+        "synthetic/v32/v32-options-fruit": {
+          "session": "synthetic/v32/v32-options-fruit",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-options-fruit",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-options-fruit.session.json",
+          "recordingSha256": "9a613ee4fb1fa15dbbe7692645cbe7d3950c65f10ced9e3ece1d9d5e52b8522e",
+          "evaluationPath": "challenges/evaluations/accepted-37f1b1fe268666f0e8fa0eed9b45e336d3d07129-v32.json",
+          "evaluationCommit": "37f1b1fe268666f0e8fa0eed9b45e336d3d07129"
+        }
+      }
     }
   ]
 }
