@@ -562,7 +562,12 @@ canvas {
 .phase-admission { --bar: var(--stage-admission); }
 .phase-baseline { --bar: var(--stage-baseline); }
 .phase-pending, .phase-queued { --bar: var(--stage-pending); }
-.phase-waiting { --bar: var(--stage-waiting); }
+.phase-blocked { --bar: var(--stage-waiting); }
+.phase-idle { --bar: #8c949c; }
+.phase-parked { --bar: #a87930; }
+.activity-block-reason { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.activity-metric, .activity-inspection, .activity-waits { min-width: 0; }
+.activity-inspection { overflow-wrap: anywhere; }
 .phase-unrecorded { --bar: var(--stage-unrecorded); }
 .activity-bar.phase-pending, .activity-bar.phase-baseline { color: #172839; }
 .activity-bar.phase-unrecorded { color: var(--ink-primary); }
@@ -636,6 +641,8 @@ canvas {
 }
 .activity-waits button:hover, .activity-waits button:focus-visible { background: var(--surface-chart); color: var(--ink-primary); }
 .activity-waits small { color: var(--ink-muted); }
+.activity-waits button > span:first-child { flex: 1; min-width: 0; }
+.activity-waits button > span:last-child { flex-shrink: 0; }
 @media (max-width: 640px) {
   .activity-metrics { grid-template-columns: 1fr; gap: 6px; }
   .activity-details { grid-template-columns: 1fr; gap: 16px; }
@@ -947,7 +954,6 @@ canvas {
       <span class="chart-range" id="activityWindowLabel"></span>
       <button class="chart-reset" id="activityLatest" type="button">Latest</button>
     </div>
-    <label class="activity-list-mode"><input type="checkbox" id="activityReportedWaits"> Show reported waits</label>
     <select class="activity-window-select" id="activityWindow" aria-label="Activity time range">
       <option value="6" selected>6 hours</option>
       <option value="24">24 hours</option>
@@ -957,13 +963,13 @@ canvas {
   <p class="activity-pan-hint">Drag the timeline to move through time. Arrow keys work when the timeline is focused.</p>
   <div class="chart-wrap">
     <div class="activity-metrics" id="activityMetrics"></div>
-    <p class="activity-note">One row per agent. Showing reported waits replaces overlapping assignment bars with orange; assignment does not prove active work. Hover to inspect; select to pin details. Arrow edges mark stages continuing outside the window. Stage details scroll.</p>
+    <p class="activity-note">One row per agent. Blocks and parked tasks show recorded reasons; pending deliveries stay in task history, not worker rows. Idle and unrecorded time are distinct from blocks. Assigned work does not prove continuous activity. Hover to inspect; select to pin details. Arrow edges mark stages continuing outside the window. Stage details scroll.</p>
     <div class="legend" id="timelineLegend"></div>
     <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Worker and Main activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
     <div class="activity-details">
       <div class="activity-inspection" id="timelineReadout" aria-live="polite"></div>
       <div class="activity-waits"><label class="activity-list-mode">Inspect
-        <select id="activityListMode"><option value="waits">Reported waits and unrecorded time</option><option value="all">All stages</option></select>
+        <select id="activityListMode"><option value="waits">Blocks, idle and unrecorded time</option><option value="all">All stages</option></select>
       </label><div id="activityWaitList"></div></div>
     </div>
   </div>
@@ -1663,16 +1669,12 @@ document.getElementById('stats').innerHTML = [
   const metrics = document.getElementById('activityMetrics');
   const waitList = document.getElementById('activityWaitList');
   const listMode = document.getElementById('activityListMode');
-  const reportedWaits = document.getElementById('activityReportedWaits');
-  reportedWaits.checked = /(?:[?&])waits=1(?:&|$)/.test(window.location?.search || '');
   const windowLabel = document.getElementById('activityWindowLabel');
   const windowSelect = document.getElementById('activityWindow');
   const latestButton = document.getElementById('activityLatest');
   const activity = DATA.activity || { segments: [], tasks: [] };
   const history = activity.segments || [];
-  const stagesWithWaits = activity.stages || history;
-  const stagesWithoutWaits = activity.stagesWithoutWaits || stagesWithWaits.filter(row => row.phase !== 'waiting');
-  let segments = reportedWaits.checked ? stagesWithWaits : stagesWithoutWaits;
+  const segments = activity.stages || history.filter(row => row.phase !== 'queued');
   const esc = value => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   document.getElementById('activitySnapshotTime').textContent = activity.capturedAt
@@ -1682,10 +1684,10 @@ document.getElementById('stats').innerHTML = [
   const taskById = new Map((activity.tasks || []).map(task => [task.id, task]));
   const phaseNames = { working: 'Assigned task', queued: 'Delivery pending', pending: 'Delivery pending',
     integrating: 'Integration and checks', acceptance: 'Acceptance',
-    publication: 'Publication', review: 'Review', rework: 'Rework',
+    publication: 'Publication', review: 'Pre-merge inspection', rework: 'Rework', parked: 'Parked task',
     admission: 'Batch admission', baseline: 'Batch baseline',
-    waiting: 'Reported wait', unrecorded: 'Unrecorded time' };
-  document.getElementById('timelineLegend').innerHTML = Object.entries(phaseNames).filter(([phase]) => phase !== 'queued')
+    blocked: 'Blocked', idle: 'Reported idle', unrecorded: 'Unrecorded time' };
+  document.getElementById('timelineLegend').innerHTML = Object.entries(phaseNames).filter(([phase]) => !['queued', 'pending'].includes(phase))
     .map(([phase, name]) => '<div class="legend-item"><div class="legend-swatch phase-' + phase
       + '"></div>' + name + '</div>').join('');
   if (!history.length) {
@@ -1727,7 +1729,8 @@ document.getElementById('stats').innerHTML = [
     + label + '</div><strong class="activity-metric-value">' + value
     + '</strong><div class="activity-metric-detail">' + detail + '</div></div>';
   const name = segment => taskById.get(segment.task)?.label || segment.label || segment.task;
-  const isWait = segment => ['waiting', 'unrecorded'].includes(segment.phase);
+  const isBlock = segment => ['blocked', 'parked'].includes(segment.phase);
+  const isWait = segment => isBlock(segment) || ['idle', 'unrecorded'].includes(segment.phase);
   function describe(index, source = segments) {
     const segment = source[index];
     if (!segment) return;
@@ -1793,21 +1796,23 @@ document.getElementById('stats').innerHTML = [
     const waits = shown.filter(({ segment }) => isWait(segment)
       && Date.parse(segment.end) > start && Date.parse(segment.end) <= viewEnd)
       .sort((a, b) => duration(b.segment) - duration(a.segment));
+    const blocks = waits.filter(({ segment }) => isBlock(segment));
     const waitValues = completed('queued');
     const integrationValues = completed('integrating');
     metrics.innerHTML = metric('Ready → integration', fmt(percentile(waitValues, .5)),
       fmt(percentile(waitValues, .9)) + ' p90 · ' + waitValues.length + ' completed queue intervals')
       + metric('Integration and checks', fmt(percentile(integrationValues, .5)),
         fmt(percentile(integrationValues, .9)) + ' p90 · ' + integrationValues.length + ' completed stages')
-      + metric('Longest wait / unrecorded interval', waits.length ? fmt(duration(waits[0].segment)) : '—',
-        waits.length ? esc(name(waits[0].segment))
-          + (name(waits[0].segment) === waits[0].segment.worker ? '' : ' · worker ' + esc(waits[0].segment.worker))
-          + (ongoing(waits[0].segment) ? ' · open at snapshot' : '')
-          : 'No waits ended in this window');
+      + metric('Longest block / parked task', blocks.length ? fmt(duration(blocks[0].segment)) : '—',
+        blocks.length ? esc(name(blocks[0].segment))
+          + (ongoing(blocks[0].segment) ? ' · open at snapshot' : '')
+          + '<span class="activity-block-reason" title="' + esc(blocks[0].segment.reason) + '">'
+          + esc(blocks[0].segment.reason || 'No reason recorded.') + '</span>'
+          : 'No block or parked task recorded in this window');
     windowLabel.textContent = stamp(start) + ' – ' + stamp(viewEnd);
     latestButton.disabled = viewEnd >= latest;
     if (!pinnedStage && !shown.some(row => row.index === selectedIndex)) {
-      selectedIndex = waits[0]?.index ?? shown.find(row => row.segment.lane === 'Main')?.index
+      selectedIndex = blocks[0]?.index ?? waits[0]?.index ?? shown.find(row => row.segment.lane === 'Main')?.index
         ?? shown[0]?.index ?? null;
     }
     const tickCount = 4;
@@ -1840,10 +1845,7 @@ document.getElementById('stats').innerHTML = [
             * Math.max(1, container.getBoundingClientRect().width - 56) > name(bar.segment).length * 6 + 16
             && name(bar.segment) !== lane
             ? esc(name(bar.segment)) : '') + '</div>').join('')
-        + (!bars.length ? '<span class="activity-empty">' + (!reportedWaits.checked
-          && stagesWithWaits.some(row => row.lane === lane && row.phase === 'waiting'
-            && Date.parse(row.end) > start && Date.parse(row.start) < viewEnd)
-          ? 'Reported waits hidden' : 'No recorded activity in this window') + '</span>' : '')
+        + (!bars.length ? '<span class="activity-empty">No recorded activity in this window</span>' : '')
         + '</div></div>';
     }
     container.innerHTML = html;
@@ -1851,10 +1853,12 @@ document.getElementById('stats').innerHTML = [
     waitList.innerHTML = listed.length ? listed.map(({ segment, index }) =>
       '<button type="button" data-segment="' + index + '"><span><strong>'
       + esc(name(segment)) + '</strong> <small>' + esc(phaseNames[segment.phase])
-      + '</small></span><span>' + fmt(duration(segment))
+      + '</small>' + (segment.reason && segment.phase !== 'unrecorded' ? '<small class="activity-block-reason" title="'
+        + esc(segment.reason) + '">' + esc(segment.reason || 'No reason recorded.') + '</small>' : '')
+      + '</span><span>' + fmt(duration(segment))
       + (ongoing(segment) ? ' · open at snapshot' : '') + '</span></button>').join('')
       : '<p class="activity-note">' + (listMode.value === 'all' ? 'No recorded stage in this window.'
-        : 'No reported wait or unrecorded interval in this window.') + '</p>';
+        : 'No block, idle or unrecorded interval in this window.') + '</p>';
     if (pinnedStage) describe(pinnedStage.index, pinnedStage.source);
     else if (selectedIndex == null) readout.innerHTML = '<h4>Selected stage</h4><p>No recorded stage in this window.</p>';
     else describe(selectedIndex);
@@ -1864,12 +1868,6 @@ document.getElementById('stats').innerHTML = [
     render();
   });
   listMode.addEventListener('change', render);
-  reportedWaits.addEventListener('change', () => {
-    segments = reportedWaits.checked ? stagesWithWaits : stagesWithoutWaits;
-    selectedIndex = pinnedStage ? segments.findIndex(row => row.sourceIndex === pinnedStage.source[pinnedStage.index]?.sourceIndex
-      && row.phase === pinnedStage.source[pinnedStage.index]?.phase) : null;
-    render();
-  });
   window.addEventListener('resize', render);
   latestButton.addEventListener('click', () => { viewEnd = latest; render(); });
   container.addEventListener('pointerdown', event => {

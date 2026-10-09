@@ -31,7 +31,7 @@ export function activityFromLedger(ledger) {
       ...(event.passed !== undefined ? { passed: event.passed } : {}),
       ...(event.phase ? { phase: event.phase } : {}),
       ...(event.state ? { state: event.state } : {}),
-      ...(event.type === 'activity' ? { reason: event.reason } : {}),
+      ...(['activity', 'park'].includes(event.type) ? { reason: event.reason } : {}),
       ...(event.type === 'turn' && event.summary ? { reason: event.summary } : {}),
       ...(['register', 'observe'].includes(event.type)
         ? { live: event.handle !== null || Boolean(event.processes?.length) } : {}),

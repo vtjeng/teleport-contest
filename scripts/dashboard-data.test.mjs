@@ -569,14 +569,15 @@ test('activity distinguishes pending deliveries from reported waits and preserve
         `activity-label">${lane}<\\/div><div class="activity-track"><div class="activity-bar[^>]*top:([^;]+);`, 'u'))?.[1];
     assert.equal(firstBarTop('A'), '13px');
     assert.equal(firstBarTop('B'), '13px');
-    // A1's brief pending stage remains inspectable before A2 starts work.
-    const waitIndex = data.activity.stages.findIndex(row => row.task === 'A1' && row.phase === 'pending');
+    // Pending delivery remains in A1's history, never in the worker row.
+    assert.ok(data.activity.stages.every(row => row.phase !== 'pending' && row.phase !== 'queued'));
+    const waitIndex = data.activity.stages.findIndex(row => row.task === 'A1' && row.phase === 'working');
     rendered.get('timeline').listeners.pointerdown[0]({ button: 0, clientX: 100, pointerId: 2,
         target: { classList: { contains: name => name === 'activity-bar' },
             dataset: { segment: String(waitIndex) } } });
     rendered.get('timeline').listeners.pointerup[0]({ type: 'pointerup', pointerId: 2,
         target: rendered.get('timeline') });
-    assert.match(rendered.get('timelineReadout').innerHTML, /does not establish that the worker is blocked/u);
+    assert.match(rendered.get('timelineReadout').innerHTML, /Delivery pending/u);
     assert.match(rendered.get('timelineReadout').innerHTML, /Task lifespan/u);
     const mainIndex = data.activity.stages.findIndex(row => row.task === 'B1'
         && row.phase === 'integrating');
@@ -619,13 +620,13 @@ test('activity view labels preparation and escapes public wait reasons', () => {
         { type: 'activity', task: 'P1', phase: 'baseline', reason: 'First evaluation.', at: at(15) },
     ] }, at(20));
     const rendered = renderDashboard(data);
-    rendered.get('activityReportedWaits').checked = true;
-    rendered.get('activityReportedWaits').listeners.change[0]();
     const html = rendered.get('timeline').innerHTML;
-    for (const phase of ['review', 'admission', 'baseline', 'waiting'])
+    for (const phase of ['review', 'admission', 'baseline', 'blocked'])
         assert.match(html, new RegExp(`phase-${phase}`, 'u'));
     assert.match(html, /activity-label">Prep/u);
     assert.match(rendered.get('timelineReadout').innerHTML, /Await main &lt;admission&gt;/u);
+    assert.match(rendered.get('activityMetrics').innerHTML, /Longest block \/ parked task[\s\S]*Await main &lt;admission&gt;/u);
+    assert.match(rendered.get('activityWaitList').innerHTML, /Await main &lt;admission&gt;/u);
 });
 
 test('activity wait list contains every wait in the window', () => {
@@ -636,19 +637,17 @@ test('activity wait list contains every wait in the window', () => {
             id: `task-${index}`, label: `Task ${index}`, status: 'published',
         })),
         segments: Array.from({ length: 7 }, (_, index) => ({
-            task: `task-${index}`, worker: 'A', lane: 'A', phase: 'waiting',
+            task: `task-${index}`, worker: 'A', lane: 'A', phase: 'blocked',
             start: `2026-09-25T11:${String(index).padStart(2, '0')}:00Z`,
             end: `2026-09-25T11:${String(index + 10).padStart(2, '0')}:00Z`,
         })),
     };
     const rendered = renderDashboard(data);
-    rendered.get('activityReportedWaits').checked = true;
-    rendered.get('activityReportedWaits').listeners.change[0]();
     assert.equal((rendered.get('activityWaitList').innerHTML.match(/<button /gu) || []).length, 7);
-    assert.match(readFileSync(TEMPLATE, 'utf8'), /Reported waits and unrecorded time/u);
+    assert.match(readFileSync(TEMPLATE, 'utf8'), /Blocks, idle and unrecorded time/u);
 });
 
-test('selected stage details stay pinned across hover, focus and wait toggles', () => {
+test('selected stage details stay pinned across hover, focus and time range changes', () => {
     const data = sourceDashboardData();
     // Separate tasks let hover and explicit selection be distinguished.
     data.activity = activityTimeline({ events: [
@@ -657,7 +656,7 @@ test('selected stage details stay pinned across hover, focus and wait toggles', 
     ] }, '2026-09-25T10:10:00Z');
     const rendered = renderDashboard(data);
     const timeline = rendered.get('timeline');
-    const stages = data.activity.stagesWithoutWaits;
+    const stages = data.activity.stages;
     const target = task => ({ classList: { contains: value => value === 'activity-bar' },
         dataset: { segment: String(stages.findIndex(row => row.task === task)) } });
     timeline.listeners.pointerover[0]({ target: target('B1') });
@@ -667,8 +666,8 @@ test('selected stage details stay pinned across hover, focus and wait toggles', 
     timeline.listeners.pointerover[0]({ target: target('B1') });
     timeline.listeners.focusin[0]({ target: target('B1') });
     assert.equal(rendered.get('timelineReadout').innerHTML, pinned);
-    rendered.get('activityReportedWaits').checked = true;
-    rendered.get('activityReportedWaits').listeners.change[0]();
+    rendered.get('activityWindow').value = '24';
+    rendered.get('activityWindow').listeners.change[0]();
     assert.equal(rendered.get('timelineReadout').innerHTML, pinned);
     timeline.listeners.click[0]({ target: target('B1') });
     assert.match(rendered.get('timelineReadout').innerHTML, /<strong>B1<\/strong>/u);
@@ -702,7 +701,7 @@ test('activity keeps one row per agent across panning and zooming', () => {
     const timeline = rendered.get('timeline');
     assert.match(timeline.innerHTML, /activity-label">A2<\/div>/u);
     assert.match(timeline.innerHTML, /Assigned task for replacement-A/u);
-    assert.match(timeline.innerHTML, /Delivery pending for replacement-A/u);
+    assert.doesNotMatch(timeline.innerHTML, /Delivery pending for replacement-A/u);
     const barPosition = index => {
         const bar = timeline.innerHTML.match(new RegExp(
             `<div class="activity-bar[^>]*data-segment="${index}"[^>]*>`, 'u'))?.[0];
