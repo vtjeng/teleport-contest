@@ -6,7 +6,7 @@
 //         dat/Cav-strt.lua, dat/Mon-goal.lua, dat/astral.lua,
 //         dat/Hea-goal.lua, dat/Hea-loca.lua, dat/Hea-strt.lua,
 //         dat/Kni-loca.lua, dat/Kni-strt.lua, dat/Ran-loca.lua,
-//         dat/Ran-goal.lua, dat/Val-loca.lua,
+//         dat/Ran-goal.lua, dat/Val-goal.lua, dat/Val-loca.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
@@ -75,6 +75,10 @@ import {
     RAN_GOAL_DOORS, RAN_GOAL_LEVEL_MAP, RAN_GOAL_MONSTERS,
     RAN_GOAL_OBJECT_CALLS, RAN_GOAL_TRAP_COUNT,
 } from './ran_goal_level_data.js';
+import {
+    VAL_GOAL_DRAWBRIDGES, VAL_GOAL_LEVEL_MAP, VAL_GOAL_MONSTERS,
+    VAL_GOAL_OBJECT_CALLS, VAL_GOAL_TRAPS,
+} from './val_goal_level_data.js';
 import { KNI_STRT_LEVEL_MAP } from './kni_strt_level_data.js';
 import { ASTRAL_LEVEL_MAP } from './astral_level_data.js';
 import { VAL_LOCA_LEVEL_MAP } from './val_loca_level_data.js';
@@ -1312,6 +1316,27 @@ async function ranGoal(des) {
     await des.wallify();
 }
 
+// C ref: complete dat/Val-goal.lua. The lower drawbridge uses the source's
+// 75-percent branch after the northern bridge has consumed its random state.
+async function valGoal(des) {
+    await des.level_init({ style: 'solidfill', fg: 'L' });
+    await des.level_flags('mazelevel', 'icedpools');
+    await des.level_init({ style: 'mines', fg: '.', bg: 'L',
+        smoothed: true, joined: true, lit: 1, walled: false });
+    await des.map(VAL_GOAL_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 34, 16), 'lit');
+    await des.replace_terrain({ region: [44, 9, 46, 11], fromterrain: 'L', toterrain: '.', chance: 50 });
+    await des.stair('up', 45, 10);
+    await des.non_diggable(selection_area(0, 0, 34, 16));
+    await des.drawbridge(VAL_GOAL_DRAWBRIDGES[0]);
+    const southernBridge = VAL_GOAL_DRAWBRIDGES[1 + (rn2(100) < 75 ? 0 : 1)];
+    await des.drawbridge(southernBridge);
+
+    for (const args of VAL_GOAL_OBJECT_CALLS) await des.object(...args);
+    for (const args of VAL_GOAL_TRAPS) await des.trap(...args);
+    for (const args of VAL_GOAL_MONSTERS) await des.monster(...args);
+}
+
 // C ref: dat/Hea-goal.lua. Preserve both initialization calls before the
 // fixed map: the joined mines background extends beyond the pool island.
 async function heaGoal(des) {
@@ -2429,6 +2454,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Kni-loca': kniLoca,
     'Ran-loca': ranLoca,
     'Ran-goal': ranGoal,
+    'Val-goal': valGoal,
     'Hea-goal': heaGoal,
     'Cav-strt': cavStrt,
     'Hea-loca': heaLoca,
