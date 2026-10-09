@@ -230704,6 +230704,58 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-sp-lev-map-transparent-return-mask-v35-20261009",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Return the exact written special-map selection and use it for Wizard1 protection",
+      "cFile": "sp_lev.c",
+      "sessions": [
+        "synthetic/v35/v35-gehennom-wizard1"
+      ],
+      "selectionReason": "The accepted v35 Wizard1 case first diverges when hell_tweaks protects a reconstructed rectangle instead of lspo_map's written-cell selection.",
+      "detail": "sp_lev.c lspo_map excludes transparent and invalid cells from its returned selection; dat/wizard1.lua unions that result into the protected area.",
+      "openedAt": "05550c7ee1fe963ca7d35c3ee2a5e8aaceb1cfe3",
+      "openStanding": {
+        "sha": "05550c7ee1fe963ca7d35c3ee2a5e8aaceb1cfe3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "05550c7ee1fe963ca7d35c3ee2a5e8aaceb1cfe3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "lspo_map",
+      "session": "synthetic/v35/v35-gehennom-wizard1",
+      "step": 68,
+      "syntheticProvenance": {
+        "synthetic/v35/v35-gehennom-wizard1": {
+          "session": "synthetic/v35/v35-gehennom-wizard1",
+          "corpus": "synthetic",
+          "batch": "v35",
+          "caseId": "v35-gehennom-wizard1",
+          "manifestPath": "challenges/manifests/v35.json",
+          "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+          "recordingPath": "challenges/cases/v35/v35-gehennom-wizard1.session.json",
+          "recordingSha256": "dafcb950600f277719825127d85eedb25e2e07bffdbee083afbc02e1c670ec67",
+          "evaluationPath": "challenges/evaluations/accepted-5eff5fc04df1f8c37a04787415c3e0d1704ca6fb-v35.json",
+          "evaluationCommit": "5eff5fc04df1f8c37a04787415c3e0d1704ca6fb"
+        }
+      },
+      "activeStanding": {
+        "sha": "05550c7ee1fe963ca7d35c3ee2a5e8aaceb1cfe3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "05550c7ee1fe963ca7d35c3ee2a5e8aaceb1cfe3",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

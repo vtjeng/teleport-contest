@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T09:54:48.140Z",
+  "capturedAt": "2026-10-09T10:12:13.094Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -72379,6 +72379,80 @@
         "type": "accepted",
         "at": "2026-10-09T09:54:05.041Z",
         "task": "A189"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A189-54e8232690faaa874ff929cd32026a0bd0f0f3bf",
+        "type": "published",
+        "at": "2026-10-09T09:56:11.144Z",
+        "task": "A189",
+        "commit": "54e8232690faaa874ff929cd32026a0bd0f0f3bf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B193-recorder-overflow-20261009",
+        "type": "park",
+        "at": "2026-10-09T09:56:14.779Z",
+        "task": "B193",
+        "reason": "Complete source report07845e90b: patch006 nomux_capture_screen overflows6144-byte buffer into raw cursor globals after dense Juiblex mapping. RNG/screens match; Main owns recorder repair and admitted-corpus provenance decision. No JavaScript source task is eligible for this cursor corruption."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-C165-review-20261009T1000Z",
+        "type": "activity",
+        "at": "2026-10-09T09:56:28.780Z",
+        "task": "C165",
+        "phase": "review",
+        "reason": "Reviewing the corrected transparent-map return-mask delivery that unblocks the Wizard1 and Lua load chain."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-C165-05550c7ee1fe",
+        "type": "integrating",
+        "at": "2026-10-09T09:57:24.646Z",
+        "task": "C165",
+        "integration": "05550c7ee1fe963ca7d35c3ee2a5e8aaceb1cfe3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B193-idle-recorder-source-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T10:00:11.332Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Juiblex investigation complete; awaiting Main recorder decision. Next source tasks are reserved or blocked by dispatcher, Lua tooling, and native-pointer dependencies."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-f996acd4c1821cd43c5cc9bf3cb80a80e730684a",
+        "type": "ready",
+        "at": "2026-10-09T10:04:25.819Z",
+        "task": "A190",
+        "delivery": "f996acd4c1821cd43c5cc9bf3cb80a80e730684a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-A190-00cf5e1ff",
+        "type": "turn",
+        "at": "2026-10-09T10:09:26.705Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A190 ready; Wizard3 waits for C165 map selection acceptance. Other current mismatches are owned or blocked on recorder and platform contracts."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C165-05550c7ee1fe963ca7d35c3ee2a5e8aaceb1cfe3-validated",
+        "type": "validated",
+        "at": "2026-10-09T10:11:14.301Z",
+        "task": "C165",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C165-05550c7ee1fe963ca7d35c3ee2a5e8aaceb1cfe3-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T10:11:27.329Z",
+        "task": "C165"
       }
     ]
   },
@@ -72392,19 +72466,6 @@
         "status": "ready",
         "delivery": "d7de5eac46984bbe7805974c0ed08fb7b9fe1f43",
         "since": "2026-10-09T09:07:51.059Z",
-        "blockedBy": [
-          "C165"
-        ],
-        "unblocks": 1
-      },
-      {
-        "task": "C165",
-        "worker": "C",
-        "goal": "fix-sp-lev-map-transparent-return-mask-v35-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "e4904389e542a822ccfcb1eb0317760924a574ea",
-        "since": "2026-10-09T09:12:15.161Z",
         "blockedBy": [],
         "unblocks": 1
       },
@@ -72428,7 +72489,7 @@
         "delivery": "fe92f318021b5ab8501314da09973cee63e39624",
         "since": "2026-10-09T09:25:12.018Z",
         "blockedBy": [],
-        "unblocks": 0
+        "unblocks": 1
       },
       {
         "task": "C167",
@@ -72466,6 +72527,19 @@
         "since": "2026-10-09T09:49:40.736Z",
         "blockedBy": [
           "B191"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "A190",
+        "worker": "A2",
+        "goal": "port-spell-cast-preflight-amulet-v35-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "f996acd4c1821cd43c5cc9bf3cb80a80e730684a",
+        "since": "2026-10-09T10:04:25.819Z",
+        "blockedBy": [
+          "A186"
         ],
         "unblocks": 0
       }
@@ -72769,12 +72843,23 @@
         "since": "2026-10-09T09:02:12.645Z",
         "blockedBy": [],
         "reason": "Main confirms B172/A178 already established the platform/build provenance blocker. No new source task or game edits; preserve saved queue observation and reuse their prior audit."
+      },
+      {
+        "task": "B193",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T09:56:14.779Z",
+        "blockedBy": [],
+        "reason": "Complete source report07845e90b: patch006 nomux_capture_screen overflows6144-byte buffer into raw cursor globals after dense Juiblex mapping. RNG/screens match; Main owns recorder repair and admitted-corpus provenance decision. No JavaScript source task is eligible for this cursor corruption."
       }
     ]
   },
   "development": {
-    "executionCommit": "5eff5fc04df1f8c37a04787415c3e0d1704ca6fb",
-    "measuredAt": "2026-10-09T09:49:25.957Z",
+    "executionCommit": "05550c7ee1fe963ca7d35c3ee2a5e8aaceb1cfe3",
+    "measuredAt": "2026-10-09T10:02:26.054Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
