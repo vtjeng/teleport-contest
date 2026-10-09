@@ -106,6 +106,7 @@
     "Upstream artifact.c:1782-1816 computes hero/polymorph half healing, first You_feel at 1789-1790, independent timeout condition at 1791-1802, then HP/sickness/slime/blindness updates and disp.botl in source order.",
     "youprop.h:87-93 defines Blinded as HBlinded && !BBlinded, a boolean; comparing it with creamed must preserve that boolean and the Eyes of the Overworld blocker, rather than substitute Blind or the timeout.",
     "js/artifacts.js:2348-2394 computes healing and only the second condition. Existing arti_invoke:2692 awaits invoke_healing; doinvoke already awaits the dispatcher. No other direct call exists in C or JS.",
-    "Whole-function audit scope: restore first awaited ordinary message, retain the second conditional/slightly feedback/no-op early return, HP form selection, canonical make_sick/make_slimed/make_blinded calls and status flag. Fresh variations will cover no-effect and permanent-blind controls beyond admitted temporary blindness."
+    "Whole-function audit scope: restore first awaited ordinary message, retain the second conditional/slightly feedback/no-op early return, HP form selection, canonical make_sick/make_slimed/make_blinded calls and status flag. Fresh variations will cover no-effect and permanent-blind controls beyond admitted temporary blindness.",
+    "Whole-owner follow-up audit found both js/artifacts.js invoke_healing Upolyd calls passed the state wrapper. Canonical const.js:3017 Upolyd takes the hero struct and compares umonnum with umonster; correction passes u for both form HP computation and update. Fail-first test left monster HP 15 instead of source 18 for a five-point deficit, while ordinary HP remained full."
   ]
 }

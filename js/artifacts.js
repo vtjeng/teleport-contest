@@ -2345,12 +2345,12 @@ async function invoke_taming(obj, state) {
 }
 
 // C ref: artifact.c invoke_healing() (1779-1815).
-async function invoke_healing(obj, state) {
+export async function invoke_healing(obj, state) {
     const u = state.u;
     let healamt = Math.trunc((u.uhpmax + 1 - u.uhp) / 2);
     const creamed = u.ucreamed ?? 0;
 
-    if (Upolyd(state))
+    if (Upolyd(u))
         healamt = Math.trunc((u.mhmax + 1 - u.mh) / 2);
 
     // C: Sick = u.uprops[SICK].intrinsic, Slimed = u.uprops[SLIMED].intrinsic,
@@ -2360,6 +2360,10 @@ async function invoke_healing(obj, state) {
     const sick = (u.uprops?.[SICK]?.intrinsic ?? 0) !== 0;
     const slimed = (u.uprops?.[SLIMED]?.intrinsic ?? 0) !== 0;
     const hBlinded = blindProp.intrinsic;
+    // youprop.h:92 Blinded is a boolean, distinct from BlindedTimeout.
+    const blinded = Boolean(hBlinded) && !blindProp.blocked;
+    if (healamt || sick || slimed || blinded > creamed)
+        await ttyPline('You feel better.', state);
 
     if (healamt || sick || slimed || blindedTimeout > creamed) {
         const prefix = (!healamt && !sick && !slimed
@@ -2370,7 +2374,7 @@ async function invoke_healing(obj, state) {
         return ECMD_TIME;
     }
     if (healamt > 0) {
-        if (Upolyd(state))
+        if (Upolyd(u))
             u.mh += healamt;
         else
             u.uhp += healamt;
