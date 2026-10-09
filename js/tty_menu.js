@@ -50,7 +50,7 @@ import {
     CLR_GRAY,
     NO_COLOR,
 } from './terminal.js';
-import { menuitem_invert_test, select_menu } from './windows.js';
+import { menuitem_invert_test, select_menu, ttyMenuColorAttribute } from './windows.js';
 import { vision_recalc } from './vision.js';
 
 // C ref: win/tty/wintty.c process_menu_window()'s MENU_SEARCH arm, which
@@ -76,7 +76,7 @@ export function menuTitleStyle(state = game) {
     const style = state.iflags?.menu_headings;
     return {
         titleAttr: Number.isInteger(style?.attr)
-            ? style.attr : ATR_INVERSE,
+            ? ttyMenuColorAttribute(style.attr) : ATR_INVERSE,
         titleColor: Number.isInteger(style?.color)
             ? style.color : NO_COLOR,
     };

@@ -349,7 +349,7 @@ import {
     displayTtyMenuTextWindow,
     displayTtyTextWindow,
 } from './tty_menu.js';
-import { select_menu } from './windows.js';
+import { select_menu, ttyMenuColorAttribute } from './windows.js';
 import {
     genders,
     ROLE_FEMALE,
@@ -2473,7 +2473,7 @@ export async function list_vanquished(
     const classHeadingAttr = ask
         ? ATR_NONE
         : Number.isInteger(state.iflags?.menu_headings?.attr)
-            ? state.iflags.menu_headings.attr : ATR_INVERSE;
+            ? ttyMenuColorAttribute(state.iflags.menu_headings.attr) : ATR_INVERSE;
     let previousClass = 0;
     let hadUnique = false;
     let specialHeader = false;
@@ -2652,7 +2652,7 @@ export async function list_genocided(
         const classHeadingAttr = ask
             ? ATR_NONE
             : Number.isInteger(state.iflags?.menu_headings?.attr)
-                ? state.iflags.menu_headings.attr : ATR_INVERSE;
+                ? ttyMenuColorAttribute(state.iflags.menu_headings.attr) : ATR_INVERSE;
         let previousClass = null;
         for (const index of indexes) {
             const monster = state.mons?.[index] ?? {};

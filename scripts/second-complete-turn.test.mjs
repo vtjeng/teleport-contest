@@ -274,6 +274,9 @@ test('all checked-in second-turn cases reach their exact prompt state',
                 // after its strict fresh C differential passed. Explicit
                 // fields explain the turn case; the digests pin the complete
                 // state, PRNG stream, and every 24x80 cell and attribute.
+                // State digests store options.c's ATR_INVERSE (7), not the
+                // captured inverse bit (1); output digests stay unchanged.
+                assert.equal(game.iflags.wc2_petattr, 7);
                 assert.deepEqual(
                     integrationOracle(replay),
                     expectations[index].oracle,

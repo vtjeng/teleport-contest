@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source mission: ordinary O single-selection callback variation. Seed18032031+index and clock20561117132435 chosen before JS comparison; cheap role/menu variations preserve causal independence.",
+  "segments": [
+    {
+      "seed": 18032040,
+      "datetime": "20561117132435",
+      "nethackrc": "OPTIONS=name:Lysa,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": ".O:status highlight rules\n\u001b\u001b."
+    }
+  ]
+}

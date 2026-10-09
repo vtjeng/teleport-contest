@@ -235,7 +235,7 @@ import {
 } from './startup_skills.js';
 
 import { y_n } from './cmd.js';
-import { select_menu } from './windows.js';
+import { select_menu, ttyMenuColorAttribute } from './windows.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { cansee, couldsee } from './vision.js';
@@ -1716,7 +1716,7 @@ export async function show_skills(
         item.heading
             ? {
                 ...item,
-                attr: state.iflags?.menu_headings?.attr,
+                attr: ttyMenuColorAttribute(state.iflags?.menu_headings?.attr ?? 7),
                 color: state.iflags?.menu_headings?.color,
             }
             : item

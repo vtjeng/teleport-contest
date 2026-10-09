@@ -3,6 +3,7 @@
 // nmcpy(); hacklib.c mungspaces(); bones.c sanitize_name(); role.c str2*().
 
 import {
+    ANY_INT, ANY_LONG, ANY_STR,
     ALIGN_BOTTOM,
     ALIGN_LEFT,
     ALIGN_RIGHT,
@@ -81,6 +82,7 @@ import {
     PARANOID_SWIM,
     PARANOID_TRAP,
     PARANOID_WERECHANGE,
+    PICK_NONE,
     PICK_ANY,
     PICK_ONE,
     ECMD_FAIL,
@@ -119,10 +121,7 @@ import {
     str2role,
 } from './roles.js';
 import {
-    ATR_BOLD,
-    ATR_INVERSE,
     ATR_NONE,
-    ATR_UNDERLINE,
     CLR_BLACK,
     CLR_BLUE,
     CLR_BRIGHT_BLUE,
@@ -154,11 +153,16 @@ import {
 } from './cfgfiles.js';
 import {
     count_menucolors,
+    query_color, query_attr, query_color_attr, attr2attrname, clr2colorname,
+    add_menu_coloring_parsed, free_one_menu_coloring,
+    color_attr_to_str, color_attr_parse_str as sourceColorAttrParseStr,
+    match_str2attr as sourceMatchStr2attr,
     match_str2clr as colorattMatchStr2clr,
     rgbstr_to_int32,
 } from './coloratt.js';
 import {
     DEFAULT_FRUIT,
+    makeplural,
     finish_fruit_option,
     fruit_from_name,
     fruitadd,
@@ -195,9 +199,11 @@ import {
     docrt,
     flush_screen,
     reglyph_darkroom,
+    count_status_hilites, status_hilite_menu, s_to_anything, status_hilite_add_threshold,
 } from './display.js';
 import { reassign, update_inventory } from './invent.js';
 import { ttyPline } from './tty_message.js';
+import { STATUS_FIELDS } from './status_field_data.js';
 import { tty_preference_update } from './wintty.js';
 import { vision_recalc } from './vision.js';
 import { sourceGlyphName } from './glyph_ids.js';
@@ -561,7 +567,7 @@ function defaultResult() {
             wc_align_message: ALIGN_TOP,
             wc_align_status: ALIGN_BOTTOM,
             wc2_statuslines: 2,
-            wc2_petattr: ATR_INVERSE,
+            wc2_petattr: 7,
             // options.c initoptions_init() sets the curses-only window-border
             // mode after the instance-flags struct starts zeroed.
             wc2_windowborders: 2,
@@ -576,7 +582,7 @@ function defaultResult() {
             mapped_menu_cmds: '',
             mapped_menu_op: '',
             menu_headings: {
-                attr: ATR_INVERSE,
+                attr: 7,
                 color: NO_COLOR,
             },
             msg_history: 20,
@@ -1983,33 +1989,6 @@ const MENU_HEADING_COLORS = Object.freeze({
     transparent: NO_COLOR,
 });
 
-// C ref: coloratt.c attrnames[] (47-58), read by match_str2attr() (374-393).
-// Its seven names are followed by a NULL row and then three aliases, and the
-// match loop walks past the NULL row, so all ten spell an attribute.
-//
-// This table is match_str2attr() composed with what optfn_menu_headings()'s
-// one caller does with the answer: iflags.menu_headings holds a single C ATR_
-// value that wintty.c hands to term_start_attr(), and recorder patch 006's
-// nomux_set_attr() records only ATR_INVERSE, ATR_BOLD and ATR_ULINE.  A
-// heading asking for dim, italic or blink is therefore drawn exactly as an
-// unstyled one, which is why those three share ATR_NONE's captured value here.
-//
-// STATUS_HILITE_ATTRIBUTES below is the other reading of the same ten names.
-// A status highlight accumulates several attributes at once and keeps the
-// tty-invisible ones apart from "none", so it cannot share this collapse.
-const MENU_HEADING_ATTRIBUTES = Object.freeze({
-    none: ATR_NONE,
-    normal: ATR_NONE,
-    bold: ATR_BOLD,
-    dim: ATR_NONE,
-    italic: ATR_NONE,
-    blink: ATR_NONE,
-    underline: ATR_UNDERLINE,
-    uline: ATR_UNDERLINE,
-    inverse: ATR_INVERSE,
-    reverse: ATR_INVERSE,
-});
-
 // The status-highlight reading of coloratt.c attrnames[]: match_str2attr()
 // composed with the ATR_ to HL_ chain that botl.c spells identically in
 // parse_status_hl2() (3040-3060) and parse_condition() (3306-3326).  Each
@@ -2017,11 +1996,9 @@ const MENU_HEADING_ATTRIBUTES = Object.freeze({
 // so a caller ORs it in -- except HL_NONE, which C assigns rather than ORs
 // and which therefore discards whatever the same action named earlier.
 //
-// The C ATR_ numbering (wintype.h:128-134) is deliberately absent: the ATR_
-// names js/terminal.js exports are the recorder's captured attribute bitmask,
-// a different vocabulary that happens to reuse the same identifiers, and
-// routing the status highlights through C's enum would put both in scope at
-// once.  The HL_ bits are the values C stores, so the port stores them too.
+// Status rules store C's HL bitset; menu and pet options instead store
+// the separate C ATR enum. Captured terminal masks are produced only by
+// windows.ttyMenuColorAttribute at their drawing reads.
 const STATUS_HILITE_ATTRIBUTES = Object.freeze({
     none: HL_NONE,
     bold: HL_BOLD,
@@ -2054,11 +2031,6 @@ function menuHeadingColor(token, rawToken = token) {
     return null;
 }
 
-function menuHeadingAttribute(token) {
-    return Object.hasOwn(MENU_HEADING_ATTRIBUTES, token)
-        ? MENU_HEADING_ATTRIBUTES[token] : null;
-}
-
 // C ref: coloratt.c match_str2attr() (373-393).  Null is its -1, the answer
 // its callers read as "not an attribute".  Only a caller that passes complain
 // TRUE reports; color_attr_parse_str() below passes both.
@@ -2068,7 +2040,7 @@ function menuHeadingAttribute(token) {
 // fifty characters.  Cutting the UTF-8 encoding reproduces C's split of a
 // multi-byte character as well as its length.
 function match_str2attr(result, str, complain) {
-    const attr = menuHeadingAttribute(menuHeadingToken(str));
+    const attr = sourceMatchStr2attr(str);
     if (attr === null && complain) {
         configErrorAdd(
             result,
@@ -2087,26 +2059,7 @@ function match_str2attr(result, str, complain) {
 // C splits at the first '&' alone, so "red&bold&underline" asks
 // match_str2attr() about "bold&underline" rather than counting three parts.
 function color_attr_parse_str(result, str) {
-    const amp = str.indexOf('&');
-    if (amp < 0) {
-        /* one param only */
-        const attr = match_str2attr(result, str, false);
-        if (attr !== null) return { attr, color: NO_COLOR };
-        const color = match_str2clr(result, str, false);
-        if (color >= CLR_MAX) return null;
-        return { attr: ATR_NONE, color };
-    }
-    const head = str.slice(0, amp);
-    const tail = str.slice(amp + 1);
-    let color = match_str2clr(result, head, false);
-    let attr = match_str2attr(result, tail, true);
-    if (color >= CLR_MAX && attr === null) {
-        /* try other way around */
-        color = match_str2clr(result, tail, false);
-        attr = match_str2attr(result, head, true);
-    }
-    if (color >= CLR_MAX || attr === null) return null;
-    return { attr, color };
+    return sourceColorAttrParseStr(str, message => configErrorAdd(result, message));
 }
 
 // Null is match_str2attr()'s -1, the answer its two status-highlight callers
@@ -2650,6 +2603,13 @@ function parse_status_hl2(result, s) {
             // field itself has, which is how a percentage on a string field
             // reaches this range check before the one below refuses it.
             const dt = percent ? 'int' : fieldType;
+            // C botl.c:2944 delegates the stripped digits to s_to_anything.
+            const aval = {};
+            s_to_anything(aval, threshold.replace(/[%<>=+]/gu, ''),
+                dt === 'int' ? ANY_INT : dt === 'long' ? ANY_LONG : ANY_STR);
+            const converted = dt === 'long' ? aval.a_long : aval.a_int ?? 0;
+            value = typeof converted === 'bigint' && !Number.isSafeInteger(Number(converted))
+                ? String(converted) : Number(converted);
             const op = grt ? '>' : gte ? '>=' : lt ? '<' : le ? '<=' : '=';
             if (dt === 'int'
                 // "AC is the only field where negative values make sense but
@@ -2743,7 +2703,8 @@ function parse_status_hl2(result, s) {
                         : txtval ? 'text'
                             : criticalhp ? 'critical' : 'none';
 
-        result.iflags.status_hilites.push({
+        // C botl.c:3099 uses the same insertion owner as the live menu.
+        status_hilite_add_threshold(result, STATUS_FIELDS.find(row => row.key === field).fld, {
             field,
             behavior,
             relation,
@@ -2865,11 +2826,8 @@ function setStatusHiliteDuration(result, value, negated) {
     result.iflags.hilite_delta = parsed < 0 ? 1 : parsed;
 }
 
-// C refs: coloratt.c query_color(), query_attr(), query_color_attr(), and
-// options.c handler_menu_headings().  The C query temporarily replaces the
-// user's menu-colour rules with the canonical colour list.  Explicit item
-// colours and skipMenuColors reproduce that visible result in the TTY port;
-// the state flag itself is never changed by this temporary display.
+// C options.c uses select_menu for its nested option handlers. coloratt.c
+// owns the color/attribute queries and their temporary real-state changes.
 function optionMenuSelect(state, spec, helpers) {
     if (typeof helpers?.selectMenu === 'function')
         return helpers.selectMenu(spec);
@@ -2877,106 +2835,6 @@ function optionMenuSelect(state, spec, helpers) {
         ...spec,
         overlay: state.iflags?.menu_overlay !== false,
     });
-}
-
-function selectedMenuValue(selection, fallback, allowMany) {
-    if (allowMany) {
-        if (!Array.isArray(selection) || selection.length === 0) return -1;
-        return selection.reduce((bits, entry) => {
-            const value = typeof entry === 'object' ? entry.value : entry;
-            return bits | (value ?? 0);
-        }, 0);
-    }
-    if (selection === null || selection === undefined) return -1;
-    if (Array.isArray(selection)) {
-        if (selection.length === 0) return fallback;
-        const first = selection[0];
-        return typeof first === 'object' ? first.value : first;
-    }
-    if (typeof selection === 'object') return selection.value ?? fallback;
-    return selection;
-}
-
-async function query_color(state, prompt, dflt, helpers) {
-    const items = COLOR_NAMES.map(([name, color]) => ({
-        text: name,
-        value: color,
-        color: color === CLR_BLACK || color === CLR_GRAY
-            || color === CLR_WHITE || color === NO_COLOR
-            ? NO_COLOR : color,
-        attr: ATR_NONE,
-        selected: color === dflt,
-        skipMenuColors: true,
-    }));
-    const selection = await optionMenuSelect(state, {
-        items,
-        how: PICK_ONE,
-        title: prompt || 'Pick a color',
-        preselected: dflt,
-        cancelValue: null,
-    }, helpers);
-    return selectedMenuValue(selection, dflt, false);
-}
-
-async function query_attr(state, prompt, dflt, helpers) {
-    const allowMany = typeof prompt === 'string'
-        && prompt.slice(0, 6).toLowerCase() === 'choose';
-    const rawAttributes = [
-        ['none', 0], ['bold', 2], ['dim', 3], ['italic', 5],
-        ['underline', 4], ['blink', 6], ['inverse', 1],
-    ];
-    const items = [
-        ...rawAttributes,
-    ].map(([name, rawAttr], index) => ({
-        text: name,
-        value: rawAttr,
-        sourceIndex: index,
-        // The recorder's TTY attribute vocabulary collapses dim, italic and
-        // blink to ATR_NONE; the selection value still retains C's raw
-        // attribute so PICK_ANY can form the HL_* mask exactly.
-        attr: MENU_HEADING_ATTRIBUTES[name],
-        color: NO_COLOR,
-        selected: rawAttr === dflt,
-        skipMenuColors: true,
-    }));
-    const selection = await optionMenuSelect(state, {
-        items,
-        how: allowMany ? PICK_ANY : PICK_ONE,
-        title: prompt || 'Pick an attribute',
-        preselected: dflt,
-        cancelValue: null,
-    }, helpers);
-    if (!allowMany) {
-        const raw = selectedMenuValue(selection, dflt, false);
-        if (raw === -1) return -1;
-        return raw === 0 || raw === 3 || raw === 5 || raw === 6
-            ? ATR_NONE : raw;
-    }
-    if (!Array.isArray(selection) || selection.length === 0) return -1;
-    let bits = 0;
-    for (const entry of selection) {
-        const raw = typeof entry === 'object' ? entry.value : entry;
-        if (raw === 0 && selection.length > 1) continue;
-        bits |= raw === 0 ? HL_NONE
-            : raw === 1 ? HL_INVERSE
-                : raw === 2 ? HL_BOLD
-                    : raw === 3 ? HL_DIM
-                        : raw === 4 ? HL_ULINE
-                            : raw === 5 ? HL_ITALIC
-                                : raw === 6 ? HL_BLINK : 0;
-    }
-    return bits;
-}
-
-async function query_color_attr(state, ca, prompt, helpers) {
-    const queried = { ...ca };
-    const color = await query_color(state, prompt, queried.color, helpers);
-    if (color === -1) return false;
-    const attr = await query_attr(state, prompt, queried.attr, helpers);
-    if (attr === -1) return false;
-    ca.color = color;
-    ca.attr = attr;
-    return true;
 }
 
 // C ref: options.c shared_menu_optfn() and the thirteen wrapper functions
@@ -3020,7 +2878,7 @@ async function handler_menu_headings(state, helpers) {
     state.go ??= {};
     const current = { ...(state.iflags.menu_headings ?? {
         color: NO_COLOR,
-        attr: ATR_INVERSE,
+        attr: 7,
     }) };
     const gotca = await query_color_attr(
         state, current, 'How to highlight menu headings:', helpers,
@@ -3042,7 +2900,7 @@ export function optfn_menu_headings(
             ? string_for_opt(opts, true, result) : op;
         if (value === '') {
             result.iflags.menu_headings = {
-                attr: negated ? ATR_NONE : ATR_INVERSE,
+                attr: negated ? 0 : 7,
                 color: NO_COLOR,
             };
             return optn_ok;
@@ -3186,26 +3044,6 @@ function optfn_menuinvertmode(result, value) {
 // then falls past both remaining arms to the hilite_pet assignment, which
 // nothing has changed.  The rejection arm names the whole statement rather than
 // the value, because C passes `opts` there where its neighbours pass `op`.
-function setPetAttribute(result, statement) {
-    const op = string_for_opt(statement, false, result);
-    let rejected = false;
-    if (op !== '') {
-        // match_str2attr(op, FALSE) reports nothing itself.
-        const attr = match_str2attr(result, op, false);
-        if (attr === null) {
-            configErrorAdd(
-                result, `Unknown petattr parameter '${statement}'`,
-            );
-            rejected = true;
-        } else {
-            result.iflags.wc2_petattr = attr;
-        }
-    }
-    if (!rejected) {
-        result.iflags.wc_hilite_pet = result.iflags.wc2_petattr !== ATR_NONE;
-    }
-}
-
 // C refs: options.c default_menu_cmd_info[], txt2key(),
 // illegal_menu_cmd_key(), and add_menu_cmd_alias().
 const MENU_COMMAND_OPTIONS = Object.freeze([
@@ -5236,7 +5074,7 @@ function applyBooleanOption(result, name, row, statement, value, negated) {
         break;
     case 'hilite_pet':
         if (enabled && result.iflags.wc2_petattr === ATR_NONE) {
-            result.iflags.wc2_petattr = ATR_INVERSE;
+            result.iflags.wc2_petattr = 7;
         }
         result.go ??= {};
         result.go.opt_need_redraw = true;
@@ -6269,7 +6107,7 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
             statement, value ?? '', null,
         );
     } else if (name === 'petattr') {
-        setPetAttribute(result, statement);
+        optfn_petattr(result, DO_SET, false, statement);
     } else if (name === 'hilite_status') {
         optfn_hilite_status(result, DO_SET, negated, statement, value);
     } else if (name === 'statushilites') {
@@ -7271,21 +7109,10 @@ const COLOR_NAMES = Object.freeze([
     ['light cyan', CLR_BRIGHT_CYAN], ['white', CLR_WHITE],
     ['no color', NO_COLOR],
 ]);
-const ATTR_NAMES = Object.freeze([
-    ['none', ATR_NONE], ['bold', ATR_BOLD], ['underline', ATR_UNDERLINE],
-    ['inverse', ATR_INVERSE],
-]);
-
 function nameForValue(table, value, what) {
     const found = table.find(([, candidate]) => candidate === value);
     if (!found) throw new UnsupportedOptionMenuError(`a name for ${what}`);
     return found[0];
-}
-
-// C ref: coloratt.c color_attr_to_str().
-function color_attr_to_str(ca) {
-    return `${nameForValue(COLOR_NAMES, ca.color, `color ${ca.color}`)}`
-        + `&${nameForValue(ATTR_NAMES, ca.attr, `attribute ${ca.attr}`)}`;
 }
 
 // C ref: options.c oc_to_str(), which spells an object-class list with the
@@ -7388,67 +7215,6 @@ function n_currently_set(count) {
 function petname_optfn(state, option) {
     const petname = state[option.name] ?? '';
     return petname || none;
-}
-
-// C ref: botl.c status_hilite_linestr_gather_conditions().  Condition rules
-// are stored as writes to gc.cond_hilites[], unlike the one-node-per-rule
-// threshold lists for ordinary fields.  Replaying those writes gives each
-// condition its final lowest-numbered color and accumulated attributes.  C
-// then coalesces conditions with the same final pair into one menu line, so
-// this count is the number of distinct non-empty pairs rather than the number
-// of configuration statements.
-function status_hilite_linestr_gather_conditions(rules) {
-    const conditionStyles = new Map();
-    for (const rule of rules) {
-        if (rule.field !== 'condition') continue;
-        for (const condition of rule.conditions) {
-            const style = conditionStyles.get(condition) ?? {
-                colors: new Set(),
-                attrib: HL_UNDEF,
-            };
-            if (rule.style.clearAttributes) style.attrib = HL_UNDEF;
-            style.attrib |= rule.style.attrib;
-            // A null color marks parse_condition() returning after it had
-            // stored attributes but before its final color-array write.
-            if (rule.style.color !== null)
-                style.colors.add(rule.style.color);
-            conditionStyles.set(condition, style);
-        }
-    }
-
-    const gathered = new Set();
-    for (const condition of SOURCE_CONDITION_NAMES) {
-        const style = conditionStyles.get(condition);
-        if (!style) continue;
-        const color = style.colors.size
-            ? Math.min(...style.colors) : NO_COLOR;
-        // gather_conditions() begins with HL_NONE and removes that sentinel
-        // when any real attribute bit is present.
-        const attrib = style.attrib === HL_UNDEF ? HL_NONE
-            : style.attrib & ~HL_NONE;
-        if (color !== NO_COLOR || attrib !== HL_NONE)
-            gathered.add(`${color}:${attrib}`);
-    }
-    return [...gathered];
-}
-
-// C ref: botl.c status_hilite_linestr_gather().  count_status_hilites() only
-// observes the gathered list's length, so its entries can be opaque here:
-// every ordinary field rule contributes one, then the coalesced condition
-// entries follow.  Building a fresh array also preserves C's gather/done
-// idempotence without changing the configured rule list.
-function status_hilite_linestr_gather(state) {
-    const rules = state.iflags?.status_hilites ?? [];
-    return [
-        ...rules.filter((rule) => rule.field !== 'condition'),
-        ...status_hilite_linestr_gather_conditions(rules),
-    ];
-}
-
-// C ref: botl.c count_status_hilites(), used by options.c
-// optfn_hilite_status(get_val) and optfn_o_status_hilites(get_val).
-function count_status_hilites(state) {
-    return status_hilite_linestr_gather(state).length;
 }
 
 // C ref: options.c count_cond(), over botl.c condtests[].
@@ -7663,10 +7429,7 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
         return names.length ? names.join(' ') : 'none';
     },
     // The tty and curses arm; this build's interface is tty.
-    petattr: (state) => nameForValue(
-        ATTR_NAMES, state.iflags.wc2_petattr,
-        `attribute ${state.iflags.wc2_petattr}`,
-    ),
+    petattr: (state) => attr2attrname(state.iflags.wc2_petattr),
     pickup_burden: (state) => burdentype[state.flags.pickup_burden],
     pickup_types: (state) => optfn_pickup_types(state, GET_VAL),
     pile_limit: (state) => `${state.flags.pile_limit}`,
@@ -7754,10 +7517,10 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
     o_bind_keys: (state, option, helpers) => n_currently_set(
         helpers.countBindKeys(state),
     ),
-    o_menu_colors: (state) => n_currently_set(count_menucolors(state)),
+    o_menu_colors: (state) => optfn_o_menu_colors(state, GET_VAL),
     o_message_types: (state) => n_currently_set(msgtype_count(state)),
     o_status_cond: (state) => n_currently_set(count_cond(state)),
-    o_status_hilites: (state) => n_currently_set(count_status_hilites(state)),
+    o_status_hilites: (state) => optfn_o_status_hilites(state, GET_VAL),
     ...Object.fromEntries(MENU_COMMAND_OPTIONS.map(({ name }) => [
         name,
         (state, option) => MENU_OPTION_FUNCTIONS[name](
@@ -8224,7 +7987,7 @@ async function optfn_boolean(state, optidx, negated, opts, helpers) {
            Inverse; if we're disabling, leave petattr alone so that
            re-enabling will get current value back */
         if (state.iflags.wc_hilite_pet && !state.iflags.wc2_petattr)
-            state.iflags.wc2_petattr = ATR_INVERSE;
+            state.iflags.wc2_petattr = 7;
         state.go.opt_need_redraw = true;
         break;
     case 'idlecheckpoint':
@@ -8460,6 +8223,9 @@ const MENU_OPTION_SET_HANDLERS = Object.freeze(Object.fromEntries([
 // name, as OPTION_VALUE_HANDLERS' keys are.
 const OPTION_SET_HANDLERS = Object.freeze({
     boolean: optfn_boolean,
+    petattr: (state, _optidx, negated, opts, helpers) => optfn_petattr(state, DO_SET, negated, opts, helpers),
+    o_status_hilites: () => optn_ok,
+    o_menu_colors: () => optn_ok,
     cond_: (state, _optidx, negated, opts) => pfxfn_cond_(
         state, negated, opts,
     ),
@@ -8627,6 +8393,9 @@ const OPTION_HANDLERS = Object.freeze({
         state, DO_HANDLER, false, '', undefined, helpers,
     ),
     menu_headings: (state, helpers) => handler_menu_headings(state, helpers),
+    o_status_hilites: (state, helpers) => optfn_o_status_hilites(state, DO_HANDLER, '', helpers),
+    petattr: handler_petattr,
+    o_menu_colors: (state, helpers) => optfn_o_menu_colors(state, DO_HANDLER, '', helpers),
 });
 
 // C ref: options.c reset_needed_visuals() (8977-9010), which doset() runs once
@@ -8976,4 +8745,121 @@ export async function doset_simple(state, helpers) {
     } while (pickedone > 0);
     state.give_opt_msg = true;
     return ECMD_OK;
+}
+
+// C ref: options.c optfn_o_status_hilites(), all five request kinds.
+export function optfn_o_status_hilites(state, request, opts = '', helpers) {
+    if (request === GET_VAL || request === GET_CNF_VAL) return opts == null ? optn_err : n_currently_set(count_status_hilites(state));
+    if (request === DO_HANDLER) return status_hilite_menu(state, helpers).then(ok => {
+        if (!ok) return optn_err;
+        if (wc2_supported('hilite_status')) preference_update(state, 'hilite_status');
+        return optn_ok;
+    });
+    return optn_ok;
+}
+
+// C ref: options.c handler_petattr(). The selected value remains the source
+// ATR enum; the glyph renderer performs the captured-bit projection.
+export async function handler_petattr(state, helpers) {
+    const attr = await query_attr(state, 'Select pet highlight attribute', state.iflags.wc2_petattr, helpers);
+    if (attr !== -1) {
+        state.iflags.wc2_petattr = attr;
+        state.iflags.wc_hilite_pet = attr !== 0;
+        if (!state.go?.opt_initial) (state.go ??= {}).opt_need_redraw = true;
+    }
+    return optn_ok;
+}
+
+// C ref: options.c optfn_petattr(). Startup parsing and live option requests
+// share one state writer, including the source's optional negation arms.
+export function optfn_petattr(state, request, negated, opts, helpers) {
+    if (request === DO_SET) {
+        const op = string_for_opt(opts, negated, state);
+        if (op && negated) { bad_negation(state, 'petattr'); return optn_err; }
+        if (op) {
+            const attr = sourceMatchStr2attr(op);
+            if (attr === null) {
+                configErrorAdd(state, `Unknown petattr parameter '${opts}'`);
+                return optn_err;
+            }
+            state.iflags.wc2_petattr = attr;
+        } else if (negated) state.iflags.wc2_petattr = 0;
+        state.iflags.wc_hilite_pet = state.iflags.wc2_petattr !== 0;
+        if (!state.go?.opt_initial) (state.go ??= {}).opt_need_redraw = true;
+    }
+    if (request === GET_VAL || request === GET_CNF_VAL) return attr2attrname(state.iflags.wc2_petattr);
+    if (request === DO_HANDLER) return handler_petattr(state, helpers);
+    return optn_ok;
+}
+
+// C ref: options.c handle_add_list_remove(). IDs retain the skipped rows;
+// exit is preselected and cancellation returns that action's index.
+export async function handle_add_list_remove(state, optname, count, helpers) {
+    const rows = [['a', `add new ${optname}`], ['l', `list ${makeplural(optname)}`],
+        ['r', `remove existing ${optname}`], ['x', 'exit this menu']];
+    const items = rows.flatMap(([accelerator, text], i) => !count && (i === 1 || i === 2) ? [] : [{ text, selector: accelerator, value: i + 1, selected: i === 3 }]);
+    const selected = await optionMenuSelect(state, { items, title: 'Do what?', how: PICK_ONE, preselected: 4 }, helpers);
+    const picks = menuSelectionValues(selected);
+    if (!picks.length) return 3;
+    return (picks.length > 1 && picks[0] === 4 ? picks[1] : picks[0]) - 1;
+}
+
+// C ref: options.c test_regex_pattern(). The temporary matcher is released
+// by JS lifetime before feedback; no game-state matcher is retained.
+export function test_regex_pattern(state, text, errmsg = 'NHregex error') {
+    if (text == null) return false;
+    errmsg ??= 'NHregex error';
+    const regex = regex_init();
+    const success = regex_compile(text, regex);
+    const error = success ? null : regex_error_desc(regex);
+    if (!success) configErrorAdd(state, `${errmsg}: ${error}`);
+    return success;
+}
+
+// C ref: options.c handler_menu_colors(). This is the other live consumer
+// of query_color/query_attr; retain add/list/remove and escape ordering.
+export async function handler_menu_colors(state, helpers) {
+    for (;;) {
+        const action = await handle_add_list_remove(state, 'menucolor', count_menucolors(state), helpers);
+        if (action === 3) {
+            if (state.iflags.use_menu_color && state.iflags.perm_invent) note_unported('invent.c update_inventory');
+            return optn_ok;
+        }
+        if (action === 0) {
+            const pattern = helpers?.getlin ? await helpers.getlin('What new menucolor pattern?') : await getlin('What new menucolor pattern?', state);
+            if (pattern?.[0] === '\x1b') {
+                if (state.iflags.use_menu_color && state.iflags.perm_invent) note_unported('invent.c update_inventory');
+                return optn_ok;
+            }
+            if (pattern && test_regex_pattern(state, pattern, 'MENUCOLORS regex')) {
+                const color = await query_color(state, null, NO_COLOR, helpers);
+                if (color !== -1) {
+                    const attr = await query_attr(state, null, 0, helpers);
+                    if (attr !== -1 && !add_menu_coloring_parsed(state, pattern, color, attr)) {
+                        await ttyPline('Error adding the menu color.', state);
+                        note_unported('windows.c wait_synch');
+                    }
+                }
+            }
+        } else {
+            const items = [];
+            for (let node = state.gm?.menu_colorings; node; node = node.next) {
+                const suffix = `""=${clr2colorname(node.color).replaceAll(' ', '-')}${node.attr !== 0 ? `&${attr2attrname(node.attr)}` : ''}`;
+                const available = BUFSZ - suffix.length - 1;
+                const orig = encodeUtf8ByteString(node.origstr).length > available ? `${truncateByteString(node.origstr, available - 3)}...` : node.origstr;
+                items.push({ text: `"${orig}${suffix.slice(1)}`, value: items.length + 1 });
+            }
+            const selected = await optionMenuSelect(state, { items, title: `${action === 1 ? 'List of' : 'Remove which'} menu colors`, how: action === 1 ? PICK_NONE : PICK_ANY, emptyValue: [] }, helpers);
+            const picks = menuSelectionValues(selected);
+            for (let i = 0; i < picks.length; ++i) free_one_menu_coloring(state, picks[i] - 1 - i);
+            if (selected == null) return optn_ok;
+        }
+    }
+}
+
+// C ref: options.c optfn_o_menu_colors(), complete callback protocol.
+export function optfn_o_menu_colors(state, request, opts = '', helpers) {
+    if (request === GET_VAL || request === GET_CNF_VAL) return opts == null ? optn_err : n_currently_set(count_menucolors(state));
+    if (request === DO_HANDLER) return handler_menu_colors(state, helpers);
+    return optn_ok;
 }

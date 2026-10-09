@@ -1,0 +1,693 @@
+{
+  "session": "synthetic/v32/v32-options-status-hilites",
+  "corpus": "synthetic",
+  "batch": "v32",
+  "caseId": "v32-options-status-hilites",
+  "remainingScreens": 18,
+  "recordedSteps": 57,
+  "manifestPath": "challenges/manifests/v32.json",
+  "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+  "recordingSha256": "9e6aabd7add0432bbd3c97bbd6d05c40d87338a4e2858732bc82fb0a9ab8b20e",
+  "recipeSha256": "87050e2ec279fe23359a2cad99f5c1e0dc20eebb84aa74a2022c8fa5c9ae9248",
+  "evaluationPath": "challenges/evaluations/accepted-4e29cc141937e87b623f827cf27d4c229d5e290a-v32.json",
+  "evaluationCommit": "4e29cc141937e87b623f827cf27d4c229d5e290a",
+  "status": "complete",
+  "commit": "1ec1b11966707feb353712d9249c478076539236",
+  "mismatch": {
+    "version": 1,
+    "corpus": "synthetic",
+    "batch": "v32",
+    "caseId": "v32-options-status-hilites",
+    "session": "synthetic/v32/v32-options-status-hilites",
+    "manifestPath": "challenges/manifests/v32.json",
+    "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+    "recordingPath": "challenges/cases/v32/v32-options-status-hilites.session.json",
+    "recordingSha256": "9e6aabd7add0432bbd3c97bbd6d05c40d87338a4e2858732bc82fb0a9ab8b20e",
+    "recipeSha256": "87050e2ec279fe23359a2cad99f5c1e0dc20eebb84aa74a2022c8fa5c9ae9248",
+    "evaluationPath": "challenges/evaluations/accepted-4e29cc141937e87b623f827cf27d4c229d5e290a-v32.json",
+    "evaluationCommit": "4e29cc141937e87b623f827cf27d4c229d5e290a",
+    "evaluationUtc": "2026-10-09T00:52:25.882Z",
+    "remainingScreens": 18,
+    "recordedSteps": 57,
+    "metrics": {
+      "screens": {
+        "matched": 39,
+        "total": 57
+      },
+      "rng": {
+        "matched": 2577,
+        "total": 2577
+      },
+      "cursors": {
+        "matched": 39,
+        "total": 57
+      }
+    },
+    "step": 39,
+    "kind": "stop",
+    "sourceFile": "options.c",
+    "function": "optfn_o_status_hilites",
+    "message": "The options menu requires optfn_o_status_hilites()'s do_handler request"
+  },
+  "goalKind": "file-port",
+  "summary": "Full options selection reaches the status-highlight rule row, then refuses its missing do_handler. Whole options.c:optfn_o_status_hilites consumes botl.c:status_hilite_menu, whose nested field/rule edit returns require a coherent menu family. The existing opaque count-only gather cannot provide source field IDs and rule-removal identity.",
+  "source": {
+    "file": "options.c",
+    "branch": "STATUS_HILITES enabled; select o_status_hilites in doset after typed #optionsfull, with initially no configured rules. do_handler consumes status_hilite_menu Boolean; the recorded case first stops at step39.",
+    "functions": [
+      "optfn_o_status_hilites"
+    ],
+    "callers": [
+      "options.c:doset selected compound option do_handler through allopt[optidx].optfn -> optfn_o_status_hilites8446-8474; js/options.js:OPTION_HANDLERS currently lacks o_status_hilites.",
+      "options.c:doset_simple_menu same callback registry for the source option row.",
+      "options.c:get_option_value8497 GET_VAL/GET_CNF_VAL and allopt_array_init7428 DO_INIT; current value adapter calls private count_status_hilites only."
+    ],
+    "dependencies": [
+      "botl.c:s_to_anything1930-1972 whole consumed-result dependency or source mutation/output-buffer helper.",
+      "botl.c:split_clridx2576-2582 whole consumed-result dependency or source mutation/output-buffer helper.",
+      "botl.c:query_arrayvalue2747-2781 whole consumed-result dependency or source mutation/output-buffer helper.",
+      "botl.c:query_conditions3109-3138 whole consumed-result dependency or source mutation/output-buffer helper.",
+      "botl.c:conditionbitmask2str3141-3168 whole consumed-result dependency or source mutation/output-buffer helper.",
+      "botl.c:hlattr2attrname3369-3401 whole consumed-result dependency or source mutation/output-buffer helper.",
+      "botl.c:status_hilite_linestr_countfield3462-3473 whole consumed-result dependency or source mutation/output-buffer helper.",
+      "botl.c:count_status_hilites3477-3485 whole consumed-result dependency or source mutation/output-buffer helper.",
+      "botl.c:status_hilite2str3590-3669 whole consumed-result dependency or source mutation/output-buffer helper.",
+      "botl.c:status_hilite_menu_choose_field3672-3704 whole consumed-result dependency or source mutation/output-buffer helper.",
+      "botl.c:status_hilite_menu_choose_behavior3707-3808 whole consumed-result dependency or source mutation/output-buffer helper.",
+      "botl.c:status_hilite_menu_choose_updownboth3811-3887 whole consumed-result dependency or source mutation/output-buffer helper.",
+      "botl.c:status_hilite_menu_add3890-4302 whole consumed-result dependency or source mutation/output-buffer helper.",
+      "botl.c:status_hilite_remove4305-4354 whole consumed-result dependency or source mutation/output-buffer helper.",
+      "botl.c:status_hilite_menu_fld4357-4453 whole consumed-result dependency or source mutation/output-buffer helper.",
+      "botl.c:status_hilite_menu4498-4578 whole consumed-result dependency or source mutation/output-buffer helper.",
+      "coloratt.c:query_attr396-472 whole consumed-result dependency or source mutation/output-buffer helper.",
+      "coloratt.c:query_color475-518 whole consumed-result dependency or source mutation/output-buffer helper.",
+      "botl.c:reset_status_hilites2321-2331 discarded-return state/output support, distinct from required return closure.",
+      "botl.c:status_hilite_add_threshold2784-2811 discarded-return state/output support, distinct from required return closure.",
+      "botl.c:status_hilite_linestr_add3417-3445 discarded-return state/output support, distinct from required return closure.",
+      "botl.c:status_hilite_linestr_done3448-3459 discarded-return state/output support, distinct from required return closure.",
+      "botl.c:status_hilite_linestr_gather_conditions3488-3567 discarded-return state/output support, distinct from required return closure.",
+      "botl.c:status_hilite_linestr_gather3570-3586 discarded-return state/output support, distinct from required return closure.",
+      "botl.c:status_hilites_viewall4456-4474 discarded-return state/output support, distinct from required return closure.",
+      "Canonical windows.c menus and getlin/pline; no invented source menu IDs or random calls.",
+      "Existing state.iflags.status_hilites/condition-rule storage and display.js botl renderer are the canonical state seam; no second rule store.",
+      "coloratt.c:basic_menu_colors530-580 source temporary-pattern and use_menu_color save/restore is necessary for realistic color-query evidence; add_menu_coloring_parsed is an existing canonical owner."
+    ]
+  },
+  "evidence": [
+    "Authoritative accepted B173 measured artifact /home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/4e29cc141937e87b623f827cf27d4c229d5e290a/run-hosted-BNDCjI/synthetic/ci-v32.json at 2026-10-09T00:52:25.882Z has39/57 screens and cursors, all2577 RNG; remaining18. Canonical evaluationPath names its coordinator publication import, not a worker-created evaluation. Raw recipe/recording SHA256 checked against admitted manifest; corpus manifestSha256 is the evaluation digest, not raw-file digest.",
+    "Focused read-only worker replay .cache/B180/scan.json/log on3b6f3aa0 emitted39/57 with no earlier divergence, then exact UnsupportedOptionMenuError do_handler refusal. Merge to1ec1b119 changes no js/scripts/recipes/recordings execution input, so source observation remains current; B178/B179 immutable ancestors are preserved.",
+    "Read whole optfn_o_status_hilites8446-8474: DO_INIT/no-op SET/default return optn_ok; GET/GET_CNF reject null output and format source count; DO_HANDLER must consume !status_hilite_menu, then discard preference_update if wc2_supported. STATUS_HILITES is enabled in config.h616. Build excludes SCORE_ON_BOTL, so source hides empty score field and allows deletion-only for configured score rules.",
+    "Read whole botl.c:status_hilite_menu4498-4578: gather before count/menu; optional viewall item; initblstats definition-order fields, width18 and per-field defined counts; pick field+1 sentinel conversion; consume status_hilite_menu_fld before reset; destroy/count/done; source redo except debug_fuzzer; nonempty rules enable hilite_delta3 when zero.",
+    "Required return closure read completely: status_hilite_menu_fld4357-4453 consumes add and remove; add3890-4302 consumes choose_field3672-3704, choose_behavior3707-3808, choose_updownboth3811-3887, query_conditions3109-3138, query_arrayvalue2747-2781, query_color/coloratt475-518 and query_attr396-472, and the rule formatter3590-3669. Preserve source cancellation/retry/goto order, numeric percent bounds, title male/female split, color-before-attribute, condition masks, deletion identity and returned Boolean. Pure helpers need source-pinned result tests; impure nested menus need independent runtime records.",
+    "Existing js/options.js:status_hilite_linestr_gather7405/count_status_hilites7418 creates opaque count entries, not C temporary records {id,fld,hl,mask,str}. That suffices only count-only current reads, not nested menu/remove/viewall contracts. Replace it with one canonical botl owner; js/display.js header establishes display.js as existing botl.c owner. Do not duplicate rule state or preserve obsolete count-only producer.",
+    "Existing query_color/query_attr private helpers in options.js2866+ are coloratt.c ports used by menu headings. Full consumed-helper reconciliation must verify source pick-count/preselection and attribute domain, place canonical coloratt helpers in js/coloratt.js, and preserve bounded existing options caller adapters. No claim to whole options parser or display renderer.",
+    "Admitted case covers empty top-level status menu paging/Escape only. Independent C-first variations are required for nonempty field rule creation/deletion, condition masks, numeric/text/color/attribute cancellation, viewall and ordinary O simple menu. Startup preset hilite rules provide cheap variation and pure format assertions. Broader #saveoptions/all_options_statushilites persistence remains an explicit outside-limit caller, not an invented file writer.",
+    "Counter-evidence: accepted B173 also makes related v32-options-status-duration-prompt48/48 exact; no duration grouping, no optfn_statushilites scope. C156 scores, C155 pager/key description and A177 lycanthropy remain disjoint reserved families.",
+    "Additional caller audit: coloratt.c query_color_attr304-317 consumes both selectors and is called by options.c handler_menu_headings5780+; handler_petattr6152+ consumes query_attr; handler_menu_colors6407+ consumes both. menu_headings is currently wired through private options helpers, while petattr/menu-colors do_handler arms remain unported. Keep their wider source handlers as named frontiers unless explicitly expanded; no whole helper credit without caller reconciliation. Attribute menu values must distinguish C ATR enum from terminal encoding, and source PICK_ONE can return two picks when a preselected entry survives. Source basic_menu_colors530-580 temporarily enables/pushes canonical color patterns and restores them; skips only black/white/no-color, not gray. Existing helper shortcut uses explicit colors and skips gray too, so it is not sufficient whole-source selector verification.",
+    "B180 expanded caller audit records canonical C ATR option state with projections only at windows add_menu/add_menu_heading, tty title, display pet glyph, insight headings and weapon headings; parser2944/3099 uses canonical botl helpers. Independent14-recipe source mission set and matching assigned57/57 scan are saved in task delivery evidence. #saveoptions and choose_field remain explicit runtime frontiers."
+  ],
+  "proposal": {
+    "goalId": "port-options-status-hilite-menu-v32-20261009",
+    "summary": "Port the status-highlight option callback and its complete nested menu return closure.",
+    "selectionReason": "Oldest independent remaining v32 options-family owner after immutable B173/B178/B179; exclude C156 scores, C155 command descriptions and A177 prayer. B173 acceptance reveals18 remaining status menu screens.",
+    "sourceUnits": [
+      {
+        "file": "options.c",
+        "name": "optfn_o_status_hilites",
+        "start": 8446,
+        "end": 8474
+      }
+    ],
+    "requiredSourceUnits": [
+      {
+        "file": "botl.c",
+        "name": "s_to_anything",
+        "start": 1930,
+        "end": 1972
+      },
+      {
+        "file": "botl.c",
+        "name": "split_clridx",
+        "start": 2576,
+        "end": 2582
+      },
+      {
+        "file": "botl.c",
+        "name": "query_arrayvalue",
+        "start": 2747,
+        "end": 2781
+      },
+      {
+        "file": "botl.c",
+        "name": "query_conditions",
+        "start": 3109,
+        "end": 3138
+      },
+      {
+        "file": "botl.c",
+        "name": "conditionbitmask2str",
+        "start": 3141,
+        "end": 3168
+      },
+      {
+        "file": "botl.c",
+        "name": "hlattr2attrname",
+        "start": 3369,
+        "end": 3401
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_linestr_countfield",
+        "start": 3462,
+        "end": 3473
+      },
+      {
+        "file": "botl.c",
+        "name": "count_status_hilites",
+        "start": 3477,
+        "end": 3485
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite2str",
+        "start": 3590,
+        "end": 3669
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_menu_choose_field",
+        "start": 3672,
+        "end": 3704
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_menu_choose_behavior",
+        "start": 3707,
+        "end": 3808
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_menu_choose_updownboth",
+        "start": 3811,
+        "end": 3887
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_menu_add",
+        "start": 3890,
+        "end": 4302
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_remove",
+        "start": 4305,
+        "end": 4354
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_menu_fld",
+        "start": 4357,
+        "end": 4453
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_menu",
+        "start": 4498,
+        "end": 4578
+      },
+      {
+        "file": "coloratt.c",
+        "name": "query_attr",
+        "start": 396,
+        "end": 472
+      },
+      {
+        "file": "coloratt.c",
+        "name": "query_color",
+        "start": 475,
+        "end": 518
+      }
+    ],
+    "supportingSourceUnits": [
+      {
+        "file": "botl.c",
+        "name": "reset_status_hilites",
+        "start": 2321,
+        "end": 2331
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_add_threshold",
+        "start": 2784,
+        "end": 2811
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_linestr_add",
+        "start": 3417,
+        "end": 3445
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_linestr_done",
+        "start": 3448,
+        "end": 3459
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_linestr_gather_conditions",
+        "start": 3488,
+        "end": 3567
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_linestr_gather",
+        "start": 3570,
+        "end": 3586
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilites_viewall",
+        "start": 4456,
+        "end": 4474
+      },
+      {
+        "file": "coloratt.c",
+        "name": "basic_menu_colors",
+        "start": 530,
+        "end": 580
+      }
+    ],
+    "proposedReservations": [
+      "session:synthetic/v32/v32-options-status-hilites",
+      "source:options.c:optfn_o_status_hilites",
+      "source:botl.c:s_to_anything",
+      "source:botl.c:split_clridx",
+      "source:botl.c:query_arrayvalue",
+      "source:botl.c:query_conditions",
+      "source:botl.c:conditionbitmask2str",
+      "source:botl.c:hlattr2attrname",
+      "source:botl.c:status_hilite_linestr_countfield",
+      "source:botl.c:count_status_hilites",
+      "source:botl.c:status_hilite2str",
+      "source:botl.c:status_hilite_menu_choose_field",
+      "source:botl.c:status_hilite_menu_choose_behavior",
+      "source:botl.c:status_hilite_menu_choose_updownboth",
+      "source:botl.c:status_hilite_menu_add",
+      "source:botl.c:status_hilite_remove",
+      "source:botl.c:status_hilite_menu_fld",
+      "source:botl.c:status_hilite_menu",
+      "source:coloratt.c:query_attr",
+      "source:coloratt.c:query_color",
+      "source:botl.c:reset_status_hilites",
+      "source:botl.c:status_hilite_add_threshold",
+      "source:botl.c:status_hilite_linestr_add",
+      "source:botl.c:status_hilite_linestr_done",
+      "source:botl.c:status_hilite_linestr_gather_conditions",
+      "source:botl.c:status_hilite_linestr_gather",
+      "source:botl.c:status_hilites_viewall",
+      "contract:status-highlight-rule-menu",
+      "contract:status-highlight-temporary-rule-identity",
+      "source:coloratt.c:basic_menu_colors"
+    ],
+    "proposedPaths": [
+      "js/options.js",
+      "js/display.js",
+      "js/coloratt.js",
+      "scripts/options*.test.mjs",
+      "scripts/coloratt*.test.mjs",
+      "scripts/status*.test.mjs",
+      "scripts/run-status-hilite-menu.mjs",
+      "recipes/options.c/",
+      "recordings/options.c/",
+      "recipes/botl.c/",
+      "recordings/botl.c/",
+      "recipes/coloratt.c/",
+      "recordings/coloratt.c/",
+      "investigations/synthetic/v32/v32-options-status-hilites.json",
+      ".cache/"
+    ],
+    "dependencies": [
+      "b7bf47b1017496f2afa0873382808c729b67f175",
+      "ed37416126b9d0ef4f00167695d6d27705dcf9ae"
+    ],
+    "limits": [
+      "No statushilites-duration request implementation; its admitted case now matches.",
+      "No whole doset/parseoptions/rendering/startup persistence credit.",
+      "all_options_statushilites4477-4495 is a distinct #saveoptions writer, excluded from the noncontiguous selected return closure.",
+      "Discarded preference_update and impossible callbacks remain named gaps if their canonical source owner is incomplete."
+    ]
+  },
+  "scope": {
+    "goalId": "port-options-status-hilite-menu-v32-20261009",
+    "summary": "Port the status-highlight option callback and its complete nested menu return closure.",
+    "selectionReason": "Oldest independent remaining v32 options-family owner after immutable B173/B178/B179; exclude C156 scores, C155 command descriptions and A177 prayer. B173 acceptance reveals18 remaining status menu screens.",
+    "sourceUnits": [
+      {
+        "file": "options.c",
+        "name": "optfn_o_status_hilites",
+        "start": 8446,
+        "end": 8480
+      }
+    ],
+    "requiredSourceUnits": [
+      {
+        "file": "botl.c",
+        "name": "s_to_anything",
+        "start": 1930,
+        "end": 1976
+      },
+      {
+        "file": "botl.c",
+        "name": "split_clridx",
+        "start": 2576,
+        "end": 2592
+      },
+      {
+        "file": "botl.c",
+        "name": "query_arrayvalue",
+        "start": 2747,
+        "end": 2783
+      },
+      {
+        "file": "botl.c",
+        "name": "query_conditions",
+        "start": 3109,
+        "end": 3140
+      },
+      {
+        "file": "botl.c",
+        "name": "conditionbitmask2str",
+        "start": 3141,
+        "end": 3170
+      },
+      {
+        "file": "botl.c",
+        "name": "hlattr2attrname",
+        "start": 3369,
+        "end": 3416
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_linestr_countfield",
+        "start": 3462,
+        "end": 3476
+      },
+      {
+        "file": "botl.c",
+        "name": "count_status_hilites",
+        "start": 3477,
+        "end": 3487
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite2str",
+        "start": 3590,
+        "end": 3671
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_menu_choose_field",
+        "start": 3672,
+        "end": 3706
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_menu_choose_behavior",
+        "start": 3707,
+        "end": 3810
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_menu_choose_updownboth",
+        "start": 3811,
+        "end": 3889
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_menu_add",
+        "start": 3890,
+        "end": 4304
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_remove",
+        "start": 4305,
+        "end": 4356
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_menu_fld",
+        "start": 4357,
+        "end": 4455
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_menu",
+        "start": 4498,
+        "end": 4583
+      },
+      {
+        "file": "coloratt.c",
+        "name": "query_attr",
+        "start": 396,
+        "end": 474
+      },
+      {
+        "file": "coloratt.c",
+        "name": "query_color",
+        "start": 475,
+        "end": 529
+      },
+      {
+        "file": "options.c",
+        "name": "optfn_menu_headings",
+        "start": 2183,
+        "end": 2224
+      },
+      {
+        "file": "options.c",
+        "name": "optfn_petattr",
+        "start": 3138,
+        "end": 3196
+      },
+      {
+        "file": "options.c",
+        "name": "handler_menu_headings",
+        "start": 5780,
+        "end": 5794
+      },
+      {
+        "file": "options.c",
+        "name": "handler_petattr",
+        "start": 6152,
+        "end": 6166
+      },
+      {
+        "file": "options.c",
+        "name": "handler_menu_colors",
+        "start": 6407,
+        "end": 6501
+      },
+      {
+        "file": "options.c",
+        "name": "handle_add_list_remove",
+        "start": 9208,
+        "end": 9255
+      },
+      {
+        "file": "options.c",
+        "name": "test_regex_pattern",
+        "start": 7871,
+        "end": 7904
+      },
+      {
+        "file": "coloratt.c",
+        "name": "query_color_attr",
+        "start": 304,
+        "end": 319
+      },
+      {
+        "file": "coloratt.c",
+        "name": "attr2attrname",
+        "start": 320,
+        "end": 337
+      },
+      {
+        "file": "coloratt.c",
+        "name": "color_attr_to_str",
+        "start": 249,
+        "end": 260
+      },
+      {
+        "file": "coloratt.c",
+        "name": "color_attr_parse_str",
+        "start": 261,
+        "end": 303
+      },
+      {
+        "file": "coloratt.c",
+        "name": "free_one_menu_coloring",
+        "start": 684,
+        "end": 708
+      },
+      {
+        "file": "options.c",
+        "name": "optfn_o_menu_colors",
+        "start": 8368,
+        "end": 8388
+      }
+    ],
+    "supportingSourceUnits": [
+      {
+        "file": "botl.c",
+        "name": "reset_status_hilites",
+        "start": 2321,
+        "end": 2335
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_add_threshold",
+        "start": 2784,
+        "end": 2813
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_linestr_add",
+        "start": 3417,
+        "end": 3447
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_linestr_done",
+        "start": 3448,
+        "end": 3461
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_linestr_gather_conditions",
+        "start": 3488,
+        "end": 3569
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilite_linestr_gather",
+        "start": 3570,
+        "end": 3589
+      },
+      {
+        "file": "botl.c",
+        "name": "status_hilites_viewall",
+        "start": 4456,
+        "end": 4476
+      },
+      {
+        "file": "coloratt.c",
+        "name": "basic_menu_colors",
+        "start": 530,
+        "end": 584
+      }
+    ],
+    "proposedReservations": [
+      "session:synthetic/v32/v32-options-status-hilites",
+      "source:options.c:optfn_o_status_hilites",
+      "source:botl.c:s_to_anything",
+      "source:botl.c:split_clridx",
+      "source:botl.c:query_arrayvalue",
+      "source:botl.c:query_conditions",
+      "source:botl.c:conditionbitmask2str",
+      "source:botl.c:hlattr2attrname",
+      "source:botl.c:status_hilite_linestr_countfield",
+      "source:botl.c:count_status_hilites",
+      "source:botl.c:status_hilite2str",
+      "source:botl.c:status_hilite_menu_choose_field",
+      "source:botl.c:status_hilite_menu_choose_behavior",
+      "source:botl.c:status_hilite_menu_choose_updownboth",
+      "source:botl.c:status_hilite_menu_add",
+      "source:botl.c:status_hilite_remove",
+      "source:botl.c:status_hilite_menu_fld",
+      "source:botl.c:status_hilite_menu",
+      "source:coloratt.c:query_attr",
+      "source:coloratt.c:query_color",
+      "source:botl.c:reset_status_hilites",
+      "source:botl.c:status_hilite_add_threshold",
+      "source:botl.c:status_hilite_linestr_add",
+      "source:botl.c:status_hilite_linestr_done",
+      "source:botl.c:status_hilite_linestr_gather_conditions",
+      "source:botl.c:status_hilite_linestr_gather",
+      "source:botl.c:status_hilites_viewall",
+      "contract:status-highlight-rule-menu",
+      "contract:status-highlight-temporary-rule-identity",
+      "source:coloratt.c:basic_menu_colors",
+      "source:options.c:optfn_menu_headings",
+      "source:options.c:optfn_petattr",
+      "source:options.c:handler_menu_headings",
+      "source:options.c:handler_petattr",
+      "source:options.c:handler_menu_colors",
+      "source:options.c:handle_add_list_remove",
+      "source:options.c:test_regex_pattern",
+      "source:coloratt.c:query_color_attr",
+      "source:coloratt.c:attr2attrname",
+      "source:coloratt.c:color_attr_to_str",
+      "source:coloratt.c:color_attr_parse_str",
+      "source:coloratt.c:free_one_menu_coloring",
+      "source:options.c:optfn_boolean",
+      "contract:canonical-option-attribute-state",
+      "source:windows.c:add_menu_heading",
+      "source:display.c:print_glyph_attr",
+      "contract:menu-title-source-attribute-projection",
+      "contract:menu-heading-source-attribute-projection",
+      "source:options.c:optfn_o_menu_colors",
+      "source:botl.c:parse_status_hl2"
+    ],
+    "proposedPaths": [
+      "js/options.js",
+      "js/display.js",
+      "js/coloratt.js",
+      "js/windows.js",
+      "js/status_field_data.js",
+      "scripts/generate-status-field-data.mjs",
+      "scripts/status-field-data.test.mjs",
+      "scripts/status-hilite-menu.test.mjs",
+      "scripts/coloratt-menu.test.mjs",
+      "scripts/options-menu.test.mjs",
+      "scripts/options-simple-menu.test.mjs",
+      "scripts/options-toggle.test.mjs",
+      "scripts/options.test.mjs",
+      "scripts/startup-status-hilites.test.mjs",
+      "scripts/windows.test.mjs",
+      "scripts/coloratt-clr2colorname.test.mjs",
+      "scripts/glyph-customization.test.mjs",
+      "scripts/config-error.test.mjs",
+      "scripts/run-status-hilite-menu.mjs",
+      "recipes/options.c/",
+      "recordings/options.c/",
+      "recipes/botl.c/",
+      "recordings/botl.c/",
+      "recipes/coloratt.c/",
+      "recordings/coloratt.c/",
+      "investigations/synthetic/v32/v32-options-status-hilites.json",
+      ".cache/",
+      "js/tty_menu.js",
+      "scripts/tty-menu.test.mjs",
+      "js/insight.js",
+      "js/weapon.js",
+      "scripts/insight.test.mjs",
+      "scripts/weapon.test.mjs",
+      "scripts/display-symbols.test.mjs",
+      "scripts/print-dungeon.test.mjs",
+      "scripts/startup-reroll.test.mjs",
+      "scripts/tutorial-startup.test.mjs",
+      "scripts/moveloop-preamble.test.mjs"
+    ],
+    "dependencies": [],
+    "limits": [
+      "No statushilites-duration request implementation; its admitted case now matches.",
+      "No whole doset/parseoptions/rendering/startup persistence credit.",
+      "all_options_statushilites4477-4495 is a distinct #saveoptions writer, excluded from the noncontiguous selected return closure.",
+      "Discarded preference_update and impossible callbacks remain named gaps if their canonical source owner is incomplete.",
+      "optfn_boolean only bounded hilite_pet writer; windows/display only attribute read projection. No whole rendering completion. C159 fruit and C156 scores excluded.",
+      "parse_status_hl2 only its existing s_to_anything2944 and status_hilite_add_threshold3099 caller sites; no whole parser credit."
+    ]
+  }
+}
