@@ -1779,6 +1779,11 @@ export async function load_special(name, state, callerEnv = null) {
     // C's DLB filenames have .lua; the existing port registry uses the
     // same program names without the extension. Preserve case and whitespace.
     const loader = SPECIAL_LEVEL_LOADERS[name.endsWith('.lua') ? name.slice(0, -4) : name];
+    // C creates gc.coder, including the file-scope SpLev_Map state, before
+    // attempting load_lua(). Keep that state available to the caller's
+    // NULL-state finalizer even when the Lua program is not implemented.
+    const specialLevelApi = createSpecialLevelApi(state);
+    if (callerEnv) callerEnv.frame = specialLevelApi.frame;
     if (!loader) {
         // Arbitrary Lua execution and nhl_loadlua's file-error output have
         // no owner. wiz_load_splua discards this load result and continues.
@@ -1792,10 +1797,6 @@ export async function load_special(name, state, callerEnv = null) {
     shuffle_core_values(align, rn2);
     state.specialLevelAlign = align;
 
-    const specialLevelApi = createSpecialLevelApi(state);
-    // sp_lev.c SpLev_Map survives freeing gc.coder. Pass the same frame
-    // to the command's NULL-state finalizer without making another map copy.
-    if (callerEnv) callerEnv.frame = specialLevelApi.frame;
     await loader(specialLevelApi, state);
 
     // Post-processing: finish() covers link_doors_rooms,
