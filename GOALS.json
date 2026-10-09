@@ -231116,16 +231116,20 @@
     {
       "id": "port-cav-goal-quest-level-v36-20261009",
       "kind": "lua-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port the complete Caveman quest goal level and live special-level registry dispatch.",
       "luaFile": "Cav-goal.lua",
       "sessions": [
         "synthetic/v36/v36-quest-cav-goal"
       ],
-      "selectionReason": "The new v36 baseline stops at step 19 because the Cav-goal loader is unregistered; C168 traced this highest unreserved quest goal refusal and its existing descriptor dependencies.",
+      "selectionReason": "C168 is the oldest dependency-ready delivery after A190 and unblocks C169; it ports the complete admitted Cav-goal.lua program and registry dispatch.",
       "detail": "Port every top-level statement in dat/Cav-goal.lua, generate its fixed map deterministically, and wire the bounded quest-level registry seam without claiming existing descriptor helpers.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "bfe6dab1e3bd6b536e1002d8284079b505084ec5",
+      "openStanding": {
+        "sha": "025a63365add2839073372ffca68abfb01dd6729",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -231150,7 +231154,158 @@
           "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
           "evaluationCommit": "ac836655676993fda791c76b619905969c841859"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "025a63365add2839073372ffca68abfb01dd6729",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-cav-goal",
+          "session": "synthetic/v36/v36-quest-cav-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-cav-goal.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-cav-goal.session.json",
+          "recordingSha256": "41322f7473eb513e6fab82a249c1253cd49b1cc20872c7ca436b37f71608c449",
+          "recipe": "challenges/cases/v36/v36-quest-cav-goal.recipe.session.json",
+          "recipeSha256": "e3a675e14cbd4881ffa8f93e012c526792d8a4059845cd7082559fb0cff44475",
+          "replayInputSha256": "2ef3de61884dc72eccaf35767d5b6a77f5039a56aa9b9f94e52c44fbe389285e",
+          "evaluationPath": "challenges/evaluations/accepted-025a63365add2839073372ffca68abfb01dd6729-v36.json",
+          "evaluationCommit": "025a63365add2839073372ffca68abfb01dd6729",
+          "evaluationArtifact": "challenges/evaluations/accepted-025a63365add2839073372ffca68abfb01dd6729-v36.json",
+          "evaluationUtc": "2026-10-09T12:41:28.808Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2597,
+              "total": 2845
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Cav-goal\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Cav-goal.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Cav-goal\"",
+          "cFile": null,
+          "luaFile": "Cav-goal.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-cav-goal.json",
+            "result": {
+              "session": "synthetic/v36/v36-quest-cav-goal",
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-cav-goal",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "41322f7473eb513e6fab82a249c1253cd49b1cc20872c7ca436b37f71608c449",
+              "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+              "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "612078029c6b9f51d3175ee097469025580b0b73",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-cav-goal",
+                "session": "synthetic/v36/v36-quest-cav-goal",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-cav-goal.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-cav-goal.session.json",
+                "recordingSha256": "41322f7473eb513e6fab82a249c1253cd49b1cc20872c7ca436b37f71608c449",
+                "recipe": "challenges/cases/v36/v36-quest-cav-goal.recipe.session.json",
+                "recipeSha256": "e3a675e14cbd4881ffa8f93e012c526792d8a4059845cd7082559fb0cff44475",
+                "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+                "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+                "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+                "evaluationArtifact": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+                "evaluationUtc": "2026-10-09T10:38:34.264Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2597,
+                    "total": 2845
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Cav-goal\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Cav-goal.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Cav-goal\"",
+                "cFile": null,
+                "luaFile": "Cav-goal.lua",
+                "line": null
+              },
+              "goalKind": "lua-port",
+              "summary": "Cav-goal has no registered loader, so quest-level arrival stops before the whole source program executes. Port dat/Cav-goal.lua in source order and register its existing quest-level dispatch; reuse canonical des/selection/object/monster owners.",
+              "source": {
+                "file": "Cav-goal.lua",
+                "branch": "Forced or ordinary generation of the Caveman/Cavewoman quest goal level; special-level proto Cav-goal.",
+                "functions": [
+                  "Cav-goal.lua"
+                ],
+                "callers": [
+                  "mklev.c:makelevel1265-1270 -> mkmaze.c:makemaz1188 -> sp_lev.c:load_special -> dat/Cav-goal.lua",
+                  "js/mklev.js:makelevel -> makemaz -> load_special -> QUEST_LEVEL_LOADERS"
+                ],
+                "dependencies": [
+                  "Existing createSpecialLevelApi descriptors, selection_area, named artifact object owner and monster creation; no new whole helper scope proposed."
+                ]
+              },
+              "evidence": [
+                "Authoritative v36 queue: refusal at segment0 step19, 19/60screens/cursors and2597/2845RNG match; recordingSHA41322f7473eb513e6fab82a249c1253cd49b1cc20872c7ca436b37f71608c449, admitted corpus digest58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c.",
+                "Read all dat/Cav-goal.lua1-59, SHA256d5938ec7d34e0ecbbe39f177b33943eed326d66d6759b0c8cf442bb30d3fa109: solidfill stone; mazelevel; exact76x20 floor map; lit area0,0..75,19; random up stair; nondiggable area; blessed spe0 named Sceptre of Might mace at23,10; fourteen random objects; asleep Chromatic Dragon at23,10; shriekers26,13/25,8/45,11; wallify. No additional helper calls or consumed Lua results.",
+                "C step19 contains248RNG calls: getbones, implicit nhlib shuffle, splev_initlev, stair/object/monster generation, flip_level_rnd and place_lregion; recorded screen shows mapped-lit oval cavern, up stair and quest inhabitants. This establishes C reached the source before JS refusal, not an RNG-owner defect.",
+                "js/mklev.js:makelevel674-685 refuses absent registry key; ensureSpecialLevelLoaders1730-1771 already incorporates QUEST_LEVEL_LOADERS. js/quest_levels.js registry1910ff contains no Cav-goal. Adding a whole cavGoal function and that key is the only planned production seam.",
+                "Audited existing solidfill/lit region/random stair/nondiggable descriptor branches and sp_lev_object named-object/identity fields. Reuse those owners; no broader mklev/sp_lev/object/monster completion credit. Whole program source transcription, descriptor order/map test, admitted prefix and independent C-first role/state variations are required before completion."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "fix-display-magic-map-rogue-darkroom-symbol-v35-20261009",
