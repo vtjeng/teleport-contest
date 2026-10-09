@@ -56,12 +56,13 @@
     "function": "dowhatdoes",
     "replayInputSha256": "47accbe65dfc8d160b713eb60c414977e8a46cb1b84d1969612956f2f79f96f9"
   },
-  "summary": "Direct & is refused at step2 before pager.c:dowhatdoes. Port whole dowhatdoes and required whatdoes_help; reuse existing compiled description core, wire distinct direct/extended/menu caller paths. Accepted B171 releases doextcmd; the distinct whatdoes arm requires coordination with earlier B173 optionsfull caller scope.",
+  "summary": "Direct & is refused at step2 before partial pager.c:dowhatdoes. Complete dowhatdoes/whatdoes_help and required cmd.c:key2extcmddesc; the latter incorrectly returns temporary movement text before C binding lookup. Wire the distinct direct/extended/menu whatdoes paths; B173 independently owns optionsfull caller edits.",
   "source": {
     "file": "pager.c",
     "functions": [
       "whatdoes_help",
-      "dowhatdoes"
+      "dowhatdoes",
+      "key2extcmddesc"
     ],
     "branch": "A key bound to whatdoes reaches the unrestricted What command? query. First use prints an introduction; ALTMETA Escape reads a second byte. Known keys produce one or two description lines, &/? first display keyhelp, and unknown keys print unsigned character diagnostics.",
     "callers": [
@@ -70,11 +71,11 @@
       "pager.c2696 dowhatdoes &/? arm -> whatdoes_help"
     ],
     "dependencies": [
-      "Reuse existing pager.c:dowhatdoes_core compiled branch2577–2600 and cmd.c:key2extcmddesc2561–2615 without new completion credit. The core changes movement probe state through movecmd and is not pure. Its existing incomplete cmd.c:help_dir4247 caller remains a separate caller-family frontier; no core/help_dir credit is proposed.",
+      "Reuse pager.c:dowhatdoes_core compiled2577–2600 body, but complete consumed-return cmd.c:key2extcmddesc2561–2623 in this task. JS returns temporary move/rush/run before source binding lookup; canonical C continues into digits, misc keys and command bindings. Preserve all movecmd state writes. The broader cmd.c:help_dir4247 -> dowhatdoes_core caller stays outside new completion credit.",
       "whatdoes_cond2458–2573 and legacy cmdhelp parsing inside dowhatdoes_core are #if 0, so they are not active source dependencies.",
-      "Generate upstream dat/keyhelp deterministically into the existing browser-safe help data and retain source filtering: skip lines whose first byte is #, trim only leading spaces/tabs, preserve remaining bytes. Current generator excludes keyhelp; ordinary tty_display_file tab expansion must not silently replace this helper contract. Reuse canonical text-window, yn_function, ttyPline, visctrl and key formatting owners.",
+      "Generate dat/keyhelp deterministically: skip only first-byte # comments and trim leading spaces/tabs, preserving dlb_fgets newline. C whatdoes_help passes that newline into tty_putstr, so existing wintty.c compress_str collapses consecutive spaces even on short lines. Ordinary help-file projections still remove newlines and expand tabs. Reuse canonical text/message windows, yn_function, ttyPline, visctrl and key formatting owners.",
       "Current cmd.js has no dowhatdoes import, direct rhack arm, doextcmd switch arm, or ADMITTED_COMMANDS entry. Add only the source whatdoes dispatch/admission, preserving ECMD_OK, repeat queue, timing and source input order; no whole cmd ownership credit.",
-      "B170 and B171 accepted; rhack/doextcmd whole owners are released. C155 requires only distinct whatdoes import/admission/dispatcher arms, with no whole cmd completion credit; coordinate against earlier B173 optionsfull edits before source claim."
+      "Distinct whatdoes import/admission/direct/typed arm is adjudicated independent of earlier B173 optionsfull import/full-selection/doset arm; reserve only the bounded command-description dispatcher contract and exact key2extcmddesc source unit, with no whole rhack/doextcmd credit."
     ]
   },
   "goalKind": "file-port",
@@ -85,6 +86,7 @@
     "Read whole pager.c:dowhatdoes2659–2719: once-only introduction and ALTMETA text, unrestricted input and Escape/meta handling, compiled description lookup, help expansion, ordinary and embedded-newline output, unknown-key visctrl/unsigned decimal/octal/hex diagnostics, ECMD_OK. Current pager.js2104–2120 permits only byte0x69 inventory and throws UnsupportedHelpError otherwise; all other branches remain partial.",
     "Read whole pager.c:whatdoes_help2421–2444: KEYHELP open failure prints exact filename and displays the message window; success creates NHW_TEXT, skips first-byte comments, strips leading spaces/tabs only, displays blocking and destroys. HELP_TEXT_FILES generator currently lists eight files and omits keyhelp. Source dat/keyhelp is available. Existing displayTtyTextWindow owns matching ordinary text-window lifecycle.",
     "Global source search found only extcmdlist1935 and hmenu_dowhatdoes2810 direct dowhatdoes call sites, and only dowhatdoes2696 calls whatdoes_help. dowhatdoes_core additionally has help_dir4247; reuse that existing owner without claiming its broader caller family complete. Inactive whatdoes_cond and file parsing are explicitly #if0.",
-    "Evidence plan after scope approval: selected admitted direct read-key range; independently chosen direct known/unknown key and reqmenu two-line queries, &/? expansion with source-valid window dismissal, cheap role variation, repeated first-use suppression, ALTMETA Escape/Meta and numeric-pad descriptions, help-menu and typed #whatdoes routes. Source-pinned tests cover unsigned diagnostics, description movement side effects, leading-only keyhelp filtering and all input/order branches. Preserve a missing-keyhelp discarded host-file boundary if the browser data adapter cannot reproduce it. No C recording or source edits during investigation."
+    "Evidence plan after scope approval: selected admitted direct read-key range; independently chosen direct known/unknown key and reqmenu two-line queries, &/? expansion with source-valid window dismissal, cheap role variation, repeated first-use suppression, ALTMETA Escape/Meta and numeric-pad descriptions, help-menu and typed #whatdoes routes. Source-pinned tests cover unsigned diagnostics, description movement side effects, leading-only keyhelp filtering and all input/order branches. Preserve a missing-keyhelp discarded host-file boundary if the browser data adapter cannot reproduce it. No C recording or source edits during investigation.",
+    "Whole-source consumed-return review adds cmd.c:key2extcmddesc2561–2623: initial movecmd writes are evaluated before count, special-key and command-binding lookup; C h returns move west (screen left) (#movewest), while pre-fix JS returns move. Independent C known-prefix-movement and number-pad recipes confirm those source-defined binding strings. Historical port-cmd-doherecmdmenu ported:true must be invalidated centrally before new completion."
   ]
 }
