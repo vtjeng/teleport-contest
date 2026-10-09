@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first male human Knight arrival through the typed #wizlevelport command. The fixed seed, clock, gender and map observation cover King Arthur's custom inventory and the Kni-strt.lua fortress descriptors; the inputs were selected independently from v36-quest-kni-strt.",
+  "segments": [
+    {
+      "seed": 24091009,
+      "datetime": "20461009123456",
+      "nethackrc": "OPTIONS=name:KnightTyped,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizlevelport\n?\n>y                #wizmap\n                "
+    }
+  ]
+}

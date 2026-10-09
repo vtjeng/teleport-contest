@@ -336,7 +336,8 @@ import {
     u_safe_from_fatal_corpse,
 } from './pickup.js';
 import { ok_to_quest, onquest } from './quest.js';
-import { com_pager } from './questpgr.js';
+import { com_pager, convertLine } from './questpgr.js';
+import { gain_guardian_angel } from './minion.js';
 import { in_out_region, visible_region_at } from './region.js';
 import { getlev } from './restore.js';
 import { delete_levelfile } from './files.js';
@@ -372,6 +373,7 @@ import { seetrap } from './trap_effects.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { note_unported } from './unported.js';
+import { create_mplayers } from './mplayer.js';
 import { block_point, cansee, recalc_block_point, vision_recalc, vision_reset } from './vision.js';
 import { setuwep, welded, weldmsg } from './wield.js';
 import { bimanual, bypass_objlist, nxt_unbypassed_obj, setnotworn, setuqwep, setuswapwep } from './worn.js';
@@ -3029,12 +3031,14 @@ export async function goto_level(
     // the arrival achievement is part of the level-change output order.
     if (In_endgame(u.uz)) {
         // C ref: do.c:1884-1890. A first arrival in an endgame dungeon
-        // records Endgame, then Astral on a newly created Astral level. The
-        // guardian-angel setup is a discarded return from a still-unported
-        // source helper; retain its call boundary before the achievement.
+        // records Endgame, then Astral on a newly created Astral level. Keep
+        // final_level()'s source-order calls around the ported player-monster
+        // generation while its other void callees remain explicit gaps.
         if (newdungeon) record_achievement(ACH_ENDG, state);
         if (isNew && on_level(u.uz, state.astral_level)) {
-            note_unported('do.c final_level');
+            note_unported('priest.c reset_hostility');
+            await create_mplayers(rn1(4, 3), true, { state });
+            await gain_guardian_angel(state);
             record_achievement(ACH_ASTR, state);
         } else if (newdungeon && u.uhave?.amulet) {
             // C resurrect() returns no value and is already the canonical
@@ -3201,7 +3205,7 @@ async function deliver_splev_message(state = game) {
     const message = state.gl?.lev_message;
     if (!message) return;
     for (const line of message.split('\n'))
-        await ttyPline(line, state);
+        await ttyPline(convertLine(line, state), state);
     state.gl.lev_message = null;
 }
 

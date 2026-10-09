@@ -13,6 +13,7 @@
 import {
     BURN,
     CORR,
+    CONFLICT,
     DOOR,
     D_CLOSED,
     D_LOCKED,
@@ -61,6 +62,7 @@ import {
 import { migrate_to_level } from './dog.js';
 import { capitalizedMonsterName } from './do_name.js';
 import { on_level } from './dungeon.js';
+import { PM_ANGEL } from './monsters.js';
 import { engr_at, wipe_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import {
@@ -318,10 +320,15 @@ function assertSimpleActionState(monster, state) {
         return;
     }
 
-    // C mon.c movemon() sends a non-tame EMIN monster through ordinary
-    // m_move(). Tame guardian angels/minions remain behind the tame guard;
-    // their distinct dog/guardian action is not this source span.
-    if (monster.mtame)
+    // monmove.c:m_move() sends tame monsters, including the Astral guardian,
+    // through dogmove.c:dog_move(). Admit only its Conflict loss branch here;
+    // the guardian's other tame-minion movement remains behind this guard.
+    const conflict = state.u?.uprops?.[CONFLICT];
+    const losingGuardian = monster.mtame
+        && monster.isminion
+        && monster.data?.pmidx === PM_ANGEL
+        && Boolean(conflict?.intrinsic || conflict?.extrinsic);
+    if (monster.mtame && !losingGuardian)
         unsupported('tame minion movement');
     // isgd is admitted: m_move() dispatches to gd_move() which handles the
     // peaceful escort path and throws on unported branches.
