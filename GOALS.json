@@ -227906,7 +227906,7 @@
     {
       "id": "fix-potion-pool-dip-confirmation-v33-20261009",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore the canonical pool dip confirmation path.",
       "cFile": "potion.c",
       "sessions": [
@@ -227920,8 +227920,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1b64b111784f2179ae9353fc4277fd495bda5d25",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "dodip",
       "session": "synthetic/v33/v33-pool-wets-towel",
       "syntheticProvenance": {
@@ -228127,7 +228130,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1b64b111784f2179ae9353fc4277fd495bda5d25",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
