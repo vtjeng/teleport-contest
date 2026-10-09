@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T03:44:09.612Z",
+  "capturedAt": "2026-10-09T03:56:39.615Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -70269,12 +70269,119 @@
         "at": "2026-10-09T03:44:04.665Z",
         "task": "C162",
         "delivery": "fdd576405c690b6ac57795b3d1a3837a29c70dce"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A182-eca66a2e",
+        "type": "assign",
+        "at": "2026-10-09T03:44:56.384Z",
+        "task": "A182",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A182-oracle-trace",
+        "type": "turn",
+        "at": "2026-10-09T03:44:57.769Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Tracing Oracle special-level generation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C160-b21970864-corrected-20261009",
+        "type": "published",
+        "at": "2026-10-09T03:45:06.303Z",
+        "task": "C160",
+        "commit": "b2197086427c6a68935fd3457f0b19a69503116b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C163-gold-theft-20261009",
+        "type": "implement",
+        "at": "2026-10-09T03:45:16.446Z",
+        "task": "C163",
+        "goal": "port-uhitm-gold-theft-handler-v33-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A181-71fee968e-20261009",
+        "type": "received",
+        "at": "2026-10-09T03:45:39.622Z",
+        "task": "A181",
+        "delivery": "71fee968e1449c39945df1fb628663e91d53536e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A182-room-pointer",
+        "type": "implement",
+        "at": "2026-10-09T03:46:52.419Z",
+        "task": "A182",
+        "goal": "fix-hack-special-room-subroom-reset-v33-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B181-4c02dfca-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T03:47:58.035Z",
+        "task": "B181",
+        "integration": "4c02dfca96bd54300b882ccce1f536aef50b9791"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B181-hosted-37880993116-20261009",
+        "type": "validated",
+        "at": "2026-10-09T03:53:35.596Z",
+        "task": "B181",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2efa8906f5e92a584ed1fb3061beb009173a5e49",
+        "type": "ready",
+        "at": "2026-10-09T03:53:55.896Z",
+        "task": "B182",
+        "delivery": "2efa8906f5e92a584ed1fb3061beb009173a5e49"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B183-cockatrice-upward-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T03:55:28.707Z",
+        "task": "B183",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B183-upward-drop-audit-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T03:55:29.971Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the upward cockatrice-corpse throw drop boundary."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B181-4c02dfca96bd54300b882ccce1f536aef50b9791-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T03:56:12.676Z",
+        "task": "B181"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B182-2efa8906-20261009",
+        "type": "received",
+        "at": "2026-10-09T03:56:32.146Z",
+        "task": "B182",
+        "delivery": "2efa8906f5e92a584ed1fb3061beb009173a5e49"
       }
     ]
   },
   "development": {
-    "executionCommit": "a09c9a204040907385ab228721730cc6c4cbbbb3",
-    "measuredAt": "2026-10-09T03:43:15.923Z",
+    "executionCommit": "4c02dfca96bd54300b882ccce1f536aef50b9791",
+    "measuredAt": "2026-10-09T03:52:49.806Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -225919,7 +225919,7 @@
     {
       "id": "fix-potion-dip-old-appearance-dummy-v33-20261009",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Initialize the old-potion naming dummy with the canonical zero object.",
       "cFile": "potion.c",
       "sessions": [],
@@ -225931,8 +225931,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4c02dfca96bd54300b882ccce1f536aef50b9791",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "potion_dip",
       "session": "synthetic/v33/v33-amethyst-booze",
       "step": 44,
@@ -226127,7 +226130,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4c02dfca96bd54300b882ccce1f536aef50b9791",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "fix-hack-empty-forcefight-explosion-v33-20261009",
