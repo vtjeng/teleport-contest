@@ -6,7 +6,8 @@
 //         dat/Cav-strt.lua, dat/Mon-goal.lua, dat/Sam-goal.lua, dat/Tou-strt.lua, dat/astral.lua,
 //         dat/Hea-goal.lua, dat/Hea-loca.lua, dat/Hea-strt.lua,
 //         dat/Kni-loca.lua, dat/Kni-strt.lua, dat/Ran-loca.lua,
-//         dat/Ran-goal.lua, dat/Ran-strt.lua, dat/Rog-strt.lua, dat/Val-goal.lua,
+//         dat/Ran-goal.lua, dat/Ran-strt.lua, dat/Rog-strt.lua, dat/Rog-loca.lua,
+//         dat/Val-goal.lua,
 //         dat/Val-loca.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
@@ -92,6 +93,7 @@ import {
     ROG_STRT_DOORS, ROG_STRT_EXIT_MONSTERS, ROG_STRT_GUARDS,
     ROG_STRT_LEVEL_MAP,
 } from './rog_strt_level_data.js';
+import { ROG_LOCA_LEVEL_MAP } from './rog_loca_level_data.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
 // that draws a random zig-zag path from (x1,y1) to (x2,y2).
@@ -2592,7 +2594,29 @@ async function rogStrt(des, state) {
         await des.monster({ id: 'chameleon', coord: streets.rndcoord(true), peaceful: 0 });
 }
 
+// Whole dat/Rog-loca.lua lines 1–99. Stairs use independent random locations;
+// the fixed cursed scroll is map-relative and precedes all random objects.
+async function rogLoca(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel');
+    await des.map(ROG_LOCA_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 20), 'lit');
+    await des.stair('up');
+    await des.stair('down');
+    await des.non_diggable(selection_area(0, 0, 75, 20));
+    await des.object({ id: 'scroll of teleportation', x: 11, y: 18,
+        buc: 'cursed', spe: 0 });
+    for (let i = 0; i < 14; ++i) await des.object();
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (let i = 0; i < 17; ++i) await des.monster({ id: 'leprechaun', peaceful: 0 });
+    await des.monster({ class: 'l', peaceful: 0 });
+    for (let i = 0; i < 7; ++i) await des.monster({ id: 'guardian naga', peaceful: 0 });
+    for (let i = 0; i < 3; ++i) await des.monster({ class: 'N', peaceful: 0 });
+    for (let i = 0; i < 5; ++i) await des.monster({ id: 'chameleon', peaceful: 0 });
+}
+
 export const QUEST_LEVEL_LOADERS = {
+    'Rog-loca': rogLoca,
     'Ran-strt': ranStrt,
     'Rog-strt': rogStrt,
     'Val-loca': valLoca,
