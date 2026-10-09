@@ -226141,7 +226141,7 @@
     {
       "id": "fix-hack-empty-forcefight-explosion-v33-20261009",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Wire exploding-form empty force-fight to canonical explosion and rehumanization.",
       "cFile": "hack.c",
       "sessions": [],
@@ -226153,8 +226153,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7af2dcb832c469033b652c131fe1feeae0d47ed3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "domove_fight_empty",
       "session": "synthetic/v33/v33-black-light-hero-explosion",
       "step": 53,
@@ -226363,7 +226366,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7af2dcb832c469033b652c131fe1feeae0d47ed3",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-artifact-invoke-healing-v33-20261009",
