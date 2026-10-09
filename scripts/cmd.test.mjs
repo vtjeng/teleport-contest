@@ -5203,3 +5203,18 @@ test('wizard and intrinsic teleport crossing hunger status supply canonical oper
         assert.equal(game.context.move, 1, 'source successful dotelecmd consumes a turn');
     }
 });
+
+test('queued doextlist follows its source pointer without an extended-command retry', async () => {
+    // cmd.c rhack's do_cmdq_extcmd label calls the queued list directly; only
+    // doextcmd493-519 repeats the '#' prompt after returning from that list.
+    const recipe = JSON.parse(readFileSync('recipes/cmd.c/extended-list-bound-discover-independent.session.json', 'utf8'));
+    await runSegment({ ...recipe.segments[0], moves: ' .' });
+    const state = game;
+    state.nhDisplay.pushKey(27);
+    cmdq_add_ec(CQ_CANNED, extcmdRow('?'), state);
+    await rhack(0, state);
+    assert.equal(state.context.move, 0);
+    assert.equal(state.multi, 0);
+    assert.equal(state.nhDisplay.inputQueueLength, 0);
+    assert.equal(cmdq_peek(CQ_CANNED, state), null);
+});
