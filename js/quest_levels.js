@@ -5,6 +5,7 @@
 //         dat/Arc-goal.lua, dat/Cav-goal.lua, dat/Cav-loca.lua,
 //         dat/Cav-strt.lua,
 //         dat/Hea-goal.lua, dat/Hea-loca.lua, dat/Hea-strt.lua,
+//         dat/Kni-loca.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
@@ -62,6 +63,9 @@ import { CAV_LOCA_LEVEL_MAP, CAV_LOCA_MONSTERS } from './cav_loca_level_data.js'
 import { HEA_STRT_LEVEL_MAP, HEA_STRT_DOORS, HEA_STRT_ATTENDANTS } from './hea_strt_level_data.js';
 import { CAV_STRT_LEVEL_MAP } from './cav_strt_level_data.js';
 import { HEA_LOCA_LEVEL_MAP } from './hea_loca_level_data.js';
+import {
+    KNI_LOCA_FIXED_TRAPS, KNI_LOCA_LEVEL_MAP, KNI_LOCA_MONSTERS,
+} from './kni_loca_level_data.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
 // that draws a random zig-zag path from (x1,y1) to (x2,y2).
@@ -1237,6 +1241,31 @@ async function kniGoal(des) {
     await des.monster({ class: 'j', peaceful: 0 });
 }
 
+// C ref: dat/Kni-loca.lua. Retain the initialization, terrain, region,
+// population, and trap calls in source order; the static tables are generated
+// from the Lua program so the transparent map and explicit descriptors stay
+// tied to upstream.
+async function kniLoca(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'hardfloor');
+    await des.level_init({ style: 'mines', fg: '.', bg: 'P',
+        smoothed: false, joined: true, lit: 1, walled: false });
+    await des.map(KNI_LOCA_LEVEL_MAP);
+
+    await des.region(selection_area(0, 0, 39, 11), 'lit');
+    await des.region({ region: [9, 2, 27, 9], lit: 1, type: 'temple', filled: 2 });
+    await des.stair('up', 38, 0);
+    await des.stair('down', 18, 5);
+    await des.altar({ x: 17, y: 5, align: 'neutral', type: 'shrine' });
+
+    for (let i = 0; i < 15; ++i) await des.object();
+    for (const { type, x, y } of KNI_LOCA_FIXED_TRAPS)
+        await des.trap(type, x, y);
+    for (let i = 0; i < 7; ++i) await des.trap('anti magic');
+    for (const monster of KNI_LOCA_MONSTERS)
+        await des.monster(monster);
+}
+
 // C ref: dat/Hea-goal.lua. Preserve both initialization calls before the
 // fixed map: the joined mines background extends beyond the pool island.
 async function heaGoal(des) {
@@ -2118,6 +2147,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Arc-filb': arcFilb,
     'Arc-goal': arcGoal,
     'Kni-goal': kniGoal,
+    'Kni-loca': kniLoca,
     'Hea-goal': heaGoal,
     'Cav-strt': cavStrt,
     'Hea-loca': heaLoca,
