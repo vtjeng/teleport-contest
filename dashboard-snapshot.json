@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T16:19:44.080Z",
+  "capturedAt": "2026-10-09T16:32:05.764Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -74746,6 +74746,62 @@
         "at": "2026-10-09T16:19:37.364Z",
         "worker": "B",
         "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-B196-central-context-wait-20261009",
+        "type": "turn",
+        "at": "2026-10-09T16:21:03.290Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Waiting for Main to open the Kni-strt.lua goal and provide its canonical task context."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5b9b6b3c1daf11564df5fd114646db027f2b4b2d",
+        "type": "ready",
+        "at": "2026-10-09T16:21:04.524Z",
+        "task": "A192",
+        "delivery": "5b9b6b3c1daf11564df5fd114646db027f2b4b2d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A192-5b9b6b3c-20261009",
+        "type": "received",
+        "at": "2026-10-09T16:21:38.115Z",
+        "task": "A192",
+        "delivery": "5b9b6b3c1daf11564df5fd114646db027f2b4b2d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B186-cc90f33b1238277138e4b80f5db48d38d2f08ce0-20261009",
+        "type": "published",
+        "at": "2026-10-09T16:21:56.933Z",
+        "task": "B186",
+        "commit": "cc90f33b1238277138e4b80f5db48d38d2f08ce0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B196-kni-strt-20261009",
+        "type": "resume",
+        "at": "2026-10-09T16:23:47.156Z",
+        "task": "B196"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B196-active-context-ready-20261009",
+        "type": "turn",
+        "at": "2026-10-09T16:23:51.484Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B196-kni-strt-20261009",
+        "type": "implement",
+        "at": "2026-10-09T16:23:58.349Z",
+        "task": "B196",
+        "goal": "port-kni-strt-lua-v36-20261009"
       }
     ]
   },
@@ -74759,6 +74815,17 @@
         "status": "ready",
         "delivery": "8a0f69f0c52809e267c7d06476888f0f3e5c44de",
         "since": "2026-10-09T16:13:11.740Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A192",
+        "worker": "A2",
+        "goal": "port-mon-goal-quest-goal-v36-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "5b9b6b3c1daf11564df5fd114646db027f2b4b2d",
+        "since": "2026-10-09T16:21:04.524Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -75030,17 +75097,6 @@
         "reason": "Complete source report07845e90b: patch006 nomux_capture_screen overflows6144-byte buffer into raw cursor globals after dense Juiblex mapping. RNG/screens match; Main owns recorder repair and admitted-corpus provenance decision. No JavaScript source task is eligible for this cursor corruption."
       },
       {
-        "task": "B196",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T13:26:21.315Z",
-        "blockedBy": [],
-        "reason": "Complete report a2b4e9d6 preserved; missing central port-kni-strt-lua-v36-20261009 goal/context prevents source claim. B195 pending dependency state remains ready; resume when Main queues canonical source context."
-      },
-      {
         "task": "B197",
         "worker": "B",
         "goal": null,
@@ -75241,8 +75297,8 @@
     ]
   },
   "development": {
-    "executionCommit": "aa078be24751cc723362b906245b9eb53d03ec6e",
-    "measuredAt": "2026-10-09T16:12:41.894Z",
+    "executionCommit": "7c789590bf2ff0b12c9c8c1ddbb81a41a51b609a",
+    "measuredAt": "2026-10-09T16:27:49.262Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
