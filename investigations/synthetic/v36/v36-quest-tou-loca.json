@@ -5,8 +5,8 @@
   "manifestPath": "challenges/manifests/v36.json",
   "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
   "recordingSha256": "82620864b147afeef63968c3285e30bc758b89ed8df48a51ecadcea08e679c3a",
-  "evaluationPath": "challenges/evaluations/accepted-97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3-v36.json",
-  "evaluationCommit": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3",
+  "evaluationPath": "challenges/evaluations/accepted-00f11936d9f1c157e37a9c080de5e2009e9f09cf-v36.json",
+  "evaluationCommit": "00f11936d9f1c157e37a9c080de5e2009e9f09cf",
   "remainingScreens": 41,
   "recordedSteps": 60,
   "session": "synthetic/v36/v36-quest-tou-loca",
@@ -80,7 +80,7 @@
     ]
   },
   "evidence": [
-    "Accepted evaluation challenges/evaluations/accepted-97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3-v36.json at 97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3 shows 19/60 matching screens and cursors, 2977/9445 RNG calls matched, and 41 screens remaining. The first mismatch is the absent Tou-loca loader at step 19. Recording digest 82620864b147afeef63968c3285e30bc758b89ed8df48a51ecadcea08e679c3a; manifest digest 58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c. The source implementation base is published boundary c73aa43b72a0800387497d5aac7de214841a325e.",
+    "Accepted evaluation challenges/evaluations/accepted-00f11936d9f1c157e37a9c080de5e2009e9f09cf-v36.json at 00f11936d9f1c157e37a9c080de5e2009e9f09cf retains 19/60 matching screens and cursors, 2977/9445 RNG calls matched, and 41 screens remaining. The first mismatch is the absent Tou-loca loader at step 19. Recording digest 82620864b147afeef63968c3285e30bc758b89ed8df48a51ecadcea08e679c3a; manifest digest 58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c. The source implementation base is published boundary c73aa43b72a0800387497d5aac7de214841a325e.",
     "Read all of dat/Tou-loca.lua lines 1–153 (SHA-256 595f7f6265dd3346624aa6de81e7093b05705e67f8c73ed39e75b54caf213d82). It defines solid stone, mazelevel/hardfloor, the 76×20 map, full-map lit/nondiggable regions, eight filled special regions (morgue, two shops, three barracks, zoo, temple), 24 ordinary regions, two local lighting selections, stairs at (10,4)/(73,5), 35 literal doors, 14 random objects and two blank-paper objects at (71,12). Preserve definition order; no explicit wallify call exists.",
     "Tou-loca.lua lines 130–134 filters selection.area(0,0,75,19) to floor, subtracts the union of shop rectangles (15,3–20,5) and (62,3–71,4), then selects and removes nine trap coordinates. Preserve one coordinate frame throughout, with no added RNG draws. The random trap type remains owned by create_trap.",
     "C nhlsel.c l_selection_or (306–330) and l_selection_sub (361–386) are pure: each checks its two selections, creates a fresh result, uses rect_bounds, loops x-major then y-major, stores integer point results with selection_setpoint and returns the new selection. OR uses bitwise | and assigns the union bounds; subtraction uses (a_pt ^ b_pt) & a_pt and recalculates bounds. The registered Lua callers are metatable __bor and __add for OR and __sub for subtraction (nhlsel.c 1005–1018).",
