@@ -70,10 +70,11 @@ import {
 import {
     RAN_LOCA_LEVEL_MAP, RAN_LOCA_MONSTERS, RAN_LOCA_OBJECT_COUNT, RAN_LOCA_TRAPS,
 } from './ran_loca_level_data.js';
-import { MON_GOAL_LEVEL_MAP } from './mon_goal_level_data.js';
 import {
-    RAN_LOCA_LEVEL_MAP, RAN_LOCA_MONSTERS, RAN_LOCA_OBJECT_COUNT, RAN_LOCA_TRAPS,
-} from './ran_loca_level_data.js';
+    RAN_GOAL_DOORS, RAN_GOAL_LEVEL_MAP, RAN_GOAL_MONSTERS,
+    RAN_GOAL_OBJECT_CALLS, RAN_GOAL_TRAP_COUNT,
+} from './ran_goal_level_data.js';
+import { MON_GOAL_LEVEL_MAP } from './mon_goal_level_data.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
 // that draws a random zig-zag path from (x1,y1) to (x2,y2).
@@ -1290,6 +1291,24 @@ async function ranLoca(des) {
     for (const monster of RAN_LOCA_MONSTERS) await des.monster(monster);
 }
 
+// C ref: complete dat/Ran-goal.lua. Generated tables preserve its map and
+// descriptor order while every des call stays at its original top-level site.
+async function ranGoal(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel');
+    await des.map(RAN_GOAL_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 19), 'lit');
+    await des.stair('up', 19, 10);
+    await des.non_diggable(selection_area(0, 0, 75, 19));
+
+    for (const args of RAN_GOAL_OBJECT_CALLS) await des.object(...args);
+    for (let i = 0; i < RAN_GOAL_TRAP_COUNT; ++i) await des.trap();
+    for (const door of RAN_GOAL_DOORS)
+        await des.door(door.type, door.x, door.y);
+    for (const monster of RAN_GOAL_MONSTERS) await des.monster(monster);
+    await des.wallify();
+}
+
 // C ref: dat/Hea-goal.lua. Preserve both initialization calls before the
 // fixed map: the joined mines background extends beyond the pool island.
 async function heaGoal(des) {
@@ -2204,6 +2223,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Kni-goal': kniGoal,
     'Kni-loca': kniLoca,
     'Ran-loca': ranLoca,
+    'Ran-goal': ranGoal,
     'Hea-goal': heaGoal,
     'Cav-strt': cavStrt,
     'Hea-loca': heaLoca,
