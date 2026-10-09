@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked at cfgfiles.c:config_erradd1554–1562 live configuration diagnostic output. optfn_scores preserves return and partial state; the discarded live pline/wait_synch owner remains a named gap. Independent negative-token route, not completion evidence.",
+  "segments": [
+    {
+      "seed": 15641031,
+      "datetime": "20560120101433",
+      "nethackrc": "OPTIONS=name:Holt,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#optionsfull\n:scores\n\n7top/-2around\n."
+    }
+  ]
+}
