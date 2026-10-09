@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T12:14:17.799Z",
+  "capturedAt": "2026-10-09T12:32:26.046Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -73181,22 +73181,42 @@
         "worker": "C",
         "state": "blocked",
         "reason": "Knight locate-level investigation is complete; implementation waits for C170 acceptance and Main’s source gate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C164-cf2bf1240",
+        "type": "published",
+        "at": "2026-10-09T12:15:46.997Z",
+        "task": "C164",
+        "commit": "cf2bf1240aa3d7af2d9944f3d2429ff225f907c7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B192-9bb29ae0c",
+        "type": "integrating",
+        "at": "2026-10-09T12:19:15.497Z",
+        "task": "B192",
+        "integration": "9bb29ae0cf4db7baf1358008c21acd797175aebc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B192-9bb29ae0c",
+        "type": "validated",
+        "at": "2026-10-09T12:26:42.724Z",
+        "task": "B192",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B192-9bb29ae0cf4db7baf1358008c21acd797175aebc-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T12:31:05.746Z",
+        "task": "B192"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B192",
-        "worker": "B",
-        "goal": "port-spell-chain-lightning-v34-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "5d699058e1a189f60bb603928cce0508e9599d39",
-        "since": "2026-10-09T09:49:40.736Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "A190",
         "worker": "A2",
@@ -73227,10 +73247,8 @@
         "status": "ready",
         "delivery": "886a35eaa110facdc58e3089f54f492b7e252fef",
         "since": "2026-10-09T10:56:50.168Z",
-        "blockedBy": [
-          "B192"
-        ],
-        "unblocks": 0
+        "blockedBy": [],
+        "unblocks": 1
       },
       {
         "task": "A188",
@@ -73280,8 +73298,7 @@
         "delivery": "012b37ee9920e63a8966c179df9a0f8160e41e06",
         "since": "2026-10-09T11:24:57.663Z",
         "blockedBy": [
-          "B194",
-          "B192"
+          "B194"
         ],
         "unblocks": 0
       },
@@ -73591,8 +73608,8 @@
     ]
   },
   "development": {
-    "executionCommit": "e8b19d4ac4c4f7ce8b8ecbe3759ce28cf9077fc9",
-    "measuredAt": "2026-10-09T12:07:52.218Z",
+    "executionCommit": "9bb29ae0cf4db7baf1358008c21acd797175aebc",
+    "measuredAt": "2026-10-09T12:25:29.270Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

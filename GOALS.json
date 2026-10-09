@@ -232610,7 +232610,7 @@
     {
       "id": "port-spell-chain-lightning-v34-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the whole chain-lightning propagation and casting family",
       "cFile": "spell.c",
       "sessions": [
@@ -232624,22 +232624,25 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9bb29ae0cf4db7baf1358008c21acd797175aebc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "propagate_chain_lightning",
           "line": 952,
           "endLine": 1002,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "cast_chain_lightning",
           "line": 1003,
           "endLine": 1103,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -232872,7 +232875,94 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "propagate_chain_lightning",
+            "implementation": "js/spell.js",
+            "symbol": "propagate_chain_lightning",
+            "sourceReview": "Read whole spell.c952–999, static queue/terrain macros909–943 and hack.h658–661 direction macros. Preserve copy-before-forward, tail cap100, isok, SPACE_POS and permitted liquids excluding WATER/LAVAWALL, open-door test, peaceful refusal, vulnerable strength3 and resistant strength0, exhausted-empty refusal, whole prior-coordinate traversal, enqueue-before-two tmp_at calls. C rm.doormask aliases flags; JS reads the established canonical door-generation field cell.flags, not its stale separate doormask. Resists_Elem(SHOCK_RES), defended(AD_ELEC), m_at, zapdir_to_glyph and tmp_at existing owners read; no invented return or RNG substitute. Source-pinned fixture coverage checks terrain, offmap, cap, duplicates, copy, peaceful/vulnerable/resistant strength.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "cast_chain_lightning",
+                "source": "spell.c1023 initial eight directions;1082 forward;1089 DIR_LEFT;1092 DIR_RIGHT2; all calls await whole propagate_chain_lightning, passing zap by value."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/chain-lightning.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/chain-lightning-forced-resistant-independent.session.json",
+              "recordings/spell.c/chain-lightning-forced-vulnerable-independent.session.json",
+              "recordings/spell.c/chain-lightning-learned-wizard-independent.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "9bb29ae0cf4db7baf1358008c21acd797175aebc"
+          },
+          {
+            "name": "cast_chain_lightning",
+            "implementation": "js/spell.js",
+            "symbol": "cast_chain_lightning",
+            "sourceReview": "Read whole spell.c1003–1101. Hallucination display RNG initializer precedes swallowed source TODO guard; start DISP_BEAM; source eight directions; one initial delay; snapshot each wave tail and copy each popped zap; preserve gn.notonhead using prior gb.bhitpos (zero-initialized at first read as decl.c does); consume zhitm damage at BZ_U_SPELL(AD_ELEC-1)=15 with nd2; armor return deliberately unused because electricity cannot destroy armor; xkilled/mon_nam/exclam/canseemon/map_invisible in source order; visible zero-damage resists message; live wakeup(FALSE) bracketed by forcefight increment/decrement; strength guard/decrement, forward propagation, lateral strength reset/Pw decrement, relative left/right2 directions; delay each wave, two final delays and DISP_END cleanup. Source-pinned tests verify wave ordering, no-target energy, swallowed initializer and cleanup; strict C recordings cover resistance, kill and ordinary learned cast. Existing zhitm full electricity/resist/inventory return owners, xkilled and wakeup inspected. No source callee expansion or new note_unported needed for the selected branch.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c1588–1590 SPE_CHAIN_LIGHTNING arm awaits whole cast_chain_lightning, then existing common use_skill and pseudo-book cleanup. No whole spelleffects credit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/chain-lightning.test.mjs",
+              "scripts/spell-cast-effects.test.mjs",
+              "scripts/spell.test.mjs",
+              "scripts/zap-ray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/chain-lightning-forced-resistant-independent.session.json",
+              "recordings/spell.c/chain-lightning-forced-vulnerable-independent.session.json",
+              "recordings/spell.c/chain-lightning-learned-wizard-independent.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "9bb29ae0cf4db7baf1358008c21acd797175aebc"
+          }
+        ],
+        "entryPointReview": "Only active source caller is spell.c spelleffects1589, reached by forced dowizcast787–815 and ordinary docast820–829/getspell. Existing typed/queued/direct binding command routes already reach those owners. Two forced C recordings cover the wizard-cast family; one independently learned ordinary #cast recording covers docast. Both source functions execute under each. The swallowed branch intentionally does no engulfer damage in current C and its display-RNG-before-return source order is pinned. Duplicates, cap100 and unreachable liquid boundary combinations use source-pinned tests. The separate immediate-new-message painting frontier is retained as a blocked representative outside this task; it does not replace runtime evidence.",
+        "entryPoints": [
+          {
+            "name": "Forced wizard chain-lightning cast",
+            "functions": [
+              "propagate_chain_lightning",
+              "cast_chain_lightning"
+            ],
+            "recordings": [
+              "recordings/spell.c/chain-lightning-forced-resistant-independent.session.json",
+              "recordings/spell.c/chain-lightning-forced-vulnerable-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Ordinary learned chain-lightning cast",
+            "functions": [
+              "propagate_chain_lightning",
+              "cast_chain_lightning"
+            ],
+            "recordings": [
+              "recordings/spell.c/chain-lightning-learned-wizard-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9bb29ae0cf4db7baf1358008c21acd797175aebc",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
