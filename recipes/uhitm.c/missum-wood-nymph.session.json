@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first uhitm.c:missum witness. Directly chosen Healer seed/form/sex and clock; peaceful stone golem has no theft inventory and retains a target through repeated attacks. C-only setup established southeast force-fight; later rehumanization also reaches ordinary known_hitum miss. Inputs were corrected only from C output before any JavaScript comparison. Setup history remains in task evidence.",
+  "segments": [
+    {
+      "seed": 16271013,
+      "datetime": "20560512131417",
+      "nethackrc": "OPTIONS=name:Ada,role:Healer,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!debug_mongen,!acoustics,!autopickup\n",
+      "moves": "     w-     #polyself\nwood nymph\n     #wizgenesis\npeaceful stone golem\n     Fn     Fn     Fn     Fn     Fn     Fn     "
+    }
+  ]
+}
