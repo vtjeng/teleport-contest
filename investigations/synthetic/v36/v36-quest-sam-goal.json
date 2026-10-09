@@ -1,0 +1,98 @@
+{
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-sam-goal",
+  "session": "synthetic/v36/v36-quest-sam-goal",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "f3341c0105c9862a56f1ad4d30c4006a2c2b3277e1e9e63f04eaf5d7e4ac4bc9",
+  "evaluationPath": "challenges/evaluations/accepted-6c8194f5c2a6dd256804398b6b00b5ef9c320128-v36.json",
+  "evaluationCommit": "6c8194f5c2a6dd256804398b6b00b5ef9c320128",
+  "remainingScreens": 41,
+  "recordedSteps": 60,
+  "status": "complete",
+  "commit": "56d5cb1686a4afb5f1c7eb72c807df3311be8023",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-sam-goal",
+    "session": "synthetic/v36/v36-quest-sam-goal",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-sam-goal.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-sam-goal.session.json",
+    "recordingSha256": "f3341c0105c9862a56f1ad4d30c4006a2c2b3277e1e9e63f04eaf5d7e4ac4bc9",
+    "recipe": "challenges/cases/v36/v36-quest-sam-goal.recipe.session.json",
+    "recipeSha256": "7dfd2514c351ee17e72a99684567f61b3054076932e34f03ba8e1c3384632cba",
+    "replayInputSha256": "9119b83884976c37f4a1c1659afa21d6a77125f844a1eb1ee4fb153ae7dd9e10",
+    "evaluationPath": "challenges/evaluations/accepted-6c8194f5c2a6dd256804398b6b00b5ef9c320128-v36.json",
+    "evaluationCommit": "6c8194f5c2a6dd256804398b6b00b5ef9c320128",
+    "evaluationArtifact": "challenges/evaluations/accepted-6c8194f5c2a6dd256804398b6b00b5ef9c320128-v36.json",
+    "evaluationUtc": "2026-10-09T17:42:03.043Z",
+    "remainingScreens": 41,
+    "recordedSteps": 60,
+    "previousScreensMatched": 19,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 60
+      },
+      "rng": {
+        "matched": 2554,
+        "total": 3518
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Sam-goal\"",
+      "step": 19
+    },
+    "step": 19,
+    "kind": "stop",
+    "sourceFile": "Sam-goal.lua",
+    "function": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Sam-goal\"",
+    "cFile": null,
+    "luaFile": "Sam-goal.lua",
+    "line": null
+  },
+  "summary": "Sam-goal.lua remains absent from QUEST_LEVEL_LOADERS, so Samurai quest-goal arrival stops before generation at step 19. Port the whole 111-line program: concentric-ring map, four source-ordered random location choices, unlit region, closed doors, up stair and three wall openings, protected walls, named Tsurugi, objects, traps and inhabitants.",
+  "goalKind": "lua-port",
+  "source": {
+    "file": "Sam-goal.lua",
+    "branch": "First generation of the Samurai quest goal level after level teleportation; the Sam-goal special prototype has no registered JavaScript loader.",
+    "functions": [
+      "Sam-goal.lua (whole program, lines 1–111)"
+    ],
+    "callers": [
+      "do.c:goto_level -> mklev.c:makelevel1266–1271 -> mkmaze.c:makemaz1184–1193 -> sp_lev.c:load_special6454–6503 -> dat/Sam-goal.lua",
+      "js/mklev.js:makelevel -> makemaz/load_special -> QUEST_LEVEL_LOADERS[Sam-goal] -> samGoal in established js/quest_levels.js -> canonical des.finish"
+    ],
+    "dependencies": [
+      "Existing solidfill initialization, map frame and selection_area helpers: preserve the initial unspecified-lit rn2(2) before the four Lua location choices; do not replace it with an explicit fixed lit state.",
+      "dat/nhlib.lua5–15 math.random compatibility and nhlua.c:nhl_random940–951: math.random(1,n) is 1+rn2(n). Capture one zero-based choice per source statement, with bounds 2,4,4,2; do not shuffle the lists or move a choice across a descriptor call.",
+      "Existing lspo_stair/l_create_stairway, lspo_terrain, lspo_door, lspo_non_diggable and lspo_trap coordinate/frame owners; coordinate-array terrain and stair table coord forms are implemented. Preserve source generation/finalization and level flips.",
+      "Existing lspo_object/create_object and canonical objectGenerationHooks.nameObject -> do_name.oname ONAME_LEVEL_DEF for the blessed spe0 Tsurugi; named objects disable incidental artifact generation before source oname. No spinach montype or noncoaligned alignment path is selected.",
+      "Existing lspo_monster/create_monster: retain Ashikaga positional name, hostile samurai/ninja table names, wolf/stalker strings and dog class d to preserve species/name parsing and gender RNG. Report any runtime helper defect before expanding scope; no helper completion credit."
+    ]
+  },
+  "evidence": [
+    "Current saved accepted6c8194f5 evaluation retains 19/60 screens/cursors and 2554/3518 RNG, with 41 remaining screens. Source stop is still missing Sam-goal loader at segment0 step19. Current queue corpus/recipe/recording hashes retained unchanged; no aggregate or C replay was needed for this missing-loader refresh.",
+    "Complete dat/Sam-goal.lua1–111 read, source SHA256 8f52c33c35ca8ad7a86bdaed246be52deaaef186638fff31d8501f735de58157. Program initializes solidfill space, mazelevel/noteleport; map is 20 rows of 45 characters, including significant leading/trailing spaces. It selects the up-stair position before unlit area0/0..44/19 and four closed doors at19/10,22/8,22/12,25/10. Stair choices2/11 or42/9. Three subsequent choices open one coordinate from each ring list, then mark all map walls non-diggable.",
+    "Lua ring lists are22/14,30/10,22/6,14/10;22/4,35/10,22/16,9/10;22/2,22/18. Recorded step19 contains rn2(2)=0 at Sam-goal.lua34, rn2(4)=1 at47, rn2(4)=2 at50, rn2(2)=1 at53, after the initial splev_initlev rn2(2)=0. Thus this C run selects up2/11 and openings30/10,22/16,22/18 before later flip_level_rnd transforms the map. Tests must pin all four independent choices and source order.",
+    "Sam-goal.lua59–111 creates blessed spe0 named The Tsurugi of Muramasa at22/10,14 random objects,3 board traps at22/9,24/10,22/11 and6 random traps. Monster order is Ashikaga Takauji22/10,5 hostile samurai,5 hostile ninja,4 wolves,2 dog-class monsters and9 stalkers (26 descriptors total). No altar, custom inventory, spinach tin, selection removal or noncoaligned macro is involved.",
+    "rg Sam-goal|samGoal in js/quest_levels.js and scripts/*.test.mjs finds no program or fixture. js/mklev.js650–685 refuses the unregistered prototype; ensureSpecialLevelLoaders1736 imports and spreads the canonical QUEST_LEVEL_LOADERS. Full program plus unique import/function/registry key is the smallest source scope, rather than removing only the refusal.",
+    "Source lspo_terrain4978–5044 and JS3476–3535 support coordinate-array terrain with map-relative location and unchanged lighting. C l_create_stairway4145–4215 and JS2770–2844 support dir/coord and canonical staircase creation. C lspo_door4671–4741 fixed closed states avoid random door selection. These source sites and existing wrappers were read; runtime validation is still required before completion.",
+    "C create_object2193–2270 sets named before mksobj_at/mkobj_at (!named artifact permission), writes spe/BUC then oname ONAME_LEVEL_DEF. js/sp_lev_object.js277–335 follows that order and js/object_generation.js52 supplies canonical oname; its floor-object path returns synchronously because the object is neither wielded nor unpaid. Existing oname generator was read. No initial source helper edits are proposed.",
+    "C lspo_monster3214–3402 and JS2064–2271 distinguish positional strings, table IDs and single-character classes and retain gender parsing draws. Await every production descriptor operation; do not replace strings with guessed numeric species IDs or swallow a newly reached runtime refusal. Keep helper-owner limitations explicit if fresh evidence exposes them.",
+    "Evidence plan: admitted segment0 steps19–59 after implementation, plus independent C-first male and female human Samurai arrivals/#wizmap with distinct input histories and source-pinned four-choice descriptor tests. Verify named blessed spe0 quest artifact identity, up staircase, closed doormasks, unlit/protected terrain and monster descriptors through source frame/flip handling. Generate sam_goal_level_data.js deterministically from all 45-character map rows and pin regenerated output.",
+    "Initial source proposal reserves source:Sam-goal.lua and contract:samurai-quest-goal-loader plus this session. Changes only unique quest_levels import/function/registry seam, generated map, deterministic generator/check, focused tests and independent recipes/recordings. No mklev/helper source credit or edits without a further scope gate. B195 and B196 are accepted in the examined base. No pending delivery dependency; other loader report ancestry remains preserved."
+  ]
+}
