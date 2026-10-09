@@ -1786,6 +1786,12 @@ async function ensureSpecialLevelLoaders() {
         ...WIZARD2_LEVEL_LOADERS,
         ...WIZARD3_LEVEL_LOADERS,
     };
+    // Val-strt is the first translated level to use the Lua selection global.
+    // Keep the established loader signature for every other level, including
+    // loaders whose third argument is an injected random function.
+    const valStrtLoader = QUEST_LEVEL_LOADERS['Val-strt'];
+    SPECIAL_LEVEL_LOADERS['Val-strt'] = (des, state) =>
+        valStrtLoader(des, state, des[SPECIAL_LEVEL_LUA_GLOBALS]);
 }
 
 // C ref: sp_lev.c load_special(). Initializes the level coder, runs the
@@ -1800,7 +1806,7 @@ export async function load_special(name, state, callerEnv = null) {
     // C creates gc.coder, including the file-scope SpLev_Map state, before
     // attempting load_lua(). Keep that state available to the caller's
     // NULL-state finalizer even when the Lua program is not implemented.
-    const { des: specialLevelApi, luaGlobals } = createSpecialLevelApi(state);
+    const specialLevelApi = createSpecialLevelApi(state);
     if (callerEnv) callerEnv.frame = specialLevelApi.frame;
     if (!loader) {
         // Arbitrary Lua execution and nhl_loadlua's file-error output have
@@ -1815,7 +1821,7 @@ export async function load_special(name, state, callerEnv = null) {
     shuffle_core_values(align, rn2);
     state.specialLevelAlign = align;
 
-    await loader(specialLevelApi, state, luaGlobals);
+    await loader(specialLevelApi, state);
 
     // Post-processing: finish() covers link_doors_rooms,
     // remove_boundary_syms, map_cleanup, wallification, flip_level_rnd,
@@ -4384,6 +4390,8 @@ async function finishFixupSpecial(state) {
     });
 }
 
+const SPECIAL_LEVEL_LUA_GLOBALS = Symbol('special-level Lua globals');
+
 function createSpecialLevelApi(state) {
     // C ref: sp_lev.c SpLev_Map[COLNO][ROWNO]. Tracks which cells were
     // placed by lspo_map, lspo_door, lspo_stair, or lspo_drawbridge.
@@ -4744,7 +4752,10 @@ function createSpecialLevelApi(state) {
             set(...args) { return l_selection_setpoint(args, env); },
         }),
     });
-    return { des, luaGlobals };
+    Object.defineProperty(des, SPECIAL_LEVEL_LUA_GLOBALS, {
+        value: luaGlobals,
+    });
+    return des;
 }
 
 // C ref: sp_lev.c lspo_map(), array form. Sets the map frame and paints
