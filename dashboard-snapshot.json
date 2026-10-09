@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T22:45:45.390Z",
+  "capturedAt": "2026-10-09T22:47:11.982Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -76969,6 +76969,32 @@
         "type": "accepted",
         "at": "2026-10-09T22:44:45.384Z",
         "task": "A200"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A200-cb9293651b99c7158054bdbe7ee25dad16de479a",
+        "type": "published",
+        "at": "2026-10-09T22:46:30.097Z",
+        "task": "A200",
+        "commit": "cb9293651b99c7158054bdbe7ee25dad16de479a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-after-A200-acceptance-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:46:33.649Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Checking accepted queue evidence and ownership for the next independent source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-blocked-after-A200-no-independent-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:46:49.365Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "No independent source task remains in the fresh queue: queued cases await Main-owned pointer-formatting, recorder-cursor, or platform-provenance decisions; Prep2 owns v38 preparation."
       }
     ]
   },
