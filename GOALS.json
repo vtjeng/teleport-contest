@@ -222013,6 +222013,39 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-options-tab-separated-menu-format-v32-20261009",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Render source tab-separated option menus",
+      "cFile": "options.c",
+      "sessions": [
+        "synthetic/v32/v32-options-tab-menu"
+      ],
+      "selectionReason": "Seed-family continuation after accepted B173 typed full-options dispatch; this is the oldest dependency-ready option layout refusal in the saved v32 corpus.",
+      "detail": "Translate the omitted full and simple source tab-format branches plus full pass0 Boolean indentation; reuse canonical menu/pick behavior and patched TTY byte rendering. This is a bounded divergence only: doset and doset_simple_menu remain incomplete, with option help and downstream handlers retained as explicit frontiers.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "doset_simple_menu..doset",
+      "session": "synthetic/v32/v32-options-tab-menu",
+      "step": 14,
+      "syntheticProvenance": {
+        "synthetic/v32/v32-options-tab-menu": {
+          "session": "synthetic/v32/v32-options-tab-menu",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-options-tab-menu",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-options-tab-menu.session.json",
+          "recordingSha256": "3aa8d8c224a2431fe8c04d7bd35f0d43618cd26563d2d5b07ab3f750c3838e70",
+          "evaluationPath": "challenges/evaluations/accepted-4e29cc141937e87b623f827cf27d4c229d5e290a-v32.json",
+          "evaluationCommit": "4e29cc141937e87b623f827cf27d4c229d5e290a"
+        }
+      }
     }
   ]
 }
