@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent read.c class retry: newly chosen role/seed/clock, invalid name then More dismissal and genuine new-prompt cancellation; source cmdassist hint enabled.",
+  "segments": [
+    {
+      "seed": 18751012,
+      "datetime": "20510618133457",
+      "nethackrc": "OPTIONS=name:Retryclass,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,!tips,cmdassist\n",
+      "moves": " \u0017blessed scroll of genocide\nre  imaginary beast\n \u001b."
+    }
+  ]
+}
