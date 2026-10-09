@@ -5227,9 +5227,7 @@ test('fleeing water nymph relocates through dochug and rloc', async () => {
 
 // C ref: monmove.c dochug():726-731. A sleeping leprechaun outside
 // couldsee() returns from disturb() before m_move() reaches leppie_avoidance(),
-// so this one branch needs no leprechaun-specific port. Awake leprechauns and
-// teleport-permitted Tengu still reach unported species actions and remain
-// fail-closed.
+// so this branch reaches neither the gold movement term nor an attack.
 test('sleeping out-of-sight leprechaun takes the disturb no-op', async () => {
     const target = await prepareSelectedAction({ pmidx: PM_LEPRECHAUN });
     target.monster.msleeping = true;
@@ -5826,20 +5824,13 @@ test('planned covetous relocation isolates flagged naming and position',
         assert.ok(plannedMonster);
     });
 
-test('species guard still blocks unsupported leprechaun actions',
+test('awake leprechaun planning reaches canonical actions without changing live state',
     async () => {
         const target = await prepareSelectedAction({ pmidx: PM_LEPRECHAUN });
         target.monster.msleeping = false;
         const before = completeSecondTurnSnapshot(game, target.replay);
         for (let attempt = 0; attempt < 2; ++attempt) {
-            await assert.rejects(
-                preflightSimpleMonsterActions(game),
-                (error) => (
-                    error instanceof UnsupportedSimpleMonsterActionError
-                    && error.reason === 'a special monster action'
-                ),
-                `attempt ${attempt + 1}`,
-            );
+            await preflightSimpleMonsterActions(game);
             assert.deepEqual(
                 completeSecondTurnSnapshot(game, target.replay),
                 before,

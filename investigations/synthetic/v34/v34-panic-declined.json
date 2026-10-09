@@ -11,7 +11,7 @@
   "remainingScreens": 24,
   "recordedSteps": 32,
   "status": "complete",
-  "commit": "0be84a8b924b013b14544833362f5e060f9503fc",
+  "commit": "bc2ce8fb5ecd42fec92c2db427c427b566e0d645",
   "mismatch": {
     "session": "synthetic/v34/v34-panic-declined",
     "corpus": "synthetic",
