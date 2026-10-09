@@ -222660,7 +222660,7 @@
     {
       "id": "port-options-pickup-types-whole-v32-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete the pickup-types option request handler",
       "cFile": "options.c",
       "sessions": [
@@ -222696,7 +222696,7 @@
           "endLine": 6123,
           "declared": true,
           "sourceFile": "options.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -222907,7 +222907,132 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "handler_pickup_types",
+            "implementation": "js/options.js",
+            "symbol": "handler_pickup_types",
+            "sourceReview": "Read whole options.c:6114-6121 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Await the production parseoptions(\"pickup_types\",FALSE,FALSE) caller before returning optn_ok1, exactly source order. C discards parseoptions result; no whole parseoptions or doset credit. No RNG or output is added by the wrapper; the called option request provides the recorded output.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "optfn_pickup_types",
+                "source": "options.c:3398 do_handler returns handler_pickup_types; OPTION_HANDLERS routes the C allopt callback from doset full and simple menu pick loops."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/options-pickup-types.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/pickup-types-traditional-full.session.json",
+              "recordings/options.c/pickup-types-traditional-simple-restore.session.json",
+              "recordings/options.c/pickup-types-combination-menu.session.json",
+              "recordings/options.c/pickup-types-wizard-class-menu.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-options-pickup-traditional",
+                "segment": 0,
+                "fromStep": 29,
+                "throughStep": 45,
+                "source": "cmd.c:doextcmd optionsfull -> options.c:doset -> optfn_pickup_types do_handler -> handler_pickup_types6114-6121 -> parseoptions -> optfn_pickup_types do_set3308-3402 traditional getlin/class parsing, then full menu value redraw."
+              }
+            ],
+            "checkedAt": "1284e60b42ebde4775c7978300ed09913f893ebc"
+          }
+        ],
+        "entryPointReview": "All request sites inspected: allopt_array_init7428 DO_INIT (source no-op, defaultResult adapter and pinned result), startup parseoptions DO_SET (canonical applyOption adapter), full/simple option menus GET_VAL plus DO_HANDLER -> handler -> runtime parseoptions DO_SET (traditional, combination fallback, ordinary full, wizard full entries recorded). Runtime explicit DO_SET is result-pinned and existing focused parser tests. get_option_value(cnfvalid TRUE) GET_CNF_VAL is active through #saveoptions persistence, blocked and withheld from completion; it is not compile-time inactive. No separate registry/injected operation remains for pickup_types. Compatibility pickup<=6, initial empty/negated, explicit classes and a/A are source-pinned; invalid runtime output gaps are named, not fabricated.",
+        "entryPoints": [
+          {
+            "name": "Startup initialization and explicit pickup_types config",
+            "functions": [
+              "optfn_pickup_types"
+            ],
+            "recordings": [
+              "recordings/options.c/pickup-types-traditional-full.session.json",
+              "recordings/options.c/pickup-types-traditional-simple-restore.session.json",
+              "recordings/options.c/pickup-types-combination-menu.session.json",
+              "recordings/options.c/pickup-types-wizard-class-menu.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Typed full-options traditional pickup input and value redraw",
+            "functions": [
+              "optfn_pickup_types",
+              "handler_pickup_types"
+            ],
+            "recordings": [
+              "recordings/options.c/pickup-types-traditional-full.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-options-pickup-traditional",
+                "segment": 0,
+                "fromStep": 29,
+                "throughStep": 45,
+                "source": "cmd.c:doextcmd optionsfull -> options.c:doset -> optfn_pickup_types do_handler -> handler_pickup_types6114-6121 -> parseoptions -> optfn_pickup_types do_set3308-3402 traditional getlin/class parsing, then full menu value redraw."
+              }
+            ]
+          },
+          {
+            "name": "Ordinary O simple-options empty, spaces, class and Escape responses",
+            "functions": [
+              "optfn_pickup_types",
+              "handler_pickup_types"
+            ],
+            "recordings": [
+              "recordings/options.c/pickup-types-traditional-simple-restore.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Combination getlin m fallback to canonical class menu",
+            "functions": [
+              "optfn_pickup_types",
+              "handler_pickup_types"
+            ],
+            "recordings": [
+              "recordings/options.c/pickup-types-combination-menu.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Wizard class-menu venom admission and Escape restore",
+            "functions": [
+              "optfn_pickup_types",
+              "handler_pickup_types"
+            ],
+            "recordings": [
+              "recordings/options.c/pickup-types-wizard-class-menu.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Save configuration GET_CNF_VAL writer",
+            "functions": [
+              "optfn_pickup_types"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "1284e60b42ebde4775c7978300ed09913f893ebc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "handler_pickup_types is verified and the live pickup request behavior matches; optfn_pickup_types remains incomplete until cmd.c saveoptions and cfgfiles.c do_write_config_file reach its active GET_CNF_VAL caller, with runtime config_erradd output retained as a named discarded-return gap."
     }
   ]
 }
