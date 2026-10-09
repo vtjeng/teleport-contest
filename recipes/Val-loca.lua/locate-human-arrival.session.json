@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first whole Val-loca witness selected before JS comparison. Human neutral natural quest-locate arrival and lawful dwarf direct source loading vary initial RNG, background mines, random objects/traps and monster class draws. Exact source fixed stairs include the up stair outside the fragment. Spaces acknowledge startup and travel messages. The first independent C menu showed the quest destination on page two; > advances before z. Seed/date and route retained.",
+  "segments": [
+    {
+      "seed": 19636113,
+      "datetime": "20531009141523",
+      "nethackrc": "OPTIONS=name:IceLocate,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "   #wizlevelport\n?\n>z                #wizmap\n                "
+    }
+  ]
+}
