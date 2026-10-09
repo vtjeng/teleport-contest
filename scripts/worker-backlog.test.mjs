@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { pendingMainWork, workerWork, savedQueueIssues } from './worker-backlog.mjs';
+import { acceptedMain, pendingMainWork, workerWork, savedQueueIssues } from './worker-backlog.mjs';
 import { nextActions } from './worker-state.mjs';
 
 // Small ledger projections isolate backlog display from Git and validation.
@@ -15,6 +15,28 @@ function add(state, id, status = 'ready', dependencies = []) {
     state.deliveries[delivery] = { task: id, delivery, readyAt: at(1), dependencies };
     return delivery;
 }
+
+test('worker sync selects the latest accepted or published Main, never the active candidate', () => {
+    const state = fixture();
+    assert.equal(acceptedMain(state), null);
+    const old = add(state, 'old', 'accepted');
+    Object.assign(state.deliveries[old], { acceptedAt: at(2), integration: 'old-tested',
+        publishedAt: at(3), publishedCommit: 'old-reports', checkpoint: '/old-summary' });
+    assert.equal(acceptedMain(state).commit, 'old-reports', 'publication includes accepted reports');
+    const current = add(state, 'current', 'integrating');
+    state.deliveries[current].integration = 'untested';
+    assert.equal(acceptedMain(state).commit, 'old-reports', 'an active candidate is not accepted');
+    Object.assign(state.deliveries[current], { acceptedAt: at(4), checkpoint: '/new-summary' });
+    assert.deepEqual(acceptedMain(state), { task: 'current', commit: 'untested',
+        checkpoint: '/new-summary', acceptedAt: at(4) });
+    // A later, verified batch-admission publication may belong to an older
+    // preparation task. Its passing supplemental checkpoint covers the new inputs.
+    state.deliveries[old].publishedAt = at(5);
+    state.deliveries[old].publishedCommit = 'admitted-batch-main';
+    state.deliveries[old].supplementalCheckpoint = '/batch-summary';
+    assert.equal(acceptedMain(state).commit, 'admitted-batch-main');
+    assert.equal(acceptedMain(state).checkpoint, '/batch-summary');
+});
 
 test('pending deliveries show blockers without treating accepted corrections as blocked', () => {
     const state = fixture();

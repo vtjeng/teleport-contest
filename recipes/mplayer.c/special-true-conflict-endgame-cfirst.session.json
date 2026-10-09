@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent chaotic female Wizard variation. The wizard intrinsic menu sets Conflict before entering a newly generated Astral Plane, exercising lose_guardian_angel through gain_guardian_angel.",
+  "segments": [
+    {
+      "seed": 24100920,
+      "datetime": "20461010130917",
+      "nethackrc": "OPTIONS=name:ConflictWizard,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizintrinsic\n>>h\n #wizlevelport\n?\n>J    "
+    }
+  ]
+}

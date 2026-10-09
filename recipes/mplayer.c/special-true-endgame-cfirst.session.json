@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Knight run that uses the wizard level command to enter Astral and exercises final_level/create_mplayers with special=true, including developer naming and equipment.",
+  "segments": [
+    {
+      "seed": 24100919,
+      "datetime": "20461009130917",
+      "nethackrc": "OPTIONS=name:FinalKnight,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizlevelport\n?\n>J     "
+    }
+  ]
+}

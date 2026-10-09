@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first display.c:newsym suppression variation. Seed and inputs chosen before comparison. Repeated replacement levels exercise generation while prior vision exists; normal redraw after each replacement verifies the outside-suppression path. Monster cleanup remains a named discarded wizcmds.c:makemap_remove_mons frontier, with no completion claim. BLOCKED: wizcmds.c:makemap_remove_mons -> makemap_unmakemon -> mon.c:mongone -> steal.c:discard_minvent consumes obj_resists RNG for existing monster inventory at first replacement step36; current makemap_prepost records the discarded removal gap. This frontier is outside the newsym suppression guard. Original C recording and failing differential are preserved in C179 cache; do not use for completion.",
+  "segments": [
+    {
+      "seed": 17937111,
+      "datetime": "20400113141516",
+      "nethackrc": "OPTIONS=name:MapGuard,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizgenesis\nsewer rat\n#wizmakemap\n.#wizmakemap\n"
+    }
+  ]
+}

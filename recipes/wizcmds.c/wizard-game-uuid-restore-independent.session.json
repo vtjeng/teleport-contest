@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Independent C-first two-segment UUID display and persistence through save/restore. Permanent blindness varies the source character state and avoids unrelated restored floor-object repaint. Native NHUUID generation is compile-time inactive in the reference build; saved value remains owned by svn.nhuuid.",
+  "segments": [
+    {
+      "seed": 18634043,
+      "datetime": "20441119103333",
+      "nethackrc": "OPTIONS=name:UuidPersistent,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,blind,!acoustics,!tips,!verbose,!debug_mongen,pettype:none\n",
+      "moves": " .#wizshownhuuid\nSy"
+    },
+    {
+      "seed": 18634043,
+      "datetime": "20441119103333",
+      "nethackrc": "OPTIONS=name:UuidPersistent,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,blind,!acoustics,!tips,!verbose,!debug_mongen,pettype:none\n",
+      "moves": " n #wizshownhuuid\n."
+    }
+  ]
+}

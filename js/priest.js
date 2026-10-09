@@ -65,7 +65,7 @@ import { game } from './gstate.js';
 import { nomul } from './hack.js';
 import { dist2, highc } from './hacklib.js';
 import { record_achievement } from './insight.js';
-import { makemon, mongets } from './makemon_create.js';
+import { makemon, makemon_runtime, mongets } from './makemon_create.js';
 import { set_malign } from './makemon.js';
 import { mattacku, m_next2u } from './mhitu.js';
 import { mon_allowflags, mongone } from './mon.js';
@@ -349,12 +349,23 @@ export function mk_roamer(
     const blocker = m_at(x, y, state);
     if (blocker) rloc(blocker, RLOC_NOMSG, { ...rawEnv, state });
 
-    const maybeRoamer = makemon(
+    // mk_roamer() is used both while constructing special levels and during
+    // runtime events such as final_level().  Runtime makemon() callers must
+    // own its asynchronous group/inventory/message tail; level construction
+    // keeps the synchronous path, including special-room filling.
+    const createRoamer = state.in_mklev || rawEnv._specialRoomFill
+        ? makemon
+        : makemon_runtime;
+    const maybeRoamer = createRoamer(
         ptr,
         x,
         y,
         MM_ADJACENTOK | MM_EMIN | MM_NOMSG,
-        { ...rawEnv, state },
+        {
+            ...rawEnv,
+            state,
+            _mkRoamer: createRoamer === makemon_runtime,
+        },
     );
     const finish = (roamer) => {
         if (!roamer) return null;

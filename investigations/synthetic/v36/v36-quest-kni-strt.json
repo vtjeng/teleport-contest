@@ -1,0 +1,98 @@
+{
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-kni-strt",
+  "session": "synthetic/v36/v36-quest-kni-strt",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "0e97de322cfb247842ae6fc307b6753e94f967c58654371cc37f803463fe3691",
+  "evaluationPath": "challenges/evaluations/accepted-07a7711f3c33616a45a45bdd323eee7001502b7c-v36.json",
+  "evaluationCommit": "07a7711f3c33616a45a45bdd323eee7001502b7c",
+  "remainingScreens": 41,
+  "recordedSteps": 60,
+  "status": "complete",
+  "commit": "012b37ee9920e63a8966c179df9a0f8160e41e06",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-kni-strt",
+    "session": "synthetic/v36/v36-quest-kni-strt",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-kni-strt.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-kni-strt.session.json",
+    "recordingSha256": "0e97de322cfb247842ae6fc307b6753e94f967c58654371cc37f803463fe3691",
+    "recipe": "challenges/cases/v36/v36-quest-kni-strt.recipe.session.json",
+    "recipeSha256": "faa2c28831bbbe11b32a88dc08dc42754fe9b086b9c1f66a8e4633d4f83d1fb8",
+    "replayInputSha256": "6716cbe410e459f68b6b808b43f0a596735361eb079d0f3079311701d3b8c1b5",
+    "evaluationPath": "challenges/evaluations/accepted-07a7711f3c33616a45a45bdd323eee7001502b7c-v36.json",
+    "evaluationCommit": "07a7711f3c33616a45a45bdd323eee7001502b7c",
+    "evaluationArtifact": "challenges/evaluations/accepted-07a7711f3c33616a45a45bdd323eee7001502b7c-v36.json",
+    "evaluationUtc": "2026-10-09T17:07:38.985Z",
+    "remainingScreens": 41,
+    "recordedSteps": 60,
+    "previousScreensMatched": 19,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 60
+      },
+      "rng": {
+        "matched": 2849,
+        "total": 4976
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Kni-strt\"",
+      "step": 19
+    },
+    "step": 19,
+    "kind": "stop",
+    "sourceFile": "Kni-strt.lua",
+    "function": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Kni-strt\"",
+    "cFile": null,
+    "luaFile": "Kni-strt.lua",
+    "line": null
+  },
+  "summary": "Kni-strt.lua was missing from QUEST_LEVEL_LOADERS, so forced Knight quest-start arrival stopped at step19. Whole-program implementation exposed a consumed-helper mismatch: C routes player species from sp_lev.c:create_monster() through mplayer.c:mk_mplayer(), while JS had sent them to makemon(). The complete helper family and weapon predicate are now wired; both independent Knight recordings match C in PRNG, screens and cursors.",
+  "goalKind": "lua-port",
+  "source": {
+    "file": "Kni-strt.lua",
+    "branch": "First generation of the Knight quest start level after wizard level teleportation; special proto Kni-strt has no established registry loader.",
+    "functions": [
+      "Kni-strt.lua (whole program, lines1-109)"
+    ],
+    "callers": [
+      "do.c:goto_level -> mklev.c:makelevel1266-1271 -> mkmaze.c:makemaz1184-1193 -> sp_lev.c:load_special6454-6503 -> dat/Kni-strt.lua",
+      "js/mklev.js:makelevel/makemaz/load_special -> QUEST_LEVEL_LOADERS[Kni-strt] -> kniStrt in established js/quest_levels.js, then canonical des.finish"
+    ],
+    "dependencies": [
+      "Existing lspo_level_init/splev_initlev/mkmap and lspo_map helpers for solidfill . plus unjoined unsmoothed lit mines ./. before fixed map; verify complete runtime, no mkmap completion credit.",
+      "Existing lspo_region and fill_special_room: throne type COURT with filled2 sets has_court but skips fill_zoo; plain selection lighting remains source-ordered. lspo_levregion branch coordinates20/14..20/14 consumed by finish/fixup_special; verify portal arrival and down staircase.",
+      "Existing lspo_monster/create_monster/spo_end_moninvent and lspo_object/custom-inventory context: King Arthur named Excalibur long sword spe4 blessed plus plate mail spe4; random peaceful warhorse inventory closure optionally makes saddle; callback finalization must keep source equipment order. C create_monster routes player-species ids to mk_mplayer; this complete impure mplayer.c helper family and its existing muse.c item helpers are needed because their returned monster/items are consumed. weapon.c:monmightthrowwep is a source-pinned pure helper.",
+      "dat/nhlib.lua5-15 compatibility shim and percent43-45 call nh.random(0,100), equivalent rn2(100)<50; nh.rn2(3) loop upper bound is evaluated once before any warhorse creation, followed by per-horse saddle draws. Keep monster name strings to retain name-resolution gender RNG.",
+      "Preserve immutable B195012b37ee, B194886a35eaa, B1925d699058 lineage; disjoint quest_levels import/function/registry seams from A191 Cav-strt and C171 Kni-loca."
+    ]
+  },
+  "evidence": [
+    "Current saved queue and accepted 07a7711f v36 evaluation both show 19/60 screens and cursors, 41 remaining, and 2849/4976 RNG at the missing Kni-strt loader step 19. Manifest 58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c, recipe faa2c28831bbbe11b32a88dc08dc42754fe9b086b9c1f66a8e4633d4f83d1fb8, replay input 6716cbe410e459f68b6b808b43f0a596735361eb079d0f3079311701d3b8c1b5, and recording 0e97de322cfb247842ae6fc307b6753e94f967c58654371cc37f803463fe3691 identify the current case without a new C replay.",
+    "Whole upstream dat/Kni-strt.lua1-109 read; source SHA256f479d2e428541fad72f97df4c115571dc1d017c266f8653b278047c5e8648315. Solidfill.,mazelevel/noteleport/hardfloor,minesfg.bg.smoothedfalse/joinedfalse/lit1/walledfalse,16x50map; full lit region0/0..49/15,unlit interior4/4..45/11,Court6/6..22/9 filled2,lit right wing27/6..43/9,branch20/14,down40/7.15doors:4locked,11closed. King Arthur9/7 inventory,treasurechest9/7,4peacefulknights,6pages,whole non-diggable selection,2fixedsleep-gas+4randomtraps,12hostilequasits at evenx14..36,y0. Finally2+nh.rn2(3)peacefulwarhorses with optional50percent saddle.",
+    "rg Kni-strt|kniStrt in js/quest_levels.js and scripts/*.test.mjs returns no implementation or source fixture. js/mklev.js650-685 refuses unregistered proto before source execution; existing dispatch already loads quest registry. C makemaz appends .lua and load_special runs generation/finalization; scope is entire missing program rather than a bounded divergence.",
+    "Source sp_lev.c:lspo_region5584-5717 and fill_special_room2731-2809 show filled2 bypasses normal zoo population and still sets has_court; canonical JS retains needfill and same flags tail. Source lspo_levregion5472-5496 and JS3803-3825 agree branch enum/coordinates/padding.",
+    "Complete sp_lev.c:lspo_monster3214-3402 read alongside js/mklev.js2064-2271: custom inventory defaults to no species inventory, runs after create_monster, and ends through spo_end_moninvent. Source3031-3037 and js/themeroom_fill.js858-862 wear then clear shared carrier. Independent runtime evidence must verify Excalibur/spe4/plate inventory and warhorse saddle paths; declarations alone receive no C completion credit.",
+    "C step19 contains nh.rn2(Kni-strt.lua:107)=1 then percent draws24,57,74 at nhlib.lua:44: source yields three warhorses with only first saddle. nhlib.lua5-15 routes math.random0..99 to nh.random(0,100), and nhlua.c940-951 applies rn2. The loop limit must be captured once, never redrawn per iteration.",
+    "Entry/evidence plan: matched admitted segment0steps19-59 plus independent C-first human Knight typed/direct Ctrl-V arrivals and #wizmap; vary gender and inputs, verify leader inventory/worn armor,portal/downstairs,flags,room/doorlighting and warhorses/saddles. Source-pinned generator and full descriptor/RNG callback tests. Preserve a separately owned outside-limit quest program recipe only when its loader remains unavailable.",
+    "The first independent C differential after level wiring matched through King Arthur, then diverged at segment1 step20: C consumed rnd(16) from mplayer.c:mk_mplayer, while JS consumed rn2(2) from ordinary makemon. C sp_lev.c:create_monster:1983-1987 routes AM_SPLEV_RANDOM ids PM_ARCHEOLOGIST..PM_WIZARD to mk_mplayer; JS had only the makemon arm. Parent authorized scope expansion. After wiring the complete mplayer helper family, both independent recordings pass exactly: typed male 5579 PRNG calls/60 screens/cursors; direct-key female 4955 calls/47 screens/cursors.",
+    "Completed scope: whole Kni-strt.lua as kniStrt in quest_levels.js plus registry key, generated kni_strt_level_data.js from authoritative map, deterministic generator/check, focused descriptor tests and independent level-load matrix; whole mplayer.c dev_name/get_mplname/mk_mplayer_armor/mk_mplayer family in js/mplayer.js; the player-species arm in sp_lev.c:create_monster() in js/themeroom_fill.js; exports of existing muse.c rnd-item helpers; and source-pinned weapon.c:monmightthrowwep. Shared quest module changes remain limited to the unique import/function/key; A191/C171 owner seams remain unchanged."
+  ],
+  "evaluationUtc": "2026-10-09T17:07:38.985Z"
+}

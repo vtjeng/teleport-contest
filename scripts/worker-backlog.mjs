@@ -1,4 +1,11 @@
 // Read-only coordination and dashboard lists derived from the worker ledger.
+export function acceptedMain(state) {
+    const latest = Object.values(state.deliveries).filter(delivery => delivery.acceptedAt)
+        .sort((a, b) => (a.publishedAt ?? a.acceptedAt).localeCompare(b.publishedAt ?? b.acceptedAt)).at(-1);
+    return latest ? { task: latest.task, commit: latest.publishedCommit ?? latest.integration,
+        checkpoint: latest.supplementalCheckpoint ?? latest.checkpoint, acceptedAt: latest.acceptedAt } : null;
+}
+
 export function acceptedDependency(state, sha) {
     const delivery = state.deliveries[sha];
     if (!delivery) return false;

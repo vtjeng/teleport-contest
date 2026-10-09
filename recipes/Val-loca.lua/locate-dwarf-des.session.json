@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-valid blind direct Val-loca variation. Original independently chosen dwarf-lawful seed/date retained; wizintrinsic blinded100 changes sight state before source loading. Whole program, ice metadata, fixed-stair endpoint terrain and final wizard mapping are verified. The sighted witness is retained separately.",
+  "segments": [
+    {
+      "seed": 19636129,
+      "datetime": "20531009141523",
+      "nethackrc": "OPTIONS=name:IceLocate,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "   #wizintrinsic\n100i\n   #wizloaddes\nVal-loca.lua\n                #wizmap\n                "
+    }
+  ]
+}

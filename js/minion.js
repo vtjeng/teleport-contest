@@ -8,6 +8,7 @@ import {
     A_NONE,
     A_NEUTRAL,
     ARTICLE_A,
+    CONFLICT,
     DEAF,
     EXACT_NAME,
     G_GONE,
@@ -16,18 +17,20 @@ import {
     MM_NOMSG,
     RLOC_MSG,
     STRAT_APPEARMSG,
+    W_ARMS,
+    voice_deity,
 } from './const.js';
 import { ART_DEMONBANE, ART_EXCALIBUR, is_art } from './artifacts.js';
 import { Amonnam, Monnam, mon_nam, x_monnam } from './do_name.js';
 import { flush_screen, map_invisible, newsym } from './display.js';
 import { In_hell } from './dungeon.js';
-import { is_fainted } from './eat.js';
+import { Hear_again, is_fainted } from './eat.js';
 import { game } from './gstate.js';
 import { sgn, s_suffix } from './hacklib.js';
 import { nomul, unmul } from './hack.js';
 import { stop_occupation } from './allmain.js';
 import { money_cnt, currency } from './invent.js';
-import { makemon_runtime } from './makemon_create.js';
+import { makemon_runtime, mongets } from './makemon_create.js';
 import { mongone } from './mon.js';
 import { mkclass, mkclass_aligned, set_malign } from './makemon.js';
 import {
@@ -40,7 +43,7 @@ import {
     msummon_environ,
 } from './mondata.js';
 import * as M from './monsters.js';
-import { mon_aligntyp } from './priest.js';
+import { mk_roamer, mon_aligntyp } from './priest.js';
 import { mon_has_amulet } from './wizard.js';
 import { acurr } from './attrib.js';
 import { getlin } from './windows.js';
@@ -55,6 +58,112 @@ import { set_voice } from './sounds.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { canseemon, canspotmon } from './display.js';
+import { enexto } from './teleport.js';
+import { m_dowear, which_armor } from './worn.js';
+import { select_hwep } from './weapon.js';
+import {
+    AMULET_OF_REFLECTION,
+    SHIELD_OF_REFLECTION,
+    SILVER_SABER,
+} from './objects.js';
+import { bless, mksobj } from './obj.js';
+import { mpickobj } from './steal.js';
+
+function guardianRandom(state, rawEnv = {}) {
+    return { d, rn1, rn2, rnd, rne, ...state.random, ...rawEnv.random };
+}
+
+function conflictActive(state) {
+    const conflict = state.u?.uprops?.[CONFLICT];
+    return Boolean(conflict?.intrinsic || conflict?.extrinsic);
+}
+
+// C ref: minion.c lose_guardian_angel(). The source discards mk_roamer's
+// result while creating replacement hostile angels in source order.
+export async function lose_guardian_angel(mon, state = game, rawEnv = {}) {
+    const random = guardianRandom(state, rawEnv);
+    const env = { ...rawEnv, state, random };
+    if (mon) {
+        if (canseemon(mon, state)) {
+            if (!heroDeaf(state)) {
+                await (rawEnv.message ?? ttyPline)(
+                    `${Monnam(mon, state)} rebukes you, saying:`, state,
+                );
+                set_voice(mon, 0, 80, 0, state);
+                await verbalize('Since you desire conflict, have some more!',
+                    state, { message: rawEnv.message ?? ttyPline });
+            } else {
+                await (rawEnv.message ?? ttyPline)(
+                    `${Monnam(mon, state)} vanishes!`, state,
+                );
+            }
+        }
+        mongone(mon, env);
+    }
+    for (let i = random.rn1(3, 2); i > 0; --i) {
+        const at = enexto(state.u.ux, state.u.uy,
+            state.mons[M.PM_ANGEL], env);
+        if (at)
+            await mk_roamer(state.mons[M.PM_ANGEL], state.u.ualign.type,
+                at.x, at.y, false, env);
+    }
+}
+
+// C ref: minion.c gain_guardian_angel(). Astral arrival invokes the deafness
+// check before testing Conflict and alignment record, then equips a worthy
+// hero's guardian in source order.
+export async function gain_guardian_angel(state = game, rawEnv = {}) {
+    const random = guardianRandom(state, rawEnv);
+    const message = rawEnv.message ?? ttyPline;
+    const env = { ...rawEnv, state, random, message };
+    await Hear_again(state, env);
+    if (conflictActive(state)) {
+        if (!heroDeaf(state)) await message('A voice booms:', state);
+        else await message('You feel a booming voice:', state);
+        set_voice(null, 0, 80, voice_deity, state);
+        await verbalize('Thy desire for conflict shall be fulfilled!', state,
+            { message });
+        await lose_guardian_angel(null, state, env);
+    } else if ((state.u?.ualign?.record ?? 0) > 8) {
+        if (!heroDeaf(state)) await message('A voice whispers:', state);
+        else await message('You feel a soft voice:', state);
+        set_voice(null, 0, 80, voice_deity, state);
+        await verbalize('Thou hast been worthy of me!', state, { message });
+        const at = enexto(state.u.ux, state.u.uy,
+            state.mons[M.PM_ANGEL], env);
+        const angel = at
+            ? await mk_roamer(state.mons[M.PM_ANGEL], state.u.ualign.type,
+                at.x, at.y, true, env)
+            : null;
+        if (angel) {
+            angel.mstrategy &= ~STRAT_APPEARMSG;
+            if (state.u?.uconduct?.pets) {
+                angel.mtame = 10;
+                state.u.uconduct.pets++;
+            }
+            newsym(angel.mx, angel.my, state);
+            await message(heroIsBlind(state)
+                ? 'You feel the presence of a friendly angel near you.'
+                : 'An angel appears near you.', state);
+            angel.m_lev = random.rn1(8, 15);
+            angel.mhp = angel.mhpmax = random.d(angel.m_lev, 10)
+                + 30 + random.rnd(30);
+            let weapon = select_hwep(angel, env);
+            if (!weapon) {
+                weapon = mksobj(SILVER_SABER, false, false, env);
+                if (mpickobj(angel, weapon, env))
+                    throw new Error('gain_guardian_angel: merged weapon');
+            }
+            bless(weapon, env);
+            if (weapon.spe < 4) weapon.spe += random.rnd(4);
+            const arms = which_armor(angel, W_ARMS, state);
+            if (!arms || arms.otyp !== SHIELD_OF_REFLECTION) {
+                mongets(angel, AMULET_OF_REFLECTION, env);
+                await m_dowear(angel, true, env);
+            }
+        }
+    }
+}
 
 const defaultSelectorRandom = { rn1, rn2, rnd };
 

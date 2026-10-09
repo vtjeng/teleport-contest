@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first display.c:newsym suppression variation. Seed and inputs chosen before comparison. Repeated replacement levels exercise generation while prior vision exists; normal redraw after each replacement verifies the outside-suppression path. Monster cleanup remains a named discarded wizcmds.c:makemap_remove_mons frontier, with no completion claim.",
+  "segments": [
+    {
+      "seed": 17937113,
+      "datetime": "20410214161718",
+      "nethackrc": "OPTIONS=name:MapGuard,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizmakemap\n.#wizgenesis\nlichen\n#wizmakemap\n"
+    }
+  ]
+}

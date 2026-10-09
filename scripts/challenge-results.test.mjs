@@ -7,7 +7,7 @@ import { COLUMNS, readRows } from './score-log.mjs';
 import { challengeDashboard, challengeInputSnapshot, challengePath, challengeState,
     compareEvaluations, corpusDigest, digest, evaluationFields, readChallengeBatches,
     readChallenges, saveEvaluation, totalsFor, admittedBatchIds } from './challenge-results.mjs';
-import { measuredCases, recordEvaluation, runAllBatches } from './score-challenges.mjs';
+import { measuredCases, recordEvaluation, recordEvaluations, runAllBatches } from './score-challenges.mjs';
 
 // Distinct complete SHAs distinguish an initial implementation, its successor,
 // and a changed scorer without relying on the repository's mutable history.
@@ -58,6 +58,59 @@ function fresh(root, evaluation, batch = 'v1') {
     return { ...evaluation, inputsSha256: snapshot.sha256,
         inputFiles: snapshot.files.map(file => file.path) };
 }
+
+test('bulk score import validates every batch before appending any rows', t => {
+    const root = fixture(t);
+    const a = entry(root, 'first'), b = entry(root, 'second');
+    manifest(root, [a]);
+    mkdirSync(join(root, 'challenges/manifests'));
+    writeFileSync(join(root, 'challenges/manifests/v2.json'), JSON.stringify({ version: 1, batch: 'v2', cases: [b] }));
+    const first = saved(root, 'first', evaluation([measured(a, 1)]));
+    const second = saved(root, 'second', { ...evaluation([measured(b, 2)]), batch: 'v2' });
+    // The second packet belongs to the wrong immutable membership. A valid
+    // first packet must not cause a partial import before this is rejected.
+    const secondPath = join(root, second.challenge_evaluation);
+    const secondBytes = readFileSync(secondPath);
+    writeFileSync(secondPath, JSON.stringify({ ...evaluation([measured(a, 2)]), batch: 'v2' }));
+    const paths = [first.challenge_evaluation, second.challenge_evaluation];
+    assert.throws(() => recordEvaluations(root, paths), /complete admitted batch/);
+    assert.equal(readRows(join(root, 'SCORE.tsv')).length, 0);
+    writeFileSync(secondPath, secondBytes);
+    assert.deepEqual(recordEvaluations(root, paths).map(row => row.challenge_evaluation), paths);
+    assert.deepEqual(readRows(join(root, 'SCORE.tsv')).map(row => row.challenge_evaluation), paths);
+    assert.throws(() => recordEvaluations(root, paths), /already recorded/);
+});
+
+test('bulk import preserves historical membership, measurement order and artifact validation', t => {
+    const root = fixture(t);
+    const a = entry(root, 'case');
+    manifest(root, [a]);
+    const old = saved(root, 'old', evaluation([measured(a, 0)]));
+    recordEvaluation(root, old.challenge_evaluation);
+    const newer = saved(root, 'newer', evaluation([measured(a, 1)], NEXT_SHA, NEXT_TIME));
+    const older = saved(root, 'older', evaluation([measured(a, 2)], FIRST_SHA, FIRST_TIME));
+    const before = readFileSync(join(root, 'SCORE.tsv'), 'utf8');
+    // Both packets individually validate, but together reverse this batch's
+    // measurement order. Prevalidation rejects them without a score write.
+    assert.throws(() => recordEvaluations(root, [newer.challenge_evaluation, older.challenge_evaluation]), /measurement order/);
+    assert.throws(() => recordEvaluations(root, [newer.challenge_evaluation, newer.challenge_evaluation]), /already recorded/);
+    assert.equal(readFileSync(join(root, 'SCORE.tsv'), 'utf8'), before);
+    // A previously recorded artifact remains authoritative, not an unchecked
+    // cached summary; each new invocation must read and validate it again.
+    const oldPath = join(root, old.challenge_evaluation), bytes = readFileSync(oldPath);
+    writeFileSync(oldPath, '{}');
+    assert.throws(() => recordEvaluations(root, [newer.challenge_evaluation]), /invalid challenge evaluation/);
+    writeFileSync(oldPath, bytes);
+    // Keep the new manifest internally valid so the historical membership
+    // check, rather than the recording digest check, rejects the replacement.
+    const replacement = JSON.stringify({ version: 5, segments: [{ steps: [{ screen: 'start' }, { screen: 'changed inventory' }] }] });
+    writeFileSync(join(root, a.recording), replacement);
+    const changed = { ...a, recordingSha256: digest(replacement) };
+    manifest(root, [changed]);
+    const changedPath = saved(root, 'changed', evaluation([measured(changed, 2)], NEXT_SHA, NEXT_TIME)).challenge_evaluation;
+    assert.throws(() => recordEvaluations(root, [changedPath]), /membership is immutable/);
+    assert.equal(readFileSync(join(root, 'SCORE.tsv'), 'utf8'), before);
+});
 
 test('reviewed hosted evidence becomes current queue evidence through explicit score import', t => {
     const root = fixture(t);

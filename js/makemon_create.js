@@ -239,6 +239,7 @@ import {
     PM_CHICKATRICE,
     PM_CHIEFTAIN,
     PM_CLERIC,
+    PM_MONK,
     PM_COBRA,
     PM_COCKATRICE,
     PM_DEMILICH,
@@ -1123,6 +1124,8 @@ function isMausoleumSpecies(species) {
 
 function assertSupportedSpecies(species, env = {}) {
     const createParticular = env._createParticular === true;
+    const guardianRoamer = env._mkRoamer === true
+        && species?.pmidx === PM_ANGEL;
     // The four throne-room rulers are the whole range of mkroom.c
     // mk_zoo_thronemon() (mkroom.c:256-273): rnd(level_difficulty()) picks
     // PM_OGRE_TYRANT above 9, PM_ELVEN_MONARCH above 5, PM_DWARF_RULER above
@@ -1217,6 +1220,10 @@ function assertSupportedSpecies(species, env = {}) {
             && !(createParticular
                 && is_dprince(species)
                 && species.msound === MS_BRIBE)
+            // minion.c creates PM_ANGEL through priest.c mk_roamer() when
+            // the Astral guardian appears; keep this exact runtime call out
+            // of the ordinary generated-species set.
+            && !guardianRoamer
             // makemon.c:1147-1512 has no species admission gate. The
             // minotaur's explicit m_initinv() arm is complete, so read.c's
             // create_particular_creation() and sp_lev.c's fill_empty_maze()
@@ -1440,6 +1447,15 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && Boolean(mmflags & MM_NOMSG)
         && !(mmflags & ~(NO_MINVENT | MM_NOMSG | MM_ADJACENTOK
             | MM_NOCOUNTBIRTH | MM_MALE | MM_FEMALE));
+    // priest.c mk_roamer() requests an adjacent, silent, EMIN monster at an
+    // explicit coordinate. Its caller owns the runtime continuation because
+    // this helper is also used by final_level() after the level is built.
+    const roamerCall = !state.in_mklev
+        && normalized._mkRoamer === true
+        && ptr?.pmidx === PM_ANGEL
+        && !randomCoordinates
+        && isok(x, y)
+        && mmflags === (MM_ADJACENTOK | MM_EMIN | MM_NOMSG);
     // zap.c stone_to_flesh_obj() animates a figurine with the same direct
     // runtime creation shape, but without the statue's adjacent-square flag.
     // Keep that source caller explicit so it gets the normal async tail.
@@ -1499,7 +1515,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         || figurineAnimationCall || explicitInventorylessHeroCall
         || hatchEggCall || explicitCoordinateRuntimeCall
         || cloneuCall || minionSummonCall
-        || familiarCall || wereSummonCall
+        || familiarCall || wereSummonCall || roamerCall
         // sp_lev.c finalizes topology before filling special rooms.  Those
         // explicit-coordinate calls still belong to level generation and
         // use the dedicated special-room tail below, not ordinary runtime
@@ -2334,7 +2350,7 @@ function isHardHelmet(obj, state) {
 }
 
 // C ref: muse.c rnd_offensive_item().
-function rnd_offensive_item(monster, normalized) {
+export function rnd_offensive_item(monster, normalized) {
     const { random, state } = normalized;
     const ptr = monster.data;
     if (rejectsRandomUseItems(ptr)) return 0;
@@ -2369,7 +2385,7 @@ function rnd_offensive_item(monster, normalized) {
 }
 
 // C ref: muse.c rnd_defensive_item().
-function rnd_defensive_item(monster, normalized) {
+export function rnd_defensive_item(monster, normalized) {
     const { random, state } = normalized;
     const ptr = monster.data;
     if (rejectsRandomUseItems(ptr)) return 0;
@@ -2424,7 +2440,7 @@ function heroHasProperty(state, property) {
 
 // C ref: muse.c rnd_misc_item(). No inventory-enabled shape-changer in this
 // initial-generation slice is a vampire shifter.
-function rnd_misc_item(monster, normalized) {
+export function rnd_misc_item(monster, normalized) {
     const { random, state } = normalized;
     const ptr = monster.data;
     if (rejectsRandomUseItems(ptr)) return 0;
@@ -2573,6 +2589,17 @@ function m_initinv(monster, normalized) {
         );
         mongets(monster, SMALL_SHIELD, normalized);
         mkmonmoney(monster, random.rn1(10, 20), normalized);
+    } else if (ptr.mlet === S_HUMAN
+               && state.urole?.mnum === PM_MONK
+               && (ptr.msound === MS_LEADER
+                   || ptr.msound === MS_NEMESIS)) {
+        // C ref: makemon.c:728-729. Monk quest leaders and nemeses receive a
+        // robe, with a one-in-eleven chance of a cloak of magic resistance.
+        mongets(
+            monster,
+            random.rn2(11) ? ROBE : CLOAK_OF_MAGIC_RESISTANCE,
+            normalized,
+        );
     } else if (ptr.mlet === S_NYMPH) {
         if (!random.rn2(2)) mongets(monster, MIRROR, normalized);
         if (!random.rn2(2))

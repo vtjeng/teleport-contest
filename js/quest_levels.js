@@ -3,14 +3,18 @@
 //         dat/Bar-goal.lua, dat/Bar-loca.lua, dat/Arc-strt.lua,
 //         dat/Arc-loca.lua, dat/Arc-fila.lua, dat/Arc-filb.lua,
 //         dat/Arc-goal.lua, dat/Cav-goal.lua, dat/Cav-loca.lua,
-//         dat/Cav-strt.lua,
+//         dat/Cav-strt.lua, dat/Mon-goal.lua, dat/Mon-loca.lua, dat/Sam-goal.lua, dat/Tou-strt.lua, dat/astral.lua,
 //         dat/Hea-goal.lua, dat/Hea-loca.lua, dat/Hea-strt.lua,
+//         dat/Kni-loca.lua, dat/Kni-strt.lua, dat/Ran-loca.lua,
+//         dat/Ran-goal.lua, dat/Ran-strt.lua, dat/Rog-strt.lua, dat/Rog-loca.lua,
+//         dat/Rog-goal.lua, dat/Val-goal.lua,
+//         dat/Val-loca.lua, dat/Sam-loca.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
 //         dat/tower1.lua, dat/tower2.lua, dat/tower3.lua.
 
-import { COLNO, FEMALE, G_GENOD, ROWNO } from './const.js';
+import { COLNO, FEMALE, G_GENOD, ROOM, ROWNO } from './const.js';
 import { mkclass } from './makemon.js';
 import {
     G_IGNORE,
@@ -54,7 +58,7 @@ import {
     MACE, MIRROR, ROBE, RUNESWORD, STATUE, TALLOW_CANDLE, WAX_CANDLE,
 } from './objects.js';
 import { rn2, rnd } from './rng.js';
-import { selection_area, ThemeroomSelection } from './themerooms.js';
+import { selection_area, selection_negate, ThemeroomSelection } from './themerooms.js';
 import { KNI_GOAL_LEVEL_MAP } from './kni_goal_level_data.js';
 import { CAV_GOAL_LEVEL_MAP } from './cav_goal_level_data.js';
 import { HEA_GOAL_LEVEL_MAP } from './hea_goal_level_data.js';
@@ -62,6 +66,38 @@ import { CAV_LOCA_LEVEL_MAP, CAV_LOCA_MONSTERS } from './cav_loca_level_data.js'
 import { HEA_STRT_LEVEL_MAP, HEA_STRT_DOORS, HEA_STRT_ATTENDANTS } from './hea_strt_level_data.js';
 import { CAV_STRT_LEVEL_MAP } from './cav_strt_level_data.js';
 import { HEA_LOCA_LEVEL_MAP } from './hea_loca_level_data.js';
+import {
+    KNI_LOCA_FIXED_TRAPS, KNI_LOCA_LEVEL_MAP, KNI_LOCA_MONSTERS,
+} from './kni_loca_level_data.js';
+import { MON_GOAL_LEVEL_MAP } from './mon_goal_level_data.js';
+import { MON_LOCA_LEVEL_MAP } from './mon_loca_level_data.js';
+import { ROG_GOAL_LEVEL_MAP, ROG_GOAL_MONSTERS } from './rog_goal_level_data.js';
+import { SAM_GOAL_LEVEL_MAP } from './sam_goal_level_data.js';
+import { TOU_STRT_LEVEL_MAP, TOU_STRT_DOORS, TOU_STRT_GUIDES } from './tou_strt_level_data.js';
+import {
+    RAN_LOCA_LEVEL_MAP, RAN_LOCA_MONSTERS, RAN_LOCA_OBJECT_COUNT, RAN_LOCA_TRAPS,
+} from './ran_loca_level_data.js';
+import {
+    RAN_GOAL_DOORS, RAN_GOAL_LEVEL_MAP, RAN_GOAL_MONSTERS,
+    RAN_GOAL_OBJECT_CALLS, RAN_GOAL_TRAP_COUNT,
+} from './ran_goal_level_data.js';
+import {
+    RAN_STRT_LEVEL_MAP, RAN_STRT_HUNTERS, RAN_STRT_FOREST_CENTAURS,
+} from './ran_strt_level_data.js';
+import {
+    VAL_GOAL_DRAWBRIDGES, VAL_GOAL_LEVEL_MAP, VAL_GOAL_MONSTERS,
+    VAL_GOAL_OBJECT_CALLS, VAL_GOAL_TRAPS,
+} from './val_goal_level_data.js';
+import { KNI_STRT_LEVEL_MAP } from './kni_strt_level_data.js';
+import { ASTRAL_LEVEL_MAP } from './astral_level_data.js';
+import { VAL_LOCA_LEVEL_MAP } from './val_loca_level_data.js';
+import {
+    ROG_STRT_DOORS, ROG_STRT_EXIT_MONSTERS, ROG_STRT_GUARDS,
+    ROG_STRT_LEVEL_MAP,
+} from './rog_strt_level_data.js';
+import { ROG_LOCA_LEVEL_MAP } from './rog_loca_level_data.js';
+import { SAM_LOCA_LEVEL_MAP, SAM_LOCA_LEVEL_DOORS,
+    SAM_LOCA_LEVEL_OBJECTS, SAM_LOCA_LEVEL_MONSTERS } from './sam_loca_level_data.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
 // that draws a random zig-zag path from (x1,y1) to (x2,y2).
@@ -1237,6 +1273,122 @@ async function kniGoal(des) {
     await des.monster({ class: 'j', peaceful: 0 });
 }
 
+// C ref: dat/Sam-goal.lua. Draw each stair/ring choice where Lua does,
+// before the corresponding descriptor calls; retain names for canonical
+// object and monster parsing and gender draws.
+async function samGoal(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noteleport');
+    await des.map(SAM_GOAL_LEVEL_MAP);
+    const upstairs = [[2, 11], [42, 9]][rn2(2)];
+    await des.region(selection_area(0, 0, 44, 19), 'unlit');
+    await des.door('closed', 19, 10);
+    await des.door('closed', 22, 8);
+    await des.door('closed', 22, 12);
+    await des.door('closed', 25, 10);
+    await des.stair({ dir: 'up', coord: upstairs });
+
+    await des.terrain([[22, 14], [30, 10], [22, 6], [14, 10]][rn2(4)], '.');
+    await des.terrain([[22, 4], [35, 10], [22, 16], [9, 10]][rn2(4)], '.');
+    await des.terrain([[22, 2], [22, 18]][rn2(2)], '.');
+    await des.non_diggable(selection_area(0, 0, 44, 19));
+    await des.object({ id: 'tsurugi', x: 22, y: 10, buc: 'blessed', spe: 0,
+        name: 'The Tsurugi of Muramasa' });
+    for (let i = 0; i < 14; ++i) await des.object();
+    await des.trap('board', 22, 9);
+    await des.trap('board', 24, 10);
+    await des.trap('board', 22, 11);
+    for (let i = 0; i < 6; ++i) await des.trap();
+
+    await des.monster('Ashikaga Takauji', 22, 10);
+    for (let i = 0; i < 5; ++i) await des.monster({ id: 'samurai', peaceful: 0 });
+    for (let i = 0; i < 5; ++i) await des.monster({ id: 'ninja', peaceful: 0 });
+    for (let i = 0; i < 4; ++i) await des.monster('wolf');
+    await des.monster('d');
+    await des.monster('d');
+    for (let i = 0; i < 9; ++i) await des.monster('stalker');
+}
+
+// C ref: dat/Kni-loca.lua. Retain the initialization, terrain, region,
+// population, and trap calls in source order; the static tables are generated
+// from the Lua program so the transparent map and explicit descriptors stay
+// tied to upstream.
+async function kniLoca(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'hardfloor');
+    await des.level_init({ style: 'mines', fg: '.', bg: 'P',
+        smoothed: false, joined: true, lit: 1, walled: false });
+    await des.map(KNI_LOCA_LEVEL_MAP);
+
+    await des.region(selection_area(0, 0, 39, 11), 'lit');
+    await des.region({ region: [9, 2, 27, 9], lit: 1, type: 'temple', filled: 2 });
+    await des.stair('up', 38, 0);
+    await des.stair('down', 18, 5);
+    await des.altar({ x: 17, y: 5, align: 'neutral', type: 'shrine' });
+
+    for (let i = 0; i < 15; ++i) await des.object();
+    for (const { type, x, y } of KNI_LOCA_FIXED_TRAPS)
+        await des.trap(type, x, y);
+    for (let i = 0; i < 7; ++i) await des.trap('anti magic');
+    for (const monster of KNI_LOCA_MONSTERS)
+        await des.monster(monster);
+}
+
+// C ref: dat/Ran-loca.lua. Preserve the source's map, region, stair, and
+// descriptor order; names and classes stay intact for lspo_monster resolution.
+async function ranLoca(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'hardfloor');
+    await des.map(RAN_LOCA_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 54, 19), 'lit');
+    await des.stair('up', 25, 5);
+    await des.stair('down', 27, 18);
+    await des.non_diggable(selection_area(0, 0, 54, 19));
+
+    for (let i = 0; i < RAN_LOCA_OBJECT_COUNT; ++i) await des.object();
+    for (const type of RAN_LOCA_TRAPS) await des.trap(type);
+    for (const monster of RAN_LOCA_MONSTERS) await des.monster(monster);
+}
+
+// C ref: complete dat/Ran-goal.lua. Generated tables preserve its map and
+// descriptor order while every des call stays at its original top-level site.
+async function ranGoal(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel');
+    await des.map(RAN_GOAL_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 19), 'lit');
+    await des.stair('up', 19, 10);
+    await des.non_diggable(selection_area(0, 0, 75, 19));
+
+    for (const args of RAN_GOAL_OBJECT_CALLS) await des.object(...args);
+    for (let i = 0; i < RAN_GOAL_TRAP_COUNT; ++i) await des.trap();
+    for (const door of RAN_GOAL_DOORS)
+        await des.door(door.type, door.x, door.y);
+    for (const monster of RAN_GOAL_MONSTERS) await des.monster(monster);
+    await des.wallify();
+}
+
+// C ref: complete dat/Val-goal.lua. The lower drawbridge uses the source's
+// 75-percent branch after the northern bridge has consumed its random state.
+async function valGoal(des) {
+    await des.level_init({ style: 'solidfill', fg: 'L' });
+    await des.level_flags('mazelevel', 'icedpools');
+    await des.level_init({ style: 'mines', fg: '.', bg: 'L',
+        smoothed: true, joined: true, lit: 1, walled: false });
+    await des.map(VAL_GOAL_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 34, 16), 'lit');
+    await des.replace_terrain({ region: [44, 9, 46, 11], fromterrain: 'L', toterrain: '.', chance: 50 });
+    await des.stair('up', 45, 10);
+    await des.non_diggable(selection_area(0, 0, 34, 16));
+    await des.drawbridge(VAL_GOAL_DRAWBRIDGES[0]);
+    const southernBridge = VAL_GOAL_DRAWBRIDGES[1 + (rn2(100) < 75 ? 0 : 1)];
+    await des.drawbridge(southernBridge);
+
+    for (const args of VAL_GOAL_OBJECT_CALLS) await des.object(...args);
+    for (const args of VAL_GOAL_TRAPS) await des.trap(...args);
+    for (const args of VAL_GOAL_MONSTERS) await des.monster(...args);
+}
+
 // C ref: dat/Hea-goal.lua. Preserve both initialization calls before the
 // fixed map: the joined mines background extends beyond the pool island.
 async function heaGoal(des) {
@@ -1348,6 +1500,37 @@ async function priGoal(des) {
     await des.monster({ class: S_ZOMBIE });
     for (let i = 0; i < 8; i++) await des.monster({ id: PM_WRAITH });
     await des.monster({ class: S_WRAITH });
+}
+
+// C ref: complete dat/Mon-goal.lua. The one Lua math.random(1, #place)
+// draw is rn2(2); its selected coordinate is shared by the artifact, nemesis,
+// and altar, in that source order.
+async function monGoal(des) {
+    await des.level_flags('mazelevel');
+    await des.level_init({ style: 'mines', fg: 'L', bg: '.',
+        smoothed: false, joined: false, lit: 0, walled: false });
+    await des.map(MON_GOAL_LEVEL_MAP);
+
+    const place = [[14, 4], [13, 7]];
+    const placeidx = rn2(2);
+
+    await des.region(selection_area(0, 0, 25, 10), 'unlit');
+    await des.stair('up', 20, 5);
+    await des.object({ id: 'lenses', coord: place[placeidx], buc: 'blessed',
+        spe: 0, name: 'The Eyes of the Overworld' });
+    for (let i = 0; i < 14; ++i) await des.object();
+
+    await des.trap('fire');
+    await des.trap('fire');
+    await des.trap('fire');
+    await des.trap('fire');
+    await des.trap();
+    await des.trap();
+
+    await des.monster('Master Kaen', place[placeidx]);
+    await des.altar({ coord: place[placeidx], align: 'noalign', type: 'altar' });
+    for (let i = 0; i < 9; ++i) await des.monster('earth elemental');
+    for (let i = 0; i < 9; ++i) await des.monster('xorn');
 }
 
 // C ref: dat/tower1.lua — Upper stage of Vlad's tower.
@@ -2103,7 +2286,400 @@ async function cavStrt(des) {
     await des.wallify();
 }
 
+// C ref: dat/Kni-strt.lua. Preserve the fortress descriptors and the
+// one-time warhorse-count draw followed by one saddle chance per horse.
+async function kniStrt(des) {
+    await des.level_init({ style: 'solidfill', fg: '.' });
+    await des.level_flags('mazelevel', 'noteleport', 'hardfloor');
+    await des.level_init({ style: 'mines', fg: '.', bg: '.',
+        smoothed: false, joined: false, lit: 1, walled: false });
+    await des.map(KNI_STRT_LEVEL_MAP);
+
+    await des.region(selection_area(0, 0, 49, 15), 'lit');
+    await des.region(selection_area(4, 4, 45, 11), 'unlit');
+    await des.region({ region: [6, 6, 22, 9], lit: 1,
+        type: 'throne', filled: 2 });
+    await des.region(selection_area(27, 6, 43, 9), 'lit');
+    await des.levregion({ region: [20, 14, 20, 14], type: 'branch' });
+    await des.stair('down', 40, 7);
+
+    await des.door('locked', 24, 3);
+    await des.door('locked', 25, 3);
+    await des.door('closed', 23, 4);
+    await des.door('closed', 26, 4);
+    await des.door('locked', 24, 5);
+    await des.door('locked', 25, 5);
+    await des.door('closed', 23, 7);
+    await des.door('closed', 26, 7);
+    await des.door('closed', 23, 8);
+    await des.door('closed', 26, 8);
+    await des.door('closed', 36, 8);
+    await des.door('closed', 4, 3);
+    await des.door('closed', 45, 3);
+    await des.door('closed', 4, 12);
+    await des.door('closed', 45, 12);
+
+    await des.monster({ id: 'King Arthur', coord: [9, 7], async inventory() {
+        await des.object({ id: 'long sword', spe: 4, buc: 'blessed', name: 'Excalibur' });
+        await des.object({ id: 'plate mail', spe: 4 });
+    } });
+    await des.object('chest', 9, 7);
+    await des.monster({ id: 'knight', x: 4, y: 2, peaceful: 1 });
+    await des.monster({ id: 'knight', x: 4, y: 13, peaceful: 1 });
+    await des.monster({ id: 'knight', x: 45, y: 2, peaceful: 1 });
+    await des.monster({ id: 'knight', x: 45, y: 13, peaceful: 1 });
+    await des.monster('page', 16, 6);
+    await des.monster('page', 18, 6);
+    await des.monster('page', 20, 6);
+    await des.monster('page', 16, 9);
+    await des.monster('page', 18, 9);
+    await des.monster('page', 20, 9);
+
+    await des.non_diggable(selection_area(0, 0, 49, 15));
+    await des.trap('sleep gas', 24, 4);
+    await des.trap('sleep gas', 25, 4);
+    for (let i = 0; i < 4; ++i) await des.trap();
+    for (let x = 14; x <= 36; x += 2)
+        await des.monster({ id: 'quasit', x, y: 0, peaceful: 0 });
+
+    // Lua evaluates the loop bound once; each inventory callback then draws
+    // independently for its optional saddle, matching nhlib.lua percent().
+    const warhorseCount = 2 + rn2(3);
+    for (let i = 0; i < warhorseCount; ++i) {
+        await des.monster({ id: 'warhorse', peaceful: 1, async inventory() {
+            if (rn2(100) < 50) await des.object('saddle');
+        } });
+    }
+}
+
+// C ref: dat/Tou-strt.lua, whole program. Keep siege monsters before
+// Twoflower's awaited custom inventory, then guides, river monsters and traps.
+async function touStrt(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noteleport', 'hardfloor');
+    await des.map(TOU_STRT_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 19), 'lit');
+    await des.region({ region: [14, 1, 20, 3], lit: 0, type: 'morgue', filled: 1 });
+    await des.region(selection_area(7, 10, 11, 12), 'unlit');
+    await des.region(selection_area(4, 16, 8, 18), 'unlit');
+    await des.region(selection_area(17, 16, 21, 18), 'unlit');
+    await des.region(selection_area(27, 2, 32, 4), 'unlit');
+    await des.region(selection_area(34, 2, 39, 4), 'unlit');
+    await des.region(selection_area(41, 2, 53, 4), 'unlit');
+    await des.region(selection_area(55, 2, 60, 4), 'unlit');
+    await des.region(selection_area(62, 2, 67, 4), 'lit');
+    await des.stair('down', 66, 3);
+    await des.levregion({ region: [68, 14, 68, 14], type: 'branch' });
+    await des.non_diggable(selection_area(0, 0, 75, 19));
+    for (const door of TOU_STRT_DOORS) await des.door(...door);
+    for (let i = 0; i < 12; ++i) await des.monster('giant spider');
+    await des.monster('s');
+    await des.monster('s');
+    for (let i = 0; i < 8; ++i) await des.monster('forest centaur');
+    await des.monster('C');
+    await des.monster({ id: 'Twoflower', coord: [64, 3], async inventory() {
+        await des.object({ id: 'walking shoes', spe: 3 });
+        await des.object({ id: 'hawaiian shirt', spe: 3 });
+    } });
+    await des.object('chest', 64, 3);
+    for (const coord of TOU_STRT_GUIDES) await des.monster('guide', ...coord);
+    await des.monster('watchman', 35, 8);
+    await des.monster('watchman', 36, 8);
+    await des.monster('giant eel', 62, 12);
+    await des.monster('piranha', 47, 10);
+    await des.monster('piranha', 29, 11);
+    await des.monster('kraken', 34, 9);
+    await des.monster('kraken', 37, 9);
+    for (let i = 0; i < 9; ++i) await des.trap();
+}
+
+// C ref: dat/astral.lua, whole program.
+async function astral(des, state) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noteleport', 'hardfloor', 'nommap',
+        'shortsighted', 'solidify');
+    await des.message('You arrive on the Astral Plane!');
+    await des.message('Here the High Temple of %d is located.');
+    await des.message('You sense alarm, hostility, and excitement in the air!');
+    await des.map(ASTRAL_LEVEL_MAP);
+
+    for (let i = 1; i <= 2; ++i) {
+        if (rn2(100) < 60) {
+            if (i === 1) {
+                await des.terrain(selection_area(17, 14, 30, 18), '.');
+                await des.wallify();
+                await des.terrain(33, 18, '|');
+                const hall = selection_floodfill(30, 16, state, des.frame);
+                await des.terrain(33, 18, '.');
+                for (let j = 0, count = rn2(6) + 4; j < count; ++j) {
+                    await des.monster({ id: 'Angel', coord: hall.rndcoord(true, rn2),
+                        align: 'noalign', peaceful: 0 });
+                    if (rn2(100) < 50)
+                        await des.monster({ coord: hall.rndcoord(true, rn2), peaceful: 0 });
+                }
+            } else {
+                await des.terrain(selection_area(44, 14, 57, 18), '.');
+                await des.wallify();
+                await des.terrain(41, 18, '|');
+                const hall = selection_floodfill(44, 16, state, des.frame);
+                await des.terrain(41, 18, '.');
+                for (let j = 0, count = rn2(6) + 4; j < count; ++j) {
+                    await des.monster({ id: 'Angel', coord: hall.rndcoord(true, rn2),
+                        align: 'noalign', peaceful: 0 });
+                    if (rn2(100) < 50)
+                        await des.monster({ coord: hall.rndcoord(true, rn2), peaceful: 0 });
+                }
+            }
+        }
+    }
+
+    const riders = new ThemeroomSelection();
+    riders.set(23, 9);
+    riders.set(37, 14);
+    riders.set(51, 9);
+    await des.teleport_region({ region: [29, 15, 45, 15], exclude: [30, 15, 44, 15] });
+
+    await des.region({ region: [1, 5, 16, 14], lit: 1, type: 'ordinary', irregular: 1 });
+    await des.region({ region: [31, 1, 44, 10], lit: 1, type: 'ordinary', irregular: 1 });
+    await des.region({ region: [61, 5, 74, 14], lit: 1, type: 'ordinary', irregular: 1 });
+    await des.region({ region: [4, 7, 10, 11], lit: 1, type: 'temple', filled: 2 });
+    await des.region({ region: [34, 3, 40, 7], lit: 1, type: 'temple', filled: 2 });
+    await des.region({ region: [64, 7, 70, 11], lit: 1, type: 'temple', filled: 2 });
+    await des.altar({ x: 7, y: 9, align: state.specialLevelAlign[0], type: 'sanctum' });
+    await des.altar({ x: 37, y: 5, align: state.specialLevelAlign[1], type: 'sanctum' });
+    await des.altar({ x: 67, y: 9, align: state.specialLevelAlign[2], type: 'sanctum' });
+
+    for (const [stateName, x, y] of [
+        ['closed', 11, 9], ['closed', 17, 9], ['locked', 23, 12],
+        ['locked', 37, 8], ['closed', 37, 11], ['closed', 37, 17],
+        ['locked', 51, 12], ['locked', 57, 9], ['closed', 63, 9],
+    ]) await des.door(stateName, x, y);
+    const all = selection_area(0, 0, 74, 19);
+    await des.non_diggable(all);
+    await des.non_passwall(all);
+
+    const fixedMonsters = [
+        ['aligned cleric', 18, 9, 'noalign', 0], ['aligned cleric', 19, 8, 'noalign', 0],
+        ['aligned cleric', 19, 9, 'noalign', 0], ['aligned cleric', 19, 10, 'noalign', 0],
+        ['Angel', 20, 9, 'noalign', 0], ['Angel', 20, 10, 'noalign', 0],
+    ];
+    for (const [id, x, y, align, peaceful] of fixedMonsters)
+        await des.monster({ id, x, y, align, peaceful });
+    await des.monster({ id: 'Pestilence', coord: riders.rndcoord(true, rn2), peaceful: 0 });
+    for (const [id, x, y] of [
+        ['aligned cleric', 36, 12], ['aligned cleric', 37, 12],
+        ['aligned cleric', 38, 12], ['aligned cleric', 36, 13],
+        ['Angel', 38, 13], ['Angel', 37, 13],
+    ]) await des.monster({ id, x, y, align: 'noalign', peaceful: 0 });
+    await des.monster({ id: 'Death', coord: riders.rndcoord(true, rn2), peaceful: 0 });
+    for (const [id, x, y] of [
+        ['aligned cleric', 56, 9], ['aligned cleric', 55, 8],
+        ['aligned cleric', 55, 9], ['aligned cleric', 55, 10],
+        ['Angel', 54, 9], ['Angel', 54, 10],
+    ]) await des.monster({ id, x, y, align: 'noalign', peaceful: 0 });
+    await des.monster({ id: 'Famine', coord: riders.rndcoord(true, rn2), peaceful: 0 });
+
+    const alignedHorde = [
+        ['aligned cleric', 12, 7, 'chaos', 0], ['aligned cleric', 13, 7, 'chaos', 1],
+        ['aligned cleric', 14, 7, 'law', 0], ['aligned cleric', 12, 11, 'law', 1],
+        ['aligned cleric', 13, 11, 'neutral', 0], ['aligned cleric', 14, 11, 'neutral', 1],
+        ['Angel', 11, 5, 'chaos', 0], ['Angel', 12, 5, 'chaos', 1],
+        ['Angel', 13, 5, 'law', 0], ['Angel', 11, 13, 'law', 1],
+        ['Angel', 12, 13, 'neutral', 0], ['Angel', 13, 13, 'neutral', 1],
+        ['aligned cleric', 32, 9, 'chaos', 0], ['aligned cleric', 33, 9, 'chaos', 1],
+        ['aligned cleric', 34, 9, 'law', 0], ['aligned cleric', 40, 9, 'law', 1],
+        ['aligned cleric', 41, 9, 'neutral', 0], ['aligned cleric', 42, 9, 'neutral', 1],
+        ['Angel', 31, 8, 'chaos', 0], ['Angel', 32, 8, 'chaos', 1],
+        ['Angel', 31, 9, 'law', 0], ['Angel', 42, 8, 'law', 1],
+        ['Angel', 43, 8, 'neutral', 0], ['Angel', 43, 9, 'neutral', 1],
+        ['aligned cleric', 60, 7, 'chaos', 0], ['aligned cleric', 61, 7, 'chaos', 1],
+        ['aligned cleric', 62, 7, 'law', 0], ['aligned cleric', 60, 11, 'law', 1],
+        ['aligned cleric', 61, 11, 'neutral', 0], ['aligned cleric', 62, 11, 'neutral', 1],
+        ['Angel', 61, 5, 'chaos', 0], ['Angel', 62, 5, 'chaos', 1],
+        ['Angel', 63, 5, 'law', 0], ['Angel', 61, 13, 'law', 1],
+        ['Angel', 62, 13, 'neutral', 0], ['Angel', 63, 13, 'neutral', 1],
+    ];
+    for (const [id, x, y, align, peaceful] of alignedHorde)
+        await des.monster({ id, x, y, align, peaceful });
+    for (const monsterClass of ['L', 'L', 'L', 'V', 'V', 'V', 'D', 'D', 'D'])
+        await des.monster({ class: monsterClass, peaceful: 0 });
+}
+
+// Whole dat/Val-loca.lua1–85. Fixed stair coordinates remain map-relative,
+// including the up stair beyond the fragment; the canonical owner checks the level.
+async function valLoca(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'hardfloor', 'icedpools', 'noflip');
+    await des.level_init({ style: 'mines', fg: '.', bg: 'I', smoothed: true,
+        joined: false, lit: 1, walled: false });
+    await des.map(VAL_LOCA_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 39, 12), 'lit');
+    await des.stair('up', 48, 14);
+    await des.stair('down', 20, 6);
+    await des.non_diggable(selection_area(0, 0, 39, 12));
+    for (let i = 0; i < 15; ++i) await des.object();
+    for (let i = 0; i < 4; ++i) await des.trap('fire');
+    await des.trap();
+    await des.trap();
+    for (let i = 0; i < 17; ++i) await des.monster('fire ant');
+    await des.monster('a');
+    await des.monster({ class: 'H', peaceful: 0 });
+    for (let i = 0; i < 7; ++i) await des.monster({ id: 'fire giant', peaceful: 0 });
+    await des.monster({ class: 'H', peaceful: 0 });
+}
+
+// Whole dat/Ran-strt.lua1–101. Tree replacement uses the pre-map frame;
+// the branch region is absolute, while inhabitants use the map-relative frame.
+async function ranStrt(des) {
+    await des.level_init({ style: 'solidfill', fg: '.' });
+    await des.level_flags('mazelevel', 'noteleport', 'hardfloor', 'arboreal');
+    await des.level_init({ style: 'mines', fg: '.', bg: '.', smoothed: true,
+        joined: true, lit: 1, walled: false });
+    await des.replace_terrain({ region: [0, 0, 76, 19], fromterrain: '.',
+        toterrain: 'T', chance: 5 });
+    await des.map({ halign: 'left', valign: 'center', map: RAN_STRT_LEVEL_MAP.join('\n') });
+    await des.region(selection_area(0, 0, 40, 20), 'lit');
+    await des.stair('down', 10, 10);
+    await des.levregion({ region: [51, 2, 77, 18], region_islev: 1, type: 'branch' });
+    await des.monster({ id: 'Orion', coord: [20, 10],
+        async inventory() {
+            await des.object({ id: 'leather armor', spe: 4 });
+            await des.object({ id: 'yumi', spe: 4 });
+            await des.object({ id: 'ya', spe: 4, quantity: 50 });
+        } });
+    await des.object('chest', 20, 10);
+    for (const [x, y] of RAN_STRT_HUNTERS) await des.monster('hunter', x, y);
+    await des.non_diggable(selection_area(0, 0, 40, 20));
+    await des.trap('arrow', 30, 9);
+    await des.trap('arrow', 30, 10);
+    await des.trap('pit', 40, 9);
+    await des.trap('spiked pit');
+    await des.trap('bear');
+    await des.trap('bear');
+    await des.monster({ id: 'minotaur', x: 33, y: 9, peaceful: 0, asleep: 1 });
+    for (const [x, y] of RAN_STRT_FOREST_CENTAURS)
+        await des.monster({ id: 'forest centaur', x, y, peaceful: 0 });
+    for (let i = 0; i < 6; ++i) await des.monster({ id: 'plains centaur', peaceful: 0 });
+    for (let i = 0; i < 2; ++i) await des.monster({ id: 'scorpion', peaceful: 0 });
+}
+
+// dat/Rog-strt.lua: whole Rogue quest start program, in source order.
+async function rogStrt(des, state) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noteleport', 'hardfloor', 'nommap');
+    await des.map(ROG_STRT_LEVEL_MAP);
+    const streets = selection_floodfill(0, 12, state, des.frame);
+    const place = [[33, 0], [0, 12], [25, 20], [75, 5]];
+    await des.shuffle(place);
+    await des.stair({ dir: 'down', coord: place[0] });
+    for (const [index, id] of ['giant mimic', 'large mimic', 'small mimic'].entries())
+        await des.monster({ id, coord: place[index + 1], appear_as: 'ter:staircase down' });
+    await des.levregion({ region: [19, 9, 19, 9], type: 'branch' });
+    for (const args of ROG_STRT_DOORS) await des.door(...args);
+    await des.monster({ id: 'Master of Thieves', coord: [36, 11], async inventory() {
+        await des.object({ id: 'leather armor', spe: 5 });
+        await des.object({ id: 'silver dagger', spe: 4 });
+        // nhlib.lua:d(2,4) makes two one-based math.random(4) draws.
+        await des.object({ id: 'dagger', spe: 2, quantity: 2 + rn2(4) + rn2(4), buc: 'not-cursed' });
+    } });
+    await des.object('chest', 36, 11);
+    for (const [x, y] of ROG_STRT_GUARDS) await des.monster('thug', x, y);
+    await des.non_diggable(selection_area(0, 0, 75, 20));
+    for (let i = 0; i < 16; ++i) await des.trap();
+    for (const monster of ROG_STRT_EXIT_MONSTERS) await des.monster(monster);
+    // Lua evaluates each numeric for-loop bound once, before its first body.
+    const pairedCount = 4 + rn2(4);
+    for (let i = 0; i < pairedCount; ++i) {
+        await des.monster({ id: 'water nymph', coord: streets.rndcoord(true), peaceful: 0 });
+        await des.monster({ id: 'leprechaun', coord: streets.rndcoord(true), peaceful: 0 });
+    }
+    const chameleonCount = 7 + rn2(4);
+    for (let i = 0; i < chameleonCount; ++i)
+        await des.monster({ id: 'chameleon', coord: streets.rndcoord(true), peaceful: 0 });
+}
+
+// dat/Mon-loca.lua: whole Monk quest locate program, in source order.
+async function monLoca(des, state) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel');
+    await des.map(MON_LOCA_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 20), 'lit');
+    await des.stair('up');
+    await des.stair('down');
+    await des.non_diggable(selection_area(0, 0, 75, 20));
+    for (let i = 0; i < 15; ++i) await des.object();
+    const tinplace = selection_negate().filter_mapchar(ROOM, (x, y) => state.level.at(x, y));
+    const tinloc = tinplace.rndcoord(false, rn2, { x: des.frame.xstart, y: des.frame.ystart });
+    await des.object({ id: 'tin', coord: tinloc, quantity: 2, buc: 'blessed', montype: 'spinach' });
+    await des.engraving({ coord: tinloc, type: 'burn', text: 'Elbereth' });
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (let i = 0; i < 14; ++i) await des.monster('earth elemental');
+    for (let i = 0; i < 9; ++i) await des.monster('xorn');
+}
+
+// Whole dat/Rog-loca.lua lines 1–99. Stairs use independent random locations;
+// the fixed cursed scroll is map-relative and precedes all random objects.
+async function rogLoca(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel');
+    await des.map(ROG_LOCA_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 20), 'lit');
+    await des.stair('up');
+    await des.stair('down');
+    await des.non_diggable(selection_area(0, 0, 75, 20));
+    await des.object({ id: 'scroll of teleportation', x: 11, y: 18,
+        buc: 'cursed', spe: 0 });
+    for (let i = 0; i < 14; ++i) await des.object();
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (let i = 0; i < 17; ++i) await des.monster({ id: 'leprechaun', peaceful: 0 });
+    await des.monster({ class: 'l', peaceful: 0 });
+    for (let i = 0; i < 7; ++i) await des.monster({ id: 'guardian naga', peaceful: 0 });
+    for (let i = 0; i < 3; ++i) await des.monster({ class: 'N', peaceful: 0 });
+    for (let i = 0; i < 5; ++i) await des.monster({ id: 'chameleon', peaceful: 0 });
+}
+
+// dat/Rog-goal.lua: whole Rogue quest goal program, in source order.
+async function rogGoal(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noteleport');
+    await des.map(ROG_GOAL_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 20), 'lit');
+    await des.levregion({ region: [1, 0, 15, 20], region_islev: 1,
+        exclude: [1, 18, 4, 20], type: 'stair-up' });
+    await des.non_diggable(selection_area(0, 0, 75, 20));
+    await des.trap('spiked pit', 37, 7);
+    await des.object({ id: 'skeleton key', x: 38, y: 10, buc: 'blessed', spe: 0,
+        name: 'The Master Key of Thievery' });
+    await des.object({ id: 'tin', x: 26, y: 12, montype: 'chameleon' });
+    for (let i = 0; i < 13; ++i) await des.object();
+    for (let i = 0; i < 11; ++i) await des.trap();
+    for (const monster of ROG_GOAL_MONSTERS) await des.monster({ ...monster });
+}
+
+// Whole dat/Sam-loca.lua lines 1–141. Positional and table descriptor forms
+// retain their source defaults, including the canine class draw and hostile guards.
+async function samLoca(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'hardfloor');
+    await des.map(SAM_LOCA_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 19), 'lit');
+    for (const door of SAM_LOCA_LEVEL_DOORS) await des.door(...door);
+    await des.stair('up', 10, 10);
+    await des.stair('down', 25, 14);
+    await des.non_diggable(selection_area(0, 0, 75, 19));
+    for (const object of SAM_LOCA_LEVEL_OBJECTS) await des.object(...object);
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (const monster of SAM_LOCA_LEVEL_MONSTERS) await des.monster(...monster);
+}
+
 export const QUEST_LEVEL_LOADERS = {
+    'Sam-loca': samLoca,
+    'Rog-loca': rogLoca,
+    'Rog-goal': rogGoal,
+    'Mon-loca': monLoca,
+    'Ran-strt': ranStrt,
+    'Rog-strt': rogStrt,
+    'Val-loca': valLoca,
     'Hea-strt': heaStrt,
     'Cav-loca': cavLoca,
     'Cav-goal': cavGoal,
@@ -2118,12 +2694,21 @@ export const QUEST_LEVEL_LOADERS = {
     'Arc-filb': arcFilb,
     'Arc-goal': arcGoal,
     'Kni-goal': kniGoal,
+    'Sam-goal': samGoal,
+    'Tou-strt': touStrt,
+    'Kni-loca': kniLoca,
+    'Ran-loca': ranLoca,
+    'Ran-goal': ranGoal,
+    'Val-goal': valGoal,
     'Hea-goal': heaGoal,
     'Cav-strt': cavStrt,
     'Hea-loca': heaLoca,
+    'Kni-strt': kniStrt,
+    astral,
     'Pri-strt': priStrt,
     'Pri-loca': priLoca,
     'Pri-goal': priGoal,
+    'Mon-goal': monGoal,
     'Pri-fila': priFila,
     'Pri-filb': priFilb,
     'Wiz-strt': wizStrt,

@@ -1,0 +1,101 @@
+{
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-tou-strt",
+  "session": "synthetic/v36/v36-quest-tou-strt",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "eff4183a3ea15e1902cd64eef18e5cc64e350a130b0134e8f9103af7348057e0",
+  "evaluationPath": "challenges/evaluations/accepted-dee8b310b3922f634c10f62fcab1a5e8ff4acc73-v36.json",
+  "evaluationCommit": "dee8b310b3922f634c10f62fcab1a5e8ff4acc73",
+  "remainingScreens": 41,
+  "recordedSteps": 60,
+  "status": "complete",
+  "commit": "f8777254f5c0031214c8e93591307cc7a2290411",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-tou-strt",
+    "session": "synthetic/v36/v36-quest-tou-strt",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-tou-strt.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-tou-strt.session.json",
+    "recordingSha256": "eff4183a3ea15e1902cd64eef18e5cc64e350a130b0134e8f9103af7348057e0",
+    "recipe": "challenges/cases/v36/v36-quest-tou-strt.recipe.session.json",
+    "recipeSha256": "42827723c78d0d4b16f65a59cb24386839370e43d16a46a7a9e11758e743ea85",
+    "replayInputSha256": "b174d4d0fe2ae9edfc8979b30a0fe038771561ada961da0de7e5d68a206e1c4f",
+    "evaluationPath": "challenges/evaluations/accepted-dee8b310b3922f634c10f62fcab1a5e8ff4acc73-v36.json",
+    "evaluationCommit": "dee8b310b3922f634c10f62fcab1a5e8ff4acc73",
+    "evaluationArtifact": "challenges/evaluations/accepted-dee8b310b3922f634c10f62fcab1a5e8ff4acc73-v36.json",
+    "evaluationUtc": "2026-10-09T18:23:14.343Z",
+    "remainingScreens": 41,
+    "recordedSteps": 60,
+    "previousScreensMatched": 19,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 60
+      },
+      "rng": {
+        "matched": 3489,
+        "total": 5320
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-strt\"",
+      "step": 19
+    },
+    "step": 19,
+    "kind": "stop",
+    "sourceFile": "Tou-strt.lua",
+    "function": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-strt\"",
+    "cFile": null,
+    "luaFile": "Tou-strt.lua",
+    "line": null
+  },
+  "summary": "Tou-strt.lua is absent from QUEST_LEVEL_LOADERS, so Tourist quest-start arrival stops before generation at step19. Port the whole134line program and registry seam: river map,lighting/morgue,stairs/branch portal,protectedwalls,18doors,42monster descriptors,Twoflower custom armor/chest and9traps. No new helper scope is initially required.",
+  "goalKind": "lua-port",
+  "source": {
+    "file": "Tou-strt.lua",
+    "branch": "First generation of the Tourist quest start level through wizard level teleportation; the Tou-strt special prototype has no registered loader.",
+    "functions": [
+      "Tou-strt.lua (whole program, lines1–134)"
+    ],
+    "callers": [
+      "do.c:goto_level -> mklev.c:makelevel1266–1271 -> mkmaze.c:makemaz1184–1193 -> sp_lev.c:load_special6454–6503 -> dat/Tou-strt.lua",
+      "js/mklev.js:makelevel/makemaz/load_special -> QUEST_LEVEL_LOADERS[Tou-strt] -> touStrt in js/quest_levels.js -> canonical des.finish"
+    ],
+    "dependencies": [
+      "Existing solidfill,mazelevel/noteleport/hardfloor,map and selection-area lighting owners. Preserve unspecified-lit initial rn2(2),76x20map and source finalization/flip behavior; no noflip flag is present.",
+      "Existing lspo_region/fill_special_room -> fill_zoo MORGUE; the lit0 filled1 rectangle14/1..20/3 is created during Lua but filled during canonical finalization. Other selection-lighting calls remain top-level and source-ordered.",
+      "Existing stair/levregion/fixup_special owners: down stair66/3,branch arrival rectangle68/14..68/14; keep map-relative coordinates and canonical portal destination generation. Fixed door states require no rnddoor choices.",
+      "Existing lspo_monster/create_monster/custom inventory -> lspo_object/create_object -> spo_end_moninvent/m_dowear creationtrue. Twoflower table has custom inventory,thus source removes species default inventory before walking shoes spe3 and Hawaiian shirt spe3,then wears and clears carrier. Existing find_objtype recognizes walking shoes by object description.",
+      "Existing pm_to_humidity/location/makemon explicit-coordinate aquatic path and class/name parser for giant eel,piranha,kraken. Preserve source strings/class forms,wet-first location and state-derived RNG; do not add MM_IGNOREWATER or override terrain to force placement.",
+      "Existing trap creation and full program finalization; no selection subtraction,spinach tin,noncoaligned alignment or new named artifact behavior in this program. Runtime evidence must confirm helper reachability; report any new owner defect before expansion."
+    ]
+  },
+  "evidence": [
+    "Accepted C177 evaluation at dee8b310b3922f634c10f62fcab1a5e8ff4acc73 retains 19/60 screens/cursors and 3489/5320 RNG, with 41 remaining. The first stop remains the missing Tou-strt loader at segment 0 step 19. This refresh uses saved accepted evidence; no replay or C recording was run.",
+    "Complete dat/Tou-strt.lua1–134 read,sourceSHAed2ad657aba1789bda47e02c2bfbffe5390b5d30a9f12f9de37feb9d1eda760a. Map20rows76characters,including literal backslash throne glyph at64/3 and river pools; generated data must retain allspaces/backslash exactly. Source solidfillspace,mazelevel/noteleport/hardfloor precede fullmaplit,one filledmorgue and seven unlit selections plus lit audiencechamber62/2..67/4.",
+    "After lighting,downstair66/3,branchlevregion68/14,fullnon-diggable selection and18doors (11locked,4closed,3open) precede every monster. Locked secret-door coordinates are retained as supplied rather than flattened to regular doors. Whole C lspo_door fixed placement and existing JS preserve terrain-derived secret state/door masks. Source source-pin should test this full descriptor order.",
+    "Monster descriptor total42:12giantspiders,2s-class,8forestcentaurs,1C-class,Twoflower,11guides,2watchmen,1giant eel,2piranhas,2krakens. Twoflower64/3 custom inventory is followed by chest64/3 and guides,then aquatic placements,then9randomtraps. C step19 contains1831RNG calls beginning getbones,nhlibshuffle,unspecified-lit rn2(2),then find_montype/induced_align/location; missing loader prevents JS from reaching any selected program behavior.",
+    "C sp_lev.c:lspo_monster3214–3402 defaults to CUSTOM_INVENT when inventory function is present,unless keep_default_invent explicitly requests both. create_monster1925–2185 discards normal inventory and sets shared carrier; source spo_end_moninvent3031–3037 calls m_dowear(TRUE) then clears carrier. JSmklev2064–2271 awaits callback before finalization; themeroom_fill.create_monster/spo_end_moninvent and worn.m_dowear976–1021 already provide the required creation path. Source callback must await each des.object in order.",
+    "Source find_objtype3468–3547 searches true names before appearance descriptions. JSmklev2321–2400 mirrors this; js/objects.js declares low boots appearance walking shoes. Retain source descriptor walking shoes/spe3 and hawaiian shirt/spe3; no generated artifact name,spinach/montype or custom quantity is needed. Verify minvent ownership,worn boots/shirt and absence of discarded default inventory with fresh runtime evidence.",
+    "C pm_to_humidity1884–1900 sets WET for swimmer/eel species, and create_monster1963–1978 attempts that humidity before DRY fallback. JSthemeroom_fill.monsterHumidity413 and createMonsterBody retain that path. Its in_mklev source context bypasses species admission through existing canonical maker. Named aquatic species at fixed source coords must be passed unchanged: eel62/12,piranha47/10 and29/11,kraken34/9 and37/9. No artificialwater flag or pool conversion should be added.",
+    "C lspo_levregion5472–5496 and canonical JS3803–3825 convert branch enum and relative rectangle,then finalization fixup_special creates arrival portal. lspo_region5584–5717 and fill_special_room2731–2809 retain morgue deferred filling. Existing fill_zoo supports MORGUE with canonical morguemon/corpse/container/grave order. These helpers have required active branches; no whole helper completion credit follows from this read-only audit.",
+    "rg Tou-strt|touStrt in js/quest_levels.js and scripts/*.test.mjs returns no implementation/fixture. JSmklev650–685 refuses the special prototype before load_special; canonical ensureSpecialLevelLoaders imports quest registry. Entire Lua and unique import/function/key are the smallest complete implementation scope,not a refusal removal alone.",
+    "Evidence plan: admitted segment0steps19–59 after implementation,plus independent C-first male/female human Tourist quest-start arrivals/#wizmap with changed input histories. Verify leader custom armor/ownership,guide placement,portal/downstair/flags,morgue andriver monsters through correct map frame and level flips. Source-pinned descriptor/RNG ordering and deterministic map generation/check cover cheap variants; retain any newly discovered outside-helper frontier explicitly before expanding.",
+    "Proposed edits only quest_levels unique import/touStrt/registry,generated tou_strt_level_data,deterministic generator/check,focused tests,matrix and recipes/recordings/Tou-strt.lua. No initial helper/module expansion; source: Tou-strt.lua and contract:tourist-quest-start-loader. Disjoint from accepted C177 Val-goal/A196 Val-loca and active C175 Rog-strt. No numeric selection, alignment or spinach seam is selected. B199 Sam-goal is a pending ancestor delivery and must be declared until acceptance; no source helper edits are proposed.",
+    "Accepted A196 fixed-coordinate stairs now forward the C force flag from l_create_stairway to mkstairs and set ROOM before the dungeon-end refusal; Tou-strt uses the supported fixed down stair at 66/3. Accepted C177 adds only its Val-goal loader/data seams. The Tou-strt proposal needs no new source reservations or allowed paths."
+  ]
+}

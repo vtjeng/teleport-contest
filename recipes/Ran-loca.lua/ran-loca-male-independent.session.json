@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first whole Ran-loca.lua plan fixed before recording or JavaScript comparison: male human neutral Ranger, Ran-loca #wizloaddes entry, and explicit no-pet/no ambient-monster options. Covers its 55x20 lit fixed map, paired typed random traps, eight random objects, and ordered hostile named/class monsters including the fixed sleeping wumpus. The admitted v36 quest-arrival case covers ordinary makelevel entry.",
+  "segments": [
+    {
+      "seed": 30109113,
+      "datetime": "20661009173011",
+      "nethackrc": "OPTIONS=name:RanLocaProbe,role:Ranger,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\n#wizloaddes\nRan-loca.lua\n"
+    }
+  ]
+}

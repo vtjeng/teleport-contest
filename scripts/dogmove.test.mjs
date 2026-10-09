@@ -93,6 +93,9 @@ import { loadPetCursedStepRecipe } from './run-pet-cursed-step.mjs';
 const DOGMOVE_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/dogmove.c', import.meta.url), 'utf8',
 );
+const DOGMOVE_JS_SOURCE = readFileSync(
+    new URL('../js/dogmove.js', import.meta.url), 'utf8',
+);
 
 function petState() {
     const level = new GameMap();
@@ -1075,6 +1078,15 @@ test('dog_move dismisses a conflicted guardian angel', async () => {
 
     assert.equal(result, MMOVE_DIED);
     assert.deepEqual(events, [monster]);
+});
+
+test('dog_move production branch calls the minion guardian owner', () => {
+    assert.match(DOGMOVE_JS_SOURCE,
+        /import \{ lose_guardian_angel \} from '\.\/minion\.js';/u);
+    assert.match(DOGMOVE_JS_SOURCE,
+        /else if \(!env\.planning\)\s+await lose_guardian_angel\(monster, state, env\);/u);
+    assert.doesNotMatch(DOGMOVE_JS_SOURCE,
+        /note_unported\('minion\.c lose_guardian_angel'\)/u);
 });
 
 test('dog_move dismisses a guardian angel whose conflict is blocked',

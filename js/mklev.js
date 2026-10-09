@@ -47,6 +47,7 @@ import {
     set_wall_state,
 } from './display.js';
 import { def_char_to_monclass, def_char_to_objclass } from './drawing.js';
+import { MAXMCLASSES } from './symbols.js';
 import { add_to_container, obj_extract_self, obfree, sobj_at } from './invent.js';
 import { UnsupportedMonsterCreationError, makemon, dmonsfree } from './makemon_create.js';
 import { mkclass, rndmonnum } from './makemon.js';
@@ -123,6 +124,9 @@ import {
     BOULDER,
     CHEST,
     CORPSE,
+    EGG,
+    FIGURINE,
+    TIN,
     CRAM_RATION,
     FOOD_CLASS,
     FOOD_RATION,
@@ -311,6 +315,7 @@ import {
     NON_PM,
     NO_INVENT,
     NO_LOC_WARN,
+    SP_COORD_IS_RANDOM,
     SP_COORD_PACK,
     SP_COORD_PACK_RANDOM,
     F_LOOTED, F_WARNED, S_LPUDDING, S_LDWASHER, S_LRING, T_LOOTED,
@@ -652,6 +657,13 @@ export function initialize_themeroom_branch(state = game, random = rn2) {
 // C ref: mklev.c makelevel()
 async function makelevel(specialLevelLoader = null) {
     const g = game;
+    // mklev.c:1414–1418: every generation branch reaches this room-fill
+    // tail. load_special itself stops before filling special rooms.
+    const fillSpecialRooms = async () => {
+        const env = levelObjectEnv();
+        for (let i = 0; i < g.level.nroom; ++i)
+            await fill_special_room(g.level.rooms[i], env);
+    };
     oinit();
     clear_level_structures();
 
@@ -677,6 +689,7 @@ async function makelevel(specialLevelLoader = null) {
                 : Boolean(SPECIAL_LEVEL_LOADERS[slev.proto]);
             if (hasLoader) {
                 await makemaz(slev.proto, slev, g);
+                await fillSpecialRooms();
                 return;
             }
             throw new UnsupportedLevelChangeError(
@@ -696,6 +709,7 @@ async function makelevel(specialLevelLoader = null) {
         const specialLevelApi = createSpecialLevelApi(g);
         await specialLevelLoader(specialLevelApi, g);
         await specialLevelApi.finish();
+        await fillSpecialRooms();
         return;
     }
 
@@ -703,10 +717,12 @@ async function makelevel(specialLevelLoader = null) {
     const dungeonRecord = g.dungeons[g.u.uz.dnum];
     if (dungeonRecord.proto) {
         await makemaz('', null, g);
+        await fillSpecialRooms();
         return;
     }
     if (dungeonRecord.fill_lvl) {
         await makemaz(dungeonRecord.fill_lvl, null, g);
+        await fillSpecialRooms();
         return;
     }
 
@@ -723,6 +739,7 @@ async function makelevel(specialLevelLoader = null) {
         await ensureSpecialLevelLoaders();
         if (SPECIAL_LEVEL_LOADERS[fillName]) {
             await makemaz(fillName, null, g);
+            await fillSpecialRooms();
             return;
         }
     }
@@ -869,9 +886,7 @@ async function makelevel(specialLevelLoader = null) {
         if (fillable) --bonusItemRoomCountdown;
     }
 
-    const specialRoomEnv = levelObjectEnv();
-    for (let index = 0; index < g.level.nroom; ++index)
-        await fill_special_room(g.level.rooms[index], specialRoomEnv);
+    await fillSpecialRooms();
 
     // themerooms_post_level_generate() is completed by
     // level_finalize_topology(), after every ordinary and special room fill.
@@ -2834,9 +2849,8 @@ function l_create_stairway(args, using_ladder, env) {
             loc.ladder = LA_DOWN;
         }
     } else {
-        // C passes a fifth argument, !(scoord & SP_COORD_IS_RANDOM);
-        // mklev.js mkstairs() does not take it.
-        mkstairs(x, y, up, coder.croom);
+        // sp_lev.c:4209–4210 forces fixed-coordinate stairs onto ROOM.
+        mkstairs(x, y, up, coder.croom, !(scoord & SP_COORD_IS_RANDOM));
     }
 }
 
@@ -4583,20 +4597,46 @@ function createSpecialLevelApi(state) {
             } else {
                 spec = lcheck_param_table(args);
             }
-            // C ref: sp_lev.c lspo_object(). When montype is a single
-            // character, resolve it as a monster class letter to a PM_ index
-            // the same way C does: mkclass(def_char_to_monclass(ch), flags).
-            let corpsenm = spec.montype;
-            if (typeof corpsenm === 'string' && corpsenm.length === 1) {
-                const cls = def_char_to_monclass(corpsenm);
-                const species = mkclass(cls, G_NOGEN | G_IGNORE, {
-                    state,
-                    random: SOURCE_THEMEROOM_RANDOM,
-                });
-                corpsenm = species
-                    ? state.mons.indexOf(species)
-                    : undefined;
+            // C ref: sp_lev.c lspo_object(): only these object types read
+            // montype. Species names use the source table directly, without
+            // find_montype's gender draw; non-species tokens stay with the
+            // canonical normalization in sp_lev_object.js.
+            const hasMontype = spec.montype != null;
+            const id = hasMontype ? get_table_objtype(spec, state) : spec.id;
+            let corpsenm;
+            if ([STATUE, EGG, CORPSE, TIN, FIGURINE].includes(id)) {
+                // Existing translated loaders may supply the resolved PM index.
+                const montype = Number.isInteger(spec.montype) ? spec.montype
+                    : get_table_str_opt(spec, 'montype', null);
+                if (Number.isInteger(montype)) corpsenm = montype;
+                const token = typeof montype === 'string' ? montype.toLowerCase() : null;
+                const nonpmobj = (id === TIN && (token === 'spinach' || token === 'empty'))
+                    || (id === EGG && token === 'empty');
+                if (token != null && !nonpmobj) {
+                    let species;
+                    const cls = montype.length === 1 ? def_char_to_monclass(montype) : MAXMCLASSES;
+                    if (montype.length === 1 && cls !== MAXMCLASSES) {
+                        species = mkclass(cls, G_NOGEN | G_IGNORE, {
+                            state,
+                            random: SOURCE_THEMEROOM_RANDOM,
+                        });
+                    } else {
+                        for (let i = LOW_PM; i < NUMMONS; ++i) {
+                            const names = state.mons[i].pmnames;
+                            if ([names[NEUTRAL], names[MALE], names[FEMALE]]
+                                .some(name => name != null && name.toLowerCase() === token)) {
+                                species = state.mons[i];
+                                break;
+                            }
+                        }
+                    }
+                    if (!species) throw new Error('Unknown montype');
+                    corpsenm = state.mons.indexOf(species);
+                }
+                spec = { ...spec, montype };
             }
+            // Reuse a parsed id rather than invoking its Lua callback again.
+            if (hasMontype) spec = { ...spec, id };
             const coordinate = get_table_xy_or_coord(spec);
             const normalized = {
                 ...spec,
@@ -4690,16 +4730,9 @@ function createSpecialLevelApi(state) {
                 premap_detect(state);
             }
 
-            // C ref: sp_lev.c load_special() calls fill_special_room for
-            // every room after fixup_special. For rooms created by
-            // des.room() or des.region(table), this sets level flags
-            // (has_temple etc.) and fills shops/zoos when needfill is
-            // FILL_NORMAL.
-            const nroom = state.level?.nroom ?? 0;
-            const rooms = state.level?.rooms ?? [];
-            for (let i = 0; i < nroom; i++) {
-                await fill_special_room(rooms[i], levelObjectEnv());
-            }
+            // sp_lev.c:6454–6503 load_special() ends here. makelevel()
+            // fills natural loads; lspo_finalize_level() fills direct loads
+            // after level_finalize_topology() has mineralized the map.
         },
     });
 }
@@ -5120,7 +5153,7 @@ function mkmap_finish_map(fg_typ, bg_typ, lit, walled, icedpools, state) {
             const loc = state.level.at(x, y);
             if (loc.typ === LAVAPOOL) loc.lit = true;
             else if (loc.typ === ICE)
-                loc.icedpool = icedpools ? 1 /* ICED_POOL */ : 2;
+                loc.icedpool = icedpools ? ICED_POOL : ICED_MOAT;
         }
     }
 }
@@ -7307,14 +7340,17 @@ function generate_stairs_find_room() {
     return g.level.rooms[rn2(g.level.nroom)];
 }
 
-export function mkstairs(x, y, up, croom) {
+export function mkstairs(x, y, up, croom, force = false) {
     const g = game;
+    const loc = g.level.at(x, y);
+    // mklev.c:2172–2173: fixed descriptors force ROOM even when the
+    // dungeon-end guard below refuses the stair itself.
+    if (force && loc) loc.typ = ROOM;
     // C ref: mklev.c mkstairs():2183-2189. A regular stair cannot be
     // created at either end of a dungeon branch; the Lua `des.stair("up")`
-    // on Mines level 1 therefore has no corresponding terrain or stairway.
+    // on Mines level 1 therefore creates no stairway or STAIRS terrain.
     if (dunlev(g.u.uz) === (up ? 1 : dunlevs_in_dungeon(g.u.uz, g)))
         return;
-    const loc = g.level.at(x, y);
     if (loc) {
         loc.typ = STAIRS;
         loc.ladder = up ? 1 : 2;

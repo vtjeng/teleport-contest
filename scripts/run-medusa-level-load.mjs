@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 
-// Record and replay medusa special level loading through all four variants.
-// Each segment uses wizard-mode #levelchange to reach dungeon level 20,
-// which coincides with medusa_level for a Priest/human/female/chaotic
-// character. The variant is selected by rnd(4) during makemaz(); seeds were
-// chosen from a scan of 100-600 (step 10) where all 51 seeds produced full
-// PRNG and screen parity. The six seeds below were kept because they cover
-// different PRNG counts at the medusa-load boundary, suggesting variant
-// diversity.
-//
-// C ref: dat/medusa-1.lua through dat/medusa-4.lua (level definitions),
-//        mkmaze.c fixup_special() lines 649-685 (post-load statue placement).
+// Record and replay whole Medusa-4 through direct and natural loading,
+// with a neighboring Medusa-3 check. The historical six-seed recipe exports
+// below are retained as existing runner inputs; they do not establish which
+// variant each seed selects. Runtime assertions verify the new owned cases.
+// C refs: dat/medusa-4.lua and mkmaze.c fixup_special().
 
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
+import { MOAT } from '../js/const.js';
+import { PM_MEDUSA, PM_YELLOW_DRAGON } from '../js/monsters.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
@@ -61,4 +61,47 @@ export async function runMedusaLevelLoadMatrix() {
     });
 }
 
-runMatrixCli(import.meta.url, runMedusaLevelLoadMatrix, 'medusa level load');
+// Medusa-4 evidence: independent seeds19710031/19710108, dates and
+// Valkyrie/Wizard roles. Natural-arrival seed comes from the fixed range
+//19710100–19710131: first source loader4 after nine probes, before C replay.
+// Seed19710037 naturally selects the neighboring Medusa-3 program.
+function medusa4Entries() {
+    return ['medusa4-valkyrie-independent', 'medusa4-wizard-arrival-independent',
+        'medusa3-natural-outside-program'].map(label => {
+        const url = new URL(`../recipes/medusa-4.lua/${label}.session.json`, import.meta.url);
+        return { label, recipe: validateCleanRecipe(JSON.parse(readFileSync(url, 'utf8')), url.pathname) };
+    });
+}
+
+async function verifyMedusaProgram(segment) {
+    let boundary;
+    await runSegment(segment, { onBoundary(error) { boundary = error; } });
+    assert.equal(boundary, undefined);
+    let medusa, dragon;
+    for (let monster = game.level.monlist; monster; monster = monster.nmon) {
+        if (monster.data.pmidx === PM_MEDUSA) medusa = monster;
+        if (monster.data.pmidx === PM_YELLOW_DRAGON) dragon = monster;
+    }
+    assert.ok(medusa); // Both Lua programs explicitly create their sleeping nemesis.
+    assert.equal(medusa.msleeping, true);
+    if (segment.seed === 19710037) return; // Outside-program Medusa-3 witness only.
+    assert.ok(dragon); // medusa-4.lua126: yellow dragon precedes two gated babies.
+    assert.equal(game.level.flags.noteleport, true);
+    assert.equal(game.level.flags.is_maze_lev, true); // Lua7 flags survive postprocessing.
+    // Lua33 is a 76-cell moat row; both edge rows stay moat after either flip.
+    for (let x = 3; x < 79; ++x) assert.equal(game.level.at(x, 20).typ, MOAT);
+    // Lua66 uses medloc for the down stair and Lua123 for Medusa.
+    let matchingStair = false;
+    for (let stair = game.stairs; stair; stair = stair.next) {
+        if (!stair.up && stair.sx === medusa.mx && stair.sy === medusa.my)
+            matchingStair = true;
+    }
+    assert.ok(matchingStair);
+}
+
+export function runMedusa4LevelMatrix() {
+    return runFreshMatrix({ entries: medusa4Entries(), chunkLimit: 1,
+        summaryLabel: 'MEDUSA FOUR AND ADJACENT PROGRAM', verifySegment: verifyMedusaProgram });
+}
+
+runMatrixCli(import.meta.url, runMedusa4LevelMatrix, 'Medusa-4 generation');

@@ -6,8 +6,10 @@ import { newgame_pre_mklev } from '../js/allmain.js';
 import { game, resetGame } from '../js/gstate.js';
 import { mklev } from '../js/mklev.js';
 import { monst_globals_init } from '../js/monsters.js';
-import { objects_globals_init } from '../js/objects.js';
-import { initRng } from '../js/rng.js';
+import { TIN, EGG, APPLE, CORPSE, STATUE, FIGURINE, objects_globals_init } from '../js/objects.js';
+import { PM_CHAMELEON, PM_CAVE_DWELLER, PM_ALIGNED_CLERIC } from '../js/monsters.js';
+import { initRng, enableRngLog, getRngLog } from '../js/rng.js';
+import { ICE, ICED_POOL, ICED_MOAT, ROOM } from '../js/const.js';
 import { light_globals_init } from '../js/light.js';
 import {
     str2align,
@@ -188,5 +190,153 @@ test('array map returns its nontransparent and valid written selection', async (
         assert.equal(placed.selection.get(placed.xstart, placed.ystart), true);
         assert.equal(placed.selection.get(placed.xstart + 1, placed.ystart), false);
         assert.equal(placed.selection.get(placed.xstart + 2, placed.ystart), false);
+    });
+});
+
+test('mines finish_map stores source pool and moat ice flags', async () => {
+    const source = readFileSync('nethack-c/upstream/src/mkmap.c', 'utf8');
+    assert.match(source, /levl\[x\]\[y\]\.icedpool = icedpools \? ICED_POOL : ICED_MOAT/u);
+    for (const icedpools of [false, true]) { // Both source branches share the same cave generator.
+        await runLoader(async des => {
+            await des.level_init({style:'solidfill', fg:' '});
+            if (icedpools) await des.level_flags('icedpools');
+            await des.level_init({style:'mines', fg:'.', bg:'I', smoothed:true,
+                joined:false, lit:1, walled:false});
+            let ice = 0;
+            for (let x=1; x<80; ++x) for (let y=0; y<21; ++y) { // mkmap.c whole playable grid.
+                const location = game.level.at(x,y);
+                if (location.typ === ICE) {
+                    ++ice;
+                    assert.equal(location.icedpool, icedpools ? ICED_POOL : ICED_MOAT);
+                }
+            }
+            assert.ok(ice > 0); // Source background I must reach the finish-map assignment.
+        });
+    }
+});
+
+test('fixed des.stair forces ROOM before a dungeon-end refusal', async () => {
+    const source = readFileSync('nethack-c/upstream/src/mklev.c', 'utf8');
+    const stairs = source.slice(source.indexOf('mkstairs(\n'), source.indexOf('/* is room a good one'));
+    assert.match(stairs, /if \(force\)\s*levl\[x\]\[y\]\.typ = ROOM;[\s\S]*?if \(dunlev\(&u\.uz\)/u);
+    await runLoader(async des => {
+        await des.level_init({style:'solidfill', fg:'I'}); // All candidate cells are ice.
+        const x = des.frame.xstart + 10, y = des.frame.ystart + 10; // Fixed interior coordinate.
+        assert.equal(game.u.uz.dlevel, 1); // Up stairs at a dungeon endpoint are refused.
+        await des.stair('up', 10, 10);
+        assert.equal(game.level.at(x,y).typ, ROOM); // C force precedes the refusal.
+    });
+    await runLoader(async des => {
+        await des.level_init({style:'solidfill', fg:'I'});
+        await des.stair('up'); // Random descriptors pass force=false.
+        for (let x=1; x<80; ++x) for (let y=0; y<21; ++y)
+            assert.notEqual(game.level.at(x,y).typ, ROOM); // C force=false preserves background ice.
+    });
+});
+
+
+test('lspo_object non-species descriptors preserve spe and skip species assignment', async () => {
+    const source = readFileSync('nethack-c/upstream/src/sp_lev.c', 'utf8');
+    // sp_lev.c:3684–3694 recognizes these tokens case-insensitively; egg's
+    // later laid_by_you branch overrides the initial zero at 3720–3721.
+    assert.match(source, /tmpobj.corpsenm = NON_PM;\s*tmpobj.spe = !strcmpi\(montype, "spinach"\) \? 1 : 0;\s*nonpmobj = TRUE/u);
+    const cases = [
+        { id: 'tin', montype: 'SpInAcH', spe: 1 },
+        { id: 'tin', montype: 'eMpTy', spe: 0 },
+        { id: 'egg', montype: 'EmPtY', laid_by_you: true, spe: 1 },
+        { id: 'egg', montype: 'empty', laid_by_you: false, spe: 0 },
+    ]; // All accepted non-species arms, including the source's egg override.
+    for (const { spe, ...descriptor } of cases) {
+        await runLoader(async des => {
+            await des.level_init({ style: 'solidfill', fg: '.' });
+            const object = await des.object({ ...descriptor, x: 5, y: 5,
+                quantity: 2, buc: 'blessed' }); // Source Mon-loca's fixed stack/buc.
+            assert.equal(object.otyp, descriptor.id === 'tin' ? TIN : EGG);
+            assert.equal(object.spe, spe);
+            assert.equal(object.quan, 2);
+            assert.equal(object.blessed, true);
+            assert.equal(typeof object.corpsenm, 'number'); // Never store token as species.
+        });
+    }
+});
+
+
+test('lspo_object named montype uses exact C species names without gender RNG', async () => {
+    const source = readFileSync('nethack-c/upstream/src/sp_lev.c', 'utf8');
+    // sp_lev.c:3701–3710 compares all three source names directly.
+    assert.match(source, /!strcmpi\(mons\[i\]\.pmnames\[NEUTRAL\], montype\)/u);
+    const names = [
+        ['ChAmElEoN', PM_CHAMELEON], // Neutral name; Rog-goal's tin dependency.
+        ['cAvEmAn', PM_CAVE_DWELLER], ['cAvEwOmAn', PM_CAVE_DWELLER],
+        ['pRiEsT', PM_ALIGNED_CLERIC], ['pRiEsTeSs', PM_ALIGNED_CLERIC],
+    ]; // Both gender names resolve without parsing; priest first matches aligned cleric, before role cleric.
+    for (const [name, species] of names) {
+        let numericDraws;
+        await runLoader(async des => {
+            await des.level_init({ style: 'solidfill', fg: '.' });
+            enableRngLog();
+            const object = await des.object({ id: TIN, x: 5, y: 5, montype: species });
+            numericDraws = getRngLog();
+            assert.equal(object.corpsenm, species);
+        });
+        await runLoader(async des => {
+            await des.level_init({ style: 'solidfill', fg: '.' });
+            enableRngLog();
+            const object = await des.object({ id: 'tin', x: 5, y: 5, montype: name });
+            assert.equal(object.corpsenm, species);
+            assert.equal(object.spe, 0); // Source overwrites generated tin spe.
+            assert.deepEqual(getRngLog(), numericDraws); // No find_montype gender coin flip.
+        });
+    }
+    for (const invalid of ['a chameleon', '#']) { // Parser aliases and invalid class letters are not species names.
+        await runLoader(async des => {
+            enableRngLog();
+            assert.throws(() => des.object({ id: 'tin', montype: invalid }), /Unknown montype/u);
+            assert.deepEqual(getRngLog(), []); // Unknown names fail before creation or a gender draw.
+        });
+    }
+    await runLoader(async des => {
+        await des.level_init({ style: 'solidfill', fg: '.' });
+        const object = await des.object({ id: 'apple', x: 5, y: 5, montype: 'chameleon' });
+        assert.equal(object.otyp, APPLE);
+        assert.equal(typeof object.corpsenm, 'number'); // Source ignores montype outside its five types.
+    });
+});
+
+
+test('named montype reaches each of the five source object types', async () => {
+    for (const [name, id] of [['statue', STATUE], ['egg', EGG], ['corpse', CORPSE],
+        ['tin', TIN], ['figurine', FIGURINE]]) { // sp_lev.c:3667–3669 exact restriction.
+        await runLoader(async des => {
+            await des.level_init({ style: 'solidfill', fg: '.' });
+            const object = await des.object({ id: name, x: 5, y: 5, montype: 'ChAmElEoN' });
+            assert.equal(object.otyp, id);
+            assert.equal(object.corpsenm, PM_CHAMELEON);
+            assert.equal(object.spe, 0); // Source default flags/laid_by_you and tin/figurine reset.
+        });
+    }
+});
+
+
+test('montype type checking consumes the object-id callback once', async () => {
+    await runLoader(async des => {
+        await des.level_init({ style: 'solidfill', fg: '.' });
+        let calls = 0;
+        const object = await des.object({ id() { ++calls; return 'apple'; },
+            x: 5, y: 5, montype: 'chameleon' });
+        assert.equal(object.otyp, APPLE);
+        assert.equal(calls, 1); // get_table_objtype calls id once; reuse it before normalization.
+    });
+});
+
+
+test('named montype consumes its existing Lua string callback once', async () => {
+    await runLoader(async des => {
+        await des.level_init({ style: 'solidfill', fg: '.' });
+        let calls = 0;
+        const object = await des.object({ id: 'tin', x: 5, y: 5,
+            montype() { ++calls; return 'ChAmElEoN'; } });
+        assert.equal(object.corpsenm, PM_CHAMELEON);
+        assert.equal(calls, 1); // C get_table_str_opt invokes this field once.
     });
 });

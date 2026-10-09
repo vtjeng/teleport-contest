@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T15:14:15.834Z",
+  "capturedAt": "2026-10-09T20:24:39.163Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -74418,6 +74418,1906 @@
         "at": "2026-10-09T15:14:11.725Z",
         "task": "B186",
         "goal": "port-wizcmds-wiz-show-nhuuid-v34-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep2-v38-20261009",
+        "type": "assign",
+        "at": "2026-10-09T15:17:09.715Z",
+        "task": "Prep2",
+        "worker": "Prep",
+        "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep2-v38-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T15:17:17.101Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B186-implement-authorized-20261009",
+        "type": "turn",
+        "at": "2026-10-09T15:19:06.482Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing wizard UUID display and save/restore persistence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7c544e3449fd5a95f3dd8a0674ef6ebcdd4cf73c",
+        "type": "ready",
+        "at": "2026-10-09T15:25:59.148Z",
+        "task": "C179",
+        "delivery": "7c544e3449fd5a95f3dd8a0674ef6ebcdd4cf73c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C179-7c544e344-20261009",
+        "type": "received",
+        "at": "2026-10-09T15:26:44.445Z",
+        "task": "C179",
+        "delivery": "7c544e3449fd5a95f3dd8a0674ef6ebcdd4cf73c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C179-delivered-idle-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T15:27:30.066Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C179 is queued for integration. No independent new investigation is available; oldest C171 report awaits Main’s central source gate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C179-4b8e78b34-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T15:28:08.846Z",
+        "task": "C179",
+        "integration": "4b8e78b3436a3badbcadb94bff93da388213ba19"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A197-packaging-20261009",
+        "type": "turn",
+        "at": "2026-10-09T15:28:30.030Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep2-parked-no-new-mismatch-20261009",
+        "type": "turn",
+        "at": "2026-10-09T15:30:06.003Z",
+        "worker": "Prep",
+        "state": "blocked",
+        "reason": "v38 preparation is parked; Main must choose whether to accept 13 matching C cases or provide new targets."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-Prep2-no-qualifying-mismatches-20261009",
+        "type": "park",
+        "at": "2026-10-09T15:30:38.168Z",
+        "task": "Prep2",
+        "reason": "Thirteen distinct reproducible C cases replay byte-identically but all pass current JavaScript; zero qualify as first-mismatch runway after reviewing v37 and all 30 unresolved queue cases. Preserve commit 8c08f73d16cd2b8a1f3f85c120ad21a02df29279 and private manifest/crosswalk; do not admit or integrate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep2-idle-main-reassessment-20261009",
+        "type": "turn",
+        "at": "2026-10-09T15:30:51.891Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Waiting for Main to finish the current integration and reassess the preparation trigger."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-476d466961afe4fd750857d1786aadc491c0dcea",
+        "type": "ready",
+        "at": "2026-10-09T15:32:04.967Z",
+        "task": "A197",
+        "delivery": "476d466961afe4fd750857d1786aadc491c0dcea"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-747065a01f2df1ee7b66ecc44106fe1dd4d782d8",
+        "type": "ready",
+        "at": "2026-10-09T15:32:08.222Z",
+        "task": "B186",
+        "delivery": "747065a01f2df1ee7b66ecc44106fe1dd4d782d8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A197-476d46696-20261009",
+        "type": "received",
+        "at": "2026-10-09T15:32:22.543Z",
+        "task": "A197",
+        "delivery": "476d466961afe4fd750857d1786aadc491c0dcea"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B186-747065a01-20261009",
+        "type": "received",
+        "at": "2026-10-09T15:32:41.133Z",
+        "task": "B186",
+        "delivery": "747065a01f2df1ee7b66ecc44106fe1dd4d782d8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A197-ready-idle-20261009",
+        "type": "turn",
+        "at": "2026-10-09T15:33:04.004Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Medusa-4 delivery is queued. Other admitted mismatches have owners or await central source and diagnostic contracts."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B186-ready-availability-20261009",
+        "type": "turn",
+        "at": "2026-10-09T15:33:42.237Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "UUID delivery is queued; remaining quest reports await central source contexts, and unclaimed diagnostics repeat pointer/build blockers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C179-4b8e78b3436a3badbcadb94bff93da388213ba19-validated",
+        "type": "validated",
+        "at": "2026-10-09T15:34:10.456Z",
+        "task": "C179",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C179-4b8e78b3436a3badbcadb94bff93da388213ba19-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T15:38:05.157Z",
+        "task": "C179"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C171-after-C179-accepted-20261009",
+        "type": "resume",
+        "at": "2026-10-09T15:39:09.742Z",
+        "task": "C171"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C171-source-refresh-after-C179-20261009",
+        "type": "turn",
+        "at": "2026-10-09T15:39:11.303Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Resuming the dependency-ready Knight locate investigation and checking its source scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C179-53b84d3f7-20261009",
+        "type": "published",
+        "at": "2026-10-09T15:40:26.293Z",
+        "task": "C179",
+        "commit": "53b84d3f7e5308543960528cb0bb971af400d1ec"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A197-b581facde",
+        "type": "integrating",
+        "at": "2026-10-09T15:43:38.221Z",
+        "task": "A197",
+        "integration": "b581facde072156e518fc16846e3a5ca02455f81"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A197-b581facde",
+        "type": "validated",
+        "at": "2026-10-09T15:49:40.694Z",
+        "task": "A197",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A197-b581facde072156e518fc16846e3a5ca02455f81-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T15:54:44.528Z",
+        "task": "A197"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-20261009-resume-next",
+        "type": "turn",
+        "at": "2026-10-09T15:55:53.614Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Syncing accepted main and selecting independent work from the saved queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-20261009-a197-boundary-idle",
+        "type": "turn",
+        "at": "2026-10-09T15:58:30.597Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "No independent queue item is available. A192 Mon-goal proposal is refreshed and awaiting Main’s source goal/context gate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C171-implementation-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T16:04:03.505Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Porting Knight quest locate generation and validating its production entry points."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C171-kni-loca-20261009",
+        "type": "implement",
+        "at": "2026-10-09T16:04:04.794Z",
+        "task": "C171",
+        "goal": "port-kni-loca-quest-level-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A192-context-ready-20261009",
+        "type": "resume",
+        "at": "2026-10-09T16:04:47.307Z",
+        "task": "A192"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A192-mon-goal-quest-level-20261009",
+        "type": "implement",
+        "at": "2026-10-09T16:04:48.577Z",
+        "task": "A192",
+        "goal": "port-mon-goal-quest-goal-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A192-implement-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T16:04:49.963Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A192 Mon-goal Lua port is active with its source and loader scope claimed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A197-6a3376788cd-20261009",
+        "type": "published",
+        "at": "2026-10-09T16:07:25.583Z",
+        "task": "A197",
+        "commit": "6a3376788cd3e39986b97106fce036a4c0db779d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B186-aa078be247",
+        "type": "integrating",
+        "at": "2026-10-09T16:08:20.041Z",
+        "task": "B186",
+        "integration": "aa078be24751cc723362b906245b9eb53d03ec6e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8a0f69f0c52809e267c7d06476888f0f3e5c44de",
+        "type": "ready",
+        "at": "2026-10-09T16:13:11.740Z",
+        "task": "C171",
+        "delivery": "8a0f69f0c52809e267c7d06476888f0f3e5c44de"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C171-ready-idle-20261009",
+        "type": "turn",
+        "at": "2026-10-09T16:13:35.361Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C171 is ready for integration; the immutable delivery includes source, callers, tests and replay evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C171-8a0f69f0-20261009",
+        "type": "received",
+        "at": "2026-10-09T16:13:50.458Z",
+        "task": "C171",
+        "delivery": "8a0f69f0c52809e267c7d06476888f0f3e5c44de"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B186-aa078be24751cc723362b906245b9eb53d03ec6e-validated",
+        "type": "validated",
+        "at": "2026-10-09T16:14:13.935Z",
+        "task": "B186",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B186-aa078be24751cc723362b906245b9eb53d03ec6e-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T16:18:14.364Z",
+        "task": "B186"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-resume-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T16:19:37.364Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-B196-central-context-wait-20261009",
+        "type": "turn",
+        "at": "2026-10-09T16:21:03.290Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Waiting for Main to open the Kni-strt.lua goal and provide its canonical task context."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5b9b6b3c1daf11564df5fd114646db027f2b4b2d",
+        "type": "ready",
+        "at": "2026-10-09T16:21:04.524Z",
+        "task": "A192",
+        "delivery": "5b9b6b3c1daf11564df5fd114646db027f2b4b2d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A192-5b9b6b3c-20261009",
+        "type": "received",
+        "at": "2026-10-09T16:21:38.115Z",
+        "task": "A192",
+        "delivery": "5b9b6b3c1daf11564df5fd114646db027f2b4b2d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B186-cc90f33b1238277138e4b80f5db48d38d2f08ce0-20261009",
+        "type": "published",
+        "at": "2026-10-09T16:21:56.933Z",
+        "task": "B186",
+        "commit": "cc90f33b1238277138e4b80f5db48d38d2f08ce0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B196-kni-strt-20261009",
+        "type": "resume",
+        "at": "2026-10-09T16:23:47.156Z",
+        "task": "B196"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B196-active-context-ready-20261009",
+        "type": "turn",
+        "at": "2026-10-09T16:23:51.484Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B196-kni-strt-20261009",
+        "type": "implement",
+        "at": "2026-10-09T16:23:58.349Z",
+        "task": "B196",
+        "goal": "port-kni-strt-lua-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C171-12b580fd1-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T16:34:35.883Z",
+        "task": "C171",
+        "integration": "12b580fd16db4d603164821a223688d1d9167cdc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C171-12b580fd16db4d603164821a223688d1d9167cdc-validated",
+        "type": "validated",
+        "at": "2026-10-09T16:42:37.769Z",
+        "task": "C171",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C171-12b580fd16db4d603164821a223688d1d9167cdc-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T16:43:46.110Z",
+        "task": "C171"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C171-resumed-20261009",
+        "type": "turn",
+        "at": "2026-10-09T16:45:44.478Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is selecting the next task after C171 acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C171-45011934009b4033019f87f1cd7b402d96741616",
+        "type": "published",
+        "at": "2026-10-09T16:46:35.442Z",
+        "task": "C171",
+        "commit": "45011934009b4033019f87f1cd7b402d96741616"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C178-after-C170-20261009",
+        "type": "resume",
+        "at": "2026-10-09T16:46:44.667Z",
+        "task": "C178"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C178-ran-loca-after-C170-20261009",
+        "type": "implement",
+        "at": "2026-10-09T16:47:26.503Z",
+        "task": "C178",
+        "goal": "port-ran-loca-quest-level-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A192-a8f1dafa0-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T16:47:46.347Z",
+        "task": "A192",
+        "integration": "a8f1dafa0ebb86146dc236746b036776a2d115ff"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A192-a8f1dafa0ebb86146dc236746b036776a2d115ff-validated",
+        "type": "validated",
+        "at": "2026-10-09T16:54:49.149Z",
+        "task": "A192",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A192-a8f1dafa0ebb86146dc236746b036776a2d115ff-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T16:56:06.882Z",
+        "task": "A192"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0cb6dd9bdbda752a21043c8a0690f50971b39dee",
+        "type": "ready",
+        "at": "2026-10-09T16:56:46.185Z",
+        "task": "C178",
+        "delivery": "0cb6dd9bdbda752a21043c8a0690f50971b39dee"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C178-delivered-next-C173-20261009",
+        "type": "turn",
+        "at": "2026-10-09T16:59:02.208Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is selecting Ran-goal as its next independent implementation task after C178."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C173-after-C170-20261009",
+        "type": "resume",
+        "at": "2026-10-09T16:59:05.463Z",
+        "task": "C173"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C173-until-C178-acceptance-20261009",
+        "type": "park",
+        "at": "2026-10-09T16:59:12.873Z",
+        "task": "C173",
+        "reason": "C178 is submitted and the orchestrator requires this worker to remain idle until C178 is accepted. Preserve the complete Ran-goal report and proposal without source edits."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A192-f860e7aff33197b5572846b3f0f726d9104503a2",
+        "type": "published",
+        "at": "2026-10-09T16:59:26.328Z",
+        "task": "A192",
+        "commit": "f860e7aff33197b5572846b3f0f726d9104503a2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-C178-waiting-acceptance-20261009T1705",
+        "type": "turn",
+        "at": "2026-10-09T16:59:35.494Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Idle while C178 awaits acceptance; C173 remains parked."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C178-0cb6dd9bdbda752a21043c8a0690f50971b39dee",
+        "type": "received",
+        "at": "2026-10-09T17:00:33.442Z",
+        "task": "C178",
+        "delivery": "0cb6dd9bdbda752a21043c8a0690f50971b39dee"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C178-07a7711f3c33616a45a45bdd323eee7001502b7c",
+        "type": "integrating",
+        "at": "2026-10-09T17:02:50.439Z",
+        "task": "C178",
+        "integration": "07a7711f3c33616a45a45bdd323eee7001502b7c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C178-07a7711f3c33616a45a45bdd323eee7001502b7c-validated",
+        "type": "validated",
+        "at": "2026-10-09T17:10:06.752Z",
+        "task": "C178",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e84eeab5bf0ce77e044b66206a446fc97c55931c",
+        "type": "ready",
+        "at": "2026-10-09T17:11:19.176Z",
+        "task": "B196",
+        "delivery": "e84eeab5bf0ce77e044b66206a446fc97c55931c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C178-07a7711f3c33616a45a45bdd323eee7001502b7c-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T17:11:21.893Z",
+        "task": "C178"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B196-ready-idle-turn-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:11:30.665Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B196 ready; focused checks and both Kni/Astral differentials pass."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C173-after-C178-accepted-20261009",
+        "type": "resume",
+        "at": "2026-10-09T17:13:05.622Z",
+        "task": "C173"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C173-active-after-C178-accepted-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:13:09.194Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Resuming the independent Ran-goal Lua port after C178 acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C173-ran-goal-20261009",
+        "type": "implement",
+        "at": "2026-10-09T17:13:26.086Z",
+        "task": "C173",
+        "goal": "port-ran-goal-quest-level-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C178-58763b4f62d4ba57e88e184ad443c74985aa8fa2",
+        "type": "published",
+        "at": "2026-10-09T17:13:39.098Z",
+        "task": "C178",
+        "commit": "58763b4f62d4ba57e88e184ad443c74985aa8fa2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B196-e84eeab5bf0ce77e044b66206a446fc97c55931c",
+        "type": "received",
+        "at": "2026-10-09T17:14:36.334Z",
+        "task": "B196",
+        "delivery": "e84eeab5bf0ce77e044b66206a446fc97c55931c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B196-1c9a3d0c492d1529f8ee30941d78c92fc4f7248a",
+        "type": "integrating",
+        "at": "2026-10-09T17:19:54.383Z",
+        "task": "B196",
+        "integration": "1c9a3d0c492d1529f8ee30941d78c92fc4f7248a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-dcf34a66e1166a1246771fe6a2567ce383847cc9",
+        "type": "ready",
+        "at": "2026-10-09T17:20:37.228Z",
+        "task": "C173",
+        "delivery": "dcf34a66e1166a1246771fe6a2567ce383847cc9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C177-after-C173-delivery-20261009",
+        "type": "resume",
+        "at": "2026-10-09T17:22:12.707Z",
+        "task": "C177"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C177-active-after-C173-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:22:16.157Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Resuming the independent Val-goal Lua port after C173 delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C177-val-goal-20261009",
+        "type": "implement",
+        "at": "2026-10-09T17:23:04.751Z",
+        "task": "C177",
+        "goal": "port-val-goal-quest-level-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B196-78c3c3508-source-correction",
+        "type": "integrating",
+        "at": "2026-10-09T17:28:41.782Z",
+        "task": "B196",
+        "integration": "78c3c3508ddba183d0f3b6bfbdec154f3c6c75b6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-567a382b931bb18598a54cf2e29c80c36fb01846",
+        "type": "ready",
+        "at": "2026-10-09T17:30:21.162Z",
+        "task": "C177",
+        "delivery": "567a382b931bb18598a54cf2e29c80c36fb01846"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-after-C177-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:30:42.735Z",
+        "worker": "C",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-active-C180-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:33:54.697Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the remaining version feature report mismatch from saved v35 evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C180-version-feature-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T17:34:03.328Z",
+        "task": "C180",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B196-6c8194f5c-hosted-fix",
+        "type": "integrating",
+        "at": "2026-10-09T17:37:30.977Z",
+        "task": "B196",
+        "integration": "6c8194f5c2a6dd256804398b6b00b5ef9c320128"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C180-version-port-id-blocker-20261009",
+        "type": "park",
+        "at": "2026-10-09T17:38:16.049Z",
+        "task": "C180",
+        "reason": "Source trace confirms v35 version-feature mismatch is the same cross-platform PORT_ID/build-provenance conflict already diagnosed by B172; source implementation cannot choose a single Unix/MacOS identity without a shared replay build-provenance contract. Report is committed at 9f78c78b7; no game edits."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-blocked-after-C180-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:38:40.853Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "No independent C task is ready; the coordinator must clear a source gate or provide another eligible session."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-Rog-goal-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:43:27.584Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A192 accepted and A2 synced to published Main; investigating an independent Rogue quest goal loader mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A198-rog-goal-20261009",
+        "type": "assign",
+        "at": "2026-10-09T17:43:29.134Z",
+        "task": "A198",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validate-B196-hosted-37967787462",
+        "type": "validated",
+        "at": "2026-10-09T17:44:49.017Z",
+        "task": "B196",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A198-lspo-object-dependency-20261009",
+        "type": "park",
+        "at": "2026-10-09T17:46:04.357Z",
+        "task": "A198",
+        "reason": "The full Rog-goal Lua program reaches an object descriptor that sets tin montype=\"chameleon\" at dat/Rog-goal.lua:45. Upstream sp_lev.c:lspo_object resolves named species to a species index; current JavaScript carries that name string through the corpsenm path. This shared source contract overlaps parked C172. A198 remains blocked until the orchestrator adjudicates C172; do not edit or reserve sp_lev.c:lspo_object while that task is parked/shared."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B196-6c8194f5c2a6dd256804398b6b00b5ef9c320128-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T17:46:43.504Z",
+        "task": "B196"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-blocked-no-free-queued-lua-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:47:30.049Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "A198 parked on shared descriptor dependency; refreshed Val-loca proposal awaits central handoff."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B196-accepted-select-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:47:59.418Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Selecting an independent Lua task after Knight start acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B196-56d5cb1686a4afb5f1c7eb72c807df3311be8023",
+        "type": "published",
+        "at": "2026-10-09T17:49:13.488Z",
+        "task": "B196",
+        "commit": "56d5cb1686a4afb5f1c7eb72c807df3311be8023"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B199-after-B196-20261009",
+        "type": "resume",
+        "at": "2026-10-09T17:49:47.299Z",
+        "task": "B199"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-C173-dcf34a66e1166a1246771fe6a2567ce383847cc9",
+        "type": "received",
+        "at": "2026-10-09T17:50:02.884Z",
+        "task": "C173",
+        "delivery": "dcf34a66e1166a1246771fe6a2567ce383847cc9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A196-Val-loca-20261009",
+        "type": "resume",
+        "at": "2026-10-09T17:50:42.996Z",
+        "task": "A196"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A196-Val-loca-20261009",
+        "type": "implement",
+        "at": "2026-10-09T17:50:44.580Z",
+        "task": "A196",
+        "goal": "port-val-loca-quest-locate-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A196-Val-loca-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:50:46.207Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B199-refreshed-source-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:51:34.930Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Refreshing the independent Samurai goal source task and runtime evidence plan."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B199-central-gate-ready-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:52:01.689Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Samurai goal investigation is complete; Main must queue its source goal before implementation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-C173-117ce0949d91e758473e214629d0d0e73868ed16",
+        "type": "integrating",
+        "at": "2026-10-09T17:54:07.792Z",
+        "task": "C173",
+        "integration": "117ce0949d91e758473e214629d0d0e73868ed16"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B199-sam-goal-approved-20261009",
+        "type": "implement",
+        "at": "2026-10-09T17:54:35.037Z",
+        "task": "B199",
+        "goal": "port-sam-goal-lua-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B199-implement-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:54:36.826Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing the complete Samurai quest goal level."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-C173-21d9906e28b3c03e57e651ade823f3a1ebb9bb2e",
+        "type": "integrating",
+        "at": "2026-10-09T17:54:50.091Z",
+        "task": "C173",
+        "integration": "21d9906e28b3c03e57e651ade823f3a1ebb9bb2e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validate-C173-hosted-37969731329",
+        "type": "validated",
+        "at": "2026-10-09T18:00:36.317Z",
+        "task": "C173",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C173-21d9906e28b3c03e57e651ade823f3a1ebb9bb2e-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T18:02:22.311Z",
+        "task": "C173"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-46d18be75d8a37be2cbcedabfee8a47de30882bf",
+        "type": "ready",
+        "at": "2026-10-09T18:03:42.958Z",
+        "task": "A196",
+        "delivery": "46d18be75d8a37be2cbcedabfee8a47de30882bf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-blocked-C175-central-gate-after-C173-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:04:32.461Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "C175 Rogue quest start is independently ready for Main source approval; C177 remains queued. Other cases await existing owners or shared-contract decisions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C173-01e01acd5c270d8e7db4b418d58eba793211065d",
+        "type": "published",
+        "at": "2026-10-09T18:04:36.351Z",
+        "task": "C173",
+        "commit": "01e01acd5c270d8e7db4b418d58eba793211065d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A196-immutable-available-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:04:42.654Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Val-loca delivery is queued. Prepared independent reports await central source contexts."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-A196-46d18be75d8a37be2cbcedabfee8a47de30882bf",
+        "type": "received",
+        "at": "2026-10-09T18:05:05.300Z",
+        "task": "A196",
+        "delivery": "46d18be75d8a37be2cbcedabfee8a47de30882bf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d74880161f3d392a6786819e9b4073654bc05ae7",
+        "type": "ready",
+        "at": "2026-10-09T18:05:16.715Z",
+        "task": "B199",
+        "delivery": "d74880161f3d392a6786819e9b4073654bc05ae7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C175-approved-20261009",
+        "type": "resume",
+        "at": "2026-10-09T18:05:23.085Z",
+        "task": "C175"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C175-approved-20261009",
+        "type": "implement",
+        "at": "2026-10-09T18:05:24.457Z",
+        "task": "C175",
+        "goal": "port-rog-strt-quest-level-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C175-approved-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:05:25.962Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-B199-d74880161f3d392a6786819e9b4073654bc05ae7",
+        "type": "received",
+        "at": "2026-10-09T18:06:51.346Z",
+        "task": "B199",
+        "delivery": "d74880161f3d392a6786819e9b4073654bc05ae7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "review-A196-20261009-current",
+        "type": "activity",
+        "at": "2026-10-09T18:06:52.531Z",
+        "task": "A196",
+        "phase": "review",
+        "reason": "Refreshing the Valkyrie locate evidence against the current accepted baseline and reviewing its shared stair and ice corrections before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B201-after-Sam-goal-delivery-20261009",
+        "type": "resume",
+        "at": "2026-10-09T18:07:01.586Z",
+        "task": "B201"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A196-3f11f1687",
+        "type": "integrating",
+        "at": "2026-10-09T18:08:41.295Z",
+        "task": "A196",
+        "integration": "3f11f16878f46067da2b73fd2c272dfb573233cc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B201-source-gate-ready-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:09:51.842Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Tourist start investigation is complete; Main source approval is needed before implementation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A196-37971329287",
+        "type": "validated",
+        "at": "2026-10-09T18:14:25.627Z",
+        "task": "A196",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A196-3f11f16878f46067da2b73fd2c272dfb573233cc-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T18:16:02.083Z",
+        "task": "A196"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A193-after-A196-20261009",
+        "type": "resume",
+        "at": "2026-10-09T18:17:16.934Z",
+        "task": "A193"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A193-after-A196-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:17:18.561Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A196-e63377e8f",
+        "type": "published",
+        "at": "2026-10-09T18:17:38.724Z",
+        "task": "A196",
+        "commit": "e63377e8f95ef29b10d2d27a1fe435dfcec13134"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4d165fba64a793e9c2061a91cd85162ffc92e90f",
+        "type": "ready",
+        "at": "2026-10-09T18:18:00.492Z",
+        "task": "C175",
+        "delivery": "4d165fba64a793e9c2061a91cd85162ffc92e90f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "review-C177-after-A196-20261009",
+        "type": "activity",
+        "at": "2026-10-09T18:18:04.443Z",
+        "task": "C177",
+        "phase": "review",
+        "reason": "Refreshing the Valkyrie goal evidence against accepted A196 and reviewing its source-ordered loader before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-C175-4d165fba64a793e9c2061a91cd85162ffc92e90f",
+        "type": "received",
+        "at": "2026-10-09T18:18:39.663Z",
+        "task": "C175",
+        "delivery": "4d165fba64a793e9c2061a91cd85162ffc92e90f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-after-C175-delivery-blocked-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:18:58.818Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "C175 and C177 are ready for Main integration. Remaining C reports await Main decisions on shared object descriptors or numeric selections; other independent quest reports retain their owners."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-C177-567a382b931bb18598a54cf2e29c80c36fb01846",
+        "type": "received",
+        "at": "2026-10-09T18:19:52.890Z",
+        "task": "C177",
+        "delivery": "567a382b931bb18598a54cf2e29c80c36fb01846"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C177-dee8b310b",
+        "type": "integrating",
+        "at": "2026-10-09T18:19:54.181Z",
+        "task": "C177",
+        "integration": "dee8b310b3922f634c10f62fcab1a5e8ff4acc73"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A193-central-source-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:23:11.737Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "Waiting for Main to queue the Ranger quest-start source goal and provide its canonical context."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C177-37972613772",
+        "type": "validated",
+        "at": "2026-10-09T18:26:31.862Z",
+        "task": "C177",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C177-dee8b310b3922f634c10f62fcab1a5e8ff4acc73-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T18:28:11.815Z",
+        "task": "C177"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C177-91e49fff07449349f7e2d7d18b8aa8db70bf2cc3",
+        "type": "published",
+        "at": "2026-10-09T18:29:35.376Z",
+        "task": "C177",
+        "commit": "91e49fff07449349f7e2d7d18b8aa8db70bf2cc3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C172-source-refresh-after-C177-20261009",
+        "type": "resume",
+        "at": "2026-10-09T18:30:38.607Z",
+        "task": "C172"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C172-source-refresh-after-C177-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:30:39.900Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B199-b134b4d3767f961f9fff0d5b043bb5050458b3cd",
+        "type": "integrating",
+        "at": "2026-10-09T18:31:55.171Z",
+        "task": "B199",
+        "integration": "b134b4d3767f961f9fff0d5b043bb5050458b3cd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C172-refreshed-object-gate-20261009",
+        "type": "park",
+        "at": "2026-10-09T18:32:40.102Z",
+        "task": "C172",
+        "reason": "Complete refreshed report48ec1c19d after accepted C177; whole Mon-loca remains blocked on Main approval of bounded sp_lev.c:lspo_object spinach/empty normalization contract. Current existing adapter forwards raw token and forces tin spe0. No source edits. C174/B197 downstream reports preserved; C175 remains immutable dependency on current lineage."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C172-refreshed-object-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:32:41.429Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "C172 Monk locate report is refreshed; Main must approve its shared spinach/empty object-descriptor contract. C175 remains ready for integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A193-public-refresh-91e49fff-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:35:29.014Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "Waiting for Main to queue the Ranger quest-start source goal and provide its canonical context."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B199-37974156939",
+        "type": "validated",
+        "at": "2026-10-09T18:38:30.468Z",
+        "task": "B199",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B201-refreshed-accepted-91e-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:39:35.949Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Tourist start investigation is refreshed; implementation awaits B199 acceptance and Main source approval."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B199-b134b4d3767f961f9fff0d5b043bb5050458b3cd-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T18:39:52.331Z",
+        "task": "B199"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B201-tou-strt-20261009",
+        "type": "implement",
+        "at": "2026-10-09T18:40:27.416Z",
+        "task": "B201",
+        "goal": "port-tou-strt-lua-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B201-implement-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:40:28.757Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing the whole Tourist quest start program and collecting independent C evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B199-e2db696763f6d45914c918234d098d534350ab21",
+        "type": "published",
+        "at": "2026-10-09T18:40:58.418Z",
+        "task": "B199",
+        "commit": "e2db696763f6d45914c918234d098d534350ab21"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C175-85927920dc3598224e264c7ca1ecd0a4c5a34239",
+        "type": "integrating",
+        "at": "2026-10-09T18:43:17.290Z",
+        "task": "C175",
+        "integration": "85927920dc3598224e264c7ca1ecd0a4c5a34239"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A193-ran-strt-approved-20261009",
+        "type": "implement",
+        "at": "2026-10-09T18:45:28.524Z",
+        "task": "A193",
+        "goal": "port-ran-strt-quest-start-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A193-ran-strt-implementation-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:45:29.914Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Implementing the complete Ranger quest-start level."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C175-37975406203",
+        "type": "validated",
+        "at": "2026-10-09T18:49:15.887Z",
+        "task": "C175",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C175-85927920dc3598224e264c7ca1ecd0a4c5a34239-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T18:50:36.213Z",
+        "task": "C175"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a912634e121d5c1bd9857b7a2a914c4c16761218",
+        "type": "ready",
+        "at": "2026-10-09T18:51:06.046Z",
+        "task": "B201",
+        "delivery": "a912634e121d5c1bd9857b7a2a914c4c16761218"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C175-6f932bf8b920c7caf10b4106d079702dbd20cbc1",
+        "type": "published",
+        "at": "2026-10-09T18:51:38.363Z",
+        "task": "C175",
+        "commit": "6f932bf8b920c7caf10b4106d079702dbd20cbc1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2f0a43c0ba81ea5ed1f4abe8d7680b32c80b133a",
+        "type": "ready",
+        "at": "2026-10-09T18:51:42.275Z",
+        "task": "A193",
+        "delivery": "2f0a43c0ba81ea5ed1f4abe8d7680b32c80b133a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B201-ready-idle-after-C175-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:52:22.659Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Tourist start delivery is queued; remaining cases await existing source gates or tooling contracts."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B201-a912634e121d5c1bd9857b7a2a914c4c16761218",
+        "type": "received",
+        "at": "2026-10-09T18:53:12.501Z",
+        "task": "B201",
+        "delivery": "a912634e121d5c1bd9857b7a2a914c4c16761218"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A193-delivered-await-next-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:54:08.266Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Ranger start delivery is ready. Waiting for Main to authorize the next preserved quest-level proposal."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C172-approved-20261009",
+        "type": "resume",
+        "at": "2026-10-09T18:54:31.199Z",
+        "task": "C172"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C172-approved-20261009",
+        "type": "implement",
+        "at": "2026-10-09T18:54:32.597Z",
+        "task": "C172",
+        "goal": "port-mon-loca-quest-level-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C172-implement-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:54:34.098Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B201-4f8612ae05a503736e028233bbc1da3c93d86919",
+        "type": "integrating",
+        "at": "2026-10-09T18:55:13.275Z",
+        "task": "B201",
+        "integration": "4f8612ae05a503736e028233bbc1da3c93d86919"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A194-readonly-after-A193-20261009",
+        "type": "resume",
+        "at": "2026-10-09T18:58:12.007Z",
+        "task": "A194"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A194-readonly-refresh-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:58:13.374Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Refreshing the Rogue quest-locate investigation while its source gate is pending."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B188-tooling-audit-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:58:43.351Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Auditing the Lua divergence tooling blocker while Tourist start validates."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A194-refresh-complete-gate-wait-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:59:29.235Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "Rogue locate investigation is refreshed. Waiting for Main to accept Ranger start and open the implementation gate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B188-tooling-proposal-ready-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:59:47.063Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Lua divergence tooling proposal is ready; implementation awaits Main approval."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-failed-B201-4f8612ae05a503736e028233bbc1da3c93d86919",
+        "type": "validated",
+        "at": "2026-10-09T19:01:48.699Z",
+        "task": "B201",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-B201-a912634e1-stale-mkmaze-source-pin",
+        "type": "feedback",
+        "at": "2026-10-09T19:02:29.451Z",
+        "task": "B201",
+        "delivery": "a912634e121d5c1bd9857b7a2a914c4c16761218"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-70a8ba91d1118cc26b721b43eb4aa267c7c7d685",
+        "type": "ready",
+        "at": "2026-10-09T19:02:31.716Z",
+        "task": "C172",
+        "delivery": "70a8ba91d1118cc26b721b43eb4aa267c7c7d685"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C172-70a8ba91d1118cc26b721b43eb4aa267c7c7d685",
+        "type": "received",
+        "at": "2026-10-09T19:02:52.987Z",
+        "task": "C172",
+        "delivery": "70a8ba91d1118cc26b721b43eb4aa267c7c7d685"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B201-stale-mkmaze-test-20261009",
+        "type": "resume",
+        "at": "2026-10-09T19:03:08.134Z",
+        "task": "B201"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B201-mkmaze-correction-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T19:03:11.433Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Correcting the stale special-level room-fill test after checkpoint feedback."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C172-ready-next-gates-20261009",
+        "type": "turn",
+        "at": "2026-10-09T19:03:18.077Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "Mon-loca delivery is ready. Next C-owned work waits for Main’s named-species or numeric-selection source gate; remaining admitted cases belong to A/B or tooling dependencies."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7dc28a0b3a38829c93a7b3ca1a7f31cb28eea0b3",
+        "type": "ready",
+        "at": "2026-10-09T19:03:51.305Z",
+        "task": "B201",
+        "delivery": "7dc28a0b3a38829c93a7b3ca1a7f31cb28eea0b3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B201-correction-ready-idle-20261009",
+        "type": "turn",
+        "at": "2026-10-09T19:04:11.014Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Tourist start correction is submitted; Lua divergence tooling proposal awaits Main decision."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B201-correction-7dc28a0b3a38829c93a7b3ca1a7f31cb28eea0b3",
+        "type": "received",
+        "at": "2026-10-09T19:04:19.021Z",
+        "task": "B201",
+        "delivery": "7dc28a0b3a38829c93a7b3ca1a7f31cb28eea0b3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B201-e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef",
+        "type": "integrating",
+        "at": "2026-10-09T19:04:31.976Z",
+        "task": "B201",
+        "integration": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B201-e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef",
+        "type": "validated",
+        "at": "2026-10-09T19:09:42.288Z",
+        "task": "B201",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B201-e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T19:11:39.219Z",
+        "task": "B201"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B201-accepted-no-independent-e10f7f-20261009",
+        "type": "turn",
+        "at": "2026-10-09T19:14:43.296Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Tourist start is accepted; remaining quest tasks await shared dependencies or source gates, and diagnostic cases retain native-pointer, recorder, or platform blockers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B201-74649a71d",
+        "type": "published",
+        "at": "2026-10-09T19:14:54.536Z",
+        "task": "B201",
+        "commit": "74649a71d101a84a734cbd569a77c7bd5b87ac8d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A193-2f0a43c0ba81ea5ed1f4abe8d7680b32c80b133a",
+        "type": "received",
+        "at": "2026-10-09T19:16:01.289Z",
+        "task": "A193",
+        "delivery": "2f0a43c0ba81ea5ed1f4abe8d7680b32c80b133a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A193-9a32ea9ec",
+        "type": "integrating",
+        "at": "2026-10-09T19:20:16.216Z",
+        "task": "A193",
+        "integration": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A193-37979679721",
+        "type": "validated",
+        "at": "2026-10-09T19:25:47.923Z",
+        "task": "A193",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A193-9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T19:27:19.396Z",
+        "task": "A193"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A194-rog-loca-approved-20261009",
+        "type": "implement",
+        "at": "2026-10-09T19:28:36.753Z",
+        "task": "A194",
+        "goal": "port-rog-loca-quest-locate-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A194-implementation-20261009",
+        "type": "turn",
+        "at": "2026-10-09T19:28:38.191Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Implementing the complete Rogue quest-locate level."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A193-0bd43cd72",
+        "type": "published",
+        "at": "2026-10-09T19:29:14.976Z",
+        "task": "A193",
+        "commit": "0bd43cd722096de068c913d70972b95922a60333"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C172-c7bb74710",
+        "type": "integrating",
+        "at": "2026-10-09T19:32:56.101Z",
+        "task": "C172",
+        "integration": "c7bb7471083822d944dd96d56cdbe4127349c7c1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A194-package-20261009",
+        "type": "turn",
+        "at": "2026-10-09T19:36:38.615Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Packaging the complete Rogue quest locate level after focused and recorded validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1682c5d4b8d8c6b5248b401479379744bf48356e",
+        "type": "ready",
+        "at": "2026-10-09T19:36:52.116Z",
+        "task": "A194",
+        "delivery": "1682c5d4b8d8c6b5248b401479379744bf48356e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A194-ready-seed-gate-cc4839b6",
+        "type": "turn",
+        "at": "2026-10-09T19:37:52.466Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Rogue locate delivery is ready. Waiting for the central gate on the preserved Samurai locate proposal; other saved cases have existing owners or shared-tooling blockers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C172-c7bb74710",
+        "type": "validated",
+        "at": "2026-10-09T19:38:36.567Z",
+        "task": "C172",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C172-c7bb7471083822d944dd96d56cdbe4127349c7c1-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T19:40:07.914Z",
+        "task": "C172"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C174-after-C172-20261009",
+        "type": "resume",
+        "at": "2026-10-09T19:41:25.054Z",
+        "task": "C174"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C174-report-refresh-20261009",
+        "type": "turn",
+        "at": "2026-10-09T19:41:26.383Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C172-fa42fef55",
+        "type": "published",
+        "at": "2026-10-09T19:42:23.970Z",
+        "task": "C172",
+        "commit": "fa42fef552a6e3f3dc54b16d48419af3fe6c8a7f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C174-named-montype-approved-20261009",
+        "type": "implement",
+        "at": "2026-10-09T19:42:26.624Z",
+        "task": "C174",
+        "goal": "port-rog-goal-quest-level-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A194-1682c5d4b",
+        "type": "received",
+        "at": "2026-10-09T19:42:54.519Z",
+        "task": "A194",
+        "delivery": "1682c5d4b8d8c6b5248b401479379744bf48356e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A194-e0361e802",
+        "type": "integrating",
+        "at": "2026-10-09T19:44:53.000Z",
+        "task": "A194",
+        "integration": "e0361e80225feef14b2837e65ab482f785575c7d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A194-validated-e0361e80",
+        "type": "validated",
+        "at": "2026-10-09T19:50:32.200Z",
+        "task": "A194",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c8d2cf5cbfa810f874adb629e9943652a9195930",
+        "type": "ready",
+        "at": "2026-10-09T19:51:29.750Z",
+        "task": "C174",
+        "delivery": "c8d2cf5cbfa810f874adb629e9943652a9195930"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A194-e0361e80225feef14b2837e65ab482f785575c7d-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T19:51:45.550Z",
+        "task": "A194"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C174-received-c8d2cf5c",
+        "type": "received",
+        "at": "2026-10-09T19:52:06.195Z",
+        "task": "C174",
+        "delivery": "c8d2cf5cbfa810f874adb629e9943652a9195930"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C174-ready-wait-next-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T19:52:08.168Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "Rogue-goal delivery is ready for integration. Further C-owned work waits for Main’s numeric-selection source gate; remaining admitted cases have existing owners or tooling dependencies."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A195-source-gate-293e7b73",
+        "type": "turn",
+        "at": "2026-10-09T19:53:00.959Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Refreshing the independent Samurai quest locate source scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A195-source-gate-293e7b73",
+        "type": "resume",
+        "at": "2026-10-09T19:53:10.922Z",
+        "task": "A195"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A194-cbf1702a44eb673e192e83f11d0b7c2084ef836e",
+        "type": "published",
+        "at": "2026-10-09T19:54:57.548Z",
+        "task": "A194",
+        "commit": "cbf1702a44eb673e192e83f11d0b7c2084ef836e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A195-whole-sam-loca-20261009",
+        "type": "implement",
+        "at": "2026-10-09T19:56:40.827Z",
+        "task": "A195",
+        "goal": "port-sam-loca-quest-locate-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C174-integrating-97fe6973",
+        "type": "integrating",
+        "at": "2026-10-09T19:58:35.525Z",
+        "task": "C174",
+        "integration": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A195-implementation-recording-20261009",
+        "type": "turn",
+        "at": "2026-10-09T19:58:41.987Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Validating the complete Samurai quest locate level through independent recorded play."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C174-validated-97fe6973",
+        "type": "validated",
+        "at": "2026-10-09T20:04:30.814Z",
+        "task": "C174",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8297a412828be8bff2ebda6dacec3989dbf02e3c",
+        "type": "ready",
+        "at": "2026-10-09T20:04:53.969Z",
+        "task": "A195",
+        "delivery": "8297a412828be8bff2ebda6dacec3989dbf02e3c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A195-ready-seed-boundary-8297a4128",
+        "type": "turn",
+        "at": "2026-10-09T20:05:37.876Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Samurai locate delivery is ready. Remaining saved cases have existing owners or shared source/tooling gates; available for the next independent handoff."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C174-97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T20:05:40.487Z",
+        "task": "C174"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A195-received-8297a412",
+        "type": "received",
+        "at": "2026-10-09T20:05:56.737Z",
+        "task": "A195",
+        "delivery": "8297a412828be8bff2ebda6dacec3989dbf02e3c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-after-C174-accepted-numeric-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:07:11.937Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "Next C-owned Tourist-locate task waits for Main’s numeric-selection contract decision shared with B200/B202. Other admitted mismatches have prior A/B owners or established tooling/provenance blockers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C174-c73aa43b72a0800387497d5aac7de214841a325e",
+        "type": "published",
+        "at": "2026-10-09T20:08:01.149Z",
+        "task": "C174",
+        "commit": "c73aa43b72a0800387497d5aac7de214841a325e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A195-review-c73aa43b",
+        "type": "activity",
+        "at": "2026-10-09T20:13:37.834Z",
+        "task": "A195",
+        "phase": "review",
+        "reason": "Verifying the immutable Sam-loca delivery against the published C174 boundary and current v36 mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A195-integrating-d28db928",
+        "type": "integrating",
+        "at": "2026-10-09T20:15:58.117Z",
+        "task": "A195",
+        "integration": "d28db9282c38ddf0cf2cc77330e258a9b66ebfad"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-resume-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:18:37.742Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Rechecking the admitted mismatch queue for an independent source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-resume-active-c73-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:19:08.561Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Rechecking the Monk start task after its shared object prerequisite was accepted."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-resume-blocked-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:21:47.472Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "No unowned independent queue item remains. Awaiting Main decision on whether C may claim the complete numeric-selection owner without taking B200/B202 sessions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B197-after-C172-20261009",
+        "type": "resume",
+        "at": "2026-10-09T20:22:04.254Z",
+        "task": "B197"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A195-validated-37985939395",
+        "type": "validated",
+        "at": "2026-10-09T20:22:12.903Z",
+        "task": "A195",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C176-approved-selection-owner-20261009",
+        "type": "resume",
+        "at": "2026-10-09T20:22:47.928Z",
+        "task": "C176"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C176-approved-selection-owner-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:22:50.685Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Implementing the approved selection algebra owner with numeric cell values and Tourist-locate runtime evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A195-d28db9282c38ddf0cf2cc77330e258a9b66ebfad-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T20:23:31.684Z",
+        "task": "A195"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B197-mon-strt-after-C172-20261009",
+        "type": "implement",
+        "at": "2026-10-09T20:23:32.802Z",
+        "task": "B197",
+        "goal": "port-mon-strt-lua-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C176-selection-algebra-owner-20261009",
+        "type": "implement",
+        "at": "2026-10-09T20:23:44.635Z",
+        "task": "C176",
+        "goal": "port-tou-loca-quest-level-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-resume-20261009-1",
+        "type": "turn",
+        "at": "2026-10-09T20:24:07.809Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Checking saved work and the accepted-main boundary before claiming the next source task."
       }
     ]
   },
@@ -74690,94 +76590,6 @@
         "reason": "Complete source report07845e90b: patch006 nomux_capture_screen overflows6144-byte buffer into raw cursor globals after dense Juiblex mapping. RNG/screens match; Main owns recorder repair and admitted-corpus provenance decision. No JavaScript source task is eligible for this cursor corruption."
       },
       {
-        "task": "C171",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T13:06:27.867Z",
-        "blockedBy": [],
-        "reason": "Complete Knight locate report de507bd7c preserved; Main prohibits source edits until C1702913f041d is accepted. No source scope claimed. Resume prior report priority after that dependency/central source gate."
-      },
-      {
-        "task": "B196",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T13:26:21.315Z",
-        "blockedBy": [],
-        "reason": "Complete report a2b4e9d6 preserved; missing central port-kni-strt-lua-v36-20261009 goal/context prevents source claim. B195 pending dependency state remains ready; resume when Main queues canonical source context."
-      },
-      {
-        "task": "B197",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T13:34:13.706Z",
-        "blockedBy": [],
-        "reason": "Complete Mon-strt report33119e37 preserved, awaiting central source gate and shared spinach-tin support approval. Main directs another independent investigation while current delivery queue validates."
-      },
-      {
-        "task": "C172",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T13:34:31.362Z",
-        "blockedBy": [],
-        "reason": "Complete Mon-loca report06509e49e retained; required canonical sp_lev.c:lspo_object non-species spinach/empty descriptor seam awaits Main adjudication and central scope. No implementation claim/edit; preserve first-owner priority."
-      },
-      {
-        "task": "A192",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T13:43:25.126Z",
-        "blockedBy": [],
-        "reason": "Complete Mon-goal report a27ffd7a0 and proposal preserved; Main has not queued source goal/context. Main directs independent seed continuation while this central source gate remains closed. No source scope claimed; retain investigation priority."
-      },
-      {
-        "task": "C173",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T13:48:30.810Z",
-        "blockedBy": [],
-        "reason": "Complete report26dd808e5 and whole Ran-goal scope preserved. Await central queued context; parent directs independent investigation continuation. No source claim or edit."
-      },
-      {
-        "task": "A193",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T13:48:52.561Z",
-        "blockedBy": [],
-        "reason": "Complete Ran-strt report398d1c8fc and proposal preserved. Main directs further independent investigation while C169 validates; no authorized central Ran-strt context or implementation source claim. Retain report/source proposal priority."
-      },
-      {
-        "task": "C174",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T13:50:17.587Z",
-        "blockedBy": [],
-        "reason": "Whole Rog-goal complete reportbe33c18c7 preserved; required named montype normalization shares sp_lev.c:lspo_object with C172 spinach descriptor proposal. Await Main adjudication; no source claim/edit."
-      },
-      {
         "task": "B198",
         "worker": "B",
         "goal": null,
@@ -74787,39 +76599,6 @@
         "since": "2026-10-09T13:51:16.361Z",
         "blockedBy": [],
         "reason": "Complete report-only alignment macro diagnosis preserved; pending Main source gate and central context. Continue independent admitted quest investigation."
-      },
-      {
-        "task": "B199",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T13:57:39.874Z",
-        "blockedBy": [],
-        "reason": "Main received the complete report and directed parking pending central source/context gate; continue next independent investigation."
-      },
-      {
-        "task": "A194",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T13:57:46.970Z",
-        "blockedBy": [],
-        "reason": "Main received complete Rog-loca report3033bd513 and directs it parked pending authorized central source/context gate. Preserve proposal and investigation priority; no source claim or game edit."
-      },
-      {
-        "task": "C175",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T13:58:44.145Z",
-        "blockedBy": [],
-        "reason": "Complete independent report2698e498e and whole Rog-strt proposal preserved; awaiting Main queued source context. Parent directs another investigation after C169 acceptance. No source claim/edit."
       },
       {
         "task": "B200",
@@ -74833,72 +76612,6 @@
         "reason": "Main received complete report and directed parking for shared numeric selection subtraction owner adjudication; preserve report3bc79386 and source proposal without game edits."
       },
       {
-        "task": "C176",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T14:05:01.442Z",
-        "blockedBy": [],
-        "reason": "Complete report8a066441a retained; Main requires adjudication of canonical numeric selection union/subtraction semantics before whole Tou-loca closure. No source claim/edit; parent directs independent investigation continuation."
-      },
-      {
-        "task": "A195",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T14:05:15.920Z",
-        "blockedBy": [],
-        "reason": "Main received complete Sam-loca reportf57a9beca and directs it parked pending authorized source/context. Preserve proposal/priority, no source claim or edits."
-      },
-      {
-        "task": "B201",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T14:08:53.293Z",
-        "blockedBy": [],
-        "reason": "Main received the complete report and directed parking pending central goal/context gate; preserve clean report9e62b822 and select independent work."
-      },
-      {
-        "task": "C177",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T14:09:20.112Z",
-        "blockedBy": [],
-        "reason": "Complete independent reportdba4e7dd8 and whole Val-goal proposal received; Main directs parking pending central source context and next independent investigation. No source claim/edit."
-      },
-      {
-        "task": "C178",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T14:13:38.788Z",
-        "blockedBy": [],
-        "reason": "Main received complete report2169d5042 and directed parking pending central source context; preserve whole Ran-loca priority and pending C170. No source claim/edit."
-      },
-      {
-        "task": "A196",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T14:15:00.137Z",
-        "blockedBy": [],
-        "reason": "Main received complete report6eb206b0d and directs parking pending central source/context gate; preserve whole Val-loca proposal and no source edits."
-      },
-      {
         "task": "B202",
         "worker": "B",
         "goal": null,
@@ -74908,12 +76621,45 @@
         "since": "2026-10-09T14:24:01.151Z",
         "blockedBy": [],
         "reason": "Complete Val-strt report is preserved at 2494462c6; implementation waits on central numeric-selection owner adjudication. Worker temporarily resumes B195 evidence correction."
+      },
+      {
+        "task": "Prep2",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T15:30:38.168Z",
+        "blockedBy": [],
+        "reason": "Thirteen distinct reproducible C cases replay byte-identically but all pass current JavaScript; zero qualify as first-mismatch runway after reviewing v37 and all 30 unresolved queue cases. Preserve commit 8c08f73d16cd2b8a1f3f85c120ad21a02df29279 and private manifest/crosswalk; do not admit or integrate."
+      },
+      {
+        "task": "C180",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T17:38:16.049Z",
+        "blockedBy": [],
+        "reason": "Source trace confirms v35 version-feature mismatch is the same cross-platform PORT_ID/build-provenance conflict already diagnosed by B172; source implementation cannot choose a single Unix/MacOS identity without a shared replay build-provenance contract. Report is committed at 9f78c78b7; no game edits."
+      },
+      {
+        "task": "A198",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T17:46:04.357Z",
+        "blockedBy": [],
+        "reason": "The full Rog-goal Lua program reaches an object descriptor that sets tin montype=\"chameleon\" at dat/Rog-goal.lua:45. Upstream sp_lev.c:lspo_object resolves named species to a species index; current JavaScript carries that name string through the corpsenm path. This shared source contract overlaps parked C172. A198 remains blocked until the orchestrator adjudicates C172; do not edit or reserve sp_lev.c:lspo_object while that task is parked/shared."
       }
     ]
   },
   "development": {
-    "executionCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
-    "measuredAt": "2026-10-09T14:58:58.377Z",
+    "executionCommit": "d28db9282c38ddf0cf2cc77330e258a9b66ebfad",
+    "measuredAt": "2026-10-09T20:21:24.185Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
