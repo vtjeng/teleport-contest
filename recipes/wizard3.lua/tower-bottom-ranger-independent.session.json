@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Wizard3 generation witness. Character and seed/date selected before JS comparison; named tower travel reaches the whole Lua program, its arrival-room door, maze, portal, monster/trap/object descriptors and protected hell_tweaks. A role variation changes starting RNG and equipment. Initial spaces acknowledge source startup messages; later spaces acknowledge named travel messages.",
+  "segments": [
+    {
+      "seed": 18836012,
+      "datetime": "20610709111537",
+      "nethackrc": "OPTIONS=name:TowerBottom,role:Ranger,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizlevelport\nvalley\n   #wizlevelport\nwizard3\n   #wizmap\n"
+    }
+  ]
+}
