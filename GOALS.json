@@ -232020,6 +232020,209 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-wizcmds-wiz-load-lua-v35-20261009",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port the wizard Lua-library load command and its discarded-return loader seam.",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v35/v35-lua-library-load"
+      ],
+      "selectionReason": "Integrate immutable C167 delivery 8ffbdeb4 after its accepted dependencies; it completes the admitted v35 Lua-library-load mismatch and unblocks C164.",
+      "detail": "At step 13, the wizloadlua command reaches wizcmds.c wiz_load_lua but JavaScript refuses its dispatcher. Port the complete command in source order, preserving the sandbox envelope, raw filename handling, cancellation, extension rule, discarded loader result, unavailable message, and no-time return. Use a bounded nhlua.c load_lua adapter only for the observable registered nhlib.lua effects; retain arbitrary Lua execution, VM allocation, sandbox enforcement, error output, and teardown as named gaps.",
+      "openedAt": "b64011f8868c70a2fa80f9400de8c7b67e1b1512",
+      "openStanding": {
+        "sha": "338529f9f9746be82cb898f866177aa4a044449f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_load_lua",
+          "line": 353,
+          "endLine": 375,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 353,
+        "to": 375
+      },
+      "syntheticProvenance": {
+        "synthetic/v35/v35-lua-library-load": {
+          "session": "synthetic/v35/v35-lua-library-load",
+          "corpus": "synthetic",
+          "batch": "v35",
+          "caseId": "v35-lua-library-load",
+          "manifestPath": "challenges/manifests/v35.json",
+          "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+          "recordingPath": "challenges/cases/v35/v35-lua-library-load.session.json",
+          "recordingSha256": "b9a227b12c4f75d247a756d9f043ab14e9cbd3426e219cae9a6c79db8c839524",
+          "evaluationPath": "challenges/evaluations/accepted-338529f9f9746be82cb898f866177aa4a044449f-v35.json",
+          "evaluationCommit": "338529f9f9746be82cb898f866177aa4a044449f"
+        }
+      },
+      "activeStanding": {
+        "sha": "338529f9f9746be82cb898f866177aa4a044449f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v35",
+          "caseId": "v35-lua-library-load",
+          "session": "synthetic/v35/v35-lua-library-load",
+          "manifestPath": "challenges/manifests/v35.json",
+          "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+          "recording": "challenges/cases/v35/v35-lua-library-load.session.json",
+          "recordingPath": "challenges/cases/v35/v35-lua-library-load.session.json",
+          "recordingSha256": "b9a227b12c4f75d247a756d9f043ab14e9cbd3426e219cae9a6c79db8c839524",
+          "recipe": "challenges/cases/v35/v35-lua-library-load.recipe.session.json",
+          "recipeSha256": "3daea056b0b31420dd5424097f440c414f301bb926e3c7a92ab4757ba7f9ce44",
+          "replayInputSha256": "392f430b95d62af0863ecf2d47fe2295d48677684285af877589637e533177b5",
+          "evaluationPath": "challenges/evaluations/accepted-338529f9f9746be82cb898f866177aa4a044449f-v35.json",
+          "evaluationCommit": "338529f9f9746be82cb898f866177aa4a044449f",
+          "evaluationArtifact": "challenges/evaluations/accepted-338529f9f9746be82cb898f866177aa4a044449f-v35.json",
+          "evaluationUtc": "2026-10-09T11:27:02.826Z",
+          "remainingScreens": 32,
+          "recordedSteps": 45,
+          "previousScreensMatched": 13,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 13,
+              "total": 45
+            },
+            "rng": {
+              "matched": 2140,
+              "total": 2144
+            },
+            "cursors": {
+              "matched": 13,
+              "total": 45
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_load_lua() for the extended command 'wizloadlua' is not ported",
+            "step": 13
+          },
+          "step": 13,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_load_lua",
+          "message": "unsupported hero command: wiz_load_lua() for the extended command 'wizloadlua' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v35/v35-lua-library-load.json",
+            "result": {
+              "session": "synthetic/v35/v35-lua-library-load",
+              "corpus": "synthetic",
+              "batch": "v35",
+              "caseId": "v35-lua-library-load",
+              "remainingScreens": 32,
+              "recordedSteps": 45,
+              "manifestPath": "challenges/manifests/v35.json",
+              "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+              "recordingSha256": "b9a227b12c4f75d247a756d9f043ab14e9cbd3426e219cae9a6c79db8c839524",
+              "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+              "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+              "status": "complete",
+              "commit": "d7de5eac46984bbe7805974c0ed08fb7b9fe1f43",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v35",
+                "caseId": "v35-lua-library-load",
+                "session": "synthetic/v35/v35-lua-library-load",
+                "manifestPath": "challenges/manifests/v35.json",
+                "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+                "recording": "challenges/cases/v35/v35-lua-library-load.session.json",
+                "recordingPath": "challenges/cases/v35/v35-lua-library-load.session.json",
+                "recordingSha256": "b9a227b12c4f75d247a756d9f043ab14e9cbd3426e219cae9a6c79db8c839524",
+                "recipe": "challenges/cases/v35/v35-lua-library-load.recipe.session.json",
+                "recipeSha256": "3daea056b0b31420dd5424097f440c414f301bb926e3c7a92ab4757ba7f9ce44",
+                "replayInputSha256": "9a345b9f1c2c4f64668854b1f41843898e09b9498646789c8c4a14892bfcd5a5",
+                "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+                "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+                "evaluationArtifact": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+                "evaluationUtc": "2026-10-09T08:22:23.377Z",
+                "remainingScreens": 32,
+                "recordedSteps": 45,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 13,
+                    "total": 45
+                  },
+                  "rng": {
+                    "matched": 2140,
+                    "total": 2144
+                  },
+                  "cursors": {
+                    "matched": 13,
+                    "total": 45
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: wiz_load_lua() for the extended command 'wizloadlua' is not ported",
+                  "step": 13
+                },
+                "step": 13,
+                "kind": "stop",
+                "sourceFile": "wizcmds.c",
+                "function": "wiz_load_lua",
+                "message": "unsupported hero command: wiz_load_lua() for the extended command 'wizloadlua' is not ported",
+                "cFile": "wizcmds.c",
+                "luaFile": null,
+                "line": null
+              },
+              "goalKind": "file-port",
+              "summary": "The #wizloadlua dispatcher lacks whole wizcmds.c:wiz_load_lua. The selected nhlib.lua route initializes Lua, implicitly loads nhlib.lua, then explicitly loads it again; both top-level alignment shuffles are already modeled by the existing nhl_init owner. A bounded library-load adapter can preserve those observable effects while retaining named arbitrary-Lua, sandbox/VM, and file-error frontiers without whole nhlua or nhlib completion credit.",
+              "source": {
+                "file": "wizcmds.c",
+                "functions": [
+                  "wiz_load_lua"
+                ],
+                "branch": "Wizard mode prompts for a raw filename; ESC or empty cancels, otherwise append .lua only if no period and discard load_lua(filename,sbi). Nonwizard calls print unavailable feedback and return ECMD_OK. The supported nhlib.lua branch initializes and executes the library twice without level teardown.",
+                "callers": [
+                  "cmd.c:1974–1975 extcmdlist wizloadlua -> cmd.c:doextcmd; js/cmd.js default raises UnsupportedHeroCommandBoundaryError at the selected step13."
+                ],
+                "dependencies": [
+                  "Existing nhlua.c:nhl_init bounded alignment-shuffle owner in js/nhlua.js:114–128; dat/nhlib.lua:5–26 is the source of the two rn2(3),rn2(2) sequences.",
+                  "Supporting nhlua.c:load_lua adapter must remain bounded to existing initialization effects and registered nhlib.lua execution, return no invented consumed VM result, and retain named nhl_loadlua/nhl_done/sandbox frontiers. Arbitrary Lua programs and file-error output are not completion claims.",
+                  "Immutable C166 and B185 dependencies preserve distinct load-splua and panic cmd/wizcmds arms. No reset/finalize/special-level generation changes are required."
+                ]
+              },
+              "evidence": [
+                "Authoritative accepted v35 evaluation at 672aef01d1f3f575387d05eaa9690ed396d64a25 reports13/45 screens/cursors and2140/2144 RNG; first stop at zero-based step13 is missing wiz_load_lua. Manifest corpus digest a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e; recording SHA-256 b9a227b12c4f75d247a756d9f043ab14e9cbd3426e219cae9a6c79db8c839524. Recipe and recording hashes retained in mismatch.",
+                "Fresh one-case replay at examined d7de5eac46984bbe7805974c0ed08fb7b9fe1f43 reproduces the same step13 command boundary, .cache/C167-library-baseline.json/log; focused receipt run-hUjZGP. C step13 shows Load which lua file? and step23 completes nhlib.lua input.",
+                "Whole wizcmds.c:wiz_load_lua353–372 constructs sbi {NHL_SB_SAFE|NHL_SB_DEBUGGING,16*1024*1024,0,16*1024*1024}, preserves raw getlin text, cancels ESC/empty, appends .lua iff strchr finds no period, discards load_lua return, then returns ECMD_OK. This is separate from wiz_load_splua and does not reset/finalize the level.",
+                "nhlua.c:load_lua2392–2413 initializes via nhl_init, checks its state pointer and nhl_loadlua return, calls nhl_done, and returns boolean. nhl_init2294–2370 implicitly loads nhlib.lua at2366; load_lua explicitly loads the requested nhlib.lua at2403. Existing js/nhlua.js:nhl_init models only the initialization alignment shuffle, not a VM pointer; a bounded adapter must not use its returned alignment array as a fabricated Lua state or loader success value.",
+                "All242 lines of dat/nhlib.lua reviewed: top-level math.random wrapper/shuffle definitions, align assignment and shuffle at24–25, function definitions and tutorial local tables. Only top-level shuffle performs RNG. Library-private functions/tables are destroyed with this temporary Lua state and need not be published as persistent game state for the bounded no-callback load route.",
+                "C recording step23 contains rn2(3)=1,rn2(2)=1,rn2(3)=0,rn2(2)=1, each annotated random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19); .cache/C167-c-source-draws.json retains them. This establishes the implicit and explicit shuffle sequences rather than an invented fixed draw count.",
+                "Cache-only causal loader .cache/C167-library-causal-loader.mjs restores the source filename prompt/cancellation branch and, only for registered nhlib.lua, reuses the canonical nhl_init alignment effect twice. It changes no game files and no recordings. The probe matches45/45 screens/cursors,2144/2144 RNG and0 animations, .cache/C167-library-causal.json/log, receipt run-Ph6TY8. It establishes the selected observable route, not whole load_lua, nhl_init, nhl_loadlua, or nhlib.lua completion.",
+                "Search rg -n load_lua|nhl_loadlua|nhl_init|wiz_load_lua over js found only nhl_init owner/version use and the special-level source comments; there is no generic load_lua/nhl_loadlua owner. Arbitrary-file loading needs the unresolved Lua VM/file-error contract. The C command discards load_lua return, so retain that unsupported branch as precisely named note_unported gaps under project rules instead of fabricating success/error messages or interpreter state.",
+                "Proposed independent C-first matrix: explicit nhlib.lua and extensionless nhlib with different roles, cancellation/empty, nonwizard command rejection, and independently chosen missing-file frontier. Source-pinned tests cover raw filename/any-period semantics, sandbox configuration forwarding, initialization/load/teardown order, no level reset/finalize, and awaited caller lifetime. No C games recorded during this investigation."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
