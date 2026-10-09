@@ -235926,7 +235926,7 @@
     {
       "id": "port-mon-goal-quest-goal-v36-20261009",
       "kind": "lua-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port the complete Monk quest goal level from Lua.",
       "luaFile": "Mon-goal.lua",
       "sessions": [
@@ -235934,8 +235934,12 @@
       ],
       "selectionReason": "A192 traced the v36 Monk quest goal stop to the missing Mon-goal loader; the whole Lua program uses existing descriptor owners and does not overlap B186 or C171.",
       "detail": "Port all dat/Mon-goal.lua top-level statements and register the production quest loader. Preserve its single shared two-position draw for the artifact, Master Kaen, and altar; generate fixed tables from source and verify natural arrival plus independent direct loads.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "45011934009b4033019f87f1cd7b402d96741616",
+      "openStanding": {
+        "sha": "12b580fd16db4d603164821a223688d1d9167cdc",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -235960,7 +235964,164 @@
           "evaluationPath": "challenges/evaluations/accepted-b581facde072156e518fc16846e3a5ca02455f81-v36.json",
           "evaluationCommit": "b581facde072156e518fc16846e3a5ca02455f81"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "12b580fd16db4d603164821a223688d1d9167cdc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-mon-goal",
+          "session": "synthetic/v36/v36-quest-mon-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-mon-goal.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-mon-goal.session.json",
+          "recordingSha256": "daf2d29044a317edaf6598177fb6c24d2a290406534b6bafa42b3408d11db3f8",
+          "recipe": "challenges/cases/v36/v36-quest-mon-goal.recipe.session.json",
+          "recipeSha256": "3090d1f7b67924da061bd6cd280fc70a3e8b95299ce394cebacba671f5a8a0d5",
+          "replayInputSha256": "095f603ae48c47f0cf3e8b8e392deb44af3f769c5d16c0d742e2959d3d7124e1",
+          "evaluationPath": "challenges/evaluations/accepted-12b580fd16db4d603164821a223688d1d9167cdc-v36.json",
+          "evaluationCommit": "12b580fd16db4d603164821a223688d1d9167cdc",
+          "evaluationArtifact": "challenges/evaluations/accepted-12b580fd16db4d603164821a223688d1d9167cdc-v36.json",
+          "evaluationUtc": "2026-10-09T16:40:28.173Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2210,
+              "total": 4201
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-goal\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Mon-goal.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-goal\"",
+          "cFile": null,
+          "luaFile": "Mon-goal.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-mon-goal.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-mon-goal",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "daf2d29044a317edaf6598177fb6c24d2a290406534b6bafa42b3408d11db3f8",
+              "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+              "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "session": "synthetic/v36/v36-quest-mon-goal",
+              "commit": "99b851f8a743df7a2becc3f43da8f1013790deed",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-mon-goal",
+                "session": "synthetic/v36/v36-quest-mon-goal",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-mon-goal.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-mon-goal.session.json",
+                "recordingSha256": "daf2d29044a317edaf6598177fb6c24d2a290406534b6bafa42b3408d11db3f8",
+                "recipe": "challenges/cases/v36/v36-quest-mon-goal.recipe.session.json",
+                "recipeSha256": "3090d1f7b67924da061bd6cd280fc70a3e8b95299ce394cebacba671f5a8a0d5",
+                "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+                "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+                "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+                "evaluationArtifact": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+                "evaluationUtc": "2026-10-09T10:38:34.264Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2210,
+                    "total": 4201
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-goal\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Mon-goal.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-goal\"",
+                "cFile": null,
+                "luaFile": "Mon-goal.lua",
+                "line": null
+              },
+              "status": "complete",
+              "goalKind": "lua-port",
+              "summary": "Quest goal arrival selects Mon-goal, but its Lua program is absent from the special-level registry. Port the whole Mon-goal.lua lava-cave generator, transparent map fragment, shared two-position artifact/nemesis/altar choice, fourteen random objects, six traps and eighteen elemental/xorn monsters.",
+              "source": {
+                "file": "Mon-goal.lua",
+                "functions": [
+                  "Mon-goal.lua"
+                ],
+                "branch": "The Monk quest goal special-level record names Mon-goal. At the destination-menu confirmation load_special needs that registered program before private nhlib alignment shuffle. Source executes mazelevel then unsmoothed/unjoined mines-style lava/floor initialization, the fixed transparent cave map and one shared two-position random choice before the stair, artifact, random objects/traps, Master Kaen/altar and elemental/xorn population.",
+                "callers": [
+                  "do.c goto_level -> mklev.c makelevel -> mkmaze.c makemaz -> sp_lev.c load_special -> dat/Mon-goal.lua. JS allmain deferred-goto -> do goto_level -> mklev makelevel/makemaz/load_special -> QUEST_LEVEL_LOADERS currently lacks Mon-goal.",
+                  "Accepted wizcmds.c wiz_load_splua invokes load_special directly for the named program; natural quest branch and wizard travel converge at generation. No alternate Lua entry or callback."
+                ],
+                "dependencies": [
+                  "Canonical createSpecialLevelApi level_flags, level_init -> splev_initlev LVLINIT_MINES -> mkmap, array-form map -> mapFromRows, region, stair, object, trap, monster and altar are already present. The identical unsmoothed lava initialization and map shape are used by verified Pri-goal; no generic owner edit is currently required.",
+                  "Consumed math.random(1,#place) is nhlib.lua5–10 nh.random(1,2), equivalent to 1+rn2(2); subtract one for the JS index and retain the same coordinate for the Eyes artifact, Master Kaen and noalign altar. No second random placement call is source-valid. des.random.rn2(2) is the existing canonical facade.",
+                  "Transparent x cells remain existing mapFromRows/lspo_map handling; Lua discards map return so no map selection result is consumed. selection.area uses the canonical relative selection with 26x11 fragment bounds.",
+                  "lspo_monster string+coordinate-array positional branch resolves Master Kaen using get_coord/readParamstr; preserve that source form and gender RNG. Object table carries blessed lenses spe0 plus named quest artifact; source o_arti selection is canonical sp_lev object handling.",
+                  "Noalign altar uses existing get_table_align noalign AM_NONE -> sp_amask_to_amask; altar type has no shrine and creates no priest. Reuse shared random coordinate rather than add a temple path.",
+                  "Pending C171 Kni-loca and B196 Kni-strt modify distinct quest_levels imports/functions/registry keys only. A191 source is immutable, its loader unrelated. No shared descriptor or program ownership conflict."
+                ]
+              },
+              "evidence": [
+                "Assigned replay run-dvpQxV at examined99b851f8a reproduces19/60screens/cursors2210/4201RNG. Segment0 step19 keyA selects goal; next C rn2(3)=1 is nhlib.lua alignment shuffle; JS stops before it with absent Mon-goal load_special. Exact comparison and stack .cache/A192/probe.json/probe.log.",
+                "Read complete dat/Mon-goal.lua1–75. Commented solidfill atline6 is inactive and must not be added. line8mazelevel precedes line10mines initialization with fgL/bgfloor and all four smoothing/joining/light/wall booleansfalse. lines12–24are exact26x11map with transparentx. lines26–27sharedcoordinatechoice;29unlitregion;31upstair20,5;33blessedlenses spe0 named Eyes;34–47fourteenrandomobjects;49–54fourfiretraps+two random;56MasterKaen atsharedcoord;57noalignplainaltar there;58–66nine earth elementals;67–75nine xorns.",
+                "Exact source count review: source58–66nine earth elementals and67–75nine xorns; whole file has75 lines. Pin the full descriptor list from source before implementing; no completion credit currently asserted.",
+                "Actionable scope whole Mon-goal.lua1–75, monGoal and registry in js/quest_levels.js, generated map data/script and source-pinned test, runtime fresh runner, recipes/Mon-goal.lua and recordings/Mon-goal.lua. No helper, teleport, quest permission or whole quest_levels completion credit.",
+                "Validation plan fail-first absent loader/module; generated26x11map comparison and source-pinned complete descriptor/source order; deterministic canonical RNG test both place indices and exactly one rn2(2) after map and before region. Full admitted segment0steps19–59 plus independent neutralhuman/lawfulhuman Monk variations through arrival/direct des loading. Assert namedartifact/nemesis/altar share coordinate, six traps, source monster classes and exact descriptor counts; strict RNG/screens/cursors/frames. Neighbor Mon-loca remains separate blocked source frontier if absent.",
+                "Evidence limits read-only source investigation and assigned replay only. No implementation/C recorder or runtime completion yet; helper reachability proposed from source/verified dependencies. Any later generic owner defect requires explicit scope expansion."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
