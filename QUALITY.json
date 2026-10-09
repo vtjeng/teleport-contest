@@ -160,6 +160,7 @@
         "js/quest_levels.js",
         "js/ran_goal_level_data.js",
         "js/ran_loca_level_data.js",
+        "js/ran_strt_level_data.js",
         "js/rect.js",
         "js/room_coordinates.js",
         "js/room_features.js",
