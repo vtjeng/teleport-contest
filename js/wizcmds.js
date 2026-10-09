@@ -144,7 +144,7 @@ import { overview_stats, In_W_tower, on_level, print_dungeon,
     Is_special, Invocation_lev, On_W_tower_level } from './dungeon.js';
 import { DEFAULT_PRIMARY_SYMBOLS } from './symbol_data.js';
 import { S_fountain, S_sink } from './symbols.js';
-import { mklev } from './mklev.js';
+import { mklev, load_special, lspo_reset_level, lspo_finalize_level } from './mklev.js';
 import {
     incr_itimeout, make_blinded, make_deaf, make_glib, make_hallucinated,
     make_sick, make_slimed, make_stunned,
@@ -750,6 +750,27 @@ export function scanLevelArgument(buf) {
         count: buf.length > match[0].length ? 2 : 1,
         value: Number(BigInt.asIntN(32, wide)),
     };
+}
+
+// C ref: wizcmds.c:376–395. The command discards the loader's result,
+// so finalization follows even when the file cannot be loaded.
+export async function wiz_load_splua(state = game, env = {}) {
+    if (state.wizard) {
+        let buf = await (env.getLine ?? getlin)('Load which des lua file?', state);
+        if (buf[0] === '\x1b' || buf === '') return ECMD_CANCEL;
+        if (!buf.includes('.')) buf += '.lua';
+
+        // NULL Lua state skips coder recreation and coder-gated finalization.
+        // The loader publishes its existing frame here for SpLev_Map access;
+        // its boolean return remains discarded as in the C command.
+        const levelEnv = { state };
+        await (env.resetLevel ?? lspo_reset_level)(null, levelEnv);
+        await (env.loadSpecial ?? load_special)(buf, state, levelEnv);
+        await (env.finalizeLevel ?? lspo_finalize_level)(null, levelEnv);
+    } else {
+        await (env.message ?? ttyPline)("Unavailable command 'wizloaddes'.", state);
+    }
+    return ECMD_OK;
 }
 
 // C ref: wizcmds.c wiz_flip_level() (412-442). The live flip finishes
