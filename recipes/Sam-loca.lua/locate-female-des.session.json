@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Samurai quest generation witnesses. New seeds/date and male natural arrival versus female direct source loading vary startup, monster/class selection and map flips. Fixed source doors, object classes and coordinates remain unchanged. Spaces acknowledge startup and travel messages; > advances the destination page. Sam-goal is the separately accepted outside-program boundary.",
+  "segments": [
+    {
+      "seed": 19536137,
+      "datetime": "20591014164231",
+      "nethackrc": "OPTIONS=name:CastleCourtyard,role:Samurai,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "   #wizloaddes\nSam-loca.lua\n                #wizmap\n                "
+    }
+  ]
+}

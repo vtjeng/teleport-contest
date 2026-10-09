@@ -8,7 +8,7 @@
 //         dat/Kni-loca.lua, dat/Kni-strt.lua, dat/Ran-loca.lua,
 //         dat/Ran-goal.lua, dat/Ran-strt.lua, dat/Rog-strt.lua, dat/Rog-loca.lua,
 //         dat/Rog-goal.lua, dat/Val-goal.lua,
-//         dat/Val-loca.lua,
+//         dat/Val-loca.lua, dat/Sam-loca.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
@@ -96,6 +96,8 @@ import {
     ROG_STRT_LEVEL_MAP,
 } from './rog_strt_level_data.js';
 import { ROG_LOCA_LEVEL_MAP } from './rog_loca_level_data.js';
+import { SAM_LOCA_LEVEL_MAP, SAM_LOCA_LEVEL_DOORS,
+    SAM_LOCA_LEVEL_OBJECTS, SAM_LOCA_LEVEL_MONSTERS } from './sam_loca_level_data.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
 // that draws a random zig-zag path from (x1,y1) to (x2,y2).
@@ -2654,7 +2656,24 @@ async function rogGoal(des) {
     for (const monster of ROG_GOAL_MONSTERS) await des.monster({ ...monster });
 }
 
+// Whole dat/Sam-loca.lua lines 1–141. Positional and table descriptor forms
+// retain their source defaults, including the canine class draw and hostile guards.
+async function samLoca(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'hardfloor');
+    await des.map(SAM_LOCA_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 19), 'lit');
+    for (const door of SAM_LOCA_LEVEL_DOORS) await des.door(...door);
+    await des.stair('up', 10, 10);
+    await des.stair('down', 25, 14);
+    await des.non_diggable(selection_area(0, 0, 75, 19));
+    for (const object of SAM_LOCA_LEVEL_OBJECTS) await des.object(...object);
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (const monster of SAM_LOCA_LEVEL_MONSTERS) await des.monster(...monster);
+}
+
 export const QUEST_LEVEL_LOADERS = {
+    'Sam-loca': samLoca,
     'Rog-loca': rogLoca,
     'Rog-goal': rogGoal,
     'Mon-loca': monLoca,
