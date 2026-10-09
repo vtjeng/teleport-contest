@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate: engrave.c:doengrave wand-specific burn engraving branch.",
+  "segments": [
+    {
+      "seed": 38100014,
+      "datetime": "20391009101112",
+      "nethackrc": "OPTIONS=name:V38Engrave38100014,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizwish\nwand of fire\nEo"
+    }
+  ]
+}

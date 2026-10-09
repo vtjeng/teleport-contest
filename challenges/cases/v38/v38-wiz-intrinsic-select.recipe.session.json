@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "v38 C-first candidate: wiz-intrinsic-select; pre-comparison plan in .cache/v38/plans/candidate-plan.json.",
+  "segments": [
+    {
+      "seed": 38100009,
+      "datetime": "20391009101112",
+      "nethackrc": "OPTIONS=name:V38Probe38100009,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizintrinsic\nq "
+    }
+  ]
+}
