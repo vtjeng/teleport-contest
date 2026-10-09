@@ -1,0 +1,100 @@
+{
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-val-strt",
+  "session": "synthetic/v36/v36-quest-val-strt",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "bd018419e6b072d055d445683d58fddf50dd9a14c43ee1d19997ab1149a3f571",
+  "evaluationPath": "challenges/evaluations/accepted-b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0-v36.json",
+  "evaluationCommit": "b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0",
+  "remainingScreens": 41,
+  "recordedSteps": 60,
+  "status": "complete",
+  "commit": "9e62b822c405af88df5aae5e152f219bbd5ee75b",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-val-strt",
+    "session": "synthetic/v36/v36-quest-val-strt",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-val-strt.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-val-strt.session.json",
+    "recordingSha256": "bd018419e6b072d055d445683d58fddf50dd9a14c43ee1d19997ab1149a3f571",
+    "recipe": "challenges/cases/v36/v36-quest-val-strt.recipe.session.json",
+    "recipeSha256": "c95b86e0f842d5772b63621ec8a8c7b1a5f61e6ae4d6ffbabc7781ebfb75ff3b",
+    "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+    "evaluationPath": "challenges/evaluations/accepted-b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0-v36.json",
+    "evaluationCommit": "b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0",
+    "evaluationArtifact": "challenges/evaluations/accepted-b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0-v36.json",
+    "evaluationUtc": "2026-10-09T13:17:30.447Z",
+    "remainingScreens": 41,
+    "recordedSteps": 60,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 60
+      },
+      "rng": {
+        "matched": 2205,
+        "total": 2942
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Val-strt\"",
+      "step": 19
+    },
+    "step": 19,
+    "kind": "stop",
+    "sourceFile": "Val-strt.lua",
+    "function": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Val-strt\"",
+    "cFile": null,
+    "luaFile": "Val-strt.lua",
+    "line": null
+  },
+  "summary": "Val-strt.lua has no quest loader, stopping arrival at step 19 with 41 screens remaining. Port the whole ice-field and Norn hall program plus required random selection-point and bitwise OR helpers. The numeric selection storage dependency is shared with parked Tou-goal/Tou-loca proposals and needs central ownership adjudication before implementation.",
+  "goalKind": "lua-port",
+  "source": {
+    "file": "Val-strt.lua",
+    "branch": "First generation of the Valkyrie quest start through wizard level teleportation; the Val-strt prototype is missing from the loader registry.",
+    "functions": [
+      "Val-strt.lua (whole program, lines 1–100)"
+    ],
+    "callers": [
+      "do.c:goto_level -> mklev.c:makelevel1266–1271 -> mkmaze.c:makemaz1184–1193 -> sp_lev.c:load_special6454–6503 -> dat/Val-strt.lua",
+      "js/mklev.js:ensureSpecialLevelLoaders/load_special -> QUEST_LEVEL_LOADERS[Val-strt] -> proposed valStrt in js/quest_levels.js -> existing canonical des.finish"
+    ],
+    "dependencies": [
+      "Required whole nhlsel.c:l_selection_setpoint158–199: resolve zero/one/two/three-or-more argument forms, use get_location_coord with ANY_LOC and the current coder room/frame, preserve returned selection identity and numeric value. The existing ThemeroomSelection.set only handles explicit coordinates and Booleanizes values. The zero-argument C wrapper allocates but leaves sel NULL and raises Selection setpoint error; preserve this source behavior rather than following its outdated comment.",
+      "Required whole pure nhlsel.c:l_selection_or305–328: allocate a result, combine operand bounds using existing pure rect.c:rect_bounds133–140, traverse x-major, store getpoint(a) bitwise OR getpoint(b), preserve operands and source bounds behavior. No existing l_selection_or or union helper was found by rg in js/.",
+      "Shared dependency: selvar.c:selection_getpoint168–178 and selection_setpoint181–210 retain numeric values through source char(c+1) storage, while JS get/set/selection_clear reduce values to Boolean. B200 Tou-goal subtraction and C176 Tou-loca OR/subtraction require the same numeric selection contract. Main must assign the exact supporting storage scope once; B202 cannot independently edit this seam. A196 Val-loca and C177 Val-goal confirmed no setpoint/OR/numeric-storage dependency.",
+      "Existing js/room_coordinates.js:get_location_coord/get_location cover packed random coordinates, ANY_LOC and coder frame. A minimal scoped mklev createSpecialLevelApi selection binding must pass its actual state/coder/frame into the source helper; do not duplicate RNG or sample the later map dimensions. No room_coordinates owner edit is initially proposed.",
+      "Existing selection_new/clone/grow and des terrain/map owners must preserve absolute pre-map selections, source W_RANDOM direction order and ignored x map cells. Existing level_flags icedpools must precede level_init; sel_set_ter sets icedpool metadata only on ICE, without converting P into ice.",
+      "Existing lspo_monster custom inventory and lspo_object/ONAME context support the Norn inventory callback, chest, source name/gender parsing, fixed-coordinate hostile giants and equipment finalization. Existing branch/stair/feature/door/non_diggable/trap/finalization owners are consumed in source order; any newly reached runtime refusal requires a scoped source gate before editing."
+    ]
+  },
+  "evidence": [
+    "Current saved challenges/evaluations/accepted-b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0-v36.json has 19/60 screens and cursors, 2205/2942 RNG: 41 remaining screens over 60 steps. Queue first stop is missing Val-strt loader at segment 0 step 19. Manifest digest 58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c is the queue/evaluation digest; recipe SHA c95b86e0f842d5772b63621ec8a8c7b1a5f61e6ae4d6ffbabc7781ebfb75ff3b and recording SHA bd018419e6b072d055d445683d58fddf50dd9a14c43ee1d19997ab1149a3f571 were independently verified. No replay, aggregate scan or new C recording was run for this source diagnosis.",
+    "Read whole dat/Val-strt.lua, source SHA 33bc072378baf232f08fe3ca819ffdfe7e55d8c52fa0ac291a6d2512054b608e. It sets mazelevel, noteleport, hardfloor and icedpools before solidfill I; initial unspecified lit consumes rn2(2). It then constructs the lava/water selections before loading the 20-row, 76-column map. Map x cells are INVALID_TYPE and skip writes, preserving the prepainted field and cells outside the overlay.",
+    "Source lines 16–24 make 13 independent random points and three additional points grown west, north and random. Step 19 records sixteen rn2(79),rn2(21) pairs, followed by rn2(4)=3 at random_wdir. The initial frame is xstart=1,ystart=0,xsize=79,ysize=21; the second point uses y=20 outside the later 20-row map. Repeated points are allowed: no uniqueness filtering or selection removal appears in C.",
+    "The recorded point draws are (55,12),(11,20),(67,14),(74,10),(1,7),(70,7),(2,2),(53,7),(41,13),(49,13),(59,8),(61,5),(42,4),(20,16),(68,19),(52,3); actual x adds initial xstart=1. random_wdir source4581 indexes NORTH,SOUTH,EAST,WEST, so the final growth is west. These are diagnostic data; implementation must derive every draw from source and generalize across seeds.",
+    "Source lines 27–28 paint the cloned all-direction growth P, then original pools L. nhlsel.c:l_selection_grow631–653 clones before selection_do_grow; selvar.c322–367 expands cardinal/diagonal neighborhoods without changing its source operand. Existing ThemeroomSelection.grow matches this clone/direction structure, but whole OR/setpoint results cannot be replaced by a Boolean-only approximation.",
+    "Source map is followed by full-map lit region, branch arrival66/17, downstair18/1, fountain53/2, locked doors26/10 and43/10. Norn35/10 receives banded mail spe5 and long sword spe4 through the custom inventory callback, then a chest is created36/10. Eight warriors surround the audience chamber; only26/7..43/13 is non-diggable. Preserve source placement/finalization order and allow_flips; do not add an absent wallify statement.",
+    "Source then creates six random fire traps, ten fixed fire ants and two explicitly hostile fire giants18/1 and10/16, yielding21 monster descriptors. Keep source string/table forms to preserve species/gender/location RNG. Read upstream lspo_monster/create_monster and existing canonical callback handling; monster inventory preparation must remain before the source callback and equipment finalization after it.",
+    "The missing helper search rg -n l_selection_or|l_selection_setpoint js/ returned no matches. Existing ThemeroomSelection.set stores value?1:0, get returns nonzero as Boolean and selection_clear also Booleanizes. C OR instead combines integer point values; source set/get store char(c+1) and recover mapcell-1. A coherent numeric owner must audit all reads/writes and preserve Boolean consumers without duplicating cell state. Whole helper credit requires source-pinned numeric cases, input preservation, empty bounds and byte behavior.",
+    "Whole l_selection_setpoint and l_selection_or were read, including consumed pure rect_bounds and existing get_location_coord. Setpoint is impure because random argument forms consume RNG and mutate the selection. OR is pure for game evidence: it changes only its newly allocated result and Lua stack, with no RNG, message, screen or game-state mutation. Required tests must pin full argument/error behavior and numeric OR rather than testing only Val-strt Boolean points.",
+    "Independent evidence plan after authorization: two C-first human Valkyrie arrivals with different relevant character/input history and #wizmap, verifying initial ice metadata, lava/water ring, ignored-map preservation, leader inventory, locked doors, branch/downstairs, protected hall and six traps. Source-pinned generated map and descriptor order, pre-map 79x21 random-coordinate bounds, selection identity/OR/input preservation and initial flags must accompany fully matching recordings. Cite admitted segment0 steps19–59 only after implementation replay matches that range.",
+    "Smallest proposed program scope is unique valStrt import/function/registry entry in quest_levels.js, deterministic generated val_strt_level_data/generator/check, required selection helpers in established themerooms.js owner and a bounded mklev API binding. Main must first adjudicate shared numeric storage with B200/C176. No initial display/zap/monster/room-coordinate owner edits, no helper completion inferred from declarations, and no implementation claim or game edit has been made. Preserve B195 pending ancestor and every parked report."
+  ]
+}
