@@ -240853,7 +240853,7 @@
     {
       "id": "fix-castle-map-throne-cell-v35-20261009",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Correct the Castle map row so the throne and adjacent floor match castle.lua",
       "cFile": "sp_lev.c",
       "sessions": [
@@ -240867,8 +240867,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "181abf1682eb7370613252862afb7bece56983d7",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "lspo_map",
       "session": "synthetic/v35/v35-arrival-castle",
       "step": 54,
@@ -241085,7 +241088,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "181abf1682eb7370613252862afb7bece56983d7",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
