@@ -5,12 +5,12 @@
   "manifestPath": "challenges/manifests/v36.json",
   "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
   "recordingSha256": "ac97310261adf55d3764dce9e254db818e8b82668d804a6cb6781a8d7f8aadd5",
-  "evaluationPath": "challenges/evaluations/accepted-85927920dc3598224e264c7ca1ecd0a4c5a34239-v36.json",
-  "evaluationCommit": "85927920dc3598224e264c7ca1ecd0a4c5a34239",
+  "evaluationPath": "challenges/evaluations/accepted-9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269-v36.json",
+  "evaluationCommit": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269",
   "remainingScreens": 41,
   "recordedSteps": 60,
   "session": "synthetic/v36/v36-quest-rog-loca",
-  "commit": "01cc1626c81a2ec09bb9299d8d7b8e161cfd539d",
+  "commit": "dc21c912e9711b38e444febebcb738b1dac2123b",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v36",
@@ -23,11 +23,11 @@
     "recordingSha256": "ac97310261adf55d3764dce9e254db818e8b82668d804a6cb6781a8d7f8aadd5",
     "recipe": "challenges/cases/v36/v36-quest-rog-loca.recipe.session.json",
     "recipeSha256": "42a067c889c37ec2efffcd583150776b32258aaf9c4d83624be6c467eeb05628",
-    "replayInputSha256": "15ba1520855de569ec70d5b078e328d09894ec2c5314c58f83b1fe0bf00c121f",
-    "evaluationPath": "challenges/evaluations/accepted-85927920dc3598224e264c7ca1ecd0a4c5a34239-v36.json",
-    "evaluationCommit": "85927920dc3598224e264c7ca1ecd0a4c5a34239",
-    "evaluationArtifact": "challenges/evaluations/accepted-85927920dc3598224e264c7ca1ecd0a4c5a34239-v36.json",
-    "evaluationUtc": "2026-10-09T18:47:32.917Z",
+    "replayInputSha256": "0007dc9110572c458d03957b9623040d4b49e21419f51f623fd6a786ab0c0471",
+    "evaluationPath": "challenges/evaluations/accepted-9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269-v36.json",
+    "evaluationCommit": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269",
+    "evaluationArtifact": "challenges/evaluations/accepted-9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269-v36.json",
+    "evaluationUtc": "2026-10-09T19:24:09.638Z",
     "remainingScreens": 41,
     "recordedSteps": 60,
     "previousScreensMatched": 19,
@@ -100,6 +100,7 @@
     "Evidence limits: read-only source trace and the assigned replay only, with no C recording or game edit. The current replay stops before program generation, so helper review establishes proposed scope, not production completion. Rog-goal remains a separate source program. Any later confirmed shared-owner defect needs authorized source expansion.",
     "Read-only refresh against accepted public C1756f932bf8b920c7caf10b4106d079702dbd20cbc1 at clean worker01cc1626c81a2ec09bb9299d8d7b8e161cfd539d: current accepted85927920 v36 evidence remains19/60screens/cursors and2693/3500RNG. Assigned-only replay run-YhiLJB reproduces absent Rog-loca atsegment0step19, keyz, with first C call rn2(3)=1 in nhlib shuffle. Full99-line source re-read identifies no changed source owner or dependency. A193 remains immutable; no game edits, C recording or implementation scope claim.",
     "Pending B201 delivery a912634e121d5c1bd9857b7a2a914c4c16761218 (candidate4f8612ae05a503736e028233bbc1da3c93d86919) relocates fill_special_room from load_special finish to makelevel and the existing direct-load finalizer, matching sp_lev.c6454–6503 and mklev.c1414–1418. Rog-loca uses solidfill, a string map and selection-only lit region; it creates no rooms. C lspo_region two-argument selection branch returns before room creation. With zero rooms, this moved loop has no program-specific effects. No shared room-fill owner scope is proposed; B201 remains pending and unmerged, and implementation validation must use the accepted caller order after handoff.",
-    "Validation dependency framing: A1932f0a43c0ba81ea5ed1f4abe8d7680b32c80b133a is an unaccepted ancestor of this report lineage; preserve it as a delivery dependency until acceptance. Old A191 is accepted and no longer an external dependency. B201 is not an ancestor and no Rog-loca source behavior depends on its room-fill effects; nevertheless refresh accepted-main caller evidence before source implementation after the central gate."
+    "Validation dependency framing: A1932f0a43c0ba81ea5ed1f4abe8d7680b32c80b133a is an unaccepted ancestor of this report lineage; preserve it as a delivery dependency until acceptance. Old A191 is accepted and no longer an external dependency. B201 is not an ancestor and no Rog-loca source behavior depends on its room-fill effects; nevertheless refresh accepted-main caller evidence before source implementation after the central gate.",
+    "Implementation-gate refresh: Main accepted A193 at9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269 and B201 room-fill source relocation. Clean history-preserving worker syncdc21c912e9711b38e444febebcb738b1dac2123b retains exact accepted quest module after loader ordering conflict;9adjacent focused tests pass run-rYjrQB. Accepted9a32ea9e v36 still has41remaining atstep19. A193 ancestry dependency is accepted; no external dependency remains. Proposed wholeRog-loca1–99 still requires no generic owner change."
   ]
 }
