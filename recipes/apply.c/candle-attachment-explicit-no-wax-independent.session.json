@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B189 C-first use_candle negative-byte contract; explicit-no-wax uses 3 wax candle(s) and \"n\" as the declared attachment answer. Inputs chosen from apply.c1415–1419 before JS comparison; not copied from admitted case. C-only inventory inspection showed this seed assigns the candles to g; selecting g reaches the unchanged declared no answer.",
+  "segments": [
+    {
+      "seed": 18935001,
+      "datetime": "20391010124532",
+      "nethackrc": "OPTIONS=name:Candle18935001,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,!tips,!verbose\n",
+      "moves": ".\u0017uncursed Candelabrum of Invocation\n\u00173 uncursed wax candles\nagn     "
+    }
+  ]
+}
