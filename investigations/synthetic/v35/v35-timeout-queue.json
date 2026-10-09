@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v35.json",
   "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
   "recordingSha256": "7856fe2b3f45ceb790bea0f03525626340cd0c563c3ba7382ba3b14e8410b132",
-  "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
-  "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+  "evaluationPath": "challenges/evaluations/accepted-438d5d0cd3f837bbc821b6ff78ce82940470a5f8-v35.json",
+  "evaluationCommit": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8",
   "remainingScreens": 24,
   "recordedSteps": 67,
   "status": "complete",
-  "commit": "72f59958d0cd6ee12e1ea3a857c632dda4b53b44",
+  "commit": "e84881494367c1c521efb8ca6c4d6f93a406e434",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v35",
@@ -24,14 +24,14 @@
     "recordingSha256": "7856fe2b3f45ceb790bea0f03525626340cd0c563c3ba7382ba3b14e8410b132",
     "recipe": "challenges/cases/v35/v35-timeout-queue.recipe.session.json",
     "recipeSha256": "02d0e070a6e07c8eadc20700afcfc6f0e44573cb246ab37d9cc309168698bcf2",
-    "replayInputSha256": "9a345b9f1c2c4f64668854b1f41843898e09b9498646789c8c4a14892bfcd5a5",
-    "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
-    "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
-    "evaluationArtifact": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
-    "evaluationUtc": "2026-10-09T08:22:23.377Z",
+    "replayInputSha256": "a1deb092319ec0599558bee4e3697214428accff93a5a9b4f0372ced7e663fa2",
+    "evaluationPath": "challenges/evaluations/accepted-438d5d0cd3f837bbc821b6ff78ce82940470a5f8-v35.json",
+    "evaluationCommit": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8",
+    "evaluationArtifact": "challenges/evaluations/accepted-438d5d0cd3f837bbc821b6ff78ce82940470a5f8-v35.json",
+    "evaluationUtc": "2026-10-09T22:13:29.907Z",
     "remainingScreens": 24,
     "recordedSteps": 67,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 43,
     "regression": false,
     "passed": false,
     "error": null,
@@ -63,10 +63,10 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The wizard timeout display is missing. Its empty queue and timed speed property are reproducible, but the whole queue helper consumes native pointer formatting in populated rows. The shared property table also needs source-owner reconciliation after the pending panic task. The source task is blocked; no partial timeout completion is established.",
+  "summary": "The wizard timeout display is missing. The accepted v35 evaluation and a fresh replay on the current B168 branch both match through the first 43 screens and all 2347 random-number calls, then JavaScript stops at #timeout before C emits boundary 44. Native pointer formatting is now deterministic in published recorder patch 007 and has a canonical JavaScript implementation in B168, but B168 is still queued and reserves alloc.c:fmt_ptr plus contract:native-pointer-diagnostic-format; wait for its acceptance before claiming timeout implementation scope. The accepted B185 work was the wizard panic path and did not relocate timeout.c propertynames: js/wizcmds.js still keeps WIZ_INTRINSIC_PROPERTIES privately, so reconciliation with property_by_index remains required in the eventual whole timeout task. No timeout.c source credit is established.",
   "source": {
     "file": "timeout.c",
-    "branch": "wiz_timeout_queue2040–2127 prints current time, timer queue, timed properties in source table order, swallow/vault counters, visible-region summary and level no-teleport duration before displaying a corner menu.",
+    "branch": "timeout.c:2041-2124 implements the #timeout extended command: create an NHW_MENU, print current moves, active timers, timed properties in propertynames[] order, optional swallow/vault counters, visible-region summary, and level stasis countdown; display then destroy the window. The queue branch is empty in the admitted case, but populated rows consume fmt_ptr(curr->arg.a_void).",
     "functions": [
       "wiz_timeout_queue",
       "print_queue",
@@ -74,25 +74,25 @@
       "property_by_index"
     ],
     "callers": [
-      "cmd.c:doextcmd491–521 dispatches timeout row1903–1904 (IFBURIED|AUTOCOMPLETE|WIZMODECMD); generated js/extcmdlist_data.js138 retains this row but js/cmd.js lacks its owner arm.",
-      "cmd.c:rhack3682–3825 invokes rebound/canned rows and clears counts after ECMD_OK; any future task needs only the distinct timeout import/admission/awaited owner/result-reset seams.",
-      "wizcmds.c:wiz_intrinsic consumes timeout.c:property_by_index to build and resolve its intrinsic menu. js/wizcmds.js490–562 instead owns a private WIZ_INTRINSIC_PROPERTIES copy; move the source table to the timeout owner and reconcile those consumers together."
+      "cmd.c:doextcmd(493-521) dispatches the timeout row at cmd.c:1903-1904, flagged IFBURIED|AUTOCOMPLETE|WIZMODECMD. js/extcmdlist_data.js:138 retains the row; js/cmd.js:4983+ owns doextcmd dispatch but has no wiz_timeout_queue arm and currently fails closed through UnsupportedHeroTimeoutBoundaryError.",
+      "cmd.c:rhack(3682-3825) invokes the selected extended-command function and resets repeat counts after ECMD_OK; preserve the command return and display dismissal behavior at this call seam.",
+      "wizcmds.c:wiz_intrinsic(949-1098) calls timeout.c:property_by_index to construct and resolve its property menu. Current js/wizcmds.js:495-562 still has its private WIZ_INTRINSIC_PROPERTIES list; the accepted B185 implementation commit 0f268f2c2d6a6186247bb68d29b6b90314c64efc only changed the wizard panic path and does not own or block table relocation."
     ],
     "dependencies": [
-      "Read whole alloc.c:fmt_ptr125–135: it formats the native C address through PTR_FMT/PTR_TYP and rotates its static result buffer. print_queue consumes this return for every populated timer. Existing js/obj.js3573–3581 uses object/monster IDs instead of C addresses and cannot establish this source contract. VERBOSE_TIMER is unconditionally defined in timeout.c1963, so timer callback names do not remove the address dependency. Same native-pointer frontier as parked light.c:wiz_light_sources; do not invent addresses or substitute IDs.",
-      "kind_name1997–2012 returns source names for all five kinds/default, but TIMER_NONE also discards impossible(\"no timer type\"); that source gap must remain explicit if the helper is ported. Empty print_queue skips kind_name/fmt_ptr, but that branch alone does not establish whole print_queue completion.",
-      "Required consumed region.c:any_visible_region660–671 is missing in JS and is pure: return true on first visible region whose ttl!=-2, false otherwise. Canonical region list already lives at state.level.regions. Port and source-pin this complete helper rather than infer visibility from a display cache.",
-      "Discarded region.c:visible_region_summary674–714 is also missing: visible/nonexpired traversal, first header, ttl+1, damage-dependent vapor/poison label, menu_tab_sep and bounding-box formatting. A future complete diagnostic family should port it with independent gas-region evidence, or retain a named discarded-result gap without summary credit.",
-      "timeout.c propertynames30–114 is a large fixed source table; generate one canonical table deterministically and port pure property_by_index118–125 with source-pinned invalid-index sentinel/output values. Reconcile existing wizintrinsic reads in js/wizcmds.js. That owner file overlaps immutable unaccepted B185; preserve this exact dependency until accepted.",
-      "Existing window create/putstr/display/destroy primitives are the production owner for the corner NHW_MENU. Match output/input ordering without spending time or random draws. No timer creation, timer callback or general turn-loop source expansion is needed."
+      "Published recorder patch 007 (execution commit d399398f872cf682ce5ed796bbd6c66704dde739, on published Main be68a3dc47a6fe9f8ce693c94cb11b91a85a3afe) now emits deterministic <ptr>/<null> text. B168 implements the canonical alloc.c:fmt_ptr port in js/alloc.js, but B168 delivery e84881494367c1c521efb8ca6c4d6f93a406e434 remains queued and retains source:alloc.c:fmt_ptr plus contract:native-pointer-diagnostic-format. This is the current ownership gate: do not claim or edit timeout implementation scope until B168 is accepted. timeout.c:print_queue consumes fmt_ptr for every populated timer row; VERBOSE_TIMER is defined, so the C-format pointer argument is used.",
+      "timeout.c:kind_name(1995-2012) returns names for TIMER_NONE, TIMER_LEVEL, TIMER_GLOBAL, TIMER_OBJECT, TIMER_MONSTER, and unknown values. TIMER_NONE calls impossible(\"no timer type\") and discards its result; retain an explicit gap for that discarded diagnostic if impossible remains unported. Empty print_queue skips kind_name and fmt_ptr, so the admitted empty-queue replay alone cannot establish the whole print_queue family.",
+      "region.c:any_visible_region(660-671) is a required returned-value callee: it returns true at the first visible region whose ttl is not -2, otherwise false. The canonical list is state.level.regions; port this helper and source-pin its result instead of deriving visibility from a display cache.",
+      "region.c:visible_region_summary(674-714) writes to the timeout menu: traverse visible nonexpired regions in list order, emit the header once, display ttl+1, choose vapor or poison-gas damage text, and format bounding boxes using menu_tab_sep. The complete timeout display needs this source behavior, with independent gas-region evidence.",
+      "timeout.c:propertynames(30-114) is the fixed source-ordered table shared by #timeout and #wizintrinsic; generate the canonical JS data from C deterministically. Port and source-pin property_by_index(117-125), including its invalid-index sentinel and optional output parameter, then make js/wizcmds.js consume that canonical owner. B185 acceptance clears its prior reservation, but the current private table confirms this remains required implementation work rather than an ownership blocker.",
+      "Use the existing TTY NHW_MENU/window and tty_menu output/dismissal owners for create_nhwindow, putstr, display_nhwindow, and destroy_nhwindow. Preserve C output order and wait behavior; no timer creation, callback, or general turn-loop expansion is needed."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Saved accepted-672aef01 v35 entry has43/67 screens/cursors and2347/2347 RNG,24 remaining. Current single-case run-TgUOf9 at72f59958 confirms no earlier divergence and stops at segment0 step43 Enter with unsupported hero command: wiz_timeout_queue() for the extended command 'timeout' is not ported. Expected C first row is Current time = 3.",
-    "Independent admitted recipe drinks an uncursed speed potion then requests #timeout. This reaches the empty active timer queue and temporary FAST property. Its existence does not cover a populated queue or native-address formatting. Recipe/recording hashes verified against the exact saved queue entry.",
-    "Complete timeout.c selected helper/display source1997–2127, property table/index helper30–125, alloc.c native formatter125–135 and region.c helpers660–714 were read. The display loops twice through all properties: count/max width first, then emit TIMEOUT bits in source order and insert the special marker before the first timed property at or beyond COLD_RES. Swallow/vault and stasis_until branches follow regions in source order.",
-    "Required future evidence includes independent typed/bound/count/no-properties and multiple timed-property/COLD_RES threshold variations; swallow/vault/stasis/region branches need source-pinned state coverage and reproducible active entry evidence. A populated lit-lamp timer witness is outside matching portable evidence until native-pointer formatting is resolved. No new C game was recorded during this investigation.",
-    "Main directed parking the source task on this native fmt_ptr consumed-return blocker and B185-owned table relocation, with no partial timeout source credit. This record identifies the whole-source closure; it does not claim game implementation or runtime completion."
+    "Current saved queue entry at 438d5d0cd3f837bbc821b6ff78ce82940470a5f8 reports 43/67 screens and cursors, 2347/2347 RNG calls, and 24 remaining screens. Queue provenance is refreshed to challenges/evaluations/accepted-438d5d0cd3f837bbc821b6ff78ce82940470a5f8-v35.json; the challenge recording and recipe hashes are unchanged.",
+    "Fresh differential: node scripts/diff-fresh.mjs challenges/cases/v35/v35-timeout-queue.recipe.session.json at examined commit e84881494367c1c521efb8ca6c4d6f93a406e434 (receipt /tmp/teleport-validation-1000/run-NKhnBB/receipt.json). C and JS RNG values match (2347 calls). C has 67 screens/cursors, JS has 43; first missing JS output is boundary 44, segment 1, step 44, key newline, after the unsupported #timeout command. The prior 43 screen/cursor boundaries match.",
+    "The independent admitted recipe drinks an uncursed speed potion then requests #timeout. It reaches the empty active timer queue and temporary FAST property; it does not cover populated timer rows, native pointer arguments, or visible regions. B168 contains an independent lit-lamp #lightsources recording that emits <ptr>, but its allocator ownership is not released before acceptance.",
+    "Source trace checked at the current C checkout: timeout.c:30-125 defines the shared ordered property table and index helper; timeout.c:1995-2124 covers kind_name, print_queue, and wiz_timeout_queue; region.c:660-714 covers the required region helpers. cmd.c:doextcmd and rhack provide production command entry and result-reset seams.",
+    "Current source-owner status: B185 was accepted and its implementation delivery changes the wizard panic path only; it neither relocated the property table nor retains a reservation. B168 is queued and is the sole current owner of alloc.c:fmt_ptr and contract:native-pointer-diagnostic-format. This investigation is session-only and establishes no implementation or runtime completion for timeout.c."
   ]
 }
