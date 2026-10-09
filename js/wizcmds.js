@@ -61,6 +61,7 @@ import {
     LIFESAVED,
     MAGICAL_BREATHING,
     MAXULEV,
+    NHL_SB_SAFE, NHL_SB_DEBUGGING,
     PASSES_WALLS,
     PICK_ANY, PICK_NONE, PRIMARYSET,
     POLY_CONTROLLED,
@@ -118,6 +119,7 @@ import { rndmonst } from './makemon.js';
 import { migrate_to_level } from './dog.js';
 import { AD_PHYS, PM_GRID_BUG, PM_SAMURAI } from './monsters.js';
 import { note_unported } from './unported.js';
+import { load_lua } from './nhlua.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import {
     cmd_from_func, getdir, levltyp, makemap_prepost, paranoid_query, yn_function,
@@ -750,6 +752,26 @@ export function scanLevelArgument(buf) {
         count: buf.length > match[0].length ? 2 : 1,
         value: Number(BigInt.asIntN(32, wide)),
     };
+}
+
+// C ref: wizcmds.c:353–372. The result of loading the temporary Lua state
+// is discarded; the existing bounded nhlua owner names unsupported programs.
+export async function wiz_load_lua(state = game, env = {}) {
+    if (state.wizard) {
+        const sbi = {
+            flags: (NHL_SB_SAFE | NHL_SB_DEBUGGING) >>> 0,
+            memlimit: 16 * 1024 * 1024,
+            steps: 0,
+            perpcall: 16 * 1024 * 1024,
+        };
+        let buf = await (env.getLine ?? getlin)('Load which lua file?', state);
+        if (buf[0] === '\x1b' || buf === '') return ECMD_CANCEL;
+        if (!buf.includes('.')) buf += '.lua';
+        await (env.loadLua ?? load_lua)(buf, sbi, state);
+    } else {
+        await (env.message ?? ttyPline)("Unavailable command 'wizloadlua'.", state);
+    }
+    return ECMD_OK;
 }
 
 // C ref: wizcmds.c:376–395. The command discards the loader's result,

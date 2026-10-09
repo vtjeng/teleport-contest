@@ -594,3 +594,60 @@ test('wiz_panic restores the four fuzzer resource fields before returning withou
         ['uhpmax', 1000], ['uhp', 1000], ['uenmax', 1000], ['uen', 1000],
     ]);
 });
+
+test('wiz_load_lua preserves filenames, forwards the C sandbox and awaits its discarded load', async () => {
+    const { wiz_load_lua } = await import('../js/wizcmds.js');
+    assert.equal(typeof wiz_load_lua, 'function');
+    const source = readFileSync('nethack-c/upstream/src/wizcmds.c', 'utf8');
+    const body = source.slice(source.indexOf('wiz_load_lua(void)'), source.indexOf('/* the #wizloaddes'));
+    assert.match(body, /NHL_SB_SAFE \| NHL_SB_DEBUGGING,[\s\S]*16\*1024\*1024, 0, 16\*1024\*1024/u);
+    assert.match(body, /if \(!strchr\(buf, '\.'\)\)\s*strcat\(buf, "\.lua"\);/u);
+    assert.match(body, /\(void\) load_lua\(buf, &sbi\);/u);
+    // Raw spaces survive, and a period anywhere suppresses appending .lua.
+    for (const [input, filename] of [[' nhlib ', ' nhlib .lua'],
+        ['nhlib.lua', 'nhlib.lua'], ['dir.name/file', 'dir.name/file']]) {
+        let release;
+        const gate = new Promise(resolve => { release = resolve; });
+        let settled = false;
+        const state = { wizard: true };
+        const events = [];
+        const pending = wiz_load_lua(state, {
+            getLine(prompt) { events.push(prompt); return input; },
+            async loadLua(name, sandbox, caller) {
+                assert.equal(caller, state);
+                assert.deepEqual(sandbox, {
+                    flags: 0x88000000, // uint32 SAFE|DEBUGGING from global.h.
+                    memlimit: 16 * 1024 * 1024, // wizcmds.c temporary VM bound.
+                    steps: 0, // No lifetime instruction bound.
+                    perpcall: 16 * 1024 * 1024, // Source per-call instruction bound.
+                });
+                events.push(name);
+                await gate;
+                return false; // The C command discards even a failed load.
+            },
+        }).then(result => { settled = true; return result; });
+        await new Promise(resolve => setImmediate(resolve));
+        assert.equal(settled, false);
+        assert.deepEqual(events, ['Load which lua file?', filename]);
+        release();
+        assert.equal(await pending, ECMD_OK);
+    }
+});
+
+test('wiz_load_lua cancellation and unavailable direct call do not initialize Lua', async () => {
+    const { wiz_load_lua } = await import('../js/wizcmds.js');
+    assert.equal(typeof wiz_load_lua, 'function');
+    // C checks only buf[0], including ESC with trailing bytes.
+    for (const input of ['', '\x1b', '\x1bignored']) {
+        assert.equal(await wiz_load_lua({ wizard: true }, {
+            getLine: () => input,
+            loadLua() { assert.fail('cancellation cannot load Lua'); },
+        }), ECMD_CANCEL);
+    }
+    const messages = [];
+    assert.equal(await wiz_load_lua({ wizard: false }, {
+        message: text => messages.push(text),
+        getLine() { assert.fail('nonwizard direct call cannot prompt'); },
+    }), ECMD_OK);
+    assert.deepEqual(messages, ["Unavailable command 'wizloadlua'."]);
+});
