@@ -71,6 +71,9 @@ import {
     RAN_LOCA_LEVEL_MAP, RAN_LOCA_MONSTERS, RAN_LOCA_OBJECT_COUNT, RAN_LOCA_TRAPS,
 } from './ran_loca_level_data.js';
 import { MON_GOAL_LEVEL_MAP } from './mon_goal_level_data.js';
+import {
+    RAN_LOCA_LEVEL_MAP, RAN_LOCA_MONSTERS, RAN_LOCA_OBJECT_COUNT, RAN_LOCA_TRAPS,
+} from './ran_loca_level_data.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
 // that draws a random zig-zag path from (x1,y1) to (x2,y2).
