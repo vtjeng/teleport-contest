@@ -177,6 +177,7 @@
         "js/themeroom_fill.js",
         "js/themerooms.js",
         "js/tutorial_level.js",
+        "js/val_goal_level_data.js",
         "js/val_loca_level_data.js",
         "js/valley_levels.js",
         "js/wizard1_levels.js",

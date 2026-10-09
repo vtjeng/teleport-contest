@@ -237019,7 +237019,7 @@
     {
       "id": "port-val-loca-quest-locate-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Valkyrie quest locate arrival selects Val-loca, but its whole Lua loader is missing. Port the complete Val-loca.lua ice-mine initialization, centered lava/pool map, lit/nondiggable region, source-fixed stairs, fifteen random objects, six traps and source-ordered fire-ant/giant population.",
       "luaFile": "Val-loca.lua",
       "sessions": [
@@ -237033,15 +237033,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "3f11f16878f46067da2b73fd2c272dfb573233cc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Val-loca.lua",
           "line": 1,
           "endLine": 85,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -237223,7 +237226,371 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Val-loca.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "valLoca",
+            "sourceReview": "Read whole dat/Val-loca.lua1–85: solid stone fill; mazelevel/hardfloor/icedpools/noflip flags; smoothed unjoined lit unwalled mines with floor foreground and ice background; exact generated40x13 map preserving transparent x, stone spaces, pool and lava; lit selection rectangle; up stair atrelative48,14 outside fragment and down20,6; nondiggable rectangle;15 random objects; four named fire traps then two random traps;17 positional fire ants, one positional ant class, hostile giant class, seven hostile fire giants, final hostile giant class. Every descriptor is awaited in source order. No Lua callbacks, conditional source branches, consumed placeholder or unported result occurs in this program. Underlying ice/stair owner defects were reconciled with bounded source-backed support, preserving noflip and canonical fixed-location behavior.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "Val-loca source name now maps to valLoca; no other program or loader registration changed."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "do.c goto_level -> mklev.c makelevel -> mkmaze.c makemaz -> sp_lev.c load_special -> nhlua whole Val-loca program. Canonical API creation/private alignment and finish preserved; selected and independent natural arrival match."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "wizcmds.c wiz_load_splua resets and calls source-named load_special then lspo_finalize_level. Original sighted and blind direct dwarf entries fully match, including refused fixed up-stair terrain conversion at dungeon level1."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/val-loca-level.test.mjs",
+              "scripts/special-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Val-loca.lua/locate-human-arrival.session.json",
+              "recordings/Val-loca.lua/locate-dwarf-des.session.json",
+              "recordings/Val-loca.lua/locate-dwarf-sighted-des.session.json"
+            ],
+            "sourceFile": "Val-loca.lua",
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-val-loca",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Quest locate arrival via wizlevelport/deferred_goto/goto_level -> makelevel/makemaz/load_special -> whole dat/Val-loca.lua and canonical finish. Full60 screens/cursors5062 RNG calls match."
+              }
+            ],
+            "checkedAt": "3f11f16878f46067da2b73fd2c272dfb573233cc"
+          }
+        ],
+        "entryPointReview": "The whole Lua program runs through natural quest-locate generation and direct source-named debug loading. Selected admitted arrival and independent neutral-human arrival establish the natural route; independent lawful-dwarf sighted and blind entries establish direct loading. C-first recording preceded each JS comparison. Source tests pin every descriptor argument/order and generated map; runtime assertions cover27 monsters, at least17 fire ants/seven fire giants/four fire traps, persistent flags, ice pool metadata, noflip-fixed down stair and natural up stair beyond the fragment. Existing quest permission, generic descriptor and other quest programs remain outside credit.",
+        "entryPoints": [
+          {
+            "name": "Natural quest-locate arrival generation",
+            "functions": [
+              "Val-loca.lua"
+            ],
+            "recordings": [
+              "recordings/Val-loca.lua/locate-human-arrival.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-val-loca",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Quest locate arrival via wizlevelport/deferred_goto/goto_level -> makelevel/makemaz/load_special -> whole dat/Val-loca.lua and canonical finish. Full60 screens/cursors5062 RNG calls match."
+              }
+            ]
+          },
+          {
+            "name": "Direct source-named special-level generation",
+            "functions": [
+              "Val-loca.lua"
+            ],
+            "recordings": [
+              "recordings/Val-loca.lua/locate-dwarf-des.session.json",
+              "recordings/Val-loca.lua/locate-dwarf-sighted-des.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "3f11f16878f46067da2b73fd2c272dfb573233cc",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-val-goal-quest-level-v36-20261009",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Val-goal has no registered loader. Port the complete lava-cave Valkyrie quest goal program, preserving transparent map cells and the existing procedural terrain, the off-map stair, both drawbridge states, and the named Orb of Fate.",
+      "luaFile": "Val-goal.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-val-goal"
+      ],
+      "selectionReason": "Select synthetic/v36/v36-quest-val-goal from its complete current investigation after accepted A196 supplied the source-defined fixed-stair and ice metadata behavior this level uses. The task is independent of queued B199 Sam-goal and delivered C175 Rog-strt.",
+      "detail": "The accepted v36 evaluation at 3f11f16878f46067da2b73fd2c272dfb573233cc stops at step 19 because load_special has no Val-goal loader. The investigation traces the complete 104-line Lua program, its procedural lava terrain, off-fragment fixed stair, ordered drawbridge randomization, artifact, objects, traps, and twenty monsters.",
+      "openedAt": "c94e279a4dafc139101e42ed9b8bfef498d1f452",
+      "openStanding": {
+        "sha": "3f11f16878f46067da2b73fd2c272dfb573233cc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "dee8b310b3922f634c10f62fcab1a5e8ff4acc73",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "Val-goal.lua",
+          "line": 1,
+          "endLine": 104,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-val-goal": {
+          "session": "synthetic/v36/v36-quest-val-goal",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-val-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-val-goal.session.json",
+          "recordingSha256": "a3cd01986f04859da04418938dd230394618651f897d44c540d8b9f31207dff8",
+          "evaluationPath": "challenges/evaluations/accepted-3f11f16878f46067da2b73fd2c272dfb573233cc-v36.json",
+          "evaluationCommit": "3f11f16878f46067da2b73fd2c272dfb573233cc"
+        }
+      },
+      "activeStanding": {
+        "sha": "3f11f16878f46067da2b73fd2c272dfb573233cc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-val-goal",
+          "session": "synthetic/v36/v36-quest-val-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-val-goal.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-val-goal.session.json",
+          "recordingSha256": "a3cd01986f04859da04418938dd230394618651f897d44c540d8b9f31207dff8",
+          "recipe": "challenges/cases/v36/v36-quest-val-goal.recipe.session.json",
+          "recipeSha256": "75f1357e6a29ca9af769b706cf992e622368890435046b1baa423d112df148de",
+          "replayInputSha256": "1703c5567cfa40c5b1e3347f3c12dd18b1ea01744b103a8b8c67992ba194126b",
+          "evaluationPath": "challenges/evaluations/accepted-3f11f16878f46067da2b73fd2c272dfb573233cc-v36.json",
+          "evaluationCommit": "3f11f16878f46067da2b73fd2c272dfb573233cc",
+          "evaluationArtifact": "challenges/evaluations/accepted-3f11f16878f46067da2b73fd2c272dfb573233cc-v36.json",
+          "evaluationUtc": "2026-10-09T18:12:23.045Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2773,
+              "total": 5199
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Val-goal\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Val-goal.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Val-goal\"",
+          "cFile": null,
+          "luaFile": "Val-goal.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-val-goal.json",
+            "result": {
+              "session": "synthetic/v36/v36-quest-val-goal",
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-val-goal",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "a3cd01986f04859da04418938dd230394618651f897d44c540d8b9f31207dff8",
+              "evaluationPath": "challenges/evaluations/accepted-3f11f16878f46067da2b73fd2c272dfb573233cc-v36.json",
+              "evaluationCommit": "3f11f16878f46067da2b73fd2c272dfb573233cc",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "e63377e8f95ef29b10d2d27a1fe435dfcec13134",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-val-goal",
+                "session": "synthetic/v36/v36-quest-val-goal",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-val-goal.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-val-goal.session.json",
+                "recordingSha256": "a3cd01986f04859da04418938dd230394618651f897d44c540d8b9f31207dff8",
+                "recipe": "challenges/cases/v36/v36-quest-val-goal.recipe.session.json",
+                "recipeSha256": "75f1357e6a29ca9af769b706cf992e622368890435046b1baa423d112df148de",
+                "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+                "evaluationPath": "challenges/evaluations/accepted-3f11f16878f46067da2b73fd2c272dfb573233cc-v36.json",
+                "evaluationCommit": "3f11f16878f46067da2b73fd2c272dfb573233cc",
+                "evaluationArtifact": "challenges/evaluations/accepted-3f11f16878f46067da2b73fd2c272dfb573233cc-v36.json",
+                "evaluationUtc": "2026-10-09T18:12:23.045Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2773,
+                    "total": 5199
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Val-goal\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Val-goal.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Val-goal\"",
+                "cFile": null,
+                "luaFile": "Val-goal.lua",
+                "line": null
+              },
+              "goalKind": "lua-port",
+              "summary": "Val-goal has no registered loader. Port the complete lava-cave Valkyrie quest goal program, preserving transparent map cells and the existing procedural terrain, the off-map stair, both drawbridge states, and the named Orb of Fate.",
+              "source": {
+                "file": "Val-goal.lua",
+                "branch": "Valkyrie quest goal arrival or registered wizard load of Val-goal, with lava mines and a transparent map fragment retaining procedural terrain outside written cells.",
+                "functions": [
+                  "Val-goal.lua"
+                ],
+                "callers": [
+                  "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Val-goal.lua",
+                  "wizcmds.c:wiz_load_splua -> load_special -> registered Val-goal Lua program"
+                ],
+                "dependencies": [
+                  "Reuse existing level_init/mines smoothing/joining/icedpools, transparent-map, region, replacement, stair, nondiggable, drawbridge/create_drawbridge, object/artifact naming, trap and monster owners. No supporting owner edit identified by source review."
+                ]
+              },
+              "evidence": [
+                "The latest complete v36 evaluation, challenges/evaluations/accepted-3f11f16878f46067da2b73fd2c272dfb573233cc-v36.json at 3f11f16878f46067da2b73fd2c272dfb573233cc, retains the missing Val-goal loader at step 19. It reports 19/60 matched screens and cursors, 2773/5199 RNG calls, 41 screens remaining. Manifest digest 58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c; recording challenges/cases/v36/v36-quest-val-goal.session.json digest a3cd01986f04859da04418938dd230394618651f897d44c540d8b9f31207dff8; replay input digest 3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99.",
+                "Read all 104 lines of dat/Val-goal.lua, SHA256 b9954f089233af5a4566def70b20cb4fd58e38125ec7ee5469d0ba116ae78f92. It performs solid fill lava; mazelevel and icedpools flags; mines style floor over lava background with smoothed/joined/lit settings; and a literal transparent 35x17 map. The local 0,0..34,16 region is lit. Preserve transparent x cells and the procedural terrain beneath them.",
+                "Lines 34-39 intentionally place the up stair beyond the map: replace lava with floor in relative rectangle 44,9..46,11 at chance 50, then request the up stair at 45,10. Existing lspo_replace_terrain converts the rectangle and visits it x-major, drawing rn2(100) only for matching lava cells. Existing lspo_stair and normal stair owners retain the off-map coordinate semantics. The non-diggable selection covers only local 0,0..34,16.",
+                "Lines 42-47 create a northern bridge at 17,2 facing south in random state, then use percent(75) to choose a southern bridge at 17,14 facing north, open on success and random otherwise. The Lua helper consumes rn2(100); the northern random-state draw precedes the percentage draw. Existing lspo_drawbridge and create_drawbridge handle the random-state roll, bridge orientation, and lava underlay; both conditional arms must preserve source order.",
+                "Lines 49-63 place a blessed +5 crystal ball named The Orb of Fate at 17,8 followed by fourteen random objects. Lines 65-74 place board traps at 13,8 and 21,8, four random fire traps, a random board trap, and two random traps. Existing object and artifact naming uses ONAME_LEVEL_DEF; no additional object owner is required.",
+                "Lines 76-95 create Lord Surtur at 17,8; four fire ants; two source string-id a-class monsters; ten fixed hostile fire giants at local x=10/24 and y=6..10; two random hostile fire giants; and one hostile H-class monster. Preserve all 20 descriptor calls and their name/class lookup and placement RNG order.",
+                "Production wiring is a distinct Val-goal import/body/QUEST_LEVEL_LOADERS key in js/quest_levels.js. The production paths are mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Val-goal.lua and wizcmds.c:wiz_load_splua -> load_special -> registered Val-goal. Existing level, transparent-map, replacement, stair, drawbridge, artifact, trap, and monster owners cover the source calls; no generic descriptor-owner or shared contract change is identified."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Val-goal.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "valGoal",
+            "sourceReview": "Read and ported the whole dat/Val-goal.lua program (source lines 1-104). Preserved both level_init calls, mazelevel/icedpools flags, the transparent 35x17 map, lit and non-diggable selections, the off-map stair terrain replacement before stair placement, north bridge before the 75-percent south bridge branch, artifact and random objects, fixed and random traps, and all 20 ordered monster calls. The north bridge adapter consumes its own random state before Lua percent(75) consumes rn2(100). All callees are implemented in the existing level-description adapters; no unported calls were skipped.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "dat/Val-goal.lua top-level program, selected by the 'Val-goal' special-level registry key"
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "sp_lev.c load_special() dispatches the selected Lua special-level loader"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/val-goal-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Val-goal.lua/val-goal-direct-human-independent.session.json",
+              "recordings/Val-goal.lua/val-goal-direct-dwarf-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-val-goal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "dat/Val-goal.lua via quest_level.c natural Valkyrie quest goal arrival and mklev.c load_special()"
+              }
+            ],
+            "checkedAt": "dee8b310b3922f634c10f62fcab1a5e8ff4acc73"
+          }
+        ],
+        "entryPointReview": "The active entry path is the quest-level loader selected by js/mklev.js load_special(): natural Valkyrie quest progression reaches dat/Val-goal.lua, while #wizloaddes exercises the direct special-level command. Both use the production QUEST_LEVEL_LOADERS registry. The admitted v36 case records the natural-arrival path; two independently selected direct wizard recipes cover human and dwarf Valkyries. Source role constraints allow Valkyries only female, so the variation is race rather than an invalid male Valkyrie.",
+        "entryPoints": [
+          {
+            "name": "Natural Valkyrie quest goal arrival",
+            "functions": [
+              "Val-goal.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-val-goal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "dat/Val-goal.lua through quest-level dispatch and load_special()"
+              }
+            ]
+          },
+          {
+            "name": "Direct wizard load of Val-goal",
+            "functions": [
+              "Val-goal.lua"
+            ],
+            "recordings": [
+              "recordings/Val-goal.lua/val-goal-direct-human-independent.session.json",
+              "recordings/Val-goal.lua/val-goal-direct-dwarf-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "dee8b310b3922f634c10f62fcab1a5e8ff4acc73",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
