@@ -2,7 +2,8 @@
 // C refs: dat/Bar-strt.lua, dat/Bar-fila.lua, dat/Bar-filb.lua,
 //         dat/Bar-goal.lua, dat/Bar-loca.lua, dat/Arc-strt.lua,
 //         dat/Arc-loca.lua, dat/Arc-fila.lua, dat/Arc-filb.lua,
-//         dat/Arc-goal.lua, dat/Cav-goal.lua, dat/Hea-goal.lua,
+//         dat/Arc-goal.lua, dat/Cav-goal.lua, dat/Cav-loca.lua,
+//         dat/Hea-goal.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
@@ -56,6 +57,7 @@ import { selection_area, ThemeroomSelection } from './themerooms.js';
 import { KNI_GOAL_LEVEL_MAP } from './kni_goal_level_data.js';
 import { CAV_GOAL_LEVEL_MAP } from './cav_goal_level_data.js';
 import { HEA_GOAL_LEVEL_MAP } from './hea_goal_level_data.js';
+import { CAV_LOCA_LEVEL_MAP, CAV_LOCA_MONSTERS } from './cav_loca_level_data.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
 // that draws a random zig-zag path from (x1,y1) to (x2,y2).
@@ -1960,7 +1962,29 @@ async function cavGoal(des) {
     await des.wallify();
 }
 
+// C ref: dat/Cav-loca.lua. Dark connected caves and the lit irregular
+// eastern chamber contain fixed and random hostile humanoids and giants.
+async function cavLoca(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'hardfloor');
+    await des.map(CAV_LOCA_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 19), 'unlit');
+    await des.region({ region: [52, 6, 73, 15], lit: 1,
+        type: 'ordinary', irregular: 1 });
+    await des.door('locked', 28, 11);
+    await des.stair('up', 4, 3);
+    await des.stair('down', 73, 10);
+    await des.non_diggable(selection_area(0, 0, 75, 19));
+    // Cav-loca.lua43-57: fifteen random-object descriptors.
+    for (let i = 0; i < 15; ++i) await des.object();
+    // Cav-loca.lua59-64: six random traps precede the source monster tables.
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (const monster of CAV_LOCA_MONSTERS) await des.monster({ ...monster });
+    await des.wallify();
+}
+
 export const QUEST_LEVEL_LOADERS = {
+    'Cav-loca': cavLoca,
     'Cav-goal': cavGoal,
     'Bar-strt': barStrt,
     'Bar-fila': barFila,
