@@ -1181,16 +1181,12 @@ async function spellMenu(items, how, prompt, state, selection = {}) {
     });
 }
 
-// select_menu's existing scalar result names the explicit selector. An
-// empty commit uses a distinct preselected payload; choosing that same
-// selector explicitly deselects it in C. Arrays also accept the source
-// selected[] shape for callers that retain both the default and new choice.
-function spellMenuValues(chosen, preselected) {
-    if (Array.isArray(chosen)) return chosen.map((item) => item.value);
-    if (chosen?.retainedSpellSelection !== undefined)
-        return [chosen.retainedSpellSelection];
-    if (chosen == null || chosen === preselected) return [];
-    return [chosen];
+// Production menus return C's ordered selected[] rows, including their counts.
+// A scalar remains usable by an injected caller, but cannot imply deselection.
+function spellMenuValues(chosen) {
+    if (Array.isArray(chosen)) return chosen.map(item => item.value);
+    if (chosen == null) return [];
+    return [typeof chosen === 'object' ? chosen.value : chosen];
 }
 
 // C ref: spell.c spellsortmenu().
@@ -1208,8 +1204,8 @@ export async function spellsortmenu(state = game, menu = spellMenu) {
     }
     const selected = spellMenuValues(await menu(
         items, PICK_ONE, 'View known spells list sorted', state,
-        { preselected: { retainedSpellSelection: gs.spl_sortmode + 1 } },
-    ), gs.spl_sortmode + 1);
+        { returnSelections: true },
+    ));
     if (!selected.length) return false;
     let choice = selected[0] - 1;
     if (selected.length > 1 && choice === gs.spl_sortmode)
@@ -1297,11 +1293,10 @@ export async function dospellmenu(prompt, splaction, state = game,
         else items.push({ selector: '+', label: '[sort spells]',
             value: SPELLMENU_SORT + 1 });
     }
-    const selection = splaction >= 0
-        ? { preselected: { retainedSpellSelection: splaction + 1 } } : {};
+    const selection = { returnSelections: true };
     const selected = spellMenuValues(await menu(
         items, how, prompt, state, selection,
-    ), splaction >= 0 ? splaction + 1 : undefined);
+    ));
     if (selected.length) {
         let spell_no = selected[0] - 1;
         if (selected.length > 1 && spell_no === splaction)

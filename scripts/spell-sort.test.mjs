@@ -110,9 +110,9 @@ test('sort menu preserves nine source choices, default and zero selection', asyn
     assert.deepEqual(rows.filter(i=>i.value).map(i=>i.selector),
         ['a','b','c','d','e','f','g','h','z']);
     assert.equal(rows[8].text,''); assert.equal(rows[0].selected,true);
-    // Selecting the current letter explicitly deselects it; Enter retains it.
-    assert.equal(await spellsortmenu(s,()=>2),false);
-    assert.equal(await spellsortmenu(s,(_i,_h,_p,_s,selection)=>selection.preselected),true);
+    // Source n=0 means deselection; n=1 retains the current row.
+    assert.equal(await spellsortmenu(s,()=>[]),false);
+    assert.equal(await spellsortmenu(s,()=>[{value:2,count:-1}]),true);
     assert.equal(await spellsortmenu(s,()=>null),false);
     // Source n>1 skips a retained preselection before the new choice.
     assert.equal(await spellsortmenu(s,()=>[{value:2},{value:4}]),true);
@@ -121,9 +121,9 @@ test('sort menu preserves nine source choices, default and zero selection', asyn
 
 test('preselected spell menu consumes retained, deselected and alternate returns', async () => {
     const s=spellState();
-    assert.deepEqual(await dospellmenu('swap',0,s,()=>1),{ok:true,spell_no:0});
+    assert.deepEqual(await dospellmenu('swap',0,s,()=>[]),{ok:true,spell_no:0});
     assert.deepEqual(await dospellmenu('swap',0,s,()=>null),{ok:true,spell_no:0});
-    assert.deepEqual(await dospellmenu('swap',0,s,(_i,_h,_p,_s,o)=>o.preselected),
+    assert.deepEqual(await dospellmenu('swap',0,s,()=>[{value:1,count:-1}]),
         {ok:false,spell_no:0});
     assert.deepEqual(await dospellmenu('swap',0,s,()=>[{value:1},{value:3}]),
         {ok:true,spell_no:2});
@@ -173,4 +173,25 @@ test('spell sorting source pins mode names, stable ties and the full retain loop
     assert.match(patch,/preserving original order[\s\S]*equal-key elements/u);
     const js=readFileSync(new URL('../js/cmd.js',import.meta.url),'utf8');
     assert.match(js,/case 'dovspell':\s*return await runShowspellsCommand\(key, state\);/u);
+});
+
+import { GameDisplay } from '../js/game_display.js';
+
+test('real TTY spell preselection distinguishes empty, counted and retained rows', async () => {
+    // C dospellmenu n=0 on either bulk deselection keeps swapping, while a
+    // counted selected default produces n=1 and ends swapping. Both sort
+    // selections follow spellsortmenu's n>0 test without scalar inference.
+    for (const [keys, ok] of [['-\n', true], ['\\\n', true], ['a', true],
+        ['1a', false], ['\n', false]]) {
+        const s = spellState(); s.nhDisplay = new GameDisplay(null);
+        for (const ch of keys) s.nhDisplay.pushKey(ch.charCodeAt(0));
+        assert.deepEqual(await dospellmenu('swap', 0, s), { ok, spell_no: 0 });
+    }
+    for (const [keys, ok] of [['-\n', false], ['\\\n', false], ['a', false],
+        ['1a', true], ['\n', true]]) {
+        const s = spellState(); s.nhDisplay = new GameDisplay(null);
+        for (const ch of keys) s.nhDisplay.pushKey(ch.charCodeAt(0));
+        assert.equal(await spellsortmenu(s), ok, JSON.stringify(keys));
+        assert.equal(s.gs.spl_sortmode, SORTBY_LETTER);
+    }
 });
