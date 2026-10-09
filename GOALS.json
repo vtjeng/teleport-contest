@@ -231151,6 +231151,451 @@
           "evaluationCommit": "ac836655676993fda791c76b619905969c841859"
         }
       }
+    },
+    {
+      "id": "fix-display-magic-map-rogue-darkroom-symbol-v35-20261009",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Use the Rogue dark-room symbol during magic mapping on Rogue levels.",
+      "cFile": "display.c",
+      "sessions": [],
+      "selectionReason": "The v35 arrival-rogue case diverges when display.c magic_map_background selects the ordinary room symbol; the source branch uses DARKROOMSYM on Rogue levels and the bounded fix unlocks B192.",
+      "detail": "Translate display.c lines 243-246 so unseen Rogue room memory uses DARKROOMSYM while ordinary levels retain ROOM, without changing newsym, back_to_glyph, or general glyph rendering.",
+      "openedAt": "5f2290b909667070d5391948d6239e6c046a4c45",
+      "openStanding": {
+        "sha": "711b9702dc92992c64fad92625f1eb2e8f9baea8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "004a6da893c5dc420e260eb3ae0e285e85a56874",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "magic_map_background",
+      "session": "synthetic/v35/v35-arrival-rogue",
+      "step": 53,
+      "syntheticProvenance": {
+        "synthetic/v35/v35-arrival-rogue": {
+          "session": "synthetic/v35/v35-arrival-rogue",
+          "corpus": "synthetic",
+          "batch": "v35",
+          "caseId": "v35-arrival-rogue",
+          "manifestPath": "challenges/manifests/v35.json",
+          "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+          "recordingPath": "challenges/cases/v35/v35-arrival-rogue.session.json",
+          "recordingSha256": "0d98188756f7783458942d760f088f5155965ef287dcda6362027c752e0ca346",
+          "evaluationPath": "challenges/evaluations/accepted-711b9702dc92992c64fad92625f1eb2e8f9baea8-v35.json",
+          "evaluationCommit": "711b9702dc92992c64fad92625f1eb2e8f9baea8"
+        }
+      },
+      "activeStanding": {
+        "sha": "711b9702dc92992c64fad92625f1eb2e8f9baea8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v35",
+          "caseId": "v35-arrival-rogue",
+          "session": "synthetic/v35/v35-arrival-rogue",
+          "manifestPath": "challenges/manifests/v35.json",
+          "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+          "recording": "challenges/cases/v35/v35-arrival-rogue.session.json",
+          "recordingPath": "challenges/cases/v35/v35-arrival-rogue.session.json",
+          "recordingSha256": "0d98188756f7783458942d760f088f5155965ef287dcda6362027c752e0ca346",
+          "recipe": "challenges/cases/v35/v35-arrival-rogue.recipe.session.json",
+          "recipeSha256": "ca6325c7ce1831bb1304847e03687e36c9297ca32484363974e728c778896f71",
+          "replayInputSha256": "b5f702e8184946547b5d998a1e25ec9be0b2ea99df934de0951109b053584071",
+          "evaluationPath": "challenges/evaluations/accepted-711b9702dc92992c64fad92625f1eb2e8f9baea8-v35.json",
+          "evaluationCommit": "711b9702dc92992c64fad92625f1eb2e8f9baea8",
+          "evaluationArtifact": "challenges/evaluations/accepted-711b9702dc92992c64fad92625f1eb2e8f9baea8-v35.json",
+          "evaluationUtc": "2026-10-09T10:23:37.397Z",
+          "remainingScreens": 8,
+          "recordedSteps": 61,
+          "previousScreensMatched": 53,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 53,
+              "total": 61
+            },
+            "rng": {
+              "matched": 2845,
+              "total": 2845
+            },
+            "cursors": {
+              "matched": 61,
+              "total": 61
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 53,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 53,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 2,
+              "column": 12,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": ".",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 53,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v35/v35-arrival-rogue.json",
+            "result": {
+              "session": "synthetic/v35/v35-arrival-rogue",
+              "corpus": "synthetic",
+              "batch": "v35",
+              "caseId": "v35-arrival-rogue",
+              "manifestPath": "challenges/manifests/v35.json",
+              "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+              "recordingSha256": "0d98188756f7783458942d760f088f5155965ef287dcda6362027c752e0ca346",
+              "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+              "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+              "remainingScreens": 8,
+              "recordedSteps": 61,
+              "status": "complete",
+              "commit": "50801c62a5566612886c0d9caddc2cb23c506f79",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v35",
+                "caseId": "v35-arrival-rogue",
+                "session": "synthetic/v35/v35-arrival-rogue",
+                "manifestPath": "challenges/manifests/v35.json",
+                "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+                "recording": "challenges/cases/v35/v35-arrival-rogue.session.json",
+                "recordingPath": "challenges/cases/v35/v35-arrival-rogue.session.json",
+                "recordingSha256": "0d98188756f7783458942d760f088f5155965ef287dcda6362027c752e0ca346",
+                "recipe": "challenges/cases/v35/v35-arrival-rogue.recipe.session.json",
+                "recipeSha256": "ca6325c7ce1831bb1304847e03687e36c9297ca32484363974e728c778896f71",
+                "replayInputSha256": "9a345b9f1c2c4f64668854b1f41843898e09b9498646789c8c4a14892bfcd5a5",
+                "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+                "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+                "evaluationArtifact": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+                "evaluationUtc": "2026-10-09T08:22:23.377Z",
+                "remainingScreens": 8,
+                "recordedSteps": 61,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 53,
+                    "total": 61
+                  },
+                  "rng": {
+                    "matched": 2845,
+                    "total": 2845
+                  },
+                  "cursors": {
+                    "matched": 61,
+                    "total": 61
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 53,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 53,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 2,
+                    "column": 12,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": ".",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 53,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Magic mapping unseen rogue-room floors uses S_darkroom unconditionally. C DARKROOMSYM selects S_stone when u.uz equals rogue_level, so C leaves blank terrain while JS paints dots. The defect is confined to magic_map_background’s glyph ternary; level identity, terrain generation, RNG and cursor boundaries already match.",
+              "source": {
+                "file": "display.c",
+                "functions": [
+                  "magic_map_background"
+                ],
+                "branch": "display.c243–246: !cansee && !waslit, ROOM background S_room, flags.dark_room && iflags.use_color; sym.h96 selects S_stone only on Is_rogue_level(&u.uz), otherwise S_darkroom.",
+                "callers": [
+                  "wizcmds.c:wiz_map176–198 -> detect.c:do_mapping1422+ -> show_map_spot1400/1403; existing JS wiz_map347+ -> do_mapping -> show_map_spot -> magic_map_background3582+.",
+                  "detect.c:furniture_detect1105 calls only IS_FURNITURE, so it cannot enter the changed ROOM branch.",
+                  "detect.c:findone1657/1664 calls after SDOOR->DOOR or SCORR->CORR, so it cannot enter the changed ROOM branch. Other mapping, clairvoyance and probing uses share show_map_spot’s existing caller."
+                ],
+                "dependencies": [
+                  "Existing back_to_glyph, cansee, cmap_to_glyph, map_glyphinfo, glyph_is_cmap, remembered-glyph projection, show_glyph_cell and update_lastseentyp remain unchanged. Existing display.js:isRogueLevelForState2127–2132 supplies the same dnum/dlevel identity test as Is_rogue_level.",
+                  "Immutable B18950801c62 is in this worker ancestry and must remain an explicit delivery dependency until accepted; B1850f268f2c is now accepted at61b9bad3."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved authoritative v35 queue at accepted672aef01 records53/61 screens,2845/2845 RNG and61/61 cursors, first step53 row2col12 C space/JS dot. Immutable B160 preparation independently located the dynamic DARKROOMSYM omission before this investigation.",
+                "Focused read-only scan .cache/B191/current-scan.json at50801c62 reproduces exactly the first mismatch without a refusal or unported gap; run-SxFb9l exited0.",
+                "Read-only full replay state .cache/B191/state.log: u.uz and rogue_level both{dnum:0,dlevel:18}; cell(13,1) ROOM25, littrue,waslitfalse,canseefalse, back glyph3992(S_room),remembered3993(S_darkroom), expected macro choice3929(S_stone). dark_room andwc_color are true; run-SCXq57 exited0. These are diagnostic test data, not production constants.",
+                "Complete display.c magic_map_background233–258 writes corrected glyph memory, optionally draws, then update_lastseentyp; all remain source-ordered in existing JS. The missing source expression is sym.h96 DARKROOMSYM’s rogue branch only.",
+                "Other display.c DARKROOMSYM sites were checked: newsym1078–1093 already takes rogue S_stone before the ordinary S_darkroom branch. No broad symbol, visibility, detector or generation repair is justified.",
+                "C source callers detect.c1105,1400/1403,1657/1664 and JS detect.js1313,1678/1681,2511 establish existing production wiring and unaffected non-ROOM entries. Proposed independent evidence is scoped to magic mapping through show_map_spot."
+              ],
+              "proposal": {
+                "goal": "fix-display-magic-map-rogue-darkroom-symbol-v35-20261009",
+                "kind": "divergence-fix",
+                "summary": "Use the source DARKROOMSYM choice for magically mapped unseen rogue floors",
+                "selectionReason": "B189 seed now fully matches; oldest earlier light/version diagnostic causes retain explicit native-pointer/platform blockers, and v34/v35 active tasks are reserved. This unreserved v35 map-glyph cause is independent of C165 map-generation selection and C166 load-splua dispatch.",
+                "detail": "synthetic/v35/v35-arrival-rogue segment0 step53 after #wizmap: first screen cell row2col12 C blank versus JS dot,8 remaining screens, all2845 RNG and61 cursors match. At level{dnum:0,dlevel:18} equal to rogue_level, unseen lit ROOM with waslitfalse and dark_room/colortrue reaches display.c243–246. sym.h96 selects S_stone on rogue, but JS magic_map_background3594 uses S_darkroom unconditionally. Reuse established state-aware isRogueLevelForState in this ternary only. No new source function completion, level generation, command or detector caller change.",
+                "cFile": "display.c",
+                "functions": [
+                  "magic_map_background"
+                ],
+                "lineRanges": [
+                  "243-246"
+                ],
+                "cLines": 4,
+                "jsFile": "js/display.js",
+                "sessions": [
+                  "synthetic/v35/v35-arrival-rogue"
+                ],
+                "step": 53,
+                "reservations": [
+                  "session:synthetic/v35/v35-arrival-rogue",
+                  "source:display.c:magic_map_background",
+                  "contract:rogue-magic-map-darkroom-symbol"
+                ],
+                "allowedPaths": [
+                  "investigations/synthetic/v35/v35-arrival-rogue.json",
+                  "js/display.js",
+                  "scripts/display-symbols.test.mjs",
+                  "scripts/detect-map.test.mjs",
+                  "scripts/rogue-mapping.test.mjs",
+                  "scripts/run-rogue-mapping.mjs",
+                  "recipes/display.c/",
+                  "recordings/display.c/",
+                  ".cache/"
+                ],
+                "dependencies": [
+                  "50801c62a5566612886c0d9caddc2cb23c506f79"
+                ],
+                "limits": [
+                  "One source-derived DARKROOMSYM selection at magic_map_background only; no whole display.c function, detector, generator or command credit. No changes to newsym/back_to_glyph or glyph rendering."
+                ],
+                "validationPlan": [
+                  "Source-pin complete C magic_map_background and sym.h96 branch against existing state-aware rogue predicate. Focused fixtures cover rogue/nonrogue, waslit/cansee, dark_room/color off, memory/show behavior.",
+                  "Use admitted v35 segment0steps52–60 through the selected show_map_spot mapping arm. Record independently chosen Ranger and Samurai named-rogue mapping witnesses plus an ordinary-level variation, choosing inputs before C/JS comparison.",
+                  "Verify furniture_detect and findone caller preconditions exclude ROOM at the changed symbol branch; no detector edits are required."
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "004a6da893c5dc420e260eb3ae0e285e85a56874",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-cav-strt-quest-start-v36-20261009",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Port the complete Caveman quest start level and register its loader.",
+      "luaFile": "Cav-strt.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-cav-strt"
+      ],
+      "selectionReason": "The completed v36 investigation traces the first mismatch to the absent Cav-strt loader.",
+      "detail": "Port all top-level Cav-strt.lua statements, generate its fixed map from source, and wire only the source-named quest loader.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Cav-strt.lua",
+          "line": 1,
+          "endLine": 94,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-cav-strt": {
+          "session": "synthetic/v36/v36-quest-cav-strt",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-cav-strt",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-cav-strt.session.json",
+          "recordingSha256": "7632fc336c92a177429e5fc96f4a4c163823c11882d420116053ece9b44d98f6",
+          "evaluationPath": "challenges/evaluations/accepted-004a6da893c5dc420e260eb3ae0e285e85a56874-v36.json",
+          "evaluationCommit": "004a6da893c5dc420e260eb3ae0e285e85a56874"
+        }
+      }
+    },
+    {
+      "id": "port-hea-loca-lua-v36-20261009",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Port the complete Healer quest locate level and register its loader.",
+      "luaFile": "Hea-loca.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-hea-loca"
+      ],
+      "selectionReason": "The completed v36 investigation traces the first mismatch to the absent Hea-loca loader.",
+      "detail": "Port all top-level Hea-loca.lua statements, generate its fixed map from source, and wire only the source-named quest loader.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Hea-loca.lua",
+          "line": 1,
+          "endLine": 97,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-hea-loca": {
+          "session": "synthetic/v36/v36-quest-hea-loca",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-hea-loca",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-hea-loca.session.json",
+          "recordingSha256": "19d2676006eeee6cb2f42f866fb4f9d61f4476e20289dcf58ae3a06a8814b85c",
+          "evaluationPath": "challenges/evaluations/accepted-004a6da893c5dc420e260eb3ae0e285e85a56874-v36.json",
+          "evaluationCommit": "004a6da893c5dc420e260eb3ae0e285e85a56874"
+        }
+      }
+    },
+    {
+      "id": "port-cav-loca-quest-level-v36-20261009",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Port the complete Caveman quest locate level and register its loader.",
+      "luaFile": "Cav-loca.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-cav-loca"
+      ],
+      "selectionReason": "The completed v36 investigation traces the first mismatch to the absent Cav-loca loader.",
+      "detail": "Port all top-level Cav-loca.lua statements, generate its fixed map from source, and wire only the source-named quest loader.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Cav-loca.lua",
+          "line": 1,
+          "endLine": 101,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-cav-loca": {
+          "session": "synthetic/v36/v36-quest-cav-loca",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-cav-loca",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-cav-loca.session.json",
+          "recordingSha256": "1efed0a5827687ebefcfae72c992baec47e974ba6792a41e7abb2f56763cb4b7",
+          "evaluationPath": "challenges/evaluations/accepted-004a6da893c5dc420e260eb3ae0e285e85a56874-v36.json",
+          "evaluationCommit": "004a6da893c5dc420e260eb3ae0e285e85a56874"
+        }
+      }
+    },
+    {
+      "id": "port-hea-strt-quest-level-v36-20261009",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Port the complete Healer quest start level and register its loader.",
+      "luaFile": "Hea-strt.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-hea-strt"
+      ],
+      "selectionReason": "The completed v36 investigation traces the first mismatch to the absent Hea-strt loader.",
+      "detail": "Port all top-level Hea-strt.lua statements, generate its fixed map from source, and wire only the source-named quest loader.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Hea-strt.lua",
+          "line": 1,
+          "endLine": 109,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-hea-strt": {
+          "session": "synthetic/v36/v36-quest-hea-strt",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-hea-strt",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-hea-strt.session.json",
+          "recordingSha256": "c6291e0fc843de105c0aeea46673ec8c992520735fecae0f617aff79d345e61f",
+          "evaluationPath": "challenges/evaluations/accepted-004a6da893c5dc420e260eb3ae0e285e85a56874-v36.json",
+          "evaluationCommit": "004a6da893c5dc420e260eb3ae0e285e85a56874"
+        }
+      }
     }
   ]
 }
