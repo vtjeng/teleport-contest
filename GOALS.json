@@ -240170,7 +240170,7 @@
     {
       "id": "fix-sp-lev-noncoaligned-macro-order-v36-20261009",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Preserve repeated alignment macro draws for noncoaligned special-level features",
       "cFile": "sp_lev.c",
       "sessions": [],
@@ -240182,8 +240182,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "00f11936d9f1c157e37a9c080de5e2009e9f09cf",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "sp_amask_to_amask",
       "session": "synthetic/v36/v36-quest-bar-goal",
       "step": 19,
@@ -240423,7 +240426,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "00f11936d9f1c157e37a9c080de5e2009e9f09cf",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
