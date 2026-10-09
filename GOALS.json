@@ -222245,16 +222245,20 @@
     {
       "id": "port-pager-command-description-family-v32-20261008",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Complete command descriptions and key-help dispatch",
       "cFile": "pager.c",
       "sessions": [
         "synthetic/v32/v32-command-description"
       ],
-      "selectionReason": "Seed-family continuation after accepted command dispatch; v32-command-description is the oldest dependency-ready pager refusal.",
+      "selectionReason": "Dependency-ready after B178 acceptance; complete the oldest command-description refusal and its consumed-return lookup dependency.",
       "detail": "Port whole pager.c dowhatdoes and whatdoes_help plus consumed-return cmd.c key2extcmddesc; wire direct, typed, and help-menu callers; preserve the distinct unported help_dir frontier.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "e7bbe29506261bf392465307daae65c7d6ba6821",
+      "openStanding": {
+        "sha": "6f43faf156d28688e1e9bf2470077de98e6cc4b2",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -222301,7 +222305,161 @@
           "evaluationPath": "challenges/evaluations/accepted-6f43faf156d28688e1e9bf2470077de98e6cc4b2-v32.json",
           "evaluationCommit": "6f43faf156d28688e1e9bf2470077de98e6cc4b2"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "6f43faf156d28688e1e9bf2470077de98e6cc4b2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-command-description",
+          "session": "synthetic/v32/v32-command-description",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recording": "challenges/cases/v32/v32-command-description.session.json",
+          "recordingPath": "challenges/cases/v32/v32-command-description.session.json",
+          "recordingSha256": "6dcfcaa7279c9f79bdb41404f4c33800e4c08511ac64a301c2545f1e626c2f8c",
+          "recipe": "challenges/cases/v32/v32-command-description.recipe.session.json",
+          "recipeSha256": "c54ccd40ae5ad506d4473c35e443a626cd4b88ffbc1bdd35140831b3c398af54",
+          "replayInputSha256": "72b7cb368a39a02ca684839aeaf65b8c2ae62059282cbbd205cce9ec5474aabe",
+          "evaluationPath": "challenges/evaluations/accepted-6f43faf156d28688e1e9bf2470077de98e6cc4b2-v32.json",
+          "evaluationCommit": "6f43faf156d28688e1e9bf2470077de98e6cc4b2",
+          "evaluationArtifact": "challenges/evaluations/accepted-6f43faf156d28688e1e9bf2470077de98e6cc4b2-v32.json",
+          "evaluationUtc": "2026-10-09T01:03:32.526Z",
+          "remainingScreens": 11,
+          "recordedSteps": 13,
+          "previousScreensMatched": 2,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 2,
+              "total": 13
+            },
+            "rng": {
+              "matched": 6093,
+              "total": 6093
+            },
+            "cursors": {
+              "matched": 2,
+              "total": 13
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, droptype, pickup, pay, takeoff, takeoffall, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, wizsmell, wizkill, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+            "step": 2
+          },
+          "step": 2,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, droptype, pickup, pay, takeoff, takeoffall, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, wizsmell, wizkill, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v32/v32-command-description.json",
+            "result": {
+              "session": "synthetic/v32/v32-command-description",
+              "corpus": "synthetic",
+              "batch": "v32",
+              "caseId": "v32-command-description",
+              "manifestPath": "challenges/manifests/v32.json",
+              "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+              "recordingSha256": "6dcfcaa7279c9f79bdb41404f4c33800e4c08511ac64a301c2545f1e626c2f8c",
+              "evaluationPath": "challenges/evaluations/accepted-db0a7ad02ea001265fce34f7485b90c58d649d79-v32.json",
+              "evaluationCommit": "db0a7ad02ea001265fce34f7485b90c58d649d79",
+              "remainingScreens": 11,
+              "recordedSteps": 13,
+              "status": "complete",
+              "commit": "9b09a64d41c12b2df0686818f06570d7f6d96832",
+              "mismatch": {
+                "session": "synthetic/v32/v32-command-description",
+                "corpus": "synthetic",
+                "batch": "v32",
+                "caseId": "v32-command-description",
+                "manifestPath": "challenges/manifests/v32.json",
+                "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+                "recording": "challenges/cases/v32/v32-command-description.session.json",
+                "recordingPath": "challenges/cases/v32/v32-command-description.session.json",
+                "recordingSha256": "6dcfcaa7279c9f79bdb41404f4c33800e4c08511ac64a301c2545f1e626c2f8c",
+                "recipe": "challenges/cases/v32/v32-command-description.recipe.session.json",
+                "recipeSha256": "c54ccd40ae5ad506d4473c35e443a626cd4b88ffbc1bdd35140831b3c398af54",
+                "evaluationPath": "challenges/evaluations/accepted-db0a7ad02ea001265fce34f7485b90c58d649d79-v32.json",
+                "evaluationCommit": "db0a7ad02ea001265fce34f7485b90c58d649d79",
+                "evaluationUtc": "2026-10-09T00:02:56.121Z",
+                "metrics": {
+                  "screens": {
+                    "matched": 2,
+                    "total": 13
+                  },
+                  "rng": {
+                    "matched": 6093,
+                    "total": 6093
+                  },
+                  "cursors": {
+                    "matched": 2,
+                    "total": 13
+                  }
+                },
+                "remainingScreens": 11,
+                "recordedSteps": 13,
+                "passed": false,
+                "error": null,
+                "firstMismatch": {
+                  "kind": "command-refusal",
+                  "step": 2,
+                  "message": "Direct & command is rejected before pager.c:dowhatdoes dispatch"
+                },
+                "step": 2,
+                "kind": "command-refusal",
+                "sourceFile": "pager.c",
+                "function": "dowhatdoes",
+                "replayInputSha256": "47accbe65dfc8d160b713eb60c414977e8a46cb1b84d1969612956f2f79f96f9"
+              },
+              "summary": "Direct & is refused at step2 before partial pager.c:dowhatdoes. Complete dowhatdoes/whatdoes_help and required cmd.c:key2extcmddesc; the latter incorrectly returns temporary movement text before C binding lookup. Wire the distinct direct/extended/menu whatdoes paths; B173 independently owns optionsfull caller edits.",
+              "source": {
+                "file": "pager.c",
+                "functions": [
+                  "whatdoes_help",
+                  "dowhatdoes",
+                  "key2extcmddesc"
+                ],
+                "branch": "A key bound to whatdoes reaches the unrestricted What command? query. First use prints an introduction; ALTMETA Escape reads a second byte. Known keys produce one or two description lines, &/? first display keyhelp, and unknown keys print unsigned character diagnostics.",
+                "callers": [
+                  "cmd.c1934–1935 extcmdlist whatdoes row -> rhack direct function-pointer dispatch at3805; typed #whatdoes -> doextcmd function-pointer dispatch",
+                  "pager.c2808–2811 hmenu_dowhatdoes -> dowhatdoes, reached by dohelp menu row2839",
+                  "pager.c2696 dowhatdoes &/? arm -> whatdoes_help"
+                ],
+                "dependencies": [
+                  "Reuse pager.c:dowhatdoes_core compiled2577–2600 body, but complete consumed-return cmd.c:key2extcmddesc2561–2623 in this task. JS returns temporary move/rush/run before source binding lookup; canonical C continues into digits, misc keys and command bindings. Preserve all movecmd state writes. The broader cmd.c:help_dir4247 -> dowhatdoes_core caller stays outside new completion credit.",
+                  "whatdoes_cond2458–2573 and legacy cmdhelp parsing inside dowhatdoes_core are #if 0, so they are not active source dependencies.",
+                  "Generate dat/keyhelp deterministically: skip only first-byte # comments and trim leading spaces/tabs, preserving dlb_fgets newline. C whatdoes_help passes that newline into tty_putstr, so existing wintty.c compress_str collapses consecutive spaces even on short lines. Ordinary help-file projections still remove newlines and expand tabs. Reuse canonical text/message windows, yn_function, ttyPline, visctrl and key formatting owners.",
+                  "Current cmd.js has no dowhatdoes import, direct rhack arm, doextcmd switch arm, or ADMITTED_COMMANDS entry. Add only the source whatdoes dispatch/admission, preserving ECMD_OK, repeat queue, timing and source input order; no whole cmd ownership credit.",
+                  "Distinct whatdoes import/admission/direct/typed arm is adjudicated independent of earlier B173 optionsfull import/full-selection/doset arm; reserve only the bounded command-description dispatcher contract and exact key2extcmddesc source unit, with no whole rhack/doextcmd credit."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Committed accepted evidence challenges/evaluations/accepted-db0a7ad02ea001265fce34f7485b90c58d649d79-v32.json at db0a7ad02ea001265fce34f7485b90c58d649d79: 2/13 screens; 11 remain. Latest accepted B171 hosted .git/checkpoint-results/01a1e0ff0fc9213a17a9ef3378383804e778f0ac/run-hosted-oE91HC/synthetic/ci-v32.json retains the same count. Independent narrow replay .cache/C155-B171-selected-before.log at 9b09a64d41c12b2df0686818f06570d7f6d96832 confirms direct & still refuses at zero-based step2; no source input was changed.",
+                "Saved accepted evaluation challenges/evaluations/accepted-e0af258f80b5a632caf9419b124b7f4046d63e78-v32.json at e0af258f80b5a632caf9419b124b7f4046d63e78: 2/13 screens,6093/6093 RNG,2/13 cursors; 11 remaining screens. Admitted v32 corpus digest df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823; recording digest 6dcfcaa7279c9f79bdb41404f4c33800e4c08511ac64a301c2545f1e626c2f8c; recipe digest c54ccd40ae5ad506d4473c35e443a626cd4b88ffbc1bdd35140831b3c398af54. Raw manifest file digest is separate provenance, not the admitted corpus digest. Raw manifest SHA-256 0f9e89adc37fd791772a8723f6d11e05d2868d69c47db31c45f72db5f53cd1d3; evaluation file SHA-256 75b27fb80a818b758e33d43b7c73697819b9818697d07f75112562f1be222e36.",
+                ".cache/C155-selected-before.log replays only this case at 55a9709928c414f8becab19c8694740ab139a493. It emits two screens, then commandRefusal=true, key=&, command=whatdoes, inputThroughStop=.&; first unresolved zero-based step2. C next displays Ask about '&' or '?' to get more info.--More--. This disproves attributing the first stop solely to the pager query restriction. Replay input digest 47accbe65dfc8d160b713eb60c414977e8a46cb1b84d1969612956f2f79f96f9; diagnostic tool digest 01cb5004cc11a812f50a8e119ea49eb9700d913dc19487543ad6f877b06e6a82.",
+                "Read whole pager.c:dowhatdoes2659–2719: once-only introduction and ALTMETA text, unrestricted input and Escape/meta handling, compiled description lookup, help expansion, ordinary and embedded-newline output, unknown-key visctrl/unsigned decimal/octal/hex diagnostics, ECMD_OK. Current pager.js2104–2120 permits only byte0x69 inventory and throws UnsupportedHelpError otherwise; all other branches remain partial.",
+                "Read whole pager.c:whatdoes_help2421–2444: KEYHELP open failure prints exact filename and displays the message window; success creates NHW_TEXT, skips first-byte comments, strips leading spaces/tabs only, displays blocking and destroys. HELP_TEXT_FILES generator currently lists eight files and omits keyhelp. Source dat/keyhelp is available. Existing displayTtyTextWindow owns matching ordinary text-window lifecycle.",
+                "Global source search found only extcmdlist1935 and hmenu_dowhatdoes2810 direct dowhatdoes call sites, and only dowhatdoes2696 calls whatdoes_help. dowhatdoes_core additionally has help_dir4247; reuse that existing owner without claiming its broader caller family complete. Inactive whatdoes_cond and file parsing are explicitly #if0.",
+                "Evidence plan after scope approval: selected admitted direct read-key range; independently chosen direct known/unknown key and reqmenu two-line queries, &/? expansion with source-valid window dismissal, cheap role variation, repeated first-use suppression, ALTMETA Escape/Meta and numeric-pad descriptions, help-menu and typed #whatdoes routes. Source-pinned tests cover unsigned diagnostics, description movement side effects, leading-only keyhelp filtering and all input/order branches. Preserve a missing-keyhelp discarded host-file boundary if the browser data adapter cannot reproduce it. No C recording or source edits during investigation.",
+                "Whole-source consumed-return review adds cmd.c:key2extcmddesc2561–2623: initial movecmd writes are evaluated before count, special-key and command-binding lookup; C h returns move west (screen left) (#movewest), while pre-fix JS returns move. Independent C known-prefix-movement and number-pad recipes confirm those source-defined binding strings. Historical port-cmd-doherecmdmenu ported:true must be invalidated centrally before new completion."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
