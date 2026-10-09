@@ -5,12 +5,12 @@
   "manifestPath": "challenges/manifests/v36.json",
   "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
   "recordingSha256": "df1525581d5de100c10b03799424fcbc6520a23f3ddfad268143a21adb5fa712",
-  "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
-  "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+  "evaluationPath": "challenges/evaluations/accepted-6c8194f5c2a6dd256804398b6b00b5ef9c320128-v36.json",
+  "evaluationCommit": "6c8194f5c2a6dd256804398b6b00b5ef9c320128",
   "remainingScreens": 41,
   "recordedSteps": 60,
   "session": "synthetic/v36/v36-quest-val-loca",
-  "commit": "f57a9beca05a14e4d9ba60e0c05bfa70c06abdd2",
+  "commit": "2180fe04e57acdd484f2df1ef0f9168f1796ec38",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v36",
@@ -23,14 +23,14 @@
     "recordingSha256": "df1525581d5de100c10b03799424fcbc6520a23f3ddfad268143a21adb5fa712",
     "recipe": "challenges/cases/v36/v36-quest-val-loca.recipe.session.json",
     "recipeSha256": "c360beb283896f50b84255d8849c3c5adde477087b3874c3f83f2495197bf16d",
-    "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
-    "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
-    "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
-    "evaluationArtifact": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
-    "evaluationUtc": "2026-10-09T10:38:34.264Z",
+    "replayInputSha256": "9119b83884976c37f4a1c1659afa21d6a77125f844a1eb1ee4fb153ae7dd9e10",
+    "evaluationPath": "challenges/evaluations/accepted-6c8194f5c2a6dd256804398b6b00b5ef9c320128-v36.json",
+    "evaluationCommit": "6c8194f5c2a6dd256804398b6b00b5ef9c320128",
+    "evaluationArtifact": "challenges/evaluations/accepted-6c8194f5c2a6dd256804398b6b00b5ef9c320128-v36.json",
+    "evaluationUtc": "2026-10-09T17:42:03.043Z",
     "remainingScreens": 41,
     "recordedSteps": 60,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 19,
     "regression": false,
     "passed": false,
     "error": null,
@@ -60,7 +60,11 @@
     "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Val-loca\"",
     "cFile": null,
     "luaFile": "Val-loca.lua",
-    "line": null
+    "line": null,
+    "investigation": {
+      "status": "missing",
+      "path": "investigations/synthetic/v36/v36-quest-val-loca.json"
+    }
   },
   "status": "complete",
   "goalKind": "lua-port",
@@ -76,7 +80,7 @@
       "wizcmds.c wiz_load_splua reaches load_special directly for this source-named program. Natural quest arrival and wizard travel converge on generation; the program defines no additional Lua callback."
     ],
     "dependencies": [
-      "Existing createSpecialLevelApi solidfill/mines level_init, level_flags, map, relative selection.area, region, stair, non_diggable, object, trap and monster descriptors provide the required results. No generic descriptor owner edit is identified by this source trace; combined runtime reachability remains to be verified.",
+      "Canonical descriptors provide generation results, with two centrally approved bounded dependency corrections: mkmap.c finish_map stores ICED_POOL/ICED_MOAT rather than numeric1/2, and sp_lev.c l_create_stairway forwards the fixed-coordinate force bit to mklev.c mkstairs, whose ROOM conversion precedes dungeon-end refusal. No whole-helper completion credit.",
       "lspo_level_flags records icedpools on the canonical frame and clears coder.allow_flips for noflip. splev_initlev passes icedpools to mkmap, whose finish pass tags generated ICE as ICED_POOL and lights the requested mines background. Preserve this source flag lifetime and suppress both postprocessing flip RNG gates.",
       "mapFromRows uses centered odd-parity placement and skips x transparent cells, matching sp_lev.c lspo_map 6279-6293. Preserve the exact 40x13 rows, including trailing spaces, pool P, lava L and stone spaces. The Lua discards the returned written-cell selection; its relative selection.area covers the stated rectangle.",
       "The up stair at relative (48,14) is intentionally outside the 40x13 fragment. C sp_lev.c get_location 1202-1278 offsets fixed coordinates by xstart/ystart then checks whole-level isok; JS room_coordinates get_location mirrors that behavior. Do not clamp it to fragment bounds or replace it with random placement. Down stair remains relative (20,6).",
@@ -93,6 +97,8 @@
     "Read JS lspo_level_flags/splev_initlev/mkmap_finish_map, mapFromRows/splev_chr2typ, get_location/l_create_stairway, lspo_trap and lspo_monster argument forms; inspected existing nonunique true-giant admission and source giant weapon/gem arms. These source-derived dependency paths establish the proposed scope, not completion evidence for the missing Lua runtime.",
     "Actionable scope: whole Val-loca.lua lines 1-85, valLoca and registry key in js/quest_levels.js, generated val_loca_level_data.js with deterministic generator, focused source pins, runtime runner and recipes/Val-loca.lua plus recordings/Val-loca.lua. No whole generic helper, quest permission, teleport or quest_levels credit.",
     "Fail first on missing loader/module; generate and pin all source map rows/glyphs/spaces, level-init/flag order, exact stairs including out-of-fragment coordinate, fifteen random objects, four fire plus two random traps, and all 27 monster descriptors including class versus id forms. Verify admitted segment 0 steps 19-59. Record independent human-neutral and dwarf-lawful Valkyrie arrival/direct-des variations with independently chosen seed/date and compare complete RNG/screens/cursors/frames. Check generated ice ICED_POOL metadata, noflip RNG suppression and actual stair placement. Retain a neighboring unimplemented Val-goal/Val-strt route as a named blocked recipe if its owner is still pending.",
-    "Evidence limits: session-only investigation and assigned replay; no game source edit or new C game. Replay stops before program generation, so independent matching impure reachability and full comparisons are required before source completion. External deficiencies, including any randomly selected monster species boundary, need central supporting scope before edits."
+    "Implementation source audit exposed both required descriptor defects. Pool/moat ice flags failed first run-4kNTFA; fixed-stair terrain order failed first run-e4dw3j. The direct-load attribute difference was source terrain, not a vision defect: C force turns the rejected level1 fixed up-stair square into ROOM while old JS retained ICE. Both supporting scopes were centrally approved before edits.",
+    "Final selected replay run-sfcbaN fully matches60 screens/cursors5062 RNG calls. Three independent C-first cases match222 screens/cursors15031 RNG calls run-DTpzE6: human neutral natural arrival plus original lawful dwarf sighted and blind direct loaders. Every surviving ice cell carries ICED_POOL=8, and noflip preserves source stair coordinates.",
+    "Whole Val-loca credit only. Outside-program Val-strt remains separately owned and unimplemented here; source-named recipe stops at mkmaze.c place_lregion(type3) after missing load_special loader. It remains a blocked recipe outside passing recordings. No species refusal or shared alignment, tin or numeric-selection change occurred."
   ]
 }

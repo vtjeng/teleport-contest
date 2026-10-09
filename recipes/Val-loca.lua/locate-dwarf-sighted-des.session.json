@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first sighted direct Val-loca witness with the originally selected dwarf-lawful seed/date. Initial exact-RNG comparison exposed the fixed-stair force argument dropped by the descriptor caller; after source reconciliation the complete recording is expected to match. No seed or output filtering.",
+  "segments": [
+    {
+      "seed": 19636129,
+      "datetime": "20531009141523",
+      "nethackrc": "OPTIONS=name:IceLocate,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "   #wizloaddes\nVal-loca.lua\n                #wizmap\n                "
+    }
+  ]
+}

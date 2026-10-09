@@ -311,6 +311,7 @@ import {
     NON_PM,
     NO_INVENT,
     NO_LOC_WARN,
+    SP_COORD_IS_RANDOM,
     SP_COORD_PACK,
     SP_COORD_PACK_RANDOM,
     F_LOOTED, F_WARNED, S_LPUDDING, S_LDWASHER, S_LRING, T_LOOTED,
@@ -2834,9 +2835,8 @@ function l_create_stairway(args, using_ladder, env) {
             loc.ladder = LA_DOWN;
         }
     } else {
-        // C passes a fifth argument, !(scoord & SP_COORD_IS_RANDOM);
-        // mklev.js mkstairs() does not take it.
-        mkstairs(x, y, up, coder.croom);
+        // sp_lev.c:4209–4210 forces fixed-coordinate stairs onto ROOM.
+        mkstairs(x, y, up, coder.croom, !(scoord & SP_COORD_IS_RANDOM));
     }
 }
 
@@ -5120,7 +5120,7 @@ function mkmap_finish_map(fg_typ, bg_typ, lit, walled, icedpools, state) {
             const loc = state.level.at(x, y);
             if (loc.typ === LAVAPOOL) loc.lit = true;
             else if (loc.typ === ICE)
-                loc.icedpool = icedpools ? 1 /* ICED_POOL */ : 2;
+                loc.icedpool = icedpools ? ICED_POOL : ICED_MOAT;
         }
     }
 }
@@ -7307,14 +7307,17 @@ function generate_stairs_find_room() {
     return g.level.rooms[rn2(g.level.nroom)];
 }
 
-export function mkstairs(x, y, up, croom) {
+export function mkstairs(x, y, up, croom, force = false) {
     const g = game;
+    const loc = g.level.at(x, y);
+    // mklev.c:2172–2173: fixed descriptors force ROOM even when the
+    // dungeon-end guard below refuses the stair itself.
+    if (force && loc) loc.typ = ROOM;
     // C ref: mklev.c mkstairs():2183-2189. A regular stair cannot be
     // created at either end of a dungeon branch; the Lua `des.stair("up")`
-    // on Mines level 1 therefore has no corresponding terrain or stairway.
+    // on Mines level 1 therefore creates no stairway or STAIRS terrain.
     if (dunlev(g.u.uz) === (up ? 1 : dunlevs_in_dungeon(g.u.uz, g)))
         return;
-    const loc = g.level.at(x, y);
     if (loc) {
         loc.typ = STAIRS;
         loc.ladder = up ? 1 : 2;
