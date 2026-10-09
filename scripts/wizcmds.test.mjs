@@ -572,6 +572,29 @@ test('wiz_rumor_check awaits its diagnostic window and returns source ECMD_OK', 
     assert.equal(settled, true);
 });
 
+test('wiz_panic restores the four fuzzer resource fields before returning without input', async () => {
+    const source = readFileSync('nethack-c/upstream/src/wizcmds.c', 'utf8');
+    const start = source.indexOf('wiz_panic(void)');
+    const owner = source.slice(start, source.indexOf('wiz_fuzzer(void)', start));
+    assert.match(owner, /if \(iflags\.debug_fuzzer\)\s*\{\s*u\.uhp = u\.uhpmax = 1000;\s*u\.uen = u\.uenmax = 1000;\s*return ECMD_OK;/u);
+    assert.match(owner, /paranoid_query\(TRUE,[\s\S]*?panic\("Crash test \(#panic\)\."\);/u);
+    const { wiz_panic } = await import('../js/wizcmds.js');
+    const writes = [];
+    const u = {};
+    // Chained C assignments set the maxima before the current values, first
+    // HP then energy. 1000 is the source's exact fuzzer recovery value.
+    for (const key of ['uhp', 'uhpmax', 'uen', 'uenmax']) {
+        Object.defineProperty(u, key, {
+            set(value) { writes.push([key, value]); },
+        });
+    }
+    // No display/input exists: the fuzzer arm must return before the query.
+    assert.equal(await wiz_panic({ u, iflags: { debug_fuzzer: true } }), ECMD_OK);
+    assert.deepEqual(writes, [
+        ['uhpmax', 1000], ['uhp', 1000], ['uenmax', 1000], ['uen', 1000],
+    ]);
+});
+
 test('wiz_load_lua preserves filenames, forwards the C sandbox and awaits its discarded load', async () => {
     const { wiz_load_lua } = await import('../js/wizcmds.js');
     assert.equal(typeof wiz_load_lua, 'function');
@@ -627,27 +650,4 @@ test('wiz_load_lua cancellation and unavailable direct call do not initialize Lu
         getLine() { assert.fail('nonwizard direct call cannot prompt'); },
     }), ECMD_OK);
     assert.deepEqual(messages, ["Unavailable command 'wizloadlua'."]);
-});
-
-test('wiz_panic restores the four fuzzer resource fields before returning without input', async () => {
-    const source = readFileSync('nethack-c/upstream/src/wizcmds.c', 'utf8');
-    const start = source.indexOf('wiz_panic(void)');
-    const owner = source.slice(start, source.indexOf('wiz_fuzzer(void)', start));
-    assert.match(owner, /if \(iflags\.debug_fuzzer\)\s*\{\s*u\.uhp = u\.uhpmax = 1000;\s*u\.uen = u\.uenmax = 1000;\s*return ECMD_OK;/u);
-    assert.match(owner, /paranoid_query\(TRUE,[\s\S]*?panic\("Crash test \(#panic\)\."\);/u);
-    const { wiz_panic } = await import('../js/wizcmds.js');
-    const writes = [];
-    const u = {};
-    // Chained C assignments set the maxima before the current values, first
-    // HP then energy. 1000 is the source's exact fuzzer recovery value.
-    for (const key of ['uhp', 'uhpmax', 'uen', 'uenmax']) {
-        Object.defineProperty(u, key, {
-            set(value) { writes.push([key, value]); },
-        });
-    }
-    // No display/input exists: the fuzzer arm must return before the query.
-    assert.equal(await wiz_panic({ u, iflags: { debug_fuzzer: true } }), ECMD_OK);
-    assert.deepEqual(writes, [
-        ['uhpmax', 1000], ['uhp', 1000], ['uenmax', 1000], ['uen', 1000],
-    ]);
 });
