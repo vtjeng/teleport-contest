@@ -60,11 +60,7 @@
     "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Sam-loca\"",
     "cFile": null,
     "luaFile": "Sam-loca.lua",
-    "line": null,
-    "investigation": {
-      "status": "missing",
-      "path": "investigations/synthetic/v36/v36-quest-sam-loca.json"
-    }
+    "line": null
   },
   "status": "complete",
   "goalKind": "lua-port",
@@ -97,6 +93,6 @@
     "Actionable scope: whole Sam-loca.lua lines 1-141, samLoca and registry key in existing js/quest_levels.js, generated sam_loca_level_data.js with deterministic generator, source-pinned test and runtime fresh runner, recipes/Sam-loca.lua and recordings/Sam-loca.lua. No whole generic helper, quest permission, teleport or quest_levels ownership credit.",
     "Validation plan: fail first on missing module/loader; pin generated source map, all 24 door calls, source-fixed stairs and complete class-object/monster order including their distinct argument forms. Verify admitted segment 0, steps 19-59. Add independently chosen lawful human male/female Samurai C-first arrival/direct-des variations, comparing complete RNG/screens/cursors/frames. Assert door masks and coordinates, stair directions, object class groups and source monster population/invisibility. Neighboring Sam-goal is outside this program and remains a blocked recipe if the B199 loader is still absent.",
     "Evidence limits: session-only investigation and assigned replay, no source edit or new C game. Replay stops before program generation, so actual impure reachability and complete comparisons are still required by the implementation plan. Any confirmed external source deficiency requires central supporting scope before edits.",
-    "Source-gate refresh at accepted e0361e80225feef14b2837e65ab482f785575c7d, clean worker merge 293e7b73eaf8fde113a74a7f18f8252aed7fad95. Current saved accepted-c7bb7471 evaluation remains 19/60 screens and cursors, 2986/4121 RNG at step 19. Reviewed the complete program again: all source descriptors reuse canonical owners; C174 named-species/tin scope is disjoint. A191 and Sam-goal are accepted, so no external delivery dependency or blocked neighboring-program route remains."
+    "Current accepted-e0361e80 evaluation retains 19/60 screens and cursors, 2986/4121 RNG at step 19, matching the saved source diagnosis. All Sam-loca statements reuse canonical descriptors; there is no named-species, non-species tin, numeric selection or alignment dependency. Sam-goal now has accepted completion evidence and can supply a matching outside-program variation."
   ]
 }
