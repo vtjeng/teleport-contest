@@ -221715,6 +221715,39 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-cmd-doextcmd-full-options-dispatch-v32-20261008",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Dispatch the typed full-options menu",
+      "cFile": "cmd.c",
+      "sessions": [
+        "synthetic/v32/v32-options-fruit"
+      ],
+      "selectionReason": "Resume the older B173 full-options divergence after accepted B171 releases the exact dispatcher owner. Current accepted replay reproduces the 14/53 stop; canonical option menu hooks and consumed successful return already exist.",
+      "detail": "The typed #optionsfull command stops at the missing cmd.c:doextcmd doset arm before the fruit option is reached. Existing O and m-O wiring supplies canonical option-menu hooks and reaches doset_simple/doset. Add the bounded full-options dispatcher path using those same hooks, then retain the later fruit-handler frontier. No whole doextcmd, doset, optfn_fruit, or fruitadd completion credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "doextcmd",
+      "session": "synthetic/v32/v32-options-fruit",
+      "step": 14,
+      "syntheticProvenance": {
+        "synthetic/v32/v32-options-fruit": {
+          "session": "synthetic/v32/v32-options-fruit",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-options-fruit",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-options-fruit.session.json",
+          "recordingSha256": "9a613ee4fb1fa15dbbe7692645cbe7d3950c65f10ced9e3ece1d9d5e52b8522e",
+          "evaluationPath": "challenges/evaluations/accepted-f18647f65477b3df69e7e30365e4e3993863a852-v32.json",
+          "evaluationCommit": "f18647f65477b3df69e7e30365e4e3993863a852"
+        }
+      }
     }
   ]
 }
