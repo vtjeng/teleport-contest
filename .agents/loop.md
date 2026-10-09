@@ -170,9 +170,13 @@ Recheck later work affected by a correction. Other workers continue.
 
 Keep a task's reservations until it is accepted or parked. If a worker has
 already started a second task, accepting its first task releases only the
-first task's reservations. After an integration passes combined validation, notify every implementation worker of the accepted main SHA and have each merge it into its worktree at the next clean task boundary, before selecting new work, preserving pending work and submitted commits.
-Workers report the resulting HEAD. Reuse accepted validation after a clean
-merge; run focused checks only for conflict resolutions or pending changes
+first task's reservations. Workers read the latest accepted Main commit with
+`worker-state.mjs accepted-main --file <shared-ledger>` and merge it at a clean
+task boundary before selecting new work. Do not broadcast each acceptance or
+request routine HEAD reports. Notify the submitting worker and workers whose
+blockers cleared; notify idle or blocked workers when a new batch opens work.
+Preserve pending work and submitted commits. Reuse accepted validation after a
+clean merge; run focused checks only for conflict resolutions or pending changes
 combined with accepted code that have not been tested together. Never rebase
 or amend submitted delivery commits.
 
@@ -237,23 +241,26 @@ separately from other goals.
    candidate.
 5. After an implementation task passes, refresh the fixed-workload mismatch
    queue and evaluate all admitted synthetic batches under `.agents/scoring.md`.
-   Refresh the synthetic work queue from those saved results. Finish
-   evidence, scores, and goal closure under `.agents/scoring.md` before
+   Finish evidence, scores, and goal closure under `.agents/scoring.md` before
    integrating unrelated work. Close a source goal only after its entry
    points are verified, its required challenge evaluation is complete, and
-   its saved development scan is current. After recording source evidence
-   and reviewing per-case regressions, run
-   `node scripts/accept-task.mjs --task <id> --ledger <shared-ledger>`
+   its saved development scan is current. Compare saved synthetic results with
+   `node scripts/task-handoff.mjs review --task <id> --ledger <shared-ledger>`.
+   It uses the latest accepted checkpoint as the baseline; use `--baseline`
+   for another accepted checkpoint. Newly admitted batches use their saved
+   first complete baseline. Resolve regressions and missing or
+   incomparable evidence before accepting. After recording source evidence
+   and reviewing the comparison, run
+   `node scripts/task-handoff.mjs accept --task <id> --ledger <shared-ledger>`
    while HEAD still names the tested commit. The helper imports reviewed
    evaluations, closes the goal, appends its score, and records acceptance.
    If it fails, diagnose the error and retry at the same tested commit.
    Use manual closure commands only for a concrete helper limitation;
    state that limitation and preserve every acceptance requirement.
    After acceptance, resume the idle worker as step 6 specifies, then
-   commit the closure records,
-   investigation updates, and new challenge reports together. The publication
-   check verifies these report-only changes; keep code and test-input changes
-   in a separately validated delivery. Record only the goal's active
+   publish the closure records, investigation updates, and new challenge reports
+   together. Keep code and test-input changes in a separately validated delivery.
+   Record only the goal's active
    intervals; park it before measuring another goal. Follow
    `.agents/validation.md` for new evidence when later commits change inputs
    to the checkpoint. After a challenge preparation task passes, leave its
@@ -268,8 +275,8 @@ separately from other goals.
    it, and save its first evaluation at that committed implementation before
    selecting failures. Do not admit a batch merely because its worker has finished.
 6. Send `ACCEPTED` with the helper's tested commit and checkpoint
-   result. As part of this handoff, check the submitting worker's current
-   task and turn. If it is idle, use `followup_task` on the same worker
+   result. Its receipt includes the submitting worker's recorded task and turn;
+   reconcile any newer activity. If it is idle, use `followup_task` on the same worker
    immediately: merge accepted main at the clean boundary, then select and
    claim the next independent task under "Seed continuation". Send this
    continuation before dashboard generation, publication, or another
@@ -279,20 +286,16 @@ separately from other goals.
    in the existing ledger and assign independent work when available.
    Keep local `main` at the tested commit through acceptance. Skip `sync-main`
    in this publication path; it is for fast-forwarding a different local main.
-   Refresh `dashboard-snapshot.json` from the shared worker
-   ledger and the passing checkpoint summary with
-   `node scripts/dashboard-snapshot.mjs --ledger <shared-ledger> --checkpoint <summary> --output dashboard-snapshot.json`.
-   Stage that generated report by name and commit it with the other publication
-   records before the push. It captures worker activity through acceptance;
-   the publication event enters the next snapshot. Push accepted work to main
-   without asking again, then
-   record `published` after the push succeeds. Run
-   `node scripts/check-published-ci.mjs --commit <full-published-sha> --task <id>`
-   to register the commit and check publication CI once. The helper keeps
-   pending commits and known incomplete run IDs in `.cache/loop-ci-pending.json`, including
-   commits whose runs have not appeared. At each handoff and before another
-   push, run `node scripts/check-published-ci.mjs` and continue the merge queue
-   while CI runs. The helper removes an entry only after all relevant runs pass.
+   Refresh the saved combined queue after score import, before publication.
+   Run `node scripts/task-handoff.mjs publish --task <id> --ledger <shared-ledger> --queue <latest-saved-combined-queue.json>`.
+   It generates the dashboard snapshot, commits closure reports by name,
+   verifies their contents, pushes the exact report commit, records
+   publication, checks CI once, and returns the next-work summary. Retry after
+   an interruption; a committed report packet is reused rather than regenerated.
+   It sends no worker messages and does not admit batches. The snapshot captures
+   activity through acceptance; publication enters the next snapshot.
+   Pending CI stays in `.cache/loop-ci-pending.json` until all relevant runs pass.
+   The helper checks pending CI before another push and stops on known failures.
    Do not block the next
    delivery with `gh run watch`. Reconcile the pending list after a restart
    against published commits in the worker-state ledger and their CI runs. If
@@ -305,8 +308,8 @@ separately from other goals.
    checkpoint must cover those inputs; subsequent changes may only be checked
    reports.
 
-After publication and the required one-shot CI status check, run
-`worker-state.mjs next`. Check batch admission priority under
+Use the publication helper's next-work summary, or `worker-state.mjs next`
+after a manual publication. Check batch admission priority under
 `.agents/selection.md` before starting the next dependency-ready delivery.
 Handle worker handoffs promptly, but do not defer a ready integration for
 optional investigations or housekeeping. If integration cannot proceed,

@@ -334,7 +334,7 @@ export function validateHistoricalEvaluation(root, report, tested) {
     return report;
 }
 
-function verifyPublicationChanges(root, tested, published) {
+export function verifyPublicationChanges(root, tested, published) {
     // Keep checkpoint reuse conservative. Publication alone permits checked
     // reports written after closure; the original tested commit stays intact.
     if (executionTree(root, tested) === executionTree(root, published)) return;

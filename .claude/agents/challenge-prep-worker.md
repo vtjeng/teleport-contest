@@ -80,4 +80,5 @@ task with its exact base and delivery commits, case paths and hashes, mission
 rationale, and independent replay results. Send `READY_TO_MERGE` with the saved
 packet path. After acceptance, prepare another batch or switch to an
 implementation task. Park unfinished preparation before switching tasks.
-Merge accepted main at the clean task boundary.
+At the clean task boundary, merge the commit returned by
+`worker-state.mjs accepted-main --file <shared-ledger>`, not an unaccepted Main HEAD.

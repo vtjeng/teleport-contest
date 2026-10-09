@@ -64,8 +64,12 @@ export function acceptTask(options, root = process.cwd()) {
     };
     const receipt = () => {
         ensureHead();
+        const current = readState(), worker = current.workers[task.worker];
+        const activeTask = Object.values(current.tasks).find(entry => entry.worker === task.worker && entry.status === 'working');
         return { task: options.task, commit, checkpoint: checkpointPath, worker: task.worker,
-            handle: readState().workers[task.worker]?.handle,
+            handle: worker?.handle,
+            handoff: { turn: worker?.turn ?? null, currentTask: activeTask?.id ?? null,
+                action: activeTask ? 'keep-current-task' : worker?.turn === 'idle' ? 'resume' : 'inspect-turn' },
             next: 'Send ACCEPTED and resume the idle worker now; then prepare publication.' };
     };
     // Acceptance already happened. Recover its receipt without importing or closing again.
