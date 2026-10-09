@@ -1,4 +1,3 @@
-import { ttyMenuColorAttribute } from './windows.js';
 // insight.js -- the attributes window that `^X` opens, and the one-line
 // reports a stethoscope produces for the hero and for a monster.
 // C ref: src/insight.c enlght_out(), enlght_line(), enl_msg(), you_are(),
@@ -350,7 +349,7 @@ import {
     displayTtyMenuTextWindow,
     displayTtyTextWindow,
 } from './tty_menu.js';
-import { select_menu } from './windows.js';
+import { select_menu, ttyMenuColorAttribute } from './windows.js';
 import {
     genders,
     ROLE_FEMALE,

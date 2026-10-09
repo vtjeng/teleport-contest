@@ -1,4 +1,3 @@
-import { ttyMenuColorAttribute } from './windows.js';
 // weapon.js -- Monster weapon selection and wield state.
 // C refs: weapon.c oselect(), select_rwep(), select_hwep(), mon_wield_item(),
 // mwepgone(), setmnotwielded().
@@ -236,7 +235,7 @@ import {
 } from './startup_skills.js';
 
 import { y_n } from './cmd.js';
-import { select_menu } from './windows.js';
+import { select_menu, ttyMenuColorAttribute } from './windows.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { cansee, couldsee } from './vision.js';

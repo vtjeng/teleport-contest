@@ -18,7 +18,6 @@ import {
     regex_init,
 } from './posixregex.js';
 import { NO_COLOR } from './terminal.js';
-import { select_menu, ttyMenuColorAttribute } from './windows.js';
 
 // C ref: coloratt.c attrnames[]. These are the source ATR_* enum values,
 // rather than the recorder attribute bits js/terminal.js exposes. The
@@ -347,8 +346,12 @@ export function basic_menu_colors(state, load) {
     }
 }
 
-function queryMenu(state, spec, helpers) {
-    return helpers?.selectMenu ? helpers.selectMenu(spec) : select_menu(state, {
+async function queryMenu(state, spec, helpers) {
+    if (helpers?.selectMenu) return helpers.selectMenu(spec);
+    // Symbol initialization reads color parsers through glyphs.js. Load the
+    // window port only when a live query needs it, after symbols initialize.
+    const { select_menu } = await import('./windows.js');
+    return select_menu(state, {
         ...spec, overlay: state.iflags?.menu_overlay !== false,
     });
 }
@@ -360,6 +363,7 @@ function pickedValues(picks) {
 // C ref: coloratt.c query_attr(). Values are row identifiers, never drawing
 // masks; PICK_ANY returns the separate source HL bit vocabulary.
 export async function query_attr(state, prompt, dflt, helpers) {
+    const { ttyMenuColorAttribute } = await import('./windows.js');
     const allowMany = Boolean(prompt && prompt.slice(0, 6).toLowerCase() === 'choose');
     const rows = MENU_COLOR_ATTRIBUTES.slice(0, MENU_COLOR_ATTRIBUTES.findIndex(row => row.name === null));
     const picks = pickedValues(await queryMenu(state, {
