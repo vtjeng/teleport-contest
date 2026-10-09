@@ -238161,7 +238161,7 @@
     {
       "id": "port-tou-strt-lua-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Tourist quest start Lua program and wire natural and direct special-level loading with source-ordered room filling.",
       "luaFile": "Tou-strt.lua",
       "sessions": [
@@ -238175,15 +238175,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Tou-strt.lua",
           "line": 1,
           "endLine": 134,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -238362,7 +238365,88 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Tou-strt.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "touStrt",
+            "sourceReview": "Read complete dat/Tou-strt.lua1–134, canonical descriptor owners and production loader dispatch. Preserve unspecified-lit solidfill, mazelevel/noteleport/hardfloor flags, exact 20x76 map, full-map lighting followed by deferred unlit morgue and room lighting, fixed down stair and branch arrival region, protected walls and all eighteen source doors. Preserve twelve giant spiders, two spider-class calls, eight forest centaurs and one centaur-class call before Twoflower. Await Twoflower's walking shoes +3 and Hawaiian shirt +3 custom inventory in order, then chest, eleven guides, two watchmen, five named aquatic placements and nine random trap calls. Keep source string IDs, classes, map coordinates, humidity and finalization owners. Generate map/door/guide tables deterministically from Lua, preserving spaces and the literal throne backslash at64/3. No top-level explicit Lua random call exists; canonical descriptors retain RNG. Production makelevel registry now routes Tou-strt to touStrt. Supporting correction follows sp_lev.c:load_special6454–6503 (no room fill), mklev.c:makelevel1414–1418 (common room fill after generation) and lspo_finalize_level6055–6059 (topology/mineralization before direct room fill); no shared owner completion credit.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c:makelevel1266–1271 -> mkmaze.c:makemaz1184–1193 -> sp_lev.c:load_special6454–6503; canonical quest registry resolves Tou-strt to touStrt."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "wizcmds.c:376–395 resets, loads and finalizes selected special Lua; existing loader resolves Tou-strt.lua to touStrt."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/tou-strt-level-generation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Tou-strt.lua/tou-strt-male-arrival-independent.session.json",
+              "recordings/Tou-strt.lua/tou-strt-female-arrival-independent.session.json",
+              "recordings/Tou-strt.lua/tou-strt-direct-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "do.c:goto_level -> mklev.c:makelevel/mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Tou-strt.lua1–134; canonical special-room fill and rearrival."
+              }
+            ],
+            "checkedAt": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef"
+          }
+        ],
+        "entryPointReview": "Natural quest-start generation is established by the admitted v36 range and two independently chosen C-first male/female Tourist arrivals. Direct wizard loading is established by a separate strict-perfect recording, including the morgue fill after topology/mineralization. All three recorded levels assert Twoflower custom inventory ownership, worn +3 boots/shirt, eleven guides, two krakens, source down stair, chest sharing the leader square and nondiggable walls. Existing Knight and Healer start fresh matrices exercise neighboring special-room callers. No synthetic case was copied into regression inputs.",
+        "entryPoints": [
+          {
+            "name": "natural Tourist quest start generation",
+            "functions": [
+              "Tou-strt.lua"
+            ],
+            "recordings": [
+              "recordings/Tou-strt.lua/tou-strt-male-arrival-independent.session.json",
+              "recordings/Tou-strt.lua/tou-strt-female-arrival-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "do.c:goto_level -> mklev.c:makelevel/mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Tou-strt.lua1–134; canonical special-room fill and rearrival."
+              }
+            ]
+          },
+          {
+            "name": "direct wizard special Lua load",
+            "functions": [
+              "Tou-strt.lua"
+            ],
+            "recordings": [
+              "recordings/Tou-strt.lua/tou-strt-direct-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
