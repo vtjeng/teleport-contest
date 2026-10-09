@@ -49,7 +49,9 @@ export class ThemeroomSelection {
     absolute = false;
 
     constructor(points = null, absolute = false) {
-        this.points = new Uint8Array(COLNO * ROWNO);
+        // C selvar.c stores (char)(value + 1), so zero-valued cells have byte 1.
+        this.points = new Int8Array(COLNO * ROWNO);
+        this.points.fill(1);
         this.absolute = absolute === true;
         if (points) {
             for (const point of points) this.set(point.x, point.y, true);
@@ -73,13 +75,15 @@ export class ThemeroomSelection {
 
     get(x, y) {
         return inSelectionBounds(x, y)
-            ? this.points[this.#index(x, y)] !== 0
+            ? this.points[this.#index(x, y)] - 1 !== 0
             : false;
     }
 
     set(x, y, value = true) {
-        if (inSelectionBounds(x, y))
-            this.points[this.#index(x, y)] = value ? 1 : 0;
+        if (inSelectionBounds(x, y)) {
+            const pointValue = Number.isInteger(value) ? value : (value ? 1 : 0);
+            this.points[this.#index(x, y)] = pointValue + 1;
+        }
         return this;
     }
 
@@ -254,7 +258,8 @@ export function selection_new() {
 // The source also rewrites the cached bounds; the port's bounds() derives
 // them from the points, so a selection cleared to 1 spans the whole map.
 export function selection_clear(sel, val) {
-    sel.points.fill(val ? 1 : 0);
+    const pointValue = Number.isInteger(val) ? val : (val ? 1 : 0);
+    sel.points.fill(pointValue + 1);
 }
 
 // C ref: selvar.c selection_iterate(). This is distinct from Lua's
