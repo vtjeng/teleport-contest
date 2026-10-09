@@ -590,6 +590,15 @@ test('activity distinguishes pending deliveries from reported waits and preserve
     assert.match(rendered.get('timelineReadout').innerHTML, /class="selected"><button[^>]*aria-current="step"[^>]*>Main · Integration/u);
     assert.match(rendered.get('timelineReadout').innerHTML, /<time>[^<]+<\/time> → <time>[^<]+<\/time>/u);
     assert.doesNotMatch(rendered.get('timelineReadout').innerHTML, /Selected stage/u);
+    // Selecting a history stage outside the current window must not pan or rebuild the plot.
+    const beforeSelection = { window: rendered.get('activityWindowLabel').textContent, plot: timeline.innerHTML };
+    const sourceIndex = data.activity.segments.findIndex(row => row.task === 'B1' && row.phase === 'working');
+    rendered.get('timelineReadout').listeners.click[0]({ target: { closest: () => ({
+        dataset: { history: String(sourceIndex) },
+    }) } });
+    assert.equal(rendered.get('activityWindowLabel').textContent, beforeSelection.window);
+    assert.equal(timeline.innerHTML, beforeSelection.plot);
+    assert.match(rendered.get('timelineReadout').innerHTML, /aria-current="step"[^>]*>B · Assigned task/u);
     const shortWindow = rendered.get('activityWindowLabel').textContent;
     timeline.listeners.pointerdown[0]({ button: 0, clientX: 0, pointerId: 1, target: timeline });
     timeline.listeners.pointermove[0]({ clientX: 700, pointerId: 1 });
