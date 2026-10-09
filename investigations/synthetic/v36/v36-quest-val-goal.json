@@ -1,0 +1,92 @@
+{
+  "session": "synthetic/v36/v36-quest-val-goal",
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-val-goal",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "a3cd01986f04859da04418938dd230394618651f897d44c540d8b9f31207dff8",
+  "evaluationPath": "challenges/evaluations/accepted-c65c2b3a1cdd449def877087461571f57c3f88b6-v36.json",
+  "evaluationCommit": "c65c2b3a1cdd449def877087461571f57c3f88b6",
+  "remainingScreens": 41,
+  "recordedSteps": 60,
+  "status": "complete",
+  "commit": "8a066441abc83e1e0751e5e64865ec549e86cd88",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-val-goal",
+    "session": "synthetic/v36/v36-quest-val-goal",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-val-goal.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-val-goal.session.json",
+    "recordingSha256": "a3cd01986f04859da04418938dd230394618651f897d44c540d8b9f31207dff8",
+    "recipe": "challenges/cases/v36/v36-quest-val-goal.recipe.session.json",
+    "recipeSha256": "75f1357e6a29ca9af769b706cf992e622368890435046b1baa423d112df148de",
+    "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+    "evaluationPath": "challenges/evaluations/accepted-c65c2b3a1cdd449def877087461571f57c3f88b6-v36.json",
+    "evaluationCommit": "c65c2b3a1cdd449def877087461571f57c3f88b6",
+    "evaluationArtifact": "challenges/evaluations/accepted-c65c2b3a1cdd449def877087461571f57c3f88b6-v36.json",
+    "evaluationUtc": "2026-10-09T13:34:54.250Z",
+    "remainingScreens": 41,
+    "recordedSteps": 60,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 60
+      },
+      "rng": {
+        "matched": 2773,
+        "total": 5199
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Val-goal\"",
+      "step": 19
+    },
+    "step": 19,
+    "kind": "stop",
+    "sourceFile": "Val-goal.lua",
+    "function": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Val-goal\"",
+    "cFile": null,
+    "luaFile": "Val-goal.lua",
+    "line": null
+  },
+  "goalKind": "lua-port",
+  "summary": "Val-goal has no registered loader. Port its whole lava-cave Valkyrie quest goal program, including the transparent fortress map, off-map stair, probabilistic drawbridges and named Orb of Fate.",
+  "source": {
+    "file": "Val-goal.lua",
+    "branch": "Valkyrie quest goal arrival or registered wizard load of Val-goal, with lava mines and a transparent map fragment retaining procedural terrain outside written cells.",
+    "functions": [
+      "Val-goal.lua"
+    ],
+    "callers": [
+      "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Val-goal.lua",
+      "wizcmds.c:wiz_load_splua -> load_special -> registered Val-goal Lua program"
+    ],
+    "dependencies": [
+      "Reuse existing level_init/mines smoothing/joining/icedpools, transparent-map, region, replacement, stair, nondiggable, drawbridge/create_drawbridge, object/artifact naming, trap and monster owners. No supporting owner edit identified by source review."
+    ]
+  },
+  "evidence": [
+    "Saved challenges/evaluations/accepted-c65c2b3a1cdd449def877087461571f57c3f88b6-v36.json at c65c2b3a1cdd449def877087461571f57c3f88b6 retains the missing Val-goal loader stop at zero-based19 with19/60matching screens and41remaining. Manifest corpus digest58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c; recordingchallenges/cases/v36/v36-quest-val-goal.session.json, digesta3cd01986f04859da04418938dd230394618651f897d44c540d8b9f31207dff8. Examined worker includes accepted C1692bb9024f9f762a4e380075f8faeb6d4bee382ed4; immutable case/count unchanged. Saved diagnostic reused; no replay or C recording during investigation.",
+    "Read whole dat/Val-goal.lua1–104, SHA256b9954f089233af5a4566def70b20cb4fd58e38125ec7ee5469d0ba116ae78f92. Solidfill lava first, then mazelevel/icedpools, then mines fg floor/bg lava with smoothedTRUE,joinedTRUE,lit1,walledFALSE. Overlay exact35×17 map with transparent x cells; light full local0,0..34,16. Both initialization calls and procedural terrain beneath transparent cells must be retained. Generate literal map and fixed descriptor tables from source.",
+    "Val-goal.lua34–39 intentionally places up stairs outside the fragment: first replace lava with floor at relative44,9..46,11,chance50,then up45,10. Existing lspo_replace_terrain maps the rectangle to level coordinates and scans x-major, consuming rn2(100) only on matching lava cells; lspo_stair uses the existing source location owner without fragment clipping. Nondiggable selection remains local0,0..34,16; do not enlarge it to the whole procedural cave.",
+    "Val-goal.lua42–47 creates the north drawbridge17,2 facing south with random state, then percent75 decides whether the south bridge17,14 facing north is forced open or random. nhlib.lua percent uses math.random0..99 -> rn2(100). Existing lspo_drawbridge4041+ matches sp_lev.c5720–5764: random state consumes !rn2(2), create_drawbridge receives the normalized coordinate/state and SpLev_Map marks it. Force-open south branch consumes no state roll; preserve north state roll before the percentage roll. Existing dbridge.c:create_drawbridge owner preserves DB_LAVA underlay and wall/door orientation.",
+    "Val-goal.lua49–74 creates blessed spe5 crystal ball named The Orb of Fate at17,8 through canonical ONAME_LEVEL_DEF naming,14random objects,two fixed board traps13,8/21,8,four random fire traps,one random board trap,two random trap descriptors. Existing nameObject -> do_name:oname and artifacts.js define the Orb. No species montype, non-species tin descriptor, alignment macro or selection algebra occurs.",
+    "Val-goal.lua76–95 creates Lord Surtur at17,8,four fire ants,two a-class monsters,ten fixed hostile fire giants along local x10/x24,y6..10,two random hostile fire giants,then hostile H-class. Preserve species/class lookup and placement RNG in this order. No explicit wallify call; normal load_special finalization owns cleanup/flip/filling. No additional source-unit completion credit is proposed.",
+    "Production change is a distinct valGoal import/body/QUEST_LEVEL_LOADERS key in js/quest_levels.js; rg -n Val-goal|valGoal js/quest_levels.js found no loader. Existing makelevel/makemaz/load_special and wizard load-splua paths already dispatch registered programs. Source review found no dependency on pending C170,B195/A191, parked alignment/spinach/selection operators. Runtime support is not yet verified for this program; preserve any newly observed blocker rather than inventing behavior.",
+    "Plan fail-first registry and whole source-sequence tests, generated equality, transparent cell preservation, both initializations, off-map stair/non-diggable limits, source percentage boundary75 and random-state roll ordering, drawbridge underlay/orientation and runtime Orb state. Admitted Valkyrie goal arrival plus independent human Valkyrie lawful/neutral #wizloaddes C-first inputs cover both production routes and a relevant character variation. Source-pinned tests cover both south drawbridge arms; do not search seeds after JS comparison. Adjacent Val-loca remains an outside-scope caller frontier. No source edits until central gate."
+  ]
+}
