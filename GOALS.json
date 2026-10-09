@@ -221029,6 +221029,39 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-cmd-doextcmd-history-dispatch-v32-20261008",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Dispatch the typed game history command",
+      "cFile": "cmd.c",
+      "sessions": [
+        "synthetic/v32/v32-game-history"
+      ],
+      "selectionReason": "Resume the parked history caller investigation after accepted A172 releases the exact doextcmd owner. The current replay reproduces the same 10/37-screen typed-history refusal; the existing canonical pager owner is unchanged.",
+      "detail": "The typed #history command reaches cmd.c:doextcmd but JavaScript omits its dohistory dispatch arm. Canonical pager.c:dohistory, generated history text, and the complete TTY pager already work through the help-menu history entry. Add the bounded awaited dispatcher arm; no pager or whole command-function completion is claimed.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "doextcmd",
+      "session": "synthetic/v32/v32-game-history",
+      "step": 10,
+      "syntheticProvenance": {
+        "synthetic/v32/v32-game-history": {
+          "session": "synthetic/v32/v32-game-history",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-game-history",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-game-history.session.json",
+          "recordingSha256": "b432c0369a1cff406bec6a0a334adc81cbc2ebd7b37eb2b47c4ba223580c55c5",
+          "evaluationPath": "challenges/evaluations/accepted-db0a7ad02ea001265fce34f7485b90c58d649d79-v32.json",
+          "evaluationCommit": "db0a7ad02ea001265fce34f7485b90c58d649d79"
+        }
+      }
     }
   ]
 }
