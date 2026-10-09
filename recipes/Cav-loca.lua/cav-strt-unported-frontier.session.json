@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside the C169 whole Cav-loca.lua program: Cav-strt.lua has no registered loader. Preserve this blocked frontier recipe with no Cav-strt or loader/finalizer completion credit. Exact JS boundary: mkmaze.c:place_lregion type3 cannot place its region on the unloaded blank map; A191 owns the separate missing Cav-strt program.",
+  "segments": [
+    {
+      "seed": 16991023,
+      "datetime": "20650918152631",
+      "nethackrc": "OPTIONS=name:CavLocaProbe,role:Cavewoman,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizloaddes\nCav-strt.lua\n            #wizmap\n        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first whole Cav-loca.lua input chosen before JS comparison: dwarf Caveman, lawful alignment and Cav-loca des-file name. Reaches maze/hardfloor map, irregular lit region, locked door/stairs, fifteen objects, six traps, source monster descriptors and wallify. No seed search or comparison-based setup change.",
+  "segments": [
+    {
+      "seed": 16991019,
+      "datetime": "20650918152631",
+      "nethackrc": "OPTIONS=name:CavLocaProbe,role:Caveman,race:dwarf,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizloaddes\nCav-loca\n            #wizmap\n        "
+    }
+  ]
+}
