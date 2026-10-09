@@ -227856,7 +227856,7 @@
     {
       "id": "fix-dothrow-toss-up-petrifier-drop-env-v33-20261009",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Supply canonical drop operations before upward-corpse petrification.",
       "cFile": "dothrow.c",
       "sessions": [],
@@ -227868,8 +227868,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "bc2ce8fb5ecd42fec92c2db427c427b566e0d645",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "toss_up",
       "session": "synthetic/v33/v33-cockatrice-corpse-upward",
       "step": 58,
@@ -228085,7 +228088,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "bc2ce8fb5ecd42fec92c2db427c427b566e0d645",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-uhitm-hmon-hitmon-msg-silver-v33-20261009",
