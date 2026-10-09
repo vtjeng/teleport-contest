@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T05:24:38.734Z",
+  "capturedAt": "2026-10-09T05:40:54.268Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -70782,6 +70782,50 @@
         "at": "2026-10-09T05:18:27.705Z",
         "task": "C162",
         "commit": "dead440b55dc94d3b2e2662bbeaad0f5eac47beb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a4d7b909c627ad0ae94eeae7720641f99c4f6efe",
+        "type": "ready",
+        "at": "2026-10-09T05:27:53.661Z",
+        "task": "C163",
+        "delivery": "a4d7b909c627ad0ae94eeae7720641f99c4f6efe"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C163-correction-ready-idle-20261009",
+        "type": "turn",
+        "at": "2026-10-09T05:28:32.436Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C163 gold-theft correction is submitted with all three entries verified; no independent admitted task is unreserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-B159-admission-v34-20261009",
+        "type": "activity",
+        "at": "2026-10-09T05:28:45.643Z",
+        "task": "B159",
+        "phase": "admission",
+        "reason": "Rechecking v34 overlap and current evaluation evidence before admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-B159-baseline-v34-20261009",
+        "type": "activity",
+        "at": "2026-10-09T05:36:51.678Z",
+        "task": "B159",
+        "phase": "baseline",
+        "reason": "Measuring v34 at its committed admission baseline."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-B159-done-v34-baseline-20261009",
+        "type": "activity",
+        "at": "2026-10-09T05:40:48.471Z",
+        "task": "B159",
+        "phase": "done",
+        "reason": "v34 admitted and its first saved evaluation recorded."
       }
     ]
   },
@@ -70847,20 +70891,20 @@
           "B182"
         ],
         "unblocks": 0
+      },
+      {
+        "task": "C163",
+        "worker": "C",
+        "goal": "port-uhitm-gold-theft-handler-v33-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "a4d7b909c627ad0ae94eeae7720641f99c4f6efe",
+        "since": "2026-10-09T05:27:53.661Z",
+        "blockedBy": [],
+        "unblocks": 0
       }
     ],
     "preparedBatches": [
-      {
-        "task": "B159",
-        "worker": "B",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "awaiting-admission",
-        "delivery": "37af4d36428377968d368edafe175dca48d8b7e0",
-        "since": "2026-10-08T14:45:10.175Z",
-        "blockedBy": [],
-        "batch": "v34"
-      },
       {
         "task": "B160",
         "worker": "B",
