@@ -933,6 +933,13 @@ export async function wiz_panic(state = game) {
     return ECMD_OK;
 }
 
+// C ref: wizcmds.c wiz_show_nhuuid(). Read the saved value; neither this
+// command nor its native generator consumes game RNG or advances time.
+export async function wiz_show_nhuuid(state = game) {
+    await ttyPline(`The NHUUID for this game is { ${state.svn.nhuuid} }.`, state);
+    return ECMD_OK;
+}
+
 // C ref: wizcmds.c wiz_smell() (885-939). The same coordinate survives each
 // getpos call; selecting a square may repair its remembered invisible marker.
 export async function wiz_smell(state = game, env = {}) {

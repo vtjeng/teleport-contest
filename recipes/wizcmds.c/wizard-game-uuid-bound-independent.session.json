@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first wizard UUID bound entry; source no-time result and count reset. Fixed character/options/input history chosen before JS comparison.",
+  "segments": [
+    {
+      "seed": 18634042,
+      "datetime": "20441119103333",
+      "nethackrc": "OPTIONS=name:Uuidbound,role:Ranger,race:elf,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!verbose,!debug_mongen,pettype:none\nBINDINGS=V:wizshownhuuid\n",
+      "moves": " .7V."
+    }
+  ]
+}

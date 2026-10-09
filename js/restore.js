@@ -136,6 +136,8 @@ export async function dorestore(state = game) {
     // Apply saved fields to the game object. Fields set here overwrite the
     // values newgame_pre_mklev() would have set; fields the snapshot omits
     // keep whatever the pre-restore initialization left.
+    // C restore.c:restgamestate reads svn.nhuuid before svm.moves.
+    state.svn.nhuuid = snapshot.nhuuid;
     state.moves = snapshot.moves;
     state.hero_seq = snapshot.hero_seq ?? (snapshot.moves * 8);
     state.flags = snapshot.flags;
