@@ -3,16 +3,12 @@
 
 import { def_char_to_monclass, def_char_to_objclass } from './drawing.js';
 import {
-    PM_BABY_YELLOW_DRAGON,
-    PM_BLACK_NAGA,
-    PM_BLACK_NAGA_HATCHLING,
     PM_COBRA,
     PM_ELECTRIC_EEL,
     PM_GIANT_EEL,
     PM_GREMLIN,
     PM_JELLYFISH,
     PM_KNIGHT,
-    PM_KRAKEN,
     PM_MEDUSA,
     PM_RAVEN,
     PM_STONE_GOLEM,
@@ -26,7 +22,6 @@ import {
 } from './monsters.js';
 import {
     BOULDER,
-    CRYSTAL_BALL,
     EGG,
     LEVITATION_BOOTS,
     SACK,
@@ -453,27 +448,29 @@ async function medusa4(des) {
     await des.level_init({ style: 'solidfill', fg: ' ' });
     await des.level_flags('noteleport', 'mazelevel');
 
+    // Generated from dat/medusa-4.lua by scripts/generate-medusa-levels.mjs.
     await des.map([
-        '}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}',
-        '}}}}}}}}}}}}}}........}}}}}}}}}}}}}}}}}}}}}}}..}}}.....}}}}}}}}}}}----|}}}}}',
-        '}}}}}}..----------F-.....}}}}}}}}}}}}}}}}..---...}}}}....T.}}}}}}}....|}}}}}',
-        '}}}.....|...F......S}}}}....}}}}}}}...}}.....|}}.}}}}}}}......}}}}|......}}}',
-        '}}}.....+...|..{...|}}}}}}}}}}}}.....}}}}|...|}}}}}}}}}}}.}}}}}}}}----.}}}}}',
-        '}}......|...|......|}}}}}}}}}......}}}}}}|.......}}}}}}}}}}}}}..}}}}}...}}}}',
-        '}}|-+--F|-+--....|F|-|}}}}}....}}}....}}}-----}}.....}}}}}}}......}}}}.}}}}}',
-        '}}|...}}|...|....|}}}|}}}}}}}..}}}}}}}}}}}}}}}}}}}}....}}}}}}}}....T.}}}}}}}',
-        '}}|...}}F...+....F}}}}}}}..}}}}}}}}}}}}}}...}}}}}}}}}}}}}}}}}}}}}}....}}..}}',
-        '}}|...}}|...|....|}}}|}....}}}}}}....}}}...}}}}}...}}}}}}}}}}}}}}}}}.....}}}',
-        '}}--+--F|-+--....-F|-|....}}}}}}}}}}.T...}}}}....---}}}}}}}}}}}}}}}}}}}}}}}}',
-        '}}......|...|......|}}}}}.}}}}}}}}}....}}}}}}}.....|}}}}}}}}}.}}}}}}}}}}}}}}',
-        '}}}}....+...|..{...|.}}}}}}}}}}}}}}}}}}}}}}}}}}.|..|}}}}}}}......}}}}...}}}}',
-        '}}}}}}..|...F......|...}}}}}}}}}}..---}}}}}}}}}}--.-}}}}}....}}}}}}....}}}}}',
-        '}}}}}}}}-----S----F|....}}}}}}}}}|...|}}}}}}}}}}}}...}}}}}}...}}}}}}..}}}}}}',
-        '}}}}}}}}}..............T...}}}}}.|.......}}}}}}}}}}}}}}..}...}.}}}}....}}}}}',
-        '}}}}}}}}}}....}}}}...}...}}}}}.......|.}}}}}}}}}}}}}}.......}}}}}}}}}...}}}}',
-        '}}}}}}}}}}..}}}}}}}}}}.}}}}}}}}}}-..--.}}}}}}}}..}}}}}}..T...}}}..}}}}}}}}}}',
-        '}}}}}}}}}...}}}}}}}}}}}}}}}}}}}}}}}...}}}}}}}....}}}}}}}.}}}..}}}...}}}}}}}}',
-        '}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}.}}}}}}....}}}}}}}}}}}}}}}}}}}...}}}}}}',
+        "}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}",
+        "}}}}}}}}}}}}}}........}}}}}}}}}}}}}}}}}}}}}}}..}}}.....}}}}}}}}}}}----|}}}}}",
+        "}}}}}}..----------F-.....}}}}}}}}}}}}}}}}..---...}}}}....T.}}}}}}}....|}}}}}",
+        "}}}.....|...F......S}}}}....}}}}}}}...}}.....|}}.}}}}}}}......}}}}|......}}}",
+        "}}}.....+...|..{...|}}}}}}}}}}}}.....}}}}|...|}}}}}}}}}}}.}}}}}}}}----.}}}}}",
+        "}}......|...|......|}}}}}}}}}......}}}}}}|.......}}}}}}}}}}}}}..}}}}}...}}}}",
+        "}}|-+--F|-+--....|F|-|}}}}}....}}}....}}}-----}}.....}}}}}}}......}}}}.}}}}}",
+        "}}|...}}|...|....|}}}|}}}}}}}..}}}}}}}}}}}}}}}}}}}}....}}}}}}}}....T.}}}}}}}",
+        "}}|...}}F...+....F}}}}}}}..}}}}}}}}}}}}}}...}}}}}}}}}}}}}}}}}}}}}}....}}..}}",
+        "}}|...}}|...|....|}}}|}....}}}}}}....}}}...}}}}}...}}}}}}}}}}}}}}}}}.....}}}",
+        "}}--+--F|-+--....-F|-|....}}}}}}}}}}.T...}}}}....---}}}}}}}}}}}}}}}}}}}}}}}}",
+        "}}......|...|......|}}}}}.}}}}}}}}}....}}}}}}}.....|}}}}}}}}}.}}}}}}}}}}}}}}",
+        "}}}}....+...|..{...|.}}}}}}}}}}}}}}}}}}}}}}}}}}.|..|}}}}}}}......}}}}...}}}}",
+        "}}}}}}..|...F......|...}}}}}}}}}}..---}}}}}}}}}}--.-}}}}}....}}}}}}....}}}}}",
+        "}}}}}}}}-----S----F|....}}}}}}}}}|...|}}}}}}}}}}}}...}}}}}}...}}}}}}..}}}}}}",
+        "}}}}}}}}}..............T...}}}}}.|.......}}}}}}}}}}}}}}..}...}.}}}}....}}}}}",
+        "}}}}}}}}}}....}}}}...}...}}}}}.......|.}}}}}}}}}}}}}}.......}}}}}}}}}...}}}}",
+        "}}}}}}}}}}..}}}}}}}}}}.}}}}}}}}}}-..--.}}}}}}}}..}}}}}}..T...}}}..}}}}}}}}}}",
+        "}}}}}}}}}...}}}}}}}}}}}}}}}}}}}}}}}...}}}}}}}....}}}}}}}.}}}..}}}...}}}}}}}}",
+        "}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}.}}}}}}....}}}}}}}}}}}}}}}}}}}...}}}}}}",
+        "}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}",
     ]);
 
     // C ref: medusa-4.lua lines 39-52. Four candidate rooms.
@@ -501,7 +498,7 @@ async function medusa4(des) {
     await des.levregion({ region: [67, 1, 74, 20], type: 'stair-up' });
 
     // Downstairs at Medusa's location
-    await des.stair({ dir: 'down', coord: [medloc.x, medloc.y] });
+    await des.stair('down', medloc);
 
     // Doors
     await des.door('locked', 4, 6);
@@ -519,8 +516,10 @@ async function medusa4(des) {
     await des.non_diggable(selection_area(1, 1, 22, 14));
 
     // Crystal ball
-    await des.object({ id: CRYSTAL_BALL, coord: [7, 8] });
+    await des.object('crystal ball', 7, 8);
 
+    // Object tables carry resolved source type/species indices, as the
+    // existing descriptor owner expects for corpse/statue/egg fields.
     // Perseus statue with conditional contents, at Medusa's location
     await des.object({
         id: STATUE, coord: [medloc.x, medloc.y], buc: 'uncursed',
@@ -536,11 +535,13 @@ async function medusa4(des) {
                 await des.object({ id: SCIMITAR, buc: 'blessed', spe: 2 });
             }
             if (percent(50)) {
-                await des.object({ id: SACK });
+                await des.object('sack');
             }
         },
     });
 
+    // Lua contents=0 opens/closes an empty statue container; the callback
+    // uses the same canonical descriptor path without generating contents.
     // Decoy statue at altloc and random statues with empty contents
     await des.object({ id: STATUE, coord: [altloc.x, altloc.y], contents() {} });
     await des.object({ id: STATUE, contents() {} });
@@ -561,16 +562,16 @@ async function medusa4(des) {
     }
 
     // Monsters: place Medusa first
-    await des.monster({ id: PM_MEDUSA, coord: [medloc.x, medloc.y], asleep: 1 });
-    await des.monster({ id: PM_KRAKEN, coord: [7, 7] });
+    await des.monster({ id: 'Medusa', coord: [medloc.x, medloc.y], asleep: 1 });
+    await des.monster('kraken', 7, 7);
 
     // The nesting yellow dragon
-    await des.monster({ id: PM_YELLOW_DRAGON, x: 5, y: 4, asleep: 1 });
+    await des.monster({ id: 'yellow dragon', x: 5, y: 4, asleep: 1 });
     if (percent(50)) {
-        await des.monster({ id: PM_BABY_YELLOW_DRAGON, x: 4, y: 4, asleep: 1 });
+        await des.monster({ id: 'baby yellow dragon', x: 4, y: 4, asleep: 1 });
     }
     if (percent(25)) {
-        await des.monster({ id: PM_BABY_YELLOW_DRAGON, x: 4, y: 5, asleep: 1 });
+        await des.monster({ id: 'baby yellow dragon', x: 4, y: 5, asleep: 1 });
     }
     await des.object({ id: EGG, x: 5, y: 4, montype: PM_YELLOW_DRAGON });
     if (percent(50)) {
@@ -581,20 +582,20 @@ async function medusa4(des) {
     }
 
     // Water monsters
-    await des.monster({ id: PM_GIANT_EEL });
-    await des.monster({ id: PM_GIANT_EEL });
-    await des.monster({ id: PM_JELLYFISH });
-    await des.monster({ id: PM_JELLYFISH });
+    await des.monster('giant eel');
+    await des.monster('giant eel');
+    await des.monster('jellyfish');
+    await des.monster('jellyfish');
 
     // 14 snakes
     for (let i = 0; i < 14; i++) {
-        await des.monster({ class: S_SNAKE });
+        await des.monster('S');
     }
 
     // Black nagas
     for (let i = 0; i < 4; i++) {
-        await des.monster({ id: PM_BLACK_NAGA_HATCHLING });
-        await des.monster({ id: PM_BLACK_NAGA });
+        await des.monster('black naga hatchling');
+        await des.monster('black naga');
     }
 }
 

@@ -234723,16 +234723,23 @@
     {
       "id": "fix-display-newsym-suppression-v37-20261009",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Suppress newsym map-memory writes during replacement-level generation.",
       "cFile": "display.c",
       "sessions": [],
-      "selectionReason": "C179 traced the final v37 replacement-map screen mismatch to display.c newsym missing the source map-output suppression guard; existing suppressMapOutput provides the exact four-state predicate.",
+      "selectionReason": "C179 source-traced v37 mismatch; exact delivery 7c544e3449fd5a95f3dd8a0674ef6ebcdd4cf73c.",
       "detail": "Add the source guard before location lookup and memory/output changes, preserve ordinary redraw behavior, and validate the admitted case plus independent replacement-map variations.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "b552d0a39cd1b9e9a35c27a74105a6a178fe1cf1",
+      "openStanding": {
+        "sha": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "4b8e78b3436a3badbcadb94bff93da388213ba19",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "newsym",
       "session": "synthetic/v37/v37-wizmap-after-monster-reset",
       "step": 30,
@@ -234749,30 +234756,237 @@
           "evaluationPath": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v37.json",
           "evaluationCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd"
         }
+      },
+      "activeStanding": {
+        "sha": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v37",
+          "caseId": "v37-wizmap-after-monster-reset",
+          "session": "synthetic/v37/v37-wizmap-after-monster-reset",
+          "manifestPath": "challenges/manifests/v37.json",
+          "manifestSha256": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202",
+          "recording": "challenges/cases/v37/v37-wizmap-after-monster-reset.session.json",
+          "recordingPath": "challenges/cases/v37/v37-wizmap-after-monster-reset.session.json",
+          "recordingSha256": "808f8b14507f9a00081fa5e5ffaa8bec61fb269a86141aeb8c7131f1eae15023",
+          "recipe": "challenges/cases/v37/v37-wizmap-after-monster-reset.recipe.session.json",
+          "recipeSha256": "551df71986aa560b239d5e1ca991a69e31f68b5884f738927cf2d416fd0df5a4",
+          "replayInputSha256": "25b3f051e8f59c613b9b065517b6186ec3febd384bfc97a11168e131c4123db5",
+          "evaluationPath": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v37.json",
+          "evaluationCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+          "evaluationArtifact": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v37.json",
+          "evaluationUtc": "2026-10-09T14:57:31.066Z",
+          "remainingScreens": 1,
+          "recordedSteps": 31,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 30,
+              "total": 31
+            },
+            "rng": {
+              "matched": 4640,
+              "total": 4640
+            },
+            "cursors": {
+              "matched": 31,
+              "total": 31
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 30,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 30,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 19,
+              "column": 36,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": ".",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 30,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v37/v37-wizmap-after-monster-reset.json",
+            "result": {
+              "session": "synthetic/v37/v37-wizmap-after-monster-reset",
+              "corpus": "synthetic",
+              "batch": "v37",
+              "caseId": "v37-wizmap-after-monster-reset",
+              "manifestPath": "challenges/manifests/v37.json",
+              "manifestSha256": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202",
+              "recordingSha256": "808f8b14507f9a00081fa5e5ffaa8bec61fb269a86141aeb8c7131f1eae15023",
+              "evaluationPath": "challenges/evaluations/baseline-d2270c2b6-v37.json",
+              "evaluationCommit": "d2270c2b682a9a2395fcca9eff7decce6c8825fa",
+              "remainingScreens": 1,
+              "recordedSteps": 31,
+              "status": "complete",
+              "commit": "86022373890a8217ab994dd279264042eca5bf59",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v37",
+                "caseId": "v37-wizmap-after-monster-reset",
+                "session": "synthetic/v37/v37-wizmap-after-monster-reset",
+                "manifestPath": "challenges/manifests/v37.json",
+                "manifestSha256": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202",
+                "recording": "challenges/cases/v37/v37-wizmap-after-monster-reset.session.json",
+                "recordingPath": "challenges/cases/v37/v37-wizmap-after-monster-reset.session.json",
+                "recordingSha256": "808f8b14507f9a00081fa5e5ffaa8bec61fb269a86141aeb8c7131f1eae15023",
+                "recipe": "challenges/cases/v37/v37-wizmap-after-monster-reset.recipe.session.json",
+                "recipeSha256": "551df71986aa560b239d5e1ca991a69e31f68b5884f738927cf2d416fd0df5a4",
+                "replayInputSha256": "2bda4e67d05a4983621f96cca8c8568a1ab988dc213463f454a7f5fabfeef303",
+                "evaluationPath": "challenges/evaluations/baseline-d2270c2b6-v37.json",
+                "evaluationCommit": "d2270c2b682a9a2395fcca9eff7decce6c8825fa",
+                "evaluationArtifact": "challenges/evaluations/baseline-d2270c2b6-v37.json",
+                "evaluationUtc": "2026-10-09T14:28:51.049Z",
+                "remainingScreens": 1,
+                "recordedSteps": 31,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 30,
+                    "total": 31
+                  },
+                  "rng": {
+                    "matched": 4640,
+                    "total": 4640
+                  },
+                  "cursors": {
+                    "matched": 31,
+                    "total": 31
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 30,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 30,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 19,
+                    "column": 36,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": ".",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 30,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "goalKind": "divergence-fix",
+              "summary": "newsym writes remembered floor glyphs during replacement-level trap generation because it omits the source map-output suppression guard.",
+              "source": {
+                "file": "display.c",
+                "functions": [
+                  "newsym"
+                ],
+                "branch": "in_mklev, saving, restoring, or done_hup must return before inspecting the location or modifying map memory; replacement mklev trap creation currently observes the prior level vision bitmap.",
+                "callers": [
+                  "cmd.c:doextcmd -> wizcmds.c:wiz_makemap -> mklev.c:mklev -> mktrap -> trap.c:maketrap -> dig.c:unearth_objs -> display.c:newsym"
+                ],
+                "dependencies": [
+                  "Existing js/display.js private suppressMapOutput implements the C four-flag predicate for flush_screen and can be reused without new owner completion credit."
+                ]
+              },
+              "evidence": [
+                "Baseline challenges/evaluations/baseline-d2270c2b6-v37.json at d2270c2b682a9a2395fcca9eff7decce6c8825fa has30/31screens,4640/4640RNG,31/31cursors. Fresh single-case diagnostic at worker86022373890a8217ab994dd279264042eca5bf59 reproduces zero-based segment0step30 newline: row19column36 is space in C, floor dot in JS. Saved .cache/C179-diagnostic.json; bounded receipt /tmp/teleport-validation-1000/run-hl1D7C/receipt.json. Immutable recording digest808f8b14507f9a00081fa5e5ffaa8bec61fb269a86141aeb8c7131f1eae15023; admitted manifest corpus digest542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202.",
+                "C display.c704–708 defines _suppress_map_output as in_mklev || program_state.saving || program_state.restoring, plus done_hup with HANGUPHANDLING. newsym917–928 applies it before isok/location lookup, swallowed/underwater branches and map memory/output work. JS display.js3722 starts by looking up game.level.at and has no suppression guard; private suppressMapOutput6090–6100 already implements all four flags and flush_screen6103 uses it.",
+                "Cache-only observer .cache/C179-memory-probe.mjs/log traces first replacement-map memory write at level37,18: newsym3935 assigns remembered S_room3992 while hero37,17, in_mklev=true, prior viz_array[18][37]=3. Stack is dig.js unearth_objs finish2163 -> trap.js pitTerrain853 -> maketrap1001 -> mktrap448 -> mklev.js finishMonster7806/fillRoom7921. Generation created a pit on a prior-visible coordinate. C suppresses this newsym call. Later hero8,11 cannot see37,18, but docrt remembered-map pass preserves the accidental floor glyph. .cache/C179-redraw-probe.log records the final glyph write and state (seenv0,waslittrue,remembered S_room,vision0).",
+                "Counter-evidence: existing cmd.js makemap_prepost retains named discarded wizcmds.c makemap_remove_mons gap, and whole teardown requires pets-only keepdogs support. However clear_level_structures creates a fresh GameMap, the final monster list contains only newly generated monsters, and the stray glyph is written during new-level pit generation. Do not bundle monster-removal, vision_reset buffer reset, or wider generation work into this cause.",
+                "Independent bounded divergence fix can reuse suppressMapOutput at the top of newsym before any location read. Reserve source:display.c:newsym and contract:map-output-suppressed-memory. Source-pinned fail-first checks must cover each source phase flag, invalid-coordinate suppression ordering, unchanged remembered/transient glyphs and ordinary live redraw. Keep broader newsym incomplete with no whole-function credit. Runtime evidence: assigned admitted range plus independent replacement-map and pit-generation variations from C-first inputs; retain any wider unsupported caller frontier rather than inventing output."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4b8e78b3436a3badbcadb94bff93da388213ba19",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-medusa-4-lua-v37-20261009",
       "kind": "lua-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Complete and verify the Medusa-4 special level, including its final moat row.",
       "luaFile": "medusa-4.lua",
       "sessions": [
         "synthetic/v37/v37-medusa"
       ],
-      "selectionReason": "A197 traced the v37 Medusa mismatch through sp_lev.c get_location to an incomplete medusa-4.lua caller payload: the JavaScript loader omits the source program final moat row. Complete whole-program review avoids the blocked partial-Lua divergence path.",
+      "selectionReason": "A197 whole medusa-4.lua source delivery 476d466961afe4fd750857d1786aadc491c0dcea",
       "detail": "Port and verify all top-level medusa-4.lua statements and production callers, restore the 21st 76-column moat row, generate fixed tables from source, and validate the admitted case plus independent direct loading.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "53b84d3f7e5308543960528cb0bb971af400d1ec",
+      "openStanding": {
+        "sha": "4b8e78b3436a3badbcadb94bff93da388213ba19",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "b581facde072156e518fc16846e3a5ca02455f81",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "medusa-4.lua",
           "line": 1,
           "endLine": 152,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -234788,30 +235002,378 @@
           "evaluationPath": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v37.json",
           "evaluationCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd"
         }
+      },
+      "activeStanding": {
+        "sha": "4b8e78b3436a3badbcadb94bff93da388213ba19",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v37",
+          "caseId": "v37-medusa",
+          "session": "synthetic/v37/v37-medusa",
+          "manifestPath": "challenges/manifests/v37.json",
+          "manifestSha256": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202",
+          "recording": "challenges/cases/v37/v37-medusa.session.json",
+          "recordingPath": "challenges/cases/v37/v37-medusa.session.json",
+          "recordingSha256": "909484fcdd1aa2c61ba170fd11d3e82efe43ca2479e9ec94a1847c07d7d5b7f9",
+          "recipe": "challenges/cases/v37/v37-medusa.recipe.session.json",
+          "recipeSha256": "88dc37370abc8f733fd3a6701394ea026cffd197a4855be18de031dc08ad0111",
+          "replayInputSha256": "d8c2fbd2799ca2701bcb2846d8713690f0071def8ed4a1d2041f3eac25584f23",
+          "evaluationPath": "challenges/evaluations/accepted-4b8e78b3436a3badbcadb94bff93da388213ba19-v37.json",
+          "evaluationCommit": "4b8e78b3436a3badbcadb94bff93da388213ba19",
+          "evaluationArtifact": "challenges/evaluations/accepted-4b8e78b3436a3badbcadb94bff93da388213ba19-v37.json",
+          "evaluationUtc": "2026-10-09T15:31:41.325Z",
+          "remainingScreens": 9,
+          "recordedSteps": 27,
+          "previousScreensMatched": 18,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 18,
+              "total": 27
+            },
+            "rng": {
+              "matched": 3137,
+              "total": 7466
+            },
+            "cursors": {
+              "matched": 25,
+              "total": 27
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "h"
+              },
+              "kind": "ch",
+              "row": 1,
+              "column": 8,
+              "cCell": {
+                "ch": "}",
+                "color": 4,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3117,
+              "cEntry": "rn2(21)=19",
+              "cCaller": "get_location(sp_lev.c:1234)",
+              "jsEntry": "rn2(20)=13",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "h"
+              },
+              "stepIndex": 18
+            },
+            "cursor": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "h"
+              },
+              "cCursor": [
+                70,
+                6,
+                1
+              ],
+              "jsCursor": [
+                72,
+                18,
+                1
+              ]
+            }
+          },
+          "step": 18,
+          "kind": "rng",
+          "sourceFile": "sp_lev.c",
+          "function": "get_location",
+          "message": null,
+          "cFile": "sp_lev.c",
+          "luaFile": null,
+          "line": 1234,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v37/v37-medusa.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v37",
+              "caseId": "v37-medusa",
+              "manifestPath": "challenges/manifests/v37.json",
+              "manifestSha256": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202",
+              "recordingSha256": "909484fcdd1aa2c61ba170fd11d3e82efe43ca2479e9ec94a1847c07d7d5b7f9",
+              "evaluationPath": "challenges/evaluations/baseline-d2270c2b6-v37.json",
+              "evaluationCommit": "d2270c2b682a9a2395fcca9eff7decce6c8825fa",
+              "remainingScreens": 9,
+              "recordedSteps": 27,
+              "session": "synthetic/v37/v37-medusa",
+              "commit": "b39c6606b243065a31e1be304d45da38e3e0f293",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v37",
+                "caseId": "v37-medusa",
+                "session": "synthetic/v37/v37-medusa",
+                "manifestPath": "challenges/manifests/v37.json",
+                "manifestSha256": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202",
+                "recording": "challenges/cases/v37/v37-medusa.session.json",
+                "recordingPath": "challenges/cases/v37/v37-medusa.session.json",
+                "recordingSha256": "909484fcdd1aa2c61ba170fd11d3e82efe43ca2479e9ec94a1847c07d7d5b7f9",
+                "recipe": "challenges/cases/v37/v37-medusa.recipe.session.json",
+                "recipeSha256": "88dc37370abc8f733fd3a6701394ea026cffd197a4855be18de031dc08ad0111",
+                "replayInputSha256": "2bda4e67d05a4983621f96cca8c8568a1ab988dc213463f454a7f5fabfeef303",
+                "evaluationPath": "challenges/evaluations/baseline-d2270c2b6-v37.json",
+                "evaluationCommit": "d2270c2b682a9a2395fcca9eff7decce6c8825fa",
+                "evaluationArtifact": "challenges/evaluations/baseline-d2270c2b6-v37.json",
+                "evaluationUtc": "2026-10-09T14:28:51.049Z",
+                "remainingScreens": 9,
+                "recordedSteps": 27,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 18,
+                    "total": 27
+                  },
+                  "rng": {
+                    "matched": 3137,
+                    "total": 7466
+                  },
+                  "cursors": {
+                    "matched": 25,
+                    "total": 27
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 18,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 18,
+                      "key": "h"
+                    },
+                    "kind": "ch",
+                    "row": 1,
+                    "column": 8,
+                    "cCell": {
+                      "ch": "}",
+                      "color": 4,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3117,
+                    "cEntry": "rn2(21)=19",
+                    "cCaller": "get_location(sp_lev.c:1234)",
+                    "jsEntry": "rn2(20)=13",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 18,
+                      "key": "h"
+                    },
+                    "stepIndex": 18
+                  },
+                  "cursor": {
+                    "index": 18,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 18,
+                      "key": "h"
+                    },
+                    "cCursor": [
+                      70,
+                      6,
+                      1
+                    ],
+                    "jsCursor": [
+                      72,
+                      18,
+                      1
+                    ]
+                  }
+                },
+                "step": 18,
+                "kind": "rng",
+                "sourceFile": "sp_lev.c",
+                "function": "get_location",
+                "message": null,
+                "cFile": "sp_lev.c",
+                "luaFile": null,
+                "line": 1234
+              },
+              "status": "complete",
+              "goalKind": "divergence-fix",
+              "summary": "The Medusa-4 JavaScript map omits its final Lua moat row, reducing height from 21 to 20. C moves the full-height fragment to ystart=0 and uses rn2(21) for random locations; JavaScript uses the smaller frame and rn2(20). Restore that source row in the caller, preserving generic map and coordinate owners.",
+              "source": {
+                "file": "medusa-4.lua",
+                "functions": [
+                  "medusa-4.lua"
+                ],
+                "branch": "Valid level travel selects medusa-4. dat/medusa-4.lua12-34 contains21 rows, including the final all-moat row at Lua33; js/medusa_levels.js medusa4 supplies only the first20 rows to the canonical array-form map descriptor.",
+                "callers": [
+                  "teleport.c level_tele -> do.c goto_level -> mklev.c makelevel -> mkmaze.c makemaz -> sp_lev.c load_special -> dat/medusa-4.lua des.map. JS allmain deferred-goto -> do goto_level -> mklev makelevel/makemaz/load_special -> MEDUSA_LEVEL_LOADERS medusa4 -> createSpecialLevelApi.map/mapFromRows.",
+                  "wizcmds.c wiz_load_splua -> sp_lev.c load_special provides an independent direct source-named entry. Existing registry and descriptors already select the owner; no dispatcher correction needed."
+                ],
+                "dependencies": [
+                  "sp_lev.c mapfrag_fromstr227-253 counts the rows; lspo_map6110-6116 parses the single string and centers it;6227-6238 sets ystart=0 when height equals ROWNO. JS mapFromRows applies the same full-height gate, so correcting its caller payload restores the frame.",
+                  "sp_lev.c get_location1202-1240 reads gy.ysize as sy and draws rn2(sy). JS room_coordinates get_location reads frame.ysize identically. The observed rn2(21)/rn2(20) is caused by the caller payload, not a coordinate-owner defect.",
+                  "Existing splev_chr2typ converts } to MOAT. Lua discards the map return; no numeric selection/alignment/tin/monster owner expansion is needed. Source comparison of all four maps shows variants1-3 exact and only variant4 missing its final row.",
+                  "Existing post-map room/stair/object/trap/monster/selection operations are outside whole-source credit. The map-only diagnostic traverses them and fully matches this assigned case. Independent C evidence remains required for production correction.",
+                  "scripts/worker-delivery.mjs146-150 recognizes Lua only for kind lua-port. The bounded Lua divergence tooling gate is already documented for B188 Castle and needs central resolution; do not mislabel this correction as whole Medusa-4 completion."
+                ]
+              },
+              "evidence": [
+                "Assigned replay run-FdGxAe at examined b39c6606b243065a31e1be304d45da38e3e0f293 reproduces first mismatch segment 0 step 18 key h. C RNG index 3117 draws rn2(21)=19 at get_location(sp_lev.c1234); JS draws rn2(20)=13. First screen difference row 1 col 8: C moat } versus JS space; cursor C(70,6,1) versus JS(72,18,1). Baseline records18/27matched screens,25/27 cursors, 3137/7466 RNG. Exact diagnostic .cache/A197/probe.json/log.",
+                "Read whole dat/medusa-4.lua1-152 and JS medusa4. Lua12-34 has21 rows of 76 columns; JS456-477 has20 rows of 76 columns. Only Lua33 final moat row is missing. .cache/A197/map-source-comparison.json compares all four decoded JS arrays to source long strings; variants1-3 identical, variant4 only missing row 20.",
+                "Cache-only diagnostic run-szGjDK substitutes the authoritative map through a proxy on the exported medusa-4 loader without changing game files. It fully matches27/27 screens,27/27 cursors7466/7466 RNG and0/0 frames with no boundary. .cache/A197/map-row-probe.mjs/json/log preserve this cause test; it is diagnostic evidence, not independent C coverage or committed implementation.",
+                "Read C mapfrag_fromstr/lspo_map full-height overflow/get_location and JS mapFromRows/get_location. Source height 21 triggers existing ROWNO gate ystart=0 and preserves random-location bound 21. No parser or coordinate behavior change is required.",
+                "Actionable bounded scope: source:medusa-4.lua and contract:medusa-map-source-height; missing row in js/medusa_levels.js; source-derived map/frame regression and fresh runner; recipes/medusa-4.lua and recordings/medusa-4.lua. No whole Lua program, sp_lev.c, mklev, nhlua.c or room_coordinates credit.",
+                "Fail first with source-derived full decoded matrix comparison of all four exported loaders, asserting Medusa-4 height 21 and final 76-cell moat row. Pin canonical full-height ystart=0 and frame-height RNG behavior without changing those owners. Replay admitted segment 0 steps 18-26. Record independent C-first direct #wizloaddes medusa-4.lua/mapping primary and role variation with new seed/date; compare complete RNG/screens/cursors/frames and actual bottom moat row. Retain another Medusa variant as the outside-scope check; observe its loader instead of relying on seed-based guesses of variant diversity.",
+                "Evidence limits: no game edits/new C game. The selected diagnostic matches only after cache-only payload substitution; production and independent runtime evidence remain required. Central bounded Lua divergence support is a known tooling gate shared with B188 Castle and must be resolved before source claim/delivery."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "medusa-4.lua",
+            "implementation": "js/medusa_levels.js",
+            "symbol": "medusa4",
+            "sourceReview": "Read whole dat/medusa-4.lua1–152 in order: solid stone fill and noteleport/mazelevel flags; generated exact21x76 map including final moat row; four-point selection with two distinct removed coordinates; lit map and irregular room; separate up/down teleport regions; up levregion, down stair at medloc, seven locked doors, branch region and nondiggable palace; crystal ball; historic male uncursed knight Perseus statue with75/25/50/50 conditional contents; seven empty statues and eight random objects; seven random traps; sleeping Medusa first, kraken, sleeping yellow dragon,50/25 baby gates and50/25 extra egg gates; two eels, two jellyfish,14 snakes and four interleaved black-naga/hatchling pairs. Every impure descriptor and contents callback is awaited in source order. Existing canonical descriptors consume resolved object/species IDs, while source positional string descriptors preserve default parsing. Lua contents=0 opens/closes an empty container through the equivalent empty callback. No stub or unported consumed result remains in the Lua unit.",
+            "callers": [
+              {
+                "path": "js/medusa_levels.js",
+                "symbol": "MEDUSA_LEVEL_LOADERS",
+                "source": "Existing medusa-4 registry resolves the source-named Lua program. All four program registrations remain intact."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "makelevel/makemaz -> sp_lev.c load_special -> nhlua load_lua -> whole medusa-4.lua. Canonical loader creates the descriptor API and private alignment shuffle, then finishes level generation. Matching selected arrival and independent Wizard arrival establish this production route."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "wizcmds.c wiz_load_splua calls source-named load_special after level reset. Independent Valkyrie direct loading matches through whole generation and map display."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/medusa4-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/medusa-4.lua/medusa4-valkyrie-independent.session.json",
+              "recordings/medusa-4.lua/medusa4-wizard-arrival-independent.session.json"
+            ],
+            "sourceFile": "medusa-4.lua",
+            "synthetic": [
+              {
+                "batch": "v37",
+                "caseId": "v37-medusa",
+                "segment": 0,
+                "fromStep": 18,
+                "throughStep": 26,
+                "source": "Natural Medusa arrival via level_tele/deferred_goto/goto_level -> makelevel/makemaz/load_special -> whole dat/medusa-4.lua and finish. Full selected replay matches27 screens/cursors and7466 RNG calls."
+              }
+            ],
+            "checkedAt": "b581facde072156e518fc16846e3a5ca02455f81"
+          }
+        ],
+        "entryPointReview": "The whole Lua generation entry is reachable through natural Medusa level creation and direct source-named debug loading. Selected admitted arrival and independently selected Wizard arrival cover natural generation; independent Valkyrie direct loading covers wiz_load_splua. Source-derived tests establish all descriptor values/order, removed selection coordinates and percent gates. Runtime assertions verify sleeping Medusa, nesting dragon, flags, down stair at Medusa and full-width final moat row. No whole generic descriptor, Medusa variants1–3, coordinate, reset or command credit.",
+        "entryPoints": [
+          {
+            "name": "Natural Medusa-level arrival generation",
+            "functions": [
+              "medusa-4.lua"
+            ],
+            "recordings": [
+              "recordings/medusa-4.lua/medusa4-wizard-arrival-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v37",
+                "caseId": "v37-medusa",
+                "segment": 0,
+                "fromStep": 18,
+                "throughStep": 26,
+                "source": "Natural Medusa arrival via level_tele/deferred_goto/goto_level -> makelevel/makemaz/load_special -> whole dat/medusa-4.lua and finish. Full selected replay matches27 screens/cursors and7466 RNG calls."
+              }
+            ]
+          },
+          {
+            "name": "Direct source-named special-level loading",
+            "functions": [
+              "medusa-4.lua"
+            ],
+            "recordings": [
+              "recordings/medusa-4.lua/medusa4-valkyrie-independent.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b581facde072156e518fc16846e3a5ca02455f81",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-wizcmds-wiz-show-nhuuid-v34-20261009",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port the wizard game UUID display command and canonical saved UUID state.",
       "cFile": "wizcmds.c",
       "sessions": [
         "synthetic/v34/v34-game-uuid"
       ],
-      "selectionReason": "B186 refreshed the complete v34 UUID investigation after B185 was accepted; wizcmds.c wiz_show_nhuuid is now dependency-ready and has no overlapping live reservation.",
+      "selectionReason": "B186 whole wizcmds.c wiz_show_nhuuid source delivery 747065a01f2df1ee7b66ecc44106fe1dd4d782d8",
       "detail": "Port whole wiz_show_nhuuid, wire its typed and rebound command dispatch, and add the one canonical svn.nhuuid reset/save/restore field used by the source command. The recorder build leaves generation empty; preserve arbitrary stored values without inventing native UUID behavior.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "6a3376788cd3e39986b97106fce036a4c0db779d",
+      "openStanding": {
+        "sha": "b581facde072156e518fc16846e3a5ca02455f81",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "aa078be24751cc723362b906245b9eb53d03ec6e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_show_nhuuid",
           "line": 1782,
           "endLine": 1789,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -234830,6 +235392,331 @@
           "recordingSha256": "a3502cee25b5e748a333a0b3b750ed2cdc98e1ddfbad71440b4b1642bf2dff7a",
           "evaluationPath": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v34.json",
           "evaluationCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd"
+        }
+      },
+      "activeStanding": {
+        "sha": "b581facde072156e518fc16846e3a5ca02455f81",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v34",
+          "caseId": "v34-game-uuid",
+          "session": "synthetic/v34/v34-game-uuid",
+          "manifestPath": "challenges/manifests/v34.json",
+          "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+          "recording": "challenges/cases/v34/v34-game-uuid.session.json",
+          "recordingPath": "challenges/cases/v34/v34-game-uuid.session.json",
+          "recordingSha256": "a3502cee25b5e748a333a0b3b750ed2cdc98e1ddfbad71440b4b1642bf2dff7a",
+          "recipe": "challenges/cases/v34/v34-game-uuid.recipe.session.json",
+          "recipeSha256": "4fddd1988a2918e73cb2b823b35a4b8afb80d8b88fc221f0b63d563d5bbf5aa2",
+          "replayInputSha256": "7a540068dabc7346a41d1a79217af7c22a9bf4dcf0dd797a576c3bc9b8638438",
+          "evaluationPath": "challenges/evaluations/accepted-b581facde072156e518fc16846e3a5ca02455f81-v34.json",
+          "evaluationCommit": "b581facde072156e518fc16846e3a5ca02455f81",
+          "evaluationArtifact": "challenges/evaluations/accepted-b581facde072156e518fc16846e3a5ca02455f81-v34.json",
+          "evaluationUtc": "2026-10-09T15:46:56.484Z",
+          "remainingScreens": 23,
+          "recordedSteps": 39,
+          "previousScreensMatched": 16,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 16,
+              "total": 39
+            },
+            "rng": {
+              "matched": 2596,
+              "total": 2596
+            },
+            "cursors": {
+              "matched": 16,
+              "total": 39
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_show_nhuuid() for the extended command 'wizshownhuuid' is not ported",
+            "step": 16
+          },
+          "step": 16,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_show_nhuuid",
+          "message": "unsupported hero command: wiz_show_nhuuid() for the extended command 'wizshownhuuid' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v34/v34-game-uuid.json",
+            "result": {
+              "session": "synthetic/v34/v34-game-uuid",
+              "corpus": "synthetic",
+              "batch": "v34",
+              "caseId": "v34-game-uuid",
+              "manifestPath": "challenges/manifests/v34.json",
+              "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+              "recordingSha256": "a3502cee25b5e748a333a0b3b750ed2cdc98e1ddfbad71440b4b1642bf2dff7a",
+              "evaluationPath": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v34.json",
+              "evaluationCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+              "remainingScreens": 23,
+              "recordedSteps": 39,
+              "status": "complete",
+              "commit": "9f67337b46c581f4e8f758d40bdbd8268c2f7cff",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v34",
+                "caseId": "v34-game-uuid",
+                "session": "synthetic/v34/v34-game-uuid",
+                "manifestPath": "challenges/manifests/v34.json",
+                "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+                "recording": "challenges/cases/v34/v34-game-uuid.session.json",
+                "recordingPath": "challenges/cases/v34/v34-game-uuid.session.json",
+                "recordingSha256": "a3502cee25b5e748a333a0b3b750ed2cdc98e1ddfbad71440b4b1642bf2dff7a",
+                "recipe": "challenges/cases/v34/v34-game-uuid.recipe.session.json",
+                "recipeSha256": "4fddd1988a2918e73cb2b823b35a4b8afb80d8b88fc221f0b63d563d5bbf5aa2",
+                "replayInputSha256": "5623f5ede977f3c58866b0af64e557c8173159f38f84136518296dc46ca75b89",
+                "evaluationPath": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v34.json",
+                "evaluationCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+                "evaluationArtifact": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v34.json",
+                "evaluationUtc": "2026-10-09T14:57:30.193Z",
+                "remainingScreens": 23,
+                "recordedSteps": 39,
+                "previousScreensMatched": 16,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 16,
+                    "total": 39
+                  },
+                  "rng": {
+                    "matched": 2596,
+                    "total": 2596
+                  },
+                  "cursors": {
+                    "matched": 16,
+                    "total": 39
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: wiz_show_nhuuid() for the extended command 'wizshownhuuid' is not ported",
+                  "step": 16
+                },
+                "step": 16,
+                "kind": "stop",
+                "sourceFile": "wizcmds.c",
+                "function": "wiz_show_nhuuid",
+                "message": "unsupported hero command: wiz_show_nhuuid() for the extended command 'wizshownhuuid' is not ported",
+                "cFile": "wizcmds.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The wizard game-UUID display command is missing. C prints the stored svn.nhuuid, which is empty in the recorder’s minimal build; JS refuses before the message. Its single stored value must survive save/restore rather than be replaced by a fixed display string.",
+              "source": {
+                "file": "wizcmds.c",
+                "branch": "wiz_show_nhuuid1782–1786, wizard command admitted only when not buried: print svn.nhuuid and return ECMD_OK without RNG or elapsed game time.",
+                "functions": [
+                  "wiz_show_nhuuid"
+                ],
+                "callers": [
+                  "cmd.c:doextcmd491–521 invokes the extcmdlist function pointer for wizshownhuuid1992–1993. js/extcmdlist_data.js176 has the correct AUTOCOMPLETE|WIZMODECMD row, but js/cmd.js lacks its typed switch arm.",
+                  "cmd.c:rhack3682–3825 resolves rebound/canned command rows, invokes the handler, and clears count after ECMD_OK. js/cmd.js needs only the bounded wizshownhuuid import/admission/rebound arm and existing result/reset behavior, including its no-time counted path."
+                ],
+                "dependencies": [
+                  "Existing pline owner supplies the discarded output call; use the canonical awaited tty message path. The selected function has no consumed-return callee.",
+                  "C decl.c928–934 initializes svn.nhuuid to a zero-filled NHUUIDSZ37 buffer, include/decl.h1173 declares the single saved field, and allmain.c:newgame778 calls get_nhuuid. Unix get_nhuuid849–871 is compile-time inactive without NHUUID. Both recorder minimal hints omit -DNHUUID; the private Linux recorder disassembly shows get_nhuuid only pushes/pops its frame then returns. No native UUID generation is needed for this build.",
+                  "C save.c:savegamestate273 writes svn.nhuuid before moves and restore.c:restgamestate539 restores it before moves. JS gstate/resetGame currently creates no UUID field; serializeGameState and dorestore also omit it. Proposed supporting closure initializes one canonical state.svn.nhuuid empty string and transports that value through the existing snapshot. No duplicate cached UUID or command-local literal.",
+                  "C save.c:freedynamicdata1170 calls free_nhuuid and bones.c614/636/678 writes/reads ancestor UUID metadata. Broader shutdown/bones ownership and NHUUID-enabled native generation remain explicit outside limits; no completion credit for those functions or whole startup/save/restore."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Accepted B195 evidence challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v34.json retains 16/39 screens and cursors,2596/2596 RNG:23 remaining. Saved current-work-queue identifies the same missing wiz_show_nhuuid at segment0 step16; no replay was repeated during this refresh. Earlier assigned-base diagnostic .cache/B186/current-scan.json at0f268f2c confirmed this source owner and expected stored-value message. Recording and recipe hashes remain unchanged.",
+                "Read complete wizcmds.c:wiz_show_nhuuid1782–1786: one pline with %s and svn.nhuuid, followed by ECMD_OK. rg for wiz_show_nhuuid/nhuuid in JS and focused tests finds only the generated command-table row and unrelated source-boundary/prompt tests; no implementation or stored UUID field exists.",
+                "Recorder source nethack-c/build-recorder.sh selects upstream sys/unix/hints/linux-minimal or nethack-c/macosx-minimal. Their CFLAGS do not define NHUUID and their link libraries do not include UUID support. Unlike full linux.500/macOS.500 hints, they do not conditionally add it. Read complete unixmain.c:get_nhuuid/free_nhuuid849–881; get_nhuuid’s body is wrapped by #if defined(NHUUID). objdump -d --disassemble=get_nhuuid /tmp/b121-recorder-worker-b/nethack confirms the actual private recorder body has no writes or UUID calls. This is a compile-time source fact, not a seed/session special case.",
+                "C’s initialized saved field remains empty in the supported recorder build, but wiz_show_nhuuid reads whatever is stored. Source-pinned tests should verify a nonempty supplied field is formatted unchanged, reset owns one fresh empty value, and save/restore preserves it without overwriting another saved-n field. Native generation is excluded from source completion.",
+                "Production command table uses AUTOCOMPLETE|WIZMODECMD without IFBURIED. Preserve existing wizard/buried admission, cancellation, no-time return, count reset, and normal message/More handling. There is no dedicated C producer of a queued UUID command; generic canned/repeat routing shares rhack’s row dispatch.",
+                "Independent evidence after central assignment: C-first typed command with different relevant role/options, rebound BINDINGS=V:wizshownhuuid with a count, repeated display, and a save/restore multi-segment variation showing the same stored field. Retain the admitted range through step38. Native UUID-enabled builds and bones/shutdown consumers stay named frontiers, without invented randomness or native operations.",
+                "Rechecked source and production state at merged accepted-B195 worker HEAD9f67337b46c581f4e8f758d40bdbd8268c2f7cff. rg nhuuid/wiz_show_nhuuid in js/gstate.js,save.js,restore.js,cmd.js,wizcmds.js finds no field/helper/caller; only extcmdlist_data.js has the source metadata row. Accepted B185 panic is wired at distinct doextcmd and rhack arms. The proposed UUID command requires only its own import/admission/typed/rebound arm, preserving those existing arms and source no-time return/count-reset behavior.",
+                "Current source review confirms decl.c init_svn928–934 zero-filled37byte nhuuid; save.c273 writes it before moves and restore.c539 reads it before moves. gstate.resetGame currently returns only item_action_in_progress; serializeGameState begins with moves and dorestore begins restoring moves. Add one canonical saved-n UUID field and only bounded persistence writes/reads,with nonempty supplied-state/save-restore tests. Source SHA for wizcmds.c is 4611d620caedc59dc270f5d6b6f9a2497831dc88325edc90f3770e75afd9b71f. Broader NHUUID generation,bones,shutdown and whole save/restore remain outside completion credit."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_show_nhuuid",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_show_nhuuid",
+            "sourceReview": "Read whole wizcmds.c:wiz_show_nhuuid1781–1786, the cmd.c command row/doextcmd/rhack, decl.c:init_svn928–934, save.c:savegamestate273 and restore.c:restgamestate539, allmain.c:newgame778 and sys/unix/unixmain.c:get_nhuuid849–871/free_nhuuid. The function reads the stored UUID, awaits the exact pline output, and returns ECMD_OK without RNG, state mutation or time. Wire typed doextcmd and bound/canned rhack resolution with source metadata admission and no-time count reset. One canonical state.svn.nhuuid is initialized empty by resetGame; save transport writes and restore reads it before moves, as C does. No generated metadata, duplicate runtime state, compatibility fallback or injected operation. Existing generic unsupported default remains for unrelated commands; search of scripts/*test.mjs found no stale UUID refusal assertion.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c:doextcmd491–523 resolves wizshownhuuid command row (AUTOCOMPLETE|WIZMODECMD, without IFBURIED) and consumes ECMD_OK."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:rhack3682–3825 resolves rebound/canned command row, checks wizard/buried admission, calls handler and clears count on ECMD_OK."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-show-nhuuid.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-game-uuid-typed-independent.session.json",
+              "recordings/wizcmds.c/wizard-game-uuid-bound-independent.session.json",
+              "recordings/wizcmds.c/wizard-game-uuid-restore-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v34",
+                "caseId": "v34-game-uuid",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 38,
+                "source": "cmd.c:doextcmd -> wizcmds.c:wiz_show_nhuuid1781–1786, then subsequent recorded commands."
+              }
+            ],
+            "checkedAt": "aa078be24751cc723362b906245b9eb53d03ec6e"
+          }
+        ],
+        "entryPointReview": "The C references are the function declaration/body and extcmdlist row. Typed #wizshownhuuid and a configured bound key are active command entries. Both are strict-perfect C recordings, including positive-count cancellation. Source rhack shares row handling with canned/rebound commands; no C producer separately queues this owner. Ordinary save and startup restore preserve the field across runSegment storage and have a two-segment strict-perfect recording. The reference minimal recorder does not define NHUUID, so native generation is compile-time inactive and the field remains empty. A source-pinned production save/restore test additionally transports a valid nonempty 36-byte value. No native-generator completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "typed wizard UUID command",
+            "functions": [
+              "wiz_show_nhuuid"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-game-uuid-typed-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v34",
+                "caseId": "v34-game-uuid",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 38,
+                "source": "cmd.c:doextcmd -> wizcmds.c:wiz_show_nhuuid1781–1786, then subsequent recorded commands."
+              }
+            ]
+          },
+          {
+            "name": "counted rebound wizard UUID command",
+            "functions": [
+              "wiz_show_nhuuid"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-game-uuid-bound-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "UUID command after saved-game restore",
+            "functions": [
+              "wiz_show_nhuuid"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-game-uuid-restore-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "aa078be24751cc723362b906245b9eb53d03ec6e",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-kni-loca-quest-level-v36-20261009",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Port the complete Knight quest locate level from Lua.",
+      "luaFile": "Kni-loca.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-kni-loca"
+      ],
+      "selectionReason": "C171 traced the v36 Knight locate stop to the missing Kni-loca loader; the whole Lua program uses existing descriptor owners and has no live reservation overlap.",
+      "detail": "Port all dat/Kni-loca.lua top-level statements and register the production quest loader. Preserve source order, generate the fixed map and tables from source, and verify natural Knight arrival plus independent male and female direct loads.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Kni-loca.lua",
+          "line": 1,
+          "endLine": 137,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-kni-loca": {
+          "session": "synthetic/v36/v36-quest-kni-loca",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-kni-loca",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-kni-loca.session.json",
+          "recordingSha256": "d4614f2ccb4abc35c097705db11890113bed01144d3fa40c6c4d9ae4f29bc856",
+          "evaluationPath": "challenges/evaluations/accepted-b581facde072156e518fc16846e3a5ca02455f81-v36.json",
+          "evaluationCommit": "b581facde072156e518fc16846e3a5ca02455f81"
+        }
+      }
+    },
+    {
+      "id": "port-mon-goal-quest-goal-v36-20261009",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Port the complete Monk quest goal level from Lua.",
+      "luaFile": "Mon-goal.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-mon-goal"
+      ],
+      "selectionReason": "A192 traced the v36 Monk quest goal stop to the missing Mon-goal loader; the whole Lua program uses existing descriptor owners and does not overlap B186 or C171.",
+      "detail": "Port all dat/Mon-goal.lua top-level statements and register the production quest loader. Preserve its single shared two-position draw for the artifact, Master Kaen, and altar; generate fixed tables from source and verify natural arrival plus independent direct loads.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Mon-goal.lua",
+          "line": 1,
+          "endLine": 75,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-mon-goal": {
+          "session": "synthetic/v36/v36-quest-mon-goal",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-mon-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-mon-goal.session.json",
+          "recordingSha256": "daf2d29044a317edaf6598177fb6c24d2a290406534b6bafa42b3408d11db3f8",
+          "evaluationPath": "challenges/evaluations/accepted-b581facde072156e518fc16846e3a5ca02455f81-v36.json",
+          "evaluationCommit": "b581facde072156e518fc16846e3a5ca02455f81"
         }
       }
     }
