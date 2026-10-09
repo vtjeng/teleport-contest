@@ -226834,6 +226834,80 @@
           "evaluationCommit": "f091b997ca1571fc6198fe3189ad06fe2dba532c"
         }
       }
+    },
+    {
+      "id": "fix-dothrow-toss-up-petrifier-drop-env-v33-20261009",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Supply canonical drop operations before upward-corpse petrification.",
+      "cFile": "dothrow.c",
+      "sessions": [],
+      "selectionReason": "Current unreserved v33 cockatrice-upward divergence; the complete report traces missing canonical drop operations in toss_up petrification and is independent of queued owners.",
+      "detail": "At segment 0 step 58, C toss_up drops the surviving corpse, clears thrownobj, then calls done(STONING). JavaScript passes raw state to env-shaped dropy. Compose dropCommandEnv at this caller while preserving placement, redraw, thrownobj clear, and terminal order; no whole toss_up, drop-family, or end.c credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "toss_up",
+      "session": "synthetic/v33/v33-cockatrice-corpse-upward",
+      "step": 58,
+      "syntheticProvenance": {
+        "synthetic/v33/v33-cockatrice-corpse-upward": {
+          "session": "synthetic/v33/v33-cockatrice-corpse-upward",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-cockatrice-corpse-upward",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-cockatrice-corpse-upward.session.json",
+          "recordingSha256": "8628af8f2ac28a64cbb0a6c17665fb656f2b0132326ecb45cfb70f45a7d0cfec",
+          "evaluationPath": "challenges/evaluations/accepted-7af2dcb832c469033b652c131fe1feeae0d47ed3-v33.json",
+          "evaluationCommit": "7af2dcb832c469033b652c131fe1feeae0d47ed3"
+        }
+      }
+    },
+    {
+      "id": "port-uhitm-hmon-hitmon-msg-silver-v33-20261009",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port silver-hit feedback and wire its sole bounded melee caller.",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v33/v33-silver-dagger-sears"
+      ],
+      "selectionReason": "Current unreserved v33 silver-dagger mismatch; the complete report identifies the whole 38-line silver feedback helper and its sole bounded caller, disjoint from other uhitm owners.",
+      "detail": "Port uhitm.c hmon_hitmon_msg_silver lines 1663-1700 and await it at the existing hmon_hitmon silvermsg branch before poison and kill messages. Preserve visible ring, named silver object, generic silver, unseen target, and corporeal flesh wording; take no whole hmon_hitmon or light-object credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "hmon_hitmon_msg_silver",
+          "line": 1663,
+          "endLine": 1701,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1663,
+        "to": 1701
+      },
+      "syntheticProvenance": {
+        "synthetic/v33/v33-silver-dagger-sears": {
+          "session": "synthetic/v33/v33-silver-dagger-sears",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-silver-dagger-sears",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-silver-dagger-sears.session.json",
+          "recordingSha256": "6b9d174c8154e3bcc8cb33324343ecf9571b46b43ab535e0c22ebbd0342875b9",
+          "evaluationPath": "challenges/evaluations/accepted-7af2dcb832c469033b652c131fe1feeae0d47ed3-v33.json",
+          "evaluationCommit": "7af2dcb832c469033b652c131fe1feeae0d47ed3"
+        }
+      }
     }
   ]
 }
