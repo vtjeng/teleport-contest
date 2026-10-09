@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pager.c:dowhatdoes and cmd.c:key2extcmddesc known/prefix/movement witness. New Wizard, seed and clock; ordinary i, two-line m, vertical-bar perminv and h movement descriptions are all queries. Initial candidates ^P and vertical-bar both proved source-bound rather than unknown; keep the valid known-key variation and use the separate altmeta M-q recording for unknown numeric diagnostics. Original C-only ^P probe remains in cache.",
+  "segments": [
+    {
+      "seed": 15533011,
+      "datetime": "20541107213243",
+      "nethackrc": "OPTIONS=name:Lex,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".& i   &m   &|   &h   ."
+    }
+  ]
+}

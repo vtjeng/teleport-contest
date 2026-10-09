@@ -310,6 +310,7 @@ import { dosave, dosave0, savelev } from './save.js';
 import {
     dohelp,
     dohistory,
+    dowhatdoes,
     doquickwhatis,
     do_screen_description,
     dowhatis,
@@ -1076,11 +1077,10 @@ export function movecmd(sym, mode, state = game) {
 export function key2extcmddesc(key, state = game) {
     const byte = key & 0xFF;
     const model = commandBindings(state);
-    let description = '';
-    if (movecmd(byte, MV_WALK, state)) description = 'move';
-    else if (movecmd(byte, MV_RUSH, state)) description = 'rush';
-    else if (movecmd(byte, MV_RUN, state)) description = 'run';
-    if (description) return description;
+    // C writes temporary movement text but never returns it: it continues
+    // into the count, special-key and binding lookups. Keep all probe effects.
+    if (!movecmd(byte, MV_WALK, state)
+        && !movecmd(byte, MV_RUSH, state)) movecmd(byte, MV_RUN, state);
 
     const unmeta = byte & 0x7F;
     const isDigit = (value) => value >= 0x30 && value <= 0x39;
@@ -1860,7 +1860,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'options', 'autopickup',
     'wizwish', 'wizidentify', 'wizlevelport', 'wizgenesis', 'wizintrinsic', 'wizmap', 'wizwhere', 'wizcast', 'wizsmell', 'wizkill', 'fire', 'throw',
     'swap', 'kick',
-    'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
+    'save', 'wield', 'quiver', 'help', 'whatdoes', 'whatis', '#', 'loot', 'force', 'tip',
     'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet',
     'seeall', 'seetools', 'teleport',
     'overview', 'chronicle', 'conduct', 'vanquished', 'genocided',
@@ -5121,6 +5121,8 @@ async function doextcmd(key, state) {
         return await runHelpCommand(key, state);
     case 'dohistory':
         return await dohistory(state);
+    case 'dowhatdoes':
+        return await dowhatdoes(state);
     case 'dowhatis':
         return await runWhatisCommand(key, state);
     case 'doquickwhatis':
@@ -5783,6 +5785,11 @@ export async function rhack(key, state = game) {
         }
         if (command === 'help') {
             await runHelpCommand(key, state);
+            resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === 'whatdoes') {
+            await dowhatdoes(state);
             resetCommandVars(state, state.multi < 0);
             return;
         }
