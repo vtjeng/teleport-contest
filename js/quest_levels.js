@@ -3,6 +3,7 @@
 //         dat/Bar-goal.lua, dat/Bar-loca.lua, dat/Arc-strt.lua,
 //         dat/Arc-loca.lua, dat/Arc-fila.lua, dat/Arc-filb.lua,
 //         dat/Arc-goal.lua,
+//         dat/Cav-strt.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
@@ -54,6 +55,7 @@ import {
 import { rn2, rnd } from './rng.js';
 import { selection_area, ThemeroomSelection } from './themerooms.js';
 import { KNI_GOAL_LEVEL_MAP } from './kni_goal_level_data.js';
+import { CAV_STRT_LEVEL_MAP } from './cav_strt_level_data.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
 // that draws a random zig-zag path from (x1,y1) to (x2,y2).
@@ -1907,6 +1909,60 @@ async function wizFilb(des) {
     await des.random_corridors();
 }
 
+// Source: complete dat/Cav-strt.lua, including the leader inventory callback.
+async function cavStrt(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noteleport', 'hardfloor');
+    await des.map(CAV_STRT_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 19), 'unlit');
+    await des.region({ region: [13, 1, 40, 5], lit: 1,
+        type: 'temple', filled: 1, irregular: 1 });
+    await des.region({ region: [2, 1, 8, 3], lit: 1, type: 'ordinary', irregular: 1 });
+    await des.region({ region: [1, 11, 6, 14], lit: 1, type: 'ordinary', irregular: 1 });
+    await des.region({ region: [13, 8, 18, 10], lit: 1, type: 'ordinary', irregular: 1 });
+    await des.region({ region: [5, 17, 14, 18], lit: 1, type: 'ordinary', irregular: 1 });
+    await des.region({ region: [17, 16, 23, 18], lit: 1, type: 'ordinary', irregular: 1 });
+    await des.region({ region: [35, 16, 44, 18], lit: 1, type: 'ordinary', irregular: 1 });
+    await des.stair('down', 2, 3);
+    await des.levregion({ region: [71, 9, 71, 9], type: 'branch' });
+    await des.door('locked', 19, 6);
+    await des.altar({ x: 36, y: 2, align: 'coaligned', type: 'shrine' });
+    await des.monster({ id: 'Shaman Karnov', coord: [35, 2],
+        async inventory() {
+            await des.object({ id: 'leather armor', spe: 5 });
+            await des.object({ id: 'club', spe: 5 });
+        } });
+    await des.object('chest', 34, 2);
+    await des.monster('neanderthal', 20, 3);
+    await des.monster('neanderthal', 20, 2);
+    await des.monster('neanderthal', 20, 1);
+    await des.monster('neanderthal', 21, 3);
+    await des.monster('neanderthal', 21, 2);
+    await des.monster('neanderthal', 21, 1);
+    await des.monster('neanderthal', 22, 1);
+    await des.monster('neanderthal', 26, 9);
+    await des.non_diggable(selection_area(0, 0, 75, 19));
+    await des.trap('pit', 47, 11);
+    await des.trap('pit', 57, 10);
+    await des.trap();
+    await des.trap();
+    await des.trap();
+    await des.trap();
+    await des.monster({ id: 'bugbear', x: 47, y: 2, peaceful: 0 });
+    await des.monster({ id: 'bugbear', x: 48, y: 3, peaceful: 0 });
+    await des.monster({ id: 'bugbear', x: 49, y: 4, peaceful: 0 });
+    await des.monster({ id: 'bugbear', x: 67, y: 3, peaceful: 0 });
+    await des.monster({ id: 'bugbear', x: 69, y: 4, peaceful: 0 });
+    await des.monster({ id: 'bugbear', x: 51, y: 13, peaceful: 0 });
+    await des.monster({ id: 'bugbear', x: 53, y: 14, peaceful: 0 });
+    await des.monster({ id: 'bugbear', x: 55, y: 15, peaceful: 0 });
+    await des.monster({ id: 'bugbear', x: 63, y: 10, peaceful: 0 });
+    await des.monster({ id: 'bugbear', x: 65, y: 9, peaceful: 0 });
+    await des.monster({ id: 'bugbear', x: 67, y: 10, peaceful: 0 });
+    await des.monster({ id: 'bugbear', x: 69, y: 11, peaceful: 0 });
+    await des.wallify();
+}
+
 export const QUEST_LEVEL_LOADERS = {
     'Bar-strt': barStrt,
     'Bar-fila': barFila,
@@ -1919,6 +1975,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Arc-filb': arcFilb,
     'Arc-goal': arcGoal,
     'Kni-goal': kniGoal,
+    'Cav-strt': cavStrt,
     'Pri-strt': priStrt,
     'Pri-loca': priLoca,
     'Pri-goal': priGoal,
