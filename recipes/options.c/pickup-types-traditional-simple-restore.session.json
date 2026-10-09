@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first whole pickup-types request witness. Unsearched seed17932012 and fixed weekday clock20531018112133 were chosen before JS comparison. Ranger rc menustyle:traditional,pickup_types:% reaches startup set/get and pickup-types-traditional-simple-restore; command choices follow source menu/prompt semantics.",
+  "segments": [
+    {
+      "seed": 17932012,
+      "datetime": "20531018112133",
+      "nethackrc": "OPTIONS=name:Mara,role:Ranger,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,menustyle:traditional,pickup_types:%\n",
+      "moves": ".Oo\n\u001bOo  \n\u001bOo)\n\u001bOo\u001b\u001b."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside-limit error output: cfgfiles.c config_erradd runtime pline/wait_synch is unported. Accepted classes and optn_err remain source state; invalid input emits the missing error.",
+  "segments": [
+    {
+      "seed": 17932015,
+      "datetime": "20531018112133",
+      "nethackrc": "OPTIONS=name:Mara,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,menustyle:traditional,pickup_types:)\n",
+      "moves": ".Oo%Z%\n\u001b."
+    }
+  ]
+}

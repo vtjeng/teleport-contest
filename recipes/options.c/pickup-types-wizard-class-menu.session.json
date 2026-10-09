@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent cheap debug variation covers full-menu class request, VENOM append and Escape restore without a traditional prompt.",
+  "segments": [
+    {
+      "seed": 17932014,
+      "datetime": "20531018112133",
+      "nethackrc": "OPTIONS=name:Mara,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,menustyle:full,pickup_types:)\nOPTIONS=playmode:debug,!debug_mongen\n",
+      "moves": ".#optionsfull\n:pickup_types\n\n\u001b."
+    }
+  ]
+}
