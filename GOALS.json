@@ -232508,7 +232508,7 @@
     {
       "id": "port-hea-strt-quest-level-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Healer quest start level and register its loader.",
       "luaFile": "Hea-strt.lua",
       "sessions": [
@@ -232522,15 +232522,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7238e3640e16c635f0c0fa6f7270c0c861d2afac",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Hea-strt.lua",
           "line": 1,
           "endLine": 109,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -232697,7 +232700,85 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Hea-strt.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "heaStrt",
+            "sourceReview": "Read whole dat/Hea-strt.lua1–109. Preserve solidfill stone, mazelevel/noteleport/hardfloor, exact76×20 map, 10 percent pool replacement in region1,1..74,18, full-map light, down37,9 stair, branch4,12 arrival, neutral altar32,9, all12doors in order, Hippocrates37,10 custom silver dagger spe5, chest then eight attendants, nondiggable full selection, six random traps, ten rabid rats, giant eel/shark/class semicolon, five hostile D then five hostile S class descriptors. No invented wallify. Map/door/attendant tables generated deterministically from Lua; strings preserve canonical name/gender/RNG resolution. Every descriptor awaited, including monster custom inventory before chest and attendants. Reused existing descriptors unchanged; no support-owner completion credit.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "dat/dungeon.lua Healer quest start prototype -> Hea-strt.lua registry."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "sp_lev.c:load_special executes registered program through mkmaze.c:makemaz or wizcmds.c:wiz_load_splua."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hea-strt-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Hea-strt.lua/hea-strt-human.session.json",
+              "recordings/Hea-strt.lua/hea-strt-male-human.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-hea-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Forced Healer quest start arrival -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole Hea-strt.lua and final mapping."
+              }
+            ],
+            "checkedAt": "7238e3640e16c635f0c0fa6f7270c0c861d2afac"
+          }
+        ],
+        "entryPointReview": "Two active program routes: Healer special quest start generation through makelevel/makemaz covered by admitted forced arrival, and wizard des-file loading through wiz_load_splua/load_special covered by two independent male/female human recipes. No whole descriptor/loader/quest-permission/finalizer credit. Adjacent Hea-loca program is owned by B195; gnome distant redraw is an independently preserved visibility frontier.",
+        "entryPoints": [
+          {
+            "name": "Healer quest start generation",
+            "functions": [
+              "Hea-strt.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-hea-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Forced Healer quest start arrival -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole Hea-strt.lua and final mapping."
+              }
+            ]
+          },
+          {
+            "name": "Wizard des-file program loading",
+            "functions": [
+              "Hea-strt.lua"
+            ],
+            "recordings": [
+              "recordings/Hea-strt.lua/hea-strt-human.session.json",
+              "recordings/Hea-strt.lua/hea-strt-male-human.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7238e3640e16c635f0c0fa6f7270c0c861d2afac",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-cmd-doextlist-v34-20261009",
