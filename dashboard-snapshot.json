@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T02:56:48.078Z",
+  "capturedAt": "2026-10-09T03:04:26.887Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -69857,12 +69857,47 @@
         "worker": "A2",
         "state": "idle",
         "reason": "Accepted B180 and C159 are synchronized. Awaiting the coordinator’s published closure evaluations before selecting the next eligible task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B181-admission-blocked-20261009",
+        "type": "turn",
+        "at": "2026-10-09T02:56:48.783Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "No independent admitted task is ready: native-pointer diagnostics and platform provenance are blocked. Waiting for the coordinator to admit the next prepared batch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B180-6d7da9e0b",
+        "type": "published",
+        "at": "2026-10-09T02:57:34.186Z",
+        "task": "B180",
+        "commit": "6d7da9e0b0013c20926f22847d5246717e8af47e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-v33-admission-checkpoint-20261009",
+        "type": "activity",
+        "at": "2026-10-09T02:59:26.744Z",
+        "task": "B158",
+        "phase": "admission",
+        "reason": "Running the exact-HEAD hosted checkpoint required to admit the prepared v33 challenge batch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-v33-admission-baseline-20261009",
+        "type": "activity",
+        "at": "2026-10-09T03:04:21.640Z",
+        "task": "B158",
+        "phase": "done",
+        "reason": "Admitted v33 with 45 cases and saved its first baseline: 30/45 sessions and 3592/4395 screens match."
       }
     ]
   },
   "development": {
-    "executionCommit": "ab7c3b6001f4fb32a299c807f2d4350025858ab0",
-    "measuredAt": "2026-10-09T02:51:27.581Z",
+    "executionCommit": "6d7da9e0b0013c20926f22847d5246717e8af47e",
+    "measuredAt": "2026-10-09T03:02:40.451Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
