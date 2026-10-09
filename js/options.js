@@ -1623,11 +1623,13 @@ function optfn_fruit(result, request, negated, opts, op) {
                 state: result,
                 userSpecified: true,
             });
-            if (result.give_opt_msg && result.startupEvents) {
-                result.startupEvents.push({
-                    type: 'message',
-                    text: `Fruit is now "${result.svp.pl_fruit}".`,
-                });
+            if (result.give_opt_msg !== false) {
+                // C options.c:1759-1760 prints after fruitadd. Keep startup
+                // parsing synchronous; the live parseoptions caller awaits
+                // this message before receiving the source success result.
+                return ttyPline(
+                    `Fruit is now "${result.svp.pl_fruit}".`, result,
+                ).then(() => optn_ok);
             }
         }
         return optn_ok;
