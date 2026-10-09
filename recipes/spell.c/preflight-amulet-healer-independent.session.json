@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first spell.c preflight/backfire witness. Seeds/dates and role variation chosen before C observation; setup/input acknowledgments inspected before any JavaScript comparison. C-only welcome More observation requires leading spaces before commands. C zap.c makewish requires an additional wish after granting the real Amulet; choose an unused orange.",
+  "segments": [
+    {
+      "seed": 19035022,
+      "datetime": "20631118152535",
+      "nethackrc": "OPTIONS=name:Preflight,role:Healer,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  .\u0017Amulet of Yendor\n  uncursed orange\n  Za      ."
+    }
+  ]
+}
