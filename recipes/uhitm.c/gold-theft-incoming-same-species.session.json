@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "comment": "CURRENTLY BLOCKED independent C-first incoming same-mlet mhitm_ad_sgld witness: male leprechaun hero wakes a hostile leprechaun with Fb then forces one m. wait. C111 shows the incoming hit, but JS stops before completing the wait at boundary112 on monmove.c:distfleeck, owned by A180. No completion credit until that dependency is accepted and strict comparison passes; full repeated-wait continuation retained separately.",
+  "comment": "Independent C-first incoming same-mlet mhitm_ad_sgld witness: male leprechaun hero wakes a hostile leprechaun with Fb then forces one m. wait. C111 shows the incoming hit and final HP13/14; canonical dispatch returns before the discarded stealgold arm. The original admission failure is preserved in the immutable C163 source delivery and cache logs.",
   "segments": [
     {
       "seed": 16381019,

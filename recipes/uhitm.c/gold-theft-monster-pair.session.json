@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "comment": "Independent C-first monster-pair AD_SGLD witness: a conflict ring and tin whistle awaken eight hostile gold-bearing leprechauns. C100/103/106 show ownership transfer, with disappearance feedback101/104/107. CURRENTLY BLOCKED at JS99 by monmove.c:distfleeck, reserved by A180; preserve as source evidence only until that dependency is accepted and strict comparison passes. No completion credit while blocked.",
+  "comment": "Independent C-first monster-pair AD_SGLD witness: a conflict ring and tin whistle awaken eight hostile gold-bearing leprechauns. C100/103/106 show gold transfers, with disappearance feedback101/104/107. The empty hero purse leaves the unrelated discarded stealgold callee without a C effect. The complete recording verifies canonical monster ownership and relocation after bounded leprechaun admission.",
   "segments": [
     {
       "seed": 16381027,

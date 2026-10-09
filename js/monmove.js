@@ -2686,6 +2686,8 @@ export async function dochug(monster, rawEnv = {}) {
         || monster.mconf
         || monster.mstun
         || (monster.minvis && !random.rn2(3))
+        || (monster.data.mlet === S_LEPRECHAUN && !findgold(state.invent)
+            && (findgold(monster.minvent) || random.rn2(2)))
         || (is_wanderer(monster.data) && !random.rn2(4))
         || (activeProperty(state, CONFLICT, false) && !monster.iswiz)
         || (!monster.mcansee && !random.rn2(4))

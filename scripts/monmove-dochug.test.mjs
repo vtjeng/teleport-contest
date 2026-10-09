@@ -36,7 +36,9 @@ import {
     AT_WEAP,
     M1_ANIMAL,
     M1_TPORT,
+    S_LEPRECHAUN,
 } from '../js/monsters.js';
+import { GOLD_PIECE } from '../js/objects.js';
 
 function makeState() {
     const uprops = [];
@@ -103,6 +105,37 @@ function baseEnv(state, events) {
             assert.fail('unexpected undirected spell attempt'),
     };
 }
+
+test('dochug preserves leprechaun gold short circuits before the movement roll', async () => {
+    // monmove.c:883–886: hero gold skips the whole term, monster gold skips
+    // rn2(2), and otherwise its zero/nonzero result chooses attack/movement.
+    const cases = [
+        { heroGold: true, monsterGold: true, roll: 1, draws: [], moves: 0 },
+        { heroGold: false, monsterGold: true, roll: 1, draws: [], moves: 1 },
+        { heroGold: false, monsterGold: false, roll: 0, draws: [2], moves: 0 },
+        { heroGold: false, monsterGold: false, roll: 1, draws: [2], moves: 1 },
+    ];
+    for (const entry of cases) {
+        const state = makeState(); const events = [];
+        const gold = () => ({ otyp: GOLD_PIECE, nobj: null });
+        state.invent = entry.heroGold ? gold() : null;
+        const monster = makeMonster({
+            data: { mlet: S_LEPRECHAUN, mflags2: 0, mflags3: 0 },
+            minvent: entry.monsterGold ? gold() : null,
+        });
+        const draws = [];
+        await dochug(monster, {
+            ...baseEnv(state, events),
+            random: { rn2: bound => { draws.push(bound); return entry.roll; } },
+            distanceAndFear: () => ({ inrange: true, nearby: true, scared: false }),
+            moveMonster: () => { events.push('move'); return MMOVE_DONE; },
+        });
+        assert.deepEqual(draws, entry.draws, JSON.stringify(entry));
+        assert.equal(events.filter(event => event === 'move').length, entry.moves);
+    }
+    const source = readFileSync(new URL('../nethack-c/upstream/src/monmove.c', import.meta.url), 'utf8');
+    assert.match(source, /mdat->mlet == S_LEPRECHAUN && !findgold\(gi\.invent\)\s+&& \(findgold\(mtmp->minvent\) \|\| rn2\(2\)\)\)\s+\|\| \(is_wanderer/u);
+});
 
 // C ref: monmove.c:889-908. Before m_move(), a monster that may move and
 // whose mspec_used is 0 tries an undirected spell when dist2 to the hero
