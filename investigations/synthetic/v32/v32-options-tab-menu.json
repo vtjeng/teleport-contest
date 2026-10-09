@@ -61,7 +61,7 @@
     "branch": "iflags.menu_tab_sep true from the configuration or debug Boolean option; full doset chooses fmtstr_tab_doset and changes pass0 indentation. doset_simple_menu independently chooses fmtstr_tab_doset_simple.",
     "callers": [
       "cmd.c:doextcmd493-520 optionsfull callback -> options.c:doset8758-8975 (B173 immutable typed dispatcher dependency).",
-      "options.c:doset_simple8707-8735 O/mO -> doset_simple_menu8524-8705 or doset; doset menu_requested inversion provides m#optionsfull simple caller. Existing cmd.js:runOptionsCommand owns shared menu operations."
+      "options.c:doset_simple8707-8735 O/mO -> doset_simple_menu8536-8705 or doset; doset menu_requested inversion provides m#optionsfull simple caller. Existing cmd.js:runOptionsCommand owns shared menu operations."
     ],
     "dependencies": [
       "B173 delivery4f44a54aa3bff3ccd1d4252387a5e069b3d66a6b supplies typed doset dispatcher; do not edit cmd.js or reserve doextcmd again.",
@@ -72,7 +72,7 @@
   },
   "evidence": [
     "Claimed-case bounded replay run-n3Fero receipt in .cache/B178/scan.log at4f44a54 emits14/32, boundary: the options menu requires doset() with menu_tab_sep; no preceding screen/cursor/RNG divergence. Exact saved evaluation still has18remaining and2651/2651 RNG.",
-    "Read whole C doset8758-8975 and doset_simple_menu8524-8705 plus related doset_add_menu and longest_option_name. Full format literal%s%s\\t[%s], simple%s\\t[%s]; full pass0 Boolean indent is empty only when tabbed. Other/read-only rows use doset_add_menu source indent independently.",
+    "Read whole C doset8758-8975 and doset_simple_menu8536-8705 plus related doset_add_menu and longest_option_name. Full format literal%s%s\\t[%s], simple%s\\t[%s]; full pass0 Boolean indent is empty only when tabbed. Other/read-only rows use doset_add_menu source indent independently.",
     "Current JS dosetEntryFormat7836 refuses tabbed full menu, and dosetSimpleEntryFormat8797 separately refuses tabbed simple menu. Both canonical menus exist and can reuse the matching renderer; no whole doset completion claimed.",
     "Pure formatting assertions should pin raw tab bytes, omission of width padding, Boolean vs compound indentation, values and stable selectors. Independent C-first full and simple ordinary-play rc variations cover runtime callers without copying this debug challenge. Keep OPTMENUHELP or direct rebound dispatch blocked variation separately."
   ],
@@ -92,7 +92,7 @@
       {
         "file": "options.c",
         "name": "doset_simple_menu",
-        "start": 8524,
+        "start": 8536,
         "end": 8705
       }
     ],
