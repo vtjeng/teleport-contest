@@ -1,0 +1,82 @@
+{
+  "session": "synthetic/v34/v34-cursed-unicorn-horn",
+  "corpus": "synthetic",
+  "batch": "v34",
+  "caseId": "v34-cursed-unicorn-horn",
+  "manifestPath": "challenges/manifests/v34.json",
+  "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+  "recordingSha256": "1b933259099dbe42fe48e426e46d6611711f55f38b9b51d12b2397a6b9b260ce",
+  "evaluationPath": "challenges/evaluations/accepted-993ad924fd08f999b0beeaa0945abc04eb2e5ec0-v34.json",
+  "evaluationCommit": "993ad924fd08f999b0beeaa0945abc04eb2e5ec0",
+  "remainingScreens": 0,
+  "recordedSteps": 52,
+  "status": "complete",
+  "commit": "7e9dc2331f6e27bdd628582b8cdd16ad36434bad",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v34",
+    "caseId": "v34-cursed-unicorn-horn",
+    "session": "synthetic/v34/v34-cursed-unicorn-horn",
+    "manifestPath": "challenges/manifests/v34.json",
+    "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+    "recording": "challenges/cases/v34/v34-cursed-unicorn-horn.session.json",
+    "recordingPath": "challenges/cases/v34/v34-cursed-unicorn-horn.session.json",
+    "recordingSha256": "1b933259099dbe42fe48e426e46d6611711f55f38b9b51d12b2397a6b9b260ce",
+    "recipe": "challenges/cases/v34/v34-cursed-unicorn-horn.recipe.session.json",
+    "recipeSha256": "3a5d7e18353ca7c017921c78376d6398c879b45a60fcba86a14e7223ff2b52d9",
+    "evaluationPath": "challenges/evaluations/accepted-993ad924fd08f999b0beeaa0945abc04eb2e5ec0-v34.json",
+    "evaluationCommit": "993ad924fd08f999b0beeaa0945abc04eb2e5ec0",
+    "evaluationUtc": "2026-10-09T06:10:40.516Z",
+    "remainingScreens": 0,
+    "recordedSteps": 52,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 52,
+        "total": 52
+      },
+      "rng": {
+        "matched": 2062,
+        "total": 2063
+      },
+      "cursors": {
+        "matched": 52,
+        "total": 52
+      }
+    },
+    "firstMismatch": {
+      "kind": "rng",
+      "step": 24,
+      "segment": 0,
+      "index": 2054,
+      "cEntry": "rn2(17)=7",
+      "jsEntry": "rn2(3)=0",
+      "source": "use_unicorn_horn(apply.c:2272)"
+    }
+  },
+  "summary": "Cursed unicorn horn newly induces sickness using current Constitution. The JavaScript caller reverses acurr’s state/index arguments, changing C’s rn2(17) to rn2(3) while all screens and cursors still match.",
+  "source": {
+    "file": "apply.c",
+    "branch": "use_unicorn_horn cursed case0; Sick & TIMEOUT is zero, so duration consumes rn1(ACURR(A_CON),20) after rn1(90,10) and rn2(13)/2.",
+    "functions": [
+      "use_unicorn_horn"
+    ],
+    "callers": [
+      "apply.c:doapply4371 UNICORN_HORN arm -> js/apply.js5023 awaited use_unicorn_horn(obj,state,env), retaining ECMD_TIME."
+    ],
+    "dependencies": [
+      "Existing pure attrib.c:acurr1200–1244 -> js/attrib.js766–805 reads state.u.acurr/abon/atemp and Constitution artifact override; correct JavaScript signature is acurr(state,chridx). No helper expansion required.",
+      "Existing potion.c:make_sick effect remains in its canonical owner; preserve duration evaluation before xnameFresh and make_sick without changing this dependency."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Assigned-base targeted replay at 7e9dc2331f6e27bdd628582b8cdd16ad36434bad confirms only RNG disagreement:52/52 screens,52/52 cursors and2062/2063 random calls match; .cache/B184/assigned-base-replay.log (run-OUj8LN). No aggregate replay or new C recording.",
+    "Current one-case scan .cache/B184/current-scan.json (run-rng diagnostic in current-scan.log) locates segment0 step24, key e, RNG index2054: C rn2(17)=7 @ use_unicorn_horn(apply.c:2272); JS rn2(3)=0. No refusal, screen or cursor mismatch.",
+    "Complete C use_unicorn_horn2259–2396 was read. C first draws rn1(90,10), then rn2(13)/2. In cursed case0 with no sickness timeout, it draws rn1(ACURR(A_CON),20); existing sickness instead shortens timeout without this draw. Argument evaluation precedes cause naming and make_sick.",
+    "js/apply.js3382 calls acurr(A_CON,state), whereas js/attrib.js766 exports acurr(state=game,chridx). With reversed arguments, the state parameter is the numeric attribute index and the index parameter is the game object. The helper therefore finds no attribute arrays and clamps zero to3. The correct caller must use acurr(state,A_CON); no C arithmetic/RNG change is needed.",
+    "C attrib.c1200–1244 is pure and corresponds to the existing helper: current+bonus+temporary, Constitution25 when wielding Ogresmasher, otherwise3..25 clamp. All other searched js/apply.js acurr calls pass state first; this is a bounded caller divergence rather than a missing whole use_unicorn_horn or attrib family.",
+    "Independent evidence plan after central implementation assignment: retain this admitted RNG-only witness; choose C-first cursed-horn new-sickness variations with a different relevant role/Constitution, test duration draw order at nontrivial Constitution including bonus/temporary contributions, and pin the existing-sickness no-extra-draw branch. Keep unchanged effect-helper gaps outside this bounded fix."
+  ]
+}
