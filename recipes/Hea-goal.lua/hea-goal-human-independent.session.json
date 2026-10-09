@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B194 C-first human Healer quest-goal arrival. Seed, clock, race, gender and command route fixed before JS comparison. Select Hea-goal in the wizard destination menu; reveal the completed mines/pool map. Exact source program dat/Hea-goal.lua has a Staff of Aesculapius and lightning wand at map-relative20/6, six traps and Cyclops plus aquatic/random-class populations. The human variation changes startup RNG and subsequent generation; this does not copy an admitted challenge.",
+  "segments": [
+    {
+      "seed": 19461011,
+      "datetime": "20461021123456",
+      "nethackrc": "OPTIONS=name:HeaGoalhuman,role:Healer,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizlevelport\n?\n>A    #wizmap\n    "
+    }
+  ]
+}
