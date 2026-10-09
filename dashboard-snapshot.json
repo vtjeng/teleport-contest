@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T10:30:33.399Z",
+  "capturedAt": "2026-10-09T10:42:32.022Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -72511,6 +72511,49 @@
         "worker": "C",
         "state": "idle",
         "reason": "No independent admitted source task is available. Queued C167/C164 remain immutable; Wizard3 and UUID retain earlier owners, while recorder, pointer, platform and tooling gates remain unresolved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C166-c27b3a55a",
+        "type": "published",
+        "at": "2026-10-09T10:32:13.852Z",
+        "task": "C166",
+        "commit": "c27b3a55aeba868e4f83d27c18fcc6e16a7db4b9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C168-cav-goal-20261009",
+        "type": "assign",
+        "at": "2026-10-09T10:41:26.577Z",
+        "task": "C168",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C168-cav-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T10:41:27.902Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B194-hea-goal-20261009",
+        "type": "assign",
+        "at": "2026-10-09T10:41:59.863Z",
+        "task": "B194",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B194-hea-goal-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T10:42:13.111Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the Healer quest goal Lua loader; Caveman goal is owned by C168."
       }
     ]
   },
@@ -72590,17 +72633,6 @@
       }
     ],
     "preparedBatches": [
-      {
-        "task": "B161",
-        "worker": "B",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "awaiting-admission",
-        "delivery": "030e699c0ff28c384ba99dec8ec59b1624eb89f7",
-        "since": "2026-10-08T16:33:59.935Z",
-        "blockedBy": [],
-        "batch": "v36"
-      },
       {
         "task": "Prep1",
         "worker": "Prep",
@@ -72903,8 +72935,8 @@
     ]
   },
   "development": {
-    "executionCommit": "711b9702dc92992c64fad92625f1eb2e8f9baea8",
-    "measuredAt": "2026-10-09T10:25:08.607Z",
+    "executionCommit": "c27b3a55aeba868e4f83d27c18fcc6e16a7db4b9",
+    "measuredAt": "2026-10-09T10:37:43.372Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
