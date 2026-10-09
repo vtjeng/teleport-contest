@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first direct Death witness. New Ranger seed, role, level18 and clock; debug genesis forces actual Rider via source read.c confirmation. Observe source combat and wizard recovery before JS comparison; only source-confirmed pager/continuation corrections allowed. Source cmd.c refuses ordinary rest next to a hostile monster, so C requires m-prefix forced rest. First consumed potion names are cancelled at the observed getlin boundary.",
+  "segments": [
+    {
+      "seed": 17681023,
+      "datetime": "20710719112344",
+      "nethackrc": "OPTIONS=name:DeathDrain,role:Ranger,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #levelchange\n18\n                              \u0007Death\ny m. m. \u001b\nm. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   "
+    }
+  ]
+}
