@@ -396,6 +396,7 @@
       "id": "runtime",
       "label": "Core runtime",
       "paths": [
+        "js/alloc.js",
         "js/bones.js",
         "js/const.js",
         "js/end.js",

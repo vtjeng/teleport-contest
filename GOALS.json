@@ -241811,8 +241811,8 @@
           "name": "wiz_light_sources",
           "line": 935,
           "endLine": 986,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -241826,7 +241826,7 @@
           "endLine": 141,
           "declared": true,
           "sourceFile": "alloc.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "minimal_monnam",
@@ -242032,7 +242032,128 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_light_sources",
+            "implementation": "js/light.js",
+            "symbol": "wiz_light_sources",
+            "sourceReview": "Read the complete light.c:wiz_light_sources() definition (935-974), its LS_OBJECT/LS_MONSTER enum arms, the local mon_is_local macro (mx > 0), and the WIZMODECMD/IFBURIED command row in cmd.c. Preserved ECMD_OK on both normal and no-window paths; hero coordinates with %2d fields; the blank line; header/separator; linked-list next order; x/y/range; lowercase four-digit flags; object, local monster, hero, migrating monster, and unknown type labels; patched fmt_ptr(ls->id.a_void); <none> for an empty list; then display(FALSE), destroy, and ECMD_OK. JavaScript uses the existing TTY NHW_MENU text-window adapter for the create/putstr/display/destroy lifecycle and blocking dismissal. The TTY game path always supplies an initialized display; no game behavior callee is skipped or replaced by a diagnostic gap.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extcmdlist[] registers the lightsources spelling with wiz_light_sources and WIZMODECMD; cmd.c:doextcmd dispatches that row to the function. The existing generated command metadata retains the source flags, and bounded JS dispatch dynamically imports light.js."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/light-sources.test.mjs",
+              "scripts/extended-command-prompt.test.mjs"
+            ],
+            "recordings": [
+              "recordings/light.c/wiz-light-sources-lit-archeologist.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-empty-light-sources",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 16,
+                "source": "cmd.c:extcmdlist[lightsources] -> cmd.c:doextcmd -> light.c:wiz_light_sources"
+              },
+              {
+                "batch": "v35",
+                "caseId": "v35-light-diagnostics",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 15,
+                "source": "cmd.c:extcmdlist[lightsources] -> cmd.c:doextcmd -> light.c:wiz_light_sources"
+              }
+            ],
+            "checkedAt": "d7433a3f1f4bb12ae6982659eb2c5995f69438fe"
+          },
+          {
+            "name": "fmt_ptr",
+            "implementation": "js/alloc.js",
+            "symbol": "fmt_ptr",
+            "sourceReview": "Read alloc.c:fmt_ptr() (125-136) and the accepted patch 007. The C function rotates a private formatting buffer, then patch 007 writes only the reproducible pointer distinction: <ptr> for non-null and <null> for null. The ring buffer is scratch storage and does not change game state. js/alloc.js is the sole JavaScript owner; distinct non-null objects intentionally share the same spelling.",
+            "callers": [
+              {
+                "path": "js/light.js",
+                "symbol": "wiz_light_sources",
+                "source": "light.c:wiz_light_sources formats every listed source through fmt_ptr(ls->id.a_void)."
+              },
+              {
+                "path": "js/do_name.js",
+                "symbol": "minimal_monnam",
+                "source": "do_name.c:minimal_monnam formats both out-of-range mon->data branches through fmt_ptr and also formats the corresponding mons boundary address."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/alloc-pointer.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "alloc.c",
+            "synthetic": [],
+            "checkedAt": "d7433a3f1f4bb12ae6982659eb2c5995f69438fe"
+          },
+          {
+            "name": "minimal_monnam",
+            "implementation": "js/do_name.js",
+            "symbol": "minimal_monnam",
+            "sourceReview": "Read the complete do_name.c:minimal_monnam() definition (1254-1285), including null monster, null species, below-mons, one-past-or-beyond-NUMMONS, long-worm-tail location, tame/peaceful/ordinary name, coordinates, and shapechanger suffix branches. Replaced the private diagnosticPointer stand-in with alloc.c:fmt_ptr in both invalid-species diagnostics and preserved the remaining naming branches. The helper does not draw random numbers, display messages, write the screen, or mutate game state; nextmbuf is only scratch-result storage.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "list_migrating_mons",
+                "source": "wizcmds.c:list_migrating_mons formats each selected migrating monster with minimal_monnam(mtmp, FALSE); the JS caller remains wired through wizcmds.js:list_migrating_mons."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "do_name.c",
+            "synthetic": [],
+            "checkedAt": "d7433a3f1f4bb12ae6982659eb2c5995f69438fe"
+          }
+        ],
+        "entryPointReview": "The selected light.c range has one active entry point: the wizard-mode #lightsources extended command registered by cmd.c:extcmdlist[] and dispatched by cmd.c:doextcmd. The generated JS command metadata preserves WIZMODECMD and IFBURIED and js/cmd.js routes the bounded row to light.js:wiz_light_sources. The fresh independent Archeologist recording reaches the nonempty object-source and <ptr> branches; admitted v31 and v35 ranges cover the empty-list path through their matching source steps. alloc.c:fmt_ptr also has MONITOR_HEAP-only heap diagnostic callers, which are excluded by the normal recorder build; the same pure function is source-pinned in isolation. do_name.c:minimal_monnam is an existing helper called by wizcmds.c:list_migrating_mons, preserved as js/wizcmds.js:list_migrating_mons; its pure branch tests pin the invalid pointers and the existing ordinary naming branches. Other upstream minimal_monnam callers in steed.c and mon.c are outside this task because their caller functions are not yet ported.",
+        "entryPoints": [
+          {
+            "name": "wizard #lightsources extended command",
+            "functions": [
+              "wiz_light_sources"
+            ],
+            "recordings": [
+              "recordings/light.c/wiz-light-sources-lit-archeologist.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-empty-light-sources",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 16,
+                "source": "cmd.c:extcmdlist[lightsources] -> cmd.c:doextcmd -> light.c:wiz_light_sources"
+              },
+              {
+                "batch": "v35",
+                "caseId": "v35-light-diagnostics",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 15,
+                "source": "cmd.c:extcmdlist[lightsources] -> cmd.c:doextcmd -> light.c:wiz_light_sources"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
