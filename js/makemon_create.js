@@ -239,6 +239,7 @@ import {
     PM_CHICKATRICE,
     PM_CHIEFTAIN,
     PM_CLERIC,
+    PM_MONK,
     PM_COBRA,
     PM_COCKATRICE,
     PM_DEMILICH,
@@ -2573,6 +2574,17 @@ function m_initinv(monster, normalized) {
         );
         mongets(monster, SMALL_SHIELD, normalized);
         mkmonmoney(monster, random.rn1(10, 20), normalized);
+    } else if (ptr.mlet === S_HUMAN
+               && state.urole?.mnum === PM_MONK
+               && (ptr.msound === MS_LEADER
+                   || ptr.msound === MS_NEMESIS)) {
+        // C ref: makemon.c:728-729. Monk quest leaders and nemeses receive a
+        // robe, with a one-in-eleven chance of a cloak of magic resistance.
+        mongets(
+            monster,
+            random.rn2(11) ? ROBE : CLOAK_OF_MAGIC_RESISTANCE,
+            normalized,
+        );
     } else if (ptr.mlet === S_NYMPH) {
         if (!random.rn2(2)) mongets(monster, MIRROR, normalized);
         if (!random.rn2(2))
