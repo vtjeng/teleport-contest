@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 
 import {
     LAST_PROP,
+    DELPHI,
     MAXNROFROOMS,
     OROOM,
     ROOM,
@@ -14,7 +16,9 @@ import {
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { domove } from '../js/hack.js';
-import { in_rooms, move_update } from '../js/rooms.js';
+import { check_special_room, in_rooms, move_update } from '../js/rooms.js';
+import { PM_ORACLE, monst_globals_init } from '../js/monsters.js';
+import { newMonster } from '../js/monst.js';
 import { init_vision_globals, vision_reset } from '../js/vision.js';
 
 const ROOM_BUFFER_SIZE = 5;
@@ -277,3 +281,39 @@ test('domove updates room membership after entering the destination', async () =
     assert.deepEqual(state.u.urooms, roomBuffer([destination]));
     assert.deepEqual(state.u.uentered, roomBuffer([destination]));
 });
+
+// C's svr.rooms allocation includes subrooms after MAXNROFROOMS; JS stores
+// the same room under its parent, preserving that conceptual source index.
+for (const present of [false, true]) {
+    test(`Delphi subroom clears its own identity with Oracle ${present ? 'present' : 'absent'}`, async () => {
+        const state = initializedState();
+        monst_globals_init(state);
+        // An interior floor square and name isolate room ownership and the
+        // source greeting; neither depends on generated level geometry.
+        state.plname = 'Nested';
+        state.u.ux = 12;
+        state.u.uy = 6;
+        const subroom = { roomnoidx: MAXNROFROOMS + 1, rtype: DELPHI };
+        const parent = { roomnoidx: 0, rtype: OROOM, nsubrooms: 1, sbrooms: [subroom] };
+        state.level.rooms = [parent];
+        const roomno = subroom.roomnoidx + ROOMOFFSET;
+        state.level.at(12, 6).roomno = roomno;
+        // One living peaceful Oracle on this floor chooses C's Hello arm.
+        if (present) state.level.monlist = newMonster({
+            data: state.mons[PM_ORACLE], mnum: PM_ORACLE, mhp: 1,
+            mpeaceful: true, mx: 12, my: 6,
+        });
+        const messages = [];
+        await check_special_room(false, state, { message: async text => messages.push(text) });
+        assert.equal(subroom.rtype, OROOM);
+        assert.equal(parent.rtype, OROOM);
+        assert.equal(state.level.rooms[subroom.roomnoidx], undefined,
+            'the source pointer resolves the existing child, without adding another owner');
+        assert.deepEqual(messages, present ? ['"Hello, Nested, welcome to Delphi!"'] : []);
+        await check_special_room(false, state, { message: async text => messages.push(text) });
+        assert.equal(messages.length, present ? 1 : 0, 'room greeting happens only on first entry');
+        const source = readFileSync(new URL('../nethack-c/upstream/src/hack.c', import.meta.url), 'utf8');
+        assert.match(source, /roomno = \*ptr - ROOMOFFSET, rt = svr\.rooms\[roomno\]\.rtype/u);
+        assert.match(source, /if \(rt != 0\) \{\s*svr\.rooms\[roomno\]\.rtype = OROOM/u);
+    });
+}

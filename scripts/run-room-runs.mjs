@@ -14,7 +14,12 @@
 // runmode_delay_output() calls nh_delay_output() a different number of times
 // in each, and the recorder captures one animation frame per call.
 
-import { validateCleanRecipe } from './diff-fresh.mjs';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
+import { OROOM } from '../js/const.js';
+import { compareSessionOutputs, validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 const DATETIME = '20310203040506';
@@ -193,6 +198,43 @@ export async function runRoomRunsMatrix() {
     return runFreshMatrix({
         entries: [{ label: 'room runs', recipe: loadRoomRunsRecipe() }],
         summaryLabel: 'ROOM RUNS',
+    });
+}
+
+// Source: hack.c check_special_room reads and resets the same C room pointer.
+// Independent roles enter Delphi's persisted child through controlled teleport.
+export async function runOracleSubroomMatrix() {
+    const roles = ['wizard', 'samurai'];
+    return runFreshMatrix({
+        entries: roles.map(role => ({ label: `Oracle child ${role}`,
+            recipe: validateCleanRecipe(JSON.parse(readFileSync(new URL(
+                `../recipes/hack.c/oracle-subroom-${role}.session.json`, import.meta.url,
+            )))),
+        })),
+        summaryLabel: 'ORACLE SUBROOM', chunkLimit: 1,
+        verifySegment: async segment => {
+            const role = roles.find(role =>
+                segment.nethackrc.toLowerCase().includes(`role:${role},`));
+            const reference = JSON.parse(readFileSync(new URL(
+                `../recordings/hack.c/oracle-subroom-${role}.session.json`, import.meta.url,
+            )));
+            let boundary;
+            const output = await runSegment(segment, { onBoundary(error) { boundary = error; } });
+            if (boundary) throw boundary;
+            const comparison = compareSessionOutputs(reference, {
+                rng: output.getRngLog(), screens: output.getScreens(), cursors: output.getCursors(),
+                animFrames: output.getAnimationFramesByStep(),
+            });
+            assert.equal(comparison.passed, true, JSON.stringify(comparison));
+            assert.ok(output.getScreens().some(screen => screen.includes('welcome to Delphi!')));
+            const containsHero = room => room && game.u.ux >= room.lx
+                && game.u.ux <= room.hx && game.u.uy >= room.ly && game.u.uy <= room.hy;
+            const parent = game.level.rooms.find(room => room?.sbrooms?.some(containsHero));
+            assert.ok(parent, 'Oracle child retains its persisted parent');
+            const child = parent.sbrooms.find(containsHero);
+            assert.equal(child.rtype, OROOM, 'C one-time reset changes the persisted child');
+            assert.equal(parent.rtype, OROOM, 'ordinary parent identity stays ordinary');
+        },
     });
 }
 
