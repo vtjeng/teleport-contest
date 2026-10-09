@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T11:54:12.749Z",
+  "capturedAt": "2026-10-09T12:14:17.799Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -73123,22 +73123,69 @@
         "worker": "C",
         "state": "blocked",
         "reason": "Knight locate-level report is complete; waiting for Main’s central source gate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C167-354c3c20c",
+        "type": "published",
+        "at": "2026-10-09T11:56:43.495Z",
+        "task": "C167",
+        "commit": "354c3c20c093cd295497b66dfaab44a6a01b83a6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep1-admission-C167",
+        "type": "activity",
+        "at": "2026-10-09T11:57:26.614Z",
+        "task": "Prep1",
+        "phase": "admission",
+        "reason": "Reassess v37 admission priority from current C167 evaluations before integrating the next implementation delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep1-admission-done-C167",
+        "type": "activity",
+        "at": "2026-10-09T11:58:50.961Z",
+        "task": "Prep1",
+        "phase": "done",
+        "reason": "Current C167 queue exposes 38 mismatching sessions across 19 candidate groups, so v37 admission does not take priority over ready implementation delivery C164."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C164-e8b19d4ac4",
+        "type": "integrating",
+        "at": "2026-10-09T12:01:58.381Z",
+        "task": "C164",
+        "integration": "e8b19d4ac4c4f7ce8b8ecbe3759ce28cf9077fc9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C164-e8b19d4ac4",
+        "type": "validated",
+        "at": "2026-10-09T12:09:00.936Z",
+        "task": "C164",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C164-e8b19d4ac4c4f7ce8b8ecbe3759ce28cf9077fc9-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T12:13:32.938Z",
+        "task": "C164"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C171-C164-merged-dependency-hold-20261009",
+        "type": "turn",
+        "at": "2026-10-09T12:14:08.268Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "Knight locate-level investigation is complete; implementation waits for C170 acceptance and Main’s source gate."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C164",
-        "worker": "C",
-        "goal": "port-spell-cast-protection-v34-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "6ff80a42b1276cea4b61fc6e28b15d7f032c5906",
-        "since": "2026-10-09T09:47:32.143Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "B192",
         "worker": "B",
@@ -73169,9 +73216,7 @@
         "status": "ready",
         "delivery": "2bb7339f46bdc8706ccf9e68ee4243e5866318a9",
         "since": "2026-10-09T10:52:22.287Z",
-        "blockedBy": [
-          "C164"
-        ],
+        "blockedBy": [],
         "unblocks": 1
       },
       {
@@ -73546,8 +73591,8 @@
     ]
   },
   "development": {
-    "executionCommit": "88a9092bc02363c5e60916ec954024489d06ca2e",
-    "measuredAt": "2026-10-09T11:47:46.188Z",
+    "executionCommit": "e8b19d4ac4c4f7ce8b8ecbe3759ce28cf9077fc9",
+    "measuredAt": "2026-10-09T12:07:52.218Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

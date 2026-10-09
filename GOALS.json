@@ -232303,7 +232303,7 @@
     {
       "id": "port-spell-cast-protection-v34-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port whole protection spell gain and feedback",
       "cFile": "spell.c",
       "sessions": [
@@ -232317,15 +232317,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e8b19d4ac4c4f7ce8b8ecbe3759ce28cf9077fc9",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "cast_protection",
           "line": 1104,
           "endLine": 1180,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -232522,7 +232525,87 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "cast_protection",
+            "implementation": "js/spell.js",
+            "symbol": "cast_protection",
+            "sourceReview": "Read complete spell.c1104–1178 and sole caller1581–1583. Preserve integer loglevel/division truncation, natural AC inversion and min3 denominator, feedback before state mutation, prior-haze/blind/swallowed/water/cloud/tree/stone/air branches, canonical hcolor before hliquid display RNG, uchar protection update, exact Expert20 versus10 timer, nonzero timer preservation, find_ac and no-gain warm feedback. Reuse existing read-only hcolor/hliquid/an/heroIsBlind/mondata/P_SKILL/spell_skilltype/find_ac owners; no missing consumed dependency or substitute remains. Bounded spelleffects case awaits whole owner before common skill/cleanup and preserves accepted SPE_JUMPING.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c1581–1583 sole direct cast_protection call; docast/getspell and wizard force casting converge on this same dispatcher."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/cast-protection.test.mjs",
+              "scripts/spell.test.mjs",
+              "scripts/spell-cast-effects.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/protection-knight-initial.session.json",
+              "recordings/spell.c/protection-cleric-repeat.session.json",
+              "recordings/spell.c/protection-blind-cleric.session.json",
+              "recordings/spell.c/protection-learned-wizard.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v34",
+                "caseId": "v34-wizard-protection",
+                "segment": 0,
+                "fromStep": 73,
+                "throughStep": 100,
+                "source": "cmd.c wizard forced casting -> spell.c:wizcast -> spelleffects SPE_PROTECTION -> whole cast_protection initial/repeated protection feedback, timers and find_ac, followed by normal turn processing."
+              }
+            ],
+            "checkedAt": "e8b19d4ac4c4f7ce8b8ecbe3759ce28cf9077fc9"
+          }
+        ],
+        "entryPointReview": "Two active production routes into sole spelleffects caller: ordinary learned #cast (docast) and forced #wizcast. Independently recorded Wizard learns/casts protection through c, while Knight/Priest forced initial/repeated/blind witnesses exercise feedback and timer states. Admitted v34 forced level12 case matches through100. Source helper branches that cheap runtime inputs do not cover are source-pinned numeric/atmosphere checks. No whole spelleffects/docast/find_ac/naming/mondata credit and no changes outside the helper/distinct protection arm.",
+        "entryPoints": [
+          {
+            "name": "Ordinary learned #cast -> docast -> spelleffects protection",
+            "functions": [
+              "cast_protection"
+            ],
+            "recordings": [
+              "recordings/spell.c/protection-learned-wizard.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Wizard #wizcast forced protection including repeat/blind",
+            "functions": [
+              "cast_protection"
+            ],
+            "recordings": [
+              "recordings/spell.c/protection-knight-initial.session.json",
+              "recordings/spell.c/protection-cleric-repeat.session.json",
+              "recordings/spell.c/protection-blind-cleric.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v34",
+                "caseId": "v34-wizard-protection",
+                "segment": 0,
+                "fromStep": 73,
+                "throughStep": 100,
+                "source": "cmd.c wizard forced casting -> spell.c:wizcast -> spelleffects SPE_PROTECTION -> whole cast_protection initial/repeated protection feedback, timers and find_ac, followed by normal turn processing."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e8b19d4ac4c4f7ce8b8ecbe3759ce28cf9077fc9",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
