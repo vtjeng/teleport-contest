@@ -8,7 +8,8 @@ import { join } from 'node:path';
 
 import { completedSourceUnits, sourceUnits, sourceUnitKey } from './port-evidence.mjs';
 import { readRows, standing } from './score-log.mjs';
-import { challengeDashboard, challengeDashboardPayload } from './challenge-results.mjs';
+import { challengeDashboard } from './challenge-results.mjs';
+import { challengeDashboardPayload } from './dashboard-payload.mjs';
 import { activityTimeline, syntheticGainByCommit } from './dashboard-activity.mjs';
 
 function run(cmd) {
