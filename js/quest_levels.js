@@ -71,6 +71,10 @@ import { MON_GOAL_LEVEL_MAP } from './mon_goal_level_data.js';
 import {
     RAN_LOCA_LEVEL_MAP, RAN_LOCA_MONSTERS, RAN_LOCA_OBJECT_COUNT, RAN_LOCA_TRAPS,
 } from './ran_loca_level_data.js';
+import {
+    VAL_GOAL_DRAWBRIDGES, VAL_GOAL_LEVEL_MAP, VAL_GOAL_MONSTERS,
+    VAL_GOAL_OBJECT_CALLS, VAL_GOAL_TRAPS,
+} from './val_goal_level_data.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
 // that draws a random zig-zag path from (x1,y1) to (x2,y2).
@@ -1287,6 +1291,27 @@ async function ranLoca(des) {
     for (const monster of RAN_LOCA_MONSTERS) await des.monster(monster);
 }
 
+// C ref: complete dat/Val-goal.lua. The lower drawbridge uses the source's
+// 75-percent branch after the northern bridge has consumed its random state.
+async function valGoal(des) {
+    await des.level_init({ style: 'solidfill', fg: 'L' });
+    await des.level_flags('mazelevel', 'icedpools');
+    await des.level_init({ style: 'mines', fg: '.', bg: 'L',
+        smoothed: true, joined: true, lit: 1, walled: false });
+    await des.map(VAL_GOAL_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 34, 16), 'lit');
+    await des.replace_terrain({ region: [44, 9, 46, 11], fromterrain: 'L', toterrain: '.', chance: 50 });
+    await des.stair('up', 45, 10);
+    await des.non_diggable(selection_area(0, 0, 34, 16));
+    await des.drawbridge(VAL_GOAL_DRAWBRIDGES[0]);
+    const southernBridge = VAL_GOAL_DRAWBRIDGES[1 + (rn2(100) < 75 ? 0 : 1)];
+    await des.drawbridge(southernBridge);
+
+    for (const args of VAL_GOAL_OBJECT_CALLS) await des.object(...args);
+    for (const args of VAL_GOAL_TRAPS) await des.trap(...args);
+    for (const args of VAL_GOAL_MONSTERS) await des.monster(...args);
+}
+
 // C ref: dat/Hea-goal.lua. Preserve both initialization calls before the
 // fixed map: the joined mines background extends beyond the pool island.
 async function heaGoal(des) {
@@ -2201,6 +2226,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Kni-goal': kniGoal,
     'Kni-loca': kniLoca,
     'Ran-loca': ranLoca,
+    'Val-goal': valGoal,
     'Hea-goal': heaGoal,
     'Cav-strt': cavStrt,
     'Hea-loca': heaLoca,
