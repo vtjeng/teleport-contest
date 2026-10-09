@@ -232232,7 +232232,7 @@
     {
       "id": "port-cav-loca-quest-level-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Caveman quest locate level and register its loader.",
       "luaFile": "Cav-loca.lua",
       "sessions": [
@@ -232246,15 +232246,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2bb9024f9f762a4e380075f8faeb6d4bee382ed4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Cav-loca.lua",
           "line": 1,
           "endLine": 101,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -232422,7 +232425,85 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Cav-loca.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "cavLoca",
+            "sourceReview": "Read whole dat/Cav-loca.lua1–101, including top-level statements and nonexecuting trailing comments. Preserve stone solidfill, mazelevel/hardfloor, fixed76×20 map, full-map unlit selection then lit irregular ordinary region52,6..73,15, locked door28,11, up4,3/down73,10 stairs, nondiggable selection, fifteen independent random objects, six random traps, all27monster tables in exact source order and final wallify. Generate map/monster tables deterministically from Lua; base10 parsing preserves Lua leading-zero coordinate tokens. Source strings/class names and peaceful0 defaults reach existing canonical name/gender/class/RNG owners. Await every descriptor, including region completion before door. Existing des/selection/room/object/trap/monster owners reused without helper changes, invented substitutes or whole support-family credit.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "dat/dungeon.lua role-specific locate prototype -> Cav-loca.lua registration."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "sp_lev.c:load_special executes registered Lua program through mkmaze.c:makemaz1188 or wizcmds.c:wiz_load_splua."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/cav-loca-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Cav-loca.lua/cav-loca-human.session.json",
+              "recordings/Cav-loca.lua/cav-loca-dwarf.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-cav-loca",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Wizard forced Cav-loca quest arrival -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole Cav-loca.lua, postprocessing and magic mapping."
+              }
+            ],
+            "checkedAt": "2bb9024f9f762a4e380075f8faeb6d4bee382ed4"
+          }
+        ],
+        "entryPointReview": "Two active program dispatch routes: Caveman/Cavewoman special quest locate generation through makelevel/makemaz, verified by admitted forced quest arrival, and wizard des-file loading through wiz_load_splua/load_special, verified by two independent race/alignment/filename variations. No whole quest permission/loader/finalizer/descriptor owner credit; adjacent Cav-strt source remains outside scope and owned by A191.",
+        "entryPoints": [
+          {
+            "name": "Cav-loca special quest generation",
+            "functions": [
+              "Cav-loca.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-cav-loca",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Wizard forced Cav-loca quest arrival -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole Cav-loca.lua, postprocessing and magic mapping."
+              }
+            ]
+          },
+          {
+            "name": "Wizard des-file program loading",
+            "functions": [
+              "Cav-loca.lua"
+            ],
+            "recordings": [
+              "recordings/Cav-loca.lua/cav-loca-human.session.json",
+              "recordings/Cav-loca.lua/cav-loca-dwarf.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2bb9024f9f762a4e380075f8faeb6d4bee382ed4",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-hea-strt-quest-level-v36-20261009",

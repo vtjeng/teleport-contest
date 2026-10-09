@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T13:41:48.510Z",
+  "capturedAt": "2026-10-09T13:57:35.725Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -73496,22 +73496,243 @@
         "type": "accepted",
         "at": "2026-10-09T13:41:11.602Z",
         "task": "A188"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A188-7994aabba-20261009",
+        "type": "published",
+        "at": "2026-10-09T13:43:20.286Z",
+        "task": "A188",
+        "commit": "7994aabbad5051076c05cc4c4bc32571a943741b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A192-central-goal-gate-f6c9ebf7a",
+        "type": "park",
+        "at": "2026-10-09T13:43:25.126Z",
+        "task": "A192",
+        "reason": "Complete Mon-goal report a27ffd7a0 and proposal preserved; Main has not queued source goal/context. Main directs independent seed continuation while this central source gate remains closed. No source scope claimed; retain investigation priority."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A193-Ran-strt-f6c9ebf7a",
+        "type": "assign",
+        "at": "2026-10-09T13:43:26.538Z",
+        "task": "A193",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A193-investigation-f6c9ebf7a",
+        "type": "turn",
+        "at": "2026-10-09T13:43:27.864Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating the independent Ranger quest start level."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-C169-review-20261009",
+        "type": "activity",
+        "at": "2026-10-09T13:44:50.676Z",
+        "task": "C169",
+        "phase": "review",
+        "reason": "Reviewing the immutable Caveman locate-level delivery against published A188 main before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C169-20b22ba8c-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T13:46:11.528Z",
+        "task": "C169",
+        "integration": "20b22ba8cc611f014f9a198736d7145173c344da"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C169-2bb9024f9-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T13:46:36.902Z",
+        "task": "C169",
+        "integration": "2bb9024f9f762a4e380075f8faeb6d4bee382ed4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A193-central-source-gate-398d1c8fc",
+        "type": "turn",
+        "at": "2026-10-09T13:47:11.559Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "Ranger start-level source trace is complete; waiting for Main to queue its implementation goal."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C173-ran-goal-central-gate-20261009",
+        "type": "park",
+        "at": "2026-10-09T13:48:30.810Z",
+        "task": "C173",
+        "reason": "Complete report26dd808e5 and whole Ran-goal scope preserved. Await central queued context; parent directs independent investigation continuation. No source claim or edit."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C174-rog-goal-20261009",
+        "type": "assign",
+        "at": "2026-10-09T13:48:32.178Z",
+        "task": "C174",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C174-investigation-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T13:48:33.560Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the independent Rogue quest goal level."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A193-central-goal-gate-398d1c8fc",
+        "type": "park",
+        "at": "2026-10-09T13:48:52.561Z",
+        "task": "A193",
+        "reason": "Complete Ran-strt report398d1c8fc and proposal preserved. Main directs further independent investigation while C169 validates; no authorized central Ran-strt context or implementation source claim. Retain report/source proposal priority."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A194-Rog-loca-398d1c8fc",
+        "type": "assign",
+        "at": "2026-10-09T13:50:11.794Z",
+        "task": "A194",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A194-Rog-loca-investigation-398d1c8fc",
+        "type": "turn",
+        "at": "2026-10-09T13:50:13.211Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating the independent Rogue quest locate level."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C174-named-montype-seam-20261009",
+        "type": "park",
+        "at": "2026-10-09T13:50:17.587Z",
+        "task": "C174",
+        "reason": "Whole Rog-goal complete reportbe33c18c7 preserved; required named montype normalization shares sp_lev.c:lspo_object with C172 spinach descriptor proposal. Await Main adjudication; no source claim/edit."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C175-investigation-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T13:50:19.976Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the Rogue quest locate level while descriptor-dependent reports remain parked."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C175-rog-strt-20261009",
+        "type": "assign",
+        "at": "2026-10-09T13:50:43.643Z",
+        "task": "C175",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B198-central-source-gate-next-investigation-20261009",
+        "type": "park",
+        "at": "2026-10-09T13:51:16.361Z",
+        "task": "B198",
+        "reason": "Complete report-only alignment macro diagnosis preserved; pending Main source gate and central context. Continue independent admitted quest investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B199-rog-strt-audit-20261009",
+        "type": "turn",
+        "at": "2026-10-09T13:51:28.167Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the missing Rogue quest start program from saved v36 evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B199-sam-goal-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T13:51:51.938Z",
+        "task": "B199",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B199-sam-goal-audit-20261009",
+        "type": "turn",
+        "at": "2026-10-09T13:52:05.119Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the missing Samurai quest goal program from saved v36 evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C169-2bb9024f9-37939373867",
+        "type": "validated",
+        "at": "2026-10-09T13:52:54.942Z",
+        "task": "C169",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C175-rog-strt-report-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T13:53:07.460Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Rogue quest start source investigation is complete; preparing the report handoff."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C175-report-awaiting-central-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T13:53:49.803Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "Independent Rogue quest start investigation is complete; awaiting the central source gate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A194-central-source-gate-3033bd513",
+        "type": "turn",
+        "at": "2026-10-09T13:53:55.224Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "Rogue locate-level source trace is complete; waiting for Main to queue its implementation goal."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B199-central-source-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T13:55:00.230Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Samurai quest goal diagnosis is complete; awaiting Main’s source goal and context."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C169-2bb9024f9f762a4e380075f8faeb6d4bee382ed4-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T13:56:58.502Z",
+        "task": "C169"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C169",
-        "worker": "C",
-        "goal": "port-cav-loca-quest-level-v36-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "da6f18a9ca871a76b085adaaf6b89167e6a7327a",
-        "since": "2026-10-09T11:03:37.731Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "C170",
         "worker": "C",
@@ -73520,9 +73741,7 @@
         "status": "ready",
         "delivery": "2913f041d1102cba4bddda4746b89e926f906677",
         "since": "2026-10-09T11:22:36.430Z",
-        "blockedBy": [
-          "C169"
-        ],
+        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -73880,12 +74099,67 @@
         "since": "2026-10-09T13:34:31.362Z",
         "blockedBy": [],
         "reason": "Complete Mon-loca report06509e49e retained; required canonical sp_lev.c:lspo_object non-species spinach/empty descriptor seam awaits Main adjudication and central scope. No implementation claim/edit; preserve first-owner priority."
+      },
+      {
+        "task": "A192",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T13:43:25.126Z",
+        "blockedBy": [],
+        "reason": "Complete Mon-goal report a27ffd7a0 and proposal preserved; Main has not queued source goal/context. Main directs independent seed continuation while this central source gate remains closed. No source scope claimed; retain investigation priority."
+      },
+      {
+        "task": "C173",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T13:48:30.810Z",
+        "blockedBy": [],
+        "reason": "Complete report26dd808e5 and whole Ran-goal scope preserved. Await central queued context; parent directs independent investigation continuation. No source claim or edit."
+      },
+      {
+        "task": "A193",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T13:48:52.561Z",
+        "blockedBy": [],
+        "reason": "Complete Ran-strt report398d1c8fc and proposal preserved. Main directs further independent investigation while C169 validates; no authorized central Ran-strt context or implementation source claim. Retain report/source proposal priority."
+      },
+      {
+        "task": "C174",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T13:50:17.587Z",
+        "blockedBy": [],
+        "reason": "Whole Rog-goal complete reportbe33c18c7 preserved; required named montype normalization shares sp_lev.c:lspo_object with C172 spinach descriptor proposal. Await Main adjudication; no source claim/edit."
+      },
+      {
+        "task": "B198",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T13:51:16.361Z",
+        "blockedBy": [],
+        "reason": "Complete report-only alignment macro diagnosis preserved; pending Main source gate and central context. Continue independent admitted quest investigation."
       }
     ]
   },
   "development": {
-    "executionCommit": "c65c2b3a1cdd449def877087461571f57c3f88b6",
-    "measuredAt": "2026-10-09T13:35:57.732Z",
+    "executionCommit": "2bb9024f9f762a4e380075f8faeb6d4bee382ed4",
+    "measuredAt": "2026-10-09T13:51:34.349Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
