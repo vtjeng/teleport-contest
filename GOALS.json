@@ -232290,25 +232290,32 @@
     {
       "id": "port-hea-loca-lua-v36-20261009",
       "kind": "lua-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port the complete Healer quest locate level and register its loader.",
       "luaFile": "Hea-loca.lua",
       "sessions": [
         "synthetic/v36/v36-quest-hea-loca"
       ],
-      "selectionReason": "The completed v36 investigation traces the first mismatch to the absent Hea-loca loader.",
+      "selectionReason": "B195 selected the independent v36 Healer quest locate mismatch and delivered the complete Lua program.",
       "detail": "Port all top-level Hea-loca.lua statements, generate its fixed map from source, and wire only the source-named quest loader.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+      "openStanding": {
+        "sha": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Hea-loca.lua",
           "line": 1,
           "endLine": 97,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -232324,6 +232331,86 @@
           "evaluationPath": "challenges/evaluations/accepted-004a6da893c5dc420e260eb3ae0e285e85a56874-v36.json",
           "evaluationCommit": "004a6da893c5dc420e260eb3ae0e285e85a56874"
         }
+      },
+      "activeStanding": {
+        "sha": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Hea-loca.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "heaLoca",
+            "sourceReview": "Read all dat/Hea-loca.lua1-97: solidfill space, mazelevel/hardfloor flags, smoothed joined lit mines . over P, generated 10x31 map, lit region0/0..30/9, filled temple12/3..20/6, two closed doors9/4 and9/5, two locked secret doors11/3 and11/6, up stair4/4, down stair20/6, non-diggable selection11/2..21/7, chaotic shrine13/5,15 random objects,6 random traps,8 rabid rats, hostile r,5 giant eels,2 electric eels,kraken,2 sharks,2 hostile ;,5 hostile D,9 hostile S. Every descriptor is awaited in source order. Preserve source names/class letters for canonical name-resolution gender RNG. Read supporting existing level_init/splev_initlev/mkmap/map/region/door/stair/non_diggable/create_altar/priestini helpers and production load_special dispatch; their consumed branches are exercised by two completely exact independent recordings, not newly credited as whole C functions. No new substitute, injected operation, gap or swallowed refusal introduced; register the formerly missing Hea-loca loader.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "dat/Hea-loca.lua whole program selected by sp_lev.c:load_special6454; new Hea-loca key points to heaLoca. Existing js/mklev.js:ensureSpecialLevelLoaders imports registry and load_special awaits loader plus finish."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "mklev.c:makelevel1266-1271 -> mkmaze.c:makemaz1184-1193 -> sp_lev.c:load_special6454-6503; existing dispatch now admits registered Hea-loca without a new C helper claim."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hea-loca-level-generation.test.mjs",
+              "scripts/hea-goal-level-generation.test.mjs",
+              "scripts/special-level.test.mjs",
+              "scripts/sp-lev-reset-finalize-level.test.mjs",
+              "scripts/wizard1-level-generation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Hea-loca.lua/hea-loca-human-independent.session.json",
+              "recordings/Hea-loca.lua/hea-loca-gnome-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-hea-loca",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "teleport.c:level_tele -> do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Hea-loca.lua plus finalization; subsequent #wizmap displays complete source terrain."
+              }
+            ],
+            "checkedAt": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd"
+          }
+        ],
+        "entryPointReview": "One Lua level-generation entry through makelevel/makemaz/load_special. Independent human male and gnome female neutral Healers enter using typed #wizlevelport and direct Ctrl-V; both execute every descriptor, finalization, arrival and #wizmap. Live checks establish mazelevel/hardfloor/lit pools, two stairs, temple membership, chaotic shrine priest identity/alignment/location, doors, non-diggable walls, six traps and monster populations. Both complete recordings match all RNG/screens/cursors/animation frames. Source has no conditional top-level arm. Earned quest eligibility remains outside this program. Adjacent Hea-strt remains C170-owned and unregistered in this worker; retain only its outside-limit blocked recipe.",
+        "entryPoints": [
+          {
+            "name": "Healer quest goal first generation and mapped terrain through normal special-level dispatch",
+            "functions": [
+              "Hea-loca.lua"
+            ],
+            "recordings": [
+              "recordings/Hea-loca.lua/hea-loca-human-independent.session.json",
+              "recordings/Hea-loca.lua/hea-loca-gnome-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-hea-loca",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "teleport.c:level_tele -> do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Hea-loca.lua plus finalization; subsequent #wizmap displays complete source terrain."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
