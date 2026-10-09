@@ -1,0 +1,97 @@
+{
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-rog-loca",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "ac97310261adf55d3764dce9e254db818e8b82668d804a6cb6781a8d7f8aadd5",
+  "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+  "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+  "remainingScreens": 41,
+  "recordedSteps": 60,
+  "session": "synthetic/v36/v36-quest-rog-loca",
+  "commit": "398d1c8fc5a676f9b6256797e5bfb5de89fd5aed",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-rog-loca",
+    "session": "synthetic/v36/v36-quest-rog-loca",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-rog-loca.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-rog-loca.session.json",
+    "recordingSha256": "ac97310261adf55d3764dce9e254db818e8b82668d804a6cb6781a8d7f8aadd5",
+    "recipe": "challenges/cases/v36/v36-quest-rog-loca.recipe.session.json",
+    "recipeSha256": "42a067c889c37ec2efffcd583150776b32258aaf9c4d83624be6c467eeb05628",
+    "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+    "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+    "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+    "evaluationArtifact": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+    "evaluationUtc": "2026-10-09T10:38:34.264Z",
+    "remainingScreens": 41,
+    "recordedSteps": 60,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 60
+      },
+      "rng": {
+        "matched": 2693,
+        "total": 3500
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Rog-loca\"",
+      "step": 19
+    },
+    "step": 19,
+    "kind": "stop",
+    "sourceFile": "Rog-loca.lua",
+    "function": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Rog-loca\"",
+    "cFile": null,
+    "luaFile": "Rog-loca.lua",
+    "line": null
+  },
+  "status": "complete",
+  "goalKind": "lua-port",
+  "summary": "Rogue locate arrival selects Rog-loca, but its whole Lua loader is absent. Port the complete Rog-loca.lua cavern map, lighting and nondiggable region, random up/down stairs, cursed teleportation scroll and fourteen random objects, six traps and hostile leprechaun/naga/chameleon population.",
+  "source": {
+    "file": "Rog-loca.lua",
+    "functions": [
+      "Rog-loca.lua"
+    ],
+    "branch": "Valid Rogue quest locate arrival reaches load_special for Rog-loca. Lua fills solid stone, sets mazelevel, places the exact centered 76x21 cavern map, lights it, creates random up then down stairs, marks nondiggable cells, and executes the object/trap/monster descriptors in definition order.",
+    "callers": [
+      "do.c goto_level -> mklev.c makelevel -> mkmaze.c makemaz -> sp_lev.c load_special -> dat/Rog-loca.lua. JS allmain deferred-goto -> do goto_level -> mklev makelevel/makemaz/load_special -> QUEST_LEVEL_LOADERS lacks Rog-loca.",
+      "Accepted wizcmds.c wiz_load_splua invokes load_special directly for the same source-named program. Natural quest arrival and wizard destination choice converge on generation; no program callback or separate entry is defined."
+    ],
+    "dependencies": [
+      "Canonical level_init solidfill, mazelevel flags, array-form map, relative selection area, region, stair, non_diggable, object, trap and monster descriptors already exist in createSpecialLevelApi. No external owner edit identified.",
+      "Map array form preserves the 76-column, 21-row source, including trailing spaces and secret-door S glyphs. Existing mapFromRows full-height overflow handling resets ystart to zero and tracks written cells. Lua discards its returned placement; relative selections cover (0,0)-(75,20).",
+      "lspo_stair string forms select random coordinates through canonical l_create_stairway and get_location. Preserve up before down and their avoidance of existing features. No injected random location or new stair dispatcher is required.",
+      "The sole explicit object is a cursed scroll of teleportation at (11,18) with spe=0; fourteen no-argument descriptors use existing random object creation. No explicit tin, non-species spinach sentinel, artifact name, or source alignment expression occurs in this program.",
+      "lspo_monster table id and class forms use existing find_montype/mkclass and canonical makemon. Preserve each independent descriptor and hostile peaceful=0 values. The class l and N descriptors consume canonical class-selection results internally; do not replace them with fixed species.",
+      "Initial chameleons use makemon_create -> pm_to_cham -> existing newcham_initial -> newcham, which preserves the selected initial form and allowMinvent result. The existing classic Rogue-level refusal checks isRogueLevel, not the hero role; the Rogue quest dungeon is not that classic special level. Standard startup supplies the required light globals. Matching runtime evidence remains necessary before claiming this path complete.",
+      "C174 owns distinct Rog-goal and wins that session priority; no source edits or report were made for it. C169/C170/B195, C173 Ran-goal, A193 Ran-strt and B198 alignment are disjoint source programs/contracts. A194 uses only existing descriptor APIs and proposes an adjacent registry key/import/function."
+    ]
+  },
+  "evidence": [
+    "Assigned replay run-NIxmMZ at examined398d1c8fc reproduces 19/60 screens and cursors and 2693/3500 RNG calls. Segment 0, step 19, key z confirms the destination. C next rn2(3)=1 belongs to nhlib.lua private alignment shuffle before the program. JS stops with absent Rog-loca load_special; .cache/A194/probe.json and probe.log contain the exact source stack and comparison.",
+    "Read whole dat/Rog-loca.lua lines 1-99: line 5 solidfill; 7 mazelevel; 11-33 exact cavern map; 35 lit relative region; 39-40 random up/down stairs; 42 nondiggable region; 44 cursed teleport scroll at (11,18), spe=0; 45-58 fourteen random objects; 60-65 six random traps; 67-83 seventeen hostile leprechauns; 84 one hostile class l; 85-91 seven hostile guardian nagas; 92-94 three hostile class N; 95-99 five hostile chameleons. Commented door example at 37 is inactive. There is no explicit final wallify call.",
+    "Source parsing confirms 21 rows of exactly 76 columns, 33 monster descriptors, 15 object descriptors, and six traps. Generate the large fixed map from authoritative Lua and compare generated output, preserving every space and glyph.",
+    "Consumed-return audit: Lua consumes canonical selection.area results only; all descriptor returns are ignored. Internal stair location, monster class and initial transformation results are supplied by existing canonical owners. Reviewed lspo_monster table/class handling and makemon_create initial chameleon/newcham path, including the distinction between classic Rogue level and Rogue quest dungeon. No new required helper scope is currently identified.",
+    "Actionable whole-source scope: Rog-loca.lua lines 1-99, rogLoca plus registry key in js/quest_levels.js; generated rog_loca_level_data.js and deterministic generator; source-pinned test and fresh runner; recipes/Rog-loca.lua and recordings/Rog-loca.lua. No whole generic descriptor, makemon/newcham, quest permission, or teleport credit.",
+    "Validation plan: fail first on missing module/loader; pin exact generated map, complete descriptor order, cursed scroll fields, and separate fixed/class species descriptors. Verify admitted segment 0, steps 19-59. Add independently chosen human chaotic and orc chaotic Rogue C-first arrival/direct-des variations; strict complete RNG, screens, cursors and frames. Assert two stair directions, lit/nondiggable geometry, scroll state, source population and five natural chameleon identities even after their initial shape changes. A neighboring Rog-strt recipe is outside this program and must stay blocked if the loader is absent.",
+    "Evidence limits: read-only source trace and the assigned replay only, with no C recording or game edit. The current replay stops before program generation, so helper review establishes proposed scope, not production completion. Rog-goal remains a separate source program. Any later confirmed shared-owner defect needs authorized source expansion."
+  ]
+}
