@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T03:38:32.376Z",
+  "capturedAt": "2026-10-09T03:56:39.615Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -70179,12 +70179,209 @@
         "worker": "A2",
         "state": "active",
         "reason": "Tracing pool-entry confirmation and towel wetting."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A181-pool-confirmation",
+        "type": "implement",
+        "at": "2026-10-09T03:38:37.511Z",
+        "task": "A181",
+        "goal": "fix-potion-pool-dip-confirmation-v33-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B182-spell-menu-family-20261009",
+        "type": "implement",
+        "at": "2026-10-09T03:39:19.224Z",
+        "task": "B182",
+        "goal": "port-spell-sort-menu-family-v33-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B182-implementation-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T03:39:20.691Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing the complete spell sorting and menu family."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C161-61421bbc-20261009",
+        "type": "received",
+        "at": "2026-10-09T03:39:50.799Z",
+        "task": "C161",
+        "delivery": "61421bbc25ba1f590eb3cca30e1aed37af2b447d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A179-64f0f93f-20261009",
+        "type": "received",
+        "at": "2026-10-09T03:39:53.822Z",
+        "task": "A179",
+        "delivery": "64f0f93f294580e135b7b1fc72c54f23fbb4f212"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A180-e68c695c-20261009",
+        "type": "received",
+        "at": "2026-10-09T03:39:57.685Z",
+        "task": "A180",
+        "delivery": "e68c695c38ed22a9e99e7c37e3956cb28e2c1239"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-fdd576405c690b6ac57795b3d1a3837a29c70dce",
+        "type": "ready",
+        "at": "2026-10-09T03:40:52.784Z",
+        "task": "C162",
+        "delivery": "fdd576405c690b6ac57795b3d1a3837a29c70dce"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C163-leprechaun-gold-20261009",
+        "type": "assign",
+        "at": "2026-10-09T03:41:48.056Z",
+        "task": "C163",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C163-leprechaun-gold-20261009",
+        "type": "turn",
+        "at": "2026-10-09T03:41:49.441Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-71fee968e1449c39945df1fb628663e91d53536e",
+        "type": "ready",
+        "at": "2026-10-09T03:44:00.854Z",
+        "task": "A181",
+        "delivery": "71fee968e1449c39945df1fb628663e91d53536e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C162-fdd576405-20261009",
+        "type": "received",
+        "at": "2026-10-09T03:44:04.665Z",
+        "task": "C162",
+        "delivery": "fdd576405c690b6ac57795b3d1a3837a29c70dce"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A182-eca66a2e",
+        "type": "assign",
+        "at": "2026-10-09T03:44:56.384Z",
+        "task": "A182",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A182-oracle-trace",
+        "type": "turn",
+        "at": "2026-10-09T03:44:57.769Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Tracing Oracle special-level generation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C160-b21970864-corrected-20261009",
+        "type": "published",
+        "at": "2026-10-09T03:45:06.303Z",
+        "task": "C160",
+        "commit": "b2197086427c6a68935fd3457f0b19a69503116b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C163-gold-theft-20261009",
+        "type": "implement",
+        "at": "2026-10-09T03:45:16.446Z",
+        "task": "C163",
+        "goal": "port-uhitm-gold-theft-handler-v33-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A181-71fee968e-20261009",
+        "type": "received",
+        "at": "2026-10-09T03:45:39.622Z",
+        "task": "A181",
+        "delivery": "71fee968e1449c39945df1fb628663e91d53536e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A182-room-pointer",
+        "type": "implement",
+        "at": "2026-10-09T03:46:52.419Z",
+        "task": "A182",
+        "goal": "fix-hack-special-room-subroom-reset-v33-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B181-4c02dfca-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T03:47:58.035Z",
+        "task": "B181",
+        "integration": "4c02dfca96bd54300b882ccce1f536aef50b9791"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B181-hosted-37880993116-20261009",
+        "type": "validated",
+        "at": "2026-10-09T03:53:35.596Z",
+        "task": "B181",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2efa8906f5e92a584ed1fb3061beb009173a5e49",
+        "type": "ready",
+        "at": "2026-10-09T03:53:55.896Z",
+        "task": "B182",
+        "delivery": "2efa8906f5e92a584ed1fb3061beb009173a5e49"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B183-cockatrice-upward-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T03:55:28.707Z",
+        "task": "B183",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B183-upward-drop-audit-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T03:55:29.971Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the upward cockatrice-corpse throw drop boundary."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B181-4c02dfca96bd54300b882ccce1f536aef50b9791-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T03:56:12.676Z",
+        "task": "B181"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B182-2efa8906-20261009",
+        "type": "received",
+        "at": "2026-10-09T03:56:32.146Z",
+        "task": "B182",
+        "delivery": "2efa8906f5e92a584ed1fb3061beb009173a5e49"
       }
     ]
   },
   "development": {
-    "executionCommit": "f091b997ca1571fc6198fe3189ad06fe2dba532c",
-    "measuredAt": "2026-10-09T03:24:52.646Z",
+    "executionCommit": "4c02dfca96bd54300b882ccce1f536aef50b9791",
+    "measuredAt": "2026-10-09T03:52:49.806Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

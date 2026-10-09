@@ -225919,16 +225919,23 @@
     {
       "id": "fix-potion-dip-old-appearance-dummy-v33-20261009",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Initialize the old-potion naming dummy with the canonical zero object.",
       "cFile": "potion.c",
       "sessions": [],
-      "selectionReason": "Seed continuation after accepted B180; admitted v33 amethyst-booze has 67 remaining screens and a source-traced potion_dip dummy-object construction failure, independent of live reservations.",
+      "selectionReason": "Oldest dependency-ready admitted v33 divergence; worker evidence traces the shared potion_dip naming dummy defect in both affected sessions.",
       "detail": "synthetic/v33/v33-amethyst-booze segment 0 step 44: C potion.c potion_dip lines 2774-2780 initializes fakeobj from cg.zeroobj before docall; JS potion.js dereferences absent state.cg.zeroobj. Replace only the dummy construction with the canonical obj.js newObject zero object and preserve dknown, old type, potion class, docall, and hold_potion order.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "b2197086427c6a68935fd3457f0b19a69503116b",
+      "openStanding": {
+        "sha": "a09c9a204040907385ab228721730cc6c4cbbbb3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "4c02dfca96bd54300b882ccce1f536aef50b9791",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "potion_dip",
       "session": "synthetic/v33/v33-amethyst-booze",
       "step": 44,
@@ -225945,19 +225952,207 @@
           "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
           "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66"
         }
+      },
+      "activeStanding": {
+        "sha": "a09c9a204040907385ab228721730cc6c4cbbbb3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-amethyst-booze",
+          "session": "synthetic/v33/v33-amethyst-booze",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recording": "challenges/cases/v33/v33-amethyst-booze.session.json",
+          "recordingPath": "challenges/cases/v33/v33-amethyst-booze.session.json",
+          "recordingSha256": "54ab5dc552521371cfb9946c7db18c6c4de46cc877781e12900771bc11ac1ca6",
+          "recipe": "challenges/cases/v33/v33-amethyst-booze.recipe.session.json",
+          "recipeSha256": "88d4ce353d099f5beeb7b2559dcbaad47ace6504d5e01c7c54019ba80081ece7",
+          "replayInputSha256": "7b0925afb6eee2457738651df4678c285a2a841425726a39beb3138ca4a5aac5",
+          "evaluationPath": "challenges/evaluations/accepted-f091b997ca1571fc6198fe3189ad06fe2dba532c-v33.json",
+          "evaluationCommit": "f091b997ca1571fc6198fe3189ad06fe2dba532c",
+          "evaluationArtifact": "challenges/evaluations/accepted-f091b997ca1571fc6198fe3189ad06fe2dba532c-v33.json",
+          "evaluationUtc": "2026-10-09T03:23:04.919Z",
+          "remainingScreens": 67,
+          "recordedSteps": 67,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": "Cannot read properties of undefined (reading 'zeroobj')",
+          "metrics": {
+            "screens": {
+              "matched": 0,
+              "total": 67
+            },
+            "rng": {
+              "matched": 0,
+              "total": 2908
+            },
+            "cursors": {
+              "matched": 0,
+              "total": 67
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "Replay error: Cannot read properties of undefined (reading 'zeroobj')",
+            "step": null
+          },
+          "step": null,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "Replay error: Cannot read properties of undefined (reading 'zeroobj')",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v33/v33-amethyst-booze.json",
+            "result": {
+              "session": "synthetic/v33/v33-amethyst-booze",
+              "corpus": "synthetic",
+              "batch": "v33",
+              "caseId": "v33-amethyst-booze",
+              "manifestPath": "challenges/manifests/v33.json",
+              "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+              "recordingSha256": "54ab5dc552521371cfb9946c7db18c6c4de46cc877781e12900771bc11ac1ca6",
+              "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+              "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+              "remainingScreens": 67,
+              "recordedSteps": 67,
+              "status": "complete",
+              "commit": "2e30546335feaeb2622622dc5a0c83ad76cdd755",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v33",
+                "caseId": "v33-amethyst-booze",
+                "session": "synthetic/v33/v33-amethyst-booze",
+                "manifestPath": "challenges/manifests/v33.json",
+                "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+                "recording": "challenges/cases/v33/v33-amethyst-booze.session.json",
+                "recordingPath": "challenges/cases/v33/v33-amethyst-booze.session.json",
+                "recordingSha256": "54ab5dc552521371cfb9946c7db18c6c4de46cc877781e12900771bc11ac1ca6",
+                "recipe": "challenges/cases/v33/v33-amethyst-booze.recipe.session.json",
+                "recipeSha256": "88d4ce353d099f5beeb7b2559dcbaad47ace6504d5e01c7c54019ba80081ece7",
+                "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+                "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+                "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+                "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+                "evaluationUtc": "2026-10-09T03:03:55.655Z",
+                "remainingScreens": 67,
+                "recordedSteps": 67,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": "Cannot read properties of undefined (reading 'zeroobj')",
+                "metrics": {
+                  "screens": {
+                    "matched": 0,
+                    "total": 67
+                  },
+                  "rng": {
+                    "matched": 0,
+                    "total": 2908
+                  },
+                  "cursors": {
+                    "matched": 0,
+                    "total": 67
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "Replay error: Cannot read properties of undefined (reading 'zeroobj')",
+                  "step": null
+                },
+                "step": null,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "Replay error: Cannot read properties of undefined (reading 'zeroobj')",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The amethyst-booze conversion reaches potion.c:potion_dip2774-2780 old-appearance naming. JS dereferences absent state.cg.zeroobj when building the stack dummy for docall. Use the existing canonical obj.js:newObject constructor, preserving the old potion type, dknown/class writes, naming prompt and subsequent hold_potion order. The unicorn-horn sickness case reaches the identical arm.",
+              "goalKind": "divergence-fix",
+              "source": {
+                "file": "potion.c",
+                "functions": [
+                  "potion_dip"
+                ],
+                "branch": "Amethyst or unicorn-horn yields a non-STRANGE_OBJECT mixture; hero is not blind; old potion appearance is known while its type has neither a known name nor a user call-name. C initializes a fresh local zero object before docall.",
+                "callers": [
+                  "cmd.c:extcmdlist dip -> potion.c:dodip2371 -> potion_dip; JS cmd.js dip dispatcher awaits dodip, which returns potion_dip.",
+                  "potion.c:dip_into2404 is the alternate IA_DIP_OBJ caller of the same potion_dip owner; its broader C84 runtime frontier is unchanged."
+                ],
+                "dependencies": [
+                  "obj.js:newObject482-544 already represents decl.c cg.zeroobj/include obj.h zero-initialized stack objects, preserving union aliases and bitfield backing. It makes no RNG, output or game-state mutation.",
+                  "do_name.c:docall636-676 has the canonical awaited JS owner do_name.js780; it consumes dknown, former type/class and zero-state fields to construct the prompt. No callee expansion required.",
+                  "potion.c:hold_potion follows docall at2785; reuse existing owner and preserve ordering."
+                ]
+              },
+              "evidence": [
+                "Current saved queue .cache/mismatch-queue-v33-3ab0909e.json and baseline-66ac2b0bf-v33 evaluate the admitted immutable recording:67 remaining screens, recorder67steps; exception forces aggregate matched counters to0. Do not confuse this with the historical44-screen matching prefix.",
+                "Immutable B158 preparation evidence cabd31a8... and retained .cache/B158/logs/v33-amethyst-booze.js.log locate the same TypeError at potion.js3690, segment0step44 (f), after the potion transformation message but before the old-appearance call-name prompt. Its stored first-mismatch source trace matches the current expression and current baseline error. No additional replay was needed for diagnosis.",
+                "Read complete C potion_dip2442-2793 and JS matching body. C2776 assigns cg.zeroobj to an independent stack struct, C2777 sets dknown1, C2778 old_otyp, C2779 POTION_CLASS, C2780 docall, then C2785 hold_potion. Only JS fakeobj construction is divergent; retain source conditions, fields and call order.",
+                "Search rg -n zeroobj/cg in js/gstate.js, allmain.js, save.js and restore.js returned no source cg state. Historical prep prose claiming gstate stores zeroobj elsewhere is inaccurate. Canonical newObject in obj.js explicitly names cg.zeroobj and lock.js uses it for the same C stack-copy contract.",
+                "Companion v33-unicorn-horn-sickness82remaining has identical current baseline zeroobj error and immutable B158 trace at segment0step60. It is coherent supporting evidence, not a second source owner. Claim its investigation path only with the implementation transition; attempted investigation-only scope expansion was refused by the ledger.",
+                "Bounded divergence scope is potion.c:potion_dip old-appearance fakeobj construction only, no whole potion_dip/dip_into or object-family completion credit. Add source-pinned focused assertions and verify admitted cases through and after naming plus independent C-first conversion witnesses."
+              ],
+              "proposal": {
+                "goalId": "fix-potion-dip-old-appearance-dummy-v33-20261009",
+                "summary": "Initialize the old-potion naming dummy with the canonical zero object.",
+                "selectionReason": "Seed continuation after accepted B180 exhausted eligible earlier owners; admitted v33 amethyst67remaining and same-arm unicorn-horn82remaining share one source-traced potion_dip dummy-object construction defect, independent of live reservations.",
+                "detail": "Synthetic/v33/v33-amethyst-booze segment0step44: C potion.c:potion_dip2774-2780 initializes fakeobj from cg.zeroobj before docall; JS potion.js3690 reads absent state.cg.zeroobj. Replace only construction with canonical obj.newObject and preserve naming/hold order.",
+                "proposedReservations": [
+                  "session:synthetic/v33/v33-amethyst-booze",
+                  "session:synthetic/v33/v33-unicorn-horn-sickness",
+                  "source:potion.c:potion_dip",
+                  "contract:potion-dip-old-appearance-dummy"
+                ],
+                "proposedPaths": [
+                  "js/potion.js",
+                  "scripts/potion-dip.test.mjs",
+                  "scripts/potion-dummy.test.mjs",
+                  "scripts/run-potion-dummy.mjs",
+                  "recipes/potion.c/",
+                  "recordings/potion.c/",
+                  "investigations/synthetic/v33/v33-amethyst-booze.json",
+                  "investigations/synthetic/v33/v33-unicorn-horn-sickness.json",
+                  ".cache/"
+                ],
+                "dependencies": []
+              }
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4c02dfca96bd54300b882ccce1f536aef50b9791",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "fix-hack-empty-forcefight-explosion-v33-20261009",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Wire exploding-form empty force-fight to canonical explosion and rehumanization.",
       "cFile": "hack.c",
       "sessions": [],
-      "selectionReason": "A179 current source trace replaces the stale prepared dropx diagnosis; independent hack.c behavior reuses accepted explosion, wake, and rehumanization owners without overlapping B181 or C160.",
+      "selectionReason": "Next dependency-ready admitted v33 divergence after B181; the worker traced and recorded the complete exploding-form force-fight tail.",
       "detail": "At step 53, empty-square force-fight in black-light form is refused by an obsolete domove_fight_empty guard. C prints the exploding-form terrain message, calls wake_nearto then existing explum with a null defender, sets monster-form HP to -1, and rehumanizes; the admitted baseline matches through step 52.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "5f5d915160938849a08e5109fb2d9abfe564df1e",
+      "openStanding": {
+        "sha": "4c02dfca96bd54300b882ccce1f536aef50b9791",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "domove_fight_empty",
@@ -225976,7 +226171,199 @@
           "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
           "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "4c02dfca96bd54300b882ccce1f536aef50b9791",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-black-light-hero-explosion",
+          "session": "synthetic/v33/v33-black-light-hero-explosion",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recording": "challenges/cases/v33/v33-black-light-hero-explosion.session.json",
+          "recordingPath": "challenges/cases/v33/v33-black-light-hero-explosion.session.json",
+          "recordingSha256": "d67c5e0e3ce9d93120850865bb9b7dddde1630814fdcf2b268387a74d3925cff",
+          "recipe": "challenges/cases/v33/v33-black-light-hero-explosion.recipe.session.json",
+          "recipeSha256": "38f31eaeb7b8d2b444cfd5bba9c997d8ad446578437551f8239cde1d39f4c685",
+          "replayInputSha256": "ba37972c6dbfc48b41e0061d238dd2834971ae6ed52f33407ab7e469968b48db",
+          "evaluationPath": "challenges/evaluations/accepted-4c02dfca96bd54300b882ccce1f536aef50b9791-v33.json",
+          "evaluationCommit": "4c02dfca96bd54300b882ccce1f536aef50b9791",
+          "evaluationArtifact": "challenges/evaluations/accepted-4c02dfca96bd54300b882ccce1f536aef50b9791-v33.json",
+          "evaluationUtc": "2026-10-09T03:51:19.671Z",
+          "remainingScreens": 167,
+          "recordedSteps": 220,
+          "previousScreensMatched": 53,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 53,
+              "total": 220
+            },
+            "rng": {
+              "matched": 6194,
+              "total": 6386
+            },
+            "cursors": {
+              "matched": 53,
+              "total": 220
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: force-fight while polymorphed into an exploding form",
+            "step": 53
+          },
+          "step": 53,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero move: force-fight while polymorphed into an exploding form",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v33/v33-black-light-hero-explosion.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v33",
+              "caseId": "v33-black-light-hero-explosion",
+              "session": "synthetic/v33/v33-black-light-hero-explosion",
+              "manifestPath": "challenges/manifests/v33.json",
+              "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+              "recording": "challenges/cases/v33/v33-black-light-hero-explosion.session.json",
+              "recordingPath": "challenges/cases/v33/v33-black-light-hero-explosion.session.json",
+              "recordingSha256": "d67c5e0e3ce9d93120850865bb9b7dddde1630814fdcf2b268387a74d3925cff",
+              "recipe": "challenges/cases/v33/v33-black-light-hero-explosion.recipe.session.json",
+              "recipeSha256": "38f31eaeb7b8d2b444cfd5bba9c997d8ad446578437551f8239cde1d39f4c685",
+              "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+              "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+              "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+              "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+              "evaluationUtc": "2026-10-09T03:03:55.655Z",
+              "remainingScreens": 167,
+              "recordedSteps": 220,
+              "previousScreensMatched": null,
+              "regression": false,
+              "passed": false,
+              "error": null,
+              "metrics": {
+                "screens": {
+                  "matched": 53,
+                  "total": 220
+                },
+                "rng": {
+                  "matched": 6194,
+                  "total": 6386
+                },
+                "cursors": {
+                  "matched": 53,
+                  "total": 220
+                }
+              },
+              "firstMismatch": {
+                "kind": "stop",
+                "message": "unsupported hero move: force-fight while polymorphed into an exploding form",
+                "step": 53
+              },
+              "step": 53,
+              "kind": "stop",
+              "sourceFile": null,
+              "function": null,
+              "message": "unsupported hero move: force-fight while polymorphed into an exploding form",
+              "cFile": null,
+              "luaFile": null,
+              "line": null,
+              "status": "complete",
+              "commit": "ae2ee24eaa23aeaf21b59731835296195b8194b0",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v33",
+                "caseId": "v33-black-light-hero-explosion",
+                "session": "synthetic/v33/v33-black-light-hero-explosion",
+                "manifestPath": "challenges/manifests/v33.json",
+                "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+                "recording": "challenges/cases/v33/v33-black-light-hero-explosion.session.json",
+                "recordingPath": "challenges/cases/v33/v33-black-light-hero-explosion.session.json",
+                "recordingSha256": "d67c5e0e3ce9d93120850865bb9b7dddde1630814fdcf2b268387a74d3925cff",
+                "recipe": "challenges/cases/v33/v33-black-light-hero-explosion.recipe.session.json",
+                "recipeSha256": "38f31eaeb7b8d2b444cfd5bba9c997d8ad446578437551f8239cde1d39f4c685",
+                "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+                "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+                "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+                "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+                "evaluationUtc": "2026-10-09T03:03:55.655Z",
+                "remainingScreens": 167,
+                "recordedSteps": 220,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 53,
+                    "total": 220
+                  },
+                  "rng": {
+                    "matched": 6194,
+                    "total": 6386
+                  },
+                  "cursors": {
+                    "matched": 53,
+                    "total": 220
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: force-fight while polymorphed into an exploding form",
+                  "step": 53
+                },
+                "step": 53,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero move: force-fight while polymorphed into an exploding form",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "goalKind": "divergence-fix",
+              "summary": "At step 53, empty-square force-fight in black-light form is refused by an obsolete domove_fight_empty guard. C prints the exploding-form terrain message, calls wake_nearto then existing explum(NULL,attack), sets mh=-1 and rehumanizes. The prepared dropx diagnosis is superseded: current baseline matches through step 52.",
+              "source": {
+                "file": "hack.c",
+                "functions": [
+                  "domove_fight_empty"
+                ],
+                "branch": "Forcefight targets an empty square while Upolyd and attacktype(youmonst.data,AT_EXPL) are true. Reuse existing terrain arms with C exploding-form adverb/verb and exact wake/explum/form-death/rehumanize tail.",
+                "callers": [
+                  "hack.c:domove_core -> domove_fight_empty:2810, after force-fight target checks; js/hack.js canonical movement dispatcher.",
+                  "hack.c:move_out_of_bounds -> domove_fight_empty:2589 for off-map forcefight, preserving no destination-grid access."
+                ],
+                "dependencies": [
+                  "mondata.c:attacktype_fordmg42–50 return selects first AT_EXPL/AD_ANY attack; js/mondata.js already implements it. Existing Upolyd/attacktype and glyph/terrain predicates remain canonical.",
+                  "uhitm.c:explum4891–4928 is already translated in js/uhitm.js1412–1460. Null defender suppresses AD_BLND/AD_HALU monster effects, but attack dice and second wake_nearto still run. Caller discards its result; no mhitm_ad_halu expansion is needed.",
+                  "Canonical mon.c:wake_nearto is awaited before explum and again inside it. Canonical polyself.c:rehumanize follows mh=-1. Supply source state/message/random; preserve existing named retouch_equipment/selftouch gaps. No new return-valued dependency is missing.",
+                  "Keep underwater/unremembered-terrain/web arms and whole domove_fight_empty/domove_core completion outside this bounded divergence."
+                ]
+              },
+              "evidence": [
+                "Authoritative baseline-66ac2b0bf-v33 has 53/220 screens/cursors, 6194/6386 RNG. Refreshed saved .cache/mismatch-queue-v33-3ab0909e.json identifies zero-based step53 unsupported force-fight while polymorphed into an exploding form. Selection used saved evidence without replay, as instructed.",
+                "The prepared manifest’s step23 dropx refusal predates accepted fixes. Current do.js preflight_dropx1907–1909 explicitly admits direct dropx without can_reach_floor, and baseline matches through52. This counter-evidence prevents reopening the repaired drop dependency.",
+                "Read whole hack.c:domove_fight_empty2227–2338 and existing JS translation. C computes explo2247, resolves boulder/solid/thin-air or off-edge target, prints source adverb/verb2318–2321, nomul(0), then attacktype_fordmg/wake_nearto/optional explum(NULL)/mh=-1/rehumanize2324–2334. JS3651–3655 refuses before all terrain arms and later emits only ordinary attack messages.",
+                "Read whole uhitm.c:explum4891–4928 and JS1412–1460. NULL-defender yellow/black-light calls still roll attack dice and wake twice overall, but need no monster damage handler. Elemental explosions reuse canonical explode/state/planning operations. No stand-in behavior is needed.",
+                "Actionable bounded scope: exploding-form branch and both production entries in hack.c:domove_fight_empty; js/hack.js imports/caller reconciliation, scripts/force-fight.test.mjs and scripts/run-force-fight.mjs, independent recipes/hack.c and recordings/hack.c. Source-pinned tests need off-edge/solid/thin-air wording, dice/wake/form-change order, and ordinary behavior. Independent C-first seed/role/clock and yellow/black form variations plus the selected admitted range establish wiring. Preserve whole-function exclusions."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-artifact-invoke-healing-v33-20261009",

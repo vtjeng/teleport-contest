@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -13,6 +14,7 @@ import {
     FOUNTAIN,
     ICE,
     IRONBARS,
+    LS_MONSTER,
     POOL,
     ROOM,
     SCORR,
@@ -45,7 +47,10 @@ import {
     UnsupportedHeroMoveBoundaryError,
 } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
+import { new_light_source } from '../js/light.js';
+import { emits_light } from '../js/mondata.js';
 import { PM_KITTEN, PM_YELLOW_LIGHT } from '../js/monsters.js';
+import { polymon } from '../js/polyself.js';
 import { place_monster } from '../js/monst.js';
 import { mksobj, mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
@@ -261,16 +266,40 @@ test('mention_walls cannot reach a force-fight off the edge', async () => {
     );
 });
 
-test('an exploding form stops before the off-edge arm prints', async () => {
+test('an exploding form runs the source tail after its off-edge message', async () => {
     // hack.c:2247 reads `explo` above the arm at 2252 and spends it at
-    // 2319-2321, so the stop belongs above the arm rather than beside the
-    // in-bounds tests below it. A yellow light's one attack is
+    // 2319-2321 before the common tail. A yellow light's one attack is
     // ATTK(AT_EXPL, AD_BLND, 10, 20).
-    const state = await heroAtTheWestEdge();
-    state.u.umonnum = PM_YELLOW_LIGHT;
-    state.youmonst.data = state.mons[PM_YELLOW_LIGHT];
-    await refusedWest(state, /exploding form/u);
-    assert.equal(toplines(state), '');
+    const state = await heroInARoom();
+    // Reproduce polyself.c:722–730 after polymon: rehumanize must find the
+    // matching mobile light, including C's minimum detectable range of 2.
+    await polymon(PM_YELLOW_LIGHT, state, { message: async () => {} });
+    // Only relocate after ordinary-floor inventory shedding is complete.
+    state.u.ux = 0;
+    new_light_source(state.u.ux, state.u.uy,
+        Math.max(2, emits_light(state.youmonst.data)), LS_MONSTER,
+        state.youmonst, state);
+    quiet(state);
+    // The eyeless form's reversion also says "You can see again.". Supply
+    // only More acknowledgments for that canonical message sequence.
+    for (let i = 0; i < 4; ++i) state.nhDisplay.pushKey(32);
+    await forceFightWest(state);
+    assert.equal(state.u.umonnum, state.u.umonster,
+        'the expended yellow-light form returns to the original hero');
+    assert.match(toplines(state), /You can see again\./u);
+});
+
+test('empty force-fight pins the source explosion order and null defender', () => {
+    const c = readFileSync(new URL('../nethack-c/upstream/src/hack.c', import.meta.url), 'utf8');
+    const js = readFileSync(new URL('../js/hack.js', import.meta.url), 'utf8');
+    const source = c.slice(c.indexOf('\ndomove_fight_empty('), c.indexOf('/* does the plane of air disturb movement? */'));
+    const port = js.slice(js.indexOf('async function domove_fight_empty('), js.indexOf('// C ref: hack.c trapmove()'));
+    // hack.c:2326–2334 looks up the exploding attack, wakes at radius 7*7,
+    // then expends the current form after the optional NULL-defender attack.
+    assert.match(source, /attacktype_fordmg\(gy\.youmonst\.data, AT_EXPL, AD_ANY\);[\s\S]*wake_nearto\(u\.ux, u\.uy, 7 \* 7\);[\s\S]*explum\(\(struct monst \*\) 0, attk\);[\s\S]*u\.mh = -1;[\s\S]*rehumanize\(\);/u);
+    assert.doesNotMatch(port, /force-fight while polymorphed into an exploding form/u);
+    assert.match(port, /attacktype_fordmg\(state\.youmonst\.data, AT_EXPL, AD_ANY\)/u);
+    assert.match(port, /await wake_nearto\([\s\S]*7 \* 7[\s\S]*await explum\(null, attk,[\s\S]*state\.u\.mh = -1;[\s\S]*await rehumanize\(/u);
 });
 
 // ── hack.c domove_fight_empty(), the solid arm ──
@@ -661,9 +690,16 @@ test('force-fight routes digging tools to use_pick_axe2 and installs its occupat
     targetTerrain(exploder, VWALL);
     // A yellow light's one attack is ATTK(AT_EXPL, AD_BLND, 10, 20); a gas
     // spore's is AT_BOOM, which is a different number and a different arm.
-    exploder.u.umonnum = PM_YELLOW_LIGHT;
-    exploder.youmonst.data = exploder.mons[PM_YELLOW_LIGHT];
-    await refusedWest(exploder, /exploding form/u);
+    await polymon(PM_YELLOW_LIGHT, exploder, { message: async () => {} });
+    // Same polyself light-registration tail as the off-edge fixture above.
+    new_light_source(exploder.u.ux, exploder.u.uy,
+        Math.max(2, emits_light(exploder.youmonst.data)), LS_MONSTER,
+        exploder.youmonst, exploder);
+    quiet(exploder);
+    for (let i = 0; i < 4; ++i) exploder.nhDisplay.pushKey(32);
+    await forceFightWest(exploder);
+    assert.equal(exploder.u.umonnum, exploder.u.umonster);
+    assert.match(toplines(exploder), /You can see again\./u);
 
     // The arm needs both halves. An unpolymorphed hero carrying the same
     // species record swings as usual, which is what Upolyd() decides.
