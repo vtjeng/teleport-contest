@@ -2489,3 +2489,74 @@ test('map_redisplay forwards docrt vision phases around the memory repaint', () 
     const implementation = js.slice(js.indexOf('export async function map_redisplay('), js.indexOf('// C ref: detect.c level_distance()'));
     assert.match(implementation, /await docrt\(\{\s*suspendVision: \(\) => vision_recalc\(2, \{ state \}\),\s*restoreVision: \(\) => vision_recalc\(0, \{ state \}\),\s*\}\);/u);
 });
+
+import { trapped_chest_at, trapped_door_at } from '../js/detect.js';
+import { TRAPPED_CHEST, TRAPPED_DOOR, D_ISOPEN, HALLUC_RES } from '../js/const.js';
+import { initRng, enableRngLog, getRngLog, rn2 } from '../js/rng.js';
+import { GameMap } from '../js/game.js';
+
+test('trapped glyph predicates preserve C core RNG gates and short circuits', () => {
+    assert.match(DETECT_C, /ttyp != TRAPPED_CHEST \|\| \(Hallucination && rn2\(20\)\)/u);
+    assert.match(DETECT_C, /ttyp != TRAPPED_DOOR \|\| \(Hallucination && rn2\(20\)\)/u);
+    for (const [ttyp, predicate] of [[TRAPPED_CHEST, trapped_chest_at], [TRAPPED_DOOR, trapped_door_at]]) {
+        // Independent ISAAC seeds cover gate failure and its 1-in-20 success.
+        for (const seed of [18935011, 18935031]) {
+            initRng(seed);
+            const expectedGate = rn2(20);
+            initRng(seed); enableRngLog();
+            const state = { level: new GameMap(), u: { ux: 10, uy: 10, uprops: [] } };
+            // youprop.h Hallucination tests intrinsic timeout and ignores blocked.
+            state.u.uprops[HALLUC] = { intrinsic: 10, blocked: 1 };
+            const cell = state.level.at(10, 10);
+            cell.typ = DOOR;
+            cell.flags = D_ISOPEN;
+            cell.disp_glyph = { glyph: trap_to_glyph({ ttyp }, state) };
+            state.invent = { otyp: CHEST, otrapped: true, nobj: null };
+            assert.equal(predicate(ttyp, 10, 10, state), expectedGate === 0);
+            // Open-door fallback calls chest with ttyp DOOR, which short-circuits.
+            assert.deepEqual(getRngLog(), [`rn2(20)=${expectedGate}`]);
+            initRng(seed); enableRngLog();
+            assert.equal(predicate(ttyp === TRAPPED_CHEST ? TRAPPED_DOOR : TRAPPED_CHEST, 10, 10, state), false);
+            assert.deepEqual(getRngLog(), []);
+            // Source resistance uses intrinsic/extrinsic directly, also ignoring blocked.
+            state.u.uprops[HALLUC_RES] = { extrinsic: 1, blocked: 1 };
+            assert.equal(predicate(ttyp, 10, 10, state), true);
+            assert.deepEqual(getRngLog(), []);
+            cell.disp_glyph = { glyph: GLYPH_UNEXPLORED_OFF };
+            assert.equal(predicate(ttyp, 10, 10, state), false);
+            assert.deepEqual(getRngLog(), []);
+        }
+    }
+});
+
+test('trapped chest checks floor then hero, steed and monster direct inventory chains', () => {
+    const state = { level: new GameMap(), u: { ux: 10, uy: 10, uprops: [] }, invent: null };
+    state.level.at(10, 10).disp_glyph = { glyph: trap_to_glyph({ ttyp: TRAPPED_CHEST }, state) };
+    const box = { otyp: LARGE_BOX, otrapped: false, nexthere: null, nobj: null };
+    // Floor identity needs a box, whereas held boxes must actually be trapped.
+    state.level.objects[10][10] = box;
+    assert.equal(trapped_chest_at(TRAPPED_CHEST, 10, 10, state), true);
+    state.level.objects[10][10] = null;
+    state.invent = box;
+    assert.equal(trapped_chest_at(TRAPPED_CHEST, 10, 10, state), false);
+    box.otrapped = true;
+    assert.equal(trapped_chest_at(TRAPPED_CHEST, 10, 10, state), true);
+    state.invent = null; state.u.usteed = { minvent: box };
+    assert.equal(trapped_chest_at(TRAPPED_CHEST, 10, 10, state), true);
+    state.u.usteed = null; state.level.monsters[10][10] = { minvent: box };
+    assert.equal(trapped_chest_at(TRAPPED_CHEST, 10, 10, state), true);
+});
+
+test('findone reveals a wished trapped door with its canonical doormask', async () => {
+    const { x, y } = await globalSearchState();
+    const cell = game.level.at(x, y);
+    cell.typ = DOOR;
+    // readobjnam's wizard terrain wish sets doormask; zero flags is the
+    // untouched alternate representation, not a reason to hide the trap.
+    cell.flags = 0;
+    cell.doormask = D_LOCKED | D_TRAPPED;
+    const found = { ft_cc: { x: 0, y: 0 }, num_sdoors: 0, num_scorrs: 0, num_traps: 0, num_mons: 0, num_invis: 0, num_kept_invis: 0, num_cleared_invis: 0 };
+    await findone(x, y, found, game);
+    assert.equal(found.num_traps, 1);
+    assert.equal(trapped_door_at(TRAPPED_DOOR, x, y, game), true);
+});

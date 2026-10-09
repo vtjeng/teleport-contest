@@ -311,6 +311,7 @@ import { dosave, dosave0, savelev } from './save.js';
 import {
     dohelp,
     dohistory,
+    doidtrap,
     dowhatdoes,
     doquickwhatis,
     do_screen_description,
@@ -1860,7 +1861,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'options', 'autopickup',
     'wizwish', 'wizidentify', 'wizlevelport', 'wizgenesis', 'wizintrinsic', 'wizmap', 'wizwhere', 'wizcast', 'wizsmell', 'wizkill', 'fire', 'throw',
     'swap', 'kick', 'panic',
-    'save', 'wield', 'quiver', 'help', 'whatdoes', 'whatis', '#', 'loot', 'force', 'tip',
+    'save', 'wield', 'quiver', 'help', 'whatdoes', 'whatis', 'showtrap', '#', 'loot', 'force', 'tip',
     'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet',
     'seeall', 'seetools', 'teleport',
     'overview', 'chronicle', 'conduct', 'vanquished', 'genocided',
@@ -5105,6 +5106,8 @@ async function doextcmd(key, state) {
         return await dowhatdoes(state);
     case 'dowhatis':
         return await runWhatisCommand(key, state);
+    case 'doidtrap':
+        return await doidtrap(state);
     case 'doquickwhatis':
         return await runGlanceCommand(key, state);
     case 'doprgold':
@@ -5779,6 +5782,14 @@ export async function rhack(key, state = game) {
         if (command === 'whatis') {
             await runWhatisCommand(key, state);
             resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === 'showtrap') {
+            // C rhack3810-3825: cancellation resets normally; a successful
+            // description is ECMD_OK and never spends a turn.
+            const result = await doidtrap(state);
+            if (result & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else resetCommandVars(state, state.multi < 0);
             return;
         }
         if (command === 'glance') {

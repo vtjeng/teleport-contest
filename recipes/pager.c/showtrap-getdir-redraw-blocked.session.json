@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Explicit outside-scope source frontier: pager.c doidtrap calls canonical cmd.c getdir. Answering its direction prompt with Ctrl-R reaches getdir docrt_flags/retry, an inherited UnsupportedDirectionBoundaryError. No passing recording or whole getdir credit; ordinary, cancelled, vertical and queued directions are independently verified in A189.",
+  "segments": [
+    {
+      "seed": 18935015,
+      "datetime": "20571015133445",
+      "nethackrc": "OPTIONS=name:TrapRedrawLimit,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " ^\u0012\u001b."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent pager.c doidtrap witness: wizard terrain wishes place a pit on ordinary room terrain, Ctrl-F marks it known, then direct self/up/down and typed showtrap inspect it without spending time. Inputs/seed/role/clock chosen independently of challenges. C-first initial observation showed current tile was stairs, where terrain/trap creation is forbidden; move east to the visibly empty floor before wishing the trap. Return west afterwards and select Examine trap in therecmdmenu to exercise the canned DIR caller.",
+  "segments": [
+    {
+      "seed": 18935011,
+      "datetime": "20551012112233",
+      "nethackrc": "OPTIONS=name:TrapReader,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "l\u0017pit\n\u0006^. ^< ^> #showtrap\n. ^\u001bh#therecmdmenu\nla."
+    }
+  ]
+}

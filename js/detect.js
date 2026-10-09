@@ -2446,12 +2446,11 @@ function trappedBoxInDirectChain(first, nextKey) {
     return false;
 }
 
-// C ref: detect.c trapped_chest_at(), for the sighted, non-hallucinating
-// whatis caller. The hallucination disguise branch remains outside that
-// command boundary because it consumes display RNG.
+// C ref: detect.c trapped_chest_at() (139-177). The hallucination gate
+// consumes core RNG only after the displayed glyph and trap type match.
 export function trapped_chest_at(ttyp, x, y, state = game) {
     if (!glyph_is_trap(glyph_at(x, y, state))) return false;
-    if (ttyp !== TRAPPED_CHEST) return false;
+    if (ttyp !== TRAPPED_CHEST || (heroHallucinating(state) && rn2(20))) return false;
     if (sobj_at(CHEST, x, y, state) || sobj_at(LARGE_BOX, x, y, state))
         return true;
     if (u_at(x, y, state)) {
@@ -2462,13 +2461,14 @@ export function trapped_chest_at(ttyp, x, y, state = game) {
     return trappedBoxInDirectChain(m_at(x, y, state)?.minvent, 'nobj');
 }
 
-// C ref: detect.c trapped_door_at(), for the same ordinary whatis caller.
+// C ref: detect.c trapped_door_at() (182-197). Preserve the independent
+// hallucination gate before inspecting the door and its mask.
 export function trapped_door_at(ttyp, x, y, state = game) {
     if (!glyph_is_trap(glyph_at(x, y, state))) return false;
-    if (ttyp !== TRAPPED_DOOR) return false;
+    if (ttyp !== TRAPPED_DOOR || (heroHallucinating(state) && rn2(20))) return false;
     const location = state.level?.at(x, y);
     if (location?.typ !== DOOR) return false;
-    const mask = location.flags ?? location.doormask ?? 0;
+    const mask = location.flags || location.doormask || 0;
     if (mask & (D_NODOOR | D_BROKEN | D_ISOPEN)
         && trapped_chest_at(ttyp, x, y, state)) {
         return false;
@@ -2532,7 +2532,7 @@ export async function findone(x, y, found, state) {
         found.num_traps++;
     }
     if (closed_door(x, y, state)
-        && ((location.flags ?? location.doormask ?? 0) & D_TRAPPED)) {
+        && ((location.flags || location.doormask || 0) & D_TRAPPED)) {
         const dummyTrap = { ttyp: TRAPPED_DOOR, tx: x, ty: y, tseen: true };
         const glyph = trap_to_glyph(dummyTrap, state);
         await flash_glyph_at(x, y, glyph, FOUND_FLASH_COUNT, state);
