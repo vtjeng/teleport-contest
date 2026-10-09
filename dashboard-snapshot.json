@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T13:57:35.725Z",
+  "capturedAt": "2026-10-09T14:13:34.432Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -73728,22 +73728,304 @@
         "type": "accepted",
         "at": "2026-10-09T13:56:58.502Z",
         "task": "C169"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B199-central-source-gate-continuation-20261009",
+        "type": "park",
+        "at": "2026-10-09T13:57:39.874Z",
+        "task": "B199",
+        "reason": "Main received the complete report and directed parking pending central source/context gate; continue next independent investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A194-central-context-gate-3033bd513",
+        "type": "park",
+        "at": "2026-10-09T13:57:46.970Z",
+        "task": "A194",
+        "reason": "Main received complete Rog-loca report3033bd513 and directs it parked pending authorized central source/context gate. Preserve proposal and investigation priority; no source claim or game edit."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A195-Sam-loca-3033bd513",
+        "type": "assign",
+        "at": "2026-10-09T13:57:48.393Z",
+        "task": "A195",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A195-investigation-3033bd513",
+        "type": "turn",
+        "at": "2026-10-09T13:57:49.835Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating the independent Samurai quest locate level."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B200-tou-goal-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T13:58:14.417Z",
+        "task": "B200",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B200-tou-goal-audit-20261009",
+        "type": "turn",
+        "at": "2026-10-09T13:58:25.781Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the missing Tourist quest goal program from saved v36 evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C175-rog-strt-central-gate-20261009",
+        "type": "park",
+        "at": "2026-10-09T13:58:44.145Z",
+        "task": "C175",
+        "reason": "Complete independent report2698e498e and whole Rog-strt proposal preserved; awaiting Main queued source context. Parent directs another investigation after C169 acceptance. No source claim/edit."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C169-c97beefab-20261009",
+        "type": "published",
+        "at": "2026-10-09T13:59:09.930Z",
+        "task": "C169",
+        "commit": "c97beefabfd2adea9ba69a25d2f3b97c55b769b1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C176-v36-quest-tou-loca-20261009",
+        "type": "assign",
+        "at": "2026-10-09T13:59:16.102Z",
+        "task": "C176",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C176-tou-loca-investigation-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T13:59:26.932Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the Tourist quest locate level."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A195-central-source-gate-f57a9beca",
+        "type": "turn",
+        "at": "2026-10-09T14:01:17.278Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "Samurai locate-level source trace is complete; waiting for Main to queue its implementation goal."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B200-central-source-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T14:02:21.974Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Tourist quest goal diagnosis is complete; awaiting Main’s source goal and context."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C170-7238e3640-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T14:03:36.485Z",
+        "task": "C170",
+        "integration": "7238e3640e16c635f0c0fa6f7270c0c861d2afac"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C176-report-awaiting-central-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T14:04:12.115Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "Tourist locate investigation is complete; awaiting the central selection-operator source gate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B200-selection-subtraction-source-gate-20261009",
+        "type": "park",
+        "at": "2026-10-09T14:04:52.682Z",
+        "task": "B200",
+        "reason": "Main received complete report and directed parking for shared numeric selection subtraction owner adjudication; preserve report3bc79386 and source proposal without game edits."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C176-selection-algebra-gate-20261009",
+        "type": "park",
+        "at": "2026-10-09T14:05:01.442Z",
+        "task": "C176",
+        "reason": "Complete report8a066441a retained; Main requires adjudication of canonical numeric selection union/subtraction semantics before whole Tou-loca closure. No source claim/edit; parent directs independent investigation continuation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B201-tou-strt-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T14:05:08.854Z",
+        "task": "B201",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A195-central-context-gate-f57a9beca",
+        "type": "park",
+        "at": "2026-10-09T14:05:15.920Z",
+        "task": "A195",
+        "reason": "Main received complete Sam-loca reportf57a9beca and directs it parked pending authorized source/context. Preserve proposal/priority, no source claim or edits."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B201-tou-strt-audit-20261009",
+        "type": "turn",
+        "at": "2026-10-09T14:05:21.741Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the missing Tourist quest start program from saved v36 evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C177-val-goal-20261009",
+        "type": "assign",
+        "at": "2026-10-09T14:05:30.473Z",
+        "task": "C177",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C177-val-goal-investigation-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T14:05:42.059Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the Valkyrie quest goal level."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A196-v36-quest-val-loca-f57a9beca",
+        "type": "assign",
+        "at": "2026-10-09T14:06:58.930Z",
+        "task": "A196",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B201-central-source-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T14:08:20.261Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Tourist quest start diagnosis is complete; awaiting Main’s source goal and context."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C177-report-awaiting-central-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T14:08:22.115Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "Independent Valkyrie goal investigation is complete; awaiting the central source gate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B201-central-source-gate-next-investigation-20261009",
+        "type": "park",
+        "at": "2026-10-09T14:08:53.293Z",
+        "task": "B201",
+        "reason": "Main received the complete report and directed parking pending central goal/context gate; preserve clean report9e62b822 and select independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B202-val-strt-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T14:09:11.766Z",
+        "task": "B202",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C170-7238e3640-37941408182",
+        "type": "validated",
+        "at": "2026-10-09T14:09:12.887Z",
+        "task": "C170",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C177-val-goal-central-gate-20261009",
+        "type": "park",
+        "at": "2026-10-09T14:09:20.112Z",
+        "task": "C177",
+        "reason": "Complete independent reportdba4e7dd8 and whole Val-goal proposal received; Main directs parking pending central source context and next independent investigation. No source claim/edit."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B202-val-strt-audit-20261009",
+        "type": "turn",
+        "at": "2026-10-09T14:09:23.834Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the missing Valkyrie quest start program from saved v36 evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C178-ran-loca-search-20261009",
+        "type": "assign",
+        "at": "2026-10-09T14:09:37.924Z",
+        "task": "C178",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C178-ran-loca-investigation-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T14:09:49.226Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the Ranger quest locate and search case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A196-val-loca-f57a9beca",
+        "type": "turn",
+        "at": "2026-10-09T14:11:05.939Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Tracing Valkyrie quest locate generation and iced-pool/stair descriptors."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C178-report-awaiting-central-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T14:11:41.992Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "Independent Ranger locate investigation is complete; awaiting the central source gate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C170-7238e3640e16c635f0c0fa6f7270c0c861d2afac-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T14:13:19.566Z",
+        "task": "C170"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C170",
-        "worker": "C",
-        "goal": "port-hea-strt-quest-level-v36-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "2913f041d1102cba4bddda4746b89e926f906677",
-        "since": "2026-10-09T11:22:36.430Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "B195",
         "worker": "B",
@@ -74154,12 +74436,100 @@
         "since": "2026-10-09T13:51:16.361Z",
         "blockedBy": [],
         "reason": "Complete report-only alignment macro diagnosis preserved; pending Main source gate and central context. Continue independent admitted quest investigation."
+      },
+      {
+        "task": "B199",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T13:57:39.874Z",
+        "blockedBy": [],
+        "reason": "Main received the complete report and directed parking pending central source/context gate; continue next independent investigation."
+      },
+      {
+        "task": "A194",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T13:57:46.970Z",
+        "blockedBy": [],
+        "reason": "Main received complete Rog-loca report3033bd513 and directs it parked pending authorized central source/context gate. Preserve proposal and investigation priority; no source claim or game edit."
+      },
+      {
+        "task": "C175",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T13:58:44.145Z",
+        "blockedBy": [],
+        "reason": "Complete independent report2698e498e and whole Rog-strt proposal preserved; awaiting Main queued source context. Parent directs another investigation after C169 acceptance. No source claim/edit."
+      },
+      {
+        "task": "B200",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T14:04:52.682Z",
+        "blockedBy": [],
+        "reason": "Main received complete report and directed parking for shared numeric selection subtraction owner adjudication; preserve report3bc79386 and source proposal without game edits."
+      },
+      {
+        "task": "C176",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T14:05:01.442Z",
+        "blockedBy": [],
+        "reason": "Complete report8a066441a retained; Main requires adjudication of canonical numeric selection union/subtraction semantics before whole Tou-loca closure. No source claim/edit; parent directs independent investigation continuation."
+      },
+      {
+        "task": "A195",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T14:05:15.920Z",
+        "blockedBy": [],
+        "reason": "Main received complete Sam-loca reportf57a9beca and directs it parked pending authorized source/context. Preserve proposal/priority, no source claim or edits."
+      },
+      {
+        "task": "B201",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T14:08:53.293Z",
+        "blockedBy": [],
+        "reason": "Main received the complete report and directed parking pending central goal/context gate; preserve clean report9e62b822 and select independent work."
+      },
+      {
+        "task": "C177",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T14:09:20.112Z",
+        "blockedBy": [],
+        "reason": "Complete independent reportdba4e7dd8 and whole Val-goal proposal received; Main directs parking pending central source context and next independent investigation. No source claim/edit."
       }
     ]
   },
   "development": {
-    "executionCommit": "2bb9024f9f762a4e380075f8faeb6d4bee382ed4",
-    "measuredAt": "2026-10-09T13:51:34.349Z",
+    "executionCommit": "7238e3640e16c635f0c0fa6f7270c0c861d2afac",
+    "measuredAt": "2026-10-09T14:08:12.929Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
