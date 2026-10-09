@@ -1,0 +1,43 @@
+{
+  "session": "synthetic/v36/v36-quest-rog-goal",
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-rog-goal",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingPath": "challenges/cases/v36/v36-quest-rog-goal.session.json",
+  "recordingSha256": "2e5a77c0616e7b8c0d153cf06d92c449d9ebd9691464c44f0136274aeeb4234a",
+  "recipePath": "challenges/cases/v36/v36-quest-rog-goal.recipe.session.json",
+  "recipeSha256": "57578d3b1b466c9b9123bf6f9593abd348f688212d13997f90294b8ae5d17ce0",
+  "evaluationPath": "challenges/evaluations/accepted-07a7711f3c33616a45a45bdd323eee7001502b7c-v36.json",
+  "evaluationCommit": "07a7711f3c33616a45a45bdd323eee7001502b7c",
+  "remainingScreens": 41,
+  "recordedSteps": 60,
+  "status": "blocked",
+  "commit": "115aee92a9578b5bf9b2a50fc88de8c228993522",
+  "mismatch": {
+    "kind": "stop",
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Rog-goal\"",
+    "step": 19
+  },
+  "goalKind": "lua-port",
+  "summary": "Rog-goal has no production loader. Port its whole Rogue quest goal program after the shared special-level object corpsenm resolver accepts named montype species.",
+  "source": {
+    "file": "Rog-goal.lua",
+    "branch": "Rogue quest goal arrival through makelevel/makemaz/load_special, including fixed map, traps, objects, and monster placements.",
+    "functions": ["Rog-goal.lua"],
+    "callers": [
+      "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Rog-goal.lua",
+      "wizcmds.c:wiz_load_splua -> load_special -> registered Rog-goal Lua program"
+    ],
+    "dependencies": [
+      "The full program uses existing level/map/region/stair/non-diggable/trap/monster descriptor paths. Its tin at line 45 sets montype=\"chameleon\". Upstream sp_lev.c:lspo_object resolves montype strings for corpse-like objects: named species are searched in mons and stored as monsndx(pm). Current js/mklev.js object wrapper only resolves one-character monster-class strings; a species name passes through js/sp_lev_object.js:normalizeSpecification and applyObjectFields as a string corpsenm. This shared object-descriptor contract overlaps parked C172 adjudication. Do not implement or reserve sp_lev.c:lspo_object until C172 is resolved."
+    ]
+  },
+  "evidence": [
+    "Saved v36 evaluation at 07a7711f3c33616a45a45bdd323eee7001502b7c reports 19/60 screens and 41 remaining; first stop is the unregistered Rog-goal loader at zero-based step 19. A fresh one-case replay at current commit 115aee92a9578b5bf9b2a50fc88de8c228993522 reproduces the same stop, 19 emitted screens, and 60 recorded steps. Its replay input digest is 6716cbe410e459f68b6b808b43f0a596735361eb079d0f3079311701d3b8c1b5. Manifest, recording and recipe digests match the saved queue. No C recording was made during this investigation.",
+    "Read the complete dat/Rog-goal.lua (upstream checkout path nethack-c/upstream/dat/Rog-goal.lua), lines 1-110; SHA256 4a9526d60f6802525e9964e428a5a15afef9d334441dd6c7e9ed8d1bad24d83e. It builds a solid-fill 76-column quest map, sets mazelevel and noteleport, lights the entire level, chooses an up stair in region 1,0..15,20 excluding 1,18..4,20, marks the map non-diggable, places a fixed spiked pit at 37,7, then the named key, named chameleon tin, 14 random objects, 11 random traps, and the listed fixed/random hostile monster descriptors. Preserve declaration order and map spaces for exact RNG and terrain behavior.",
+    "Upstream sp_lev.c:lspo_object at lines 3557-3650 reads montype for statue, egg, corpse, tin, and figurine objects; the named-species branch scans mons names and stores the species index. In current JavaScript, js/mklev.js around lines 4586-4604 converts only one-character classes before forwarding corpsenm; js/sp_lev_object.js normalizeSpecification and applyObjectFields consume that field. Thus the source-level prerequisite is the shared lspo_object montype species-name path, specifically exercised by the tin descriptor at Rog-goal.lua:45. C172 already owns the overlapping source gate and is parked for central adjudication; this task is parked until that ownership decision clears.",
+    "The missing Rog-goal registration is directly visible in js/quest_levels.js. Once the shared descriptor dependency is resolved, a lua-port should add the production caller registration and port the entire program; independent direct loads should cover Rogue role with relevant alignment variation and validate the tin species, object/trap order, flags, coordinates, monster descriptors, and complete replay. This investigation claims no completed source behavior and does not propose unrelated helper completion."
+  ]
+}
