@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first uhitm.c:missum witness. Directly chosen Healer seed/form/sex and clock; peaceful stone golem has no theft inventory and retains a target through repeated attacks. C-only setup established southwest kick and one peaceful-attack confirmation; third kick misses in the Sasquatch AT_KICK path. Inputs were corrected only from C output before any JavaScript comparison. Setup history remains in task evidence.",
+  "segments": [
+    {
+      "seed": 16271027,
+      "datetime": "20560512131417",
+      "nethackrc": "OPTIONS=name:Ada,role:Healer,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!debug_mongen,!acoustics,!autopickup\n",
+      "moves": "     w-     #polyself\nsasquatch\n     #wizgenesis\npeaceful stone golem\n     \u0004by     \u0004b     \u0004b     "
+    }
+  ]
+}
