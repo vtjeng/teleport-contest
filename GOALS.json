@@ -225968,6 +225968,49 @@
           "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66"
         }
       }
+    },
+    {
+      "id": "port-artifact-invoke-healing-v33-20261009",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete artifact healing invocation feedback and polymorph health behavior.",
+      "cFile": "artifact.c",
+      "sessions": [
+        "synthetic/v33/v33-invoke-healing-blindness"
+      ],
+      "selectionReason": "Admitted v33 invoke-healing case has one remaining screen at step 87; the complete artifact.c invoke_healing owner is independently assignable and does not overlap A179 or B181.",
+      "detail": "Port artifact.c invoke_healing lines 1780-1817 completely and retain the existing HEALING dispatcher. Preserve both independent blindness feedback conditions, awaited curing order, max-HP healing, carried blessed uncursing, and Upolyd health selection. The v33 case exercises temporary blindness with no cream through step 87; add source-pinned polymorph coverage.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "invoke_healing",
+          "line": 1780,
+          "endLine": 1817,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1780,
+        "to": 1817
+      },
+      "syntheticProvenance": {
+        "synthetic/v33/v33-invoke-healing-blindness": {
+          "session": "synthetic/v33/v33-invoke-healing-blindness",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-invoke-healing-blindness",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-invoke-healing-blindness.session.json",
+          "recordingSha256": "faff54cc482400999c96e696dd41b06b96a646faf2e1f7be79d06c89e541ab60",
+          "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+          "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66"
+        }
+      }
     }
   ]
 }
