@@ -230291,7 +230291,7 @@
     {
       "id": "port-pager-doidtrap-showtrap-v35-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port discovered-trap identification and its showtrap callers",
       "cFile": "pager.c",
       "sessions": [
@@ -230305,15 +230305,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5eff5fc04df1f8c37a04787415c3e0d1704ca6fb",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "doidtrap",
           "line": 2336,
           "endLine": 2420,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -230327,7 +230330,7 @@
           "endLine": 181,
           "declared": true,
           "sourceFile": "detect.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "trapped_door_at",
@@ -230335,7 +230338,7 @@
           "endLine": 200,
           "declared": true,
           "sourceFile": "detect.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -230507,7 +230510,200 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "doidtrap",
+            "implementation": "js/pager.js",
+            "symbol": "doidtrap",
+            "sourceReview": "Read complete pager.c2336-2389. Translated getdir cancellation; u.dx/dy target and transient glyph; guarded chest/door predicate results with short-circuit order; ftrap array chain order and unseen break; vertical hole/rock exclusion; exact an(trapname) and madeby_u woven/dug/set suffix; no-visible-trap message. Every successful description returns ECMD_OK, no time. No injected operation, substitute result or source-discarded unported call. Existing canonical getdir retains unrelated redraw/mouse/help-retry refusal boundaries; no whole getdir completion is claimed.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c1873 registers ^/showtrap; rhack3810-3825 consumes ECMD_CANCEL/ECMD_OK and resets command variables without ECMD_TIME. New bounded direct/rebound/canned arm."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "Source registered extended function doidtrap; new awaited typed #showtrap arm, existing generic result cleanup."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "act_on_act",
+                "source": "cmd.c4727 queues doidtrap+CMDQ_DIR for MCMD_LOOK_TRAP. Existing source-aligned queue is unchanged; admitted canonical handler now executes it."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pager.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/cmd-there-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pager.c/showtrap-pit-independent.session.json",
+              "recordings/pager.c/showtrap-web-independent.session.json",
+              "recordings/detect.c/showtrap-door-independent.session.json",
+              "recordings/detect.c/showtrap-chest-independent.session.json"
+            ],
+            "sourceFile": "pager.c",
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-crystal-ball-blinding-mishap",
+                "segment": 0,
+                "fromStep": 26,
+                "throughStep": 53,
+                "source": "cmd.c ^/showtrap -> pager.c doidtrap -> getdir cancellation after source-matching crystal-ball blinding; ECMD_CANCEL result resets without time."
+              }
+            ],
+            "checkedAt": "5eff5fc04df1f8c37a04787415c3e0d1704ca6fb"
+          },
+          {
+            "name": "trapped_chest_at",
+            "implementation": "js/detect.js",
+            "symbol": "trapped_chest_at",
+            "sourceReview": "Read whole detect.c139-177. Preserve glyph/type short circuits, core Hallucination&&rn2(20) gate, floor CHEST/LARGE_BOX test, trapped direct hero and steed inventory at u_at, then monster inventory. No recursive containers or buried-box behavior invented. Removed obsolete ordinary-only comment; core, not display, RNG is source-owned. Existing canonical glyph/object/monster chains reused. Reused heroHallucinating, the exact youprop.h HHallucination intrinsic and Halluc_resistance intrinsic/extrinsic macro; blocked fields do not change these source predicates. Focused pins include blocked properties to distinguish the broader unrelated search predicate.",
+            "callers": [
+              {
+                "path": "js/pager.js",
+                "symbol": "doidtrap",
+                "source": "pager.c2355 first chest result; true short-circuits the door predicate."
+              },
+              {
+                "path": "js/pager.js",
+                "symbol": "trap_description",
+                "source": "pager.c174 chest predicate before door/name. Runtime via do_screen_description/lookat and getpos farlook; supporting state forwarding to trapname only, no whole trap_description credit."
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "trapped_door_at",
+                "source": "detect.c193-195 open/broken/no-door mask fallback calls chest with DOOR type; type guard prevents another RNG draw."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/detect.test.mjs",
+              "scripts/whatis-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/detect.c/showtrap-chest-independent.session.json"
+            ],
+            "sourceFile": "detect.c",
+            "synthetic": [],
+            "checkedAt": "5eff5fc04df1f8c37a04787415c3e0d1704ca6fb"
+          },
+          {
+            "name": "trapped_door_at",
+            "implementation": "js/detect.js",
+            "symbol": "trapped_door_at",
+            "sourceReview": "Read whole detect.c182-197. Preserve glyph/type then independent core Hallucination&&rn2(20), IS_DOOR and open/broken/no-door mask short circuit with trapped_chest_at. Use established flags||doormask representation, consistent with monmove.closed_door and source wish door fields. No state duplicated and no result placeholder consumed. Reused heroHallucinating, the exact youprop.h HHallucination intrinsic and Halluc_resistance intrinsic/extrinsic macro; blocked fields do not change these source predicates. Focused pins include blocked properties to distinguish the broader unrelated search predicate.",
+            "callers": [
+              {
+                "path": "js/pager.js",
+                "symbol": "doidtrap",
+                "source": "pager.c2357 calls only after false chest predicate."
+              },
+              {
+                "path": "js/pager.js",
+                "symbol": "trap_description",
+                "source": "pager.c176 calls only after false chest result, otherwise canonical trapname. Independent normal blind farlook and hallucinated direct commands both reach the helper."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/detect.test.mjs"
+            ],
+            "recordings": [
+              "recordings/detect.c/showtrap-door-independent.session.json"
+            ],
+            "sourceFile": "detect.c",
+            "synthetic": [],
+            "checkedAt": "5eff5fc04df1f8c37a04787415c3e0d1704ca6fb"
+          }
+        ],
+        "entryPointReview": "Three source units complete. doidtrap production entries are direct/rebound ^, typed #showtrap and MCMD_LOOK_TRAP canned queue; the selected blind cancellation and independent known pit/web descriptions establish them. Required predicates are consumed by both doidtrap and existing trap_description; independent blind wished chest/door #wizdetect -> ^ and #whatis farlook establish those callers. Both independent 30-inspection sequences reach core Hallucination rn2(20) zero and nonzero results without elapsed turns. Existing getdir Ctrl-R/mouse/help retry frontiers are not separate doidtrap entry owners and receive no completion credit; representative Ctrl-R recipe retained blocked. findone is supporting one-mask-read correction only; no whole findone/trap_description/cmd/getdir credit.",
+        "entryPoints": [
+          {
+            "name": "Direct showtrap including blind cancellation",
+            "functions": [
+              "doidtrap"
+            ],
+            "recordings": [
+              "recordings/pager.c/showtrap-pit-independent.session.json",
+              "recordings/pager.c/showtrap-web-independent.session.json",
+              "recordings/detect.c/showtrap-door-independent.session.json",
+              "recordings/detect.c/showtrap-chest-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-crystal-ball-blinding-mishap",
+                "segment": 0,
+                "fromStep": 26,
+                "throughStep": 53,
+                "source": "cmd.c ^/showtrap -> pager.c doidtrap -> getdir cancellation after source-matching crystal-ball blinding; ECMD_CANCEL result resets without time."
+              }
+            ]
+          },
+          {
+            "name": "Typed extended showtrap",
+            "functions": [
+              "doidtrap"
+            ],
+            "recordings": [
+              "recordings/pager.c/showtrap-pit-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "There-menu Examine trap canned direction",
+            "functions": [
+              "doidtrap"
+            ],
+            "recordings": [
+              "recordings/pager.c/showtrap-pit-independent.session.json",
+              "recordings/pager.c/showtrap-web-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Blind and hallucinated trapped chest direct and farlook identification",
+            "functions": [
+              "doidtrap",
+              {
+                "sourceFile": "detect.c",
+                "name": "trapped_chest_at"
+              }
+            ],
+            "recordings": [
+              "recordings/detect.c/showtrap-chest-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Blind and hallucinated trapped door direct and farlook identification",
+            "functions": [
+              "doidtrap",
+              {
+                "sourceFile": "detect.c",
+                "name": "trapped_door_at"
+              }
+            ],
+            "recordings": [
+              "recordings/detect.c/showtrap-door-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5eff5fc04df1f8c37a04787415c3e0d1704ca6fb",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

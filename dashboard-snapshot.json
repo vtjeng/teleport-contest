@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T09:39:00.350Z",
+  "capturedAt": "2026-10-09T09:54:48.140Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -72255,22 +72255,135 @@
         "worker": "A2",
         "state": "blocked",
         "reason": "A190 investigation complete; waiting for Main source gate for spell preflight and backfire."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B189-6154bca52",
+        "type": "published",
+        "at": "2026-10-09T09:40:27.797Z",
+        "task": "B189",
+        "commit": "6154bca5200f2a78dfbe8a47a62276f7d5980e93"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-A189-review-20261009",
+        "type": "activity",
+        "at": "2026-10-09T09:40:52.785Z",
+        "task": "A189",
+        "phase": "review",
+        "reason": "Reviewing the immutable A189 packet, source scope, dependencies, and B189-base integration preflight."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A189-5eff5fc04",
+        "type": "integrating",
+        "at": "2026-10-09T09:43:23.139Z",
+        "task": "A189",
+        "integration": "5eff5fc04df1f8c37a04787415c3e0d1704ca6fb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A190-implementation",
+        "type": "turn",
+        "at": "2026-10-09T09:44:49.800Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Implementing spell preflight, Amulet drain and forgotten-spell backfire."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A190-cast-preflight",
+        "type": "implement",
+        "at": "2026-10-09T09:45:04.661Z",
+        "task": "A190",
+        "goal": "port-spell-cast-preflight-amulet-v35-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-6ff80a42b1276cea4b61fc6e28b15d7f032c5906",
+        "type": "ready",
+        "at": "2026-10-09T09:47:32.143Z",
+        "task": "C164",
+        "delivery": "6ff80a42b1276cea4b61fc6e28b15d7f032c5906"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C167-8ffbdeb4c",
+        "type": "received",
+        "at": "2026-10-09T09:48:19.763Z",
+        "task": "C167",
+        "delivery": "8ffbdeb4cb7a602a9461596c594043f41e9a331f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C164-6ff80a42b",
+        "type": "received",
+        "at": "2026-10-09T09:48:26.632Z",
+        "task": "C164",
+        "delivery": "6ff80a42b1276cea4b61fc6e28b15d7f032c5906"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5d699058e1a189f60bb603928cce0508e9599d39",
+        "type": "ready",
+        "at": "2026-10-09T09:49:40.736Z",
+        "task": "B192",
+        "delivery": "5d699058e1a189f60bb603928cce0508e9599d39"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A189-5eff5fc04df1f8c37a04787415c3e0d1704ca6fb-validated",
+        "type": "validated",
+        "at": "2026-10-09T09:50:54.056Z",
+        "task": "A189",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B193-juiblex-audit-20261009",
+        "type": "assign",
+        "at": "2026-10-09T09:50:57.968Z",
+        "task": "B193",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B193-juiblex-audit-20261009",
+        "type": "turn",
+        "at": "2026-10-09T09:51:09.976Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the remaining Juiblex-level arrival mismatch from the saved queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C168-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T09:52:24.044Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-availability-idle-after-B193-20261009",
+        "type": "turn",
+        "at": "2026-10-09T09:53:15.232Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "No independent admitted source task is available: queued fixes retain ownership; Juiblex belongs B, Wizard3 awaits C165, and pointer/platform/tooling frontiers remain parked."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A189-5eff5fc04df1f8c37a04787415c3e0d1704ca6fb-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T09:54:05.041Z",
+        "task": "A189"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "A189",
-        "worker": "A2",
-        "goal": "port-pager-doidtrap-showtrap-v35-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "a2200bd388c90cb78421179f2efc1747714a4530",
-        "since": "2026-10-09T09:07:35.340Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "C166",
         "worker": "C",
@@ -72304,7 +72417,7 @@
         "delivery": "15c4efc720ebb259d852007e6bfb8e0564d2aa5f",
         "since": "2026-10-09T09:16:22.454Z",
         "blockedBy": [],
-        "unblocks": 0
+        "unblocks": 1
       },
       {
         "task": "A186",
@@ -72314,9 +72427,7 @@
         "status": "ready",
         "delivery": "fe92f318021b5ab8501314da09973cee63e39624",
         "since": "2026-10-09T09:25:12.018Z",
-        "blockedBy": [
-          "A189"
-        ],
+        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -72329,6 +72440,32 @@
         "since": "2026-10-09T09:29:59.942Z",
         "blockedBy": [
           "C166"
+        ],
+        "unblocks": 1
+      },
+      {
+        "task": "C164",
+        "worker": "C",
+        "goal": "port-spell-cast-protection-v34-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "6ff80a42b1276cea4b61fc6e28b15d7f032c5906",
+        "since": "2026-10-09T09:47:32.143Z",
+        "blockedBy": [
+          "C167"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "B192",
+        "worker": "B",
+        "goal": "port-spell-chain-lightning-v34-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "5d699058e1a189f60bb603928cce0508e9599d39",
+        "since": "2026-10-09T09:49:40.736Z",
+        "blockedBy": [
+          "B191"
         ],
         "unblocks": 0
       }
@@ -72636,8 +72773,8 @@
     ]
   },
   "development": {
-    "executionCommit": "076aa1b8916bab19f32497bab0602179114e705a",
-    "measuredAt": "2026-10-09T09:27:22.773Z",
+    "executionCommit": "5eff5fc04df1f8c37a04787415c3e0d1704ca6fb",
+    "measuredAt": "2026-10-09T09:49:25.957Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
