@@ -1,0 +1,96 @@
+{
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-hea-loca",
+  "session": "synthetic/v36/v36-quest-hea-loca",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "19d2676006eeee6cb2f42f866fb4f9d61f4476e20289dcf58ae3a06a8814b85c",
+  "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+  "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+  "remainingScreens": 41,
+  "recordedSteps": 60,
+  "status": "complete",
+  "commit": "886a35eaa110facdc58e3089f54f492b7e252fef",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-hea-loca",
+    "session": "synthetic/v36/v36-quest-hea-loca",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-hea-loca.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-hea-loca.session.json",
+    "recordingSha256": "19d2676006eeee6cb2f42f866fb4f9d61f4476e20289dcf58ae3a06a8814b85c",
+    "recipe": "challenges/cases/v36/v36-quest-hea-loca.recipe.session.json",
+    "recipeSha256": "cfa0571e43ee84ee3dc7f449da84010e1ee06bf9a40dbd885a75480e6478ab61",
+    "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+    "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+    "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+    "evaluationArtifact": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+    "evaluationUtc": "2026-10-09T10:38:34.264Z",
+    "remainingScreens": 41,
+    "recordedSteps": 60,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 60
+      },
+      "rng": {
+        "matched": 2975,
+        "total": 6728
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Hea-loca\"",
+      "step": 19
+    },
+    "step": 19,
+    "kind": "stop",
+    "sourceFile": "Hea-loca.lua",
+    "function": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Hea-loca\"",
+    "cFile": null,
+    "luaFile": "Hea-loca.lua",
+    "line": null
+  },
+  "summary": "Hea-loca.lua has no QUEST_LEVEL_LOADERS entry, causing forced Healer locate-level arrival to refuse at step19. Implement the complete smoothed joined-mines and temple-island Lua program plus its bounded registry entry; preserve source order through temple creation, closed/locked doors, two stairs, chaotic shrine/priest,15 objects,6 traps and35 monster descriptors. Existing priest and room helper branches need independent runtime verification, without broader helper credit.",
+  "goalKind": "lua-port",
+  "source": {
+    "file": "Hea-loca.lua",
+    "branch": "First generation of the Healer quest locate level selected by Is_special after wizard level teleportation; registry has no Hea-loca loader. Whole top-level Lua program lines1-97 is the independently assignable owner.",
+    "functions": [
+      "Hea-loca.lua (whole program, lines1-97)"
+    ],
+    "callers": [
+      "do.c:goto_level -> mklev.c:mklev/makelevel1266-1271 -> mkmaze.c:makemaz1184-1193 -> sp_lev.c:load_special6454-6503 -> dat/Hea-loca.lua",
+      "js/mklev.js:makelevel/makemaz/load_special -> established QUEST_LEVEL_LOADERS[Hea-loca] (new registry entry in js/quest_levels.js)"
+    ],
+    "dependencies": [
+      "Existing js/mklev.js lspo_level_init/splev_initlev/mkmap: smoothed=true joined=true lit1 mines over pool after initial solidfill space; B194 verifies related unsmoothed goal path but does not complete mkmap.c",
+      "Existing sp_lev.c:lspo_map/region/door/stair/non_diggable owners: exact rectangular temple region12/3..20/6 filled1, two closed exterior doors, two locked secret doors, up4/4 and down20/6 stairs, protected wall selection11/2..21/7",
+      "sp_lev.c:lspo_altar/create_altar -> priest.c:priestini; canonical JS sets chaotic mask and shrine flags, locates temple via in_rooms, creates aligned priest/epri/books in source order. This branch needs production recording evidence; no priest completion credit in the proposed Lua task.",
+      "Existing object/trap/monster descriptor parsers plus canonical makemon/mkobj and des.finish; preserve species strings and class letters for name-resolution/gender RNG. Report supporting owner defects before any scope expansion.",
+      "Immutable B194886a35eaa plus its actual pending B19115c4efc7/B1925d699058 ancestry; shared quest_levels import/registry edits are disjoint from C168 Cav-goal/C169 Cav-loca and need coordination, not whole-file ownership."
+    ]
+  },
+  "evidence": [
+    "Current saved combined queue reports19/60 screens/cursors with41 remaining and missing Hea-loca loader at segment0 step19. Provenance challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json, measured admitted commit ac836655676993fda791c76b619905969c841859, queue manifest digest 58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c. Recipe SHA256 cfa0571e43ee84ee3dc7f449da84010e1ee06bf9a40dbd885a75480e6478ab61 and recording SHA256 19d2676006eeee6cb2f42f866fb4f9d61f4476e20289dcf58ae3a06a8814b85c verified; no aggregate scan or new C recording during investigation.",
+    "Whole upstream dat/Hea-loca.lua1-97 read. Initialization: solidfill space, mazelevel/hardfloor, then mines fg. bgP smoothed=true joined=true lit1 walled=false. Exact10x31 fixed map precedes lit area0/0..30/9, filled temple12/3..20/6, closed doors9/4 and9/5, locked doors11/3 and11/6, up stairs4/4 and down20/6, protected selection11/2..21/7 and chaotic shrine13/5. Then15 random objects,6 random traps,35 source-ordered monster descriptors (8 rabid rats, hostile r,5 giant eels,2 electric eels,kraken,2 sharks,2 hostile aquatic classes,5 hostile D,9 hostile S).",
+    "js/mklev.js650-685 checks the special registry and throws before Lua execution when no loader exists. QUEST_LEVEL_LOADERS now includes B194 Hea-goal but no Hea-loca. Searches for Hea-loca/heaLoca in js/quest_levels.js and focused tests found no existing source program implementation.",
+    "B194 independently chosen outside-limit recipe recipes/Hea-goal.lua/hea-loca-loader-blocked.session.json confirms the same active refusal at this examined commit. Saved .cache/B194/outside-boundary.log has UnsupportedTurnBoundaryError: makelevel:load_special() has no loader for special level Hea-loca. The failing differential is excluded from passing runtime evidence and does not grant Hea-loca credit.",
+    "Complete sp_lev.c:lspo_region5584-5717 and JS mklev3896-4045 read: a temple requires room creation/topology, needfill/needjoining stores, update_croom/spo_endroom/add_doors_to_room; existing implementation follows this branch. Complete create_altar2446-2495 and JS1364-1406 read: chaotic altar stores canonical flags; shrine in temple invokes priestini then AM_SHRINE and has_temple. JS priestini265-339 includes source priest/epri identity, trap knowledge,peaceful state,2..4 spellbooks and robe blessing/cursing; production evidence must verify this rather than relying on declarations.",
+    "Proposed smallest source task is whole Hea-loca.lua in established quest_levels.js as heaLoca plus one registry key; generated hea_loca_level_data.js from upstream map with deterministic generator/check; focused descriptor-order tests and independent runtime matrix. Initial allowed paths: investigation record, js/quest_levels.js, js/hea_loca_level_data.js, scripts/generate-hea-loca-level.mjs, scripts/hea-loca-level-generation.test.mjs, scripts/run-hea-loca-level-load.mjs, recipes/Hea-loca.lua/, recordings/Hea-loca.lua/, .cache/. No initial shared mklev/priest/des-owner edits.",
+    "Entry evidence plan: admitted segment0 steps19-59 after implementation plus independent C-first human/gnome Healer arrivals using typed/direct-key wizard teleport and map observation; assert special identity, hardfloor/mines/pool lighting, temple/chaotic shrine/priest epri alignment,door states,stairs and source populations. Keep source name strings for RNG. Adjacent unported Hea-strt is the source-owned outside-limit recipe. Request scope before any newly found required supporting edit.",
+    "Seed continuation from B194 delivery favors the adjacent Healer quest locate program already exercised independently as an outside-limit probe. Proposed reservations session:synthetic/v36/v36-quest-hea-loca,source:Hea-loca.lua,contract:healer-quest-locate-loader. Whole Lua credit only; B194/B191/B192 immutable delivery dependencies remain explicit."
+  ]
+}
