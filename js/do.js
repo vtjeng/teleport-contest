@@ -128,6 +128,7 @@ import {
     W_SADDLE,
     W_QUIVER,
     W_SWAPWEP,
+    WT_SPLASH_THRESHOLD,
     W_WEP,
     W_ART,
     W_ARTI,
@@ -320,6 +321,7 @@ import {
     RIN_TELEPORTATION,
     RIN_TELEPORT_CONTROL,
     RING_CLASS,
+    SCROLL_CLASS,
     RIN_WARNING,
     RIN_FIRE_RESISTANCE,
 } from './objects.js';
@@ -1950,7 +1952,12 @@ export function preflight_dropx(obj, env = {}) {
         || uescaped_shaft(trap, state))) {
         throw new UnsupportedDropError('shipping or floor effects at a trap');
     }
-    if (is_lava(x, y, state) || is_pool(x, y, state))
+    // do.c:flooreffects consumes trap.c:water_damage's return. Its plain
+    // scroll arm preserves the detached object, whether Luck protects it or
+    // it becomes blank paper. Other liquid-damage branches remain bounded.
+    const poolScroll = is_pool(x, y, state) && obj.oclass === SCROLL_CLASS
+        && !obj.greased && !obj.lamplit && !obj.timed && !obj.globby;
+    if (is_lava(x, y, state) || (is_pool(x, y, state) && !poolScroll))
         throw new UnsupportedDropError('liquid terrain');
     // do.c:flooreffects leaves a boulder intact on dry terrain without a
     // pit or hole. The trap and liquid guards above bound this floor path.
@@ -1958,7 +1965,8 @@ export function preflight_dropx(obj, env = {}) {
     // shipping leaves the object on this level.
     if (location.typ !== ROOM && location.typ !== CORR
         && location.typ !== DOOR && location.typ !== SINK
-        && location.typ !== THRONE && !IS_ALTAR(location.typ) && !stway) {
+        && location.typ !== THRONE && !IS_ALTAR(location.typ) && !stway
+        && !poolScroll) {
         throw new UnsupportedDropError('non-ordinary terrain');
     }
     // do.c:dropx/dropz/flooreffects adds no effect for an engraving on dry

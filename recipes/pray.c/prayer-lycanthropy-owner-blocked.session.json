@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked whole-function frontier retained for pray.c:fix_worst_trouble. Independent Valkyrie eats a werejackal tin (eat.c:cpostfx PM_HUMAN_WEREJACKAL) then asks for forced successful prayer. The TROUBLE_LYCANTHROPE arm requires currently unported were.c:you_unwere(TRUE); C158 restores only the STRANGLED/useup caller and does not implement or claim this branch. This recipe supplies no completion evidence.",
+  "segments": [
+    {
+      "seed": 15820031,
+      "datetime": "20370817202931",
+      "nethackrc": "OPTIONS=name:Frontier,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017blessed tin of werejackal meat\nee y      #pray\ny y             "
+    }
+  ]
+}
