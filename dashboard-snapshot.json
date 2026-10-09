@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T11:34:44.969Z",
+  "capturedAt": "2026-10-09T11:54:12.749Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -73074,22 +73074,60 @@
         "type": "accepted",
         "at": "2026-10-09T11:34:03.018Z",
         "task": "A186"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A186-3e194db41",
+        "type": "published",
+        "at": "2026-10-09T11:37:24.154Z",
+        "task": "A186",
+        "commit": "3e194db41a6727e1e12e76ba10eb7c59b6763457"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-C167-review-20261009",
+        "type": "activity",
+        "at": "2026-10-09T11:37:56.920Z",
+        "task": "C167",
+        "phase": "review",
+        "reason": "Reviewing immutable C167 wiz_load_lua delivery against published A186 main before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C167-88a9092bc",
+        "type": "integrating",
+        "at": "2026-10-09T11:42:28.913Z",
+        "task": "C167",
+        "integration": "88a9092bc02363c5e60916ec954024489d06ca2e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C167-88a9092bc-validated",
+        "type": "validated",
+        "at": "2026-10-09T11:48:13.721Z",
+        "task": "C167",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C167-88a9092bc02363c5e60916ec954024489d06ca2e-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T11:53:05.498Z",
+        "task": "C167"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C171-C167-merged-gate-hold-20261009",
+        "type": "turn",
+        "at": "2026-10-09T11:53:53.795Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "Knight locate-level report is complete; waiting for Main’s central source gate."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C167",
-        "worker": "C",
-        "goal": "port-wizcmds-wiz-load-lua-v35-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "8ffbdeb4cb7a602a9461596c594043f41e9a331f",
-        "since": "2026-10-09T09:29:59.942Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "C164",
         "worker": "C",
@@ -73098,9 +73136,7 @@
         "status": "ready",
         "delivery": "6ff80a42b1276cea4b61fc6e28b15d7f032c5906",
         "since": "2026-10-09T09:47:32.143Z",
-        "blockedBy": [
-          "C167"
-        ],
+        "blockedBy": [],
         "unblocks": 1
       },
       {
@@ -73510,8 +73546,8 @@
     ]
   },
   "development": {
-    "executionCommit": "338529f9f9746be82cb898f866177aa4a044449f",
-    "measuredAt": "2026-10-09T11:28:30.673Z",
+    "executionCommit": "88a9092bc02363c5e60916ec954024489d06ca2e",
+    "measuredAt": "2026-10-09T11:47:46.188Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
