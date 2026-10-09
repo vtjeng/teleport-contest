@@ -3570,16 +3570,6 @@ export function nomerge_exception(obj, state = game) {
     return false;
 }
 
-// C ref: alloc.c fmt_ptr() (125-135). Returns a string representation of
-// a C pointer address, used only in diagnostic messages. In JS there are
-// no pointer addresses; use the object or monster id instead.
-function fmt_ptr(thing) {
-    if (!thing) return 'null';
-    if (thing.o_id !== undefined) return `[obj#${thing.o_id}]`;
-    if (thing.m_id !== undefined) return `[mon#${thing.m_id}]`;
-    return '[?]';
-}
-
 // C ref: mkobj.c insane_object() (3314-3346). Central diagnostic reporter
 // for the object sanity check system. Formats a diagnostic message from
 // the given printf-style format and calls impossible(). The fmt parameter
