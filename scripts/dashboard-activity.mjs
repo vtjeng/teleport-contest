@@ -177,12 +177,13 @@ export function activityTimeline(activity, capturedAt) {
     tasks: [...tasks.values()].map(({ starts, resumePublication: _resumePublication, ...task }) => task),
     segments,
     stages: agentStages(segments, events),
+    stagesWithoutWaits: agentStages(segments, events, { reportedWaits: false }),
   };
 }
 
 // One row represents each agent's current stage. Delivery queue intervals are
 // retained above for task history, but cannot displace work on a later task.
-export function agentStages(segments, events = []) {
+export function agentStages(segments, events = [], { reportedWaits = true } = {}) {
   const stages = [];
   for (const lane of new Set(segments.map(row => row.lane))) {
     const rows = segments.flatMap((segment, sourceIndex) =>
@@ -206,7 +207,7 @@ export function agentStages(segments, events = []) {
           && rows.some(other => !['unrecorded', 'waiting'].includes(other.phase)
             && other.start > row.start && other.start <= start)))
           .sort((a, b) => a.start.localeCompare(b.start)).at(-1);
-        if (!chosen) chosen = { ...present[0], task: `gap:Main:${start}`, label: 'Main', phase: 'unrecorded',
+        if (!chosen) chosen = { ...present[0], task: `gap:Main:${start}`, label: 'Main', worker: 'Main', phase: 'unrecorded',
           reason: 'An earlier stage has no end event; Main has since started other work.' };
       } else {
         const assignment = assignments.filter(row => row.at <= start).at(-1);
@@ -218,11 +219,13 @@ export function agentStages(segments, events = []) {
           .sort((a, b) => a.start.localeCompare(b.start)).at(-1);
         chosen = work ?? present.find(row => row.phase === 'waiting')
           ?? present.find(row => row.phase === 'queued') ?? present[0];
-        if (reportedWait) chosen = { ...chosen, phase: 'waiting',
+        if (reportedWait && reportedWaits) chosen = { ...chosen, phase: 'waiting',
           reason: turn.reason ?? `Worker reported ${turn.state}; no public reason was recorded.` };
         else if (chosen.phase === 'queued') chosen = { ...chosen, phase: 'pending',
           reason: 'Delivery pending. This alone does not establish that the worker is blocked.' };
       }
+      // A wait reported between assignments has no hidden blue stage to reveal.
+      if (!reportedWaits && chosen.phase === 'waiting') continue;
       const previous = stages.at(-1);
       if (previous?.lane === lane && (previous.sourceIndex === chosen.sourceIndex
         || (chosen.phase === 'waiting' && previous.task === chosen.task))
