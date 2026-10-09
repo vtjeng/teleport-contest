@@ -238737,6 +238737,206 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-mon-loca-quest-level-v36-20261009",
+      "kind": "lua-port",
+      "status": "open",
+      "summary": "Port the complete Monk quest locate level",
+      "luaFile": "Mon-loca.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-mon-loca"
+      ],
+      "selectionReason": "The accepted v36 Monk quest-locate case stops at step 19 because Mon-loca has no registered loader; C172 supplies the whole Lua program and the source-defined non-species object descriptor seam it consumes.",
+      "detail": "Whole dat/Mon-loca.lua lines 1-98, unique loader and generated cave data, plus bounded sp_lev.c lspo_object spinach/empty tin and empty egg normalization verified by independent C-first recordings.",
+      "openedAt": "e2f86bf47bc5aa62fee0fb84a3a44d55f261b6df",
+      "openStanding": {
+        "sha": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Mon-loca.lua",
+          "line": 1,
+          "endLine": 98,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-mon-loca": {
+          "session": "synthetic/v36/v36-quest-mon-loca",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-mon-loca",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-mon-loca.session.json",
+          "recordingSha256": "54b55d138d3fe3c0dc5fcaa627e2ff795a610e12f2818fb0da24efd84b3ec14a",
+          "evaluationPath": "challenges/evaluations/accepted-9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269-v36.json",
+          "evaluationCommit": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269"
+        }
+      },
+      "activeStanding": {
+        "sha": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-mon-loca",
+          "session": "synthetic/v36/v36-quest-mon-loca",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-mon-loca.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-mon-loca.session.json",
+          "recordingSha256": "54b55d138d3fe3c0dc5fcaa627e2ff795a610e12f2818fb0da24efd84b3ec14a",
+          "recipe": "challenges/cases/v36/v36-quest-mon-loca.recipe.session.json",
+          "recipeSha256": "2d808bf881ad2734726e68fe0a1b675010d25d95b49d3b1c455605f4a9394cb6",
+          "replayInputSha256": "0007dc9110572c458d03957b9623040d4b49e21419f51f623fd6a786ab0c0471",
+          "evaluationPath": "challenges/evaluations/accepted-9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269-v36.json",
+          "evaluationCommit": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269",
+          "evaluationArtifact": "challenges/evaluations/accepted-9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269-v36.json",
+          "evaluationUtc": "2026-10-09T19:24:09.638Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 3107,
+              "total": 3671
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-loca\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Mon-loca.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-loca\"",
+          "cFile": null,
+          "luaFile": "Mon-loca.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-mon-loca.json",
+            "result": {
+              "session": "synthetic/v36/v36-quest-mon-loca",
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-mon-loca",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "54b55d138d3fe3c0dc5fcaa627e2ff795a610e12f2818fb0da24efd84b3ec14a",
+              "evaluationPath": "challenges/evaluations/accepted-9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269-v36.json",
+              "evaluationCommit": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "1feee1edafeb9af23e5fbe31120f5f5e1bae2614",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-mon-loca",
+                "session": "synthetic/v36/v36-quest-mon-loca",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-mon-loca.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-mon-loca.session.json",
+                "recordingSha256": "54b55d138d3fe3c0dc5fcaa627e2ff795a610e12f2818fb0da24efd84b3ec14a",
+                "recipe": "challenges/cases/v36/v36-quest-mon-loca.recipe.session.json",
+                "recipeSha256": "2d808bf881ad2734726e68fe0a1b675010d25d95b49d3b1c455605f4a9394cb6",
+                "replayInputSha256": "0007dc9110572c458d03957b9623040d4b49e21419f51f623fd6a786ab0c0471",
+                "evaluationPath": "challenges/evaluations/accepted-9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269-v36.json",
+                "evaluationCommit": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269",
+                "evaluationArtifact": "challenges/evaluations/accepted-9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269-v36.json",
+                "evaluationUtc": "2026-10-09T19:24:09.638Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 3107,
+                    "total": 3671
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-loca\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Mon-loca.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-loca\"",
+                "cFile": null,
+                "luaFile": "Mon-loca.lua",
+                "line": null
+              },
+              "goalKind": "lua-port",
+              "summary": "Mon-loca has no registered loader. Its whole Lua program also needs the existing object descriptor to implement source-defined spinach tin normalization; the current adapter passes the spinach token as a monster index.",
+              "source": {
+                "file": "Mon-loca.lua",
+                "branch": "Monk quest locate generation or registered wizard des-file load of Mon-loca, including blessed spinach tins and Elbereth at one selected floor coordinate.",
+                "functions": [
+                  "Mon-loca.lua"
+                ],
+                "callers": [
+                  "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Mon-loca.lua",
+                  "wizcmds.c:wiz_load_splua -> load_special -> registered Mon-loca Lua program"
+                ],
+                "dependencies": [
+                  "Existing selection_negate/filter_mapchar/rndcoord owners, with active map-frame origin subtraction as nhlsel.c:407–427 defines.",
+                  "Required bounded sp_lev.c:lspo_object non-species tin/egg descriptor correction: source3676–3684,3717–3719; js/mklev.js object adapter and js/sp_lev_object.js normalized fields currently omit it. Shared owner scope needs Main adjudication before editing.",
+                  "Existing map/region/stair/nondiggable/object/trap/monster/engraving owners. Current worker lineage contains immutable ready C175; any implementation delivery on this lineage must declare C175 as an explicit dependency until accepted."
+                ]
+              },
+              "evidence": [
+                "Accepted A193 evaluation at 9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269 confirms 19/60 screens and cursors and 3107/3671 RNG calls, with 41 screens remaining. The first stop remains the missing Mon-loca loader at segment 0 step 19; this refresh uses saved accepted evidence.",
+                "Current saved challenges/evaluations/accepted-dee8b310b3922f634c10f62fcab1a5e8ff4acc73-v36.json at dee8b310b3922f634c10f62fcab1a5e8ff4acc73 records 19/60 matching screens, 41 remaining and missing Mon-loca loader at step19. Recording digest 54b55d138d3fe3c0dc5fcaa627e2ff795a610e12f2818fb0da24efd84b3ec14a; manifest corpus digest 58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c.",
+                "Read whole dat/Mon-loca.lua1–98, SHA2563dbeb40cd45fe4b28c7c0d36bc8e6b182eebde70dfa6008a1b89a81293aaf140: solidfill stone, mazelevel, exact76×21 cave map including spaces and secret doors, lit full selection0,0..75,20, random up/down stairs, nondiggable fullmap,15random objects. Full-map selection.negate filtered to floor chooses one coordinate without removal; blessed quantity2 spinach tins and burned Elbereth use that same coordinate. Six random traps,14earth elementals and9xorns follow in exact order. No explicit wallify or hardfloor flags.",
+                "Selection consumed-return chain is already implemented: nhlsel.c:l_selection_not no-arg creates fullmap; selvar.c:selection_filter_mapchar scans matching ROOM cells x-major; selection_rndcoord consumes rn2(count), leaves selection unchanged for0; nhlsel.c subtracts active room/map origin before handing a coordinate to descriptors. JS ThemeroomSelection methods support those operations; loader must pass current des.frame origin rather than reconstruct a rectangle or use absolute coordinates as relative.",
+                "Concrete descriptor defect: source sp_lev.c3676–3684 treats case-insensitive tin spinach/empty and empty egg as nonpm objects with tmpobj.corpsenm=NON_PM and spe1/0;3718 excludes the generic tin/figurine spe0 reset. JS mklev object adapter assigns spec.montype to corpsenm, while sp_lev_object normalization has no nonpm override; create_object then calls set_corpsenm with the string spinach. Fix canonical descriptor semantics before claiming the whole program; no invented replacement object fields in monLoca. Preserve source creation/RNG order and existing corpsenm initialization quirks.",
+                "Bounded proposed supporting contract covers tin spinach/empty and empty egg, with resolved object type, case-insensitive token and source spe/NON_PM fields; retain every other descriptor restriction. No whole lspo_object/create_object completion credit. Main must approve that shared owner reservation/path addition before source edits.",
+                "Existing lspo_engraving handles coord/type burn/text and defaults degrade/guardobjects, resolves same relative coordinate and calls canonical make_engr_at. Plan source-pinned selection-coordinate identity, canonical tin regression and whole sequence/map generation tests; admitted quest arrival plus independent male/female human Monk #wizloaddes cases cover both active program load routes. No C recording or game edit during this investigation.",
+                "Accepted-main recheck: sp_lev.c:3676–3684 recognizes case-insensitive spinach/empty only for tin and empty only for egg. The descriptor becomes NON_PM and nonpmobj=true. Tin spe is1 for spinach and0 for empty; source3715–3719 still applies laid_by_you to egg before skipping the ordinary tin/figurine spe reset for nonpmobj. js/mklev.js still forwards the raw spinach string, and js/sp_lev_object.js:normalizedSpe still forces every tin to spe0. Both locations require the bounded source-defined correction. Existing create_object applies set_corpsenm only when the descriptor species differs from NON_PM; preserve that guard and creation-before-override RNG without inventing a NON_PM setter or forcibly clearing the generated object species.",
+                "No active reservation owns lspo_object or this object-descriptor contract. C174 Rog-goal named montype support and B197 Mon-strt spinach tins are related downstream reports; keep their existing source ownership and do not claim those Lua programs in this task. Main must adjudicate the bounded shared contract before implementation. Whole lspo_object/create_object credit remains excluded."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
