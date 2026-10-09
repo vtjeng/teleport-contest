@@ -166,6 +166,7 @@
         "js/room_coordinates.js",
         "js/room_features.js",
         "js/rooms.js",
+        "js/rog_loca_level_data.js",
         "js/rog_strt_level_data.js",
         "js/sam_goal_level_data.js",
         "js/sanctum_level_data.js",
