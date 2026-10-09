@@ -197,7 +197,7 @@ import { split_mon } from './potion.js';
 import { messageAt } from './startup_a11y.js';
 import { note_unported } from './unported.js';
 import { polyself } from './polyself.js';
-import { you_were } from './were.js';
+import { you_unwere, you_were } from './were.js';
 import { goodpos, rloc, tele, tele_restrict } from './teleport.js';
 import { t_at } from './trap.js';
 import { mintrap } from './trap_effects.js';
@@ -1516,7 +1516,7 @@ export async function mon_poly(magr, mdef, damage, state = game, rawEnv = {}) {
                 await you_were(state, env);
             } else {
                 await message('You feel a natural urge coming on.', state);
-                note_unported('were.c you_unwere');
+                await you_unwere(false, state, env);
             }
             damage = 0;
         }

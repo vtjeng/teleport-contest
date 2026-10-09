@@ -61,6 +61,7 @@ import {
     SATIATED,
     SEARCHING,
     TELEPORT,
+    POLYMORPH,
     DOOR,
     SLT_ENCUMBER,
     SV0,
@@ -112,6 +113,7 @@ import {
     PM_SMALL_MIMIC,
     PM_TENGU,
     PM_WATER_DEMON,
+    PM_WERERAT,
 } from '../js/monsters.js';
 import {
     BOULDER,
@@ -4117,6 +4119,8 @@ test('invulnerability suppresses the periodic teleport chance draw',
         }));
         clearTtyMessageWindow(game);
         game.u.uinvulnerable = true;
+        game.u.ulycn = PM_WERERAT; // The protected delayed lycanthropy gate.
+        game.mvl_change = 1; // C retains even an invalid pending change here.
         game.u.uprops[TELEPORT] = {
             intrinsic: 1,
             extrinsic: 0,
@@ -4138,6 +4142,17 @@ test('invulnerability suppresses the periodic teleport chance draw',
             false,
             'allmain.c:308 suppresses rn2(85) while invulnerable',
         );
+        assert.equal(bounds.includes(80), false,
+            'allmain.c:307 also suppresses the delayed were chance');
+        assert.equal(game.mvl_change, 1,
+            'protected prayer retains the C static without clearing it');
+        game.u.uprops[POLYMORPH].intrinsic = 1; // The companion delayed gate.
+        await finishElapsedTurn(game, { rn1, rnd, rn2: (bound) => {
+            bounds.push(bound);
+            return rn2(bound);
+        } });
+        assert.equal(bounds.includes(100), false,
+            'allmain.c:307 also protects the polymorph chance');
     });
 
 test('wererat infection gets its daytime allmain change roll before dosounds',

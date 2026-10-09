@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T01:39:39.897Z",
+  "capturedAt": "2026-10-09T02:09:20.265Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -69535,12 +69535,145 @@
         "type": "accepted",
         "at": "2026-10-09T01:39:17.055Z",
         "task": "B179"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C159-b179-boundary-merge-20261009",
+        "type": "turn",
+        "at": "2026-10-09T01:39:53.513Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Merging accepted pickup option work with submitted scores and fruit fixes; checking the combined option handlers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-B179-20261009",
+        "type": "turn",
+        "at": "2026-10-09T01:40:15.486Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A177 is immutable and queued behind older ready work; accepted B179 and C155 are synchronized. A178 remains parked at the documented platform-build boundary."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B179-0f9ac666-20261009",
+        "type": "published",
+        "at": "2026-10-09T01:40:21.056Z",
+        "task": "B179",
+        "commit": "0f9ac666ce1f3df5a0339e7ca723bc2e3a83cd62"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B180-implementation-final-20261009",
+        "type": "turn",
+        "at": "2026-10-09T01:40:22.689Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Completing status-highlight menus, canonical option attributes and independent C evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C159-b179-boundary-idle-20261009",
+        "type": "turn",
+        "at": "2026-10-09T01:40:42.045Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Accepted pickup option work merged and checked. Scores and fruit deliveries remain queued; other admitted work is owned or blocked."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-C156-review-20261009",
+        "type": "activity",
+        "at": "2026-10-09T01:41:13.172Z",
+        "task": "C156",
+        "phase": "review",
+        "reason": "Reviewing the immutable scores option delivery, source evidence, and its adjacent registry merge with accepted pickup handling."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C156-54745607-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T01:45:55.295Z",
+        "task": "C156",
+        "integration": "547456073ec6543fcaa52d181ccfeaafcc5a2718"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C156-validated-37871561377",
+        "type": "validated",
+        "at": "2026-10-09T01:53:10.785Z",
+        "task": "C156",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C156-547456073ec6543fcaa52d181ccfeaafcc5a2718-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T01:56:02.400Z",
+        "task": "C156"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C159-c156-accepted-boundary-idle-20261009",
+        "type": "turn",
+        "at": "2026-10-09T01:56:26.236Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Accepted scores option work merged. Fruit fix remains submitted and awaits integration; no overlapping new work claimed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C156-published-d7ecef7c0",
+        "type": "published",
+        "at": "2026-10-09T01:57:31.636Z",
+        "task": "C156",
+        "commit": "d7ecef7c0f346d4e818a3c21768404a1236ee215"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A177-integrating-37f1b1fe2",
+        "type": "integrating",
+        "at": "2026-10-09T02:00:56.935Z",
+        "task": "A177",
+        "integration": "37f1b1fe268666f0e8fa0eed9b45e336d3d07129"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d4b86059e128e9a09b167d8028a8a1c7116f046c",
+        "type": "ready",
+        "at": "2026-10-09T02:02:00.377Z",
+        "task": "B180",
+        "delivery": "d4b86059e128e9a09b167d8028a8a1c7116f046c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B180-idle-after-C156-20261009",
+        "type": "turn",
+        "at": "2026-10-09T02:05:48.678Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B180 is queued for integration; accepted scores-menu changes are merged and all 223 overlap checks pass."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A177-validated-37872629763",
+        "type": "validated",
+        "at": "2026-10-09T02:06:35.391Z",
+        "task": "A177",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A177-37f1b1fe268666f0e8fa0eed9b45e336d3d07129-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T02:09:03.532Z",
+        "task": "A177"
       }
     ]
   },
   "development": {
-    "executionCommit": "1284e60b42ebde4775c7978300ed09913f893ebc",
-    "measuredAt": "2026-10-09T01:35:17.592Z",
+    "executionCommit": "37f1b1fe268666f0e8fa0eed9b45e336d3d07129",
+    "measuredAt": "2026-10-09T02:05:53.893Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

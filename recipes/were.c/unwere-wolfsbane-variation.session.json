@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap independent variation: Barbarian, later clock, new seed and werejackal infection exercise the same wolfsbane production purification entry with a different were species. Initial setup is C-first.",
+  "segments": [
+    {
+      "seed": 81773020,
+      "datetime": "20890318154500",
+      "nethackrc": "OPTIONS=name:UnwereVariation,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!debug_mongen,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017blessed tin opener\n\u0017blessed homemade tin of human werejackal meat\nwa eb y \u0017sprig of wolfsbane\nec   .."
+    }
+  ]
+}

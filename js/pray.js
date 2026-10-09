@@ -17,6 +17,7 @@
 // god_zaps_you() remains a source gap. pleased() is ported below;
 // its calls to helpers without a running-game owner use note_unported().
 
+import { you_unwere } from './were.js';
 import { buried_ball_to_freedom } from './dig.js';
 import {
     A_CHAOTIC,
@@ -1257,7 +1258,7 @@ function heroIsDeaf(state) {
 // in source order. Helpers whose C implementations are not yet available are
 // represented by note_unported(); helpers with live JavaScript owners are
 // called at their source point, including their asynchronous message order.
-export async function fix_worst_trouble(trouble, state = game) {
+export async function fix_worst_trouble(trouble, state = game, env = {}) {
     let otmp = null;
     let what = null;
 
@@ -1390,7 +1391,7 @@ export async function fix_worst_trouble(trouble, state = game) {
         await fix_curse_trouble(state.ublindf, null, state);
         break;
     case TROUBLE_LYCANTHROPE:
-        note_unported('were.c you_unwere');
+        await you_unwere(true, state, env);
         break;
     case TROUBLE_PUNISHED:
         await ttyPline('Your chain disappears.', state);
