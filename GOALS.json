@@ -234789,6 +234789,49 @@
           "evaluationCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd"
         }
       }
+    },
+    {
+      "id": "port-wizcmds-wiz-show-nhuuid-v34-20261009",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the wizard game UUID display command and canonical saved UUID state.",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v34/v34-game-uuid"
+      ],
+      "selectionReason": "B186 refreshed the complete v34 UUID investigation after B185 was accepted; wizcmds.c wiz_show_nhuuid is now dependency-ready and has no overlapping live reservation.",
+      "detail": "Port whole wiz_show_nhuuid, wire its typed and rebound command dispatch, and add the one canonical svn.nhuuid reset/save/restore field used by the source command. The recorder build leaves generation empty; preserve arbitrary stored values without inventing native UUID behavior.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_show_nhuuid",
+          "line": 1782,
+          "endLine": 1789,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1782,
+        "to": 1789
+      },
+      "syntheticProvenance": {
+        "synthetic/v34/v34-game-uuid": {
+          "session": "synthetic/v34/v34-game-uuid",
+          "corpus": "synthetic",
+          "batch": "v34",
+          "caseId": "v34-game-uuid",
+          "manifestPath": "challenges/manifests/v34.json",
+          "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+          "recordingPath": "challenges/cases/v34/v34-game-uuid.session.json",
+          "recordingSha256": "a3502cee25b5e748a333a0b3b750ed2cdc98e1ddfbad71440b4b1642bf2dff7a",
+          "evaluationPath": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v34.json",
+          "evaluationCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd"
+        }
+      }
     }
   ]
 }
