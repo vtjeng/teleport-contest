@@ -221473,7 +221473,7 @@
     {
       "id": "fix-pray-strangulation-amulet-consumption-v32-20261008",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Consume a worn strangulation amulet during prayer recovery",
       "cFile": "pray.c",
       "sessions": [
@@ -221481,8 +221481,12 @@
       ],
       "selectionReason": "Resume the queued prayer strangulation divergence after accepted A175 released the fix_worst_trouble source reservation. The admitted v32 case still mismatches at the inventory screen after prayer.",
       "detail": "The STRANGLED arm announces that the worn amulet vanishes but substitutes note_unported for the already ported canonical invent.c useup caller. Restore only pray.c391 useup(uamul) with canonical worn-slot callbacks, retaining all other incomplete fix_worst_trouble branches and claiming no whole-function completion.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "2248a622ff09780dcb6577bb85377fea6738c2e2",
+      "openStanding": {
+        "sha": "ff3dff0c8b71af1b0e8abbf0441ed286ce7f8385",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "fix_worst_trouble",
@@ -221501,7 +221505,207 @@
           "evaluationPath": "challenges/evaluations/accepted-ff3dff0c8b71af1b0e8abbf0441ed286ce7f8385-v32.json",
           "evaluationCommit": "ff3dff0c8b71af1b0e8abbf0441ed286ce7f8385"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "ff3dff0c8b71af1b0e8abbf0441ed286ce7f8385",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-prayer-strangulation",
+          "session": "synthetic/v32/v32-prayer-strangulation",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recording": "challenges/cases/v32/v32-prayer-strangulation.session.json",
+          "recordingPath": "challenges/cases/v32/v32-prayer-strangulation.session.json",
+          "recordingSha256": "0707bf19a89e8b49b5d52ab47b9e48fc18006b583d0904a08e71af545eb3b496",
+          "recipe": "challenges/cases/v32/v32-prayer-strangulation.recipe.session.json",
+          "recipeSha256": "82639c4fc6acdda624013135d775aca8852ea0de77d7c327e5e6f4c292143c3e",
+          "replayInputSha256": "fc52f2f5c0230590cb3bf20fdd539c0d3262d7d77f9d534adf68c029dcbaee00",
+          "evaluationPath": "challenges/evaluations/accepted-ff3dff0c8b71af1b0e8abbf0441ed286ce7f8385-v32.json",
+          "evaluationCommit": "ff3dff0c8b71af1b0e8abbf0441ed286ce7f8385",
+          "evaluationArtifact": "challenges/evaluations/accepted-ff3dff0c8b71af1b0e8abbf0441ed286ce7f8385-v32.json",
+          "evaluationUtc": "2026-10-09T00:26:55.220Z",
+          "remainingScreens": 1,
+          "recordedSteps": 69,
+          "previousScreensMatched": 68,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 68,
+              "total": 69
+            },
+            "rng": {
+              "matched": 2710,
+              "total": 2710
+            },
+            "cursors": {
+              "matched": 68,
+              "total": 69
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 62,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 62,
+                "key": "i"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 34,
+              "cCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 1,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "A",
+                "color": 8,
+                "attr": 1,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 62,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 62,
+                "key": "i"
+              },
+              "cCursor": [
+                40,
+                7,
+                1
+              ],
+              "jsCursor": [
+                40,
+                9,
+                1
+              ]
+            }
+          },
+          "step": 62,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v32/v32-prayer-strangulation.json",
+            "result": {
+              "session": "synthetic/v32/v32-prayer-strangulation",
+              "corpus": "synthetic",
+              "batch": "v32",
+              "caseId": "v32-prayer-strangulation",
+              "manifestPath": "challenges/manifests/v32.json",
+              "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+              "recordingPath": "challenges/cases/v32/v32-prayer-strangulation.session.json",
+              "recordingSha256": "0707bf19a89e8b49b5d52ab47b9e48fc18006b583d0904a08e71af545eb3b496",
+              "recipeSha256": "82639c4fc6acdda624013135d775aca8852ea0de77d7c327e5e6f4c292143c3e",
+              "evaluationPath": "challenges/evaluations/accepted-e07a3433218418185470f93e6ed7061c6e1982cb-v32.json",
+              "evaluationCommit": "e07a3433218418185470f93e6ed7061c6e1982cb",
+              "remainingScreens": 1,
+              "recordedSteps": 69,
+              "metrics": {
+                "screens": {
+                  "matched": 68,
+                  "total": 69
+                },
+                "rng": {
+                  "matched": 2710,
+                  "total": 2710
+                },
+                "cursors": {
+                  "matched": 68,
+                  "total": 69
+                }
+              },
+              "firstMismatch": {
+                "step": 62,
+                "kind": "screen",
+                "message": "Prayer reports the strangulation amulet vanishing, but it remains in inventory"
+              },
+              "step": 62,
+              "kind": "screen",
+              "status": "complete",
+              "commit": "1e2cdf6caec4390b9adc493bd3538d5583b0ec1a",
+              "mismatch": {
+                "session": "synthetic/v32/v32-prayer-strangulation",
+                "corpus": "synthetic",
+                "batch": "v32",
+                "caseId": "v32-prayer-strangulation",
+                "manifestPath": "challenges/manifests/v32.json",
+                "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+                "recordingPath": "challenges/cases/v32/v32-prayer-strangulation.session.json",
+                "recordingSha256": "0707bf19a89e8b49b5d52ab47b9e48fc18006b583d0904a08e71af545eb3b496",
+                "recipeSha256": "82639c4fc6acdda624013135d775aca8852ea0de77d7c327e5e6f4c292143c3e",
+                "evaluationPath": "challenges/evaluations/accepted-e07a3433218418185470f93e6ed7061c6e1982cb-v32.json",
+                "evaluationCommit": "e07a3433218418185470f93e6ed7061c6e1982cb",
+                "remainingScreens": 1,
+                "recordedSteps": 69,
+                "metrics": {
+                  "screens": {
+                    "matched": 68,
+                    "total": 69
+                  },
+                  "rng": {
+                    "matched": 2710,
+                    "total": 2710
+                  },
+                  "cursors": {
+                    "matched": 68,
+                    "total": 69
+                  }
+                },
+                "firstMismatch": {
+                  "step": 62,
+                  "kind": "screen",
+                  "message": "Prayer reports the strangulation amulet vanishing, but it remains in inventory"
+                },
+                "step": 62,
+                "kind": "screen"
+              },
+              "summary": "Prayer says the strangulation amulet vanishes but skips already implemented invent.c:useup. Inventory still contains that amulet at step62. Restore the awaited canonical useup/useupall caller with canonical worn-slot hooks, preserving message, object ownership, property-clear and status order. Other fix_worst_trouble branches remain incomplete.",
+              "goalKind": "divergence-fix",
+              "source": {
+                "file": "pray.c",
+                "functions": [
+                  "fix_worst_trouble"
+                ],
+                "branch": "TROUBLE_STRANGLED and a worn AMULET_OF_STRANGULATION: announce vanishing, consume one item with useup, then announce breathing, clear Strangled and set disp.botl. Without the matching worn amulet, only the latter three operations run.",
+                "callers": [
+                  "pray.c:pleased calls fix_worst_trouble through the delayed prayer_done production path; #pray command schedules that occupation",
+                  "pray.c:fix_worst_trouble391 -> invent.c:useup1319–1333 -> useupall1310–1316 -> worn.c:setnotworn, freeinv, obfree"
+                ],
+                "dependencies": [
+                  "Reuse canonical invent.js useup/useupall and worn.js setnotworn with do_wear.js setwornEnv; preserve Promise return from object extraction/worn updates by awaiting useup before the breathe message. No owner edits or new owner credit.",
+                  "Whole fix_worst_trouble372–600 was read; retain existing named discarded gaps such as were.c:you_unwere, region.c:region_safety and hack.c:rescued_from_terrain. This is a bounded caller defect, not whole prayer-family completion.",
+                  "A175 is accepted, so the former source:pray.c:fix_worst_trouble reservation is released. C154 remains immutable and pending; C155-C157 remain parked on their own dispatcher/first-owner boundaries."
+                ]
+              },
+              "evidence": [
+                "Current accepted challenges/evaluations/accepted-e07a3433218418185470f93e6ed7061c6e1982cb-v32.json at e07a3433218418185470f93e6ed7061c6e1982cb:68/69 screens,2710/2710 RNG,68/69 cursors. Admitted v32 corpus df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823, recording 0707bf19a89e8b49b5d52ab47b9e48fc18006b583d0904a08e71af545eb3b496, recipe 82639c4fc6acdda624013135d775aca8852ea0de77d7c327e5e6f4c292143c3e.",
+                ".cache/C158-selected-before.log at 1e2cdf6caec4390b9adc493bd3538d5583b0ec1a emits all69 recorded boundaries without refusal and complete matching RNG. First screen and cursor mismatch is segment0 step62 inventory: C begins Weapons at row0col34, JS begins Amulets; cursor C40,7 versus JS40,9. This proves object retention rather than differing prayer RNG or prompt handling.",
+                "Read whole C fix_worst_trouble372–600; its STRANGLED388–396 call order is vanishing message, useup(uamul), breathe message, Strangled=0,botl=TRUE. Current JS1271–1281 preserves feedback/property order but substitutes note_unported invent.c useup for consumption, despite an existing import and useup calls in other pray.c owners.",
+                "Read invent.c useupall1310–1316/useup1319–1333 and JS canonical owners4939–4974: stack case decreases quantity/in_use/weight; last-item case awaits required worn removal and freeinv before obfree. Canonical setwornEnv supplies cancelDoff/property/artifact callbacks to setnotworn. The selected ordinary amulet has no object timer or artifact-light branch.",
+                "Independent evidence plan: choose new role/seed/time and ordinary worn strangulation amulet, repeat with a cursed amulet variation, and a source-valid no matching worn amulet boundary. Assert actual state.uamul clearing, no matching inventory object, zero strangulation intrinsic and both messages; strictly compare full C RNG/screens/cursors. Source-pinned focused test must fail before restoration and retain the no-matching-amulet branch. No broader fix_worst_trouble completion claim."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
