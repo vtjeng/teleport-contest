@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T08:14:52.102Z",
+  "capturedAt": "2026-10-09T08:26:33.447Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -71494,6 +71494,75 @@
         "type": "accepted",
         "at": "2026-10-09T08:14:27.835Z",
         "task": "B184"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B184-b337f6ea-20261009",
+        "type": "published",
+        "at": "2026-10-09T08:15:35.663Z",
+        "task": "B184",
+        "commit": "b337f6ea36ed6a3277c2d992a472bd4142fef2b5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A188-wizard3-investigation",
+        "type": "assign",
+        "at": "2026-10-09T08:25:44.666Z",
+        "task": "A188",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A188-wizard3-source",
+        "type": "turn",
+        "at": "2026-10-09T08:25:45.888Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Tracing the Wizard Tower level loader and Lua dependencies."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C165-wizard1-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T08:25:57.882Z",
+        "task": "C165",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C165-wizard1-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T08:25:59.189Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B186-B185-dependency-20261009",
+        "type": "park",
+        "at": "2026-10-09T08:26:17.393Z",
+        "task": "B186",
+        "reason": "Main source gate: game UUID cmd/wizcmds seams await immutable unaccepted B185. Preserve report/proposal; no game edits."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B187-timeout-queue-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T08:26:18.731Z",
+        "task": "B187",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B187-timeout-queue-audit-20261009",
+        "type": "turn",
+        "at": "2026-10-09T08:26:20.238Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating wizard timeout queue display"
       }
     ]
   },
@@ -71536,17 +71605,6 @@
       }
     ],
     "preparedBatches": [
-      {
-        "task": "B160",
-        "worker": "B",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "awaiting-admission",
-        "delivery": "8174499be8197d5f0371a00c68a54127d53b3fef",
-        "since": "2026-10-08T15:41:05.267Z",
-        "blockedBy": [],
-        "batch": "v35"
-      },
       {
         "task": "B161",
         "worker": "B",
@@ -71812,12 +71870,23 @@
         "since": "2026-10-09T08:08:19.884Z",
         "blockedBy": [],
         "reason": "Whole cast_protection is independently owned, but its only production caller is spelleffects, reserved by unaccepted A185. Coordinator prohibits sharing that source owner before A185 acceptance; complete report747da5afb/proposal/context and C-first probes are preserved."
+      },
+      {
+        "task": "B186",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T08:26:17.393Z",
+        "blockedBy": [],
+        "reason": "Main source gate: game UUID cmd/wizcmds seams await immutable unaccepted B185. Preserve report/proposal; no game edits."
       }
     ]
   },
   "development": {
-    "executionCommit": "61748d768be8dde676d67309b0a15965d6f0931b",
-    "measuredAt": "2026-10-09T08:11:14.016Z",
+    "executionCommit": "b337f6ea36ed6a3277c2d992a472bd4142fef2b5",
+    "measuredAt": "2026-10-09T08:21:09.331Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
