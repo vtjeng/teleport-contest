@@ -230235,6 +230235,58 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-apply-candle-negative-answer-byte-v35-20261009",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Correct apply.c use_candle negative y_n byte comparison",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v35/v35-candles-not-attached"
+      ],
+      "selectionReason": "The v35 candle case reaches use_candle and diverges because JavaScript compares the numeric y_n response byte with a string.",
+      "detail": "Match apply.c lines 1415-1419 by comparing the y_n result with the numeric 'n' byte while preserving all other candle attachment behavior.",
+      "openedAt": "076aa1b8916bab19f32497bab0602179114e705a",
+      "openStanding": {
+        "sha": "076aa1b8916bab19f32497bab0602179114e705a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "076aa1b8916bab19f32497bab0602179114e705a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "use_candle",
+      "session": "synthetic/v35/v35-candles-not-attached",
+      "step": 64,
+      "syntheticProvenance": {
+        "synthetic/v35/v35-candles-not-attached": {
+          "session": "synthetic/v35/v35-candles-not-attached",
+          "corpus": "synthetic",
+          "batch": "v35",
+          "caseId": "v35-candles-not-attached",
+          "manifestPath": "challenges/manifests/v35.json",
+          "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+          "recordingPath": "challenges/cases/v35/v35-candles-not-attached.session.json",
+          "recordingSha256": "a9e71094e4542a5d8a686cedd2fee7939f6b07ed946ae7b39e01696adef68769",
+          "evaluationPath": "challenges/evaluations/accepted-cca7c156f3ffb7fe1ed2a1938de2bf83d6accc57-v35.json",
+          "evaluationCommit": "cca7c156f3ffb7fe1ed2a1938de2bf83d6accc57"
+        }
+      },
+      "activeStanding": {
+        "sha": "076aa1b8916bab19f32497bab0602179114e705a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "076aa1b8916bab19f32497bab0602179114e705a",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
