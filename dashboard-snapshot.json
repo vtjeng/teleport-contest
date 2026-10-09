@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T05:16:58.197Z",
+  "capturedAt": "2026-10-09T05:24:38.734Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -70750,12 +70750,377 @@
         "type": "accepted",
         "at": "2026-10-09T05:16:43.236Z",
         "task": "C162"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-C163-after-C162-20261009",
+        "type": "feedback",
+        "at": "2026-10-09T05:17:29.394Z",
+        "task": "C163",
+        "delivery": "3efbf15bf10dbfa36a8fb2e3506dc41f31d05649"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C163-runtime-evidence-after-C162-20261009",
+        "type": "resume",
+        "at": "2026-10-09T05:18:03.346Z",
+        "task": "C163"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C163-evidence-correction-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T05:18:04.749Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Validating C163 incoming and monster-pair gold-theft evidence after accepted A180/C162."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C162-dead440b5-20261009",
+        "type": "published",
+        "at": "2026-10-09T05:18:27.705Z",
+        "task": "C162",
+        "commit": "dead440b55dc94d3b2e2662bbeaad0f5eac47beb"
+      }
+    ]
+  },
+  "pendingMainWork": {
+    "deliveries": [
+      {
+        "task": "A181",
+        "worker": "A2",
+        "goal": "fix-potion-pool-dip-confirmation-v33-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "71fee968e1449c39945df1fb628663e91d53536e",
+        "since": "2026-10-09T03:44:00.854Z",
+        "blockedBy": [],
+        "unblocks": 1
+      },
+      {
+        "task": "B182",
+        "worker": "B",
+        "goal": "port-spell-sort-menu-family-v33-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "2efa8906f5e92a584ed1fb3061beb009173a5e49",
+        "since": "2026-10-09T03:53:55.896Z",
+        "blockedBy": [],
+        "unblocks": 1
+      },
+      {
+        "task": "A182",
+        "worker": "A2",
+        "goal": "fix-hack-special-room-subroom-reset-v33-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "d64539f8556f0c32fa865c4c542abee0d2298670",
+        "since": "2026-10-09T03:59:22.274Z",
+        "blockedBy": [
+          "A181"
+        ],
+        "unblocks": 1
+      },
+      {
+        "task": "A184",
+        "worker": "A2",
+        "goal": "port-uhitm-hmon-hitmon-msg-silver-v33-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "f2e040ad62dca7eb4089c3943bd2438be15e9541",
+        "since": "2026-10-09T04:11:51.951Z",
+        "blockedBy": [
+          "A182"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "B183",
+        "worker": "B",
+        "goal": "fix-dothrow-toss-up-petrifier-drop-env-v33-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "829f17d33cbdea0e09d4fae6a113c234ebf7fedd",
+        "since": "2026-10-09T04:18:06.978Z",
+        "blockedBy": [
+          "B182"
+        ],
+        "unblocks": 0
+      }
+    ],
+    "preparedBatches": [
+      {
+        "task": "B159",
+        "worker": "B",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "awaiting-admission",
+        "delivery": "37af4d36428377968d368edafe175dca48d8b7e0",
+        "since": "2026-10-08T14:45:10.175Z",
+        "blockedBy": [],
+        "batch": "v34"
+      },
+      {
+        "task": "B160",
+        "worker": "B",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "awaiting-admission",
+        "delivery": "8174499be8197d5f0371a00c68a54127d53b3fef",
+        "since": "2026-10-08T15:41:05.267Z",
+        "blockedBy": [],
+        "batch": "v35"
+      },
+      {
+        "task": "B161",
+        "worker": "B",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "awaiting-admission",
+        "delivery": "030e699c0ff28c384ba99dec8ec59b1624eb89f7",
+        "since": "2026-10-08T16:33:59.935Z",
+        "blockedBy": [],
+        "batch": "v36"
+      },
+      {
+        "task": "Prep1",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "awaiting-admission",
+        "delivery": "07a7613c9c9855de0cb1db8c681cf95b5c466b6d",
+        "since": "2026-10-08T18:24:08.488Z",
+        "blockedBy": [],
+        "batch": "v37"
+      }
+    ],
+    "parkedTasks": [
+      {
+        "task": "C42",
+        "worker": "C",
+        "goal": "fix-trap-domagictrap-fates-synthetic-v11-20260928",
+        "kind": "implementation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-09-29T01:41:57.370Z",
+        "blockedBy": [],
+        "reason": "Administrative reclassification: historical domagictrap evidence was invalidated and the implementation continues as C43 whole-function file-port with the same source scope."
+      },
+      {
+        "task": "B50",
+        "worker": "B",
+        "goal": "port-lock-doorlock-synthetic-v11-20260928",
+        "kind": "implementation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-09-29T02:34:30.985Z",
+        "blockedBy": [],
+        "reason": "C-only cache probes established a locked doorway and a forced Dispater WAN_STRIKING, but monster action priority selected mcastu.c:castmu or wizard.c:tactics before muse.c:mbhit; the final two-whistle strict replay diverged at segment 1 step 81 on wizard.c:tactics rn2(5). No matching monster doorlock entry-point witness or source change was delivered. Preserve B49 parked source goal and seek a new independent C route."
+      },
+      {
+        "task": "C61",
+        "worker": "C",
+        "goal": "port-uhitm-mhitm-ad-slee-v18-20261002",
+        "kind": "implementation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-02T08:47:31.497Z",
+        "blockedBy": [],
+        "reason": "Unstarted independent sleep helper parked at clean boundary so worker C can correct C60 generic runtime admission misclassifying post-topology special-room generation. Resume after C60 corrected delivery is submitted."
+      },
+      {
+        "task": "B85",
+        "worker": "B",
+        "goal": "port-zap-melt-ice-v17-20261002",
+        "kind": "implementation",
+        "status": "parked",
+        "delivery": "514d8dd5e72e8f9ab77ebc54a85d4a9dd54df543",
+        "since": "2026-10-02T09:12:51.810Z",
+        "blockedBy": [],
+        "reason": "Recoverable checked correction d2291ade95874236ceba372ab8dcc38b232273a1 is preserved in the clean worker checkout. Monster fire-trap runtime evidence remains blocked at segment 1 step 71 by the whole timeout.c:slip_or_trip helper; implement prerequisite B87 before resuming B85. No monster fire-trap completion credit."
+      },
+      {
+        "task": "A84",
+        "worker": "A2",
+        "goal": "port-uhitm-mhitm-ad-slim-v18-20261003",
+        "kind": "implementation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-04T00:28:04.387Z",
+        "blockedBy": [],
+        "reason": "Read-only whole-source audit found a 32-unit consumed-return closure. Before implementation, resolve canonical mkobj ownership/importers for splitobj, nextoid, weight and next_ident; verify muse_unslime to zhitm, burnarmor and destroy_items dependencies; and establish matching runtime evidence for active slime-cure and object-split paths. No source edits or live commands. Preserve the A84 cache/context and owner census. Resume after a tractable source/evidence plan covers those named dependencies; A85 may proceed independently on mhitm_ad_stun."
+      },
+      {
+        "task": "C72",
+        "worker": "C",
+        "goal": "fix-fountain-drinkfountain-scare-fate29-v21-20261004",
+        "kind": "implementation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-04T02:42:03.440Z",
+        "blockedBy": [],
+        "reason": "Whole drinkfountain consumes adjattrib, fruitname/makesingular, and monster_detect/unconstrain_map without accepted completion evidence; closure is not bounded. No code edits or live processes."
+      },
+      {
+        "task": "A106",
+        "worker": "A2",
+        "goal": "port-were-you-were-v17-20261006",
+        "kind": "implementation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-06T14:24:27.482Z",
+        "blockedBy": [],
+        "reason": "Administrative ancestry boundary: A106 was assigned on worker-local merge 6ffed70c, while accepted B113 main f090c5e3 is a sibling history required for final mon_poly caller wiring. Source work is complete at 9b487f6d; reassign the same scope from accepted base f090c5e3 so the immutable delivery excludes inherited accepted-main paths."
+      },
+      {
+        "task": "A107",
+        "worker": "A2",
+        "goal": "port-were-you-were-v17-20261006",
+        "kind": "implementation",
+        "status": "parked",
+        "delivery": "bab75effa77c134c27c57251f02d568cfa3addd4",
+        "since": "2026-10-06T14:41:06.174Z",
+        "blockedBy": [],
+        "reason": "Administrative replacement: original immutable delivery contained unrelated historical commits, and the clean resubmission remains chained to that delivery in the same task, so worker-state requires the polluted ancestry. Source changes are preserved unchanged for a fresh task."
+      },
+      {
+        "task": "A112",
+        "worker": "A2",
+        "goal": "port-uhitm-mhitm-ad-cold-whole-20261006",
+        "kind": "implementation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-06T17:59:32.293Z",
+        "blockedBy": [],
+        "reason": "Central goal selection rejected this independent cold/inventory task because the current v22 synthetic boundary lacks a completed investigation. Preserve the uncommitted implementation and source plan; resume only after the selector admits the goal."
+      },
+      {
+        "task": "B162",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-08T16:49:04.083Z",
+        "blockedBy": [],
+        "reason": "Queued implementation requires source:cmd.c:doextcmd, currently reserved by ready A159 behind its A158 correction. Preserve the complete report and resume after A159 acceptance; worker B selects independent work now."
+      },
+      {
+        "task": "A161",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-08T17:12:41.809Z",
+        "blockedBy": [],
+        "reason": "Duplicate selection: completed B162 report ce0074b3 already queues port-wizcmds-wiz-show-stats-v30-20261008; B162 is parked only on pending A159 doextcmd reservation. No A161 report or tracked edits created."
+      },
+      {
+        "task": "A162",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-08T17:16:02.902Z",
+        "blockedBy": [],
+        "reason": "Completed report b1f12683d saved for later resume. Older queued B162 statistics goal takes source:cmd.c:doextcmd priority immediately after A159 acceptance; A162 implementation must wait for that caller ownership boundary."
+      },
+      {
+        "task": "A163",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-08T17:22:39.157Z",
+        "blockedBy": [],
+        "reason": "Complete source report saved separately. Whole wiz_objprobs needs the bounded doextcmd caller; older queued B162 statistics takes dispatcher priority after A159 acceptance. Preserve A163 report/session for later resume; no game edits."
+      },
+      {
+        "task": "A169",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-08T19:56:54.583Z",
+        "blockedBy": [],
+        "reason": "Whole light.c:wiz_light_sources consumes alloc.c:fmt_ptr native allocation address. No patched pointer normalization exists; JS has no source-equivalent address and nonempty-list evidence cannot match ASLR output. Complete report preserved; awaiting coordinator policy or explicit bounded partial-scope decision."
+      },
+      {
+        "task": "C153",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-08T21:02:41.656Z",
+        "blockedBy": [],
+        "reason": "contract:C-pointer-diagnostic-format owner unresolved: populated light.c:wiz_light_sources consumes alloc.c:fmt_ptr raw native %p addresses without an established source-faithful JS identity contract. Complete investigation saved; no partial owner implementation."
+      },
+      {
+        "task": "B168",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-08T21:08:45.647Z",
+        "blockedBy": [],
+        "reason": "Whole light.c:wiz_light_sources consumes alloc.c:fmt_ptr for active nonempty lists; native-pointer diagnostic formatting has no canonical JS owner and existing object-ID substitutions are incomplete. Source report is complete at 12 remaining screens; resume after coordinator resolves the shared pointer contract."
+      },
+      {
+        "task": "B172",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-08T21:44:09.631Z",
+        "blockedBy": [],
+        "reason": "Complete source diagnosis: Unix/MacOS PORT_ID and DEV_RANDOM compile configuration differ between strict admitted Linux C recording and historical Darwin judge configuration. Coordinator must resolve a general build/evaluation contract; no independent game implementation can satisfy both raw configurations without input representation."
+      },
+      {
+        "task": "C157",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-08T22:17:21.959Z",
+        "blockedBy": [],
+        "reason": "Complete report-only duplicate of earlier B171 doextcmd game-history arm. B171 is first-owner dependency; direct V rhack caller remains behind B170. No implementation edits."
+      },
+      {
+        "task": "A178",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T01:22:13.792Z",
+        "blockedBy": [],
+        "reason": "Source diagnosis complete in report 147cc63afc1cbe431cc15b9d4aba2163947183ed. The manifest classifies Unix/MacOS and urandom/random as platform/build provenance; established Darwin compatibility prevents a portable implementation claim. Coordinator instructed preservation and parking."
+      },
+      {
+        "task": "A183",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T04:01:02.463Z",
+        "blockedBy": [],
+        "reason": "Stale initial saved queue: accepted C160 evaluation at f091b997 proves v33-invoke-healing-blindness exact99/99screens/cursors1854RNG. Already in accepted B181 main4c02dfca and workerHEADd84b3350. No report or source edits needed."
       }
     ]
   },
   "development": {
-    "executionCommit": "079b743c5b009b939ce1d9763ef0a11f2484447f",
-    "measuredAt": "2026-10-09T05:13:08.961Z",
+    "executionCommit": "2cdcba614b447508fcfa411849feafef48cb486d",
+    "measuredAt": "2026-10-09T05:24:16.206Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
