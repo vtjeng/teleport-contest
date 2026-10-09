@@ -235348,7 +235348,7 @@
     {
       "id": "port-wizcmds-wiz-show-nhuuid-v34-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the wizard game UUID display command and canonical saved UUID state.",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -235362,15 +235362,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "aa078be24751cc723362b906245b9eb53d03ec6e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_show_nhuuid",
           "line": 1782,
           "endLine": 1789,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -235547,7 +235550,97 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_show_nhuuid",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_show_nhuuid",
+            "sourceReview": "Read whole wizcmds.c:wiz_show_nhuuid1781–1786, the cmd.c command row/doextcmd/rhack, decl.c:init_svn928–934, save.c:savegamestate273 and restore.c:restgamestate539, allmain.c:newgame778 and sys/unix/unixmain.c:get_nhuuid849–871/free_nhuuid. The function reads the stored UUID, awaits the exact pline output, and returns ECMD_OK without RNG, state mutation or time. Wire typed doextcmd and bound/canned rhack resolution with source metadata admission and no-time count reset. One canonical state.svn.nhuuid is initialized empty by resetGame; save transport writes and restore reads it before moves, as C does. No generated metadata, duplicate runtime state, compatibility fallback or injected operation. Existing generic unsupported default remains for unrelated commands; search of scripts/*test.mjs found no stale UUID refusal assertion.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c:doextcmd491–523 resolves wizshownhuuid command row (AUTOCOMPLETE|WIZMODECMD, without IFBURIED) and consumes ECMD_OK."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:rhack3682–3825 resolves rebound/canned command row, checks wizard/buried admission, calls handler and clears count on ECMD_OK."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-show-nhuuid.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-game-uuid-typed-independent.session.json",
+              "recordings/wizcmds.c/wizard-game-uuid-bound-independent.session.json",
+              "recordings/wizcmds.c/wizard-game-uuid-restore-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v34",
+                "caseId": "v34-game-uuid",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 38,
+                "source": "cmd.c:doextcmd -> wizcmds.c:wiz_show_nhuuid1781–1786, then subsequent recorded commands."
+              }
+            ],
+            "checkedAt": "aa078be24751cc723362b906245b9eb53d03ec6e"
+          }
+        ],
+        "entryPointReview": "The C references are the function declaration/body and extcmdlist row. Typed #wizshownhuuid and a configured bound key are active command entries. Both are strict-perfect C recordings, including positive-count cancellation. Source rhack shares row handling with canned/rebound commands; no C producer separately queues this owner. Ordinary save and startup restore preserve the field across runSegment storage and have a two-segment strict-perfect recording. The reference minimal recorder does not define NHUUID, so native generation is compile-time inactive and the field remains empty. A source-pinned production save/restore test additionally transports a valid nonempty 36-byte value. No native-generator completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "typed wizard UUID command",
+            "functions": [
+              "wiz_show_nhuuid"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-game-uuid-typed-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v34",
+                "caseId": "v34-game-uuid",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 38,
+                "source": "cmd.c:doextcmd -> wizcmds.c:wiz_show_nhuuid1781–1786, then subsequent recorded commands."
+              }
+            ]
+          },
+          {
+            "name": "counted rebound wizard UUID command",
+            "functions": [
+              "wiz_show_nhuuid"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-game-uuid-bound-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "UUID command after saved-game restore",
+            "functions": [
+              "wiz_show_nhuuid"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-game-uuid-restore-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "aa078be24751cc723362b906245b9eb53d03ec6e",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-kni-loca-quest-level-v36-20261009",
