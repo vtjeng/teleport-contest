@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first raw-tab options layout witness. Unsearched seed17832011 and fixed weekday clock20541117102133 chosen before JS comparison. Healer uses menu_tab_sep from ordinary rc; pages then Escape cover typed full and mO full entries without selecting options.",
+  "segments": [
+    {
+      "seed": 17832011,
+      "datetime": "20541117102133",
+      "nethackrc": "OPTIONS=name:Lila,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,menu_tab_sep\n",
+      "moves": ".#optionsfull\n      \u001bmO      \u001b."
+    }
+  ]
+}

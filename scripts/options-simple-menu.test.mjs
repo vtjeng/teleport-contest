@@ -336,26 +336,20 @@ test('the simple menu breaks its pages after the Behavior section',
         assert.equal(second.lines.at(-1).text, 'p - time                    [ ]');
     });
 
-// C ref: options.c doset_simple_menu()'s fmtstr_tab_doset_simple branch, which
-// this port does not build. menu_tab_sep is set_wizonly, so neither menu lists
-// it, but optfn_boolean()'s do_set arm still lets a configuration file turn it
-// on in an ordinary game.
-test('menu_tab_sep stops the simple menu before it is built', async () => {
+// options.c:8538-8561 chooses "%s\t[%s]" without a width or indent.
+// Identifiers and values remain identical to the ordinary simple menu.
+test('the simple menu uses raw tabs without padded names', async () => {
     const state = await startSimpleGame(STOCK);
-    // The parse leaves the option under its own name rather than in
-    // iflags.menu_tab_sep, so a configuration file stops one step earlier;
-    // scripts/options-menu.test.mjs pins that stop for the other menu.
+    const ordinary = dosetSimpleMenuItems(state, menuHelpers());
     state.iflags.menu_tab_sep = true;
-    assert.throws(
-        () => dosetSimpleMenuItems(state, menuHelpers()),
-        (error) => error instanceof UnsupportedOptionMenuError
-            && error.what === 'doset_simple_menu() with menu_tab_sep',
-    );
-    state.iflags.menu_tab_sep = false;
-    assert.equal(
-        dosetSimpleMenuItems(state, menuHelpers()).length,
-        STOCK_PAGE_ONE.length + STOCK_PAGE_TWO.length,
-    );
+    const tabbed = dosetSimpleMenuItems(state, menuHelpers());
+    assert.equal(tabbed.length, ordinary.length);
+    for (let index = 0; index < ordinary.length; ++index) {
+        const item = ordinary[index];
+        const match = /^(.*?) +(\[[^\n]*\].*)$/u.exec(item.text);
+        const text = match ? `${match[1]}\t${match[2]}` : item.text;
+        assert.deepEqual(tabbed[index], { ...item, text });
+    }
 });
 
 // C ref: options.c doset_simple_menu()'s generic compound-option arm. The

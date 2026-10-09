@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first raw-tab options layout witness. Unsearched seed17832012 and fixed weekday clock20541117102133 chosen before JS comparison. Ranger uses menu_tab_sep from ordinary rc; pages then Escape cover O simple and m#optionsfull inverted simple entries without selecting options.",
+  "segments": [
+    {
+      "seed": 17832012,
+      "datetime": "20541117102133",
+      "nethackrc": "OPTIONS=name:Lila,role:Ranger,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,menu_tab_sep\n",
+      "moves": ".O \u001bm#optionsfull\n \u001b."
+    }
+  ]
+}
