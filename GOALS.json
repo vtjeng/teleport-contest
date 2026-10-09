@@ -240459,7 +240459,7 @@
           "line": 1,
           "endLine": 153,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "requiredFunctions": [
@@ -240467,17 +240467,17 @@
           "name": "l_selection_or",
           "line": 306,
           "endLine": 331,
-          "declared": false,
+          "declared": true,
           "sourceFile": "nhlsel.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "l_selection_sub",
           "line": 361,
           "endLine": 388,
-          "declared": false,
+          "declared": true,
           "sourceFile": "nhlsel.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "shkinit",
@@ -240485,7 +240485,7 @@
           "endLine": 694,
           "declared": true,
           "sourceFile": "shknam.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -240656,7 +240656,190 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Tou-loca.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "touLoca",
+            "sourceReview": "Reviewed all 153 source lines in dat/Tou-loca.lua, including fixed map and 35 doors, descriptor ordering, room setup, terrain-to-selection mapping, numeric selection subtraction/addition, nine randomized trap coordinates, and monster placement. The program is registered as Tou-loca and runs through natural makelevel -> makemaz -> load_special dispatch. Its selected source has no unported callee. The targeted replay also reports the pre-existing unrelated timeout.c kill_egg gap from game startup.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "touLoca",
+                "source": "dat/Tou-loca.lua:1-153; nhlsel.c selection metamethods at lines 1013, 1016, and 1017 call the operators used at Tou-loca.lua:130-134."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makemaz",
+                "source": "mklev.c:makelevel selects the special level and calls makemaz; mkmaze.c:makemaz calls sp_lev.c:load_special, which executes Tou-loca.lua."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_level_tele",
+                "source": "wizcmds.c:wiz_level_tele dispatches #wizlevelport to level_tele; the resulting level transition enters mklev.c:makelevel and the natural special-level path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/tou-loca-level.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-loca",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "wizcmds.c:wiz_level_tele -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Tou-loca.lua:130-153"
+              }
+            ],
+            "checkedAt": "a73cb02db28cf85ddca87fad3e668a737afa7eba"
+          },
+          {
+            "name": "l_selection_or",
+            "implementation": "js/nhlsel.js",
+            "symbol": "l_selection_or",
+            "sourceReview": "Reviewed the complete nhlsel.c:l_selection_or body at lines 306-328: validate both userdata operands, allocate a result, union bounds, visit x-major then y-minor, bitwise-OR selection_getpoint values, set each result point, preserve the rectangle bounds, and return the new selection. Checked selvar.c initialization and get/set encoding: the map stores signed char(value+1), so the JavaScript Int8Array is required to preserve numeric values and overflow. The nhlsel.c metatable binds both __bor and __add. The current translated source callers are Tou-loca.lua, bigrm-1.lua, and bigrm-2.lua; their JavaScript loaders call l_selection_or. Additional source-only consumers include bigrm-11.lua, nhlib.lua, Val-strt.lua, and Tou-goal.lua; their enclosing loader paths are unported or not registered in this task. No random, output, or game-state effects occur.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "touLoca",
+                "source": "dat/Tou-loca.lua:131 uses selection-area addition, dispatched by nhlsel.c:l_selection_meta __add at line 1016."
+              },
+              {
+                "path": "js/bigrm.js",
+                "symbol": "bigrm1",
+                "source": "dat/bigrm-1.lua:40,44,49 uses selection | selection, dispatched by nhlsel.c:l_selection_meta __bor at line 1013."
+              },
+              {
+                "path": "js/bigrm.js",
+                "symbol": "bigrm2",
+                "source": "dat/bigrm-2.lua:36-44 unions selection areas with |, dispatched by nhlsel.c:l_selection_meta __bor at line 1013."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/nhlsel.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "nhlsel.c",
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-loca",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "dat/Tou-loca.lua:131 -> nhlsel.c:l_selection_meta __add -> l_selection_or -> js/nhlsel.js"
+              }
+            ],
+            "checkedAt": "a73cb02db28cf85ddca87fad3e668a737afa7eba"
+          },
+          {
+            "name": "l_selection_sub",
+            "implementation": "js/nhlsel.js",
+            "symbol": "l_selection_sub",
+            "sourceReview": "Reviewed the complete nhlsel.c:l_selection_sub body at lines 361-385: validate operands, allocate a result, union bounds, visit x-major then y-minor, evaluate (a_pt ^ b_pt) & a_pt, set every point, recalculate the output bounds, and return the new selection. The result preserves numeric signed-char point values under the selvar.c(value+1) representation. nhlsel.c binds __sub to this function. Tou-loca.lua is the only current translated JavaScript caller; Tou-goal.lua:112 is an additional source-only consumer whose loader is not registered in this task. No random, output, or game-state effects occur.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "touLoca",
+                "source": "dat/Tou-loca.lua:131 subtracts the shop union from validtraps, dispatched by nhlsel.c:l_selection_meta __sub at line 1017."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/nhlsel.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "nhlsel.c",
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-loca",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "dat/Tou-loca.lua:131 -> nhlsel.c:l_selection_meta __sub -> l_selection_sub -> js/nhlsel.js"
+              }
+            ],
+            "checkedAt": "a73cb02db28cf85ddca87fad3e668a737afa7eba"
+          },
+          {
+            "name": "shkinit",
+            "implementation": "js/shknam.js",
+            "symbol": "shkinit",
+            "sourceReview": "Reviewed complete shknam.c:shkinit at lines 628-692: failed good_shopdoor path, DEBUG-only diagnostics, occupied-square rloc(..., RLOC_NOMSG) with its discarded result, MM_ESHK creation failure, keeper/eshk initialization, trap learning, initial capital RNG, conditional touchstone/charging scroll RNG with source short-circuit order, naming, and returned door index. JavaScript calls the existing rloc path before makemon and retains the same field assignments and RNG order; its mtrapseen=-1 corresponds to mon_learns_traps(ALL_TRAPS). The reference build excludes the #ifdef DEBUG diagnostics. Natural callers are stock_room -> fill_special_room -> makelevel. The separate wiz_load_splua caller is deliberately not claimed as passing evidence: direct recipes remain blocked by makemon_create.js shopkeeperCall / C makemon(MM_ESHK) gate.",
+            "callers": [
+              {
+                "path": "js/shknam.js",
+                "symbol": "stock_room",
+                "source": "shknam.c:stock_room at lines 732-734 calls shkinit before stocking a shop."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c:makelevel lines 1414-1418 calls sp_lev.c:fill_special_room; fill_special_room calls shknam.c:stock_room, which calls shkinit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/tou-loca-level.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "shknam.c",
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-loca",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "mklev.c:makelevel -> sp_lev.c:fill_special_room -> shknam.c:stock_room -> shknam.c:shkinit; the recorded natural Tou-loca generation occupies the shopkeeper square and exercises relocation"
+              }
+            ],
+            "checkedAt": "a73cb02db28cf85ddca87fad3e668a737afa7eba"
+          }
+        ],
+        "entryPointReview": "The admitted Tourist replay uses #wizlevelport, which enters the natural level-transition path: wizcmds.c:wiz_level_tele -> level_tele -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> Tou-loca.lua. makelevel then fills the level's shops through fill_special_room -> stock_room -> shkinit. Tou-loca.lua:130-134 invokes both selection operators through the Lua metatable bindings. All active entry points in this task are covered by the matching v36 case through step 59. The independent #wizloaddes/wiz_load_splua path is a separate caller and remains a blocked direct recipe because its makemon_create.js shopkeeperCall / C makemon(MM_ESHK) gate is outside this natural-entry task. Other source-only Lua callers of l_selection_or/sub are documented in the function reviews; no enclosing JS loader for those programs is claimed here.",
+        "entryPoints": [
+          {
+            "name": "natural Tou-loca quest-level generation and deferred shop fill",
+            "functions": [
+              {
+                "sourceFile": "Tou-loca.lua",
+                "name": "Tou-loca.lua"
+              },
+              {
+                "sourceFile": "nhlsel.c",
+                "name": "l_selection_or"
+              },
+              {
+                "sourceFile": "nhlsel.c",
+                "name": "l_selection_sub"
+              },
+              {
+                "sourceFile": "shknam.c",
+                "name": "shkinit"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-loca",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "#wizlevelport -> mklev.c:makelevel -> Tou-loca.lua -> l_selection_or/l_selection_sub -> fill_special_room -> stock_room -> shkinit"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
