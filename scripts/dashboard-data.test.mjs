@@ -578,6 +578,8 @@ test('activity distinguishes pending deliveries from reported waits and preserve
         target: rendered.get('timeline') });
     assert.match(rendered.get('timelineReadout').innerHTML, /Delivery pending/u);
     assert.match(rendered.get('timelineReadout').innerHTML, /Task lifespan/u);
+    // Group worker stages separately from Main's ordered acceptance lifecycle.
+    assert.match(rendered.get('timelineLegend').innerHTML, /Workers[\s\S]*phase-working[\s\S]*phase-rework[\s\S]*phase-parked[\s\S]*Main[\s\S]*phase-review[\s\S]*phase-integrating[\s\S]*phase-acceptance[\s\S]*phase-publication[\s\S]*Availability[\s\S]*phase-blocked[\s\S]*phase-idle[\s\S]*phase-unrecorded/u);
     const mainIndex = data.activity.stages.findIndex(row => row.task === 'B1'
         && row.phase === 'integrating');
     const timeline = rendered.get('timeline');

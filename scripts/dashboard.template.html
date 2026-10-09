@@ -573,6 +573,10 @@ canvas {
 .activity-bar.phase-unrecorded { color: var(--ink-primary); }
 .activity-bar.phase-unrecorded { background: transparent; border-bottom: 1px dotted var(--ink-muted); border-radius: 0; opacity: 0.65; }
 #timelineLegend .legend-swatch { background: var(--bar); }
+#timelineLegend { display: grid; gap: 8px; }
+.activity-legend-group { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 16px; align-items: baseline; }
+.activity-legend-group > strong { font-size: 11px; font-weight: 600; }
+.activity-legend-items { display: flex; flex-wrap: wrap; gap: 8px 16px; }
 #timelineLegend .phase-unrecorded { background: transparent; border-bottom: 1px dotted var(--ink-muted); border-radius: 0; }
 .activity-bar.continues-left { border-left: 3px double var(--surface-card); }
 .activity-bar.continues-right { border-right: 3px double var(--surface-card); }
@@ -1659,9 +1663,15 @@ document.getElementById('stats').innerHTML = [
     publication: 'Publication', review: 'Pre-merge inspection', rework: 'Rework', parked: 'Parked (task paused)',
     admission: 'Batch admission', baseline: 'Batch baseline',
     blocked: 'Blocked', idle: 'Idle (worker report)', unrecorded: 'Unrecorded time' };
-  document.getElementById('timelineLegend').innerHTML = Object.entries(phaseNames).filter(([phase]) => !['queued', 'pending'].includes(phase))
-    .map(([phase, name]) => '<div class="legend-item"><div class="legend-swatch phase-' + phase
-      + '"></div>' + name + '</div>').join('');
+  const legendGroups = [
+    ['Workers', ['working', 'rework', 'parked']],
+    ['Main', ['review', 'integrating', 'acceptance', 'publication', 'admission', 'baseline']],
+    ['Availability', ['blocked', 'idle', 'unrecorded']],
+  ];
+  document.getElementById('timelineLegend').innerHTML = legendGroups.map(([label, phases]) =>
+    '<div class="activity-legend-group"><strong>' + label + '</strong><div class="activity-legend-items">' + phases.map(phase =>
+      '<div class="legend-item"><div class="legend-swatch phase-' + phase + '"></div>'
+      + phaseNames[phase] + '</div>').join('') + '</div></div>').join('');
   if (!history.length) {
     container.textContent = 'No worker activity snapshot is available.';
     return;
