@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked: the dog_move runtime path cannot be recorded yet because pettype:dog reaches an earlier C/JS RNG mismatch in mplayer.c mk_mplayer at step 23 (C rnd(4), JS rn2(10)). Keep as an independently designed input; do not treat as completion evidence until that earlier mismatch is resolved.",
+  "segments": [
+    {
+      "seed": 24100921,
+      "datetime": "20461011130917",
+      "nethackrc": "OPTIONS=name:GuardianConflict,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:dog,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizlevelport\n?\n>J                                             amulet of reflection\n#wizintrinsic\n>>h\n ........................"
+    }
+  ]
+}
