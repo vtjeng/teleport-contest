@@ -309,6 +309,7 @@ import { kill_genocided_monsters, UnsupportedHideError } from './mon.js';
 import { dosave, dosave0, savelev } from './save.js';
 import {
     dohelp,
+    dohistory,
     doquickwhatis,
     do_screen_description,
     dowhatis,
@@ -5118,6 +5119,8 @@ async function doextcmd(key, state) {
         return await runEngraveCommand(key, state);
     case 'dohelp':
         return await runHelpCommand(key, state);
+    case 'dohistory':
+        return await dohistory(state);
     case 'dowhatis':
         return await runWhatisCommand(key, state);
     case 'doquickwhatis':
