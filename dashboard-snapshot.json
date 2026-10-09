@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T14:50:08.833Z",
+  "capturedAt": "2026-10-09T15:14:15.834Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -74269,23 +74269,160 @@
         "type": "accepted",
         "at": "2026-10-09T14:49:59.332Z",
         "task": "A191"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A191-c72ae2151-20261009",
+        "type": "published",
+        "at": "2026-10-09T14:52:15.207Z",
+        "task": "A191",
+        "commit": "c72ae2151c408172e04c3848ab99d1ad6f291565"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-B195-review-20261009",
+        "type": "activity",
+        "at": "2026-10-09T14:53:01.972Z",
+        "task": "B195",
+        "phase": "review",
+        "reason": "Reviewing the corrected Healer quest locate delivery against the complete Lua source and the newly accepted quest loader registry before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B195-c08963f94-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T14:53:51.317Z",
+        "task": "B195",
+        "integration": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C179-A191-accepted-boundary-20261009",
+        "type": "turn",
+        "at": "2026-10-09T14:56:10.269Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "C179 investigation is complete; awaiting Main’s queued divergence goal and context after B195."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A197-context-gate-9ba3a35e8",
+        "type": "turn",
+        "at": "2026-10-09T14:56:26.229Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "Medusa diagnosis preserved; waiting for Main bounded Lua divergence context after Healer locate integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-Prep-worker_prep_correction-20261009",
+        "type": "observe",
+        "at": "2026-10-09T14:57:17.279Z",
+        "worker": "Prep",
+        "live": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep-trigger-c72-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T14:57:42.651Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B195-c08963f94-37947732604",
+        "type": "validated",
+        "at": "2026-10-09T14:59:42.319Z",
+        "task": "B195",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep-wait-v37-admission-c72-20261009",
+        "type": "turn",
+        "at": "2026-10-09T14:59:45.140Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "v37 is still awaiting coordinator admission; Prep is ready to reassess the next batch afterward."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B195-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T15:05:03.241Z",
+        "task": "B195"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B195-2f14200dd-20261009",
+        "type": "published",
+        "at": "2026-10-09T15:07:11.054Z",
+        "task": "B195",
+        "commit": "2f14200dd3936e5994f912e2791913ceee3a9fdc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B186-after-B195-20261009",
+        "type": "resume",
+        "at": "2026-10-09T15:07:33.761Z",
+        "task": "B186"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B186-uuid-revalidation-after-B195-20261009",
+        "type": "turn",
+        "at": "2026-10-09T15:07:42.834Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Revalidating the parked game-UUID investigation after its command dependency was accepted."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B186-refreshed-source-gated-after-B195-20261009",
+        "type": "turn",
+        "at": "2026-10-09T15:09:57.920Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Game-UUID investigation refreshed; awaiting its central source assignment."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C179-newsym-suppression-20261009",
+        "type": "implement",
+        "at": "2026-10-09T15:10:07.014Z",
+        "task": "C179",
+        "goal": "fix-display-newsym-suppression-v37-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A197-medusa4-lua-20261009",
+        "type": "implement",
+        "at": "2026-10-09T15:10:54.017Z",
+        "task": "A197",
+        "goal": "port-medusa-4-lua-v37-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C179-implementation-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T15:13:38.645Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Implementing the source newsym suppression guard and validating replacement-level redraw."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B186-wiz-show-nhuuid-20261009",
+        "type": "implement",
+        "at": "2026-10-09T15:14:11.725Z",
+        "task": "B186",
+        "goal": "port-wizcmds-wiz-show-nhuuid-v34-20261009"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "B195",
-        "worker": "B",
-        "goal": "port-hea-loca-lua-v36-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "e4244020f25f4d0b5dea16b6b9ff0c6e004c901f",
-        "since": "2026-10-09T14:25:05.228Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -74507,17 +74644,6 @@
         "since": "2026-10-09T04:01:02.463Z",
         "blockedBy": [],
         "reason": "Stale initial saved queue: accepted C160 evaluation at f091b997 proves v33-invoke-healing-blindness exact99/99screens/cursors1854RNG. Already in accepted B181 main4c02dfca and workerHEADd84b3350. No report or source edits needed."
-      },
-      {
-        "task": "B186",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T08:26:17.393Z",
-        "blockedBy": [],
-        "reason": "Main source gate: game UUID cmd/wizcmds seams await immutable unaccepted B185. Preserve report/proposal; no game edits."
       },
       {
         "task": "B187",
@@ -74786,8 +74912,8 @@
     ]
   },
   "development": {
-    "executionCommit": "4988a462ac60316397d7486da10be30f1bbcb37b",
-    "measuredAt": "2026-10-09T14:42:57.650Z",
+    "executionCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+    "measuredAt": "2026-10-09T14:58:58.377Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
