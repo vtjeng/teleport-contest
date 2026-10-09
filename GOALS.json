@@ -220593,7 +220593,7 @@
     {
       "id": "port-mcastu-touch-of-death-family-v32-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port Death touch and its monster spell caller family",
       "cFile": "mcastu.c",
       "sessions": [
@@ -220607,15 +220607,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "db0a7ad02ea001265fce34f7485b90c58d649d79",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "touch_of_death",
           "line": 323,
           "endLine": 357,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "death_inflicted_by",
@@ -220628,8 +220631,8 @@
           "name": "mcast_death_touch",
           "line": 389,
           "endLine": 410,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -220874,7 +220877,158 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "touch_of_death",
+            "implementation": "js/mcastu.js",
+            "symbol": "touch_of_death",
+            "sourceReview": "Read whole323–354. Exact50+d(8,6), integer half drain, drained feedback, canonical death_inflicted_by. Upolyd mh=0 then canonical rehumanize; human direct-death >= maximum sets KILLED_BY and done; otherwise saved olduhp precedes canonical minuhpmax/setuhpmax/adjuhploss/losehp. Final killer clear after returning recovery. Existing cloned monster planner hands terminal death to live execution before input; supplied operations/RNG/state forwarded. No source helper gap or placeholder in this function. New optional operations default to canonical source owners, unit callbacks observe source order.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_deth",
+                "source": "uhitm.c3863 high rolls17–19 without Antimagic call shared void helper then damage0/return; replaces obsolete gap and awaits canonical touch with planning env."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_death_touch",
+                "source": "mcastu.c398 successful nonhallucinatory death spell; shared helper awaited before monstunseesu."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mcastu.test.mjs",
+              "scripts/uhitm-ad-deth.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/death-touch-ranger.session.json",
+              "recordings/mcastu.c/death-touch-tourist-low-hp.session.json",
+              "recordings/mcastu.c/death-touch-stone-golem.session.json",
+              "recordings/mcastu.c/death-touch-wood-golem.session.json"
+            ],
+            "sourceFile": "mcastu.c",
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-death-touch",
+                "segment": 0,
+                "fromStep": 106,
+                "throughStep": 160,
+                "source": "Death monster-action -> mattacku -> mhitm_ad_deth high roll -> touch_of_death323–354. Source d(8,6), drained message, HP max/loss, live debug-death return and killer clearing; full replay through end."
+              }
+            ],
+            "checkedAt": "db0a7ad02ea001265fce34f7485b90c58d649d79"
+          },
+          {
+            "name": "death_inflicted_by",
+            "implementation": "js/mcastu.js",
+            "symbol": "death_inflicted_by",
+            "sourceReview": "Read whole358–382 and canonical existing JS. Caller-local C output buffer maps to returned string. Mgender/pmname original cham species, pname/unique article suppression and imitation suffix follow C order without RNG/output/state change. No behavior reimplementation. Complete pure source-pinned test covers null, gender, ordinary/proper/unique, original/current uniqueness and original index0. Existing unported mcast_weaken_you474–485 has no executable helper call: existing mcast_spell gap names that owner, retained as separate source frontier rather than partial implementation.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "touch_of_death",
+                "source": "mcastu.c332 formats killer after drained message."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zhituLosehpArguments",
+                "source": "zap.c4574 existing canonical beam-death formatter call retained; audited source/JS, unchanged."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/death-touch-ranger.session.json",
+              "recordings/mcastu.c/death-touch-tourist-low-hp.session.json",
+              "recordings/mcastu.c/death-touch-stone-golem.session.json",
+              "recordings/mcastu.c/death-touch-wood-golem.session.json"
+            ],
+            "sourceFile": "mcastu.c",
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-death-touch",
+                "segment": 0,
+                "fromStep": 106,
+                "throughStep": 160,
+                "source": "Death monster-action -> mattacku -> mhitm_ad_deth high roll -> touch_of_death323–354. Source d(8,6), drained message, HP max/loss, live debug-death return and killer clearing; full replay through end."
+              }
+            ],
+            "checkedAt": "db0a7ad02ea001265fce34f7485b90c58d649d79"
+          },
+          {
+            "name": "mcast_death_touch",
+            "implementation": "js/mcastu.js",
+            "symbol": "mcast_death_touch",
+            "sourceReview": "Read whole389–408. mhe pronoun message precedes nonliving/demon/Antimagic and rn2(level)>12; Hallucination consumes pronoun rn2(4) before chance but omits damage; success canonical touch then clear observed Antimagic; failed Antimagic shield before publish resistance and Lucky line. Canonical heroProperty matches unblocked C Antimagic; no invented blocked alias. Default visibility forwarded to mhe. Source-order gates independently tested and successful real castmu dispatcher test covers all draws through shared touch. Existing mcast_spell817 void result resets ordinary spell damage; obsolete helper gap removed. No whole castmu/mcast_spell claim.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_spell",
+                "source": "mcastu.c815–817 MCAST_DEATH_TOUCH calls helper then dmg0; JS await canonical helper with existing resultDmg0."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mcastu.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/death-touch-spell-tourist.session.json"
+            ],
+            "sourceFile": "mcastu.c",
+            "synthetic": [],
+            "checkedAt": "db0a7ad02ea001265fce34f7485b90c58d649d79"
+          }
+        ],
+        "entryPointReview": "Two active impure entries: Death AD_DETH melee through monster planner/live execution, and monster wizard spell through castmu/mcast_spell. Independent C-first seeds/role/date/inputs reach both; shared touch covers ordinary HP clamp, direct debug-death return, and Upolyd form break in stone golem. Wood-golem variation breaks form before the owned touch and is an outside form boundary. Successful spell-to-touch wiring has source-ordered dispatcher unit coverage; first independent arch-lich spell takes its low-roll Lucky branch and fully matches. No direct-only test is used as runtime entry evidence.",
+        "entryPoints": [
+          {
+            "name": "Death melee reaches shared touch",
+            "functions": [
+              "touch_of_death",
+              "death_inflicted_by"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/death-touch-ranger.session.json",
+              "recordings/mcastu.c/death-touch-tourist-low-hp.session.json",
+              "recordings/mcastu.c/death-touch-stone-golem.session.json",
+              "recordings/mcastu.c/death-touch-wood-golem.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-death-touch",
+                "segment": 0,
+                "fromStep": 106,
+                "throughStep": 160,
+                "source": "Death monster-action -> mattacku -> mhitm_ad_deth high roll -> touch_of_death323–354. Source d(8,6), drained message, HP max/loss, live debug-death return and killer clearing; full replay through end."
+              }
+            ]
+          },
+          {
+            "name": "monster wizard death spell",
+            "functions": [
+              "mcast_death_touch"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/death-touch-spell-tourist.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "db0a7ad02ea001265fce34f7485b90c58d649d79",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
