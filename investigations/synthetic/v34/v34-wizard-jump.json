@@ -1,0 +1,136 @@
+{
+  "session": "synthetic/v34/v34-wizard-jump",
+  "corpus": "synthetic",
+  "batch": "v34",
+  "caseId": "v34-wizard-jump",
+  "manifestPath": "challenges/manifests/v34.json",
+  "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+  "recordingSha256": "e38556e67e0e1351daab1d02440ccd64afc8baf3e7e9d6e8c975568eb9650f54",
+  "evaluationPath": "challenges/evaluations/accepted-1fca795f45379c5d8364836c74c8ac61910620cd-v34.json",
+  "evaluationCommit": "1fca795f45379c5d8364836c74c8ac61910620cd",
+  "remainingScreens": 32,
+  "recordedSteps": 105,
+  "status": "complete",
+  "commit": "1fca795f45379c5d8364836c74c8ac61910620cd",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v34",
+    "caseId": "v34-wizard-jump",
+    "session": "synthetic/v34/v34-wizard-jump",
+    "manifestPath": "challenges/manifests/v34.json",
+    "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+    "recording": "challenges/cases/v34/v34-wizard-jump.session.json",
+    "recordingPath": "challenges/cases/v34/v34-wizard-jump.session.json",
+    "recordingSha256": "e38556e67e0e1351daab1d02440ccd64afc8baf3e7e9d6e8c975568eb9650f54",
+    "recipe": "challenges/cases/v34/v34-wizard-jump.recipe.session.json",
+    "recipeSha256": "4d59fddd5b15683fa024094c12d2f3ca6d622107ee4abd979118a97bab485b34",
+    "evaluationPath": "challenges/evaluations/accepted-1fca795f45379c5d8364836c74c8ac61910620cd-v34.json",
+    "evaluationCommit": "1fca795f45379c5d8364836c74c8ac61910620cd",
+    "evaluationUtc": "2026-10-09T07:01:02.149Z",
+    "remainingScreens": 32,
+    "recordedSteps": 105,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 73,
+        "total": 105
+      },
+      "rng": {
+        "matched": 3250,
+        "total": 3264
+      },
+      "cursors": {
+        "matched": 73,
+        "total": 105
+      }
+    },
+    "step": 73,
+    "kind": "stop",
+    "sourceFile": "spell.c",
+    "function": "spelleffects",
+    "line": 1584,
+    "message": "unsupported hero command: an unported branch of this command: spell casting requires spell type 404 is not ported",
+    "firstMismatch": {
+      "passed": false,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 3264,
+          "js": 3250
+        },
+        "screens": {
+          "c": 105,
+          "js": 73
+        },
+        "cursors": {
+          "c": 105,
+          "js": 73
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": {
+        "index": 3250,
+        "cEntry": "rnd(25)=21",
+        "cCaller": "jump(apply.c:2161)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 80,
+          "key": "."
+        }
+      },
+      "screenMismatch": {
+        "index": 73,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 73,
+          "key": "r"
+        },
+        "kind": "js-missing"
+      },
+      "cursorMismatch": {
+        "index": 73,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 73,
+          "key": "r"
+        },
+        "cCursor": [
+          34,
+          0,
+          1
+        ]
+      },
+      "animMismatch": null,
+      "segmentMismatch": null
+    }
+  },
+  "summary": "Forced jumping reaches spell.c spelleffects SPE_JUMPING at step73, but JavaScript falls into its unsupported default instead of awaiting canonical apply.c jump(max(role_skill,1)). Restore the bounded caller and test the returned ECMD_TIME bit before Nothing happens feedback; retain normal cast skill gain and pseudo-book cleanup. Canonical jumping and landing helpers already exist, so this scope does not claim whole spelleffects or jump.",
+  "goalKind": "divergence-fix",
+  "source": {
+    "file": "spell.c",
+    "functions": [
+      "spelleffects (bounded SPE_JUMPING caller,1584-1587)"
+    ],
+    "branch": "Hero casts SPE_JUMPING, forced by #wizcast or ordinarily after getspell; the fake spellbook has otyp SPE_JUMPING. Call jump with at least skill1; only a return lacking ECMD_TIME prints Nothing happens. Outer spelleffects then awards nonforced skill, frees pseudo, and returns ECMD_TIME even after target cancellation/refusal.",
+    "callers": [
+      "cmd.c doextcmd/rhack -> spell.c dowizcast787-815 -> spelleffects(...,FALSE,TRUE), mirrored by js/cmd.js runWizCastCommand -> js/spell.js dowizcast.",
+      "spell.c docast820-829 -> spelleffects(...,FALSE,FALSE); apply.c jump1993-1994 invokes spelleffects for known magical jumping when physical jump ability is absent."
+    ],
+    "dependencies": [
+      "apply.c jump1988-2163 supplies the consumed ECMD_* return, with getpos/is_valid_jump_pos, dothrow.c walk_path/hurtle_jump/hurtle_step, teleport.c teleds, nomul and eat.c morehungry. These canonical owners are reused without whole-function completion credit.",
+      "const ECMD_TIME and nothing_happens; max(role_skill,1) is a clamp before the caller. Preserve skill award, pseudo-book lifetime and cast-check order outside the selected arm."
+    ]
+  },
+  "evidence": [
+    "Read authoritative nethack-c/upstream/src/spell.c1584-1587: if (!(jump(max(role_skill, 1)) & ECMD_TIME)) pline1(nothing_happens). No extra RNG or result propagation replaces this consumed return. Source1597-1603 performs skill award, obfree and outer ECMD_TIME afterward.",
+    "At clean worker6469cdc6, bounded assigned-session replay run-6qfZ8w (.cache/A185/probe.json/.log; /tmp/teleport-validation-1000/run-6qfZ8w/receipt.json) reproduces73/105 screens/cursors and3250/3264 RNG; first missing screen is zero-based73, key r. C next draw is rnd(25)=21 at apply.c jump2161, step80, index3250. JS boundary: unsupported hero command: an unported branch of this command: spell casting requires spell type 404 is not ported",
+    "JavaScript js/spell.js spelleffects currently lacks SPE_JUMPING and reaches default1692-1697, freeing the pseudo-book before throwing. The first73 screens and3250 RNG agree, locating the caller rather than prior cast checks/menu selection.",
+    "Source apply.c jump1988-2163 and js/apply.js jump2833-2993 already implement magical guards, getpos target, source skill distance6+3*magic, trap/in-place behavior, canonical walk_path/hurtle_jump/hurtle_step and teleds landing, nomul and rnd(25) hunger. Existing physical-jump evidence does not establish this newly wired spell entry. Recheck magical runtime evidence independently.",
+    "Bounded proposal: reserve source:spell.c:spelleffects and contract:magical-jump-casting-result; change js/spell.js and exact focused spell test/runner, recipes/spell.c and recordings/spell.c. No edit or ownership for canonical apply.c helpers unless fresh runtime evidence shows a required dependency defect.",
+    "Validation plan: fail-first source-pinned magical caller tests for skill clamp, awaited return mask, no-time feedback, outer ECMD_TIME and cleanup order; admitted selected full105-step replay; independent C-first forced adjacent jump and a cheap cancellation/in-place variation, plus learned casting/#jump fallback caller witness or explicitly blocked evidence if an inherited boundary prevents it. Focused existing apply-jump/spell/cmd checks, lint/quality and fresh strict comparisons. Retain ordinary unported spells outside this bounded caller scope."
+  ]
+}

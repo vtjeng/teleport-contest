@@ -227856,14 +227856,18 @@
     {
       "id": "fix-dothrow-toss-up-petrifier-drop-env-v33-20261009",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Supply canonical drop operations before upward-corpse petrification.",
       "cFile": "dothrow.c",
       "sessions": [],
       "selectionReason": "Current unreserved v33 cockatrice-upward divergence; the complete report traces missing canonical drop operations in toss_up petrification and is independent of queued owners.",
       "detail": "At segment 0 step 58, C toss_up drops the surviving corpse, clears thrownobj, then calls done(STONING). JavaScript passes raw state to env-shaped dropy. Compose dropCommandEnv at this caller while preserving placement, redraw, thrownobj clear, and terminal order; no whole toss_up, drop-family, or end.c credit.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "566dfde0ec682618adee4ddafaff78e9f965058f",
+      "openStanding": {
+        "sha": "1fca795f45379c5d8364836c74c8ac61910620cd",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "toss_up",
@@ -227882,12 +227886,211 @@
           "evaluationPath": "challenges/evaluations/accepted-7af2dcb832c469033b652c131fe1feeae0d47ed3-v33.json",
           "evaluationCommit": "7af2dcb832c469033b652c131fe1feeae0d47ed3"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "1fca795f45379c5d8364836c74c8ac61910620cd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-cockatrice-corpse-upward",
+          "session": "synthetic/v33/v33-cockatrice-corpse-upward",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recording": "challenges/cases/v33/v33-cockatrice-corpse-upward.session.json",
+          "recordingPath": "challenges/cases/v33/v33-cockatrice-corpse-upward.session.json",
+          "recordingSha256": "8628af8f2ac28a64cbb0a6c17665fb656f2b0132326ecb45cfb70f45a7d0cfec",
+          "recipe": "challenges/cases/v33/v33-cockatrice-corpse-upward.recipe.session.json",
+          "recipeSha256": "1ab35baaa1b981275b0e167cf352476e36ea8ed6b80135c83a8ff1a04f83ac44",
+          "replayInputSha256": "456263ce16a9e938258230439128be886eb6bd6fd46ba402d6b97a796dca66f9",
+          "evaluationPath": "challenges/evaluations/accepted-1fca795f45379c5d8364836c74c8ac61910620cd-v33.json",
+          "evaluationCommit": "1fca795f45379c5d8364836c74c8ac61910620cd",
+          "evaluationArtifact": "challenges/evaluations/accepted-1fca795f45379c5d8364836c74c8ac61910620cd-v33.json",
+          "evaluationUtc": "2026-10-09T07:00:53.923Z",
+          "remainingScreens": 32,
+          "recordedSteps": 90,
+          "previousScreensMatched": 58,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 58,
+              "total": 90
+            },
+            "rng": {
+              "matched": 2714,
+              "total": 2723
+            },
+            "cursors": {
+              "matched": 58,
+              "total": 90
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported drop: missing newsym operation",
+            "step": 58
+          },
+          "step": 58,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported drop: missing newsym operation",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v33/v33-cockatrice-corpse-upward.json",
+            "result": {
+              "session": "synthetic/v33/v33-cockatrice-corpse-upward",
+              "corpus": "synthetic",
+              "batch": "v33",
+              "caseId": "v33-cockatrice-corpse-upward",
+              "manifestPath": "challenges/manifests/v33.json",
+              "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+              "recordingSha256": "8628af8f2ac28a64cbb0a6c17665fb656f2b0132326ecb45cfb70f45a7d0cfec",
+              "evaluationPath": "challenges/evaluations/accepted-4c02dfca96bd54300b882ccce1f536aef50b9791-v33.json",
+              "evaluationCommit": "4c02dfca96bd54300b882ccce1f536aef50b9791",
+              "remainingScreens": 32,
+              "recordedSteps": 90,
+              "status": "complete",
+              "commit": "8980c83bc03676f29f3bfa402bda2a6ad633f21f",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v33",
+                "caseId": "v33-cockatrice-corpse-upward",
+                "session": "synthetic/v33/v33-cockatrice-corpse-upward",
+                "manifestPath": "challenges/manifests/v33.json",
+                "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+                "recording": "challenges/cases/v33/v33-cockatrice-corpse-upward.session.json",
+                "recordingPath": "challenges/cases/v33/v33-cockatrice-corpse-upward.session.json",
+                "recordingSha256": "8628af8f2ac28a64cbb0a6c17665fb656f2b0132326ecb45cfb70f45a7d0cfec",
+                "recipe": "challenges/cases/v33/v33-cockatrice-corpse-upward.recipe.session.json",
+                "recipeSha256": "1ab35baaa1b981275b0e167cf352476e36ea8ed6b80135c83a8ff1a04f83ac44",
+                "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+                "evaluationPath": "challenges/evaluations/accepted-4c02dfca96bd54300b882ccce1f536aef50b9791-v33.json",
+                "evaluationCommit": "4c02dfca96bd54300b882ccce1f536aef50b9791",
+                "evaluationArtifact": "challenges/evaluations/accepted-4c02dfca96bd54300b882ccce1f536aef50b9791-v33.json",
+                "evaluationUtc": "2026-10-09T03:51:19.671Z",
+                "remainingScreens": 32,
+                "recordedSteps": 90,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 58,
+                    "total": 90
+                  },
+                  "rng": {
+                    "matched": 2714,
+                    "total": 2723
+                  },
+                  "cursors": {
+                    "matched": 58,
+                    "total": 90
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported drop: missing newsym operation",
+                  "step": 58
+                },
+                "step": 58,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported drop: missing newsym operation",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Upward cockatrice-corpse petrification reaches an env-shaped dropy caller supplied only the raw game state. Compose canonical dropCommandEnv at toss_up’s surviving-object petrification tail to preserve floor placement/redraw before thrownobj clear and done(STONING). The complete source review establishes a bounded caller divergence; prepared throw_up/instapetrify labels do not describe this branch.",
+              "goalKind": "divergence-fix",
+              "source": {
+                "file": "dothrow.c",
+                "functions": [
+                  "toss_up"
+                ],
+                "branch": "An upward-thrown petrifying CORPSE survives breaktest and hits an unhelmeted hero without Stone_resistance or a successful stone-golem escape. The surviving obj is detached, printed as turning the hero to stone and dropped before done(STONING).",
+                "callers": [
+                  "cmd.c extcmdlist1902 throw/default t -> dothrow.c:dothrow350–376 -> throw_obj -> throwit1589 -> toss_up1256–1431; JS cmd.js6103 -> dothrow -> throw_obj -> throwit2640 -> toss_up.",
+                  "dothrow.c:throwit1589 discards toss_up’s Boolean; toss_up1409–1410 calls dropy for the surviving object,1411 clears gt.thrownobj,1412 calls done(STONING). JS splits this common source label into toss_up_petrify1416–1424, reached from egg and surviving corpse arms."
+                ],
+                "dependencies": [
+                  "Canonical js/do.js:dropCommandEnv1555–1570 composes setworn inventory hooks plus encumber_msg, remove_object and newsym while preserving caller overrides. Use it at this single caller; dropy2126 -> dropz2203 -> preflight_dropx1885 requires those operations and then places/stacks/redraws the detached object.",
+                  "C do.c:dropy799–804 simply calls dropz(FALSE); dropz806–842 owns flooreffects, place_object, stacking, newsym then encumber_msg. Existing ordinary-floor owner handles the selected corpse state; no missing consumed-return helper needs new porting for this divergence.",
+                  "Existing js/end.js:done715 and source end.c:done preserve the selected STONING/debug-survival path. C’s done return is discarded; do not expand terminal behavior or instantiate trap.c:instapetrify, which is not called in this C branch."
+                ]
+              },
+              "evidence": [
+                "Coordinator saved queue .cache/mismatch-queue-v33-3ab0909e.json and latest accepted-4c02dfca-v33 evaluation agree:58/90screens,58/90cursors,2714/2723RNG,32remaining. Recording8628af8f and recipe1ab35baa SHA256 verified byte-for-byte; manifest digest carried from the admitted queue, not a raw manifest file hash.",
+                "Bounded one-case run-041mTw at examined HEAD8980c83b (receipt /tmp/teleport-validation-1000/run-041mTw/receipt.json, diagnostic .cache/B183/scan.json) reproduces58 emitted of90screens and exactly the missing-newsym refusal at segment0step58; command sequence is wish gloves,wear,wish corpse,throw upward. No C recording, aggregate replay or game edit was performed.",
+                "Read complete upstream C dothrow.c:toss_up1256–1431 and JS toss_up1207–1411 plus common petrification helper1416–1424. C1404–1413’s surviving corpse tail has killer assignment,message,dropy,thrownobj reset,done in that order. JS1421 calls dropy(obj,state), but do.js:dropEnv1536 expects env.state and env.hooks; preflight_dropx2020 requires newsym before placement. The global-state fallback and absent hooks explain this deterministic refusal before the terminal call.",
+                "The independent C recording shows step57 ceiling/head-hit More,step58 You turn to stone More,step59 Die? andstep60 debug survival. The later first-unmatched rn2(5) distfleeck call at RNGindex2714 is downstream after debug survival; it does not establish a monster-flight owner for this failure.",
+                "Prepared B158 manifest sourceTrace identified a fatal-path drop refusal but its sourceBucket/mission referenced throw_up and instapetrify. Complete source review corrects that attribution to toss_up’s direct done(STONING) label; do not repeat the nonexistent throw_up function or expand trap.c ownership.",
+                "Read do.c:dropy799–804/dropz806–842 and JS counterparts2126–2233 including all ordinary floor preflight guards. Canonical dropCommandEnv provides the exact downstream hook bundle without changing RNG or source drop behavior; caller env/random/message overrides must survive composition.",
+                "Sibling hitfloor soft-floor dropy and throwit failed-return dropy calls remain separate bounded caller defects. The selected dry-floor surviving-petrifier tail can be corrected independently; existing broad parked throwit and hitfloor goals retain their unrecorded/special-entry limits.",
+                "Read successful B183 claim snapshot: A179 hack empty-forcefight,A180 monmove flight,A181 potion pool,A182 special-room identity,C161 artifact ammunition,C162 missum,C163 gold theft and B182 spell family do not overlap toss_up or this drop environment contract. Implementation remains behind central queue/assignment gate."
+              ],
+              "proposal": {
+                "goalId": "fix-dothrow-toss-up-petrifier-drop-env-v33-20261009",
+                "summary": "Supply canonical drop operations before upward-corpse petrification.",
+                "selectionReason": "Seed continuation after immutable B182 spells submission: its two selected cases now match completely on the worker branch. The saved v33 cockatrice-upward case has32 remaining screens; accepted B181 evaluation preserves that count and the source cause is independent of A179–A182 and C161–C163 reservations.",
+                "detail": "At synthetic/v33/v33-cockatrice-corpse-upward segment0step58, C toss_up1404–1413 sets the elementary-physics killer, prints turn-to-stone, drops the surviving corpse with dropy, clears thrownobj, then calls done(STONING). JS dothrow.js:toss_up_petrify passes state directly to env-shaped dropy1421, so do.js drops through default global state without its required newsym/encumber/extraction hooks and refuses before done. Compose canonical dropCommandEnv(state,rawEnv) at this exact caller, preserving message, placement, redraw, thrownobj clear and terminal/recovery order. No whole toss_up, drop-family, or end.c credit.",
+                "sourceBounds": {
+                  "file": "dothrow.c",
+                  "function": "toss_up",
+                  "range": "1256–1431",
+                  "branchRange": "1404–1413"
+                },
+                "sessions": [
+                  "synthetic/v33/v33-cockatrice-corpse-upward"
+                ],
+                "reservations": [
+                  "session:synthetic/v33/v33-cockatrice-corpse-upward",
+                  "source:dothrow.c:toss_up",
+                  "contract:upward-petrifier-drop-death-order"
+                ],
+                "allowedPaths": [
+                  "js/dothrow.js",
+                  "scripts/dothrow.test.mjs",
+                  "scripts/drop-command.test.mjs",
+                  "scripts/run-upward-petrifier-drop.mjs",
+                  "recipes/dothrow.c/",
+                  "recordings/dothrow.c/",
+                  "investigations/synthetic/v33/v33-cockatrice-corpse-upward.json",
+                  ".cache/"
+                ],
+                "dependencies": [],
+                "outsideLimits": [
+                  "dothrow.c:hitfloor611 soft-terrain dropy caller currently forwards rawEnv without canonical drop hooks; independent source caller frontier, outside this petrification correction.",
+                  "dothrow.c:throwit1756 failed-return dropy caller currently passes {state}; separate returning-weapon caller frontier.",
+                  "do.c:dropz ordinary-floor admission still refuses special terrain, attached equipment and generic timed merges. Reuse its bounded admitted floor tail; no broader admission change.",
+                  "end.c:done terminal shutdown, restore/recovery and other source callers retain existing limits; verify selected debug-survival or lifesaving witness without claiming whole end.c."
+                ],
+                "evidencePlan": [
+                  "Admitted case segment0steps57–60 reaches ceiling hit, turn-to-stone, debug Die? and survival; replay through remaining inputs after the bounded fix.",
+                  "Independent C-first cockatrice and chickatrice corpse setups with different character/helm state to cover surviving-object drop and cheap petrifier variation. Record and fully replay before fresh comparisons.",
+                  "Focused initialized-state/source-order test pins corpse OBJ_FLOOR placement, original state identity, timer ownership, newsym/encumbrance before thrownobj=null/done, and preservation of caller hooks.",
+                  "Representative helmet-protected upward corpse probe establishes the existing alternate toss_up branch; retain a blocked recipe if a distinct dependency prevents complete matching."
+                ]
+              }
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-uhitm-hmon-hitmon-msg-silver-v33-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port silver-hit feedback and wire its sole bounded melee caller.",
       "cFile": "uhitm.c",
       "sessions": [
@@ -227901,8 +228104,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1fca795f45379c5d8364836c74c8ac61910620cd",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "hmon_hitmon_msg_silver",
@@ -228224,6 +228430,12 @@
         ],
         "entryPointReview": "Helper-only selected source range, so entryPoints is empty. Sole hmon_hitmon call is wired for every existing hmd.silvermsg producer (barehand silver ring counts, weapon melee/ranged and misc silver object). Selected admitted fatal melee and independent singular/plural weapons establish production feedback before killed. Source-pinned direct branch tests isolate grammar and invisible/noncorporeal/amorphous guards; existing hmon tests exercise shade, silver rings and weapon damage paths. No current object-table ring material is silver; direct source-field tests preserve one/two ring branches without inventing a production silver ring wish. Outer command/weapon owners retain their own evidence.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1fca795f45379c5d8364836c74c8ac61910620cd",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -229279,6 +229491,68 @@
         "sha": "993ad924fd08f999b0beeaa0945abc04eb2e5ec0",
         "screens": 11405,
         "rng": 792838
+      }
+    },
+    {
+      "id": "fix-apply-cursed-unicorn-horn-con-call-v34-20261009",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Use current Constitution for cursed unicorn-horn sickness duration",
+      "cFile": "apply.c",
+      "sessions": [],
+      "selectionReason": "Independent admitted v34 RNG-only mismatch; the complete investigation traces apply.c:use_unicorn_horn line 2272 to one reversed acurr caller, with no whole-function credit.",
+      "detail": "Cursed unicorn horn newly induces sickness using current Constitution. The JavaScript caller reverses acurr state and index arguments, changing C rn2(17) to rn2(3) while screens and cursors match.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "use_unicorn_horn",
+      "session": "synthetic/v34/v34-cursed-unicorn-horn",
+      "step": 24,
+      "syntheticProvenance": {
+        "synthetic/v34/v34-cursed-unicorn-horn": {
+          "session": "synthetic/v34/v34-cursed-unicorn-horn",
+          "corpus": "synthetic",
+          "batch": "v34",
+          "caseId": "v34-cursed-unicorn-horn",
+          "manifestPath": "challenges/manifests/v34.json",
+          "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+          "recordingPath": "challenges/cases/v34/v34-cursed-unicorn-horn.session.json",
+          "recordingSha256": "1b933259099dbe42fe48e426e46d6611711f55f38b9b51d12b2397a6b9b260ce",
+          "evaluationPath": "challenges/evaluations/accepted-1fca795f45379c5d8364836c74c8ac61910620cd-v34.json",
+          "evaluationCommit": "1fca795f45379c5d8364836c74c8ac61910620cd"
+        }
+      }
+    },
+    {
+      "id": "fix-spell-jumping-caller-v34-20261009",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Wire the magical jumping spell to canonical jump and consume its ECMD_TIME return",
+      "cFile": "spell.c",
+      "sessions": [],
+      "selectionReason": "Independent admitted v34 mismatch after accepted A184; the complete investigation traces the first missing screen to the omitted SPE_JUMPING caller into canonical apply.c jump, disjoint from B184, B183, and C163.",
+      "detail": "Forced jumping reaches spell.c spelleffects SPE_JUMPING, but JavaScript falls into its unsupported default instead of awaiting jump(max(role_skill,1)). Restore the bounded caller and test ECMD_TIME before Nothing happens feedback; retain normal cleanup and skill gain without whole-function credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "spelleffects",
+      "session": "synthetic/v34/v34-wizard-jump",
+      "step": 73,
+      "syntheticProvenance": {
+        "synthetic/v34/v34-wizard-jump": {
+          "session": "synthetic/v34/v34-wizard-jump",
+          "corpus": "synthetic",
+          "batch": "v34",
+          "caseId": "v34-wizard-jump",
+          "manifestPath": "challenges/manifests/v34.json",
+          "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+          "recordingPath": "challenges/cases/v34/v34-wizard-jump.session.json",
+          "recordingSha256": "e38556e67e0e1351daab1d02440ccd64afc8baf3e7e9d6e8c975568eb9650f54",
+          "evaluationPath": "challenges/evaluations/accepted-1fca795f45379c5d8364836c74c8ac61910620cd-v34.json",
+          "evaluationCommit": "1fca795f45379c5d8364836c74c8ac61910620cd"
+        }
       }
     }
   ]
