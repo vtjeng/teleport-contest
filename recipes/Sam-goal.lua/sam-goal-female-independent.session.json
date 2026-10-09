@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Samurai direct wizard load of whole Sam-goal.lua; gender and seed vary startup and population RNG. The admitted case covers natural quest arrival separately.",
+  "segments": [
+    {
+      "seed": 69934052,
+      "datetime": "20530721134137",
+      "nethackrc": "OPTIONS=name:SamGoalfemale,role:Samurai,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizloaddes\nSam-goal.lua\n "
+    }
+  ]
+}

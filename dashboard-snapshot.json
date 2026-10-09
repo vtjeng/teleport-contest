@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T18:17:02.937Z",
+  "capturedAt": "2026-10-09T18:40:24.502Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -75424,30 +75424,197 @@
         "type": "accepted",
         "at": "2026-10-09T18:16:02.083Z",
         "task": "A196"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A193-after-A196-20261009",
+        "type": "resume",
+        "at": "2026-10-09T18:17:16.934Z",
+        "task": "A193"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A193-after-A196-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:17:18.561Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A196-e63377e8f",
+        "type": "published",
+        "at": "2026-10-09T18:17:38.724Z",
+        "task": "A196",
+        "commit": "e63377e8f95ef29b10d2d27a1fe435dfcec13134"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4d165fba64a793e9c2061a91cd85162ffc92e90f",
+        "type": "ready",
+        "at": "2026-10-09T18:18:00.492Z",
+        "task": "C175",
+        "delivery": "4d165fba64a793e9c2061a91cd85162ffc92e90f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "review-C177-after-A196-20261009",
+        "type": "activity",
+        "at": "2026-10-09T18:18:04.443Z",
+        "task": "C177",
+        "phase": "review",
+        "reason": "Refreshing the Valkyrie goal evidence against accepted A196 and reviewing its source-ordered loader before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-C175-4d165fba64a793e9c2061a91cd85162ffc92e90f",
+        "type": "received",
+        "at": "2026-10-09T18:18:39.663Z",
+        "task": "C175",
+        "delivery": "4d165fba64a793e9c2061a91cd85162ffc92e90f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-after-C175-delivery-blocked-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:18:58.818Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "C175 and C177 are ready for Main integration. Remaining C reports await Main decisions on shared object descriptors or numeric selections; other independent quest reports retain their owners."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-C177-567a382b931bb18598a54cf2e29c80c36fb01846",
+        "type": "received",
+        "at": "2026-10-09T18:19:52.890Z",
+        "task": "C177",
+        "delivery": "567a382b931bb18598a54cf2e29c80c36fb01846"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C177-dee8b310b",
+        "type": "integrating",
+        "at": "2026-10-09T18:19:54.181Z",
+        "task": "C177",
+        "integration": "dee8b310b3922f634c10f62fcab1a5e8ff4acc73"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A193-central-source-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:23:11.737Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "Waiting for Main to queue the Ranger quest-start source goal and provide its canonical context."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C177-37972613772",
+        "type": "validated",
+        "at": "2026-10-09T18:26:31.862Z",
+        "task": "C177",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C177-dee8b310b3922f634c10f62fcab1a5e8ff4acc73-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T18:28:11.815Z",
+        "task": "C177"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C177-91e49fff07449349f7e2d7d18b8aa8db70bf2cc3",
+        "type": "published",
+        "at": "2026-10-09T18:29:35.376Z",
+        "task": "C177",
+        "commit": "91e49fff07449349f7e2d7d18b8aa8db70bf2cc3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C172-source-refresh-after-C177-20261009",
+        "type": "resume",
+        "at": "2026-10-09T18:30:38.607Z",
+        "task": "C172"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C172-source-refresh-after-C177-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:30:39.900Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B199-b134b4d3767f961f9fff0d5b043bb5050458b3cd",
+        "type": "integrating",
+        "at": "2026-10-09T18:31:55.171Z",
+        "task": "B199",
+        "integration": "b134b4d3767f961f9fff0d5b043bb5050458b3cd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C172-refreshed-object-gate-20261009",
+        "type": "park",
+        "at": "2026-10-09T18:32:40.102Z",
+        "task": "C172",
+        "reason": "Complete refreshed report48ec1c19d after accepted C177; whole Mon-loca remains blocked on Main approval of bounded sp_lev.c:lspo_object spinach/empty normalization contract. Current existing adapter forwards raw token and forces tin spe0. No source edits. C174/B197 downstream reports preserved; C175 remains immutable dependency on current lineage."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C172-refreshed-object-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:32:41.429Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "C172 Monk locate report is refreshed; Main must approve its shared spinach/empty object-descriptor contract. C175 remains ready for integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A193-public-refresh-91e49fff-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:35:29.014Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "Waiting for Main to queue the Ranger quest-start source goal and provide its canonical context."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B199-37974156939",
+        "type": "validated",
+        "at": "2026-10-09T18:38:30.468Z",
+        "task": "B199",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B201-refreshed-accepted-91e-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:39:35.949Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Tourist start investigation is refreshed; implementation awaits B199 acceptance and Main source approval."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B199-b134b4d3767f961f9fff0d5b043bb5050458b3cd-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T18:39:52.331Z",
+        "task": "B199"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "C177",
+        "task": "C175",
         "worker": "C",
-        "goal": "port-val-goal-quest-level-v36-20261009",
+        "goal": "port-rog-strt-quest-level-v36-20261009",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "567a382b931bb18598a54cf2e29c80c36fb01846",
-        "since": "2026-10-09T17:30:21.162Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B199",
-        "worker": "B",
-        "goal": "port-sam-goal-lua-v36-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "d74880161f3d392a6786819e9b4073654bc05ae7",
-        "since": "2026-10-09T18:05:16.715Z",
+        "delivery": "4d165fba64a793e9c2061a91cd85162ffc92e90f",
+        "since": "2026-10-09T18:18:00.492Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -75730,28 +75897,6 @@
         "reason": "Complete Mon-strt report33119e37 preserved, awaiting central source gate and shared spinach-tin support approval. Main directs another independent investigation while current delivery queue validates."
       },
       {
-        "task": "C172",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T13:34:31.362Z",
-        "blockedBy": [],
-        "reason": "Complete Mon-loca report06509e49e retained; required canonical sp_lev.c:lspo_object non-species spinach/empty descriptor seam awaits Main adjudication and central scope. No implementation claim/edit; preserve first-owner priority."
-      },
-      {
-        "task": "A193",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T13:48:52.561Z",
-        "blockedBy": [],
-        "reason": "Complete Ran-strt report398d1c8fc and proposal preserved. Main directs further independent investigation while C169 validates; no authorized central Ran-strt context or implementation source claim. Retain report/source proposal priority."
-      },
-      {
         "task": "C174",
         "worker": "C",
         "goal": null,
@@ -75860,12 +76005,23 @@
         "since": "2026-10-09T17:46:04.357Z",
         "blockedBy": [],
         "reason": "The full Rog-goal Lua program reaches an object descriptor that sets tin montype=\"chameleon\" at dat/Rog-goal.lua:45. Upstream sp_lev.c:lspo_object resolves named species to a species index; current JavaScript carries that name string through the corpsenm path. This shared source contract overlaps parked C172. A198 remains blocked until the orchestrator adjudicates C172; do not edit or reserve sp_lev.c:lspo_object while that task is parked/shared."
+      },
+      {
+        "task": "C172",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T18:32:40.102Z",
+        "blockedBy": [],
+        "reason": "Complete refreshed report48ec1c19d after accepted C177; whole Mon-loca remains blocked on Main approval of bounded sp_lev.c:lspo_object spinach/empty normalization contract. Current existing adapter forwards raw token and forces tin spe0. No source edits. C174/B197 downstream reports preserved; C175 remains immutable dependency on current lineage."
       }
     ]
   },
   "development": {
-    "executionCommit": "3f11f16878f46067da2b73fd2c272dfb573233cc",
-    "measuredAt": "2026-10-09T18:13:55.111Z",
+    "executionCommit": "b134b4d3767f961f9fff0d5b043bb5050458b3cd",
+    "measuredAt": "2026-10-09T18:38:07.194Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
