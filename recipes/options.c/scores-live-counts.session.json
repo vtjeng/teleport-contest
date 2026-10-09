@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first options.c optfn_scores live-counts witness. Seed 15641013, weekday clock20560120101433, Wizard and input were selected from the source token/reset branches before comparison. After setting, reopen the full menu and inspect scores 7 top/4 around/own; Escape ends each menu.",
+  "segments": [
+    {
+      "seed": 15641013,
+      "datetime": "20560120101433",
+      "nethackrc": "OPTIONS=name:Holt,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#optionsfull\n:scores\n\n7top/4around/own\n#optionsfull\n:scores\n\u001b\u001b."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first options.c optfn_scores live-none witness. Seed 15641017, weekday clock20560120101433, Ranger and input were selected from the source token/reset branches before comparison. After setting, reopen the full menu and inspect scores none; Escape ends each menu.",
+  "segments": [
+    {
+      "seed": 15641017,
+      "datetime": "20560120101433",
+      "nethackrc": "OPTIONS=name:Holt,role:Ranger,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics, scores:9top/8around/own\n",
+      "moves": ".#optionsfull\n:scores\n\nnone\n#optionsfull\n:scores\n\u001b\u001b."
+    }
+  ]
+}
