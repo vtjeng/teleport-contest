@@ -15,11 +15,13 @@ import {
     AM_LAWFUL,
     AM_NONE,
     ECMD_TIME,
+    ECMD_CANCEL,
     ER_GREASED,
     ER_NOTHING,
     F_LOOTED,
     FOUNTAIN,
     MM_NOMSG,
+    POOL,
     SINK,
     S_LRING,
 } from '../js/const.js';
@@ -30,13 +32,14 @@ import { game } from '../js/gstate.js';
 import { addinv } from '../js/invent.js';
 import { mksobj } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
-import { DAGGER, POT_ACID } from '../js/objects.js';
-import { potion_dip } from '../js/potion.js';
+import { DAGGER, POT_ACID, TOWEL } from '../js/objects.js';
+import { dodip, potion_dip } from '../js/potion.js';
 import { PM_WATER_NYMPH } from '../js/monsters.js';
 import { short_oname } from '../js/objnam.js';
 import { altarmask_at } from '../js/pray.js';
 import { water_damage } from '../js/trap_water_damage.js';
 import { runSegment } from '../js/jsmain.js';
+import { clearTtyMessageWindow } from '../js/tty_message.js';
 
 const RC = [
     'OPTIONS=name:DipTest,role:Wizard,race:human,gender:female,align:neutral',
@@ -484,5 +487,33 @@ for (const greased of [false, true]) {
         for (let item = game.invent; item; item = item.nobj) inventory.push(item);
         assert.ok(inventory.includes(obj));
         assert.ok(!inventory.includes(acid)); // Both ER_DAMAGED/ER_GREASED call poof.
+    });
+}
+
+// potion.c:dodip2341 requires a real default-No confirmation before water
+// effects; selecting a towel avoids any erosion/drowning setup dependency.
+for (const accepted of [true, false]) {
+    test(`pool dip resolves canonical ${accepted ? 'accepted' : 'declined'} confirmation`, async () => {
+        const state = await startedGame();
+        state.level.at(state.u.ux, state.u.uy).typ = POOL;
+        const towel = mksobj(TOWEL, false, false, objectGenerationEnv({ state }));
+        addinv(towel, { state });
+        towel.spe = 0; // weapon.c wet_a_towel: a dry towel gets wet, not wetter.
+        towel.pickup_prev = 1; // Cleared only when the source accepts this dip.
+        clearTtyMessageWindow(state);
+        state._ttyToplines = '';
+        state.nhDisplay.pushKey(towel.invlet.charCodeAt(0));
+        state.nhDisplay.pushKey((accepted ? 'y' : 'n').charCodeAt(0));
+        // Declining falls through to C's potion selection; Escape cancels it.
+        if (!accepted) state.nhDisplay.pushKey(27);
+        const messages = [];
+        assert.equal(await dodip(state, { message: async text => { messages.push(text); } }),
+            accepted ? ECMD_TIME : ECMD_CANCEL);
+        assert.equal(towel.pickup_prev, accepted ? 0 : 1);
+        assert.equal(towel.spe > 0, accepted, 'only accepted water dip wets the towel');
+        // weapon.c:1041 chooses damp below wetness 3, wet at 3 or more.
+        assert.equal(messages.some(text => /towel gets (?:wet|damp)/u.test(text)), accepted);
+        const source = await readFile(new URL('../nethack-c/upstream/src/potion.c', import.meta.url), 'utf8');
+        assert.match(source, /else if \(at_pool\) \{[\s\S]*?if \(y_n\(qbuf\) == 'y'\)[\s\S]*?water_damage\(obj, 0, TRUE\)/u);
     });
 }

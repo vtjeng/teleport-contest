@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent A181 C-first pool confirmation witness. Seeds/role/date/input fixed before observation or JS comparison. Wish dry towel before aquatic transformation, wish pool at current square, then accept pool dip. Role variation changes retained inventory and liquid effects. C must confirm inventory letter, pool prompt and wet towel before comparison.",
+  "segments": [
+    {
+      "seed": 18133002,
+      "datetime": "20430716141022",
+      "nethackrc": "OPTIONS=name:PoolDipProbe,role:Knight,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "        \u0017uncursed towel\n        #polyself\ngiant eel\n        \u0017pool\n        #dip\niy                 i        "
+    }
+  ]
+}
