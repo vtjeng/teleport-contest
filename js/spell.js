@@ -7,6 +7,9 @@
 
 import {
     A_INT,
+    DISP_CHANGE, D_CLOSED, D_LOCKED, SPACE_POS, POOL, MOAT,
+    DRAWBRIDGE_UP, LAVAPOOL, SHOCK_RES, HALLUC, HALLUC_RES,
+    N_DIRS, xdir, ydir, XKILL_GIVEMSG,
     A_STR,
     A_WIS,
     EYE,
@@ -65,18 +68,20 @@ import { read_tribute } from './files.js';
 import { makeplural } from './fruit.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
-import { shieldeff, cmap_to_glyph, map_glyphinfo, tmp_at, canspotmon } from './display.js';
-import { check_capacity, invocation_pos, losehp, nomul } from './hack.js';
+import { shieldeff, cmap_to_glyph, map_glyphinfo, tmp_at, canspotmon, zapdir_to_glyph, map_invisible } from './display.js';
+import { check_capacity, invocation_pos, losehp, nomul, nh_delay_output } from './hack.js';
 import { dist2, distmin, isqrt, sgn, strncmpi } from './hacklib.js';
 import { obfree, update_inventory, useup } from './invent.js';
 import {
     can_chant,
+    Resists_Elem, defended,
     haseyes,
     is_undead,
     is_vampshifter,
     is_whirly, is_animal, dmgtype_fromattack,
 } from './mondata.js';
 import {
+    AD_ELEC,
     PM_CYCLOPS,
     PM_FLOATING_EYE,
     PM_FOG_CLOUD, AD_WRAP, AT_ENGL,
@@ -98,6 +103,7 @@ import {
     QUARTERSTAFF,
     ROBE,
     SMALL_SHIELD,
+    SPE_CHAIN_LIGHTNING,
     SPE_CAUSE_FEAR,
     SPE_CANCELLATION,
     SPE_CLAIRVOYANCE,
@@ -146,7 +152,7 @@ import {
     SPE_NOVEL,
     LENSES,
 } from './objects.js';
-import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnl, rnz, rn2_on_display_rng } from './rng.js';
 import { aggravate } from './wizard.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { livelog_printf } from './pline.js';
@@ -162,7 +168,7 @@ import {
 import { discover_object, observe_object } from './o_init.js';
 import { do_vicinity_map } from './detect.js';
 import { use_skill } from './weapon.js';
-import { unturn_dead, zapyourself, weffects, spell_damage_bonus } from './zap.js';
+import { unturn_dead, zapyourself, weffects, spell_damage_bonus, zhitm, exclam } from './zap.js';
 import { fall_asleep } from './timeout.js';
 import { erode_obj } from './trap_erode_obj.js';
 import { body_part } from './polyself.js';
@@ -172,9 +178,9 @@ import { make_familiar, tamedog } from './dog.js';
 import { set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
 import { mkundead } from './mkroom.js';
-import { iter_mons_async } from './mon.js';
+import { iter_mons_async, wakeup, xkilled } from './mon.js';
 import { monflee, monfleeMessage, youHear } from './monmove.js';
-import { noveltitle, hcolor, hliquid } from './do_name.js';
+import { noveltitle, hcolor, hliquid, mon_nam, Monnam } from './do_name.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { note_unported } from './unported.js';
@@ -1755,6 +1761,11 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
             await (env.message ?? ttyPline)(nothing_happens, state);
         break;
 
+    // C spell.c1588–1590: independent of skill; common cleanup follows.
+    case SPE_CHAIN_LIGHTNING:
+        await cast_chain_lightning(state, env);
+        break;
+
     default:
         obfree(pseudo, null, { state });
         throw new UnsupportedSpellCastError(
@@ -1768,6 +1779,105 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
 
     obfree(pseudo, null, { state }); /* now, get rid of it */
     return ECMD_TIME;
+}
+
+// C ref: spell.c chain-lightning queue and terrain macros (917–947).
+// The queue limit stays below display.c TMP_AT_MAX_GLYPHS.
+const CHAIN_LIGHTNING_LIMIT = 100;
+
+// C ref: spell.c propagate_chain_lightning() (952–999). C passes zap by
+// value; both the caller's direction and strength survive this forward step.
+export async function propagate_chain_lightning(clq, sourceZap, state = game) {
+    const zap = { ...sourceZap };
+    zap.x += xdir[zap.dir];
+    zap.y += ydir[zap.dir];
+    if (clq.tail >= CHAIN_LIGHTNING_LIMIT) return;
+    if (!isok(zap.x, zap.y)) return;
+    const cell = state.level.at(zap.x, zap.y);
+    // rm.h doormask aliases flags; door generation and mutation use flags.
+    if (!(SPACE_POS(cell.typ) || cell.typ === POOL || cell.typ === MOAT
+          || cell.typ === DRAWBRIDGE_UP || cell.typ === LAVAPOOL
+          || (IS_DOOR(cell.typ) && !(cell.flags & (D_CLOSED | D_LOCKED)))))
+        return;
+    const mon = m_at(zap.x, zap.y, state);
+    if (mon && mon.mpeaceful) return;
+    if (mon && !Resists_Elem(mon, SHOCK_RES, state)
+        && !defended(mon, AD_ELEC, state)) zap.strength = 3;
+    else if (mon) zap.strength = 0;
+    if (!mon && !zap.strength) return;
+    for (let i = 0; i < clq.tail; i++) {
+        if (clq.q[i].x === zap.x && clq.q[i].y === zap.y) return;
+    }
+    clq.q[clq.tail++] = zap;
+    await tmp_at(DISP_CHANGE,
+        zapdir_to_glyph(xdir[zap.dir], ydir[zap.dir], clq.displayed_beam, state), state);
+    await tmp_at(zap.x, zap.y, state);
+}
+
+// C ref: spell.c cast_chain_lightning() (1003–1101). Process one breadth
+// wave per delay, retaining C's bhitpos-based head test and Pw decrement.
+export async function cast_chain_lightning(state = game, env = {}) {
+    const halluc = state.u.uprops[HALLUC];
+    const resistance = state.u.uprops[HALLUC_RES];
+    const clq = { q: [], head: 0, tail: 0,
+        displayed_beam: halluc.intrinsic && !(resistance.intrinsic || resistance.extrinsic)
+            ? rn2_on_display_rng(6, state) : AD_ELEC - 1 };
+    // Source TODO: no damage to the engulfer. Display RNG was already drawn.
+    if (state.u.uswallow) return;
+    await tmp_at(DISP_BEAM, zapdir_to_glyph(0, 1, clq.displayed_beam, state), state);
+    for (let dir = 0; dir < N_DIRS; dir++) {
+        await propagate_chain_lightning(clq,
+            { dir, x: state.u.ux, y: state.u.uy, strength: 2 }, state);
+    }
+    await nh_delay_output(state);
+    while (clq.head < clq.tail) {
+        const delay_tail = clq.tail;
+        while (clq.head < delay_tail) {
+            const zap = { ...clq.q[clq.head++] };
+            const mon = m_at(zap.x, zap.y, state);
+            if (mon) {
+                // decl.c gb starts zeroed; this may be the first ray to read
+                // bhitpos. Keep its prior position once another ray sets it.
+                state.gb.bhitpos ??= { x: 0, y: 0 };
+                state.gn.notonhead = mon.mx !== state.gb.bhitpos.x
+                    || mon.my !== state.gb.bhitpos.y;
+                // C BZ_U_SPELL(AD_ELEC - 1) = 10 + AD_ELEC - 1.
+                // zhitm's armor result is unused: electricity cannot destroy it.
+                const { damage: dmg } = await zhitm(mon, 10 + AD_ELEC - 1, 2,
+                    state, { d, rn2, rnd, ...env.random }, env);
+                if (dmg) {
+                    if (mon.mhp <= 0) await xkilled(mon, XKILL_GIVEMSG, state, env);
+                    else {
+                        await (env.message ?? ttyPline)(
+                            `You shock ${mon_nam(mon, state)}${exclam(dmg)}`, state);
+                        if (!canseemon(mon, state) && !state.gn.notonhead)
+                            map_invisible(zap.x, zap.y, state);
+                    }
+                } else if (canseemon(mon, state)) {
+                    await (env.message ?? ttyPline)(`${Monnam(mon, state)} resists.`, state);
+                }
+                if (mon.mhp > 0) {
+                    state.context.forcefight++;
+                    await wakeup(mon, false, { ...env, state });
+                    state.context.forcefight--;
+                }
+            }
+            if (!zap.strength) continue;
+            zap.strength--;
+            await propagate_chain_lightning(clq, zap, state);
+            if (zap.strength < 2) zap.strength = 0;
+            else if (state.u.uen > 0) state.u.uen--;
+            // C DIR_LEFT then DIR_RIGHT2 relative to that left direction.
+            zap.dir = (zap.dir + N_DIRS - 1) % N_DIRS;
+            await propagate_chain_lightning(clq, zap, state);
+            zap.dir = (zap.dir + 2) % N_DIRS;
+            await propagate_chain_lightning(clq, zap, state);
+        }
+        await nh_delay_output(state);
+    }
+    await nh_delay_output(state);
+    await nh_delay_output(state);
+    await tmp_at(DISP_END, 0, state);
 }
 
 // C ref: spell.c docast() (820-829). The #cast command entry point. Calls
