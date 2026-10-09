@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T04:20:10.228Z",
+  "capturedAt": "2026-10-09T04:37:08.182Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -70604,12 +70604,86 @@
         "type": "accepted",
         "at": "2026-10-09T04:19:49.248Z",
         "task": "C161"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B183-after-C161-availability-20261009",
+        "type": "turn",
+        "at": "2026-10-09T04:20:57.049Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "B182/B183 ready; remaining source owners reserved or blocked."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C161-5a37a50f2-20261009",
+        "type": "published",
+        "at": "2026-10-09T04:21:06.744Z",
+        "task": "C161",
+        "commit": "5a37a50f21d3c5fd0fa50c88c35e13aad0c6d56e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C163-after-C161-idle-20261009",
+        "type": "turn",
+        "at": "2026-10-09T04:21:15.588Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "No independent admitted mismatch is unreserved; C163 evidence awaits A180 acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A184-idle-after-C161-4bbd839d",
+        "type": "turn",
+        "at": "2026-10-09T04:21:59.353Z",
+        "worker": "A2",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A180-68b87a3e-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T04:23:24.565Z",
+        "task": "A180",
+        "integration": "68b87a3eb85817e3009cee89a52281e78e23d03c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A180-68b87a3eb85817e3009cee89a52281e78e23d03c-validated",
+        "type": "validated",
+        "at": "2026-10-09T04:28:31.313Z",
+        "task": "A180",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A180-68b87a3eb85817e3009cee89a52281e78e23d03c-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T04:31:09.138Z",
+        "task": "A180"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A184-idle-after-A180-6b16ba5f",
+        "type": "turn",
+        "at": "2026-10-09T04:31:36.088Z",
+        "worker": "A2",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C163-after-A180-await-C162-20261009",
+        "type": "turn",
+        "at": "2026-10-09T04:31:39.772Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "A180 is merged; C163 evidence correction awaits C162 acceptance."
       }
     ]
   },
   "development": {
-    "executionCommit": "461a0d2ad755547a69c0c623c64643e40b0be515",
-    "measuredAt": "2026-10-09T04:16:03.381Z",
+    "executionCommit": "68b87a3eb85817e3009cee89a52281e78e23d03c",
+    "measuredAt": "2026-10-09T04:27:56.015Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
