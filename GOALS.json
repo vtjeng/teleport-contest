@@ -241786,6 +241786,253 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-light-wiz-light-sources-v31-20261009",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port wizard mobile light-source diagnostics",
+      "cFile": "light.c",
+      "sessions": [
+        "synthetic/v31/v31-empty-light-sources"
+      ],
+      "selectionReason": "Resume B168 after published patch 007 made alloc.c:fmt_ptr source-reproducible; the v31 light-source mismatch selects the whole diagnostic function and shared formatter.",
+      "detail": "Port light.c:wiz_light_sources with alloc.c:fmt_ptr and preserve do_name.c:minimal_monnam callers, using admitted v31/v35 execution evidence and an independent nonempty recording.",
+      "openedAt": "be68a3dc47a6fe9f8ce693c94cb11b91a85a3afe",
+      "openStanding": {
+        "sha": "d399398f872cf682ce5ed796bbd6c66704dde739",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_light_sources",
+          "line": 935,
+          "endLine": 986,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 935,
+        "to": 986
+      },
+      "requiredFunctions": [
+        {
+          "name": "fmt_ptr",
+          "line": 125,
+          "endLine": 141,
+          "declared": true,
+          "sourceFile": "alloc.c",
+          "complete": false
+        },
+        {
+          "name": "minimal_monnam",
+          "line": 1254,
+          "endLine": 1288,
+          "declared": true,
+          "sourceFile": "do_name.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v31/v31-empty-light-sources": {
+          "session": "synthetic/v31/v31-empty-light-sources",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-empty-light-sources",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-empty-light-sources.session.json",
+          "recordingSha256": "8421bd1f71a617446262ad86bcd99f3e060ce8ebb2f5b97e5d97214434ea5f13",
+          "evaluationPath": "challenges/evaluations/accepted-f5d95cf1e445b7dca8a75b6988625a52c03b2e52-v31.json",
+          "evaluationCommit": "f5d95cf1e445b7dca8a75b6988625a52c03b2e52"
+        }
+      },
+      "activeStanding": {
+        "sha": "d399398f872cf682ce5ed796bbd6c66704dde739",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-empty-light-sources",
+          "session": "synthetic/v31/v31-empty-light-sources",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recording": "challenges/cases/v31/v31-empty-light-sources.session.json",
+          "recordingPath": "challenges/cases/v31/v31-empty-light-sources.session.json",
+          "recordingSha256": "8421bd1f71a617446262ad86bcd99f3e060ce8ebb2f5b97e5d97214434ea5f13",
+          "recipe": "challenges/cases/v31/v31-empty-light-sources.recipe.session.json",
+          "recipeSha256": "2e464fe140eefd4e19bd3ed0b983e149483a0c6f6ec34ee7ae97dfe6f350cf98",
+          "replayInputSha256": "728f02b077ee348c3867bcf62db6fdd9dbc74037507e9f4da5b893c4cf962985",
+          "evaluationPath": "challenges/evaluations/accepted-f5d95cf1e445b7dca8a75b6988625a52c03b2e52-v31.json",
+          "evaluationCommit": "f5d95cf1e445b7dca8a75b6988625a52c03b2e52",
+          "evaluationArtifact": "challenges/evaluations/accepted-f5d95cf1e445b7dca8a75b6988625a52c03b2e52-v31.json",
+          "evaluationUtc": "2026-10-09T22:41:29.137Z",
+          "remainingScreens": 12,
+          "recordedSteps": 28,
+          "previousScreensMatched": 16,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 16,
+              "total": 28
+            },
+            "rng": {
+              "matched": 2588,
+              "total": 2588
+            },
+            "cursors": {
+              "matched": 16,
+              "total": 28
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_light_sources() for the extended command 'lightsources' is not ported",
+            "step": 16
+          },
+          "step": 16,
+          "kind": "stop",
+          "sourceFile": "light.c",
+          "function": "wiz_light_sources",
+          "message": "unsupported hero command: wiz_light_sources() for the extended command 'lightsources' is not ported",
+          "cFile": "light.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v31/v31-empty-light-sources.json",
+            "result": {
+              "session": "synthetic/v31/v31-empty-light-sources",
+              "corpus": "synthetic",
+              "batch": "v31",
+              "caseId": "v31-empty-light-sources",
+              "manifestPath": "challenges/manifests/v31.json",
+              "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+              "recordingSha256": "8421bd1f71a617446262ad86bcd99f3e060ce8ebb2f5b97e5d97214434ea5f13",
+              "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+              "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+              "remainingScreens": 12,
+              "recordedSteps": 28,
+              "status": "complete",
+              "commit": "2ec681b75626a7d08859aff17d3e9590c57a552b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v31",
+                "caseId": "v31-empty-light-sources",
+                "session": "synthetic/v31/v31-empty-light-sources",
+                "manifestPath": "challenges/manifests/v31.json",
+                "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+                "recording": "challenges/cases/v31/v31-empty-light-sources.session.json",
+                "recordingPath": "challenges/cases/v31/v31-empty-light-sources.session.json",
+                "recordingSha256": "8421bd1f71a617446262ad86bcd99f3e060ce8ebb2f5b97e5d97214434ea5f13",
+                "recipe": "challenges/cases/v31/v31-empty-light-sources.recipe.session.json",
+                "recipeSha256": "2e464fe140eefd4e19bd3ed0b983e149483a0c6f6ec34ee7ae97dfe6f350cf98",
+                "replayInputSha256": "902d1d6a0c5f8616760471bd0d1a5212fe9a7fda96d2646a0acb2cc0ebf2373b",
+                "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+                "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+                "evaluationUtc": "2026-10-08T20:27:01.083Z",
+                "remainingScreens": 12,
+                "recordedSteps": 28,
+                "previousScreensMatched": 16,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 16,
+                    "total": 28
+                  },
+                  "rng": {
+                    "matched": 2588,
+                    "total": 2588
+                  },
+                  "cursors": {
+                    "matched": 16,
+                    "total": 28
+                  }
+                },
+                "step": 16,
+                "kind": "stop",
+                "sourceFile": "light.c",
+                "function": "wiz_light_sources",
+                "line": 935,
+                "message": "unsupported hero command: wiz_light_sources() for the extended command 'lightsources' is not ported"
+              },
+              "summary": "Wizard #lightsources has no JavaScript command owner. Whole light.c wiz_light_sources935-974 prints hero coordinates, an empty-list marker or every source in list order, and a corner NHW_MENU window. The active nonempty branch consumes alloc.c fmt_ptr and exposes native C pointer addresses; JavaScript currently substitutes object IDs in an unrelated private diagnostic helper. Whole-function implementation is blocked on the canonical native-pointer diagnostic contract, even though the admitted empty-list entry never uses that helper.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "light.c",
+                "functions": [
+                  "wiz_light_sources"
+                ],
+                "branch": "Wizard extended command lightsources; admitted gl.light_base is null, so C writes header, blank line and <none>. Whole source also visits active object/monster light entries and formats native id.a_void pointers.",
+                "callers": [
+                  "cmd.c:extcmdlist1756-1757 registers lightsources -> wiz_light_sources with IFBURIED|AUTOCOMPLETE|WIZMODECMD. Existing JS command lookup reaches the default unsupported entry.func_name branch because no wiz_light_sources dispatcher arm or light.js implementation exists. Interactive and queued command forms require one bounded awaited dispatcher arm, with no broader doextcmd completion credit."
+                ],
+                "dependencies": [
+                  "alloc.c:fmt_ptr125-136 is consumed by light.c965 for every nonempty light entry. Read whole helper: four32-byte static buffers rotate ptrbufidx and Sprintf uses PTR_FMT/(PTR_TYP) raw address. No exported canonical JS alloc.js owner exists. js/obj.js3576 private fmt_ptr substitutes [obj#id]/[mon#id]/[?] and is not source-faithful native address output; js/do_name.js diagnosticPointer has the same limitation. Do not copy either substitution or invent addresses from IDs.",
+                  "light.c:mon_is_local373 is its local macro monster->mx>0, distinct from timeout.c:mon_is_local list-membership semantics. Translate the source local/hero/migrating/unknown type order directly after resolving the pointer callee contract. Canonical gl.light_base linked list and id identity already exist in js/light.js; no broader mobile-light lifecycle port is required.",
+                  "Canonical tty_menu.js:displayTtyMenuTextWindow427 represents this plain NHW_MENU corner text owner, including message flush, More dismissal and map repair. wintty.c1857 states tty windows are blocking even when display_nhwindow is called with FALSE. Source create WIN_ERR guard/ECMD_OK no-time return must be retained; ordinary headers/list padding are deterministic.",
+                  "nethack-c/patches contains no fmt_ptr/native pointer normalization for this diagnostic. The consumed pointer return requires a shared diagnostic representation decision or source-faithful implementation before whole wiz_light_sources can close. Empty-list-only admission would leave the selected whole function incomplete and cannot establish that consumed helper."
+                ]
+              },
+              "evidence": [
+                "Assigned-base focused scan run-L1xUJk reproduces16emitted screens of28 and first stop16: wiz_light_sources() for extended command lightsources is not ported. Accepted0416 evaluation has16/28screens andcursors, all2588RNG matched; remaining12 is current for the same corpus digest and immutable recording.",
+                "Read admitted independent recipe before diagnosis: ordinary initial rest, then #lightsources without lighting the carried lamp. C recorded Mobile light sources: hero @ (38,16), blank line and <none>. These coordinates are evidence data, not implementation constants.",
+                "Read whole light.c935-974: NHW_MENU creation/failed-window return, source width-two hero/location/range and 0x%04x flags, list traversal, object/mon/you/<m>/??? classification, consumed fmt_ptr, display(FALSE), destroy and ECMD_OK. Source makes no RNG call, but output makes it impure.",
+                "Read whole alloc.c125-136 and existing JS private diagnostic helpers. Object IDs identify game objects but do not equal C address formatting. Stable ID substitution cannot satisfy the source return-value contract or the recorded nonempty output. The shared pointer blocker affects diagnostic owners beyond light.c, so no game edits or source reservations are selected here.",
+                "Smallest whole-source closure is light.c:wiz_light_sources plus alloc.c:fmt_ptr and the bounded cmd dispatch arm. Existing list/window owners and mon_is_local macro are sufficient; no vision, timer or light allocation owner expansion is required. Independent future evidence must include empty list, at least one burning object and monster/hero source variations once native formatting is resolved."
+              ],
+              "proposal": {
+                "goalId": "port-light-wiz-light-sources-v31-20261008",
+                "summary": "Display the mobile light-source diagnostic.",
+                "sourceUnits": [
+                  {
+                    "file": "light.c",
+                    "name": "wiz_light_sources",
+                    "start": 935,
+                    "end": 974
+                  },
+                  {
+                    "file": "alloc.c",
+                    "name": "fmt_ptr",
+                    "start": 125,
+                    "end": 136
+                  }
+                ],
+                "dependencyReady": false,
+                "blocker": "Consumed alloc.c:fmt_ptr native-pointer output lacks a canonical JavaScript representation; existing ID substitutes are incomplete. Coordinator must resolve the shared contract before source implementation.",
+                "proposedReservations": [
+                  "session:synthetic/v31/v31-empty-light-sources",
+                  "source:light.c:wiz_light_sources",
+                  "source:alloc.c:fmt_ptr",
+                  "contract:native-pointer-diagnostic-format",
+                  "contract:wizard-light-source-dispatch"
+                ],
+                "proposedPaths": [
+                  "js/light.js",
+                  "js/alloc.js",
+                  "js/cmd.js",
+                  "scripts/light*.test.mjs",
+                  "scripts/cmd*.test.mjs",
+                  "recipes/light.c/",
+                  "recordings/light.c/",
+                  "investigations/synthetic/v31/v31-empty-light-sources.json",
+                  ".cache/"
+                ]
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }
