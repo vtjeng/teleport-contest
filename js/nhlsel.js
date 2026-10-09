@@ -1,7 +1,15 @@
-// Pure selection algebra from src/nhlsel.c:
-// l_selection_or() and l_selection_sub().
-import { COLNO, ROWNO } from './const.js';
-import { ThemeroomSelection } from './themerooms.js';
+// Selection operations ported from src/nhlsel.c:
+// l_selection_or(), l_selection_sub(), and l_selection_setpoint().
+import {
+    ANY_LOC,
+    COLNO,
+    ROWNO,
+    SP_COORD_PACK,
+    SP_COORD_PACK_RANDOM,
+} from './const.js';
+import { get_location_coord } from './room_coordinates.js';
+import { luaL_checkinteger } from './nhlua.js';
+import { selection_new, ThemeroomSelection } from './themerooms.js';
 
 function checkSelection(selection) {
     if (!(selection instanceof ThemeroomSelection))
@@ -74,4 +82,58 @@ export function l_selection_sub(a, b) {
         }
     }
     return result;
+}
+
+// C nhlsel.c l_selection_setpoint(). The one-selection form picks a random
+// location in the active coder frame; the two-coordinate form creates and
+// returns a fresh selection. C selections store map coordinates, so convert
+// back to this port's Lua-frame coordinates only when the supplied selection
+// uses the relative representation.
+export function l_selection_setpoint(args, env) {
+    let selection = null;
+    let x = -1;
+    let y = -1;
+    let value = 1;
+    const argc = args.length;
+
+    if (argc === 0) {
+        // C calls l_selection_new() here, then still fails because sel is null.
+        selection_new();
+    } else if (argc === 1) {
+        selection = args[0];
+    } else if (argc === 2) {
+        x = luaL_checkinteger(args[0]);
+        y = luaL_checkinteger(args[1]);
+        selection = selection_new();
+    } else {
+        selection = args[0];
+        x = luaL_checkinteger(args[1]);
+        y = luaL_checkinteger(args[2]);
+        if (args[3] != null) value = luaL_checkinteger(args[3]);
+    }
+
+    if ((argc === 1 || argc >= 3)
+        && !(selection instanceof ThemeroomSelection))
+        throw new Error('Selection error');
+    if (!(selection instanceof ThemeroomSelection))
+        throw new Error('Selection setpoint error');
+
+    const packed = (x === -1 && y === -1)
+        ? SP_COORD_PACK_RANDOM(0)
+        : SP_COORD_PACK(x, y);
+    const coordinate = { x, y };
+    get_location_coord(
+        coordinate,
+        ANY_LOC,
+        env.coder?.croom ?? null,
+        packed,
+        env,
+    );
+
+    if (!selection.absolute) {
+        coordinate.x -= env.frame.xstart;
+        coordinate.y -= env.frame.ystart;
+    }
+    selection.set(coordinate.x, coordinate.y, value);
+    return selection;
 }
