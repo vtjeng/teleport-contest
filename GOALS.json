@@ -222245,7 +222245,7 @@
     {
       "id": "port-pager-command-description-family-v32-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete command descriptions and key-help dispatch",
       "cFile": "pager.c",
       "sessions": [
@@ -222259,15 +222259,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dowhatdoes",
           "line": 2659,
           "endLine": 2717,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -222279,9 +222282,9 @@
           "name": "whatdoes_help",
           "line": 2421,
           "endLine": 2457,
-          "declared": false,
+          "declared": true,
           "sourceFile": "pager.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "key2extcmddesc",
@@ -222289,7 +222292,7 @@
           "endLine": 2623,
           "declared": true,
           "sourceFile": "cmd.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -222459,7 +222462,200 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dowhatdoes",
+            "implementation": "js/pager.js",
+            "symbol": "dowhatdoes",
+            "sourceReview": "Read whole pager.c2659-2717. Preserve once-only intro with ALTMETA suffix, unrestricted awaited yn_function and alternate ESC prompt/meta-bit handling, compiled core return, blocking &/? helper, ordinary and two-line m message order, unknown unsigned-byte decimal/octal/hex and visctrl, ECMD_OK. Native introff/intron signal handlers have no browser/replay handler counterpart and no simulated game effects. Delete old ordinary-inventory-only refusal. Canonical yn_function repeat queue and source cmd result handling remain owners.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c extcmdlist1934-1935 whatdoes default& -> rhack3805 handler, result ECMD_OK no-time/reset semantics; bounded direct dispatcher/admission only."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c doextcmd function-pointer dispatch of typed whatdoes; add only distinct dowhatdoes arm/import, independent of B173 doset arm."
+              },
+              {
+                "path": "js/pager.js",
+                "symbol": "hmenu_dowhatdoes",
+                "source": "pager.c2808-2811 hmenu_dowhatdoes -> dowhatdoes; dohelp menu row2839 calls it."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/command-description.test.mjs",
+              "scripts/help-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pager.c/command-description-known-prefix-movement.session.json",
+              "recordings/pager.c/command-description-extended.session.json",
+              "recordings/pager.c/command-description-help-menu.session.json",
+              "recordings/pager.c/command-description-number-pad.session.json",
+              "recordings/pager.c/command-description-altmeta.session.json",
+              "recordings/pager.c/command-description-keyhelp.session.json",
+              "recordings/pager.c/command-description-keyhelp-question.session.json"
+            ],
+            "sourceFile": "pager.c",
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-command-description",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 12,
+                "source": "Direct & -> cmd.c rhack function-pointer dispatch -> pager.c dowhatdoes -> dowhatdoes_core -> cmd.c key2extcmddesc; all recorded What command queries and source output through terminal boundary12."
+              }
+            ],
+            "checkedAt": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd"
+          },
+          {
+            "name": "whatdoes_help",
+            "implementation": "js/pager.js",
+            "symbol": "whatdoes_help",
+            "sourceReview": "Read whole pager.c2421-2444 (source planner range2421-2457 includes subsequent inactive declarations). Generate exact KEYHELP raw read lines from pinned source, skip first-byte# comments and trim only leading blanks; retain newline passed into putstr so canonical wintty compression remains authoritative. Await source text-window lifecycle and missing-data message/display guard. Embedded resource is always present for ordinary reference games; corrupt/missing installed C resource is outside the recorded gameplay input corpus. No new host-file/TTY owner completion credit.",
+            "callers": [
+              {
+                "path": "js/pager.js",
+                "symbol": "dowhatdoes",
+                "source": "pager.c2695-2696 q==&||q==? after a nonnull compiled description -> whatdoes_help before final description pline."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/command-description.test.mjs",
+              "scripts/help-data.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pager.c/command-description-keyhelp.session.json",
+              "recordings/pager.c/command-description-keyhelp-question.session.json"
+            ],
+            "sourceFile": "pager.c",
+            "synthetic": [],
+            "checkedAt": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd"
+          },
+          {
+            "name": "key2extcmddesc",
+            "implementation": "js/cmd.js",
+            "symbol": "key2extcmddesc",
+            "sourceReview": "Read whole cmd.c2561-2623 and misc_keys2085-2097, binding/movement owners. Preserve ordered short-circuit walk/rush/run probes and their u.dx/u.dy/u.dz state writes, then count/digit override with numpad/PC-Hack cases, exact misc keys, regular binding lookup, reqmenu two-line substitution and ## stripping. Remove premature movement return. No RNG or new injected operation. These independent recordings provide new source evidence. The legacy declaration has no completion evidence and remains only a historical name count; no historical completion is claimed.",
+            "callers": [
+              {
+                "path": "js/pager.js",
+                "symbol": "dowhatdoes_core",
+                "source": "pager.c2588 compiled dowhatdoes_core -> key2extcmddesc return consumed to format the query. Existing broader help_dir4247 consumes dowhatdoes_core; no new core/help_dir family completion claim."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/command-description.test.mjs",
+              "scripts/help-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pager.c/command-description-known-prefix-movement.session.json",
+              "recordings/pager.c/command-description-number-pad.session.json",
+              "recordings/pager.c/command-description-extended.session.json",
+              "recordings/pager.c/command-description-help-menu.session.json",
+              "recordings/pager.c/command-description-altmeta.session.json"
+            ],
+            "sourceFile": "cmd.c",
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-command-description",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 12,
+                "source": "Direct & -> cmd.c rhack function-pointer dispatch -> pager.c dowhatdoes -> dowhatdoes_core -> cmd.c key2extcmddesc; all recorded What command queries and source output through terminal boundary12."
+              }
+            ],
+            "checkedAt": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd"
+          }
+        ],
+        "entryPointReview": "Active dowhatdoes entries are direct/rebound whatdoes keys through rhack, typed #whatdoes through doextcmd and help-menu row6 through hmenu_dowhatdoes. All three have independent complete C-first replays. whatdoes_help is entered only by &/? description queries, each independently recorded. key2extcmddesc has only compiled dowhatdoes_core direct source caller, reached by all queries. ALTMETA and number_pad cases plus m two-line and movement bindings are production variations. Broader help_dir caller of unchanged core remains a distinct unported caller branch and takes no completion credit. UNIX signal toggles affect only native handlers absent in browser/replay, not game state/RNG/input bytes.",
+        "entryPoints": [
+          {
+            "name": "direct whatdoes key command",
+            "functions": [
+              "dowhatdoes",
+              {
+                "sourceFile": "cmd.c",
+                "name": "key2extcmddesc"
+              }
+            ],
+            "recordings": [
+              "recordings/pager.c/command-description-known-prefix-movement.session.json",
+              "recordings/pager.c/command-description-number-pad.session.json",
+              "recordings/pager.c/command-description-altmeta.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-command-description",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 12,
+                "source": "Direct & -> cmd.c rhack function-pointer dispatch -> pager.c dowhatdoes -> dowhatdoes_core -> cmd.c key2extcmddesc; all recorded What command queries and source output through terminal boundary12."
+              }
+            ]
+          },
+          {
+            "name": "typed #whatdoes extended command",
+            "functions": [
+              "dowhatdoes",
+              {
+                "sourceFile": "cmd.c",
+                "name": "key2extcmddesc"
+              }
+            ],
+            "recordings": [
+              "recordings/pager.c/command-description-extended.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "help-menu command-description target",
+            "functions": [
+              "dowhatdoes",
+              {
+                "sourceFile": "cmd.c",
+                "name": "key2extcmddesc"
+              }
+            ],
+            "recordings": [
+              "recordings/pager.c/command-description-help-menu.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "keyhelp text from & and ? queries",
+            "functions": [
+              "dowhatdoes",
+              "whatdoes_help",
+              {
+                "sourceFile": "cmd.c",
+                "name": "key2extcmddesc"
+              }
+            ],
+            "recordings": [
+              "recordings/pager.c/command-description-keyhelp.session.json",
+              "recordings/pager.c/command-description-keyhelp-question.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

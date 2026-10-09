@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T01:08:57.442Z",
+  "capturedAt": "2026-10-09T01:22:56.883Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -69340,12 +69340,149 @@
         "at": "2026-10-09T01:08:56.558Z",
         "task": "C156",
         "delivery": "1767274f4f3f0518add8a52677665813dd3553c8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C156-b178-boundary-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T01:09:04.298Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B178-69c7f23e-20261009",
+        "type": "published",
+        "at": "2026-10-09T01:09:47.373Z",
+        "task": "B178",
+        "commit": "69c7f23e083ff7fde180f80749059228e9999c3a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C159-fruit-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T01:09:51.575Z",
+        "task": "C159",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C159-fruit-investigation-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T01:09:52.711Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C155-a7706a9c-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T01:14:33.535Z",
+        "task": "C155",
+        "integration": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C159-fruit-feedback-20261009",
+        "type": "implement",
+        "at": "2026-10-09T01:14:36.854Z",
+        "task": "C159",
+        "goal": "fix-options-fruit-live-feedback-v32-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-af6774e3df140d3c6c25e928e3f4db6d9de99779",
+        "type": "ready",
+        "at": "2026-10-09T01:16:01.113Z",
+        "task": "A177",
+        "delivery": "af6774e3df140d3c6c25e928e3f4db6d9de99779"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A177-af6774e3-20261009",
+        "type": "received",
+        "at": "2026-10-09T01:16:33.223Z",
+        "task": "A177",
+        "delivery": "af6774e3df140d3c6c25e928e3f4db6d9de99779"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-readonly-after-A177-B178-20261009",
+        "type": "turn",
+        "at": "2026-10-09T01:19:08.326Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A178-version-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T01:19:36.059Z",
+        "task": "A178",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C155-a7706a9cdd4c2c738d83a025f720b1dc3cd580fd-validated",
+        "type": "validated",
+        "at": "2026-10-09T01:20:23.154Z",
+        "task": "C155",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8f99d9c4e8d275647ed404ff728a1dc1a07ca0c5",
+        "type": "ready",
+        "at": "2026-10-09T01:20:42.882Z",
+        "task": "C159",
+        "delivery": "8f99d9c4e8d275647ed404ff728a1dc1a07ca0c5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B180-expanded-status-attribute-20261009",
+        "type": "implement",
+        "at": "2026-10-09T01:22:06.050Z",
+        "task": "B180",
+        "goal": "port-options-status-hilite-menu-v32-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A178-platform-provenance-20261009",
+        "type": "park",
+        "at": "2026-10-09T01:22:13.792Z",
+        "task": "A178"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A178-platform-parked-20261009",
+        "type": "turn",
+        "at": "2026-10-09T01:22:15.206Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A177 awaits coordinator acceptance; A178 is parked at the documented platform-build boundary. Remaining v32 gameplay cases belong to B and C."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C155-a7706a9cdd4c2c738d83a025f720b1dc3cd580fd-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T01:22:32.301Z",
+        "task": "C155"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C159-8f99d9c4-20261009",
+        "type": "received",
+        "at": "2026-10-09T01:22:52.326Z",
+        "task": "C159",
+        "delivery": "8f99d9c4e8d275647ed404ff728a1dc1a07ca0c5"
       }
     ]
   },
   "development": {
-    "executionCommit": "6f43faf156d28688e1e9bf2470077de98e6cc4b2",
-    "measuredAt": "2026-10-09T01:05:14.270Z",
+    "executionCommit": "a7706a9cdd4c2c738d83a025f720b1dc3cd580fd",
+    "measuredAt": "2026-10-09T01:19:26.348Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
