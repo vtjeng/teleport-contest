@@ -221249,6 +221249,39 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-do-dropx-pool-scroll-admission-v32-20261008",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Admit ordinary scroll drops into pools",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v32/v32-pool-paper-drop"
+      ],
+      "selectionReason": "Resume the parked pool-scroll divergence after accepted B169 source-owner integration. The current replay still stops at 66/81 on the liquid guard, while the ordinary water-scroll return path is already present.",
+      "detail": "An unconditional preflight_dropx liquid-terrain refusal blocks a plain scroll landing in a pool before existing flooreffects and canonical water_damage run. Admit only source-supported plain scroll pool drops under existing guards; retain lava, underwater and special-level, and other object-family limits. This bounded correction claims no whole drop-family, flooreffects, or water_damage completion.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dropx",
+      "session": "synthetic/v32/v32-pool-paper-drop",
+      "step": 66,
+      "syntheticProvenance": {
+        "synthetic/v32/v32-pool-paper-drop": {
+          "session": "synthetic/v32/v32-pool-paper-drop",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-pool-paper-drop",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-pool-paper-drop.session.json",
+          "recordingSha256": "1ed3b3660d65117fb205eaf143a8c4d43455a373bebc176435d7a91491344fe5",
+          "evaluationPath": "challenges/evaluations/accepted-01a1e0ff0fc9213a17a9ef3378383804e778f0ac-v32.json",
+          "evaluationCommit": "01a1e0ff0fc9213a17a9ef3378383804e778f0ac"
+        }
+      }
     }
   ]
 }
