@@ -235926,7 +235926,7 @@
     {
       "id": "port-mon-goal-quest-goal-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Monk quest goal level from Lua.",
       "luaFile": "Mon-goal.lua",
       "sessions": [
@@ -235940,15 +235940,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "a8f1dafa0ebb86146dc236746b036776a2d115ff",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Mon-goal.lua",
           "line": 1,
           "endLine": 75,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -236121,7 +236124,85 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Mon-goal.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "monGoal",
+            "sourceReview": "Read and ported the complete dat/Mon-goal.lua program, lines 1-75. Preserved its descriptor order, the 11x26 source map, one math.random(1,#place) draw represented by one rn2(2), and reuse of that selected coordinate for the Eyes, Master Kaen, and altar. The commented solidfill line remains inactive. The program has no unported descriptor callees. Its Master Kaen creation reaches the existing makemon.c m_initinv implementation; added only the source-defined Monk quest-representative branch (m_initinv lines 728-729) required by the selected session, without claiming a separate whole-function port.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c makelevel -> mkmaze.c makemaz/load_special (mkmaze.c:1188); special-level registry selects the Mon-goal.lua program."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "wizcmds.c wiz_load_splua (wizcmds.c:376-389) -> load_special('Mon-goal.lua') -> registered Mon-goal.lua program."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-goal-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Mon-goal.lua/mon-goal-direct-neutral-independent.session.json",
+              "recordings/Mon-goal.lua/mon-goal-direct-lawful-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-mon-goal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "dat/Mon-goal.lua via mklev.c makelevel -> mkmaze.c makemaz/load_special"
+              }
+            ],
+            "checkedAt": "a8f1dafa0ebb86146dc236746b036776a2d115ff"
+          }
+        ],
+        "entryPointReview": "The active entry points are ordinary special-level generation of the Monk Quest Goal and the wizard #wizloaddes direct loader. Both resolve the Mon-goal.lua registry entry to monGoal. The admitted v36 case exercises natural special-level arrival through the production level-generation path and now matches through its final step. Two independently selected neutral and lawful Monk recipes exercise wizcmds.c wiz_load_splua through the same production registry; their C recordings were generated after complete fresh C/JavaScript matrix matches. No source caller is excluded from the recorder.",
+        "entryPoints": [
+          {
+            "name": "Monk Quest Goal special-level arrival",
+            "functions": [
+              "Mon-goal.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-mon-goal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "dat/Mon-goal.lua via mklev.c makelevel -> mkmaze.c makemaz/load_special"
+              }
+            ]
+          },
+          {
+            "name": "Wizard direct Mon-goal.lua load",
+            "functions": [
+              "Mon-goal.lua"
+            ],
+            "recordings": [
+              "recordings/Mon-goal.lua/mon-goal-direct-neutral-independent.session.json",
+              "recordings/Mon-goal.lua/mon-goal-direct-lawful-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "a8f1dafa0ebb86146dc236746b036776a2d115ff",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
