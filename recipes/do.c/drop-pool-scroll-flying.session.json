@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pool-scroll drop from flying air-elemental form; Wizard inventory probe established n as the wished scroll. trap.c:flooreffects emits Plop before water_damage; the scroll survives and is placed in the pool.",
+  "segments": [
+    {
+      "seed": 17532011,
+      "datetime": "20531120122534",
+      "nethackrc": "OPTIONS=name:PoolProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#polyself\nair elemental\n          \u0017uncursed scroll of enchant weapon\nl\u0017pool\ndn."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside B175 plain-scroll admission: do.c:flooreffects -> trap.c:water_damage for a heavy iron ball needs erode_obj consumed-return coverage; preflight_dropx retains liquid refusal. Independent flying form avoids immersion. Independent C inventory probe established o; retained only as blocked outside-limit recipe, not a passing regression.",
+  "segments": [
+    {
+      "seed": 17532013,
+      "datetime": "20531120122534",
+      "nethackrc": "OPTIONS=name:PoolProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#polyself\nair elemental\n          \u0017uncursed heavy iron ball\nl\u0017pool\ndo."
+    }
+  ]
+}

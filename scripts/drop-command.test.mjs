@@ -51,7 +51,7 @@ import {
     ELVEN_DAGGER, GEM_CLASS, LEASH, LOADSTONE, MEAT_RING,
     BOULDER, CORPSE, RIN_SEARCHING, SPEAR,
     TWO_HANDED_SWORD, WEAPON_CLASS,
-    RUBY,
+    RUBY, SCROLL_CLASS, SCR_ENCHANT_WEAPON, SCR_BLANK_PAPER,
 } from '../js/objects.js';
 import { PM_SMALL_MIMIC } from '../js/monsters.js';
 import {
@@ -953,6 +953,64 @@ test('ordinary drops preserve dust, carved and burned engravings', async () => {
         assert.deepEqual(engraving, prior);
         assert.equal(getRngLog().length, rngBefore);
     }
+});
+
+// trap.c:water_damage checks Luck before blanking ordinary floor scrolls.
+// A detached scroll survives both return values and dropz places that object.
+test('plain pool scrolls use water damage before placing the same object', async () => {
+    for (const protectedByLuck of [false, true]) {
+        const state = await startedGame();
+        const { ux, uy } = state.u;
+        state.level.at(ux, uy).typ = POOL;
+        const obj = addinv(mksobj(SCR_ENCHANT_WEAPON, false, false, { state }), { state });
+        assert.equal(obj.oclass, SCROLL_CLASS);
+        obj.spe = 3; // Nonzero charge detects the source blanking reset.
+        obj.dknown = 1; // Blanking forgets the former scroll appearance.
+        state.u.uluck = 0; // Source Luck + 5 threshold is five.
+        const draws = [];
+        const env = { ...dropCommandEnv(state), random: {
+            rn2: bound => {
+                draws.push(bound);
+                // Zero is protected; nineteen crosses Luck + 5.
+                return protectedByLuck ? 0 : 19;
+            },
+        } };
+        assert.doesNotThrow(() => preflight_dropx(obj, env));
+        await dropx(obj, env);
+        assert.deepEqual(draws, [20]); // trap.c consumes precisely rn2(20).
+        assert.equal(obj.where, OBJ_FLOOR);
+        assert.ok(pileAt(state, ux, uy).includes(obj));
+        assert.ok(!letters(state).includes(obj.invlet));
+        assert.equal(obj.otyp, protectedByLuck ? SCR_ENCHANT_WEAPON : SCR_BLANK_PAPER);
+        assert.equal(obj.spe, protectedByLuck ? 3 : 0);
+        assert.equal(Boolean(obj.dknown), protectedByLuck);
+        assert.doesNotMatch(state._ttyToplines, /fade/u); // C carried(obj) is false.
+    }
+});
+
+test('pool-scroll admission retains unsupported water-damage branches', async () => {
+    const state = await startedGame();
+    const { ux, uy } = state.u;
+    state.level.at(ux, uy).typ = POOL;
+    for (const fields of [
+        { greased: true }, // Grease adds a different rn2(2) branch.
+        { lamplit: true }, // splash_lit has its own light lifecycle.
+        { timed: 1 }, // Generic timer merges remain outside this admission.
+        { globby: true }, // flooreffects glob handling belongs to another family.
+    ]) {
+        const obj = addinv(mksobj(SCR_ENCHANT_WEAPON, false, false, { state }), { state });
+        Object.assign(obj, fields);
+        assert.throws(() => preflight_dropx(obj, dropCommandEnv(state)),
+            error => error instanceof UnsupportedDropError && /liquid terrain/u.test(error.message));
+        assert.equal(obj.where, OBJ_INVENT);
+    }
+});
+
+test('independent pool-scroll command variations preserve the floor survivor', async () => {
+    const { POOL_SCROLL_CASES, loadPoolScrollRecipe, verifyPoolScrollSegment } =
+        await import('./run-pool-scroll-drop.mjs');
+    for (const entry of POOL_SCROLL_CASES)
+        await verifyPoolScrollSegment(loadPoolScrollRecipe(entry.name).segments[0]);
 });
 
 test('engraving admission retains the liquid and trap frontiers', async () => {

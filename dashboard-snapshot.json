@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T00:07:29.223Z",
+  "capturedAt": "2026-10-09T00:19:54.129Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -68812,12 +68812,110 @@
         "type": "accepted",
         "at": "2026-10-09T00:07:15.491Z",
         "task": "A176"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C158-a176-boundary-active-20261008",
+        "type": "turn",
+        "at": "2026-10-09T00:07:48.942Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Accepted A176 merged cleanly; checking affected death-touch behavior and remaining dependencies."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-A176-db0a7ad0-20261008",
+        "type": "turn",
+        "at": "2026-10-09T00:08:00.879Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Accepted A176 merged. A177 waits C158’s prayer reservation release."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A176-36820b42-20261008",
+        "type": "published",
+        "at": "2026-10-09T00:08:08.124Z",
+        "task": "A176",
+        "commit": "36820b423d1c16abaf5b09c9d4e8dbcf0af4e8eb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C158-a176-boundary-idle-20261008",
+        "type": "turn",
+        "at": "2026-10-09T00:08:10.630Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Accepted A176 merged cleanly; affected checks pass. Remaining admitted work is owned or blocked by B171/B173 command/options, pending pool/prayer deliveries, and unresolved build/pointer contracts."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B173-refresh-actual-B171-blocker-20261009",
+        "type": "resume",
+        "at": "2026-10-09T00:08:18.395Z",
+        "task": "B173"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B173-current-B171-doextcmd-dependency-20261009",
+        "type": "park",
+        "at": "2026-10-09T00:08:32.460Z",
+        "task": "B173"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-post-A176-current-dependencies-20261009",
+        "type": "turn",
+        "at": "2026-10-09T00:08:45.782Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "A176 merged; B173’s current B171 dispatcher dependency is recorded, with no independent source task available."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B171-01a1e0ff-20261008",
+        "type": "integrating",
+        "at": "2026-10-09T00:12:33.098Z",
+        "task": "B171",
+        "integration": "01a1e0ff0fc9213a17a9ef3378383804e778f0ac"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B175-decb8ee6-20261008",
+        "type": "received",
+        "at": "2026-10-09T00:13:50.130Z",
+        "task": "B175",
+        "delivery": "decb8ee6cbed726018ffccdf0060a5dc7f1a976d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-B175-review-20261008",
+        "type": "activity",
+        "at": "2026-10-09T00:13:54.281Z",
+        "task": "B175",
+        "phase": "review",
+        "reason": "Previewing the pool-scroll drop admission delivery while B171 runs its hosted checkpoint."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B171-01a1e0ff0fc9213a17a9ef3378383804e778f0ac-validated",
+        "type": "validated",
+        "at": "2026-10-09T00:17:27.931Z",
+        "task": "B171",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B171-01a1e0ff0fc9213a17a9ef3378383804e778f0ac-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T00:19:41.814Z",
+        "task": "B171"
       }
     ]
   },
   "development": {
-    "executionCommit": "db0a7ad02ea001265fce34f7485b90c58d649d79",
-    "measuredAt": "2026-10-09T00:04:09.928Z",
+    "executionCommit": "01a1e0ff0fc9213a17a9ef3378383804e778f0ac",
+    "measuredAt": "2026-10-09T00:16:54.399Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
