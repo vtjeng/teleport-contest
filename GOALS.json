@@ -226689,43 +226689,43 @@
           "name": "spell_cmp",
           "line": 1870,
           "endLine": 1926,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "sortspells",
           "line": 1927,
           "endLine": 1975,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "spellsortmenu",
           "line": 1976,
           "endLine": 2020,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "dovspell",
           "line": 2021,
           "endLine": 2058,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "show_spells",
           "line": 2059,
           "endLine": 2074,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "dospellmenu",
           "line": 2075,
           "endLine": 2172,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -226739,7 +226739,7 @@
           "endLine": 855,
           "declared": true,
           "sourceFile": "spell.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "strncmpi",
@@ -226747,7 +226747,7 @@
           "endLine": 739,
           "declared": true,
           "sourceFile": "hacklib.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -226991,7 +226991,374 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "spell_cmp",
+            "implementation": "js/spell.js",
+            "symbol": "spell_cmp",
+            "sourceReview": "Read complete spell.c selected range1870–2168 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Preserve all branches, canonical gs display-index/mode versus svs persistent spellbook,52-slot retain copy, source input/window order and zero/nonzero/preselected selector results. Delete UnsupportedSpellDisplayError and its cmd imports/registry plus old stub behavior; no skipped selected owner calls.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "sortspells",
+                "source": "spell.c1970 qsort comparator; patch002 stable original-position ties"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/spell-sort.test.mjs",
+              "scripts/spell.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "spell.c",
+            "synthetic": [],
+            "checkedAt": "b854d6823111350fd9523fffea48e6ef3ec5bb82"
+          },
+          {
+            "name": "sortspells",
+            "implementation": "js/spell.js",
+            "symbol": "sortspells",
+            "sourceReview": "Read complete spell.c selected range1870–2168 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Preserve all branches, canonical gs display-index/mode versus svs persistent spellbook,52-slot retain copy, source input/window order and zero/nonzero/preselected selector results. Delete UnsupportedSpellDisplayError and its cmd imports/registry plus old stub behavior; no skipped selected owner calls.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "dovspell",
+                "source": "spell.c2034 after successful spellsortmenu"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/spell-sort.test.mjs",
+              "scripts/spell.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/menu-sort-retain-swap-independent.session.json",
+              "recordings/spell.c/menu-typed-showspells-independent.session.json"
+            ],
+            "sourceFile": "spell.c",
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-spell-sort-menu",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 29,
+                "source": "cmd.c showspells + -> spell.c:dovspell -> dospellmenu VIEW -> spellsortmenu alphabetic selection -> sortspells/spell_cmp, then normal exit/reset."
+              }
+            ],
+            "checkedAt": "b854d6823111350fd9523fffea48e6ef3ec5bb82"
+          },
+          {
+            "name": "spellsortmenu",
+            "implementation": "js/spell.js",
+            "symbol": "spellsortmenu",
+            "sourceReview": "Read complete spell.c selected range1870–2168 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Preserve all branches, canonical gs display-index/mode versus svs persistent spellbook,52-slot retain copy, source input/window order and zero/nonzero/preselected selector results. Delete UnsupportedSpellDisplayError and its cmd imports/registry plus old stub behavior; no skipped selected owner calls. Correction: consume the actual tty_select_menu selected rows/counts after bulk deselection and counted default toggling, without scalar equality or fixed retained payload inference.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "dovspell",
+                "source": "spell.c2033 consumes selected mode boolean"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/spell-sort.test.mjs",
+              "scripts/spell.test.mjs",
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/menu-sort-retain-swap-independent.session.json",
+              "recordings/spell.c/menu-typed-showspells-independent.session.json",
+              "recordings/spell.c/menu-swap-unselect-all-independent.session.json",
+              "recordings/spell.c/menu-swap-unselect-page-independent.session.json",
+              "recordings/spell.c/menu-swap-counted-default-independent.session.json",
+              "recordings/spell.c/menu-sort-unselect-all-independent.session.json",
+              "recordings/spell.c/menu-sort-unselect-page-independent.session.json",
+              "recordings/spell.c/menu-sort-counted-default-independent.session.json"
+            ],
+            "sourceFile": "spell.c",
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-spell-sort-menu",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 29,
+                "source": "cmd.c showspells + -> spell.c:dovspell -> dospellmenu VIEW -> spellsortmenu alphabetic selection -> sortspells/spell_cmp, then normal exit/reset."
+              }
+            ],
+            "checkedAt": "b854d6823111350fd9523fffea48e6ef3ec5bb82"
+          },
+          {
+            "name": "dovspell",
+            "implementation": "js/spell.js",
+            "symbol": "dovspell",
+            "sourceReview": "Read complete spell.c selected range1870–2168 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Preserve all branches, canonical gs display-index/mode versus svs persistent spellbook,52-slot retain copy, source input/window order and zero/nonzero/preselected selector results. Delete UnsupportedSpellDisplayError and its cmd imports/registry plus old stub behavior; no skipped selected owner calls. Correction: consume the actual tty_select_menu selected rows/counts after bulk deselection and counted default toggling, without scalar equality or fixed retained payload inference.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runShowspellsCommand",
+                "source": "cmd.c extcmdlist1870–1871 showspells; direct + rhack and typed doextcmd await ECMD_OK owner"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/spell-sort.test.mjs",
+              "scripts/spell.test.mjs",
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/menu-sort-retain-swap-independent.session.json",
+              "recordings/spell.c/menu-typed-showspells-independent.session.json",
+              "recordings/spell.c/menu-swap-default-independent.session.json",
+              "recordings/spell.c/menu-swap-deselect-independent.session.json",
+              "recordings/spell.c/menu-no-spells-independent.session.json",
+              "recordings/spell.c/menu-swap-unselect-all-independent.session.json",
+              "recordings/spell.c/menu-swap-unselect-page-independent.session.json",
+              "recordings/spell.c/menu-swap-counted-default-independent.session.json",
+              "recordings/spell.c/menu-sort-unselect-all-independent.session.json",
+              "recordings/spell.c/menu-sort-unselect-page-independent.session.json",
+              "recordings/spell.c/menu-sort-counted-default-independent.session.json"
+            ],
+            "sourceFile": "spell.c",
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-spell-sort-menu",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 29,
+                "source": "cmd.c showspells + -> spell.c:dovspell -> dospellmenu VIEW -> spellsortmenu alphabetic selection -> sortspells/spell_cmp, then normal exit/reset."
+              },
+              {
+                "batch": "v33",
+                "caseId": "v33-spell-tab-columns",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 28,
+                "source": "cmd.c showspells + -> spell.c:dovspell -> dospellmenu VIEW with iflags.menu_tab_sep and wizard turns."
+              }
+            ],
+            "checkedAt": "b854d6823111350fd9523fffea48e6ef3ec5bb82"
+          },
+          {
+            "name": "show_spells",
+            "implementation": "js/spell.js",
+            "symbol": "show_spells",
+            "sourceReview": "Read complete spell.c selected range1870–2168 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Preserve all branches, canonical gs display-index/mode versus svs persistent spellbook,52-slot retain copy, source input/window order and zero/nonzero/preselected selector results. Delete UnsupportedSpellDisplayError and its cmd imports/registry plus old stub behavior; no skipped selected owner calls.",
+            "callers": [],
+            "pure": false,
+            "tests": [
+              "scripts/spell-sort.test.mjs",
+              "scripts/spell.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "spell.c",
+            "synthetic": [],
+            "inactiveReason": "Only production caller end.c:dump_everything601 is inside #ifdef DUMPLOG from end.c516. Reference recorder include/config.h669 leaves DUMPLOG commented; DUMPLOG_CORE269 enables message history only. Recorder src/Makefile CFLAGS=-g -I../include, SYSCFLAGS=-DLUA_USE_POSIX and patch/build sources do not enable DUMPLOG. Source-pinned focused tests establish source message/menu order and DUMP heading without inventing an active endgame caller.",
+            "checkedAt": "b854d6823111350fd9523fffea48e6ef3ec5bb82"
+          },
+          {
+            "name": "dospellmenu",
+            "implementation": "js/spell.js",
+            "symbol": "dospellmenu",
+            "sourceReview": "Read complete spell.c selected range1870–2168 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Preserve all branches, canonical gs display-index/mode versus svs persistent spellbook,52-slot retain copy, source input/window order and zero/nonzero/preselected selector results. Delete UnsupportedSpellDisplayError and its cmd imports/registry plus old stub behavior; no skipped selected owner calls. Correction: consume the actual tty_select_menu selected rows/counts after bulk deselection and counted default toggling, without scalar equality or fixed retained payload inference.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "dovspell",
+                "source": "spell.c2030 VIEW and2038 preselected swap consume boolean/out-index"
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "getspell",
+                "source": "spell.c781 CAST from docast/nontraditional menu path"
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "show_spells",
+                "source": "spell.c2067 compile-inactive DUMP menu"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/spell-sort.test.mjs",
+              "scripts/spell.test.mjs",
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/menu-sort-retain-swap-independent.session.json",
+              "recordings/spell.c/menu-swap-default-independent.session.json",
+              "recordings/spell.c/menu-swap-deselect-independent.session.json",
+              "recordings/spell.c/menu-sort-healer-independent.session.json",
+              "recordings/spell.c/menu-tab-columns-independent.session.json",
+              "recordings/spell.c/menu-cast-cancel-independent.session.json",
+              "recordings/spell.c/menu-cast-healing-independent.session.json",
+              "recordings/spell.c/menu-swap-unselect-all-independent.session.json",
+              "recordings/spell.c/menu-swap-unselect-page-independent.session.json",
+              "recordings/spell.c/menu-swap-counted-default-independent.session.json",
+              "recordings/spell.c/menu-sort-unselect-all-independent.session.json",
+              "recordings/spell.c/menu-sort-unselect-page-independent.session.json",
+              "recordings/spell.c/menu-sort-counted-default-independent.session.json"
+            ],
+            "sourceFile": "spell.c",
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-spell-sort-menu",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 29,
+                "source": "cmd.c showspells + -> spell.c:dovspell -> dospellmenu VIEW -> spellsortmenu alphabetic selection -> sortspells/spell_cmp, then normal exit/reset."
+              },
+              {
+                "batch": "v33",
+                "caseId": "v33-spell-tab-columns",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 28,
+                "source": "cmd.c showspells + -> spell.c:dovspell -> dospellmenu VIEW with iflags.menu_tab_sep and wizard turns."
+              }
+            ],
+            "checkedAt": "b854d6823111350fd9523fffea48e6ef3ec5bb82"
+          },
+          {
+            "name": "spelltypemnemonic",
+            "implementation": "js/spell.js",
+            "symbol": "spelltypemnemonic",
+            "sourceReview": "Read whole spell.c832–853 seven category returns and default discarded impossible then empty string. Existing valid category implementation verified; remove non-C RangeError default, record note_unported(pline.c impossible), retain empty string. No broader diagnostic completion; impure classification reflects source default diagnostic.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "dospellmenu",
+                "source": "spell.c2121 category formatting"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/spell-sort.test.mjs",
+              "scripts/spell.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/menu-tab-columns-independent.session.json",
+              "recordings/spell.c/menu-sort-retain-swap-independent.session.json"
+            ],
+            "sourceFile": "spell.c",
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-spell-sort-menu",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 29,
+                "source": "cmd.c showspells + -> spell.c:dovspell -> dospellmenu VIEW -> spellsortmenu alphabetic selection -> sortspells/spell_cmp, then normal exit/reset."
+              },
+              {
+                "batch": "v33",
+                "caseId": "v33-spell-tab-columns",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 28,
+                "source": "cmd.c showspells + -> spell.c:dovspell -> dospellmenu VIEW with iflags.menu_tab_sep and wizard turns."
+              }
+            ],
+            "checkedAt": "b854d6823111350fd9523fffea48e6ef3ec5bb82"
+          },
+          {
+            "name": "strncmpi",
+            "implementation": "js/hacklib.js",
+            "symbol": "strncmpi",
+            "sourceReview": "Read whole hacklib.c717–734 and global.h113 strcmpi macro. C while(n--) includes negative counts through NUL; correct existing >0 loop to !==0, preserving ASCII lowc, lexical sign, NUL-first checks and positive/zero count behavior. No RNG, output or state mutation.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "spell_cmp",
+                "source": "spell.c1920 strcmpi(a,b), macro strncmpi(a,b,-1)"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/spell-sort.test.mjs",
+              "scripts/hacklib-math.test.mjs",
+              "scripts/hacklib-strings.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "hacklib.c",
+            "synthetic": [],
+            "checkedAt": "b854d6823111350fd9523fffea48e6ef3ec5bb82"
+          }
+        ],
+        "entryPointReview": "Active source command families are known-spell viewing/sorting/swapping (+ and typed #showspells), the same command with no known spells, and dospellmenu CAST through docast/getspell nontraditional menu branch. Independent recordings exercise both dispatch paths, all sort choices other than initial LETTER (focused test covers it), retain, swap alternate/default/deselection, tabs and casting choose/cancel. DUMPLOG caller end.c601 is compile inactive; show_spells retains whole translation with source-pinned tests. No whole cmd.c/docast/getspell/window-port credit. The preexisting getspell749–780 traditional yn_function prompt/retry arm is outside the selected range and remains a named active caller frontier, with a C-first blocked * fallback recipe; its source prompt cannot yet match, so no traditional caller credit.",
+        "entryPoints": [
+          {
+            "name": "Known-spell viewing, sorting and swapping through +/#showspells",
+            "functions": [
+              "dovspell",
+              "dospellmenu",
+              "spellsortmenu",
+              "sortspells",
+              "spell_cmp",
+              "spelltypemnemonic"
+            ],
+            "recordings": [
+              "recordings/spell.c/menu-sort-retain-swap-independent.session.json",
+              "recordings/spell.c/menu-typed-showspells-independent.session.json",
+              "recordings/spell.c/menu-swap-default-independent.session.json",
+              "recordings/spell.c/menu-swap-deselect-independent.session.json",
+              "recordings/spell.c/menu-sort-healer-independent.session.json",
+              "recordings/spell.c/menu-tab-columns-independent.session.json",
+              "recordings/spell.c/menu-swap-unselect-all-independent.session.json",
+              "recordings/spell.c/menu-swap-unselect-page-independent.session.json",
+              "recordings/spell.c/menu-swap-counted-default-independent.session.json",
+              "recordings/spell.c/menu-sort-unselect-all-independent.session.json",
+              "recordings/spell.c/menu-sort-unselect-page-independent.session.json",
+              "recordings/spell.c/menu-sort-counted-default-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-spell-sort-menu",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 29,
+                "source": "cmd.c showspells + -> spell.c:dovspell -> dospellmenu VIEW -> spellsortmenu alphabetic selection -> sortspells/spell_cmp, then normal exit/reset."
+              },
+              {
+                "batch": "v33",
+                "caseId": "v33-spell-tab-columns",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 28,
+                "source": "cmd.c showspells + -> spell.c:dovspell -> dospellmenu VIEW with iflags.menu_tab_sep and wizard turns."
+              }
+            ]
+          },
+          {
+            "name": "Known-spell command with an empty spellbook",
+            "functions": [
+              "dovspell"
+            ],
+            "recordings": [
+              "recordings/spell.c/menu-no-spells-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Nontraditional docast/getspell casting menu",
+            "functions": [
+              "dospellmenu",
+              "spelltypemnemonic"
+            ],
+            "recordings": [
+              "recordings/spell.c/menu-cast-cancel-independent.session.json",
+              "recordings/spell.c/menu-cast-healing-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     },
     {
       "id": "fix-monmove-monster-flight-caller-v33-20261009",
