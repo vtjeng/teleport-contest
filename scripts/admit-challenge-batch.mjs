@@ -34,6 +34,13 @@ function verifyPreparedRecordings(root, manifest, batch) {
             || segment.steps.some(step => typeof step.screen !== 'string'
                 || !Array.isArray(step.cursor) || !Array.isArray(step.rng))))
             throw new Error(`${entry.id} needs complete C screens, cursors, and RNG traces`);
+        const invalidCursor = recording.segments.some(segment => segment.steps.some(step => {
+            const [x, y, visible] = step.cursor;
+            return step.cursor.length !== 3 || !step.cursor.every(Number.isInteger)
+                || x < 0 || x >= 80 || y < 0 || y >= 24 || ![0, 1].includes(visible);
+        }));
+        if (invalidCursor)
+            throw new Error(`${entry.id} needs valid 24x80 C cursor coordinates and visibility`);
     }
 }
 

@@ -191,6 +191,7 @@
         "js/tutorial_level.js",
         "js/val_goal_level_data.js",
         "js/val_loca_level_data.js",
+        "js/val_strt_level_data.js",
         "js/valley_levels.js",
         "js/wizard1_levels.js",
         "js/wizard3_levels.js"
@@ -215,6 +216,11 @@
           "path": "js/tou_goal_level_data.js",
           "generator": "scripts/generate-tou-goal-level.mjs",
           "check": "node scripts/generate-tou-goal-level.mjs --check"
+        },
+        {
+          "path": "js/val_strt_level_data.js",
+          "generator": "scripts/generate-val-strt-level.mjs",
+          "check": "node scripts/generate-val-strt-level.mjs --check"
         }
       ]
     },

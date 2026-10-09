@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T22:18:21.031Z",
+  "capturedAt": "2026-10-09T23:13:14.466Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -76845,6 +76845,192 @@
         "type": "accepted",
         "at": "2026-10-09T22:17:49.133Z",
         "task": "C181"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C181-3bd480470",
+        "type": "published",
+        "at": "2026-10-09T22:19:01.112Z",
+        "task": "C181",
+        "commit": "3bd48047086ab1745d2cbe0deb7b86f38dd7bd41"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A200-Val-strt-after-C181-20261009",
+        "type": "resume",
+        "at": "2026-10-09T22:19:38.101Z",
+        "task": "A200"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A200-Val-strt-source-scope-20261009",
+        "type": "implement",
+        "at": "2026-10-09T22:20:55.067Z",
+        "task": "A200",
+        "goal": "port-val-strt-quest-start-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A200-Val-strt-implementation-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:20:58.946Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Implementing the complete Valkyrie quest-start loader and its random selection-point helper."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C181-accepted-next-select-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:21:00.667Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Selecting the next independent source task from the current accepted mismatch queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B204-resume-C181-accepted-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:21:22.341Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "C181 is published. Syncing accepted Main and checking the refreshed queue for independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B204-blocked-after-C181-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:22:03.166Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "The accepted-438 queue has no independent source task: A2 owns Val-strt; timeout and light await native-pointer resolution, Juiblex awaits recorder repair, and version cases await a provenance decision."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-after-C181-no-independent-queue-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:24:02.183Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "No independent source task is available: A2 owns Val-strt; remaining cases await native-pointer, Main-owned recorder, or platform-provenance gates."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-33ac5f3e799bcd593e3e00d747c46f24d8a47e7d",
+        "type": "ready",
+        "at": "2026-10-09T22:27:27.905Z",
+        "task": "A200",
+        "delivery": "33ac5f3e799bcd593e3e00d747c46f24d8a47e7d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A200-33ac5f3e7",
+        "type": "received",
+        "at": "2026-10-09T22:27:49.919Z",
+        "task": "A200",
+        "delivery": "33ac5f3e799bcd593e3e00d747c46f24d8a47e7d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A200-submitted-queue-blockers-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:28:34.267Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "A200 submitted with full Val-strt replay evidence. Remaining queued cases depend on Main’s native-pointer, recorder-cursor, or platform-provenance decisions; Prep2 owns v38."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A200-2598232e2",
+        "type": "integrating",
+        "at": "2026-10-09T22:30:05.910Z",
+        "task": "A200",
+        "integration": "2598232e244d938f05c6a82ed44004a429b4ea3a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A200-f5d95cf1e",
+        "type": "integrating",
+        "at": "2026-10-09T22:39:00.577Z",
+        "task": "A200",
+        "integration": "f5d95cf1e445b7dca8a75b6988625a52c03b2e52"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A200-f5d95cf1e445b7dca8a75b6988625a52c03b2e52-validated",
+        "type": "validated",
+        "at": "2026-10-09T22:44:13.440Z",
+        "task": "A200",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A200-f5d95cf1e445b7dca8a75b6988625a52c03b2e52-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T22:44:45.384Z",
+        "task": "A200"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A200-cb9293651b99c7158054bdbe7ee25dad16de479a",
+        "type": "published",
+        "at": "2026-10-09T22:46:30.097Z",
+        "task": "A200",
+        "commit": "cb9293651b99c7158054bdbe7ee25dad16de479a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-after-A200-acceptance-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:46:33.649Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Checking accepted queue evidence and ownership for the next independent source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-blocked-after-A200-no-independent-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:46:49.365Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "No independent source task remains in the fresh queue: queued cases await Main-owned pointer-formatting, recorder-cursor, or platform-provenance decisions; Prep2 owns v38 preparation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-main-b193-recorder-review-20261009",
+        "type": "activity",
+        "at": "2026-10-09T22:51:56.920Z",
+        "task": "B193",
+        "phase": "review",
+        "reason": "Reviewing the Juiblex capture overflow and a general recorder bounds repair before deciding how to retain its admitted historical evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-main-b193-recorder-done-20261009",
+        "type": "activity",
+        "at": "2026-10-09T23:00:45.506Z",
+        "task": "B193",
+        "phase": "done",
+        "reason": "Bounded recorder screen capture output, rejected future out-of-range cursors, preserved admitted v35 evidence as historical, and verified the fresh Juiblex replay plus hosted checkpoint."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-main-b187-pointer-contract-20261009",
+        "type": "activity",
+        "at": "2026-10-09T23:05:40.233Z",
+        "task": "B187",
+        "phase": "review",
+        "reason": "Normalizing recorder pointer diagnostics into deterministic null/non-null tokens so timeout and light-source source tasks can produce portable C evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-main-b187-pointer-contract-done-20261009",
+        "type": "activity",
+        "at": "2026-10-09T23:13:10.392Z",
+        "task": "B187",
+        "phase": "done",
+        "reason": "Published a deterministic recorder pointer contract using <ptr>/<null>, verified it with a live lamp diagnostic, and passed the complete hosted checkpoint."
       }
     ]
   },
@@ -77159,23 +77345,12 @@
         "since": "2026-10-09T17:46:04.357Z",
         "blockedBy": [],
         "reason": "The full Rog-goal Lua program reaches an object descriptor that sets tin montype=\"chameleon\" at dat/Rog-goal.lua:45. Upstream sp_lev.c:lspo_object resolves named species to a species index; current JavaScript carries that name string through the corpsenm path. This shared source contract overlaps parked C172. A198 remains blocked until the orchestrator adjudicates C172; do not edit or reserve sp_lev.c:lspo_object while that task is parked/shared."
-      },
-      {
-        "task": "A200",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T21:56:52.122Z",
-        "blockedBy": [],
-        "reason": "Refreshed Val-strt report in 3e1923639d6580f79d3f8f77c0ce09d1f40eb90c. Keep this session-only: the whole program places two armed fire giants that execute makemon.c:m_initweap, actively reserved by C181 along with js/makemon_create.js; the standard quest loader registry path js/quest_levels.js is also in C181’s active write set. C176 selection algebra is accepted and no longer blocks it."
       }
     ]
   },
   "development": {
-    "executionCommit": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8",
-    "measuredAt": "2026-10-09T22:15:32.800Z",
+    "executionCommit": "2b7928c6316b352bf2b0eb8b3eedb910d4d2f786",
+    "measuredAt": "2026-10-09T23:12:46.652Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

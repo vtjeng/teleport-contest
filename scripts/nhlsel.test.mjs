@@ -3,8 +3,12 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { COLNO, ROWNO } from '../js/const.js';
-import { l_selection_or, l_selection_sub } from '../js/nhlsel.js';
-import { selection_clear, ThemeroomSelection } from '../js/themerooms.js';
+import {
+    l_selection_or, l_selection_setpoint, l_selection_sub,
+} from '../js/nhlsel.js';
+import {
+    selection_area, selection_clear, selection_new, ThemeroomSelection,
+} from '../js/themerooms.js';
 
 const nhlsel = readFileSync('nethack-c/upstream/src/nhlsel.c', 'utf8');
 const selvar = readFileSync('nethack-c/upstream/src/selvar.c', 'utf8');
@@ -105,4 +109,38 @@ test('l_selection_sub matches source exclusion, overlap, disjoint, and empty res
     assert.equal(sourceValue(allRemoved, 10, 8), 0b0110);
     const empty = l_selection_sub(new ThemeroomSelection(), new ThemeroomSelection());
     assert.equal(empty.numpoints(), 0);
+});
+
+test('l_selection_setpoint follows C argument forms, frame conversion, and injected random draws', () => {
+    assert.match(nhlsel, /staticfn int\s+l_selection_setpoint\(lua_State \*L\)[\s\S]*?if \(argc == 0\)[\s\S]*?else if \(argc == 1\)[\s\S]*?else if \(argc == 2\)[\s\S]*?selection_setpoint\(x, y, sel, val\)/u);
+    assert.match(nhlsel, /get_location_coord\(&x, &y, ANY_LOC,[\s\S]*?gc\.coder \? gc\.coder->croom : NULL/u);
+
+    const randomCalls = [];
+    const env = {
+        frame: { xstart: 1, ystart: 0, xsize: 79, ysize: 21 },
+        coder: { croom: null },
+        random: { rn2(limit) {
+            randomCalls.push(limit);
+            return limit === 79 ? 7 : 20;
+        } },
+    };
+    const randomSelection = selection_new();
+    assert.equal(l_selection_setpoint([randomSelection], env), randomSelection);
+    assert.deepEqual(randomCalls, [79, 21]);
+    assert.equal(sourceValue(randomSelection, 8, 20), 1);
+
+    const relative = selection_area(0, 0, 0, 0);
+    assert.equal(l_selection_setpoint([relative, 2, 3, 0x2a], {
+        ...env, frame: { xstart: 3, ystart: 4, xsize: 79, ysize: 21 },
+    }), relative);
+    assert.equal(sourceValue(relative, 2, 3), 0x2a);
+
+    const created = l_selection_setpoint([2, 3], {
+        ...env, frame: { xstart: 3, ystart: 4, xsize: 79, ysize: 21 },
+    });
+    assert.ok(created instanceof ThemeroomSelection);
+    assert.equal(created.absolute, true);
+    assert.equal(sourceValue(created, 5, 7), 1);
+    assert.throws(() => l_selection_setpoint([], env), /Selection setpoint error/u);
+    assert.throws(() => l_selection_setpoint([{}], env), /Selection error/u);
 });
