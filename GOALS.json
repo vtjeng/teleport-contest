@@ -227887,7 +227887,7 @@
     {
       "id": "port-uhitm-hmon-hitmon-msg-silver-v33-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port silver-hit feedback and wire its sole bounded melee caller.",
       "cFile": "uhitm.c",
       "sessions": [
@@ -227901,8 +227901,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1fca795f45379c5d8364836c74c8ac61910620cd",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "hmon_hitmon_msg_silver",
@@ -228224,6 +228227,12 @@
         ],
         "entryPointReview": "Helper-only selected source range, so entryPoints is empty. Sole hmon_hitmon call is wired for every existing hmd.silvermsg producer (barehand silver ring counts, weapon melee/ranged and misc silver object). Selected admitted fatal melee and independent singular/plural weapons establish production feedback before killed. Source-pinned direct branch tests isolate grammar and invisible/noncorporeal/amorphous guards; existing hmon tests exercise shade, silver rings and weapon damage paths. No current object-table ring material is silver; direct source-field tests preserve one/two ring branches without inventing a production silver ring wish. Outer command/weapon owners retain their own evidence.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1fca795f45379c5d8364836c74c8ac61910620cd",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
