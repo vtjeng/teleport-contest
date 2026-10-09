@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T18:40:24.502Z",
+  "capturedAt": "2026-10-09T18:51:04.126Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -75602,23 +75602,76 @@
         "type": "accepted",
         "at": "2026-10-09T18:39:52.331Z",
         "task": "B199"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B201-tou-strt-20261009",
+        "type": "implement",
+        "at": "2026-10-09T18:40:27.416Z",
+        "task": "B201",
+        "goal": "port-tou-strt-lua-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B201-implement-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:40:28.757Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing the whole Tourist quest start program and collecting independent C evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B199-e2db696763f6d45914c918234d098d534350ab21",
+        "type": "published",
+        "at": "2026-10-09T18:40:58.418Z",
+        "task": "B199",
+        "commit": "e2db696763f6d45914c918234d098d534350ab21"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C175-85927920dc3598224e264c7ca1ecd0a4c5a34239",
+        "type": "integrating",
+        "at": "2026-10-09T18:43:17.290Z",
+        "task": "C175",
+        "integration": "85927920dc3598224e264c7ca1ecd0a4c5a34239"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A193-ran-strt-approved-20261009",
+        "type": "implement",
+        "at": "2026-10-09T18:45:28.524Z",
+        "task": "A193",
+        "goal": "port-ran-strt-quest-start-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A193-ran-strt-implementation-20261009",
+        "type": "turn",
+        "at": "2026-10-09T18:45:29.914Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Implementing the complete Ranger quest-start level."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C175-37975406203",
+        "type": "validated",
+        "at": "2026-10-09T18:49:15.887Z",
+        "task": "C175",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C175-85927920dc3598224e264c7ca1ecd0a4c5a34239-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T18:50:36.213Z",
+        "task": "C175"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "C175",
-        "worker": "C",
-        "goal": "port-rog-strt-quest-level-v36-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "4d165fba64a793e9c2061a91cd85162ffc92e90f",
-        "since": "2026-10-09T18:18:00.492Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -76020,8 +76073,8 @@
     ]
   },
   "development": {
-    "executionCommit": "b134b4d3767f961f9fff0d5b043bb5050458b3cd",
-    "measuredAt": "2026-10-09T18:38:07.194Z",
+    "executionCommit": "85927920dc3598224e264c7ca1ecd0a4c5a34239",
+    "measuredAt": "2026-10-09T18:48:53.507Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

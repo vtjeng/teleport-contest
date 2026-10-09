@@ -237882,7 +237882,7 @@
     {
       "id": "port-rog-strt-quest-level-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Rog-strt has no registered loader. Port the complete Rogue quest start program, preserving the shuffled exits and mimic disguises, all doors, leader inventory, street selection, traps, guards, and random street monsters.",
       "luaFile": "Rog-strt.lua",
       "sessions": [
@@ -237896,15 +237896,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "85927920dc3598224e264c7ca1ecd0a4c5a34239",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Rog-strt.lua",
           "line": 1,
           "endLine": 166,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -238075,7 +238078,85 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Rog-strt.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "rogStrt",
+            "sourceReview": "Read whole dat/Rog-strt.lua1–166 and nhlib.lua random/shuffle/dice adapters. Preserved exact map and all fixed tables, duplicate closed door23,14, flag/source call order, floodfill before shuffle/doors, mutated exit consumption, stair mimic descriptors, awaited leader inventory and two rn2(4) dice, sixteen traps, fixed guards/exit monsters, bounds evaluated once and removal-based selection. No helper-owner edits, substitute draws, new gap calls, or broader source credit.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "Rog-strt registry entry supplies whole dat/Rog-strt.lua to the existing registered special-level loader."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special invokes registered Rog-strt program. Wizard wiz_load_splua uses the same loader."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/rog-strt-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Rog-strt.lua/rog-strt-direct-male-independent.session.json",
+              "recordings/Rog-strt.lua/rog-strt-direct-female-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-rog-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Rog-strt.lua"
+              }
+            ],
+            "checkedAt": "85927920dc3598224e264c7ca1ecd0a4c5a34239"
+          }
+        ],
+        "entryPointReview": "Two active production entries: ordinary Rogue quest start arrival via makelevel/makemaz/load_special and debug des-file load via wizcmds.c:wiz_load_splua. The admitted v36 case covers ordinary arrival; independent male/female human chaotic Rogue recordings cover explicit and extensionless wizard filenames. Shared descriptors are existing owners and receive no new source completion credit. Adjacent Rog-loca is outside this whole-program scope and remains A194-owned.",
+        "entryPoints": [
+          {
+            "name": "ordinary Rogue quest start arrival",
+            "functions": [
+              "Rog-strt.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-rog-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Rog-strt.lua"
+              }
+            ]
+          },
+          {
+            "name": "wizard registered Rogue start load",
+            "functions": [
+              "Rog-strt.lua"
+            ],
+            "recordings": [
+              "recordings/Rog-strt.lua/rog-strt-direct-male-independent.session.json",
+              "recordings/Rog-strt.lua/rog-strt-direct-female-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "85927920dc3598224e264c7ca1ecd0a4c5a34239",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
