@@ -185,6 +185,7 @@
         "js/themeroom_data.js",
         "js/themeroom_fill.js",
         "js/themerooms.js",
+        "js/tou_goal_level_data.js",
         "js/tou_loca_level_data.js",
         "js/tou_strt_level_data.js",
         "js/tutorial_level.js",
@@ -209,6 +210,11 @@
           "path": "js/themeroom_data.js",
           "generator": "scripts/generate-themeroom-data.mjs",
           "check": "node scripts/generate-themeroom-data.mjs --check"
+        },
+        {
+          "path": "js/tou_goal_level_data.js",
+          "generator": "scripts/generate-tou-goal-level.mjs",
+          "check": "node scripts/generate-tou-goal-level.mjs --check"
         }
       ]
     },

@@ -241121,7 +241121,7 @@
           "line": 1,
           "endLine": 159,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "requiredFunctions": [
@@ -241131,7 +241131,7 @@
           "endLine": 575,
           "declared": true,
           "sourceFile": "makemon.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -241360,7 +241360,118 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Tou-goal.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "touGoal",
+            "sourceReview": "Read and ported all 159 lines of nethack-c/upstream/dat/Tou-goal.lua. Preserved the solidfill and mazelevel setup; all 20x76 source map cells; 25 region descriptors in source order; the nondiggable boundary, stair, and 27 fixed doors; the blessed named credit card followed by fourteen random objects; the floor-only selection, subtraction of the full x60-71/y14-18 rectangle, and six destructive rndcoord(1) choices; all 38 monster calls in order; and final wallification. The numeric selection behavior comes from the already accepted C176 l_selection_sub/selection-algebra-values owner, which C181 calls without editing. Natural special-room fill uses the already accepted C176 shknam.c:shkinit/shopkeeper-placement dependency. No unported Lua callee is skipped.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "touGoal",
+                "source": "Whole source program dat/Tou-goal.lua:1-159. QUEST_LEVEL_LOADERS registers Tou-goal and invokes this function."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "C mklev.c:makelevel selects slev->proto and calls mkmaze.c:makemaz; mkmaze.c:makemaz calls sp_lev.c:load_special. JS makelevel -> makemaz -> load_special resolves the source name through QUEST_LEVEL_LOADERS."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_level_tele",
+                "source": "C wizcmds.c:wiz_level_tele calls teleport.c:level_tele, which schedules the transition with do.c:schedule_goto. allmain.c processes deferred_goto after rhack; do.c:deferred_goto calls goto_level -> mklev -> makelevel. JS follows wiz_level_tele -> level_tele -> schedule_goto -> deferred_goto -> goto_level -> mklev -> makelevel."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/tou-goal-level.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-goal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "#wizlevelport -> level_tele/schedule_goto -> deferred_goto/goto_level -> mklev/makelevel -> makemaz/load_special -> dat/Tou-goal.lua:1-159"
+              }
+            ],
+            "checkedAt": "ff8f6d0fb2d3fd3af348fb7f36cce7c910f16125"
+          },
+          {
+            "name": "m_initweap",
+            "implementation": "js/makemon_create.js",
+            "symbol": "m_initweap",
+            "sourceReview": "Read and compared all of makemon.c:m_initweap (161-572) against js/makemon_create.js:m_initweap, including rogue-level early return, every monster-class arm, exact branch order and RNG bounds, and the final m_lev > rn2(75) offensive-item gate. Added the missing S_KOP arm from makemon.c:402-409: rn2(4) cream-pie gate and m_initthrow(mtmp, CREAM_PIE, 2), followed by rn2(3) gear gate and rn2(2) CLUB/RUBBER_HOSE selection. The S_KOP helper return values are discarded in C. The existing muse.c:rnd_offensive_item return-valued callee is implemented in JS and was source-compared; the m_initweap caller uses its result as mongets input. JS makemon invokes the helper only after the same is_armed predicate as C.",
+            "callers": [
+              {
+                "path": "js/makemon_create.js",
+                "symbol": "makemon",
+                "source": "C makemon.c:1441-1443 calls m_initweap(mtmp) only under is_armed(ptr); JS makemon follows the same guard at js/makemon_create.js:2922 before calling m_initweap."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "makemon.c",
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-goal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "#wizlevelport -> deferred_goto/goto_level -> makelevel/makemaz/load_special -> dat/Tou-goal.lua:144-152 creates Kops -> sp_lev.c:create_monster -> makemon.c:1441-1443 -> makemon.c:m_initweap"
+              }
+            ],
+            "checkedAt": "ff8f6d0fb2d3fd3af348fb7f36cce7c910f16125"
+          }
+        ],
+        "entryPointReview": "The natural Tourist quest-goal entry point is exercised by the admitted v36/v36-quest-tou-goal replay. #wizlevelport calls level_tele/schedule_goto; deferred_goto/goto_level/mklev/makelevel/makemaz/load_special dispatches Tou-goal.lua, whose source lines 144-152 create Kop Kaptain, Kop Lieutenants, and Keystone Kops through sp_lev.c:create_monster -> makemon.c:makemon -> m_initweap. The complete replay matches all 60 recorded boundaries. The separate direct #wizloaddes diagnostic recipe remains blocked at the independent JS makemon_create.js:shopkeeperCall / C makemon(MM_ESHK) gate and contributes no runtime evidence.",
+        "entryPoints": [
+          {
+            "name": "natural Tourist quest-goal generation and initial Kop equipment",
+            "functions": [
+              {
+                "sourceFile": "Tou-goal.lua",
+                "name": "Tou-goal.lua"
+              },
+              {
+                "sourceFile": "makemon.c",
+                "name": "m_initweap"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-goal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "#wizlevelport -> deferred_goto/goto_level -> mklev.c:makelevel -> dat/Tou-goal.lua:144-152 -> sp_lev.c:create_monster -> makemon.c:m_initweap"
+              }
+            ]
+          },
+          {
+            "name": "diagnostic direct #wizloaddes load of Tou-goal.lua",
+            "functions": [
+              {
+                "sourceFile": "Tou-goal.lua",
+                "name": "Tou-goal.lua"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
