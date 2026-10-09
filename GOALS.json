@@ -239603,7 +239603,7 @@
     {
       "id": "port-sam-loca-quest-locate-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Samurai quest locate level",
       "luaFile": "Sam-loca.lua",
       "sessions": [
@@ -239617,15 +239617,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "d28db9282c38ddf0cf2cc77330e258a9b66ebfad",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Sam-loca.lua",
           "line": 1,
           "endLine": 141,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -239801,7 +239804,91 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Sam-loca.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "samLoca",
+            "sourceReview": "Read whole dat/Sam-loca.lua lines 1–141: solidfill stone; mazelevel/hardfloor flags; complete generated centered 76x20 map; lit rectangle; sixteen locked and eight closed positional doors; fixed up (10,10) then down (25,14) stair; nondiggable rectangle; eight gems, armor items, weapons and tools in four source-ordered fixed-position groups; six random traps; eight explicitly hostile ninjas interleaved with nine positional wolves and one class d draw; nine one-string random-position stalkers; six explicitly hostile samurai guards. Generated tables retain every descriptor argument form and row/space/glyph. All calls are awaited in definition order. Lua consumes canonical selection.area values and discards descriptor results. No active statement, obsolete loader guard, required return dependency or Lua callback is omitted.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "Source-named Sam-loca key resolves to samLoca. Unique import/function/key do not alter other programs."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "do.c goto_level -> mklev.c makelevel -> mkmaze.c makemaz -> sp_lev.c load_special -> whole dat/Sam-loca.lua; natural admitted and independent male arrival cover generation and finish."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "wizcmds.c wiz_load_splua resets current level, invokes source-named load_special and then lspo_finalize_level. Independent female direct loading executes the same program and canonical direct-load finalization."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/sam-loca-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Sam-loca.lua/locate-male-arrival.session.json",
+              "recordings/Sam-loca.lua/locate-female-des.session.json"
+            ],
+            "sourceFile": "Sam-loca.lua",
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-sam-loca",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Samurai quest-locate arrival via wizlevelport -> deferred_goto/goto_level -> makelevel/makemaz/load_special -> whole dat/Sam-loca.lua. All 60 screens/cursors and 4121 RNG calls match."
+              }
+            ],
+            "checkedAt": "d28db9282c38ddf0cf2cc77330e258a9b66ebfad"
+          }
+        ],
+        "entryPointReview": "Two active program entries: natural quest-locate arrival and direct source-named wizard loading. Admitted arrival plus independent male arrival cover the first; independent female loading covers the second. Runtime assertions verify flags, zero room records, all locked/closed door counts, nondiggable cells, both stair directions after finalization, every fixed object-class coordinate after source flips, lighting, six traps, 33 monsters with fixed-species counts, explicit guard hostility and stalker invisibility. An independently recorded Sam-goal direct load provides the separately accepted outside-program variation.",
+        "entryPoints": [
+          {
+            "name": "Natural quest-locate arrival generation",
+            "functions": [
+              "Sam-loca.lua"
+            ],
+            "recordings": [
+              "recordings/Sam-loca.lua/locate-male-arrival.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-sam-loca",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Samurai quest-locate arrival via wizlevelport -> deferred_goto/goto_level -> makelevel/makemaz/load_special -> whole dat/Sam-loca.lua. All 60 screens/cursors and 4121 RNG calls match."
+              }
+            ]
+          },
+          {
+            "name": "Direct source-named special-level generation",
+            "functions": [
+              "Sam-loca.lua"
+            ],
+            "recordings": [
+              "recordings/Sam-loca.lua/locate-female-des.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "d28db9282c38ddf0cf2cc77330e258a9b66ebfad",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
