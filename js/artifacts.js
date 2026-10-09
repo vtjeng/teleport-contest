@@ -252,7 +252,7 @@ import { charge_ok, recharge } from './read.js';
 import {
     healup, make_blinded, make_sick, make_slimed, make_stunned, make_hallucinated,
 } from './potion.js';
-import { dropx, maybe_lvltport_feedback, goto_level } from './do.js';
+import { dropCommandEnv, dropx, maybe_lvltport_feedback, goto_level } from './do.js';
 import { select_menu } from './windows.js';
 import { clr2colorname } from './coloratt.js';
 import { exercise } from './attrib.js';
@@ -2494,9 +2494,20 @@ async function invoke_create_portal(obj, state) {
     return ECMD_TIME;
 }
 
-// C ref: artifact.c invoke_create_ammo() (1933-1960).
-async function invoke_create_ammo(obj, state) {
-    let otmp = mksobj(ARROW, true, false, state);
+// C ref: artifact.c invoke_create_ammo() (1934-1961).
+export async function invoke_create_ammo(obj, state) {
+    // The canonical inventory owner performs observation, merge, holding and
+    // drop decisions. Supply its source operations at this existing caller.
+    const env = dropCommandEnv(state, {
+        hooks: {
+            dropObject: dropx,
+            // invent.c:941 runs this before freeing an absorbed stack.
+            inventoryComparisonDiscovered: () => ttyPline(
+                'You learn more about your items by comparing them.', state,
+            ),
+        },
+    });
+    let otmp = mksobj(ARROW, true, false, env);
     if (!otmp) {
         await nothing_special(obj, state);
         return ECMD_TIME;
@@ -2514,9 +2525,9 @@ async function invoke_create_ammo(obj, state) {
     } else {
         otmp.quan += rnd(5);
     }
-    otmp.owt = weight(otmp, state);
+    otmp.owt = weight(otmp, env);
     otmp = await hold_another_object(otmp, 'Suddenly %s out.',
-        aobjnam(otmp, 'fall', state), null, state);
+        aobjnam(otmp, 'fall', state), null, env);
     return ECMD_TIME;
 }
 
