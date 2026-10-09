@@ -1,0 +1,132 @@
+{
+  "session": "synthetic/v35/v35-candles-not-attached",
+  "corpus": "synthetic",
+  "batch": "v35",
+  "caseId": "v35-candles-not-attached",
+  "manifestPath": "challenges/manifests/v35.json",
+  "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+  "recordingSha256": "a9e71094e4542a5d8a686cedd2fee7939f6b07ed946ae7b39e01696adef68769",
+  "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+  "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+  "remainingScreens": 35,
+  "recordedSteps": 99,
+  "status": "complete",
+  "commit": "a2d5948c00b9e744b3685c9f3e46f8fada5502aa",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v35",
+    "caseId": "v35-candles-not-attached",
+    "session": "synthetic/v35/v35-candles-not-attached",
+    "manifestPath": "challenges/manifests/v35.json",
+    "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+    "recording": "challenges/cases/v35/v35-candles-not-attached.session.json",
+    "recordingPath": "challenges/cases/v35/v35-candles-not-attached.session.json",
+    "recordingSha256": "a9e71094e4542a5d8a686cedd2fee7939f6b07ed946ae7b39e01696adef68769",
+    "recipe": "challenges/cases/v35/v35-candles-not-attached.recipe.session.json",
+    "recipeSha256": "6354aba308005c17a7bc00c651ac4fdf7377869ef8e80f963e5cdef5ae683c19",
+    "replayInputSha256": "9a345b9f1c2c4f64668854b1f41843898e09b9498646789c8c4a14892bfcd5a5",
+    "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+    "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+    "evaluationArtifact": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+    "evaluationUtc": "2026-10-09T08:22:23.377Z",
+    "remainingScreens": 35,
+    "recordedSteps": 99,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 64,
+        "total": 99
+      },
+      "rng": {
+        "matched": 2993,
+        "total": 2993
+      },
+      "cursors": {
+        "matched": 96,
+        "total": 99
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 64,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 64,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 3,
+        "cCell": {
+          "ch": "r",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 74,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 74,
+          "key": "a"
+        },
+        "cCursor": [
+          46,
+          0,
+          1
+        ],
+        "jsCursor": [
+          45,
+          0,
+          1
+        ]
+      }
+    },
+    "step": 64,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Applying candles ignores a negative attachment answer because use_candle compares the numeric y_n result with the string n. Space correctly defaults to numeric110, but the caller still attaches and consumes the candles instead of lighting them separately. The fix is confined to this consumed-answer comparison.",
+  "source": {
+    "file": "apply.c",
+    "branch": "use_candle1415–1419: a carried candelabrum has fewer than seven candles; y_n returns C char n after explicit no, default Space/Enter or Escape, so use_lamp lights/snuffs the separate candle stack and returns before any attachment state change.",
+    "functions": [
+      "use_candle"
+    ],
+    "callers": [
+      "apply.c:doapply4340–4343 WAX_CANDLE/TALLOW_CANDLE arm invokes use_candle(&obj); js/apply.js4969–4973 awaits the existing owner and returns ECMD_TIME. No dispatcher or production admission edit is needed.",
+      "Existing use_candle3271–3348 builds the source safe_qbuf query then consumes cmd.js:y_n880–882. Only its3296 comparison is wrong; keep prompt, helper, query order, lamps, inventory/timers and positive attachment operations unchanged."
+    ],
+    "dependencies": [
+      "C hack.h1329 y_n expands to yn_function(query,ynchars,'n',TRUE). Canonical JS cmd.js:y_n returns the yn_function result without string conversion; yn_function830–875 obtains a numeric key byte from the queue or getline.js:tty_yn_function294–465. The current helper returns numeric110 for n. Do not change this established helper contract or other callers.",
+      "Read C win/tty/topl.c:tty_yn_function365–550 and JS getline.js294–465. Space/CR/LF use the supplied default; Escape chooses n when n is allowed; alphabetic answers are lowercased; the function returns q, the numeric key byte in JS. The initial suspicion that Space was ignored by the prompt is disproved by the caller/helper source.",
+      "Existing apply.c:use_lamp1628–1702 owns the negative branch’s snuff/underwater/empty/cursed/light behavior; JS apply.js has canonical lamp and candle handling and begin_burn/end_burn integration. The selected comparison requires no helper port or new random draw.",
+      "A185 source:apply.c:jump is disjoint within the same JS owner file, and A189 cmd/display/showtrap and C165 lspo_map/mkobj are separate owners. Coordinate the exact use_candle hunk before edits; no cmd.js, spell.js, shared table or helper change proposed.",
+      "No whole use_candle/doapply/use_lamp completion credit is requested. Existing optr consumption and positive attachment/shop/light-family coverage remain outside this one-comparison divergence. The unrelated sounds.c:SoundAchievement final-state gap does not cause the mismatch."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Authoritative accepted-672aef01 v35 entry has64/99 screens and96/99 cursors,2993/2993 RNG,35 remaining. Current single-case run-dcC9p0 ata2d5948c00b9e744b3685c9f3e46f8fada5502aa reproduces first screen mismatch segment0 step64 Space; later cursor mismatch atstep74 when apply lists the changed inventory. No refusal or earlier RNG divergence. .cache/B189/current-scan.json.",
+    "The recording’s step63 asks Attach your candles to your candelabrum? [yn] (n). Its step64 Space defaults to no and C prints Your candles' flames burn brightly!; the following y is a normal northwest movement command, not a delayed yes answer. Later C applying the candelabrum prints that it has no candles. The admitted case honestly witnesses declined attachment despite its original preparation target comment.",
+    "JS use_candle3296 spells if(await y_n(attachQuery,state) === 'n'), which is false for every numeric answer. It therefore consumes the candle stack on the default-no branch. Final canonical inventory .cache/B189/final-inventory.json has candelabrum spe7/lamplit true and no separate candle stack, establishing a state defect before the later inventory cursor difference.",
+    "Read complete C use_candle1387–1468/use_lamp1628–1702 and corresponding JS owners, macro y_n and complete query return path. C compares a char byte to 'n'; JS must compare against 'n'.charCodeAt(0) (110) before the existing awaited use_lamp call/return. Preserve positive y attachment, quantity split, object age/spe, source messages and timer/light ordering.",
+    "Independent evidence plan after central assignment: C-first carried-candelabrum cases with explicit n, default Space/Enter and Escape, using different candle quantity/type and relevant role; a positive-y variation confirms the unchanged attachment arm. Focused source-pinned caller coverage must assert numeric no delegates to use_lamp before inventory consumption, and pin the established prompt byte return. Retain admitted steps64–98 and full comparison. No new C game or aggregate scan was run during this diagnosis."
+  ]
+}
