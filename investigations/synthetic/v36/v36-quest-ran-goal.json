@@ -1,0 +1,90 @@
+{
+  "session": "synthetic/v36/v36-quest-ran-goal",
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-ran-goal",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "d91dd644166bac1a96f924062f216997268a1824a2b8e5902a66cde930a446ad",
+  "evaluationPath": "challenges/evaluations/accepted-61750b3c94588b56b72831b9a3754af8f9cd6770-v36.json",
+  "evaluationCommit": "61750b3c94588b56b72831b9a3754af8f9cd6770",
+  "remainingScreens": 41,
+  "recordedSteps": 60,
+  "status": "complete",
+  "commit": "06509e49e31d972d4d8877c03e3e224cd25d5a42",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-ran-goal",
+    "session": "synthetic/v36/v36-quest-ran-goal",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-ran-goal.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-ran-goal.session.json",
+    "recordingSha256": "d91dd644166bac1a96f924062f216997268a1824a2b8e5902a66cde930a446ad",
+    "recipe": "challenges/cases/v36/v36-quest-ran-goal.recipe.session.json",
+    "recipeSha256": "0b3c5b2da5d705e123db2ed398f61f6157ad4d78f6bad0a6b8a83fb61a153e9b",
+    "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+    "evaluationPath": "challenges/evaluations/accepted-61750b3c94588b56b72831b9a3754af8f9cd6770-v36.json",
+    "evaluationCommit": "61750b3c94588b56b72831b9a3754af8f9cd6770",
+    "evaluationArtifact": "challenges/evaluations/accepted-61750b3c94588b56b72831b9a3754af8f9cd6770-v36.json",
+    "evaluationUtc": "2026-10-09T12:57:34.625Z",
+    "remainingScreens": 41,
+    "recordedSteps": 60,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 60
+      },
+      "rng": {
+        "matched": 2825,
+        "total": 3880
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-goal\"",
+      "step": 19
+    },
+    "step": 19,
+    "kind": "stop",
+    "sourceFile": "Ran-goal.lua",
+    "function": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-goal\"",
+    "cFile": null,
+    "luaFile": "Ran-goal.lua",
+    "line": null
+  },
+  "goalKind": "lua-port",
+  "summary": "Ran-goal has no registered loader. Port its whole Ranger quest goal program, preserving the named Longbow, fixed and random object placement, hostile monster sequence, doors, and wallification.",
+  "source": {
+    "file": "Ran-goal.lua",
+    "branch": "Ranger quest goal arrival or registered wizard des-file load of Ran-goal, with Scorpius and the Longbow of Diana at the source map coordinates.",
+    "functions": [
+      "Ran-goal.lua"
+    ],
+    "callers": [
+      "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Ran-goal.lua",
+      "wizcmds.c:wiz_load_splua -> load_special -> registered Ran-goal Lua program"
+    ],
+    "dependencies": [
+      "Reuse existing special-level initialization/map/region/stair/nondiggable/object/trap/door/monster/wallify owners and canonical ONAME_LEVEL_DEF naming; no required supporting owner edits identified by source review."
+    ]
+  },
+  "evidence": [
+    "Accepted evaluation challenges/evaluations/accepted-61750b3c94588b56b72831b9a3754af8f9cd6770-v36.json at 61750b3c94588b56b72831b9a3754af8f9cd6770 retains the missing Ran-goal loader stop at zero-based step19:19/60 screens and cursors match,41screens remain,2825/3880 RNG calls match. Corpus digest58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c; recordingchallenges/cases/v36/v36-quest-ran-goal.session.json, digestd91dd644166bac1a96f924062f216997268a1824a2b8e5902a66cde930a446ad. Investigation reuses the saved diagnostic; no replay or new C recording was run.",
+    "Read whole dat/Ran-goal.lua1–106, SHA256cbe9d0f03ad0ba49e6a31611d03d382601ba9fcb7053aa84787522fe2226bfe5. Solidfill stone and mazelevel precede an exact76×20 map; lit selection0,0..75,19, fixed up stair19,10 and nondiggable full map follow. Preserve map spaces, throne and secret-door characters; deterministically generate the map and literal descriptor tables from source.",
+    "Ran-goal.lua39–60 creates a blessed spe0 bow named The Longbow of Diana at37,10, then a chest there, eight random objects at fixed surrounding coordinates, five random objects and six random traps. The existing mklev.js object adapter preserves map-relative coordinate tables; sp_lev_object.js resolves names/types, constructs before applying spe/buc and calls object_generation.js nameObject -> do_name.js:oname with ONAME_LEVEL_DEF, matching sp_lev.c:create_object2193–2267. Longbow artifact naming is already defined in artifacts.js. No montype tin/egg descriptor or selection consumed-return seam occurs in this program.",
+    "Ran-goal.lua62–75 defines fourteen door descriptors in source order. Lines77–104 create twenty-eight hostile monster descriptors: Scorpius, six fixed forest centaurs, six fixed mountain centaurs, two random forest centaurs, two random mountain centaurs, two C-class monsters, six fixed scorpions, two random scorpions, then one s-class monster. Existing lspo_monster/get_table_montype/get_table_monclass handle named species and class tables with peaceful0. Await descriptors in sequence; finish with the explicit des.wallify at106 before ordinary load_special finalization.",
+    "Production wiring is the distinct Ran-goal import/body/QUEST_LEVEL_LOADERS key in js/quest_levels.js; js/mklev.js:load_special1777 and makemaz select registered programs, while wizcmds.c:wiz_load_splua389 reaches the same load_special owner. Search rg -n Ran-goal|ranGoal js/quest_levels.js found no implementation. No edits to mklev, pending Cav/Healer/Wizard3 programs or the non-species spinach descriptor seam are required by this source review.",
+    "Validation plan: fail-first source-pinned registry/program sequence test, generated map/descriptor equality, awaited object/monster sequencing and Longbow runtime state; admitted Ranger quest arrival prefix and independent male/female human Ranger #wizloaddes recordings with inputs chosen before comparison. Keep adjacent Ran-loca program as an outside-scope recipe if it remains unported. Runtime support is not yet verified for this program; preserve any concrete new blocker rather than inventing behavior."
+  ]
+}
