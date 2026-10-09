@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first display.c:newsym suppression variation. Seed and Ranger role were chosen before comparison. Two consecutive replacement levels exercise ordinary generation and redraw without explicit monster creation; retain any inventory-cleanup frontier as blocked evidence. BLOCKED: second replacement step24 reaches wizcmds.c:makemap_remove_mons -> mon.c:mongone -> steal.c:discard_minvent, whose obj_resists RNG is skipped by the existing named removal gap. Preserve this longer input outside passing evidence.",
+  "segments": [
+    {
+      "seed": 17937117,
+      "datetime": "20420315181920",
+      "nethackrc": "OPTIONS=name:MapGuard,role:Ranger,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizmakemap\n#wizmakemap\n"
+    }
+  ]
+}
