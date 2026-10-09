@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T14:13:34.432Z",
+  "capturedAt": "2026-10-09T14:29:17.595Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -74021,22 +74021,155 @@
         "type": "accepted",
         "at": "2026-10-09T14:13:19.566Z",
         "task": "C170"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A196-central-gate-6eb206b0d",
+        "type": "turn",
+        "at": "2026-10-09T14:13:34.530Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "Val-loca diagnosis complete; waiting for Main to queue the source goal and provide context."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C178-ran-loca-central-gate-20261009",
+        "type": "park",
+        "at": "2026-10-09T14:13:38.788Z",
+        "task": "C178",
+        "reason": "Main received complete report2169d5042 and directed parking pending central source context; preserve whole Ran-loca priority and pending C170. No source claim/edit."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C179-no-independent-investigation-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T14:13:40.080Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "All remaining saved mismatches have owners or established blockers; ready for a central source handoff."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C170-666b73cbb-20261009",
+        "type": "published",
+        "at": "2026-10-09T14:14:42.041Z",
+        "task": "C170",
+        "commit": "666b73cbbe499a26147276d4338874fc6a9d47ba"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A196-central-source-gate-6eb206b0d",
+        "type": "park",
+        "at": "2026-10-09T14:15:00.137Z",
+        "task": "A196",
+        "reason": "Main received complete report6eb206b0d and directs parking pending central source/context gate; preserve whole Val-loca proposal and no source edits."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-independent-investigations-exhausted-6eb206b0d",
+        "type": "turn",
+        "at": "2026-10-09T14:15:01.436Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "All independent quest investigations are owned or reported; waiting for Main source contexts or shared pointer/build decisions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C179-C170-accepted-central-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T14:15:09.696Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C170 is accepted; ready for the older Knight locate source handoff."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B202-val-strt-source-gated-20261009",
+        "type": "turn",
+        "at": "2026-10-09T14:17:22.207Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Complete Valkyrie quest start report; awaiting the central source gate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep1-v37-overlap-recheck-20261009",
+        "type": "activity",
+        "at": "2026-10-09T14:21:08.816Z",
+        "task": "Prep1",
+        "phase": "review",
+        "reason": "Current admission recheck found that v37 lightsources and Juiblex repeat still-unresolved v35 behavior; a corrected prepared manifest is required before admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-B195-evidence-symbols-20261009",
+        "type": "feedback",
+        "at": "2026-10-09T14:21:10.237Z",
+        "task": "B195",
+        "delivery": "012b37ee9920e63a8966c179df9a0f8160e41e06"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B202-for-B195-evidence-correction-20261009",
+        "type": "park",
+        "at": "2026-10-09T14:24:01.151Z",
+        "task": "B202",
+        "reason": "Complete Val-strt report is preserved at 2494462c6; implementation waits on central numeric-selection owner adjudication. Worker temporarily resumes B195 evidence correction."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B195-evidence-correction-20261009",
+        "type": "resume",
+        "at": "2026-10-09T14:24:11.400Z",
+        "task": "B195"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e4244020f25f4d0b5dea16b6b9ff0c6e004c901f",
+        "type": "ready",
+        "at": "2026-10-09T14:25:05.228Z",
+        "task": "B195",
+        "delivery": "e4244020f25f4d0b5dea16b6b9ff0c6e004c901f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B195-evidence-correction-delivered-20261009",
+        "type": "turn",
+        "at": "2026-10-09T14:25:33.244Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Healer locate evidence correction submitted; source-gated reports preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B195-e4244020f-20261009",
+        "type": "received",
+        "at": "2026-10-09T14:25:51.613Z",
+        "task": "B195",
+        "delivery": "e4244020f25f4d0b5dea16b6b9ff0c6e004c901f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep1-v37-corrected-admission-20261009",
+        "type": "activity",
+        "at": "2026-10-09T14:28:28.932Z",
+        "task": "Prep1",
+        "phase": "admission",
+        "reason": "Admitting a corrected three-case v37 manifest after removing two cases that duplicate unresolved v35 behavior."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep1-v37-baseline-20261009",
+        "type": "activity",
+        "at": "2026-10-09T14:29:10.130Z",
+        "task": "Prep1",
+        "phase": "baseline",
+        "reason": "Recording the first saved evaluation for the admitted corrected v37 batch and preparing its public dashboard baseline."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B195",
-        "worker": "B",
-        "goal": "port-hea-loca-lua-v36-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "012b37ee9920e63a8966c179df9a0f8160e41e06",
-        "since": "2026-10-09T11:24:57.663Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "A191",
         "worker": "A2",
@@ -74047,21 +74180,20 @@
         "since": "2026-10-09T11:25:13.921Z",
         "blockedBy": [],
         "unblocks": 0
-      }
-    ],
-    "preparedBatches": [
+      },
       {
-        "task": "Prep1",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "awaiting-admission",
-        "delivery": "07a7613c9c9855de0cb1db8c681cf95b5c466b6d",
-        "since": "2026-10-08T18:24:08.488Z",
+        "task": "B195",
+        "worker": "B",
+        "goal": "port-hea-loca-lua-v36-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "e4244020f25f4d0b5dea16b6b9ff0c6e004c901f",
+        "since": "2026-10-09T14:25:05.228Z",
         "blockedBy": [],
-        "batch": "v37"
+        "unblocks": 0
       }
     ],
+    "preparedBatches": [],
     "parkedTasks": [
       {
         "task": "C42",
@@ -74524,12 +74656,45 @@
         "since": "2026-10-09T14:09:20.112Z",
         "blockedBy": [],
         "reason": "Complete independent reportdba4e7dd8 and whole Val-goal proposal received; Main directs parking pending central source context and next independent investigation. No source claim/edit."
+      },
+      {
+        "task": "C178",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T14:13:38.788Z",
+        "blockedBy": [],
+        "reason": "Main received complete report2169d5042 and directed parking pending central source context; preserve whole Ran-loca priority and pending C170. No source claim/edit."
+      },
+      {
+        "task": "A196",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T14:15:00.137Z",
+        "blockedBy": [],
+        "reason": "Main received complete report6eb206b0d and directs parking pending central source/context gate; preserve whole Val-loca proposal and no source edits."
+      },
+      {
+        "task": "B202",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T14:24:01.151Z",
+        "blockedBy": [],
+        "reason": "Complete Val-strt report is preserved at 2494462c6; implementation waits on central numeric-selection owner adjudication. Worker temporarily resumes B195 evidence correction."
       }
     ]
   },
   "development": {
-    "executionCommit": "7238e3640e16c635f0c0fa6f7270c0c861d2afac",
-    "measuredAt": "2026-10-09T14:08:12.929Z",
+    "executionCommit": "666b73cbbe499a26147276d4338874fc6a9d47ba",
+    "measuredAt": "2026-10-09T14:28:07.836Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
