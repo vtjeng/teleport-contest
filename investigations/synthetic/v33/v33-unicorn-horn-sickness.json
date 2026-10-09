@@ -1,0 +1,116 @@
+{
+  "session": "synthetic/v33/v33-unicorn-horn-sickness",
+  "corpus": "synthetic",
+  "batch": "v33",
+  "caseId": "v33-unicorn-horn-sickness",
+  "manifestPath": "challenges/manifests/v33.json",
+  "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+  "recordingSha256": "bb4e3cdb15d908089d32e880ff4cc8ac2795c97cd48d20e3115b30f3aeca3191",
+  "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+  "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+  "remainingScreens": 82,
+  "recordedSteps": 82,
+  "status": "complete",
+  "commit": "2e30546335feaeb2622622dc5a0c83ad76cdd755",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v33",
+    "caseId": "v33-unicorn-horn-sickness",
+    "session": "synthetic/v33/v33-unicorn-horn-sickness",
+    "manifestPath": "challenges/manifests/v33.json",
+    "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+    "recording": "challenges/cases/v33/v33-unicorn-horn-sickness.session.json",
+    "recordingPath": "challenges/cases/v33/v33-unicorn-horn-sickness.session.json",
+    "recordingSha256": "bb4e3cdb15d908089d32e880ff4cc8ac2795c97cd48d20e3115b30f3aeca3191",
+    "recipe": "challenges/cases/v33/v33-unicorn-horn-sickness.recipe.session.json",
+    "recipeSha256": "7d8142e3d802e34256db2e869de8a4ae288151c3dbd046f1dde5117249d08a59",
+    "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+    "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+    "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+    "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+    "evaluationUtc": "2026-10-09T03:03:55.655Z",
+    "remainingScreens": 82,
+    "recordedSteps": 82,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": "Cannot read properties of undefined (reading 'zeroobj')",
+    "metrics": {
+      "screens": {
+        "matched": 0,
+        "total": 82
+      },
+      "rng": {
+        "matched": 0,
+        "total": 2662
+      },
+      "cursors": {
+        "matched": 0,
+        "total": 82
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "Replay error: Cannot read properties of undefined (reading 'zeroobj')",
+      "step": null
+    },
+    "step": null,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "Replay error: Cannot read properties of undefined (reading 'zeroobj')",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Unicorn-horn dipping into sickness reaches the same potion_dip old-appearance naming arm as amethyst into booze. JS reads nonexistent state.cg.zeroobj before docall; use canonical obj.newObject for the independent C stack copy and retain old type/dknown/class plus docall/hold_potion order.",
+  "goalKind": "divergence-fix",
+  "source": {
+    "file": "potion.c",
+    "functions": [
+      "potion_dip"
+    ],
+    "branch": "Amethyst or unicorn-horn yields a non-STRANGE_OBJECT mixture; hero is not blind; old potion appearance is known while its type has neither a known name nor a user call-name. C initializes a fresh local zero object before docall.",
+    "callers": [
+      "cmd.c:extcmdlist dip -> potion.c:dodip2371 -> potion_dip; JS cmd.js dip dispatcher awaits dodip, which returns potion_dip.",
+      "potion.c:dip_into2404 is the alternate IA_DIP_OBJ caller of the same potion_dip owner; its broader C84 runtime frontier is unchanged."
+    ],
+    "dependencies": [
+      "obj.js:newObject482-544 already represents decl.c cg.zeroobj/include obj.h zero-initialized stack objects, preserving union aliases and bitfield backing. It makes no RNG, output or game-state mutation.",
+      "do_name.c:docall636-676 has the canonical awaited JS owner do_name.js780; it consumes dknown, former type/class and zero-state fields to construct the prompt. No callee expansion required.",
+      "potion.c:hold_potion follows docall at2785; reuse existing owner and preserve ordering."
+    ]
+  },
+  "evidence": [
+    "Current saved queue .cache/mismatch-queue-v33-3ab0909e.json and baseline-66ac2b0bf-v33 give82 remaining screens/82steps for this immutable recording; the exception zeroes aggregate matched counts. The independent preparation log identifies the stop at segment0step60.",
+    "Immutable B158 packet cabd31a8... and .cache/B158/logs/v33-unicorn-horn-sickness.js.log record identical TypeError at potion.js3690, segment0step60. The current baseline error and unchanged source expression establish reuse without aggregate replay.",
+    "Read complete C potion_dip2442-2795 and JS matching body. C2776 assigns cg.zeroobj to an independent stack struct, C2777 sets dknown1, C2778 old_otyp, C2779 POTION_CLASS, C2780 docall, then C2785 hold_potion. Only JS fakeobj construction is divergent; retain source conditions, fields and call order.",
+    "Search rg -n zeroobj/cg in js/gstate.js, allmain.js, save.js and restore.js returned no source cg state. Historical prep prose claiming gstate stores zeroobj elsewhere is inaccurate. Canonical newObject in obj.js explicitly names cg.zeroobj and lock.js uses it for the same C stack-copy contract.",
+    "The amethyst-booze companion has67 remaining screens and reaches the same source arm at segment0step44. Both use the same old-dknown/unidentified/no-call-name preconditions and canonical dummy object callee.",
+    "Bounded divergence scope is potion.c:potion_dip old-appearance fakeobj construction only, no whole potion_dip/dip_into or object-family completion credit. Add source-pinned focused assertions and verify admitted cases through and after naming plus independent C-first conversion witnesses."
+  ],
+  "proposal": {
+    "goalId": "fix-potion-dip-old-appearance-dummy-v33-20261009",
+    "summary": "Initialize the old-potion naming dummy with the canonical zero object.",
+    "selectionReason": "Seed continuation after accepted B180 exhausted eligible earlier owners; admitted v33 amethyst67remaining and same-arm unicorn-horn82remaining share one source-traced potion_dip dummy-object construction defect, independent of live reservations.",
+    "detail": "Synthetic/v33/v33-amethyst-booze segment0step44: C potion.c:potion_dip2774-2780 initializes fakeobj from cg.zeroobj before docall; JS potion.js3690 reads absent state.cg.zeroobj. Replace only construction with canonical obj.newObject and preserve naming/hold order.",
+    "proposedReservations": [
+      "session:synthetic/v33/v33-amethyst-booze",
+      "session:synthetic/v33/v33-unicorn-horn-sickness",
+      "source:potion.c:potion_dip",
+      "contract:potion-dip-old-appearance-dummy"
+    ],
+    "proposedPaths": [
+      "js/potion.js",
+      "scripts/potion-dip.test.mjs",
+      "scripts/potion-dummy.test.mjs",
+      "scripts/run-potion-dummy.mjs",
+      "recipes/potion.c/",
+      "recordings/potion.c/",
+      "investigations/synthetic/v33/v33-amethyst-booze.json",
+      "investigations/synthetic/v33/v33-unicorn-horn-sickness.json",
+      ".cache/"
+    ],
+    "dependencies": []
+  }
+}
