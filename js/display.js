@@ -3720,6 +3720,9 @@ function observeNearbyObject(object, x, y, state) {
 // which need the persistent map glyph must reread
 // level.at(x, y).remembered_glyph afterward.
 export function newsym(x, y) {
+    // C display.c:926-928 suppresses both map memory and output while the
+    // level is in flux, before even accessing the requested location.
+    if (suppressMapOutput()) return;
     const loc = game.level?.at(x, y);
     if (!loc) return;
 
