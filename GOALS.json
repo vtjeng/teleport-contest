@@ -231116,16 +231116,20 @@
     {
       "id": "port-cav-goal-quest-level-v36-20261009",
       "kind": "lua-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port the complete Caveman quest goal level and live special-level registry dispatch.",
       "luaFile": "Cav-goal.lua",
       "sessions": [
         "synthetic/v36/v36-quest-cav-goal"
       ],
-      "selectionReason": "The new v36 baseline stops at step 19 because the Cav-goal loader is unregistered; C168 traced this highest unreserved quest goal refusal and its existing descriptor dependencies.",
+      "selectionReason": "C168 is the oldest dependency-ready delivery after A190 and unblocks C169; it ports the complete admitted Cav-goal.lua program and registry dispatch.",
       "detail": "Port every top-level statement in dat/Cav-goal.lua, generate its fixed map deterministically, and wire the bounded quest-level registry seam without claiming existing descriptor helpers.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "bfe6dab1e3bd6b536e1002d8284079b505084ec5",
+      "openStanding": {
+        "sha": "025a63365add2839073372ffca68abfb01dd6729",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -231150,7 +231154,158 @@
           "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
           "evaluationCommit": "ac836655676993fda791c76b619905969c841859"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "025a63365add2839073372ffca68abfb01dd6729",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-cav-goal",
+          "session": "synthetic/v36/v36-quest-cav-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-cav-goal.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-cav-goal.session.json",
+          "recordingSha256": "41322f7473eb513e6fab82a249c1253cd49b1cc20872c7ca436b37f71608c449",
+          "recipe": "challenges/cases/v36/v36-quest-cav-goal.recipe.session.json",
+          "recipeSha256": "e3a675e14cbd4881ffa8f93e012c526792d8a4059845cd7082559fb0cff44475",
+          "replayInputSha256": "2ef3de61884dc72eccaf35767d5b6a77f5039a56aa9b9f94e52c44fbe389285e",
+          "evaluationPath": "challenges/evaluations/accepted-025a63365add2839073372ffca68abfb01dd6729-v36.json",
+          "evaluationCommit": "025a63365add2839073372ffca68abfb01dd6729",
+          "evaluationArtifact": "challenges/evaluations/accepted-025a63365add2839073372ffca68abfb01dd6729-v36.json",
+          "evaluationUtc": "2026-10-09T12:41:28.808Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2597,
+              "total": 2845
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Cav-goal\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Cav-goal.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Cav-goal\"",
+          "cFile": null,
+          "luaFile": "Cav-goal.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-cav-goal.json",
+            "result": {
+              "session": "synthetic/v36/v36-quest-cav-goal",
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-cav-goal",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "41322f7473eb513e6fab82a249c1253cd49b1cc20872c7ca436b37f71608c449",
+              "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+              "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "612078029c6b9f51d3175ee097469025580b0b73",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-cav-goal",
+                "session": "synthetic/v36/v36-quest-cav-goal",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-cav-goal.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-cav-goal.session.json",
+                "recordingSha256": "41322f7473eb513e6fab82a249c1253cd49b1cc20872c7ca436b37f71608c449",
+                "recipe": "challenges/cases/v36/v36-quest-cav-goal.recipe.session.json",
+                "recipeSha256": "e3a675e14cbd4881ffa8f93e012c526792d8a4059845cd7082559fb0cff44475",
+                "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+                "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+                "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+                "evaluationArtifact": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+                "evaluationUtc": "2026-10-09T10:38:34.264Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2597,
+                    "total": 2845
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Cav-goal\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Cav-goal.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Cav-goal\"",
+                "cFile": null,
+                "luaFile": "Cav-goal.lua",
+                "line": null
+              },
+              "goalKind": "lua-port",
+              "summary": "Cav-goal has no registered loader, so quest-level arrival stops before the whole source program executes. Port dat/Cav-goal.lua in source order and register its existing quest-level dispatch; reuse canonical des/selection/object/monster owners.",
+              "source": {
+                "file": "Cav-goal.lua",
+                "branch": "Forced or ordinary generation of the Caveman/Cavewoman quest goal level; special-level proto Cav-goal.",
+                "functions": [
+                  "Cav-goal.lua"
+                ],
+                "callers": [
+                  "mklev.c:makelevel1265-1270 -> mkmaze.c:makemaz1188 -> sp_lev.c:load_special -> dat/Cav-goal.lua",
+                  "js/mklev.js:makelevel -> makemaz -> load_special -> QUEST_LEVEL_LOADERS"
+                ],
+                "dependencies": [
+                  "Existing createSpecialLevelApi descriptors, selection_area, named artifact object owner and monster creation; no new whole helper scope proposed."
+                ]
+              },
+              "evidence": [
+                "Authoritative v36 queue: refusal at segment0 step19, 19/60screens/cursors and2597/2845RNG match; recordingSHA41322f7473eb513e6fab82a249c1253cd49b1cc20872c7ca436b37f71608c449, admitted corpus digest58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c.",
+                "Read all dat/Cav-goal.lua1-59, SHA256d5938ec7d34e0ecbbe39f177b33943eed326d66d6759b0c8cf442bb30d3fa109: solidfill stone; mazelevel; exact76x20 floor map; lit area0,0..75,19; random up stair; nondiggable area; blessed spe0 named Sceptre of Might mace at23,10; fourteen random objects; asleep Chromatic Dragon at23,10; shriekers26,13/25,8/45,11; wallify. No additional helper calls or consumed Lua results.",
+                "C step19 contains248RNG calls: getbones, implicit nhlib shuffle, splev_initlev, stair/object/monster generation, flip_level_rnd and place_lregion; recorded screen shows mapped-lit oval cavern, up stair and quest inhabitants. This establishes C reached the source before JS refusal, not an RNG-owner defect.",
+                "js/mklev.js:makelevel674-685 refuses absent registry key; ensureSpecialLevelLoaders1730-1771 already incorporates QUEST_LEVEL_LOADERS. js/quest_levels.js registry1910ff contains no Cav-goal. Adding a whole cavGoal function and that key is the only planned production seam.",
+                "Audited existing solidfill/lit region/random stair/nondiggable descriptor branches and sp_lev_object named-object/identity fields. Reuse those owners; no broader mklev/sp_lev/object/monster completion credit. Whole program source transcription, descriptor order/map test, admitted prefix and independent C-first role/state variations are required before completion."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "fix-display-magic-map-rogue-darkroom-symbol-v35-20261009",
@@ -232303,7 +232458,7 @@
     {
       "id": "port-spell-cast-protection-v34-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port whole protection spell gain and feedback",
       "cFile": "spell.c",
       "sessions": [
@@ -232317,15 +232472,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e8b19d4ac4c4f7ce8b8ecbe3759ce28cf9077fc9",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "cast_protection",
           "line": 1104,
           "endLine": 1180,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -232522,7 +232680,833 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "cast_protection",
+            "implementation": "js/spell.js",
+            "symbol": "cast_protection",
+            "sourceReview": "Read complete spell.c1104–1178 and sole caller1581–1583. Preserve integer loglevel/division truncation, natural AC inversion and min3 denominator, feedback before state mutation, prior-haze/blind/swallowed/water/cloud/tree/stone/air branches, canonical hcolor before hliquid display RNG, uchar protection update, exact Expert20 versus10 timer, nonzero timer preservation, find_ac and no-gain warm feedback. Reuse existing read-only hcolor/hliquid/an/heroIsBlind/mondata/P_SKILL/spell_skilltype/find_ac owners; no missing consumed dependency or substitute remains. Bounded spelleffects case awaits whole owner before common skill/cleanup and preserves accepted SPE_JUMPING.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c1581–1583 sole direct cast_protection call; docast/getspell and wizard force casting converge on this same dispatcher."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/cast-protection.test.mjs",
+              "scripts/spell.test.mjs",
+              "scripts/spell-cast-effects.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/protection-knight-initial.session.json",
+              "recordings/spell.c/protection-cleric-repeat.session.json",
+              "recordings/spell.c/protection-blind-cleric.session.json",
+              "recordings/spell.c/protection-learned-wizard.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v34",
+                "caseId": "v34-wizard-protection",
+                "segment": 0,
+                "fromStep": 73,
+                "throughStep": 100,
+                "source": "cmd.c wizard forced casting -> spell.c:wizcast -> spelleffects SPE_PROTECTION -> whole cast_protection initial/repeated protection feedback, timers and find_ac, followed by normal turn processing."
+              }
+            ],
+            "checkedAt": "e8b19d4ac4c4f7ce8b8ecbe3759ce28cf9077fc9"
+          }
+        ],
+        "entryPointReview": "Two active production routes into sole spelleffects caller: ordinary learned #cast (docast) and forced #wizcast. Independently recorded Wizard learns/casts protection through c, while Knight/Priest forced initial/repeated/blind witnesses exercise feedback and timer states. Admitted v34 forced level12 case matches through100. Source helper branches that cheap runtime inputs do not cover are source-pinned numeric/atmosphere checks. No whole spelleffects/docast/find_ac/naming/mondata credit and no changes outside the helper/distinct protection arm.",
+        "entryPoints": [
+          {
+            "name": "Ordinary learned #cast -> docast -> spelleffects protection",
+            "functions": [
+              "cast_protection"
+            ],
+            "recordings": [
+              "recordings/spell.c/protection-learned-wizard.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Wizard #wizcast forced protection including repeat/blind",
+            "functions": [
+              "cast_protection"
+            ],
+            "recordings": [
+              "recordings/spell.c/protection-knight-initial.session.json",
+              "recordings/spell.c/protection-cleric-repeat.session.json",
+              "recordings/spell.c/protection-blind-cleric.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v34",
+                "caseId": "v34-wizard-protection",
+                "segment": 0,
+                "fromStep": 73,
+                "throughStep": 100,
+                "source": "cmd.c wizard forced casting -> spell.c:wizcast -> spelleffects SPE_PROTECTION -> whole cast_protection initial/repeated protection feedback, timers and find_ac, followed by normal turn processing."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e8b19d4ac4c4f7ce8b8ecbe3759ce28cf9077fc9",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-spell-chain-lightning-v34-20261009",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port the whole chain-lightning propagation and casting family",
+      "cFile": "spell.c",
+      "sessions": [
+        "synthetic/v34/v34-wizard-chain-lightning"
+      ],
+      "selectionReason": "B192 is the scheduler-selected dependency-ready delivery and the current v34 chain-lightning session reaches its whole propagation and casting family.",
+      "detail": "Port spell.c propagate_chain_lightning and cast_chain_lightning in full, add only the SPE_CHAIN_LIGHTNING dispatcher arm, and preserve queue growth, shock handling, animation delays, damage returns, forcefight, and energy order.",
+      "openedAt": "5a28f6d5a322ad59db8b6e413b97453148a939a9",
+      "openStanding": {
+        "sha": "e8b19d4ac4c4f7ce8b8ecbe3759ce28cf9077fc9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "9bb29ae0cf4db7baf1358008c21acd797175aebc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "propagate_chain_lightning",
+          "line": 952,
+          "endLine": 1002,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "cast_chain_lightning",
+          "line": 1003,
+          "endLine": 1103,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 952,
+        "to": 1103
+      },
+      "syntheticProvenance": {
+        "synthetic/v34/v34-wizard-chain-lightning": {
+          "session": "synthetic/v34/v34-wizard-chain-lightning",
+          "corpus": "synthetic",
+          "batch": "v34",
+          "caseId": "v34-wizard-chain-lightning",
+          "manifestPath": "challenges/manifests/v34.json",
+          "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+          "recordingPath": "challenges/cases/v34/v34-wizard-chain-lightning.session.json",
+          "recordingSha256": "72b0c2e4a7dcf930df9fe54274b830a5b4cc2436317fe7503faad975ca2dc04a",
+          "evaluationPath": "challenges/evaluations/accepted-e8b19d4ac4c4f7ce8b8ecbe3759ce28cf9077fc9-v34.json",
+          "evaluationCommit": "e8b19d4ac4c4f7ce8b8ecbe3759ce28cf9077fc9"
+        }
+      },
+      "activeStanding": {
+        "sha": "e8b19d4ac4c4f7ce8b8ecbe3759ce28cf9077fc9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v34",
+          "caseId": "v34-wizard-chain-lightning",
+          "session": "synthetic/v34/v34-wizard-chain-lightning",
+          "manifestPath": "challenges/manifests/v34.json",
+          "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+          "recording": "challenges/cases/v34/v34-wizard-chain-lightning.session.json",
+          "recordingPath": "challenges/cases/v34/v34-wizard-chain-lightning.session.json",
+          "recordingSha256": "72b0c2e4a7dcf930df9fe54274b830a5b4cc2436317fe7503faad975ca2dc04a",
+          "recipe": "challenges/cases/v34/v34-wizard-chain-lightning.recipe.session.json",
+          "recipeSha256": "bf794a9dc1dcfabf8e27427153b3a3474b2671ac17edc8c8f5de48bd97fa2cb1",
+          "replayInputSha256": "3d88627fc22a207ae7c1ebab87adf9c58c6ee3a5913c59785e64bcae8d17682c",
+          "evaluationPath": "challenges/evaluations/accepted-e8b19d4ac4c4f7ce8b8ecbe3759ce28cf9077fc9-v34.json",
+          "evaluationCommit": "e8b19d4ac4c4f7ce8b8ecbe3759ce28cf9077fc9",
+          "evaluationArtifact": "challenges/evaluations/accepted-e8b19d4ac4c4f7ce8b8ecbe3759ce28cf9077fc9-v34.json",
+          "evaluationUtc": "2026-10-09T12:06:27.263Z",
+          "remainingScreens": 28,
+          "recordedSteps": 117,
+          "previousScreensMatched": 89,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 89,
+              "total": 117
+            },
+            "rng": {
+              "matched": 6147,
+              "total": 6154
+            },
+            "cursors": {
+              "matched": 89,
+              "total": 117
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: spell casting requires spell type 406 is not ported",
+            "step": 89
+          },
+          "step": 89,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: spell casting requires spell type 406 is not ported",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v34/v34-wizard-chain-lightning.json",
+            "result": {
+              "session": "synthetic/v34/v34-wizard-chain-lightning",
+              "corpus": "synthetic",
+              "batch": "v34",
+              "caseId": "v34-wizard-chain-lightning",
+              "manifestPath": "challenges/manifests/v34.json",
+              "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+              "recordingSha256": "72b0c2e4a7dcf930df9fe54274b830a5b4cc2436317fe7503faad975ca2dc04a",
+              "evaluationPath": "challenges/evaluations/accepted-61748d768be8dde676d67309b0a15965d6f0931b-v34.json",
+              "evaluationCommit": "61748d768be8dde676d67309b0a15965d6f0931b",
+              "remainingScreens": 28,
+              "recordedSteps": 117,
+              "status": "complete",
+              "commit": "15c4efc720ebb259d852007e6bfb8e0564d2aa5f",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v34",
+                "caseId": "v34-wizard-chain-lightning",
+                "session": "synthetic/v34/v34-wizard-chain-lightning",
+                "manifestPath": "challenges/manifests/v34.json",
+                "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+                "recording": "challenges/cases/v34/v34-wizard-chain-lightning.session.json",
+                "recordingPath": "challenges/cases/v34/v34-wizard-chain-lightning.session.json",
+                "recordingSha256": "72b0c2e4a7dcf930df9fe54274b830a5b4cc2436317fe7503faad975ca2dc04a",
+                "recipe": "challenges/cases/v34/v34-wizard-chain-lightning.recipe.session.json",
+                "recipeSha256": "bf794a9dc1dcfabf8e27427153b3a3474b2671ac17edc8c8f5de48bd97fa2cb1",
+                "replayInputSha256": "5a9c9117d8422e08dae857171270ad57485dc1bb9931f4a2edd7ab1b3d55aeb2",
+                "evaluationPath": "challenges/evaluations/accepted-61748d768be8dde676d67309b0a15965d6f0931b-v34.json",
+                "evaluationCommit": "61748d768be8dde676d67309b0a15965d6f0931b",
+                "evaluationArtifact": "challenges/evaluations/accepted-61748d768be8dde676d67309b0a15965d6f0931b-v34.json",
+                "evaluationUtc": "2026-10-09T08:09:29.798Z",
+                "remainingScreens": 28,
+                "recordedSteps": 117,
+                "previousScreensMatched": 89,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 89,
+                    "total": 117
+                  },
+                  "rng": {
+                    "matched": 6147,
+                    "total": 6154
+                  },
+                  "cursors": {
+                    "matched": 89,
+                    "total": 117
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: spell casting requires spell type 406 is not ported",
+                  "step": 89
+                },
+                "step": 89,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: spell casting requires spell type 406 is not ported",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "SPE_CHAIN_LIGHTNING is refused at the forced cast. C calls the missing whole cast_chain_lightning/propagate_chain_lightning family, including breadth-first beam animation, shock/peaceful avoidance and returned zhitm damage. Canonical ray and display dependencies exist; only the neighboring parked protection dispatch needs ownership adjudication before claiming source.",
+              "source": {
+                "file": "spell.c",
+                "functions": [
+                  "propagate_chain_lightning",
+                  "cast_chain_lightning"
+                ],
+                "branch": "spelleffects1588–1590 SPE_CHAIN_LIGHTNING; whole propagation952–999 and cast1003–1101. Source creates a100-entry FIFO, propagates one step in each of eight ordered directions, avoids blocked terrain/peacefuls and duplicate squares, resets strength on vulnerable monsters, ends it on shock resistance, damages queued monsters, rotates side branches and decrements hero Pw before exact output delays/cleanup.",
+                "callers": [
+                  "spell.c:spelleffects1588–1590 calls cast_chain_lightning; js/spell.js has no SPE_CHAIN_LIGHTNING case and falls through UnsupportedSpellCastError.",
+                  "spell.c:dowizcast787–815 -> forced spelleffects and docast820–829 -> ordinary spelleffects are the active command entries; existing js spell.js dispatch must call the new owner in the same source position before common cleanup.",
+                  "spell.c:cast_chain_lightning1023/1082/1089/1092 calls propagate_chain_lightning; no separate production caller exists for the queue helper."
+                ],
+                "dependencies": [
+                  "Required consumed zap.c:zhitm4238–4398 already implements all8 damage families/shared tail; source review confirms its electric d(nd,6), spell bonus, resistance/shield, nd>2 blindness gate, rn2(3) inventory damage, saving throw and HP deduction. Existing JS returns{damage,otmp}; chain consumes damage and intentionally ignores armor pointer for AD_ELEC. No zap owner expansion proposed.",
+                  "Existing returned zap.c:spell_damage_bonus and resist, mondata.c:Resists_Elem/defended, zap_destroy_items destroy_items and display zapdir_to_glyph/canseemon are canonical owners. Existing tmp_at/nh_delay_output, map_invisible, xkilled/wakeup, message and naming owners provide source effects; inspect any newly reached runtime blocker before scope expansion.",
+                  "Queue terrain/direction tests are C macros in spell.c/hack.h: CHAIN_LIGHTNING_LIMIT100, SPACE_POS/POOL/MOAT/DRAWBRIDGE_UP/LAVAPOOL plus open/unlocked DOOR, DIR_LEFT=(dir+7)%8 and DIR_RIGHT2=(dir+2)%8. Use existing const xdir/ydir,N_DIRS and canonical terrain/door fields; do not invent a separate table.",
+                  "C164 protection’s parked source caller is neighboring spelleffects. Main must adjudicate that seam before implementation claim; B189/B191 are pending immutable ancestors and remain delivery dependencies."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Authoritative saved v34 queue at accepted61748d76 records28 remaining screens/117 recorded boundaries and first stop89. Immutable B159 preparation traces C spelleffects1588 to cast_chain_lightning1003 and its first zhitm d(2,6), with C propagation animation frames.",
+                "Read-only targeted scan .cache/B192/current-scan.json at15c4efc72 still stops on spell type406 at the same typed cast, without earlier output or RNG divergence; run-c59Vse exited0. No recipe, C recording or game source was changed during this investigation.",
+                "Read complete spell.c queue macros/structs and both functions952–1101. Propagation copies its zap by value, advances before the tail/terrain guards, checks peacefulness, handles resistance strength, drops empty powerless nodes, deduplicates all queued coordinates, enqueues then paints. Casting initializes hallucination display RNG even before the swallowed return, seeds eight directions, processes fixed-tail waves, consumes damage and issues exact delay/cleanup order.",
+                "Whole existing JS zap.c:zhitm1593–1790 compared against C4238–4398; electric/shield/damage/returned armor logic and shared Knight/save/HP tail are already implemented. AD_ELEC cannot supply destroyed armor, so the chain caller consumes returned.damage with no invented conversion or use of note_unported as data. The existing acid_damage discarded-void gap is a different damage family and does not enter chain lightning.",
+                "Existing display.js tmp_at4282+ supports retained DISP_BEAM glyphs and source maximum160; source CHAIN_LIGHTNING_LIMIT100 remains below it. zapdir_to_glyph4271 returns the existing glyph presentation accepted by tmp_at; nh_delay_output is owned in hack.js. No new renderer or animation approximation is needed.",
+                "Existing mon.c wakeup receives via_attackFALSE within a temporary forcefight increment, preserving mimic/hider behavior; xkilled receives XKILL_GIVEMSG for lethal hits. Retain original stale gb.bhitpos comparison when setting notonhead rather than assigning the current chain square as an improvement.",
+                "Only a session reservation has been claimed. Proposed shared spelleffects ownership is deliberately unclaimed pending Main’s C164 seam decision; complete source proposal is saved at .cache/B192/proposal.json."
+              ],
+              "proposal": {
+                "goal": "port-spell-chain-lightning-v34-20261009",
+                "kind": "file-port",
+                "summary": "Port the whole chain-lightning propagation and casting family",
+                "selectionReason": "B191 seed continuation now matches completely. Oldest independent unresolved v34 chain-lightning case remains28 screens behind a missing SPE_CHAIN_LIGHTNING dispatch; current live reservations exclude its two source units. Coordinate the neighboring parked C164 protection dispatch before claiming shared spelleffects.",
+                "detail": "synthetic/v34/v34-wizard-chain-lightning segment0 step89 forced wizard cast is refused as spell type406. C spell.c1588–1590 calls cast_chain_lightning1003–1101, which consumes zhitm’s returned damage and uses whole propagate_chain_lightning952–999 for source-ordered queue growth and animation. Port both whole units and their static queue/terrain macros; add only the bounded spelleffects dispatch. No whole spelleffects, zap.c:zhitm, display or monster-death credit.",
+                "cFile": "spell.c",
+                "functions": [
+                  "propagate_chain_lightning",
+                  "cast_chain_lightning"
+                ],
+                "lineRanges": [
+                  "952-1101"
+                ],
+                "cLines": 150,
+                "jsFile": "js/spell.js",
+                "sessions": [
+                  "synthetic/v34/v34-wizard-chain-lightning"
+                ],
+                "step": 89,
+                "reservations": [
+                  "session:synthetic/v34/v34-wizard-chain-lightning",
+                  "source:spell.c:propagate_chain_lightning",
+                  "source:spell.c:cast_chain_lightning",
+                  "source:spell.c:spelleffects",
+                  "contract:chain-lightning-propagation",
+                  "contract:chain-lightning-spell-dispatch"
+                ],
+                "allowedPaths": [
+                  "investigations/synthetic/v34/v34-wizard-chain-lightning.json",
+                  "js/spell.js",
+                  "scripts/spell-cast-effects.test.mjs",
+                  "scripts/spell.test.mjs",
+                  "scripts/chain-lightning.test.mjs",
+                  "scripts/run-chain-lightning.mjs",
+                  "recipes/spell.c/",
+                  "recordings/spell.c/",
+                  ".cache/"
+                ],
+                "dependencies": [
+                  "50801c62a5566612886c0d9caddc2cb23c506f79",
+                  "15c4efc720ebb259d852007e6bfb8e0564d2aa5f"
+                ],
+                "sharedSeam": "C164 cast_protection is parked on its earlier A185 spelleffects dependency. Both effects need distinct one-case dispatch additions in spell.js; no source claim or edit before Main adjudicates priority/shared reservation.",
+                "limits": [
+                  "Whole source completion credit only propagate_chain_lightning and cast_chain_lightning. Required returned helpers reuse source-reviewed canonical owners; request scope expansion before any required owner edit.",
+                  "Do not edit cmd/query, zap.js/destroy_items, display.js or monster-death modules. Existing no-credit caller arm stays bounded to SPE_CHAIN_LIGHTNING."
+                ],
+                "validationPlan": [
+                  "C-first independent forced casts cover different roles, ordinary/shock-resistant/peaceful targets, terrain boundaries and no targets; learned spell command reaches the same spelleffects arm through docast. Fix inputs before JS comparisons and reproduce every retained C recording independently.",
+                  "Source-pin queue limit100, eight direction ordering, source terrain macros, value-copy queue records, duplicate coordinates and original resistance/strength rules. Verify exact wave and final delay ordering, temporary glyph cleanup, current bhitpos-based notonhead and forcefight bracket.",
+                  "Preserve spell damage d(2,6), spell bonus, shock resistance, destruction gate rn2(3), resist roll and the consumed zhitm damage return. Compare complete screens/cursors/RNG/animation frames, not just final monster HP.",
+                  "Use the admitted segment0 step89+ range for the forced cast and create independent evidence for the ordinary learned caller. Source-pin swallowed TODO and hallucinated display-RNG initialization in their original order; retain any concrete external caller blocker explicitly."
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "propagate_chain_lightning",
+            "implementation": "js/spell.js",
+            "symbol": "propagate_chain_lightning",
+            "sourceReview": "Read whole spell.c952–999, static queue/terrain macros909–943 and hack.h658–661 direction macros. Preserve copy-before-forward, tail cap100, isok, SPACE_POS and permitted liquids excluding WATER/LAVAWALL, open-door test, peaceful refusal, vulnerable strength3 and resistant strength0, exhausted-empty refusal, whole prior-coordinate traversal, enqueue-before-two tmp_at calls. C rm.doormask aliases flags; JS reads the established canonical door-generation field cell.flags, not its stale separate doormask. Resists_Elem(SHOCK_RES), defended(AD_ELEC), m_at, zapdir_to_glyph and tmp_at existing owners read; no invented return or RNG substitute. Source-pinned fixture coverage checks terrain, offmap, cap, duplicates, copy, peaceful/vulnerable/resistant strength.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "cast_chain_lightning",
+                "source": "spell.c1023 initial eight directions;1082 forward;1089 DIR_LEFT;1092 DIR_RIGHT2; all calls await whole propagate_chain_lightning, passing zap by value."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/chain-lightning.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/chain-lightning-forced-resistant-independent.session.json",
+              "recordings/spell.c/chain-lightning-forced-vulnerable-independent.session.json",
+              "recordings/spell.c/chain-lightning-learned-wizard-independent.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "9bb29ae0cf4db7baf1358008c21acd797175aebc"
+          },
+          {
+            "name": "cast_chain_lightning",
+            "implementation": "js/spell.js",
+            "symbol": "cast_chain_lightning",
+            "sourceReview": "Read whole spell.c1003–1101. Hallucination display RNG initializer precedes swallowed source TODO guard; start DISP_BEAM; source eight directions; one initial delay; snapshot each wave tail and copy each popped zap; preserve gn.notonhead using prior gb.bhitpos (zero-initialized at first read as decl.c does); consume zhitm damage at BZ_U_SPELL(AD_ELEC-1)=15 with nd2; armor return deliberately unused because electricity cannot destroy armor; xkilled/mon_nam/exclam/canseemon/map_invisible in source order; visible zero-damage resists message; live wakeup(FALSE) bracketed by forcefight increment/decrement; strength guard/decrement, forward propagation, lateral strength reset/Pw decrement, relative left/right2 directions; delay each wave, two final delays and DISP_END cleanup. Source-pinned tests verify wave ordering, no-target energy, swallowed initializer and cleanup; strict C recordings cover resistance, kill and ordinary learned cast. Existing zhitm full electricity/resist/inventory return owners, xkilled and wakeup inspected. No source callee expansion or new note_unported needed for the selected branch.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c1588–1590 SPE_CHAIN_LIGHTNING arm awaits whole cast_chain_lightning, then existing common use_skill and pseudo-book cleanup. No whole spelleffects credit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/chain-lightning.test.mjs",
+              "scripts/spell-cast-effects.test.mjs",
+              "scripts/spell.test.mjs",
+              "scripts/zap-ray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/chain-lightning-forced-resistant-independent.session.json",
+              "recordings/spell.c/chain-lightning-forced-vulnerable-independent.session.json",
+              "recordings/spell.c/chain-lightning-learned-wizard-independent.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "9bb29ae0cf4db7baf1358008c21acd797175aebc"
+          }
+        ],
+        "entryPointReview": "Only active source caller is spell.c spelleffects1589, reached by forced dowizcast787–815 and ordinary docast820–829/getspell. Existing typed/queued/direct binding command routes already reach those owners. Two forced C recordings cover the wizard-cast family; one independently learned ordinary #cast recording covers docast. Both source functions execute under each. The swallowed branch intentionally does no engulfer damage in current C and its display-RNG-before-return source order is pinned. Duplicates, cap100 and unreachable liquid boundary combinations use source-pinned tests. The separate immediate-new-message painting frontier is retained as a blocked representative outside this task; it does not replace runtime evidence.",
+        "entryPoints": [
+          {
+            "name": "Forced wizard chain-lightning cast",
+            "functions": [
+              "propagate_chain_lightning",
+              "cast_chain_lightning"
+            ],
+            "recordings": [
+              "recordings/spell.c/chain-lightning-forced-resistant-independent.session.json",
+              "recordings/spell.c/chain-lightning-forced-vulnerable-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Ordinary learned chain-lightning cast",
+            "functions": [
+              "propagate_chain_lightning",
+              "cast_chain_lightning"
+            ],
+            "recordings": [
+              "recordings/spell.c/chain-lightning-learned-wizard-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9bb29ae0cf4db7baf1358008c21acd797175aebc",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-spell-cast-preflight-amulet-v35-20261009",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete spell-casting preflight, Amulet drain and forgotten-spell backfire.",
+      "cFile": "spell.c",
+      "sessions": [
+        "synthetic/v35/v35-spell-amulet-carrier"
+      ],
+      "selectionReason": "A190 is the oldest dependency-ready delivery and unblocks A188; its reviewed source family is selected from the admitted v35 Amulet casting mismatch.",
+      "detail": "At segment 0 step 44 selecting force bolt, C spelleffects_check:1298 calls rnd(10)=4 after the drain message; hero energy 7 falls to 3, lower than base energy 5. C sets disp.botl and ECMD_TIME before insufficient-energy return. JS stops before message/RNG and its current abort shape hardcodes ECMD_OK. Translate whole preflight and adjacent backfire, preserving return-valued energy/result, message/input/RNG/property order and normal/force entry distinctions.",
+      "openedAt": "25efd01511171e4656035a5f06df89485353b102",
+      "openStanding": {
+        "sha": "9bb29ae0cf4db7baf1358008c21acd797175aebc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "025a63365add2839073372ffca68abfb01dd6729",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "spell_backfire",
+          "line": 1181,
+          "endLine": 1219,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "spelleffects_check",
+          "line": 1220,
+          "endLine": 1384,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1181,
+        "to": 1384
+      },
+      "syntheticProvenance": {
+        "synthetic/v35/v35-spell-amulet-carrier": {
+          "session": "synthetic/v35/v35-spell-amulet-carrier",
+          "corpus": "synthetic",
+          "batch": "v35",
+          "caseId": "v35-spell-amulet-carrier",
+          "manifestPath": "challenges/manifests/v35.json",
+          "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+          "recordingPath": "challenges/cases/v35/v35-spell-amulet-carrier.session.json",
+          "recordingSha256": "e5224f5c13c5c5812a78e0ee303efcb4ae8d70c593e8cca6942eb5c40ddfd5ae",
+          "evaluationPath": "challenges/evaluations/accepted-9bb29ae0cf4db7baf1358008c21acd797175aebc-v35.json",
+          "evaluationCommit": "9bb29ae0cf4db7baf1358008c21acd797175aebc"
+        }
+      },
+      "activeStanding": {
+        "sha": "9bb29ae0cf4db7baf1358008c21acd797175aebc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v35",
+          "caseId": "v35-spell-amulet-carrier",
+          "session": "synthetic/v35/v35-spell-amulet-carrier",
+          "manifestPath": "challenges/manifests/v35.json",
+          "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+          "recording": "challenges/cases/v35/v35-spell-amulet-carrier.session.json",
+          "recordingPath": "challenges/cases/v35/v35-spell-amulet-carrier.session.json",
+          "recordingSha256": "e5224f5c13c5c5812a78e0ee303efcb4ae8d70c593e8cca6942eb5c40ddfd5ae",
+          "recipe": "challenges/cases/v35/v35-spell-amulet-carrier.recipe.session.json",
+          "recipeSha256": "14d2cec47a2cff5c29c993824dcba44a71589b331716e3fb3bcab089f3d58dcf",
+          "replayInputSha256": "d8082dfa7a1abd607a851ef089936e6a2239a9574307e24fe5bfcea827a3b111",
+          "evaluationPath": "challenges/evaluations/accepted-9bb29ae0cf4db7baf1358008c21acd797175aebc-v35.json",
+          "evaluationCommit": "9bb29ae0cf4db7baf1358008c21acd797175aebc",
+          "evaluationArtifact": "challenges/evaluations/accepted-9bb29ae0cf4db7baf1358008c21acd797175aebc-v35.json",
+          "evaluationUtc": "2026-10-09T12:23:57.911Z",
+          "remainingScreens": 28,
+          "recordedSteps": 72,
+          "previousScreensMatched": 44,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 44,
+              "total": 72
+            },
+            "rng": {
+              "matched": 6138,
+              "total": 6143
+            },
+            "cursors": {
+              "matched": 44,
+              "total": 72
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: spell casting requires the Amulet of Yendor energy drain during casting",
+            "step": 44
+          },
+          "step": 44,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: spell casting requires the Amulet of Yendor energy drain during casting",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v35/v35-spell-amulet-carrier.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v35",
+              "caseId": "v35-spell-amulet-carrier",
+              "session": "synthetic/v35/v35-spell-amulet-carrier",
+              "manifestPath": "challenges/manifests/v35.json",
+              "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+              "recordingSha256": "e5224f5c13c5c5812a78e0ee303efcb4ae8d70c593e8cca6942eb5c40ddfd5ae",
+              "evaluationPath": "challenges/evaluations/accepted-61b9bad31ac7fc81b7370cd1312e25e5bf7358cf-v35.json",
+              "evaluationCommit": "61b9bad31ac7fc81b7370cd1312e25e5bf7358cf",
+              "remainingScreens": 28,
+              "recordedSteps": 72,
+              "status": "complete",
+              "commit": "0bff853548e214fc72efc77b38bea3711d1c7627",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v35",
+                "caseId": "v35-spell-amulet-carrier",
+                "session": "synthetic/v35/v35-spell-amulet-carrier",
+                "manifestPath": "challenges/manifests/v35.json",
+                "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+                "recording": "challenges/cases/v35/v35-spell-amulet-carrier.session.json",
+                "recordingPath": "challenges/cases/v35/v35-spell-amulet-carrier.session.json",
+                "recordingSha256": "e5224f5c13c5c5812a78e0ee303efcb4ae8d70c593e8cca6942eb5c40ddfd5ae",
+                "recipe": "challenges/cases/v35/v35-spell-amulet-carrier.recipe.session.json",
+                "recipeSha256": "14d2cec47a2cff5c29c993824dcba44a71589b331716e3fb3bcab089f3d58dcf",
+                "replayInputSha256": "9a345b9f1c2c4f64668854b1f41843898e09b9498646789c8c4a14892bfcd5a5",
+                "evaluationPath": "challenges/evaluations/accepted-61b9bad31ac7fc81b7370cd1312e25e5bf7358cf-v35.json",
+                "evaluationCommit": "61b9bad31ac7fc81b7370cd1312e25e5bf7358cf",
+                "evaluationArtifact": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+                "evaluationUtc": "2026-10-09T08:57:27.032Z",
+                "remainingScreens": 28,
+                "recordedSteps": 72,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 44,
+                    "total": 72
+                  },
+                  "rng": {
+                    "matched": 6138,
+                    "total": 6143
+                  },
+                  "cursors": {
+                    "matched": 44,
+                    "total": 72
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: spell casting requires the Amulet of Yendor energy drain during casting",
+                  "step": 44
+                },
+                "step": 44,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: spell casting requires the Amulet of Yendor energy drain during casting",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "goalKind": "file-port",
+              "summary": "At step 44, spell.c:spelleffects_check reaches the real-Amulet energy drain. JavaScript refuses it before C rnd(10)=4; C drains hero energy 7 to 3 and sets ECMD_TIME, so even the resulting insufficient-energy abort consumes a turn. Complete the whole preflight and adjacent forgotten-spell backfire, with canonical result/RNG/message propagation. This scope is disjoint from the separate chain-lightning effect owners.",
+              "source": {
+                "file": "spell.c",
+                "functions": [
+                  "spell_backfire (1181-1217)",
+                  "spelleffects_check (1220-1380)"
+                ],
+                "branch": "A nonforced known-spell cast passes rejection/knowledge/hunger/strength/capacity checks. With u.uhave.amulet and u.uen >= base energy, drain happens before the insufficient-energy test, with a zero clamp and time result. The same whole checker has a currently refused forgotten-knowledge arm calling spell_backfire.",
+                "callers": [
+                  "spell.c:1385-1395 spelleffects calls spelleffects_check unless force, consuming abort/res/energy. JS spell.js:1509 mirrors this private-helper caller, so no effect/chain-lightning implementation is needed.",
+                  "spell.c:820-829 docast -> spelleffects(FALSE), production cmd.js runCastCommand -> docast supplies canonical message/menu/hunger operations. Selected case reaches this ordinary command with real carried Amulet.",
+                  "teleport.c:1134 dotele -> spelleffects(SPE_TELEPORT_AWAY,TRUE,FALSE), JS cmd.js teleport branch currently omits env; audit canonical operations at this source caller/check boundary. pray.c:2422 doturn non-Priest/non-Knight -> spelleffects(FALSE) already forwards normalized message/random in js/pray.js.",
+                  "spell.c:812 dowizcast -> spelleffects(TRUE) must bypass the entire checker/drain. JS spell.js:1819 preserves force=true. No dispatcher changes needed."
+                ],
+                "dependencies": [
+                  "Existing spellev/spellid/spellknow, rejectcasting/freehand/can_chant, acurr, check_capacity, percent_success and morehungry return/value owners must be read and reused; source pins already cover percent_success role/equipment integers. Preserve C confusion short-circuit before rnd(100).",
+                  "Missing void spell_backfire is adjacent spell.c:1181-1217: rn2(10) branches add level-based duration to HConfusion/HStun TIMEOUT, with exact integer thirds and canonical make_confused/make_stunned(FALSE) call order. Whole helper is included to make the declared preflight source scope complete rather than leave another UnsupportedSpellCastError.",
+                  "Canonical potion.c make_confused:89-104 and make_stunned:107-131 are already in potion.js with set_itimeout, status transitions and optional env. Existing spell.js randomSource can preserve supplied clone RNG and canonical live defaults without inventing draws.",
+                  "B192 confirmed exact source:propagate_chain_lightning:952-999/cast_chain_lightning:1003-1101 and one spelleffects SPE_CHAIN_LIGHTNING arm only. Shared spell.js file is disjoint; no cost/Amulet/check/protection edit from B. A186 list/A189 showtrap dispatcher contracts remain immutable and need no source changes for the proposed core family."
+                ]
+              },
+              "evidence": [
+                "Assigned-base bounded replay run-aMeAIL at 0bff853548e214fc72efc77b38bea3711d1c7627 reproduces44/72 screens and cursors, and 6138/6143 RNG calls. First missing screen/RNG is step 44 a; C rnd(10)=4 attributed spelleffects_check:1298. Cache probe.json/probe.log retain exact comparison and stack; accepted 61b9bad31 has an unchanged 28 remaining screens and identical immutable recording.",
+                "C recording step 43 Z opens spell selection. Step44 a prints You feel the amulet draining your energy away.--More-- and rnd(10)=4; step 45 dot remains at More; step 46 Space prints insufficient-energy message and consumes four elapsed-turn draws. JS hero energy remains7 at its refusal, proving missing deterministic drain/result behavior rather than glyph or beam mismatch.",
+                "Read whole source spell.c:1220-1380 against JS spell.js:1380-1480. The checker currently throws for Amulet drain and forgotten knowledge. Its existing insufficient-energy abort returns hardcoded ECMD_OK, which must preserve the source incoming/out result after Amulet sets ECMD_TIME. Base energy/hunger must not include the extra Amulet drain; state.disp.botl and zero clamp precede abort.",
+                "Read complete adjacent source spell_backfire:1181-1217 plus canonical potion setters. Cases 0-3 confusion; 4-6 confusion then stun; 7-8 stun then confusion; 9 stun; old timeout values and level-based duration are distinct source values. Use this whole helper in the coherent preflight task; pure constructed tests alone cannot establish the forgotten-spell entry.",
+                "Existing read.c seffect_amnesia/forget -> spell.c losespells is implemented and provides a source-valid runtime path to zero retention while preserving spell slot/ID. Independent C-first uncursed amnesia scroll setup followed by cast is the planned backfire witness; no long wait, seed search or state injection is necessary. Random amnesia may forget none, so inspect C setup and retain source-supported multiple-scroll actions as needed before JavaScript comparison.",
+                "Evidence limits: investigation-only replay of the assigned immutable case. No game edits, new C games or source claim. Current case reaches drain-induced failure, not a surviving Amulet cast or backfire. Direct teleport caller env and complete preflight entry coverage require verification in implementation; do not claim whole spelleffects, getspell, docast, dotele or doturn."
+              ],
+              "proposal": {
+                "id": "port-spell-cast-preflight-amulet-v35-20261009",
+                "kind": "file-port",
+                "cFile": "spell.c",
+                "fromFunction": "spell_backfire",
+                "toFunction": "spelleffects_check",
+                "functions": [
+                  "spell_backfire",
+                  "spelleffects_check"
+                ],
+                "lineRanges": [
+                  "1181-1217",
+                  "1220-1380"
+                ],
+                "cLines": 198,
+                "base": "0bff853548e214fc72efc77b38bea3711d1c7627",
+                "summary": "Complete spell-casting preflight, Amulet drain and forgotten-spell backfire.",
+                "selectionReason": "A190 independently claims admitted synthetic/v35/v35-spell-amulet-carrier. Accepted 61b9bad31 and current assigned-base replay both leave 28 unmatched screens out of 72, first stop44. Source spell.c:1290-1303 drains rnd(2*energy) and consumes a turn even when the resulting energy is insufficient. JavaScript refuses that missing branch. Whole preflight also refuses forgotten spells, so coherent complete scope includes adjacent spell_backfire. B192 owns only disjoint chain-lightning functions and one effect arm; no list/showtrap dispatcher changes are required.",
+                "detail": "At segment 0 step 44 selecting force bolt, C spelleffects_check:1298 calls rnd(10)=4 after the drain message; hero energy 7 falls to 3, lower than base energy 5. C sets disp.botl and ECMD_TIME before insufficient-energy return. JS stops before message/RNG and its current abort shape hardcodes ECMD_OK. Translate whole preflight and adjacent backfire, preserving return-valued energy/result, message/input/RNG/property order and normal/force entry distinctions.",
+                "sessions": [
+                  "synthetic/v35/v35-spell-amulet-carrier"
+                ],
+                "investigation": "investigations/synthetic/v35/v35-spell-amulet-carrier.json",
+                "syntheticProvenance": [
+                  {
+                    "corpus": "synthetic",
+                    "batch": "v35",
+                    "caseId": "v35-spell-amulet-carrier",
+                    "session": "synthetic/v35/v35-spell-amulet-carrier",
+                    "manifestPath": "challenges/manifests/v35.json",
+                    "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+                    "recording": "challenges/cases/v35/v35-spell-amulet-carrier.session.json",
+                    "recordingPath": "challenges/cases/v35/v35-spell-amulet-carrier.session.json",
+                    "recordingSha256": "e5224f5c13c5c5812a78e0ee303efcb4ae8d70c593e8cca6942eb5c40ddfd5ae",
+                    "recipe": "challenges/cases/v35/v35-spell-amulet-carrier.recipe.session.json",
+                    "recipeSha256": "14d2cec47a2cff5c29c993824dcba44a71589b331716e3fb3bcab089f3d58dcf",
+                    "replayInputSha256": "9a345b9f1c2c4f64668854b1f41843898e09b9498646789c8c4a14892bfcd5a5",
+                    "evaluationPath": "challenges/evaluations/accepted-61b9bad31ac7fc81b7370cd1312e25e5bf7358cf-v35.json",
+                    "evaluationCommit": "61b9bad31ac7fc81b7370cd1312e25e5bf7358cf",
+                    "evaluationArtifact": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+                    "evaluationUtc": "2026-10-09T08:57:27.032Z",
+                    "remainingScreens": 28,
+                    "recordedSteps": 72,
+                    "previousScreensMatched": null,
+                    "regression": false,
+                    "passed": false,
+                    "error": null,
+                    "metrics": {
+                      "screens": {
+                        "matched": 44,
+                        "total": 72
+                      },
+                      "rng": {
+                        "matched": 6138,
+                        "total": 6143
+                      },
+                      "cursors": {
+                        "matched": 44,
+                        "total": 72
+                      }
+                    },
+                    "firstMismatch": {
+                      "kind": "stop",
+                      "message": "unsupported hero command: an unported branch of this command: spell casting requires the Amulet of Yendor energy drain during casting",
+                      "step": 44
+                    },
+                    "step": 44,
+                    "kind": "stop",
+                    "sourceFile": null,
+                    "function": null,
+                    "message": "unsupported hero command: an unported branch of this command: spell casting requires the Amulet of Yendor energy drain during casting",
+                    "cFile": null,
+                    "luaFile": null,
+                    "line": null
+                  }
+                ],
+                "reservations": [
+                  "session:synthetic/v35/v35-spell-amulet-carrier",
+                  "source:spell.c:spell_backfire",
+                  "source:spell.c:spelleffects_check",
+                  "contract:spell-cast-preflight-result"
+                ],
+                "allowedPaths": [
+                  "investigations/synthetic/v35/v35-spell-amulet-carrier.json",
+                  "js/spell.js",
+                  "scripts/spell.test.mjs",
+                  "scripts/amulet-casting.test.mjs",
+                  "scripts/run-amulet-casting.mjs",
+                  "recipes/spell.c/",
+                  "recordings/spell.c/",
+                  ".cache/"
+                ],
+                "dependencies": [
+                  "a2200bd388c90cb78421179f2efc1747714a4530",
+                  "fe92f318021b5ab8501314da09973cee63e39624"
+                ],
+                "supportingScope": "Reuse the existing spelleffects consumed-check result and all caller adapters; no whole spelleffects/docast/getspell/teleport/pray credit. Audit canonical message fallback at the checker because dotele currently calls spelleffects without env. Request an exact bounded external caller path only if production evidence proves required.",
+                "validationPlan": "Source-pin all preflight early returns, remembered/forgotten knowledge, hunger/strength/capacity, pre-drain insufficient energy (no RNG/no time), Amulet clamp/ECMD_TIME and surviving-energy base cost, hunger and success-roll order. Backfire pins rn2(10) cases, TIMEOUT extraction, addition/truncation and canonical make_confused/make_stunned order. Replay selected through all 72 steps. Independent C-first real-Amulet cast primary and cheap role/spell/date variation should cover drain-induced failure and surviving drain/success or normal failure. Reach forgotten backfire with ordinary uncursed amnesia scroll(s) then cast retained forgotten spell slot; use already implemented losespells/read ownership, no state injection. Audit sole direct checker caller spelleffects and nonforced docast/dotele/doturn command adapters; record independent witnesses or exact inherited caller blockers before completion. Forced dowizcast must skip the check/drain. Focused/lint/quality/fresh and required synthetic range, no aggregate scans."
+              }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "spell_backfire",
+            "implementation": "js/spell.js",
+            "symbol": "spell_backfire",
+            "sourceReview": "Read whole spell.c1181-1217. Duration=(level+1)*3; extract HStun/HConfusion TIMEOUT before drawing rn2(10). Translate all four case groups in C setter order, with exact integer thirds and FALSE feedback arguments. Reuse canonical potion.c make_confused/make_stunned, retaining packed non-timeout flags. RNG uses the supplied canonical random environment. Removed forgotten-spell refusal in the immediate checker; no unported callee remains in this helper.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects_check",
+                "source": "spell.c1254: forgotten retained spell invokes spell_backfire before rnd(base energy), clamp and ECMD_TIME."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/amulet-casting.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/preflight-forgotten-wizard-independent.session.json",
+              "recordings/spell.c/preflight-forgotten-variation-independent.session.json"
+            ],
+            "sourceFile": "spell.c",
+            "synthetic": [],
+            "checkedAt": "025a63365add2839073372ffca68abfb01dd6729"
+          },
+          {
+            "name": "spelleffects_check",
+            "implementation": "js/spell.js",
+            "symbol": "spelleffects_check",
+            "sourceReview": "Read complete spell.c1220-1380 and all consumed dependencies: spellev/id/know, rejectcasting/can_chant/freehand, acurr, check_capacity, percent_success and morehungry. C Confusion and Stunned are intrinsic-only macros. Preserve unknown/rejection, base energy, forgotten/knowledge messages, hunger/strength/capacity guards, Amulet message then rnd(2*base), clamp/botl/ECMD_TIME, insufficient-energy suffix and retained result, base hunger Wizard INT reductions/clamp, success calculation, confusion short-circuit and rnd100, integer half-cost failure. Return object carries both C out parameters even on abort. Canonical message normalization in this owner supplies ttyPline to the existing env-less dotele caller while retaining supplied operations. Removed both UnsupportedSpellCastError refusals; class remains required by unported effect arms. No injected result or skipped consumed dependency remains.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c1394: sole direct helper caller invokes check unless force and consumes abort/res/energy before any spell effect. Existing successful effect returns TIME; drain-induced abort now preserves TIME."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/amulet-casting.test.mjs",
+              "scripts/spell.test.mjs",
+              "scripts/cast-healing.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/preflight-amulet-wizard-independent.session.json",
+              "recordings/spell.c/preflight-amulet-healer-independent.session.json",
+              "recordings/spell.c/preflight-forgotten-wizard-independent.session.json",
+              "recordings/spell.c/preflight-forgotten-variation-independent.session.json",
+              "recordings/spell.c/preflight-turn-independent.session.json",
+              "recordings/spell.c/jumping-learned-fallback-independent.session.json"
+            ],
+            "sourceFile": "spell.c",
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-spell-amulet-carrier",
+                "segment": 0,
+                "fromStep": 43,
+                "throughStep": 71,
+                "source": "cmd.c ordinary Z -> spell.c docast/getspell -> spelleffects -> spelleffects_check, real-Amulet drain then insufficient-energy ECMD_TIME and following elapsed turn."
+              }
+            ],
+            "checkedAt": "025a63365add2839073372ffca68abfb01dd6729"
+          }
+        ],
+        "entryPointReview": "Helper-only source family defines no new command or level entry point. spell_backfire has one source caller, spelleffects_check; checker has one source caller, nonforced spelleffects. Existing transitive callers audited: ordinary docast (spell.c826), non-Priest/non-Knight doturn (pray.c2422), no-physical-jumping jump fallback (apply.c1994), and dotele spell path (teleport.c1134). Docast, doturn and jump fallback have matching runtime evidence below. dotele currently omits env; the owned checker supplies canonical live message, verified by direct spelleffects rejection without env. The independent wizard m^T route is blocked by the inherited teleport.c dotelecmd mode-menu/tport_spell setup at step53, before C reaches checker rnd100 at54. Parent approved retaining that transitive outside-scope frontier without an incomplete helper designation. Forced dowizcast (spell.c812) and artifact storm (artifact.c2048) bypass checker as source requires. No whole spelleffects/docast/getspell/jump/dotele/doturn/dispatcher ownership credit.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "025a63365add2839073372ffca68abfb01dd6729",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first B192 spell.c chain-lightning forced-empty witness. Inputs fixed before JS comparison; unrelated seeds19234011–19234014 distinguish role/target and learned entry. Source queue guards and force-cast skip are exercised without borrowing admitted inputs. C-only correction before JS comparison: chain lightning is t on menu page2, and the wished book has inventory letter o in the learned Wizard setup. BLOCKED outside-limit: topl.c:update_topl / js/tty_message.js:ttyPlineCore retains the new kill message without immediate painting when no subsequent transient glyph flush occurs. RNG, all25 screens/cursors and four frame counts match; frame1 lacks the C kill message. No tty/display completion credit; this is not a passing recording.",
+  "segments": [
+    {
+      "seed": 19234011,
+      "datetime": "20411013114221",
+      "nethackrc": "OPTIONS=name:ChainWitness,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,!tips\n",
+      "moves": " #wizcast\n>t            "
+    }
+  ]
+}
