@@ -222660,7 +222660,7 @@
     {
       "id": "port-options-pickup-types-whole-v32-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete the pickup-types option request handler",
       "cFile": "options.c",
       "sessions": [
@@ -222696,7 +222696,7 @@
           "endLine": 6123,
           "declared": true,
           "sourceFile": "options.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -222904,6 +222904,320 @@
                   "4f44a54aa3bff3ccd1d4252387a5e069b3d66a6b"
                 ]
               }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "handler_pickup_types",
+            "implementation": "js/options.js",
+            "symbol": "handler_pickup_types",
+            "sourceReview": "Read whole options.c:6114-6121 at upstream16ff59115315917b93185d026aeefea06db9b0f4. Await the production parseoptions(\"pickup_types\",FALSE,FALSE) caller before returning optn_ok1, exactly source order. C discards parseoptions result; no whole parseoptions or doset credit. No RNG or output is added by the wrapper; the called option request provides the recorded output.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "optfn_pickup_types",
+                "source": "options.c:3398 do_handler returns handler_pickup_types; OPTION_HANDLERS routes the C allopt callback from doset full and simple menu pick loops."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/options-pickup-types.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/pickup-types-traditional-full.session.json",
+              "recordings/options.c/pickup-types-traditional-simple-restore.session.json",
+              "recordings/options.c/pickup-types-combination-menu.session.json",
+              "recordings/options.c/pickup-types-wizard-class-menu.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-options-pickup-traditional",
+                "segment": 0,
+                "fromStep": 29,
+                "throughStep": 45,
+                "source": "cmd.c:doextcmd optionsfull -> options.c:doset -> optfn_pickup_types do_handler -> handler_pickup_types6114-6121 -> parseoptions -> optfn_pickup_types do_set3308-3402 traditional getlin/class parsing, then full menu value redraw."
+              }
+            ],
+            "checkedAt": "1284e60b42ebde4775c7978300ed09913f893ebc"
+          }
+        ],
+        "entryPointReview": "All request sites inspected: allopt_array_init7428 DO_INIT (source no-op, defaultResult adapter and pinned result), startup parseoptions DO_SET (canonical applyOption adapter), full/simple option menus GET_VAL plus DO_HANDLER -> handler -> runtime parseoptions DO_SET (traditional, combination fallback, ordinary full, wizard full entries recorded). Runtime explicit DO_SET is result-pinned and existing focused parser tests. get_option_value(cnfvalid TRUE) GET_CNF_VAL is active through #saveoptions persistence, blocked and withheld from completion; it is not compile-time inactive. No separate registry/injected operation remains for pickup_types. Compatibility pickup<=6, initial empty/negated, explicit classes and a/A are source-pinned; invalid runtime output gaps are named, not fabricated.",
+        "entryPoints": [
+          {
+            "name": "Startup initialization and explicit pickup_types config",
+            "functions": [
+              "optfn_pickup_types"
+            ],
+            "recordings": [
+              "recordings/options.c/pickup-types-traditional-full.session.json",
+              "recordings/options.c/pickup-types-traditional-simple-restore.session.json",
+              "recordings/options.c/pickup-types-combination-menu.session.json",
+              "recordings/options.c/pickup-types-wizard-class-menu.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Typed full-options traditional pickup input and value redraw",
+            "functions": [
+              "optfn_pickup_types",
+              "handler_pickup_types"
+            ],
+            "recordings": [
+              "recordings/options.c/pickup-types-traditional-full.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-options-pickup-traditional",
+                "segment": 0,
+                "fromStep": 29,
+                "throughStep": 45,
+                "source": "cmd.c:doextcmd optionsfull -> options.c:doset -> optfn_pickup_types do_handler -> handler_pickup_types6114-6121 -> parseoptions -> optfn_pickup_types do_set3308-3402 traditional getlin/class parsing, then full menu value redraw."
+              }
+            ]
+          },
+          {
+            "name": "Ordinary O simple-options empty, spaces, class and Escape responses",
+            "functions": [
+              "optfn_pickup_types",
+              "handler_pickup_types"
+            ],
+            "recordings": [
+              "recordings/options.c/pickup-types-traditional-simple-restore.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Combination getlin m fallback to canonical class menu",
+            "functions": [
+              "optfn_pickup_types",
+              "handler_pickup_types"
+            ],
+            "recordings": [
+              "recordings/options.c/pickup-types-combination-menu.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Wizard class-menu venom admission and Escape restore",
+            "functions": [
+              "optfn_pickup_types",
+              "handler_pickup_types"
+            ],
+            "recordings": [
+              "recordings/options.c/pickup-types-wizard-class-menu.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Save configuration GET_CNF_VAL writer",
+            "functions": [
+              "optfn_pickup_types"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "1284e60b42ebde4775c7978300ed09913f893ebc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "handler_pickup_types is verified and the live pickup request behavior matches; optfn_pickup_types remains incomplete until cmd.c saveoptions and cfgfiles.c do_write_config_file reach its active GET_CNF_VAL caller, with runtime config_erradd output retained as a named discarded-return gap."
+    },
+    {
+      "id": "port-options-score-request-family-v32-20261009",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete the scores option request owner and existing callers",
+      "cFile": "options.c",
+      "sessions": [
+        "synthetic/v32/v32-options-scores"
+      ],
+      "selectionReason": "Dependency-ready after B179 acceptance; accepted v32 evidence reaches options.c optfn_scores at step 42 with 16 screens remaining, and C156 completes the canonical request owner.",
+      "detail": "Port whole options.c optfn_scores and consolidate startup, live setter, and value formatter callers. Preserve source reset, negation, token, signed-integer, separator, partial-write, return-status, and getter order; retain live config_erradd and native saveoptions file-writing frontiers without broader source credit.",
+      "openedAt": "fde75baae63c2fa1829beca96d064ab2dd10dc67",
+      "openStanding": {
+        "sha": "1284e60b42ebde4775c7978300ed09913f893ebc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "optfn_scores",
+          "line": 3669,
+          "endLine": 3762,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3669,
+        "to": 3762
+      },
+      "syntheticProvenance": {
+        "synthetic/v32/v32-options-scores": {
+          "session": "synthetic/v32/v32-options-scores",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-options-scores",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-options-scores.session.json",
+          "recordingSha256": "74df6d4914cfa6607b788f00ef45a91d6303344e402987ca1d6a4f9cdcaae697",
+          "evaluationPath": "challenges/evaluations/accepted-1284e60b42ebde4775c7978300ed09913f893ebc-v32.json",
+          "evaluationCommit": "1284e60b42ebde4775c7978300ed09913f893ebc"
+        }
+      },
+      "activeStanding": {
+        "sha": "1284e60b42ebde4775c7978300ed09913f893ebc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-options-scores",
+          "session": "synthetic/v32/v32-options-scores",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recording": "challenges/cases/v32/v32-options-scores.session.json",
+          "recordingPath": "challenges/cases/v32/v32-options-scores.session.json",
+          "recordingSha256": "74df6d4914cfa6607b788f00ef45a91d6303344e402987ca1d6a4f9cdcaae697",
+          "recipe": "challenges/cases/v32/v32-options-scores.recipe.session.json",
+          "recipeSha256": "912513756dc131d0616f127a3aa035722f8398cfdce4fdcd063f42a6e0bcb428",
+          "replayInputSha256": "50f12a4d50ee2b0b7eefc6e242c67adb61b4cf4d4c14a76ff7f4f92fd096860d",
+          "evaluationPath": "challenges/evaluations/accepted-1284e60b42ebde4775c7978300ed09913f893ebc-v32.json",
+          "evaluationCommit": "1284e60b42ebde4775c7978300ed09913f893ebc",
+          "evaluationArtifact": "challenges/evaluations/accepted-1284e60b42ebde4775c7978300ed09913f893ebc-v32.json",
+          "evaluationUtc": "2026-10-09T01:33:49.752Z",
+          "remainingScreens": 16,
+          "recordedSteps": 58,
+          "previousScreensMatched": 42,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 42,
+              "total": 58
+            },
+            "rng": {
+              "matched": 2990,
+              "total": 2990
+            },
+            "cursors": {
+              "matched": 42,
+              "total": 58
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: the options menu requires optfn_scores()'s do_set request",
+            "step": 42
+          },
+          "step": 42,
+          "kind": "stop",
+          "sourceFile": "options.c",
+          "function": "optfn_scores",
+          "message": "unsupported hero command: an unported branch of this command: the options menu requires optfn_scores()'s do_set request",
+          "cFile": "options.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v32/v32-options-scores.json",
+            "result": {
+              "session": "synthetic/v32/v32-options-scores",
+              "corpus": "synthetic",
+              "batch": "v32",
+              "caseId": "v32-options-scores",
+              "manifestPath": "challenges/manifests/v32.json",
+              "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+              "recordingSha256": "74df6d4914cfa6607b788f00ef45a91d6303344e402987ca1d6a4f9cdcaae697",
+              "evaluationPath": "challenges/evaluations/accepted-4e29cc141937e87b623f827cf27d4c229d5e290a-v32.json",
+              "evaluationCommit": "4e29cc141937e87b623f827cf27d4c229d5e290a",
+              "remainingScreens": 16,
+              "recordedSteps": 58,
+              "status": "complete",
+              "commit": "6313682a28da199d50f22654046f75c003fa8a1b",
+              "mismatch": {
+                "session": "synthetic/v32/v32-options-scores",
+                "corpus": "synthetic",
+                "batch": "v32",
+                "caseId": "v32-options-scores",
+                "manifestPath": "challenges/manifests/v32.json",
+                "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+                "recordingPath": "challenges/cases/v32/v32-options-scores.session.json",
+                "recordingSha256": "74df6d4914cfa6607b788f00ef45a91d6303344e402987ca1d6a4f9cdcaae697",
+                "recipeSha256": "912513756dc131d0616f127a3aa035722f8398cfdce4fdcd063f42a6e0bcb428",
+                "evaluationPath": "challenges/evaluations/accepted-4e29cc141937e87b623f827cf27d4c229d5e290a-v32.json",
+                "evaluationCommit": "4e29cc141937e87b623f827cf27d4c229d5e290a",
+                "metrics": {
+                  "screens": {
+                    "matched": 42,
+                    "total": 58
+                  },
+                  "rng": {
+                    "matched": 2990,
+                    "total": 2990
+                  },
+                  "cursors": {
+                    "matched": 42,
+                    "total": 58
+                  }
+                },
+                "remainingScreens": 16,
+                "recordedSteps": 58,
+                "firstMismatch": {
+                  "step": 42,
+                  "kind": "behavioral-refusal",
+                  "message": "optfn_scores() do_set request is not admitted"
+                },
+                "step": 42,
+                "kind": "behavioral-refusal",
+                "evaluationUtc": "2026-10-09T00:52:25.882Z"
+              },
+              "summary": "Accepted full-options dispatch now reaches scores at step 42. The live request table omits optfn_scores do_set, while startup parsing and get_val are split partial implementations. Complete the whole scores request owner and its existing startup/live/value callers.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "options.c",
+                "functions": [
+                  "optfn_scores"
+                ],
+                "branch": "After selecting scores in #optionsfull and entering a valid value, doset calls parseoptions(scores:value,FALSE,FALSE), which dispatches optfn_scores do_set. The JS OPTION_SET_HANDLERS table omits scores and refuses before the three score flags change.",
+                "callers": [
+                  "options.c:parseoptions638–647 invokes allopt[].optfn do_set for configuration and in-game updates; JS parseNethackrc startup branch6324 and live OPTION_SET_HANDLERS8437 need one canonical scores handler.",
+                  "options.c:doset_add_menu9037 requests get_val; JS OPTION_VALUE_HANDLERS.scores7664 duplicates the formatter and must call the same source owner.",
+                  "options.c:initoptions_init7428 requests do_init; scores returns success with no state changes. options.c:get_option_value8481–8505 requests get_cnf_val/get_val through allopt. The config getter shares the menu formatter; broader native #saveoptions all_options_strbuf9678 serialization is stopped by existing cfgfiles.c fopen gap and receives no caller/owner credit."
+                ],
+                "dependencies": [
+                  "Existing string_for_opt/hacklib helpers provide consumed token values; preserve signed atoi narrowing, source letter classification and left-to-right partial writes.",
+                  "cfgfiles.c:config_erradd1554–1562 live diagnostic output is unported and its result is discarded. Retain a named note_unported gap for live missing/invalid scores diagnostics, preserve state and source return paths, and retain a blocked independent runtime variation. Do not expand into configuration-error owner completion.",
+                  "Keep B178 doset/doset_simple_menu and B179 pickup/B180 status-hilite owners read-only. C155 is an immutable ancestor dependency unrelated to scores behavior.",
+                  "Native #saveoptions serialization through get_option_value/all_options_strbuf remains outside this owner task, stopped by the existing cfgfiles.c fopen gap in JS do_write_config_file. Keep this broader caller boundary explicit and take no configuration-writing credit."
+                ]
+              },
+              "evidence": [
+                "Authoritative accepted evaluation challenges/evaluations/accepted-4e29cc141937e87b623f827cf27d4c229d5e290a-v32.json at 4e29cc141937e87b623f827cf27d4c229d5e290a records42/58 screens,2990/2990 RNG,42/58 cursors:16 remaining. Corpus, recording and recipe hashes are unchanged.",
+                ".cache/C156-B173-boundary-replay.log at worker6313682a28da199d50f22654046f75c003fa8a1b has divergence null and stops at step42 after input .#optionsfull\\n:scores\\n\\n5 top/2 around/own\\n; refused source request is optfn_scores do_set, beyond resolved B173 dispatch.",
+                "Read complete options.c:optfn_scores3669–3760: do_init/default return optn_ok; mandatory value is checked before reset, outer negation skips token parsing after reset; inner negation/count/space/letter/slash loop preserves each write before silent errors; getters format top/around/own or none.",
+                "JS options.js4596–4658 has only startup do_set, loses outer negation inside owner and returns no source request status. scores get_val7664–7676 is duplicated; live setter table8437–8465 has no scores entry. Consolidate these into the whole canonical optfn_scores with source request arguments and connect existing callers.",
+                "Read cfgfiles.c:config_erradd1544–1589; live errors add punctuation, call pline then wait_synch, unlike the startup frame path in JS cfgfiles.js315–329. The result is discarded: retain cfgfiles.c config_erradd as a named gap for live error output, preserving source state/return effects and blocking only invalid/missing runtime evidence. Startup frame output remains in scope through its existing owner.",
+                "Earlier report identified B173 first-owner doextcmd dispatch refusal at14. That source dependency is accepted and current replay proves reachability of the downstream scores owner. Do not reimplement the accepted dispatcher or bundle unrelated options."
+              ]
             }
           }
         }
