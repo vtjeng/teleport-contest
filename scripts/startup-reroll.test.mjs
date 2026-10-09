@@ -59,7 +59,7 @@ function rerollState({ role = M.PM_HEALER, lootabc = false } = {}) {
     game.flags = { implicit_uncursed: true, lootabc };
     game.iflags = {
         menu_overlay: true,
-        menu_headings: { attr: 1, color: 8 },
+        menu_headings: { attr: 7 /* C ATR_INVERSE */, color: 8 },
     };
     game.urole = { mnum: role, filecode: role === M.PM_CLERIC ? 'Pri' : 'Hea' };
     // botl.c describe_level() reaches dungeon.c depth(), which reads

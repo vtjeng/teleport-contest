@@ -34,7 +34,7 @@ export function get_menu_coloring(str, state = game) {
     return null;
 }
 
-function ttyMenuColorAttribute(attr) {
+export function ttyMenuColorAttribute(attr) {
     if (attr === 1) return ATR_BOLD;
     if (attr === 4) return ATR_UNDERLINE;
     if (attr === 7) return ATR_INVERSE;
@@ -55,7 +55,9 @@ export function add_menu(state, item) {
         const text = item.label ?? item.text ?? '';
         const style = get_menu_coloring(text, state);
         if (style) {
-            item.color = style.color;
+            // Recorder 006 serializes foreground7 (CLR_GRAY) as default SGR.
+            // Keep the source value in the coloring node; project at drawing.
+            item.color = style.color === 7 ? NO_COLOR : style.color;
             item.attr = ttyMenuColorAttribute(style.attr);
         }
     }
@@ -78,7 +80,7 @@ export function add_menu_heading(text, state = game) {
     const style = state.iflags?.menu_headings;
     const gameover = state.program_state?.gameover;
     const attr = gameover ? ATR_NONE
-        : Number.isInteger(style?.attr) ? style.attr : ATR_INVERSE;
+        : Number.isInteger(style?.attr) ? ttyMenuColorAttribute(style.attr) : ATR_INVERSE;
     const color = gameover ? NO_COLOR
         : Number.isInteger(style?.color) ? style.color : NO_COLOR;
     return {

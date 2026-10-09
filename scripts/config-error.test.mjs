@@ -39,7 +39,7 @@ import { allopt } from '../js/optlist_data.js';
 import {
     change_inv_order, oc_to_str, parseNethackrc,
 } from '../js/options.js';
-import { ATR_INVERSE, ATR_NONE, NO_COLOR } from '../js/terminal.js';
+import { ATR_NONE, NO_COLOR } from '../js/terminal.js';
 import { nomux_get_cursor, tty_raw_print } from '../js/tty_rawprint.js';
 import { withSerializedGrids } from './terminal-grid-capture.mjs';
 import {
@@ -686,7 +686,7 @@ test('a boolean value C cannot read reports and sets nothing', () => {
     assert.equal(
         parseNethackrc('OPTIONS=petattr:none\nOPTIONS=hilite_pet\n')
             .iflags.wc2_petattr,
-        ATR_INVERSE,
+        7, // C ATR_INVERSE; the renderer projects captured inverse1.
     );
 
     // setRoleplay() has the same shape, and pauper writes nudist beside it.

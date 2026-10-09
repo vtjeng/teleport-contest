@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "BLOCKED outside limit: botl.c status_hilite_menu_choose_field requires origfld BL_FLUSH, but every active status_hilite_menu_fld caller passes a known field; selected source helper has no reachable production request in this build. No runtime credit.",
+  "segments": [
+    {
+      "seed": 18032932,
+      "datetime": "20561117132435",
+      "nethackrc": "OPTIONS=name:Lysa,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": ".#optionsfull\n:status highlight rules\n\n\u001b."
+    }
+  ]
+}

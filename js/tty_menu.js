@@ -10,6 +10,7 @@ import {
     status_window_rows,
 } from './display.js';
 import { game } from './gstate.js';
+import { ttyMenuColorAttribute } from './windows.js';
 import { tty_getlin } from './getline.js';
 import {
     decodeUtf8ByteString,
@@ -76,7 +77,7 @@ export function menuTitleStyle(state = game) {
     const style = state.iflags?.menu_headings;
     return {
         titleAttr: Number.isInteger(style?.attr)
-            ? style.attr : ATR_INVERSE,
+            ? ttyMenuColorAttribute(style.attr) : ATR_INVERSE,
         titleColor: Number.isInteger(style?.color)
             ? style.color : NO_COLOR,
     };
