@@ -227318,6 +227318,62 @@
           "evaluationCommit": "7af2dcb832c469033b652c131fe1feeae0d47ed3"
         }
       }
+    },
+    {
+      "id": "port-uhitm-missum-seduction-v33-20261009",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port source-ordered monster miss feedback and wakeup behavior.",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v33/v33-nymph-steals-weapon",
+        "synthetic/v33/v33-nymph-wielded-goblin-combat"
+      ],
+      "selectionReason": "The two current v33 nymph cases first diverge in uhitm.c missum feedback while RNG remains aligned.",
+      "detail": "C uhitm.c:5198-5215 applies could_seduce before visibility feedback, then wakes a non-helpless target; the submitted whole-function port covers known_hitum, hmonas, and kick_monster callers.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "missum",
+          "line": 5198,
+          "endLine": 5217,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 5198,
+        "to": 5217
+      },
+      "syntheticProvenance": {
+        "synthetic/v33/v33-nymph-steals-weapon": {
+          "session": "synthetic/v33/v33-nymph-steals-weapon",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-nymph-steals-weapon",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-nymph-steals-weapon.session.json",
+          "recordingSha256": "baed492a69a402d3c9b731a6d5423577dd3f01b08854be78bcf1d96ea54982f1",
+          "evaluationPath": "challenges/evaluations/accepted-68b87a3eb85817e3009cee89a52281e78e23d03c-v33.json",
+          "evaluationCommit": "68b87a3eb85817e3009cee89a52281e78e23d03c"
+        },
+        "synthetic/v33/v33-nymph-wielded-goblin-combat": {
+          "session": "synthetic/v33/v33-nymph-wielded-goblin-combat",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-nymph-wielded-goblin-combat",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-nymph-wielded-goblin-combat.session.json",
+          "recordingSha256": "a5491001b368a8a5e0627975f0898b07585cfd6354f979f3aa810e9f3e38afcb",
+          "evaluationPath": "challenges/evaluations/accepted-68b87a3eb85817e3009cee89a52281e78e23d03c-v33.json",
+          "evaluationCommit": "68b87a3eb85817e3009cee89a52281e78e23d03c"
+        }
+      }
     }
   ]
 }
