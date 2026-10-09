@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v36/v36-quest-ran-goal",
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-ran-goal",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "d91dd644166bac1a96f924062f216997268a1824a2b8e5902a66cde930a446ad",
+  "evaluationPath": "challenges/evaluations/accepted-61750b3c94588b56b72831b9a3754af8f9cd6770-v36.json",
+  "evaluationCommit": "61750b3c94588b56b72831b9a3754af8f9cd6770",
+  "remainingScreens": 41,
+  "recordedSteps": 60,
+  "status": "complete",
+  "commit": "a19d771ae7d9c26049d379cd0c4da079b1bfea44",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-ran-goal",
+    "session": "synthetic/v36/v36-quest-ran-goal",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-ran-goal.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-ran-goal.session.json",
+    "recordingSha256": "d91dd644166bac1a96f924062f216997268a1824a2b8e5902a66cde930a446ad",
+    "recipe": "challenges/cases/v36/v36-quest-ran-goal.recipe.session.json",
+    "recipeSha256": "0b3c5b2da5d705e123db2ed398f61f6157ad4d78f6bad0a6b8a83fb61a153e9b",
+    "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+    "evaluationPath": "challenges/evaluations/accepted-61750b3c94588b56b72831b9a3754af8f9cd6770-v36.json",
+    "evaluationCommit": "61750b3c94588b56b72831b9a3754af8f9cd6770",
+    "evaluationArtifact": "challenges/evaluations/accepted-61750b3c94588b56b72831b9a3754af8f9cd6770-v36.json",
+    "evaluationUtc": "2026-10-09T12:57:34.625Z",
+    "remainingScreens": 41,
+    "recordedSteps": 60,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 60
+      },
+      "rng": {
+        "matched": 2825,
+        "total": 3880
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-goal\"",
+      "step": 19
+    },
+    "step": 19,
+    "kind": "stop",
+    "sourceFile": "Ran-goal.lua",
+    "function": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-goal\"",
+    "cFile": null,
+    "luaFile": "Ran-goal.lua",
+    "line": null
+  },
+  "goalKind": "lua-port",
+  "summary": "Ran-goal has no registered loader. Port its whole Ranger quest goal program, preserving the exact map, fixed and random object placement, ordered hostile monster descriptors, doors, stair, non-diggable region, and final wallification.",
+  "source": {
+    "file": "Ran-goal.lua",
+    "branch": "Ranger quest goal arrival or registered wizard des-file load of Ran-goal, with Scorpius and the Longbow of Diana at the source map coordinates.",
+    "functions": [
+      "Ran-goal.lua"
+    ],
+    "callers": [
+      "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Ran-goal.lua",
+      "wizcmds.c:wiz_load_splua -> load_special -> registered Ran-goal Lua program"
+    ],
+    "dependencies": [
+      "Existing special-level initialization, map, region, stair, non-diggable, object, trap, door, monster, and wallification adapters; canonical ONAME_LEVEL_DEF naming."
+    ]
+  },
+  "evidence": [
+    "The accepted v36 evaluation at 12b580fd16db4d603164821a223688d1d9167cdc reports v36-quest-ran-goal at 19/60 matching screens and cursors, 2825/3880 RNG calls, with the missing Ran-goal loader at step 19. The recording SHA256 is d91dd644166bac1a96f924062f216997268a1824a2b8e5902a66cde930a446ad and manifest SHA256 is 58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c. The subsequent Ran-loca integration does not alter this source or loader key; the cached Ran-goal row remains the current diagnosis.",
+    "Read all 106 lines of dat/Ran-goal.lua, SHA256 cbe9d0f03ad0ba49e6a31611d03d382601ba9fcb7053aa84787522fe2226bfe5. It solid-fills stone, sets mazelevel, defines an exact 76x20 map, selects the full map lit, places the up stair at (19,10), marks the full map non-diggable, then performs object, trap, door, monster, and wallify calls in source order.",
+    "Lines 39-60 place a blessed +0 bow named The Longbow of Diana and a chest at (37,10), eight random objects at fixed neighboring coordinates, five additional random objects, and six random traps. Existing mklev object adapters preserve map-relative coordinates; sp_lev_object resolves descriptors and applies buc/spe/name, calling nameObject -> oname with ONAME_LEVEL_DEF. Artifact naming for the Longbow of Diana already exists.",
+    "Lines 62-75 define fourteen door descriptors in order. Lines 77-104 define twenty-eight hostile monsters in order: Scorpius; six fixed forest centaurs; six fixed mountain centaurs; two random forest centaurs; two random mountain centaurs; two C-class monsters; six fixed scorpions; two random scorpions; and one s-class monster. Existing lspo_monster/get_table_montype/get_table_monclass resolve these species and class tables. The program ends with des.wallify at line 106.",
+    "Production wiring belongs in js/quest_levels.js. mklev.js:load_special imports and dispatches QUEST_LEVEL_LOADERS for makelevel/makemaz; wizcmds.js:wiz_load_splua reaches the same load_special owner. Add only the Ran-goal loader key and implementation. No supporting descriptor-owner, generic loader, or shared contract change is required by this source."
+  ]
+}
