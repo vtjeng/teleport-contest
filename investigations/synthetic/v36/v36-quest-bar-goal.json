@@ -1,0 +1,130 @@
+{
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-bar-goal",
+  "session": "synthetic/v36/v36-quest-bar-goal",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "628730723a830202637a44bc43b9eebc448c1b542b22450563a6f9e6de844996",
+  "evaluationPath": "challenges/evaluations/accepted-9bb29ae0cf4db7baf1358008c21acd797175aebc-v36.json",
+  "evaluationCommit": "9bb29ae0cf4db7baf1358008c21acd797175aebc",
+  "remainingScreens": 17,
+  "recordedSteps": 60,
+  "status": "complete",
+  "commit": "33119e37fecdeaa3cdcb7d3f91e26d0d624bd6eb",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-bar-goal",
+    "session": "synthetic/v36/v36-quest-bar-goal",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-bar-goal.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-bar-goal.session.json",
+    "recordingSha256": "628730723a830202637a44bc43b9eebc448c1b542b22450563a6f9e6de844996",
+    "recipe": "challenges/cases/v36/v36-quest-bar-goal.recipe.session.json",
+    "recipeSha256": "8c6cc2e78c598c1e25e08cd08e61abfa95887d7c471d037f76aea6c9f53e3e8c",
+    "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+    "evaluationPath": "challenges/evaluations/accepted-9bb29ae0cf4db7baf1358008c21acd797175aebc-v36.json",
+    "evaluationCommit": "9bb29ae0cf4db7baf1358008c21acd797175aebc",
+    "evaluationArtifact": "challenges/evaluations/accepted-9bb29ae0cf4db7baf1358008c21acd797175aebc-v36.json",
+    "evaluationUtc": "2026-10-09T10:38:34.264Z",
+    "remainingScreens": 17,
+    "recordedSteps": 60,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 43,
+        "total": 60
+      },
+      "rng": {
+        "matched": 2303,
+        "total": 3365
+      },
+      "cursors": {
+        "matched": 60,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 43,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 43,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 5,
+        "column": 32,
+        "cCell": {
+          "ch": "^",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": ".",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2293,
+        "cEntry": "rn2(2)=0",
+        "cCaller": "noncoalignment(sp_lev.c:1856)",
+        "jsEntry": "rnd(2)=1",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 19,
+          "key": "A"
+        },
+        "stepIndex": 19
+      },
+      "cursor": null
+    },
+    "step": 19,
+    "kind": "rng",
+    "sourceFile": "sp_lev.c",
+    "function": "noncoalignment",
+    "message": null,
+    "cFile": "sp_lev.c",
+    "luaFile": null,
+    "line": 1856
+  },
+  "summary": "sp_lev.c:sp_amask_to_amask passes noncoalignment into Align2amask, whose C macro reevaluates that random call at each conditional. JavaScript uses a pure function on one evaluated value, skipping the second/third draws and assigning the wrong altar mask. Preserve the exact macro evaluation order only in the AM_SPLEV_NONCO arm; no whole helper or Bar-goal.lua credit.",
+  "goalKind": "divergence-fix",
+  "source": {
+    "file": "sp_lev.c",
+    "branch": "sp_amask==AM_SPLEV_NONCO; source calls Align2amask(noncoalignment(u.ualignbase[A_ORIGINAL])). Each macro conditional separately reevaluates its argument; second call may stop at A_LAWFUL, otherwise third call feeds +2.",
+    "functions": [
+      "sp_amask_to_amask (bounded AM_SPLEV_NONCO macro-evaluation divergence, line1915; no whole-function credit)"
+    ],
+    "callers": [
+      "dat/Bar-goal.lua40:des.altar alignnoncoaligned -> sp_lev.c:lspo_altar -> create_altar2469 -> sp_amask_to_amask1915",
+      "sp_lev.c:create_monster1943 also consumes sp_amask_to_amask; lspo_monster with alignnoncoaligned shares corrected helper; this task claims no separate monster/altar/Lua completion.",
+      "js/quest_levels.js:barGoal -> js/mklev.js:lspo_altar/create_altar1387 -> canonical js/themeroom_fill.js:sp_amask_to_amask835-850; create_monsterBody558 is the second shared caller."
+    ],
+    "dependencies": [
+      "Complete noncoalignment1852-1860 and existing JS810-815 agree one rn2(2) per invocation; preserve helper, do not add stand-in RNG calls. Align2amask macro in include/align.h49-52 expands x at A_NONE, A_LAWFUL and x+2; existing pure js/const.js helper correctly converts an already evaluated value and must stay unchanged.",
+      "Existing lspo_altar/create_altar/level-load and Bar-goal registry provide a reachable noncoaligned-altar witness; inspect full helper and callers, but scope is only random macro expansion. No Healer/Caveman/Wizard3 program or spinach-tin dependency.",
+      "All other AM_SPLEV_CO/RANDOM/explicit branches retain existing values/order; source-pinned scripted RNG tests must distinguish two-draw lawful exit and three-draw arithmetic tail including combined masks.",
+      "B195 is an inherited pending delivery in this worker history, not a consumed source dependency of this helper; preserve its immutable ancestry when submitting any eventual authorized source fix, without changing its paths."
+    ]
+  },
+  "evidence": [
+    "Saved queue and accepted9bb29ae0 v36 evaluation have43/60screens,60/60cursors,2303/3365RNG and17remaining. RecipeSHA8c6cc2e78c598c1e25e08cd08e61abfa95887d7c471d037f76aea6c9f53e3e8c,recordingSHA628730723a830202637a44bc43b9eebc448c1b542b22450563a6f9e6de844996 verified. No aggregate replay or new C recording in this investigation.",
+    "Targeted current replay at33119e37 reproduces original first RNG mismatch index2293 at segment0step19:A: C rn2(2)=0 callernoncoalignment1856 versus JSrnd(2)=1. Full output has3365C/3404JSRNG,60screens/cursors,noanimation. First screen mismatch43 row5col32 Ctrap^ versus JSfloor.; cursor fully matches. Artifact .cache/B198/admitted-comparison.json and run-EmqIFX log.",
+    "Focused source trace .cache/B198/trace.log/.cache/B198/trace-rng.json (bounded run-3Cp8vp) shows C2292rn2(2)=1 and2293rn2(2)=0 both from noncoalignment before next_ident rnd2; JS has only first rn2 then next_ident. Hero original alignmentneutral0. First macro call yields-1,notA_NONE; second yields+1,A_LAWFUL,so CaltarAM_LAWFUL4. JS converts first-1 directly toAM_CHAOTIC1, confirmed live altarflags1.",
+    "Read complete sp_lev.c:noncoalignment1852-1860 and sp_amask_to_amask1908-1924; they are not missing implementations. align.h49-52 defines nestedconditional ((x)==A_NONE)?AM_NONE:((x)==A_LAWFUL)?AM_LAWFUL:((x)+2), evaluating x independently. JSfunction call discards macro reevaluation side effects. For valid alignments first test cannot matchA_NONE,second condition chooses two or three draws; tail may yield source-combined masks and must not be simplified to one stable chosen alignment.",
+    "Read create_altar2446-2495 and create_monster1943 source sites alongside canonical JavaScript; both route through corrected shared helper. rg noncoaligned in dat finds active Bar-goal.lua40 plus Wiz-goal.lua71, whose field is aligned rather than align and therefore does not select AM_SPLEV_NONCO under get_table_align. No new Wiz-goal/monster dispatch claim needed; direct focused helper tests pin shared return consumption.",
+    "Whole Bar-goal.lua read for source attribution: altar40 precedes objects/traps/monsters in registered barGoal. Earlier map/lighting/stairs/init RNG matches through2292; first defect is macro side-effect order rather than absent Lua loader, noncoalignment algorithm,random core or renderer. Later unrelated generator/source frontiers remain outside bounded completion credit.",
+    "Smallest fix is in js/themeroom_fill.js AM_SPLEV_NONCO arm: invoke canonical noncoalignment separately at source macro tests and tail, preserve unsigned result conversion. Keep js/const.js pure Align2amask and all source callers unchanged; no source-owner edits beyond that branch.",
+    "Evidence plan: scripted source-pinned tests for originalneutral/lawful/chaotic two/three-draw branches and exact masks; direct shared caller contract check. Independently chosen C-first neutral and chaotic Barbarian forcedBar-goal arrivals plus #wizmap verify altar state and generation beyond macro; fully matching runtime is required, and any subsequent unowned source blocker must be reported before expanding scope. Existing admitted case remeasured only, no corpus copy or aggregate scoring.",
+    "Proposed source scope source:sp_lev.c:sp_amask_to_amask,contract:noncoaligned-alignment-macro-order; allowed js/themeroom_fill.js,scripts/themeroom-fill.test.mjs,scripts/run-noncoaligned-altar.mjs,recipes/sp_lev.c/,recordings/sp_lev.c/ and investigation. B196/B197 reports preserved; this helper does not consume their source programs or spinach branch. No game edits before central gate."
+  ]
+}
