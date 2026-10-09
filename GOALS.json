@@ -231596,6 +231596,260 @@
           "evaluationCommit": "004a6da893c5dc420e260eb3ae0e285e85a56874"
         }
       }
+    },
+    {
+      "id": "port-cmd-doextlist-v34-20261009",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port the extended-command list, wizard sections, filtering, search and navigation.",
+      "cFile": "cmd.c",
+      "sessions": [
+        "synthetic/v34/v34-debug-extended-list"
+      ],
+      "selectionReason": "Integrate immutable A186 delivery fe92f318 after its exact dependencies were accepted; it completes the admitted v34 extended-command-list mismatch with whole source units and independent recordings.",
+      "detail": "At step 4, #? resolves to cmd.c doextlist but JavaScript refuses its dispatcher. Port the complete extended-command list and flag formatter, including wizard sections, autocomplete filtering, search, section merging and redisplay. Reconcile the bounded doextcmd retry and direct/key-bound caller; reuse the canonical command table and TTY menu/input state.",
+      "openedAt": "1e1fd23a0258b43f0aebc3006476d47136270115",
+      "openStanding": {
+        "sha": "004a6da893c5dc420e260eb3ae0e285e85a56874",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "doc_extcmd_flagstr",
+          "line": 524,
+          "endLine": 561,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "doextlist",
+          "line": 562,
+          "endLine": 751,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 524,
+        "to": 751
+      },
+      "requiredFunctions": [
+        {
+          "name": "pmatchi",
+          "line": 152,
+          "endLine": 159,
+          "declared": true,
+          "sourceFile": "strutil.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v34/v34-debug-extended-list": {
+          "session": "synthetic/v34/v34-debug-extended-list",
+          "corpus": "synthetic",
+          "batch": "v34",
+          "caseId": "v34-debug-extended-list",
+          "manifestPath": "challenges/manifests/v34.json",
+          "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+          "recordingPath": "challenges/cases/v34/v34-debug-extended-list.session.json",
+          "recordingSha256": "6afa4daf330a5e2adc025ac7a8dc811d605c07195f4b774dee5d0d237848dacb",
+          "evaluationPath": "challenges/evaluations/accepted-004a6da893c5dc420e260eb3ae0e285e85a56874-v34.json",
+          "evaluationCommit": "004a6da893c5dc420e260eb3ae0e285e85a56874"
+        }
+      },
+      "activeStanding": {
+        "sha": "004a6da893c5dc420e260eb3ae0e285e85a56874",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v34",
+          "caseId": "v34-debug-extended-list",
+          "session": "synthetic/v34/v34-debug-extended-list",
+          "manifestPath": "challenges/manifests/v34.json",
+          "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+          "recording": "challenges/cases/v34/v34-debug-extended-list.session.json",
+          "recordingPath": "challenges/cases/v34/v34-debug-extended-list.session.json",
+          "recordingSha256": "6afa4daf330a5e2adc025ac7a8dc811d605c07195f4b774dee5d0d237848dacb",
+          "recipe": "challenges/cases/v34/v34-debug-extended-list.recipe.session.json",
+          "recipeSha256": "7069bb68ae49d7a338e76ba0c717da0c5d41b8170fb03f6f3cf8919fb96f494b",
+          "replayInputSha256": "544b53bf0645eda2132cb080a5e23275cfed19030775d2438cadbb88fd13701a",
+          "evaluationPath": "challenges/evaluations/accepted-004a6da893c5dc420e260eb3ae0e285e85a56874-v34.json",
+          "evaluationCommit": "004a6da893c5dc420e260eb3ae0e285e85a56874",
+          "evaluationArtifact": "challenges/evaluations/accepted-004a6da893c5dc420e260eb3ae0e285e85a56874-v34.json",
+          "evaluationUtc": "2026-10-09T11:03:19.427Z",
+          "remainingScreens": 27,
+          "recordedSteps": 31,
+          "previousScreensMatched": 4,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 4,
+              "total": 31
+            },
+            "rng": {
+              "matched": 2354,
+              "total": 2354
+            },
+            "cursors": {
+              "matched": 4,
+              "total": 31
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: doextlist() for the extended command '?' is not ported",
+            "step": 4
+          },
+          "step": 4,
+          "kind": "stop",
+          "sourceFile": "cmd.c",
+          "function": "doextlist",
+          "message": "unsupported hero command: doextlist() for the extended command '?' is not ported",
+          "cFile": "cmd.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v34/v34-debug-extended-list.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v34",
+              "caseId": "v34-debug-extended-list",
+              "session": "synthetic/v34/v34-debug-extended-list",
+              "manifestPath": "challenges/manifests/v34.json",
+              "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+              "recordingSha256": "6afa4daf330a5e2adc025ac7a8dc811d605c07195f4b774dee5d0d237848dacb",
+              "evaluationPath": "challenges/evaluations/accepted-1fca795f45379c5d8364836c74c8ac61910620cd-v34.json",
+              "evaluationCommit": "1fca795f45379c5d8364836c74c8ac61910620cd",
+              "remainingScreens": 27,
+              "recordedSteps": 31,
+              "status": "complete",
+              "commit": "3befa1a0eff3c364040977ed51b37adfd4409909",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v34",
+                "caseId": "v34-debug-extended-list",
+                "session": "synthetic/v34/v34-debug-extended-list",
+                "manifestPath": "challenges/manifests/v34.json",
+                "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+                "recordingPath": "challenges/cases/v34/v34-debug-extended-list.session.json",
+                "recording": "challenges/cases/v34/v34-debug-extended-list.session.json",
+                "recordingSha256": "6afa4daf330a5e2adc025ac7a8dc811d605c07195f4b774dee5d0d237848dacb",
+                "evaluationPath": "challenges/evaluations/accepted-1fca795f45379c5d8364836c74c8ac61910620cd-v34.json",
+                "evaluationCommit": "1fca795f45379c5d8364836c74c8ac61910620cd",
+                "evaluationUtc": "2026-10-09T07:01:02.149Z",
+                "remainingScreens": 27,
+                "recordedSteps": 31,
+                "metrics": {
+                  "screens": {
+                    "matched": 4,
+                    "total": 31
+                  },
+                  "rng": {
+                    "matched": 2354,
+                    "total": 2354
+                  },
+                  "cursors": {
+                    "matched": 4,
+                    "total": 31
+                  }
+                },
+                "step": 4,
+                "kind": "stop",
+                "sourceFile": "cmd.c",
+                "function": "doextlist",
+                "line": 562,
+                "message": "unsupported hero command: doextlist() for the extended command '?' is not ported",
+                "firstMismatch": {
+                  "passed": false,
+                  "error": null,
+                  "lengths": {
+                    "rng": {
+                      "c": 2354,
+                      "js": 2354
+                    },
+                    "screens": {
+                      "c": 31,
+                      "js": 4
+                    },
+                    "cursors": {
+                      "c": 31,
+                      "js": 4
+                    },
+                    "animFrames": {
+                      "c": 0,
+                      "js": 0
+                    }
+                  },
+                  "rngMismatch": null,
+                  "screenMismatch": {
+                    "index": 4,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 4,
+                      "key": "\n"
+                    },
+                    "kind": "js-missing"
+                  },
+                  "cursorMismatch": {
+                    "index": 4,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 4,
+                      "key": "\n"
+                    },
+                    "cCursor": [
+                      9,
+                      23,
+                      1
+                    ]
+                  },
+                  "animMismatch": null,
+                  "segmentMismatch": null
+                }
+              },
+              "summary": "At step 4, #? resolves to cmd.c doextlist but JavaScript refuses its dispatcher. Port the complete extended-command list and flag formatter, including wizard sections, autocomplete filtering, search, section merging and redisplay. Reconcile the bounded doextcmd retry and direct/key-bound caller; reuse the canonical command table and TTY menu/input state.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "cmd.c",
+                "functions": [
+                  "doc_extcmd_flagstr (524-558)",
+                  "doextlist (562-743)"
+                ],
+                "branch": "An available extended-command row resolves to doextlist, or the help menu requests its list. Each invocation starts with menumode=0, onelist=0 and an empty search. Wizard mode enables a second section and the z toggle; a toggles autocomplete filtering; : enables case-insensitive substring/wildcard search; s clears search. Dismissal returns ECMD_OK and only the doextcmd entry repeats the extended-command prompt.",
+                "callers": [
+                  "cmd.c doextcmd493-519 -> get_ext_cmd -> extcmdlist[idx].ef_funct -> doextlist; do/while repeats only when func==doextlist, preserving availability/prefix checks and the eventual handler result. JS cmd.js doextcmd4955-5319 currently lacks this arm and retry.",
+                  "cmd.c extcmdlist1670-1672 ? row -> rhack3805-3825 calls the bound or queued handler and consumes ECMD flags. Add the bounded JavaScript direct/queued list dispatch; it must return no time.",
+                  "pager.c hmenu_doextlist2814-2817 -> doextlist through the help table2844. JS pager.js dohelp choice11 already awaits this canonical owner and returns ECMD_OK."
+                ],
+                "dependencies": [
+                  "The generated js/extcmdlist_data.js table is the sole command metadata owner, with state.extcmdFlags holding mutable source flags; preserve source table order, CMD_NOT_AVAILABLE/INTERNALCMD exclusion and source accept_menu_prefix(cmd.c3509-3512). Its Boolean result is complete and has no RNG/output/state mutation.",
+                  "Canonical windows.js select_menu -> tty_menu.js PICK_ONE and getline.js tty_getlin provide consumed selection/string results. Supply explicit controls with source selectors/group accelerators so : overrides generic TTY search when present. Preserve menu dismissal/restoration and getlin ordering.",
+                  "hacklib.js strstri/strsubst/mungspaces already implement the consumed substring, description replacement and whitespace rules. Source strutil.c pmatchi152-155 and pmatch_internal105-142 define the wildcard fallback. The existing complete ASCII wildcard matcher is private in tty_menu.js1008-1027; relocate it to canonical js/strutil.js and wire both TTY search callers rather than creating another implementation. Pure source-pinned wildcard tests are required.",
+                  "doc_extcmd_flagstr is impure for its null argument: it appends the two menu footnotes and returns null. For an entry it returns the m/A flag text. Reuse canonical prefix binding and visible key formatting; do not create a second command or key state."
+                ]
+              },
+              "evidence": [
+                "Assigned-session bounded replay run-VYXFUw at examined worker3befa1a0 reproduces 4/31 screens/cursors,2354/2354 RNG,0 animation frames. First missing screen and cursor are segment0 step4 Enter. Boundary and full stack are .cache/A186/probe.json; log .cache/A186/probe.log; receipt /tmp/teleport-validation-1000/run-VYXFUw/receipt.json. Saved accepted1fca evaluation confirms the same exact remaining27 and recording digest; A185 changed only unrelated jumping behavior.",
+                "C recording step4 displays Extended Commands List with a/:/z controls and ordinary heading; step10 displays wizard rows including debugfuzzer/wizkill; step11 is the final wizard page and footnotes; step12 returns to a fresh # prompt. RNG remains empty throughout this list interaction, locating a dispatch/output/input boundary rather than random state.",
+                "Complete authoritative cmd.c524-743 source read: heading creation is lazy per pass; n accumulates across passes and controls the separator after each pass. Nonwizard/non-discover GENERALCMD descriptions suppress the extinct phrase. Search tries case-insensitive command/description substring before pmatchi fallback. Empty/Escape search terminates without redisplay; switch-back and z clear search; search misses show no matches instead of flag footnotes. These details are part of whole doextlist scope, not optional follow-ups.",
+                "JavaScript cmd.js1426 immediately refuses wizard sections; its builder1385 only emits the first non-debug empty-search pass and its controls throw. The first production defect is the absent doextlist switch at doextcmd5317. Source cmd.c517 repeats after every list return, while current JavaScript doextcmd is one pass with directly returned handlers. The bounded retry must preserve prefix/availability checks, repeat queue and the eventual ECMD result.",
+                "Caller search rg -n doextlist in js and upstream source finds the cmd table/doextcmd and pager hmenu_doextlist only. Source extcmdlist binds the ? row to M(?), permitting a direct or custom bound key and queued command path; current rhack has no list branch. The existing pager choice11 is already awaited. Exclude whole doextcmd/rhack/pager ownership credit.",
+                "Validation plan: full selected31-step replay; source-pinned builder/formatter/wildcard tests for all flags, mutable autocomplete, ordinary/discover/wizard descriptions, pass separators, control transitions, search normalization/substrings/wildcards/misses/Escape, and returned no-time semantics. Independently record #? wizard toggle/search primary and cheap nonwizard/help-menu variation; include direct-bound list entry and post-list # command to establish retry/time/order. Reuse existing help-command/cmd/TTY tests. Run focused/lint/quality and strict fresh differentials; blocked inherited input/menu routes must remain explicit and cannot establish complete entry-point evidence.",
+                "Evidence limit: investigation replays only the immutable assigned case. No new C recordings, runtime control variants or source implementation have been created. Proposed source units have not been claimed; dispatcher and private matcher relocation require the source-gate approval and reservation check against other cmd/TTY work."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
