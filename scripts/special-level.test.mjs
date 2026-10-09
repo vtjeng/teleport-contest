@@ -6,7 +6,7 @@ import { newgame_pre_mklev } from '../js/allmain.js';
 import { game, resetGame } from '../js/gstate.js';
 import { mklev } from '../js/mklev.js';
 import { monst_globals_init } from '../js/monsters.js';
-import { objects_globals_init } from '../js/objects.js';
+import { TIN, EGG, objects_globals_init } from '../js/objects.js';
 import { initRng } from '../js/rng.js';
 import { ICE, ICED_POOL, ICED_MOAT, ROOM } from '../js/const.js';
 import { light_globals_init } from '../js/light.js';
@@ -231,4 +231,30 @@ test('fixed des.stair forces ROOM before a dungeon-end refusal', async () => {
         for (let x=1; x<80; ++x) for (let y=0; y<21; ++y)
             assert.notEqual(game.level.at(x,y).typ, ROOM); // C force=false preserves background ice.
     });
+});
+
+
+test('lspo_object non-species descriptors preserve spe and skip species assignment', async () => {
+    const source = readFileSync('nethack-c/upstream/src/sp_lev.c', 'utf8');
+    // sp_lev.c:3684–3694 recognizes these tokens case-insensitively; egg's
+    // later laid_by_you branch overrides the initial zero at 3720–3721.
+    assert.match(source, /tmpobj.corpsenm = NON_PM;\s*tmpobj.spe = !strcmpi\(montype, "spinach"\) \? 1 : 0;\s*nonpmobj = TRUE/u);
+    const cases = [
+        { id: 'tin', montype: 'SpInAcH', spe: 1 },
+        { id: 'tin', montype: 'eMpTy', spe: 0 },
+        { id: 'egg', montype: 'EmPtY', laid_by_you: true, spe: 1 },
+        { id: 'egg', montype: 'empty', laid_by_you: false, spe: 0 },
+    ]; // All accepted non-species arms, including the source's egg override.
+    for (const { spe, ...descriptor } of cases) {
+        await runLoader(async des => {
+            await des.level_init({ style: 'solidfill', fg: '.' });
+            const object = await des.object({ ...descriptor, x: 5, y: 5,
+                quantity: 2, buc: 'blessed' }); // Source Mon-loca's fixed stack/buc.
+            assert.equal(object.otyp, descriptor.id === 'tin' ? TIN : EGG);
+            assert.equal(object.spe, spe);
+            assert.equal(object.quan, 2);
+            assert.equal(object.blessed, true);
+            assert.equal(typeof object.corpsenm, 'number'); // Never store token as species.
+        });
+    }
 });

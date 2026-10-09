@@ -5,8 +5,8 @@
   "manifestPath": "challenges/manifests/v36.json",
   "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
   "recordingSha256": "ac97310261adf55d3764dce9e254db818e8b82668d804a6cb6781a8d7f8aadd5",
-  "evaluationPath": "challenges/evaluations/accepted-9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269-v36.json",
-  "evaluationCommit": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269",
+  "evaluationPath": "challenges/evaluations/accepted-c7bb7471083822d944dd96d56cdbe4127349c7c1-v36.json",
+  "evaluationCommit": "c7bb7471083822d944dd96d56cdbe4127349c7c1",
   "remainingScreens": 41,
   "recordedSteps": 60,
   "session": "synthetic/v36/v36-quest-rog-loca",
@@ -23,11 +23,11 @@
     "recordingSha256": "ac97310261adf55d3764dce9e254db818e8b82668d804a6cb6781a8d7f8aadd5",
     "recipe": "challenges/cases/v36/v36-quest-rog-loca.recipe.session.json",
     "recipeSha256": "42a067c889c37ec2efffcd583150776b32258aaf9c4d83624be6c467eeb05628",
-    "replayInputSha256": "0007dc9110572c458d03957b9623040d4b49e21419f51f623fd6a786ab0c0471",
-    "evaluationPath": "challenges/evaluations/accepted-9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269-v36.json",
-    "evaluationCommit": "9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269",
-    "evaluationArtifact": "challenges/evaluations/accepted-9a32ea9ec1cb5f876ecde8ccc60d7e5fbf9e8269-v36.json",
-    "evaluationUtc": "2026-10-09T19:24:09.638Z",
+    "replayInputSha256": "789a42f9254142ffade5c76a41dec63d80646cb1f8e0aa2c2115bccba424a957",
+    "evaluationPath": "challenges/evaluations/accepted-c7bb7471083822d944dd96d56cdbe4127349c7c1-v36.json",
+    "evaluationCommit": "c7bb7471083822d944dd96d56cdbe4127349c7c1",
+    "evaluationArtifact": "challenges/evaluations/accepted-c7bb7471083822d944dd96d56cdbe4127349c7c1-v36.json",
+    "evaluationUtc": "2026-10-09T19:36:40.461Z",
     "remainingScreens": 41,
     "recordedSteps": 60,
     "previousScreensMatched": 19,
@@ -60,11 +60,7 @@
     "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Rog-loca\"",
     "cFile": null,
     "luaFile": "Rog-loca.lua",
-    "line": null,
-    "investigation": {
-      "status": "missing",
-      "path": "investigations/synthetic/v36/v36-quest-rog-loca.json"
-    }
+    "line": null
   },
   "status": "complete",
   "goalKind": "lua-port",
@@ -91,6 +87,7 @@
     ]
   },
   "evidence": [
+    "Accepted C172 evaluation at c7bb7471083822d944dd96d56cdbe4127349c7c1 confirms 19/60 screens and cursors and 2693/3500 RNG calls, with 41 screens remaining. The first stop remains the missing Rog-loca loader at segment 0 step 19; this refresh uses saved accepted evidence.",
     "Assigned replay run-NIxmMZ at examined398d1c8fc reproduces 19/60 screens and cursors and 2693/3500 RNG calls. Segment 0, step 19, key z confirms the destination. C next rn2(3)=1 belongs to nhlib.lua private alignment shuffle before the program. JS stops with absent Rog-loca load_special; .cache/A194/probe.json and probe.log contain the exact source stack and comparison.",
     "Read whole dat/Rog-loca.lua lines 1-99: line 5 solidfill; 7 mazelevel; 11-33 exact cavern map; 35 lit relative region; 39-40 random up/down stairs; 42 nondiggable region; 44 cursed teleport scroll at (11,18), spe=0; 45-58 fourteen random objects; 60-65 six random traps; 67-83 seventeen hostile leprechauns; 84 one hostile class l; 85-91 seven hostile guardian nagas; 92-94 three hostile class N; 95-99 five hostile chameleons. Commented door example at 37 is inactive. There is no explicit final wallify call.",
     "Source parsing confirms 21 rows of exactly 76 columns, 33 monster descriptors, 15 object descriptors, and six traps. Generate the large fixed map from authoritative Lua and compare generated output, preserving every space and glyph.",

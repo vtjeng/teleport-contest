@@ -124,14 +124,16 @@ function packedCoordinate(specification) {
     return (coordinate.x & 0xff) | ((coordinate.y & 0xff) << 16);
 }
 
-function normalizedSpe(specification) {
+function normalizedSpe(specification, nonpmobj) {
     if (specification.id === CORPSE || specification.id === STATUE) {
         return (specification.historic ? CORPSTAT_HISTORIC : 0)
             | (specification.male ? CORPSTAT_MALE : 0)
             | (specification.female ? CORPSTAT_FEMALE : 0);
     }
     if (specification.id === EGG)
-        return specification.laidByYou ? 1 : 0;
+        return (specification.laid_by_you ?? specification.laidByYou) ? 1 : 0;
+    if (specification.id === TIN && nonpmobj)
+        return specification.montype.toLowerCase() === 'spinach' ? 1 : 0;
     if (specification.id === TIN || specification.id === FIGURINE)
         return 0;
     return get_table_int_or_random(specification, 'spe', -127);
@@ -175,13 +177,19 @@ function normalizeSpecification(specification, context, state) {
         objectClass = objectType(id, state).oc_class;
     else if (objectClass > -1 && id === STRANGE_OBJECT)
         id = -1;
+    // C ref: lspo_object nonpmobj. NON_PM skips create_object's setter;
+    // it does not erase the species state produced by ordinary mksobj.
+    const montype = typeof specification.montype === 'string'
+        ? specification.montype.toLowerCase() : null;
+    const nonpmobj = (id === TIN && (montype === 'spinach' || montype === 'empty'))
+        || (id === EGG && montype === 'empty');
     return {
         ...specification,
         id: id > STRANGE_OBJECT ? id : null,
         class: objectClass > -1 ? objectClass : null,
-        spe: signedShort(normalizedSpe(specification)),
+        spe: signedShort(normalizedSpe(nonpmobj ? { ...specification, id } : specification, nonpmobj)),
         buc: get_table_buc(specification),
-        corpsenm: specification.corpsenm ?? NON_PM,
+        corpsenm: nonpmobj ? NON_PM : (specification.corpsenm ?? NON_PM),
         quantity: get_table_int_or_random(specification, 'quantity', -1),
         buried: Boolean(specification.buried),
         lit: Boolean(specification.lit),
