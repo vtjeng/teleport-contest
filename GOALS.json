@@ -227902,6 +227902,232 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-potion-pool-dip-confirmation-v33-20261009",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Restore the canonical pool dip confirmation path.",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v33/v33-pool-wets-towel"
+      ],
+      "selectionReason": "The highest unreserved v33 mismatch stops in potion.c:dodip because the pool branch lacks its existing y_n dependency.",
+      "detail": "The C pool branch prompts before water_damage. JavaScript already uses the same dynamic cmd import in adjacent fountain and sink branches, but omitted it for pools.",
+      "openedAt": "a665170ef5bcb22ad762fc2a310c5a3983b7562c",
+      "openStanding": {
+        "sha": "2cdcba614b447508fcfa411849feafef48cb486d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "dodip",
+      "session": "synthetic/v33/v33-pool-wets-towel",
+      "syntheticProvenance": {
+        "synthetic/v33/v33-pool-wets-towel": {
+          "session": "synthetic/v33/v33-pool-wets-towel",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-pool-wets-towel",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-pool-wets-towel.session.json",
+          "recordingSha256": "08b72209736804b30773f1d203f8eea3b0a96bd8bc30dcdc6e3b4987df5f72e7",
+          "evaluationPath": "challenges/evaluations/runway-2cdcba614-v33.json",
+          "evaluationCommit": "2cdcba614b447508fcfa411849feafef48cb486d"
+        }
+      },
+      "activeStanding": {
+        "sha": "2cdcba614b447508fcfa411849feafef48cb486d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-pool-wets-towel",
+          "session": "synthetic/v33/v33-pool-wets-towel",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recording": "challenges/cases/v33/v33-pool-wets-towel.session.json",
+          "recordingPath": "challenges/cases/v33/v33-pool-wets-towel.session.json",
+          "recordingSha256": "08b72209736804b30773f1d203f8eea3b0a96bd8bc30dcdc6e3b4987df5f72e7",
+          "recipe": "challenges/cases/v33/v33-pool-wets-towel.recipe.session.json",
+          "recipeSha256": "affeebc0a1adbe7d0d66acd1000cdee7ee99772c819d37f9e8f8cb86005de550",
+          "replayInputSha256": "21ba99d02be14208de16c6819755004042a4ee38b10511ed1c6d0522c962d82d",
+          "evaluationPath": "challenges/evaluations/runway-2cdcba614-v33.json",
+          "evaluationCommit": "2cdcba614b447508fcfa411849feafef48cb486d",
+          "evaluationArtifact": "challenges/evaluations/runway-2cdcba614-v33.json",
+          "evaluationUtc": "2026-10-09T05:22:49.391Z",
+          "remainingScreens": 83,
+          "recordedSteps": 83,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": "y_n is not defined",
+          "metrics": {
+            "screens": {
+              "matched": 0,
+              "total": 83
+            },
+            "rng": {
+              "matched": 0,
+              "total": 1911
+            },
+            "cursors": {
+              "matched": 0,
+              "total": 83
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "Replay error: y_n is not defined",
+            "step": null
+          },
+          "step": null,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "Replay error: y_n is not defined",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v33/v33-pool-wets-towel.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v33",
+              "caseId": "v33-pool-wets-towel",
+              "session": "synthetic/v33/v33-pool-wets-towel",
+              "manifestPath": "challenges/manifests/v33.json",
+              "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+              "recording": "challenges/cases/v33/v33-pool-wets-towel.session.json",
+              "recordingPath": "challenges/cases/v33/v33-pool-wets-towel.session.json",
+              "recordingSha256": "08b72209736804b30773f1d203f8eea3b0a96bd8bc30dcdc6e3b4987df5f72e7",
+              "recipe": "challenges/cases/v33/v33-pool-wets-towel.recipe.session.json",
+              "recipeSha256": "affeebc0a1adbe7d0d66acd1000cdee7ee99772c819d37f9e8f8cb86005de550",
+              "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+              "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+              "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+              "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+              "evaluationUtc": "2026-10-09T03:03:55.655Z",
+              "remainingScreens": 83,
+              "recordedSteps": 83,
+              "previousScreensMatched": null,
+              "regression": false,
+              "passed": false,
+              "error": "y_n is not defined",
+              "metrics": {
+                "screens": {
+                  "matched": 0,
+                  "total": 83
+                },
+                "rng": {
+                  "matched": 0,
+                  "total": 1911
+                },
+                "cursors": {
+                  "matched": 0,
+                  "total": 83
+                }
+              },
+              "firstMismatch": {
+                "kind": "stop",
+                "message": "Replay error: y_n is not defined",
+                "step": null
+              },
+              "step": null,
+              "kind": "stop",
+              "sourceFile": null,
+              "function": null,
+              "message": "Replay error: y_n is not defined",
+              "cFile": null,
+              "luaFile": null,
+              "line": null,
+              "status": "complete",
+              "commit": "da9e73672354b82404810ffd59f9a8292f20e55f",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v33",
+                "caseId": "v33-pool-wets-towel",
+                "session": "synthetic/v33/v33-pool-wets-towel",
+                "manifestPath": "challenges/manifests/v33.json",
+                "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+                "recording": "challenges/cases/v33/v33-pool-wets-towel.session.json",
+                "recordingPath": "challenges/cases/v33/v33-pool-wets-towel.session.json",
+                "recordingSha256": "08b72209736804b30773f1d203f8eea3b0a96bd8bc30dcdc6e3b4987df5f72e7",
+                "recipe": "challenges/cases/v33/v33-pool-wets-towel.recipe.session.json",
+                "recipeSha256": "affeebc0a1adbe7d0d66acd1000cdee7ee99772c819d37f9e8f8cb86005de550",
+                "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+                "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+                "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+                "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+                "evaluationUtc": "2026-10-09T03:03:55.655Z",
+                "remainingScreens": 83,
+                "recordedSteps": 83,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": "y_n is not defined",
+                "metrics": {
+                  "screens": {
+                    "matched": 0,
+                    "total": 83
+                  },
+                  "rng": {
+                    "matched": 0,
+                    "total": 1911
+                  },
+                  "cursors": {
+                    "matched": 0,
+                    "total": 83
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "Replay error: y_n is not defined",
+                  "step": null
+                },
+                "step": null,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "Replay error: y_n is not defined",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "goalKind": "divergence-fix",
+              "summary": "The pool-water #dip branch in potion.c:dodip calls y_n at step57; JavaScript references it without the dynamic cmd import already present in the fountain/sink arms. The exception prevents the source confirmation prompt and canonical water_damage/wet_a_towel path.",
+              "source": {
+                "file": "potion.c",
+                "functions": [
+                  "dodip"
+                ],
+                "branch": "Hero selects a dry towel while standing in a pool, can reach the floor, and has not requested m-prefix inventory-only dipping. Pool branch formats waterbody_name prompt then awaits y_n before water_damage.",
+                "callers": [
+                  "cmd.c:doextcmd -> potion.c:dodip2267–2372; JS canonical #dip dispatcher reaches js/potion.js:dodip3268–3352."
+                ],
+                "dependencies": [
+                  "Canonical cmd.c y_n macro -> yn_function, exported JS async y_n881–886 returns a character byte and default No. Fountain/sink sibling branches dynamically import it; pool must do likewise to preserve ES module cycle initialization.",
+                  "Canonical trap.c:water_damage4712–4852 is already reused with consumed ER_DESTROYED result; towel branch calls canonical weapon.c:wet_a_towel, with existing RNG/message and source pickup_prev/in_use semantics. No owner reimplementation or whole-source credit.",
+                  "Shared potion.js edits are disjoint from B181 source:potion.c:potion_dip old-appearance helper. Only pool branch lexical import is needed; no module-level import or helper change."
+                ]
+              },
+              "evidence": [
+                "Authoritative saved baseline reports replay exception y_n is not defined with0/83screens; this masks the actual first boundary. Prepared C/JS trace identifies zero-based57 towel selection, C prompt Dip a towel into the pool of water? [yn] (n), then answer y at58 and towel wetting/drowning resistance continuation.",
+                "Read complete C potion.c:dodip2267–2372. y_n2341 follows formatted pool prompt; if y, it preserves Levitation/steed/hands guards, pickup_prev clear, optional acid in_use, and consumed water_damage result before ECMD_TIME. JavaScript pool arm3321 calls unbound y_n while siblings3298/3308 dynamically import it. Exact minimal correction is the same pool-local import before prompt formatting; retain all control/order.",
+                "Manifest prepared sourceTrace and current source establish true owner without replaying another session or scanning corpus. All unrelated changes in accepted/pending ancestry are outside dodip.",
+                "Bounded task reservation source:potion.c:dodip and contract:pool-dip-confirmation; paths js/potion.js, scripts/dip.test.mjs, scripts/potion.test.mjs, scripts/run-dip-command.mjs, recipes/potion.c/, recordings/potion.c/ and report/cache. No whole dodip/water_damage/y_n credit.",
+                "Validation: fail-first source-pinned valid pool confirmation call, selected83-step full replay, independent C-first aquatic towel #dip with distinct seed/date/role plus cheap variation, reject/fountain/sink regression checks. Keep menu-only and inaccessible floor behavior unchanged."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
