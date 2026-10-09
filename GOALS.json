@@ -221469,6 +221469,39 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-pray-strangulation-amulet-consumption-v32-20261008",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Consume a worn strangulation amulet during prayer recovery",
+      "cFile": "pray.c",
+      "sessions": [
+        "synthetic/v32/v32-prayer-strangulation"
+      ],
+      "selectionReason": "Resume the queued prayer strangulation divergence after accepted A175 released the fix_worst_trouble source reservation. The admitted v32 case still mismatches at the inventory screen after prayer.",
+      "detail": "The STRANGLED arm announces that the worn amulet vanishes but substitutes note_unported for the already ported canonical invent.c useup caller. Restore only pray.c391 useup(uamul) with canonical worn-slot callbacks, retaining all other incomplete fix_worst_trouble branches and claiming no whole-function completion.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "fix_worst_trouble",
+      "session": "synthetic/v32/v32-prayer-strangulation",
+      "step": 62,
+      "syntheticProvenance": {
+        "synthetic/v32/v32-prayer-strangulation": {
+          "session": "synthetic/v32/v32-prayer-strangulation",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-prayer-strangulation",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-prayer-strangulation.session.json",
+          "recordingSha256": "0707bf19a89e8b49b5d52ab47b9e48fc18006b583d0904a08e71af545eb3b496",
+          "evaluationPath": "challenges/evaluations/accepted-ff3dff0c8b71af1b0e8abbf0441ed286ce7f8385-v32.json",
+          "evaluationCommit": "ff3dff0c8b71af1b0e8abbf0441ed286ce7f8385"
+        }
+      }
     }
   ]
 }
