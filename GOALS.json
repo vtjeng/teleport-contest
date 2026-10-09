@@ -221473,7 +221473,7 @@
     {
       "id": "fix-pray-strangulation-amulet-consumption-v32-20261008",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Consume a worn strangulation amulet during prayer recovery",
       "cFile": "pray.c",
       "sessions": [
@@ -221487,8 +221487,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f18647f65477b3df69e7e30365e4e3993863a852",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "fix_worst_trouble",
       "session": "synthetic/v32/v32-prayer-strangulation",
       "step": 62,
@@ -221702,6 +221705,529 @@
                 "Read invent.c useupall1310–1316/useup1319–1333 and JS canonical owners4939–4974: stack case decreases quantity/in_use/weight; last-item case awaits required worn removal and freeinv before obfree. Canonical setwornEnv supplies cancelDoff/property/artifact callbacks to setnotworn. The selected ordinary amulet has no object timer or artifact-light branch.",
                 "Independent evidence plan: choose new role/seed/time and ordinary worn strangulation amulet, repeat with a cursed amulet variation, and a source-valid no matching worn amulet boundary. Assert actual state.uamul clearing, no matching inventory object, zero strangulation intrinsic and both messages; strictly compare full C RNG/screens/cursors. Source-pinned focused test must fail before restoration and retain the no-matching-amulet branch. No broader fix_worst_trouble completion claim."
               ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "f18647f65477b3df69e7e30365e4e3993863a852",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-cmd-doextcmd-full-options-dispatch-v32-20261008",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Dispatch the typed full-options menu",
+      "cFile": "cmd.c",
+      "sessions": [
+        "synthetic/v32/v32-options-fruit"
+      ],
+      "selectionReason": "Resume the older B173 full-options divergence after accepted B171 releases the exact dispatcher owner. Current accepted replay reproduces the 14/53 stop; canonical option menu hooks and consumed successful return already exist.",
+      "detail": "The typed #optionsfull command stops at the missing cmd.c:doextcmd doset arm before the fruit option is reached. Existing O and m-O wiring supplies canonical option-menu hooks and reaches doset_simple/doset. Add the bounded full-options dispatcher path using those same hooks, then retain the later fruit-handler frontier. No whole doextcmd, doset, optfn_fruit, or fruitadd completion credit.",
+      "openedAt": "73ae80b3cd45a0eecdf88825e7469e53352f309b",
+      "openStanding": {
+        "sha": "f18647f65477b3df69e7e30365e4e3993863a852",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "4e29cc141937e87b623f827cf27d4c229d5e290a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "doextcmd",
+      "session": "synthetic/v32/v32-options-fruit",
+      "step": 14,
+      "syntheticProvenance": {
+        "synthetic/v32/v32-options-fruit": {
+          "session": "synthetic/v32/v32-options-fruit",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-options-fruit",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-options-fruit.session.json",
+          "recordingSha256": "9a613ee4fb1fa15dbbe7692645cbe7d3950c65f10ced9e3ece1d9d5e52b8522e",
+          "evaluationPath": "challenges/evaluations/accepted-f18647f65477b3df69e7e30365e4e3993863a852-v32.json",
+          "evaluationCommit": "f18647f65477b3df69e7e30365e4e3993863a852"
+        }
+      },
+      "activeStanding": {
+        "sha": "f18647f65477b3df69e7e30365e4e3993863a852",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-options-fruit",
+          "session": "synthetic/v32/v32-options-fruit",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recording": "challenges/cases/v32/v32-options-fruit.session.json",
+          "recordingPath": "challenges/cases/v32/v32-options-fruit.session.json",
+          "recordingSha256": "9a613ee4fb1fa15dbbe7692645cbe7d3950c65f10ced9e3ece1d9d5e52b8522e",
+          "recipe": "challenges/cases/v32/v32-options-fruit.recipe.session.json",
+          "recipeSha256": "67bfcb671aa5c5a6662e6e6ad81b98c86498126b6b107412b57567a7bc821020",
+          "replayInputSha256": "28893dbfeb2d369f5538698a70496605fa5a694697114cb6cef74463f07f951c",
+          "evaluationPath": "challenges/evaluations/accepted-f18647f65477b3df69e7e30365e4e3993863a852-v32.json",
+          "evaluationCommit": "f18647f65477b3df69e7e30365e4e3993863a852",
+          "evaluationArtifact": "challenges/evaluations/accepted-f18647f65477b3df69e7e30365e4e3993863a852-v32.json",
+          "evaluationUtc": "2026-10-09T00:40:24.726Z",
+          "remainingScreens": 39,
+          "recordedSteps": 53,
+          "previousScreensMatched": 14,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 14,
+              "total": 53
+            },
+            "rng": {
+              "matched": 2664,
+              "total": 2664
+            },
+            "cursors": {
+              "matched": 14,
+              "total": 53
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: doset() for the extended command 'optionsfull' is not ported",
+            "step": 14
+          },
+          "step": 14,
+          "kind": "stop",
+          "sourceFile": "options.c",
+          "function": "doset",
+          "message": "unsupported hero command: doset() for the extended command 'optionsfull' is not ported",
+          "cFile": "options.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v32/v32-options-fruit.json",
+            "result": {
+              "session": "synthetic/v32/v32-options-fruit",
+              "corpus": "synthetic",
+              "batch": "v32",
+              "caseId": "v32-options-fruit",
+              "manifestPath": "challenges/manifests/v32.json",
+              "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+              "recordingSha256": "9a613ee4fb1fa15dbbe7692645cbe7d3950c65f10ced9e3ece1d9d5e52b8522e",
+              "evaluationPath": "challenges/evaluations/accepted-db0a7ad02ea001265fce34f7485b90c58d649d79-v32.json",
+              "evaluationCommit": "db0a7ad02ea001265fce34f7485b90c58d649d79",
+              "remainingScreens": 39,
+              "recordedSteps": 53,
+              "status": "complete",
+              "commit": "4706301895eb9a7a68bb28296ea37fac4bbd0e46",
+              "mismatch": {
+                "version": 1,
+                "corpus": "synthetic",
+                "batch": "v32",
+                "caseId": "v32-options-fruit",
+                "manifestPath": "challenges/manifests/v32.json",
+                "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+                "recordingPath": "challenges/cases/v32/v32-options-fruit.session.json",
+                "recordingSha256": "9a613ee4fb1fa15dbbe7692645cbe7d3950c65f10ced9e3ece1d9d5e52b8522e",
+                "recipeSha256": "67bfcb671aa5c5a6662e6e6ad81b98c86498126b6b107412b57567a7bc821020",
+                "evaluationPath": "challenges/evaluations/accepted-db0a7ad02ea001265fce34f7485b90c58d649d79-v32.json",
+                "evaluationCommit": "db0a7ad02ea001265fce34f7485b90c58d649d79",
+                "evaluationUtc": "2026-10-09T00:02:56.121Z",
+                "session": "synthetic/v32/v32-options-fruit",
+                "remainingScreens": 39,
+                "recordedSteps": 53,
+                "metrics": {
+                  "screens": {
+                    "matched": 14,
+                    "total": 53
+                  },
+                  "rng": {
+                    "matched": 2664,
+                    "total": 2664
+                  },
+                  "cursors": {
+                    "matched": 14,
+                    "total": 53
+                  }
+                },
+                "step": 14,
+                "kind": "stop",
+                "sourceFile": "cmd.c",
+                "function": "doextcmd",
+                "line": 516,
+                "message": "unsupported hero command: doset() for the extended command 'optionsfull' is not ported",
+                "diagnosticToolSha256": "01cb5004cc11a812f50a8e119ea49eb9700d913dc19487543ad6f877b06e6a82",
+                "replayCommit": "4706301895eb9a7a68bb28296ea37fac4bbd0e46"
+              },
+              "summary": "The typed #optionsfull command stops at the missing cmd.c:doextcmd doset arm before the fruit option is reached. Existing O and m-O wiring supplies canonical option-menu hooks and reaches doset_simple/doset. Add the bounded full-options dispatcher path using those same hooks after accepted B171 releases doextcmd, then replay the retained fruit case to locate any later handler frontier. No fruit-specific mismatch is established by the current refusal.",
+              "goalKind": "divergence-fix",
+              "source": {
+                "file": "cmd.c",
+                "functions": [
+                  "doextcmd"
+                ],
+                "branch": "Typed optionsfull resolves extcmdlist ef_funct=doset, passes normal can_do_extcmd/menu-prefix checks, then C invokes doset. JS has the canonical menu owner but omits this switch arm and throws the generic unsupported extended-command refusal.",
+                "callers": [
+                  "cmd.c:extcmdlist1782-1784 registers optionsfull -> doset with IFBURIED|GENERALCMD|CMD_M_PREFIX and no default key; doextcmd493-520 consumes retval=(*func)() at516. Source m #optionsfull uses doset_simple through doset menu_requested reversal, unlike unprefixed full menu.",
+                  "Existing direct O/m-O runOptionsCommand3681-3720 composes heading, select_menu, command callback and reset hooks, then invokes doset_simple. options.c:doset_simple8707-8735 clears menu_requested and returns doset when prefixed. The typed full path must reuse those canonical hooks and call doset directly, preserving prefix inversion without invented state."
+                ],
+                "dependencies": [
+                  "Read whole options.c:doset8758-8975 and existing options.js doset/dosetMenuItems/applyOptionMenuPick. Source builds all menu rows, clears redraw/glyph flags before PICK_ANY, processes picks, destroys window then resets visuals. Existing JS keeps explicit incomplete menu_tab_sep and OPTMENUHELP discarded-path refusals. This task would not claim whole menu/option completion.",
+                  "Existing optfn_fruit1706-1774 and JS1571-1636 plus parseoptions OPTION_SET_HANDLERS already handle fruit naming/state; fruitadd is canonical js/fruit.js. The current case never reaches these handlers. Full-options caller repair requires a fresh replay before any fruit owner expansion; no state fix inferred from the prepared mission label.",
+                  "Production options menu hooks already live in cmd.js runOptionsCommand. Reconcile full vs simple handler selection in that owner rather than duplicating menu styling/callbacks or forcing menu_requested to mimic another command. Preserve source menu_requested reversal for m #optionsfull.",
+                  "A172 and B171 are accepted and clean-merged. The exact doextcmd reservation is released. C155 has a distinct whatdoes caller proposal; preserve its disjoint import/arm seam without whole cmd credit."
+                ]
+              },
+              "evidence": [
+                "Focused resumed .cache/B173/scan-resumed.json at470630189 emits14/53screens and stops on newline finishing #optionsfull atsegment0step14, before fruit-handler input. Current accepted-db0a7ad evaluation retains39 remaining and matching2664RNG; source cause unchanged.",
+                "Read complete C doextcmd493-520, the full/options extcmd rows, complete doset and doset_simple; inspected current JS dispatcher, production menu hooks, full menu/pick loop and fruit parser owner. Generic dispatcher default prevents the whole already reachable full-options path.",
+                "This is a single claimed-session investigation. Other option cases were not replayed or used to enlarge source scope. Preserve their own current provenance/investigations if future grouping is selected.",
+                "Bounded dispatcher repair reuses canonical runOptionsCommand hooks and doset; ordinary typed full command plus menu-prefixed inversion need independent C-first witnesses. Preserve menu_tab_sep/OPTMENUHELP and other option-handler frontiers. No whole doextcmd/doset/fruit credit; direct rebound/queued full-options dispatch remains a named outside-limit caller of rhack."
+              ],
+              "proposal": {
+                "goalId": "fix-cmd-doextcmd-full-options-dispatch-v32-20261008",
+                "summary": "Dispatch the typed full-options menu.",
+                "selectionReason": "Resume the older B173 full-options divergence after accepted B171 releases the exact dispatcher owner. Current470630189 replay reproduces the14/53 stop; canonical option menu hooks and consumed successful return already exist.",
+                "detail": "The typed #optionsfull command stops at the missing cmd.c:doextcmd doset arm before the fruit option is reached. Existing O and m-O wiring supplies canonical option-menu hooks and reaches doset_simple/doset. Add the bounded full-options dispatcher path using those same hooks after accepted B171 releases doextcmd, then replay the retained fruit case to locate any later handler frontier. No fruit-specific mismatch is established by the current refusal.",
+                "dependencyReady": true,
+                "sourceUnits": [
+                  {
+                    "file": "cmd.c",
+                    "name": "doextcmd",
+                    "start": 493,
+                    "end": 520
+                  }
+                ],
+                "completionCredit": "Bounded doextcmd doset caller reconciliation only; no whole doextcmd, doset, optfn_fruit or fruitadd credit.",
+                "proposedReservations": [
+                  "session:synthetic/v32/v32-options-fruit",
+                  "source:cmd.c:doextcmd",
+                  "contract:full-options-extended-command-dispatch"
+                ],
+                "proposedPaths": [
+                  "js/cmd.js",
+                  "scripts/options-menu.test.mjs",
+                  "scripts/options-full-command.test.mjs",
+                  "scripts/cmd-span.test.mjs",
+                  "recipes/cmd.c/",
+                  "recordings/cmd.c/",
+                  "investigations/synthetic/v32/v32-options-fruit.json",
+                  ".cache/"
+                ],
+                "dependencies": []
+              }
+            }
+          }
+        }
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-options-fruit",
+          "session": "synthetic/v32/v32-options-fruit",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recording": "challenges/cases/v32/v32-options-fruit.session.json",
+          "recordingPath": "challenges/cases/v32/v32-options-fruit.session.json",
+          "recordingSha256": "9a613ee4fb1fa15dbbe7692645cbe7d3950c65f10ced9e3ece1d9d5e52b8522e",
+          "recipe": "challenges/cases/v32/v32-options-fruit.recipe.session.json",
+          "recipeSha256": "67bfcb671aa5c5a6662e6e6ad81b98c86498126b6b107412b57567a7bc821020",
+          "replayInputSha256": "4e642ff8ce685b557507a7c8b2e78bad22dc58c57e7d70d4b9885e7ebac7312b",
+          "evaluationPath": "challenges/evaluations/accepted-4e29cc141937e87b623f827cf27d4c229d5e290a-v32.json",
+          "evaluationCommit": "4e29cc141937e87b623f827cf27d4c229d5e290a",
+          "evaluationArtifact": "challenges/evaluations/accepted-4e29cc141937e87b623f827cf27d4c229d5e290a-v32.json",
+          "evaluationUtc": "2026-10-09T00:52:25.882Z",
+          "remainingScreens": 1,
+          "recordedSteps": 53,
+          "previousScreensMatched": 14,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 52,
+              "total": 53
+            },
+            "rng": {
+              "matched": 2664,
+              "total": 2664
+            },
+            "cursors": {
+              "matched": 53,
+              "total": 53
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "F",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 33,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v32/v32-options-fruit.json",
+            "previousRemainingScreens": 39
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "4e29cc141937e87b623f827cf27d4c229d5e290a",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-options-tab-separated-menu-format-v32-20261009",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Render source tab-separated option menus",
+      "cFile": "options.c",
+      "sessions": [
+        "synthetic/v32/v32-options-tab-menu"
+      ],
+      "selectionReason": "Seed-family continuation after accepted B173 typed full-options dispatch; this is the oldest dependency-ready option layout refusal in the saved v32 corpus.",
+      "detail": "Translate the omitted full and simple source tab-format branches plus full pass0 Boolean indentation; reuse canonical menu/pick behavior and patched TTY byte rendering. This is a bounded divergence only: doset and doset_simple_menu remain incomplete, with option help and downstream handlers retained as explicit frontiers.",
+      "openedAt": "98b1446b38557a35d206feb221980041e04c98f3",
+      "openStanding": {
+        "sha": "4e29cc141937e87b623f827cf27d4c229d5e290a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "doset_simple_menu..doset",
+      "session": "synthetic/v32/v32-options-tab-menu",
+      "step": 14,
+      "syntheticProvenance": {
+        "synthetic/v32/v32-options-tab-menu": {
+          "session": "synthetic/v32/v32-options-tab-menu",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-options-tab-menu",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-options-tab-menu.session.json",
+          "recordingSha256": "3aa8d8c224a2431fe8c04d7bd35f0d43618cd26563d2d5b07ab3f750c3838e70",
+          "evaluationPath": "challenges/evaluations/accepted-4e29cc141937e87b623f827cf27d4c229d5e290a-v32.json",
+          "evaluationCommit": "4e29cc141937e87b623f827cf27d4c229d5e290a"
+        }
+      },
+      "activeStanding": {
+        "sha": "4e29cc141937e87b623f827cf27d4c229d5e290a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-options-tab-menu",
+          "session": "synthetic/v32/v32-options-tab-menu",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recording": "challenges/cases/v32/v32-options-tab-menu.session.json",
+          "recordingPath": "challenges/cases/v32/v32-options-tab-menu.session.json",
+          "recordingSha256": "3aa8d8c224a2431fe8c04d7bd35f0d43618cd26563d2d5b07ab3f750c3838e70",
+          "recipe": "challenges/cases/v32/v32-options-tab-menu.recipe.session.json",
+          "recipeSha256": "bea0439add7c0d275ba36f73cf85b8963e093eeef43c27520185bf42c54fb750",
+          "replayInputSha256": "4e642ff8ce685b557507a7c8b2e78bad22dc58c57e7d70d4b9885e7ebac7312b",
+          "evaluationPath": "challenges/evaluations/accepted-4e29cc141937e87b623f827cf27d4c229d5e290a-v32.json",
+          "evaluationCommit": "4e29cc141937e87b623f827cf27d4c229d5e290a",
+          "evaluationArtifact": "challenges/evaluations/accepted-4e29cc141937e87b623f827cf27d4c229d5e290a-v32.json",
+          "evaluationUtc": "2026-10-09T00:52:25.882Z",
+          "remainingScreens": 18,
+          "recordedSteps": 32,
+          "previousScreensMatched": 14,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 14,
+              "total": 32
+            },
+            "rng": {
+              "matched": 2651,
+              "total": 2651
+            },
+            "cursors": {
+              "matched": 14,
+              "total": 32
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: the options menu requires doset() with menu_tab_sep",
+            "step": 14
+          },
+          "step": 14,
+          "kind": "stop",
+          "sourceFile": "options.c",
+          "function": "doset",
+          "message": "unsupported hero command: an unported branch of this command: the options menu requires doset() with menu_tab_sep",
+          "cFile": "options.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v32/v32-options-tab-menu.json",
+            "result": {
+              "session": "synthetic/v32/v32-options-tab-menu",
+              "corpus": "synthetic",
+              "batch": "v32",
+              "caseId": "v32-options-tab-menu",
+              "manifestPath": "challenges/manifests/v32.json",
+              "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+              "recordingSha256": "3aa8d8c224a2431fe8c04d7bd35f0d43618cd26563d2d5b07ab3f750c3838e70",
+              "evaluationPath": "challenges/evaluations/accepted-db0a7ad02ea001265fce34f7485b90c58d649d79-v32.json",
+              "evaluationCommit": "db0a7ad02ea001265fce34f7485b90c58d649d79",
+              "remainingScreens": 18,
+              "recordedSteps": 32,
+              "status": "complete",
+              "commit": "4f44a54aa3bff3ccd1d4252387a5e069b3d66a6b",
+              "mismatch": {
+                "version": 1,
+                "corpus": "synthetic",
+                "batch": "v32",
+                "caseId": "v32-options-tab-menu",
+                "session": "synthetic/v32/v32-options-tab-menu",
+                "manifestPath": "challenges/manifests/v32.json",
+                "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+                "recordingPath": "challenges/cases/v32/v32-options-tab-menu.session.json",
+                "recordingSha256": "3aa8d8c224a2431fe8c04d7bd35f0d43618cd26563d2d5b07ab3f750c3838e70",
+                "recipeSha256": "bea0439add7c0d275ba36f73cf85b8963e093eeef43c27520185bf42c54fb750",
+                "evaluationPath": "challenges/evaluations/accepted-db0a7ad02ea001265fce34f7485b90c58d649d79-v32.json",
+                "evaluationCommit": "db0a7ad02ea001265fce34f7485b90c58d649d79",
+                "evaluationUtc": "2026-10-09T00:02:56.121Z",
+                "remainingScreens": 18,
+                "recordedSteps": 32,
+                "metrics": {
+                  "screens": {
+                    "matched": 14,
+                    "total": 32
+                  },
+                  "rng": {
+                    "matched": 2651,
+                    "total": 2651
+                  },
+                  "cursors": {
+                    "matched": 14,
+                    "total": 32
+                  }
+                },
+                "step": 14,
+                "kind": "stop",
+                "sourceFile": "cmd.c",
+                "function": "doextcmd",
+                "message": "Saved evaluation stops at missing typed optionsfull doset arm; local B173 replay exposes options.c tabbed-layout refusal at same step.",
+                "replayCommit": "4f44a54aa3bff3ccd1d4252387a5e069b3d66a6b"
+              },
+              "summary": "After the local B173 typed-command repair, #optionsfull still stops before rendering because options.c:doset's menu_tab_sep formatting branch is refused. C writes a raw tab between name and value and removes indentation from nonselectable boolean rows. The patched TTY ignores the tab glyph while advancing one byte column; it does not expand it to a tab stop. The simple options menu has the same missing source format branch.",
+              "goalKind": "divergence-fix",
+              "source": {
+                "file": "options.c",
+                "functions": [
+                  "doset",
+                  "doset_simple_menu",
+                  "doset_add_menu"
+                ],
+                "branch": "iflags.menu_tab_sep true from the configuration or debug Boolean option; full doset chooses fmtstr_tab_doset and changes pass0 indentation. doset_simple_menu independently chooses fmtstr_tab_doset_simple.",
+                "callers": [
+                  "cmd.c:doextcmd493-520 optionsfull callback -> options.c:doset8758-8975 (B173 immutable typed dispatcher dependency).",
+                  "options.c:doset_simple8707-8735 O/mO -> doset_simple_menu8536-8705 or doset; doset menu_requested inversion provides m#optionsfull simple caller. Existing cmd.js:runOptionsCommand owns shared menu operations."
+                ],
+                "dependencies": [
+                  "B173 delivery4f44a54aa3bff3ccd1d4252387a5e069b3d66a6b supplies typed doset dispatcher; do not edit cmd.js or reserve doextcmd again.",
+                  "Existing tty_menu.js:writeStyledText98-127 matches wintty.c process_menu_window1420-1490 + patch006 nomux_putch214-216/615-619: tabs (<32) are skipped as glyphs but still count one stored byte/cursor column. No tabexpand call, new renderer operation, or tty owner edit needed.",
+                  "Existing doset_add_menu7790-7822 retains four-space compound/read-only indentation independently of menu_tab_sep; full boolean pass0 alone drops that indent per C8852. Preserve this distinction rather than stripping every nonselectable indent.",
+                  "Existing canonical option values, allopt table, menu selectors, pick handling, return and reset_needed_visuals remain unchanged. Help-file and unrelated option handlers remain named outside-limit gaps."
+                ]
+              },
+              "evidence": [
+                "Claimed-case bounded replay run-n3Fero receipt in .cache/B178/scan.log at4f44a54 emits14/32, boundary: the options menu requires doset() with menu_tab_sep; no preceding screen/cursor/RNG divergence. Exact saved evaluation still has18remaining and2651/2651 RNG.",
+                "Read whole C doset8758-8975 and doset_simple_menu8536-8705 plus related doset_add_menu and longest_option_name. Full format literal%s%s\\t[%s], simple%s\\t[%s]; full pass0 Boolean indent is empty only when tabbed. Other/read-only rows use doset_add_menu source indent independently.",
+                "Current JS dosetEntryFormat7836 refuses tabbed full menu, and dosetSimpleEntryFormat8797 separately refuses tabbed simple menu. Both canonical menus exist and can reuse the matching renderer; no whole doset completion claimed.",
+                "Pure formatting assertions should pin raw tab bytes, omission of width padding, Boolean vs compound indentation, values and stable selectors. Independent C-first full and simple ordinary-play rc variations cover runtime callers without copying this debug challenge. Keep OPTMENUHELP or direct rebound dispatch blocked variation separately."
+              ],
+              "proposal": {
+                "goalId": "fix-options-tab-separated-menu-format-v32-20261009",
+                "summary": "Render source tab-separated option menus.",
+                "selectionReason": "Seed-family continuation after B173 typed full-options dispatch; oldest independent option layout refusal in saved v32 corpus, disjoint from C155/C158 and A177.",
+                "detail": "Translate the omitted full and simple source tab-format branches plus full pass0 Boolean indentation; reuse canonical menu/pick and patched TTY byte rendering. Bounded divergence only, no whole options/cmd/TTY credit.",
+                "dependencyReady": true,
+                "sourceUnits": [
+                  {
+                    "file": "options.c",
+                    "name": "doset",
+                    "start": 8758,
+                    "end": 8975
+                  },
+                  {
+                    "file": "options.c",
+                    "name": "doset_simple_menu",
+                    "start": 8536,
+                    "end": 8705
+                  }
+                ],
+                "completionCredit": "Bounded formatting branches in doset/doset_simple_menu only.",
+                "proposedReservations": [
+                  "session:synthetic/v32/v32-options-tab-menu",
+                  "source:options.c:doset",
+                  "source:options.c:doset_simple_menu",
+                  "contract:tab-separated-options-menu-format"
+                ],
+                "proposedPaths": [
+                  "js/options.js",
+                  "scripts/options-menu.test.mjs",
+                  "scripts/options-simple-menu.test.mjs",
+                  "scripts/options-full-command.test.mjs",
+                  "recipes/options.c/",
+                  "recordings/options.c/",
+                  "investigations/synthetic/v32/v32-options-tab-menu.json",
+                  ".cache/"
+                ],
+                "dependencies": [
+                  "4f44a54aa3bff3ccd1d4252387a5e069b3d66a6b"
+                ]
+              }
             }
           }
         }

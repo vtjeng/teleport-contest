@@ -7831,11 +7831,10 @@ const MENU_TAB_SEP = allopt.find(
     (option) => option.name === 'menu_tab_sep',
 );
 
-// C ref: options.c doset()'s fmtstr_doset, the "%s%-Nus [%s]" branch.
-// fmtstr_tab_doset, the branch above, is not ported.
+// C ref: options.c doset()'s fmtstr_doset and fmtstr_tab_doset.
 function dosetEntryFormat(state, startpass, endpass) {
     if (booleanOptionValue(state, MENU_TAB_SEP))
-        throw new UnsupportedOptionMenuError('doset() with menu_tab_sep');
+        return (indent, name, value) => `${indent}${name}\t[${value}]`;
     const width = longest_option_name(startpass, endpass);
     return (indent, name, value) => `${indent}${name.padEnd(width)} [${value}]`;
 }
@@ -7904,7 +7903,8 @@ export function dosetMenuItems(state, helpers, skiphelp) {
             if (unsupportedWindowOption(option.name)) continue;
 
             const a_int = pass === 0 ? 0 : i + 1 + indexoffset;
-            const indent = pass === 0 ? '    ' : '';
+            const indent = pass === 0 && !booleanOptionValue(state, MENU_TAB_SEP)
+                ? '    ' : '';
             // enhance_menu_text() is compiled out; its whole body sits behind
             // `#if 0` in this build.
             const text = format(
@@ -8789,17 +8789,14 @@ const AUTOPICKUP_SUFFIX_OPTIONS = Object.freeze(new Set([
 ]));
 
 // C ref: options.c doset_simple_menu()'s fmtstr_doset_simple, the
-// "%-Nus [%s]" branch; fmtstr_tab_doset_simple above it is not ported.  Two
+// "%-Nus [%s]" and "%s\t[%s]" branches. Two
 // things differ from doset()'s format.  There is no leading "%s", because
 // this menu has no indented pass to line up with, and the width comes from
 // set_gameview..set_in_game even in debug mode, where doset() widens its own
 // end of that range to set_wiznofuz.
 function dosetSimpleEntryFormat(state) {
-    if (booleanOptionValue(state, MENU_TAB_SEP)) {
-        throw new UnsupportedOptionMenuError(
-            'doset_simple_menu() with menu_tab_sep',
-        );
-    }
+    if (booleanOptionValue(state, MENU_TAB_SEP))
+        return (name, value) => `${name}\t[${value}]`;
     const width = longest_option_name(set_gameview, set_in_game);
     return (name, value) => `${name.padEnd(width)} [${value}]`;
 }

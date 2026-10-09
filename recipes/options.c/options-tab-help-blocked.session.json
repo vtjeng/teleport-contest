@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside B178 formatting limit: selecting the full options help entry consumes OPTMENUHELP via options.c:doset display_file; the existing unported help/file rerun arm still refuses after the now-supported tab menu.",
+  "segments": [
+    {
+      "seed": 17832013,
+      "datetime": "20541117102133",
+      "nethackrc": "OPTIONS=name:Lila,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,menu_tab_sep\n",
+      "moves": ".#optionsfull\n?\n \u001b."
+    }
+  ]
+}
