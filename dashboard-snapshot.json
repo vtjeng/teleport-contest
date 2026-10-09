@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T08:50:21.196Z",
+  "capturedAt": "2026-10-09T09:05:40.430Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -71798,22 +71798,126 @@
         "worker": "B",
         "state": "active",
         "reason": "Correcting candle attachment negative answer"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C166-loader-scope-boundary-20261009",
+        "type": "turn",
+        "at": "2026-10-09T08:51:33.683Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "C166 source report is complete; coordinator is deciding the special-level loader caller scope. C165 is ready for integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C166-wizard-special-load-20261009",
+        "type": "implement",
+        "at": "2026-10-09T08:52:11.137Z",
+        "task": "C166",
+        "goal": "port-wizcmds-wiz-load-splua-v35-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C166-wizard-special-load-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T08:52:12.536Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A185-9138ea59a",
+        "type": "published",
+        "at": "2026-10-09T08:52:25.545Z",
+        "task": "A185",
+        "commit": "9138ea59ab47649916734abd2646add40e5475cd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B185-61b9bad31",
+        "type": "integrating",
+        "at": "2026-10-09T08:54:26.195Z",
+        "task": "B185",
+        "integration": "61b9bad31ac7fc81b7370cd1312e25e5bf7358cf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-C165-fresh-command-metadata",
+        "type": "feedback",
+        "at": "2026-10-09T08:58:33.551Z",
+        "task": "C165",
+        "delivery": "d503206ea0d066a489a1bef6cb91488d78c55bb5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-50801c62a5566612886c0d9caddc2cb23c506f79",
+        "type": "ready",
+        "at": "2026-10-09T08:59:36.277Z",
+        "task": "B189",
+        "delivery": "50801c62a5566612886c0d9caddc2cb23c506f79"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B190-version-build-options-20261009",
+        "type": "assign",
+        "at": "2026-10-09T09:01:13.603Z",
+        "task": "B190",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B190-known-version-platform-20261009",
+        "type": "park",
+        "at": "2026-10-09T09:02:12.645Z",
+        "task": "B190",
+        "reason": "Main confirms B172/A178 already established the platform/build provenance blocker. No new source task or game edits; preserve saved queue observation and reuse their prior audit."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B191-arrival-rogue-20261009",
+        "type": "assign",
+        "at": "2026-10-09T09:02:44.283Z",
+        "task": "B191",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B191-rogue-display-audit-20261009",
+        "type": "turn",
+        "at": "2026-10-09T09:03:17.904Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating rogue-level unseen-floor mapping; candle fix submitted."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B185-61b9bad31ac7fc81b7370cd1312e25e5bf7358cf-validated",
+        "type": "validated",
+        "at": "2026-10-09T09:04:34.785Z",
+        "task": "B185",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B185-61b9bad31ac7fc81b7370cd1312e25e5bf7358cf-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T09:04:51.560Z",
+        "task": "B185"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B189-50801c62",
+        "type": "received",
+        "at": "2026-10-09T09:05:04.392Z",
+        "task": "B189",
+        "delivery": "50801c62a5566612886c0d9caddc2cb23c506f79"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B185",
-        "worker": "B",
-        "goal": "port-wizcmds-wiz-panic-v34-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "0f268f2c2d6a6186247bb68d29b6b90314c64efc",
-        "since": "2026-10-09T07:53:16.726Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "A187",
         "worker": "A2",
@@ -71830,9 +71934,20 @@
         "worker": "C",
         "goal": "fix-sp-lev-map-transparent-return-mask-v35-20261009",
         "kind": "implementation",
-        "status": "ready",
+        "status": "changes-required",
         "delivery": "d503206ea0d066a489a1bef6cb91488d78c55bb5",
         "since": "2026-10-09T08:46:28.705Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B189",
+        "worker": "B",
+        "goal": "fix-apply-candle-negative-answer-byte-v35-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "50801c62a5566612886c0d9caddc2cb23c506f79",
+        "since": "2026-10-09T08:59:36.277Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -72147,12 +72262,23 @@
         "since": "2026-10-09T08:38:42.919Z",
         "blockedBy": [],
         "reason": "Main confirmed bounded Lua divergence tooling gap: worker-delivery only recognizes Lua for lua-port, while this task must retain divergence-only credit. Await canonical luaFile support after A185 checkpoint. Two independent C-first Castle role cases and byte-identical replays preserved under .cache/B188/c-first; no game edits."
+      },
+      {
+        "task": "B190",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T09:02:12.645Z",
+        "blockedBy": [],
+        "reason": "Main confirms B172/A178 already established the platform/build provenance blocker. No new source task or game edits; preserve saved queue observation and reuse their prior audit."
       }
     ]
   },
   "development": {
-    "executionCommit": "da09934d2fe8d1727ed9fc51fff0e31307143a53",
-    "measuredAt": "2026-10-09T08:39:40.419Z",
+    "executionCommit": "61b9bad31ac7fc81b7370cd1312e25e5bf7358cf",
+    "measuredAt": "2026-10-09T08:58:50.499Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
