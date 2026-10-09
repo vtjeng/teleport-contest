@@ -1499,7 +1499,7 @@ test('monster glyphs run the tty attribute chain in source order', () => {
             wc_hilite_pet: true,
             // ATR_BOLD rather than the compiled-in ATR_INVERSE, so that the
             // two arms can be told apart by the attribute each leaves.
-            wc2_petattr: ATR_BOLD,
+            wc2_petattr: 1 /* C ATR_BOLD; drawing still uses captured2 */,
         },
     };
     initialize_symbols_from_options({ flags: {} }, state);
@@ -6100,7 +6100,7 @@ test('flush_screen preserves final map attributes for recorder and browser cells
     state.iflags = {
         wc_color: true,
         wc_hilite_pet: true,
-        wc2_petattr: ATR_BOLD,
+        wc2_petattr: 1 /* C ATR_BOLD; drawing still uses captured2 */,
     };
     state.level.monsters[x][y] = {
         data: { mlet: S_FELINE, mcolor: CLR_WHITE },

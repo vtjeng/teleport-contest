@@ -27,6 +27,7 @@ import {
     renderTtyMenu,
     selectTtyMenu,
     ttyMenuLayout,
+    menuTitleStyle,
     ttyMenuTextData,
     ttyMenuTextLayout,
     ttyTextWindowData,
@@ -1485,4 +1486,13 @@ test('getlin releases inread after its existing ctrl-P boundary', async () => {
     const state = await gameplaySearchState('\x10'); // C Ctrl-P history is still an explicit gap.
     await assert.rejects(() => tty_getlin('Input:', state), UnsupportedGetlinBoundaryError);
     assert.equal(state.nhDisplay.inread, 0, 'port-side abort cannot strand prompt rendering state');
+});
+
+test('menuTitleStyle converts canonical heading attributes only for drawing', () => {
+    // wintype.h inverse7 differs from captured inverse1; dim2 is invisible.
+    const state = { iflags: { menu_headings: { attr: 7, color: 8 } } };
+    assert.deepEqual(menuTitleStyle(state), { titleAttr: 1, titleColor: 8 });
+    state.iflags.menu_headings.attr = 2;
+    assert.equal(menuTitleStyle(state).titleAttr, 0);
+    assert.equal(state.iflags.menu_headings.attr, 2);
 });

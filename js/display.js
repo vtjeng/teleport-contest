@@ -29,6 +29,12 @@ export const SCORER_DEC_MAP = {
 };
 
 import { game } from './gstate.js';
+import { select_menu, getlin, ttyMenuColorAttribute } from './windows.js';
+import { query_color, query_attr, clr2colorname } from './coloratt.js';
+import { STATUS_FIELDS, STATUS_CONDITIONS, STATUS_CONDITION_ALIASES } from './status_field_data.js';
+import * as statusConstants from './const.js';
+import { ttyPline } from './tty_message.js';
+import { displayTtyTextWindow } from './tty_menu.js';
 import { isok } from './cmd_isok.js';
 import { is_pool, is_pool_or_lava, is_ice } from './dbridge.js';
 import { known_branch_stairs, stairway_at } from './stairs.js';
@@ -119,6 +125,7 @@ import {
     mungspaces,
     sgn,
 } from './hacklib.js';
+import { truncateByteString } from './hacklib.js';
 import { hu_stat } from './eat.js';
 import { observe_object } from './o_init.js';
 import { can_reach_floor, engr_at, engr_can_be_felt } from './engrave.js';
@@ -2042,7 +2049,7 @@ export const MG_FLAG_NOOVERRIDE = 0x01;
  */
 function print_glyph_attr(glyphflags, state) {
     if ((glyphflags & MG_PET) && state.iflags?.wc_hilite_pet)
-        return state.iflags.wc2_petattr ?? ATR_INVERSE;
+        return ttyMenuColorAttribute(state.iflags.wc2_petattr ?? 7);
     if (state.iflags?.wc_inverse === false) return ATR_NONE;
     if (((glyphflags & MG_OBJPILE) && state.iflags?.hilite_pile)
         || ((glyphflags & MG_FEMALE) && state.wizard
@@ -6354,4 +6361,479 @@ function _refreshTimeField(layout) {
 // Bounded display.c reset_glyphmap field access for wizcmds.c diagnostics.
 export function glyphmap_base_fields(glyph, state = game) {
     return map_glyphinfo(glyph, state, { rawGlyphmap: true });
+}
+
+
+// C ref: botl.c status-highlight editing family. Configured thresholds and
+// condition writes live only in iflags.status_hilites; gb.status_hilite_str
+// is C's temporary menu list and retains the threshold object identity.
+const {
+    ANY_STR, ANY_INT, ANY_UINT, ANY_LONG, ANY_ULONG, ANY_IPTR, ANY_UPTR,
+    ANY_LPTR, ANY_ULPTR, ANY_MASK32, BL_FLUSH, BL_TITLE, BL_SCORE,
+    BL_CONDITION, BL_CAP, BL_HUNGER, BL_ALIGN, BL_TIME, BL_AC, BL_HP,
+    BL_TH_NONE, BL_TH_VAL_PERCENTAGE, BL_TH_VAL_ABSOLUTE,
+    BL_TH_UPDOWN, BL_TH_CONDITION, BL_TH_TEXTMATCH, BL_TH_ALWAYS_HILITE,
+    BL_TH_CRITICALHP, EQ_VALUE, LT_VALUE, LE_VALUE, GE_VALUE, GT_VALUE,
+    NO_LTEQGT, HL_NONE, HL_DIM, HL_ITALIC, HL_BLINK, PICK_ONE, PICK_ANY,
+} = statusConstants;
+const BL_VERS = STATUS_FIELDS.find(row => row.name === 'version').fld;
+const statusField = fld => STATUS_FIELDS.find(row => row.fld === fld);
+
+// C ref: botl.c s_to_anything(). LP64 strtol saturation followed by the
+// target union member's width; pointer members write the pointed-to value.
+export function s_to_anything(a, buf, type) {
+    if (buf == null || a == null) return;
+    const digits = String(buf).match(/^[\t\n\v\f\r ]*([+-]?\d+)/u);
+    let wide = digits ? BigInt(digits[1].replace(/^\+/u, '')) : 0n;
+    const max = (1n << 63n) - 1n, min = -(1n << 63n);
+    wide = wide > max ? max : wide < min ? min : wide;
+    const int = Number(BigInt.asIntN(32, wide));
+    switch (type) {
+    case ANY_LONG: a.a_long = wide; break;
+    case ANY_INT: a.a_int = int; break;
+    case ANY_UINT: a.a_uint = int >>> 0; break;
+    case ANY_ULONG: case ANY_MASK32: a.a_ulong = BigInt.asUintN(64, wide); break;
+    case ANY_IPTR: if (a.a_iptr) a.a_iptr.value = int; break;
+    case ANY_UPTR: if (a.a_uptr) a.a_uptr.value = int >>> 0; break;
+    case ANY_LPTR: if (a.a_lptr) a.a_lptr.value = wide; break;
+    case ANY_ULPTR: if (a.a_ulptr) a.a_ulptr.value = BigInt.asUintN(64, wide); break;
+    default: a.a_void = null; break;
+    }
+}
+export function split_clridx(idx) {
+    return { color: idx & 0xFF, attrib: (idx >> 8) & 0xFF };
+}
+export function hlattr2attrname(attrib, buf = '', bufsz = statusConstants.BUFSZ) {
+    if (!attrib || buf === null) return null;
+    if (attrib === HL_NONE) return 'normal';
+    const bits = [[HL_BOLD, 'bold'], [HL_DIM, 'dim'], [HL_ITALIC, 'italic'],
+        [HL_ULINE, 'underline'], [HL_BLINK, 'blink'], [HL_INVERSE, 'inverse']];
+    const text = bits.filter(([bit]) => attrib & bit).map(([, name]) => name).join('+');
+    return text.length < bufsz - 1 ? text : buf;
+}
+export function conditionbitmask2str(mask) {
+    if (!mask) return '';
+    let alias = null;
+    for (const row of STATUS_CONDITION_ALIASES.slice(1)) if (row.mask === mask) alias = row.name;
+    const text = STATUS_CONDITIONS.filter(row => row.mask & mask).map(row => row.text).join('+');
+    return text && alias ? alias : text;
+}
+function hiliteMenu(state, spec, helpers) {
+    return helpers?.selectMenu ? helpers.selectMenu(spec) : select_menu(state, {
+        ...spec, overlay: state.iflags?.menu_overlay !== false,
+    });
+}
+function hilitePicks(selection) {
+    if (selection == null) return null;
+    return (Array.isArray(selection) ? selection : [selection]).map(p => typeof p === 'object' ? p.value : p);
+}
+function hiliteItem(text, value, accelerator) {
+    return { text, value, selector: accelerator, attr: ATR_NONE, color: NO_COLOR };
+}
+async function hiliteLine(state, prompt, helpers) {
+    return helpers?.getlin ? helpers.getlin(prompt) : getlin(prompt, state);
+}
+async function hiliteMessage(state, message, helpers) {
+    return helpers?.pline ? helpers.pline(message) : ttyPline(message, state);
+}
+export async function query_arrayvalue(state, query, arr, min, max, helpers) {
+    const adj = min > 0 ? 1 : max;
+    const items = [];
+    for (let i = min; i < max; ++i) if (arr[i]) items.push(hiliteItem(arr[i], i + adj));
+    const picks = hilitePicks(await hiliteMenu(state, { items, title: query, how: PICK_ONE }, helpers));
+    return picks?.length ? picks[0] - adj : min - 1;
+}
+export async function query_conditions(state, helpers) {
+    const picks = hilitePicks(await hiliteMenu(state, {
+        items: STATUS_CONDITIONS.map(row => hiliteItem(row.text, row.mask)),
+        title: 'Choose status conditions', how: PICK_ANY,
+    }, helpers));
+    return picks?.reduce((mask, id) => mask | id, 0) ?? 0;
+}
+export function reset_status_hilites(state = game) {
+    if (state.iflags?.hilite_delta) {
+        state.gb ??= {};
+        // C gb.blstats[0/1][fld].time; no other ported owner stores these
+        // temporary highlight expirations. get_hilite's timer reader is
+        // still a separate renderer frontier.
+        state.gb.status_hilite_times = [
+            STATUS_FIELDS.map(() => 0), STATUS_FIELDS.map(() => 0),
+        ];
+        state.gu ??= {};
+        state.gu.update_all = true;
+    }
+    state.disp ??= {};
+    state.disp.botlx = true;
+}
+export function status_hilite_add_threshold(state, fld, hilite) {
+    if (!hilite) return;
+    // Membership in this source threshold list represents hilite.set TRUE;
+    // the renderer and previous/current banks share these same rule objects.
+    state.iflags.status_hilites.push({ ...hilite, field: statusField(fld).key,
+        style: { ...hilite.style } });
+}
+export function status_hilite2str(rule) {
+    if (!rule) return null;
+    const row = STATUS_FIELDS.find(f => f.key === rule.field);
+    const rel = rule.relation;
+    let behavior = '';
+    if (rule.behavior === 'percentage' || rule.behavior === 'absolute') {
+        // C reads value.a_int here even for an ANY_LONG threshold.
+        const value = Number(BigInt.asIntN(32, BigInt(rule.value ?? 0)));
+        if (['<', '<=', '=', '>=', '>'].includes(rel)) behavior = `${rel}${value}${rule.behavior === 'percentage' ? '%' : ''}`;
+        else note_unported('pline.c impossible');
+    } else if (rule.behavior === 'changed') {
+        if (rel === '<') behavior = 'down';
+        else if (rel === '>') behavior = 'up';
+        else if (rel === '=') behavior = 'changed';
+        else note_unported('pline.c impossible');
+    } else if (rule.behavior === 'text') {
+        if (rel === '=' && rule.text) behavior = rule.text;
+        else note_unported('pline.c impossible');
+    } else if (rule.behavior === 'condition') {
+        if (rel === '=') behavior = conditionbitmask2str(rule.value);
+        else note_unported('pline.c impossible');
+    } else if (rule.behavior === 'always') behavior = 'always';
+    else if (rule.behavior === 'critical') behavior = 'criticalhp';
+    let color = (clr2colorname(rule.style.color) ?? '').replaceAll(' ', '-');
+    if (rule.style.attrib !== HL_UNDEF) {
+        const attr = hlattr2attrname(rule.style.attrib);
+        if (attr !== null) color += `&${attr}`;
+    }
+    return truncateByteString(`${row.name}/${behavior}/${color}`, statusConstants.BUFSZ - 1);
+}
+export function status_hilite_linestr_done(state = game) {
+    state.gb ??= {};
+    state.gb.status_hilite_str = [];
+}
+export function status_hilite_linestr_add(state, fld, hl, mask, str) {
+    const lines = state.gb.status_hilite_str;
+    lines.push({ id: lines.length + 1, fld, hl, mask,
+        str: fld === BL_TITLE ? str : str.replaceAll(' ', '') });
+}
+export function status_hilite_linestr_countfield(state, fld) {
+    return (state.gb?.status_hilite_str ?? []).filter(row => fld === BL_FLUSH || row.fld === fld).length;
+}
+export function status_hilite_linestr_gather_conditions(state) {
+    const groups = [];
+    for (const row of STATUS_CONDITIONS) {
+        const colors = new Set();
+        let attrib = HL_UNDEF;
+        for (const rule of state.iflags?.status_hilites ?? []) {
+            if (rule.field !== 'condition' || !rule.conditions.includes(row.option)) continue;
+            if (rule.style.clearAttributes) attrib = HL_UNDEF;
+            attrib |= rule.style.attrib;
+            if (rule.style.color !== null) colors.add(rule.style.color);
+        }
+        const color = colors.size ? Math.min(...colors) : NO_COLOR;
+        attrib = attrib === HL_UNDEF ? HL_NONE : attrib & ~HL_NONE;
+        if (color === NO_COLOR && attrib === HL_NONE) continue;
+        const key = color | (attrib << 8);
+        const group = groups.find(g => g.key === key);
+        if (group) group.mask |= row.mask;
+        else groups.push({ key, mask: row.mask, color, attrib });
+    }
+    for (const { mask, color, attrib } of groups) {
+        const attr = hlattr2attrname(attrib);
+        const text = `condition/${conditionbitmask2str(mask)}/${clr2colorname(color).replaceAll(' ', '-')}${attr === null ? '' : `&${attr}`}`;
+        status_hilite_linestr_add(state, BL_CONDITION, null, mask, text);
+    }
+}
+export function status_hilite_linestr_gather(state = game) {
+    status_hilite_linestr_done(state);
+    for (const row of [...STATUS_FIELDS].sort((a, b) => a.fld - b.fld)) {
+        for (const rule of state.iflags?.status_hilites ?? []) {
+            if (rule.field === row.key && rule.field !== 'condition') status_hilite_linestr_add(state, row.fld, rule, 0, status_hilite2str(rule));
+        }
+    }
+    status_hilite_linestr_gather_conditions(state);
+}
+export function count_status_hilites(state = game) {
+    status_hilite_linestr_gather(state);
+    const count = status_hilite_linestr_countfield(state, BL_FLUSH);
+    status_hilite_linestr_done(state);
+    return count;
+}
+export async function status_hilite_menu_choose_field(state, helpers) {
+    const hasScore = state.iflags.status_hilites.some(r => r.field === 'score');
+    const picks = hilitePicks(await hiliteMenu(state, {
+        // C uses table index+1 here, unlike the outer menu's fld+1.
+        items: STATUS_FIELDS.flatMap((row, i) => row.fld === BL_SCORE && !hasScore ? [] : [hiliteItem(row.name, i + 1)]),
+        title: 'Select a hilite field:', how: PICK_ONE,
+    }, helpers));
+    return picks?.length ? picks[0] - 1 : BL_FLUSH;
+}
+export async function status_hilite_menu_choose_behavior(state, fld, helpers) {
+    const row = statusField(fld);
+    if (!row) return BL_TH_NONE;
+    const items = [];
+    const add = (text, value, key) => items.push(hiliteItem(text, value, key));
+    if (fld !== BL_CONDITION) add(`Always highlight ${row.name}`, BL_TH_ALWAYS_HILITE, 'a');
+    if (fld === BL_CONDITION) add('Bitmask of conditions', BL_TH_CONDITION, 'b');
+    if (fld !== BL_CONDITION && fld !== BL_VERS) add(`${row.name} value changes`, BL_TH_UPDOWN, 'c');
+    if (fld !== BL_CAP && fld !== BL_HUNGER && [ANY_INT, ANY_LONG].includes(row.type)) add('Number threshold', BL_TH_VAL_ABSOLUTE, 'n');
+    if (row.idxmax >= 0) add('Percentage threshold', BL_TH_VAL_PERCENTAGE, 'p');
+    if (fld === BL_HP) add(`Highlight critically low ${row.name}`, BL_TH_CRITICALHP, 'C');
+    if (row.type === ANY_STR || fld === BL_CAP || fld === BL_HUNGER) add(`${row.name} text match`, BL_TH_TEXTMATCH, 't');
+    if (items.length === 1) return items[0].value;
+    const picks = hilitePicks(await hiliteMenu(state, { items, title: `Select ${row.name} field hilite behavior:`, how: PICK_ONE, emptyValue: BL_TH_NONE }, helpers));
+    return picks?.length ? picks[0] : picks === null ? BL_TH_NONE - 1 : BL_TH_NONE;
+}
+export async function status_hilite_menu_choose_updownboth(state, fld, str, ltok, gtok, helpers) {
+    const items = [];
+    const add = (text, rel) => items.push(hiliteItem(text, 10 + rel));
+    if (ltok) {
+        add(str != null ? `${fld === BL_AC ? 'Better (lower)' : 'Less'} than ${str}` : 'Value goes down', LT_VALUE);
+        if (str != null) add(`${str} or ${fld === BL_AC ? 'better (lower)' : 'less'}`, LE_VALUE);
+    }
+    add(str != null ? `Exactly ${str}` : 'Value changes', EQ_VALUE);
+    if (gtok) {
+        if (str != null) add(`${str} or ${fld === BL_AC ? 'worse (higher)' : 'more'}`, GE_VALUE);
+        add(str != null ? `${fld === BL_AC ? 'Worse (higher)' : 'More'} than ${str}` : 'Value goes up', GT_VALUE);
+    }
+    const picks = hilitePicks(await hiliteMenu(state, { items, title: `Select field ${statusField(fld).name} value:`, how: PICK_ONE }, helpers));
+    return picks?.length ? picks[0] - 10 : NO_LTEQGT;
+}
+
+// C's labels become phases so each retry returns to the same source prompt.
+export async function status_hilite_menu_add(state, origfld, helpers) {
+    let fld, row, behavior, rule, cond = 0, colorqry = '', attrqry = '';
+    let retry = 0, phase = 'field';
+    const relText = rel => rel === LT_VALUE ? '<' : rel === LE_VALUE ? '<=' : rel === GT_VALUE ? '>' : rel === GE_VALUE ? '>=' : rel === EQ_VALUE ? '=' : '';
+    for (;;) {
+        if (phase === 'field') {
+            fld = origfld === BL_FLUSH ? await status_hilite_menu_choose_field(state, helpers) : origfld;
+            if (fld === BL_FLUSH) return false;
+            row = statusField(fld);
+            rule = { field: row.key, behavior: 'none', relation: '=', value: 0, text: '', style: {} };
+            colorqry = attrqry = '';
+            phase = 'behavior';
+        }
+        if (phase === 'behavior') {
+            behavior = await status_hilite_menu_choose_behavior(state, fld, helpers);
+            if (behavior === BL_TH_NONE - 1) return false;
+            if (behavior === BL_TH_NONE) {
+                if (origfld === BL_FLUSH) { phase = 'field'; continue; }
+                return false;
+            }
+            rule.behavior = behavior === BL_TH_ALWAYS_HILITE ? 'always' : behavior === BL_TH_UPDOWN ? 'changed'
+                : behavior === BL_TH_TEXTMATCH ? 'text' : behavior === BL_TH_VAL_PERCENTAGE ? 'percentage'
+                    : behavior === BL_TH_VAL_ABSOLUTE ? 'absolute' : behavior === BL_TH_CRITICALHP ? 'critical' : 'condition';
+            phase = 'value';
+        }
+        if (phase === 'value') {
+            if (retry++ > 5) {
+                await hiliteMessage(state, "That's enough tries.", helpers);
+                return false;
+            }
+            if ([BL_TH_VAL_PERCENTAGE, BL_TH_VAL_ABSOLUTE].includes(behavior)) {
+                const percent = behavior === BL_TH_VAL_PERCENTAGE;
+                const answer = await hiliteLine(state, `Enter ${percent ? 'percentage ' : ''}value for ${row.name} threshold:`, helpers);
+                if (!answer || answer[0] === '\x1b' || !answer.replace(/^[ \t]+|[ \t]+$/gu, '')) { phase = 'behavior'; continue; }
+                let input = answer.replace(/^[ \t]+|[ \t]+$/gu, ''), numstart = input, relation = NO_LTEQGT;
+                const comparison = input.match(/^(>=|<=|>|<|=)/u);
+                if (comparison) {
+                    relation = ({ '>': GT_VALUE, '>=': GE_VALUE, '<': LT_VALUE, '<=': LE_VALUE, '=': EQ_VALUE })[comparison[0]];
+                    numstart = numstart.slice(comparison[0].length);
+                    input = ' '.repeat(comparison[0].length) + numstart;
+                }
+                if (numstart[0] === '+') {
+                    input = input.slice(0, input.length - numstart.length) + ' ' + numstart.slice(1);
+                    numstart = numstart.slice(1);
+                }
+                const digits = numstart.match(/^-?\d*/u)?.[0] ?? '';
+                const tail = numstart.slice(digits.length);
+                if (tail[0] === '%') {
+                    if (!percent) {
+                        await hiliteMessage(state, 'Not expecting a percentage.', helpers);
+                        phase = 'behavior'; continue;
+                    }
+                    input = input.slice(0, input.length - tail.length);
+                    numstart = digits;
+                } else if (tail) {
+                    await hiliteMessage(state, `"${tail}" is not a recognized number.`, helpers);
+                    continue;
+                }
+                if (!/\d/u.test(digits)) {
+                    await hiliteMessage(state, 'Is that an invisible number?', helpers); continue;
+                }
+                const aval = {};
+                const dt = percent ? ANY_INT : row.type;
+                s_to_anything(aval, numstart, dt);
+                const value = dt === ANY_LONG ? aval.a_long : aval.a_int;
+                const op = relText(relation);
+                if (percent) {
+                    if (row.idxmax === -1) {
+                        await hiliteMessage(state, `Field '${row.name}' does not support percentage values.`, helpers);
+                        behavior = BL_TH_VAL_ABSOLUTE; rule.behavior = 'absolute'; continue;
+                    }
+                    if ((value < 0 && (value !== -1 || relation !== GT_VALUE)) || (value === 0 && relation === LT_VALUE)
+                        || (value === 100 && relation === GT_VALUE) || (value > 100 && (value !== 101 || relation !== LT_VALUE))) {
+                        await hiliteMessage(state, `'${op}${value}%' is not a valid percent value.`, helpers); continue;
+                    }
+                    if (!numstart.includes('%')) { numstart += '%'; input += '%'; }
+                } else if (value < (dt === ANY_INT && fld === BL_AC ? -128 : relation === GT_VALUE ? -1 : relation === LT_VALUE ? 1 : 0)) {
+                    await hiliteMessage(state, `hilite_status threshold '${op}${value}' is out of range`, helpers); continue;
+                }
+                if (relation === NO_LTEQGT) {
+                    relation = await status_hilite_menu_choose_updownboth(state, fld, input,
+                        value > 0 || (dt === ANY_INT && fld === BL_AC), !percent || value < 100, helpers);
+                    if (relation === NO_LTEQGT) continue;
+                }
+                const text = `${relation === LT_VALUE ? 'less than ' : relation === GT_VALUE ? 'more than ' : ''}${numstart}${relation === LE_VALUE ? ' or less' : relation === GE_VALUE ? ' or more' : ''}`;
+                colorqry = `Choose a color for when ${row.name} is ${text}:`;
+                attrqry = `Choose attribute for when ${row.name} is ${text}:`;
+                rule.relation = relText(relation);
+                rule.value = typeof value === 'bigint' && !Number.isSafeInteger(Number(value)) ? String(value) : Number(value);
+            } else if (behavior === BL_TH_UPDOWN) {
+                const rel = row.type === ANY_STR ? EQ_VALUE : await status_hilite_menu_choose_updownboth(state, fld, null, fld !== BL_TIME, true, helpers);
+                if (rel === NO_LTEQGT) { phase = 'behavior'; continue; }
+                const text = rel === EQ_VALUE ? 'changes' : rel === LT_VALUE ? 'decreases' : 'increases';
+                colorqry = `Choose a color for when ${row.name} ${text}:`;
+                attrqry = `Choose attribute for when ${row.name} ${text}:`;
+                rule.relation = relText(rel);
+            } else if (behavior === BL_TH_CONDITION) {
+                cond = await query_conditions(state, helpers);
+                if (!cond) {
+                    if (origfld === BL_FLUSH) { phase = 'field'; continue; }
+                    return false;
+                }
+                colorqry = `Choose a color for conditions ${conditionbitmask2str(cond)}:`;
+                attrqry = `Choose attribute for conditions ${conditionbitmask2str(cond)}:`;
+            } else if (behavior === BL_TH_TEXTMATCH) {
+                const choose = [BL_CAP, BL_ALIGN, BL_HUNGER, BL_TITLE].includes(fld);
+                const query = `${choose ? 'Choose' : 'Enter'} ${row.name} text value to match:`;
+                if (choose) {
+                    let values, min = 0;
+                    if (fld === BL_CAP) { values = enc_stat; min = 1; }
+                    else if (fld === BL_ALIGN) values = ['chaotic', 'neutral', 'lawful'];
+                    else if (fld === BL_HUNGER) values = ['Satiated', null, 'Hungry', 'Weak', 'Fainting', 'Fainted', 'Starved'];
+                    else {
+                        values = [];
+                        for (const rank of state.urole.rank) {
+                            const male = `"${rank.m}"`, female = rank.f ? `"${rank.f}"` : '';
+                            const both = female ? `${state.flags.female ? female : male} or ${state.flags.female ? male : female}` : '';
+                            if (state.flags.female && female) values.push(female);
+                            values.push(male);
+                            if (!state.flags.female && female) values.push(female);
+                            if (both) values.push(truncateByteString(both, 79));
+                        }
+                        values.push('"none of the above (polymorphed)"');
+                    }
+                    const selected = await query_arrayvalue(state, query, values, min, values.length, helpers);
+                    if (selected < min) { phase = 'behavior'; continue; }
+                    rule.text = values[selected];
+                } else {
+                    const text = await hiliteLine(state, query, helpers);
+                    if (!text || text[0] === '\x1b') { phase = 'behavior'; continue; }
+                    if (encodeUtf8ByteString(text).length >= 80) return false;
+                    rule.text = text;
+                }
+                rule.relation = '=';
+                colorqry = `Choose a color for when ${row.name} is '${rule.text}':`;
+                attrqry = `Choose attribute for when ${row.name} is '${rule.text}':`;
+            } else if (behavior === BL_TH_ALWAYS_HILITE) {
+                colorqry = `Choose a color to always hilite ${row.name}:`;
+                attrqry = `Choose attribute to always hilite ${row.name}:`;
+            }
+            phase = 'color';
+        }
+        const color = await query_color(state, colorqry, NO_COLOR, helpers);
+        if (color === -1) { phase = behavior === BL_TH_ALWAYS_HILITE ? 'behavior' : 'value'; continue; }
+        const attrib = await query_attr(state, attrqry, 0, helpers);
+        if (attrib === -1) continue;
+        rule.style = { color, attrib };
+        if (behavior === BL_TH_CONDITION) {
+            state.iflags.status_hilites.push({ field: 'condition',
+                conditions: STATUS_CONDITIONS.filter(row => row.mask & cond).map(row => row.option),
+                style: { color, attrib: attrib === HL_NONE ? HL_UNDEF : attrib, clearAttributes: attrib === HL_NONE } });
+            const attr = hlattr2attrname(attrib);
+            await hiliteMessage(state, `Added hilite condition/${conditionbitmask2str(cond)}/${clr2colorname(color).replaceAll(' ', '-')}${attr === null ? '' : `&${attr}`}`, helpers);
+        } else {
+            if (fld === BL_TITLE && rule.text.toLowerCase().includes(' or ')) {
+                const index = rule.text.toLowerCase().indexOf(' or '), tail = rule.text.slice(index + 4);
+                rule.text = rule.text.slice(0, index);
+                status_hilite_add_threshold(state, fld, rule);
+                await hiliteMessage(state, `Added hilite ${status_hilite2str(rule)}`, helpers);
+                rule.text = tail;
+            }
+            status_hilite_add_threshold(state, fld, rule);
+            await hiliteMessage(state, `Added hilite ${status_hilite2str(rule)}`, helpers);
+        }
+        reset_status_hilites(state);
+        return true;
+    }
+}
+export function status_hilite_remove(state, id) {
+    const line = state.gb?.status_hilite_str?.find(row => row.id === id);
+    if (!line) return false;
+    if (line.fld === BL_CONDITION) {
+        const removed = STATUS_CONDITIONS.filter(row => row.mask & line.mask).map(row => row.option);
+        for (const rule of state.iflags.status_hilites) if (rule.field === 'condition') rule.conditions = rule.conditions.filter(name => !removed.includes(name));
+        return true;
+    }
+    const index = state.iflags.status_hilites.indexOf(line.hl);
+    if (index < 0) return false;
+    state.iflags.status_hilites.splice(index, 1);
+    // C gb.blstats[0/1][fld].hilite_rule and time. The existing renderer
+    // does not yet select temporary up/down rules; a missing slot is null.
+    if (state.gb.status_hilite_rule?.[0]?.[line.fld] === line.hl) {
+        for (let i = 0; i < 2; ++i) {
+            state.gb.status_hilite_rule[i][line.fld] = null;
+            state.gb.status_hilite_times[i][line.fld] = 0;
+        }
+    }
+    return true;
+}
+export async function status_hilite_menu_fld(state, fld, helpers) {
+    let count = status_hilite_linestr_countfield(state, fld);
+    if (!count) {
+        if (!await status_hilite_menu_add(state, fld, helpers)) return false;
+        status_hilite_linestr_done(state);
+        status_hilite_linestr_gather(state);
+        count = status_hilite_linestr_countfield(state, fld);
+    }
+    const items = count ? state.gb.status_hilite_str.filter(row => row.fld === fld).map(row => hiliteItem(row.str, row.id)) : [`No current hilites for ${statusField(fld).name}`];
+    items.push('');
+    if (count) items.push(hiliteItem('Remove selected hilites', -1, 'X'));
+    if (fld !== BL_SCORE) items.push(hiliteItem('Add new hilites', -2, 'Z'));
+    const picks = hilitePicks(await hiliteMenu(state, { items, title: `Current ${statusField(fld).name} hilites:`, how: PICK_ANY }, helpers));
+    let acted = false;
+    if (picks?.length) {
+        if (picks.includes(-1)) for (const id of picks) if (id > 0 && status_hilite_remove(state, id)) acted = true;
+        if (picks.includes(-2)) while (await status_hilite_menu_add(state, fld, helpers)) acted = true;
+    }
+    return acted;
+}
+export async function status_hilites_viewall(state, helpers) {
+    const lines = state.gb.status_hilite_str.map(row => `OPTIONS=hilite_status: ${truncateByteString(row.str, statusConstants.BUFSZ - 'OPTIONS=hilite_status: '.length - 2)}`);
+    if (helpers?.displayTextWindow) await helpers.displayTextWindow(lines);
+    else await displayTtyTextWindow(state, lines);
+}
+export async function status_hilite_menu(state = game, helpers) {
+    let countall;
+    for (;;) {
+        status_hilite_linestr_gather(state);
+        countall = status_hilite_linestr_countfield(state, BL_FLUSH);
+        const items = [];
+        if (countall) items.push(hiliteItem('View all hilites in config format', -1), '');
+        for (const row of STATUS_FIELDS) {
+            const count = status_hilite_linestr_countfield(state, row.fld);
+            if (row.fld === BL_SCORE && !count) continue;
+            items.push(hiliteItem(row.name.padEnd(18) + (count ? ` (${count} defined)` : ''), row.fld + 1));
+        }
+        const picks = hilitePicks(await hiliteMenu(state, { items, title: 'Status hilites:', how: PICK_ONE }, helpers));
+        let redo = false;
+        if (picks?.length) {
+            const fld = picks[0] - 1;
+            if (fld < 0) await status_hilites_viewall(state, helpers);
+            else if (await status_hilite_menu_fld(state, fld, helpers)) reset_status_hilites(state);
+            redo = true;
+        }
+        countall = status_hilite_linestr_countfield(state, BL_FLUSH);
+        status_hilite_linestr_done(state);
+        if (!redo || state.iflags.debug_fuzzer) break;
+    }
+    if (countall > 0 && !state.iflags.hilite_delta) state.iflags.hilite_delta = 3;
+    return true;
 }

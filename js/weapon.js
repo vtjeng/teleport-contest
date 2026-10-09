@@ -1,3 +1,4 @@
+import { ttyMenuColorAttribute } from './windows.js';
 // weapon.js -- Monster weapon selection and wield state.
 // C refs: weapon.c oselect(), select_rwep(), select_hwep(), mon_wield_item(),
 // mwepgone(), setmnotwielded().
@@ -1716,7 +1717,7 @@ export async function show_skills(
         item.heading
             ? {
                 ...item,
-                attr: state.iflags?.menu_headings?.attr,
+                attr: ttyMenuColorAttribute(state.iflags?.menu_headings?.attr ?? 7),
                 color: state.iflags?.menu_headings?.color,
             }
             : item

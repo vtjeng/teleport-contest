@@ -10,8 +10,9 @@ import test from 'node:test';
 
 import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
+import { parseNethackrc } from '../js/options.js';
 import { renderTtyStartupBanner } from '../js/tty_startup.js';
-import { getlin, select_menu } from '../js/windows.js';
+import { add_menu, getlin, select_menu } from '../js/windows.js';
 
 // The same startup scripts/tty-menu.test.mjs uses: a display with the banner
 // on it and the given keys queued, which is enough for one menu or one prompt.
@@ -139,3 +140,18 @@ test('only the wrappers reach the tty menu and prompt entry points',
             ['tty_menu.js', 'windows.js'],
             'js/windows.js getlin() is the only other route to a typed line');
     });
+
+// coloratt.c stores CLR_GRAY7; recorder006 represents nomux foreground7
+// as default8. The projection must not alter the canonical coloring node.
+test('add_menu projects gray at the captured tty boundary', () => {
+    const state = windowState();
+    state.iflags = { use_menu_color: true };
+    // Use the ordinary MENUCOLOR configuration writer and matcher.
+    const parsed = parseNethackrc('MENUCOLOR="sample"=gray&bold\n');
+    state.gm = parsed.gm;
+    const item = add_menu(state, { text: 'sample' });
+    assert.equal(state.gm.menu_colorings.color, 7); // C CLR_GRAY.
+    assert.equal(state.gm.menu_colorings.attr, 1); // C ATR_BOLD.
+    assert.equal(item.color, 8); // Captured NO_COLOR.
+    assert.equal(item.attr, 2); // Captured ATR_BOLD.
+});
