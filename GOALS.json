@@ -220593,7 +220593,7 @@
     {
       "id": "port-mcastu-touch-of-death-family-v32-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port Death touch and its monster spell caller family",
       "cFile": "mcastu.c",
       "sessions": [
@@ -220607,15 +220607,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "db0a7ad02ea001265fce34f7485b90c58d649d79",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "touch_of_death",
           "line": 323,
           "endLine": 357,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "death_inflicted_by",
@@ -220628,8 +220631,8 @@
           "name": "mcast_death_touch",
           "line": 389,
           "endLine": 410,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -220871,6 +220874,368 @@
                 "Required source order: damage draw, drained message, killer text, polymorphed reversion or human direct death/HP-max drain, then killer-name clear if the call returns. Casting wrapper preserves nonliving/demon immunity, Antimagic short circuit, hallucination and seen-resistance ordering.",
                 "Validation plan: source-pinned branch/RNG/state/callback tests, clone-only fatal input handoff, selected admitted range, independent C-first Death human primary and cheap HP/role variation, polymorph and spellcaster caller routes. Keep any source-owned downstream blocker as a named recipe/evidence limit; do not substitute another spell or claim end/polyself completion."
               ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "touch_of_death",
+            "implementation": "js/mcastu.js",
+            "symbol": "touch_of_death",
+            "sourceReview": "Read whole323–354. Exact50+d(8,6), integer half drain, drained feedback, canonical death_inflicted_by. Upolyd mh=0 then canonical rehumanize; human direct-death >= maximum sets KILLED_BY and done; otherwise saved olduhp precedes canonical minuhpmax/setuhpmax/adjuhploss/losehp. Final killer clear after returning recovery. Existing cloned monster planner hands terminal death to live execution before input; supplied operations/RNG/state forwarded. No source helper gap or placeholder in this function. New optional operations default to canonical source owners, unit callbacks observe source order.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_deth",
+                "source": "uhitm.c3863 high rolls17–19 without Antimagic call shared void helper then damage0/return; replaces obsolete gap and awaits canonical touch with planning env."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_death_touch",
+                "source": "mcastu.c398 successful nonhallucinatory death spell; shared helper awaited before monstunseesu."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mcastu.test.mjs",
+              "scripts/uhitm-ad-deth.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/death-touch-ranger.session.json",
+              "recordings/mcastu.c/death-touch-tourist-low-hp.session.json",
+              "recordings/mcastu.c/death-touch-stone-golem.session.json",
+              "recordings/mcastu.c/death-touch-wood-golem.session.json"
+            ],
+            "sourceFile": "mcastu.c",
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-death-touch",
+                "segment": 0,
+                "fromStep": 106,
+                "throughStep": 160,
+                "source": "Death monster-action -> mattacku -> mhitm_ad_deth high roll -> touch_of_death323–354. Source d(8,6), drained message, HP max/loss, live debug-death return and killer clearing; full replay through end."
+              }
+            ],
+            "checkedAt": "db0a7ad02ea001265fce34f7485b90c58d649d79"
+          },
+          {
+            "name": "death_inflicted_by",
+            "implementation": "js/mcastu.js",
+            "symbol": "death_inflicted_by",
+            "sourceReview": "Read whole358–382 and canonical existing JS. Caller-local C output buffer maps to returned string. Mgender/pmname original cham species, pname/unique article suppression and imitation suffix follow C order without RNG/output/state change. No behavior reimplementation. Complete pure source-pinned test covers null, gender, ordinary/proper/unique, original/current uniqueness and original index0. Existing unported mcast_weaken_you474–485 has no executable helper call: existing mcast_spell gap names that owner, retained as separate source frontier rather than partial implementation.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "touch_of_death",
+                "source": "mcastu.c332 formats killer after drained message."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zhituLosehpArguments",
+                "source": "zap.c4574 existing canonical beam-death formatter call retained; audited source/JS, unchanged."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/death-touch-ranger.session.json",
+              "recordings/mcastu.c/death-touch-tourist-low-hp.session.json",
+              "recordings/mcastu.c/death-touch-stone-golem.session.json",
+              "recordings/mcastu.c/death-touch-wood-golem.session.json"
+            ],
+            "sourceFile": "mcastu.c",
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-death-touch",
+                "segment": 0,
+                "fromStep": 106,
+                "throughStep": 160,
+                "source": "Death monster-action -> mattacku -> mhitm_ad_deth high roll -> touch_of_death323–354. Source d(8,6), drained message, HP max/loss, live debug-death return and killer clearing; full replay through end."
+              }
+            ],
+            "checkedAt": "db0a7ad02ea001265fce34f7485b90c58d649d79"
+          },
+          {
+            "name": "mcast_death_touch",
+            "implementation": "js/mcastu.js",
+            "symbol": "mcast_death_touch",
+            "sourceReview": "Read whole389–408. mhe pronoun message precedes nonliving/demon/Antimagic and rn2(level)>12; Hallucination consumes pronoun rn2(4) before chance but omits damage; success canonical touch then clear observed Antimagic; failed Antimagic shield before publish resistance and Lucky line. Canonical heroProperty matches unblocked C Antimagic; no invented blocked alias. Default visibility forwarded to mhe. Source-order gates independently tested and successful real castmu dispatcher test covers all draws through shared touch. Existing mcast_spell817 void result resets ordinary spell damage; obsolete helper gap removed. No whole castmu/mcast_spell claim.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_spell",
+                "source": "mcastu.c815–817 MCAST_DEATH_TOUCH calls helper then dmg0; JS await canonical helper with existing resultDmg0."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mcastu.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/death-touch-spell-tourist.session.json"
+            ],
+            "sourceFile": "mcastu.c",
+            "synthetic": [],
+            "checkedAt": "db0a7ad02ea001265fce34f7485b90c58d649d79"
+          }
+        ],
+        "entryPointReview": "Two active impure entries: Death AD_DETH melee through monster planner/live execution, and monster wizard spell through castmu/mcast_spell. Independent C-first seeds/role/date/inputs reach both; shared touch covers ordinary HP clamp, direct debug-death return, and Upolyd form break in stone golem. Wood-golem variation breaks form before the owned touch and is an outside form boundary. Successful spell-to-touch wiring has source-ordered dispatcher unit coverage; first independent arch-lich spell takes its low-roll Lucky branch and fully matches. No direct-only test is used as runtime entry evidence.",
+        "entryPoints": [
+          {
+            "name": "Death melee reaches shared touch",
+            "functions": [
+              "touch_of_death",
+              "death_inflicted_by"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/death-touch-ranger.session.json",
+              "recordings/mcastu.c/death-touch-tourist-low-hp.session.json",
+              "recordings/mcastu.c/death-touch-stone-golem.session.json",
+              "recordings/mcastu.c/death-touch-wood-golem.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-death-touch",
+                "segment": 0,
+                "fromStep": 106,
+                "throughStep": 160,
+                "source": "Death monster-action -> mattacku -> mhitm_ad_deth high roll -> touch_of_death323–354. Source d(8,6), drained message, HP max/loss, live debug-death return and killer clearing; full replay through end."
+              }
+            ]
+          },
+          {
+            "name": "monster wizard death spell",
+            "functions": [
+              "mcast_death_touch"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/death-touch-spell-tourist.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "db0a7ad02ea001265fce34f7485b90c58d649d79",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-cmd-doextcmd-history-dispatch-v32-20261008",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Dispatch the typed game history command",
+      "cFile": "cmd.c",
+      "sessions": [
+        "synthetic/v32/v32-game-history"
+      ],
+      "selectionReason": "Resume the parked history caller investigation after accepted A172 releases the exact doextcmd owner. The current replay reproduces the same 10/37-screen typed-history refusal; the existing canonical pager owner is unchanged.",
+      "detail": "The typed #history command reaches cmd.c:doextcmd but JavaScript omits its dohistory dispatch arm. Canonical pager.c:dohistory, generated history text, and the complete TTY pager already work through the help-menu history entry. Add the bounded awaited dispatcher arm; no pager or whole command-function completion is claimed.",
+      "openedAt": "e581f14a0c1502bab3d14adfb2366b77343dd0d3",
+      "openStanding": {
+        "sha": "db0a7ad02ea001265fce34f7485b90c58d649d79",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "doextcmd",
+      "session": "synthetic/v32/v32-game-history",
+      "step": 10,
+      "syntheticProvenance": {
+        "synthetic/v32/v32-game-history": {
+          "session": "synthetic/v32/v32-game-history",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-game-history",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-game-history.session.json",
+          "recordingSha256": "b432c0369a1cff406bec6a0a334adc81cbc2ebd7b37eb2b47c4ba223580c55c5",
+          "evaluationPath": "challenges/evaluations/accepted-db0a7ad02ea001265fce34f7485b90c58d649d79-v32.json",
+          "evaluationCommit": "db0a7ad02ea001265fce34f7485b90c58d649d79"
+        }
+      },
+      "activeStanding": {
+        "sha": "db0a7ad02ea001265fce34f7485b90c58d649d79",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-game-history",
+          "session": "synthetic/v32/v32-game-history",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recording": "challenges/cases/v32/v32-game-history.session.json",
+          "recordingPath": "challenges/cases/v32/v32-game-history.session.json",
+          "recordingSha256": "b432c0369a1cff406bec6a0a334adc81cbc2ebd7b37eb2b47c4ba223580c55c5",
+          "recipe": "challenges/cases/v32/v32-game-history.recipe.session.json",
+          "recipeSha256": "c03aafa200bf9cde55101f7f0be74af64df94caffde84cceec170691cfdf3c9e",
+          "replayInputSha256": "73476c21e6a945b42e096b1a56ab40c4a91be20898bb64cadcbbcf1b8b7b05be",
+          "evaluationPath": "challenges/evaluations/accepted-db0a7ad02ea001265fce34f7485b90c58d649d79-v32.json",
+          "evaluationCommit": "db0a7ad02ea001265fce34f7485b90c58d649d79",
+          "evaluationArtifact": "challenges/evaluations/accepted-db0a7ad02ea001265fce34f7485b90c58d649d79-v32.json",
+          "evaluationUtc": "2026-10-09T00:02:56.121Z",
+          "remainingScreens": 27,
+          "recordedSteps": 37,
+          "previousScreensMatched": 10,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 10,
+              "total": 37
+            },
+            "rng": {
+              "matched": 2709,
+              "total": 2709
+            },
+            "cursors": {
+              "matched": 10,
+              "total": 37
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: dohistory() for the extended command 'history' is not ported",
+            "step": 10
+          },
+          "step": 10,
+          "kind": "stop",
+          "sourceFile": "pager.c",
+          "function": "dohistory",
+          "message": "unsupported hero command: dohistory() for the extended command 'history' is not ported",
+          "cFile": "pager.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v32/v32-game-history.json",
+            "result": {
+              "session": "synthetic/v32/v32-game-history",
+              "corpus": "synthetic",
+              "batch": "v32",
+              "caseId": "v32-game-history",
+              "manifestPath": "challenges/manifests/v32.json",
+              "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+              "recordingSha256": "b432c0369a1cff406bec6a0a334adc81cbc2ebd7b37eb2b47c4ba223580c55c5",
+              "evaluationPath": "challenges/evaluations/accepted-e0af258f80b5a632caf9419b124b7f4046d63e78-v32.json",
+              "evaluationCommit": "e0af258f80b5a632caf9419b124b7f4046d63e78",
+              "remainingScreens": 27,
+              "recordedSteps": 37,
+              "status": "complete",
+              "commit": "851988a66b99d6baf05844c7c5360a4c86e30d0b",
+              "mismatch": {
+                "version": 1,
+                "corpus": "synthetic",
+                "batch": "v32",
+                "caseId": "v32-game-history",
+                "manifestPath": "challenges/manifests/v32.json",
+                "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+                "recordingPath": "challenges/cases/v32/v32-game-history.session.json",
+                "recordingSha256": "b432c0369a1cff406bec6a0a334adc81cbc2ebd7b37eb2b47c4ba223580c55c5",
+                "recipeSha256": "c03aafa200bf9cde55101f7f0be74af64df94caffde84cceec170691cfdf3c9e",
+                "evaluationPath": "challenges/evaluations/accepted-e0af258f80b5a632caf9419b124b7f4046d63e78-v32.json",
+                "evaluationCommit": "e0af258f80b5a632caf9419b124b7f4046d63e78",
+                "evaluationUtc": "2026-10-08T21:45:39.265Z",
+                "session": "synthetic/v32/v32-game-history",
+                "remainingScreens": 27,
+                "recordedSteps": 37,
+                "metrics": {
+                  "screens": {
+                    "matched": 10,
+                    "total": 37
+                  },
+                  "rng": {
+                    "matched": 2709,
+                    "total": 2709
+                  },
+                  "cursors": {
+                    "matched": 10,
+                    "total": 37
+                  }
+                },
+                "step": 10,
+                "kind": "stop",
+                "sourceFile": "cmd.c",
+                "function": "doextcmd",
+                "line": 516,
+                "message": "unsupported hero command: dohistory() for the extended command 'history' is not ported",
+                "diagnosticToolSha256": "01cb5004cc11a812f50a8e119ea49eb9700d913dc19487543ad6f877b06e6a82",
+                "replayCommit": "851988a66b99d6baf05844c7c5360a4c86e30d0b"
+              },
+              "summary": "The typed #history command reaches cmd.c:doextcmd but JS omits its dohistory dispatch arm. Canonical pager.c:dohistory, generated history text and complete TTY pager already work through the help-menu history entry. Add the bounded awaited dispatcher arm from the accepted A172 boundary; no new pager owner or whole command-function port is needed.",
+              "goalKind": "divergence-fix",
+              "source": {
+                "file": "cmd.c",
+                "functions": [
+                  "doextcmd"
+                ],
+                "branch": "A valid typed history extended command resolves extcmdlist ef_funct=dohistory, passes can_do_extcmd, then invokes the function and returns ECMD_OK. JS reaches the same row but its switch lacks dohistory and throws the generic unsupported extended-command boundary.",
+                "callers": [
+                  "cmd.c:rhack invokes doextcmd for #; cmd.c:doextcmd493-520 resolves extcmdlist, checks can_do_extcmd and menu prefix, sets ge.ext_tlist, then consumes retval=(*func)() at516 and repeats only for doextlist. extcmdlist1738-1739 registers history as IFBURIED|AUTOCOMPLETE|GENERALCMD with no default bound key.",
+                  "pager.c:hmenu_dohistory invokes the same dohistory from the default help menu; existing JS hmenu_dohistory awaits canonical dohistory and is preserved. The stale C comment calls it V, but current extcmdlist sets its key to NUL; this diagnosis concerns the active typed #history caller."
+                ],
+                "dependencies": [
+                  "pager.c:dohistory2961-2965 calls display_file(HISTORY,TRUE) and returns ECMD_OK, without RNG or turn advancement. Existing js/pager.js:dohistory2087-2090 is the whole canonical implementation.",
+                  "Existing js/pager.js:display_file2049-2053 consumes generated HELP_TEXT_FILES.history and awaits displayTtyTextWindow; scripts/generate-help-data.mjs projects pinned upstream dat/history and tabexpand, js/help_data.js carries source hash f1dbd5d61b8782c15250794fc9a0571f544d86d6f45f2206e3ed9de8716b34f9. No filesystem/native operation in runtime.",
+                  "Existing help-menu history runtime evidence uses scripts/run-help-static-files.mjs history case (18 page dismissals from401 lines), scripts/help-command.test.mjs static:history screen/cursor digests. This establishes the selected pager owner but does not establish its missing typed caller.",
+                  "Accepted A172 ab29afa9 was clean-merged before the current replay. Its wiz_custom dispatcher is disjoint; no source or behavior dependency remains. The existing pager owner is unchanged."
+                ]
+              },
+              "evidence": [
+                "Current .cache/B171/scan-resumed.json at851988a66 reproduces10/37screens, segment0step10 newline finishing #history, no earlier divergence. Saved accepted-e0af v32 evaluation retains2709/2709RNG and27remaining screens. C first history page is NetHack History file for release5.0.",
+                "Read complete C doextcmd493-520, extcmdlist history row and pager.c:dohistory. JS doextcmd passes common admissibility/menu-prefix logic and existing repeat bookkeeping but switch has no dohistory arm; generic default atcmd.js5334 throws. js/cmd.js pager import also omits dohistory. The owner already exists and the static data/pager are tested.",
+                "Read existing generator, static history data, source-pinned help data tests and complete help-menu history recipe/test path. Needed correction is one import plus awaited return arm, with independent typed #history recording and cheap role/menu variation, no-time/queue assertions and admitted range10-36 verification.",
+                "Clean boundary merged accepted B16786e7e419 after assigned-base scan, producingd3df346346277aba821413a10539d106c1e647a2. The merge changed only central records and saved evaluations, not cmd/pager source; current accepted-8ad9 case still has27remaining. Preserve mismatch replayCommitf92e5336 rather than claiming a fresh post-merge replay.",
+                "A172 owns the exact source reservation; parent instructed B171 report-only parking. Resume condition is accepted A172 merged at a clean boundary, then refresh provenance and claim the bounded history contract before edits."
+              ],
+              "proposal": {
+                "goalId": "fix-cmd-doextcmd-history-dispatch-v32-20261008",
+                "summary": "Dispatch the typed game history command.",
+                "selectionReason": "Resume the parked history caller investigation after accepted A172 releases the exact doextcmd owner. Current851988a66 replay reproduces the same10/37-screen typed-history refusal; existing canonical pager owner is unchanged.",
+                "detail": "The typed #history command reaches cmd.c:doextcmd but JS omits its dohistory dispatch arm. Canonical pager.c:dohistory, generated history text and complete TTY pager already work through the help-menu history entry. Add the bounded awaited dispatcher arm from the accepted A172 boundary; no new pager owner or whole command-function port is needed.",
+                "dependencyReady": true,
+                "sourceUnits": [
+                  {
+                    "file": "cmd.c",
+                    "name": "doextcmd",
+                    "start": 493,
+                    "end": 520
+                  }
+                ],
+                "completionCredit": "Bounded doextcmd dohistory caller correction only; no whole doextcmd, rhack, pager or TTY credit.",
+                "proposedReservations": [
+                  "session:synthetic/v32/v32-game-history",
+                  "source:cmd.c:doextcmd",
+                  "contract:game-history-extended-command-dispatch"
+                ],
+                "proposedPaths": [
+                  "js/cmd.js",
+                  "scripts/help-command.test.mjs",
+                  "scripts/cmd-span.test.mjs",
+                  "scripts/history-command.test.mjs",
+                  "recipes/cmd.c/",
+                  "recordings/cmd.c/",
+                  "investigations/synthetic/v32/v32-game-history.json",
+                  ".cache/"
+                ],
+                "dependencies": []
+              }
             }
           }
         }

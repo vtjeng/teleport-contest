@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T23:55:23.886Z",
+  "capturedAt": "2026-10-09T00:07:29.223Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -68728,12 +68728,96 @@
         "type": "accepted",
         "at": "2026-10-08T23:55:12.546Z",
         "task": "B176"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C158-b176-boundary-active-20261008",
+        "type": "turn",
+        "at": "2026-10-08T23:55:38.659Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Accepted B176 merged cleanly; checking affected pager/getpos behavior and remaining dependencies."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-B176-1e473520-20261008",
+        "type": "turn",
+        "at": "2026-10-08T23:55:47.102Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Accepted B176 merged cleanly. A177 awaits C158 acceptance to release the prayer caller."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C158-b176-boundary-idle-20261008",
+        "type": "turn",
+        "at": "2026-10-08T23:56:00.312Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Accepted B176 merged cleanly and affected checks pass. No independent admitted work: command/options families wait on B171/B173, prayer and combat/drop deliveries are pending, and build/pointer contracts remain blocked."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-post-B176-dependency-availability-20261008",
+        "type": "turn",
+        "at": "2026-10-08T23:56:11.478Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B176 merged; options and command-description callers still wait on B171 acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B176-879019e3-20261008",
+        "type": "published",
+        "at": "2026-10-08T23:56:17.362Z",
+        "task": "B176",
+        "commit": "879019e3149fbbc9051e733a62cb64e173c049cc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A176-db0a7ad0-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T23:59:26.035Z",
+        "task": "A176",
+        "integration": "db0a7ad02ea001265fce34f7485b90c58d649d79"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B171-c3a78d57-20261008",
+        "type": "received",
+        "at": "2026-10-09T00:01:09.605Z",
+        "task": "B171",
+        "delivery": "c3a78d5759c3340a044af017acfe17cd63fe5d29"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-B171-review-20261008",
+        "type": "activity",
+        "at": "2026-10-09T00:01:12.362Z",
+        "task": "B171",
+        "phase": "review",
+        "reason": "Previewing the dependency-ready typed history dispatcher delivery while A176 runs its hosted checkpoint."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A176-db0a7ad02ea001265fce34f7485b90c58d649d79-validated",
+        "type": "validated",
+        "at": "2026-10-09T00:05:00.377Z",
+        "task": "A176",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A176-db0a7ad02ea001265fce34f7485b90c58d649d79-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T00:07:15.491Z",
+        "task": "A176"
       }
     ]
   },
   "development": {
-    "executionCommit": "1e473520110f60b4e3643c68dee6672850378ead",
-    "measuredAt": "2026-10-08T23:52:06.647Z",
+    "executionCommit": "db0a7ad02ea001265fce34f7485b90c58d649d79",
+    "measuredAt": "2026-10-09T00:04:09.928Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
