@@ -5,6 +5,7 @@
 
 import { UnsupportedLevelChangeError } from './do.js';
 import { rn2 } from './rng.js';
+import { l_selection_or } from './nhlsel.js';
 import { selection_area, ThemeroomSelection } from './themerooms.js';
 import {
     COLNO, ROWNO, IS_STWALL,
@@ -120,18 +121,6 @@ export function selection_match(pattern, state) {
     return sel;
 }
 
-// Union of two selections (Lua's | operator on selections).
-function selUnion(a, b) {
-    const result = a.clone();
-    const bounds = b.bounds();
-    for (let x = bounds.lx; x <= bounds.hx; ++x) {
-        for (let y = bounds.ly; y <= bounds.hy; ++y) {
-            if (b.get(x, y)) result.set(x, y);
-        }
-    }
-    return result;
-}
-
 // ============================================================
 // bigrm-1 through bigrm-13
 // ============================================================
@@ -169,20 +158,20 @@ async function bigrm1(des, state) {
         if (choice === 0) {
             await des.terrain(selection_line(10, 8, 65, 8), terrains[tidx]);
         } else if (choice === 1) {
-            const sel = selUnion(
+            const sel = l_selection_or(
                 selection_line(15, 4, 15, 13),
                 selection_line(59, 4, 59, 13),
             );
             await des.terrain(sel, terrains[tidx]);
         } else if (choice === 2) {
-            const sel = selUnion(
+            const sel = l_selection_or(
                 selection_line(10, 8, 64, 8),
                 selection_line(37, 3, 37, 14),
             );
             await des.terrain(sel, terrains[tidx]);
         } else if (choice === 3) {
             await des.terrain(selection_rect(4, 4, 70, 13), terrains[tidx]);
-            const sel = selUnion(
+            const sel = l_selection_or(
                 selection_line(25, 4, 50, 4),
                 selection_line(25, 13, 50, 13),
             );
@@ -237,12 +226,12 @@ async function bigrm2(des, state) {
     let darkness = null;
     const choice = mathRandom(0, 3);
     if (choice === 0) {
-        darkness = selUnion(
-            selUnion(
+        darkness = l_selection_or(
+            l_selection_or(
                 selection_area(1, 7, 22, 9),
                 selection_area(24, 1, 50, 5),
             ),
-            selUnion(
+            l_selection_or(
                 selection_area(24, 11, 50, 16),
                 selection_area(52, 7, 73, 9),
             ),
@@ -250,7 +239,7 @@ async function bigrm2(des, state) {
     } else if (choice === 1) {
         darkness = selection_area(24, 1, 50, 16);
     } else if (choice === 2) {
-        darkness = selUnion(
+        darkness = l_selection_or(
             selection_area(1, 1, 22, 16),
             selection_area(52, 1, 73, 16),
         );

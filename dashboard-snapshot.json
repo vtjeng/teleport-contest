@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T20:06:19.305Z",
+  "capturedAt": "2026-10-09T21:36:48.210Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -76194,19 +76194,470 @@
         "at": "2026-10-09T20:05:56.737Z",
         "task": "A195",
         "delivery": "8297a412828be8bff2ebda6dacec3989dbf02e3c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-after-C174-accepted-numeric-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:07:11.937Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "Next C-owned Tourist-locate task waits for Main’s numeric-selection contract decision shared with B200/B202. Other admitted mismatches have prior A/B owners or established tooling/provenance blockers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C174-c73aa43b72a0800387497d5aac7de214841a325e",
+        "type": "published",
+        "at": "2026-10-09T20:08:01.149Z",
+        "task": "C174",
+        "commit": "c73aa43b72a0800387497d5aac7de214841a325e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A195-review-c73aa43b",
+        "type": "activity",
+        "at": "2026-10-09T20:13:37.834Z",
+        "task": "A195",
+        "phase": "review",
+        "reason": "Verifying the immutable Sam-loca delivery against the published C174 boundary and current v36 mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A195-integrating-d28db928",
+        "type": "integrating",
+        "at": "2026-10-09T20:15:58.117Z",
+        "task": "A195",
+        "integration": "d28db9282c38ddf0cf2cc77330e258a9b66ebfad"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-resume-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:18:37.742Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Rechecking the admitted mismatch queue for an independent source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-resume-active-c73-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:19:08.561Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Rechecking the Monk start task after its shared object prerequisite was accepted."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-resume-blocked-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:21:47.472Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "No unowned independent queue item remains. Awaiting Main decision on whether C may claim the complete numeric-selection owner without taking B200/B202 sessions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B197-after-C172-20261009",
+        "type": "resume",
+        "at": "2026-10-09T20:22:04.254Z",
+        "task": "B197"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A195-validated-37985939395",
+        "type": "validated",
+        "at": "2026-10-09T20:22:12.903Z",
+        "task": "A195",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C176-approved-selection-owner-20261009",
+        "type": "resume",
+        "at": "2026-10-09T20:22:47.928Z",
+        "task": "C176"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C176-approved-selection-owner-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:22:50.685Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Implementing the approved selection algebra owner with numeric cell values and Tourist-locate runtime evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A195-d28db9282c38ddf0cf2cc77330e258a9b66ebfad-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T20:23:31.684Z",
+        "task": "A195"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B197-mon-strt-after-C172-20261009",
+        "type": "implement",
+        "at": "2026-10-09T20:23:32.802Z",
+        "task": "B197",
+        "goal": "port-mon-strt-lua-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C176-selection-algebra-owner-20261009",
+        "type": "implement",
+        "at": "2026-10-09T20:23:44.635Z",
+        "task": "C176",
+        "goal": "port-tou-loca-quest-level-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-resume-20261009-1",
+        "type": "turn",
+        "at": "2026-10-09T20:24:07.809Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Checking saved work and the accepted-main boundary before claiming the next source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A195-a759cd6f0fbb7e5dfa8f79102a918fc9d2c645c0",
+        "type": "published",
+        "at": "2026-10-09T20:25:31.946Z",
+        "task": "A195",
+        "commit": "a759cd6f0fbb7e5dfa8f79102a918fc9d2c645c0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-blocked-no-independent-queue-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:26:10.670Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "No independent saved-queue task is available; remaining candidates have existing owners or shared source and recorder gates."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-Prep-resume-20261009T2030",
+        "type": "observe",
+        "at": "2026-10-09T20:29:03.942Z",
+        "worker": "Prep",
+        "live": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-B-resume-20261009T2031",
+        "type": "observe",
+        "at": "2026-10-09T20:29:15.497Z",
+        "worker": "B",
+        "live": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-C-resume-20261009T2031",
+        "type": "observe",
+        "at": "2026-10-09T20:29:16.797Z",
+        "worker": "C",
+        "live": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-A2-resume-20261009T2031",
+        "type": "observe",
+        "at": "2026-10-09T20:29:18.132Z",
+        "worker": "A2",
+        "live": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep2-active-resume-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:29:33.753Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-worker-c-resume-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:29:47.575Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C176 is implementing the Tou-loca loader and source-owned selection value operators."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-Prep2-distinct-search-20261009",
+        "type": "resume",
+        "at": "2026-10-09T20:29:51.929Z",
+        "task": "Prep2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-resume-active-root-worker-b-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:30:46.094Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing the complete Monk quest start program and collecting C evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5be1e1d541ecedbb11c18d39c94a97204815400b",
+        "type": "ready",
+        "at": "2026-10-09T20:32:48.445Z",
+        "task": "B197",
+        "delivery": "5be1e1d541ecedbb11c18d39c94a97204815400b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B197-5be1e1d541ecedbb11c18d39c94a97204815400b",
+        "type": "received",
+        "at": "2026-10-09T20:33:03.179Z",
+        "task": "B197",
+        "delivery": "5be1e1d541ecedbb11c18d39c94a97204815400b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B197-ac57ee3a638f5cf21d59768e3b0d1c469c236440",
+        "type": "integrating",
+        "at": "2026-10-09T20:36:03.202Z",
+        "task": "B197",
+        "integration": "ac57ee3a638f5cf21d59768e3b0d1c469c236440"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B197-9cf6135e96ef404438d1de92579e412f0fc024f7",
+        "type": "integrating",
+        "at": "2026-10-09T20:36:44.037Z",
+        "task": "B197",
+        "integration": "9cf6135e96ef404438d1de92579e412f0fc024f7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B197-9cf6135e",
+        "type": "validated",
+        "at": "2026-10-09T20:42:49.692Z",
+        "task": "B197",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B198-after-A195-20261009",
+        "type": "resume",
+        "at": "2026-10-09T20:43:45.363Z",
+        "task": "B198"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B198-active-after-A195-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:44:09.304Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Resuming the independent Bar-goal alignment RNG-order fix; B197 remains queued for integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B197-9cf6135e96ef404438d1de92579e412f0fc024f7-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T20:44:28.382Z",
+        "task": "B197"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B197-6310e19f5110052c6e6f41ee742547adc10faed9",
+        "type": "published",
+        "at": "2026-10-09T20:45:52.423Z",
+        "task": "B197",
+        "commit": "6310e19f5110052c6e6f41ee742547adc10faed9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B198-sp-amask-order-after-B197-20261009",
+        "type": "implement",
+        "at": "2026-10-09T20:47:25.634Z",
+        "task": "B198",
+        "goal": "fix-sp-lev-noncoaligned-macro-order-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-6b6d398857cd52e917bafc488aff7c349c46e27f",
+        "type": "ready",
+        "at": "2026-10-09T20:54:52.317Z",
+        "task": "B198",
+        "delivery": "6b6d398857cd52e917bafc488aff7c349c46e27f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B198-6b6d398857cd52e917bafc488aff7c349c46e27f",
+        "type": "received",
+        "at": "2026-10-09T20:55:07.340Z",
+        "task": "B198",
+        "delivery": "6b6d398857cd52e917bafc488aff7c349c46e27f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B203-active-castle-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:57:48.626Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B is correcting the Castle map row that places its throne one square east in the translated level."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B203-castle-map-v35-20261009",
+        "type": "assign",
+        "at": "2026-10-09T20:57:50.046Z",
+        "task": "B203",
+        "worker": "B",
+        "goal": "fix-castle-map-throne-cell-v35-20261009",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B198-00f11936d9f1c157e37a9c080de5e2009e9f09cf",
+        "type": "integrating",
+        "at": "2026-10-09T20:58:25.570Z",
+        "task": "B198",
+        "integration": "00f11936d9f1c157e37a9c080de5e2009e9f09cf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C176-schema-wait-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:00:13.703Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "C176 source work and runtime evidence are complete; waiting for the coordinator mixed Lua/C evidence-schema fix after B198 before ledger submission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1e77e1c67d7835f3ca850a40937fe5dc3477d053",
+        "type": "ready",
+        "at": "2026-10-09T21:04:10.993Z",
+        "task": "B203",
+        "delivery": "1e77e1c67d7835f3ca850a40937fe5dc3477d053"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B198-00f11936",
+        "type": "validated",
+        "at": "2026-10-09T21:04:24.082Z",
+        "task": "B198",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B203-queued-next-selection-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:04:48.106Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B203 is queued for integration while B checks the remaining unowned source mismatches."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B198-00f11936d9f1c157e37a9c080de5e2009e9f09cf-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T21:05:28.074Z",
+        "task": "B198"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B198-27f701c5353b5c5f7c79d18fad52c57b15a177e7",
+        "type": "published",
+        "at": "2026-10-09T21:06:53.838Z",
+        "task": "B198",
+        "commit": "27f701c5353b5c5f7c79d18fad52c57b15a177e7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B203-blocked-no-independent-work-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:08:26.580Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "B203 is queued. Remaining saved mismatches are owned or parked on C176 selection algebra, native-pointer formatting, Main recorder repair, or build provenance; waiting for a gate or updated queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C176-schema-fix-resumed-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:16:02.756Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C176 is merging the approved evidence-schema fix and resubmitting the saved packet."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-f7ade37399efd0dc38c1e0786064327e1ecb5d69",
+        "type": "ready",
+        "at": "2026-10-09T21:16:25.644Z",
+        "task": "C176",
+        "delivery": "f7ade37399efd0dc38c1e0786064327e1ecb5d69"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C176-submitted-wait-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:16:35.394Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C176 is submitted and awaiting coordinator integration and validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C176-f7ade373",
+        "type": "received",
+        "at": "2026-10-09T21:17:18.284Z",
+        "task": "C176",
+        "delivery": "f7ade37399efd0dc38c1e0786064327e1ecb5d69"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C176-c5d83598",
+        "type": "integrating",
+        "at": "2026-10-09T21:24:44.317Z",
+        "task": "C176",
+        "integration": "c5d83598dedf07a195a1418f69e1f1d506aeb034"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C176-7288ae883",
+        "type": "integrating",
+        "at": "2026-10-09T21:25:51.592Z",
+        "task": "C176",
+        "integration": "7288ae883c74f0469a62169bfd5eeb2e9ee69429"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C176-7288ae883",
+        "type": "validated",
+        "at": "2026-10-09T21:34:42.857Z",
+        "task": "C176",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C176-7288ae883c74f0469a62169bfd5eeb2e9ee69429-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T21:35:39.917Z",
+        "task": "C176"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "A195",
-        "worker": "A2",
-        "goal": "port-sam-loca-quest-locate-v36-20261009",
+        "task": "B203",
+        "worker": "B",
+        "goal": "fix-castle-map-throne-cell-v35-20261009",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "8297a412828be8bff2ebda6dacec3989dbf02e3c",
-        "since": "2026-10-09T20:04:53.969Z",
+        "delivery": "1e77e1c67d7835f3ca850a40937fe5dc3477d053",
+        "since": "2026-10-09T21:04:10.993Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -76478,28 +76929,6 @@
         "reason": "Complete source report07845e90b: patch006 nomux_capture_screen overflows6144-byte buffer into raw cursor globals after dense Juiblex mapping. RNG/screens match; Main owns recorder repair and admitted-corpus provenance decision. No JavaScript source task is eligible for this cursor corruption."
       },
       {
-        "task": "B197",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T13:34:13.706Z",
-        "blockedBy": [],
-        "reason": "Complete Mon-strt report33119e37 preserved, awaiting central source gate and shared spinach-tin support approval. Main directs another independent investigation while current delivery queue validates."
-      },
-      {
-        "task": "B198",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T13:51:16.361Z",
-        "blockedBy": [],
-        "reason": "Complete report-only alignment macro diagnosis preserved; pending Main source gate and central context. Continue independent admitted quest investigation."
-      },
-      {
         "task": "B200",
         "worker": "B",
         "goal": null,
@@ -76511,17 +76940,6 @@
         "reason": "Main received complete report and directed parking for shared numeric selection subtraction owner adjudication; preserve report3bc79386 and source proposal without game edits."
       },
       {
-        "task": "C176",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T14:05:01.442Z",
-        "blockedBy": [],
-        "reason": "Complete report8a066441a retained; Main requires adjudication of canonical numeric selection union/subtraction semantics before whole Tou-loca closure. No source claim/edit; parent directs independent investigation continuation."
-      },
-      {
         "task": "B202",
         "worker": "B",
         "goal": null,
@@ -76531,17 +76949,6 @@
         "since": "2026-10-09T14:24:01.151Z",
         "blockedBy": [],
         "reason": "Complete Val-strt report is preserved at 2494462c6; implementation waits on central numeric-selection owner adjudication. Worker temporarily resumes B195 evidence correction."
-      },
-      {
-        "task": "Prep2",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T15:30:38.168Z",
-        "blockedBy": [],
-        "reason": "Thirteen distinct reproducible C cases replay byte-identically but all pass current JavaScript; zero qualify as first-mismatch runway after reviewing v37 and all 30 unresolved queue cases. Preserve commit 8c08f73d16cd2b8a1f3f85c120ad21a02df29279 and private manifest/crosswalk; do not admit or integrate."
       },
       {
         "task": "C180",
@@ -76568,8 +76975,8 @@
     ]
   },
   "development": {
-    "executionCommit": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3",
-    "measuredAt": "2026-10-09T20:04:00.526Z",
+    "executionCommit": "7288ae883c74f0469a62169bfd5eeb2e9ee69429",
+    "measuredAt": "2026-10-09T21:33:48.893Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

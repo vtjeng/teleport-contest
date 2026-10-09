@@ -17,6 +17,7 @@ import {
     IS_ROOM,
     MM_ESHK,
     PL_NSIZ,
+    RLOC_NOMSG,
     ROOM,
     ROOMOFFSET,
     SHOPBASE,
@@ -56,6 +57,7 @@ import {
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { newsym } from './display.js';
 import { note_unported } from './unported.js';
+import { rloc } from './teleport.js';
 import {
     SHTYPES,
     shkgeneral,
@@ -368,11 +370,8 @@ function shkinit(shop, sroom, normalized) {
     const { state } = normalized;
     const placement = good_shopdoor(sroom, state);
     if (!placement) return null;
-    if (m_at(placement.sx, placement.sy, state)) {
-        // C rloc()s the occupant out of the way. Nothing has placed a monster
-        // by the time makelevel() stocks a fresh shop, so this stays a stop.
-        throw new Error('shopkeeper square unexpectedly occupied');
-    }
+    const occupant = m_at(placement.sx, placement.sy, state);
+    if (occupant) rloc(occupant, RLOC_NOMSG, normalized);
 
     const shk = makemon(
         state.mons[PM_SHOPKEEPER],
