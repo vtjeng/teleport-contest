@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first whole Hea-strt.lua input fixed before JS comparison: human female Healer, neutral alignment and Hea-strt.lua name. Covers map, pool replacement, branch region, neutral altar, doors, Hippocrates custom silver dagger, attendants and siege monsters. No seed search.",
+  "segments": [
+    {
+      "seed": 17091011,
+      "datetime": "20660918162631",
+      "nethackrc": "OPTIONS=name:HeaStrtProbe,role:Healer,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizloaddes\nHea-strt.lua\n            #wizmap\n        "
+    }
+  ]
+}
