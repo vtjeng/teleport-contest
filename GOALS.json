@@ -240437,7 +240437,7 @@
     {
       "id": "port-tou-loca-quest-level-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the whole Tourist quest locate program and its consumed selection and shop initialization functions",
       "luaFile": "Tou-loca.lua",
       "sessions": [
@@ -240451,8 +240451,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7288ae883c74f0469a62169bfd5eeb2e9ee69429",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Tou-loca.lua",
@@ -240839,6 +240842,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7288ae883c74f0469a62169bfd5eeb2e9ee69429",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

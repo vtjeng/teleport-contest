@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T21:06:05.874Z",
+  "capturedAt": "2026-10-09T21:36:48.210Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -76563,6 +76563,88 @@
         "type": "accepted",
         "at": "2026-10-09T21:05:28.074Z",
         "task": "B198"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B198-27f701c5353b5c5f7c79d18fad52c57b15a177e7",
+        "type": "published",
+        "at": "2026-10-09T21:06:53.838Z",
+        "task": "B198",
+        "commit": "27f701c5353b5c5f7c79d18fad52c57b15a177e7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B203-blocked-no-independent-work-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:08:26.580Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "B203 is queued. Remaining saved mismatches are owned or parked on C176 selection algebra, native-pointer formatting, Main recorder repair, or build provenance; waiting for a gate or updated queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C176-schema-fix-resumed-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:16:02.756Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C176 is merging the approved evidence-schema fix and resubmitting the saved packet."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-f7ade37399efd0dc38c1e0786064327e1ecb5d69",
+        "type": "ready",
+        "at": "2026-10-09T21:16:25.644Z",
+        "task": "C176",
+        "delivery": "f7ade37399efd0dc38c1e0786064327e1ecb5d69"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C176-submitted-wait-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:16:35.394Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C176 is submitted and awaiting coordinator integration and validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C176-f7ade373",
+        "type": "received",
+        "at": "2026-10-09T21:17:18.284Z",
+        "task": "C176",
+        "delivery": "f7ade37399efd0dc38c1e0786064327e1ecb5d69"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C176-c5d83598",
+        "type": "integrating",
+        "at": "2026-10-09T21:24:44.317Z",
+        "task": "C176",
+        "integration": "c5d83598dedf07a195a1418f69e1f1d506aeb034"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C176-7288ae883",
+        "type": "integrating",
+        "at": "2026-10-09T21:25:51.592Z",
+        "task": "C176",
+        "integration": "7288ae883c74f0469a62169bfd5eeb2e9ee69429"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C176-7288ae883",
+        "type": "validated",
+        "at": "2026-10-09T21:34:42.857Z",
+        "task": "C176",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C176-7288ae883c74f0469a62169bfd5eeb2e9ee69429-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T21:35:39.917Z",
+        "task": "C176"
       }
     ]
   },
@@ -76893,8 +76975,8 @@
     ]
   },
   "development": {
-    "executionCommit": "00f11936d9f1c157e37a9c080de5e2009e9f09cf",
-    "measuredAt": "2026-10-09T21:03:45.297Z",
+    "executionCommit": "7288ae883c74f0469a62169bfd5eeb2e9ee69429",
+    "measuredAt": "2026-10-09T21:33:48.893Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
