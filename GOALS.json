@@ -223033,6 +223033,49 @@
         "rng": 792838
       },
       "parkedReason": "handler_pickup_types is verified and the live pickup request behavior matches; optfn_pickup_types remains incomplete until cmd.c saveoptions and cfgfiles.c do_write_config_file reach its active GET_CNF_VAL caller, with runtime config_erradd output retained as a named discarded-return gap."
+    },
+    {
+      "id": "port-options-score-request-family-v32-20261009",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete the scores option request owner and existing callers",
+      "cFile": "options.c",
+      "sessions": [
+        "synthetic/v32/v32-options-scores"
+      ],
+      "selectionReason": "Dependency-ready after accepted full-options dispatch; v32-options-scores reaches the missing optfn_scores DO_SET request at step 42, with current accepted evidence unchanged through B179.",
+      "detail": "Port whole options.c optfn_scores and consolidate startup, live setter, and value formatter callers. Preserve source reset, negation, token, signed-integer, separator, partial-write, return-status, and getter order; retain live config_erradd and native saveoptions file-writing frontiers without broader source credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "optfn_scores",
+          "line": 3669,
+          "endLine": 3762,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3669,
+        "to": 3762
+      },
+      "syntheticProvenance": {
+        "synthetic/v32/v32-options-scores": {
+          "session": "synthetic/v32/v32-options-scores",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-options-scores",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-options-scores.session.json",
+          "recordingSha256": "74df6d4914cfa6607b788f00ef45a91d6303344e402987ca1d6a4f9cdcaae697",
+          "evaluationPath": "challenges/evaluations/accepted-1284e60b42ebde4775c7978300ed09913f893ebc-v32.json",
+          "evaluationCommit": "1284e60b42ebde4775c7978300ed09913f893ebc"
+        }
+      }
     }
   ]
 }
