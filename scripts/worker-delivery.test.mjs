@@ -9,6 +9,7 @@ import { copiedRecipe, verifyEvent } from './worker-delivery.mjs';
 import { corpusDigest, digest } from './challenge-results.mjs';
 import { preparedFromDelivery } from './admit-challenge-batch.mjs';
 import { executionTree } from './checkpoint-reuse.mjs';
+import { COLUMNS } from './score-log.mjs';
 
 const SCRIPT = fileURLToPath(new URL('./worker-state.mjs', import.meta.url));
 
@@ -126,6 +127,26 @@ test('worker submits durably and starts another task before receipt; snapshots s
     const next = f.success(['next']);
     assert.equal(next.unread[0].delivery, head);
     assert.equal(next.integration.delivery, head);
+    // Saved scheduling evidence is separate from delivery integration: sample
+    // is still reserved, whereas an unknown cause can be investigated now.
+    writeFileSync(join(f.root, 'SCORE.tsv'), COLUMNS.join('\t') + '\n');
+    const queuePath = join(f.root, '.cache/work-queue.json');
+    const queue = { mode: 'work', synthetic: { batches: [] }, sessions: [
+        { session: 'reserved-cause', investigation: { status: 'complete',
+            result: { source: { file: 'sample.c', functions: ['sample'] } } } },
+        { session: 'new-cause' },
+    ], blockers: [], selectionBlocked: false };
+    writeFileSync(queuePath, JSON.stringify(queue));
+    const availability = f.success(['next', '--queue', queuePath]);
+    assert.equal(availability.pendingMainWork.deliveries.length, 1);
+    assert.equal(availability.workerWork.candidateGroups, 1);
+    assert.deepEqual(availability.workerWork.investigations, ['new-cause']);
+    assert.deepEqual(availability.workerWork.unavailable[0].blockedBy, ['A-1']);
+    assert.equal(availability.integration.delivery, head, 'availability does not interrupt integration');
+    writeFileSync(queuePath, JSON.stringify({ ...queue, mode: 'fixed' }));
+    const blocked = f.success(['next', '--queue', queuePath]).workerWork;
+    assert.equal(blocked.status, 'unknown');
+    assert.equal(blocked.candidateGroups, null, 'invalid evidence must not appear as measured zero');
     f.event({ type: 'received', task: 'A-1', delivery: head });
     const packet = JSON.parse(readFileSync(first.evidence, 'utf8'));
     assert.equal(packet.functions[0].name, 'sample');
