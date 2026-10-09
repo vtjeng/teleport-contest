@@ -3,7 +3,7 @@
 //         dat/Bar-goal.lua, dat/Bar-loca.lua, dat/Arc-strt.lua,
 //         dat/Arc-loca.lua, dat/Arc-fila.lua, dat/Arc-filb.lua,
 //         dat/Arc-goal.lua, dat/Cav-goal.lua, dat/Cav-loca.lua,
-//         dat/Cav-strt.lua, dat/Mon-goal.lua, dat/Sam-goal.lua, dat/astral.lua,
+//         dat/Cav-strt.lua, dat/Mon-goal.lua, dat/Sam-goal.lua, dat/Tou-strt.lua, dat/astral.lua,
 //         dat/Hea-goal.lua, dat/Hea-loca.lua, dat/Hea-strt.lua,
 //         dat/Kni-loca.lua, dat/Kni-strt.lua, dat/Ran-loca.lua,
 //         dat/Ran-goal.lua, dat/Rog-strt.lua, dat/Val-goal.lua,
@@ -70,6 +70,7 @@ import {
 } from './kni_loca_level_data.js';
 import { MON_GOAL_LEVEL_MAP } from './mon_goal_level_data.js';
 import { SAM_GOAL_LEVEL_MAP } from './sam_goal_level_data.js';
+import { TOU_STRT_LEVEL_MAP, TOU_STRT_DOORS, TOU_STRT_GUIDES } from './tou_strt_level_data.js';
 import {
     RAN_LOCA_LEVEL_MAP, RAN_LOCA_MONSTERS, RAN_LOCA_OBJECT_COUNT, RAN_LOCA_TRAPS,
 } from './ran_loca_level_data.js';
@@ -2342,6 +2343,47 @@ async function kniStrt(des) {
     }
 }
 
+// C ref: dat/Tou-strt.lua, whole program. Keep siege monsters before
+// Twoflower's awaited custom inventory, then guides, river monsters and traps.
+async function touStrt(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noteleport', 'hardfloor');
+    await des.map(TOU_STRT_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 19), 'lit');
+    await des.region({ region: [14, 1, 20, 3], lit: 0, type: 'morgue', filled: 1 });
+    await des.region(selection_area(7, 10, 11, 12), 'unlit');
+    await des.region(selection_area(4, 16, 8, 18), 'unlit');
+    await des.region(selection_area(17, 16, 21, 18), 'unlit');
+    await des.region(selection_area(27, 2, 32, 4), 'unlit');
+    await des.region(selection_area(34, 2, 39, 4), 'unlit');
+    await des.region(selection_area(41, 2, 53, 4), 'unlit');
+    await des.region(selection_area(55, 2, 60, 4), 'unlit');
+    await des.region(selection_area(62, 2, 67, 4), 'lit');
+    await des.stair('down', 66, 3);
+    await des.levregion({ region: [68, 14, 68, 14], type: 'branch' });
+    await des.non_diggable(selection_area(0, 0, 75, 19));
+    for (const door of TOU_STRT_DOORS) await des.door(...door);
+    for (let i = 0; i < 12; ++i) await des.monster('giant spider');
+    await des.monster('s');
+    await des.monster('s');
+    for (let i = 0; i < 8; ++i) await des.monster('forest centaur');
+    await des.monster('C');
+    await des.monster({ id: 'Twoflower', coord: [64, 3], async inventory() {
+        await des.object({ id: 'walking shoes', spe: 3 });
+        await des.object({ id: 'hawaiian shirt', spe: 3 });
+    } });
+    await des.object('chest', 64, 3);
+    for (const coord of TOU_STRT_GUIDES) await des.monster('guide', ...coord);
+    await des.monster('watchman', 35, 8);
+    await des.monster('watchman', 36, 8);
+    await des.monster('giant eel', 62, 12);
+    await des.monster('piranha', 47, 10);
+    await des.monster('piranha', 29, 11);
+    await des.monster('kraken', 34, 9);
+    await des.monster('kraken', 37, 9);
+    for (let i = 0; i < 9; ++i) await des.trap();
+}
+
 // C ref: dat/astral.lua, whole program.
 async function astral(des, state) {
     await des.level_init({ style: 'solidfill', fg: ' ' });
@@ -2530,6 +2572,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Arc-goal': arcGoal,
     'Kni-goal': kniGoal,
     'Sam-goal': samGoal,
+    'Tou-strt': touStrt,
     'Kni-loca': kniLoca,
     'Ran-loca': ranLoca,
     'Ran-goal': ranGoal,

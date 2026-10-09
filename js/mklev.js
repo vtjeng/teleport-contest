@@ -653,6 +653,13 @@ export function initialize_themeroom_branch(state = game, random = rn2) {
 // C ref: mklev.c makelevel()
 async function makelevel(specialLevelLoader = null) {
     const g = game;
+    // mklev.c:1414–1418: every generation branch reaches this room-fill
+    // tail. load_special itself stops before filling special rooms.
+    const fillSpecialRooms = async () => {
+        const env = levelObjectEnv();
+        for (let i = 0; i < g.level.nroom; ++i)
+            await fill_special_room(g.level.rooms[i], env);
+    };
     oinit();
     clear_level_structures();
 
@@ -678,6 +685,7 @@ async function makelevel(specialLevelLoader = null) {
                 : Boolean(SPECIAL_LEVEL_LOADERS[slev.proto]);
             if (hasLoader) {
                 await makemaz(slev.proto, slev, g);
+                await fillSpecialRooms();
                 return;
             }
             throw new UnsupportedLevelChangeError(
@@ -697,6 +705,7 @@ async function makelevel(specialLevelLoader = null) {
         const specialLevelApi = createSpecialLevelApi(g);
         await specialLevelLoader(specialLevelApi, g);
         await specialLevelApi.finish();
+        await fillSpecialRooms();
         return;
     }
 
@@ -704,10 +713,12 @@ async function makelevel(specialLevelLoader = null) {
     const dungeonRecord = g.dungeons[g.u.uz.dnum];
     if (dungeonRecord.proto) {
         await makemaz('', null, g);
+        await fillSpecialRooms();
         return;
     }
     if (dungeonRecord.fill_lvl) {
         await makemaz(dungeonRecord.fill_lvl, null, g);
+        await fillSpecialRooms();
         return;
     }
 
@@ -724,6 +735,7 @@ async function makelevel(specialLevelLoader = null) {
         await ensureSpecialLevelLoaders();
         if (SPECIAL_LEVEL_LOADERS[fillName]) {
             await makemaz(fillName, null, g);
+            await fillSpecialRooms();
             return;
         }
     }
@@ -870,9 +882,7 @@ async function makelevel(specialLevelLoader = null) {
         if (fillable) --bonusItemRoomCountdown;
     }
 
-    const specialRoomEnv = levelObjectEnv();
-    for (let index = 0; index < g.level.nroom; ++index)
-        await fill_special_room(g.level.rooms[index], specialRoomEnv);
+    await fillSpecialRooms();
 
     // themerooms_post_level_generate() is completed by
     // level_finalize_topology(), after every ordinary and special room fill.
@@ -4690,16 +4700,9 @@ function createSpecialLevelApi(state) {
                 premap_detect(state);
             }
 
-            // C ref: sp_lev.c load_special() calls fill_special_room for
-            // every room after fixup_special. For rooms created by
-            // des.room() or des.region(table), this sets level flags
-            // (has_temple etc.) and fills shops/zoos when needfill is
-            // FILL_NORMAL.
-            const nroom = state.level?.nroom ?? 0;
-            const rooms = state.level?.rooms ?? [];
-            for (let i = 0; i < nroom; i++) {
-                await fill_special_room(rooms[i], levelObjectEnv());
-            }
+            // sp_lev.c:6454–6503 load_special() ends here. makelevel()
+            // fills natural loads; lspo_finalize_level() fills direct loads
+            // after level_finalize_topology() has mineralized the map.
         },
     });
 }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Tourist quest-start arrival and wizard map observation. Character, date, seed and action history vary; exercise whole Tou-strt generation and Twoflower custom inventory. C-only menu correction: observed page two labels Tou-strt as y; select page two before y. No JS comparison preceded this correction.",
+  "segments": [
+    {
+      "seed": 72014531,
+      "datetime": "20550718131941",
+      "nethackrc": "OPTIONS=name:Toumale,role:Tourist,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizlevelport\n?\n>y    #wizmap\n   "
+    }
+  ]
+}
