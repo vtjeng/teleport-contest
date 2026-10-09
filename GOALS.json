@@ -241496,7 +241496,7 @@
           "line": 1,
           "endLine": 100,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "requiredFunctions": [
@@ -241504,9 +241504,9 @@
           "name": "l_selection_setpoint",
           "line": 159,
           "endLine": 202,
-          "declared": false,
+          "declared": true,
           "sourceFile": "nhlsel.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -241681,7 +241681,102 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "l_selection_setpoint",
+            "implementation": "js/nhlsel.js",
+            "symbol": "l_selection_setpoint",
+            "sourceReview": "Read nethack-c/upstream/src/nhlsel.c:152-200 and its registration at 977-989. Ported argc 0 (new selection then source error), argc 1 (checked selection and random point), argc 2 (new selection and explicit point), and argc >=3 (checked selection, explicit point, optional integer value). Preserved SP_COORD_PACK_RANDOM(0) only when both coordinates are -1, ANY_LOC lookup through the current coder room/frame and injected random source, signed-char point storage through ThemeroomSelection.set, mutation and returned selection identity. The helper's random location lookup and selection mutation are impure. No unported callee remains on the exercised branch.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "createSpecialLevelApi",
+                "source": "nhlsel.c selection library registration maps 'set' to l_selection_setpoint; sp_lev.c load_special initializes the active coder before running the Lua level program."
+              },
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "valStrt",
+                "source": "dat/Val-strt.lua calls pools:set() thirteen times and selection.set(selection.new()) three times before growing the selections."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/nhlsel.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "nhlsel.c",
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-val-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Valkyrie quest-start load_special -> dat/Val-strt.lua selection.set -> nhlsel.c:l_selection_setpoint; the Lua program then exercises its terrain, map, feature, object, trap, and monster descriptors."
+              }
+            ],
+            "checkedAt": "87a4d535c9677c8043d49ec0c1d60dee6f0534e4"
+          },
+          {
+            "name": "Val-strt.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "valStrt",
+            "sourceReview": "Read the complete nethack-c/upstream/dat/Val-strt.lua:1-100. Preserved level_flags before solidfill initialization; thirteen random pool points; three fresh random points grown west, north, and random and ORed with the pool selection; grown P terrain before L terrain; source map, lit region, branch arrival, down stair, fountain, locked doors, Norn inventory callback, chest, eight warriors, non-diggable selection, six random fire traps, ten fixed fire ants, and two hostile fire giants in source order. The fixed map is generated from this Lua source by scripts/generate-val-strt-level.mjs. The loader's selection.set dependency is bound to the current coder and source random functions by js/mklev.js:load_special/createSpecialLevelApi. No unported callee remains on the exercised program.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special runs dat/Val-strt.lua for the Val-strt special-level prototype."
+              },
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "valStrt",
+                "source": "The established special-level loader registry dispatches the source name Val-strt to the whole program port valStrt."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-val-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Valkyrie quest-start arrival through do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Val-strt.lua."
+              }
+            ],
+            "checkedAt": "87a4d535c9677c8043d49ec0c1d60dee6f0534e4"
+          }
+        ],
+        "entryPointReview": "dat/Val-strt.lua has one active game entry point in the recorder build: the Valkyrie quest-start destination reached through do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special. Its global selection.set calls execute nhlsel.c:l_selection_setpoint through the special-level coder created by load_special. No compile-time-excluded caller branch applies to this whole Lua program or helper.",
+        "entryPoints": [
+          {
+            "name": "Valkyrie quest-start special-level generation",
+            "functions": [
+              "Val-strt.lua",
+              {
+                "sourceFile": "nhlsel.c",
+                "name": "l_selection_setpoint"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-val-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Valkyrie quest progression calls do.c:goto_level and loads the Val-strt prototype through mklev.c:makelevel, mkmaze.c:makemaz, and sp_lev.c:load_special."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
