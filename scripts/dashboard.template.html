@@ -533,6 +533,10 @@ canvas {
   background: linear-gradient(to right, var(--gridline) 1px, transparent 1px) 0 0 / 25% 100%;
 }
 .activity-row.main .activity-track { background-color: var(--surface-chart); }
+.activity-track, #timelineLegend { --stage-working: var(--goal-file-port); --stage-rework: #174d94;
+  --stage-review: #bb69ad; --stage-integrating: var(--goal-divergence); --stage-admission: #603c89;
+  --stage-acceptance: #148459; --stage-baseline: #66b49b; --stage-publication: #586478;
+  --stage-pending: #a9bfd6; --stage-waiting: var(--goal-boundary); --stage-unrecorded: var(--gridline); }
 .activity-bar {
   position: absolute;
   min-width: 2px;
@@ -541,17 +545,39 @@ canvas {
   background: var(--bar);
   opacity: 0.9;
   cursor: pointer;
+  box-sizing: border-box;
+  overflow: hidden;
+  color: white;
+  font-size: 10px;
+  line-height: 22px;
+  padding: 0 3px;
+  white-space: nowrap;
 }
-.activity-bar.phase-working { --bar: var(--goal-file-port); }
-.activity-bar.phase-queued { --bar: var(--goal-boundary); }
-.activity-bar.phase-integrating { --bar: var(--goal-divergence); }
-.activity-bar.phase-acceptance { --bar: var(--goal-in-progress); }
-.activity-bar.phase-publication { --bar: var(--ink-muted); }
-.activity-bar.phase-review, .activity-bar.phase-admission { --bar: var(--goal-divergence); }
-.activity-bar.phase-baseline { --bar: var(--goal-in-progress); }
-.activity-bar.phase-rework { --bar: var(--goal-file-port); background-image: repeating-linear-gradient(90deg, transparent 0 5px, var(--surface-chart) 5px 7px); }
-.activity-bar.phase-waiting { --bar: var(--goal-boundary); background-image: repeating-linear-gradient(135deg, transparent 0 3px, var(--surface-chart) 3px 5px); }
-.activity-bar.phase-unrecorded { background: transparent; border: 1px dashed var(--ink-muted); opacity: 0.55; box-sizing: border-box; }
+.phase-working { --bar: var(--stage-working); }
+.phase-rework { --bar: var(--stage-rework); }
+.phase-review { --bar: var(--stage-review); }
+.phase-integrating { --bar: var(--stage-integrating); }
+.phase-acceptance { --bar: var(--stage-acceptance); }
+.phase-publication { --bar: var(--stage-publication); }
+.phase-admission { --bar: var(--stage-admission); }
+.phase-baseline { --bar: var(--stage-baseline); }
+.phase-pending, .phase-queued { --bar: var(--stage-pending); }
+.phase-waiting { --bar: var(--stage-waiting); }
+.phase-unrecorded { --bar: var(--stage-unrecorded); }
+.activity-bar.phase-pending, .activity-bar.phase-baseline { color: #172839; }
+.activity-bar.phase-unrecorded { color: var(--ink-primary); }
+.activity-bar.phase-unrecorded { background: transparent; border-bottom: 1px dotted var(--ink-muted); border-radius: 0; opacity: 0.65; }
+#timelineLegend .legend-swatch { background: var(--bar); }
+#timelineLegend .phase-unrecorded { background: transparent; border-bottom: 1px dotted var(--ink-muted); border-radius: 0; }
+.activity-bar.continues-left { border-left: 3px double var(--surface-card); }
+.activity-bar.continues-right { border-right: 3px double var(--surface-card); }
+.activity-bar.continues-left::before { content: '‹'; position: absolute; left: 0; font-size: 16px; font-weight: bold; }
+.activity-bar.continues-right::after { content: '›'; position: absolute; right: 0; font-size: 16px; font-weight: bold; }
+.activity-bar.task-related { box-shadow: 0 0 0 1px var(--ink-primary); opacity: 1; }
+.activity-history { margin: 6px 0; padding-left: 18px; }
+.activity-history button { background: none; border: 0; color: inherit; padding: 2px 0; text-align: left; cursor: pointer; font: inherit; }
+.activity-empty { position: absolute; left: 8px; top: 16px; font-size: 10px; color: var(--ink-muted); }
+.activity-list-mode { display: flex; flex-wrap: wrap; gap: 4px; font-size: 11px; color: var(--ink-secondary); margin-bottom: 8px; }
 .activity-bar.selected, .activity-bar:focus-visible { outline: 2px solid var(--ink-primary); outline-offset: 2px; z-index: 1; }
 .activity-axis {
   height: 24px;
@@ -930,12 +956,14 @@ canvas {
   <p class="activity-pan-hint">Drag the timeline to move through time. Arrow keys work when the timeline is focused.</p>
   <div class="chart-wrap">
     <div class="activity-metrics" id="activityMetrics"></div>
-    <p class="activity-note">Solid bars show recorded stages, striped bars show reported waits or rework, and dashed bars mark unrecorded time—not proven idleness. Select a wait to inspect its reason and overlapping work. Review before merging and batch admission appear only when explicitly recorded.</p>
+    <p class="activity-note">One row per agent. Orange marks a reported wait; a pending delivery does not block other work. Hover or select a stage to follow its task through review, checks and publication. Arrow edges mark stages continuing outside the window. Stage details scroll.</p>
     <div class="legend" id="timelineLegend"></div>
     <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Worker and Main activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
     <div class="activity-details">
       <div class="activity-inspection" id="timelineReadout" aria-live="polite"></div>
-      <div class="activity-waits"><h4>Waits and unrecorded time</h4><div id="activityWaitList"></div></div>
+      <div class="activity-waits"><label class="activity-list-mode">Inspect
+        <select id="activityListMode"><option value="waits">Reported waits and unrecorded time</option><option value="all">All stages</option></select>
+      </label><div id="activityWaitList"></div></div>
     </div>
   </div>
 </div>
@@ -1633,28 +1661,28 @@ document.getElementById('stats').innerHTML = [
   const readout = document.getElementById('timelineReadout');
   const metrics = document.getElementById('activityMetrics');
   const waitList = document.getElementById('activityWaitList');
+  const listMode = document.getElementById('activityListMode');
   const windowLabel = document.getElementById('activityWindowLabel');
   const windowSelect = document.getElementById('activityWindow');
   const latestButton = document.getElementById('activityLatest');
   const activity = DATA.activity || { segments: [], tasks: [] };
-  const segments = activity.segments || [];
+  const history = activity.segments || [];
+  const segments = activity.stages || history;
   const esc = value => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   document.getElementById('activitySnapshotTime').textContent = activity.capturedAt
-    ? 'Activity snapshot: ' + new Date(activity.capturedAt).toLocaleString() + '.' : '';
+    ? 'Activity snapshot: ' + new Date(activity.capturedAt).toLocaleString('en-US',
+      { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false,
+        timeZoneName: 'short' }) + '.' : '';
   const taskById = new Map((activity.tasks || []).map(task => [task.id, task]));
-  const phaseNames = { working: 'Assigned task', queued: 'Waiting for integration',
+  const phaseNames = { working: 'Assigned task', queued: 'Delivery pending', pending: 'Delivery pending',
     integrating: 'Integration and checks', acceptance: 'Acceptance',
     publication: 'Publication', review: 'Review', rework: 'Rework',
     admission: 'Batch admission', baseline: 'Batch baseline',
     waiting: 'Reported wait', unrecorded: 'Unrecorded time' };
-  document.getElementById('timelineLegend').innerHTML = Object.entries(phaseNames)
+  document.getElementById('timelineLegend').innerHTML = Object.entries(phaseNames).filter(([phase]) => phase !== 'queued')
     .map(([phase, name]) => '<div class="legend-item"><div class="legend-swatch phase-' + phase
-      + '" style="background:var(' + ({ working: '--goal-file-port', queued: '--goal-boundary',
-        integrating: '--goal-divergence', acceptance: '--goal-in-progress',
-        publication: '--ink-muted', review: '--goal-divergence', rework: '--goal-file-port',
-        admission: '--goal-divergence', baseline: '--goal-in-progress',
-        waiting: '--goal-boundary', unrecorded: '--ink-muted' })[phase] + ')"></div>' + name + '</div>').join('');
+      + '"></div>' + name + '</div>').join('');
   if (!segments.length) {
     container.textContent = 'No worker activity snapshot is available.';
     return;
@@ -1666,33 +1694,6 @@ document.getElementById('stats').innerHTML = [
   const lanes = [...new Set(segments.map(segment => segment.lane)
     .filter(lane => lane !== 'Main'))].sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
   lanes.push('Main');
-  // Reserve a worker row for the task's entire handoff history, including
-  // corrections. Compute from the full snapshot so zoom and pan do not move
-  // the bars vertically. Main stages use separate intervals to allow gaps.
-  const slotHeight = 16;
-  const laneLayouts = new Map(lanes.map(lane => {
-    const intervals = new Map();
-    segments.forEach((segment, index) => {
-      if (segment.lane !== lane) return;
-      const key = lane === 'Main' ? index : segment.task;
-      const start = Date.parse(segment.start);
-      const end = Date.parse(segment.end);
-      const interval = intervals.get(key);
-      if (interval) {
-        interval.start = Math.min(interval.start, start);
-        interval.end = Math.max(interval.end, end);
-      } else intervals.set(key, { key, start, end });
-    });
-    const ends = [];
-    const slots = new Map();
-    for (const interval of [...intervals.values()].sort((a, b) => a.start - b.start)) {
-      let slot = ends.findIndex(end => end <= interval.start);
-      if (slot < 0) slot = ends.length;
-      ends[slot] = interval.end;
-      slots.set(interval.key, slot);
-    }
-    return [lane, { slots, height: Math.max(48, ends.length * slotHeight + 12) }];
-  }));
   let hours = 6;
   let viewEnd = latest;
   let selectedIndex = null;
@@ -1710,22 +1711,21 @@ document.getElementById('stats').innerHTML = [
     const sorted = [...values].sort((a, b) => a - b);
     return sorted[Math.ceil(fraction * sorted.length) - 1];
   };
-  const ongoing = segment => segment.ongoing || segment.end === activity.capturedAt
-    && taskById.get(segment.task)?.status === (segment.phase === 'queued' ? 'ready' : 'integrating');
+  const ongoing = segment => segment.end === activity.capturedAt && segment.ongoing;
   const metric = (label, value, detail) => '<div class="activity-metric"><div class="activity-metric-label">'
     + label + '</div><strong class="activity-metric-value">' + value
     + '</strong><div class="activity-metric-detail">' + detail + '</div></div>';
   const name = segment => taskById.get(segment.task)?.label || segment.label || segment.task;
-  const isWait = segment => ['queued', 'waiting', 'unrecorded'].includes(segment.phase);
-  function describe(index) {
-    const segment = segments[index];
+  const isWait = segment => ['waiting', 'unrecorded'].includes(segment.phase);
+  function describe(index, source = segments) {
+    const segment = source[index];
     if (!segment) return;
     const task = taskById.get(segment.task);
     let context = '';
     if (isWait(segment)) {
       const main = segments.filter(row => row.lane === 'Main' && !isWait(row) && overlap(row, segment) > 0)
         .sort((a, b) => overlap(b, segment) - overlap(a, segment));
-      const otherWork = segments.filter(row => ['working', 'rework'].includes(row.phase)
+      const otherWork = history.filter(row => ['working', 'rework'].includes(row.phase)
         && row.worker === segment.worker && row.task !== segment.task);
       const assigned = otherWork.reduce((sum, row) => sum + overlap(row, segment), 0);
       context = (segment.reason ? '<p>' + esc(segment.reason) + '</p>' : '') + '<p>' + (main.length
@@ -1734,13 +1734,13 @@ document.getElementById('stats').innerHTML = [
         + (main.length ? '<ul>' + main.slice(0, 4).map(row => '<li>'
           + esc(name(row)) + ' · ' + phaseNames[row.phase] + ' · '
           + fmt(overlap(row, segment)) + '</li>').join('') + '</ul>' : '')
-        + (segment.lane === 'Main' ? '<p>' + segments.filter(row => row.phase === 'queued'
+        + (segment.lane === 'Main' ? '<p>' + history.filter(row => row.phase === 'queued'
           && overlap(row, segment) > 0).length + ' deliveries were waiting during this interval.</p>'
           : '<p>' + (assigned ? 'Another task was assigned to this worker for '
           + fmt(assigned) + ' of the wait.' : 'No other worker assignment is recorded during this wait.')
         + ' Assignment does not measure active coding.</p>');
     } else if (segment.lane === 'Main') {
-      const waiting = segments.filter(row => row.phase === 'queued' && overlap(row, segment) > 0);
+      const waiting = history.filter(row => row.phase === 'queued' && overlap(row, segment) > 0);
       const waitMinutes = waiting.reduce((sum, row) => sum + overlap(row, segment), 0);
       context = (segment.reason ? '<p>' + esc(segment.reason) + '</p>' : '') + '<p>' + waiting.length + ' waiting '
         + (waiting.length === 1 ? 'delivery' : 'deliveries') + ' overlapped this stage'
@@ -1748,10 +1748,26 @@ document.getElementById('stats').innerHTML = [
         + '. Overlap alone does not establish why they waited.</p>';
     }
     readout.innerHTML = '<h4>Selected stage</h4><p><strong>' + esc(name(segment))
-      + '</strong> · ' + esc(segment.lane) + (task?.goal ? ' · ' + esc(task.goal) : '')
+      + '</strong>' + (name(segment) === segment.lane ? '' : ' · ' + esc(segment.lane))
+      + (task?.goal ? ' · ' + esc(task.goal) : '')
       + '</p><p>' + phaseNames[segment.phase] + ' · ' + fmt(duration(segment))
-      + (ongoing(segment) ? ' · ongoing at snapshot' : '') + '<br>'
-      + stamp(segment.start) + ' – ' + stamp(segment.end) + '</p>' + context;
+      + (segment.superseded ? ' · end event missing; later Main work started'
+        : ongoing(segment) ? ' · open at snapshot' : '') + '<br>'
+      + stamp(segment.start) + ' – ' + stamp(segment.end) + '</p>'
+      + (task ? '<p>Task status: <strong>' + esc(task.status) + '</strong>'
+        + (task.publishedAt ? ' · published ' + stamp(task.publishedAt) : '') + '</p>' : '')
+      + (segment.reason && !isWait(segment) && segment.lane !== 'Main'
+        ? '<p>' + esc(segment.reason) + '</p>' : '') + context
+      + (task ? '<h4>Task lifespan</h4><ol class="activity-history">'
+        + history.map((row, sourceIndex) => ({ row, sourceIndex }))
+          .filter(({ row }) => row.task === segment.task)
+          .sort((a, b) => a.row.start.localeCompare(b.row.start))
+          .map(({ row, sourceIndex }) => '<li><button data-history="' + sourceIndex + '">'
+            + esc(row.lane) + ' · ' + phaseNames[row.phase] + ' · ' + fmt(duration(row))
+            + (row.superseded ? ' · end event missing' : row.ongoing ? ' · end not recorded' : '') + '</button></li>').join('') + '</ol>' : '');
+    container.querySelectorAll?.('.activity-bar').forEach(bar => {
+      bar.classList.toggle('task-related', segments[Number(bar.dataset.segment)]?.task === segment.task);
+    });
   }
   function render() {
     const span = hours * hourMs;
@@ -1760,21 +1776,22 @@ document.getElementById('stats').innerHTML = [
     const start = viewEnd - span;
     const shown = segments.map((segment, index) => ({ segment, index }))
       .filter(({ segment }) => Date.parse(segment.end) > start && Date.parse(segment.start) < viewEnd);
-    const completed = phase => shown.filter(({ segment }) => segment.phase === phase
+    const completed = phase => history.filter(segment => segment.phase === phase
       && Date.parse(segment.end) > start && Date.parse(segment.end) <= viewEnd
-      && !ongoing(segment)).map(({ segment }) => duration(segment));
+      && !segment.ongoing).map(segment => duration(segment));
     const waits = shown.filter(({ segment }) => isWait(segment)
       && Date.parse(segment.end) > start && Date.parse(segment.end) <= viewEnd)
       .sort((a, b) => duration(b.segment) - duration(a.segment));
     const waitValues = completed('queued');
     const integrationValues = completed('integrating');
     metrics.innerHTML = metric('Ready → integration', fmt(percentile(waitValues, .5)),
-      fmt(percentile(waitValues, .9)) + ' p90 · ' + waitValues.length + ' completed waits')
+      fmt(percentile(waitValues, .9)) + ' p90 · ' + waitValues.length + ' completed queue intervals')
       + metric('Integration and checks', fmt(percentile(integrationValues, .5)),
         fmt(percentile(integrationValues, .9)) + ' p90 · ' + integrationValues.length + ' completed stages')
       + metric('Longest wait / unrecorded interval', waits.length ? fmt(duration(waits[0].segment)) : '—',
-        waits.length ? esc(name(waits[0].segment)) + ' · worker '
-          + esc(waits[0].segment.worker) + (ongoing(waits[0].segment) ? ' · ongoing' : '')
+        waits.length ? esc(name(waits[0].segment))
+          + (name(waits[0].segment) === waits[0].segment.worker ? '' : ' · worker ' + esc(waits[0].segment.worker))
+          + (ongoing(waits[0].segment) ? ' · open at snapshot' : '')
           : 'No waits ended in this window');
     windowLabel.textContent = stamp(start) + ' – ' + stamp(viewEnd);
     latestButton.disabled = viewEnd >= latest;
@@ -1793,32 +1810,37 @@ document.getElementById('stats').innerHTML = [
     }
     html += '</div>';
     for (const lane of lanes) {
-      const layout = laneLayouts.get(lane);
       const bars = shown.filter(row => row.segment.lane === lane).map(row => ({
         ...row, a: Math.max(Date.parse(row.segment.start), start),
         b: Math.min(Date.parse(row.segment.end), viewEnd),
-        slot: layout.slots.get(lane === 'Main' ? row.index : row.segment.task),
       })).sort((a, b) => a.a - b.a);
       html += '<div class="activity-row' + (lane === 'Main' ? ' main' : '')
-        + '" style="height:' + layout.height + 'px"><div class="activity-label">'
+        + '" style="height:48px"><div class="activity-label">'
         + esc(lane) + '</div><div class="activity-track">'
         + bars.map(bar => '<div class="activity-bar phase-' + bar.segment.phase
+          + (Date.parse(bar.segment.start) < start ? ' continues-left' : '')
+          + (Date.parse(bar.segment.end) > viewEnd ? ' continues-right' : '')
           + (bar.index === selectedIndex ? ' selected' : '') + '" data-segment="'
           + bar.index + '" tabindex="0" role="button" aria-label="'
           + esc(phaseNames[bar.segment.phase] + ' for ' + name(bar.segment)
           + ', ' + fmt(duration(bar.segment))) + '" style="left:'
           + ((bar.a - start) / span * 100) + '%;width:' + ((bar.b - bar.a) / span * 100)
-          + '%;top:' + (6 + bar.slot * slotHeight)
-          + 'px;height:12px"></div>').join('')
+          + '%;top:13px;height:22px">' + (((bar.b - bar.a) / span)
+            * Math.max(1, container.getBoundingClientRect().width - 56) > name(bar.segment).length * 6 + 16
+            && name(bar.segment) !== lane
+            ? esc(name(bar.segment)) : '') + '</div>').join('')
+        + (!bars.length ? '<span class="activity-empty">No recorded activity in this window</span>' : '')
         + '</div></div>';
     }
     container.innerHTML = html;
-    waitList.innerHTML = waits.length ? waits.map(({ segment, index }) =>
+    const listed = listMode.value === 'all' ? [...shown].sort((a, b) => b.segment.start.localeCompare(a.segment.start)) : waits;
+    waitList.innerHTML = listed.length ? listed.map(({ segment, index }) =>
       '<button type="button" data-segment="' + index + '"><span><strong>'
       + esc(name(segment)) + '</strong> <small>' + esc(phaseNames[segment.phase])
       + '</small></span><span>' + fmt(duration(segment))
-      + (ongoing(segment) ? ' · ongoing' : '') + '</span></button>').join('')
-      : '<p class="activity-note">No handoff wait ended in this window.</p>';
+      + (ongoing(segment) ? ' · open at snapshot' : '') + '</span></button>').join('')
+      : '<p class="activity-note">' + (listMode.value === 'all' ? 'No recorded stage in this window.'
+        : 'No reported wait or unrecorded interval in this window.') + '</p>';
     if (selectedIndex == null) readout.innerHTML = '<h4>Selected stage</h4><p>No recorded stage in this window.</p>';
     else describe(selectedIndex);
   }
@@ -1826,6 +1848,8 @@ document.getElementById('stats').innerHTML = [
     hours = Number(windowSelect.value);
     render();
   });
+  listMode.addEventListener('change', render);
+  window.addEventListener('resize', render);
   latestButton.addEventListener('click', () => { viewEnd = latest; render(); });
   container.addEventListener('pointerdown', event => {
     if (event.button !== 0) return;
@@ -1887,6 +1911,18 @@ document.getElementById('stats').innerHTML = [
     if (!button) return;
     selectedIndex = Number(button.dataset.segment);
     render();
+  });
+  readout.addEventListener('click', event => {
+    const button = event.target.closest('button[data-history]');
+    if (!button) return;
+    const sourceIndex = Number(button.dataset.history);
+    const index = segments.findIndex(row => row.sourceIndex === sourceIndex);
+    const row = history[sourceIndex];
+    if (!row) return;
+    selectedIndex = index < 0 ? selectedIndex : index;
+    viewEnd = Math.min(latest, Date.parse(row.end) + hours * hourMs / 4);
+    render();
+    describe(sourceIndex, history);
   });
   render();
 })();

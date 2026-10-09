@@ -2,8 +2,55 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { test } from 'node:test';
 
-import { activityTimeline, syntheticGainByCommit } from './dashboard-activity.mjs';
+import { activityTimeline, agentStages, syntheticGainByCommit } from './dashboard-activity.mjs';
 import { activityFromLedger, developmentFromCheckpoint, mergeActivity } from './dashboard-snapshot.mjs';
+
+test('integration closes a resumed worker interval even without a second ready event', () => {
+  // This is A117's handoff shape: a resumed parked task went directly to integration.
+  const at = minute => `2026-09-25T10:${String(minute).padStart(2, '0')}:00Z`;
+  const { tasks, segments } = activityTimeline({ events: [
+    { type: 'assign', task: 'A117', worker: 'A', at: at(0) },
+    { type: 'park', task: 'A117', at: at(1) },
+    { type: 'resume', task: 'A117', at: at(2) },
+    { type: 'integrating', task: 'A117', at: at(3) },
+    { type: 'accepted', task: 'A117', at: at(4) },
+    { type: 'published', task: 'A117', at: at(5) },
+  ] }, at(10));
+  assert.equal(tasks[0].status, 'published');
+  assert.deepEqual(segments.filter(row => row.task === 'A117' && row.lane === 'A')
+    .map(row => row.end), [at(1), at(3)]);
+  assert.ok(segments.filter(row => row.task === 'A117').every(row => !row.ongoing));
+});
+
+test('agent stages prefer active work over queued deliveries and reset stale blocked reports', () => {
+  // A1 is pending while A2 works; A2 reports a block, then resumes without an active turn.
+  const at = minute => `2026-09-25T10:${String(minute).padStart(2, '0')}:00Z`;
+  const rows = [
+    { task: 'A1', worker: 'A', lane: 'A', phase: 'queued', start: at(0), end: at(10) },
+    { task: 'A2', worker: 'A', lane: 'A', phase: 'working', start: at(2), end: at(10) },
+  ];
+  const stages = agentStages(rows, [
+    { type: 'assign', task: 'A2', worker: 'A', at: at(2) },
+    { type: 'turn', worker: 'A', state: 'blocked', reason: 'Await source lock.', at: at(4) },
+    { type: 'implement', task: 'A2', at: at(6) },
+  ]);
+  assert.deepEqual(stages.map(row => [row.phase, row.start, row.end]), [
+    ['pending', at(0), at(2)], ['working', at(2), at(4)],
+    ['waiting', at(4), at(6)], ['working', at(6), at(10)],
+  ]);
+  assert.equal(stages[2].reason, 'Await source lock.');
+  assert.equal(rows[0].phase, 'queued', 'queue evidence is preserved separately');
+});
+
+test('a publication with no endpoint cannot reappear after newer Main work ends', () => {
+  // The old publication remains in history, but silence after a newer stage is unknown.
+  const at = minute => `2026-09-25T10:${String(minute).padStart(2, '0')}:00Z`;
+  const stages = agentStages([
+    { task: 'A1', lane: 'Main', phase: 'publication', start: at(0), end: at(10), ongoing: true },
+    { task: 'B1', lane: 'Main', phase: 'integrating', start: at(2), end: at(4) },
+  ]);
+  assert.deepEqual(stages.map(row => row.phase), ['publication', 'integrating', 'unrecorded']);
+});
 
 test('claiming source scope preserves time spent investigating in the worker interval', () => {
   // Distinct times make a lost diagnosis interval visible without wall-clock timing.
@@ -93,10 +140,12 @@ test('pre-merge review, corrections and batch admission occupy explicit lanes', 
   ];
   const { segments } = activityTimeline({ events }, at(20));
   assert.deepEqual(segments.filter(row => row.phase === 'review').map(row => [row.start, row.end]),
-    [[at(8), at(10)], [at(16), at(18)]]);
+    [[at(8), at(9)], [at(16), at(18)]]);
   assert.equal(segments.find(row => row.phase === 'rework').lane, 'C');
   assert.equal(segments.find(row => row.phase === 'admission').lane, 'Main');
-  assert.equal(segments.find(row => row.phase === 'baseline').end, at(17));
+  // A later Main stage supersedes a missing baseline endpoint, not an ongoing job.
+  assert.equal(segments.find(row => row.phase === 'baseline').end, at(16));
+  assert.equal(segments.find(row => row.phase === 'baseline').superseded, true);
   assert.deepEqual(segments.filter(row => row.task === 'P1' && row.phase === 'publication')
     .map(row => [row.start, row.end]), [[at(6), at(9)], [at(17), at(19)]]);
   assert.ok(segments.some(row => row.lane === 'Prep'));
