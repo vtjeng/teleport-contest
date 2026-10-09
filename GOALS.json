@@ -236739,7 +236739,7 @@
     {
       "id": "port-ran-goal-quest-level-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the whole Ranger quest goal Lua program and its registered production loader.",
       "luaFile": "Ran-goal.lua",
       "sessions": [
@@ -236753,15 +236753,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "21d9906e28b3c03e57e651ade823f3a1ebb9bb2e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Ran-goal.lua",
           "line": 1,
           "endLine": 106,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -236928,7 +236931,90 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Ran-goal.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "ranGoal",
+            "sourceReview": "Read the complete upstream dat/Ran-goal.lua, lines 1-106. Preserved top-level order: solid fill, mazelevel, exact 76x20 map, lit full-map region, up-stair descriptor, non-diggable full-map selection, fifteen object calls (named blessed +0 Longbow of Diana, positional chest, eight fixed-coordinate random objects, five random objects), six random traps, fourteen ordered door calls, twenty-eight ordered hostile monster descriptors, and final wallify. The deterministic generator extracts and checks the literal map and ordered object, door, and monster descriptors plus trap count directly from the Lua source. Every impure descriptor call is awaited in source order; no helper or unported callee exists.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special dispatches the registered Ran-goal program for natural Ranger quest goal arrival."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "wizcmds.c:wiz_load_splua passes the wizard-selected des-file name to sp_lev.c:load_special."
+              },
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "The complete dat/Ran-goal.lua program is registered by its exact special-level key and implemented by ranGoal."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/ran-goal-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Ran-goal.lua/ran-goal-direct-male-independent.session.json",
+              "recordings/Ran-goal.lua/ran-goal-direct-female-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-ran-goal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Ran-goal.lua"
+              }
+            ],
+            "checkedAt": "21d9906e28b3c03e57e651ade823f3a1ebb9bb2e"
+          }
+        ],
+        "entryPointReview": "Ran-goal.lua is one complete top-level descriptor program with two active reference-recorder entry paths. Natural Ranger quest goal arrival reaches makelevel/makemaz/load_special and matches admitted v36 case v36-quest-ran-goal through its 60-step segment. The debug wizard command wiz_load_splua reaches the same dispatcher using the supplied des-file name; independent male and female recordings exercise it. Both paths run in the patched recorder. This task implements only Ran-goal.lua and its specific loader registration; generic descriptor owners remain shared unchanged.",
+        "entryPoints": [
+          {
+            "name": "Ranger quest goal arrival",
+            "functions": [
+              "Ran-goal.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-ran-goal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Ran-goal.lua"
+              }
+            ]
+          },
+          {
+            "name": "Wizard #wizloaddes direct load",
+            "functions": [
+              "Ran-goal.lua"
+            ],
+            "recordings": [
+              "recordings/Ran-goal.lua/ran-goal-direct-male-independent.session.json",
+              "recordings/Ran-goal.lua/ran-goal-direct-female-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "21d9906e28b3c03e57e651ade823f3a1ebb9bb2e",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

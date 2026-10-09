@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T17:47:39.202Z",
+  "capturedAt": "2026-10-09T18:02:53.155Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -75174,22 +75174,132 @@
         "worker": "A2",
         "state": "blocked",
         "reason": "A198 parked on shared descriptor dependency; refreshed Val-loca proposal awaits central handoff."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B196-accepted-select-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:47:59.418Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Selecting an independent Lua task after Knight start acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B196-56d5cb1686a4afb5f1c7eb72c807df3311be8023",
+        "type": "published",
+        "at": "2026-10-09T17:49:13.488Z",
+        "task": "B196",
+        "commit": "56d5cb1686a4afb5f1c7eb72c807df3311be8023"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B199-after-B196-20261009",
+        "type": "resume",
+        "at": "2026-10-09T17:49:47.299Z",
+        "task": "B199"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-C173-dcf34a66e1166a1246771fe6a2567ce383847cc9",
+        "type": "received",
+        "at": "2026-10-09T17:50:02.884Z",
+        "task": "C173",
+        "delivery": "dcf34a66e1166a1246771fe6a2567ce383847cc9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A196-Val-loca-20261009",
+        "type": "resume",
+        "at": "2026-10-09T17:50:42.996Z",
+        "task": "A196"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A196-Val-loca-20261009",
+        "type": "implement",
+        "at": "2026-10-09T17:50:44.580Z",
+        "task": "A196",
+        "goal": "port-val-loca-quest-locate-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A196-Val-loca-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:50:46.207Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B199-refreshed-source-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:51:34.930Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Refreshing the independent Samurai goal source task and runtime evidence plan."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B199-central-gate-ready-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:52:01.689Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Samurai goal investigation is complete; Main must queue its source goal before implementation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-C173-117ce0949d91e758473e214629d0d0e73868ed16",
+        "type": "integrating",
+        "at": "2026-10-09T17:54:07.792Z",
+        "task": "C173",
+        "integration": "117ce0949d91e758473e214629d0d0e73868ed16"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B199-sam-goal-approved-20261009",
+        "type": "implement",
+        "at": "2026-10-09T17:54:35.037Z",
+        "task": "B199",
+        "goal": "port-sam-goal-lua-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B199-implement-20261009",
+        "type": "turn",
+        "at": "2026-10-09T17:54:36.826Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing the complete Samurai quest goal level."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-C173-21d9906e28b3c03e57e651ade823f3a1ebb9bb2e",
+        "type": "integrating",
+        "at": "2026-10-09T17:54:50.091Z",
+        "task": "C173",
+        "integration": "21d9906e28b3c03e57e651ade823f3a1ebb9bb2e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validate-C173-hosted-37969731329",
+        "type": "validated",
+        "at": "2026-10-09T18:00:36.317Z",
+        "task": "C173",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C173-21d9906e28b3c03e57e651ade823f3a1ebb9bb2e-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T18:02:22.311Z",
+        "task": "C173"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C173",
-        "worker": "C",
-        "goal": "port-ran-goal-quest-level-v36-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "dcf34a66e1166a1246771fe6a2567ce383847cc9",
-        "since": "2026-10-09T17:20:37.228Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "C177",
         "worker": "C",
@@ -75524,17 +75634,6 @@
         "reason": "Complete report-only alignment macro diagnosis preserved; pending Main source gate and central context. Continue independent admitted quest investigation."
       },
       {
-        "task": "B199",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T13:57:39.874Z",
-        "blockedBy": [],
-        "reason": "Main received the complete report and directed parking pending central source/context gate; continue next independent investigation."
-      },
-      {
         "task": "A194",
         "worker": "A2",
         "goal": null,
@@ -75601,17 +75700,6 @@
         "reason": "Main received the complete report and directed parking pending central goal/context gate; preserve clean report9e62b822 and select independent work."
       },
       {
-        "task": "A196",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T14:15:00.137Z",
-        "blockedBy": [],
-        "reason": "Main received complete report6eb206b0d and directs parking pending central source/context gate; preserve whole Val-loca proposal and no source edits."
-      },
-      {
         "task": "B202",
         "worker": "B",
         "goal": null,
@@ -75658,8 +75746,8 @@
     ]
   },
   "development": {
-    "executionCommit": "6c8194f5c2a6dd256804398b6b00b5ef9c320128",
-    "measuredAt": "2026-10-09T17:43:27.104Z",
+    "executionCommit": "21d9906e28b3c03e57e651ade823f3a1ebb9bb2e",
+    "measuredAt": "2026-10-09T17:59:58.908Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
