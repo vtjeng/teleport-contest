@@ -227345,7 +227345,7 @@
           "line": 5198,
           "endLine": 5217,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -227834,7 +227834,65 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "missum",
+            "implementation": "js/uhitm.js",
+            "symbol": "missum",
+            "sourceReview": "Whole uhitm.c:5198–5215 in source order: awaited cumbersome-armor warning, canonical could_seduce before visibility/verbose, awaited friendly/named/generic feedback, non-helpless wakeup. Pure mhitu.c could_seduce is unchanged and consumed through canonical env.state; mon_nam gets env for display RNG. No added RNG/state, unported gap, or callee completion credit.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "known_hitum",
+                "source": "uhitm.c:610 ordinary melee miss; already awaited."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmonas",
+                "source": "uhitm.c:5667 contact attack miss and 5792 engulf miss; both already awaited."
+              },
+              {
+                "path": "js/dokick.js",
+                "symbol": "kick_monster",
+                "source": "dokick.c:218 polymorphed kick miss; already awaited."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-missum.test.mjs",
+              "scripts/uhitm-to-hit.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/missum-wood-nymph.session.json",
+              "recordings/uhitm.c/missum-water-nymph.session.json",
+              "recordings/uhitm.c/missum-sasquatch-kick.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-nymph-steals-weapon",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 235,
+                "source": "hack.c melee -> uhitm.c:hmonas -> missum for polymorphed wood-nymph theft/seduction attack."
+              },
+              {
+                "batch": "v33",
+                "caseId": "v33-nymph-wielded-goblin-combat",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 99,
+                "source": "hack.c melee -> uhitm.c:hmonas -> missum polymorphed armed nymph contact-attack miss."
+              }
+            ],
+            "checkedAt": "079b743c5b009b939ce1d9763ef0a11f2484447f"
+          }
+        ],
+        "entryPointReview": "Helper-only source unit. Live callers are known_hitum, hmonas contact/engulf misses and kick_monster. Both admitted nymph cases reach hmonas; independent nymph and Sasquatch recordings prove hmonas/known_hitum and the polymorphed kick caller. No broader caller source completion credit.",
+        "entryPoints": []
+      }
     }
   ]
 }
