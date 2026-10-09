@@ -225906,6 +225906,37 @@
         "rng": 792838
       },
       "parkedReason": "Verified 35 of 40 source units. options.c optfn_o_status_hilites, optfn_menu_headings, optfn_petattr, and optfn_o_menu_colors remain active through the unported #saveoptions GET_CNF_VAL writer; botl.c status_hilite_menu_choose_field has no active runtime caller with origfld BL_FLUSH. Preserve their blocked recipes for the owning follow-up ports."
+    },
+    {
+      "id": "fix-potion-dip-old-appearance-dummy-v33-20261009",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Initialize the old-potion naming dummy with the canonical zero object.",
+      "cFile": "potion.c",
+      "sessions": [],
+      "selectionReason": "Seed continuation after accepted B180; admitted v33 amethyst-booze has 67 remaining screens and a source-traced potion_dip dummy-object construction failure, independent of live reservations.",
+      "detail": "synthetic/v33/v33-amethyst-booze segment 0 step 44: C potion.c potion_dip lines 2774-2780 initializes fakeobj from cg.zeroobj before docall; JS potion.js dereferences absent state.cg.zeroobj. Replace only the dummy construction with the canonical obj.js newObject zero object and preserve dknown, old type, potion class, docall, and hold_potion order.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "potion_dip",
+      "session": "synthetic/v33/v33-amethyst-booze",
+      "step": 44,
+      "syntheticProvenance": {
+        "synthetic/v33/v33-amethyst-booze": {
+          "session": "synthetic/v33/v33-amethyst-booze",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-amethyst-booze",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-amethyst-booze.session.json",
+          "recordingSha256": "54ab5dc552521371cfb9946c7db18c6c4de46cc877781e12900771bc11ac1ca6",
+          "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+          "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66"
+        }
+      }
     }
   ]
 }
