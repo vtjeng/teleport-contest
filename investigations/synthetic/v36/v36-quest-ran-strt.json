@@ -5,12 +5,12 @@
   "manifestPath": "challenges/manifests/v36.json",
   "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
   "recordingSha256": "209f5c07ed7ee8dd2e6e2d2315581d490fc99871bbb8d28c1203ea640124a19b",
-  "evaluationPath": "challenges/evaluations/accepted-3f11f16878f46067da2b73fd2c272dfb573233cc-v36.json",
-  "evaluationCommit": "3f11f16878f46067da2b73fd2c272dfb573233cc",
+  "evaluationPath": "challenges/evaluations/accepted-dee8b310b3922f634c10f62fcab1a5e8ff4acc73-v36.json",
+  "evaluationCommit": "dee8b310b3922f634c10f62fcab1a5e8ff4acc73",
   "remainingScreens": 41,
   "recordedSteps": 60,
   "session": "synthetic/v36/v36-quest-ran-strt",
-  "commit": "3f11f16878f46067da2b73fd2c272dfb573233cc",
+  "commit": "fb94b2531d73e65434db33f4044a32f67d1d143d",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v36",
@@ -23,11 +23,11 @@
     "recordingSha256": "209f5c07ed7ee8dd2e6e2d2315581d490fc99871bbb8d28c1203ea640124a19b",
     "recipe": "challenges/cases/v36/v36-quest-ran-strt.recipe.session.json",
     "recipeSha256": "f60ea10b876e5e1e5a5a352e9de8b27011a568d3c3959160b1685aa79daae04c",
-    "replayInputSha256": "1703c5567cfa40c5b1e3347f3c12dd18b1ea01744b103a8b8c67992ba194126b",
-    "evaluationPath": "challenges/evaluations/accepted-3f11f16878f46067da2b73fd2c272dfb573233cc-v36.json",
-    "evaluationCommit": "3f11f16878f46067da2b73fd2c272dfb573233cc",
-    "evaluationArtifact": "challenges/evaluations/accepted-3f11f16878f46067da2b73fd2c272dfb573233cc-v36.json",
-    "evaluationUtc": "2026-10-09T18:12:23.045Z",
+    "replayInputSha256": "b174d4d0fe2ae9edfc8979b30a0fe038771561ada961da0de7e5d68a206e1c4f",
+    "evaluationPath": "challenges/evaluations/accepted-dee8b310b3922f634c10f62fcab1a5e8ff4acc73-v36.json",
+    "evaluationCommit": "dee8b310b3922f634c10f62fcab1a5e8ff4acc73",
+    "evaluationArtifact": "challenges/evaluations/accepted-dee8b310b3922f634c10f62fcab1a5e8ff4acc73-v36.json",
+    "evaluationUtc": "2026-10-09T18:23:14.343Z",
     "remainingScreens": 41,
     "recordedSteps": 60,
     "previousScreensMatched": 19,
@@ -97,6 +97,7 @@
     "Actionable scope whole Ran-strt.lua1–101, ranStrt and key in existing js/quest_levels.js, generated ran_strt_level_data.js with generator/source-pinned test, focused runtime runner, recipes/Ran-strt.lua and recordings/Ran-strt.lua. No whole mkmap/sp_lev/teleport/quest permission/quest_levels credit and no outside alignment/tin source edit.",
     "Validation plan: fail first on the absent loader/module; pin the generated map, complete descriptor order and values, and awaited inventory callback. Preserve pre-map tree replacement and absolute branch region fields. Verify admitted segment 0, steps 19-59, plus independently chosen C-first neutral human and chaotic elf Ranger variations using arrival and direct des loading. Compare complete RNG, screens, cursors and animation frames. Assert arboreal/tree terrain, branch/downstairs, the leader inventory at +4 with 50 arrows, eight hunters, siege population and traps. Ran-loca is a separate program; keep its representative recipe blocked if its loader remains absent.",
     "Evidence limits: read-only investigation with only assigned replay. No game edits, C recording or runtime completion credit. Required descriptor APIs appear canonical for selected branches, but implementation must verify production reachability and request source expansion for any newly confirmed external defect.",
-    "Current-base refresh at accepted3f11f16878f46067da2b73fd2c272dfb573233cc reproduces the missing Ran-strt loader at segment0 step19:19/60 screens/cursors and2874/6677 RNG calls. Source re-read covers whole101 lines, canonical pre-map replacement, table map and inventory context. No source edits or independent C recording yet."
+    "Current-base refresh at accepted3f11f16878f46067da2b73fd2c272dfb573233cc reproduces the missing Ran-strt loader at segment0 step19:19/60 screens/cursors and2874/6677 RNG calls. Source re-read covers whole101 lines, canonical pre-map replacement, table map and inventory context. No source edits or independent C recording yet.",
+    "Accepted-public refresh at91e49fff07449349f7e2d7d18b8aa8db70bf2cc3 merged conflict-free tofb94b2531d73e65434db33f4044a32f67d1d143d. Latest reviewed v36 evaluation accepted-dee8b310b3922f634c10f62fcab1a5e8ff4acc73 still has19/60screens/cursors and2874/6677RNG, missing Ran-strt atstep19. Accepted Val-goal adds a disjoint loader; canonical Ran-strt dependencies and registry absence remain unchanged. No replay rerun or source edits were needed for this saved-evidence refresh."
   ]
 }
