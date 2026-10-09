@@ -232967,7 +232967,7 @@
     {
       "id": "port-spell-cast-preflight-amulet-v35-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete spell-casting preflight, Amulet drain and forgotten-spell backfire.",
       "cFile": "spell.c",
       "sessions": [
@@ -232981,22 +232981,25 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "025a63365add2839073372ffca68abfb01dd6729",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "spell_backfire",
           "line": 1181,
           "endLine": 1219,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "spelleffects_check",
           "line": 1220,
           "endLine": 1384,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -233273,7 +233276,82 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "spell_backfire",
+            "implementation": "js/spell.js",
+            "symbol": "spell_backfire",
+            "sourceReview": "Read whole spell.c1181-1217. Duration=(level+1)*3; extract HStun/HConfusion TIMEOUT before drawing rn2(10). Translate all four case groups in C setter order, with exact integer thirds and FALSE feedback arguments. Reuse canonical potion.c make_confused/make_stunned, retaining packed non-timeout flags. RNG uses the supplied canonical random environment. Removed forgotten-spell refusal in the immediate checker; no unported callee remains in this helper.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects_check",
+                "source": "spell.c1254: forgotten retained spell invokes spell_backfire before rnd(base energy), clamp and ECMD_TIME."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/amulet-casting.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/preflight-forgotten-wizard-independent.session.json",
+              "recordings/spell.c/preflight-forgotten-variation-independent.session.json"
+            ],
+            "sourceFile": "spell.c",
+            "synthetic": [],
+            "checkedAt": "025a63365add2839073372ffca68abfb01dd6729"
+          },
+          {
+            "name": "spelleffects_check",
+            "implementation": "js/spell.js",
+            "symbol": "spelleffects_check",
+            "sourceReview": "Read complete spell.c1220-1380 and all consumed dependencies: spellev/id/know, rejectcasting/can_chant/freehand, acurr, check_capacity, percent_success and morehungry. C Confusion and Stunned are intrinsic-only macros. Preserve unknown/rejection, base energy, forgotten/knowledge messages, hunger/strength/capacity guards, Amulet message then rnd(2*base), clamp/botl/ECMD_TIME, insufficient-energy suffix and retained result, base hunger Wizard INT reductions/clamp, success calculation, confusion short-circuit and rnd100, integer half-cost failure. Return object carries both C out parameters even on abort. Canonical message normalization in this owner supplies ttyPline to the existing env-less dotele caller while retaining supplied operations. Removed both UnsupportedSpellCastError refusals; class remains required by unported effect arms. No injected result or skipped consumed dependency remains.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c1394: sole direct helper caller invokes check unless force and consumes abort/res/energy before any spell effect. Existing successful effect returns TIME; drain-induced abort now preserves TIME."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/amulet-casting.test.mjs",
+              "scripts/spell.test.mjs",
+              "scripts/cast-healing.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/preflight-amulet-wizard-independent.session.json",
+              "recordings/spell.c/preflight-amulet-healer-independent.session.json",
+              "recordings/spell.c/preflight-forgotten-wizard-independent.session.json",
+              "recordings/spell.c/preflight-forgotten-variation-independent.session.json",
+              "recordings/spell.c/preflight-turn-independent.session.json",
+              "recordings/spell.c/jumping-learned-fallback-independent.session.json"
+            ],
+            "sourceFile": "spell.c",
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-spell-amulet-carrier",
+                "segment": 0,
+                "fromStep": 43,
+                "throughStep": 71,
+                "source": "cmd.c ordinary Z -> spell.c docast/getspell -> spelleffects -> spelleffects_check, real-Amulet drain then insufficient-energy ECMD_TIME and following elapsed turn."
+              }
+            ],
+            "checkedAt": "025a63365add2839073372ffca68abfb01dd6729"
+          }
+        ],
+        "entryPointReview": "Helper-only source family defines no new command or level entry point. spell_backfire has one source caller, spelleffects_check; checker has one source caller, nonforced spelleffects. Existing transitive callers audited: ordinary docast (spell.c826), non-Priest/non-Knight doturn (pray.c2422), no-physical-jumping jump fallback (apply.c1994), and dotele spell path (teleport.c1134). Docast, doturn and jump fallback have matching runtime evidence below. dotele currently omits env; the owned checker supplies canonical live message, verified by direct spelleffects rejection without env. The independent wizard m^T route is blocked by the inherited teleport.c dotelecmd mode-menu/tport_spell setup at step53, before C reaches checker rnd100 at54. Parent approved retaining that transitive outside-scope frontier without an incomplete helper designation. Forced dowizcast (spell.c812) and artifact storm (artifact.c2048) bypass checker as source requires. No whole spelleffects/docast/getspell/jump/dotele/doturn/dispatcher ownership credit.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "025a63365add2839073372ffca68abfb01dd6729",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
