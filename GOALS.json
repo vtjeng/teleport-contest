@@ -226668,7 +226668,7 @@
     {
       "id": "port-spell-sort-menu-family-v33-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port known-spell sorting, letter reassignment, swapping and complete menu columns.",
       "cFile": "spell.c",
       "sessions": [
@@ -226682,8 +226682,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "3ef1ebdbffb1bf6d15c3f591ec568f182fa36148",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "spell_cmp",
@@ -227358,6 +227361,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "3ef1ebdbffb1bf6d15c3f591ec568f182fa36148",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
