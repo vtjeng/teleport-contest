@@ -231038,7 +231038,7 @@
     {
       "id": "port-wizard3-special-level-v35-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the bottom Wizard Tower level and its generation registry.",
       "luaFile": "wizard3.lua",
       "sessions": [
@@ -231052,15 +231052,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c65c2b3a1cdd449def877087461571f57c3f88b6",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wizard3.lua",
           "line": 1,
           "endLine": 90,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -231234,7 +231237,78 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wizard3.lua",
+            "implementation": "js/wizard3_levels.js",
+            "symbol": "wizard3",
+            "sourceReview": "Read complete dat/wizard3.lua1–90, including top-level initialization, pre-map bounds, exact13row29column map, contents callback, three outside-tower arrival levregions, teleport exclusion, fakewiz1 portal, maze walk, morgue filled2 flag-only and beehive filled1 post-fill, real arrival room and percent50 secret west/north door, closed door, up ladder, four identical nondiggable/nonpasswall wall areas, fixed/class monsters, four squeaky boards, six objects and final protected union/hell_tweaks. Await every descriptor in definition order. percent uses canonical des.random.rn2(100)<50; accepted des.map placement.selection stores absolute actual written cells and excludes all13transparent trailing x cells before callback/reset. Existing ThemeroomSelection/selection_match/selection_area and hellTweaks preserve C selection and RNG semantics. No unported callee, placeholder, refusal or swallowed result remains in this Lua unit. Source-map test caught/corrected one row transcription before final matching comparisons.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "ensureSpecialLevelLoaders",
+                "source": "sp_lev.c load_special6454+ dispatches the named dat/wizard3.lua program. Registry adds canonical module import/spread; no descriptor-owner changes."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "mklev.c makelevel1267–1270 -> mkmaze.c makemaz -> sp_lev.c load_special. JS makelevel/makemaz uses the existing load_special that creates the canonical API, invokes the registered loader and runs post-processing."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizard3-level-generation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizard3.lua/tower-bottom-knight-independent.session.json",
+              "recordings/wizard3.lua/tower-bottom-ranger-independent.session.json"
+            ],
+            "sourceFile": "wizard3.lua",
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-gehennom-wizard3",
+                "segment": 0,
+                "fromStep": 68,
+                "throughStep": 108,
+                "source": "Named wizard level teleport -> deferred_goto/goto_level -> makelevel/makemaz -> load_special registry -> complete dat/wizard3.lua and fixup_special. Full selected replay matches109screens/cursors17012RNG."
+              }
+            ],
+            "checkedAt": "c65c2b3a1cdd449def877087461571f57c3f88b6"
+          }
+        ],
+        "entryPointReview": "The complete Lua program has one active entry point: generation of the wizard3 special-level record through load_special. Natural stairs/ladder arrival and wizard named-level teleport converge on makelevel/makemaz/load_special; no second Lua command or startup dispatcher is defined. Selected admitted named teleport plus two independently chosen C-first roles reach every top-level descriptor, the room callback, both percent50 walls across variations, protected hell_tweaks and post-fill/portal fixup. Wizard2 is the representative neighboring source boundary and matches independently; it receives no A188 completion credit. fakewiz1 portal is created with its source destination; traversal into that separate Lua loader is outside wizard3 generation and no consumed-return prerequisite. No whole mklev/sp_lev/nhlib or teleport/goto_level credit.",
+        "entryPoints": [
+          {
+            "name": "Wizard3 special-level generation",
+            "functions": [
+              "wizard3.lua"
+            ],
+            "recordings": [
+              "recordings/wizard3.lua/tower-bottom-knight-independent.session.json",
+              "recordings/wizard3.lua/tower-bottom-ranger-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-gehennom-wizard3",
+                "segment": 0,
+                "fromStep": 68,
+                "throughStep": 108,
+                "source": "Named wizard level teleport -> deferred_goto/goto_level -> makelevel/makemaz -> load_special registry -> complete dat/wizard3.lua and fixup_special. Full selected replay matches109screens/cursors17012RNG."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c65c2b3a1cdd449def877087461571f57c3f88b6",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-hea-goal-lua-v36-20261009",
