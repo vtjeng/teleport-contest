@@ -133,6 +133,7 @@
         "js/castle_levels.js",
         "js/cav_goal_level_data.js",
         "js/cav_loca_level_data.js",
+        "js/cav_strt_level_data.js",
         "js/dungeon.js",
         "js/dungeon_data.js",
         "js/extralev.js",

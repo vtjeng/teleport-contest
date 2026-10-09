@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T14:29:17.595Z",
+  "capturedAt": "2026-10-09T14:50:08.833Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -74165,22 +74165,115 @@
         "task": "Prep1",
         "phase": "baseline",
         "reason": "Recording the first saved evaluation for the admitted corrected v37 batch and preparing its public dashboard baseline."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C179-wizmap-monster-reset-20261009",
+        "type": "assign",
+        "at": "2026-10-09T14:33:41.631Z",
+        "task": "C179",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C179-wizmap-investigation-20261009",
+        "type": "turn",
+        "at": "2026-10-09T14:33:43.145Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Tracing v37 wizard mapping after monster reset from the saved first screen mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A197-v37-medusa-b39c6606b",
+        "type": "assign",
+        "at": "2026-10-09T14:34:20.718Z",
+        "task": "A197",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A197-medusa-b39c6606b",
+        "type": "turn",
+        "at": "2026-10-09T14:34:23.017Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Tracing the Medusa level generation RNG/frame mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-after-accepted-7efe-idle-20261009",
+        "type": "turn",
+        "at": "2026-10-09T14:34:50.863Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B195 is queued for integration; no independent source task is available."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep1-v37-baseline-published-7efe95dd7-20261009",
+        "type": "activity",
+        "at": "2026-10-09T14:36:42.215Z",
+        "task": "Prep1",
+        "phase": "done",
+        "reason": "Published the corrected v37 manifest and authoritative three-case baseline at 7efe95dd7; exact hosted checkpoint 37944866815 passed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-A191-review-20261009",
+        "type": "activity",
+        "at": "2026-10-09T14:37:04.343Z",
+        "task": "A191",
+        "phase": "review",
+        "reason": "Reviewing the exact Caveman quest start delivery against the complete Lua source and current quest loader registry before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A191-4988a462a-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T14:38:01.876Z",
+        "task": "A191",
+        "integration": "4988a462ac60316397d7486da10be30f1bbcb37b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A197-lua-divergence-gate-89713c409",
+        "type": "turn",
+        "at": "2026-10-09T14:38:24.378Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "Medusa map-row diagnosis complete; Main must approve bounded Lua divergence context before implementation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C179-report-central-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T14:40:07.607Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "C179 source diagnosis is complete; awaiting Main’s source gate for the bounded newsym suppression fix."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A191-4988a462a-37945733595",
+        "type": "validated",
+        "at": "2026-10-09T14:43:53.113Z",
+        "task": "A191",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A191-4988a462ac60316397d7486da10be30f1bbcb37b-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T14:49:59.332Z",
+        "task": "A191"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "A191",
-        "worker": "A2",
-        "goal": "port-cav-strt-quest-start-v36-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "99b851f8a743df7a2becc3f43da8f1013790deed",
-        "since": "2026-10-09T11:25:13.921Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "B195",
         "worker": "B",
@@ -74693,8 +74786,8 @@
     ]
   },
   "development": {
-    "executionCommit": "666b73cbbe499a26147276d4338874fc6a9d47ba",
-    "measuredAt": "2026-10-09T14:28:07.836Z",
+    "executionCommit": "4988a462ac60316397d7486da10be30f1bbcb37b",
+    "measuredAt": "2026-10-09T14:42:57.650Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

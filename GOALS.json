@@ -232154,25 +232154,32 @@
     {
       "id": "port-cav-strt-quest-start-v36-20261009",
       "kind": "lua-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port the complete Caveman quest start level and register its loader.",
       "luaFile": "Cav-strt.lua",
       "sessions": [
         "synthetic/v36/v36-quest-cav-strt"
       ],
-      "selectionReason": "The completed v36 investigation traces the first mismatch to the absent Cav-strt loader.",
+      "selectionReason": "A191 selected the oldest independent v36 Caveman quest start mismatch and delivered the complete Lua program.",
       "detail": "Port all top-level Cav-strt.lua statements, generate its fixed map from source, and wire only the source-named quest loader.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "4988a462ac60316397d7486da10be30f1bbcb37b",
+      "openStanding": {
+        "sha": "4988a462ac60316397d7486da10be30f1bbcb37b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "4988a462ac60316397d7486da10be30f1bbcb37b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Cav-strt.lua",
           "line": 1,
           "endLine": 94,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -232188,6 +232195,96 @@
           "evaluationPath": "challenges/evaluations/accepted-004a6da893c5dc420e260eb3ae0e285e85a56874-v36.json",
           "evaluationCommit": "004a6da893c5dc420e260eb3ae0e285e85a56874"
         }
+      },
+      "activeStanding": {
+        "sha": "4988a462ac60316397d7486da10be30f1bbcb37b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Cav-strt.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "cavStrt",
+            "sourceReview": "Read whole dat/Cav-strt.lua1–94 in definition order: solidfill stone, mazelevel/noteleport/hardfloor, exact generated20x76map retaining every space/B/S glyph, all-map darkness, irregular filled temple and six lit ordinary regions, down stair, branch arrival region, locked door, coaligned shrine with priest, Shaman Karnov inventory callback with leather armor+5 then club+5, separate floor chest after inventory context closes, eight neanderthal guards, nondiggable map, two pits and four random traps, twelve hostile bugbears and final wallify. Every descriptor and inventory callback is awaited in source order. Source string map is represented by the existing canonical descriptor array form, preserving centered placement and no contents callback. No new RNG, stub, swallowed return, guard or source gap remains in this Lua unit. Generated map script/test pins exact source rows and generated output.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "Cav-strt special-level record names dat/Cav-strt.lua; canonical registry adds the loader, no dispatcher changes."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "makelevel/makemaz -> sp_lev.c load_special -> nhlua load_lua. Existing ensureSpecialLevelLoaders merges QUEST_LEVEL_LOADERS and load_special creates the descriptor API/private alignment shuffle and runs canonical finish after the loader. Natural quest arrival and selected wizard arrival converge here."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "Accepted wizcmds.c wiz_load_splua calls load_special for source-named des loading; independent dwarf recipe verifies this active entry without dispatcher edits."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/cav-strt-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Cav-strt.lua/start-human-arrival-independent.session.json",
+              "recordings/Cav-strt.lua/start-dwarf-des-independent.session.json"
+            ],
+            "sourceFile": "Cav-strt.lua",
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-cav-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Quest arrival via wizlevelport -> deferred_goto/goto_level -> makelevel/makemaz -> load_special -> whole dat/Cav-strt.lua and finish. Full selected replay60/60screens/cursors3434/3434RNG."
+              }
+            ],
+            "checkedAt": "4988a462ac60316397d7486da10be30f1bbcb37b"
+          }
+        ],
+        "entryPointReview": "Whole Lua has one program generation entry reached via natural makelevel/makemaz and direct debug load_special. All descriptors and callback execute unconditionally; canonical generic descriptors resolve random trap/object/monster behavior. Independent neutral human quest arrival and lawful dwarf direct loading vary alignment/priest and starting RNG and reach all21fixed monsters plus shrine priest, seven irregular rooms, leader custom inventory, all traps and finish. Source-pinned tests establish exact descriptor values/order; strict runtime comparisons establish full random/state/output behavior. No quest conversation, quest permission, subsequent Cav-loca/Cav-goal or whole descriptor/dispatcher ownership credit.",
+        "entryPoints": [
+          {
+            "name": "Quest-start arrival generation",
+            "functions": [
+              "Cav-strt.lua"
+            ],
+            "recordings": [
+              "recordings/Cav-strt.lua/start-human-arrival-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-cav-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Quest arrival via wizlevelport -> deferred_goto/goto_level -> makelevel/makemaz -> load_special -> whole dat/Cav-strt.lua and finish. Full selected replay60/60screens/cursors3434/3434RNG."
+              }
+            ]
+          },
+          {
+            "name": "Direct source-named special-level loading",
+            "functions": [
+              "Cav-strt.lua"
+            ],
+            "recordings": [
+              "recordings/Cav-strt.lua/start-dwarf-des-independent.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4988a462ac60316397d7486da10be30f1bbcb37b",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
