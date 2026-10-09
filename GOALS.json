@@ -226795,7 +226795,7 @@
     {
       "id": "port-artifact-invoke-create-ammo-v33-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete artifact ammunition invocation and canonical inventory acquisition.",
       "cFile": "artifact.c",
       "sessions": [
@@ -226809,15 +226809,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "461a0d2ad755547a69c0c623c64643e40b0be515",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "invoke_create_ammo",
           "line": 1934,
           "endLine": 1962,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -226988,7 +226991,54 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "invoke_create_ammo",
+            "implementation": "js/artifacts.js",
+            "symbol": "invoke_create_ammo",
+            "sourceReview": "Whole artifact.c:1934–1962 reviewed in definition order. Preserved initialized non-artifact ARROW creation, null/no-effect guard, blessing/curse/knowledge copy, both erosion resets, blessed negative-spe clamp/rnd(10), cursed positive-spe clamp/no extra draw, uncursed rnd(5), weight then source fall message and awaited canonical holding call, ECMD_TIME. nhUse(otmp) is lint.h18 ((void)(arg)), with no runtime mutation. Creation/weight/inventory now receive canonical env.state and dropCommandEnv operations; source comparison feedback from invent.c941 is awaited by existing mergedRuntime before obfree. Existing owners handle observation, stack merge, burden/slots, quiver and source drop decision; do not preflight/drop before holding. No invent/do/mkobj completion credit, new source owner body or new discarded gap. Source artifact branches of hold are impossible for mksobj(ARROW,TRUE,FALSE); no artifact touch/dropy admission invented.",
+            "callers": [
+              {
+                "path": "js/artifacts.js",
+                "symbol": "arti_invoke",
+                "source": "artifact.c:2166 CREATE_AMMO switch arm; doinvoke1757 production command gets/retouches object then invokes with canonical cooldown."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/artifact-ammunition.test.mjs",
+              "scripts/artifact-invoke.test.mjs"
+            ],
+            "recordings": [
+              "recordings/artifact.c/ammunition-blessed.session.json",
+              "recordings/artifact.c/ammunition-uncursed.session.json",
+              "recordings/artifact.c/ammunition-cursed.session.json",
+              "recordings/artifact.c/ammunition-fumbling.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-invoke-ammunition",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 63,
+                "source": "cmd.c #invoke -> artifact.c:doinvoke -> arti_invoke CREATE_AMMO -> invoke_create_ammo -> invent.c:hold_another_object successful acquisition/encumber_msg."
+              }
+            ],
+            "checkedAt": "461a0d2ad755547a69c0c623c64643e40b0be515"
+          }
+        ],
+        "entryPointReview": "Helper-only unit, sole production caller arti_invoke CREATE_AMMO reached through #invoke. Admitted blessed Longbow case and independent Ranger recordings prove it. Cheap blessed/uncursed/cursed variations preserve source generated quantity/BUC/RNG and include actual uncursed merge into starting arrows; wearing gauntlets of fumbling reaches source forced-drop path with floor state. Focused checks independently compare canonical mksobj RNG/quantity/clamps to the helper and pin erosion/weight/knowledge/floor ownership. No broader arti_invoke, invent.c or do.c source completion claim.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "461a0d2ad755547a69c0c623c64643e40b0be515",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "fix-dothrow-toss-up-petrifier-drop-env-v33-20261009",
