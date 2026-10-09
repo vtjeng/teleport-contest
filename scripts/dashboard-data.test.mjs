@@ -619,6 +619,8 @@ test('activity view labels preparation and escapes public wait reasons', () => {
         { type: 'activity', task: 'P1', phase: 'baseline', reason: 'First evaluation.', at: at(15) },
     ] }, at(20));
     const rendered = renderDashboard(data);
+    rendered.get('activityReportedWaits').checked = true;
+    rendered.get('activityReportedWaits').listeners.change[0]();
     const html = rendered.get('timeline').innerHTML;
     for (const phase of ['review', 'admission', 'baseline', 'waiting'])
         assert.match(html, new RegExp(`phase-${phase}`, 'u'));
@@ -640,8 +642,36 @@ test('activity wait list contains every wait in the window', () => {
         })),
     };
     const rendered = renderDashboard(data);
+    rendered.get('activityReportedWaits').checked = true;
+    rendered.get('activityReportedWaits').listeners.change[0]();
     assert.equal((rendered.get('activityWaitList').innerHTML.match(/<button /gu) || []).length, 7);
     assert.match(readFileSync(TEMPLATE, 'utf8'), /Reported waits and unrecorded time/u);
+});
+
+test('selected stage details stay pinned across hover, focus and wait toggles', () => {
+    const data = sourceDashboardData();
+    // Separate tasks let hover and explicit selection be distinguished.
+    data.activity = activityTimeline({ events: [
+        { type: 'assign', task: 'A1', worker: 'A', at: '2026-09-25T10:00:00Z' },
+        { type: 'assign', task: 'B1', worker: 'B', at: '2026-09-25T10:00:00Z' },
+    ] }, '2026-09-25T10:10:00Z');
+    const rendered = renderDashboard(data);
+    const timeline = rendered.get('timeline');
+    const stages = data.activity.stagesWithoutWaits;
+    const target = task => ({ classList: { contains: value => value === 'activity-bar' },
+        dataset: { segment: String(stages.findIndex(row => row.task === task)) } });
+    timeline.listeners.pointerover[0]({ target: target('B1') });
+    assert.match(rendered.get('timelineReadout').innerHTML, /<strong>B1<\/strong>/u);
+    timeline.listeners.click[0]({ target: target('A1') });
+    const pinned = rendered.get('timelineReadout').innerHTML;
+    timeline.listeners.pointerover[0]({ target: target('B1') });
+    timeline.listeners.focusin[0]({ target: target('B1') });
+    assert.equal(rendered.get('timelineReadout').innerHTML, pinned);
+    rendered.get('activityReportedWaits').checked = true;
+    rendered.get('activityReportedWaits').listeners.change[0]();
+    assert.equal(rendered.get('timelineReadout').innerHTML, pinned);
+    timeline.listeners.click[0]({ target: target('B1') });
+    assert.match(rendered.get('timelineReadout').innerHTML, /<strong>B1<\/strong>/u);
 });
 
 test('activity keeps one row per agent across panning and zooming', () => {

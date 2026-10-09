@@ -309,6 +309,16 @@ required shape.
 Create or update a note, report, or permanent record only when
 `.agents/loop.md` or `.agents/review.md` requires it.
 
+### Dashboard previews
+
+For dashboard previews, update the existing private preview Site rather than
+creating a new one. Use localhost if hosted preview is unavailable.
+
+The preview is a fixed snapshot, separate from live dashboard publication:
+
+- URL: https://teleport-dashboard-preview-oct8.jocund-rice-0231.chatgpt.site
+- Site ID: `appgprj_6ac86601734c8191b034c533c692565b`
+
 ### Check out the C source in a new worktree
 
 Git records `nethack-c/upstream` as a submodule gitlink, and `git worktree add`

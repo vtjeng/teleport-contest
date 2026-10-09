@@ -40,6 +40,13 @@ test('agent stages prefer active work over queued deliveries and reset stale blo
   ]);
   assert.equal(stages[2].reason, 'Await source lock.');
   assert.equal(rows[0].phase, 'queued', 'queue evidence is preserved separately');
+  assert.deepEqual(agentStages(rows, [], { reportedWaits: false }).map(row => row.phase),
+    ['pending', 'working']);
+  assert.deepEqual(agentStages(rows, [
+    { type: 'turn', worker: 'A', state: 'blocked', at: at(4) },
+  ], { reportedWaits: false }).map(row => [row.phase, row.start, row.end]), [
+    ['pending', at(0), at(2)], ['working', at(2), at(10)],
+  ], 'hiding the report reveals the underlying assignment, not a gap');
 });
 
 test('a publication with no endpoint cannot reappear after newer Main work ends', () => {
