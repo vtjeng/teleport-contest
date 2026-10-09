@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked independent outside route: C dosit -> dotrap triggers a fire trap and boils blessed water, but JS sit.c still records trap.c dotrap as a source-discarded gap. No passing recording or helper-entry completion credit; the ordinary movement witness is separate.",
+  "segments": [
+    {
+      "seed": 81773003,
+      "datetime": "20890317113000",
+      "nethackrc": "OPTIONS=name:unwere-vapor,role:Wizard,race:human,gender:female,align:neutral,pauper,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,debug_mongen,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017blessed tin opener\n\u0017blessed homemade tin of human wererat meat\nwa eb y \u0017+20 ring of protection\nPcl\u0017blessed potion of water\n #wizintrinsic\n>500i\n #polyself\nwererat\n   hhh\u0017fire trap\n#sit\n    \u001b#sit\n    \u001b#sit\n    \u001b#sit\n    \u001b#sit\n    \u001b#sit\n    \u001b.."
+    }
+  ]
+}
