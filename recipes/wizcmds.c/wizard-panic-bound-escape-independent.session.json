@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 18534003,
+      "datetime": "20381010124532",
+      "nethackrc": "OPTIONS=name:PanicProbe,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!verbose,!debug_mongen,pettype:none\nBINDINGS=V:panic\n",
+      "moves": ".V\u001b",
+      "comment": "Independent C-first wizard panic confirmation. Fixed role/options/answer and seed declared before recording or JS comparison. Negative answers preserve the game and source ECMD_OK/no-time result."
+    }
+  ]
+}

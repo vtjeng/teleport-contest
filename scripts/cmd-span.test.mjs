@@ -94,6 +94,17 @@ import { remove_achievement } from '../js/insight.js';
 import { toggle_bool_option } from '../js/options.js';
 import { selection_new } from '../js/themerooms.js';
 
+test('panic retains its source wizard row and typed/direct no-time dispatch', async () => {
+    const source = readFileSync('nethack-c/upstream/src/cmd.c', 'utf8');
+    assert.match(source, /"panic", "test panic routine \(fatal to game\)",\s*wiz_panic, IFBURIED \| AUTOCOMPLETE \| WIZMODECMD/u);
+    const { ADMITTED_COMMANDS } = await import('../js/cmd.js');
+    assert.ok(ADMITTED_COMMANDS.includes('panic'));
+    const js = readFileSync('js/cmd.js', 'utf8');
+    assert.match(js, /case 'wiz_panic':\s*return await wiz_panic\(state\);/u);
+    assert.match(js, /if \(command === 'panic'\)\s*\{[\s\S]*?await wiz_panic\(state\);\s*resetCommandVars\(state, state\.multi < 0\);\s*return;/u);
+    assert.match(js, /command !== 'wizkill'\s*&& command !== 'panic'/u);
+});
+
 function moveState() {
     return {
         context: { travel: 1, travel1: 1, run: 9 },
