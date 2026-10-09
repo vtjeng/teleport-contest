@@ -52,6 +52,7 @@ import {
 } from './terminal.js';
 import { menuitem_invert_test, select_menu, ttyMenuColorAttribute } from './windows.js';
 import { vision_recalc } from './vision.js';
+import { pmatchi } from './strutil.js';
 
 // C ref: win/tty/wintty.c process_menu_window()'s MENU_SEARCH arm, which
 // calls tty_getlin("Search for:") and skips an empty or Escaped answer.
@@ -996,34 +997,6 @@ function isDefaultMenuResponse(ch) {
         || '^|><.-@,\\~:'.includes(ch);
 }
 
-function lowercaseAscii(ch) {
-    const code = ch.charCodeAt(0);
-    return code >= 65 && code <= 90
-        ? String.fromCharCode(code + 32)
-        : ch;
-}
-
-// C ref: src/strutil.c pmatchi(). '*' matches zero or more characters and
-// '?' matches exactly one; all other comparisons are case-insensitive.
-function pmatchi(pattern, text) {
-    let previous = new Array(text.length + 1).fill(false);
-    previous[0] = true;
-    for (const patternCharacter of pattern) {
-        const current = new Array(text.length + 1).fill(false);
-        if (patternCharacter === '*') current[0] = previous[0];
-        for (let index = 1; index <= text.length; ++index) {
-            if (patternCharacter === '*') {
-                current[index] = previous[index] || current[index - 1];
-            } else if (patternCharacter === '?'
-                || lowercaseAscii(patternCharacter)
-                    === lowercaseAscii(text[index - 1])) {
-                current[index] = previous[index - 1];
-            }
-        }
-        previous = current;
-    }
-    return previous[text.length];
-}
 
 function searchItemText(item, columns) {
     // tty_add_menu() stores the original '-' marker in curr->str; selection

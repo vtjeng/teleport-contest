@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first cmd.c:doextlist entry and navigation witness. Input declared before recording; source controls toggle autocomplete/search/debug sections and return ECMD_OK. No challenge setup copied. Source C-only setup observation found discovery startup owns a welcome More acknowledgment; the leading space dismisses it before the counted bound list entry.",
+  "segments": [
+    {
+      "seed": 18634013,
+      "datetime": "20601016122232",
+      "nethackrc": "OPTIONS=name:ListReader,role:Valkyrie,race:human,gender:female,align:neutral,playmode:explore\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!tips,pettype:none,!debug_mongen\nBINDINGS=V:?\n",
+      "moves": " .3Va\u001b."
+    }
+  ]
+}

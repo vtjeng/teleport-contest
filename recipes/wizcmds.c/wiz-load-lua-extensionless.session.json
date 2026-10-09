@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first wizcmds.c:wiz_load_lua variation. strchr finds no period, command appends .lua; same library loads through a distinct filename path and role. Seeds16792011/13/17/19/23/29 and clock20620518141622 chosen before comparison; roles/filename/cancellation/mode exercise distinct source branches.",
+  "segments": [
+    {
+      "seed": 16792013,
+      "datetime": "20620518141622",
+      "nethackrc": "OPTIONS=name:LuaLoadextensionless,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizloadlua\nnhlib\n "
+    }
+  ]
+}

@@ -22,6 +22,7 @@ import {
     CMDQ_KEY,
     CONFUSION,
     BLINDED,
+    CLOUD, IS_TREE,
     ERODE_CORRODE,
     EF_GREASE,
     EF_VERBOSE,
@@ -77,11 +78,13 @@ import {
     haseyes,
     is_undead,
     is_vampshifter,
+    is_whirly, is_animal, dmgtype_fromattack,
 } from './mondata.js';
 import {
     AD_ELEC,
     PM_CYCLOPS,
     PM_FLOATING_EYE,
+    PM_FOG_CLOUD, AD_WRAP, AT_ENGL,
     PM_KNIGHT,
     PM_MASTER_LICH,
     PM_NALFESHNEE,
@@ -90,7 +93,7 @@ import {
 import {
     isMetallic, mksobj, objectType, set_bknown, weight,
 } from './obj.js';
-import { Tobjnam } from './objnam.js';
+import { Tobjnam, an } from './objnam.js';
 import { check_unpaid } from './shk.js';
 import {
     MAXSPELL,
@@ -136,6 +139,7 @@ import {
     SPE_LIGHT,
     SPE_MAGIC_MISSILE,
     SPE_POLYMORPH,
+    SPE_PROTECTION,
     SPE_REMOVE_CURSE,
     SPE_RESTORE_ABILITY,
     SPE_SLEEP,
@@ -176,7 +180,9 @@ import { makemon_runtime } from './makemon_create.js';
 import { mkundead } from './mkroom.js';
 import { iter_mons_async, wakeup, xkilled } from './mon.js';
 import { monflee, monfleeMessage, youHear } from './monmove.js';
-import { noveltitle, mon_nam, Monnam } from './do_name.js';
+import { noveltitle, hcolor, hliquid, mon_nam, Monnam } from './do_name.js';
+import { heroIsBlind } from './startup_a11y.js';
+import { find_ac } from './u_init_inventory_attrs.js';
 import { note_unported } from './unported.js';
 // C spell.c:spelleffects() passes scroll-duplicate fake spellbooks to
 // read.c:seffects(). read.js imports study_book() from this module; both
@@ -1383,6 +1389,52 @@ async function getspell(state, { message, menu }) {
         state, menu);
 }
 
+// C ref: spell.c cast_protection() (1104–1178). Integer divisions truncate
+// toward zero; the source feedback finishes before protection and AC change.
+export async function cast_protection(state = game, env = {}) {
+    const u = state.u;
+    let l = u.ulevel, loglev = 0;
+    let natac = u.uac + u.uspellprot;
+    while (l) {
+        ++loglev;
+        l = Math.trunc(l / 2);
+    }
+    natac = Math.trunc((10 - natac) / 10);
+    const gain = loglev - Math.trunc(u.uspellprot / (4 - Math.min(3, natac)));
+    const message = env.message ?? ttyPline;
+    if (gain > 0) {
+        if (!heroIsBlind(state)) {
+            // decl.c c_color_names.c_golden is "golden". Naming uses display
+            // RNG, independently of spelleffects' optional core RNG adapter.
+            const displayEnv = { state, displayRandom: env.displayRandom };
+            const hgolden = hcolor('golden', state, displayEnv);
+            if (u.uspellprot) {
+                await message(`The ${hgolden} haze around you becomes more dense.`, state);
+            } else {
+                const pm = u.ustuck?.data;
+                const rmtyp = state.level.at(u.ux, u.uy).typ;
+                const atmosphere = pm && u.uswallow
+                    ? pm === state.mons[PM_FOG_CLOUD] ? 'mist'
+                        : is_whirly(pm) ? 'maelstrom'
+                            : dmgtype_fromattack(pm, AD_WRAP, AT_ENGL) ? 'folds'
+                                : is_animal(pm) ? 'maw' : 'ooze'
+                    : u.uinwater ? hliquid('water', displayEnv)
+                        : rmtyp === CLOUD ? 'cloud'
+                            : IS_TREE(rmtyp, state) ? 'vegetation'
+                                : IS_STWALL(rmtyp) ? 'stone' : 'air';
+                await message(`The ${atmosphere} around you begins to shimmer with ${an(hgolden)} haze.`, state);
+            }
+        }
+        u.uspellprot = (u.uspellprot + gain) & 0xff; // you.h uchar field.
+        u.uspmtime = P_SKILL(spell_skilltype(SPE_PROTECTION, state), state) === P_EXPERT
+            ? 20 : 10;
+        if (!u.usptime) u.usptime = u.uspmtime;
+        find_ac(state);
+    } else {
+        await message('Your skin feels warm for a moment.', state);
+    }
+}
+
 // C ref: spell.c spelleffects_check() (1220-1380). Validates that the hero can
 // cast spell `spell` (a spl_book[] index): checks that the spell is known, the
 // hero has enough energy, the hero is not too hungry or weak, and the cast
@@ -1696,6 +1748,11 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
         // falls through
     case SPE_INVISIBILITY:
         await peffects(pseudo, state);
+        break;
+
+    case SPE_PROTECTION:
+        // C spell.c1581–1583: feedback/state complete before common cleanup.
+        await cast_protection(state, env);
         break;
 
     case SPE_JUMPING:
