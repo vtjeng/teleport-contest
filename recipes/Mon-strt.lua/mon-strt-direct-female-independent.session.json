@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first female human neutral Monk load of whole Mon-strt.lua; seed 9174202 and clock chosen before comparison. Direct debug loader reaches the registered source program without seed search.",
+  "segments": [
+    {
+      "seed": 9174202,
+      "datetime": "20631022090002",
+      "nethackrc": "OPTIONS=name:MonStrtProbe,role:Monk,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizloaddes\nMon-strt.lua\n "
+    }
+  ]
+}

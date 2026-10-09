@@ -3,7 +3,8 @@
 //         dat/Bar-goal.lua, dat/Bar-loca.lua, dat/Arc-strt.lua,
 //         dat/Arc-loca.lua, dat/Arc-fila.lua, dat/Arc-filb.lua,
 //         dat/Arc-goal.lua, dat/Cav-goal.lua, dat/Cav-loca.lua,
-//         dat/Cav-strt.lua, dat/Mon-goal.lua, dat/Mon-loca.lua, dat/Sam-goal.lua, dat/Tou-strt.lua, dat/astral.lua,
+//         dat/Cav-strt.lua, dat/Mon-goal.lua, dat/Mon-loca.lua, dat/Mon-strt.lua,
+//         dat/Sam-goal.lua, dat/Tou-strt.lua, dat/astral.lua,
 //         dat/Hea-goal.lua, dat/Hea-loca.lua, dat/Hea-strt.lua,
 //         dat/Kni-loca.lua, dat/Kni-strt.lua, dat/Ran-loca.lua,
 //         dat/Ran-goal.lua, dat/Ran-strt.lua, dat/Rog-strt.lua, dat/Rog-loca.lua,
@@ -71,6 +72,7 @@ import {
 } from './kni_loca_level_data.js';
 import { MON_GOAL_LEVEL_MAP } from './mon_goal_level_data.js';
 import { MON_LOCA_LEVEL_MAP } from './mon_loca_level_data.js';
+import { MON_STRT_LEVEL_MAP } from './mon_strt_level_data.js';
 import { ROG_GOAL_LEVEL_MAP, ROG_GOAL_MONSTERS } from './rog_goal_level_data.js';
 import { SAM_GOAL_LEVEL_MAP } from './sam_goal_level_data.js';
 import { TOU_STRT_LEVEL_MAP, TOU_STRT_DOORS, TOU_STRT_GUIDES } from './tou_strt_level_data.js';
@@ -2615,6 +2617,65 @@ async function monLoca(des, state) {
     for (let i = 0; i < 9; ++i) await des.monster('xorn');
 }
 
+// dat/Mon-strt.lua: whole Monk quest start program, in source order.
+async function monStrt(des, state) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noteleport', 'hardfloor');
+    await des.map(MON_STRT_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 19), 'lit');
+    await des.region({ region: [24, 6, 33, 13], lit: 1, type: 'temple' });
+    await des.replace_terrain({ region: [0, 0, 10, 19], fromterrain: '.', toterrain: 'T', chance: 10 });
+    await des.replace_terrain({ region: [65, 0, 75, 19], fromterrain: '.', toterrain: 'T', chance: 10 });
+
+    // Lua26 floods the same-terrain component after both tree replacements.
+    const spacelocs = selection_floodfill(5, 4, state, des.frame);
+
+    await des.terrain({ x: 5, y: 4 }, '.');
+    await des.levregion({ region: [5, 4, 5, 4], type: 'branch' });
+    await des.stair('down', 52, 9);
+    await des.door('locked', 18, 9);
+    await des.door('locked', 18, 10);
+    await des.door('closed', 34, 9);
+    await des.door('closed', 34, 10);
+    await des.door('closed', 40, 5);
+    await des.door('closed', 46, 5);
+    await des.door('closed', 52, 5);
+    await des.door('locked', 38, 7);
+    await des.door('closed', 42, 7);
+    await des.door('closed', 46, 7);
+    await des.door('closed', 52, 7);
+    await des.door('locked', 38, 12);
+    await des.door('closed', 44, 12);
+    await des.door('closed', 48, 12);
+    await des.door('closed', 52, 12);
+    await des.door('closed', 40, 14);
+    await des.door('closed', 46, 14);
+    await des.door('closed', 52, 14);
+    await des.altar({ x: 28, y: 9, align: 'noalign', type: 'altar' });
+    await des.monster({
+        id: 'Grand Master', coord: { x: 28, y: 10 },
+        inventory: async () => { await des.object({ id: 'robe', spe: 6 }); },
+    });
+    await des.monster('abbot', 32, 7);
+    await des.monster('abbot', 32, 8);
+    await des.monster('abbot', 32, 11);
+    await des.monster('abbot', 32, 12);
+    await des.monster('abbot', 33, 7);
+    await des.monster('abbot', 33, 8);
+    await des.monster('abbot', 33, 11);
+    await des.monster('abbot', 33, 12);
+    await des.non_diggable(selection_area(18, 3, 55, 16));
+    for (let i = 0; i < 2; ++i)
+        await des.trap('dart', spacelocs.rndcoord(true, rn2));
+    for (let i = 0; i < 4; ++i) await des.trap();
+    for (let i = 0; i < 8; ++i)
+        await des.monster('earth elemental', spacelocs.rndcoord(true, rn2));
+    for (let i = 0; i < 4; ++i)
+        await des.monster('xorn', spacelocs.rndcoord(true, rn2));
+    await des.object({ id: 'tin', coord: [29, 9], quantity: 2, montype: 'spinach' });
+    await des.object({ id: 'food ration', coord: [46, 4], quantity: 4 });
+}
+
 // Whole dat/Rog-loca.lua lines 1–99. Stairs use independent random locations;
 // the fixed cursed scroll is map-relative and precedes all random objects.
 async function rogLoca(des) {
@@ -2658,6 +2719,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Rog-loca': rogLoca,
     'Rog-goal': rogGoal,
     'Mon-loca': monLoca,
+    'Mon-strt': monStrt,
     'Ran-strt': ranStrt,
     'Rog-strt': rogStrt,
     'Val-loca': valLoca,
