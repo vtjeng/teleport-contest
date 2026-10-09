@@ -1,0 +1,109 @@
+{
+  "corpus": "synthetic",
+  "batch": "v35",
+  "caseId": "v35-gehennom-juiblex",
+  "session": "synthetic/v35/v35-gehennom-juiblex",
+  "manifestPath": "challenges/manifests/v35.json",
+  "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+  "recordingSha256": "998fc5181cde00d5a993466442c2c3921b5517770a0b90365dafa7861d02ba8e",
+  "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+  "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+  "remainingScreens": 9,
+  "recordedSteps": 109,
+  "status": "complete",
+  "commit": "5d699058e1a189f60bb603928cce0508e9599d39",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v35",
+    "caseId": "v35-gehennom-juiblex",
+    "session": "synthetic/v35/v35-gehennom-juiblex",
+    "manifestPath": "challenges/manifests/v35.json",
+    "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+    "recording": "challenges/cases/v35/v35-gehennom-juiblex.session.json",
+    "recordingPath": "challenges/cases/v35/v35-gehennom-juiblex.session.json",
+    "recordingSha256": "998fc5181cde00d5a993466442c2c3921b5517770a0b90365dafa7861d02ba8e",
+    "recipe": "challenges/cases/v35/v35-gehennom-juiblex.recipe.session.json",
+    "recipeSha256": "5aa41cf526fee4d2b65ddaa886101d8de5969db4a8486e51d6e8e18a84563c61",
+    "replayInputSha256": "9a345b9f1c2c4f64668854b1f41843898e09b9498646789c8c4a14892bfcd5a5",
+    "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+    "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+    "evaluationArtifact": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+    "evaluationUtc": "2026-10-09T08:22:23.377Z",
+    "remainingScreens": 9,
+    "recordedSteps": 109,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 100,
+        "total": 109
+      },
+      "rng": {
+        "matched": 18153,
+        "total": 18153
+      },
+      "cursors": {
+        "matched": 100,
+        "total": 109
+      }
+    },
+    "firstMismatch": {
+      "screen": null,
+      "rng": null,
+      "cursor": {
+        "index": 100,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 100,
+          "key": "\n"
+        },
+        "cCursor": [
+          2105376125,
+          2105376125,
+          1
+        ],
+        "jsCursor": [
+          69,
+          12,
+          1
+        ]
+      }
+    },
+    "step": 100,
+    "kind": "cursor",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "goalKind": "divergence-fix",
+  "summary": "Juiblex magic mapping overflows the recorder patch's6144-byte nomux screen buffer and overwrites its raw cursor globals with water glyph bytes. All18153 RNG calls and all109 rendered screens match; nine stored C cursor entries are0x7d7d7d7d. This requires a recorder/tooling and corpus-provenance decision, not a JavaScript game port.",
+  "source": {
+    "file": "win/tty/termcap.c",
+    "functions": [
+      "nomux_capture_screen (added by nethack-c/patches/006-nomux-capture.patch)",
+      "nomux_get_cursor (same patch)"
+    ],
+    "branch": "After #wizmap reveals the dense pool/floor Juiblex layout, the ANSI screen serialization exceeds nomux_out[24*256]. The unchecked sprintf and character writes extend into the adjacent raw-active and raw-coordinate globals. Nonzero overwritten raw-active selects the getter's raw32-bit counters rather than the ordinary short tty cursor.",
+    "callers": [
+      "wizcmds.c:wiz_map176–198 -> detect.c:do_mapping1422–1444 reveals the map; the existing map/display command completes without RNG or screen divergence.",
+      "Patch006:nomux_capture_write_input_boundary -> nomux_emit_marker captures the complete screen before calling nomux_get_cursor; patch lines141–150 writes the resulting CX/CY marker fields. scripts/record-session.mjs:onMarker reads those numeric fields directly and preserves them in the session cursor."
+    ],
+    "dependencies": [
+      "Recorder/tooling policy: Main must approve a bounded checked serializer buffer correction and decide how to preserve/reconcile the admitted recording produced by the defective recorder. No worker should encode corrupted pointer/storage bytes in JS or mutate admitted challenges.",
+      "Native ordinary tty cursor fields are short (upstream include/wintty.h93), while patch raw coordinates are int. This case is unrelated to parked alloc.c:fmt_ptr native-address diagnostics or any missing Juiblex Lua/arrival behavior."
+    ]
+  },
+  "evidence": [
+    "Saved accepted672aef01 v35 queue records9 remaining boundaries and18153/18153 RNG. B193 targeted replay at5d699058 emits all109 steps: no RNG or cell mismatch; cursor divergence starts step100 newline terminating #wizmap. Diagnostic .cache/B193/scan.json; bounded run tracked in .cache/B193/scan.log. Source support B189/B191/B192 does not alter this mapping branch.",
+    "Immutable recording SHA256998fc5181cde00d5a993466442c2c3921b5517770a0b90365dafa7861d02ba8e and recipe SHA2565aa41cf526fee4d2b65ddaa886101d8de5969db4a8486e51d6e8e18a84563c61 verified against the saved queue. Steps100–108 all store [2105376125,2105376125,1], versus normal map cursor [69,12,1]. 2105376125 is0x7d7d7d7d: four ASCII water glyphs (}).",
+    "Patch006 lines255–316 defines static char nomux_out[24*256] (6144 bytes) and serializes rows with unchecked sprintf plus *p++ writes; no capacity check exists. Step100's stored ANSI screen already has6304 bytes. Expanding its CSI-space compression reconstructs6309 bytes; bytes at offset6144–6155 are twelve water glyphs. Artifact .cache/B193/expanded-step-100.txt retains the reconstruction without recording a new game.",
+    "Read-only nm -n /tmp/b121-recorder-worker-b/nethack confirms contiguous symbol addresses: nomux_out0x5791f0, nomux_raw_active0x57a9f0 (out+6144), nomux_raw_row0x57a9f4 (out+6148), nomux_raw_col0x57a9f8 (out+6152). Thus the same overrun reaches the exact globals used by the raw getter. Patch006 lines411–418 selects them when raw-active is nonzero. Normal ttyDisplay cursor shorts cannot represent0x7d7d7d7d.",
+    "Counter-evidence to a JS generation/map-owner claim: all screen cells and every RNG call match, the preceding Juiblex arrival uses normal cursor positions, and the cursor first corrupts only after serialization of the complete dense magic map. JS retains the live hero/map cursor; no source contract instructs it to reproduce C buffer overflow bytes.",
+    "Actionable scope is a separately authorized recorder correction to nomux_capture_screen plus focused serializer bounds coverage and canonical capture checks, followed by a Main-owned evidence/corpus decision. Preserve original admitted recipes/recordings/evaluations. Do not select a whole JS detect, display, wiz_map or Lua port for this failure; there is no missing game branch to credit."
+  ]
+}
