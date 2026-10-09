@@ -230187,7 +230187,7 @@
     {
       "id": "fix-read-genocide-retry-quote-v34-20261009",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Restore the quoted question mark in genocide retry hints",
       "cFile": "read.c",
       "sessions": [
@@ -230195,10 +230195,17 @@
       ],
       "selectionReason": "A187 selected the admitted v34 genocide prompt mismatch at step 54; source review traces both affected retry hints in do_genocide and do_class_genocide.",
       "detail": "Restore the two source-faithful quoted question-mark literals only; preserve parser, prompt, retry, RNG, and genocide behavior without whole-function credit.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "cca7c156f3ffb7fe1ed2a1938de2bf83d6accc57",
+      "openStanding": {
+        "sha": "cca7c156f3ffb7fe1ed2a1938de2bf83d6accc57",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "cca7c156f3ffb7fe1ed2a1938de2bf83d6accc57",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "do_genocide",
       "session": "synthetic/v34/v34-genocide-no-such-species",
       "step": 54,
@@ -230215,6 +230222,18 @@
           "evaluationPath": "challenges/evaluations/accepted-2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a-v34.json",
           "evaluationCommit": "2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a"
         }
+      },
+      "activeStanding": {
+        "sha": "cca7c156f3ffb7fe1ed2a1938de2bf83d6accc57",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "cca7c156f3ffb7fe1ed2a1938de2bf83d6accc57",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

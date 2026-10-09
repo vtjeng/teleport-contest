@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T09:05:40.430Z",
+  "capturedAt": "2026-10-09T09:20:32.888Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -71913,33 +71913,207 @@
         "at": "2026-10-09T09:05:04.392Z",
         "task": "B189",
         "delivery": "50801c62a5566612886c0d9caddc2cb23c506f79"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a2200bd388c90cb78421179f2efc1747714a4530",
+        "type": "ready",
+        "at": "2026-10-09T09:07:35.340Z",
+        "task": "A189",
+        "delivery": "a2200bd388c90cb78421179f2efc1747714a4530"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d7de5eac46984bbe7805974c0ed08fb7b9fe1f43",
+        "type": "ready",
+        "at": "2026-10-09T09:07:51.059Z",
+        "task": "C166",
+        "delivery": "d7de5eac46984bbe7805974c0ed08fb7b9fe1f43"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B191-source-gate-ready-20261009",
+        "type": "turn",
+        "at": "2026-10-09T09:08:08.669Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Rogue mapping diagnosis complete; awaiting central source assignment."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B185-b5dbefbb9",
+        "type": "published",
+        "at": "2026-10-09T09:08:21.384Z",
+        "task": "B185",
+        "commit": "b5dbefbb94ea9d2a45733f1426422ce4b0bb232e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A189-ready-A186-refresh",
+        "type": "turn",
+        "at": "2026-10-09T09:09:03.020Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A189 ready; refreshing the extended-command list investigation after its dispatcher dependency was accepted."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C165-check-command-metadata-20261009",
+        "type": "resume",
+        "at": "2026-10-09T09:09:17.363Z",
+        "task": "C165"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B191-display-magic-map",
+        "type": "implement",
+        "at": "2026-10-09T09:09:22.546Z",
+        "task": "B191",
+        "goal": "fix-display-magic-map-rogue-darkroom-symbol-v35-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A187-cca7c156f",
+        "type": "integrating",
+        "at": "2026-10-09T09:09:35.816Z",
+        "task": "A187",
+        "integration": "cca7c156f3ffb7fe1ed2a1938de2bf83d6accc57"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C165-check-command-metadata-20261009",
+        "type": "turn",
+        "at": "2026-10-09T09:09:52.477Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A186-after-B185-accepted",
+        "type": "resume",
+        "at": "2026-10-09T09:10:01.515Z",
+        "task": "A186"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A186-source-gate-refresh",
+        "type": "turn",
+        "at": "2026-10-09T09:10:03.083Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Extended-command list investigation resumed after the accepted dispatcher dependency; source gate pending."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B191-rogue-implementation-20261009",
+        "type": "turn",
+        "at": "2026-10-09T09:10:08.328Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing rogue-level magic-map floor glyph correction."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A189-a2200bd38",
+        "type": "received",
+        "at": "2026-10-09T09:11:02.834Z",
+        "task": "A189",
+        "delivery": "a2200bd388c90cb78421179f2efc1747714a4530"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C166-d7de5eac4",
+        "type": "received",
+        "at": "2026-10-09T09:11:09.155Z",
+        "task": "C166",
+        "delivery": "d7de5eac46984bbe7805974c0ed08fb7b9fe1f43"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A186-doextlist",
+        "type": "implement",
+        "at": "2026-10-09T09:11:29.617Z",
+        "task": "A186",
+        "goal": "port-cmd-doextlist-v34-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e4904389e542a822ccfcb1eb0317760924a574ea",
+        "type": "ready",
+        "at": "2026-10-09T09:12:15.161Z",
+        "task": "C165",
+        "delivery": "e4904389e542a822ccfcb1eb0317760924a574ea"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C165-e4904389e",
+        "type": "received",
+        "at": "2026-10-09T09:12:48.446Z",
+        "task": "C165",
+        "delivery": "e4904389e542a822ccfcb1eb0317760924a574ea"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C167-lua-library-load-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T09:13:54.490Z",
+        "task": "C167",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C167-lua-library-load-investigation-20261009",
+        "type": "turn",
+        "at": "2026-10-09T09:14:03.725Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-15c4efc720ebb259d852007e6bfb8e0564d2aa5f",
+        "type": "ready",
+        "at": "2026-10-09T09:16:22.454Z",
+        "task": "B191",
+        "delivery": "15c4efc720ebb259d852007e6bfb8e0564d2aa5f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B192-chain-lightning-20261009",
+        "type": "assign",
+        "at": "2026-10-09T09:17:40.710Z",
+        "task": "B192",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B192-chain-lightning-audit-20261009",
+        "type": "turn",
+        "at": "2026-10-09T09:19:20.463Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating missing chain-lightning spell propagation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A187-cca7c156f3ffb7fe1ed2a1938de2bf83d6accc57-validated",
+        "type": "validated",
+        "at": "2026-10-09T09:19:34.868Z",
+        "task": "A187",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A187-cca7c156f3ffb7fe1ed2a1938de2bf83d6accc57-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T09:19:50.238Z",
+        "task": "A187"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "A187",
-        "worker": "A2",
-        "goal": "fix-read-genocide-retry-quote-v34-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "9826e4966749acfeee524e6bffc96590ec00a106",
-        "since": "2026-10-09T08:08:59.460Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "C165",
-        "worker": "C",
-        "goal": "fix-sp-lev-map-transparent-return-mask-v35-20261009",
-        "kind": "implementation",
-        "status": "changes-required",
-        "delivery": "d503206ea0d066a489a1bef6cb91488d78c55bb5",
-        "since": "2026-10-09T08:46:28.705Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "B189",
         "worker": "B",
@@ -71949,6 +72123,54 @@
         "delivery": "50801c62a5566612886c0d9caddc2cb23c506f79",
         "since": "2026-10-09T08:59:36.277Z",
         "blockedBy": [],
+        "unblocks": 1
+      },
+      {
+        "task": "A189",
+        "worker": "A2",
+        "goal": "port-pager-doidtrap-showtrap-v35-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "a2200bd388c90cb78421179f2efc1747714a4530",
+        "since": "2026-10-09T09:07:35.340Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C166",
+        "worker": "C",
+        "goal": "port-wizcmds-wiz-load-splua-v35-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "d7de5eac46984bbe7805974c0ed08fb7b9fe1f43",
+        "since": "2026-10-09T09:07:51.059Z",
+        "blockedBy": [
+          "C165"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "C165",
+        "worker": "C",
+        "goal": "fix-sp-lev-map-transparent-return-mask-v35-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "e4904389e542a822ccfcb1eb0317760924a574ea",
+        "since": "2026-10-09T09:12:15.161Z",
+        "blockedBy": [],
+        "unblocks": 1
+      },
+      {
+        "task": "B191",
+        "worker": "B",
+        "goal": "fix-display-magic-map-rogue-darkroom-symbol-v35-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "15c4efc720ebb259d852007e6bfb8e0564d2aa5f",
+        "since": "2026-10-09T09:16:22.454Z",
+        "blockedBy": [
+          "B189"
+        ],
         "unblocks": 0
       }
     ],
@@ -72198,17 +72420,6 @@
         "reason": "Stale initial saved queue: accepted C160 evaluation at f091b997 proves v33-invoke-healing-blindness exact99/99screens/cursors1854RNG. Already in accepted B181 main4c02dfca and workerHEADd84b3350. No report or source edits needed."
       },
       {
-        "task": "A186",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T07:44:20.514Z",
-        "blockedBy": [],
-        "reason": "Waiting for B185 wizard-panic dispatcher changes before shared cmd.js implementation"
-      },
-      {
         "task": "C164",
         "worker": "C",
         "goal": null,
@@ -72277,8 +72488,8 @@
     ]
   },
   "development": {
-    "executionCommit": "61b9bad31ac7fc81b7370cd1312e25e5bf7358cf",
-    "measuredAt": "2026-10-09T08:58:50.499Z",
+    "executionCommit": "cca7c156f3ffb7fe1ed2a1938de2bf83d6accc57",
+    "measuredAt": "2026-10-09T09:14:19.579Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
