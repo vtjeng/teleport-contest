@@ -241099,7 +241099,7 @@
     {
       "id": "port-tou-goal-quest-level-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Tourist quest-goal level and Keystone Kop initial equipment",
       "luaFile": "Tou-goal.lua",
       "sessions": [
@@ -241113,8 +241113,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Tou-goal.lua",
@@ -241400,7 +241403,7 @@
                 "source": "#wizlevelport -> level_tele/schedule_goto -> deferred_goto/goto_level -> mklev/makelevel -> makemaz/load_special -> dat/Tou-goal.lua:1-159"
               }
             ],
-            "checkedAt": "ff8f6d0fb2d3fd3af348fb7f36cce7c910f16125"
+            "checkedAt": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8"
           },
           {
             "name": "m_initweap",
@@ -241430,7 +241433,7 @@
                 "source": "#wizlevelport -> deferred_goto/goto_level -> makelevel/makemaz/load_special -> dat/Tou-goal.lua:144-152 creates Kops -> sp_lev.c:create_monster -> makemon.c:1441-1443 -> makemon.c:m_initweap"
               }
             ],
-            "checkedAt": "ff8f6d0fb2d3fd3af348fb7f36cce7c910f16125"
+            "checkedAt": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8"
           }
         ],
         "entryPointReview": "The natural Tourist quest-goal entry point is exercised by the admitted v36/v36-quest-tou-goal replay. #wizlevelport calls level_tele/schedule_goto; deferred_goto/goto_level/mklev/makelevel/makemaz/load_special dispatches Tou-goal.lua, whose source lines 144-152 create Kop Kaptain, Kop Lieutenants, and Keystone Kops through sp_lev.c:create_monster -> makemon.c:makemon -> m_initweap. The complete replay matches all 60 recorded boundaries. The separate direct #wizloaddes diagnostic recipe remains blocked at the independent JS makemon_create.js:shopkeeperCall / C makemon(MM_ESHK) gate and contributes no runtime evidence.",
@@ -241458,19 +241461,14 @@
                 "source": "#wizlevelport -> deferred_goto/goto_level -> mklev.c:makelevel -> dat/Tou-goal.lua:144-152 -> sp_lev.c:create_monster -> makemon.c:m_initweap"
               }
             ]
-          },
-          {
-            "name": "diagnostic direct #wizloaddes load of Tou-goal.lua",
-            "functions": [
-              {
-                "sourceFile": "Tou-goal.lua",
-                "name": "Tou-goal.lua"
-              }
-            ],
-            "recordings": [],
-            "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
