@@ -1,0 +1,120 @@
+{
+  "session": "synthetic/v32/v32-options-tab-menu",
+  "corpus": "synthetic",
+  "batch": "v32",
+  "caseId": "v32-options-tab-menu",
+  "manifestPath": "challenges/manifests/v32.json",
+  "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+  "recordingSha256": "3aa8d8c224a2431fe8c04d7bd35f0d43618cd26563d2d5b07ab3f750c3838e70",
+  "evaluationPath": "challenges/evaluations/accepted-db0a7ad02ea001265fce34f7485b90c58d649d79-v32.json",
+  "evaluationCommit": "db0a7ad02ea001265fce34f7485b90c58d649d79",
+  "remainingScreens": 18,
+  "recordedSteps": 32,
+  "status": "complete",
+  "commit": "4f44a54aa3bff3ccd1d4252387a5e069b3d66a6b",
+  "mismatch": {
+    "version": 1,
+    "corpus": "synthetic",
+    "batch": "v32",
+    "caseId": "v32-options-tab-menu",
+    "session": "synthetic/v32/v32-options-tab-menu",
+    "manifestPath": "challenges/manifests/v32.json",
+    "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+    "recordingPath": "challenges/cases/v32/v32-options-tab-menu.session.json",
+    "recordingSha256": "3aa8d8c224a2431fe8c04d7bd35f0d43618cd26563d2d5b07ab3f750c3838e70",
+    "recipeSha256": "bea0439add7c0d275ba36f73cf85b8963e093eeef43c27520185bf42c54fb750",
+    "evaluationPath": "challenges/evaluations/accepted-db0a7ad02ea001265fce34f7485b90c58d649d79-v32.json",
+    "evaluationCommit": "db0a7ad02ea001265fce34f7485b90c58d649d79",
+    "evaluationUtc": "2026-10-09T00:02:56.121Z",
+    "remainingScreens": 18,
+    "recordedSteps": 32,
+    "metrics": {
+      "screens": {
+        "matched": 14,
+        "total": 32
+      },
+      "rng": {
+        "matched": 2651,
+        "total": 2651
+      },
+      "cursors": {
+        "matched": 14,
+        "total": 32
+      }
+    },
+    "step": 14,
+    "kind": "stop",
+    "sourceFile": "cmd.c",
+    "function": "doextcmd",
+    "message": "Saved evaluation stops at missing typed optionsfull doset arm; local B173 replay exposes options.c tabbed-layout refusal at same step.",
+    "replayCommit": "4f44a54aa3bff3ccd1d4252387a5e069b3d66a6b"
+  },
+  "summary": "After the local B173 typed-command repair, #optionsfull still stops before rendering because options.c:doset's menu_tab_sep formatting branch is refused. C writes a raw tab between name and value and removes indentation from nonselectable boolean rows. The patched TTY ignores the tab glyph while advancing one byte column; it does not expand it to a tab stop. The simple options menu has the same missing source format branch.",
+  "goalKind": "divergence-fix",
+  "source": {
+    "file": "options.c",
+    "functions": [
+      "doset",
+      "doset_simple_menu",
+      "doset_add_menu"
+    ],
+    "branch": "iflags.menu_tab_sep true from the configuration or debug Boolean option; full doset chooses fmtstr_tab_doset and changes pass0 indentation. doset_simple_menu independently chooses fmtstr_tab_doset_simple.",
+    "callers": [
+      "cmd.c:doextcmd493-520 optionsfull callback -> options.c:doset8758-8975 (B173 immutable typed dispatcher dependency).",
+      "options.c:doset_simple8707-8735 O/mO -> doset_simple_menu8524-8705 or doset; doset menu_requested inversion provides m#optionsfull simple caller. Existing cmd.js:runOptionsCommand owns shared menu operations."
+    ],
+    "dependencies": [
+      "B173 delivery4f44a54aa3bff3ccd1d4252387a5e069b3d66a6b supplies typed doset dispatcher; do not edit cmd.js or reserve doextcmd again.",
+      "Existing tty_menu.js:writeStyledText98-127 matches wintty.c process_menu_window1420-1490 + patch006 nomux_putch214-216/615-619: tabs (<32) are skipped as glyphs but still count one stored byte/cursor column. No tabexpand call, new renderer operation, or tty owner edit needed.",
+      "Existing doset_add_menu7790-7822 retains four-space compound/read-only indentation independently of menu_tab_sep; full boolean pass0 alone drops that indent per C8852. Preserve this distinction rather than stripping every nonselectable indent.",
+      "Existing canonical option values, allopt table, menu selectors, pick handling, return and reset_needed_visuals remain unchanged. Help-file and unrelated option handlers remain named outside-limit gaps."
+    ]
+  },
+  "evidence": [
+    "Claimed-case bounded replay run-n3Fero receipt in .cache/B178/scan.log at4f44a54 emits14/32, boundary: the options menu requires doset() with menu_tab_sep; no preceding screen/cursor/RNG divergence. Exact saved evaluation still has18remaining and2651/2651 RNG.",
+    "Read whole C doset8758-8975 and doset_simple_menu8524-8705 plus related doset_add_menu and longest_option_name. Full format literal%s%s\\t[%s], simple%s\\t[%s]; full pass0 Boolean indent is empty only when tabbed. Other/read-only rows use doset_add_menu source indent independently.",
+    "Current JS dosetEntryFormat7836 refuses tabbed full menu, and dosetSimpleEntryFormat8797 separately refuses tabbed simple menu. Both canonical menus exist and can reuse the matching renderer; no whole doset completion claimed.",
+    "Pure formatting assertions should pin raw tab bytes, omission of width padding, Boolean vs compound indentation, values and stable selectors. Independent C-first full and simple ordinary-play rc variations cover runtime callers without copying this debug challenge. Keep OPTMENUHELP or direct rebound dispatch blocked variation separately."
+  ],
+  "proposal": {
+    "goalId": "fix-options-tab-separated-menu-format-v32-20261009",
+    "summary": "Render source tab-separated option menus.",
+    "selectionReason": "Seed-family continuation after B173 typed full-options dispatch; oldest independent option layout refusal in saved v32 corpus, disjoint from C155/C158 and A177.",
+    "detail": "Translate the omitted full and simple source tab-format branches plus full pass0 Boolean indentation; reuse canonical menu/pick and patched TTY byte rendering. Bounded divergence only, no whole options/cmd/TTY credit.",
+    "dependencyReady": true,
+    "sourceUnits": [
+      {
+        "file": "options.c",
+        "name": "doset",
+        "start": 8758,
+        "end": 8975
+      },
+      {
+        "file": "options.c",
+        "name": "doset_simple_menu",
+        "start": 8524,
+        "end": 8705
+      }
+    ],
+    "completionCredit": "Bounded formatting branches in doset/doset_simple_menu only.",
+    "proposedReservations": [
+      "session:synthetic/v32/v32-options-tab-menu",
+      "source:options.c:doset",
+      "source:options.c:doset_simple_menu",
+      "contract:tab-separated-options-menu-format"
+    ],
+    "proposedPaths": [
+      "js/options.js",
+      "scripts/options-menu.test.mjs",
+      "scripts/options-simple-menu.test.mjs",
+      "scripts/options-full-command.test.mjs",
+      "recipes/options.c/",
+      "recordings/options.c/",
+      "investigations/synthetic/v32/v32-options-tab-menu.json",
+      ".cache/"
+    ],
+    "dependencies": [
+      "4f44a54aa3bff3ccd1d4252387a5e069b3d66a6b"
+    ]
+  }
+}
