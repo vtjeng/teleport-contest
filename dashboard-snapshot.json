@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T22:21:47.943Z",
+  "capturedAt": "2026-10-09T22:23:53.821Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -76895,6 +76895,15 @@
         "worker": "B",
         "state": "active",
         "reason": "C181 is published. Syncing accepted Main and checking the refreshed queue for independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B204-blocked-after-C181-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:22:03.166Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "The accepted-438 queue has no independent source task: A2 owns Val-strt; timeout and light await native-pointer resolution, Juiblex awaits recorder repair, and version cases await a provenance decision."
       }
     ]
   },
