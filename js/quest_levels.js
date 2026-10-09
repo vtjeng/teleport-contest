@@ -6,6 +6,7 @@
 //         dat/Cav-strt.lua, dat/Mon-goal.lua, dat/Sam-goal.lua, dat/astral.lua,
 //         dat/Hea-goal.lua, dat/Hea-loca.lua, dat/Hea-strt.lua,
 //         dat/Kni-loca.lua, dat/Kni-strt.lua, dat/Ran-loca.lua,
+//         dat/Ran-goal.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
@@ -71,6 +72,10 @@ import { SAM_GOAL_LEVEL_MAP } from './sam_goal_level_data.js';
 import {
     RAN_LOCA_LEVEL_MAP, RAN_LOCA_MONSTERS, RAN_LOCA_OBJECT_COUNT, RAN_LOCA_TRAPS,
 } from './ran_loca_level_data.js';
+import {
+    RAN_GOAL_DOORS, RAN_GOAL_LEVEL_MAP, RAN_GOAL_MONSTERS,
+    RAN_GOAL_OBJECT_CALLS, RAN_GOAL_TRAP_COUNT,
+} from './ran_goal_level_data.js';
 import { KNI_STRT_LEVEL_MAP } from './kni_strt_level_data.js';
 import { ASTRAL_LEVEL_MAP } from './astral_level_data.js';
 
@@ -1325,6 +1330,24 @@ async function ranLoca(des) {
     for (const monster of RAN_LOCA_MONSTERS) await des.monster(monster);
 }
 
+// C ref: complete dat/Ran-goal.lua. Generated tables preserve its map and
+// descriptor order while every des call stays at its original top-level site.
+async function ranGoal(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel');
+    await des.map(RAN_GOAL_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 19), 'lit');
+    await des.stair('up', 19, 10);
+    await des.non_diggable(selection_area(0, 0, 75, 19));
+
+    for (const args of RAN_GOAL_OBJECT_CALLS) await des.object(...args);
+    for (let i = 0; i < RAN_GOAL_TRAP_COUNT; ++i) await des.trap();
+    for (const door of RAN_GOAL_DOORS)
+        await des.door(door.type, door.x, door.y);
+    for (const monster of RAN_GOAL_MONSTERS) await des.monster(monster);
+    await des.wallify();
+}
+
 // C ref: dat/Hea-goal.lua. Preserve both initialization calls before the
 // fixed map: the joined mines background extends beyond the pool island.
 async function heaGoal(des) {
@@ -2418,6 +2441,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Sam-goal': samGoal,
     'Kni-loca': kniLoca,
     'Ran-loca': ranLoca,
+    'Ran-goal': ranGoal,
     'Hea-goal': heaGoal,
     'Cav-strt': cavStrt,
     'Hea-loca': heaLoca,

@@ -236735,6 +236735,286 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-ran-goal-quest-level-v36-20261009",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the whole Ranger quest goal Lua program and its registered production loader.",
+      "luaFile": "Ran-goal.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-ran-goal"
+      ],
+      "selectionReason": "Select the next independent v36 missing-loader case; Ran-goal uses accepted descriptor owners and does not overlap the active A196 Val-loca, B199 Sam-goal, or queued C177 Val-goal source units.",
+      "detail": "Accepted B196 evidence stops at step 19 because the Ran-goal loader is absent. The complete 106-line Lua program defines the Ranger quest goal map, Longbow of Diana object, traps, doors, hostile monsters, stair, non-diggable region, and final wallification.",
+      "openedAt": "7d49b3cca30ed360309a444cff13f46f894785ab",
+      "openStanding": {
+        "sha": "6c8194f5c2a6dd256804398b6b00b5ef9c320128",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "21d9906e28b3c03e57e651ade823f3a1ebb9bb2e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "Ran-goal.lua",
+          "line": 1,
+          "endLine": 106,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-ran-goal": {
+          "session": "synthetic/v36/v36-quest-ran-goal",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-ran-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-ran-goal.session.json",
+          "recordingSha256": "d91dd644166bac1a96f924062f216997268a1824a2b8e5902a66cde930a446ad",
+          "evaluationPath": "challenges/evaluations/accepted-6c8194f5c2a6dd256804398b6b00b5ef9c320128-v36.json",
+          "evaluationCommit": "6c8194f5c2a6dd256804398b6b00b5ef9c320128"
+        }
+      },
+      "activeStanding": {
+        "sha": "6c8194f5c2a6dd256804398b6b00b5ef9c320128",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-ran-goal",
+          "session": "synthetic/v36/v36-quest-ran-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-ran-goal.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-ran-goal.session.json",
+          "recordingSha256": "d91dd644166bac1a96f924062f216997268a1824a2b8e5902a66cde930a446ad",
+          "recipe": "challenges/cases/v36/v36-quest-ran-goal.recipe.session.json",
+          "recipeSha256": "0b3c5b2da5d705e123db2ed398f61f6157ad4d78f6bad0a6b8a83fb61a153e9b",
+          "replayInputSha256": "9119b83884976c37f4a1c1659afa21d6a77125f844a1eb1ee4fb153ae7dd9e10",
+          "evaluationPath": "challenges/evaluations/accepted-6c8194f5c2a6dd256804398b6b00b5ef9c320128-v36.json",
+          "evaluationCommit": "6c8194f5c2a6dd256804398b6b00b5ef9c320128",
+          "evaluationArtifact": "challenges/evaluations/accepted-6c8194f5c2a6dd256804398b6b00b5ef9c320128-v36.json",
+          "evaluationUtc": "2026-10-09T17:42:03.043Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2825,
+              "total": 3880
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-goal\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Ran-goal.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-goal\"",
+          "cFile": null,
+          "luaFile": "Ran-goal.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-ran-goal.json",
+            "result": {
+              "session": "synthetic/v36/v36-quest-ran-goal",
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-ran-goal",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "d91dd644166bac1a96f924062f216997268a1824a2b8e5902a66cde930a446ad",
+              "evaluationPath": "challenges/evaluations/accepted-6c8194f5c2a6dd256804398b6b00b5ef9c320128-v36.json",
+              "evaluationCommit": "6c8194f5c2a6dd256804398b6b00b5ef9c320128",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "56d5cb1686a4afb5f1c7eb72c807df3311be8023",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-ran-goal",
+                "session": "synthetic/v36/v36-quest-ran-goal",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-ran-goal.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-ran-goal.session.json",
+                "recordingSha256": "d91dd644166bac1a96f924062f216997268a1824a2b8e5902a66cde930a446ad",
+                "recipe": "challenges/cases/v36/v36-quest-ran-goal.recipe.session.json",
+                "recipeSha256": "0b3c5b2da5d705e123db2ed398f61f6157ad4d78f6bad0a6b8a83fb61a153e9b",
+                "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+                "evaluationPath": "challenges/evaluations/accepted-6c8194f5c2a6dd256804398b6b00b5ef9c320128-v36.json",
+                "evaluationCommit": "6c8194f5c2a6dd256804398b6b00b5ef9c320128",
+                "evaluationArtifact": "challenges/evaluations/accepted-6c8194f5c2a6dd256804398b6b00b5ef9c320128-v36.json",
+                "evaluationUtc": "2026-10-09T17:42:03.043Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2825,
+                    "total": 3880
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-goal\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Ran-goal.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-goal\"",
+                "cFile": null,
+                "luaFile": "Ran-goal.lua",
+                "line": null
+              },
+              "goalKind": "lua-port",
+              "summary": "Ran-goal has no registered loader. Port its whole Ranger quest goal program, preserving the exact map, fixed and random object placement, ordered hostile monster descriptors, doors, stair, non-diggable region, and final wallification.",
+              "source": {
+                "file": "Ran-goal.lua",
+                "branch": "Ranger quest goal arrival or registered wizard des-file load of Ran-goal, with Scorpius and the Longbow of Diana at the source map coordinates.",
+                "functions": [
+                  "Ran-goal.lua"
+                ],
+                "callers": [
+                  "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Ran-goal.lua",
+                  "wizcmds.c:wiz_load_splua -> load_special -> registered Ran-goal Lua program"
+                ],
+                "dependencies": [
+                  "Existing special-level initialization, map, region, stair, non-diggable, object, trap, door, monster, and wallification adapters; canonical ONAME_LEVEL_DEF naming."
+                ]
+              },
+              "evidence": [
+                "The accepted v36 evaluation at 6c8194f5c2a6dd256804398b6b00b5ef9c320128 reports v36-quest-ran-goal at 19/60 matching screens and cursors, 2825/3880 RNG calls, with the missing Ran-goal loader at step 19. The recording SHA256 is d91dd644166bac1a96f924062f216997268a1824a2b8e5902a66cde930a446ad and manifest SHA256 is 58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c. The intervening integrations do not alter this source or loader key; the accepted Ran-goal row retains the source diagnosis.",
+                "Read all 106 lines of dat/Ran-goal.lua, SHA256 cbe9d0f03ad0ba49e6a31611d03d382601ba9fcb7053aa84787522fe2226bfe5. It solid-fills stone, sets mazelevel, defines an exact 76x20 map, selects the full map lit, places the up stair at (19,10), marks the full map non-diggable, then performs object, trap, door, monster, and wallify calls in source order.",
+                "Lines 39-60 place a blessed +0 bow named The Longbow of Diana and a chest at (37,10), eight random objects at fixed neighboring coordinates, five additional random objects, and six random traps. Existing mklev object adapters preserve map-relative coordinates; sp_lev_object resolves descriptors and applies buc/spe/name, calling nameObject -> oname with ONAME_LEVEL_DEF. Artifact naming for the Longbow of Diana already exists.",
+                "Lines 62-75 define fourteen door descriptors in order. Lines 77-104 define twenty-eight hostile monsters in order: Scorpius; six fixed forest centaurs; six fixed mountain centaurs; two random forest centaurs; two random mountain centaurs; two C-class monsters; six fixed scorpions; two random scorpions; and one s-class monster. Existing lspo_monster/get_table_montype/get_table_monclass resolve these species and class tables. The program ends with des.wallify at line 106.",
+                "Production wiring belongs in js/quest_levels.js. mklev.js:load_special imports and dispatches QUEST_LEVEL_LOADERS for makelevel/makemaz; wizcmds.js:wiz_load_splua reaches the same load_special owner. Add only the Ran-goal loader key and implementation. No supporting descriptor-owner, generic loader, or shared contract change is required by this source."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Ran-goal.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "ranGoal",
+            "sourceReview": "Read the complete upstream dat/Ran-goal.lua, lines 1-106. Preserved top-level order: solid fill, mazelevel, exact 76x20 map, lit full-map region, up-stair descriptor, non-diggable full-map selection, fifteen object calls (named blessed +0 Longbow of Diana, positional chest, eight fixed-coordinate random objects, five random objects), six random traps, fourteen ordered door calls, twenty-eight ordered hostile monster descriptors, and final wallify. The deterministic generator extracts and checks the literal map and ordered object, door, and monster descriptors plus trap count directly from the Lua source. Every impure descriptor call is awaited in source order; no helper or unported callee exists.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special dispatches the registered Ran-goal program for natural Ranger quest goal arrival."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "wizcmds.c:wiz_load_splua passes the wizard-selected des-file name to sp_lev.c:load_special."
+              },
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "The complete dat/Ran-goal.lua program is registered by its exact special-level key and implemented by ranGoal."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/ran-goal-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Ran-goal.lua/ran-goal-direct-male-independent.session.json",
+              "recordings/Ran-goal.lua/ran-goal-direct-female-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-ran-goal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Ran-goal.lua"
+              }
+            ],
+            "checkedAt": "21d9906e28b3c03e57e651ade823f3a1ebb9bb2e"
+          }
+        ],
+        "entryPointReview": "Ran-goal.lua is one complete top-level descriptor program with two active reference-recorder entry paths. Natural Ranger quest goal arrival reaches makelevel/makemaz/load_special and matches admitted v36 case v36-quest-ran-goal through its 60-step segment. The debug wizard command wiz_load_splua reaches the same dispatcher using the supplied des-file name; independent male and female recordings exercise it. Both paths run in the patched recorder. This task implements only Ran-goal.lua and its specific loader registration; generic descriptor owners remain shared unchanged.",
+        "entryPoints": [
+          {
+            "name": "Ranger quest goal arrival",
+            "functions": [
+              "Ran-goal.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-ran-goal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Ran-goal.lua"
+              }
+            ]
+          },
+          {
+            "name": "Wizard #wizloaddes direct load",
+            "functions": [
+              "Ran-goal.lua"
+            ],
+            "recordings": [
+              "recordings/Ran-goal.lua/ran-goal-direct-male-independent.session.json",
+              "recordings/Ran-goal.lua/ran-goal-direct-female-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "21d9906e28b3c03e57e651ade823f3a1ebb9bb2e",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
