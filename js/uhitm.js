@@ -225,6 +225,7 @@ import {
     check_capacity,
     doorless_door,
     end_running,
+    inv_cnt,
     nh_delay_output,
     near_capacity,
     nomul,
@@ -520,7 +521,8 @@ import {
     weight,
 } from './obj.js';
 import {
-    add_to_minv, carrying, freeinv, obfree, update_inventory, useup, useupall,
+    add_to_minv, addinv_runtime, carrying, freeinv, INVLET_BASIC, merge_choice,
+    obfree, obj_extract_self, update_inventory, useup, useupall,
 } from './invent.js';
 import { clone_mon, grow_up } from './makemon.js';
 import {
@@ -587,7 +589,7 @@ import {
     YUMI,
 } from './objects.js';
 import { acurr } from './attrib.js';
-import { set_wounded_legs } from './do.js';
+import { dropCommandEnv, dropy, set_wounded_legs } from './do.js';
 import { encumber_msg } from './pickup.js';
 import {
     make_blinded, make_confused, make_sick, make_slimed, make_stunned,
@@ -632,7 +634,7 @@ import {
     set_twoweap,
     which_armor,
 } from './worn.js';
-import { steal } from './steal.js';
+import { findgold, steal } from './steal.js';
 import { rloc, tele, tele_restrict, u_teleport_mon } from './teleport.js';
 import {
     Flying,
@@ -6772,6 +6774,70 @@ export async function mhitm_ad_dcay(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_sgld() (2790-2855). Gold changes owners before
+// feedback; each direction retains its separate damage and cancellation order.
+export async function mhitm_ad_sgld(
+    magr, mattk, mdef, mhm, state = game, env = {},
+) {
+    const pa = magr.data;
+    const pd = mdef.data;
+    const message = env.message ?? (env.planning ? async () => {} : ttyPline);
+    const redraw = env.planning ? () => {} : (env.redraw ?? env.newsym ?? newsym);
+    const random = { d, rn1, rn2, rne, rnd, ...(env.random ?? {}) };
+
+    if (magr === state.youmonst) {
+        const mongold = findgold(mdef.minvent);
+        if (mongold) {
+            const inventoryEnv = dropCommandEnv(state, { ...env, random });
+            obj_extract_self(mongold, inventoryEnv);
+            if (merge_choice(state.invent, mongold, state)
+                || inv_cnt(false, state) < INVLET_BASIC) {
+                await addinv_runtime(mongold, inventoryEnv);
+                await message('Your purse feels heavier.', state);
+            } else {
+                await message(
+                    `You grab ${mon_nam(mdef, state, env)}'s gold, but find no room in your knapsack.`,
+                    state,
+                );
+                await dropy(mongold, inventoryEnv);
+            }
+        }
+        await exercise(A_DEX, true, state, random, env);
+        mhm.damage = 0;
+    } else if (mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, env);
+        if (pd.mlet === pa.mlet) return;
+        if (!magr.mcan) note_unported('steal.c stealgold');
+    } else {
+        mhm.damage = 0;
+        if (magr.mcan) return;
+        const gold = findgold(mdef.minvent);
+        if (!gold) return;
+        obj_extract_self(gold, { ...env, state, random });
+        add_to_minv(magr, gold, { ...env, state, random });
+        mdef.mstrategy &= ~STRAT_WAITFORU;
+        const buf = Monnam(magr, state, env);
+        if (state.gv?.vis && canseemon(mdef, state)) {
+            await message(
+                `${buf} steals some gold from ${mon_nam(mdef, state, env)}.`,
+                state,
+            );
+        }
+        if (!await tele_restrict(magr, state, { ...env, message })) {
+            const couldspot = canspotmon(magr, state);
+            mhm.hitflags = M_ATTK_AGR_DONE;
+            await rloc(magr, RLOC_NOMSG, {
+                ...env, state, random, newsym: redraw,
+                onscary: (x, y, mon, normalized) =>
+                    onscary(x, y, mon, normalized.state),
+                setApparxy: set_apparxy,
+            });
+            if (state.gv?.vis && couldspot && !canspotmon(magr, state))
+                await message(`${buf} suddenly disappears!`, state);
+        }
+    }
+}
+
 // C ref: uhitm.c mhitm_ad_tlpt() (2859-2954). Each attack direction keeps
 // its source order: the hero-hit arm names before relocation, the incoming
 // arm reports the hit before magic cancellation and teleports before capping
@@ -7045,7 +7111,9 @@ export async function mhitm_adtyping(
     case AD_SEDU:
         await mhitm_ad_sedu(magr, mattk, mdef, mhm, state, env);
         break;
-    case AD_SGLD: unported('mhitm_ad_sgld'); break;
+    case AD_SGLD:
+        await mhitm_ad_sgld(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_TLPT:
         await mhitm_ad_tlpt(magr, mattk, mdef, mhm, state, env);
         break;
