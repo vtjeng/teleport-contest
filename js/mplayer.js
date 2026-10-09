@@ -7,6 +7,8 @@ import {
     MGIVENNAME,
     MM_NOMSG,
     NO_MM_FLAGS,
+    RLOC_ERR,
+    RLOC_NOMSG,
     COLNO,
     ROWNO,
 } from './const.js';
@@ -25,7 +27,8 @@ import { mpickobj } from './steal.js';
 import { set_malign } from './makemon.js';
 import { m_dowear } from './worn.js';
 import { monmightthrowwep } from './weapon.js';
-import { goodpos } from './teleport.js';
+import { m_at } from './monst.js';
+import { goodpos, rloc } from './teleport.js';
 
 const developers = Object.freeze([
     'Alex', 'Dave', 'Dean', 'Derek', 'Eric', 'Izchak', 'Janet', 'Jessie', 'Ken', 'Kevin', 'Michael', 'Mike', 'Pasi', 'Pat', 'Patric', 'Paul', 'Sean', 'Steve', 'Timo', 'Warwick',
@@ -66,7 +69,7 @@ export function get_mplname(monster, state = game, random = state.random) {
     const femaleKind = is_female(monster.data);
     const developer = dev_name(state, random);
     let name;
-    if (!developer) name = femaleKind ? 'Eve' : 'Adam';
+    if (developer === null) name = femaleKind ? 'Eve' : 'Adam';
     else if (femaleKind && developer !== 'Janet')
         name = random.rn2(2) ? 'Maud' : 'Eve';
     else name = developer;
@@ -98,6 +101,12 @@ export async function mk_mplayer(species, x, y, special = false, rawEnv = {}) {
     const random = rawEnv.random ?? state.random ?? { d, rn1, rn2, rnd, rne };
     const env = { ...rawEnv, state, random };
     if (!is_mplayer(species)) return null;
+
+    const blocker = m_at(x, y, state);
+    if (blocker) {
+        const relocateMonster = rawEnv.relocateMonster ?? rloc;
+        await relocateMonster(blocker, RLOC_ERR | RLOC_NOMSG, env);
+    }
 
     if (!In_endgame(state.u?.uz)) special = false;
     const monster = state.in_mklev || env._specialRoomFill
