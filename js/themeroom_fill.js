@@ -5,9 +5,12 @@
 import {
     AIR,
     ALTAR,
+    A_LAWFUL,
+    A_NONE,
     AM_CHAOTIC,
     AM_LAWFUL,
     AM_NEUTRAL,
+    AM_NONE,
     ANTI_MAGIC,
     ARROW_TRAP,
     BEAR_TRAP,
@@ -840,11 +843,22 @@ export function sp_amask_to_amask(sp_amask, rawEnv = {}) {
 
     if (sp_amask === AM_SPLEV_CO)
         amask = Align2amask(state.u.ualignbase[A_ORIGINAL]);
-    else if (sp_amask === AM_SPLEV_NONCO)
-        amask = Align2amask(
-            noncoalignment(state.u.ualignbase[A_ORIGINAL], env.random.rn2),
-        );
-    else if (sp_amask === AM_SPLEV_RANDOM)
+    else if (sp_amask === AM_SPLEV_NONCO) {
+        // C's Align2amask macro evaluates its argument in each conditional
+        // and again in the final addition. noncoalignment() draws randomly,
+        // so preserve that short-circuit evaluation order here.
+        const alignment = state.u.ualignbase[A_ORIGINAL];
+        const first = noncoalignment(alignment, env.random.rn2);
+        if (first === A_NONE) {
+            amask = AM_NONE;
+        } else {
+            const second = noncoalignment(alignment, env.random.rn2);
+            if (second === A_LAWFUL)
+                amask = AM_LAWFUL;
+            else
+                amask = noncoalignment(alignment, env.random.rn2) + 2;
+        }
+    } else if (sp_amask === AM_SPLEV_RANDOM)
         amask = induced_align(80, state, env.random.rn2);
     else
         amask = sp_amask & AM_MASK;
