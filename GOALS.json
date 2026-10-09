@@ -231034,6 +231034,123 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-wizard3-special-level-v35-20261009",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Port the bottom Wizard Tower level and its generation registry.",
+      "luaFile": "wizard3.lua",
+      "sessions": [
+        "synthetic/v35/v35-gehennom-wizard3"
+      ],
+      "selectionReason": "Resume the older A188 seed after accepted C165 supplied canonical map-return selection; the current v35 evaluation stops at the missing wizard3 loader on step 68 with 41 screens remaining.",
+      "detail": "Port all of dat/wizard3.lua in source order and register it in the existing special-level dispatcher, preserving map selection, arrival room, beehive, portal, and protected hell_tweaks behavior.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wizard3.lua",
+          "line": 1,
+          "endLine": 90,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v35/v35-gehennom-wizard3": {
+          "session": "synthetic/v35/v35-gehennom-wizard3",
+          "corpus": "synthetic",
+          "batch": "v35",
+          "caseId": "v35-gehennom-wizard3",
+          "manifestPath": "challenges/manifests/v35.json",
+          "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+          "recordingPath": "challenges/cases/v35/v35-gehennom-wizard3.session.json",
+          "recordingSha256": "e8689a7c8fea9184fad869f1fea3263ff664061c404e1dcf18e678a52fbdf28c",
+          "evaluationPath": "challenges/evaluations/accepted-711b9702dc92992c64fad92625f1eb2e8f9baea8-v35.json",
+          "evaluationCommit": "711b9702dc92992c64fad92625f1eb2e8f9baea8"
+        }
+      }
+    },
+    {
+      "id": "port-hea-goal-lua-v36-20261009",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Port the complete Healer quest goal level and its loader registration.",
+      "luaFile": "Hea-goal.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-hea-goal"
+      ],
+      "selectionReason": "The new v36 baseline stops at step 19 because the Hea-goal loader is unregistered; B194 traced the independent whole Lua source and existing descriptor dependencies.",
+      "detail": "Port every top-level statement in dat/Hea-goal.lua, including both level_init calls, the joined mines pool background, fixed map, objects, traps, and monsters, then wire the bounded quest-level registry seam.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Hea-goal.lua",
+          "line": 1,
+          "endLine": 90,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-hea-goal": {
+          "session": "synthetic/v36/v36-quest-hea-goal",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-hea-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-hea-goal.session.json",
+          "recordingSha256": "0cd3f545242f45d9b1ad841595965e6f2f2bfe76106565637c5eaa608596feed",
+          "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+          "evaluationCommit": "ac836655676993fda791c76b619905969c841859"
+        }
+      }
+    },
+    {
+      "id": "port-cav-goal-quest-level-v36-20261009",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Port the complete Caveman quest goal level and live special-level registry dispatch.",
+      "luaFile": "Cav-goal.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-cav-goal"
+      ],
+      "selectionReason": "The new v36 baseline stops at step 19 because the Cav-goal loader is unregistered; C168 traced this highest unreserved quest goal refusal and its existing descriptor dependencies.",
+      "detail": "Port every top-level statement in dat/Cav-goal.lua, generate its fixed map deterministically, and wire the bounded quest-level registry seam without claiming existing descriptor helpers.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Cav-goal.lua",
+          "line": 1,
+          "endLine": 59,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-cav-goal": {
+          "session": "synthetic/v36/v36-quest-cav-goal",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-cav-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-cav-goal.session.json",
+          "recordingSha256": "41322f7473eb513e6fab82a249c1253cd49b1cc20872c7ca436b37f71608c449",
+          "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+          "evaluationCommit": "ac836655676993fda791c76b619905969c841859"
+        }
+      }
     }
   ]
 }
