@@ -1,9 +1,10 @@
 diff -urN -x *.bak a/src/alloc.c b/src/alloc.c
 --- a/src/alloc.c	2026-10-09 16:10:00.000000000 -0700
 +++ b/src/alloc.c	2026-10-09 16:10:00.000000000 -0700
-@@ -133,1 +133,4 @@
+@@ -133,2 +133,5 @@ fmt_ptr(const genericptr ptr)
 -    Sprintf(buf, PTR_FMT, (PTR_TYP) ptr);
 +    /* Native pointer spellings depend on ASLR, the allocator, and the C
 +     * implementation.  Record only the diagnostic distinction callers can
 +     * reproduce outside this process: null versus non-null. */
 +    Sprintf(buf, "%s", ptr ? "<ptr>" : "<null>");
+     return buf;
