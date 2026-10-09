@@ -601,3 +601,58 @@ test('help version information returns through the next command boundary',
         );
         assert.equal(game.nhDisplay.inputQueueLength, 0);
     }));
+
+test('cmd.c doextlist includes wizard sections, autocomplete filtering and searches', async () => {
+    const segment = loadHelpExtendedCommandsRecipe().segments[0];
+    await runSegment({ ...segment, moves: ' ' });
+    const wizard = { ...game, wizard: true };
+    const all = extendedCommandListLines(wizard).map(row => row.text);
+    assert(all.includes('z - Switch to showing all alphabetically, including debugging commands'));
+    assert(all.includes('Debugging Extended Commands'));
+    assert(all.some(line => line.includes('wizkill')));
+    const merged = extendedCommandListLines(wizard, { onelist: 1 }).map(row => row.text);
+    assert(!merged.includes('Debugging Extended Commands'));
+    assert(merged.includes('z - Switch to showing debugging commands in separate section'));
+    const searched = extendedCommandListLines(wizard, { searchbuf: 'WIZK?LL' }).map(row => row.text);
+    assert(searched.some(line => line.includes('wizkill')));
+    assert(!searched.some(line => line.includes('wizwish')));
+    assert(searched.includes('s - Switch back from search ("WIZK?LL")'));
+    const missed = extendedCommandListLines(wizard, { searchbuf: 'no such command ever' }).map(row => row.text);
+    assert(missed.includes('no matches'));
+    assert(!missed.includes('[A] Command autocompletes'));
+    const filtered = extendedCommandListLines(wizard, { menumode: 1 }).map(row => row.text);
+    assert(filtered.includes("a - Switch to including commands that don't autocomplete"));
+    assert(filtered.length < all.length);
+});
+
+// These results follow cmd.c's source gates rather than a second model of
+// the list: mutable flags, ordinary/discover descriptions and accumulated n.
+import { extcmdlist, AUTOCOMPLETE, CMD_M_PREFIX, CMD_NOT_AVAILABLE, INTERNALCMD } from '../js/extcmdlist_data.js';
+import { readFileSync } from 'node:fs';
+test('the whole extended list retains source flag formatting and pass separators', async () => {
+    const c = readFileSync('nethack-c/upstream/src/cmd.c', 'utf8');
+    assert(c.includes('for (pass = 0; pass <= 1; ++pass)'));
+    assert(c.includes('if (n)\n                add_menu_str(menuwin, "");'));
+    const segment = loadHelpExtendedCommandsRecipe().segments[0];
+    await runSegment({ ...segment, moves: ' ' });
+    const state = { ...game, wizard: true, extcmdFlags: extcmdlist.map(row => row.flags) };
+    const index = extcmdlist.findIndex(row => row.ef_txt === 'genocided');
+    for (const [flags, text] of [[0, ''], [AUTOCOMPLETE, '[A]'], [CMD_M_PREFIX, '[m]'], [AUTOCOMPLETE | CMD_M_PREFIX, '[mA]']]) {
+        state.extcmdFlags[index] = flags;
+        const lines = extendedCommandListLines(state, { searchbuf: 'genocided' }).map(row => row.text);
+        assert(lines.includes(` genocided      ${text.padStart(4)} ${extcmdlist[index].ef_desc}`));
+        assert.deepEqual(lines.slice(-4), ['', '', '[A] Command autocompletes', "[m] Command accepts 'm' prefix"]);
+    }
+    for (const flags of [CMD_NOT_AVAILABLE, INTERNALCMD]) {
+        state.extcmdFlags[index] = flags;
+        assert(!extendedCommandListLines(state).some(row => row.text.includes(' genocided ')));
+    }
+    const ordinary = extendedCommandListLines({ ...game, wizard: false, discover: false });
+    const discovery = extendedCommandListLines({ ...game, wizard: false, discover: true });
+    assert(!ordinary.some(row => row.text.includes('become extinct')));
+    assert(discovery.some(row => row.text.includes('become extinct')));
+    const long = extendedCommandListLines(state, { searchbuf: '*'.repeat(200) }).map(row => row.text);
+    assert(long.includes('s - Switch back from search')); // QBUFSZ guard omits the long phrase
+    const multibyte = extendedCommandListLines(state, { searchbuf: 'é'.repeat(60) }).map(row => row.text);
+    assert(multibyte.includes('s - Switch back from search')); // C strlen counts 120 UTF-8 bytes
+});

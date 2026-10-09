@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first cmd.c:doextlist entry and navigation witness. Input declared before recording; source controls toggle autocomplete/search/debug sections and return ECMD_OK. No challenge setup copied.",
+  "segments": [
+    {
+      "seed": 18634012,
+      "datetime": "20591015112131",
+      "nethackrc": "OPTIONS=name:ListReader,role:Priest,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!tips,pettype:none\n",
+      "moves": ".?k:  SPELL  \nsas\u001b."
+    }
+  ]
+}
