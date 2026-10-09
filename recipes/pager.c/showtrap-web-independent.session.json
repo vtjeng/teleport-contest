@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first cheap web variation: move west from the independently generated stairs onto empty floor, wish a web, map it and inspect directly, then return to examine it through the canned there-menu caller. Source-calendar variation avoids the separate Friday-the-13th welcome page; no challenge inputs copied.",
+  "segments": [
+    {
+      "seed": 18935012,
+      "datetime": "20561015122334",
+      "nethackrc": "OPTIONS=name:Trapweb,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " h\u0017web\n\u0006^. ^> l#therecmdmenu\nha."
+    }
+  ]
+}
