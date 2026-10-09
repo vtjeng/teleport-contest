@@ -487,6 +487,27 @@ test('batch notices group repeated errors without repeating them in the score ca
     assert.match(renderDashboard(data).get('stats').innerHTML, /aggregate evaluation failed/u);
 });
 
+test('Main backlog distinguishes unmerged deliveries, accepted reserve batches, and parked records', () => {
+    const data = sourceDashboardData();
+    // Snapshot ages, not the viewer's clock, determine the waits shown here.
+    data.activity = { capturedAt: '2026-10-08T12:00:00Z', segments: [], tasks: [] };
+    const row = { task: 'A1', worker: 'A', status: 'ready',
+        since: '2026-10-08T11:00:00Z', blockedBy: ['B1'], delivery: 'a'.repeat(40) };
+    data.pendingMainWork = { deliveries: [row], preparedBatches: [{ ...row, task: 'Prep1',
+        batch: 'v34', status: 'awaiting-admission', blockedBy: [] }],
+        parkedTasks: [{ ...row, task: 'C1', status: 'parked', reason: 'Await <source> owner.' }] };
+    const html = renderDashboard(data).get('pendingMainWork').innerHTML;
+    assert.match(html, /1 submitted task \(1 awaiting dependencies\)/u);
+    assert.match(html, /Ready batches awaiting admission:<\/strong> v34/u);
+    assert.match(html, /oldest submission 1h 0m ago/u);
+    assert.match(html, /1 parked task/u);
+    assert.match(html, /Await &lt;source&gt; owner\./u);
+    data.pendingMainWork = { deliveries: [], preparedBatches: [], parkedTasks: [] };
+    assert.match(renderDashboard(data).get('pendingMainWork').innerHTML, /admission:<\/strong> None\./u);
+    data.pendingMainWork = null;
+    assert.match(renderDashboard(data).get('pendingMainWork').textContent, /snapshot is refreshed/u);
+});
+
 test('primary dashboard sections put sessions before activity and historical detail', () => {
     const template = readFileSync(TEMPLATE, 'utf8');
     const positions = ['id="stats"', 'id="scoreHistoryTitle"', 'id="challengeTitle"',

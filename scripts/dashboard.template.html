@@ -577,6 +577,17 @@ canvas {
 .activity-legend-group { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 16px; align-items: baseline; }
 .activity-legend-group > strong { font-size: 11px; font-weight: 600; }
 .activity-legend-items { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+.activity-backlog { margin: 16px 0 20px; font-size: 12px; line-height: 1.6; }
+.activity-backlog p { margin: 4px 0; }
+.activity-backlog summary { cursor: pointer; }
+.activity-backlog-table { max-height: 220px; overflow: auto; margin-top: 8px; }
+.activity-backlog table { width: 100%; min-width: 470px; border-collapse: collapse; table-layout: fixed; font-size: inherit; }
+.activity-backlog th, .activity-backlog td { padding: 6px 10px 6px 0; text-align: left; vertical-align: top; }
+.activity-backlog th:nth-child(1) { width: 90px; }
+.activity-backlog th:nth-child(2) { width: 140px; }
+.activity-backlog th:nth-child(3) { width: 70px; }
+.activity-backlog td { overflow-wrap: anywhere; }
+.activity-backlog small { display: block; opacity: .65; }
 #timelineLegend .phase-unrecorded { background: transparent; border-bottom: 1px dotted var(--ink-muted); border-radius: 0; }
 .activity-bar.continues-left { border-left: 3px double var(--surface-card); }
 .activity-bar.continues-right { border-right: 3px double var(--surface-card); }
@@ -930,6 +941,7 @@ canvas {
 <div class="section">
   <h3 class="section-title">Worker activity</h3>
   <p class="subtitle">Observed task handoffs since the September 25 worker-ledger run. Bars show elapsed task stages, not continuous active work. Earlier progress remains in the score history above. <span id="activitySnapshotTime"></span></p>
+  <div class="activity-backlog" id="pendingMainWork" aria-label="Pending Main work"></div>
   <div class="activity-controls">
     <div class="activity-navigation">
       <span class="chart-range" id="activityWindowLabel"></span>
@@ -1641,6 +1653,48 @@ document.getElementById('stats').innerHTML = [
 })();
 
 // --- Observed worker and integration activity ---
+(function() {
+  const container = document.getElementById('pendingMainWork');
+  const backlog = DATA.pendingMainWork;
+  if (!backlog) {
+    container.textContent = 'Pending Main work is unavailable until the worker snapshot is refreshed.';
+    return;
+  }
+  const esc = value => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const captured = Date.parse(DATA.activity?.capturedAt);
+  const age = row => {
+    const minutes = Math.max(0, Math.floor((captured - Date.parse(row.since)) / 60000));
+    return !Number.isFinite(minutes) ? '—' : minutes < 60 ? minutes + 'm'
+      : Math.floor(minutes / 60) + 'h ' + minutes % 60 + 'm';
+  };
+  const names = { ready: 'Ready to integrate', integrating: 'Integration and checks',
+    validated: 'Awaiting acceptance', 'changes-required': 'Needs correction',
+    'awaiting-admission': 'Ready to admit', parked: 'Parked' };
+  const deliveries = backlog.deliveries;
+  const prepared = backlog.preparedBatches;
+  const parked = backlog.parkedTasks;
+  const blocked = deliveries.filter(row => row.blockedBy.length).length;
+  const rows = [...deliveries, ...prepared, ...parked];
+  container.innerHTML = '<p><strong>Pending Main work</strong> — ' + deliveries.length
+    + ' submitted task' + (deliveries.length === 1 ? '' : 's')
+    + (blocked ? ' (' + blocked + ' awaiting dependencies)' : '')
+    + (deliveries.length ? '; oldest submission ' + age(deliveries[0]) + ' ago' : '') + '.</p>'
+    + '<p><strong>Ready batches awaiting admission:</strong> '
+    + (prepared.length ? prepared.map(row => esc(row.batch)).join(' · ')
+      + '. Oldest accepted preparation: ' + age([...prepared].sort((a, b) => a.since.localeCompare(b.since))[0]) + ' ago.' : 'None.')
+    + '</p>' + (rows.length ? '<details><summary>Tasks, batches, and blockers'
+    + (parked.length ? ' · ' + parked.length + ' parked task' + (parked.length === 1 ? '' : 's') : '') + '</summary>'
+    + '<div class="activity-backlog-table"><table><thead><tr><th>Work</th><th>State</th><th>Age</th><th>Waiting on</th></tr></thead><tbody>'
+    + rows.map(row => '<tr><td title="' + esc(row.goal) + '">' + esc(row.batch ?? row.task)
+      + '<small>' + esc(row.batch ? row.task : row.worker) + '</small></td><td>' + esc(names[row.status] ?? row.status)
+      + '<small>' + esc(row.delivery?.slice(0, 8) ?? 'Not submitted') + '</small></td><td>' + age(row)
+      + '</td><td>' + esc(row.reason ?? (row.blockedBy.length ? row.blockedBy.join(', ')
+        : row.status === 'awaiting-admission' ? 'Main admission checks and baseline'
+          : row.status === 'changes-required' ? 'Worker correction' : 'Main')) + '</td></tr>').join('')
+    + '</tbody></table></div></details>' : '');
+})();
+
 (function() {
   const container = document.getElementById('timeline');
   const readout = document.getElementById('timelineReadout');
