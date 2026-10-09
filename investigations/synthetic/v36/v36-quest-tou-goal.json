@@ -1,0 +1,99 @@
+{
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-tou-goal",
+  "session": "synthetic/v36/v36-quest-tou-goal",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "1f1f123cc3b022837762248ed5c6c34775d6c022c843fa69c2d0ef3354f74442",
+  "evaluationPath": "challenges/evaluations/accepted-b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0-v36.json",
+  "evaluationCommit": "b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0",
+  "remainingScreens": 41,
+  "recordedSteps": 60,
+  "status": "complete",
+  "commit": "68138bc80330d2abfa6e2cd688f049a81c058bac",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-tou-goal",
+    "session": "synthetic/v36/v36-quest-tou-goal",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-tou-goal.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-tou-goal.session.json",
+    "recordingSha256": "1f1f123cc3b022837762248ed5c6c34775d6c022c843fa69c2d0ef3354f74442",
+    "recipe": "challenges/cases/v36/v36-quest-tou-goal.recipe.session.json",
+    "recipeSha256": "72dbbb71ca155e4de0791c5ecf8e5a3455ce1defdb81666a817c76d40b90012d",
+    "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+    "evaluationPath": "challenges/evaluations/accepted-b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0-v36.json",
+    "evaluationCommit": "b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0",
+    "evaluationArtifact": "challenges/evaluations/accepted-b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0-v36.json",
+    "evaluationUtc": "2026-10-09T13:17:30.447Z",
+    "remainingScreens": 41,
+    "recordedSteps": 60,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 60
+      },
+      "rng": {
+        "matched": 2144,
+        "total": 5854
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-goal\"",
+      "step": 19
+    },
+    "step": 19,
+    "kind": "stop",
+    "sourceFile": "Tou-goal.lua",
+    "function": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-goal\"",
+    "cFile": null,
+    "luaFile": "Tou-goal.lua",
+    "line": null
+  },
+  "summary": "Tou-goal.lua is missing from QUEST_LEVEL_LOADERS, stopping Tourist quest-goal arrival before generation at step19. Port the complete159line town program, preserving six filled room regions,27door states,quest artifact,filtered trap selection and38monster descriptors. Required pure selection subtraction l_selection_sub is not yet present in the established selection module.",
+  "goalKind": "lua-port",
+  "source": {
+    "file": "Tou-goal.lua",
+    "branch": "First generation of the Tourist quest goal special level through wizard level teleportation; the Tou-goal prototype has no loader.",
+    "functions": [
+      "Tou-goal.lua (whole program, lines1–159)"
+    ],
+    "callers": [
+      "do.c:goto_level -> mklev.c:makelevel1266–1271 -> mkmaze.c:makemaz1184–1193 -> sp_lev.c:load_special6454–6503 -> dat/Tou-goal.lua",
+      "js/mklev.js:makelevel/makemaz/load_special -> QUEST_LEVEL_LOADERS[Tou-goal] -> touGoal in js/quest_levels.js -> canonical des.finish"
+    ],
+    "dependencies": [
+      "Required complete pure nhlsel.c:l_selection_sub361–389 for Lua selection subtraction at Tou-goal.lua112. Existing ThemeroomSelection supports filter_mapchar/rndcoord but has no subtraction operation; add the source-named helper in its established nhlsel/selvar owner js/themerooms.js and source-pinned result/input-preservation tests. No broader selection owner credit.",
+      "Existing selection_area/filter_mapchar and rndcoord(true) in js/themerooms.js. C filters current ROOM terrain after stair/object placement, excludes the whole shop rectangle60/14..71/18, samples x-major and removes each point before creating its trap; match active map frame and actual level terrain, not raw map text.",
+      "Existing sp_lev.c:lspo_region/fill_special_room -> mkroom.c:fill_zoo BARRACKS/MORGUE -> shknam.c:stock_room. Six FILL_NORMAL regions are marked during Lua and filled after level finalization in source room order; verify three barracks,one morgue,two general shops without moving population into the top-level descriptor sequence.",
+      "Existing solidfill/map, selection lighting, non_diggable, up-stair, lspo_door/rnddoor and wallify owners. Unspecified initial lit state consumes rn2(2); seven random door states each consume rn2(5) from source five-state list. Preserve allow_flips and postprocessing.",
+      "Existing objectGenerationHooks/oname ONAME_LEVEL_DEF for blessed spe0 credit-card quest artifact; retain !named artifact-generation permission and source field order. Existing lspo_monster/create_monster should retain source positional/table/class string forms to preserve gender and species RNG. No alignment macro or spinach-tin path."
+    ]
+  },
+  "evidence": [
+    "Current saved accepted-b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0-v36 retains19/60screens/cursors and2144/5854RNG:41remaining,60steps. Original queue firststop is missing Tou-goal loader at segment0step19. Manifest digest58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c carried from queue; recipeSHA72dbbb71ca155e4de0791c5ecf8e5a3455ce1defdb81666a817c76d40b90012d and recordingSHA1f1f123cc3b022837762248ed5c6c34775d6c022c843fa69c2d0ef3354f74442 verified. No aggregate replay or new C run performed for this diagnosis.",
+    "Whole dat/Tou-goal.lua1–159 read; sourceSHA573f5e8352af99d50e42895b4248b482e23806b2211813bf894f4279bebbd787. Map20x76 includes F iron-bar cells and } pool cells. Solidfillspace and mazelevel precede full-map lit selection and all later room lighting; do not add hardfloor,noteleport or noflip flags absent from source.",
+    "Source regions define three barracks1/4..9/5 lit1,11/1..19/2 lit0,11/17..19/18 lit0; one morgue37/16..41/18 lit0; two general shops60/14..71/15 and60/17..71/18 lit1,allfilled1. Other lit/unlit selection calls occur in exact source order. C sp_lev.c:lspo_region5584–5717 writes needfill and room topology; fill_special_room2731–2809 defers population. JS3896–4019 and520–628 retain that dispatch and both required fill_zoo types.",
+    "Source27doors comprise9locked,8closed,3open,7random. Random sites25/3,25/16,48/4,56/4,70/4,51/9,51/15 use rnddoor's rn2(5) mapping NODOOR,BROKEN,ISOPEN,CLOSED,LOCKED. C recordedstep19 draws0,0,0,1,3,4,3 at sp_lev.c1152. Canonical JS mklev.rnddoor6988–6991 uses the same list. Upstair70/8 and non-diggable full map precede doors; source ends with explicit des.wallify().",
+    "Source creates blessed spe0 named The Platinum Yendorian Express Card4/1 plus14randomobjects,then builds validtraps from current floor terrain. Source nhlsel.c:filter_mapchar657–677 and selvar.c248–280 compare actual terrain; defaultlit-2 makes no RNG call. The subtraction at Lua112 removes rectangle60/14..71/18 before six random positions. Recorded selection_rndcoord bounds912,911,910,909,908,907 establish removal per iteration, followed by trap creation.",
+    "Required source nhlsel.c:l_selection_sub361–389 read whole: new result,combined bounds,x-major iteration,value(a XOR b) AND a,then bounds refresh; operands unchanged. C wrapper only changes Lua stack/new selection,with no RNG,message,screen or game-state write,so it is pure for port evidence. rg selection subtraction/difference in js/themerooms.js found no implementation. Add source-pinned disjoint/overlap/empty/full inputs and retained coordinate-frame tests. This supporting pure helper is proposed before editing rather than bypassing the consumed selection result.",
+    "JS ThemeroomSelection130–181 already counts and samples x-major,removes chosenpoint,returns relative coord,filters with terrainMatches. Use current level.at with map offset for relative selections; raw source-map filtering would wrongly include later stair terrain and ignore transformed cells. Existing trap API supports tablecoord with omittedtype -> random; preserve six descriptor calls and the shrinking source selection.",
+    "Source38monsters: hostile Master of Thieves4/1,16giantspiders,2s-class,2succubi,4incubi,1KopKaptain,3KopLieutenants,5KeystoneKops,3prisoners,hostilewatchman33/10. Read C lspo_monster3214–3402 and existing JS2064–2271; positional strings/table names/class chars select distinct parsing/gender branches. No custom inventory or forced alternative species IDs are needed.",
+    "C mkroom.c:fill_zoo276–452 and shknam.c:stock_room718–811 read alongside JSmkroom689–883 andshknam496–580. Barracks choose squadmon plus1/20box/chest; morgue chooses morguemon then corpse/container/grave draws; shop stock is x-major after keeper initialization. Existing helpers have active required branches and focused mkroom-shop tests; source audit alone does not establish fresh runtime parity. Report any newly reached helper refusal/divergence before scope expansion.",
+    "Independent evidence plan: two C-first human Tourist arrivals and #wizmap with different gender/input history,verify role quest artifact,upstair,lit/unlit regions and protectedwalls,all room types/flags/keepers/stock,six distinct traps outside shop rectangle. Source-pinned program descriptor order and removed selection results; generated map exactly reproduces20rows76chars. Cite admitted segment0steps19–59 only after fully matching implementation replay.",
+    "Smallest scope: whole Tou-goal.lua as touGoal in quest_levels unique import/function/registry seam,generated tou_goal_level_data with deterministic generator/check,required pure l_selection_sub in established themerooms owner,focused tests/matrix and independent recipes/recordings. No initial mklev/mkroom/shknam/zap/display/monster-owner edits or whole C completion claims. Preserve B195 pending ancestor and all parked reports; none of their program-specific fixes is a consumed prerequisite here."
+  ]
+}
