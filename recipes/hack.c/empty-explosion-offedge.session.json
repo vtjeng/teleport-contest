@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A179 C-only edge setup: xorn wall-passing allows a straight walk to bottom row, then light-form forcefight. Independent seed17933002 chosen before C observation; no JavaScript seed search. C-only correction: first clock hit new-moon startup More and consumed the requested command. Clear startup messages before entering #polyself. C-observed row7 gives 13 downward xorn steps to map row20, then a yellow-light swing into row21. Drop the starting sword on the ordinary starting floor before wall-passing, so the later light transformation has no weapon to shed into rock.",
+  "segments": [
+    {
+      "seed": 17933002,
+      "datetime": "20410922113000",
+      "nethackrc": "OPTIONS=name:A179Edge,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "        #polyself\nxorn\n        da        jjjjjjjjjjjjj#polyself\nyellow light\n        Fj         ."
+    }
+  ]
+}
