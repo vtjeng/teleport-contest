@@ -231038,25 +231038,32 @@
     {
       "id": "port-wizard3-special-level-v35-20261009",
       "kind": "lua-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port the bottom Wizard Tower level and its generation registry.",
       "luaFile": "wizard3.lua",
       "sessions": [
         "synthetic/v35/v35-gehennom-wizard3"
       ],
-      "selectionReason": "Resume the older A188 seed after accepted C165 supplied canonical map-return selection; the current v35 evaluation stops at the missing wizard3 loader on step 68 with 41 screens remaining.",
+      "selectionReason": "A188 is the oldest dependency-ready implementation delivery; the current queue has 17 candidate groups for three workers, so prepared-batch admission does not take priority.",
       "detail": "Port all of dat/wizard3.lua in source order and register it in the existing special-level dispatcher, preserving map selection, arrival room, beehive, portal, and protected hell_tweaks behavior.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "968047bb6206e0f47c497c7e2fbc718743f35149",
+      "openStanding": {
+        "sha": "b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "c65c2b3a1cdd449def877087461571f57c3f88b6",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wizard3.lua",
           "line": 1,
           "endLine": 90,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -231072,30 +231079,266 @@
           "evaluationPath": "challenges/evaluations/accepted-711b9702dc92992c64fad92625f1eb2e8f9baea8-v35.json",
           "evaluationCommit": "711b9702dc92992c64fad92625f1eb2e8f9baea8"
         }
+      },
+      "activeStanding": {
+        "sha": "b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v35",
+          "caseId": "v35-gehennom-wizard3",
+          "session": "synthetic/v35/v35-gehennom-wizard3",
+          "manifestPath": "challenges/manifests/v35.json",
+          "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+          "recording": "challenges/cases/v35/v35-gehennom-wizard3.session.json",
+          "recordingPath": "challenges/cases/v35/v35-gehennom-wizard3.session.json",
+          "recordingSha256": "e8689a7c8fea9184fad869f1fea3263ff664061c404e1dcf18e678a52fbdf28c",
+          "recipe": "challenges/cases/v35/v35-gehennom-wizard3.recipe.session.json",
+          "recipeSha256": "6ffe00711dafcb1a00c1953c1fb0e69818aee1876a589c7297da92411a8e022e",
+          "replayInputSha256": "ec40d8588803baad51273a1c80d3ed7c7423fbd849cdec5afd6598229908d468",
+          "evaluationPath": "challenges/evaluations/accepted-b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0-v35.json",
+          "evaluationCommit": "b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0",
+          "evaluationArtifact": "challenges/evaluations/accepted-b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0-v35.json",
+          "evaluationUtc": "2026-10-09T13:17:30.447Z",
+          "remainingScreens": 41,
+          "recordedSteps": 109,
+          "previousScreensMatched": 68,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 68,
+              "total": 109
+            },
+            "rng": {
+              "matched": 15295,
+              "total": 17012
+            },
+            "cursors": {
+              "matched": 68,
+              "total": 109
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"wizard3\"",
+            "step": 68
+          },
+          "step": 68,
+          "kind": "stop",
+          "sourceFile": "wizard3.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"wizard3\"",
+          "cFile": null,
+          "luaFile": "wizard3.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v35/v35-gehennom-wizard3.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v35",
+              "caseId": "v35-gehennom-wizard3",
+              "session": "synthetic/v35/v35-gehennom-wizard3",
+              "manifestPath": "challenges/manifests/v35.json",
+              "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+              "recordingSha256": "e8689a7c8fea9184fad869f1fea3263ff664061c404e1dcf18e678a52fbdf28c",
+              "evaluationPath": "challenges/evaluations/accepted-711b9702dc92992c64fad92625f1eb2e8f9baea8-v35.json",
+              "evaluationCommit": "711b9702dc92992c64fad92625f1eb2e8f9baea8",
+              "remainingScreens": 41,
+              "recordedSteps": 109,
+              "commit": "09d60e4570fd39a05417cc9f8688896b9fd21e33",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v35",
+                "caseId": "v35-gehennom-wizard3",
+                "session": "synthetic/v35/v35-gehennom-wizard3",
+                "manifestPath": "challenges/manifests/v35.json",
+                "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+                "recording": "challenges/cases/v35/v35-gehennom-wizard3.session.json",
+                "recordingPath": "challenges/cases/v35/v35-gehennom-wizard3.session.json",
+                "recordingSha256": "e8689a7c8fea9184fad869f1fea3263ff664061c404e1dcf18e678a52fbdf28c",
+                "recipe": "challenges/cases/v35/v35-gehennom-wizard3.recipe.session.json",
+                "recipeSha256": "6ffe00711dafcb1a00c1953c1fb0e69818aee1876a589c7297da92411a8e022e",
+                "replayInputSha256": "b5f702e8184946547b5d998a1e25ec9be0b2ea99df934de0951109b053584071",
+                "evaluationPath": "challenges/evaluations/accepted-711b9702dc92992c64fad92625f1eb2e8f9baea8-v35.json",
+                "evaluationCommit": "711b9702dc92992c64fad92625f1eb2e8f9baea8",
+                "evaluationArtifact": "challenges/evaluations/accepted-711b9702dc92992c64fad92625f1eb2e8f9baea8-v35.json",
+                "evaluationUtc": "2026-10-09T10:23:37.397Z",
+                "remainingScreens": 41,
+                "recordedSteps": 109,
+                "previousScreensMatched": 68,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 68,
+                    "total": 109
+                  },
+                  "rng": {
+                    "matched": 15295,
+                    "total": 17012
+                  },
+                  "cursors": {
+                    "matched": 68,
+                    "total": 109
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"wizard3\"",
+                  "step": 68
+                },
+                "step": 68,
+                "kind": "stop",
+                "sourceFile": "wizard3.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"wizard3\"",
+                "cFile": null,
+                "luaFile": "wizard3.lua",
+                "line": null
+              },
+              "status": "complete",
+              "goalKind": "lua-port",
+              "summary": "Named level teleport reaches Wizard Tower bottom level wizard3, but the special-level registry has no loader at step68. Port the complete dat/wizard3.lua program in source order and register it in the existing special-level dispatcher. Preserve the returned map selection, including transparent-cell exclusions, arrival-room callback, beehive fill, portal, and final protected hell_tweaks call.",
+              "source": {
+                "file": "wizard3.lua",
+                "functions": [
+                  "wizard3.lua"
+                ],
+                "branch": "The dungeon special-level record names wizard3 and level generation invokes its Lua loader. Initial mazegrid and flags precede pre-map bounds selection. Centered map contents register outside-tower stairs/branch/teleport region, fakewiz1 portal, mazewalk, morgue/beehive/arrival rooms, random north-or-west secret door, ladder, protected wall areas, monsters/traps/loot. The final protected selection excludes infernal tweaks from actual map cells.",
+                "callers": [
+                  "teleport.c level_tele -> do.c deferred_goto/goto_level -> mklev.c makelevel1267-1270 -> mkmaze.c makemaz -> sp_lev.c load_special6454+. JS cmd.js wizard levelport -> teleport.js level_tele -> allmain.js deferred-goto turn boundary -> do.js goto_level -> mklev.js makelevel/makemaz/load_special; ensureSpecialLevelLoaders is missing the wizard3 registry key.",
+                  "Natural entry to the same generated dungeon special record reuses makelevel/load_special; the program has no separate command/caller implementation. Portal traversal to fakewiz1 is downstream of wizard3 generation and is not required to execute this Lua entry."
+                ],
+                "dependencies": [
+                  "Existing des.level_init/level_flags/map/levregion/teleport_region/mazewalk/region/door/ladder/non_diggable/non_passwall/monster/trap/object/terrain operations in mklev.js createSpecialLevelApi. Await every callback/descriptor in source order. Reuse existing helpers and preserve their canonical level RNG and frame state; no injected no-op API or parallel generation state.",
+                  "Consumed returns: selection.match/bounds/fillrect/negate/union and des.map selection. Existing selection_match(bigrm.js) and ThemeroomSelection(themerooms.js) cover this source usage. sp_lev.c6279-6293 excludes invalid/transparent map characters before setting return selection points; all13 trailing x cells must remain unprotected. Accepted C165 publishes the canonical absolute ThemeroomSelection as map return placement.selection in mklev.js4435/4490-4510. Consume that returned value directly for wizard3.",
+                  "dat/nhlib.lua percent43-45 draws math.random(0,99), hence one canonical rn2(100)<50 in the arrival room before the door operation. Existing hellTweaks(asmodeus_levels.js) implements nhlib.lua57-138 in RNG order; final protected area is bounds2:negate() union actual returned map selection, computed after map callback/frame restoration.",
+                  "Morgue filled=2 sets the room flag without fill_zoo; beehive filled=1 fills after fixup_special. mklev.js fill_special_room519+ implements both source paths, as sp_lev.c2749-2792 specifies. Arrival room creates actual room/croom and awaits its contents through spo_endroom. Existing lspo_door3194+ supports secret wall-only door placement.",
+                  "Portal levregion name fakewiz1 goes through canonical mkmaze.js fixup_special -> find_level/mkportal. dungeon.lua156+ and generated dungeon_data.js already define destination; loading/traversing fakewiz1 is a separate downstream boundary, not a consumed return needed to generate wizard3."
+                ]
+              },
+              "evidence": [
+                "Bounded assigned-session replay run-Gi9GTN at worker12f9446b reproduces68/109 screens/cursors and15295/17012 RNG. First missing screen/cursor is segment0 step68 Enter; boundary explicitly names absent wizard3 loader. C next draw is rn2(3)=0 at nhlib.lua8 parent shuffle19, the private alignment initialization before the new Lua program. .cache/A188/probe.json/.log and /tmp/teleport-validation-1000/run-Gi9GTN/receipt.json retain the diagnostic.",
+                "Read entire authoritative dat/wizard3.lua1-90, including all top-level statements and contents callbacks. Source29-33 stores stair-up/stair-down/branch and teleport exclusions before portal;34 mazewalk;35 morgue flag-only;36 beehive fill;38-44 arrival room and percent(50) wall;45 closed door;46 up ladder;49-57 protected walls;59-72 fixed/class monsters;74-77 board traps;79-85 loot;89-90 protected union and hell_tweaks.",
+                "Production js/mklev.js makelevel666-682 checks the special proto registry before makemaz and refuses the absent key. ensureSpecialLevelLoaders1732-1769 imports/registers wizard1 and wizard2 only; load_special1776-1799 already performs alignment shuffle, constructs the canonical API, awaits loader and post-processing. Add one wizard3 module/registry entry rather than replacing makelevel or inventing level data in teleport.",
+                "Existing verified whole wizard1.lua and wizard2.lua goal evidence establishes the shared descriptor/selection/hell_tweaks route. Read the relevant current implementations. C165 independently reproduced109/109 Wizard1 screens/cursors and16738 RNG after excluding13 transparent trailing x cells. Its accepted implementation publishes actual written-cell selection on the existing map return record. The bounded wizard3 registry import/key is disjoint; consume the accepted placement.selection value without another selection owner.",
+                "Actionable whole task: reserve source:wizard3.lua and contract:wizard3-level-generation; js/wizard3_levels.js, bounded js/mklev.js registry import/key, exact source-pinned descriptor test and independent runtime runner, recipes/wizard3.lua and recordings/wizard3.lua. Match map literal and every descriptor/area value directly to source; test both percent outcomes and returned-map/protected-area geometry. No whole mklev/sp_lev/nhlib completion credit.",
+                "Validation plan: fail-first registry/source-map/order and source-pinned north/west percent/range tests; selected full109-step replay or exact named downstream blocker; independent C-first named wizard3 arrival using new seed/date/role and a cheap generation variation, then source-derived assert of portal destination, beehive/morgue flags, arrival room, wall constraints and ladder/descriptor facts. Preserve RNG screens/cursors and frames in strict fresh comparisons. Reuse existing wizard1/wizard2/mklev selection tests only as affected checks; no aggregate checkpoint or scoring.",
+                "Evidence limits: no game implementation or C recording created in this investigation. Selected replay stops before generating wizard3, so runtime helper reachability is not established. C165 is accepted and its canonical placement.selection is present at the examined commit. If fresh generation exposes another required helper defect, request its exact supporting owner before edits. Pending A186/A190 are immutable ancestors outside this Lua scope.",
+                "Accepted C165 dependency review: js/mklev.js4435 creates an absolute ThemeroomSelection, map loop skips INVALID_TYPE and >=MAX_TYPE before selection.set; placed.selection is captured before contents/reset and returned unchanged. js/wizard1_levels.js uses wiz1.selection for protected union. Current saved accepted-711b9702 v35 evaluation retains the same41 unmatched Wizard3 screens and recording/manifest digests, so the source diagnosis remains eligible without repeating the unchanged replay."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wizard3.lua",
+            "implementation": "js/wizard3_levels.js",
+            "symbol": "wizard3",
+            "sourceReview": "Read complete dat/wizard3.lua1–90, including top-level initialization, pre-map bounds, exact13row29column map, contents callback, three outside-tower arrival levregions, teleport exclusion, fakewiz1 portal, maze walk, morgue filled2 flag-only and beehive filled1 post-fill, real arrival room and percent50 secret west/north door, closed door, up ladder, four identical nondiggable/nonpasswall wall areas, fixed/class monsters, four squeaky boards, six objects and final protected union/hell_tweaks. Await every descriptor in definition order. percent uses canonical des.random.rn2(100)<50; accepted des.map placement.selection stores absolute actual written cells and excludes all13transparent trailing x cells before callback/reset. Existing ThemeroomSelection/selection_match/selection_area and hellTweaks preserve C selection and RNG semantics. No unported callee, placeholder, refusal or swallowed result remains in this Lua unit. Source-map test caught/corrected one row transcription before final matching comparisons.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "ensureSpecialLevelLoaders",
+                "source": "sp_lev.c load_special6454+ dispatches the named dat/wizard3.lua program. Registry adds canonical module import/spread; no descriptor-owner changes."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "mklev.c makelevel1267–1270 -> mkmaze.c makemaz -> sp_lev.c load_special. JS makelevel/makemaz uses the existing load_special that creates the canonical API, invokes the registered loader and runs post-processing."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizard3-level-generation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizard3.lua/tower-bottom-knight-independent.session.json",
+              "recordings/wizard3.lua/tower-bottom-ranger-independent.session.json"
+            ],
+            "sourceFile": "wizard3.lua",
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-gehennom-wizard3",
+                "segment": 0,
+                "fromStep": 68,
+                "throughStep": 108,
+                "source": "Named wizard level teleport -> deferred_goto/goto_level -> makelevel/makemaz -> load_special registry -> complete dat/wizard3.lua and fixup_special. Full selected replay matches109screens/cursors17012RNG."
+              }
+            ],
+            "checkedAt": "c65c2b3a1cdd449def877087461571f57c3f88b6"
+          }
+        ],
+        "entryPointReview": "The complete Lua program has one active entry point: generation of the wizard3 special-level record through load_special. Natural stairs/ladder arrival and wizard named-level teleport converge on makelevel/makemaz/load_special; no second Lua command or startup dispatcher is defined. Selected admitted named teleport plus two independently chosen C-first roles reach every top-level descriptor, the room callback, both percent50 walls across variations, protected hell_tweaks and post-fill/portal fixup. Wizard2 is the representative neighboring source boundary and matches independently; it receives no A188 completion credit. fakewiz1 portal is created with its source destination; traversal into that separate Lua loader is outside wizard3 generation and no consumed-return prerequisite. No whole mklev/sp_lev/nhlib or teleport/goto_level credit.",
+        "entryPoints": [
+          {
+            "name": "Wizard3 special-level generation",
+            "functions": [
+              "wizard3.lua"
+            ],
+            "recordings": [
+              "recordings/wizard3.lua/tower-bottom-knight-independent.session.json",
+              "recordings/wizard3.lua/tower-bottom-ranger-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-gehennom-wizard3",
+                "segment": 0,
+                "fromStep": 68,
+                "throughStep": 108,
+                "source": "Named wizard level teleport -> deferred_goto/goto_level -> makelevel/makemaz -> load_special registry -> complete dat/wizard3.lua and fixup_special. Full selected replay matches109screens/cursors17012RNG."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c65c2b3a1cdd449def877087461571f57c3f88b6",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-hea-goal-lua-v36-20261009",
       "kind": "lua-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port the complete Healer quest goal level and its loader registration.",
       "luaFile": "Hea-goal.lua",
       "sessions": [
         "synthetic/v36/v36-quest-hea-goal"
       ],
-      "selectionReason": "The new v36 baseline stops at step 19 because the Hea-goal loader is unregistered; B194 traced the independent whole Lua source and existing descriptor dependencies.",
+      "selectionReason": "B194 is the oldest dependency-ready implementation delivery; the current queue has 18 candidate groups for three workers, so prepared-batch admission does not take priority.",
       "detail": "Port every top-level statement in dat/Hea-goal.lua, including both level_init calls, the joined mines pool background, fixed map, objects, traps, and monsters, then wire the bounded quest-level registry seam.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "2e2045df0eee70977629d5895367ba5e11237829",
+      "openStanding": {
+        "sha": "61750b3c94588b56b72831b9a3754af8f9cd6770",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Hea-goal.lua",
           "line": 1,
           "endLine": 90,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -231111,12 +231354,243 @@
           "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
           "evaluationCommit": "ac836655676993fda791c76b619905969c841859"
         }
+      },
+      "activeStanding": {
+        "sha": "61750b3c94588b56b72831b9a3754af8f9cd6770",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-hea-goal",
+          "session": "synthetic/v36/v36-quest-hea-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-hea-goal.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-hea-goal.session.json",
+          "recordingSha256": "0cd3f545242f45d9b1ad841595965e6f2f2bfe76106565637c5eaa608596feed",
+          "recipe": "challenges/cases/v36/v36-quest-hea-goal.recipe.session.json",
+          "recipeSha256": "ad08caa3ed0dd271e7c31a1bc9dbe4685d56d8e587ad6946c0242d54c98a1c70",
+          "replayInputSha256": "97fefbb6e148b5d3f8db347c14d7ee1e50eeefa6d13f814c369068a11d674ab4",
+          "evaluationPath": "challenges/evaluations/accepted-61750b3c94588b56b72831b9a3754af8f9cd6770-v36.json",
+          "evaluationCommit": "61750b3c94588b56b72831b9a3754af8f9cd6770",
+          "evaluationArtifact": "challenges/evaluations/accepted-61750b3c94588b56b72831b9a3754af8f9cd6770-v36.json",
+          "evaluationUtc": "2026-10-09T12:57:34.625Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2389,
+              "total": 6218
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Hea-goal\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Hea-goal.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Hea-goal\"",
+          "cFile": null,
+          "luaFile": "Hea-goal.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-hea-goal.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-hea-goal",
+              "session": "synthetic/v36/v36-quest-hea-goal",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "0cd3f545242f45d9b1ad841595965e6f2f2bfe76106565637c5eaa608596feed",
+              "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+              "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "63f6546ee15b0d2b25101b74f08e99b0277e5edc",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-hea-goal",
+                "session": "synthetic/v36/v36-quest-hea-goal",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-hea-goal.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-hea-goal.session.json",
+                "recordingSha256": "0cd3f545242f45d9b1ad841595965e6f2f2bfe76106565637c5eaa608596feed",
+                "recipe": "challenges/cases/v36/v36-quest-hea-goal.recipe.session.json",
+                "recipeSha256": "ad08caa3ed0dd271e7c31a1bc9dbe4685d56d8e587ad6946c0242d54c98a1c70",
+                "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+                "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+                "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+                "evaluationArtifact": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+                "evaluationUtc": "2026-10-09T10:38:34.264Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2389,
+                    "total": 6218
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Hea-goal\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Hea-goal.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Hea-goal\"",
+                "cFile": null,
+                "luaFile": "Hea-goal.lua",
+                "line": null
+              },
+              "summary": "Hea-goal.lua is absent from QUEST_LEVEL_LOADERS, so forced Healer quest-goal arrival refuses at step 19 before the Lua program runs. Port the complete Hea-goal program, including joined mines initialization and its pool-map overlay, source-ordered artifact/object/trap/monster placement, and bounded registry wiring; existing des owners must be verified through runtime evidence.",
+              "goalKind": "lua-port",
+              "source": {
+                "file": "Hea-goal.lua",
+                "branch": "First generation of the Healer quest goal through wizard level teleportation: Is_special selects Hea-goal, but the JavaScript special-level registry has no loader. Every top-level Lua statement, including both initialization calls, is in scope.",
+                "functions": [
+                  "Hea-goal.lua (whole program, lines 1-90)"
+                ],
+                "callers": [
+                  "do.c:goto_level -> mklev.c:mklev/makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Hea-goal.lua",
+                  "js/mklev.js:makelevel -> makemaz -> load_special -> QUEST_LEVEL_LOADERS[Hea-goal] (new registry entry)"
+                ],
+                "dependencies": [
+                  "sp_lev.c:lspo_level_init/splev_initlev -> mkmap.c:mkmap; existing js/mklev.js mines initialization with joined=true, bg=P, smoothed=false, lit=1, walled=false",
+                  "sp_lev.c:lspo_level_flags/lspo_map/lspo_region/lspo_stair/lspo_non_diggable; canonical des API in js/mklev.js, including C165 map-selection return and existing selection_area",
+                  "sp_lev.c:lspo_object/create_object in js/sp_lev_object.js plus mkobj.c object generation and artifact.c naming for the blessed Staff of Aesculapius",
+                  "sp_lev.c:lspo_trap/create_trap, lspo_monster/create_monster, and makemon.c runtime creation: verify Cyclops and aquatic/class-random populations rather than assuming matching declarations establish completion",
+                  "sp_lev.c:load_special finalization uses existing des.finish; broader special-level helper credit remains outside the Lua task. Later callee mismatches require separate reported scope expansion before edits."
+                ]
+              },
+              "evidence": [
+                "Current saved queue /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json reports 19/60 screens and cursors, 2389/6218 RNG calls, with unsupported loader stop at segment 0 step 19 (key A). Evaluation challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json measured admitted baseline ac836655676993fda791c76b619905969c841859. No aggregate replay was run for this investigation.",
+                "Recipe challenges/cases/v36/v36-quest-hea-goal.recipe.session.json SHA256 ad08caa3ed0dd271e7c31a1bc9dbe4685d56d8e587ad6946c0242d54c98a1c70; recording challenges/cases/v36/v36-quest-hea-goal.session.json SHA256 0cd3f545242f45d9b1ad841595965e6f2f2bfe76106565637c5eaa608596feed; both hashes verified. Its independently designed Healer debug route selects Hea-goal then #wizmap; forced arrival is the exercised entry, not earned quest permission.",
+                "js/mklev.js:650-685 checks SPECIAL_LEVEL_LOADERS before dispatch and throws UnsupportedLevelChangeError for Hea-goal. ensureSpecialLevelLoaders1732-1770 imports QUEST_LEVEL_LOADERS; js/quest_levels.js1910-1941 registers Bar/Arc/Kni/Pri/Wiz and other existing programs but has no Hea-goal entry. A repository search for Hea-goal/heaGoal finds no corresponding implementation in this owner.",
+                "Upstream mklev.c1266-1271 selects makemaz(slev->proto); mkmaze.c1184-1193 appends the Lua extension and calls load_special; sp_lev.c6454-6503 initializes coder, runs Lua, and finalizes map/flip/features/fixup. The missing program is the first cause; no C RNG annotation should be substituted for its entire Lua execution.",
+                "dat/Hea-goal.lua6-12 performs solidfill(P), mazelevel, then mines(fg=.,bg=P,smoothed=false,joined=true,lit=1,walled=false). Lines14-27 apply the exact 12-by-41 fixed map. Lines29-90 perform lit region, up stairs39/10, non-diggable area, 16 object calls (blessed named quarterstaff20/6, lightning wand20/6, then random objects), six random trap calls, and 32 monster calls (hostile Cyclops20/6, rats, eels, sharks, hostile random classes) in source order. No seed or screen special case is needed.",
+                "Existing Pri-goal and Kni-goal loaders in js/quest_levels.js provide des-API usage examples. scripts/generate-kni-goal-level.mjs and its generation test establish the deterministic source-map generator/check pattern; Hea-goal needs its own fixed-map artifact and generated-output check, not hand-copied rows.",
+                "Proposed smallest implementation: whole dat/Hea-goal.lua only in established js/quest_levels.js (heaGoal and registry entry), deterministic js/hea_goal_level_data.js plus scripts/generate-hea-goal-level.mjs, focused scripts/hea-goal-level-generation.test.mjs, runtime scripts/run-hea-goal-level-load.mjs, recipes/Hea-goal.lua/ and recordings/Hea-goal.lua/. No whole C helper credit and no initial mklev/sp_lev/makemon edits.",
+                "Runtime evidence plan: recheck admitted segment0 steps19-59 after implementation; create independent C-first Healer goal-arrival recipe with different relevant role/character options and an additional source-proven alternate arrival route or map/rearrival history. Assert quest identity, mines/pool terrain and lighting, up stairs, non-diggable cells, Staff and lightning wand, six traps and source populations. Verify C replays and complete RNG/screens/cursors/animations. Preserve an unported adjacent Hea-loca route as the outside-limit recipe if it remains blocked.",
+                "C168 concurrently reserved the oldest Cav-goal session, so B194 selected the distinct Hea-goal program after atomic collision refusal. Shared js/quest_levels.js imports/registry are bounded disjoint seams requiring coordination; source reservation proposed is source:Hea-goal.lua and contract:healer-quest-goal-loader."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Hea-goal.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "heaGoal",
+            "sourceReview": "Read all dat/Hea-goal.lua1-90 including two initializers: solidfill P then mazelevel then joined unsmoothed lit mines . over P. Generated fixed 12x41 map directly from upstream; await source-ordered map, region(selection.area0/0..40/11) lit, up stair39/10, non-diggable selection, blessed quarterstaff20/6 spe0 Staff of Aesculapius, lightning wand20/6,14 random objects,6 random traps, hostile Cyclops20/6,3 rabid rats,2 hostile class r,6 giant eels,2 electric eels,2 sharks,hostile class ;,5 hostile D,10 hostile S. Preserve source names/class letters for lspo_monster name-resolution gender RNG rather than passing pre-resolved PM constants. Every des call awaited. No new gap, injected operation or swallowed refusal introduced. Entire prior missing registry entry replaced by source-derived loader; other Lua programs remain refused. Existing level_init/splev_initlev/mkmap, C165 map-selection, region/stair/non-diggable/object/trap/monster and finish owners inspected; two independent live C recordings and assigned full admitted replay establish their consumed branches without whole C completion credit.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "dat/Hea-goal.lua whole program selected by sp_lev.c:load_special6454; new Hea-goal key points to heaGoal. Existing js/mklev.js:ensureSpecialLevelLoaders imports registry and load_special awaits loader plus finish."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "mklev.c:makelevel1266-1271 -> mkmaze.c:makemaz1184-1193 -> sp_lev.c:load_special6454-6503; existing dispatch now admits registered Hea-goal without a new C helper claim."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hea-goal-level-generation.test.mjs",
+              "scripts/kni-goal-level-generation.test.mjs",
+              "scripts/special-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Hea-goal.lua/hea-goal-human-independent.session.json",
+              "recordings/Hea-goal.lua/hea-goal-gnome-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-hea-goal",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "teleport.c:level_tele -> do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Hea-goal.lua plus finalization; subsequent #wizmap displays complete source terrain."
+              }
+            ],
+            "checkedAt": "b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0"
+          }
+        ],
+        "entryPointReview": "The source program has one level-generation entry via makelevel/makemaz/load_special. Wizard forced arrival is an active route to the same level feature: typed #wizlevelport (human male Healer) and direct Ctrl-V (gnome female Healer) independent recipes execute full Lua generation, finalization, arrival quest text and #wizmap. Earned quest permission governs arrival callers outside this whole program and is not newly claimed. Other role levels/Hea-loca program remain outside limits. The source has no conditional top-level branch or inactive build arm; every object/trap/monster descriptor runs in both strict-perfect recordings. Descriptor tests pin all top-level order; generated map test compares exact fresh source output. No hidden loader or first-entry-only shortcut added.",
+        "entryPoints": [
+          {
+            "name": "Healer quest goal first generation and mapped terrain through normal special-level dispatch",
+            "functions": [
+              "Hea-goal.lua"
+            ],
+            "recordings": [
+              "recordings/Hea-goal.lua/hea-goal-human-independent.session.json",
+              "recordings/Hea-goal.lua/hea-goal-gnome-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-hea-goal",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "teleport.c:level_tele -> do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Hea-goal.lua plus finalization; subsequent #wizmap displays complete source terrain."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b25f66f0e26a48c63aa915bb2d0e225b7bdeb3e0",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-cav-goal-quest-level-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Caveman quest goal level and live special-level registry dispatch.",
       "luaFile": "Cav-goal.lua",
       "sessions": [
@@ -231130,15 +231604,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "61750b3c94588b56b72831b9a3754af8f9cd6770",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Cav-goal.lua",
           "line": 1,
           "endLine": 59,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -231305,7 +231782,85 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Cav-goal.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "cavGoal",
+            "sourceReview": "Read whole dat/Cav-goal.lua1–59 and live makelevel/makemaz/load_special dispatch. Preserve solidfill, mazelevel, exact generated 76×20 map, lit and nondiggable source selection, random up stair, blessed enchantment-zero named mace, fourteen independent random-object descriptors, sleeping Chromatic Dragon and three source string shriekers at exact coordinates, and final wallify in source order. Await each descriptor; source names preserve canonical name-resolution/gender RNG. Existing descriptor/object/monster/selection owners are reused read-only; no substitute or refusal remains in this whole Lua program. No whole support-owner completion credit.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "dat/dungeon.lua role-code goal prototype -> Cav-goal.lua registration."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "sp_lev.c:load_special executes registered Lua program; reached from mkmaze.c:makemaz1188 and wizcmds.c:wiz_load_splua."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/cav-goal-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Cav-goal.lua/cav-goal-human.session.json",
+              "recordings/Cav-goal.lua/cav-goal-dwarf.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-cav-goal",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Wizard forced Cav-goal quest arrival -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Cav-goal.lua, then postprocessing and magic mapping."
+              }
+            ],
+            "checkedAt": "61750b3c94588b56b72831b9a3754af8f9cd6770"
+          }
+        ],
+        "entryPointReview": "Whole Cav-goal Lua top-level program has two active dispatch routes: normal special quest goal generation through makelevel/makemaz (admitted forced quest arrival verifies its production route), and the wizard des-file command through wiz_load_splua/load_special (two independent role/race/alignment/filename variations). Whole quest permission/gameplay, C loader/postprocessing families, and adjacent Cav-loca/strt programs are outside scope. No missing active program entry is hidden by a test-only call.",
+        "entryPoints": [
+          {
+            "name": "Cav-goal special quest generation",
+            "functions": [
+              "Cav-goal.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-cav-goal",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Wizard forced Cav-goal quest arrival -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Cav-goal.lua, then postprocessing and magic mapping."
+              }
+            ]
+          },
+          {
+            "name": "Wizard des-file program loading",
+            "functions": [
+              "Cav-goal.lua"
+            ],
+            "recordings": [
+              "recordings/Cav-goal.lua/cav-goal-human.session.json",
+              "recordings/Cav-goal.lua/cav-goal-dwarf.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "61750b3c94588b56b72831b9a3754af8f9cd6770",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "fix-display-magic-map-rogue-darkroom-symbol-v35-20261009",
@@ -231677,7 +232232,7 @@
     {
       "id": "port-cav-loca-quest-level-v36-20261009",
       "kind": "lua-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port the complete Caveman quest locate level and register its loader.",
       "luaFile": "Cav-loca.lua",
       "sessions": [
@@ -231685,8 +232240,12 @@
       ],
       "selectionReason": "The completed v36 investigation traces the first mismatch to the absent Cav-loca loader.",
       "detail": "Port all top-level Cav-loca.lua statements, generate its fixed map from source, and wire only the source-named quest loader.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "7994aabbad5051076c05cc4c4bc32571a943741b",
+      "openStanding": {
+        "sha": "c65c2b3a1cdd449def877087461571f57c3f88b6",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -231711,7 +232270,159 @@
           "evaluationPath": "challenges/evaluations/accepted-004a6da893c5dc420e260eb3ae0e285e85a56874-v36.json",
           "evaluationCommit": "004a6da893c5dc420e260eb3ae0e285e85a56874"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "c65c2b3a1cdd449def877087461571f57c3f88b6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-cav-loca",
+          "session": "synthetic/v36/v36-quest-cav-loca",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-cav-loca.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-cav-loca.session.json",
+          "recordingSha256": "1efed0a5827687ebefcfae72c992baec47e974ba6792a41e7abb2f56763cb4b7",
+          "recipe": "challenges/cases/v36/v36-quest-cav-loca.recipe.session.json",
+          "recipeSha256": "b9bafebee73a48b4d130f681a66037caf195fa001e0f01b76facccff2c052109",
+          "replayInputSha256": "88b4ab19a679924f6cf1b8fb05ac8c529ddc29d19960db9b342f500b3fb3bb72",
+          "evaluationPath": "challenges/evaluations/accepted-c65c2b3a1cdd449def877087461571f57c3f88b6-v36.json",
+          "evaluationCommit": "c65c2b3a1cdd449def877087461571f57c3f88b6",
+          "evaluationArtifact": "challenges/evaluations/accepted-c65c2b3a1cdd449def877087461571f57c3f88b6-v36.json",
+          "evaluationUtc": "2026-10-09T13:34:54.250Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2222,
+              "total": 3175
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Cav-loca\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Cav-loca.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Cav-loca\"",
+          "cFile": null,
+          "luaFile": "Cav-loca.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-cav-loca.json",
+            "result": {
+              "session": "synthetic/v36/v36-quest-cav-loca",
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-cav-loca",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "1efed0a5827687ebefcfae72c992baec47e974ba6792a41e7abb2f56763cb4b7",
+              "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+              "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "004a6da893c5dc420e260eb3ae0e285e85a56874",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-cav-loca",
+                "session": "synthetic/v36/v36-quest-cav-loca",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-cav-loca.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-cav-loca.session.json",
+                "recordingSha256": "1efed0a5827687ebefcfae72c992baec47e974ba6792a41e7abb2f56763cb4b7",
+                "recipe": "challenges/cases/v36/v36-quest-cav-loca.recipe.session.json",
+                "recipeSha256": "b9bafebee73a48b4d130f681a66037caf195fa001e0f01b76facccff2c052109",
+                "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+                "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+                "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+                "evaluationArtifact": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+                "evaluationUtc": "2026-10-09T10:38:34.264Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2222,
+                    "total": 3175
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Cav-loca\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Cav-loca.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Cav-loca\"",
+                "cFile": null,
+                "luaFile": "Cav-loca.lua",
+                "line": null
+              },
+              "goalKind": "lua-port",
+              "summary": "Cav-loca has no registered loader, so Caveman quest locate arrival refuses before the source Lua program. Port the whole level in source order through the existing quest registry and canonical descriptors; no shared owner change is currently required.",
+              "source": {
+                "file": "Cav-loca.lua",
+                "branch": "Special Caveman/Cavewoman quest locate generation or registered wizard des-file load of Cav-loca.",
+                "functions": [
+                  "Cav-loca.lua"
+                ],
+                "callers": [
+                  "mklev.c:makelevel -> mkmaze.c:makemaz1188 -> sp_lev.c:load_special -> dat/Cav-loca.lua",
+                  "wizcmds.c:wiz_load_splua -> load_special -> registered Cav-loca Lua program"
+                ],
+                "dependencies": [
+                  "Existing des map/region/door/stair/nondiggable/object/trap/monster/wallify owners, including irregular ordinary region; pending C168 worker ancestry retained explicitly."
+                ]
+              },
+              "evidence": [
+                "Admitted evaluation challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json at ac836655676993fda791c76b619905969c841859 records missing Cav-loca loader at segment0 step19,41remaining/60recordedsteps; immutable recordingSHA1efed0a5827687ebefcfae72c992baec47e974ba6792a41e7abb2f56763cb4b7, corpus digest58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c.",
+                "Read whole dat/Cav-loca.lua1-101, SHA256bf51ca0c62904245dea2379cbbf346cb3f34d2cb089a6bd6881cf155b9ba16bd: stone solidfill, mazelevel/hardfloor, exact76×20 map including B boundaries and S secret doors; unlit full region and lit irregular ordinary region52,6..73,15; locked door28,11; up stair4,3/down73,10; nondiggable whole map; fifteen random objects; six traps;27monster descriptors (17bugbears, three class-selected, seven hillgiants); wallify. Trailing comments after wallify have no runtime effect.",
+                "js/mklev.js registry dispatch already incorporates QUEST_LEVEL_LOADERS, but Cav-loca key is absent. Scope only whole cavLoca program + key in established js/quest_levels.js and generated map/monster constants; no new makemaz/load_special completion or compatible reexport is planned.",
+                "Audited lspo_region irregular branch: resolve coordinates, flood_fill_rm, add_room, room fields, temporary croom end/add_doors; lspo_door positional form, explicit stair descriptors, existing random object/trap and monster creation. Source program discards each descriptor return; canonical owners already exist for these forms and need fresh runtime verification, not whole helper credit.",
+                "Independent C168 frontier recipe #wizloaddes Cav-loca.lua proves C executes the adjacent program; cache .cache/C168-cav-loca-frontier-c.session.json. Existing JS missing loader leaves a blank map and later throws mkmaze.js place_lregion type3. This counter-evidence concerns the same absent Lua owner; do not invent a region finalizer repair to make a missing program appear complete.",
+                "Plan two independent C-first role/race/alignment runs and source descriptor/map/monster regeneration checks. Admitted forced quest arrival covers makelevel production entry; registered wizard-load cases cover the other direct load route. Every new shared support defect must be reported before owner scope expands."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-hea-strt-quest-level-v36-20261009",
