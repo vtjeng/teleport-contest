@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked independent diagnostic #wizloaddes load of Tou-goal.lua, not natural makelevel evidence. The C replay proceeds into direct special-room finalization; JavaScript stops at makemon_create.js:shopkeeperCall with UnsupportedMonsterCreationError for shopkeeper extension outside shkinit on the direct MM_ESHK call from shknam.c:shkinit. This source-specific probe receives no completion credit.",
+  "segments": [
+    {
+      "seed": 71154029,
+      "datetime": "20680223143515",
+      "nethackrc": "OPTIONS=name:TouGoalDirect,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizloaddes\nTou-goal.lua\n "
+    }
+  ]
+}
