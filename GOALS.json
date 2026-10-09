@@ -234723,14 +234723,18 @@
     {
       "id": "fix-display-newsym-suppression-v37-20261009",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Suppress newsym map-memory writes during replacement-level generation.",
       "cFile": "display.c",
       "sessions": [],
-      "selectionReason": "C179 traced the final v37 replacement-map screen mismatch to display.c newsym missing the source map-output suppression guard; existing suppressMapOutput provides the exact four-state predicate.",
+      "selectionReason": "C179 source-traced v37 mismatch; exact delivery 7c544e3449fd5a95f3dd8a0674ef6ebcdd4cf73c.",
       "detail": "Add the source guard before location lookup and memory/output changes, preserve ordinary redraw behavior, and validate the admitted case plus independent replacement-map variations.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "b552d0a39cd1b9e9a35c27a74105a6a178fe1cf1",
+      "openStanding": {
+        "sha": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "newsym",
@@ -234749,7 +234753,201 @@
           "evaluationPath": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v37.json",
           "evaluationCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v37",
+          "caseId": "v37-wizmap-after-monster-reset",
+          "session": "synthetic/v37/v37-wizmap-after-monster-reset",
+          "manifestPath": "challenges/manifests/v37.json",
+          "manifestSha256": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202",
+          "recording": "challenges/cases/v37/v37-wizmap-after-monster-reset.session.json",
+          "recordingPath": "challenges/cases/v37/v37-wizmap-after-monster-reset.session.json",
+          "recordingSha256": "808f8b14507f9a00081fa5e5ffaa8bec61fb269a86141aeb8c7131f1eae15023",
+          "recipe": "challenges/cases/v37/v37-wizmap-after-monster-reset.recipe.session.json",
+          "recipeSha256": "551df71986aa560b239d5e1ca991a69e31f68b5884f738927cf2d416fd0df5a4",
+          "replayInputSha256": "25b3f051e8f59c613b9b065517b6186ec3febd384bfc97a11168e131c4123db5",
+          "evaluationPath": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v37.json",
+          "evaluationCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd",
+          "evaluationArtifact": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v37.json",
+          "evaluationUtc": "2026-10-09T14:57:31.066Z",
+          "remainingScreens": 1,
+          "recordedSteps": 31,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 30,
+              "total": 31
+            },
+            "rng": {
+              "matched": 4640,
+              "total": 4640
+            },
+            "cursors": {
+              "matched": 31,
+              "total": 31
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 30,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 30,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 19,
+              "column": 36,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": ".",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 30,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v37/v37-wizmap-after-monster-reset.json",
+            "result": {
+              "session": "synthetic/v37/v37-wizmap-after-monster-reset",
+              "corpus": "synthetic",
+              "batch": "v37",
+              "caseId": "v37-wizmap-after-monster-reset",
+              "manifestPath": "challenges/manifests/v37.json",
+              "manifestSha256": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202",
+              "recordingSha256": "808f8b14507f9a00081fa5e5ffaa8bec61fb269a86141aeb8c7131f1eae15023",
+              "evaluationPath": "challenges/evaluations/baseline-d2270c2b6-v37.json",
+              "evaluationCommit": "d2270c2b682a9a2395fcca9eff7decce6c8825fa",
+              "remainingScreens": 1,
+              "recordedSteps": 31,
+              "status": "complete",
+              "commit": "86022373890a8217ab994dd279264042eca5bf59",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v37",
+                "caseId": "v37-wizmap-after-monster-reset",
+                "session": "synthetic/v37/v37-wizmap-after-monster-reset",
+                "manifestPath": "challenges/manifests/v37.json",
+                "manifestSha256": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202",
+                "recording": "challenges/cases/v37/v37-wizmap-after-monster-reset.session.json",
+                "recordingPath": "challenges/cases/v37/v37-wizmap-after-monster-reset.session.json",
+                "recordingSha256": "808f8b14507f9a00081fa5e5ffaa8bec61fb269a86141aeb8c7131f1eae15023",
+                "recipe": "challenges/cases/v37/v37-wizmap-after-monster-reset.recipe.session.json",
+                "recipeSha256": "551df71986aa560b239d5e1ca991a69e31f68b5884f738927cf2d416fd0df5a4",
+                "replayInputSha256": "2bda4e67d05a4983621f96cca8c8568a1ab988dc213463f454a7f5fabfeef303",
+                "evaluationPath": "challenges/evaluations/baseline-d2270c2b6-v37.json",
+                "evaluationCommit": "d2270c2b682a9a2395fcca9eff7decce6c8825fa",
+                "evaluationArtifact": "challenges/evaluations/baseline-d2270c2b6-v37.json",
+                "evaluationUtc": "2026-10-09T14:28:51.049Z",
+                "remainingScreens": 1,
+                "recordedSteps": 31,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 30,
+                    "total": 31
+                  },
+                  "rng": {
+                    "matched": 4640,
+                    "total": 4640
+                  },
+                  "cursors": {
+                    "matched": 31,
+                    "total": 31
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 30,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 30,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 19,
+                    "column": 36,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": ".",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 30,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "goalKind": "divergence-fix",
+              "summary": "newsym writes remembered floor glyphs during replacement-level trap generation because it omits the source map-output suppression guard.",
+              "source": {
+                "file": "display.c",
+                "functions": [
+                  "newsym"
+                ],
+                "branch": "in_mklev, saving, restoring, or done_hup must return before inspecting the location or modifying map memory; replacement mklev trap creation currently observes the prior level vision bitmap.",
+                "callers": [
+                  "cmd.c:doextcmd -> wizcmds.c:wiz_makemap -> mklev.c:mklev -> mktrap -> trap.c:maketrap -> dig.c:unearth_objs -> display.c:newsym"
+                ],
+                "dependencies": [
+                  "Existing js/display.js private suppressMapOutput implements the C four-flag predicate for flush_screen and can be reused without new owner completion credit."
+                ]
+              },
+              "evidence": [
+                "Baseline challenges/evaluations/baseline-d2270c2b6-v37.json at d2270c2b682a9a2395fcca9eff7decce6c8825fa has30/31screens,4640/4640RNG,31/31cursors. Fresh single-case diagnostic at worker86022373890a8217ab994dd279264042eca5bf59 reproduces zero-based segment0step30 newline: row19column36 is space in C, floor dot in JS. Saved .cache/C179-diagnostic.json; bounded receipt /tmp/teleport-validation-1000/run-hl1D7C/receipt.json. Immutable recording digest808f8b14507f9a00081fa5e5ffaa8bec61fb269a86141aeb8c7131f1eae15023; admitted manifest corpus digest542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202.",
+                "C display.c704–708 defines _suppress_map_output as in_mklev || program_state.saving || program_state.restoring, plus done_hup with HANGUPHANDLING. newsym917–928 applies it before isok/location lookup, swallowed/underwater branches and map memory/output work. JS display.js3722 starts by looking up game.level.at and has no suppression guard; private suppressMapOutput6090–6100 already implements all four flags and flush_screen6103 uses it.",
+                "Cache-only observer .cache/C179-memory-probe.mjs/log traces first replacement-map memory write at level37,18: newsym3935 assigns remembered S_room3992 while hero37,17, in_mklev=true, prior viz_array[18][37]=3. Stack is dig.js unearth_objs finish2163 -> trap.js pitTerrain853 -> maketrap1001 -> mktrap448 -> mklev.js finishMonster7806/fillRoom7921. Generation created a pit on a prior-visible coordinate. C suppresses this newsym call. Later hero8,11 cannot see37,18, but docrt remembered-map pass preserves the accidental floor glyph. .cache/C179-redraw-probe.log records the final glyph write and state (seenv0,waslittrue,remembered S_room,vision0).",
+                "Counter-evidence: existing cmd.js makemap_prepost retains named discarded wizcmds.c makemap_remove_mons gap, and whole teardown requires pets-only keepdogs support. However clear_level_structures creates a fresh GameMap, the final monster list contains only newly generated monsters, and the stray glyph is written during new-level pit generation. Do not bundle monster-removal, vision_reset buffer reset, or wider generation work into this cause.",
+                "Independent bounded divergence fix can reuse suppressMapOutput at the top of newsym before any location read. Reserve source:display.c:newsym and contract:map-output-suppressed-memory. Source-pinned fail-first checks must cover each source phase flag, invalid-coordinate suppression ordering, unchanged remembered/transient glyphs and ordinary live redraw. Keep broader newsym incomplete with no whole-function credit. Runtime evidence: assigned admitted range plus independent replacement-map and pit-generation variations from C-first inputs; retain any wider unsupported caller frontier rather than inventing output."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-medusa-4-lua-v37-20261009",
