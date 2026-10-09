@@ -2,7 +2,8 @@
 // C refs: dat/Bar-strt.lua, dat/Bar-fila.lua, dat/Bar-filb.lua,
 //         dat/Bar-goal.lua, dat/Bar-loca.lua, dat/Arc-strt.lua,
 //         dat/Arc-loca.lua, dat/Arc-fila.lua, dat/Arc-filb.lua,
-//         dat/Arc-goal.lua, dat/Hea-goal.lua, dat/Hea-loca.lua,
+//         dat/Arc-goal.lua, dat/Cav-goal.lua, dat/Hea-goal.lua,
+//         dat/Hea-loca.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
@@ -54,6 +55,7 @@ import {
 import { rn2, rnd } from './rng.js';
 import { selection_area, ThemeroomSelection } from './themerooms.js';
 import { KNI_GOAL_LEVEL_MAP } from './kni_goal_level_data.js';
+import { CAV_GOAL_LEVEL_MAP } from './cav_goal_level_data.js';
 import { HEA_GOAL_LEVEL_MAP } from './hea_goal_level_data.js';
 import { HEA_LOCA_LEVEL_MAP } from './hea_loca_level_data.js';
 
@@ -1973,7 +1975,28 @@ async function wizFilb(des) {
     await des.random_corridors();
 }
 
+// C ref: dat/Cav-goal.lua. The lit cavern contains the Sceptre of Might,
+// a sleeping Chromatic Dragon and three fixed shriekers.
+async function cavGoal(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel');
+    await des.map(CAV_GOAL_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 19), 'lit');
+    await des.stair('up');
+    await des.non_diggable(selection_area(0, 0, 75, 19));
+    await des.object({ id: 'mace', x: 23, y: 10,
+        buc: 'blessed', spe: 0, name: 'The Sceptre of Might' });
+    // Cav-goal.lua40-53 has fourteen independent random-object descriptors.
+    for (let i = 0; i < 14; ++i) await des.object();
+    await des.monster({ id: 'Chromatic Dragon', x: 23, y: 10, asleep: 1 });
+    await des.monster('shrieker', 26, 13);
+    await des.monster('shrieker', 25, 8);
+    await des.monster('shrieker', 45, 11);
+    await des.wallify();
+}
+
 export const QUEST_LEVEL_LOADERS = {
+    'Cav-goal': cavGoal,
     'Bar-strt': barStrt,
     'Bar-fila': barFila,
     'Bar-filb': barFilb,

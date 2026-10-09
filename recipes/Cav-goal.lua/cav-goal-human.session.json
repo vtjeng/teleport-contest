@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Cav-goal whole-program input fixed before JS comparison: human Cavewoman via registered wizard Lua loader, then magic mapping. Source name/file extension and role alignment vary artifact/monster state; no seed search. C-only setup correction: cmd.c1972 names the des-loader command wizloaddes; the initial guessed wizloadsplua was unknown in C and is retained in cache, not completion evidence.",
+  "segments": [
+    {
+      "seed": 16891011,
+      "datetime": "20640918142631",
+      "nethackrc": "OPTIONS=name:CavGoalProbe,role:Cavewoman,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizloaddes\nCav-goal.lua\n            #wizmap\n        "
+    }
+  ]
+}

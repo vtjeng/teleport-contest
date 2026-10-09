@@ -2,7 +2,7 @@
 // C ref: spell.c age_spells(), dovspell(), dospellmenu(), percent_success(),
 // spell_cmp(), sortspells(), spellsortmenu(), show_spells(),
 // spellretention(), spelltypemnemonic(), study_book(), docast(), getspell(),
-// spelleffects_check(), spelleffects(), rejectcasting(), spell_let_to_idx(),
+// spell_backfire(), spelleffects_check(), spelleffects(), rejectcasting(), spell_let_to_idx(),
 // and spell_idx().
 
 import {
@@ -163,7 +163,7 @@ import {
     spell_skilltype,
 } from './startup_skills.js';
 import {
-    healup, make_blinded, make_confused, make_slimed, peffects,
+    healup, make_blinded, make_confused, make_stunned, make_slimed, peffects,
 } from './potion.js';
 import { discover_object, observe_object } from './o_init.js';
 import { do_vicinity_map } from './detect.js';
@@ -1435,16 +1435,40 @@ export async function cast_protection(state = game, env = {}) {
     }
 }
 
-// C ref: spell.c spelleffects_check() (1220-1380). Validates that the hero can
-// cast spell `spell` (a spl_book[] index): checks that the spell is known, the
-// hero has enough energy, the hero is not too hungry or weak, and the cast
-// succeeds on a random roll. Hunger is charged before the success roll;
-// failed casts spend half energy.
-//
-// Returns { abort, res, energy } where `abort` is true when the cast should not
-// proceed (C returned TRUE). Only the common successful-cast path is fully
-// ported; the twisted-knowledge and amulet-draining paths throw fail-closed.
-async function spelleffects_check(spell, state, env) {
+// C ref: spell.c spell_backfire() (1181-1217). Add confusion/stun timeouts
+// in source order; FALSE suppresses the setters' optional messages.
+export async function spell_backfire(spell, state = game, env = {}) {
+    const random = randomSource(env);
+    const duration = (spellev(spell, state) + 1) * 3;
+    const oldStun = (state.u.uprops[STUNNED]?.intrinsic ?? 0) & TIMEOUT;
+    const oldConf = (state.u.uprops[CONFUSION]?.intrinsic ?? 0) & TIMEOUT;
+    state.disp ??= {};
+    switch (random.rn2(10)) {
+    case 0: case 1: case 2: case 3:
+        await make_confused(oldConf + duration, false, state, env);
+        break;
+    case 4: case 5: case 6:
+        await make_confused(oldConf + Math.trunc(2 * duration / 3), false, state, env);
+        await make_stunned(oldStun + Math.trunc(duration / 3), false, state, env);
+        break;
+    case 7: case 8:
+        await make_stunned(oldStun + Math.trunc(2 * duration / 3), false, state, env);
+        await make_confused(oldConf + Math.trunc(duration / 3), false, state, env);
+        break;
+    case 9:
+        await make_stunned(oldStun + duration, false, state, env);
+        break;
+    }
+}
+
+// C ref: spell.c spelleffects_check() (1220-1380). The result object carries
+// C's boolean return and caller-owned res/energy out parameters. Amulet drain
+// sets res to ECMD_TIME before an insufficient-energy abort; hunger still
+// uses the base spell cost. Direct dotele casts supply no operation env.
+export async function spelleffects_check(spell, state = game, env = {}) {
+    env = { ...env, message: env.message ?? ttyPline };
+    const random = randomSource(env);
+    let res = ECMD_OK;
     const confused = Boolean(
         state.u?.uprops?.[CONFUSION]?.intrinsic,
     );
@@ -1453,17 +1477,20 @@ async function spelleffects_check(spell, state, env) {
     // Reject casting while stunned or with no free hands.
     if (spell === UNKNOWN_SPELL
         || await rejectcasting(state, env)) {
-        return { abort: true, res: ECMD_OK, energy: 0 };
+        return { abort: true, res: ECMD_OK, energy };
     }
 
     // SPELL_LEV_PW(lvl) = lvl * 5
     energy = spellev(spell, state) * 5; /* 5 <= energy <= 35 */
 
     if (spellknow(spell, state) <= 0) {
-        // Twisted knowledge: spell_backfire() and random energy loss.
-        throw new UnsupportedSpellCastError(
-            'casting a forgotten spell (spell_backfire)',
-        );
+        await env.message('Your knowledge of this spell is twisted.', state);
+        await env.message('It invokes nightmarish images in your mind...', state);
+        await spell_backfire(spell, state, env);
+        state.u.uen = Math.max(0, state.u.uen - random.rnd(energy));
+        state.disp ??= {};
+        state.disp.botl = true;
+        return { abort: true, res: ECMD_TIME, energy };
     } else if (spellknow(spell, state) <= Math.trunc(SPELL_KNOWLEDGE_KEEN / 200)) {
         await env.message('You strain to recall the spell.', state);
     } else if (spellknow(spell, state) <= Math.trunc(SPELL_KNOWLEDGE_KEEN / 40)) {
@@ -1477,21 +1504,23 @@ async function spelleffects_check(spell, state, env) {
     if (state.u.uhunger <= 10
         && spellid(spell, state) !== SPE_DETECT_FOOD) {
         await env.message('You are too hungry to cast that spell.', state);
-        return { abort: true, res: ECMD_OK, energy: 0 };
+        return { abort: true, res: ECMD_OK, energy };
     } else if (acurr(state, A_STR) < 4
         && spellid(spell, state) !== SPE_RESTORE_ABILITY) {
         await env.message('You lack the strength to cast spells.', state);
-        return { abort: true, res: ECMD_OK, energy: 0 };
+        return { abort: true, res: ECMD_OK, energy };
     } else if (await check_capacity(
         'Your concentration falters while carrying so much stuff.', state)) {
-        return { abort: true, res: ECMD_TIME, energy: 0 };
+        return { abort: true, res: ECMD_TIME, energy };
     }
 
     // Amulet of Yendor energy drain
     if (state.u.uhave?.amulet && state.u.uen >= energy) {
-        throw new UnsupportedSpellCastError(
-            'the Amulet of Yendor energy drain during casting',
-        );
+        await env.message('You feel the amulet draining your energy away.', state);
+        state.u.uen = Math.max(0, state.u.uen - random.rnd(2 * energy));
+        state.disp ??= {};
+        state.disp.botl = true;
+        res = ECMD_TIME;
     }
 
     if (energy > state.u.uen) {
@@ -1502,7 +1531,7 @@ async function spelleffects_check(spell, state, env) {
             `You don't have enough energy to cast that spell${suffix}.`,
             state,
         );
-        return { abort: true, res: ECMD_OK, energy: 0 };
+        return { abort: true, res, energy };
     }
 
     // Deduct hunger for casting (detect food is exempt).
@@ -1529,7 +1558,7 @@ async function spelleffects_check(spell, state, env) {
     }
 
     const chance = percent_success(spell, state);
-    if (confused || (rnd(100) > chance)) {
+    if (confused || (random.rnd(100) > chance)) {
         await env.message(
             'You fail to cast the spell correctly.',
             state,
@@ -1537,9 +1566,9 @@ async function spelleffects_check(spell, state, env) {
         state.u.uen -= Math.trunc(energy / 2);
         state.disp = state.disp || {};
         state.disp.botl = true;
-        return { abort: true, res: ECMD_TIME, energy: 0 };
+        return { abort: true, res: ECMD_TIME, energy };
     }
-    return { abort: false, res: ECMD_OK, energy };
+    return { abort: false, res, energy };
 }
 
 // hack.h:1236 Maybe_Half_Phys(). youprop.h:341 defines Half_physical_damage
