@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside whole Cav-strt.lua: the distinct Cav-loca.lua loader is not present in this branch (C169 owns its pending implementation). Missing locate program prevents its source map/rooms and place_lregion arrival; keep this recipe blocked and out of passing recordings. No Cav-loca or generic loader completion credit.",
+  "segments": [
+    {
+      "seed": 19136023,
+      "datetime": "20660919113241",
+      "nethackrc": "OPTIONS=name:CaveStart,role:Caveman,race:dwarf,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "   #wizloaddes\nCav-loca.lua\n            #wizmap\n        "
+    }
+  ]
+}

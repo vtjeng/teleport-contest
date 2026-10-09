@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Cav-strt.lua whole-program witness chosen before JS comparison. Human neutral quest arrival and dwarf lawful direct des loading vary shrine/priest alignment and role/race starting RNG. Source map, temple, leader inventory, guards, siege monsters, six traps and wallify are exercised. Spaces acknowledge travel/generation messages. Initial three spaces acknowledge the recorder-observed welcome/new-moon pagers; the first C run proved a dot does not dismiss that welcome pager.",
+  "segments": [
+    {
+      "seed": 19136019,
+      "datetime": "20660919113241",
+      "nethackrc": "OPTIONS=name:CaveStart,role:Caveman,race:dwarf,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "   #wizloaddes\nCav-strt.lua\n            #wizmap\n        "
+    }
+  ]
+}
