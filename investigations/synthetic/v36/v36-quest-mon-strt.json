@@ -66,7 +66,7 @@
   "summary": "The Monk quest start still has no registered special-level loader. The reference reaches top-level dat/Mon-strt.lua at segment 0 step 19; JavaScript stops before executing it. The complete 108-line program needs its loader/data entry. Its spinach tin is now supported by the accepted C172 lspo_object normalization, so that shared prerequisite is clear.",
   "goalKind": "lua-port",
   "source": {
-    "file": "dat/Mon-strt.lua",
+    "file": "Mon-strt.lua",
     "branch": "First generation of the Monk quest start level after selecting the Mon-strt special destination; execute the whole top-level Lua program in source order.",
     "functions": [
       "Mon-strt.lua (whole program, lines 1-108)"
@@ -82,7 +82,7 @@
   },
   "evidence": [
     "Saved accepted evaluation challenges/evaluations/accepted-97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3-v36.json at 97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3 records 19/60 matching screens/cursors and 41 remaining; the unchanged manifest identifies the first refusal at segment 0 step 19.",
-    "Read complete nethack-c/upstream/dat/Mon-strt.lua lines 1-108 (SHA-256 3a61403d6d1888d918ea2a0bf67f1a1a2b45a5c5f043faa72960136e13993964): 20-by-76 map, pre-replacement floodfill, tree replacement, branch arrival, doors and altar, leader callback, non-diggable region, ordered random traps/elementals/xorns, spinach tins, and vegetarian food.",
+    "Read complete nethack-c/upstream/dat/Mon-strt.lua lines 1-108 (SHA-256 3a61403d6d1888d918ea2a0bf67f1a1a2b45a5c5f043faa72960136e13993964): 20-by-76 map, tree replacement followed by floodfill and portal-arrival terrain clearing, doors and altar, leader callback, non-diggable region, ordered random traps/elementals/xorns, spinach tins, and vegetarian food.",
     "C source route is mklev.c:makelevel -> mkmaze.c:makemaz:1188 -> sp_lev.c:load_special:6454; JS mklev.js:makelevel/makemaz/load_special routes through SPECIAL_LEVEL_LOADERS assembled at lines 1743-1770, while quest_levels.js:2657-2687 has no Mon-strt entry.",
     "The blocker is the missing Mon-strt loader, not the tin helper: current js/sp_lev_object.js normalizes spinach/empty TIN to NON_PM and spe=1, and scripts/sp-lev-object.test.mjs:1636-1665 verifies case-insensitive tokens and unchanged generated species/RNG order. The C172 reservation is released after acceptance."
   ]
