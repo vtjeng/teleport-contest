@@ -227322,7 +227322,7 @@
     {
       "id": "port-uhitm-missum-seduction-v33-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port source-ordered monster miss feedback and wakeup behavior.",
       "cFile": "uhitm.c",
       "sessions": [
@@ -227337,8 +227337,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "079b743c5b009b939ce1d9763ef0a11f2484447f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "missum",
@@ -227892,6 +227895,12 @@
         ],
         "entryPointReview": "Helper-only source unit. Live callers are known_hitum, hmonas contact/engulf misses and kick_monster. Both admitted nymph cases reach hmonas; independent nymph and Sasquatch recordings prove hmonas/known_hitum and the polymorphed kick caller. No broader caller source completion credit.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "079b743c5b009b939ce1d9763ef0a11f2484447f",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
