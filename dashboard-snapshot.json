@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T07:19:25.962Z",
+  "capturedAt": "2026-10-09T07:45:05.866Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -71145,22 +71145,186 @@
         "at": "2026-10-09T07:18:39.248Z",
         "worker": "A2",
         "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A184-566dfde0e-20261009",
+        "type": "published",
+        "at": "2026-10-09T07:21:46.179Z",
+        "task": "A184",
+        "commit": "566dfde0ec682618adee4ddafaff78e9f965058f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B183-829f17d33-20261009",
+        "type": "received",
+        "at": "2026-10-09T07:22:26.716Z",
+        "task": "B183",
+        "delivery": "829f17d33cbdea0e09d4fae6a113c234ebf7fedd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0be84a8b924b013b14544833362f5e060f9503fc",
+        "type": "ready",
+        "at": "2026-10-09T07:25:14.067Z",
+        "task": "B184",
+        "delivery": "0be84a8b924b013b14544833362f5e060f9503fc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B185-panic-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T07:26:47.893Z",
+        "task": "B185",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B185-panic-investigation-20261009",
+        "type": "turn",
+        "at": "2026-10-09T07:26:49.954Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating declined wizard panic confirmation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B183-bc2ce8fb5-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T07:30:48.638Z",
+        "task": "B183",
+        "integration": "bc2ce8fb5ecd42fec92c2db427c427b566e0d645"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-3befa1a0eff3c364040977ed51b37adfd4409909",
+        "type": "ready",
+        "at": "2026-10-09T07:34:55.948Z",
+        "task": "A185",
+        "delivery": "3befa1a0eff3c364040977ed51b37adfd4409909"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A185-3befa1a0-20261009",
+        "type": "received",
+        "at": "2026-10-09T07:35:49.542Z",
+        "task": "A185",
+        "delivery": "3befa1a0eff3c364040977ed51b37adfd4409909"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A186-debug-extended-list",
+        "type": "assign",
+        "at": "2026-10-09T07:36:19.718Z",
+        "task": "A186",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B183-bc2ce8fb5ecd42fec92c2db427c427b566e0d645-validated",
+        "type": "validated",
+        "at": "2026-10-09T07:36:28.658Z",
+        "task": "B183",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A186-investigating",
+        "type": "turn",
+        "at": "2026-10-09T07:36:44.138Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B183-bc2ce8fb5ecd42fec92c2db427c427b566e0d645-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T07:39:30.247Z",
+        "task": "B183"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C163-a4d7b909-20261009",
+        "type": "received",
+        "at": "2026-10-09T07:40:23.850Z",
+        "task": "C163",
+        "delivery": "a4d7b909c627ad0ae94eeae7720641f99c4f6efe"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B184-0be84a8b-20261009",
+        "type": "received",
+        "at": "2026-10-09T07:40:29.323Z",
+        "task": "B184",
+        "delivery": "0be84a8b924b013b14544833362f5e060f9503fc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-C163-review-20261009",
+        "type": "activity",
+        "at": "2026-10-09T07:40:36.395Z",
+        "task": "C163",
+        "phase": "review",
+        "reason": "Reviewing retained gold-theft implementation and leprechaun movement correction against accepted main"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A186-report-gate-d8a78e1e",
+        "type": "turn",
+        "at": "2026-10-09T07:43:38.188Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "Extended-command list diagnosis complete; awaiting source-goal gate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A186-B185-dispatcher",
+        "type": "park",
+        "at": "2026-10-09T07:44:20.514Z",
+        "task": "A186",
+        "reason": "Waiting for B185 wizard-panic dispatcher changes before shared cmd.js implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B185-panic-source-20261009",
+        "type": "implement",
+        "at": "2026-10-09T07:44:30.255Z",
+        "task": "B185",
+        "goal": "port-wizcmds-wiz-panic-v34-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B185-implementation-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T07:44:31.689Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing wizard panic confirmation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A187-genocide-no-species",
+        "type": "assign",
+        "at": "2026-10-09T07:44:45.442Z",
+        "task": "A187",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A187-prompt-source",
+        "type": "turn",
+        "at": "2026-10-09T07:44:46.809Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Tracing the nonexistent-species genocide prompt."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B183",
-        "worker": "B",
-        "goal": "fix-dothrow-toss-up-petrifier-drop-env-v33-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "829f17d33cbdea0e09d4fae6a113c234ebf7fedd",
-        "since": "2026-10-09T04:18:06.978Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "C163",
         "worker": "C",
@@ -71169,6 +71333,28 @@
         "status": "ready",
         "delivery": "a4d7b909c627ad0ae94eeae7720641f99c4f6efe",
         "since": "2026-10-09T05:27:53.661Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B184",
+        "worker": "B",
+        "goal": "fix-apply-cursed-unicorn-horn-con-call-v34-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "0be84a8b924b013b14544833362f5e060f9503fc",
+        "since": "2026-10-09T07:25:14.067Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A185",
+        "worker": "A2",
+        "goal": "fix-spell-jumping-caller-v34-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "3befa1a0eff3c364040977ed51b37adfd4409909",
+        "since": "2026-10-09T07:34:55.948Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -71428,12 +71614,23 @@
         "since": "2026-10-09T04:01:02.463Z",
         "blockedBy": [],
         "reason": "Stale initial saved queue: accepted C160 evaluation at f091b997 proves v33-invoke-healing-blindness exact99/99screens/cursors1854RNG. Already in accepted B181 main4c02dfca and workerHEADd84b3350. No report or source edits needed."
+      },
+      {
+        "task": "A186",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T07:44:20.514Z",
+        "blockedBy": [],
+        "reason": "Waiting for B185 wizard-panic dispatcher changes before shared cmd.js implementation"
       }
     ]
   },
   "development": {
-    "executionCommit": "1fca795f45379c5d8364836c74c8ac61910620cd",
-    "measuredAt": "2026-10-09T07:02:31.489Z",
+    "executionCommit": "bc2ce8fb5ecd42fec92c2db427c427b566e0d645",
+    "measuredAt": "2026-10-09T07:35:32.449Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
