@@ -1,0 +1,89 @@
+{
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-mon-strt",
+  "session": "synthetic/v36/v36-quest-mon-strt",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "9ee4dfa848e9b6c50c6058f398378cf18912c62be39534bfa1b887df5f1c7d9e",
+  "evaluationPath": "challenges/evaluations/accepted-97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3-v36.json",
+  "evaluationCommit": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3",
+  "remainingScreens": 41,
+  "recordedSteps": 60,
+  "status": "complete",
+  "commit": "a109ce8db86de592d6012721531022478e5de4c4",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-mon-strt",
+    "session": "synthetic/v36/v36-quest-mon-strt",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-mon-strt.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-mon-strt.session.json",
+    "recordingSha256": "9ee4dfa848e9b6c50c6058f398378cf18912c62be39534bfa1b887df5f1c7d9e",
+    "recipe": "challenges/cases/v36/v36-quest-mon-strt.recipe.session.json",
+    "recipeSha256": "84381349e41e458b1fdc65cb68e6ae3f612b2d59fc4b5a0114c6f9114fead597",
+    "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+    "evaluationPath": "challenges/evaluations/accepted-97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3-v36.json",
+    "evaluationCommit": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3",
+    "evaluationArtifact": "challenges/evaluations/accepted-97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3-v36.json",
+    "evaluationUtc": "2026-10-09T20:02:27.149Z",
+    "remainingScreens": 41,
+    "recordedSteps": 60,
+    "previousScreensMatched": 19,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 60
+      },
+      "rng": {
+        "matched": 2772,
+        "total": 3613
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "step": 19,
+      "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-strt\""
+    },
+    "step": 19,
+    "kind": "stop",
+    "sourceFile": "Mon-strt.lua",
+    "function": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-strt\"",
+    "cFile": null,
+    "luaFile": "Mon-strt.lua",
+    "line": null
+  },
+  "summary": "The Monk quest start still has no registered special-level loader. The reference reaches top-level dat/Mon-strt.lua at segment 0 step 19; JavaScript stops before executing it. The complete 108-line program needs its loader/data entry. Its spinach tin is now supported by the accepted C172 lspo_object normalization, so that shared prerequisite is clear.",
+  "goalKind": "lua-port",
+  "source": {
+    "file": "dat/Mon-strt.lua",
+    "branch": "First generation of the Monk quest start level after selecting the Mon-strt special destination; execute the whole top-level Lua program in source order.",
+    "functions": [
+      "Mon-strt.lua (whole program, lines 1-108)"
+    ],
+    "callers": [
+      "do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz:1188 -> sp_lev.c:load_special:6454 -> dat/Mon-strt.lua",
+      "js/mklev.js:makelevel/makemaz/load_special -> SPECIAL_LEVEL_LOADERS -> QUEST_LEVEL_LOADERS[Mon-strt] -> Mon-strt implementation and canonical level finalization"
+    ],
+    "dependencies": [
+      "Accepted C172 delivery 70a8ba91d1118cc26b721b43eb4aa267c7c7d685 provides the bounded sp_lev.c:lspo_object spinach TIN branch in js/sp_lev_object.js: normalize spinach case-insensitively, set NON_PM/spe=1, and preserve generated species/RNG order; no helper edit or whole-helper credit is selected here.",
+      "Reuse the existing solidfill/map/region/terrain, selection floodfill/rndcoord, branch portal, stair, door, altar, object, monster, trap, and special-level finalization APIs; audit their reached branches before using them."
+    ]
+  },
+  "evidence": [
+    "Saved accepted evaluation challenges/evaluations/accepted-97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3-v36.json at 97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3 records 19/60 matching screens/cursors and 41 remaining; the unchanged manifest identifies the first refusal at segment 0 step 19.",
+    "Read complete nethack-c/upstream/dat/Mon-strt.lua lines 1-108 (SHA-256 3a61403d6d1888d918ea2a0bf67f1a1a2b45a5c5f043faa72960136e13993964): 20-by-76 map, pre-replacement floodfill, tree replacement, branch arrival, doors and altar, leader callback, non-diggable region, ordered random traps/elementals/xorns, spinach tins, and vegetarian food.",
+    "C source route is mklev.c:makelevel -> mkmaze.c:makemaz:1188 -> sp_lev.c:load_special:6454; JS mklev.js:makelevel/makemaz/load_special routes through SPECIAL_LEVEL_LOADERS assembled at lines 1743-1770, while quest_levels.js:2657-2687 has no Mon-strt entry.",
+    "The blocker is the missing Mon-strt loader, not the tin helper: current js/sp_lev_object.js normalizes spinach/empty TIN to NON_PM and spe=1, and scripts/sp-lev-object.test.mjs:1636-1665 verifies case-insensitive tokens and unchanged generated species/RNG order. The C172 reservation is released after acceptance."
+  ]
+}
