@@ -70,36 +70,57 @@ export function replayChallengeCases(root, cases) {
 }
 
 export function recordEvaluation(root, relative) {
-    const evaluation = readEvaluation(root, relative);
+    return recordEvaluations(root, [relative])[0];
+}
+
+// Import one checkpoint's batches together. Read and validate the historical
+// artifacts once per invocation, not twice per batch. Nothing is cached across
+// invocations: retries still detect changed artifacts and ledger corruption.
+export function recordEvaluations(root, relatives) {
+    if (!relatives.length) return [];
     const rows = readRows(join(root, 'SCORE.tsv'));
-    const batch = evaluationBatch(evaluation);
-    const previous = rows.filter(row => row.event === 'challenge')
-        .map(row => ({ row, evaluation: readEvaluation(root, row.challenge_evaluation) }))
-        .filter(entry => evaluationBatch(entry.evaluation) === batch).at(-1)?.evaluation;
-    if (previous && Date.parse(previous.utc) > Date.parse(evaluation.utc))
-        throw new Error('record evaluations in measurement order so first results remain first');
-    if (rows.some(row => row.challenge_evaluation === relative)) throw new Error('evaluation is already recorded');
-    const manifest = readChallengeBatches(root).find(entry => entry.batch === batch);
-    if (!manifest) throw new Error('evaluation references an unadmitted challenge batch: ' + batch);
-    if (evaluation.manifestSha256 !== manifest.manifestSha256)
-        throw new Error('evaluation must cover the complete admitted batch');
-    if (previous && previous.manifestSha256 !== manifest.manifestSha256)
-        throw new Error('admitted batch membership is immutable; put new cases in the next batch');
-    const known = new Map(manifest.cases.map(entry => [entry.id, entry.recordingSha256]));
+    const recorded = new Set(rows.map(row => row.challenge_evaluation));
+    const history = new Map();
     for (const row of rows.filter(row => row.event === 'challenge')) {
-        const rowEvaluation = readEvaluation(root, row.challenge_evaluation);
-        if (evaluationBatch(rowEvaluation) !== batch) continue;
-        if (rowEvaluation.cases.some(entry => known.get(entry.id) !== entry.recordingSha256))
-            throw new Error('a previously measured challenge was removed or changed; restore it and add a new case');
+        const evaluation = readEvaluation(root, row.challenge_evaluation);
+        const batch = evaluationBatch(evaluation);
+        if (!history.has(batch)) history.set(batch, []);
+        history.get(batch).push(evaluation);
     }
-    if (evaluation.cases.some(entry => known.get(entry.id) !== entry.recordingSha256))
-        throw new Error('evaluation contains an unknown or changed challenge');
-    // First imported pilot evidence predates admission. Preserve its actual SHA
-    // and measurement time; ledger utc separately records when it was admitted.
-    const note = evaluation.status === 'complete'
-        ? `Challenges ${evaluation.totals.screens.matched}/${evaluation.totals.screens.total} screens; ${evaluation.totals.sessions.matched}/${evaluation.totals.sessions.total} sessions. Measured ${evaluation.utc}.`
-        : `Challenge evaluation failed. Measured ${evaluation.utc}; see saved artifact.`;
-    return appendRow({ ...evaluationFields(relative, evaluation), note }, join(root, 'SCORE.tsv'));
+    const manifests = new Map(readChallengeBatches(root).map(entry => [entry.batch, entry]));
+    const fields = [];
+    // Validate the entire request before writing. Newly planned measurements
+    // also enter the index so two imports for one batch keep their time order.
+    for (const relative of relatives) {
+        if (recorded.has(relative)) throw new Error('evaluation is already recorded');
+        const evaluation = readEvaluation(root, relative);
+        const batch = evaluationBatch(evaluation);
+        const prior = history.get(batch) ?? [];
+        const previous = prior.at(-1);
+        if (previous && Date.parse(previous.utc) > Date.parse(evaluation.utc))
+            throw new Error('record evaluations in measurement order so first results remain first');
+        const manifest = manifests.get(batch);
+        if (!manifest) throw new Error('evaluation references an unadmitted challenge batch: ' + batch);
+        if (evaluation.manifestSha256 !== manifest.manifestSha256)
+            throw new Error('evaluation must cover the complete admitted batch');
+        if (previous && previous.manifestSha256 !== manifest.manifestSha256)
+            throw new Error('admitted batch membership is immutable; put new cases in the next batch');
+        const known = new Map(manifest.cases.map(entry => [entry.id, entry.recordingSha256]));
+        if (prior.some(old => old.cases.some(entry => known.get(entry.id) !== entry.recordingSha256)))
+            throw new Error('a previously measured challenge was removed or changed; restore it and add a new case');
+        if (evaluation.cases.some(entry => known.get(entry.id) !== entry.recordingSha256))
+            throw new Error('evaluation contains an unknown or changed challenge');
+        // First imported pilot evidence predates admission. Preserve its actual
+        // SHA and measurement time; ledger utc records when it was imported.
+        const note = evaluation.status === 'complete'
+            ? `Challenges ${evaluation.totals.screens.matched}/${evaluation.totals.screens.total} screens; ${evaluation.totals.sessions.matched}/${evaluation.totals.sessions.total} sessions. Measured ${evaluation.utc}.`
+            : `Challenge evaluation failed. Measured ${evaluation.utc}; see saved artifact.`;
+        fields.push({ ...evaluationFields(relative, evaluation), note });
+        recorded.add(relative);
+        prior.push(evaluation);
+        history.set(batch, prior);
+    }
+    return fields.map(row => appendRow(row, join(root, 'SCORE.tsv')));
 }
 
 export function evaluateChallenges(root, relative, batchId = 'v1') {

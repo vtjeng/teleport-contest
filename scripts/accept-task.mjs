@@ -12,7 +12,7 @@ import { summarizeLedger } from './worker-state.mjs';
 import { validateHistoricalEvaluation } from './worker-delivery.mjs';
 import { appendRow, generateNote, readRows, standing } from './score-log.mjs';
 import { challengeInputSnapshot, evaluationBatch, readChallengeBatches, validateEvaluation } from './challenge-results.mjs';
-import { recordEvaluation } from './score-challenges.mjs';
+import { recordEvaluations } from './score-challenges.mjs';
 import { boundedMain } from './run-bounded.mjs';
 
 const USAGE = `Usage: node scripts/accept-task.mjs --task <id> --ledger <file> [--evaluations <directory>]
@@ -138,13 +138,15 @@ export function acceptTask(options, root = process.cwd()) {
     }
     if (task.status === 'integrating') event({ type: 'validated', passed: true, checkpoint: checkpointPath });
     if (goal && task.status !== 'accepted') {
+        const recorded = new Set(readRows(join(root, 'SCORE.tsv')).map(row => row.challenge_evaluation));
         for (const { source, relative } of evaluations) {
             ensureHead();
             mkdirSync(join(root, 'challenges/evaluations'), { recursive: true });
             if (!existsSync(join(root, relative))) copyFileSync(source, join(root, relative));
-            if (!readRows(join(root, 'SCORE.tsv')).some(row => row.challenge_evaluation === relative))
-                recordEvaluation(root, relative);
         }
+        ensureHead();
+        recordEvaluations(root, evaluations.map(entry => entry.relative).filter(path => !recorded.has(path)));
+        ensureHead();
         if (goal.status === 'open') run(['scripts/goal-log.mjs', 'close-goal', '--goal', task.goal,
             '--development-scan', join(root, '.cache/scan-cache.json')]);
         const rows = readRows(join(root, 'SCORE.tsv'));
