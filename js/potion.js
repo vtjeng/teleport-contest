@@ -195,7 +195,7 @@ import {
 } from './monsters.js';
 import {
     bless, bcsign, carried, costly_alteration, curse, fixup_oil, is_ammo,
-    is_weptool, isCorrodeable, isRustprone, mkobj, objectType, splitobj,
+    is_weptool, isCorrodeable, isRustprone, mkobj, newObject, objectType, splitobj,
     unbless, uncurse,
 } from './obj.js';
 import { dist2, s_suffix, upstart } from './hacklib.js';
@@ -3688,8 +3688,8 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
                 await message('Something happens.', state);
             if (oldDknown && !state.objects[oldType].oc_name_known
                 && !state.objects[oldType].oc_uname) {
-                const fakeobj = { ...state.cg.zeroobj, dknown: 1,
-                    otyp: oldType, oclass: POTION_CLASS };
+                const fakeobj = newObject({ dknown: 1,
+                    otyp: oldType, oclass: POTION_CLASS });
                 await docall(fakeobj, state);
             }
         }

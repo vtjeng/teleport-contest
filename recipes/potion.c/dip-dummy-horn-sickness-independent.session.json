@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first potion.c:potion_dip old-appearance naming witness. Catalyst conversion preserves the old potion type for the call-name prompt using a fresh zero object; source-selected catalyst variation and gender were fixed before comparison. No challenge inputs copied. C-only prompt reconciliation: the transformation message requires a More dismissal before entering oldbrew as the former potion call-name.",
+  "segments": [
+    {
+      "seed": 18133012,
+      "datetime": "20571016142536",
+      "nethackrc": "OPTIONS=name:MixWitness,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed unicorn horn\n\u0017uncursed potion of sickness\n#dip\nef oldbrew\n i "
+    }
+  ]
+}
