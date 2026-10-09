@@ -223978,6 +223978,363 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-options-status-hilite-menu-v32-20261009",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the status-highlight option menu and canonical option attributes",
+      "cFile": "options.c",
+      "sessions": [
+        "synthetic/v32/v32-options-status-hilites"
+      ],
+      "selectionReason": "Oldest dependency-ready admitted mismatch after C159 acceptance; v32 reaches options.c optfn_o_status_hilites at step 39 with 18 screens remaining.",
+      "detail": "Port the status-highlight callback and complete nested menu return closure across botl.c and coloratt.c, reconcile canonical C option attributes at existing drawing boundaries, and verify live menu callers. Retain #saveoptions, dormant choose-field, renderer timer, and broader parser frontiers without source completion credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "optfn_o_status_hilites",
+          "line": 8446,
+          "endLine": 8480,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 8446,
+        "to": 8480
+      },
+      "requiredFunctions": [
+        {
+          "name": "s_to_anything",
+          "line": 1930,
+          "endLine": 1976,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "split_clridx",
+          "line": 2576,
+          "endLine": 2592,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "query_arrayvalue",
+          "line": 2747,
+          "endLine": 2783,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "query_conditions",
+          "line": 3109,
+          "endLine": 3140,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "conditionbitmask2str",
+          "line": 3141,
+          "endLine": 3170,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "hlattr2attrname",
+          "line": 3369,
+          "endLine": 3416,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_linestr_countfield",
+          "line": 3462,
+          "endLine": 3476,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "count_status_hilites",
+          "line": 3477,
+          "endLine": 3487,
+          "declared": true,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite2str",
+          "line": 3590,
+          "endLine": 3671,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_menu_choose_field",
+          "line": 3672,
+          "endLine": 3706,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_menu_choose_behavior",
+          "line": 3707,
+          "endLine": 3810,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_menu_choose_updownboth",
+          "line": 3811,
+          "endLine": 3889,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_menu_add",
+          "line": 3890,
+          "endLine": 4304,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_remove",
+          "line": 4305,
+          "endLine": 4356,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_menu_fld",
+          "line": 4357,
+          "endLine": 4455,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_menu",
+          "line": 4498,
+          "endLine": 4583,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "query_attr",
+          "line": 396,
+          "endLine": 474,
+          "declared": true,
+          "sourceFile": "coloratt.c",
+          "complete": false
+        },
+        {
+          "name": "query_color",
+          "line": 475,
+          "endLine": 529,
+          "declared": true,
+          "sourceFile": "coloratt.c",
+          "complete": false
+        },
+        {
+          "name": "optfn_menu_headings",
+          "line": 2183,
+          "endLine": 2224,
+          "declared": true,
+          "sourceFile": "options.c",
+          "complete": false
+        },
+        {
+          "name": "optfn_petattr",
+          "line": 3138,
+          "endLine": 3196,
+          "declared": false,
+          "sourceFile": "options.c",
+          "complete": false
+        },
+        {
+          "name": "handler_menu_headings",
+          "line": 5780,
+          "endLine": 5794,
+          "declared": true,
+          "sourceFile": "options.c",
+          "complete": false
+        },
+        {
+          "name": "handler_petattr",
+          "line": 6152,
+          "endLine": 6166,
+          "declared": false,
+          "sourceFile": "options.c",
+          "complete": false
+        },
+        {
+          "name": "handler_menu_colors",
+          "line": 6407,
+          "endLine": 6501,
+          "declared": false,
+          "sourceFile": "options.c",
+          "complete": false
+        },
+        {
+          "name": "handle_add_list_remove",
+          "line": 9208,
+          "endLine": 9255,
+          "declared": false,
+          "sourceFile": "options.c",
+          "complete": false
+        },
+        {
+          "name": "test_regex_pattern",
+          "line": 7871,
+          "endLine": 7904,
+          "declared": false,
+          "sourceFile": "options.c",
+          "complete": false
+        },
+        {
+          "name": "query_color_attr",
+          "line": 304,
+          "endLine": 319,
+          "declared": true,
+          "sourceFile": "coloratt.c",
+          "complete": false
+        },
+        {
+          "name": "attr2attrname",
+          "line": 320,
+          "endLine": 337,
+          "declared": false,
+          "sourceFile": "coloratt.c",
+          "complete": false
+        },
+        {
+          "name": "color_attr_to_str",
+          "line": 249,
+          "endLine": 260,
+          "declared": true,
+          "sourceFile": "coloratt.c",
+          "complete": false
+        },
+        {
+          "name": "color_attr_parse_str",
+          "line": 261,
+          "endLine": 303,
+          "declared": true,
+          "sourceFile": "coloratt.c",
+          "complete": false
+        },
+        {
+          "name": "free_one_menu_coloring",
+          "line": 684,
+          "endLine": 708,
+          "declared": false,
+          "sourceFile": "coloratt.c",
+          "complete": false
+        },
+        {
+          "name": "reset_status_hilites",
+          "line": 2321,
+          "endLine": 2335,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_add_threshold",
+          "line": 2784,
+          "endLine": 2813,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_linestr_add",
+          "line": 3417,
+          "endLine": 3447,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_linestr_done",
+          "line": 3448,
+          "endLine": 3461,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_linestr_gather_conditions",
+          "line": 3488,
+          "endLine": 3569,
+          "declared": true,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilite_linestr_gather",
+          "line": 3570,
+          "endLine": 3589,
+          "declared": true,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "status_hilites_viewall",
+          "line": 4456,
+          "endLine": 4476,
+          "declared": false,
+          "sourceFile": "botl.c",
+          "complete": false
+        },
+        {
+          "name": "basic_menu_colors",
+          "line": 530,
+          "endLine": 584,
+          "declared": false,
+          "sourceFile": "coloratt.c",
+          "complete": false
+        },
+        {
+          "name": "optfn_o_menu_colors",
+          "line": 8368,
+          "endLine": 8388,
+          "declared": false,
+          "sourceFile": "options.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v32/v32-options-status-hilites": {
+          "session": "synthetic/v32/v32-options-status-hilites",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-options-status-hilites",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-options-status-hilites.session.json",
+          "recordingSha256": "9e6aabd7add0432bbd3c97bbd6d05c40d87338a4e2858732bc82fb0a9ab8b20e",
+          "evaluationPath": "challenges/evaluations/accepted-327cea6c9e23c151101e065443b86dbea4996ed4-v32.json",
+          "evaluationCommit": "327cea6c9e23c151101e065443b86dbea4996ed4"
+        }
+      }
     }
   ]
 }
