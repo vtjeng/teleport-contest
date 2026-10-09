@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first low-HP Tourist Death touch, different role/seed and no level increase. The source direct drain>=uhpmax branch calls done(DIED); debug recovery keeps the observable continuation alive. Seed fixed before comparison; C-only pager/naming correction is permitted. C-only terminal recovery continued after the first high-roll touch to cover done return and final killer-name clear.",
+  "segments": [
+    {
+      "seed": 17681047,
+      "datetime": "20710719112344",
+      "nethackrc": "OPTIONS=name:DeathLowHp,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0007Death\ny m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n               "
+    }
+  ]
+}

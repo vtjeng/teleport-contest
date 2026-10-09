@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -7,6 +8,8 @@ import {
     BLINDED,
     CONFUSION,
     COULD_SEE,
+    DIED,
+    KILLED_BY,
     FROMFORM,
     HALF_SPDAM,
     HALLUC,
@@ -25,10 +28,12 @@ import {
     TIMEOUT,
 } from '../js/const.js';
 import { GLYPH_INVISIBLE } from '../js/display.js';
-import { buzzmu, castmu, death_inflicted_by, mcast_summon_mons } from '../js/mcastu.js';
+import { buzzmu, castmu, death_inflicted_by, touch_of_death, mcast_death_touch, mcast_summon_mons } from '../js/mcastu.js';
 import { healmon } from '../js/mon.js';
 import {
     G_UNIQ,
+    S_GOLEM,
+    M2_DEMON,
     M2_PNAME,
     NON_PM,
     AD_CLRC,
@@ -1591,4 +1596,162 @@ test('death_inflicted_by pins the complete pure source formatter', () => {
         assert.equal(death_inflicted_by('bolt of cold', subject, state), expected);
     assert.equal(JSON.stringify({ state, cases }), before,
         'the helper changes neither the monster nor global state');
+});
+
+// mcastu.c323-408: these source pins keep the draw, drained message, saved
+// HP, clamp/remaining loss and final killer clear in their C order.
+test('Death touch family preserves source damage and dispatcher order', () => {
+    const c = readFileSync(new URL('../nethack-c/upstream/src/mcastu.c', import.meta.url), 'utf8');
+    const js = readFileSync(new URL('../js/mcastu.js', import.meta.url), 'utf8');
+    const body = c.slice(c.indexOf('touch_of_death(struct monst *mtmp)'), c.indexOf('/* give a reason for death'));
+    const points = ['50 + d(8, 6)', 'dmg / 2', 'You_feel("drained...")', 'death_inflicted_by(kbuf', 'if (Upolyd)', 'u.mh = 0', 'drain >= u.uhpmax', 'done(DIED)', 'int olduhp = u.uhp', 'minuhpmax(3)', 'setuhpmax(max(newuhpmax, uhpmin), FALSE)', 'adjuhploss(dmg, olduhp)', 'losehp(dmg, kbuf, KILLED_BY)', "svk.killer.name[0] = '\\0'"];
+    const indices = points.map(point => body.indexOf(point));
+    assert.ok(indices.every((index, i) => index >= 0 && (!i || indices[i - 1] < index)));
+    assert.match(js, /case MCAST_DEATH_TOUCH:\s*await mcast_death_touch\(mtmp, env\);/u);
+});
+
+function deathTouchState(hp, maxhp = 200) {
+    // ulevel18 is above altmin3, so minuhpmax(3) must return18.
+    return makeState({ u: { ux: 4, uy: 5, uprops: {}, uhp: hp,
+        uhpmax: maxhp, uhppeak: maxhp, ulevel: 18, umonnum: 0, umonster: 0 },
+        disp: {}, killer: { name: 'old reason' } });
+}
+
+test('Death touch accounts for HP already lost to the maximum clamp', async () => {
+    for (const [hp, pending, final] of [[200, 37, 126], [100, 74, 26]]) {
+        // d(8,6)=24 gives damage74 and drain37: full HP is clamped first,
+        // but HP100 is below the new maximum163 and loses all74 afterwards.
+        const state = deathTouchState(hp);
+        const calls = [];
+        await touch_of_death(makeCaster(), { state,
+            random: { d: (n, sides) => { calls.push(['d', n, sides]); return 24; } },
+            message: async text => { calls.push(['message', text]); },
+            losehp: async (loss, reason, format, owner) => {
+                calls.push(['losehp', loss, reason, format]);
+                assert.equal(owner, state);
+                assert.equal(state.u.uhpmax, 163);
+                state.u.uhp -= loss;
+            },
+        });
+        assert.deepEqual(calls, [['d', 8, 6], ['message', 'You feel drained...'],
+            ['losehp', pending, 'the touch of death inflicted by a kobold shaman', KILLED_BY]]);
+        assert.equal(state.u.uhp, final);
+        assert.equal(state.killer.name, '');
+    }
+});
+
+test('Death touch direct-death return clears the killer only after recovery', async () => {
+    // Damage74 drains37, exactly the maximum37: C uses >= for direct done.
+    const state = deathTouchState(37, 37);
+    const calls = [];
+    await touch_of_death(makeCaster(), { state, random: { d: () => 24 },
+        message: async text => calls.push(text),
+        done: async (how, owner) => {
+            assert.equal(owner, state);
+            assert.equal(state.killer.name, 'the touch of death inflicted by a kobold shaman');
+            assert.equal(state.killer.format, KILLED_BY);
+            calls.push(how);
+        },
+        losehp: () => assert.fail('direct death must not enter losehp'),
+    });
+    assert.deepEqual(calls, ['You feel drained...', DIED]);
+    assert.equal(state.u.uhpmax, 37);
+    assert.equal(state.killer.name, '');
+});
+
+test('Death touch planning stops before the direct-death terminal callback', async () => {
+    // The same equality boundary as the live recovery test, on a separate
+    // state. The existing planner callback identifies the attacking monster.
+    const state = deathTouchState(37, 37), caster = makeCaster();
+    const stop = new Error('planned death boundary');
+    let announced = false;
+    await assert.rejects(touch_of_death(caster, { state, planning: true,
+        random: { d: () => 24 }, message: async text => { announced = text === 'You feel drained...'; },
+        planningDeath: monster => { assert.equal(monster, caster); return stop; },
+        done: () => assert.fail('planning must not read live recovery input'),
+    }), error => error === stop);
+    assert.equal(announced, true);
+    assert.equal(state.killer.name, 'the touch of death inflicted by a kobold shaman');
+});
+
+test('Death touch polymorphed arm sets mh to zero before rehumanize', async () => {
+    const state = deathTouchState(200);
+    // Different form indices select Upolyd; the human HP pool is unchanged.
+    state.u.umonnum = 1; state.u.mh = 40;
+    const events = [];
+    await touch_of_death(makeCaster(), { state, planning: true,
+        random: { d: () => 24 }, message: async () => {},
+        rehumanize: async (owner, env) => {
+            assert.equal(owner, state);
+            assert.equal(owner.u.mh, 0);
+            assert.equal(env.planning, true);
+            events.push('rehumanize');
+        },
+        done: () => assert.fail('the polymorphed arm delegates death to rehumanize'),
+        losehp: () => assert.fail('the polymorphed arm does not drain human HP'),
+    });
+    assert.deepEqual(events, ['rehumanize']);
+    assert.equal(state.u.uhp, 200);
+    assert.equal(state.killer.name, '');
+});
+
+test('death-touch spell respects nonliving, demon, Antimagic and low-roll gates', async () => {
+    for (const [form, antimagic, rolls, text] of [
+        // mondata.h nonliving includes the entire golem class.
+        [{ mlet: S_GOLEM }, 0, [], 'You seem no deader than before.'],
+        [{ mflags2: M2_DEMON }, 0, [], 'You seem no deader than before.'],
+        [{ mflags2: 0 }, 1, [], "Lucky for you, it didn't work!"],
+        // rn2(level)=12 is C's last unsuccessful result (>12 succeeds).
+        [{ mflags2: 0 }, 0, [12], "Lucky for you, it didn't work!"],
+    ]) {
+        const state = deathTouchState(200);
+        state.youmonst.data = form;
+        state.u.uprops[ANTIMAGIC] = { intrinsic: antimagic };
+        const random = scriptedRandom(rolls), messages = [];
+        await mcast_death_touch(makeCaster({ m_lev: 20 }), { state, random,
+            message: async line => messages.push(line) });
+        assert.equal(messages.at(-1), text);
+        assert.deepEqual(random.draws, rolls.length ? ['rn2(20)'] : []);
+        assert.equal(state.u.uhpmax, 200);
+    }
+});
+
+test('death-touch hallucination consumes its chance but no damage draw', async () => {
+    const state = deathTouchState(200);
+    state.u.uprops[HALLUC] = { intrinsic: 1 };
+    state.youmonst.data = { mflags2: 0 };
+    // mhe first draws rn2(4)=3 for the hallucinated pronoun; the spell
+    // chance then draws rn2(20)=13. A source caller can choose the spell; >12 gives
+    // the out-of-body message rather than invoking the HP effect.
+    const random = scriptedRandom([3, 13]), messages = [];
+    await mcast_death_touch(makeCaster({ m_lev: 20 }), { state, random,
+        message: async line => messages.push(line) });
+    assert.equal(messages.at(-1), 'You have an out of body experience.');
+    assert.deepEqual(random.draws, ['rn2(4)', 'rn2(20)']);
+    assert.equal(state.u.uhpmax, 200);
+});
+
+test('castmu death spell reaches the shared touch with source-ordered RNG', async () => {
+    const state = deathTouchState(200), caster = makeCaster({ m_lev: 25 });
+    // Spell level20 selects MCAST_DEATH_TOUCH. The fumble roll200 is above
+    // C's20 threshold; chance13 succeeds and damage24 gives the74-point hit.
+    const random = scriptedRandom([20, 200, 13], 24), messages = [], losses = [];
+    const result = await castmu(caster, AD_SPEL_ATTACK, true, true, {
+        state, random, unsupported: refuse, canSpotMonster: () => true,
+        message: async text => messages.push(text),
+        losehp: async (loss, reason, format, owner) => {
+            assert.equal(owner, state);
+            losses.push([loss, reason, format]);
+            owner.u.uhp -= loss;
+        },
+        mdamageu: () => assert.fail('the void death spell clears ordinary spell damage'),
+    });
+    assert.equal(result, M_ATTK_HIT);
+    assert.deepEqual(random.draws, ['rn2(25)', 'rn2(250)', 'd(13,6)', 'rn2(25)', 'd(8,6)']);
+    assert.ok(messages.some(text => text.includes("using the touch of death!")));
+    assert.equal(messages.at(-1), 'You feel drained...');
+    assert.deepEqual(losses, [[37, 'the touch of death inflicted by a kobold shaman', KILLED_BY]]);
+    assert.equal(state.u.uhpmax, 163);
+    assert.equal(state.u.uhp, 126);
+    assert.equal(state.killer.name, '');
 });

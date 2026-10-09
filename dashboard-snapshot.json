@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T23:38:32.104Z",
+  "capturedAt": "2026-10-08T23:55:23.886Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -68637,12 +68637,103 @@
         "type": "accepted",
         "at": "2026-10-08T23:38:15.134Z",
         "task": "C154"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-C154-e33607ad-20261008",
+        "type": "turn",
+        "at": "2026-10-08T23:38:53.240Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Accepted C154 merged cleanly. A177 remains parked on C158’s prayer caller reservation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C154-4eb5673f-20261008",
+        "type": "published",
+        "at": "2026-10-08T23:39:20.477Z",
+        "task": "C154",
+        "commit": "4eb5673fa642bc39304a93896a3d548aff910b54"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-bd4f58b91e06bdc6a24616d9dcfc1e324822ff3d",
+        "type": "ready",
+        "at": "2026-10-08T23:39:24.323Z",
+        "task": "C158",
+        "delivery": "bd4f58b91e06bdc6a24616d9dcfc1e324822ff3d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-post-C154-dependency-availability-20261008",
+        "type": "turn",
+        "at": "2026-10-08T23:39:35.730Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "C154 merged; independent work remains blocked by pending cmd dispatch, prayer caller, and diagnostic contracts."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C158-delivered-c154-boundary-20261008",
+        "type": "turn",
+        "at": "2026-10-08T23:40:22.908Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C158 delivered; accepted C154 merged cleanly. No independent admitted implementation remains: command/options work waits on B171/B173, lycanthropy on C158, and pool/list/death-touch deliveries are pending. Build and pointer contracts remain blocked."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B176-65c3f3e3-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T23:44:01.849Z",
+        "task": "B176",
+        "integration": "65c3f3e3e7e52b63d3aba58d643bb89d37ad94d9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B176-1e473520-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T23:47:32.423Z",
+        "task": "B176",
+        "integration": "1e473520110f60b4e3643c68dee6672850378ead"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A176-37329698-20261008",
+        "type": "received",
+        "at": "2026-10-08T23:48:26.297Z",
+        "task": "A176",
+        "delivery": "3732969821e4074692561e9b061197680faeb316"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-A176-review-20261008",
+        "type": "activity",
+        "at": "2026-10-08T23:48:33.715Z",
+        "task": "A176",
+        "phase": "review",
+        "reason": "Reviewing immutable touch-of-death implementation and evidence while the prior hosted checkpoint runs."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B176-1e473520110f60b4e3643c68dee6672850378ead-validated",
+        "type": "validated",
+        "at": "2026-10-08T23:52:46.263Z",
+        "task": "B176",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B176-1e473520110f60b4e3643c68dee6672850378ead-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T23:55:12.546Z",
+        "task": "B176"
       }
     ]
   },
   "development": {
-    "executionCommit": "e33607ad95e3679854ac2ad80df3e3852f127a5a",
-    "measuredAt": "2026-10-08T23:34:48.271Z",
+    "executionCommit": "1e473520110f60b4e3643c68dee6672850378ead",
+    "measuredAt": "2026-10-08T23:52:06.647Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

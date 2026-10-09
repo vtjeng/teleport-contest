@@ -1,5 +1,6 @@
 // Hero-versus-monster interaction owned by uhitm.c.
 
+import { touch_of_death } from './mcastu.js';
 import {
     ART_CLEAVER,
     ART_GIANTSLAYER,
@@ -6456,9 +6457,7 @@ export async function mhitm_ad_deth(
 
         const roll = random.rn2(20);
         if (roll >= 17 && !propertyPresent(state.u, ANTIMAGIC)) {
-            // C discards touch_of_death()'s void result; retain only its
-            // source-named gap before applying C's explicit damage reset.
-            note_unported('mcastu.c touch_of_death');
+            await touch_of_death(magr, { ...env, state, random, message });
             mhm.damage = 0;
             return;
         }

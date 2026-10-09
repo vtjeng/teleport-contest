@@ -220266,7 +220266,7 @@
     {
       "id": "port-pager-look-all-coordinate-modes-v32-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port pager monster and object list coordinate modes",
       "cFile": "pager.c",
       "sessions": [
@@ -220280,15 +220280,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1e473520110f60b4e3643c68dee6672850378ead",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "look_all",
           "line": 1979,
           "endLine": 2077,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -220479,6 +220482,395 @@
                 ],
                 "dependencies": []
               }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "look_all",
+            "implementation": "js/pager.js",
+            "symbol": "look_all",
+            "sourceReview": "Read whole pager.c:look_all1979-2074 and direct source helpers. Preserve y-major/x-minor traversal, count increments before description checks, self detection with display.h:canspotself, live monster descriptions, invisible constant and warning table rows, object descriptions, NONE-to-MAP fallback, count1 header/separator, COMPASS you/your-position exception, COMFULL here, SCREEN raw coords, MAP width8/single-digit-y space, other width12, encoded-glyph prefix length before BUFSZ truncation, mixed glyph decoding and count/noncount window/message tail. Remove the alternate-coordinate refusal only in look_all; look_traps/look_engrs limits remain. Existing consumed coordinate/descriptive/glyph dependencies are retained and audited; monhealthdescr is #if0 empty in C. No invented RNG/messages or discarded unported calls in the selected function.",
+            "callers": [
+              {
+                "path": "js/pager.js",
+                "symbol": "do_look",
+                "source": "pager.c1859-1870 m/M/o/O dispatches nearby/all monster/object scans, then returns ECMD_OK; existing production calls are awaited."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/whatis-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pager.c/coordinate-lists-full-compass-independent.session.json",
+              "recordings/pager.c/coordinate-lists-compass-help-variation.session.json",
+              "recordings/pager.c/coordinate-lists-screen-extended-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-coordinate-monster-list",
+                "segment": 0,
+                "fromStep": 18,
+                "throughStep": 31,
+                "source": "pager.c:do_look m -> look_all(TRUE,TRUE), full-compass nearby monster rows including self and peaceful newt, text-window dismissal and subsequent boundaries."
+              }
+            ],
+            "checkedAt": "1e473520110f60b4e3643c68dee6672850378ead"
+          }
+        ],
+        "entryPointReview": "All four active do_look list choices are exercised through direct /, help-menu whatis and typed #whatis. The admitted case covers full-compass nearby monsters including a peaceful newt; independent C-first variations cover every nearby/all monster/object choice, nonempty object glyphs after moving off the dropped starting weapon, and role/coordinate/command-route differences. Existing ordinary map/NONE no-object recordings plus focused tests retain empty-set messages. Warning/invisible rows, hidden-self header, all modes and decoded glyph cells are pinned by focused tests. Alternate trap/engraving coordinate lists are separate source functions and the committed trap recipe confirms the retained boundary. No whole do_look/getpos/display completion credit.",
+        "entryPoints": [
+          {
+            "name": "Nearby monsters",
+            "functions": [
+              "look_all"
+            ],
+            "recordings": [
+              "recordings/pager.c/coordinate-lists-full-compass-independent.session.json",
+              "recordings/pager.c/coordinate-lists-compass-help-variation.session.json",
+              "recordings/pager.c/coordinate-lists-screen-extended-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-coordinate-monster-list",
+                "segment": 0,
+                "fromStep": 18,
+                "throughStep": 31,
+                "source": "pager.c:do_look m -> look_all(TRUE,TRUE), full-compass nearby monster rows including self and peaceful newt, text-window dismissal and subsequent boundaries."
+              }
+            ]
+          },
+          {
+            "name": "All monsters",
+            "functions": [
+              "look_all"
+            ],
+            "recordings": [
+              "recordings/pager.c/coordinate-lists-full-compass-independent.session.json",
+              "recordings/pager.c/coordinate-lists-compass-help-variation.session.json",
+              "recordings/pager.c/coordinate-lists-screen-extended-variation.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Nearby objects",
+            "functions": [
+              "look_all"
+            ],
+            "recordings": [
+              "recordings/pager.c/coordinate-lists-full-compass-independent.session.json",
+              "recordings/pager.c/coordinate-lists-compass-help-variation.session.json",
+              "recordings/pager.c/coordinate-lists-screen-extended-variation.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "All objects",
+            "functions": [
+              "look_all"
+            ],
+            "recordings": [
+              "recordings/pager.c/coordinate-lists-full-compass-independent.session.json",
+              "recordings/pager.c/coordinate-lists-compass-help-variation.session.json",
+              "recordings/pager.c/coordinate-lists-screen-extended-variation.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1e473520110f60b4e3643c68dee6672850378ead",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-mcastu-touch-of-death-family-v32-20261008",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port Death touch and its monster spell caller family",
+      "cFile": "mcastu.c",
+      "sessions": [
+        "synthetic/v32/v32-death-touch"
+      ],
+      "selectionReason": "A175 seed now entirely matches. Highest unreserved independent v32 case is death-touch with 55 screens; first RNG difference at step 106 is missing touch_of_death. Complete coherent C family with canonical consumed helpers; C154 timeout-expiry sources are disjoint.",
+      "detail": "Whole mcastu.c lines 323-408 family, including existing pure death formatter, and both production callers. Preserve exact RNG, HP, killer, message, and clone/live terminal order, retaining downstream owner limits.",
+      "openedAt": "3d63c513dd6481e2852d05dde9462104f5459c1e",
+      "openStanding": {
+        "sha": "1e473520110f60b4e3643c68dee6672850378ead",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "touch_of_death",
+          "line": 323,
+          "endLine": 357,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "death_inflicted_by",
+          "line": 358,
+          "endLine": 388,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "mcast_death_touch",
+          "line": 389,
+          "endLine": 410,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 323,
+        "to": 410
+      },
+      "syntheticProvenance": {
+        "synthetic/v32/v32-death-touch": {
+          "session": "synthetic/v32/v32-death-touch",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-death-touch",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-death-touch.session.json",
+          "recordingSha256": "fc467065cde4cf3309090a928b89dd116b21ec970cdb2a5cec9e4cf13beb9497",
+          "evaluationPath": "challenges/evaluations/accepted-1e473520110f60b4e3643c68dee6672850378ead-v32.json",
+          "evaluationCommit": "1e473520110f60b4e3643c68dee6672850378ead"
+        }
+      },
+      "activeStanding": {
+        "sha": "1e473520110f60b4e3643c68dee6672850378ead",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-death-touch",
+          "session": "synthetic/v32/v32-death-touch",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recording": "challenges/cases/v32/v32-death-touch.session.json",
+          "recordingPath": "challenges/cases/v32/v32-death-touch.session.json",
+          "recordingSha256": "fc467065cde4cf3309090a928b89dd116b21ec970cdb2a5cec9e4cf13beb9497",
+          "recipe": "challenges/cases/v32/v32-death-touch.recipe.session.json",
+          "recipeSha256": "7720e0cf788e06028466622bf40800fd36bda703d26e4faf5120774ba120d461",
+          "replayInputSha256": "9489f005333e0d603372bbd6fcb5c43c0f690d6d50ba652345fda472ad6e1156",
+          "evaluationPath": "challenges/evaluations/accepted-1e473520110f60b4e3643c68dee6672850378ead-v32.json",
+          "evaluationCommit": "1e473520110f60b4e3643c68dee6672850378ead",
+          "evaluationArtifact": "challenges/evaluations/accepted-1e473520110f60b4e3643c68dee6672850378ead-v32.json",
+          "evaluationUtc": "2026-10-08T23:50:12.459Z",
+          "remainingScreens": 55,
+          "recordedSteps": 161,
+          "previousScreensMatched": 106,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 106,
+              "total": 161
+            },
+            "rng": {
+              "matched": 3001,
+              "total": 3080
+            },
+            "cursors": {
+              "matched": 122,
+              "total": 161
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 106,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 106,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 40,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2999,
+              "cEntry": "d(8,6)=34",
+              "cCaller": "touch_of_death(mcastu.c:326)",
+              "jsEntry": "rn2(3)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 106,
+                "key": "."
+              },
+              "stepIndex": 106
+            },
+            "cursor": {
+              "index": 106,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 106,
+                "key": "."
+              },
+              "cCursor": [
+                69,
+                0,
+                1
+              ],
+              "jsCursor": [
+                48,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 106,
+          "kind": "rng",
+          "sourceFile": "mcastu.c",
+          "function": "touch_of_death",
+          "message": null,
+          "cFile": "mcastu.c",
+          "luaFile": null,
+          "line": 326,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v32/v32-death-touch.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v32",
+              "caseId": "v32-death-touch",
+              "session": "synthetic/v32/v32-death-touch",
+              "manifestPath": "challenges/manifests/v32.json",
+              "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+              "recordingPath": "challenges/cases/v32/v32-death-touch.session.json",
+              "recording": "challenges/cases/v32/v32-death-touch.session.json",
+              "recordingSha256": "fc467065cde4cf3309090a928b89dd116b21ec970cdb2a5cec9e4cf13beb9497",
+              "evaluationPath": "challenges/evaluations/accepted-86e7e4196de994d52bfa413ac89fdb28afd3bd84-v32.json",
+              "evaluationCommit": "86e7e4196de994d52bfa413ac89fdb28afd3bd84",
+              "remainingScreens": 55,
+              "recordedSteps": 161,
+              "passed": false,
+              "metrics": {
+                "screens": {
+                  "matched": 106,
+                  "total": 161
+                },
+                "rng": {
+                  "matched": 3001,
+                  "total": 3080
+                },
+                "cursors": {
+                  "matched": 122,
+                  "total": 161
+                }
+              },
+              "error": null,
+              "firstMismatch": {
+                "kind": "rng",
+                "step": 106,
+                "cEntry": "d(8,6)=34",
+                "jsEntry": "rn2(3)=2"
+              },
+              "step": 106,
+              "kind": "rng",
+              "sourceFile": "mcastu.c",
+              "function": "touch_of_death",
+              "status": "complete",
+              "commit": "134255d313816fede867602f00a1d4da2b5d0a6a",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v32",
+                "caseId": "v32-death-touch",
+                "session": "synthetic/v32/v32-death-touch",
+                "manifestPath": "challenges/manifests/v32.json",
+                "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+                "recordingPath": "challenges/cases/v32/v32-death-touch.session.json",
+                "recording": "challenges/cases/v32/v32-death-touch.session.json",
+                "recordingSha256": "fc467065cde4cf3309090a928b89dd116b21ec970cdb2a5cec9e4cf13beb9497",
+                "evaluationPath": "challenges/evaluations/accepted-86e7e4196de994d52bfa413ac89fdb28afd3bd84-v32.json",
+                "evaluationCommit": "86e7e4196de994d52bfa413ac89fdb28afd3bd84",
+                "remainingScreens": 55,
+                "recordedSteps": 161,
+                "passed": false,
+                "metrics": {
+                  "screens": {
+                    "matched": 106,
+                    "total": 161
+                  },
+                  "rng": {
+                    "matched": 3001,
+                    "total": 3080
+                  },
+                  "cursors": {
+                    "matched": 122,
+                    "total": 161
+                  }
+                },
+                "error": null,
+                "firstMismatch": {
+                  "kind": "rng",
+                  "step": 106,
+                  "cEntry": "d(8,6)=34",
+                  "jsEntry": "rn2(3)=2"
+                },
+                "step": 106,
+                "kind": "rng",
+                "sourceFile": "mcastu.c",
+                "function": "touch_of_death"
+              },
+              "summary": "Death’s successful deadly touch skips mcastu.c touch_of_death in JavaScript, omitting its d(8,6) damage draw, HP drain and death/reversion handling.",
+              "source": {
+                "file": "mcastu.c",
+                "branch": "Death attacks the living non-Antimagic hero; uhitm.c mhitm_ad_deth selects rn2(20)17–19 and calls touch_of_death. The same helper is required by the successful monster death-touch spell.",
+                "functions": [
+                  "touch_of_death",
+                  "death_inflicted_by",
+                  "mcast_death_touch"
+                ],
+                "callers": [
+                  "uhitm.c3863 mhitm_ad_deth -> touch_of_death; mhitu.c hitmu -> mhitm_adtyping AD_DETH reaches it through ordinary monster turns.",
+                  "mcastu.c398 mcast_death_touch -> touch_of_death; mcast_spell817 -> mcast_death_touch; castmu298 -> mcast_spell.",
+                  "zap.c4574 buzz -> death_inflicted_by; current pure formatter and that caller already canonical."
+                ],
+                "dependencies": [
+                  "Canonical pure death_inflicted_by formatter exists and has source-pinned complete tests; retain its one returned-string owner.",
+                  "Consumed minuhpmax/adjuhploss and setuhpmax canonical attrib owners already exist. Preserve 50+d(8,6), integer half drain, saved olduhp before setuhpmax, adjusted remaining losehp and final killer-name clear.",
+                  "Reuse existing rehumanize/losehp/done owners. Clone planning must forward message/RNG/state and stop at existing fatal handoff before live death/recovery input; existing rehumanize planning env and losehp HeroDeathPlanningError provide that contract.",
+                  "mcast_death_touch uses existing nonliving/is_demon, mhe, property, shield and resistance observers; no consumed placeholder. Other monster spell effects remain explicit gaps outside this family.",
+                  "C154 timeout slimed_to_death/done_timeout ownership is disjoint; this family calls existing end done directly or through existing losehp/rehumanize, with no timeout edits."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved accepted-B167 v32 evaluation has106/161 matching screens and55 remaining. Current single-case replay .cache/A176/selected.json reproduces the first boundary at106, C d(8,6)=34 from touch_of_death326 versus JS rn2(3)=2; no refusal, and first screen difference at row0,column40 because the drained line is absent.",
+                "Read complete mcastu.c touch_of_death323–354, death_inflicted_by358–382, mcast_death_touch389–408, dispatcher800–820 and uhitm.c mhitm_ad_deth3837–3893. JS uhitm6459–6463 records note_unported touch_of_death; mcast_spell likewise skips mcast_death_touch. Whole coherent family plus bounded production caller wiring is actionable.",
+                "Required source order: damage draw, drained message, killer text, polymorphed reversion or human direct death/HP-max drain, then killer-name clear if the call returns. Casting wrapper preserves nonliving/demon immunity, Antimagic short circuit, hallucination and seen-resistance ordering.",
+                "Validation plan: source-pinned branch/RNG/state/callback tests, clone-only fatal input handoff, selected admitted range, independent C-first Death human primary and cheap HP/role variation, polymorph and spellcaster caller routes. Keep any source-owned downstream blocker as a named recipe/evidence limit; do not substitute another spell or claim end/polyself completion."
+              ]
             }
           }
         }
