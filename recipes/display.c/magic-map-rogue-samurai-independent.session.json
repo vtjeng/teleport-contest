@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B191 C-first rogue-samurai mapping witness. sym.h96 resolves DARKROOMSYM from the current hero level. Role/seed/setup fixed before JS comparison; no whole mapping or generation credit.",
+  "segments": [
+    {
+      "seed": 19135002,
+      "datetime": "20401011135623",
+      "nethackrc": "OPTIONS=name:Rogue19135002,role:Samurai,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,!tips,!verbose\n",
+      "moves": ".#wizlevelport\nrogue\n          #wizmap\n     "
+    }
+  ]
+}
