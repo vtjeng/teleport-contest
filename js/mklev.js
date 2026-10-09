@@ -1749,6 +1749,7 @@ async function ensureSpecialLevelLoaders() {
     const { ORCUS_LEVEL_LOADERS } = await import('./orcus_levels.js');
     const { WIZARD1_LEVEL_LOADERS } = await import('./wizard1_levels.js');
     const { WIZARD2_LEVEL_LOADERS } = await import('./wizard2_levels.js');
+    const { WIZARD3_LEVEL_LOADERS } = await import('./wizard3_levels.js');
     SPECIAL_LEVEL_LOADERS = {
         ...BIGRM_LOADERS,
         ...QUEST_LEVEL_LOADERS,
@@ -1767,6 +1768,7 @@ async function ensureSpecialLevelLoaders() {
         ...ORCUS_LEVEL_LOADERS,
         ...WIZARD1_LEVEL_LOADERS,
         ...WIZARD2_LEVEL_LOADERS,
+        ...WIZARD3_LEVEL_LOADERS,
     };
 }
 
