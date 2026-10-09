@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent natural Wizard/elf Medusa-4 generation. Fixed source-generation range19710100–19710131; first source loader match selected before C comparison. New date/role/options and source menu target; no challenge seed or expected-output selection.",
+  "segments": [
+    {
+      "seed": 19710108,
+      "datetime": "20440617173022",
+      "nethackrc": "OPTIONS=name:MedusaProbe,role:Wizard,race:elf,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizlevelport\n?\nh#wizmap\n"
+    }
+  ]
+}

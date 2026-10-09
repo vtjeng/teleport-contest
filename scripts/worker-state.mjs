@@ -10,13 +10,14 @@ import { isDeepStrictEqual } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { preflightDelivery, resolveEventCommits, submitDelivery, syncMain, verifyEvent } from './worker-delivery.mjs';
 import { admittedBatchIds } from './challenge-results.mjs';
-import { acceptedDependency, pendingMainWork, workerWork, savedQueueIssues } from './worker-backlog.mjs';
+import { acceptedMain, acceptedDependency, pendingMainWork, workerWork, savedQueueIssues } from './worker-backlog.mjs';
 import { readRows } from './score-log.mjs';
 
 export const USAGE = `Usage (run from the coordinator or assigned worker checkout root):
   node scripts/worker-state.mjs init --run <run-id> [--file <ledger.json>]
   node scripts/worker-state.mjs event --json '<event>' [--file <ledger.json>]
   node scripts/worker-state.mjs status [--file <ledger.json>]
+  node scripts/worker-state.mjs accepted-main [--file <ledger.json>]
   node scripts/worker-state.mjs next [--queue <saved-work-queue.json>] [--file <ledger.json>]
   node scripts/worker-state.mjs submit --task <id> --context <task-context.json> \\
     --evidence <task-evidence.json> --checks <checks.json> [--base <revision>] \\
@@ -29,6 +30,8 @@ The default file is .cache/worker-state.json. init never overwrites a ledger.
 status is read-only and rebuilds current ownership after a restart. The old
 pilot's manual JSON is not migrated: preserve it and reconcile its workers/WIP
 before initializing a new ledger at a different --file path.
+accepted-main is a compact read-only worker sync target. It returns the latest
+accepted integration (or its published report commit), never an active candidate.
 
 Every event needs a stable id and type. Retrying the exact same id and payload
 is a no-op; reusing an id with different data fails. Timestamps are supplied
@@ -570,7 +573,7 @@ export function main(argv = process.argv.slice(2)) {
     if (argv.length === 1 && ['--help', '-h'].includes(argv[0])) return console.log(USAGE);
     const [command, ...args] = argv;
     const allowed = {
-        init: ['--run'], event: ['--json'], status: [], next: ['--queue'],
+        init: ['--run'], event: ['--json'], status: [], 'accepted-main': [], next: ['--queue'],
         submit: ['--task', '--context', '--evidence', '--checks', '--base', '--head', '--dependencies'],
         preflight: ['--task', '--commit', '--previous-checkpoint'], 'sync-main': ['--commit'],
     };
@@ -586,10 +589,11 @@ export function main(argv = process.argv.slice(2)) {
     const root = realpathSync(git.stdout.trim());
     check(realpathSync(process.cwd()) === root, 'run worker-state from the actual worktree root');
     const file = resolve(root, options['--file'] || '.cache/worker-state.json');
-    if (['status', 'next', 'preflight', 'sync-main'].includes(command)) {
+    if (['status', 'accepted-main', 'next', 'preflight', 'sync-main'].includes(command)) {
         const state = summarizeLedger(JSON.parse(readFileSync(file, 'utf8')));
         let result = { file, ...state };
-        if (command !== 'status') check(root === state.coordinatorRoot, 'only coordinator may run this command');
+        if (!['status', 'accepted-main'].includes(command)) check(root === state.coordinatorRoot, 'only coordinator may run this command');
+        if (command === 'accepted-main') result = acceptedMain(state);
         if (command === 'next') {
             const batches = admittedBatchIds(root);
             const queue = options['--queue'] ? JSON.parse(readFileSync(resolve(root, options['--queue']), 'utf8')) : null;

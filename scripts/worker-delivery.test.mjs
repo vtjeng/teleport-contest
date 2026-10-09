@@ -445,6 +445,10 @@ test('an exact retry retains inferred dependencies after their acceptance', (t) 
     writeFileSync(summary, JSON.stringify({ commit: first, allPassed: true }));
     f.event({ type: 'validated', task: 'A-1', passed: true, checkpoint: summary });
     f.event({ type: 'accepted', task: 'A-1' });
+    assert.deepEqual(f.success(['accepted-main', '--file', f.file], f.workers.A), {
+        task: 'A-1', commit: first, checkpoint: summary,
+        acceptedAt: f.success(['status']).deliveries[first].acceptedAt,
+    }, 'workers can query accepted Main without merging the active coordinator HEAD');
     const before = readFileSync(f.file, 'utf8');
     assert.deepEqual(f.success(args, f.workers.A).deliveries[second], original);
     assert.equal(readFileSync(f.file, 'utf8'), before); // No new event or timestamp on retry.

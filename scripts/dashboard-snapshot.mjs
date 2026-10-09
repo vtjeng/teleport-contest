@@ -92,27 +92,32 @@ export function developmentFromCheckpoint(summary, results, resultBytes) {
     sessions: sessions.sort((a, b) => a.session.localeCompare(b.session)) };
 }
 
-function main(args) {
-  const option = name => {
-    const index = args.indexOf(name);
-    if (index < 0 || !args[index + 1]) throw new Error(`missing ${name}`);
-    return args[index + 1];
-  };
-  const ledger = JSON.parse(readFileSync(option('--ledger'), 'utf8'));
-  const summary = JSON.parse(readFileSync(option('--checkpoint'), 'utf8'));
+export function writeDashboardSnapshot({ ledger: ledgerPath, checkpoint, output }, root = process.cwd()) {
+  const ledger = JSON.parse(readFileSync(resolve(root, ledgerPath), 'utf8'));
+  const summary = JSON.parse(readFileSync(resolve(root, checkpoint), 'utf8'));
   const resultBytes = readFileSync(join(summary.artifacts, 'session-results.json'));
   const results = JSON.parse(resultBytes);
-  const outputPath = option('--output');
+  const outputPath = resolve(root, output);
   const previous = existsSync(outputPath)
     ? JSON.parse(readFileSync(outputPath, 'utf8')) : null;
   const snapshot = {
     version: 1,
     capturedAt: new Date().toISOString(),
     activity: mergeActivity(previous?.activity, activityFromLedger(ledger)),
-    pendingMainWork: pendingMainWork(summarizeLedger(ledger), admittedBatchIds(process.cwd())),
+    pendingMainWork: pendingMainWork(summarizeLedger(ledger), admittedBatchIds(root)),
     development: developmentFromCheckpoint(summary, results, resultBytes),
   };
   writeFileSync(outputPath, JSON.stringify(snapshot, null, 2) + '\n');
+  return snapshot;
+}
+
+function main(args) {
+  const option = name => {
+    const index = args.indexOf(name);
+    if (index < 0 || !args[index + 1]) throw new Error(`missing ${name}`);
+    return args[index + 1];
+  };
+  writeDashboardSnapshot({ ledger: option('--ledger'), checkpoint: option('--checkpoint'), output: option('--output') });
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

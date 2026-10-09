@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked before Medusa-4 program entry: cmd.c makemap_prepost -> invent.c delobj/obj_resists consumes C rn2(100) for an old-level floor object, while JS reset omits that draw. Independent Wizard direct-load variation retained; no reset/cleanup source credit in this whole Lua task.",
+  "segments": [
+    {
+      "seed": 19710037,
+      "datetime": "20440617173022",
+      "nethackrc": "OPTIONS=name:MedusaProbe,role:Wizard,race:elf,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizloaddes\nmedusa-4.lua\n            #wizmap\n        "
+    }
+  ]
+}
