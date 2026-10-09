@@ -1,0 +1,56 @@
+{
+  "session": "synthetic/v36/v36-quest-bar-goal",
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-bar-goal",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "628730723a830202637a44bc43b9eebc448c1b542b22450563a6f9e6de844996",
+  "evaluationPath": "challenges/evaluations/accepted-d28db9282c38ddf0cf2cc77330e258a9b66ebfad-v36.json",
+  "evaluationCommit": "d28db9282c38ddf0cf2cc77330e258a9b66ebfad",
+  "remainingScreens": 17,
+  "recordedSteps": 60,
+  "status": "complete",
+  "commit": "298934189b21c34a6eb5c7343d2984fecd19084e",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "sourceFile": "sp_lev.c",
+    "cFile": "sp_lev.c",
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v36/v36-quest-bar-goal"
+    ],
+    "remainingScreens": 17,
+    "remainingScreensUpperBound": null,
+    "earliestStep": 19,
+    "caseId": "v36-quest-bar-goal",
+    "batch": "v36",
+    "recordingPath": "challenges/cases/v36/v36-quest-bar-goal.session.json"
+  },
+  "summary": "The Bar-goal divergence is a macro evaluation-order defect. In sp_lev.c:sp_amask_to_amask, the AM_SPLEV_NONCO branch passes noncoalignment(...) to Align2amask. The C macro references its argument in two comparisons and the fallback addition, so the random call can run once, twice, or three times according to short-circuit results. js/themeroom_fill.js currently invokes noncoalignment once and computes the mask from that single result.",
+  "source": {
+    "file": "sp_lev.c",
+    "branch": "sp_amask_to_amask when sp_amask == AM_SPLEV_NONCO for a special-level monster or altar. The original alignment u.ualignbase[A_ORIGINAL] is passed to noncoalignment; Align2amask then reevaluates that side-effecting expression at each macro reference.",
+    "functions": [
+      "sp_amask_to_amask"
+    ],
+    "callers": [
+      "sp_lev.c:create_monster:1943 passes m->sp_amask to sp_amask_to_amask before monster construction.",
+      "sp_lev.c:lspo_altar:2469 passes a->sp_amask to sp_amask_to_amask after set_levltyp succeeds.",
+      "js/themeroom_fill.js:createMonsterBody:557 resolves the monster descriptor alignment through sp_amask_to_amask.",
+      "js/mklev.js:altar creation around 1402 resolves the altar descriptor through sp_amask_to_amask."
+    ],
+    "dependencies": [
+      "nethack-c/upstream/include/align.h:50-53 defines Align2amask as a nested conditional macro whose x expression occurs up to three times; its short-circuit order is part of the observed behavior."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Accepted evaluation challenges/evaluations/accepted-d28db9282c38ddf0cf2cc77330e258a9b66ebfad-v36.json at d28db9282c38ddf0cf2cc77330e258a9b66ebfad retains the same recording identity and reports 43/60 screens, 2303/3365 RNG calls, and 60/60 cursors; the current queue still lists 17 remaining screens.",
+    "The saved focused comparison .cache/B198/admitted-comparison.json identifies the first RNG mismatch at segment 0, step 19, key A, index 2293: C rn2(2)=0 from noncoalignment(sp_lev.c:1856), while JavaScript has rnd(2)=1. At step 43 the first screen mismatch is row 5, column 32 (C '^' and JS '.').",
+    "Upstream sp_lev.c:1908-1921 contains the complete source function. Lines 1914-1915 select AM_SPLEV_NONCO and call Align2amask(noncoalignment(u.ualignbase[A_ORIGINAL])); noncoalignment at sp_lev.c:1852-1860 calls rn2(2) once per invocation.",
+    "Upstream include/align.h:50-53 expands x in the A_NONE comparison, then the A_LAWFUL comparison if needed, then the final x + 2 expression if neither matched. Its repeated evaluations explain the second C draw at index 2293.",
+    "The corresponding JavaScript function is js/themeroom_fill.js:836-853. Its AM_SPLEV_NONCO arm currently calls noncoalignment once before the alignment conversion. Production callers are js/themeroom_fill.js:createMonsterBody and js/mklev.js altar placement; the admitted Bar-goal recording exercises the altar path."
+  ]
+}
