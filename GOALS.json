@@ -221253,7 +221253,7 @@
     {
       "id": "fix-do-dropx-pool-scroll-admission-v32-20261008",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Admit ordinary scroll drops into pools",
       "cFile": "do.c",
       "sessions": [
@@ -221267,8 +221267,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ff3dff0c8b71af1b0e8abbf0441ed286ce7f8385",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "dropx",
       "session": "synthetic/v32/v32-pool-paper-drop",
       "step": 66,
@@ -221459,7 +221462,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ff3dff0c8b71af1b0e8abbf0441ed286ce7f8385",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
