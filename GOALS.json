@@ -232024,7 +232024,7 @@
     {
       "id": "port-wizcmds-wiz-load-lua-v35-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the wizard Lua-library load command and its discarded-return loader seam.",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -232038,15 +232038,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "88a9092bc02363c5e60916ec954024489d06ca2e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_load_lua",
           "line": 353,
           "endLine": 375,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -232222,7 +232225,80 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_load_lua",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_load_lua",
+            "sourceReview": "Read all wizcmds.c353–372, cmd.c1974–1975 row/doextcmd, nhlua.c initialization/load/teardown and all242lines of dat/nhlib.lua. Preserve local uint32 sandbox flags and both16MiB bounds, raw getlin text, first-byte ESC/empty return, any-period extension rule, awaited discarded load_lua call, unavailable feedback and ECMD_OK/no-time behavior. Remove dispatcher refusal via distinct awaited owner arm. Supporting library-only adapter preserves source implicit and explicit top-level effects through existing nhl_init with private alignment arrays; precisely named arbitrary Lua/VM/sandbox/error/teardown gaps remain, no supporting whole-source credit.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c:1974–1975 WIZMODECMD wizloadlua row -> doextcmd dispatch to wiz_load_lua; preserve row flags/time handling."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizcmds.test.mjs",
+              "scripts/nhlua-core-lifecycle.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wiz-load-lua-explicit.session.json",
+              "recordings/wizcmds.c/wiz-load-lua-extensionless.session.json",
+              "recordings/wizcmds.c/wiz-load-lua-cancel.session.json",
+              "recordings/wizcmds.c/wiz-load-lua-empty.session.json",
+              "recordings/wizcmds.c/wiz-load-lua-normal.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-lua-library-load",
+                "segment": 0,
+                "fromStep": 13,
+                "throughStep": 44,
+                "source": "cmd.c wizloadlua row -> wizcmds.c:wiz_load_lua prompt -> nhlua.c:load_lua implicit nhlib initialization then explicit nhlib.lua top-level shuffle -> teardown, without special-level reset/finalize."
+              }
+            ],
+            "checkedAt": "88a9092bc02363c5e60916ec954024489d06ca2e"
+          }
+        ],
+        "entryPointReview": "One active source entry: wizard #wizloadlua, including explicit/extensionless filename and cancellation. Independent five-case C-first matrix reaches both successful filename arms, Escape, empty selection and nonwizard WIZMODECMD filtering. Source direct nonwizard owner branch is unreachable through WIZMODECMD and pinned by focused direct-call test. No new source credit for load_lua, nhl_init, nhl_loadlua, nhl_done, sandbox machinery, nhlib.lua or generic interpreter. Arbitrary/missing-file output is retained as named discarded-callee frontier.",
+        "entryPoints": [
+          {
+            "name": "Wizard #wizloadlua library loading and cancellation",
+            "functions": [
+              "wiz_load_lua"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wiz-load-lua-explicit.session.json",
+              "recordings/wizcmds.c/wiz-load-lua-extensionless.session.json",
+              "recordings/wizcmds.c/wiz-load-lua-cancel.session.json",
+              "recordings/wizcmds.c/wiz-load-lua-empty.session.json",
+              "recordings/wizcmds.c/wiz-load-lua-normal.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-lua-library-load",
+                "segment": 0,
+                "fromStep": 13,
+                "throughStep": 44,
+                "source": "cmd.c wizloadlua row -> wizcmds.c:wiz_load_lua prompt -> nhlua.c:load_lua implicit nhlib initialization then explicit nhlib.lua top-level shuffle -> teardown, without special-level reset/finalize."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "88a9092bc02363c5e60916ec954024489d06ca2e",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
