@@ -221719,7 +221719,7 @@
     {
       "id": "fix-cmd-doextcmd-full-options-dispatch-v32-20261008",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Dispatch the typed full-options menu",
       "cFile": "cmd.c",
       "sessions": [
@@ -221733,8 +221733,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4e29cc141937e87b623f827cf27d4c229d5e290a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "doextcmd",
       "session": "synthetic/v32/v32-options-fruit",
       "step": 14,
@@ -221924,7 +221927,92 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-options-fruit",
+          "session": "synthetic/v32/v32-options-fruit",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recording": "challenges/cases/v32/v32-options-fruit.session.json",
+          "recordingPath": "challenges/cases/v32/v32-options-fruit.session.json",
+          "recordingSha256": "9a613ee4fb1fa15dbbe7692645cbe7d3950c65f10ced9e3ece1d9d5e52b8522e",
+          "recipe": "challenges/cases/v32/v32-options-fruit.recipe.session.json",
+          "recipeSha256": "67bfcb671aa5c5a6662e6e6ad81b98c86498126b6b107412b57567a7bc821020",
+          "replayInputSha256": "4e642ff8ce685b557507a7c8b2e78bad22dc58c57e7d70d4b9885e7ebac7312b",
+          "evaluationPath": "challenges/evaluations/accepted-4e29cc141937e87b623f827cf27d4c229d5e290a-v32.json",
+          "evaluationCommit": "4e29cc141937e87b623f827cf27d4c229d5e290a",
+          "evaluationArtifact": "challenges/evaluations/accepted-4e29cc141937e87b623f827cf27d4c229d5e290a-v32.json",
+          "evaluationUtc": "2026-10-09T00:52:25.882Z",
+          "remainingScreens": 1,
+          "recordedSteps": 53,
+          "previousScreensMatched": 14,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 52,
+              "total": 53
+            },
+            "rng": {
+              "matched": 2664,
+              "total": 2664
+            },
+            "cursors": {
+              "matched": 53,
+              "total": 53
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "F",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 33,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v32/v32-options-fruit.json",
+            "previousRemainingScreens": 39
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "4e29cc141937e87b623f827cf27d4c229d5e290a",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
