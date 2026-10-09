@@ -222017,7 +222017,7 @@
     {
       "id": "fix-options-tab-separated-menu-format-v32-20261009",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Render source tab-separated option menus",
       "cFile": "options.c",
       "sessions": [
@@ -222031,8 +222031,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "6f43faf156d28688e1e9bf2470077de98e6cc4b2",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "doset_simple_menu..doset",
       "session": "synthetic/v32/v32-options-tab-menu",
       "step": 14,
@@ -222231,7 +222234,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6f43faf156d28688e1e9bf2470077de98e6cc4b2",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
