@@ -1,0 +1,91 @@
+{
+  "session": "synthetic/v36/v36-quest-ran-loca-search",
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-ran-loca-search",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "69c543359ea056b393d6a6e02be3d4f229a17fd6f7629251b9134209a86ed30e",
+  "evaluationPath": "challenges/evaluations/accepted-c65c2b3a1cdd449def877087461571f57c3f88b6-v36.json",
+  "evaluationCommit": "c65c2b3a1cdd449def877087461571f57c3f88b6",
+  "remainingScreens": 41,
+  "recordedSteps": 68,
+  "status": "complete",
+  "commit": "dba4e7dd8fca621c2600f2b7329c71c17ffe5e64",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-ran-loca-search",
+    "session": "synthetic/v36/v36-quest-ran-loca-search",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-ran-loca-search.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-ran-loca-search.session.json",
+    "recordingSha256": "69c543359ea056b393d6a6e02be3d4f229a17fd6f7629251b9134209a86ed30e",
+    "recipe": "challenges/cases/v36/v36-quest-ran-loca-search.recipe.session.json",
+    "recipeSha256": "bf45a7605692391f99b822246d54e1e8248d23aa639c9daedf551640d29f09d1",
+    "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+    "evaluationPath": "challenges/evaluations/accepted-c65c2b3a1cdd449def877087461571f57c3f88b6-v36.json",
+    "evaluationCommit": "c65c2b3a1cdd449def877087461571f57c3f88b6",
+    "evaluationArtifact": "challenges/evaluations/accepted-c65c2b3a1cdd449def877087461571f57c3f88b6-v36.json",
+    "evaluationUtc": "2026-10-09T13:34:54.250Z",
+    "remainingScreens": 41,
+    "recordedSteps": 68,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 27,
+        "total": 68
+      },
+      "rng": {
+        "matched": 4641,
+        "total": 5358
+      },
+      "cursors": {
+        "matched": 27,
+        "total": 68
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-loca\"",
+      "step": 27
+    },
+    "step": 27,
+    "kind": "stop",
+    "sourceFile": "Ran-loca.lua",
+    "function": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-loca\"",
+    "cFile": null,
+    "luaFile": "Ran-loca.lua",
+    "line": null
+  },
+  "goalKind": "lua-port",
+  "summary": "Ran-loca has no registered loader. Port its whole Ranger quest locate program, preserving the narrow lit maze, fixed stairs, typed random traps and sleeping hostile wumpus.",
+  "source": {
+    "file": "Ran-loca.lua",
+    "branch": "Ranger quest locate arrival or registered wizard load of Ran-loca, with wumpus sleeping on the fixed down-stair coordinate.",
+    "functions": [
+      "Ran-loca.lua"
+    ],
+    "callers": [
+      "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Ran-loca.lua",
+      "wizcmds.c:wiz_load_splua -> load_special -> registered Ran-loca Lua program"
+    ],
+    "dependencies": [
+      "Reuse existing solidfill/level_flags/map/region/stair/nondiggable/object/trap/monster owners and load_special finalization. No supporting owner change identified by source review."
+    ]
+  },
+  "evidence": [
+    "Saved challenges/evaluations/accepted-c65c2b3a1cdd449def877087461571f57c3f88b6-v36.json at c65c2b3a1cdd449def877087461571f57c3f88b6 retains missing Ran-loca loader at zero-based27:27/68matching screens and41remaining,4641/5358matching RNG calls. Recordingchallenges/cases/v36/v36-quest-ran-loca-search.session.json, digest69c543359ea056b393d6a6e02be3d4f229a17fd6f7629251b9134209a86ed30e; manifest corpus digest58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c. Examined report lineage includes accepted C169; case identity/count unchanged. No replay or new C recording during investigation.",
+    "Read whole dat/Ran-loca.lua1–79, SHA256a9889a80852b543a43919c969c4dac2351286d60fbb35457a2b665a2e6fdbea6. Solidfill stone,mazelevel/hardfloor and exact55×20 floor/stone map precede lit full local0,0..54,19, fixed up25,5/down27,18 and nondiggable same local bounds. Preserve all spaces and narrow-map frame; deterministically generate map and monster descriptors from source. No explicit wallify call or no-teleport flag.",
+    "Ran-loca.lua40–54 creates eight random objects, then two random-location spiked-pit traps,two teleport traps,two arrow traps in that exact sequence. Trap names resolve through existing lspo_trap/get_traptype_byname/create_trap owners. These are typed placements, not six fully random trap descriptors; retain the source placement/type RNG difference.",
+    "Ran-loca.lua56–78 creates a hostile asleep wumpus at27,18, then four hostile giant bats,four hostile forest centaurs,eight hostile mountain centaurs,four hostile scorpions,two hostile s-class monsters. Existing lspo_monster2141+ reads peaceful/asleep fields before species resolution; create_monster727–733 sets mpeaceful/resets malign and msleeping in source order. Preserve named-versus-class lookup and default gender RNG; do not pre-resolve species in a way that skips owner calls.",
+    "Production change is a distinct ranLoca import/body/key in existing QUEST_LEVEL_LOADERS; rg -n Ran-loca|ranLoca js/quest_levels.js found no loader. Existing makelevel/makemaz/load_special and wizard load-splua dispatchers reach registered programs. No source edit required for pending C170/B195/A191, alignment macros, object montype or selection algebra. No additional C helper completion credit is proposed.",
+    "The admitted recipe uses wizard destination-menu arrival and later wizard map reveal; its first stop is loader absence at27, before those later actions. The task addresses whole level generation. Do not claim search/mapping owners or unrelated later effects from the case identity. Cite the matching admitted prefix only after replay verifies the completed load, and retain any later source-owned divergence separately.",
+    "Plan fail-first registry/program-sequence tests, deterministic generated-map/monster equality, exact flag/local-region/stair coordinates, typed trap ordering and awaited descriptor sequencing, plus a runtime wumpus asleep/hostile assertion before ordinary action changes it. Use admitted destination arrival and independent male/female human Ranger #wizloaddes C-first recordings with independent seeds/time/inputs. Runtime support for this program remains unverified; preserve concrete new blockers rather than invent behavior. Adjacent Ran-goal source belongs to parked C173; keep it outside completion scope."
+  ]
+}
