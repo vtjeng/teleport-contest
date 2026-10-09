@@ -239319,7 +239319,7 @@
     {
       "id": "port-rog-goal-quest-level-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Rogue quest goal level",
       "luaFile": "Rog-goal.lua",
       "sessions": [
@@ -239333,15 +239333,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Rog-goal.lua",
           "line": 1,
           "endLine": 110,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -239516,7 +239519,86 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Rog-goal.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "rogGoal",
+            "sourceReview": "Read whole dat/Rog-goal.lua1–110 and sp_lev.c:lspo_object3680–3725. Preserved exact cave/lighting, mazelevel/noteleport, absolute up-stair region versus relative exclusion, nondiggable selection, fixed spiked pit, named blessed Master Key and named chameleon tin,13random objects,11random traps and all39source-ordered monsters including class draws/shapeshifters/fixed sharks. Bounded named-species descriptor parses only STATUE/EGG/CORPSE/TIN/FIGURINE, preserves existing resolved-index adapter and class draws, skips accepted C172 non-species tokens, searches neutral/male/female source names in index order without gender RNG and errors on unknown token. Resolved exact object kind reaches existing spe/field normalization. No whole lspo_object/create_object or other helper credit.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "Rog-goal registry entry supplies whole dat/Rog-goal.lua to the existing registered special-level loader."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special invokes registered Rog-goal program. Wizard wiz_load_splua uses the same loader."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/rog-goal-level.test.mjs",
+              "scripts/special-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Rog-goal.lua/rog-goal-direct-male-independent.session.json",
+              "recordings/Rog-goal.lua/rog-goal-direct-female-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-rog-goal",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Rog-goal.lua"
+              }
+            ],
+            "checkedAt": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3"
+          }
+        ],
+        "entryPointReview": "Two active entries: natural Rogue quest goal arrival through makelevel/makemaz/load_special and debug wiz_load_splua registered-name loading. Admitted v36 covers ordinary arrival; independent male/female human chaotic Rogue recipes cover explicit and extensionless filenames. Bounded descriptor support establishes named chameleon production path and source tests pin gender names, first matching species, unknown/class token error and unrelated-object type exclusion. C172 non-species behavior remains unchanged and has regression coverage. No broad descriptor ownership credit.",
+        "entryPoints": [
+          {
+            "name": "ordinary Rogue quest goal arrival",
+            "functions": [
+              "Rog-goal.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-rog-goal",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Rog-goal.lua"
+              }
+            ]
+          },
+          {
+            "name": "wizard registered Rogue goal load",
+            "functions": [
+              "Rog-goal.lua"
+            ],
+            "recordings": [
+              "recordings/Rog-goal.lua/rog-goal-direct-male-independent.session.json",
+              "recordings/Rog-goal.lua/rog-goal-direct-female-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

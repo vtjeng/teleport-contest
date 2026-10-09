@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T19:52:52.238Z",
+  "capturedAt": "2026-10-09T20:06:19.305Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -76105,19 +76105,108 @@
         "worker": "C",
         "state": "blocked",
         "reason": "Rogue-goal delivery is ready for integration. Further C-owned work waits for Main’s numeric-selection source gate; remaining admitted cases have existing owners or tooling dependencies."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A195-source-gate-293e7b73",
+        "type": "turn",
+        "at": "2026-10-09T19:53:00.959Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Refreshing the independent Samurai quest locate source scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A195-source-gate-293e7b73",
+        "type": "resume",
+        "at": "2026-10-09T19:53:10.922Z",
+        "task": "A195"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A194-cbf1702a44eb673e192e83f11d0b7c2084ef836e",
+        "type": "published",
+        "at": "2026-10-09T19:54:57.548Z",
+        "task": "A194",
+        "commit": "cbf1702a44eb673e192e83f11d0b7c2084ef836e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A195-whole-sam-loca-20261009",
+        "type": "implement",
+        "at": "2026-10-09T19:56:40.827Z",
+        "task": "A195",
+        "goal": "port-sam-loca-quest-locate-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C174-integrating-97fe6973",
+        "type": "integrating",
+        "at": "2026-10-09T19:58:35.525Z",
+        "task": "C174",
+        "integration": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A195-implementation-recording-20261009",
+        "type": "turn",
+        "at": "2026-10-09T19:58:41.987Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Validating the complete Samurai quest locate level through independent recorded play."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C174-validated-97fe6973",
+        "type": "validated",
+        "at": "2026-10-09T20:04:30.814Z",
+        "task": "C174",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8297a412828be8bff2ebda6dacec3989dbf02e3c",
+        "type": "ready",
+        "at": "2026-10-09T20:04:53.969Z",
+        "task": "A195",
+        "delivery": "8297a412828be8bff2ebda6dacec3989dbf02e3c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A195-ready-seed-boundary-8297a4128",
+        "type": "turn",
+        "at": "2026-10-09T20:05:37.876Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Samurai locate delivery is ready. Remaining saved cases have existing owners or shared source/tooling gates; available for the next independent handoff."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C174-97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T20:05:40.487Z",
+        "task": "C174"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A195-received-8297a412",
+        "type": "received",
+        "at": "2026-10-09T20:05:56.737Z",
+        "task": "A195",
+        "delivery": "8297a412828be8bff2ebda6dacec3989dbf02e3c"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "C174",
-        "worker": "C",
-        "goal": "port-rog-goal-quest-level-v36-20261009",
+        "task": "A195",
+        "worker": "A2",
+        "goal": "port-sam-loca-quest-locate-v36-20261009",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "c8d2cf5cbfa810f874adb629e9943652a9195930",
-        "since": "2026-10-09T19:51:29.750Z",
+        "delivery": "8297a412828be8bff2ebda6dacec3989dbf02e3c",
+        "since": "2026-10-09T20:04:53.969Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -76433,17 +76522,6 @@
         "reason": "Complete report8a066441a retained; Main requires adjudication of canonical numeric selection union/subtraction semantics before whole Tou-loca closure. No source claim/edit; parent directs independent investigation continuation."
       },
       {
-        "task": "A195",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T14:05:15.920Z",
-        "blockedBy": [],
-        "reason": "Main received complete Sam-loca reportf57a9beca and directs it parked pending authorized source/context. Preserve proposal/priority, no source claim or edits."
-      },
-      {
         "task": "B202",
         "worker": "B",
         "goal": null,
@@ -76490,8 +76568,8 @@
     ]
   },
   "development": {
-    "executionCommit": "e0361e80225feef14b2837e65ab482f785575c7d",
-    "measuredAt": "2026-10-09T19:49:54.338Z",
+    "executionCommit": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3",
+    "measuredAt": "2026-10-09T20:04:00.526Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
