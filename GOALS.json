@@ -229563,6 +229563,49 @@
           "evaluationCommit": "1fca795f45379c5d8364836c74c8ac61910620cd"
         }
       }
+    },
+    {
+      "id": "port-wizcmds-wiz-panic-v34-20261009",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port wizard panic confirmation and fuzzer recovery branch",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v34/v34-panic-declined"
+      ],
+      "selectionReason": "Independent admitted v34-panic-declined has 24 unmatched screens; source tracing identifies whole wizcmds.c:wiz_panic and bounded command dispatch with the existing paranoid_query dependency.",
+      "detail": "Port whole wiz_panic in source order. Wire only its bounded direct, typed, rebound, and canned dispatcher seams. Keep end.c:panic as the named discarded-result gap after positive confirmation, with no whole doextcmd, rhack, or end.c credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_panic",
+          "line": 534,
+          "endLine": 548,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 534,
+        "to": 548
+      },
+      "syntheticProvenance": {
+        "synthetic/v34/v34-panic-declined": {
+          "session": "synthetic/v34/v34-panic-declined",
+          "corpus": "synthetic",
+          "batch": "v34",
+          "caseId": "v34-panic-declined",
+          "manifestPath": "challenges/manifests/v34.json",
+          "manifestSha256": "840bad8a419ce285754826faeff76656906d9df66d6957c7e3a6f3b0d11a4e22",
+          "recordingPath": "challenges/cases/v34/v34-panic-declined.session.json",
+          "recordingSha256": "8729211a0395f9723bdcd60599589b5dec8497864401f14aadcb504b27e5494b",
+          "evaluationPath": "challenges/evaluations/accepted-bc2ce8fb5ecd42fec92c2db427c427b566e0d645-v34.json",
+          "evaluationCommit": "bc2ce8fb5ecd42fec92c2db427c427b566e0d645"
+        }
+      }
     }
   ]
 }
