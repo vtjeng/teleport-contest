@@ -577,7 +577,7 @@ canvas {
 .activity-legend-group { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 16px; align-items: baseline; }
 .activity-legend-group > strong { font-size: 11px; font-weight: 600; }
 .activity-legend-items { display: flex; flex-wrap: wrap; gap: 8px 16px; }
-.activity-backlog { font-size: 14px; line-height: 1.6; }
+.activity-backlog { font-size: 12px; line-height: 1.6; }
 .activity-backlog p { margin: 4px 0; }
 .activity-backlog summary { cursor: pointer; }
 .activity-backlog-table { max-height: 220px; overflow: auto; margin-top: 8px; }
@@ -1687,8 +1687,8 @@ document.getElementById('stats').innerHTML = [
     + '<p>Ready batches awaiting admission: '
     + (prepared.length ? prepared.map(row => esc(row.batch)).join(' · ')
       + '. Oldest accepted preparation: ' + age([...prepared].sort((a, b) => a.since.localeCompare(b.since))[0]) + ' ago.' : 'None.')
-    + '</p>' + (rows.length ? '<details><summary>Tasks, batches, and blockers'
-    + (parked.length ? ' · ' + parked.length + ' parked task' + (parked.length === 1 ? '' : 's') : '') + '</summary>'
+    + '</p>' + (rows.length ? '<details><summary>Details'
+    + (parked.length ? ' · ' + parked.length + ' parked' : '') + '</summary>'
     + '<div class="activity-backlog-table"><table><thead><tr><th>Work</th><th>State</th><th>Age</th><th>Waiting on</th></tr></thead><tbody>'
     + rows.map(row => '<tr><td title="' + esc(row.goal) + '">' + esc(row.batch ?? row.task)
       + '<small>' + esc(row.batch ? row.task : row.worker) + '</small></td><td>' + esc(names[row.status] ?? row.status)

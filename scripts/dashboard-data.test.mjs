@@ -493,6 +493,8 @@ test('Main backlog distinguishes unmerged deliveries, accepted reserve batches, 
         'pending work has its own named section');
     assert.ok(template.includes('<h3 class="section-title" id="pendingMainWorkTitle">Pending Main work</h3>'),
         'pending work uses the same heading level and style as Worker activity');
+    // Keep the original compact summary size; only the section title is a heading.
+    assert.ok(template.includes('.activity-backlog { font-size: 12px;'), 'summary text is not enlarged');
     const data = sourceDashboardData();
     // Snapshot ages, not the viewer's clock, determine the waits shown here.
     data.activity = { capturedAt: '2026-10-08T12:00:00Z', segments: [], tasks: [] };
@@ -506,7 +508,7 @@ test('Main backlog distinguishes unmerged deliveries, accepted reserve batches, 
     assert.match(html, /1 submitted task \(1 awaiting dependencies\)/u);
     assert.match(html, /Ready batches awaiting admission: v34/u);
     assert.match(html, /oldest submission 1h 0m ago/u);
-    assert.match(html, /1 parked task/u);
+    assert.match(html, /<summary>Details · 1 parked<\/summary>/u);
     assert.match(html, /Await &lt;source&gt; owner\./u);
     data.pendingMainWork = { deliveries: [], preparedBatches: [], parkedTasks: [] };
     assert.match(renderDashboard(data).get('pendingMainWork').innerHTML, /admission: None\./u);
