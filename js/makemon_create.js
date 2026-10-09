@@ -424,6 +424,7 @@ import {
     CRYSTAL_BALL,
     CRYSTAL_PLATE_MAIL,
     CROSSBOW_BOLT,
+    CREAM_PIE,
     DAGGER,
     DART,
     DENTED_POT,
@@ -507,6 +508,7 @@ import {
     QUARTERSTAFF,
     RANDOM_CLASS,
     RANSEUR,
+    RUBBER_HOSE,
     RING_MAIL,
     RING_CLASS,
     RIN_INVISIBILITY,
@@ -2138,8 +2140,17 @@ function m_initweap(monster, normalized) {
             }
         }
         break;
-    case S_KOBOLD:
-        if (!random.rn2(4)) m_initthrow(monster, DART, 12, normalized);
+    case S_KOP:
+        // C ref: makemon.c:402-409. Keystone Kops may receive cream pies,
+        // then a club or rubber hose; preserve both gates and their order.
+        if (!random.rn2(4)) m_initthrow(monster, CREAM_PIE, 2, normalized);
+        if (!random.rn2(3)) {
+            mongets(
+                monster,
+                random.rn2(2) ? CLUB : RUBBER_HOSE,
+                normalized,
+            );
+        }
         break;
     case S_ORC:
         if (random.rn2(2)) mongets(monster, ORCISH_HELM, normalized);
@@ -2204,6 +2215,9 @@ function m_initweap(monster, normalized) {
                 break;
             }
         }
+        break;
+    case S_KOBOLD:
+        if (!random.rn2(4)) m_initthrow(monster, DART, 12, normalized);
         break;
     case S_CENTAUR:
         if (random.rn2(2)) {
