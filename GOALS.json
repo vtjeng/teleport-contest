@@ -225906,6 +225906,111 @@
         "rng": 792838
       },
       "parkedReason": "Verified 35 of 40 source units. options.c optfn_o_status_hilites, optfn_menu_headings, optfn_petattr, and optfn_o_menu_colors remain active through the unported #saveoptions GET_CNF_VAL writer; botl.c status_hilite_menu_choose_field has no active runtime caller with origfld BL_FLUSH. Preserve their blocked recipes for the owning follow-up ports."
+    },
+    {
+      "id": "fix-potion-dip-old-appearance-dummy-v33-20261009",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Initialize the old-potion naming dummy with the canonical zero object.",
+      "cFile": "potion.c",
+      "sessions": [],
+      "selectionReason": "Seed continuation after accepted B180; admitted v33 amethyst-booze has 67 remaining screens and a source-traced potion_dip dummy-object construction failure, independent of live reservations.",
+      "detail": "synthetic/v33/v33-amethyst-booze segment 0 step 44: C potion.c potion_dip lines 2774-2780 initializes fakeobj from cg.zeroobj before docall; JS potion.js dereferences absent state.cg.zeroobj. Replace only the dummy construction with the canonical obj.js newObject zero object and preserve dknown, old type, potion class, docall, and hold_potion order.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "potion_dip",
+      "session": "synthetic/v33/v33-amethyst-booze",
+      "step": 44,
+      "syntheticProvenance": {
+        "synthetic/v33/v33-amethyst-booze": {
+          "session": "synthetic/v33/v33-amethyst-booze",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-amethyst-booze",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-amethyst-booze.session.json",
+          "recordingSha256": "54ab5dc552521371cfb9946c7db18c6c4de46cc877781e12900771bc11ac1ca6",
+          "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+          "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66"
+        }
+      }
+    },
+    {
+      "id": "fix-hack-empty-forcefight-explosion-v33-20261009",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Wire exploding-form empty force-fight to canonical explosion and rehumanization.",
+      "cFile": "hack.c",
+      "sessions": [],
+      "selectionReason": "A179 current source trace replaces the stale prepared dropx diagnosis; independent hack.c behavior reuses accepted explosion, wake, and rehumanization owners without overlapping B181 or C160.",
+      "detail": "At step 53, empty-square force-fight in black-light form is refused by an obsolete domove_fight_empty guard. C prints the exploding-form terrain message, calls wake_nearto then existing explum with a null defender, sets monster-form HP to -1, and rehumanizes; the admitted baseline matches through step 52.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "domove_fight_empty",
+      "session": "synthetic/v33/v33-black-light-hero-explosion",
+      "step": 53,
+      "syntheticProvenance": {
+        "synthetic/v33/v33-black-light-hero-explosion": {
+          "session": "synthetic/v33/v33-black-light-hero-explosion",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-black-light-hero-explosion",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-black-light-hero-explosion.session.json",
+          "recordingSha256": "d67c5e0e3ce9d93120850865bb9b7dddde1630814fdcf2b268387a74d3925cff",
+          "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+          "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66"
+        }
+      }
+    },
+    {
+      "id": "port-artifact-invoke-healing-v33-20261009",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete artifact healing invocation feedback and polymorph health behavior.",
+      "cFile": "artifact.c",
+      "sessions": [
+        "synthetic/v33/v33-invoke-healing-blindness"
+      ],
+      "selectionReason": "Admitted v33 invoke-healing case has one remaining screen at step 87; the complete artifact.c invoke_healing owner is independently assignable and does not overlap A179 or B181.",
+      "detail": "Port artifact.c invoke_healing lines 1780-1817 completely and retain the existing HEALING dispatcher. Preserve both independent blindness feedback conditions, awaited curing order, max-HP healing, carried blessed uncursing, and Upolyd health selection. The v33 case exercises temporary blindness with no cream through step 87; add source-pinned polymorph coverage.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "invoke_healing",
+          "line": 1780,
+          "endLine": 1817,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1780,
+        "to": 1817
+      },
+      "syntheticProvenance": {
+        "synthetic/v33/v33-invoke-healing-blindness": {
+          "session": "synthetic/v33/v33-invoke-healing-blindness",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-invoke-healing-blindness",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-invoke-healing-blindness.session.json",
+          "recordingSha256": "faff54cc482400999c96e696dd41b06b96a646faf2e1f7be79d06c89e541ab60",
+          "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+          "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66"
+        }
+      }
     }
   ]
 }
