@@ -6,7 +6,7 @@
 //         dat/Cav-strt.lua, dat/Mon-goal.lua, dat/Sam-goal.lua, dat/Tou-strt.lua, dat/astral.lua,
 //         dat/Hea-goal.lua, dat/Hea-loca.lua, dat/Hea-strt.lua,
 //         dat/Kni-loca.lua, dat/Kni-strt.lua, dat/Ran-loca.lua,
-//         dat/Ran-goal.lua, dat/Rog-strt.lua, dat/Val-goal.lua,
+//         dat/Ran-goal.lua, dat/Ran-strt.lua, dat/Rog-strt.lua, dat/Val-goal.lua,
 //         dat/Val-loca.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
@@ -78,6 +78,9 @@ import {
     RAN_GOAL_DOORS, RAN_GOAL_LEVEL_MAP, RAN_GOAL_MONSTERS,
     RAN_GOAL_OBJECT_CALLS, RAN_GOAL_TRAP_COUNT,
 } from './ran_goal_level_data.js';
+import {
+    RAN_STRT_LEVEL_MAP, RAN_STRT_HUNTERS, RAN_STRT_FOREST_CENTAURS,
+} from './ran_strt_level_data.js';
 import {
     VAL_GOAL_DRAWBRIDGES, VAL_GOAL_LEVEL_MAP, VAL_GOAL_MONSTERS,
     VAL_GOAL_OBJECT_CALLS, VAL_GOAL_TRAPS,
@@ -2519,6 +2522,41 @@ async function valLoca(des) {
     await des.monster({ class: 'H', peaceful: 0 });
 }
 
+// Whole dat/Ran-strt.lua1–101. Tree replacement uses the pre-map frame;
+// the branch region is absolute, while inhabitants use the map-relative frame.
+async function ranStrt(des) {
+    await des.level_init({ style: 'solidfill', fg: '.' });
+    await des.level_flags('mazelevel', 'noteleport', 'hardfloor', 'arboreal');
+    await des.level_init({ style: 'mines', fg: '.', bg: '.', smoothed: true,
+        joined: true, lit: 1, walled: false });
+    await des.replace_terrain({ region: [0, 0, 76, 19], fromterrain: '.',
+        toterrain: 'T', chance: 5 });
+    await des.map({ halign: 'left', valign: 'center', map: RAN_STRT_LEVEL_MAP.join('\n') });
+    await des.region(selection_area(0, 0, 40, 20), 'lit');
+    await des.stair('down', 10, 10);
+    await des.levregion({ region: [51, 2, 77, 18], region_islev: 1, type: 'branch' });
+    await des.monster({ id: 'Orion', coord: [20, 10],
+        async inventory() {
+            await des.object({ id: 'leather armor', spe: 4 });
+            await des.object({ id: 'yumi', spe: 4 });
+            await des.object({ id: 'ya', spe: 4, quantity: 50 });
+        } });
+    await des.object('chest', 20, 10);
+    for (const [x, y] of RAN_STRT_HUNTERS) await des.monster('hunter', x, y);
+    await des.non_diggable(selection_area(0, 0, 40, 20));
+    await des.trap('arrow', 30, 9);
+    await des.trap('arrow', 30, 10);
+    await des.trap('pit', 40, 9);
+    await des.trap('spiked pit');
+    await des.trap('bear');
+    await des.trap('bear');
+    await des.monster({ id: 'minotaur', x: 33, y: 9, peaceful: 0, asleep: 1 });
+    for (const [x, y] of RAN_STRT_FOREST_CENTAURS)
+        await des.monster({ id: 'forest centaur', x, y, peaceful: 0 });
+    for (let i = 0; i < 6; ++i) await des.monster({ id: 'plains centaur', peaceful: 0 });
+    for (let i = 0; i < 2; ++i) await des.monster({ id: 'scorpion', peaceful: 0 });
+}
+
 // dat/Rog-strt.lua: whole Rogue quest start program, in source order.
 async function rogStrt(des, state) {
     await des.level_init({ style: 'solidfill', fg: ' ' });
@@ -2555,6 +2593,7 @@ async function rogStrt(des, state) {
 }
 
 export const QUEST_LEVEL_LOADERS = {
+    'Ran-strt': ranStrt,
     'Rog-strt': rogStrt,
     'Val-loca': valLoca,
     'Hea-strt': heaStrt,

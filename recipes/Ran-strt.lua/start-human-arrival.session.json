@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Ranger generation witness selected before JS comparison. Seeds/date vary initial generation and placement; human neutral natural arrival and elf chaotic direct loading exercise the complete Ran-strt program, while Ran-loca is the separately accepted outside-program boundary. Spaces acknowledge source startup/travel messages; > advances the levelport menu to its quest page.",
+  "segments": [
+    {
+      "seed": 19336117,
+      "datetime": "20571108123045",
+      "nethackrc": "OPTIONS=name:ForestSiege,role:Ranger,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "   #wizlevelport\n?\n>y                #wizmap\n                "
+    }
+  ]
+}
