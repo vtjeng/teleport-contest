@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T07:45:05.866Z",
+  "capturedAt": "2026-10-09T07:59:45.055Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -71320,22 +71320,77 @@
         "worker": "A2",
         "state": "active",
         "reason": "Tracing the nonexistent-species genocide prompt."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A187-source-gate-report",
+        "type": "turn",
+        "at": "2026-10-09T07:46:33.659Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "Genocide retry hint diagnosis complete; awaiting source-goal gate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B183-39d3c94d-20261009",
+        "type": "published",
+        "at": "2026-10-09T07:47:22.043Z",
+        "task": "B183",
+        "commit": "39d3c94d912cfa67f27c6f31344180aa7ac8b72a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C163-2a2fb6b0-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T07:50:30.522Z",
+        "task": "C163",
+        "integration": "2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0f268f2c2d6a6186247bb68d29b6b90314c64efc",
+        "type": "ready",
+        "at": "2026-10-09T07:53:16.726Z",
+        "task": "B185",
+        "delivery": "0f268f2c2d6a6186247bb68d29b6b90314c64efc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B186-uuid-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T07:54:33.899Z",
+        "task": "B186",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B186-uuid-investigation-20261009",
+        "type": "turn",
+        "at": "2026-10-09T07:54:35.127Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating wizard game UUID display"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C163-2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a-validated",
+        "type": "validated",
+        "at": "2026-10-09T07:56:38.553Z",
+        "task": "C163",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C163-2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T07:59:21.415Z",
+        "task": "C163"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C163",
-        "worker": "C",
-        "goal": "port-uhitm-gold-theft-handler-v33-20261009",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "a4d7b909c627ad0ae94eeae7720641f99c4f6efe",
-        "since": "2026-10-09T05:27:53.661Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "B184",
         "worker": "B",
@@ -71345,7 +71400,7 @@
         "delivery": "0be84a8b924b013b14544833362f5e060f9503fc",
         "since": "2026-10-09T07:25:14.067Z",
         "blockedBy": [],
-        "unblocks": 0
+        "unblocks": 1
       },
       {
         "task": "A185",
@@ -71356,6 +71411,19 @@
         "delivery": "3befa1a0eff3c364040977ed51b37adfd4409909",
         "since": "2026-10-09T07:34:55.948Z",
         "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B185",
+        "worker": "B",
+        "goal": "port-wizcmds-wiz-panic-v34-20261009",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "0f268f2c2d6a6186247bb68d29b6b90314c64efc",
+        "since": "2026-10-09T07:53:16.726Z",
+        "blockedBy": [
+          "B184"
+        ],
         "unblocks": 0
       }
     ],
@@ -71629,8 +71697,8 @@
     ]
   },
   "development": {
-    "executionCommit": "bc2ce8fb5ecd42fec92c2db427c427b566e0d645",
-    "measuredAt": "2026-10-09T07:35:32.449Z",
+    "executionCommit": "2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a",
+    "measuredAt": "2026-10-09T07:55:26.044Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

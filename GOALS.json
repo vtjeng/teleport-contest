@@ -229610,7 +229610,7 @@
     {
       "id": "port-uhitm-gold-theft-handler-v33-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port shared gold-theft attack handler",
       "cFile": "uhitm.c",
       "sessions": [
@@ -229624,15 +229624,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mhitm_ad_sgld",
           "line": 2790,
           "endLine": 2858,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -229806,7 +229809,96 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_sgld",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_sgld",
+            "sourceReview": "Whole uhitm.c2790–2855 direction branches and shared dispatcher; canonical owners reused, unported void stealgold callee remains named gap. All extracted gold is OBJ_MINVENT, whose canonical extraction branch is synchronous; awaited addinv/dropy and message boundaries preserve C owner order. Monster relocation reuses canonical rloc and planning-aware redraw without altering its RNG. No mhm.done write is invented. After accepted A180/C162, all three active runtime entries now have matching independent recordings. Bounded caller support removes only awake-leprechaun admission and restores monmove.c883–886 gold term before wanderer RNG; no monmove completion credit.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c4800 sole direct call in mhitm_adtyping; damageum5230–5400, mhitu.c hitmu and mhitm.c mdamagem reach the already-awaited canonical dispatcher. No direct caller body changed."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-sgld.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/gold-theft-hero-positive.session.json",
+              "recordings/uhitm.c/gold-theft-hero-hostile-variation.session.json",
+              "recordings/uhitm.c/gold-theft-hero-repeat.session.json",
+              "recordings/uhitm.c/gold-theft-incoming-same-species.session.json",
+              "recordings/uhitm.c/gold-theft-monster-pair.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-leprechaun-hero-gold-steal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 253,
+                "source": "hack.c melee -> uhitm.c:hmonas/damageum -> shared AD_SGLD dispatcher -> mhitm_ad_sgld no-gold hero branch."
+              }
+            ],
+            "checkedAt": "2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a"
+          }
+        ],
+        "entryPointReview": "Sole direct C site is shared mhitm_adtyping AD_SGLD at uhitm.c4800. Production damageum (hero), mhitu.c hitmu (incoming) and mhitm.c mdamagem (monster pair) already await that dispatcher. Admitted v33 and independent gold acquisitions prove hero route; incoming same-mlet C111 preserves damage and reduces poly HP13/14; conflict-driven C100/103/106 transfers gold and C101/104/107 relocates attackers. All three entries match completely. Discarded different-mlet stealgold gap remains explicitly named; no caller, inventory/teleport, or monmove source completion credit.",
+        "entryPoints": [
+          {
+            "name": "hero polymorphed gold-theft attack",
+            "functions": [
+              "mhitm_ad_sgld"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/gold-theft-hero-positive.session.json",
+              "recordings/uhitm.c/gold-theft-hero-hostile-variation.session.json",
+              "recordings/uhitm.c/gold-theft-hero-repeat.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v33",
+                "caseId": "v33-leprechaun-hero-gold-steal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 253,
+                "source": "hack.c melee -> uhitm.c:hmonas/damageum -> shared AD_SGLD dispatcher -> mhitm_ad_sgld no-gold hero branch."
+              }
+            ]
+          },
+          {
+            "name": "incoming same-mlet gold-theft hit",
+            "functions": [
+              "mhitm_ad_sgld"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/gold-theft-incoming-same-species.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "monster-pair gold theft",
+            "functions": [
+              "mhitm_ad_sgld"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/gold-theft-monster-pair.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2a2fb6b0eb1eccf835077f47fe728166b4bb1a2a",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
