@@ -240170,7 +240170,7 @@
     {
       "id": "fix-sp-lev-noncoaligned-macro-order-v36-20261009",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Preserve repeated alignment macro draws for noncoaligned special-level features",
       "cFile": "sp_lev.c",
       "sessions": [],
@@ -240182,8 +240182,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "00f11936d9f1c157e37a9c080de5e2009e9f09cf",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "sp_amask_to_amask",
       "session": "synthetic/v36/v36-quest-bar-goal",
       "step": 19,
@@ -240419,6 +240422,665 @@
                 "Upstream sp_lev.c:1908-1921 contains the complete source function. Lines 1914-1915 select AM_SPLEV_NONCO and call Align2amask(noncoalignment(u.ualignbase[A_ORIGINAL])); noncoalignment at sp_lev.c:1852-1860 calls rn2(2) once per invocation.",
                 "Upstream include/align.h:50-53 expands x in the A_NONE comparison, then the A_LAWFUL comparison if needed, then the final x + 2 expression if neither matched. Its repeated evaluations explain the second C draw at index 2293.",
                 "The corresponding JavaScript function is js/themeroom_fill.js:836-853. Its AM_SPLEV_NONCO arm currently calls noncoalignment once before the alignment conversion. Production callers are js/themeroom_fill.js:createMonsterBody and js/mklev.js altar placement; the admitted Bar-goal recording exercises the altar path."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "00f11936d9f1c157e37a9c080de5e2009e9f09cf",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-tou-loca-quest-level-v36-20261009",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the whole Tourist quest locate program and its consumed selection and shop initialization functions",
+      "luaFile": "Tou-loca.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-tou-loca"
+      ],
+      "selectionReason": "The current v36 Tou-loca case stops at its absent loader with 41 screens remaining; source tracing requires the Lua program, numeric selection union and subtraction, and natural deferred shopkeeper placement.",
+      "detail": "Port Tou-loca.lua lines 1-153 in source order, whole nhlsel.c l_selection_or and l_selection_sub, and whole shknam.c shkinit. Preserve numeric selection values, shop-excluding trap placement, deferred special-room fill, and the natural makelevel entry through step 59.",
+      "openedAt": "221ccfe03cac61fd2a7e5cb19438016b63b3d57d",
+      "openStanding": {
+        "sha": "00f11936d9f1c157e37a9c080de5e2009e9f09cf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "7288ae883c74f0469a62169bfd5eeb2e9ee69429",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "Tou-loca.lua",
+          "line": 1,
+          "endLine": 153,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "requiredFunctions": [
+        {
+          "name": "l_selection_or",
+          "line": 306,
+          "endLine": 331,
+          "declared": true,
+          "sourceFile": "nhlsel.c",
+          "complete": true
+        },
+        {
+          "name": "l_selection_sub",
+          "line": 361,
+          "endLine": 388,
+          "declared": true,
+          "sourceFile": "nhlsel.c",
+          "complete": true
+        },
+        {
+          "name": "shkinit",
+          "line": 628,
+          "endLine": 694,
+          "declared": true,
+          "sourceFile": "shknam.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-tou-loca": {
+          "session": "synthetic/v36/v36-quest-tou-loca",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-tou-loca",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-tou-loca.session.json",
+          "recordingSha256": "82620864b147afeef63968c3285e30bc758b89ed8df48a51ecadcea08e679c3a",
+          "evaluationPath": "challenges/evaluations/accepted-00f11936d9f1c157e37a9c080de5e2009e9f09cf-v36.json",
+          "evaluationCommit": "00f11936d9f1c157e37a9c080de5e2009e9f09cf"
+        }
+      },
+      "activeStanding": {
+        "sha": "00f11936d9f1c157e37a9c080de5e2009e9f09cf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-tou-loca",
+          "session": "synthetic/v36/v36-quest-tou-loca",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-tou-loca.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-tou-loca.session.json",
+          "recordingSha256": "82620864b147afeef63968c3285e30bc758b89ed8df48a51ecadcea08e679c3a",
+          "recipe": "challenges/cases/v36/v36-quest-tou-loca.recipe.session.json",
+          "recipeSha256": "d1a4edd2b7f52fb1516ea00a6228e350a553b07601f2a1a2c6d0dff511b1b9ab",
+          "replayInputSha256": "eba7bedcfb88ac10b078d9846b92fa6c645d11374b7d75b3dcf7c8f4fd87ecab",
+          "evaluationPath": "challenges/evaluations/accepted-00f11936d9f1c157e37a9c080de5e2009e9f09cf-v36.json",
+          "evaluationCommit": "00f11936d9f1c157e37a9c080de5e2009e9f09cf",
+          "evaluationArtifact": "challenges/evaluations/accepted-00f11936d9f1c157e37a9c080de5e2009e9f09cf-v36.json",
+          "evaluationUtc": "2026-10-09T21:01:52.797Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2977,
+              "total": 9445
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-loca\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Tou-loca.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-loca\"",
+          "cFile": null,
+          "luaFile": "Tou-loca.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-tou-loca.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-tou-loca",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "82620864b147afeef63968c3285e30bc758b89ed8df48a51ecadcea08e679c3a",
+              "evaluationPath": "challenges/evaluations/accepted-00f11936d9f1c157e37a9c080de5e2009e9f09cf-v36.json",
+              "evaluationCommit": "00f11936d9f1c157e37a9c080de5e2009e9f09cf",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "status": "complete",
+              "session": "synthetic/v36/v36-quest-tou-loca",
+              "commit": "c73aa43b72a0800387497d5aac7de214841a325e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-tou-loca",
+                "session": "synthetic/v36/v36-quest-tou-loca",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-tou-loca.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-tou-loca.session.json",
+                "recordingSha256": "82620864b147afeef63968c3285e30bc758b89ed8df48a51ecadcea08e679c3a",
+                "recipe": "challenges/cases/v36/v36-quest-tou-loca.recipe.session.json",
+                "recipeSha256": "d1a4edd2b7f52fb1516ea00a6228e350a553b07601f2a1a2c6d0dff511b1b9ab",
+                "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+                "evaluationPath": "challenges/evaluations/accepted-97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3-v36.json",
+                "evaluationCommit": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3",
+                "evaluationArtifact": "challenges/evaluations/accepted-97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3-v36.json",
+                "evaluationUtc": "2026-10-09T20:02:27.149Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2977,
+                    "total": 9445
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-loca\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Tou-loca.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-loca\"",
+                "cFile": null,
+                "luaFile": "Tou-loca.lua",
+                "line": null
+              },
+              "goalKind": "lua-port",
+              "summary": "Tou-loca has no registered loader. Port its whole Tourist quest locate program and the source-required selection OR and subtraction functions, preserving selection values and shop-excluding trap placement.",
+              "source": {
+                "file": "Tou-loca.lua",
+                "branch": "Tourist quest locate arrival or registered wizard load of Tou-loca, including map-defined room types and nine random traps selected outside the two shops.",
+                "functions": [
+                  "Tou-loca.lua"
+                ],
+                "callers": [
+                  "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Tou-loca.lua",
+                  "wizcmds.c:wiz_load_splua -> load_special -> registered Tou-loca Lua program"
+                ],
+                "dependencies": [
+                  "Required pure nhlsel.c:l_selection_or (306–330) and l_selection_sub (361–386) are now assigned to this task as the complete source owner for the selection-algebra-values contract. Preserve signed-char encoded integer values, source bounds, and operation order; leave AND/XOR and other selection operators outside this scope.",
+                  "Existing selection_area/filter_mapchar/rndcoord, region/levregion/door/object/trap/monster owners and deferred stock_room/fill_zoo filling provide the remaining APIs. The Tou-loca temple does not use alignment conversion, and this program does not use the spinach descriptor."
+                ]
+              },
+              "evidence": [
+                "Accepted evaluation challenges/evaluations/accepted-00f11936d9f1c157e37a9c080de5e2009e9f09cf-v36.json at 00f11936d9f1c157e37a9c080de5e2009e9f09cf retains 19/60 matching screens and cursors, 2977/9445 RNG calls matched, and 41 screens remaining. The first mismatch is the absent Tou-loca loader at step 19. Recording digest 82620864b147afeef63968c3285e30bc758b89ed8df48a51ecadcea08e679c3a; manifest digest 58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c. The source implementation base is published boundary c73aa43b72a0800387497d5aac7de214841a325e.",
+                "Read all of dat/Tou-loca.lua lines 1–153 (SHA-256 595f7f6265dd3346624aa6de81e7093b05705e67f8c73ed39e75b54caf213d82). It defines solid stone, mazelevel/hardfloor, the 76×20 map, full-map lit/nondiggable regions, eight filled special regions (morgue, two shops, three barracks, zoo, temple), 24 ordinary regions, two local lighting selections, stairs at (10,4)/(73,5), 35 literal doors, 14 random objects and two blank-paper objects at (71,12). Preserve definition order; no explicit wallify call exists.",
+                "Tou-loca.lua lines 130–134 filters selection.area(0,0,75,19) to floor, subtracts the union of shop rectangles (15,3–20,5) and (62,3–71,4), then selects and removes nine trap coordinates. Preserve one coordinate frame throughout, with no added RNG draws. The random trap type remains owned by create_trap.",
+                "C nhlsel.c l_selection_or (306–330) and l_selection_sub (361–386) are pure: each checks its two selections, creates a fresh result, uses rect_bounds, loops x-major then y-major, stores integer point results with selection_setpoint and returns the new selection. OR uses bitwise | and assigns the union bounds; subtraction uses (a_pt ^ b_pt) & a_pt and recalculates bounds. The registered Lua callers are metatable __bor and __add for OR and __sub for subtraction (nhlsel.c 1005–1018).",
+                "C selvar.c selection_new initializes a COLNO×ROWNO map with byte 1; selection_getpoint decodes stored char minus 1; selection_setpoint stores (char)(value+1). The JS selection storage must retain the resulting signed numeric values for these operators while existing boolean get/set and selection users retain their behavior. Pin storage encoding, OR, subtraction, bounds, disjoint/empty inputs, and coordinate-frame preservation from those source functions.",
+                "sp_lev.c lspo_region creates special rooms with deferred fill; ordinary rectangles only light regions. At finalization, fill_special_room fills shops, morgue, barracks and zoo; temple only sets has_temple. Preserve region order and existing deferred behavior. No lspo_altar or alignment conversion is called by this temple.",
+                "Tou-loca.lua lines 136–153 creates 16 giant spiders and two class-s monsters after traps. Existing named/class monster and blank-paper object owners cover these descriptors; no other shared task contract was identified.",
+                "The coordinator approved C176 as complete owner of l_selection_or, l_selection_sub and contract:selection-algebra-values. This claim leaves B200/B202 session reservations untouched and excludes unrelated selection operators. Investigation did not edit game code or record/replay a session."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Tou-loca.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "touLoca",
+            "sourceReview": "Reviewed all 153 source lines in dat/Tou-loca.lua, including fixed map and 35 doors, descriptor ordering, room setup, terrain-to-selection mapping, numeric selection subtraction/addition, nine randomized trap coordinates, and monster placement. The program is registered as Tou-loca and runs through natural makelevel -> makemaz -> load_special dispatch. Its selected source has no unported callee. The targeted replay also reports the pre-existing unrelated timeout.c kill_egg gap from game startup.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "touLoca",
+                "source": "dat/Tou-loca.lua:1-153; nhlsel.c selection metamethods at lines 1013, 1016, and 1017 call the operators used at Tou-loca.lua:130-134."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makemaz",
+                "source": "mklev.c:makelevel selects the special level and calls makemaz; mkmaze.c:makemaz calls sp_lev.c:load_special, which executes Tou-loca.lua."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_level_tele",
+                "source": "wizcmds.c:wiz_level_tele dispatches #wizlevelport to level_tele; the resulting level transition enters mklev.c:makelevel and the natural special-level path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/tou-loca-level.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-loca",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "wizcmds.c:wiz_level_tele -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Tou-loca.lua:130-153"
+              }
+            ],
+            "checkedAt": "a73cb02db28cf85ddca87fad3e668a737afa7eba"
+          },
+          {
+            "name": "l_selection_or",
+            "implementation": "js/nhlsel.js",
+            "symbol": "l_selection_or",
+            "sourceReview": "Reviewed the complete nhlsel.c:l_selection_or body at lines 306-328: validate both userdata operands, allocate a result, union bounds, visit x-major then y-minor, bitwise-OR selection_getpoint values, set each result point, preserve the rectangle bounds, and return the new selection. Checked selvar.c initialization and get/set encoding: the map stores signed char(value+1), so the JavaScript Int8Array is required to preserve numeric values and overflow. The nhlsel.c metatable binds both __bor and __add. The current translated source callers are Tou-loca.lua, bigrm-1.lua, and bigrm-2.lua; their JavaScript loaders call l_selection_or. Additional source-only consumers include bigrm-11.lua, nhlib.lua, Val-strt.lua, and Tou-goal.lua; their enclosing loader paths are unported or not registered in this task. No random, output, or game-state effects occur.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "touLoca",
+                "source": "dat/Tou-loca.lua:131 uses selection-area addition, dispatched by nhlsel.c:l_selection_meta __add at line 1016."
+              },
+              {
+                "path": "js/bigrm.js",
+                "symbol": "bigrm1",
+                "source": "dat/bigrm-1.lua:40,44,49 uses selection | selection, dispatched by nhlsel.c:l_selection_meta __bor at line 1013."
+              },
+              {
+                "path": "js/bigrm.js",
+                "symbol": "bigrm2",
+                "source": "dat/bigrm-2.lua:36-44 unions selection areas with |, dispatched by nhlsel.c:l_selection_meta __bor at line 1013."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/nhlsel.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "nhlsel.c",
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-loca",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "dat/Tou-loca.lua:131 -> nhlsel.c:l_selection_meta __add -> l_selection_or -> js/nhlsel.js"
+              }
+            ],
+            "checkedAt": "a73cb02db28cf85ddca87fad3e668a737afa7eba"
+          },
+          {
+            "name": "l_selection_sub",
+            "implementation": "js/nhlsel.js",
+            "symbol": "l_selection_sub",
+            "sourceReview": "Reviewed the complete nhlsel.c:l_selection_sub body at lines 361-385: validate operands, allocate a result, union bounds, visit x-major then y-minor, evaluate (a_pt ^ b_pt) & a_pt, set every point, recalculate the output bounds, and return the new selection. The result preserves numeric signed-char point values under the selvar.c(value+1) representation. nhlsel.c binds __sub to this function. Tou-loca.lua is the only current translated JavaScript caller; Tou-goal.lua:112 is an additional source-only consumer whose loader is not registered in this task. No random, output, or game-state effects occur.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "touLoca",
+                "source": "dat/Tou-loca.lua:131 subtracts the shop union from validtraps, dispatched by nhlsel.c:l_selection_meta __sub at line 1017."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/nhlsel.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "nhlsel.c",
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-loca",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "dat/Tou-loca.lua:131 -> nhlsel.c:l_selection_meta __sub -> l_selection_sub -> js/nhlsel.js"
+              }
+            ],
+            "checkedAt": "a73cb02db28cf85ddca87fad3e668a737afa7eba"
+          },
+          {
+            "name": "shkinit",
+            "implementation": "js/shknam.js",
+            "symbol": "shkinit",
+            "sourceReview": "Reviewed complete shknam.c:shkinit at lines 628-692: failed good_shopdoor path, DEBUG-only diagnostics, occupied-square rloc(..., RLOC_NOMSG) with its discarded result, MM_ESHK creation failure, keeper/eshk initialization, trap learning, initial capital RNG, conditional touchstone/charging scroll RNG with source short-circuit order, naming, and returned door index. JavaScript calls the existing rloc path before makemon and retains the same field assignments and RNG order; its mtrapseen=-1 corresponds to mon_learns_traps(ALL_TRAPS). The reference build excludes the #ifdef DEBUG diagnostics. Natural callers are stock_room -> fill_special_room -> makelevel. The separate wiz_load_splua caller is deliberately not claimed as passing evidence: direct recipes remain blocked by makemon_create.js shopkeeperCall / C makemon(MM_ESHK) gate.",
+            "callers": [
+              {
+                "path": "js/shknam.js",
+                "symbol": "stock_room",
+                "source": "shknam.c:stock_room at lines 732-734 calls shkinit before stocking a shop."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c:makelevel lines 1414-1418 calls sp_lev.c:fill_special_room; fill_special_room calls shknam.c:stock_room, which calls shkinit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/tou-loca-level.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "shknam.c",
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-loca",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "mklev.c:makelevel -> sp_lev.c:fill_special_room -> shknam.c:stock_room -> shknam.c:shkinit; the recorded natural Tou-loca generation occupies the shopkeeper square and exercises relocation"
+              }
+            ],
+            "checkedAt": "a73cb02db28cf85ddca87fad3e668a737afa7eba"
+          }
+        ],
+        "entryPointReview": "The admitted Tourist replay uses #wizlevelport, which enters the natural level-transition path: wizcmds.c:wiz_level_tele -> level_tele -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> Tou-loca.lua. makelevel then fills the level's shops through fill_special_room -> stock_room -> shkinit. Tou-loca.lua:130-134 invokes both selection operators through the Lua metatable bindings. All active entry points in this task are covered by the matching v36 case through step 59. The independent #wizloaddes/wiz_load_splua path is a separate caller and remains a blocked direct recipe because its makemon_create.js shopkeeperCall / C makemon(MM_ESHK) gate is outside this natural-entry task. Other source-only Lua callers of l_selection_or/sub are documented in the function reviews; no enclosing JS loader for those programs is claimed here.",
+        "entryPoints": [
+          {
+            "name": "natural Tou-loca quest-level generation and deferred shop fill",
+            "functions": [
+              {
+                "sourceFile": "Tou-loca.lua",
+                "name": "Tou-loca.lua"
+              },
+              {
+                "sourceFile": "nhlsel.c",
+                "name": "l_selection_or"
+              },
+              {
+                "sourceFile": "nhlsel.c",
+                "name": "l_selection_sub"
+              },
+              {
+                "sourceFile": "shknam.c",
+                "name": "shkinit"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-loca",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "#wizlevelport -> mklev.c:makelevel -> Tou-loca.lua -> l_selection_or/l_selection_sub -> fill_special_room -> stock_room -> shkinit"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7288ae883c74f0469a62169bfd5eeb2e9ee69429",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-castle-map-throne-cell-v35-20261009",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Correct the Castle map row so the throne and adjacent floor match castle.lua",
+      "cFile": "sp_lev.c",
+      "sessions": [
+        "synthetic/v35/v35-arrival-castle"
+      ],
+      "selectionReason": "The current accepted v35 evaluation has eight unmatched Castle screens, and the complete investigation isolates a two-cell map transcription error in castle.lua with exact RNG and cursor parity.",
+      "detail": "dat/castle.lua row 8 places the throne at local x36 and floor at x37; js/castle_levels.js reverses those cells. The source-pinned whole-map test and the admitted 62-step replay cover the bounded correction.",
+      "openedAt": "35162f9194bc8a959469d0c48716c29bf7af0bd7",
+      "openStanding": {
+        "sha": "7288ae883c74f0469a62169bfd5eeb2e9ee69429",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "lspo_map",
+      "session": "synthetic/v35/v35-arrival-castle",
+      "step": 54,
+      "syntheticProvenance": {
+        "synthetic/v35/v35-arrival-castle": {
+          "session": "synthetic/v35/v35-arrival-castle",
+          "corpus": "synthetic",
+          "batch": "v35",
+          "caseId": "v35-arrival-castle",
+          "manifestPath": "challenges/manifests/v35.json",
+          "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+          "recordingPath": "challenges/cases/v35/v35-arrival-castle.session.json",
+          "recordingSha256": "891f077ee0f147d70c173b5790854090dbc6543e8177034f1fa07fff43f938d4",
+          "evaluationPath": "challenges/evaluations/accepted-7288ae883c74f0469a62169bfd5eeb2e9ee69429-v35.json",
+          "evaluationCommit": "7288ae883c74f0469a62169bfd5eeb2e9ee69429"
+        }
+      },
+      "activeStanding": {
+        "sha": "7288ae883c74f0469a62169bfd5eeb2e9ee69429",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v35",
+          "caseId": "v35-arrival-castle",
+          "session": "synthetic/v35/v35-arrival-castle",
+          "manifestPath": "challenges/manifests/v35.json",
+          "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+          "recording": "challenges/cases/v35/v35-arrival-castle.session.json",
+          "recordingPath": "challenges/cases/v35/v35-arrival-castle.session.json",
+          "recordingSha256": "891f077ee0f147d70c173b5790854090dbc6543e8177034f1fa07fff43f938d4",
+          "recipe": "challenges/cases/v35/v35-arrival-castle.recipe.session.json",
+          "recipeSha256": "4c84f21985f907bbe89bba45743f32ceca76709baba2391a156ef190f4c1963c",
+          "replayInputSha256": "26c5d44ebec68d0cdc6436a8f96d6b63c8c702e4c9a9e5e93eba74728c9c1909",
+          "evaluationPath": "challenges/evaluations/accepted-7288ae883c74f0469a62169bfd5eeb2e9ee69429-v35.json",
+          "evaluationCommit": "7288ae883c74f0469a62169bfd5eeb2e9ee69429",
+          "evaluationArtifact": "challenges/evaluations/accepted-7288ae883c74f0469a62169bfd5eeb2e9ee69429-v35.json",
+          "evaluationUtc": "2026-10-09T21:32:13.969Z",
+          "remainingScreens": 8,
+          "recordedSteps": 62,
+          "previousScreensMatched": 54,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 54,
+              "total": 62
+            },
+            "rng": {
+              "matched": 17174,
+              "total": 17174
+            },
+            "cursors": {
+              "matched": 62,
+              "total": 62
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 54,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 54,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 12,
+              "column": 44,
+              "cCell": {
+                "ch": "\\",
+                "color": 11,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": ".",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 54,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v35/v35-arrival-castle.json",
+            "result": {
+              "session": "synthetic/v35/v35-arrival-castle",
+              "corpus": "synthetic",
+              "batch": "v35",
+              "caseId": "v35-arrival-castle",
+              "manifestPath": "challenges/manifests/v35.json",
+              "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+              "recordingSha256": "891f077ee0f147d70c173b5790854090dbc6543e8177034f1fa07fff43f938d4",
+              "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+              "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+              "remainingScreens": 8,
+              "recordedSteps": 62,
+              "status": "complete",
+              "commit": "909d395c99dfaa88c3bd62b1cf29e06b1630c937",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v35",
+                "caseId": "v35-arrival-castle",
+                "session": "synthetic/v35/v35-arrival-castle",
+                "manifestPath": "challenges/manifests/v35.json",
+                "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+                "recording": "challenges/cases/v35/v35-arrival-castle.session.json",
+                "recordingPath": "challenges/cases/v35/v35-arrival-castle.session.json",
+                "recordingSha256": "891f077ee0f147d70c173b5790854090dbc6543e8177034f1fa07fff43f938d4",
+                "recipe": "challenges/cases/v35/v35-arrival-castle.recipe.session.json",
+                "recipeSha256": "4c84f21985f907bbe89bba45743f32ceca76709baba2391a156ef190f4c1963c",
+                "replayInputSha256": "9a345b9f1c2c4f64668854b1f41843898e09b9498646789c8c4a14892bfcd5a5",
+                "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+                "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+                "evaluationArtifact": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+                "evaluationUtc": "2026-10-09T08:22:23.377Z",
+                "remainingScreens": 8,
+                "recordedSteps": 62,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 54,
+                    "total": 62
+                  },
+                  "rng": {
+                    "matched": 17174,
+                    "total": 17174
+                  },
+                  "cursors": {
+                    "matched": 62,
+                    "total": 62
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 54,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 54,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 12,
+                    "column": 44,
+                    "cCell": {
+                      "ch": "\\",
+                      "color": 11,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": ".",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 54,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The Castle’s translated map swaps its throne and adjacent floor. Lua row8 puts the throne at local x36 and floor at x37; JavaScript reverses them, so wizard mapping displays the throne one square too far right. RNG and cursors match; this is a bounded map transcription divergence.",
+              "source": {
+                "file": "castle.lua",
+                "branch": "dat/castle.lua des.map long-string row8, local cells36/37; current JavaScript map literal in castle_levels.js40 swaps the backslash throne and period floor while preserving the63-column width.",
+                "functions": [
+                  "castle.lua"
+                ],
+                "callers": [
+                  "teleport.c:level_tele -> do.c:goto_level -> mklev.c:makelevel special-level loading selects dat/castle.lua. JavaScript mklev.js:ensureSpecialLevelLoaders1731–1767 imports CASTLE_LEVEL_LOADERS and selects its castle(des) owner; that owner passes its literal directly to des.map.",
+                  "sp_lev.c:lspo_map6280–6292 traverses the map fragment and applies its terrain types. JavaScript mklev.js:mapFromRows4690–4736 maps each supplied character through splev_chr2typ and writes the canonical terrain; no caller or parser correction is required.",
+                  "wizcmds.c:wiz_map -> detect.c:do_mapping1422–1444/show_map_spot1372–1419 -> display.c:magic_map_background233–258/back_to_glyph exposes the existing terrain after arrival. JS mapping/display reaches the same source path; it correctly renders the incorrect translated map data."
+                ],
+                "dependencies": [
+                  "Existing pure nhlua.c:splev_chr2typ379–391 returns THRONE for backslash and ROOM for period; canonical js/mklev.js:splev_chr2typ975–1005 has those exact cases. No terrain-parser expansion, native pointer helper or random draw is required.",
+                  "Map frame and table widths agree: all17 rows have63 characters. A source-derived comparison finds exactly two differences, local(36,8)/(37,8), and no other map cell mismatch. Correct only the translated row; retain all door, region, monster and object operations in their existing order.",
+                  "A188 owns wizard3.lua and C165 owns mkobj generation. This correction changes js/castle_levels.js only, plus Castle-focused tests/recipes/recordings; it does not touch either owner, shared mklev, commands, display or pending B185/B186/B187 files.",
+                  "Existing unrelated timeout.c:kill_egg gap appears in final replay state; it does not cause this terrain mismatch and remains outside the bounded map correction. No whole castle.lua/mklev/display/object-generator completion credit is proposed."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Authoritative accepted-672aef01 v35 metrics are54/62 screens,17174/17174 RNG and62/62 cursors,8 remaining. Current assigned-base single-case diagnostic run-ai7Mty at909d395c reproduces first screen difference segment0 step54 (Enter after #wizmap), row12 col44: C backslash color11, JS period color8. There is no refusal, RNG or cursor divergence. Artifact .cache/B188/current-scan.json.",
+                "Read complete upstream dat/castle.lua and its js/castle_levels.js owner. The Lua long string contains nine periods after the preceding door, then backslash, period, secret door. JS contains ten periods, then backslash, secret door. Both remain63 columns; cells36/37 are transposed, so downstream terrain operations consume identical dimensions and draw counts.",
+                "The source-derived .cache/B188/source-map-comparison.json decodes the JS string escape and compares all17 rows to the Lua long-string bytes. Only(36,8) and(37,8) differ. This removes the initial suspicion of an arrival/display/parser or object-generator problem.",
+                "The same replay inspected canonical final terrain without mutation: .cache/B188/state-snapshots.json has only throne at game(46,11), while game(45,11) is ROOM. The source map’s xstart9/ystart3 places its throne at game(45,11); display.js6015 renders game x at terminal x-1, matching the recorded first differing column44. A map data correction changes actual terrain and normal mapping output together.",
+                "Independent implementation evidence plan after central assignment: source-pin the entire decoded map matrix against dat/castle.lua using the existing loader with a read-only des-map capture, then add independent C-first Castle levelport/mapping recipes with different relevant role and seed, checking actual throne/floor and message/RNG/cursor ordering. Cite admitted steps54–61 after correction. Do not copy the admitted recipe or alter source owner functions beyond the row literal.",
+                "No new C games or aggregate scans were run during investigation. A188/C165 were notified of the disjoint Castle map boundary; source implementation remains centrally gated."
               ]
             }
           }

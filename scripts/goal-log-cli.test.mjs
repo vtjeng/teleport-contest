@@ -816,6 +816,22 @@ test('Lua CLI plans all top-level source and requires an explicit implementation
     assert.equal(f.goals()[0].functions[0].complete, true);
 });
 
+test('Lua CLI plans required C source functions with the whole program', (t) => {
+    const f = fixture(t);
+    f.queue('Arc-loca.lua');
+    f.cli('queue-goal', '--id', 'arc-loca-with-c', '--kind', 'lua-port',
+        '--lua-file', 'Arc-loca.lua', '--summary', 'Port Lua and its consumed C helper',
+        '--required-functions', 'widget.c:helper');
+    const goal = f.goals()[0];
+    assert.deepEqual(goal.functions.map(entry => entry.name), ['Arc-loca.lua']);
+    assert.equal(goal.requiredFunctions[0].sourceFile, 'widget.c');
+    assert.equal(goal.requiredFunctions[0].name, 'helper');
+    const context = JSON.parse(f.cli('task-context', '--goal', 'arc-loca-with-c'));
+    assert.deepEqual(context.functions, ['Arc-loca.lua']);
+    assert.equal(context.requiredFunctions[0].sourceFile, 'widget.c');
+    assert.equal(context.requiredFunctions[0].jsFile, 'js/widget.js');
+});
+
 test('selection is checked when queueing, opening, and requesting either a new or existing span', (t) => {
     const f = fixture(t);
     f.refuses(/fixed-corpus mismatches remain/u, 'queue-goal', '--id', 'unrelated',
