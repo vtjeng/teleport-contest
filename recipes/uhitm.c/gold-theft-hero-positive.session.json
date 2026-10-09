@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent minimal C-first mhitm_ad_sgld hero-positive witness: source setup drops heavy inventory, polymorphs leprechaun and attacks the C-observed northern gold-bearing leprechaun once. C step107 proves acquisition and purse feedback; the second swing belongs to the separately owned monmove.c:distfleeck frontier and is retained as a blocked recipe. No inputs after the first completed source turn are needed for this entry.",
+  "segments": [
+    {
+      "seed": 16381013,
+      "datetime": "20560614151619",
+      "nethackrc": "OPTIONS=name:Ada,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!debug_mongen,!acoustics,!autopickup\n",
+      "moves": "      DAa\n                              #polyself\nleprechaun\n     #wizgenesis\npeaceful leprechaun\n     Fk     "
+    }
+  ]
+}
