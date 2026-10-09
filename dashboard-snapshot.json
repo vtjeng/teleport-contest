@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T21:51:42.704Z",
+  "capturedAt": "2026-10-09T22:18:21.031Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -76737,6 +76737,114 @@
         "worker": "B",
         "state": "active",
         "reason": "B203 is accepted. Syncing the published boundary and waiting for Main’s refreshed mismatch queue before choosing independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B203-f5fe477fbe340a4d4a7dcb034a02b65626dc69db",
+        "type": "published",
+        "at": "2026-10-09T21:52:22.303Z",
+        "task": "B203",
+        "commit": "f5fe477fbe340a4d4a7dcb034a02b65626dc69db"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-val-strt-select-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:52:43.208Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Claiming the independent Valkyrie quest-start port from the refreshed queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B204-blocked-no-independent-after-A2-valstrt-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:53:55.112Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "The refreshed queue has no independent candidate: C181 owns Tou-goal and A2 owns Val-strt; remaining mismatches await pointer, recorder, or build-provenance decisions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A200-Val-strt-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T21:55:34.164Z",
+        "task": "A200",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A200-Val-strt-C181-overlap-20261009",
+        "type": "park",
+        "at": "2026-10-09T21:56:52.122Z",
+        "task": "A200",
+        "reason": "Refreshed Val-strt report in 3e1923639d6580f79d3f8f77c0ce09d1f40eb90c. Keep this session-only: the whole program places two armed fire giants that execute makemon.c:m_initweap, actively reserved by C181 along with js/makemon_create.js; the standard quest loader registry path js/quest_levels.js is also in C181’s active write set. C176 selection algebra is accepted and no longer blocks it."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-blocked-C181-Val-strt-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:56:57.039Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "Val-strt source trace is refreshed. Waiting for C181 to release the shared monster and quest-loader scope before implementing it."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b56a2bb1db200f4ff56478e719da3e307d14c1ae",
+        "type": "ready",
+        "at": "2026-10-09T21:59:30.119Z",
+        "task": "C181",
+        "delivery": "b56a2bb1db200f4ff56478e719da3e307d14c1ae"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C181-b56a2bb1d",
+        "type": "received",
+        "at": "2026-10-09T22:00:30.971Z",
+        "task": "C181",
+        "delivery": "b56a2bb1db200f4ff56478e719da3e307d14c1ae"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C181-queued-for-main-validation-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:00:55.269Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C181 is queued; waiting for Main to validate the exact delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C181-9be968256",
+        "type": "integrating",
+        "at": "2026-10-09T22:03:56.599Z",
+        "task": "C181",
+        "integration": "9be96825629f1ccd6a56586c2c69acf7c52d5b86"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C181-438d5d0cd",
+        "type": "integrating",
+        "at": "2026-10-09T22:10:27.291Z",
+        "task": "C181",
+        "integration": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C181-438d5d0cd",
+        "type": "validated",
+        "at": "2026-10-09T22:16:16.668Z",
+        "task": "C181",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C181-438d5d0cd3f837bbc821b6ff78ce82940470a5f8-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T22:17:49.133Z",
+        "task": "C181"
       }
     ]
   },
@@ -77051,12 +77159,23 @@
         "since": "2026-10-09T17:46:04.357Z",
         "blockedBy": [],
         "reason": "The full Rog-goal Lua program reaches an object descriptor that sets tin montype=\"chameleon\" at dat/Rog-goal.lua:45. Upstream sp_lev.c:lspo_object resolves named species to a species index; current JavaScript carries that name string through the corpsenm path. This shared source contract overlaps parked C172. A198 remains blocked until the orchestrator adjudicates C172; do not edit or reserve sp_lev.c:lspo_object while that task is parked/shared."
+      },
+      {
+        "task": "A200",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-09T21:56:52.122Z",
+        "blockedBy": [],
+        "reason": "Refreshed Val-strt report in 3e1923639d6580f79d3f8f77c0ce09d1f40eb90c. Keep this session-only: the whole program places two armed fire giants that execute makemon.c:m_initweap, actively reserved by C181 along with js/makemon_create.js; the standard quest loader registry path js/quest_levels.js is also in C181’s active write set. C176 selection algebra is accepted and no longer blocks it."
       }
     ]
   },
   "development": {
-    "executionCommit": "181abf1682eb7370613252862afb7bece56983d7",
-    "measuredAt": "2026-10-09T21:49:20.367Z",
+    "executionCommit": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8",
+    "measuredAt": "2026-10-09T22:15:32.800Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

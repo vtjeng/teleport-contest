@@ -241095,6 +241095,381 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-tou-goal-quest-level-v36-20261009",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the complete Tourist quest-goal level and Keystone Kop initial equipment",
+      "luaFile": "Tou-goal.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-tou-goal"
+      ],
+      "selectionReason": "The current admitted v36 Tou-goal case stops at step 19 because load_special has no Tou-goal loader. The complete investigation traces the whole Lua program and its natural Kop creation path, which requires the complete makemon.c:m_initweap function because the missing S_KOP branch changes RNG before the first emitted goal-level screen.",
+      "detail": "Port dat/Tou-goal.lua lines 1-159 in source order, register its natural makelevel loader, and complete makemon.c:m_initweap lines 161-572 by adding the missing S_KOP branch while retaining all existing arms. The admitted v36 replay covers the natural quest-level path; preserve the separately blocked diagnostic wiz_load_splua recipe for the MM_ESHK shopkeeper gate.",
+      "openedAt": "d86dff01024071c8e754126da9f4b187bfddf98b",
+      "openStanding": {
+        "sha": "181abf1682eb7370613252862afb7bece56983d7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "Tou-goal.lua",
+          "line": 1,
+          "endLine": 159,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "requiredFunctions": [
+        {
+          "name": "m_initweap",
+          "line": 161,
+          "endLine": 575,
+          "declared": true,
+          "sourceFile": "makemon.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-tou-goal": {
+          "session": "synthetic/v36/v36-quest-tou-goal",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-tou-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-tou-goal.session.json",
+          "recordingSha256": "1f1f123cc3b022837762248ed5c6c34775d6c022c843fa69c2d0ef3354f74442",
+          "evaluationPath": "challenges/evaluations/accepted-181abf1682eb7370613252862afb7bece56983d7-v36.json",
+          "evaluationCommit": "181abf1682eb7370613252862afb7bece56983d7"
+        }
+      },
+      "activeStanding": {
+        "sha": "181abf1682eb7370613252862afb7bece56983d7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-tou-goal",
+          "session": "synthetic/v36/v36-quest-tou-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-tou-goal.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-tou-goal.session.json",
+          "recordingSha256": "1f1f123cc3b022837762248ed5c6c34775d6c022c843fa69c2d0ef3354f74442",
+          "recipe": "challenges/cases/v36/v36-quest-tou-goal.recipe.session.json",
+          "recipeSha256": "72dbbb71ca155e4de0791c5ecf8e5a3455ce1defdb81666a817c76d40b90012d",
+          "replayInputSha256": "e09a2d210a07e32a3d115f345be71c6ca4ff17f8a0bd9a57a358babdd8f1f795",
+          "evaluationPath": "challenges/evaluations/accepted-181abf1682eb7370613252862afb7bece56983d7-v36.json",
+          "evaluationCommit": "181abf1682eb7370613252862afb7bece56983d7",
+          "evaluationArtifact": "challenges/evaluations/accepted-181abf1682eb7370613252862afb7bece56983d7-v36.json",
+          "evaluationUtc": "2026-10-09T21:47:44.425Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2144,
+              "total": 5854
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-goal\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Tou-goal.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-goal\"",
+          "cFile": null,
+          "luaFile": "Tou-goal.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-tou-goal.json",
+            "result": {
+              "session": "synthetic/v36/v36-quest-tou-goal",
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-tou-goal",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "1f1f123cc3b022837762248ed5c6c34775d6c022c843fa69c2d0ef3354f74442",
+              "evaluationPath": "challenges/evaluations/accepted-7288ae883c74f0469a62169bfd5eeb2e9ee69429-v36.json",
+              "evaluationCommit": "7288ae883c74f0469a62169bfd5eeb2e9ee69429",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "7288ae883c74f0469a62169bfd5eeb2e9ee69429",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-tou-goal",
+                "session": "synthetic/v36/v36-quest-tou-goal",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-tou-goal.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-tou-goal.session.json",
+                "recordingSha256": "1f1f123cc3b022837762248ed5c6c34775d6c022c843fa69c2d0ef3354f74442",
+                "recipe": "challenges/cases/v36/v36-quest-tou-goal.recipe.session.json",
+                "recipeSha256": "72dbbb71ca155e4de0791c5ecf8e5a3455ce1defdb81666a817c76d40b90012d",
+                "replayInputSha256": "146ad6cf62c96754ae613563881c2a916dd6e36db2955adfa724312f0a6697f0",
+                "evaluationPath": "challenges/evaluations/accepted-7288ae883c74f0469a62169bfd5eeb2e9ee69429-v36.json",
+                "evaluationCommit": "7288ae883c74f0469a62169bfd5eeb2e9ee69429",
+                "evaluationArtifact": "challenges/evaluations/accepted-7288ae883c74f0469a62169bfd5eeb2e9ee69429-v36.json",
+                "evaluationUtc": "2026-10-09T21:32:13.969Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2144,
+                    "total": 5854
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-goal\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Tou-goal.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-goal\"",
+                "cFile": null,
+                "luaFile": "Tou-goal.lua",
+                "line": null
+              },
+              "summary": "C181 ports all of dat/Tou-goal.lua:1-159 and its natural Tourist quest-goal loader. After the loader reached its explicit Kops, the targeted replay exposed a second source gap: makemon.c:m_initweap omitted the S_KOP cream-pie and club/rubber-hose arm. The whole function is now included as a required C dependency and the complete 60-boundary natural replay matches. Numeric selection algebra and natural shopkeeper placement remain accepted C176 dependencies. The separate wizard direct-load caller remains blocked at its independent MM_ESHK/shopkeeperCall gate and earns no completion credit.",
+              "source": {
+                "file": "Tou-goal.lua",
+                "branch": "A wizard level teleport selects the Tourist quest goal prototype Tou-goal. C makelevel dispatches the special level through makemaz and load_special, which executes dat/Tou-goal.lua; the current JavaScript registry lacks that program and throws before its first descriptor runs.",
+                "functions": [
+                  "Tou-goal.lua",
+                  "makemon.c:m_initweap"
+                ],
+                "callers": [
+                  "nethack-c/upstream/src/wizcmds.c:wiz_level_tele (397-406) calls teleport.c:level_tele (1165); level_tele schedules the destination with do.c:schedule_goto (2057-2070). allmain.c:moveloop_core calls do.c:deferred_goto after rhack; deferred_goto calls do.c:goto_level (1479-1998), which calls mklev.c:mklev (1577), and mklev calls makelevel (1251-1446). makelevel calls mkmaze.c:makemaz (1127-1230) for this special prototype; makemaz calls sp_lev.c:load_special (6454-6503), which executes dat/Tou-goal.lua. After the loader returns, natural makelevel fills special rooms through sp_lev.c:fill_special_room -> shknam.c:stock_room -> shknam.c:shkinit.",
+                  "JavaScript mirrors the production dispatch: js/wizcmds.js:wiz_level_tele -> js/teleport.js:level_tele -> js/do.js:schedule_goto -> js/allmain.js:deferred_goto -> js/do.js:deferred_goto -> goto_level -> js/mklev.js:mklev -> makelevel -> makemaz -> load_special. mklev.js:ensureSpecialLevelLoaders merges QUEST_LEVEL_LOADERS from quest_levels.js; registering Tou-goal there wires the existing natural dispatcher.",
+                  "After natural load_special returns, mklev.c:makelevel fills its special rooms through sp_lev.c:fill_special_room -> shknam.c:stock_room -> shknam.c:shkinit. The matching JavaScript makelevel tail follows the same fill path. C176 accepted the complete shkinit implementation and its occupied-shopkeeper relocation evidence."
+                ],
+                "dependencies": [
+                  "dat/Tou-goal.lua:111-115 constructs valid trap cells with selection.area(...):filter_mapchar(\".\") and subtracts the two shop bounds with selection subtraction. The complete numeric l_selection_sub / selection-algebra-values port is accepted in C176 at tested commit 7288ae883c74f0469a62169bfd5eeb2e9ee69429; this task calls the existing operator without editing its contract.",
+                  "Three filled barracks, one morgue and two shop regions are finalized by the existing special-room fill path. Complete shknam.c:shkinit and contract:shopkeeper-placement were accepted in C176 at the same tested commit; C181 does not edit that owner.",
+                  "All descriptor names in Tou-goal.lua have existing handlers in js/mklev.js:createSpecialLevelApi, including map, region, non_diggable, stair, door, object, trap, monster and wallify. The only missing behavior on the queue path is the whole program body plus its registry entry.",
+                  "The separate wizard wiz_load_splua -> load_special -> lspo_finalize_level caller can load a named des file outside natural makelevel. It is not the selected entrypoint; retain any direct-load probe separately if it still reaches the known makemon_create.js shopkeeperCall / C makemon(MM_ESHK) gate.",
+                  "The first post-loader differential matched through segment 0 step 18, then diverged at step 19 when Tou-goal.lua:144-152 began creating Kops: C makemon.c:m_initweap:402-409 performs rn2(4) for a CREAM_PIE stack, then rn2(3) and rn2(2) for CLUB/RUBBER_HOSE; existing js/makemon_create.js:m_initweap omitted the S_KOP arm and entered the generic rnd(14) arm instead. The approved scope now includes the whole makemon.c:m_initweap function and js/makemon_create.js. Calls to m_initthrow and mongets discard their return values; the existing muse.c:rnd_offensive_item return-valued callee is already implemented in JS. After the S_KOP port, the natural v36/v36-quest-tou-goal replay matches all 60 recorded boundaries."
+                ],
+                "implementationPlan": {
+                  "completeSource": {
+                    "file": "nethack-c/upstream/dat/Tou-goal.lua",
+                    "lines": "1-159",
+                    "program": "Tou-goal.lua"
+                  },
+                  "behaviorOrder": [
+                    "solidfill level initialization and mazelevel flag",
+                    "20 by 76 map, full map lighting, eight additional lighting or filled-room regions, and remaining region descriptors in source order",
+                    "full-map nondiggable selection, up stair, and all fixed doors in source order",
+                    "blessed named credit card and fourteen independent random-object descriptors",
+                    "six traps selected destructively from map floor cells after subtracting the entire shop-exclusion rectangle",
+                    "all fixed and random monster descriptors in source order",
+                    "final wallify call"
+                  ],
+                  "javaScriptWiring": "Add touGoal to js/quest_levels.js and QUEST_LEVEL_LOADERS; js/mklev.js already merges that registry into the natural load_special dispatcher.",
+                  "generatedData": "Extract and check the large fixed map, fixed door table, and literal monster argument table from dat/Tou-goal.lua with scripts/generate-tou-goal-level.mjs into js/tou_goal_level_data.js.",
+                  "tests": "Source-pin the Lua map and descriptor behavior and both the C and JS S_KOP m_initweap branch; the test asserts all six combinations of pie/no-pie, weapon/no-weapon, and club/hose with draw order.",
+                  "acceptedDependencies": [
+                    "C176 accepted l_selection_or/l_selection_sub and selection-algebra-values at tested commit 7288ae883c74f0469a62169bfd5eeb2e9ee69429; C181 calls existing operations without editing them.",
+                    "C176 accepted shknam.c:shkinit and shopkeeper-placement at the same tested commit; the natural makelevel fill tail uses that implementation without editing it."
+                  ],
+                  "entryPoints": [
+                    {
+                      "name": "natural Tourist quest goal generation",
+                      "caller": "wiz_level_tele -> level_tele -> schedule_goto -> deferred_goto -> goto_level -> mklev -> makelevel -> makemaz -> load_special -> Tou-goal.lua",
+                      "evidence": "synthetic/v36/v36-quest-tou-goal through step 59; the recorded replay matches all 60 boundaries, and Tou-goal.lua lines 144-152 reach makemon.c:m_initweap for Kop Kaptain, Kop Lieutenants, and Keystone Kops."
+                    },
+                    {
+                      "name": "diagnostic direct special-level load",
+                      "caller": "wiz_load_splua -> load_special -> lspo_finalize_level -> special-room fill",
+                      "status": "probe separately; if blocked, keep a non-evidentiary recipe naming makemon_create.js shopkeeperCall / C makemon(MM_ESHK)"
+                    }
+                  ],
+                  "plannedPaths": [
+                    "js/quest_levels.js",
+                    "js/tou_goal_level_data.js",
+                    "scripts/generate-tou-goal-level.mjs",
+                    "scripts/tou-goal-level.test.mjs",
+                    "recipes/Tou-goal.lua/",
+                    "recordings/Tou-goal.lua/",
+                    "investigations/synthetic/v36/v36-quest-tou-goal.json",
+                    ".cache/",
+                    "js/makemon_create.js",
+                    "scripts/makemon-create.test.mjs"
+                  ],
+                  "requiredCUnits": [
+                    {
+                      "file": "nethack-c/upstream/src/makemon.c",
+                      "function": "m_initweap",
+                      "lines": "161-572",
+                      "javascript": "js/makemon_create.js",
+                      "runtimeCaller": "makemon.c:1441-1443 calls m_initweap under is_armed; Tou-goal.lua:144-152 creates Kops through sp_lev.c:create_monster and makemon"
+                    }
+                  ]
+                }
+              },
+              "goalKind": "lua-port",
+              "evidence": [
+                "The latest saved combined queue at accepted commit 7288ae883c74f0469a62169bfd5eeb2e9ee69429 records v36/v36-quest-tou-goal at 19/60 matched screens and 19/60 matched cursors before stopping at segment 0, step 19 with unsupported level change: makelevel has no loader for special level Tou-goal. RNG matches through the boundary. The queue preserves manifest, recording and evaluation digests in .cache/C181-queue-entry.json.",
+                "Read the complete upstream dat/Tou-goal.lua at lines 1-159. Its embedded map contains 20 rows of 76 characters; the program issues 25 region descriptors, 27 fixed door descriptors, one stair, 15 object descriptors, six randomized trap placements, 38 monster descriptor calls, and wallify. Descriptor order and each loop are part of the whole Lua port.",
+                "Lines 111-115 select floor map characters, subtract the shop rectangles, then destructively choose six trap coordinates. This is the same numeric selection contract validated by C176. The 25 region calls include three filled barracks, a filled morgue and two shops; natural level generation fills these after load_special, reaching the already accepted C176 shopkeeper implementation.",
+                "The current JS registry in js/quest_levels.js has no Tou-goal key, while js/mklev.js:ensureSpecialLevelLoaders consumes that registry and throws the exact queue refusal from makelevel. The source caller path runs through the natural #wizlevelport transition. The independent #wizloaddes command goes through wiz_load_splua and is a separate diagnostic caller, not evidence for the selected natural entry.",
+                "After the whole Tou-goal loader was wired, a targeted C/JS scan exposed a second source-traced dependency at segment 0 step 19: makemon.c:m_initweap S_KOP (402-409) was absent from js/makemon_create.js, so C drew rn2(4) while JS entered the generic rnd(14) branch. C181 expanded to the complete m_initweap function under an atomic source reservation. After adding the source-ordered pie and CLUB/RUBBER_HOSE gates, node scripts/scan-sessions.mjs --json --synthetic v36/v36-quest-tou-goal reported no divergence, all 60 screens, and a matched input boundary."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Tou-goal.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "touGoal",
+            "sourceReview": "Read and ported all 159 lines of nethack-c/upstream/dat/Tou-goal.lua. Preserved the solidfill and mazelevel setup; all 20x76 source map cells; 25 region descriptors in source order; the nondiggable boundary, stair, and 27 fixed doors; the blessed named credit card followed by fourteen random objects; the floor-only selection, subtraction of the full x60-71/y14-18 rectangle, and six destructive rndcoord(1) choices; all 38 monster calls in order; and final wallification. The numeric selection behavior comes from the already accepted C176 l_selection_sub/selection-algebra-values owner, which C181 calls without editing. Natural special-room fill uses the already accepted C176 shknam.c:shkinit/shopkeeper-placement dependency. No unported Lua callee is skipped.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "touGoal",
+                "source": "Whole source program dat/Tou-goal.lua:1-159. QUEST_LEVEL_LOADERS registers Tou-goal and invokes this function."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "C mklev.c:makelevel selects slev->proto and calls mkmaze.c:makemaz; mkmaze.c:makemaz calls sp_lev.c:load_special. JS makelevel -> makemaz -> load_special resolves the source name through QUEST_LEVEL_LOADERS."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_level_tele",
+                "source": "C wizcmds.c:wiz_level_tele calls teleport.c:level_tele, which schedules the transition with do.c:schedule_goto. allmain.c processes deferred_goto after rhack; do.c:deferred_goto calls goto_level -> mklev -> makelevel. JS follows wiz_level_tele -> level_tele -> schedule_goto -> deferred_goto -> goto_level -> mklev -> makelevel."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/tou-goal-level.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-goal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "#wizlevelport -> level_tele/schedule_goto -> deferred_goto/goto_level -> mklev/makelevel -> makemaz/load_special -> dat/Tou-goal.lua:1-159"
+              }
+            ],
+            "checkedAt": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8"
+          },
+          {
+            "name": "m_initweap",
+            "implementation": "js/makemon_create.js",
+            "symbol": "m_initweap",
+            "sourceReview": "Read and compared all of makemon.c:m_initweap (161-572) against js/makemon_create.js:m_initweap, including rogue-level early return, every monster-class arm, exact branch order and RNG bounds, and the final m_lev > rn2(75) offensive-item gate. Added the missing S_KOP arm from makemon.c:402-409: rn2(4) cream-pie gate and m_initthrow(mtmp, CREAM_PIE, 2), followed by rn2(3) gear gate and rn2(2) CLUB/RUBBER_HOSE selection. The S_KOP helper return values are discarded in C. The existing muse.c:rnd_offensive_item return-valued callee is implemented in JS and was source-compared; the m_initweap caller uses its result as mongets input. JS makemon invokes the helper only after the same is_armed predicate as C.",
+            "callers": [
+              {
+                "path": "js/makemon_create.js",
+                "symbol": "makemon",
+                "source": "C makemon.c:1441-1443 calls m_initweap(mtmp) only under is_armed(ptr); JS makemon follows the same guard at js/makemon_create.js:2922 before calling m_initweap."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "makemon.c",
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-goal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "#wizlevelport -> deferred_goto/goto_level -> makelevel/makemaz/load_special -> dat/Tou-goal.lua:144-152 creates Kops -> sp_lev.c:create_monster -> makemon.c:1441-1443 -> makemon.c:m_initweap"
+              }
+            ],
+            "checkedAt": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8"
+          }
+        ],
+        "entryPointReview": "The natural Tourist quest-goal entry point is exercised by the admitted v36/v36-quest-tou-goal replay. #wizlevelport calls level_tele/schedule_goto; deferred_goto/goto_level/mklev/makelevel/makemaz/load_special dispatches Tou-goal.lua, whose source lines 144-152 create Kop Kaptain, Kop Lieutenants, and Keystone Kops through sp_lev.c:create_monster -> makemon.c:makemon -> m_initweap. The complete replay matches all 60 recorded boundaries. The separate direct #wizloaddes diagnostic recipe remains blocked at the independent JS makemon_create.js:shopkeeperCall / C makemon(MM_ESHK) gate and contributes no runtime evidence.",
+        "entryPoints": [
+          {
+            "name": "natural Tourist quest-goal generation and initial Kop equipment",
+            "functions": [
+              {
+                "sourceFile": "Tou-goal.lua",
+                "name": "Tou-goal.lua"
+              },
+              {
+                "sourceFile": "makemon.c",
+                "name": "m_initweap"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-goal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "#wizlevelport -> deferred_goto/goto_level -> mklev.c:makelevel -> dat/Tou-goal.lua:144-152 -> sp_lev.c:create_monster -> makemon.c:m_initweap"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
