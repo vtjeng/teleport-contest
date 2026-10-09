@@ -1,0 +1,98 @@
+{
+  "corpus": "synthetic",
+  "batch": "v36",
+  "caseId": "v36-quest-val-loca",
+  "manifestPath": "challenges/manifests/v36.json",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "recordingSha256": "df1525581d5de100c10b03799424fcbc6520a23f3ddfad268143a21adb5fa712",
+  "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+  "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+  "remainingScreens": 41,
+  "recordedSteps": 60,
+  "session": "synthetic/v36/v36-quest-val-loca",
+  "commit": "f57a9beca05a14e4d9ba60e0c05bfa70c06abdd2",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v36",
+    "caseId": "v36-quest-val-loca",
+    "session": "synthetic/v36/v36-quest-val-loca",
+    "manifestPath": "challenges/manifests/v36.json",
+    "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+    "recording": "challenges/cases/v36/v36-quest-val-loca.session.json",
+    "recordingPath": "challenges/cases/v36/v36-quest-val-loca.session.json",
+    "recordingSha256": "df1525581d5de100c10b03799424fcbc6520a23f3ddfad268143a21adb5fa712",
+    "recipe": "challenges/cases/v36/v36-quest-val-loca.recipe.session.json",
+    "recipeSha256": "c360beb283896f50b84255d8849c3c5adde477087b3874c3f83f2495197bf16d",
+    "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+    "evaluationPath": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+    "evaluationCommit": "ac836655676993fda791c76b619905969c841859",
+    "evaluationArtifact": "challenges/evaluations/accepted-ac836655676993fda791c76b619905969c841859-v36.json",
+    "evaluationUtc": "2026-10-09T10:38:34.264Z",
+    "remainingScreens": 41,
+    "recordedSteps": 60,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 60
+      },
+      "rng": {
+        "matched": 2718,
+        "total": 5062
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Val-loca\"",
+      "step": 19
+    },
+    "step": 19,
+    "kind": "stop",
+    "sourceFile": "Val-loca.lua",
+    "function": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Val-loca\"",
+    "cFile": null,
+    "luaFile": "Val-loca.lua",
+    "line": null
+  },
+  "status": "complete",
+  "goalKind": "lua-port",
+  "summary": "Valkyrie quest locate arrival selects Val-loca, but its whole Lua loader is missing. Port the complete Val-loca.lua ice-mine initialization, centered lava/pool map, lit/nondiggable region, source-fixed stairs, fifteen random objects, six traps and source-ordered fire-ant/giant population.",
+  "source": {
+    "file": "Val-loca.lua",
+    "functions": [
+      "Val-loca.lua"
+    ],
+    "branch": "Valid Valkyrie quest locate arrival reaches load_special for Val-loca. Lua fills solid stone, sets mazelevel/hardfloor/icedpools/noflip, initializes smoothed unjoined lit ice mines, places its 40x13 fragment, then creates regions, stairs, objects, traps and monsters in definition order.",
+    "callers": [
+      "do.c goto_level -> mklev.c makelevel -> mkmaze.c makemaz -> sp_lev.c load_special -> dat/Val-loca.lua. JS allmain deferred-goto -> do goto_level -> mklev makelevel/makemaz/load_special -> QUEST_LEVEL_LOADERS lacks Val-loca.",
+      "wizcmds.c wiz_load_splua reaches load_special directly for this source-named program. Natural quest arrival and wizard travel converge on generation; the program defines no additional Lua callback."
+    ],
+    "dependencies": [
+      "Existing createSpecialLevelApi solidfill/mines level_init, level_flags, map, relative selection.area, region, stair, non_diggable, object, trap and monster descriptors provide the required results. No generic descriptor owner edit is identified by this source trace; combined runtime reachability remains to be verified.",
+      "lspo_level_flags records icedpools on the canonical frame and clears coder.allow_flips for noflip. splev_initlev passes icedpools to mkmap, whose finish pass tags generated ICE as ICED_POOL and lights the requested mines background. Preserve this source flag lifetime and suppress both postprocessing flip RNG gates.",
+      "mapFromRows uses centered odd-parity placement and skips x transparent cells, matching sp_lev.c lspo_map 6279-6293. Preserve the exact 40x13 rows, including trailing spaces, pool P, lava L and stone spaces. The Lua discards the returned written-cell selection; its relative selection.area covers the stated rectangle.",
+      "The up stair at relative (48,14) is intentionally outside the 40x13 fragment. C sp_lev.c get_location 1202-1278 offsets fixed coordinates by xstart/ystart then checks whole-level isok; JS room_coordinates get_location mirrors that behavior. Do not clamp it to fragment bounds or replace it with random placement. Down stair remains relative (20,6).",
+      "Fifteen no-argument object descriptors use canonical random class/coordinate creation; four named fire traps precede two random trap descriptors. No explicit non-species tin, alignment expression, inventory callback or named artifact exists in this program.",
+      "Seventeen positional fire-ant descriptors and positional ant-class a retain their default peaceful/gender parsing. Two hostile class H tables bracket seven hostile fire-giant id tables; preserve distinct argument forms, class selection and table RNG order. Existing makemon_create admits nonunique true giants and source-owned giant weapons/gem inventory; any newly exposed species refusal needs its own source audit before edits.",
+      "Lua consumes selection.area results only and discards descriptor returns. Canonical internal coordinate, class, terrain and creation results must remain in their existing owners. No placeholder result or copied rectangular protected-mask helper is needed.",
+      "Val-goal and other quest programs have separate ledger ownership. Proposed quest_levels changes are only this loader import/function/registry key; no alignment macro, spinach-tin or shared descriptor contract change is proposed."
+    ]
+  },
+  "evidence": [
+    "Assigned replay run-jY7pVp at examined f57a9beca05a14e4d9ba60e0c05bfa70c06abdd2 reproduces 19/60 screens and cursors and 2718/5062 RNG. At segment 0 step 19 key z confirms destination; next C rn2(3)=2 is nhlib.lua alignment shuffle, while JS stops before it because load_special lacks Val-loca. Exact comparisons and stack are .cache/A196/probe.json and probe.log.",
+    "Read entire dat/Val-loca.lua lines 1-85: 6 solidfill; 8 mazelevel/hardfloor/icedpools/noflip; 10 smoothed, unjoined, lit, unwalled mines with floor foreground and ice background; 12-26 map; 28 lit region; 30 up stair (48,14); 31 down stair (20,6); 33 nondiggable region; 35-49 fifteen random objects; 51-54 four fire traps; 55-56 two random traps; 58-74 seventeen fire ants; 75 ant class; 76 giant class; 77-83 seven fire giants; 84 giant class. All giant table descriptors force hostile peaceful=0. Line 85 is blank.",
+    "Source parsing confirms thirteen rows of exactly forty columns, fifteen object calls, six trap calls, twenty-seven monster calls and no door descriptor. The fragment leaves transparent x cells from the mines initialization; source spaces overwrite their cells with stone. The explicit up stair uses the existing whole-level coordinate check, rather than a fragment-local clamp.",
+    "Read JS lspo_level_flags/splev_initlev/mkmap_finish_map, mapFromRows/splev_chr2typ, get_location/l_create_stairway, lspo_trap and lspo_monster argument forms; inspected existing nonunique true-giant admission and source giant weapon/gem arms. These source-derived dependency paths establish the proposed scope, not completion evidence for the missing Lua runtime.",
+    "Actionable scope: whole Val-loca.lua lines 1-85, valLoca and registry key in js/quest_levels.js, generated val_loca_level_data.js with deterministic generator, focused source pins, runtime runner and recipes/Val-loca.lua plus recordings/Val-loca.lua. No whole generic helper, quest permission, teleport or quest_levels credit.",
+    "Fail first on missing loader/module; generate and pin all source map rows/glyphs/spaces, level-init/flag order, exact stairs including out-of-fragment coordinate, fifteen random objects, four fire plus two random traps, and all 27 monster descriptors including class versus id forms. Verify admitted segment 0 steps 19-59. Record independent human-neutral and dwarf-lawful Valkyrie arrival/direct-des variations with independently chosen seed/date and compare complete RNG/screens/cursors/frames. Check generated ice ICED_POOL metadata, noflip RNG suppression and actual stair placement. Retain a neighboring unimplemented Val-goal/Val-strt route as a named blocked recipe if its owner is still pending.",
+    "Evidence limits: session-only investigation and assigned replay; no game source edit or new C game. Replay stops before program generation, so independent matching impure reachability and full comparisons are required before source completion. External deficiencies, including any randomly selected monster species boundary, need central supporting scope before edits."
+  ]
+}
