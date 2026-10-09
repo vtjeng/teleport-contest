@@ -241474,7 +241474,7 @@
     {
       "id": "port-val-strt-quest-start-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Valkyrie quest-start level and random selection-point helper",
       "luaFile": "Val-strt.lua",
       "sessions": [
@@ -241488,8 +241488,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f5d95cf1e445b7dca8a75b6988625a52c03b2e52",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Val-strt.lua",
@@ -241776,6 +241779,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "f5d95cf1e445b7dca8a75b6988625a52c03b2e52",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

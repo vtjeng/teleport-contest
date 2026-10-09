@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T22:24:26.899Z",
+  "capturedAt": "2026-10-09T22:45:45.390Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -76913,6 +76913,62 @@
         "worker": "C",
         "state": "blocked",
         "reason": "No independent source task is available: A2 owns Val-strt; remaining cases await native-pointer, Main-owned recorder, or platform-provenance gates."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-33ac5f3e799bcd593e3e00d747c46f24d8a47e7d",
+        "type": "ready",
+        "at": "2026-10-09T22:27:27.905Z",
+        "task": "A200",
+        "delivery": "33ac5f3e799bcd593e3e00d747c46f24d8a47e7d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A200-33ac5f3e7",
+        "type": "received",
+        "at": "2026-10-09T22:27:49.919Z",
+        "task": "A200",
+        "delivery": "33ac5f3e799bcd593e3e00d747c46f24d8a47e7d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A200-submitted-queue-blockers-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:28:34.267Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "A200 submitted with full Val-strt replay evidence. Remaining queued cases depend on Main’s native-pointer, recorder-cursor, or platform-provenance decisions; Prep2 owns v38."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A200-2598232e2",
+        "type": "integrating",
+        "at": "2026-10-09T22:30:05.910Z",
+        "task": "A200",
+        "integration": "2598232e244d938f05c6a82ed44004a429b4ea3a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A200-f5d95cf1e",
+        "type": "integrating",
+        "at": "2026-10-09T22:39:00.577Z",
+        "task": "A200",
+        "integration": "f5d95cf1e445b7dca8a75b6988625a52c03b2e52"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A200-f5d95cf1e445b7dca8a75b6988625a52c03b2e52-validated",
+        "type": "validated",
+        "at": "2026-10-09T22:44:13.440Z",
+        "task": "A200",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A200-f5d95cf1e445b7dca8a75b6988625a52c03b2e52-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T22:44:45.384Z",
+        "task": "A200"
       }
     ]
   },
@@ -77231,8 +77287,8 @@
     ]
   },
   "development": {
-    "executionCommit": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8",
-    "measuredAt": "2026-10-09T22:15:32.800Z",
+    "executionCommit": "f5d95cf1e445b7dca8a75b6988625a52c03b2e52",
+    "measuredAt": "2026-10-09T22:43:28.651Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
