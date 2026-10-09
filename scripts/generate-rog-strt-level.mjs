@@ -33,7 +33,7 @@ export function renderRogStrtData(data) {
     for (const [key, name] of Object.entries({ map: 'LEVEL_MAP', doors: 'DOORS',
         guards: 'GUARDS', exits: 'EXIT_MONSTERS' }))
         result += `export const ROG_STRT_${name} = Object.freeze(${JSON.stringify(data[key], null, 4)});\n\n`;
-    return result;
+    return result.trimEnd() + '\n';
 }
 
 async function main() {

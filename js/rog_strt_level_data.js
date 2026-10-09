@@ -347,4 +347,3 @@ export const ROG_STRT_EXIT_MONSTERS = Object.freeze([
         "peaceful": 0
     }
 ]);
-
