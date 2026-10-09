@@ -1,0 +1,118 @@
+{
+  "session": "synthetic/v32/v32-options-pickup-traditional",
+  "corpus": "synthetic",
+  "batch": "v32",
+  "caseId": "v32-options-pickup-traditional",
+  "manifestPath": "challenges/manifests/v32.json",
+  "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+  "recordingSha256": "c67c2911b24eeff7fdf9830a2fba5ee5098784fa0134d739ac457701dc6bed14",
+  "evaluationPath": "challenges/evaluations/accepted-db0a7ad02ea001265fce34f7485b90c58d649d79-v32.json",
+  "evaluationCommit": "db0a7ad02ea001265fce34f7485b90c58d649d79",
+  "remainingScreens": 32,
+  "recordedSteps": 46,
+  "status": "complete",
+  "commit": "b7bf47b1017496f2afa0873382808c729b67f175",
+  "mismatch": {
+    "version": 1,
+    "corpus": "synthetic",
+    "batch": "v32",
+    "caseId": "v32-options-pickup-traditional",
+    "session": "synthetic/v32/v32-options-pickup-traditional",
+    "manifestPath": "challenges/manifests/v32.json",
+    "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+    "recordingPath": "challenges/cases/v32/v32-options-pickup-traditional.session.json",
+    "recordingSha256": "c67c2911b24eeff7fdf9830a2fba5ee5098784fa0134d739ac457701dc6bed14",
+    "recipeSha256": "63b7b806dc533a00e905f7cd78835dd223457ae1e81521e911ad680f94f3a13f",
+    "evaluationPath": "challenges/evaluations/accepted-db0a7ad02ea001265fce34f7485b90c58d649d79-v32.json",
+    "evaluationCommit": "db0a7ad02ea001265fce34f7485b90c58d649d79",
+    "evaluationUtc": "2026-10-09T00:02:56.121Z",
+    "remainingScreens": 32,
+    "recordedSteps": 46,
+    "metrics": {
+      "screens": {
+        "matched": 14,
+        "total": 46
+      },
+      "rng": {
+        "matched": 2537,
+        "total": 2537
+      },
+      "cursors": {
+        "matched": 14,
+        "total": 46
+      }
+    },
+    "step": 14,
+    "kind": "stop",
+    "sourceFile": "cmd.c",
+    "function": "doextcmd",
+    "message": "Saved evaluation missing typed optionsfull dispatcher. Local immutable B173 dependency reveals traditional pickup_types getlin refusal at29."
+  },
+  "summary": "After the B173 typed full-options caller, selecting pickup_types with traditional menustyle stops at optfn_pickup_types' missing getlin branch. Complete the whole request handler and its existing handler_pickup_types caller, reconciling duplicated startup parsing and menu value rendering with one source owner. Preserve old class symbols across empty/Escape, clear them on whitespace, and enter the canonical class menu only on m or menu-style requests.",
+  "goalKind": "file-port",
+  "source": {
+    "file": "options.c",
+    "functions": [
+      "optfn_pickup_types",
+      "handler_pickup_types"
+    ],
+    "branch": "do_set with no explicit value, noninitial nonnegated long pickup_types statement, menu_style traditional or combination: save old selection, clear canonical class array, read source New pickup_types prompt, inspect leading whitespace before mungspaces, restore/clear/open-menu/parse as source orders.",
+    "callers": [
+      "options.c:handler_pickup_types6114-6121 discards parseoptions return then returns optn_ok; full and simple option menus invoke handler through allopt do_handler.",
+      "options.c:parseoptions handler table calls optfn_pickup_types do_set; initialization calls do_init, menu value code calls get_val/get_cnf_val. Existing JS startup parseNethackrc block6360-6378 duplicates set logic; OPTION_VALUE_HANDLERS getter7657 duplicates get logic; OPTION_SET_HANDLERS wraps the current async partial at8378. All must reconcile under the same source owner."
+    ],
+    "dependencies": [
+      "Read all optfn_pickup_types3308-3402 and handler_pickup_types6114-6121. Consumed helpers oc_to_str, string_for_opt, mungspaces and def_char_to_objclass already exist; inspect/pin their caller contract and retain exact saved tbuf/order without a second class store.",
+      "getlin is canonical windows.js155->tty_getlin and saves/restores bot_disabled. Runtime prompt can be awaited only in interactive do_set; startup/GET requests must keep their synchronous parser/getter contracts. Existing request-style handlers in options.js show scalar GET vs optn_ok translation convention.",
+      "choose_classes_menu C count result is discarded; its class_select out-buffer is required state. Existing windows.js category1/PICK_ANY implementation returns the rewritten buffer, matching the sole source call at3360. Keep category0/PICK_ONE outside this task and do not expand windows.js. Append venom only when entering that menu, after getlin decides use_menu.",
+      "bad_negation/config_error_add require source-faithful errors and exact mutation order. Current runtime configErrorAdd wrapper supplies startup frames; verify interactive frame behavior before claiming full error branch. Invalid/repeated class bytes retain accepted classes and report an empty parameter because C walks op to NUL.",
+      "Required pending B1734f44a54aa typed dispatcher; B178 formatting is independent and can be excluded as dependency if the next delivery base contains it only through report/merge ancestry. Final lineage dependency list must reflect actual unaccepted ancestor deliveries. No C155/C158/A177 ownership overlap."
+    ]
+  },
+  "evidence": [
+    "Saved accepted-db0a v32 queue retains32remaining/46; pending-B173 worker replay run-mPDLRq atb7bf47b10 matches29/46 with no earlier RNG/screen/cursor divergence, then refuses traditional getlin. Current local remaining17 is worker-branch evidence, not a new aggregate evaluation.",
+    "Complete C source3308-3402 includes do_init, do_set explicit/missing/compat/negation/initial paths, traditional/combination getlin and m fallback, wizard venom menu append, class uniqueness validation, get_val/get_cnf_val, do_handler and default return. A traditional-only branch addition would leave the whole selected function partial and duplicate startup/get logic.",
+    "Whole function closure can preserve startup synchrony with a request dispatcher that returns synchronous results for noninteractive requests and an awaited operation only for interactive prompt paths; do not make the global startup parser asynchronous or broaden initoptions.",
+    "Runtime coverage plan: admitted traditional $ response prefix through handler completion; independent ordinary-play combination and traditional restore/Escape/space/all/explicit-value startup variations; independent m fallback and full-menu-style class menu including wizard venom variation. Source-pinned request results and class loop/error behavior cover cheap unreachable request variants. A recorded invalid-class outside frontier should pin config_error_add or remain explicit if its frame owner blocks."
+  ],
+  "proposal": {
+    "goalId": "port-options-pickup-types-whole-v32-20261009",
+    "summary": "Complete the pickup-types option request handler.",
+    "selectionReason": "Seed-family continuation after immutable B173 typed optionsfull dispatcher; oldest independent missing pickup option branch with complete3308-3402 source trace, excluding live command-description/prayer contracts.",
+    "detail": "Port whole optfn_pickup_types and verify whole handler_pickup_types, consolidate startup set/get and interactive callers, preserving prompt/clear/restore/menu/class/error order. No whole doset or parseoptions credit.",
+    "sourceUnits": [
+      {
+        "file": "options.c",
+        "name": "optfn_pickup_types",
+        "start": 3308,
+        "end": 3402
+      },
+      {
+        "file": "options.c",
+        "name": "handler_pickup_types",
+        "start": 6114,
+        "end": 6121
+      }
+    ],
+    "proposedReservations": [
+      "session:synthetic/v32/v32-options-pickup-traditional",
+      "source:options.c:optfn_pickup_types",
+      "source:options.c:handler_pickup_types",
+      "contract:pickup-types-option-request-state"
+    ],
+    "proposedPaths": [
+      "js/options.js",
+      "scripts/options-menu.test.mjs",
+      "scripts/options-simple-menu.test.mjs",
+      "scripts/startup-pickup-types.test.mjs",
+      "scripts/options-pickup-types.test.mjs",
+      "recipes/options.c/",
+      "recordings/options.c/",
+      "investigations/synthetic/v32/v32-options-pickup-traditional.json",
+      ".cache/"
+    ],
+    "dependencies": [
+      "4f44a54aa3bff3ccd1d4252387a5e069b3d66a6b"
+    ]
+  }
+}
