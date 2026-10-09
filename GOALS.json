@@ -237318,7 +237318,7 @@
     {
       "id": "port-val-goal-quest-level-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Val-goal has no registered loader. Port the complete lava-cave Valkyrie quest goal program, preserving transparent map cells and the existing procedural terrain, the off-map stair, both drawbridge states, and the named Orb of Fate.",
       "luaFile": "Val-goal.lua",
       "sessions": [
@@ -237332,15 +237332,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "dee8b310b3922f634c10f62fcab1a5e8ff4acc73",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Val-goal.lua",
           "line": 1,
           "endLine": 104,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -237509,7 +237512,85 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Val-goal.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "valGoal",
+            "sourceReview": "Read and ported the whole dat/Val-goal.lua program (source lines 1-104). Preserved both level_init calls, mazelevel/icedpools flags, the transparent 35x17 map, lit and non-diggable selections, the off-map stair terrain replacement before stair placement, north bridge before the 75-percent south bridge branch, artifact and random objects, fixed and random traps, and all 20 ordered monster calls. The north bridge adapter consumes its own random state before Lua percent(75) consumes rn2(100). All callees are implemented in the existing level-description adapters; no unported calls were skipped.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "dat/Val-goal.lua top-level program, selected by the 'Val-goal' special-level registry key"
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "sp_lev.c load_special() dispatches the selected Lua special-level loader"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/val-goal-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Val-goal.lua/val-goal-direct-human-independent.session.json",
+              "recordings/Val-goal.lua/val-goal-direct-dwarf-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-val-goal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "dat/Val-goal.lua via quest_level.c natural Valkyrie quest goal arrival and mklev.c load_special()"
+              }
+            ],
+            "checkedAt": "dee8b310b3922f634c10f62fcab1a5e8ff4acc73"
+          }
+        ],
+        "entryPointReview": "The active entry path is the quest-level loader selected by js/mklev.js load_special(): natural Valkyrie quest progression reaches dat/Val-goal.lua, while #wizloaddes exercises the direct special-level command. Both use the production QUEST_LEVEL_LOADERS registry. The admitted v36 case records the natural-arrival path; two independently selected direct wizard recipes cover human and dwarf Valkyries. Source role constraints allow Valkyries only female, so the variation is race rather than an invalid male Valkyrie.",
+        "entryPoints": [
+          {
+            "name": "Natural Valkyrie quest goal arrival",
+            "functions": [
+              "Val-goal.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-val-goal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "dat/Val-goal.lua through quest-level dispatch and load_special()"
+              }
+            ]
+          },
+          {
+            "name": "Direct wizard load of Val-goal",
+            "functions": [
+              "Val-goal.lua"
+            ],
+            "recordings": [
+              "recordings/Val-goal.lua/val-goal-direct-human-independent.session.json",
+              "recordings/Val-goal.lua/val-goal-direct-dwarf-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "dee8b310b3922f634c10f62fcab1a5e8ff4acc73",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
