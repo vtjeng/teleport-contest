@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T15:05:15.984Z",
+  "capturedAt": "2026-10-09T15:11:00.086Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -74352,6 +74352,55 @@
         "type": "accepted",
         "at": "2026-10-09T15:05:03.241Z",
         "task": "B195"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B195-2f14200dd-20261009",
+        "type": "published",
+        "at": "2026-10-09T15:07:11.054Z",
+        "task": "B195",
+        "commit": "2f14200dd3936e5994f912e2791913ceee3a9fdc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B186-after-B195-20261009",
+        "type": "resume",
+        "at": "2026-10-09T15:07:33.761Z",
+        "task": "B186"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B186-uuid-revalidation-after-B195-20261009",
+        "type": "turn",
+        "at": "2026-10-09T15:07:42.834Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Revalidating the parked game-UUID investigation after its command dependency was accepted."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B186-refreshed-source-gated-after-B195-20261009",
+        "type": "turn",
+        "at": "2026-10-09T15:09:57.920Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Game-UUID investigation refreshed; awaiting its central source assignment."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C179-newsym-suppression-20261009",
+        "type": "implement",
+        "at": "2026-10-09T15:10:07.014Z",
+        "task": "C179",
+        "goal": "fix-display-newsym-suppression-v37-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A197-medusa4-lua-20261009",
+        "type": "implement",
+        "at": "2026-10-09T15:10:54.017Z",
+        "task": "A197",
+        "goal": "port-medusa-4-lua-v37-20261009"
       }
     ]
   },
@@ -74578,17 +74627,6 @@
         "since": "2026-10-09T04:01:02.463Z",
         "blockedBy": [],
         "reason": "Stale initial saved queue: accepted C160 evaluation at f091b997 proves v33-invoke-healing-blindness exact99/99screens/cursors1854RNG. Already in accepted B181 main4c02dfca and workerHEADd84b3350. No report or source edits needed."
-      },
-      {
-        "task": "B186",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T08:26:17.393Z",
-        "blockedBy": [],
-        "reason": "Main source gate: game UUID cmd/wizcmds seams await immutable unaccepted B185. Preserve report/proposal; no game edits."
       },
       {
         "task": "B187",

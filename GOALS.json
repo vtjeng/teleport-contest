@@ -234719,6 +234719,76 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-display-newsym-suppression-v37-20261009",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Suppress newsym map-memory writes during replacement-level generation.",
+      "cFile": "display.c",
+      "sessions": [],
+      "selectionReason": "C179 traced the final v37 replacement-map screen mismatch to display.c newsym missing the source map-output suppression guard; existing suppressMapOutput provides the exact four-state predicate.",
+      "detail": "Add the source guard before location lookup and memory/output changes, preserve ordinary redraw behavior, and validate the admitted case plus independent replacement-map variations.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "newsym",
+      "session": "synthetic/v37/v37-wizmap-after-monster-reset",
+      "step": 30,
+      "syntheticProvenance": {
+        "synthetic/v37/v37-wizmap-after-monster-reset": {
+          "session": "synthetic/v37/v37-wizmap-after-monster-reset",
+          "corpus": "synthetic",
+          "batch": "v37",
+          "caseId": "v37-wizmap-after-monster-reset",
+          "manifestPath": "challenges/manifests/v37.json",
+          "manifestSha256": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202",
+          "recordingPath": "challenges/cases/v37/v37-wizmap-after-monster-reset.session.json",
+          "recordingSha256": "808f8b14507f9a00081fa5e5ffaa8bec61fb269a86141aeb8c7131f1eae15023",
+          "evaluationPath": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v37.json",
+          "evaluationCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd"
+        }
+      }
+    },
+    {
+      "id": "port-medusa-4-lua-v37-20261009",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Complete and verify the Medusa-4 special level, including its final moat row.",
+      "luaFile": "medusa-4.lua",
+      "sessions": [
+        "synthetic/v37/v37-medusa"
+      ],
+      "selectionReason": "A197 traced the v37 Medusa mismatch through sp_lev.c get_location to an incomplete medusa-4.lua caller payload: the JavaScript loader omits the source program final moat row. Complete whole-program review avoids the blocked partial-Lua divergence path.",
+      "detail": "Port and verify all top-level medusa-4.lua statements and production callers, restore the 21st 76-column moat row, generate fixed tables from source, and validate the admitted case plus independent direct loading.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "medusa-4.lua",
+          "line": 1,
+          "endLine": 152,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v37/v37-medusa": {
+          "session": "synthetic/v37/v37-medusa",
+          "corpus": "synthetic",
+          "batch": "v37",
+          "caseId": "v37-medusa",
+          "manifestPath": "challenges/manifests/v37.json",
+          "manifestSha256": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202",
+          "recordingPath": "challenges/cases/v37/v37-medusa.session.json",
+          "recordingSha256": "909484fcdd1aa2c61ba170fd11d3e82efe43ca2479e9ec94a1847c07d7d5b7f9",
+          "evaluationPath": "challenges/evaluations/accepted-c08963f94b25f12e3bbccc94c0a4469ac664c8cd-v37.json",
+          "evaluationCommit": "c08963f94b25f12e3bbccc94c0a4469ac664c8cd"
+        }
+      }
     }
   ]
 }
