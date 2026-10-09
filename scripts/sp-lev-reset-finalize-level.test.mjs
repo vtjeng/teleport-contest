@@ -1,9 +1,9 @@
 // Source-pinned tests for sp_lev.c lspo_reset_level() and
 // lspo_finalize_level(), the pair the source marks "only needed for testing
 // purposes". No level under dat/ calls them; the Lua test scripts under
-// test/ do, and wizcmds.c wiz_load_splua(), which is not ported, calls them
-// with no Lua state. No recording reaches them, so their effects are pinned
-// here against the C function each test names.
+// test/ do, and wizcmds.c wiz_load_splua() calls them with no Lua state.
+// Pin the Lua and NULL-caller effects against the C function each test names;
+// independent command recordings establish the new caller's runtime wiring.
 
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -12,7 +12,7 @@ import test from 'node:test';
 import { newgame_pre_mklev } from '../js/allmain.js';
 import { ROOM, STONE } from '../js/const.js';
 import { game, resetGame } from '../js/gstate.js';
-import { mklev } from '../js/mklev.js';
+import { mklev, lspo_reset_level, lspo_finalize_level } from '../js/mklev.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { objects_globals_init } from '../js/objects.js';
 import { initRng } from '../js/rng.js';
@@ -146,6 +146,51 @@ test('finalize_level finishes the topology and clears Lua testing', async () => 
         assert.equal(game.ystart, 0);
         assert.equal(game.unported.has('cmd.c makemap_prepost'), false);
         // The room survived the pass with its floor intact.
+        const room = game.level.rooms[0];
+        assert.equal(game.level.at(room.lx, room.ly).typ, ROOM);
+    });
+});
+
+test('NULL reset preserves the existing special-level frame and painted mask', async () => {
+    const body = cFunctionBody('lspo_reset_level');
+    assert.match(body, /if \(L\) \{[\s\S]*?create_des_coder\(\);\s*\}/u);
+    await runLoader(0x4e53, async des => {
+        // A nondefault three-cell map exposes a mistaken coder/frame reset.
+        des.map(['...']);
+        const { xstart, ystart } = des.frame;
+        const inaccessibleCoder = new Proxy({}, {
+            get() { assert.fail('NULL reset cannot inspect the freed coder'); },
+            set() { assert.fail('NULL reset cannot recreate the coder'); },
+        });
+        await lspo_reset_level(null, {
+            state: game, frame: des.frame, coder: inaccessibleCoder,
+        });
+        assert.equal(des.frame.xstart, xstart);
+        assert.equal(des.frame.ystart, ystart);
+        assert.equal(des.frame.splevMap[xstart][ystart], 1);
+        assert.equal(game.iflags.lua_testing, true);
+        assert.equal(game.level.at(xstart, ystart).typ, STONE);
+    });
+});
+
+test('NULL finalize skips every coder-gated operation and still finishes', async () => {
+    const body = cFunctionBody('lspo_finalize_level');
+    assert.match(body, /if \(L\)\s*flip_level_rnd\(gc\.coder->allow_flips, FALSE\)/u);
+    for (const property of ['check_inaccessibles', 'solidify', 'premapped'])
+        assert.ok(body.includes(`if (L && gc.coder->${property})`));
+    await runLoader(0x4e54, async des => {
+        // Interior ordinary room exercises topology without special-room gaps.
+        des.room({ type: 'ordinary', x: 10, y: 5, w: 4, h: 3, lit: 1 });
+        game.iflags.lua_testing = true;
+        const inaccessibleCoder = new Proxy({}, {
+            get() { assert.fail('NULL finalize cannot read the freed coder'); },
+        });
+        await lspo_finalize_level(null, {
+            state: game, frame: des.frame, coder: inaccessibleCoder,
+        });
+        assert.equal(game.iflags.lua_testing, false);
+        assert.equal(game.in_mklev, false);
+        assert.equal(game.level.nroom, 1);
         const room = game.level.rooms[0];
         assert.equal(game.level.at(room.lx, room.ly).typ, ROOM);
     });

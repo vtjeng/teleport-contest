@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside C165 bound: source dat/wizard2.lua also consumes des.map return selection but existing js/wizard2_levels.js mapSelection reconstructs a rectangle including the transparent final column. C165 is scoped only to Wizard1 caller correction; retain this independent source-caller frontier without Wizard2 completion credit or source edits. Inputs chosen C-first; startup/teleport acknowledgements reuse observed C protocol, not a challenge recording.",
+  "segments": [
+    {
+      "seed": 16591027,
+      "datetime": "20581018192023",
+      "nethackrc": "OPTIONS=name:TowerMaskFrontier,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizlevelport\nvalley\n   #wizlevelport\nwizard2\n   #wizmap\n"
+    }
+  ]
+}

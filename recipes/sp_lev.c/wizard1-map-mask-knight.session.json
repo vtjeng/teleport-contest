@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first special-map returned selection variation. Seeds 16591013 and 16591019 chosen independently before JS comparison; Knight and Valkyrie vary starting equipment/level RNG without challenge inputs. Named Wizard Tower travel exercises transparent-map protected terrain through source level generation. C-only Knight setup correction: initial welcome/new-moon More consumed the first command; explicitly acknowledge startup with two spaces, then use three source message acknowledgements after each teleport. Fresh validation command: node scripts/run-wizard-tower-map.mjs; authoritative focused receipt: run-QcCjEB.",
+  "segments": [
+    {
+      "seed": 16591013,
+      "datetime": "20581018192023",
+      "nethackrc": "OPTIONS=name:TowerMask,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizlevelport\nvalley\n   #wizlevelport\nwizard1\n   #wizmap\n"
+    }
+  ]
+}

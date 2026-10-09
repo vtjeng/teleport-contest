@@ -47,15 +47,6 @@ function absoluteArea(x1, y1, x2, y2, frame) {
     return result;
 }
 
-function mapSelection(placed) {
-    const result = new ThemeroomSelection(null, true);
-    for (let x = placed.xstart; x < placed.xstart + placed.xsize; ++x) {
-        for (let y = placed.ystart; y < placed.ystart + placed.ysize; ++y)
-            result.set(x, y);
-    }
-    return result;
-}
-
 // C ref: dat/wizard1.lua, including the room callback and final
 // hell_tweaks(protected) call. Descriptor order is significant because the
 // callback's random door and hell_tweaks consume the level RNG stream.
@@ -162,7 +153,7 @@ export async function wizard1(des, state) {
         },
     });
 
-    const protectedArea = selectionUnion(bounds2.negate(), mapSelection(wiz1));
+    const protectedArea = selectionUnion(bounds2.negate(), wiz1.selection);
     await hellTweaks(des, protectedArea, state);
 }
 

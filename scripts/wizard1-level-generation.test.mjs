@@ -5,6 +5,7 @@ import test from 'node:test';
 import { GameMap } from '../js/game.js';
 import { HWALL } from '../js/const.js';
 import { initRng } from '../js/rng.js';
+import { ThemeroomSelection } from '../js/themerooms.js';
 import { WIZARD1_LEVEL_LOADERS, wizard1 } from '../js/wizard1_levels.js';
 
 const LUA_SOURCE = readFileSync('nethack-c/upstream/dat/wizard1.lua', 'utf8');
@@ -62,7 +63,19 @@ function recordingDes() {
         await specification.contents();
         // center alignment in the 78x20 maze area places this 29x13 map at
         // (25,5), which is also the frame used by map-relative descriptors.
-        return { xstart: 25, ystart: 5, xsize: 29, ysize: 13 };
+        const selection = new ThemeroomSelection(null, true);
+        const rows = specification.map.split('\n');
+        // sp_lev.c:6280–6293 returns only painted map cells; Wizard1's
+        // trailing x is transparent in every source row.
+        for (let y = 0; y < rows.length; ++y)
+            for (let x = 0; x < rows[y].length; ++x)
+                if (rows[y][x] !== 'x') selection.set(25 + x, 5 + y);
+        des.mapSelection = selection;
+        let reads = 0;
+        const get = selection.get.bind(selection);
+        selection.get = (x, y) => { ++reads; return get(x, y); };
+        des.mapSelectionReads = () => reads;
+        return { xstart: 25, ystart: 5, xsize: 29, ysize: 13, selection };
     };
     return { calls, des };
 }
@@ -81,6 +94,11 @@ test('Wizard1 loader is registered and preserves the source map', async () => {
     assert.ok(rows.every((row) => row.length === 29)); // map columns.
     assert.equal(map.args[0].halign, 'center');
     assert.equal(map.args[0].valign, 'center');
+    assert.ok(des.mapSelectionReads() > 0,
+        'wizard1.lua unions the des.map return selection into protection');
+    // 28 real columns × 13 rows: the transparent 29th column is not protected.
+    assert.equal(des.mapSelection.numpoints(), 364);
+    assert.equal(des.mapSelection.get(25 + 28, 5), false);
 });
 
 test('Wizard1 keeps map callback descriptors and hell tweaks in source order', async () => {
