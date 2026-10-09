@@ -1,0 +1,1797 @@
+{
+  "version": 1,
+  "batch": "v36",
+  "manifestPath": "challenges/manifests/v36.json",
+  "sha": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef",
+  "utc": "2026-10-09T19:07:10.685Z",
+  "status": "complete",
+  "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "e26183ba6c4493167ef0424f5d3b3a4e668392d321554d29ca59db9a67e41f86",
+  "inputFiles": [
+    "challenges/cases/v36/v36-cockatrice-tin-discard.recipe.session.json",
+    "challenges/cases/v36/v36-cockatrice-tin-discard.session.json",
+    "challenges/cases/v36/v36-cockatrice-tin.recipe.session.json",
+    "challenges/cases/v36/v36-cockatrice-tin.session.json",
+    "challenges/cases/v36/v36-confuse-monster-scroll.recipe.session.json",
+    "challenges/cases/v36/v36-confuse-monster-scroll.session.json",
+    "challenges/cases/v36/v36-cream-face-uncleared.recipe.session.json",
+    "challenges/cases/v36/v36-cream-face-uncleared.session.json",
+    "challenges/cases/v36/v36-cream-pie-towel.recipe.session.json",
+    "challenges/cases/v36/v36-cream-pie-towel.session.json",
+    "challenges/cases/v36/v36-diluted-water.recipe.session.json",
+    "challenges/cases/v36/v36-diluted-water.session.json",
+    "challenges/cases/v36/v36-dip-uncoatable-sword.recipe.session.json",
+    "challenges/cases/v36/v36-dip-uncoatable-sword.session.json",
+    "challenges/cases/v36/v36-food-detection-scroll.recipe.session.json",
+    "challenges/cases/v36/v36-food-detection-scroll.session.json",
+    "challenges/cases/v36/v36-free-action-paralysis.recipe.session.json",
+    "challenges/cases/v36/v36-free-action-paralysis.session.json",
+    "challenges/cases/v36/v36-genocided-empty.recipe.session.json",
+    "challenges/cases/v36/v36-genocided-empty.session.json",
+    "challenges/cases/v36/v36-gold-detection-scroll.recipe.session.json",
+    "challenges/cases/v36/v36-gold-detection-scroll.session.json",
+    "challenges/cases/v36/v36-migration-report.recipe.session.json",
+    "challenges/cases/v36/v36-migration-report.session.json",
+    "challenges/cases/v36/v36-monster-difficulty.recipe.session.json",
+    "challenges/cases/v36/v36-monster-difficulty.session.json",
+    "challenges/cases/v36/v36-paralysis-ring-unworn.recipe.session.json",
+    "challenges/cases/v36/v36-paralysis-ring-unworn.session.json",
+    "challenges/cases/v36/v36-poison-weapon.recipe.session.json",
+    "challenges/cases/v36/v36-poison-weapon.session.json",
+    "challenges/cases/v36/v36-potion-gainlevel-cursed.recipe.session.json",
+    "challenges/cases/v36/v36-potion-gainlevel-cursed.session.json",
+    "challenges/cases/v36/v36-potion-invisibility-cursed.recipe.session.json",
+    "challenges/cases/v36/v36-potion-invisibility-cursed.session.json",
+    "challenges/cases/v36/v36-potion-polymorph.recipe.session.json",
+    "challenges/cases/v36/v36-potion-polymorph.session.json",
+    "challenges/cases/v36/v36-quest-arc-goal.recipe.session.json",
+    "challenges/cases/v36/v36-quest-arc-goal.session.json",
+    "challenges/cases/v36/v36-quest-arc-loca-search.recipe.session.json",
+    "challenges/cases/v36/v36-quest-arc-loca-search.session.json",
+    "challenges/cases/v36/v36-quest-arc-strt.recipe.session.json",
+    "challenges/cases/v36/v36-quest-arc-strt.session.json",
+    "challenges/cases/v36/v36-quest-bar-goal.recipe.session.json",
+    "challenges/cases/v36/v36-quest-bar-goal.session.json",
+    "challenges/cases/v36/v36-quest-bar-loca-search.recipe.session.json",
+    "challenges/cases/v36/v36-quest-bar-loca-search.session.json",
+    "challenges/cases/v36/v36-quest-bar-strt.recipe.session.json",
+    "challenges/cases/v36/v36-quest-bar-strt.session.json",
+    "challenges/cases/v36/v36-quest-cav-goal.recipe.session.json",
+    "challenges/cases/v36/v36-quest-cav-goal.session.json",
+    "challenges/cases/v36/v36-quest-cav-loca.recipe.session.json",
+    "challenges/cases/v36/v36-quest-cav-loca.session.json",
+    "challenges/cases/v36/v36-quest-cav-strt.recipe.session.json",
+    "challenges/cases/v36/v36-quest-cav-strt.session.json",
+    "challenges/cases/v36/v36-quest-hea-goal.recipe.session.json",
+    "challenges/cases/v36/v36-quest-hea-goal.session.json",
+    "challenges/cases/v36/v36-quest-hea-loca.recipe.session.json",
+    "challenges/cases/v36/v36-quest-hea-loca.session.json",
+    "challenges/cases/v36/v36-quest-hea-strt.recipe.session.json",
+    "challenges/cases/v36/v36-quest-hea-strt.session.json",
+    "challenges/cases/v36/v36-quest-kni-goal.recipe.session.json",
+    "challenges/cases/v36/v36-quest-kni-goal.session.json",
+    "challenges/cases/v36/v36-quest-kni-loca.recipe.session.json",
+    "challenges/cases/v36/v36-quest-kni-loca.session.json",
+    "challenges/cases/v36/v36-quest-kni-strt.recipe.session.json",
+    "challenges/cases/v36/v36-quest-kni-strt.session.json",
+    "challenges/cases/v36/v36-quest-menu-search.recipe.session.json",
+    "challenges/cases/v36/v36-quest-menu-search.session.json",
+    "challenges/cases/v36/v36-quest-mon-goal.recipe.session.json",
+    "challenges/cases/v36/v36-quest-mon-goal.session.json",
+    "challenges/cases/v36/v36-quest-mon-loca.recipe.session.json",
+    "challenges/cases/v36/v36-quest-mon-loca.session.json",
+    "challenges/cases/v36/v36-quest-mon-strt.recipe.session.json",
+    "challenges/cases/v36/v36-quest-mon-strt.session.json",
+    "challenges/cases/v36/v36-quest-pri-goal.recipe.session.json",
+    "challenges/cases/v36/v36-quest-pri-goal.session.json",
+    "challenges/cases/v36/v36-quest-pri-loca.recipe.session.json",
+    "challenges/cases/v36/v36-quest-pri-loca.session.json",
+    "challenges/cases/v36/v36-quest-pri-strt.recipe.session.json",
+    "challenges/cases/v36/v36-quest-pri-strt.session.json",
+    "challenges/cases/v36/v36-quest-ran-goal.recipe.session.json",
+    "challenges/cases/v36/v36-quest-ran-goal.session.json",
+    "challenges/cases/v36/v36-quest-ran-loca-search.recipe.session.json",
+    "challenges/cases/v36/v36-quest-ran-loca-search.session.json",
+    "challenges/cases/v36/v36-quest-ran-strt.recipe.session.json",
+    "challenges/cases/v36/v36-quest-ran-strt.session.json",
+    "challenges/cases/v36/v36-quest-rog-goal.recipe.session.json",
+    "challenges/cases/v36/v36-quest-rog-goal.session.json",
+    "challenges/cases/v36/v36-quest-rog-loca.recipe.session.json",
+    "challenges/cases/v36/v36-quest-rog-loca.session.json",
+    "challenges/cases/v36/v36-quest-rog-strt.recipe.session.json",
+    "challenges/cases/v36/v36-quest-rog-strt.session.json",
+    "challenges/cases/v36/v36-quest-sam-goal.recipe.session.json",
+    "challenges/cases/v36/v36-quest-sam-goal.session.json",
+    "challenges/cases/v36/v36-quest-sam-loca.recipe.session.json",
+    "challenges/cases/v36/v36-quest-sam-loca.session.json",
+    "challenges/cases/v36/v36-quest-sam-strt.recipe.session.json",
+    "challenges/cases/v36/v36-quest-sam-strt.session.json",
+    "challenges/cases/v36/v36-quest-tou-goal.recipe.session.json",
+    "challenges/cases/v36/v36-quest-tou-goal.session.json",
+    "challenges/cases/v36/v36-quest-tou-loca.recipe.session.json",
+    "challenges/cases/v36/v36-quest-tou-loca.session.json",
+    "challenges/cases/v36/v36-quest-tou-strt.recipe.session.json",
+    "challenges/cases/v36/v36-quest-tou-strt.session.json",
+    "challenges/cases/v36/v36-quest-val-goal.recipe.session.json",
+    "challenges/cases/v36/v36-quest-val-goal.session.json",
+    "challenges/cases/v36/v36-quest-val-loca.recipe.session.json",
+    "challenges/cases/v36/v36-quest-val-loca.session.json",
+    "challenges/cases/v36/v36-quest-val-strt.recipe.session.json",
+    "challenges/cases/v36/v36-quest-val-strt.session.json",
+    "challenges/cases/v36/v36-quest-wiz-goal.recipe.session.json",
+    "challenges/cases/v36/v36-quest-wiz-goal.session.json",
+    "challenges/cases/v36/v36-quest-wiz-loca-search.recipe.session.json",
+    "challenges/cases/v36/v36-quest-wiz-loca-search.session.json",
+    "challenges/cases/v36/v36-quest-wiz-strt.recipe.session.json",
+    "challenges/cases/v36/v36-quest-wiz-strt.session.json",
+    "challenges/cases/v36/v36-self-telekinesis.recipe.session.json",
+    "challenges/cases/v36/v36-self-telekinesis.session.json",
+    "challenges/cases/v36/v36-spell-list-unknown.recipe.session.json",
+    "challenges/cases/v36/v36-spell-list-unknown.session.json",
+    "challenges/cases/v36/v36-spell-list.recipe.session.json",
+    "challenges/cases/v36/v36-spell-list.session.json",
+    "challenges/cases/v36/v36-spinach-tin-discard.recipe.session.json",
+    "challenges/cases/v36/v36-spinach-tin-discard.session.json",
+    "challenges/cases/v36/v36-spinach-tin.recipe.session.json",
+    "challenges/cases/v36/v36-spinach-tin.session.json",
+    "challenges/cases/v36/v36-taming-scroll.recipe.session.json",
+    "challenges/cases/v36/v36-taming-scroll.session.json",
+    "challenges/cases/v36/v36-touchstone-gem.recipe.session.json",
+    "challenges/cases/v36/v36-touchstone-gem.session.json",
+    "challenges/cases/v36/v36-vanquished-empty.recipe.session.json",
+    "challenges/cases/v36/v36-vanquished-empty.session.json",
+    "challenges/cases/v36/v36-wand-probing-self.recipe.session.json",
+    "challenges/cases/v36/v36-wand-probing-self.session.json",
+    "challenges/cases/v36/v36-wizard-spell-menu.recipe.session.json",
+    "challenges/cases/v36/v36-wizard-spell-menu.session.json",
+    "challenges/manifests/v36.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/astral_level_data.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cav_goal_level_data.js",
+    "js/cav_loca_level_data.js",
+    "js/cav_strt_level_data.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd_isok.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hea_goal_level_data.js",
+    "js/hea_loca_level_data.js",
+    "js/hea_strt_level_data.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/kni_loca_level_data.js",
+    "js/kni_strt_level_data.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkobj_hornoplenty.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon_goal_level_data.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mplayer.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself_bodyparts.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/ran_goal_level_data.js",
+    "js/ran_loca_level_data.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read_text_data.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rng.js",
+    "js/rog_strt_level_data.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/rumors.js",
+    "js/sam_goal_level_data.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/sp_lev.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/status_field_data.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/strutil.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout.js",
+    "js/topten.js",
+    "js/tou_strt_level_data.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/val_goal_level_data.js",
+    "js/val_loca_level_data.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizard3_levels.js",
+    "js/wizcmds_data.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "v36-quest-arc-strt",
+      "recordingSha256": "76c1a88e507e8efa9a8ec62d95403799c3241752e772f3a46095d5858dca65c6",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 3414,
+          "total": 3414
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-arc-goal",
+      "recordingSha256": "4a44cae47a30d31996a63662d020ba4ba2dc59df7fd51cfab5fe28e89618d5bd",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 11546,
+          "total": 11546
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-bar-strt",
+      "recordingSha256": "32e401c0441a165e0aaebbac04b75a84df6212469d1e191e3504d201e05923d8",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 3978,
+          "total": 3978
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-bar-goal",
+      "recordingSha256": "628730723a830202637a44bc43b9eebc448c1b542b22450563a6f9e6de844996",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 43,
+          "total": 60
+        },
+        "rng": {
+          "matched": 2303,
+          "total": 3365
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-cav-strt",
+      "recordingSha256": "7632fc336c92a177429e5fc96f4a4c163823c11882d420116053ece9b44d98f6",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 3434,
+          "total": 3434
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-cav-loca",
+      "recordingSha256": "1efed0a5827687ebefcfae72c992baec47e974ba6792a41e7abb2f56763cb4b7",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 3175,
+          "total": 3175
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-cav-goal",
+      "recordingSha256": "41322f7473eb513e6fab82a249c1253cd49b1cc20872c7ca436b37f71608c449",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 2845,
+          "total": 2845
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-hea-strt",
+      "recordingSha256": "c6291e0fc843de105c0aeea46673ec8c992520735fecae0f617aff79d345e61f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 4775,
+          "total": 4775
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-hea-loca",
+      "recordingSha256": "19d2676006eeee6cb2f42f866fb4f9d61f4476e20289dcf58ae3a06a8814b85c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 6728,
+          "total": 6728
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-hea-goal",
+      "recordingSha256": "0cd3f545242f45d9b1ad841595965e6f2f2bfe76106565637c5eaa608596feed",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 6218,
+          "total": 6218
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-kni-strt",
+      "recordingSha256": "0e97de322cfb247842ae6fc307b6753e94f967c58654371cc37f803463fe3691",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 4976,
+          "total": 4976
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-kni-loca",
+      "recordingSha256": "d4614f2ccb4abc35c097705db11890113bed01144d3fa40c6c4d9ae4f29bc856",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 6160,
+          "total": 6160
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-kni-goal",
+      "recordingSha256": "05d8f11c5e3e65805ec64fc71dff11e9c2a51776e74a964ecc004497859414f2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 3574,
+          "total": 3574
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-mon-strt",
+      "recordingSha256": "9ee4dfa848e9b6c50c6058f398378cf18912c62be39534bfa1b887df5f1c7d9e",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 19,
+          "total": 60
+        },
+        "rng": {
+          "matched": 2772,
+          "total": 3613
+        },
+        "cursors": {
+          "matched": 19,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-mon-loca",
+      "recordingSha256": "54b55d138d3fe3c0dc5fcaa627e2ff795a610e12f2818fb0da24efd84b3ec14a",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 19,
+          "total": 60
+        },
+        "rng": {
+          "matched": 3107,
+          "total": 3671
+        },
+        "cursors": {
+          "matched": 19,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-mon-goal",
+      "recordingSha256": "daf2d29044a317edaf6598177fb6c24d2a290406534b6bafa42b3408d11db3f8",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 4201,
+          "total": 4201
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-pri-strt",
+      "recordingSha256": "f6d15a097b629b029c88b8b06f8ffe4068b4ce94014d14d92c7717317125a81f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 7426,
+          "total": 7426
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-pri-loca",
+      "recordingSha256": "23d4ba0de786082151a2f6e40e8daf24f539852e18f95de3600f1b0b044d5248",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 11521,
+          "total": 11521
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-pri-goal",
+      "recordingSha256": "bebb8d4532496a558ae615fa8a483da0a3717249e12d9bf2257884587c2546b4",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 4743,
+          "total": 4743
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-ran-strt",
+      "recordingSha256": "209f5c07ed7ee8dd2e6e2d2315581d490fc99871bbb8d28c1203ea640124a19b",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 19,
+          "total": 60
+        },
+        "rng": {
+          "matched": 2874,
+          "total": 6677
+        },
+        "cursors": {
+          "matched": 19,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-ran-goal",
+      "recordingSha256": "d91dd644166bac1a96f924062f216997268a1824a2b8e5902a66cde930a446ad",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 3880,
+          "total": 3880
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-rog-strt",
+      "recordingSha256": "4c9bc59e3036b960d3ba360df435b41ba1339b118f64142803ac845340674c2a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 5722,
+          "total": 5722
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-rog-loca",
+      "recordingSha256": "ac97310261adf55d3764dce9e254db818e8b82668d804a6cb6781a8d7f8aadd5",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 19,
+          "total": 60
+        },
+        "rng": {
+          "matched": 2693,
+          "total": 3500
+        },
+        "cursors": {
+          "matched": 19,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-rog-goal",
+      "recordingSha256": "2e5a77c0616e7b8c0d153cf06d92c449d9ebd9691464c44f0136274aeeb4234a",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 19,
+          "total": 60
+        },
+        "rng": {
+          "matched": 2315,
+          "total": 3136
+        },
+        "cursors": {
+          "matched": 19,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-sam-strt",
+      "recordingSha256": "bbb4ffa0c50dd723c3e2240a5cbac70e400bc34f6a5a28234911dcee25d5f918",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 4526,
+          "total": 4526
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-sam-loca",
+      "recordingSha256": "d8d51066629a54b7beaef0f33a850f74f70db249b72ee3c3062421ed50e28615",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 19,
+          "total": 60
+        },
+        "rng": {
+          "matched": 2986,
+          "total": 4121
+        },
+        "cursors": {
+          "matched": 19,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-sam-goal",
+      "recordingSha256": "f3341c0105c9862a56f1ad4d30c4006a2c2b3277e1e9e63f04eaf5d7e4ac4bc9",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 3518,
+          "total": 3518
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-tou-strt",
+      "recordingSha256": "eff4183a3ea15e1902cd64eef18e5cc64e350a130b0134e8f9103af7348057e0",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 5320,
+          "total": 5320
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-tou-loca",
+      "recordingSha256": "82620864b147afeef63968c3285e30bc758b89ed8df48a51ecadcea08e679c3a",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 19,
+          "total": 60
+        },
+        "rng": {
+          "matched": 2977,
+          "total": 9445
+        },
+        "cursors": {
+          "matched": 19,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-tou-goal",
+      "recordingSha256": "1f1f123cc3b022837762248ed5c6c34775d6c022c843fa69c2d0ef3354f74442",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 19,
+          "total": 60
+        },
+        "rng": {
+          "matched": 2144,
+          "total": 5854
+        },
+        "cursors": {
+          "matched": 19,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-val-strt",
+      "recordingSha256": "bd018419e6b072d055d445683d58fddf50dd9a14c43ee1d19997ab1149a3f571",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 19,
+          "total": 60
+        },
+        "rng": {
+          "matched": 2205,
+          "total": 2942
+        },
+        "cursors": {
+          "matched": 19,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-val-loca",
+      "recordingSha256": "df1525581d5de100c10b03799424fcbc6520a23f3ddfad268143a21adb5fa712",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 5062,
+          "total": 5062
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-val-goal",
+      "recordingSha256": "a3cd01986f04859da04418938dd230394618651f897d44c540d8b9f31207dff8",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 5199,
+          "total": 5199
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-wiz-strt",
+      "recordingSha256": "3f37455a8ce4fbce6e4d20008f8e42cba47d33b0902a46162ced0ca6442004a6",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 4478,
+          "total": 4478
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-wiz-goal",
+      "recordingSha256": "18e27cd986aadc60dd5a014d90674981a58d0d8030dbaa788fbb84826c7bcfea",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 4662,
+          "total": 4662
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-monster-difficulty",
+      "recordingSha256": "f16c0551832f95082a9dc33283e99d4e63730b5bd84dba1778fc6f3c287fbf73",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 30,
+          "total": 30
+        },
+        "rng": {
+          "matched": 2730,
+          "total": 2730
+        },
+        "cursors": {
+          "matched": 30,
+          "total": 30
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-migration-report",
+      "recordingSha256": "95d822af26fef0323736e40286a8bd4c614ce98f2124f992f5b21f59f119a6b9",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 48,
+          "total": 48
+        },
+        "rng": {
+          "matched": 2624,
+          "total": 2624
+        },
+        "cursors": {
+          "matched": 48,
+          "total": 48
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-wizard-spell-menu",
+      "recordingSha256": "4a19ce7f22f22f357a4373ffc4999fda3fdc2453dc2bab8fb46e56f099f197eb",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 28,
+          "total": 28
+        },
+        "rng": {
+          "matched": 2300,
+          "total": 2300
+        },
+        "cursors": {
+          "matched": 28,
+          "total": 28
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-self-telekinesis",
+      "recordingSha256": "7a337cfad5a96464cb507dbff361f5de10f6fe8be49fe27a586fe1456956d9a1",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 2769,
+          "total": 2769
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-vanquished-empty",
+      "recordingSha256": "65fc3f4f445be089084f0ecef93353252436b0a44ce800ea7f2d65a911f9ad2c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 30,
+          "total": 30
+        },
+        "rng": {
+          "matched": 2809,
+          "total": 2809
+        },
+        "cursors": {
+          "matched": 30,
+          "total": 30
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-genocided-empty",
+      "recordingSha256": "48ebf93171392a134537693934d51433606a5350474c9776ac6042dc316b9a34",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 29,
+          "total": 29
+        },
+        "rng": {
+          "matched": 2918,
+          "total": 2918
+        },
+        "cursors": {
+          "matched": 29,
+          "total": 29
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-spell-list",
+      "recordingSha256": "c064b2bb3c31141e5aad7b70e0d2e7d8049e2b663555d0dcaecf7f99d3c467a2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 20,
+          "total": 20
+        },
+        "rng": {
+          "matched": 2912,
+          "total": 2912
+        },
+        "cursors": {
+          "matched": 20,
+          "total": 20
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-potion-gainlevel-cursed",
+      "recordingSha256": "97db639825186f4fa7dfa9116368e245aa2c4326b938287a0a2f113b6586eec8",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 66,
+          "total": 66
+        },
+        "rng": {
+          "matched": 2441,
+          "total": 2441
+        },
+        "cursors": {
+          "matched": 66,
+          "total": 66
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-potion-polymorph",
+      "recordingSha256": "069df52bb74b641d96d3a98a3f52b08fb56123032d2d2dcd35a5ae171cddd911",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 50,
+          "total": 50
+        },
+        "rng": {
+          "matched": 1973,
+          "total": 1973
+        },
+        "cursors": {
+          "matched": 50,
+          "total": 50
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-potion-invisibility-cursed",
+      "recordingSha256": "37827a3e032af8bf586d4cdcbaca1259f884761e01fd4ebb16d4638c4db64290",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 51,
+          "total": 51
+        },
+        "rng": {
+          "matched": 3993,
+          "total": 3993
+        },
+        "cursors": {
+          "matched": 51,
+          "total": 51
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-free-action-paralysis",
+      "recordingSha256": "6db7ccd7a808400e89a46521e6a0c8d84f803b95c557a9c5d5c9b7429d7be29c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 103,
+          "total": 103
+        },
+        "rng": {
+          "matched": 2861,
+          "total": 2861
+        },
+        "cursors": {
+          "matched": 103,
+          "total": 103
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-cream-pie-towel",
+      "recordingSha256": "c3e55faafa6f43ead86255b7aad63d2c1716b2d371fa15ca5e9d4a54a09d5c61",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 74,
+          "total": 74
+        },
+        "rng": {
+          "matched": 2577,
+          "total": 2577
+        },
+        "cursors": {
+          "matched": 74,
+          "total": 74
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-spinach-tin",
+      "recordingSha256": "c4bbca95ff84f847d4f44f5fc5afa2dff1204a641eb3b7bdf70e54fece1261e6",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 62,
+          "total": 62
+        },
+        "rng": {
+          "matched": 2194,
+          "total": 2194
+        },
+        "cursors": {
+          "matched": 62,
+          "total": 62
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-cockatrice-tin",
+      "recordingSha256": "189e54dbe25ba7e37ac602181d2bb660d1fa28ebdf30c6bbc501b4bcc186d747",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 76,
+          "total": 76
+        },
+        "rng": {
+          "matched": 2963,
+          "total": 2963
+        },
+        "cursors": {
+          "matched": 76,
+          "total": 76
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-poison-weapon",
+      "recordingSha256": "b8f3d72d1d1c3fb8b2ad2a4898b0d8dc364dbb92caa0b2a58a74446cc2f74437",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 74,
+          "total": 74
+        },
+        "rng": {
+          "matched": 2362,
+          "total": 2362
+        },
+        "cursors": {
+          "matched": 74,
+          "total": 74
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-diluted-water",
+      "recordingSha256": "621db839d0cc98bd8f2572ec24ed2cd42d3ce11f8227ed20218917548fa1ce7a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 54,
+          "total": 54
+        },
+        "rng": {
+          "matched": 2135,
+          "total": 2135
+        },
+        "cursors": {
+          "matched": 54,
+          "total": 54
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-touchstone-gem",
+      "recordingSha256": "3de6d641b43505cc6f0d06f25bbd70553687a84be64744bb3a1b5d5f513e8437",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 60,
+          "total": 60
+        },
+        "rng": {
+          "matched": 2385,
+          "total": 2385
+        },
+        "cursors": {
+          "matched": 60,
+          "total": 60
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-taming-scroll",
+      "recordingSha256": "dbfa4db9c0e5441b2f8e7fb55665f15cb460d8cc778c283b9de11ddb0fb2f528",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 79,
+          "total": 79
+        },
+        "rng": {
+          "matched": 2572,
+          "total": 2572
+        },
+        "cursors": {
+          "matched": 79,
+          "total": 79
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-confuse-monster-scroll",
+      "recordingSha256": "dd7b7a83f074fc50fd036fce32abbeb76af1cbb11f8e1ce82a651220f4640e09",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 56,
+          "total": 56
+        },
+        "rng": {
+          "matched": 2486,
+          "total": 2486
+        },
+        "cursors": {
+          "matched": 56,
+          "total": 56
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-food-detection-scroll",
+      "recordingSha256": "46bd2b9d9615263b7ca6cc2471ddaabd1e136b997c021c197379104d63e19516",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 55,
+          "total": 55
+        },
+        "rng": {
+          "matched": 2352,
+          "total": 2352
+        },
+        "cursors": {
+          "matched": 55,
+          "total": 55
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-gold-detection-scroll",
+      "recordingSha256": "0b601c747b9347537ad2cbdd9be0315cb0a10d8ba3fe9780e959d636b7a6db3f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 55,
+          "total": 55
+        },
+        "rng": {
+          "matched": 2874,
+          "total": 2874
+        },
+        "cursors": {
+          "matched": 55,
+          "total": 55
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-wand-probing-self",
+      "recordingSha256": "eccec0e235447620079ad8c786c85303e3f5fab528798b150e5b1287c0bef8e2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 47,
+          "total": 47
+        },
+        "rng": {
+          "matched": 2498,
+          "total": 2498
+        },
+        "cursors": {
+          "matched": 47,
+          "total": 47
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-spell-list-unknown",
+      "recordingSha256": "2dcee7bbe1a66c4b6c14cf19d529930ca596c1bf228fe8a2b77adf71da15b153",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 20,
+          "total": 20
+        },
+        "rng": {
+          "matched": 2713,
+          "total": 2713
+        },
+        "cursors": {
+          "matched": 20,
+          "total": 20
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-cream-face-uncleared",
+      "recordingSha256": "6ccb56dd35777f5fb18c84c345bbc173af82645002212e946e699dbc4774d5e0",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 74,
+          "total": 74
+        },
+        "rng": {
+          "matched": 2572,
+          "total": 2572
+        },
+        "cursors": {
+          "matched": 74,
+          "total": 74
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-spinach-tin-discard",
+      "recordingSha256": "4e393943c28f78c6091e874cb16d9e2bfc1dfd63eb79243e4bbce3798983d23a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 61,
+          "total": 61
+        },
+        "rng": {
+          "matched": 2175,
+          "total": 2175
+        },
+        "cursors": {
+          "matched": 61,
+          "total": 61
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-cockatrice-tin-discard",
+      "recordingSha256": "93c0149805efb910524f0c56c1da67b8a6152c5964d033c2a26e2cc17c78b7a5",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 71,
+          "total": 71
+        },
+        "rng": {
+          "matched": 2963,
+          "total": 2963
+        },
+        "cursors": {
+          "matched": 71,
+          "total": 71
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-paralysis-ring-unworn",
+      "recordingSha256": "cc6eb530ee2d061e5654af27f688e7de865ae9552737893c5608ef6be640ab1b",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 98,
+          "total": 98
+        },
+        "rng": {
+          "matched": 3225,
+          "total": 3225
+        },
+        "cursors": {
+          "matched": 98,
+          "total": 98
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-dip-uncoatable-sword",
+      "recordingSha256": "1ac4d6ac6d22ec34baf14e99f68c2320cffc69f6e49b477d4210f8ee667c60c2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 54,
+          "total": 54
+        },
+        "rng": {
+          "matched": 2360,
+          "total": 2360
+        },
+        "cursors": {
+          "matched": 54,
+          "total": 54
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-menu-search",
+      "recordingSha256": "527aa4727ef4a7d9c3f3e3379a8b5850c86298e91e66501178baba56c9f92319",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 68,
+          "total": 68
+        },
+        "rng": {
+          "matched": 3414,
+          "total": 3414
+        },
+        "cursors": {
+          "matched": 68,
+          "total": 68
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-arc-loca-search",
+      "recordingSha256": "e494dc0735e0f4b83c772d85e028ca52e664fd2d52b8d04eb767b8e8e3e472b0",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 68,
+          "total": 68
+        },
+        "rng": {
+          "matched": 12195,
+          "total": 12195
+        },
+        "cursors": {
+          "matched": 68,
+          "total": 68
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-bar-loca-search",
+      "recordingSha256": "70b49b98ef50ba27553853013e976f63b5eafc8d83cb34d15a3f65e8d28eaab9",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 68,
+          "total": 68
+        },
+        "rng": {
+          "matched": 4569,
+          "total": 4569
+        },
+        "cursors": {
+          "matched": 68,
+          "total": 68
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-ran-loca-search",
+      "recordingSha256": "69c543359ea056b393d6a6e02be3d4f229a17fd6f7629251b9134209a86ed30e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 68,
+          "total": 68
+        },
+        "rng": {
+          "matched": 5358,
+          "total": 5358
+        },
+        "cursors": {
+          "matched": 68,
+          "total": 68
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v36-quest-wiz-loca-search",
+      "recordingSha256": "d1d6f07ed4a26b725c7622228ddb6bcad0337f0e513fa7653c84e759039a830d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 68,
+          "total": 68
+        },
+        "rng": {
+          "matched": 4226,
+          "total": 4226
+        },
+        "cursors": {
+          "matched": 68,
+          "total": 68
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 58,
+      "total": 68
+    },
+    "screens": {
+      "matched": 3639,
+      "total": 4025
+    },
+    "rng": {
+      "matched": 260955,
+      "total": 280903
+    },
+    "cursors": {
+      "matched": 3656,
+      "total": 4025
+    }
+  }
+}

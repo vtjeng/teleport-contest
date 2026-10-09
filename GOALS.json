@@ -238157,6 +238157,499 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-tou-strt-lua-v36-20261009",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the complete Tourist quest start Lua program and wire natural and direct special-level loading with source-ordered room filling.",
+      "luaFile": "Tou-strt.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-tou-strt"
+      ],
+      "selectionReason": "The accepted v36 Tourist quest-start case stops at step 19 because Tou-strt has no registered loader; B201 supplies the whole Lua program and source-backed room-fill call-point correction.",
+      "detail": "Whole dat/Tou-strt.lua lines 1-134, unique loader and generated tables, with bounded sp_lev.c load_special and mklev.c makelevel room-fill ordering correction verified by independent natural and direct C recordings.",
+      "openedAt": "9c5f2d99db73b27c3215a440e248b037b8cef233",
+      "openStanding": {
+        "sha": "85927920dc3598224e264c7ca1ecd0a4c5a34239",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "Tou-strt.lua",
+          "line": 1,
+          "endLine": 134,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-tou-strt": {
+          "session": "synthetic/v36/v36-quest-tou-strt",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-tou-strt",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-tou-strt.session.json",
+          "recordingSha256": "eff4183a3ea15e1902cd64eef18e5cc64e350a130b0134e8f9103af7348057e0",
+          "evaluationPath": "challenges/evaluations/accepted-85927920dc3598224e264c7ca1ecd0a4c5a34239-v36.json",
+          "evaluationCommit": "85927920dc3598224e264c7ca1ecd0a4c5a34239"
+        }
+      },
+      "activeStanding": {
+        "sha": "85927920dc3598224e264c7ca1ecd0a4c5a34239",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-tou-strt",
+          "session": "synthetic/v36/v36-quest-tou-strt",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-tou-strt.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-tou-strt.session.json",
+          "recordingSha256": "eff4183a3ea15e1902cd64eef18e5cc64e350a130b0134e8f9103af7348057e0",
+          "recipe": "challenges/cases/v36/v36-quest-tou-strt.recipe.session.json",
+          "recipeSha256": "42827723c78d0d4b16f65a59cb24386839370e43d16a46a7a9e11758e743ea85",
+          "replayInputSha256": "15ba1520855de569ec70d5b078e328d09894ec2c5314c58f83b1fe0bf00c121f",
+          "evaluationPath": "challenges/evaluations/accepted-85927920dc3598224e264c7ca1ecd0a4c5a34239-v36.json",
+          "evaluationCommit": "85927920dc3598224e264c7ca1ecd0a4c5a34239",
+          "evaluationArtifact": "challenges/evaluations/accepted-85927920dc3598224e264c7ca1ecd0a4c5a34239-v36.json",
+          "evaluationUtc": "2026-10-09T18:47:32.917Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 3489,
+              "total": 5320
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-strt\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Tou-strt.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-strt\"",
+          "cFile": null,
+          "luaFile": "Tou-strt.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-tou-strt.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-tou-strt",
+              "session": "synthetic/v36/v36-quest-tou-strt",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "eff4183a3ea15e1902cd64eef18e5cc64e350a130b0134e8f9103af7348057e0",
+              "evaluationPath": "challenges/evaluations/accepted-dee8b310b3922f634c10f62fcab1a5e8ff4acc73-v36.json",
+              "evaluationCommit": "dee8b310b3922f634c10f62fcab1a5e8ff4acc73",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "f8777254f5c0031214c8e93591307cc7a2290411",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-tou-strt",
+                "session": "synthetic/v36/v36-quest-tou-strt",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-tou-strt.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-tou-strt.session.json",
+                "recordingSha256": "eff4183a3ea15e1902cd64eef18e5cc64e350a130b0134e8f9103af7348057e0",
+                "recipe": "challenges/cases/v36/v36-quest-tou-strt.recipe.session.json",
+                "recipeSha256": "42827723c78d0d4b16f65a59cb24386839370e43d16a46a7a9e11758e743ea85",
+                "replayInputSha256": "b174d4d0fe2ae9edfc8979b30a0fe038771561ada961da0de7e5d68a206e1c4f",
+                "evaluationPath": "challenges/evaluations/accepted-dee8b310b3922f634c10f62fcab1a5e8ff4acc73-v36.json",
+                "evaluationCommit": "dee8b310b3922f634c10f62fcab1a5e8ff4acc73",
+                "evaluationArtifact": "challenges/evaluations/accepted-dee8b310b3922f634c10f62fcab1a5e8ff4acc73-v36.json",
+                "evaluationUtc": "2026-10-09T18:23:14.343Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 3489,
+                    "total": 5320
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-strt\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Tou-strt.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-strt\"",
+                "cFile": null,
+                "luaFile": "Tou-strt.lua",
+                "line": null
+              },
+              "summary": "Tou-strt.lua is absent from QUEST_LEVEL_LOADERS, so Tourist quest-start arrival stops before generation at step19. Port the whole134line program and registry seam: river map,lighting/morgue,stairs/branch portal,protectedwalls,18doors,42monster descriptors,Twoflower custom armor/chest and9traps. No new helper scope is initially required.",
+              "goalKind": "lua-port",
+              "source": {
+                "file": "Tou-strt.lua",
+                "branch": "First generation of the Tourist quest start level through wizard level teleportation; the Tou-strt special prototype has no registered loader.",
+                "functions": [
+                  "Tou-strt.lua (whole program, lines1–134)"
+                ],
+                "callers": [
+                  "do.c:goto_level -> mklev.c:makelevel1266–1271 -> mkmaze.c:makemaz1184–1193 -> sp_lev.c:load_special6454–6503 -> dat/Tou-strt.lua",
+                  "js/mklev.js:makelevel/makemaz/load_special -> QUEST_LEVEL_LOADERS[Tou-strt] -> touStrt in js/quest_levels.js -> canonical des.finish"
+                ],
+                "dependencies": [
+                  "Existing solidfill,mazelevel/noteleport/hardfloor,map and selection-area lighting owners. Preserve unspecified-lit initial rn2(2),76x20map and source finalization/flip behavior; no noflip flag is present.",
+                  "Existing lspo_region/fill_special_room -> fill_zoo MORGUE; the lit0 filled1 rectangle14/1..20/3 is created during Lua but filled during canonical finalization. Other selection-lighting calls remain top-level and source-ordered.",
+                  "Existing stair/levregion/fixup_special owners: down stair66/3,branch arrival rectangle68/14..68/14; keep map-relative coordinates and canonical portal destination generation. Fixed door states require no rnddoor choices.",
+                  "Existing lspo_monster/create_monster/custom inventory -> lspo_object/create_object -> spo_end_moninvent/m_dowear creationtrue. Twoflower table has custom inventory,thus source removes species default inventory before walking shoes spe3 and Hawaiian shirt spe3,then wears and clears carrier. Existing find_objtype recognizes walking shoes by object description.",
+                  "Existing pm_to_humidity/location/makemon explicit-coordinate aquatic path and class/name parser for giant eel,piranha,kraken. Preserve source strings/class forms,wet-first location and state-derived RNG; do not add MM_IGNOREWATER or override terrain to force placement.",
+                  "Existing trap creation and full program finalization; no selection subtraction,spinach tin,noncoaligned alignment or new named artifact behavior in this program. Runtime evidence must confirm helper reachability; report any new owner defect before expansion."
+                ]
+              },
+              "evidence": [
+                "Accepted C177 evaluation at dee8b310b3922f634c10f62fcab1a5e8ff4acc73 retains 19/60 screens/cursors and 3489/5320 RNG, with 41 remaining. The first stop remains the missing Tou-strt loader at segment 0 step 19. This refresh uses saved accepted evidence; no replay or C recording was run.",
+                "Complete dat/Tou-strt.lua1–134 read,sourceSHAed2ad657aba1789bda47e02c2bfbffe5390b5d30a9f12f9de37feb9d1eda760a. Map20rows76characters,including literal backslash throne glyph at66/3 and river pools; generated data must retain allspaces/backslash exactly. Source solidfillspace,mazelevel/noteleport/hardfloor precede fullmaplit,one filledmorgue and seven unlit selections plus lit audiencechamber62/2..67/4.",
+                "After lighting,downstair66/3,branchlevregion68/14,fullnon-diggable selection and18doors (11locked,4closed,3open) precede every monster. Locked secret-door coordinates are retained as supplied rather than flattened to regular doors. Whole C lspo_door fixed placement and existing JS preserve terrain-derived secret state/door masks. Source source-pin should test this full descriptor order.",
+                "Monster descriptor total42:12giantspiders,2s-class,8forestcentaurs,1C-class,Twoflower,11guides,2watchmen,1giant eel,2piranhas,2krakens. Twoflower64/3 custom inventory is followed by chest64/3 and guides,then aquatic placements,then9randomtraps. C step19 contains1831RNG calls beginning getbones,nhlibshuffle,unspecified-lit rn2(2),then find_montype/induced_align/location; missing loader prevents JS from reaching any selected program behavior.",
+                "C sp_lev.c:lspo_monster3214–3402 defaults to CUSTOM_INVENT when inventory function is present,unless keep_default_invent explicitly requests both. create_monster1925–2185 discards normal inventory and sets shared carrier; source spo_end_moninvent3031–3037 calls m_dowear(TRUE) then clears carrier. JSmklev2064–2271 awaits callback before finalization; themeroom_fill.create_monster/spo_end_moninvent and worn.m_dowear976–1021 already provide the required creation path. Source callback must await each des.object in order.",
+                "Source find_objtype3468–3547 searches true names before appearance descriptions. JSmklev2321–2400 mirrors this; js/objects.js declares low boots appearance walking shoes. Retain source descriptor walking shoes/spe3 and hawaiian shirt/spe3; no generated artifact name,spinach/montype or custom quantity is needed. Verify minvent ownership,worn boots/shirt and absence of discarded default inventory with fresh runtime evidence.",
+                "C pm_to_humidity1884–1900 sets WET for swimmer/eel species, and create_monster1963–1978 attempts that humidity before DRY fallback. JSthemeroom_fill.monsterHumidity413 and createMonsterBody retain that path. Its in_mklev source context bypasses species admission through existing canonical maker. Named aquatic species at fixed source coords must be passed unchanged: eel62/12,piranha47/10 and29/11,kraken34/9 and37/9. No artificialwater flag or pool conversion should be added.",
+                "C lspo_levregion5472–5496 and canonical JS3803–3825 convert branch enum and relative rectangle,then finalization fixup_special creates arrival portal. lspo_region5584–5717 and fill_special_room2731–2809 retain morgue deferred filling. Existing fill_zoo supports MORGUE with canonical morguemon/corpse/container/grave order. These helpers have required active branches; no whole helper completion credit follows from this read-only audit.",
+                "rg Tou-strt|touStrt in js/quest_levels.js and scripts/*.test.mjs returns no implementation/fixture. JSmklev650–685 refuses the special prototype before load_special; canonical ensureSpecialLevelLoaders imports quest registry. Entire Lua and unique import/function/key are the smallest complete implementation scope,not a refusal removal alone.",
+                "Evidence plan: admitted segment0steps19–59 after implementation,plus independent C-first male/female human Tourist quest-start arrivals/#wizmap with changed input histories. Verify leader custom armor/ownership,guide placement,portal/downstair/flags,morgue andriver monsters through correct map frame and level flips. Source-pinned descriptor/RNG ordering and deterministic map generation/check cover cheap variants; retain any newly discovered outside-helper frontier explicitly before expanding.",
+                "Proposed edits only quest_levels unique import/touStrt/registry,generated tou_strt_level_data,deterministic generator/check,focused tests,matrix and recipes/recordings/Tou-strt.lua. No initial helper/module expansion; source: Tou-strt.lua and contract:tourist-quest-start-loader. Disjoint from accepted C177 Val-goal/A196 Val-loca and active C175 Rog-strt. No numeric selection, alignment or spinach seam is selected. B199 Sam-goal is a pending ancestor delivery and must be declared until acceptance; no source helper edits are proposed.",
+                "Accepted A196 fixed-coordinate stairs now forward the C force flag from l_create_stairway to mkstairs and set ROOM before the dungeon-end refusal; Tou-strt uses the supported fixed down stair at 66/3. Accepted C177 adds only its Val-goal loader/data seams. The Tou-strt proposal needs no new source reservations or allowed paths."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Tou-strt.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "touStrt",
+            "sourceReview": "Read complete dat/Tou-strt.lua1–134, canonical descriptor owners and production loader dispatch. Preserve unspecified-lit solidfill, mazelevel/noteleport/hardfloor flags, exact 20x76 map, full-map lighting followed by deferred unlit morgue and room lighting, fixed down stair and branch arrival region, protected walls and all eighteen source doors. Preserve twelve giant spiders, two spider-class calls, eight forest centaurs and one centaur-class call before Twoflower. Await Twoflower's walking shoes +3 and Hawaiian shirt +3 custom inventory in order, then chest, eleven guides, two watchmen, five named aquatic placements and nine random trap calls. Keep source string IDs, classes, map coordinates, humidity and finalization owners. Generate map/door/guide tables deterministically from Lua, preserving spaces and the literal throne backslash at64/3. No top-level explicit Lua random call exists; canonical descriptors retain RNG. Production makelevel registry now routes Tou-strt to touStrt. Supporting correction follows sp_lev.c:load_special6454–6503 (no room fill), mklev.c:makelevel1414–1418 (common room fill after generation) and lspo_finalize_level6055–6059 (topology/mineralization before direct room fill); no shared owner completion credit.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c:makelevel1266–1271 -> mkmaze.c:makemaz1184–1193 -> sp_lev.c:load_special6454–6503; canonical quest registry resolves Tou-strt to touStrt."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "wizcmds.c:376–395 resets, loads and finalizes selected special Lua; existing loader resolves Tou-strt.lua to touStrt."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/tou-strt-level-generation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Tou-strt.lua/tou-strt-male-arrival-independent.session.json",
+              "recordings/Tou-strt.lua/tou-strt-female-arrival-independent.session.json",
+              "recordings/Tou-strt.lua/tou-strt-direct-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "do.c:goto_level -> mklev.c:makelevel/mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Tou-strt.lua1–134; canonical special-room fill and rearrival."
+              }
+            ],
+            "checkedAt": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef"
+          }
+        ],
+        "entryPointReview": "Natural quest-start generation is established by the admitted v36 range and two independently chosen C-first male/female Tourist arrivals. Direct wizard loading is established by a separate strict-perfect recording, including the morgue fill after topology/mineralization. All three recorded levels assert Twoflower custom inventory ownership, worn +3 boots/shirt, eleven guides, two krakens, source down stair, chest sharing the leader square and nondiggable walls. Existing Knight and Healer start fresh matrices exercise neighboring special-room callers. No synthetic case was copied into regression inputs.",
+        "entryPoints": [
+          {
+            "name": "natural Tourist quest start generation",
+            "functions": [
+              "Tou-strt.lua"
+            ],
+            "recordings": [
+              "recordings/Tou-strt.lua/tou-strt-male-arrival-independent.session.json",
+              "recordings/Tou-strt.lua/tou-strt-female-arrival-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "do.c:goto_level -> mklev.c:makelevel/mkmaze.c:makemaz -> sp_lev.c:load_special -> whole dat/Tou-strt.lua1–134; canonical special-room fill and rearrival."
+              }
+            ]
+          },
+          {
+            "name": "direct wizard special Lua load",
+            "functions": [
+              "Tou-strt.lua"
+            ],
+            "recordings": [
+              "recordings/Tou-strt.lua/tou-strt-direct-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-ran-strt-quest-start-v36-20261009",
+      "kind": "lua-port",
+      "status": "open",
+      "summary": "Port the complete Ranger quest start level",
+      "luaFile": "Ran-strt.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-ran-strt"
+      ],
+      "selectionReason": "The accepted v36 Ranger quest-start case stops at step 19 because Ran-strt has no registered loader; A193 supplies the whole Lua program and its source-ordered quest loader.",
+      "detail": "Whole dat/Ran-strt.lua lines 1-101, unique loader and generated tables, with natural quest arrival and direct wizard loading verified by independent C-first recordings.",
+      "openedAt": "d2f72926e646644b0d1eece2eb40ded2a13705aa",
+      "openStanding": {
+        "sha": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Ran-strt.lua",
+          "line": 1,
+          "endLine": 101,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-ran-strt": {
+          "session": "synthetic/v36/v36-quest-ran-strt",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-ran-strt",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-ran-strt.session.json",
+          "recordingSha256": "209f5c07ed7ee8dd2e6e2d2315581d490fc99871bbb8d28c1203ea640124a19b",
+          "evaluationPath": "challenges/evaluations/accepted-e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef-v36.json",
+          "evaluationCommit": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef"
+        }
+      },
+      "activeStanding": {
+        "sha": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-ran-strt",
+          "session": "synthetic/v36/v36-quest-ran-strt",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-ran-strt.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-ran-strt.session.json",
+          "recordingSha256": "209f5c07ed7ee8dd2e6e2d2315581d490fc99871bbb8d28c1203ea640124a19b",
+          "recipe": "challenges/cases/v36/v36-quest-ran-strt.recipe.session.json",
+          "recipeSha256": "f60ea10b876e5e1e5a5a352e9de8b27011a568d3c3959160b1685aa79daae04c",
+          "replayInputSha256": "e26183ba6c4493167ef0424f5d3b3a4e668392d321554d29ca59db9a67e41f86",
+          "evaluationPath": "challenges/evaluations/accepted-e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef-v36.json",
+          "evaluationCommit": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef",
+          "evaluationArtifact": "challenges/evaluations/accepted-e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef-v36.json",
+          "evaluationUtc": "2026-10-09T19:07:10.685Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2874,
+              "total": 6677
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-strt\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Ran-strt.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-strt\"",
+          "cFile": null,
+          "luaFile": "Ran-strt.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-ran-strt.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-ran-strt",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "209f5c07ed7ee8dd2e6e2d2315581d490fc99871bbb8d28c1203ea640124a19b",
+              "evaluationPath": "challenges/evaluations/accepted-e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef-v36.json",
+              "evaluationCommit": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "session": "synthetic/v36/v36-quest-ran-strt",
+              "commit": "f6c9ebf7a19414316378a03c1a7ab63a387e8d1d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-ran-strt",
+                "session": "synthetic/v36/v36-quest-ran-strt",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-ran-strt.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-ran-strt.session.json",
+                "recordingSha256": "209f5c07ed7ee8dd2e6e2d2315581d490fc99871bbb8d28c1203ea640124a19b",
+                "recipe": "challenges/cases/v36/v36-quest-ran-strt.recipe.session.json",
+                "recipeSha256": "f60ea10b876e5e1e5a5a352e9de8b27011a568d3c3959160b1685aa79daae04c",
+                "replayInputSha256": "e26183ba6c4493167ef0424f5d3b3a4e668392d321554d29ca59db9a67e41f86",
+                "evaluationPath": "challenges/evaluations/accepted-e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef-v36.json",
+                "evaluationCommit": "e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef",
+                "evaluationArtifact": "challenges/evaluations/accepted-e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef-v36.json",
+                "evaluationUtc": "2026-10-09T19:07:10.685Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2874,
+                    "total": 6677
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-strt\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Ran-strt.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Ran-strt\"",
+                "cFile": null,
+                "luaFile": "Ran-strt.lua",
+                "line": null
+              },
+              "status": "complete",
+              "goalKind": "lua-port",
+              "summary": "Ranger quest-start arrival selects Ran-strt, but its whole Lua loader is absent. Port the complete Ran-strt.lua forest level: solidfill and joined/smoothed mines, five-percent tree replacement before its exact aligned map, branch arrival, Orion custom inventory, hunters, traps and hostile centaur siege.",
+              "source": {
+                "file": "Ran-strt.lua",
+                "functions": [
+                  "Ran-strt.lua"
+                ],
+                "branch": "Valid Ranger quest-start arrival reaches load_special for Ran-strt. The program first fills floor, sets maze/noteleport/hardfloor/arboreal flags, generates a lit joined/smoothed floor cave and replaces matching floor with trees at chance5, then places its left/center map and source-ordered inhabitants/features. No alignment expression or spinach tin exists in this program.",
+                "callers": [
+                  "do.c goto_level -> mklev.c makelevel -> mkmaze.c makemaz -> sp_lev.c load_special -> dat/Ran-strt.lua. JS allmain deferredgoto -> do goto_level -> mklev makelevel/makemaz/load_special uses QUEST_LEVEL_LOADERS with no Ran-strt key.",
+                  "Accepted wizcmds.c wiz_load_splua can call load_special directly for the same program. Natural Ranger quest branch and wizard arrival converge on generation; program defines one inventory callback with no separate external entry."
+                ],
+                "dependencies": [
+                  "Existing lspo_level_init -> splev_initlev LVLINIT_SOLIDFILL/LVLINIT_MINES -> mkmap handles exact style tables and source boolean values. lspo_level_flags already stores arboreal, mazelevel, noteleport and hardfloor. No external owner edit identified.",
+                  "Existing lspo_replace_terrain sp_lev.c5051–5137 reads region0,0,76,19 and resolves it against the pre-map frame, iterates x then y, calls rn2(100) only for matching floor, compares<5, and writes TREE with default no-change lighting. It must run before the map, without a copied tree-mask or invented RNG.",
+                  "The table-form map accepts halign left / valign center and the exact 41-column, 21-row source fragment. Current lspo_map parses the raw map, resets ystart to zero for its full-height overflow, preserves transparent x cells, returns the actual-written selection, and leaves frame coordinates available. Lua discards that map return; it consumes no map selection result.",
+                  "selection.area(0,0,40,20) uses the existing relative selection. The branch region (51,2)-(77,18) explicitly has region_islev=1 and remains absolute level coordinates, without a second map offset.",
+                  "Orion inventory is existing lspo_monster callback -> source object context: leather armor+4, yumi+4 and ya+4quantity50; close inventory before the floor chest at the same map coord. Canonical quantity/type/name handling already exists; no tin/spinach or new artifact/align path.",
+                  "Existing monster/trap/source placement descriptors support hunters, hostile fixed and random centaurs, sleeping minotaur, scorpions and six source traps. The Lua ignores descriptor results; no missing consumed-result helper, new random helper or source-discarded gap was found.",
+                  "Disjoint programs: C173 owns Ran-goal; B198 owns Bar-goal alignment macro supporting seam. Pending C169/C170/B195 are distinct loader keys/functions. A192 Mon-goal remains parked on central gate. No overlapping source function/contract; adjacent quest registry imports must preserve every pending key."
+                ]
+              },
+              "evidence": [
+                "Accepted B201 evaluation at e10f7f620dadefa4a5a55b209d5a2f0c8672a9ef confirms 19/60 screens and cursors and 2874/6677 RNG calls, with 41 screens remaining. The first stop remains the missing Ran-strt loader at segment 0 step 19; this refresh uses saved accepted evidence.",
+                "Assigned replay run-RRjVPY at f6c9ebf7a reproduces 19/60 screens and cursors and 2874/6677 RNG calls. At segment 0, step 19, key y selects the destination. C next reaches rn2(3)=0 in nhlib.lua private alignment shuffle before evaluating the source. JS stops because makelevel/load_special has no Ran-strt loader. The exact stack and comparison are .cache/A193/probe.json and probe.log.",
+                "Read complete dat/Ran-strt.lua lines 1-101. Line 13 fills floor; 15 sets flags; 17 initializes joined, smoothed, lit mines floor; 18 replaces floor with trees at chance 5 over (0,0)-(76,19). Lines 20-41 place the left/center 41x21 map, including transparent x; 43 lights the region; 45 creates the down stair; 47 defines absolute branch arrival; 49-53 creates Orion and his inventory; 55 creates the floor chest; 57-64 creates eight hunters; 66 marks the nondiggable selection; 68-73 creates six traps; 75 creates a hostile sleeping minotaur; 76-93 creates eighteen fixed forest centaurs; 94-99 creates six random plains centaurs; 100-101 creates two random scorpions. There is no explicit final wallify call, chosen-position variable, or inactive statement to execute.",
+                "Source parsing confirms 21 rows of 41 columns, preserving trailing spaces; 36 monster descriptors; four object descriptors including three inventory objects; and six traps. Generate the large map deterministically from authoritative Lua and pin generated output rather than hand-copy geometry.",
+                "Whole-source audit compared current JS lspo_replace_terrain3539+ to C sp_lev.c5051–5137, map table placement4433+ and fullheight overflow to C6227–6238, and callback/region placement to already used Cav-strt/source paths. Source consumes only selection.area results, supplied by canonical ThemeroomSelection. All other descriptor results are discarded and no placeholder return is used by Lua.",
+                "Actionable scope whole Ran-strt.lua1–101, ranStrt and key in existing js/quest_levels.js, generated ran_strt_level_data.js with generator/source-pinned test, focused runtime runner, recipes/Ran-strt.lua and recordings/Ran-strt.lua. No whole mkmap/sp_lev/teleport/quest permission/quest_levels credit and no outside alignment/tin source edit.",
+                "Validation plan: fail first on the absent loader/module; pin the generated map, complete descriptor order and values, and awaited inventory callback. Preserve pre-map tree replacement and absolute branch region fields. Verify admitted segment 0, steps 19-59, plus independently chosen C-first neutral human and chaotic elf Ranger variations using arrival and direct des loading. Compare complete RNG, screens, cursors and animation frames. Assert arboreal/tree terrain, branch/downstairs, the leader inventory at +4 with 50 arrows, eight hunters, siege population and traps. Ran-loca is a separate program; keep its representative recipe blocked if its loader remains absent.",
+                "Evidence limits: read-only investigation with only assigned replay. No game edits, C recording or runtime completion credit. Required descriptor APIs appear canonical for selected branches, but implementation must verify production reachability and request source expansion for any newly confirmed external defect."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }

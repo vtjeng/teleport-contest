@@ -52,22 +52,26 @@ function sourceBody(source, signature) {
     return source.slice(start);
 }
 
-test('load_special awaits fixup before premapping and room post-processing', () => {
+test('load_special awaits fixup before premapping and leaves room filling to callers', () => {
     const cBody = sourceBody(C_SPLEV, '\nboolean\nload_special(');
     const cFixup = cBody.indexOf('fixup_special();');
     const cPremap = cBody.indexOf('premap_detect();', cFixup);
     assert.ok(cFixup >= 0 && cPremap > cFixup);
+    assert.equal(cBody.includes('fill_special_room('), false);
 
     const jsApi = sourceBody(JS_MKLEV,
         'function createSpecialLevelApi(state) {');
-    const jsFinish = jsApi.slice(jsApi.indexOf('async finish() {'));
+    const jsFinish = jsApi.slice(jsApi.indexOf('async finish() {'),
+        jsApi.indexOf('// C ref: sp_lev.c lspo_map(), array form.'));
     const jsFixup = jsFinish.indexOf('await finishFixupSpecial(state);');
     const jsPremap = jsFinish.indexOf('premap_detect(state);', jsFixup);
-    const jsRoomFill = jsFinish.indexOf('await fill_special_room(', jsPremap);
-    assert.ok(jsFixup >= 0 && jsPremap > jsFixup && jsRoomFill > jsPremap);
+    assert.ok(jsFixup >= 0 && jsPremap > jsFixup);
+    assert.equal(jsFinish.includes('fill_special_room('), false);
 
     const jsLoader = sourceBody(JS_MKLEV, 'export async function load_special(');
     assert.match(jsLoader, /await specialLevelApi\.finish\(\);/);
+    const jsMakelevel = sourceBody(JS_MKLEV, 'async function makelevel(');
+    assert.match(jsMakelevel, /await fillSpecialRooms\(\);/);
 });
 
 test('mv_bubble waits for mnearto before its zero-result clog and next contents',
