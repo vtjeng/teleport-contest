@@ -4,6 +4,7 @@
 //         dat/Arc-loca.lua, dat/Arc-fila.lua, dat/Arc-filb.lua,
 //         dat/Arc-goal.lua, dat/Cav-goal.lua, dat/Cav-loca.lua,
 //         dat/Cav-strt.lua,
+//         dat/Mon-goal.lua,
 //         dat/Hea-goal.lua, dat/Hea-loca.lua, dat/Hea-strt.lua,
 //         dat/Kni-loca.lua, dat/Ran-loca.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
@@ -69,6 +70,7 @@ import {
 import {
     RAN_LOCA_LEVEL_MAP, RAN_LOCA_MONSTERS, RAN_LOCA_OBJECT_COUNT, RAN_LOCA_TRAPS,
 } from './ran_loca_level_data.js';
+import { MON_GOAL_LEVEL_MAP } from './mon_goal_level_data.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
 // that draws a random zig-zag path from (x1,y1) to (x2,y2).
@@ -1398,6 +1400,37 @@ async function priGoal(des) {
     await des.monster({ class: S_WRAITH });
 }
 
+// C ref: complete dat/Mon-goal.lua. The one Lua math.random(1, #place)
+// draw is rn2(2); its selected coordinate is shared by the artifact, nemesis,
+// and altar, in that source order.
+async function monGoal(des) {
+    await des.level_flags('mazelevel');
+    await des.level_init({ style: 'mines', fg: 'L', bg: '.',
+        smoothed: false, joined: false, lit: 0, walled: false });
+    await des.map(MON_GOAL_LEVEL_MAP);
+
+    const place = [[14, 4], [13, 7]];
+    const placeidx = rn2(2);
+
+    await des.region(selection_area(0, 0, 25, 10), 'unlit');
+    await des.stair('up', 20, 5);
+    await des.object({ id: 'lenses', coord: place[placeidx], buc: 'blessed',
+        spe: 0, name: 'The Eyes of the Overworld' });
+    for (let i = 0; i < 14; ++i) await des.object();
+
+    await des.trap('fire');
+    await des.trap('fire');
+    await des.trap('fire');
+    await des.trap('fire');
+    await des.trap();
+    await des.trap();
+
+    await des.monster('Master Kaen', place[placeidx]);
+    await des.altar({ coord: place[placeidx], align: 'noalign', type: 'altar' });
+    for (let i = 0; i < 9; ++i) await des.monster('earth elemental');
+    for (let i = 0; i < 9; ++i) await des.monster('xorn');
+}
+
 // C ref: dat/tower1.lua — Upper stage of Vlad's tower.
 async function tower1(des, state) {
     await des.level_init({ style: 'solidfill', fg: ' ' });
@@ -2174,6 +2207,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Pri-strt': priStrt,
     'Pri-loca': priLoca,
     'Pri-goal': priGoal,
+    'Mon-goal': monGoal,
     'Pri-fila': priFila,
     'Pri-filb': priFilb,
     'Wiz-strt': wizStrt,
