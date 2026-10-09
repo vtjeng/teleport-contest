@@ -947,6 +947,7 @@ canvas {
       <span class="chart-range" id="activityWindowLabel"></span>
       <button class="chart-reset" id="activityLatest" type="button">Latest</button>
     </div>
+    <label class="activity-list-mode"><input type="checkbox" id="activityReportedWaits"> Show reported waits</label>
     <select class="activity-window-select" id="activityWindow" aria-label="Activity time range">
       <option value="6" selected>6 hours</option>
       <option value="24">24 hours</option>
@@ -956,7 +957,7 @@ canvas {
   <p class="activity-pan-hint">Drag the timeline to move through time. Arrow keys work when the timeline is focused.</p>
   <div class="chart-wrap">
     <div class="activity-metrics" id="activityMetrics"></div>
-    <p class="activity-note">One row per agent. Orange marks a reported wait; a pending delivery does not block other work. Hover or select a stage to follow its task through review, checks and publication. Arrow edges mark stages continuing outside the window. Stage details scroll.</p>
+    <p class="activity-note">One row per agent. Showing reported waits replaces overlapping assignment bars with orange; assignment does not prove active work. Hover to inspect; select to pin details. Arrow edges mark stages continuing outside the window. Stage details scroll.</p>
     <div class="legend" id="timelineLegend"></div>
     <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Worker and Main activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
     <div class="activity-details">
@@ -1662,12 +1663,16 @@ document.getElementById('stats').innerHTML = [
   const metrics = document.getElementById('activityMetrics');
   const waitList = document.getElementById('activityWaitList');
   const listMode = document.getElementById('activityListMode');
+  const reportedWaits = document.getElementById('activityReportedWaits');
+  reportedWaits.checked = /(?:[?&])waits=1(?:&|$)/.test(window.location?.search || '');
   const windowLabel = document.getElementById('activityWindowLabel');
   const windowSelect = document.getElementById('activityWindow');
   const latestButton = document.getElementById('activityLatest');
   const activity = DATA.activity || { segments: [], tasks: [] };
   const history = activity.segments || [];
-  const segments = activity.stages || history;
+  const stagesWithWaits = activity.stages || history;
+  const stagesWithoutWaits = activity.stagesWithoutWaits || stagesWithWaits.filter(row => row.phase !== 'waiting');
+  let segments = reportedWaits.checked ? stagesWithWaits : stagesWithoutWaits;
   const esc = value => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   document.getElementById('activitySnapshotTime').textContent = activity.capturedAt
@@ -1683,20 +1688,26 @@ document.getElementById('stats').innerHTML = [
   document.getElementById('timelineLegend').innerHTML = Object.entries(phaseNames).filter(([phase]) => phase !== 'queued')
     .map(([phase, name]) => '<div class="legend-item"><div class="legend-swatch phase-' + phase
       + '"></div>' + name + '</div>').join('');
-  if (!segments.length) {
+  if (!history.length) {
     container.textContent = 'No worker activity snapshot is available.';
     return;
   }
   const hourMs = 3600000;
   const captured = Date.parse(activity.capturedAt);
-  const first = Math.min(...segments.map(segment => Date.parse(segment.start)));
-  const latest = Math.min(captured, Math.max(...segments.map(segment => Date.parse(segment.end))));
-  const lanes = [...new Set(segments.map(segment => segment.lane)
+  const first = Math.min(...history.map(segment => Date.parse(segment.start)));
+  const latest = Math.min(captured, Math.max(...history.map(segment => Date.parse(segment.end))));
+  const lanes = [...new Set(history.map(segment => segment.lane)
     .filter(lane => lane !== 'Main'))].sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
   lanes.push('Main');
   let hours = 6;
   let viewEnd = latest;
   let selectedIndex = null;
+  let pinnedStage = null;
+  function pin(index, source = segments) {
+    pinnedStage = { index, source };
+    selectedIndex = source === segments ? index : segments.findIndex(row => row.sourceIndex === index);
+    render();
+  }
   let panning = null;
   let suppressClickUntil = 0;
   const stamp = value => new Date(value).toLocaleString('en-US',
@@ -1795,7 +1806,7 @@ document.getElementById('stats').innerHTML = [
           : 'No waits ended in this window');
     windowLabel.textContent = stamp(start) + ' – ' + stamp(viewEnd);
     latestButton.disabled = viewEnd >= latest;
-    if (!shown.some(row => row.index === selectedIndex)) {
+    if (!pinnedStage && !shown.some(row => row.index === selectedIndex)) {
       selectedIndex = waits[0]?.index ?? shown.find(row => row.segment.lane === 'Main')?.index
         ?? shown[0]?.index ?? null;
     }
@@ -1829,7 +1840,10 @@ document.getElementById('stats').innerHTML = [
             * Math.max(1, container.getBoundingClientRect().width - 56) > name(bar.segment).length * 6 + 16
             && name(bar.segment) !== lane
             ? esc(name(bar.segment)) : '') + '</div>').join('')
-        + (!bars.length ? '<span class="activity-empty">No recorded activity in this window</span>' : '')
+        + (!bars.length ? '<span class="activity-empty">' + (!reportedWaits.checked
+          && stagesWithWaits.some(row => row.lane === lane && row.phase === 'waiting'
+            && Date.parse(row.end) > start && Date.parse(row.start) < viewEnd)
+          ? 'Reported waits hidden' : 'No recorded activity in this window') + '</span>' : '')
         + '</div></div>';
     }
     container.innerHTML = html;
@@ -1841,7 +1855,8 @@ document.getElementById('stats').innerHTML = [
       + (ongoing(segment) ? ' · open at snapshot' : '') + '</span></button>').join('')
       : '<p class="activity-note">' + (listMode.value === 'all' ? 'No recorded stage in this window.'
         : 'No reported wait or unrecorded interval in this window.') + '</p>';
-    if (selectedIndex == null) readout.innerHTML = '<h4>Selected stage</h4><p>No recorded stage in this window.</p>';
+    if (pinnedStage) describe(pinnedStage.index, pinnedStage.source);
+    else if (selectedIndex == null) readout.innerHTML = '<h4>Selected stage</h4><p>No recorded stage in this window.</p>';
     else describe(selectedIndex);
   }
   windowSelect.addEventListener('change', () => {
@@ -1849,6 +1864,12 @@ document.getElementById('stats').innerHTML = [
     render();
   });
   listMode.addEventListener('change', render);
+  reportedWaits.addEventListener('change', () => {
+    segments = reportedWaits.checked ? stagesWithWaits : stagesWithoutWaits;
+    selectedIndex = pinnedStage ? segments.findIndex(row => row.sourceIndex === pinnedStage.source[pinnedStage.index]?.sourceIndex
+      && row.phase === pinnedStage.source[pinnedStage.index]?.phase) : null;
+    render();
+  });
   window.addEventListener('resize', render);
   latestButton.addEventListener('click', () => { viewEnd = latest; render(); });
   container.addEventListener('pointerdown', event => {
@@ -1875,21 +1896,20 @@ document.getElementById('stats').innerHTML = [
     panning = null;
     container.classList.remove('is-panning');
     if (container.hasPointerCapture(event.pointerId)) container.releasePointerCapture(event.pointerId);
-    if (tapped != null) { selectedIndex = tapped; render(); }
+    if (tapped != null) pin(tapped);
   }
   container.addEventListener('pointerup', endPan);
   container.addEventListener('pointercancel', endPan);
   container.addEventListener('pointerover', event => {
-    if (event.target.classList.contains('activity-bar')) describe(Number(event.target.dataset.segment));
+    if (!pinnedStage && event.target.classList.contains('activity-bar')) describe(Number(event.target.dataset.segment));
   });
   container.addEventListener('focusin', event => {
-    if (event.target.classList.contains('activity-bar')) describe(Number(event.target.dataset.segment));
+    if (!pinnedStage && event.target.classList.contains('activity-bar')) describe(Number(event.target.dataset.segment));
   });
   container.addEventListener('click', event => {
     if (Date.now() < suppressClickUntil) return;
     if (!event.target.classList.contains('activity-bar')) return;
-    selectedIndex = Number(event.target.dataset.segment);
-    render();
+    pin(Number(event.target.dataset.segment));
   });
   container.addEventListener('keydown', event => {
     if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
@@ -1903,26 +1923,21 @@ document.getElementById('stats').innerHTML = [
     if (!event.target.classList.contains('activity-bar')
         || !['Enter', ' '].includes(event.key)) return;
     event.preventDefault();
-    selectedIndex = Number(event.target.dataset.segment);
-    render();
+    pin(Number(event.target.dataset.segment));
   });
   waitList.addEventListener('click', event => {
     const button = event.target.closest('button[data-segment]');
     if (!button) return;
-    selectedIndex = Number(button.dataset.segment);
-    render();
+    pin(Number(button.dataset.segment));
   });
   readout.addEventListener('click', event => {
     const button = event.target.closest('button[data-history]');
     if (!button) return;
     const sourceIndex = Number(button.dataset.history);
-    const index = segments.findIndex(row => row.sourceIndex === sourceIndex);
     const row = history[sourceIndex];
     if (!row) return;
-    selectedIndex = index < 0 ? selectedIndex : index;
     viewEnd = Math.min(latest, Date.parse(row.end) + hours * hourMs / 4);
-    render();
-    describe(sourceIndex, history);
+    pin(sourceIndex, history);
   });
   render();
 })();

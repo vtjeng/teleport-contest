@@ -226141,7 +226141,7 @@
     {
       "id": "fix-hack-empty-forcefight-explosion-v33-20261009",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Wire exploding-form empty force-fight to canonical explosion and rehumanization.",
       "cFile": "hack.c",
       "sessions": [],
@@ -226153,8 +226153,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7af2dcb832c469033b652c131fe1feeae0d47ed3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "domove_fight_empty",
       "session": "synthetic/v33/v33-black-light-hero-explosion",
       "step": 53,
@@ -226363,7 +226366,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7af2dcb832c469033b652c131fe1feeae0d47ed3",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-artifact-invoke-healing-v33-20261009",
@@ -226786,16 +226795,20 @@
     {
       "id": "port-artifact-invoke-create-ammo-v33-20261009",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Complete artifact ammunition invocation and canonical inventory acquisition.",
       "cFile": "artifact.c",
       "sessions": [
         "synthetic/v33/v33-invoke-ammunition"
       ],
-      "selectionReason": "The v33 ammunition invocation stops at its canonical encumbrance acquisition boundary; the whole artifact.c invoke_create_ammo helper is independent of the active monster and spell tasks.",
+      "selectionReason": "Next dependency-ready admitted v33 source task after A179; complete invoke_create_ammo and its acquisition environment are independently recorded.",
       "detail": "Port artifact.c invoke_create_ammo lines 1934-1962 completely and wire the existing CREATE_AMMO dispatcher. Preserve beatitude/type/quantity RNG, mksobj state, hold/drop behavior, comparison operations, and source-ordered messages without taking broader invent or command credit.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "17db02569358ac8fa4f437332a3327c2ddbe2782",
+      "openStanding": {
+        "sha": "7af2dcb832c469033b652c131fe1feeae0d47ed3",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -226823,6 +226836,231 @@
           "recordingSha256": "75fd8b5964f5023c8df584f0f1fd909659e2a89ad767100687248486124a6d42",
           "evaluationPath": "challenges/evaluations/accepted-f091b997ca1571fc6198fe3189ad06fe2dba532c-v33.json",
           "evaluationCommit": "f091b997ca1571fc6198fe3189ad06fe2dba532c"
+        }
+      },
+      "activeStanding": {
+        "sha": "7af2dcb832c469033b652c131fe1feeae0d47ed3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-invoke-ammunition",
+          "session": "synthetic/v33/v33-invoke-ammunition",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recording": "challenges/cases/v33/v33-invoke-ammunition.session.json",
+          "recordingPath": "challenges/cases/v33/v33-invoke-ammunition.session.json",
+          "recordingSha256": "75fd8b5964f5023c8df584f0f1fd909659e2a89ad767100687248486124a6d42",
+          "recipe": "challenges/cases/v33/v33-invoke-ammunition.recipe.session.json",
+          "recipeSha256": "f340e16f202aa5ce413e0cb1045608f4909d537c66d580b7fbbbd8c403788d53",
+          "replayInputSha256": "645c2b1df49f28dfb3515ec7f946cc31ce1b7698edcd49ea4dfab75113137b0a",
+          "evaluationPath": "challenges/evaluations/accepted-7af2dcb832c469033b652c131fe1feeae0d47ed3-v33.json",
+          "evaluationCommit": "7af2dcb832c469033b652c131fe1feeae0d47ed3",
+          "evaluationArtifact": "challenges/evaluations/accepted-7af2dcb832c469033b652c131fe1feeae0d47ed3-v33.json",
+          "evaluationUtc": "2026-10-09T04:01:25.989Z",
+          "remainingScreens": 18,
+          "recordedSteps": 64,
+          "previousScreensMatched": 46,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 46,
+              "total": 64
+            },
+            "rng": {
+              "matched": 2392,
+              "total": 2430
+            },
+            "cursors": {
+              "matched": 46,
+              "total": 64
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: encumberMessage is not available for otyp 18",
+            "step": 46
+          },
+          "step": 46,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: encumberMessage is not available for otyp 18",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v33/v33-invoke-ammunition.json",
+            "result": {
+              "session": "synthetic/v33/v33-invoke-ammunition",
+              "corpus": "synthetic",
+              "batch": "v33",
+              "caseId": "v33-invoke-ammunition",
+              "remainingScreens": 18,
+              "recordedSteps": 64,
+              "manifestPath": "challenges/manifests/v33.json",
+              "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+              "recordingSha256": "75fd8b5964f5023c8df584f0f1fd909659e2a89ad767100687248486124a6d42",
+              "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+              "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+              "status": "complete",
+              "commit": "7ad5bf12b6ea76944352d1c85ae5a26ff4844f37",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v33",
+                "caseId": "v33-invoke-ammunition",
+                "session": "synthetic/v33/v33-invoke-ammunition",
+                "manifestPath": "challenges/manifests/v33.json",
+                "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+                "recording": "challenges/cases/v33/v33-invoke-ammunition.session.json",
+                "recordingPath": "challenges/cases/v33/v33-invoke-ammunition.session.json",
+                "recordingSha256": "75fd8b5964f5023c8df584f0f1fd909659e2a89ad767100687248486124a6d42",
+                "recipe": "challenges/cases/v33/v33-invoke-ammunition.recipe.session.json",
+                "recipeSha256": "f340e16f202aa5ce413e0cb1045608f4909d537c66d580b7fbbbd8c403788d53",
+                "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+                "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+                "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+                "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+                "evaluationUtc": "2026-10-09T03:03:55.655Z",
+                "remainingScreens": 18,
+                "recordedSteps": 64,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 46,
+                    "total": 64
+                  },
+                  "rng": {
+                    "matched": 2392,
+                    "total": 2430
+                  },
+                  "cursors": {
+                    "matched": 46,
+                    "total": 64
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: encumberMessage is not available for otyp 18",
+                  "step": 46
+                },
+                "step": 46,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: encumberMessage is not available for otyp 18",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "invoke_create_ammo passes a bare state to canonical hold_another_object, leaving the required encumberMessage operation absent. C creates/adds arrows then calls encumber_msg before returning; JS stops at that tail at step46. The whole artifact helper can be reconciled with existing canonical creation, weight, drop and inventory owners.",
+              "source": {
+                "file": "artifact.c",
+                "functions": [
+                  "invoke_create_ammo"
+                ],
+                "branch": "CREATE_AMMO invocation of blessed Longbow of Diana, generated arrows stay in inventory; hold_another_object successful tail requires encumber_msg after prinv/update_inventory.",
+                "callers": [
+                  "artifact.c:arti_invoke:2166 CREATE_AMMO -> invoke_create_ammo; doinvoke:1757 -> arti_invoke"
+                ],
+                "dependencies": [
+                  "Existing mkobj.c:mksobj/weight, objnam.c:aobjnam, invent.c:hold_another_object and do.c:dropx/dropCommandEnv. Preserve existing inherited owner frontiers, no additional source credit."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved baseline-66ac2b0bf-v33.json gives46/64 screens and2392/2430 RNG,46/64 cursors; immutable prepared trace and current saved queue first mismatch segment0 step46. No replay run for selection.",
+                "Whole artifact.c:1934–1962 creates initialized ARROW, copies blessing/curse/knowledge, resets both erosion fields, blessed clamps negative spe and adds rnd(10), cursed clamps positive spe without quantity draw, uncursed adds rnd(5), recomputes weight then holds with source fall message. nhUse(otmp) is a compile-time unused-value annotation.",
+                "js/artifacts.js:2498–2521 mirrors the body but mksobj/weight and hold receive bare state. Canonical obj.js objectEnv and invent.js inventoryEnv resolve env.state; hold successful tail explicitly requires hooks.encumberMessage at invent.js:4857. Passing bare state leaves hooks empty.",
+                "Canonical do.c dropCommandEnv supplies encumber_msg, floor extraction, newsym and setworn operations; use it with source-required dropObject:dropx and source-pinned inventory comparison feedback to admit hold branches without an invent/do owner edit.",
+                "Source counterpart invent.c:1208–1311 observes/adds the object before holding/burden decisions, normalizes and drops it on Fumbling/slot/burden failure and returns null. Preserve those decisions and return semantics in the owner; do not preflight a drop in the artifact helper.",
+                "Sole direct caller arti_invoke CREATE_AMMO at artifact.c:2166 is already awaited in JS. Scope remains the whole artifact helper and its canonical environment wiring, distinct from pending C160 healing and active B181 potion_dip/A179 empty forcefight."
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "fix-dothrow-toss-up-petrifier-drop-env-v33-20261009",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Supply canonical drop operations before upward-corpse petrification.",
+      "cFile": "dothrow.c",
+      "sessions": [],
+      "selectionReason": "Current unreserved v33 cockatrice-upward divergence; the complete report traces missing canonical drop operations in toss_up petrification and is independent of queued owners.",
+      "detail": "At segment 0 step 58, C toss_up drops the surviving corpse, clears thrownobj, then calls done(STONING). JavaScript passes raw state to env-shaped dropy. Compose dropCommandEnv at this caller while preserving placement, redraw, thrownobj clear, and terminal order; no whole toss_up, drop-family, or end.c credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "toss_up",
+      "session": "synthetic/v33/v33-cockatrice-corpse-upward",
+      "step": 58,
+      "syntheticProvenance": {
+        "synthetic/v33/v33-cockatrice-corpse-upward": {
+          "session": "synthetic/v33/v33-cockatrice-corpse-upward",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-cockatrice-corpse-upward",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-cockatrice-corpse-upward.session.json",
+          "recordingSha256": "8628af8f2ac28a64cbb0a6c17665fb656f2b0132326ecb45cfb70f45a7d0cfec",
+          "evaluationPath": "challenges/evaluations/accepted-7af2dcb832c469033b652c131fe1feeae0d47ed3-v33.json",
+          "evaluationCommit": "7af2dcb832c469033b652c131fe1feeae0d47ed3"
+        }
+      }
+    },
+    {
+      "id": "port-uhitm-hmon-hitmon-msg-silver-v33-20261009",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port silver-hit feedback and wire its sole bounded melee caller.",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v33/v33-silver-dagger-sears"
+      ],
+      "selectionReason": "Current unreserved v33 silver-dagger mismatch; the complete report identifies the whole 38-line silver feedback helper and its sole bounded caller, disjoint from other uhitm owners.",
+      "detail": "Port uhitm.c hmon_hitmon_msg_silver lines 1663-1700 and await it at the existing hmon_hitmon silvermsg branch before poison and kill messages. Preserve visible ring, named silver object, generic silver, unseen target, and corporeal flesh wording; take no whole hmon_hitmon or light-object credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "hmon_hitmon_msg_silver",
+          "line": 1663,
+          "endLine": 1701,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1663,
+        "to": 1701
+      },
+      "syntheticProvenance": {
+        "synthetic/v33/v33-silver-dagger-sears": {
+          "session": "synthetic/v33/v33-silver-dagger-sears",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-silver-dagger-sears",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-silver-dagger-sears.session.json",
+          "recordingSha256": "6b9d174c8154e3bcc8cb33324343ecf9571b46b43ab535e0c22ebbd0342875b9",
+          "evaluationPath": "challenges/evaluations/accepted-7af2dcb832c469033b652c131fe1feeae0d47ed3-v33.json",
+          "evaluationCommit": "7af2dcb832c469033b652c131fe1feeae0d47ed3"
         }
       }
     }
