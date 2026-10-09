@@ -3293,7 +3293,7 @@ export async function use_candle(obj, state = game, env = {}) {
     const attachQuery = safe_qbuf(
         query, '?', candelabrum, yname, thesimpleoname, 'it', state,
     );
-    if (await y_n(attachQuery, state) === 'n') {
+    if (await y_n(attachQuery, state) === 'n'.charCodeAt(0)) {
         await use_lamp(obj, state, env);
         return;
     }
