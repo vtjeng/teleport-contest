@@ -2,8 +2,7 @@
 // C refs: dat/Bar-strt.lua, dat/Bar-fila.lua, dat/Bar-filb.lua,
 //         dat/Bar-goal.lua, dat/Bar-loca.lua, dat/Arc-strt.lua,
 //         dat/Arc-loca.lua, dat/Arc-fila.lua, dat/Arc-filb.lua,
-//         dat/Arc-goal.lua,
-//         dat/Cav-strt.lua,
+//         dat/Arc-goal.lua, dat/Cav-goal.lua, dat/Cav-strt.lua, dat/Hea-goal.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
@@ -55,7 +54,9 @@ import {
 import { rn2, rnd } from './rng.js';
 import { selection_area, ThemeroomSelection } from './themerooms.js';
 import { KNI_GOAL_LEVEL_MAP } from './kni_goal_level_data.js';
+import { CAV_GOAL_LEVEL_MAP } from './cav_goal_level_data.js';
 import { CAV_STRT_LEVEL_MAP } from './cav_strt_level_data.js';
+import { HEA_GOAL_LEVEL_MAP } from './hea_goal_level_data.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
 // that draws a random zig-zag path from (x1,y1) to (x2,y2).
@@ -1231,6 +1232,37 @@ async function kniGoal(des) {
     await des.monster({ class: 'j', peaceful: 0 });
 }
 
+// C ref: dat/Hea-goal.lua. Preserve both initialization calls before the
+// fixed map: the joined mines background extends beyond the pool island.
+async function heaGoal(des) {
+    await des.level_init({ style: 'solidfill', fg: 'P' });
+    await des.level_flags('mazelevel');
+    await des.level_init({ style: 'mines', fg: '.', bg: 'P',
+        smoothed: false, joined: true, lit: 1, walled: false });
+    await des.map(HEA_GOAL_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 40, 11), 'lit');
+    await des.stair({ dir: 'up', x: 39, y: 10 });
+    await des.non_diggable(selection_area(0, 0, 40, 11));
+
+    await des.object({ id: 'quarterstaff', x: 20, y: 6, buc: 'blessed',
+        spe: 0, name: 'The Staff of Aesculapius' });
+    await des.object('wand of lightning', 20, 6);
+    for (let i = 0; i < 14; ++i) await des.object();
+    for (let i = 0; i < 6; ++i) await des.trap();
+
+    // Keep Lua's names and class letters so the canonical des parser
+    // performs the same monster-name resolution and gender draws as C.
+    await des.monster({ id: 'Cyclops', x: 20, y: 6, peaceful: 0 });
+    for (let i = 0; i < 3; ++i) await des.monster('rabid rat');
+    for (let i = 0; i < 2; ++i) await des.monster({ class: 'r', peaceful: 0 });
+    for (let i = 0; i < 6; ++i) await des.monster('giant eel');
+    for (let i = 0; i < 2; ++i) await des.monster('electric eel');
+    for (let i = 0; i < 2; ++i) await des.monster('shark');
+    await des.monster({ class: ';', peaceful: 0 });
+    for (let i = 0; i < 5; ++i) await des.monster({ class: 'D', peaceful: 0 });
+    for (let i = 0; i < 10; ++i) await des.monster({ class: 'S', peaceful: 0 });
+}
+
 // C ref: dat/Pri-goal.lua. Priest quest goal level — lava-filled cave with
 // Nalzok guarding the Mitre of Holiness amid human zombies and wraiths.
 async function priGoal(des) {
@@ -1909,6 +1941,26 @@ async function wizFilb(des) {
     await des.random_corridors();
 }
 
+// C ref: dat/Cav-goal.lua. The lit cavern contains the Sceptre of Might,
+// a sleeping Chromatic Dragon and three fixed shriekers.
+async function cavGoal(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel');
+    await des.map(CAV_GOAL_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 19), 'lit');
+    await des.stair('up');
+    await des.non_diggable(selection_area(0, 0, 75, 19));
+    await des.object({ id: 'mace', x: 23, y: 10,
+        buc: 'blessed', spe: 0, name: 'The Sceptre of Might' });
+    // Cav-goal.lua40-53 has fourteen independent random-object descriptors.
+    for (let i = 0; i < 14; ++i) await des.object();
+    await des.monster({ id: 'Chromatic Dragon', x: 23, y: 10, asleep: 1 });
+    await des.monster('shrieker', 26, 13);
+    await des.monster('shrieker', 25, 8);
+    await des.monster('shrieker', 45, 11);
+    await des.wallify();
+}
+
 // Source: complete dat/Cav-strt.lua, including the leader inventory callback.
 async function cavStrt(des) {
     await des.level_init({ style: 'solidfill', fg: ' ' });
@@ -1964,6 +2016,7 @@ async function cavStrt(des) {
 }
 
 export const QUEST_LEVEL_LOADERS = {
+    'Cav-goal': cavGoal,
     'Bar-strt': barStrt,
     'Bar-fila': barFila,
     'Bar-filb': barFilb,
@@ -1976,6 +2029,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Arc-goal': arcGoal,
     'Kni-goal': kniGoal,
     'Cav-strt': cavStrt,
+    'Hea-goal': heaGoal,
     'Pri-strt': priStrt,
     'Pri-loca': priLoca,
     'Pri-goal': priGoal,

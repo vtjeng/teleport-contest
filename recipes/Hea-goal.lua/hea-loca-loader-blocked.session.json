@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B194 outside-limit probe: source dat/Hea-loca.lua remains unported; makelevel refuses its missing loader before the locate program executes. This adjacent Healer quest program is outside whole Hea-goal.lua completion. Preserve only this blocked recipe, not a failing recording.",
+  "segments": [
+    {
+      "seed": 19461023,
+      "datetime": "20461021123456",
+      "nethackrc": "OPTIONS=name:HeaGoalhuman,role:Healer,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizlevelport\n?\n>z    "
+    }
+  ]
+}
