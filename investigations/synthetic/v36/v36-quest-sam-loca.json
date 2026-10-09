@@ -5,8 +5,8 @@
   "manifestPath": "challenges/manifests/v36.json",
   "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
   "recordingSha256": "d8d51066629a54b7beaef0f33a850f74f70db249b72ee3c3062421ed50e28615",
-  "evaluationPath": "challenges/evaluations/accepted-e0361e80225feef14b2837e65ab482f785575c7d-v36.json",
-  "evaluationCommit": "e0361e80225feef14b2837e65ab482f785575c7d",
+  "evaluationPath": "challenges/evaluations/accepted-97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3-v36.json",
+  "evaluationCommit": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3",
   "remainingScreens": 41,
   "recordedSteps": 60,
   "session": "synthetic/v36/v36-quest-sam-loca",
@@ -23,11 +23,11 @@
     "recordingSha256": "d8d51066629a54b7beaef0f33a850f74f70db249b72ee3c3062421ed50e28615",
     "recipe": "challenges/cases/v36/v36-quest-sam-loca.recipe.session.json",
     "recipeSha256": "b985a1a1369694c96043c489a38539b646f706f7bc6782598e2b34992dba9e9c",
-    "replayInputSha256": "0f9e494fe6deae1c89e904df0a08b02a178e038d112715f96908dd65cb28a055",
-    "evaluationPath": "challenges/evaluations/accepted-e0361e80225feef14b2837e65ab482f785575c7d-v36.json",
-    "evaluationCommit": "e0361e80225feef14b2837e65ab482f785575c7d",
-    "evaluationArtifact": "challenges/evaluations/accepted-e0361e80225feef14b2837e65ab482f785575c7d-v36.json",
-    "evaluationUtc": "2026-10-09T19:48:11.034Z",
+    "replayInputSha256": "6af5cb89a11d0ff671dc7e20f6a2f6924b7dae54b35aefbfcb983d7cb5d679f9",
+    "evaluationPath": "challenges/evaluations/accepted-97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3-v36.json",
+    "evaluationCommit": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3",
+    "evaluationArtifact": "challenges/evaluations/accepted-97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3-v36.json",
+    "evaluationUtc": "2026-10-09T20:02:27.149Z",
     "remainingScreens": 41,
     "recordedSteps": 60,
     "previousScreensMatched": 19,
@@ -93,6 +93,6 @@
     "Actionable scope: whole Sam-loca.lua lines 1-141, samLoca and registry key in existing js/quest_levels.js, generated sam_loca_level_data.js with deterministic generator, source-pinned test and runtime fresh runner, recipes/Sam-loca.lua and recordings/Sam-loca.lua. No whole generic helper, quest permission, teleport or quest_levels ownership credit.",
     "Validation plan: fail first on missing module/loader; pin generated source map, all 24 door calls, source-fixed stairs and complete class-object/monster order including their distinct argument forms. Verify admitted segment 0, steps 19-59. Add independently chosen lawful human male/female Samurai C-first arrival/direct-des variations, comparing complete RNG/screens/cursors/frames. Assert door masks and coordinates, stair directions, object class groups and source monster population/invisibility. Neighboring Sam-goal is outside this program and remains a blocked recipe if the B199 loader is still absent.",
     "Evidence limits: session-only investigation and assigned replay, no source edit or new C game. Replay stops before program generation, so actual impure reachability and complete comparisons are still required by the implementation plan. Any confirmed external source deficiency requires central supporting scope before edits.",
-    "Current accepted-e0361e80 evaluation retains 19/60 screens and cursors, 2986/4121 RNG at step 19, matching the saved source diagnosis. All Sam-loca statements reuse canonical descriptors; there is no named-species, non-species tin, numeric selection or alignment dependency. Sam-goal now has accepted completion evidence and can supply a matching outside-program variation."
+    "Current accepted-97fe6973 evaluation retains 19/60 screens and cursors, 2986/4121 RNG at step 19, matching the saved source diagnosis after C174. All Sam-loca statements reuse canonical descriptors; there is no named-species, non-species tin, numeric selection or alignment dependency. Sam-goal has accepted completion evidence and supplies a matching outside-program variation."
   ]
 }

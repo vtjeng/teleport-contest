@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside whole Rog-goal task: adjacent Rog-loca.lua remains blocked by its missing loader, separately owned by A194. Named-species support does not establish whole lspo_object/create_object or Rog-loca completion. Excluded from matching evidence.",
+  "segments": [
+    {
+      "seed": 17409121,
+      "datetime": "20631009192033",
+      "nethackrc": "OPTIONS=name:RogGoalProbe,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizloaddes\nRog-loca.lua\n "
+    }
+  ]
+}
