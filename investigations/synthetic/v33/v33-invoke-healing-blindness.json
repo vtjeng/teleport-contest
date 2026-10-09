@@ -1,0 +1,112 @@
+{
+  "session": "synthetic/v33/v33-invoke-healing-blindness",
+  "corpus": "synthetic",
+  "batch": "v33",
+  "caseId": "v33-invoke-healing-blindness",
+  "remainingScreens": 1,
+  "recordedSteps": 99,
+  "manifestPath": "challenges/manifests/v33.json",
+  "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+  "recordingSha256": "faff54cc482400999c96e696dd41b06b96a646faf2e1f7be79d06c89e541ab60",
+  "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+  "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+  "status": "complete",
+  "commit": "965f2a701a90a8344b813383eebd4159a5aa8c92",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v33",
+    "caseId": "v33-invoke-healing-blindness",
+    "session": "synthetic/v33/v33-invoke-healing-blindness",
+    "manifestPath": "challenges/manifests/v33.json",
+    "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+    "recording": "challenges/cases/v33/v33-invoke-healing-blindness.session.json",
+    "recordingPath": "challenges/cases/v33/v33-invoke-healing-blindness.session.json",
+    "recordingSha256": "faff54cc482400999c96e696dd41b06b96a646faf2e1f7be79d06c89e541ab60",
+    "recipe": "challenges/cases/v33/v33-invoke-healing-blindness.recipe.session.json",
+    "recipeSha256": "9824b11634740afa4d0151dd5dffac376308dfab22677c4dd481a0f06b9ad6f6",
+    "replayInputSha256": "8b369ab6ed6dba8d2764b68d4aeceb416137af76d68a508ef4c2a272882177e5",
+    "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+    "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66",
+    "evaluationArtifact": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+    "evaluationUtc": "2026-10-09T03:03:55.655Z",
+    "remainingScreens": 1,
+    "recordedSteps": 99,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 98,
+        "total": 99
+      },
+      "rng": {
+        "matched": 1854,
+        "total": 1854
+      },
+      "cursors": {
+        "matched": 99,
+        "total": 99
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 87,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 87,
+          "key": "k"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 18,
+        "cCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": null
+    },
+    "step": 87,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "artifact.c:invoke_healing has two independent feedback conditions. JS omits the first, so temporary blindness with no cream produces one You feel better message rather than both at step 87. The whole helper and existing invocation dispatcher can be reconciled independently.",
+  "source": {
+    "file": "artifact.c",
+    "functions": [
+      "invoke_healing"
+    ],
+    "branch": "HEALING invocation after temporary blindness, u.ucreamed == 0; both Blinded > creamed and BlindedTimeout > creamed are true. The first comparison uses the boolean Blinded macro, not raw timeout.",
+    "callers": [
+      "artifact.c:arti_invoke:2156 HEALING -> invoke_healing; doinvoke:1757 -> arti_invoke"
+    ],
+    "dependencies": [
+      "Existing artifact.c:nothing_special, potion.c:make_sick/make_slimed/make_blinded and carried/Upolyd owners; no new source owner required."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Committed baseline-66ac2b0bf-v33.json reports 98/99 screens, 1854/1854 RNG and 99/99 cursors; saved queue first mismatch segment 0 step 87 column 18. No replay was run for selection.",
+    "Admitted v33 manifest saved prepared trace at artifact.c:1780-1816 and source-pinned first screen diagnostic identify two You_feel calls; recipe and recording digests are retained in mismatch.",
+    "Upstream artifact.c:1782-1816 computes hero/polymorph half healing, first You_feel at 1789-1790, independent timeout condition at 1791-1802, then HP/sickness/slime/blindness updates and disp.botl in source order.",
+    "youprop.h:87-93 defines Blinded as HBlinded && !BBlinded, a boolean; comparing it with creamed must preserve that boolean and the Eyes of the Overworld blocker, rather than substitute Blind or the timeout.",
+    "js/artifacts.js:2348-2394 computes healing and only the second condition. Existing arti_invoke:2692 awaits invoke_healing; doinvoke already awaits the dispatcher. No other direct call exists in C or JS.",
+    "Whole-function audit scope: restore first awaited ordinary message, retain the second conditional/slightly feedback/no-op early return, HP form selection, canonical make_sick/make_slimed/make_blinded calls and status flag. Fresh variations will cover no-effect and permanent-blind controls beyond admitted temporary blindness.",
+    "Whole-owner follow-up audit found both js/artifacts.js invoke_healing Upolyd calls passed the state wrapper. Canonical const.js:3017 Upolyd takes the hero struct and compares umonnum with umonster; correction passes u for both form HP computation and update. Fail-first test left monster HP 15 instead of source 18 for a five-point deficit, while ordinary HP remained full."
+  ]
+}

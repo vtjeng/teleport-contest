@@ -225937,6 +225937,80 @@
           "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66"
         }
       }
+    },
+    {
+      "id": "fix-hack-empty-forcefight-explosion-v33-20261009",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Wire exploding-form empty force-fight to canonical explosion and rehumanization.",
+      "cFile": "hack.c",
+      "sessions": [],
+      "selectionReason": "A179 current source trace replaces the stale prepared dropx diagnosis; independent hack.c behavior reuses accepted explosion, wake, and rehumanization owners without overlapping B181 or C160.",
+      "detail": "At step 53, empty-square force-fight in black-light form is refused by an obsolete domove_fight_empty guard. C prints the exploding-form terrain message, calls wake_nearto then existing explum with a null defender, sets monster-form HP to -1, and rehumanizes; the admitted baseline matches through step 52.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "domove_fight_empty",
+      "session": "synthetic/v33/v33-black-light-hero-explosion",
+      "step": 53,
+      "syntheticProvenance": {
+        "synthetic/v33/v33-black-light-hero-explosion": {
+          "session": "synthetic/v33/v33-black-light-hero-explosion",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-black-light-hero-explosion",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-black-light-hero-explosion.session.json",
+          "recordingSha256": "d67c5e0e3ce9d93120850865bb9b7dddde1630814fdcf2b268387a74d3925cff",
+          "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+          "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66"
+        }
+      }
+    },
+    {
+      "id": "port-artifact-invoke-healing-v33-20261009",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete artifact healing invocation feedback and polymorph health behavior.",
+      "cFile": "artifact.c",
+      "sessions": [
+        "synthetic/v33/v33-invoke-healing-blindness"
+      ],
+      "selectionReason": "Admitted v33 invoke-healing case has one remaining screen at step 87; the complete artifact.c invoke_healing owner is independently assignable and does not overlap A179 or B181.",
+      "detail": "Port artifact.c invoke_healing lines 1780-1817 completely and retain the existing HEALING dispatcher. Preserve both independent blindness feedback conditions, awaited curing order, max-HP healing, carried blessed uncursing, and Upolyd health selection. The v33 case exercises temporary blindness with no cream through step 87; add source-pinned polymorph coverage.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "invoke_healing",
+          "line": 1780,
+          "endLine": 1817,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1780,
+        "to": 1817
+      },
+      "syntheticProvenance": {
+        "synthetic/v33/v33-invoke-healing-blindness": {
+          "session": "synthetic/v33/v33-invoke-healing-blindness",
+          "corpus": "synthetic",
+          "batch": "v33",
+          "caseId": "v33-invoke-healing-blindness",
+          "manifestPath": "challenges/manifests/v33.json",
+          "manifestSha256": "66d55e0074608329ba93961e4ae59211581bd320099a754416abf513eda7a5f0",
+          "recordingPath": "challenges/cases/v33/v33-invoke-healing-blindness.session.json",
+          "recordingSha256": "faff54cc482400999c96e696dd41b06b96a646faf2e1f7be79d06c89e541ab60",
+          "evaluationPath": "challenges/evaluations/baseline-66ac2b0bf-v33.json",
+          "evaluationCommit": "66ac2b0bf84455ac1f0742ee67d9036ca7043c66"
+        }
+      }
     }
   ]
 }
