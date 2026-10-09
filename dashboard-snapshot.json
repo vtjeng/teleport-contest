@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T02:09:20.265Z",
+  "capturedAt": "2026-10-09T02:26:19.515Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -69668,12 +69668,52 @@
         "type": "accepted",
         "at": "2026-10-09T02:09:03.532Z",
         "task": "A177"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A177-published-f059366da",
+        "type": "published",
+        "at": "2026-10-09T02:10:14.932Z",
+        "task": "A177",
+        "commit": "f059366da894719d99f8f19c345b415c51347838"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-selection-blocked-after-A177-20261009",
+        "type": "turn",
+        "at": "2026-10-09T02:10:21.597Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "No independent admitted task is eligible: B180 owns status hilites; C159 owns fruit; the v31 light diagnostic needs the coordinator’s native-pointer contract decision. The version mismatch is parked platform provenance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C159-integrating-327cea6c9",
+        "type": "integrating",
+        "at": "2026-10-09T02:15:34.913Z",
+        "task": "C159",
+        "integration": "327cea6c9e23c151101e065443b86dbea4996ed4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C159-validated-37874014415",
+        "type": "validated",
+        "at": "2026-10-09T02:23:43.802Z",
+        "task": "C159",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C159-327cea6c9e23c151101e065443b86dbea4996ed4-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T02:26:00.922Z",
+        "task": "C159"
       }
     ]
   },
   "development": {
-    "executionCommit": "37f1b1fe268666f0e8fa0eed9b45e336d3d07129",
-    "measuredAt": "2026-10-09T02:05:53.893Z",
+    "executionCommit": "327cea6c9e23c151101e065443b86dbea4996ed4",
+    "measuredAt": "2026-10-09T02:23:08.346Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

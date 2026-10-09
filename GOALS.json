@@ -223774,7 +223774,7 @@
     {
       "id": "fix-options-fruit-live-feedback-v32-20261009",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore source-ordered live fruit option feedback",
       "cFile": "options.c",
       "sessions": [],
@@ -223786,8 +223786,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "327cea6c9e23c151101e065443b86dbea4996ed4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "optfn_fruit",
       "session": "synthetic/v32/v32-options-fruit",
       "step": 33,
@@ -223968,7 +223971,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "327cea6c9e23c151101e065443b86dbea4996ed4",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
