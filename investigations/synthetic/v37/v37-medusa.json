@@ -1,0 +1,145 @@
+{
+  "corpus": "synthetic",
+  "batch": "v37",
+  "caseId": "v37-medusa",
+  "manifestPath": "challenges/manifests/v37.json",
+  "manifestSha256": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202",
+  "recordingSha256": "909484fcdd1aa2c61ba170fd11d3e82efe43ca2479e9ec94a1847c07d7d5b7f9",
+  "evaluationPath": "challenges/evaluations/baseline-d2270c2b6-v37.json",
+  "evaluationCommit": "d2270c2b682a9a2395fcca9eff7decce6c8825fa",
+  "remainingScreens": 9,
+  "recordedSteps": 27,
+  "session": "synthetic/v37/v37-medusa",
+  "commit": "b39c6606b243065a31e1be304d45da38e3e0f293",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v37",
+    "caseId": "v37-medusa",
+    "session": "synthetic/v37/v37-medusa",
+    "manifestPath": "challenges/manifests/v37.json",
+    "manifestSha256": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202",
+    "recording": "challenges/cases/v37/v37-medusa.session.json",
+    "recordingPath": "challenges/cases/v37/v37-medusa.session.json",
+    "recordingSha256": "909484fcdd1aa2c61ba170fd11d3e82efe43ca2479e9ec94a1847c07d7d5b7f9",
+    "recipe": "challenges/cases/v37/v37-medusa.recipe.session.json",
+    "recipeSha256": "88dc37370abc8f733fd3a6701394ea026cffd197a4855be18de031dc08ad0111",
+    "replayInputSha256": "2bda4e67d05a4983621f96cca8c8568a1ab988dc213463f454a7f5fabfeef303",
+    "evaluationPath": "challenges/evaluations/baseline-d2270c2b6-v37.json",
+    "evaluationCommit": "d2270c2b682a9a2395fcca9eff7decce6c8825fa",
+    "evaluationArtifact": "challenges/evaluations/baseline-d2270c2b6-v37.json",
+    "evaluationUtc": "2026-10-09T14:28:51.049Z",
+    "remainingScreens": 9,
+    "recordedSteps": 27,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 18,
+        "total": 27
+      },
+      "rng": {
+        "matched": 3137,
+        "total": 7466
+      },
+      "cursors": {
+        "matched": 25,
+        "total": 27
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 18,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 18,
+          "key": "h"
+        },
+        "kind": "ch",
+        "row": 1,
+        "column": 8,
+        "cCell": {
+          "ch": "}",
+          "color": 4,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 3117,
+        "cEntry": "rn2(21)=19",
+        "cCaller": "get_location(sp_lev.c:1234)",
+        "jsEntry": "rn2(20)=13",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 18,
+          "key": "h"
+        },
+        "stepIndex": 18
+      },
+      "cursor": {
+        "index": 18,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 18,
+          "key": "h"
+        },
+        "cCursor": [
+          70,
+          6,
+          1
+        ],
+        "jsCursor": [
+          72,
+          18,
+          1
+        ]
+      }
+    },
+    "step": 18,
+    "kind": "rng",
+    "sourceFile": "sp_lev.c",
+    "function": "get_location",
+    "message": null,
+    "cFile": "sp_lev.c",
+    "luaFile": null,
+    "line": 1234
+  },
+  "status": "complete",
+  "goalKind": "divergence-fix",
+  "summary": "The Medusa-4 JavaScript map omits its final Lua moat row, reducing height from 21 to 20. C moves the full-height fragment to ystart=0 and uses rn2(21) for random locations; JavaScript uses the smaller frame and rn2(20). Restore that source row in the caller, preserving generic map and coordinate owners.",
+  "source": {
+    "file": "medusa-4.lua",
+    "functions": [
+      "medusa-4.lua"
+    ],
+    "branch": "Valid level travel selects medusa-4. dat/medusa-4.lua12-34 contains21 rows, including the final all-moat row at Lua33; js/medusa_levels.js medusa4 supplies only the first20 rows to the canonical array-form map descriptor.",
+    "callers": [
+      "teleport.c level_tele -> do.c goto_level -> mklev.c makelevel -> mkmaze.c makemaz -> sp_lev.c load_special -> dat/medusa-4.lua des.map. JS allmain deferred-goto -> do goto_level -> mklev makelevel/makemaz/load_special -> MEDUSA_LEVEL_LOADERS medusa4 -> createSpecialLevelApi.map/mapFromRows.",
+      "wizcmds.c wiz_load_splua -> sp_lev.c load_special provides an independent direct source-named entry. Existing registry and descriptors already select the owner; no dispatcher correction needed."
+    ],
+    "dependencies": [
+      "sp_lev.c mapfrag_fromstr227-253 counts the rows; lspo_map6110-6116 parses the single string and centers it;6227-6238 sets ystart=0 when height equals ROWNO. JS mapFromRows applies the same full-height gate, so correcting its caller payload restores the frame.",
+      "sp_lev.c get_location1202-1240 reads gy.ysize as sy and draws rn2(sy). JS room_coordinates get_location reads frame.ysize identically. The observed rn2(21)/rn2(20) is caused by the caller payload, not a coordinate-owner defect.",
+      "Existing splev_chr2typ converts } to MOAT. Lua discards the map return; no numeric selection/alignment/tin/monster owner expansion is needed. Source comparison of all four maps shows variants1-3 exact and only variant4 missing its final row.",
+      "Existing post-map room/stair/object/trap/monster/selection operations are outside whole-source credit. The map-only diagnostic traverses them and fully matches this assigned case. Independent C evidence remains required for production correction.",
+      "scripts/worker-delivery.mjs146-150 recognizes Lua only for kind lua-port. The bounded Lua divergence tooling gate is already documented for B188 Castle and needs central resolution; do not mislabel this correction as whole Medusa-4 completion."
+    ]
+  },
+  "evidence": [
+    "Assigned replay run-FdGxAe at examined b39c6606b243065a31e1be304d45da38e3e0f293 reproduces first mismatch segment 0 step 18 key h. C RNG index 3117 draws rn2(21)=19 at get_location(sp_lev.c1234); JS draws rn2(20)=13. First screen difference row 1 col 8: C moat } versus JS space; cursor C(70,6,1) versus JS(72,18,1). Baseline records18/27matched screens,25/27 cursors, 3137/7466 RNG. Exact diagnostic .cache/A197/probe.json/log.",
+    "Read whole dat/medusa-4.lua1-152 and JS medusa4. Lua12-34 has21 rows of 76 columns; JS456-477 has20 rows of 76 columns. Only Lua33 final moat row is missing. .cache/A197/map-source-comparison.json compares all four decoded JS arrays to source long strings; variants1-3 identical, variant4 only missing row 20.",
+    "Cache-only diagnostic run-szGjDK substitutes the authoritative map through a proxy on the exported medusa-4 loader without changing game files. It fully matches27/27 screens,27/27 cursors7466/7466 RNG and0/0 frames with no boundary. .cache/A197/map-row-probe.mjs/json/log preserve this cause test; it is diagnostic evidence, not independent C coverage or committed implementation.",
+    "Read C mapfrag_fromstr/lspo_map full-height overflow/get_location and JS mapFromRows/get_location. Source height 21 triggers existing ROWNO gate ystart=0 and preserves random-location bound 21. No parser or coordinate behavior change is required.",
+    "Actionable bounded scope: source:medusa-4.lua and contract:medusa-map-source-height; missing row in js/medusa_levels.js; source-derived map/frame regression and fresh runner; recipes/medusa-4.lua and recordings/medusa-4.lua. No whole Lua program, sp_lev.c, mklev, nhlua.c or room_coordinates credit.",
+    "Fail first with source-derived full decoded matrix comparison of all four exported loaders, asserting Medusa-4 height 21 and final 76-cell moat row. Pin canonical full-height ystart=0 and frame-height RNG behavior without changing those owners. Replay admitted segment 0 steps 18-26. Record independent C-first direct #wizloaddes medusa-4.lua/mapping primary and role variation with new seed/date; compare complete RNG/screens/cursors/frames and actual bottom moat row. Retain another Medusa variant as the outside-scope check; observe its loader instead of relying on seed-based guesses of variant diversity.",
+    "Evidence limits: no game edits/new C game. The selected diagnostic matches only after cache-only payload substitution; production and independent runtime evidence remain required. Central bounded Lua divergence support is a known tooling gate shared with B188 Castle and must be resolved before source claim/delivery."
+  ]
+}
