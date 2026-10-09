@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T04:07:45.326Z",
+  "capturedAt": "2026-10-09T04:20:10.228Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -70490,12 +70490,126 @@
         "worker": "C",
         "state": "active",
         "reason": "C163 gold-theft source checks and supported hero evidence complete; incoming and monster-pair recordings await A180 movement admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A179-0c2d5dd06-20261009",
+        "type": "published",
+        "at": "2026-10-09T04:08:28.129Z",
+        "task": "A179",
+        "commit": "0c2d5dd06d2187ba8bfd47a39a44f792e3d430b8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-3efbf15bf10dbfa36a8fb2e3506dc41f31d05649",
+        "type": "ready",
+        "at": "2026-10-09T04:09:54.448Z",
+        "task": "C163",
+        "delivery": "3efbf15bf10dbfa36a8fb2e3506dc41f31d05649"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C163-3efbf15b-20261009",
+        "type": "received",
+        "at": "2026-10-09T04:10:39.611Z",
+        "task": "C163",
+        "delivery": "3efbf15bf10dbfa36a8fb2e3506dc41f31d05649"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B183-upward-petrifier-drop-env-20261009",
+        "type": "implement",
+        "at": "2026-10-09T04:10:53.710Z",
+        "task": "B183",
+        "goal": "fix-dothrow-toss-up-petrifier-drop-env-v33-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B183-implement-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T04:10:55.184Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing canonical drop operations before upward-corpse petrification."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C163-await-A180-evidence-20261009",
+        "type": "turn",
+        "at": "2026-10-09T04:11:12.823Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C163 source delivery is immutable; incoming and monster-pair runtime evidence awaits A180 movement acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C161-461a0d2a-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T04:11:20.824Z",
+        "task": "C161",
+        "integration": "461a0d2ad755547a69c0c623c64643e40b0be515"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-f2e040ad62dca7eb4089c3943bd2438be15e9541",
+        "type": "ready",
+        "at": "2026-10-09T04:11:51.951Z",
+        "task": "A184",
+        "delivery": "f2e040ad62dca7eb4089c3943bd2438be15e9541"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A184-f2e040ad-20261009",
+        "type": "received",
+        "at": "2026-10-09T04:12:30.319Z",
+        "task": "A184",
+        "delivery": "f2e040ad62dca7eb4089c3943bd2438be15e9541"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A184-ready-wait-independent",
+        "type": "turn",
+        "at": "2026-10-09T04:12:50.532Z",
+        "worker": "A2",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C161-461a0d2ad755547a69c0c623c64643e40b0be515-validated",
+        "type": "validated",
+        "at": "2026-10-09T04:17:10.564Z",
+        "task": "C161",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-829f17d33cbdea0e09d4fae6a113c234ebf7fedd",
+        "type": "ready",
+        "at": "2026-10-09T04:18:06.978Z",
+        "task": "B183",
+        "delivery": "829f17d33cbdea0e09d4fae6a113c234ebf7fedd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B183-ready-no-independent-owner-20261009",
+        "type": "turn",
+        "at": "2026-10-09T04:19:21.336Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "B183 ready; remaining admitted source tasks are reserved or dependency-blocked."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C161-461a0d2ad755547a69c0c623c64643e40b0be515-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T04:19:49.248Z",
+        "task": "C161"
       }
     ]
   },
   "development": {
-    "executionCommit": "7af2dcb832c469033b652c131fe1feeae0d47ed3",
-    "measuredAt": "2026-10-09T04:03:19.513Z",
+    "executionCommit": "461a0d2ad755547a69c0c623c64643e40b0be515",
+    "measuredAt": "2026-10-09T04:16:03.381Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
