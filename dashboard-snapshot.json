@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T19:40:44.225Z",
+  "capturedAt": "2026-10-09T19:52:52.238Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -76018,19 +76018,106 @@
         "type": "accepted",
         "at": "2026-10-09T19:40:07.914Z",
         "task": "C172"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C174-after-C172-20261009",
+        "type": "resume",
+        "at": "2026-10-09T19:41:25.054Z",
+        "task": "C174"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C174-report-refresh-20261009",
+        "type": "turn",
+        "at": "2026-10-09T19:41:26.383Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C172-fa42fef55",
+        "type": "published",
+        "at": "2026-10-09T19:42:23.970Z",
+        "task": "C172",
+        "commit": "fa42fef552a6e3f3dc54b16d48419af3fe6c8a7f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C174-named-montype-approved-20261009",
+        "type": "implement",
+        "at": "2026-10-09T19:42:26.624Z",
+        "task": "C174",
+        "goal": "port-rog-goal-quest-level-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A194-1682c5d4b",
+        "type": "received",
+        "at": "2026-10-09T19:42:54.519Z",
+        "task": "A194",
+        "delivery": "1682c5d4b8d8c6b5248b401479379744bf48356e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A194-e0361e802",
+        "type": "integrating",
+        "at": "2026-10-09T19:44:53.000Z",
+        "task": "A194",
+        "integration": "e0361e80225feef14b2837e65ab482f785575c7d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A194-validated-e0361e80",
+        "type": "validated",
+        "at": "2026-10-09T19:50:32.200Z",
+        "task": "A194",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c8d2cf5cbfa810f874adb629e9943652a9195930",
+        "type": "ready",
+        "at": "2026-10-09T19:51:29.750Z",
+        "task": "C174",
+        "delivery": "c8d2cf5cbfa810f874adb629e9943652a9195930"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A194-e0361e80225feef14b2837e65ab482f785575c7d-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T19:51:45.550Z",
+        "task": "A194"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C174-received-c8d2cf5c",
+        "type": "received",
+        "at": "2026-10-09T19:52:06.195Z",
+        "task": "C174",
+        "delivery": "c8d2cf5cbfa810f874adb629e9943652a9195930"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C174-ready-wait-next-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T19:52:08.168Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "Rogue-goal delivery is ready for integration. Further C-owned work waits for Main’s numeric-selection source gate; remaining admitted cases have existing owners or tooling dependencies."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "A194",
-        "worker": "A2",
-        "goal": "port-rog-loca-quest-locate-v36-20261009",
+        "task": "C174",
+        "worker": "C",
+        "goal": "port-rog-goal-quest-level-v36-20261009",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "1682c5d4b8d8c6b5248b401479379744bf48356e",
-        "since": "2026-10-09T19:36:52.116Z",
+        "delivery": "c8d2cf5cbfa810f874adb629e9943652a9195930",
+        "since": "2026-10-09T19:51:29.750Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -76313,17 +76400,6 @@
         "reason": "Complete Mon-strt report33119e37 preserved, awaiting central source gate and shared spinach-tin support approval. Main directs another independent investigation while current delivery queue validates."
       },
       {
-        "task": "C174",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T13:50:17.587Z",
-        "blockedBy": [],
-        "reason": "Whole Rog-goal complete reportbe33c18c7 preserved; required named montype normalization shares sp_lev.c:lspo_object with C172 spinach descriptor proposal. Await Main adjudication; no source claim/edit."
-      },
-      {
         "task": "B198",
         "worker": "B",
         "goal": null,
@@ -76414,8 +76490,8 @@
     ]
   },
   "development": {
-    "executionCommit": "c7bb7471083822d944dd96d56cdbe4127349c7c1",
-    "measuredAt": "2026-10-09T19:38:13.663Z",
+    "executionCommit": "e0361e80225feef14b2837e65ab482f785575c7d",
+    "measuredAt": "2026-10-09T19:49:54.338Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

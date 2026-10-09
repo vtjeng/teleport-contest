@@ -239024,7 +239024,7 @@
     {
       "id": "port-rog-loca-quest-locate-v36-20261009",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Rogue quest locate level",
       "luaFile": "Rog-loca.lua",
       "sessions": [
@@ -239038,15 +239038,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e0361e80225feef14b2837e65ab482f785575c7d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Rog-loca.lua",
           "line": 1,
           "endLine": 99,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -239227,7 +239230,91 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Rog-loca.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "rogLoca",
+            "sourceReview": "Read complete dat/Rog-loca.lua lines 1–99. Solid stone fill; mazelevel flag; exact generated centered 76x21 map including trailing spaces and secret door; lit selection; random up then down stairs; nondiggable selection; map-relative cursed teleportation scroll at (11,18), spe=0; fourteen random objects; six random traps; seventeen hostile leprechauns and one class l draw; seven hostile guardian nagas and three class N draws; five hostile chameleons. Every descriptor is awaited in source definition order. Lua consumes canonical selection.area values and discards descriptor results. No active statement or required helper is skipped, and the missing registry refusal is replaced with the complete program.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "Rog-loca source key now resolves to rogLoca; unique data import/function/key without changing other quest loaders."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "do.c goto_level -> mklev.c makelevel -> mkmaze.c makemaz -> sp_lev.c load_special -> whole Lua program. Natural admitted and independent human arrival exercise canonical descriptor generation and finish."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "wizcmds.c wiz_load_splua resets the current level, calls source-named load_special, then lspo_finalize_level. Independent orc direct loading exercises the same program and canonical direct finalization."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/rog-loca-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Rog-loca.lua/locate-human-arrival.session.json",
+              "recordings/Rog-loca.lua/locate-orc-des.session.json"
+            ],
+            "sourceFile": "Rog-loca.lua",
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-rog-loca",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Rogue locate arrival via wizlevelport -> deferred_goto/goto_level -> makelevel/makemaz/load_special -> whole dat/Rog-loca.lua and canonical finish. All 60 screens/cursors and 3500 RNG calls match."
+              }
+            ],
+            "checkedAt": "e0361e80225feef14b2837e65ab482f785575c7d"
+          }
+        ],
+        "entryPointReview": "The whole program has two active production entries: quest-locate generation on natural arrival and direct source-named wizard loading. Admitted arrival and independent human arrival cover the first; independent orc loading covers the second. Runtime assertions verify mazelevel, zero room records, lit/nondiggable cells, both stair directions after finalization, fixed cursed scroll, six traps, 33 hostile monsters, fixed-species minima and five retained natural chameleon identities. Rog-strt direct loading provides the separately accepted outside-program variation.",
+        "entryPoints": [
+          {
+            "name": "Natural quest-locate arrival generation",
+            "functions": [
+              "Rog-loca.lua"
+            ],
+            "recordings": [
+              "recordings/Rog-loca.lua/locate-human-arrival.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-rog-loca",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Rogue locate arrival via wizlevelport -> deferred_goto/goto_level -> makelevel/makemaz/load_special -> whole dat/Rog-loca.lua and canonical finish. All 60 screens/cursors and 3500 RNG calls match."
+              }
+            ]
+          },
+          {
+            "name": "Direct source-named special-level generation",
+            "functions": [
+              "Rog-loca.lua"
+            ],
+            "recordings": [
+              "recordings/Rog-loca.lua/locate-orc-des.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e0361e80225feef14b2837e65ab482f785575c7d",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
