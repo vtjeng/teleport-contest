@@ -142,13 +142,14 @@ import {
 import { cloneu, MonsterDeathPlanningError } from '../js/mhitu.js';
 import { newMonster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';
-import { ART_STING, ART_STORMBRINGER } from '../js/artifacts.js';
+import { ART_STING, ART_STORMBRINGER, ART_SUNSWORD } from '../js/artifacts.js';
 import {
     ARROW,
     BOW,
     DAGGER,
     ELVEN_DAGGER,
     FOOD_RATION,
+    LONG_SWORD,
     ORCISH_HELM,
     POT_HEALING,
     ROCK,
@@ -471,6 +472,41 @@ async function prepareSelectedAction({
         monsterX,
         replay,
     };
+}
+
+// monmove.c:538/564/499: a non-brave adjacent gremlin fears artifact light.
+// The clone shares the source decision but must never paint/read live output.
+for (const planning of [false, true]) {
+    test(`Sunsword flight forwards canonical ${planning ? 'planning' : 'live'} operations`, async () => {
+        const target = await prepareSelectedAction({ adjacentHero: true, pmidx: PM_GREMLIN });
+        game.uwep = newObject({ otyp: LONG_SWORD, oartifact: ART_SUNSWORD, lamplit: true });
+        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+        const live = preflightSnapshot();
+        const state = planning ? planningState(game) : game;
+        const monster = state.level.monlist;
+        const messages = [];
+        const draws = [];
+        const random = {
+            // Nonzero rn2(5) is !bravegremlin; rn2(7) selects rnd(10).
+            // Nonzero rn2(10) selects the painful-light message over speech.
+            rn2(bound) { draws.push(['rn2', bound]); return 1; },
+            rnd(bound) { draws.push(['rnd', bound]); return 9; },
+            d(number, sides) { draws.push(['d', number, sides]); return number; },
+        };
+        await runSimpleMonsterAction(monster, {
+            state, random, planning, message: async text => { messages.push(text); },
+        });
+        assert.deepEqual(draws.slice(0, 4), [['rn2', 5], ['rn2', 7], ['rnd', 10], ['rn2', 10]]);
+        assert.equal(monster.mflee, true);
+        assert.equal(monster.mfleetim, 9);
+        if (planning) {
+            assert.deepEqual(messages, []);
+            assert.deepEqual(preflightSnapshot(), live);
+        } else {
+            assert.deepEqual(messages, ['The gremlin flees from the painful light of Sunsword.']);
+        }
+        assert.ok(MONMOVE_SOURCE.includes('monflee(mtmp, rnd(rn2(7) ? 10 : 100), TRUE, TRUE);'));
+    });
 }
 
 async function prepareStartingPetAction(pmidx) {
