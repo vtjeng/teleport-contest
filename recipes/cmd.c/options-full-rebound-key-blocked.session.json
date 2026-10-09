@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside B173 typed-command limit: independently bound x to optionsfull. C dispatches doset through rhack, while JS has no direct optionsfull arm; blocked by cmd.c:rhack, not the canonical options.c:doset menu.",
+  "segments": [
+    {
+      "seed": 17332013,
+      "datetime": "20541217102133",
+      "nethackrc": "OPTIONS=name:Iris,role:Wizard,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nBIND=x:optionsfull\n",
+      "moves": ".x\u001b."
+    }
+  ]
+}

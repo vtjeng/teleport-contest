@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap independent C-first variation: Valkyrie seed17332012 sends menu prefix m before typed #optionsfull. options.c:doset clears menu_requested and calls doset_simple, so Escape cancels the simplified menu without time.",
+  "segments": [
+    {
+      "seed": 17332012,
+      "datetime": "20541217102133",
+      "nethackrc": "OPTIONS=name:Iris,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": ".m#optionsfull\n\u001b."
+    }
+  ]
+}
