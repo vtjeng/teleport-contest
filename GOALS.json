@@ -239315,6 +239315,208 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-rog-goal-quest-level-v36-20261009",
+      "kind": "lua-port",
+      "status": "open",
+      "summary": "Port the complete Rogue quest goal level",
+      "luaFile": "Rog-goal.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-rog-goal"
+      ],
+      "selectionReason": "Select synthetic/v36/v36-quest-rog-goal from the complete investigation at investigations/synthetic/v36/v36-quest-rog-goal.json and accepted A194 evaluation challenges/evaluations/accepted-e0361e80225feef14b2837e65ab482f785575c7d-v36.json. The refusal remains at step 19 with 41 unmatched screens. Port all of dat/Rog-goal.lua lines 1-110 and wire its registered loader. Preserve exact source order, map and descriptors. The chameleon tin also requires the bounded sp_lev.c:lspo_object named-species parsing used by this Lua descriptor; keep accepted C172 non-species behavior and do not claim broader lspo_object or create_object completion. Manifest SHA256 58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c; recording SHA256 2e5a77c0616e7b8c0d153cf06d92c449d9ebd9691464c44f0136274aeeb4234a.",
+      "detail": "",
+      "openedAt": "d2a0eb5ceaa5876d57b815dc18cb3a70f19e55e2",
+      "openStanding": {
+        "sha": "e0361e80225feef14b2837e65ab482f785575c7d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Rog-goal.lua",
+          "line": 1,
+          "endLine": 110,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-rog-goal": {
+          "session": "synthetic/v36/v36-quest-rog-goal",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-rog-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-rog-goal.session.json",
+          "recordingSha256": "2e5a77c0616e7b8c0d153cf06d92c449d9ebd9691464c44f0136274aeeb4234a",
+          "evaluationPath": "challenges/evaluations/accepted-e0361e80225feef14b2837e65ab482f785575c7d-v36.json",
+          "evaluationCommit": "e0361e80225feef14b2837e65ab482f785575c7d"
+        }
+      },
+      "activeStanding": {
+        "sha": "e0361e80225feef14b2837e65ab482f785575c7d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-rog-goal",
+          "session": "synthetic/v36/v36-quest-rog-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-rog-goal.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-rog-goal.session.json",
+          "recordingSha256": "2e5a77c0616e7b8c0d153cf06d92c449d9ebd9691464c44f0136274aeeb4234a",
+          "recipe": "challenges/cases/v36/v36-quest-rog-goal.recipe.session.json",
+          "recipeSha256": "57578d3b1b466c9b9123bf6f9593abd348f688212d13997f90294b8ae5d17ce0",
+          "replayInputSha256": "0f9e494fe6deae1c89e904df0a08b02a178e038d112715f96908dd65cb28a055",
+          "evaluationPath": "challenges/evaluations/accepted-e0361e80225feef14b2837e65ab482f785575c7d-v36.json",
+          "evaluationCommit": "e0361e80225feef14b2837e65ab482f785575c7d",
+          "evaluationArtifact": "challenges/evaluations/accepted-e0361e80225feef14b2837e65ab482f785575c7d-v36.json",
+          "evaluationUtc": "2026-10-09T19:48:11.034Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2315,
+              "total": 3136
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Rog-goal\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Rog-goal.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Rog-goal\"",
+          "cFile": null,
+          "luaFile": "Rog-goal.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-rog-goal.json",
+            "result": {
+              "session": "synthetic/v36/v36-quest-rog-goal",
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-rog-goal",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "2e5a77c0616e7b8c0d153cf06d92c449d9ebd9691464c44f0136274aeeb4234a",
+              "evaluationPath": "challenges/evaluations/accepted-e0361e80225feef14b2837e65ab482f785575c7d-v36.json",
+              "evaluationCommit": "e0361e80225feef14b2837e65ab482f785575c7d",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "e0361e80225feef14b2837e65ab482f785575c7d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-rog-goal",
+                "session": "synthetic/v36/v36-quest-rog-goal",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-rog-goal.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-rog-goal.session.json",
+                "recordingSha256": "2e5a77c0616e7b8c0d153cf06d92c449d9ebd9691464c44f0136274aeeb4234a",
+                "recipe": "challenges/cases/v36/v36-quest-rog-goal.recipe.session.json",
+                "recipeSha256": "57578d3b1b466c9b9123bf6f9593abd348f688212d13997f90294b8ae5d17ce0",
+                "replayInputSha256": "0f9e494fe6deae1c89e904df0a08b02a178e038d112715f96908dd65cb28a055",
+                "evaluationPath": "challenges/evaluations/accepted-e0361e80225feef14b2837e65ab482f785575c7d-v36.json",
+                "evaluationCommit": "e0361e80225feef14b2837e65ab482f785575c7d",
+                "evaluationArtifact": "challenges/evaluations/accepted-e0361e80225feef14b2837e65ab482f785575c7d-v36.json",
+                "evaluationUtc": "2026-10-09T19:48:11.034Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2315,
+                    "total": 3136
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Rog-goal\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Rog-goal.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Rog-goal\"",
+                "cFile": null,
+                "luaFile": "Rog-goal.lua",
+                "line": null
+              },
+              "goalKind": "lua-port",
+              "summary": "Rog-goal still lacks its whole-program loader. Its chameleon tin consumes the bounded named-species lspo_object branch; accepted C172 has released that owner and preserved non-species normalization.",
+              "source": {
+                "file": "Rog-goal.lua",
+                "branch": "Rogue quest goal generation or registered wizard load of Rog-goal; tin montype chameleon must resolve to the source species index before create_object.",
+                "functions": [
+                  "Rog-goal.lua"
+                ],
+                "callers": [
+                  "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Rog-goal.lua",
+                  "wizcmds.c:wiz_load_splua -> load_special -> registered Rog-goal Lua program"
+                ],
+                "dependencies": [
+                  "Source-required bounded sp_lev.c:lspo_object named-species branch: restrict to STATUE/EGG/CORPSE/TIN/FIGURINE; match case-insensitive neutral/male/female names without find_montype gender RNG, preserve existing monster-class resolution and error when unknown. C172 is accepted; non-species behavior remains intact.",
+                  "Reuse existing level/map/region/levregion/nondiggable/trap/object/monster and ONAME_LEVEL_DEF artifact owners."
+                ]
+              },
+              "evidence": [
+                "Current accepted evaluation challenges/evaluations/accepted-c7bb7471083822d944dd96d56cdbe4127349c7c1-v36.json at c7bb7471083822d944dd96d56cdbe4127349c7c1: missing Rog-goal loader at zero-based19,19/60matching screens,41remaining. Manifest corpus digest58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c; immutable recording challenges/cases/v36/v36-quest-rog-goal.session.json,digest2e5a77c0616e7b8c0d153cf06d92c449d9ebd9691464c44f0136274aeeb4234a.",
+                "Read whole dat/Rog-goal.lua1–110, SHA2564a9526d60f6802525e9964e428a5a15afef9d334441dd6c7e9ed8d1bad24d83e: solidfill stone,mazelevel/noteleport, exact76×21 map, lit full selection, absolute stair-up region1,0..15,20 with map-relative exclusion1,18..4,20, nondiggable fullmap, fixed spiked pit37,7. Blessed spe0 named skeleton key38,10 and chameleon tin26,12 precede13random objects and11random traps. Source monster order is Master Assassin,16leprechauns,2l-class,8guardian nagas,3N-class,5chameleons and4fixed sharks. No explicit wallify.",
+                "C sp_lev.c:lspo_object3689–3706 searches neutral/male/female species names case-insensitively and stores monsndx(pm), or errors on unknown montype. The current js/mklev.js object adapter4584–4604 only resolves one-character class tokens; longer strings become corpsenm unchanged. js/sp_lev_object.js normalization keeps that value and applyObjectFields calls js/obj.js:set_corpsenm, which stores it in TIN. Porting Rog-goal with an injected numeric PM_CHAMELEON would bypass canonical source descriptor behavior and leave the owner defect unresolved.",
+                "Canonical named-montype support must preserve source type restriction STATUE/EGG/CORPSE/TIN/FIGURINE, exact case-insensitive neutral/male/female search and Unknown montype error, existing class RNG and field-application order. No global name_to_monplus substitute: the object source does not consume its gender parser RNG. This supporting source reservation overlaps C172 lspo_object plan and must be adjudicated before implementation; it is not independent of the excluded descriptor seam.",
+                "Existing levregion adapter preserves region_islev1 and default exclude_islev0, so absolute stair region and map-relative exclusion remain distinct through fixup_special. Master Key artifact naming uses existing ONAME_LEVEL_DEF owner. Plan generated map/monster equality, fail-first registry/sequence tests, canonical chameleon tin source pin, admitted Rogue arrival range and independent male/female human Rogue #wizloaddes recordings after central gate. Keep blocked evidence and no generic descriptor completion credit.",
+                "After accepted C172, sp_lev_object normalization recognizes tin spinach/empty and egg empty but mklev des.object still forwards longer species names as raw corpsenm strings. Rog-goal named chameleon must use C neutral/male/female lookup before creation, not a hardcoded PM_CHAMELEON. Main has approved reopening the named-species gate; no existing active descriptor reservation remains.",
+                "Coordinator refreshed the complete source diagnosis against accepted A194 evaluation challenges/evaluations/accepted-e0361e80225feef14b2837e65ab482f785575c7d-v36.json at e0361e80225feef14b2837e65ab482f785575c7d: the Rog-goal refusal remains at zero-based step19 with 19/60 screens and cursors, 2315/3136 RNG calls, and 41 screens remaining."
+              ],
+              "sourceAuditHistory": {
+                "status": "complete",
+                "commit": "c7bb7471083822d944dd96d56cdbe4127349c7c1",
+                "summary": "Rog-goal still lacks its whole-program loader. Its chameleon tin consumes the bounded named-species lspo_object branch; accepted C172 has released that owner and preserved non-species normalization."
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }
