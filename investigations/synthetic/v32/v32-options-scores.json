@@ -64,7 +64,7 @@
     ],
     "dependencies": [
       "Existing string_for_opt/hacklib helpers provide consumed token values; preserve signed atoi narrowing, source letter classification and left-to-right partial writes.",
-      "Source-live error diagnostics require cfgfiles.c:config_erradd1554–1562 !config_error_ready pline+wait_synch. Existing JS config_error_add assumes a configuration frame. A narrow live dependency admission is proposed without whole cfgfiles credit; no game edits until its contract scope is settled.",
+      "cfgfiles.c:config_erradd1554–1562 live diagnostic output is unported and its result is discarded. Retain a named note_unported gap for live missing/invalid scores diagnostics, preserve state and source return paths, and retain a blocked independent runtime variation. Do not expand into configuration-error owner completion.",
       "Keep B178 doset/doset_simple_menu and B179 pickup/B180 status-hilite owners read-only. C155 is an immutable ancestor dependency unrelated to scores behavior."
     ]
   },
@@ -73,7 +73,7 @@
     ".cache/C156-B173-boundary-replay.log at worker6313682a28da199d50f22654046f75c003fa8a1b has divergence null and stops at step42 after input .#optionsfull\\n:scores\\n\\n5 top/2 around/own\\n; refused source request is optfn_scores do_set, beyond resolved B173 dispatch.",
     "Read complete options.c:optfn_scores3669–3760: do_init/default return optn_ok; mandatory value is checked before reset, outer negation skips token parsing after reset; inner negation/count/space/letter/slash loop preserves each write before silent errors; getters format top/around/own or none.",
     "JS options.js4596–4658 has only startup do_set, loses outer negation inside owner and returns no source request status. scores get_val7664–7676 is duplicated; live setter table8437–8465 has no scores entry. Consolidate these into the whole canonical optfn_scores with source request arguments and connect existing callers.",
-    "Read cfgfiles.c:config_erradd1544–1589; live errors add punctuation, call pline then wait_synch, unlike the startup frame path in JS cfgfiles.js315–329. This dependency must be admitted narrowly or recorded as a named discarded-call gap; do not substitute startup-frame mutation for live output.",
+    "Read cfgfiles.c:config_erradd1544–1589; live errors add punctuation, call pline then wait_synch, unlike the startup frame path in JS cfgfiles.js315–329. The result is discarded: retain cfgfiles.c config_erradd as a named gap for live error output, preserving source state/return effects and blocking only invalid/missing runtime evidence. Startup frame output remains in scope through its existing owner.",
     "Earlier report identified B173 first-owner doextcmd dispatch refusal at14. That source dependency is accepted and current replay proves reachability of the downstream scores owner. Do not reimplement the accepted dispatcher or bundle unrelated options."
   ]
 }
