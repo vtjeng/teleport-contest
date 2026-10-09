@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first artifact.c:invoke_healing permanent-blind variation. Seeds chosen directly, Inventory selectors were read independently from each C output. Leading spaces acknowledge the independently observed full-moon startup More; no inputs copied from admitted challenge. Required observation: first boolean-blind feedback followed by no-effect surge, permanent blindness retained. Initial per-seed C inventory differed; the corrected letters are k for the permanently blind Staff, and n potion/m Staff for temporary blindness. Initial failed setup remains cache-only; no JS comparison informed the correction.",
+  "segments": [
+    {
+      "seed": 16051017,
+      "datetime": "20560301121531",
+      "nethackrc": "OPTIONS=name:Fay,role:Healer,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,blind\n",
+      "moves": "      .\u0017blessed Staff of Aesculapius\n  #invoke\nk    ."
+    }
+  ]
+}

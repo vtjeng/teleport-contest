@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first artifact.c:invoke_healing no-effect variation. Seeds chosen directly, same Healer inventory enables source-read l selector. Leading spaces acknowledge the independently observed full-moon startup More; no inputs copied from admitted challenge. Required observation: no-effect surge at full HP.",
+  "segments": [
+    {
+      "seed": 16051013,
+      "datetime": "20560301121531",
+      "nethackrc": "OPTIONS=name:Fay,role:Healer,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "      .\u0017blessed Staff of Aesculapius\n  #invoke\nl    ."
+    }
+  ]
+}
