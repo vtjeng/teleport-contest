@@ -6,7 +6,7 @@
 //         dat/Cav-strt.lua,
 //         dat/Mon-goal.lua,
 //         dat/Hea-goal.lua, dat/Hea-loca.lua, dat/Hea-strt.lua,
-//         dat/Kni-loca.lua,
+//         dat/Kni-loca.lua, dat/Ran-loca.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
@@ -68,6 +68,9 @@ import {
     KNI_LOCA_FIXED_TRAPS, KNI_LOCA_LEVEL_MAP, KNI_LOCA_MONSTERS,
 } from './kni_loca_level_data.js';
 import { MON_GOAL_LEVEL_MAP } from './mon_goal_level_data.js';
+import {
+    RAN_LOCA_LEVEL_MAP, RAN_LOCA_MONSTERS, RAN_LOCA_OBJECT_COUNT, RAN_LOCA_TRAPS,
+} from './ran_loca_level_data.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
 // that draws a random zig-zag path from (x1,y1) to (x2,y2).
@@ -1268,6 +1271,22 @@ async function kniLoca(des) {
         await des.monster(monster);
 }
 
+// C ref: dat/Ran-loca.lua. Preserve the source's map, region, stair, and
+// descriptor order; names and classes stay intact for lspo_monster resolution.
+async function ranLoca(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'hardfloor');
+    await des.map(RAN_LOCA_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 54, 19), 'lit');
+    await des.stair('up', 25, 5);
+    await des.stair('down', 27, 18);
+    await des.non_diggable(selection_area(0, 0, 54, 19));
+
+    for (let i = 0; i < RAN_LOCA_OBJECT_COUNT; ++i) await des.object();
+    for (const type of RAN_LOCA_TRAPS) await des.trap(type);
+    for (const monster of RAN_LOCA_MONSTERS) await des.monster(monster);
+}
+
 // C ref: dat/Hea-goal.lua. Preserve both initialization calls before the
 // fixed map: the joined mines background extends beyond the pool island.
 async function heaGoal(des) {
@@ -2181,6 +2200,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Arc-goal': arcGoal,
     'Kni-goal': kniGoal,
     'Kni-loca': kniLoca,
+    'Ran-loca': ranLoca,
     'Hea-goal': heaGoal,
     'Cav-strt': cavStrt,
     'Hea-loca': heaLoca,
