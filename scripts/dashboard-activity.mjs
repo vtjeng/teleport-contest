@@ -7,10 +7,11 @@ export function activityTimeline(activity, capturedAt) {
   const end = capturedAt ?? events.at(-1)?.at ?? null;
   const coordinator = new Map();
 
-  function closeCoordinator(id, at, ongoing = false) {
+  function closeCoordinator(id, at, ongoing = false, superseded = false) {
     const stage = coordinator.get(id);
     if (stage && Date.parse(at) >= Date.parse(stage.start))
-      segments.push({ ...stage, end: at, ...(ongoing ? { ongoing: true } : {}) });
+      segments.push({ ...stage, end: at, ...(ongoing ? { ongoing: true } : {}),
+        ...(superseded ? { superseded: true } : {}) });
     coordinator.delete(id);
   }
 
@@ -37,8 +38,16 @@ export function activityTimeline(activity, capturedAt) {
       continue;
     }
     const task = tasks.get(taskId);
+    if (event.type === 'observe' && event.live === false) {
+      for (const owned of tasks.values()) if (owned.worker === event.worker) {
+        close(owned, 'working', event.at);
+        close(owned, 'rework', event.at);
+      }
+    }
     if (!task) continue;
     if (event.type === 'activity') {
+      if (event.phase !== 'done') for (const id of coordinator.keys())
+        if (id !== taskId) closeCoordinator(id, event.at, false, true);
       closeCoordinator(taskId, event.at);
       if (event.phase !== 'done' && task.starts.publication) {
         close(task, 'publication', event.at);
@@ -56,6 +65,18 @@ export function activityTimeline(activity, capturedAt) {
     }
     if (['integrating', 'feedback', 'validated', 'accepted', 'published', 'park'].includes(event.type))
       closeCoordinator(taskId, event.at);
+    if (['integrating', 'accepted'].includes(event.type)) {
+      for (const id of coordinator.keys()) closeCoordinator(id, event.at, false, true);
+    }
+    if (['integrating', 'validated', 'accepted', 'published'].includes(event.type)) {
+      close(task, 'working', event.at);
+      close(task, 'rework', event.at);
+      if (['accepted', 'published'].includes(event.type)) {
+        close(task, 'queued', event.at);
+        close(task, 'integrating', event.at);
+      }
+      if (event.type === 'published') close(task, 'acceptance', event.at);
+    }
     switch (event.type) {
       case 'implement':
         task.kind = 'implementation';
@@ -155,7 +176,62 @@ export function activityTimeline(activity, capturedAt) {
     capturedAt: end,
     tasks: [...tasks.values()].map(({ starts, resumePublication: _resumePublication, ...task }) => task),
     segments,
+    stages: agentStages(segments, events),
   };
+}
+
+// One row represents each agent's current stage. Delivery queue intervals are
+// retained above for task history, but cannot displace work on a later task.
+export function agentStages(segments, events = []) {
+  const stages = [];
+  for (const lane of new Set(segments.map(row => row.lane))) {
+    const rows = segments.flatMap((segment, sourceIndex) =>
+      segment.lane === lane ? [{ ...segment, sourceIndex }] : []);
+    const turns = events.filter(row => row.type === 'turn' && row.worker === lane);
+    const taskWorkers = new Map(rows.map(row => [row.task, row.worker]));
+    const assignments = events.filter(row => ['assign', 'implement', 'resume'].includes(row.type)
+      && (row.worker ?? taskWorkers.get(row.runId ? row.runId + '/' + row.task : row.task)) === lane);
+    const boundaries = [...new Set(rows.flatMap(row => [row.start, row.end])
+      .concat([...turns, ...assignments].map(row => row.at)))].sort();
+    for (let i = 0; i < boundaries.length - 1; i++) {
+      const start = boundaries[i], end = boundaries[i + 1];
+      if (end <= start) continue;
+      const present = rows.filter(row => row.start <= start && row.end > start);
+      if (!present.length) continue;
+      let chosen;
+      if (lane === 'Main') {
+        // An old missing publication endpoint must not reappear after Main
+        // starts newer work. Its open record remains visible in task history.
+        chosen = present.filter(row => !(row.ongoing
+          && rows.some(other => !['unrecorded', 'waiting'].includes(other.phase)
+            && other.start > row.start && other.start <= start)))
+          .sort((a, b) => a.start.localeCompare(b.start)).at(-1);
+        if (!chosen) chosen = { ...present[0], task: `gap:Main:${start}`, label: 'Main', phase: 'unrecorded',
+          reason: 'An earlier stage has no end event; Main has since started other work.' };
+      } else {
+        const assignment = assignments.filter(row => row.at <= start).at(-1);
+        const turn = turns.filter(row => row.at <= start).at(-1);
+        const reportedWait = turn && turn.at >= (assignment?.at ?? '')
+          && ['idle', 'blocked'].includes(turn.state);
+        const work = present.filter(row => ['working', 'rework'].includes(row.phase)
+          && !(row.ongoing && assignments.some(event => event.at > row.start && event.at <= start)))
+          .sort((a, b) => a.start.localeCompare(b.start)).at(-1);
+        chosen = work ?? present.find(row => row.phase === 'waiting')
+          ?? present.find(row => row.phase === 'queued') ?? present[0];
+        if (reportedWait) chosen = { ...chosen, phase: 'waiting',
+          reason: turn.reason ?? `Worker reported ${turn.state}; no public reason was recorded.` };
+        else if (chosen.phase === 'queued') chosen = { ...chosen, phase: 'pending',
+          reason: 'Delivery pending. This alone does not establish that the worker is blocked.' };
+      }
+      const previous = stages.at(-1);
+      if (previous?.lane === lane && (previous.sourceIndex === chosen.sourceIndex
+        || (chosen.phase === 'waiting' && previous.task === chosen.task))
+        && previous.phase === chosen.phase && previous.reason === chosen.reason && previous.end === start) {
+        previous.end = end;
+      } else stages.push({ ...chosen, start, end });
+    }
+  }
+  return stages;
 }
 
 // Compare each candidate's saved evaluation to the immediately preceding
