@@ -69,14 +69,16 @@
       "alloc.c:fmt_ptr125-136 is consumed by light.c965 for every nonempty entry. Its accepted recorder patch 007 replaces process-specific native addresses with the observable distinction `<ptr>` for non-null and `<null>` for null. Port that shared source function in canonical js/alloc.js; do not derive formatted pointers from object or monster IDs.",
       "light.c:mon_is_local373 is the file-local macro `(mon)->mx > 0`, distinct from timeout.c:mon_is_local list-membership semantics. Preserve the source local/hero/migrating/unknown type order. Canonical gl.light_base linked-list entries and object identity already exist in js/light.js; no broader light lifecycle port is required.",
       "Canonical tty_menu.js:displayTtyMenuTextWindow427 owns the blocking plain NHW_MENU text display, message flush, More dismissal, and map repair. Use it for the source header, optional rows, display(FALSE) boundary, and cleanup. C window exhaustion returns WIN_ERR/ECMD_OK before output; JavaScript has no separate allocated NHW_MENU IDs, so the existing renderer owner supplies the window lifecycle.",
-      "cmd.c:extcmdlist1756-1757 registers `lightsources` as IFBURIED|AUTOCOMPLETE|WIZMODECMD. The JS row exists, but doextcmd() still refuses it. Add only its named dispatch arm and command admission entry; preserve wizard gating and ECMD_OK no-time behavior."
+      "cmd.c:extcmdlist1756-1757 registers `lightsources` as IFBURIED|AUTOCOMPLETE|WIZMODECMD. The JS row exists, but doextcmd() still refuses it. Add only its named dispatch arm and command admission entry; preserve wizard gating and ECMD_OK no-time behavior.",
+      "do_name.c:minimal_monnam1254-1285 also calls alloc.c:fmt_ptr() in the invalid mon->data branches. Replace js/do_name.js:diagnosticPointer with the canonical import while preserving the remaining whole-function behavior and its source-pinned branch tests."
     ]
   },
   "evidence": [
     "Current accepted queue SHA-256 91c3b3a8266903081611bc65c8b09dd3c738949bd8cb59b9b4a63dea0d4bfe41 uses evaluation commit 438d5d0cd3f837bbc821b6ff78ce82940470a5f8. It still records the v31 first stop at step 16 (12/28 screens unmatched, 2588/2588 RNG calls matched) and the same wiz_light_sources stop in v35-light-diagnostics at step 15 (19/34 screens unmatched, 2624/2624 RNG calls matched).",
     "The v31 admitted recipe enters #lightsources with an empty gl.light_base and C prints the hero line, blank row, and <none>. The v35 admitted recipe reaches the same command and is retained as a second empty-list range. Coordinates and recipe inputs are evidence, not constants.",
     "Read complete light.c:wiz_light_sources935-974, alloc.c:fmt_ptr125-136, and the bounded cmd.c extcmdlist row. The formatter patch 007, published in Main df4b031bc0d080c7786086e56a3103e2f48f21e2 and accepted with hosted checkpoint 38002907116, resolves the previous native-address blocker. Complete implementation scope is light.c:wiz_light_sources, alloc.c:fmt_ptr, canonical pointer-diagnostic caller replacement, and the bounded JavaScript command dispatch.",
-    "The prepared, unadmitted v37-lightsources-empty case is a supplemental regression probe only; it is not goal evidence. A separately designed recording with a live nonempty light chain is required to exercise the `<ptr>` row output."
+    "The prepared, unadmitted v37-lightsources-empty case is a supplemental regression probe only; it is not goal evidence. A separately designed recording with a live nonempty light chain is required to exercise the `<ptr>` row output.",
+    "Read the complete do_name.c:minimal_monnam1254-1285 function: only its two invalid-species pointer messages consume fmt_ptr; null, long-worm-tail, tame/peaceful, coordinate, and chameleon branches remain unchanged. Its existing pure/source-pinned test can pin the patched pointer spellings without another game recording."
   ],
   "proposal": {
     "goalId": "port-light-wiz-light-sources-v31-20261009",
@@ -93,6 +95,12 @@
         "name": "fmt_ptr",
         "start": 125,
         "end": 136
+      },
+      {
+        "file": "do_name.c",
+        "name": "minimal_monnam",
+        "start": 1254,
+        "end": 1285
       }
     ],
     "dependencyReady": true,
@@ -102,6 +110,7 @@
       "session:synthetic/v35/v35-light-diagnostics",
       "source:light.c:wiz_light_sources",
       "source:alloc.c:fmt_ptr",
+      "source:do_name.c:minimal_monnam",
       "contract:native-pointer-diagnostic-format",
       "contract:wizard-light-source-dispatch"
     ],
