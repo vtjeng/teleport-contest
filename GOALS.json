@@ -256630,6 +256630,37 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "div-v41-steed-death-dismount-pool-20261010",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Complete generic dead-steed dismount and pool fall behavior.",
+      "cFile": "steed.c",
+      "sessions": [],
+      "selectionReason": "The current saved v41 mismatch stops when mon.c m_detach must call steed.c dismount_steed for a drowned mounted steed.",
+      "detail": "Wire the generic dead-steed dismount through m_detach, float_down, drown, and active callers in C source order.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dismount_steed",
+      "session": "synthetic/v41/v41-forced-steed-dismount-at-pool",
+      "step": 41,
+      "syntheticProvenance": {
+        "synthetic/v41/v41-forced-steed-dismount-at-pool": {
+          "session": "synthetic/v41/v41-forced-steed-dismount-at-pool",
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-forced-steed-dismount-at-pool",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recordingPath": "challenges/cases/v41/v41-steed-pool-dismount-reached.session.json",
+          "recordingSha256": "1300226f97b106ebc10bc7a28cc89483dbbf738c66c7ef7cbf67652e5defdeca",
+          "evaluationPath": "challenges/evaluations/accepted-d9907b003bab45aa255af21cd2fe9cedb7abfa9c-v41.json",
+          "evaluationCommit": "d9907b003bab45aa255af21cd2fe9cedb7abfa9c"
+        }
+      }
     }
   ]
 }
