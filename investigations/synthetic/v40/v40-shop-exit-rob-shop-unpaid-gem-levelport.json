@@ -63,7 +63,61 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The saved v40 diagnosis was a missing LL_ACHIEVE import in js/shk.js:rob_shop, now corrected in B216. A post-fix fresh replay completes all 48 screens and cursors; its remaining RNG divergence begins at step 48 in C shk.c:makekops (rnd(5)), reached through u_left_shop -> call_kops -> choose_stairs/makekops. JS call_kops retains explicit gaps for wizard.c:choose_stairs and shk.c:makekops, a separate source family. The distinct shk.c:hot_pursuit void gap remains explicit in rob_shop.",
+  "summary": "B216's missing LL_ACHIEVE import is accepted. B217 ports shk.c:call_kops and makekops; the admitted v40 replay now matches all 48 screens, 9,230 RNG calls, and 48 cursors. The prior RNG boundary was call 5385 in makekops. The separate shk.c:hot_pursuit void gap remains explicit in rob_shop.",
+  "followup": {
+    "task": "B217-investigation-v40-shop-exit-kops-residual-20261010",
+    "goalKind": "file-port",
+    "status": "complete",
+    "selectionReason": "Continue the accepted B216 seed because a fresh replay on accepted Main exposes the next C/JavaScript boundary in the same recorded path. Scope only shk.c:call_kops and shk.c:makekops; wizard.c:choose_stairs and teleport.c:enexto already have source-backed ports. The current ledger has no overlapping reservation for these functions. Keep shk.c:hot_pursuit separate.",
+    "commit": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+    "freshReplay": {
+      "runId": "run-MjOBz8",
+      "recipe": "challenges/cases/v40/v40-shop-hotpursuit-unpaid-gem-wizlevelport-continued-cfirst.recipe.session.json",
+      "result": "48/48 screens and 48/48 cursors match. RNG differs at call 5385, segment 1 step 48: C rnd(5)=4 from makekops(shk.c:5119), JavaScript rn2(3)=0.",
+      "recordingSha256": "97f003174dd691f5176ea333f32c4765c06742a6395293348b778653148afb76"
+    },
+    "trace": {
+      "productionPath": [
+        "teleport.c:level_tele negative-levelport branch calls u_left_shop(u.ushops0, TRUE) at 1329.",
+        "shk.c:u_left_shop calls call_kops after rob_shop reports an unpaid robbery at 623.",
+        "shk.c:call_kops calls choose_stairs, then makekops at the hero, selected stairs, and shopkeeper coordinates (510-567)."
+      ],
+      "sourceUnits": [
+        { "file": "shk.c", "function": "call_kops", "lines": "510-567" },
+        { "file": "shk.c", "function": "makekops", "lines": "5113-5137" }
+      ],
+      "existingCallees": [
+        "wizard.c:choose_stairs has an existing JavaScript implementation in js/wizard.js:644 and a focused source-pinned test; js/shk.js currently records note_unported instead of wiring it.",
+        "teleport.c:enexto has an existing implementation in js/teleport.js:1100 and accepted source-completion evidence; makekops uses its returned coordinate before spawning each Kops.",
+        "makemon.c:makemon is invoked with MM_NOMSG and its result is discarded; js/makemon_create.js already has the Kops m_initweap branch and the makemon_runtime adapter. Verify the reached creation path with the fresh differential."
+      ],
+      "resolvedJavaScriptGaps": [
+        "js/shk.js:call_kops records note_unported('wizard.c choose_stairs') and substitutes (0,0).",
+        "js/shk.js:call_kops records note_unported('shk.c makekops') at each reached spawn call."
+      ],
+      "excludedGap": "shk.c:hot_pursuit remains a distinct void-return gap called by rob_shop; it is outside this residual Kops RNG divergence."
+    },
+    "implementation": {
+      "sourceScope": [
+        "shk.c:call_kops",
+        "shk.c:makekops"
+      ],
+      "postFixReplay": {
+        "runId": "run-TX1wA8",
+        "recipe": "challenges/cases/v40/v40-shop-hotpursuit-unpaid-gem-wizlevelport-continued-cfirst.recipe.session.json",
+        "result": "PASS: C and JS each produced 9,230 RNG calls, 48 matching screens, and 48 matching cursors.",
+        "recordingSha256": "97f003174dd691f5176ea333f32c4765c06742a6395293348b778653148afb76"
+      },
+      "verifiedSyntheticRange": {
+        "batch": "v40",
+        "caseId": "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+        "segment": 0,
+        "fromStep": 0,
+        "throughStep": 47,
+        "source": "teleport.c:level_tele -> shk.c:u_left_shop -> shk.c:call_kops -> shk.c:makekops"
+      }
+    }
+  },
   "source": {
     "file": "shk.c",
     "branch": "When u_left_shop finds a live in-shop keeper and a bill or debit, rob_shop settles credit and the bill. If total remains nonzero, C adds it to robbed, emits the theft message and LL_ACHIEVE livelog, adjusts non-Rogue alignment, then calls hot_pursuit and returns TRUE. The selected recipe reaches this unpaid robbery branch during a wizard level-port from the shop.",
