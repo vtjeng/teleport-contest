@@ -1,0 +1,107 @@
+{
+  "session": "synthetic/v41/v41-forced-steed-dismount-at-pool",
+  "corpus": "synthetic",
+  "batch": "v41",
+  "caseId": "v41-forced-steed-dismount-at-pool",
+  "manifestPath": "challenges/manifests/v41.json",
+  "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+  "recording": "challenges/cases/v41/v41-steed-pool-dismount-reached.session.json",
+  "recordingPath": "challenges/cases/v41/v41-steed-pool-dismount-reached.session.json",
+  "recordingSha256": "1300226f97b106ebc10bc7a28cc89483dbbf738c66c7ef7cbf67652e5defdeca",
+  "recipe": "challenges/cases/v41/v41-steed-pool-dismount-reached.recipe.session.json",
+  "recipeSha256": "50e739f249342125c0b20071ebea68ee52451f6fa1d35bbbc338a4410b94ddb7",
+  "replayInputSha256": "a6dcd789e15a13fb210cfc99141576f8eb53a394de6422c724147c15682e49fd",
+  "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+  "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+  "evaluationUtc": "2026-10-10T17:31:28.509Z",
+  "remainingScreens": 2,
+  "recordedSteps": 43,
+  "status": "complete",
+  "commit": "08cf040c4c5c9aca7e24071f1e5ded2825d08390",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v41",
+    "caseId": "v41-forced-steed-dismount-at-pool",
+    "session": "synthetic/v41/v41-forced-steed-dismount-at-pool",
+    "manifestPath": "challenges/manifests/v41.json",
+    "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+    "recording": "challenges/cases/v41/v41-steed-pool-dismount-reached.session.json",
+    "recordingPath": "challenges/cases/v41/v41-steed-pool-dismount-reached.session.json",
+    "recordingSha256": "1300226f97b106ebc10bc7a28cc89483dbbf738c66c7ef7cbf67652e5defdeca",
+    "recipe": "challenges/cases/v41/v41-steed-pool-dismount-reached.recipe.session.json",
+    "recipeSha256": "50e739f249342125c0b20071ebea68ee52451f6fa1d35bbbc338a4410b94ddb7",
+    "replayInputSha256": "a6dcd789e15a13fb210cfc99141576f8eb53a394de6422c724147c15682e49fd",
+    "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+    "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+    "evaluationArtifact": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+    "evaluationUtc": "2026-10-10T17:31:28.509Z",
+    "remainingScreens": 2,
+    "recordedSteps": 43,
+    "previousScreensMatched": 41,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 41,
+        "total": 43
+      },
+      "rng": {
+        "matched": 3337,
+        "total": 3339
+      },
+      "cursors": {
+        "matched": 41,
+        "total": 43
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "simple monster action requires the death of the hero's steed",
+      "step": 41
+    },
+    "step": 41,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "simple monster action requires the death of the hero's steed",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The v41 replay stops when a saddled pony dies in a pool. C runs mon.c:m_detach, which calls steed.c:dismount_steed(DISMOUNT_GENERIC); JavaScript still refuses that call, so the planner stops before the recorded drowning and fall screens. The actionable divergence is the generic dismount branch and its live caller wiring.",
+  "source": {
+    "file": "mon.c",
+    "branch": "When a grounded steed drowns during monster movement, mon.c:minliquid_core calls mondead, which reaches m_detach after removing the monster from the map. m_detach clears its death state and calls dismount_steed(DISMOUNT_GENERIC) when the removed monster is u.usteed. The dismount computes its landing spot before checking whether the steed is dead, releases the mount, skips placement for the dead monster, then calls float_down.",
+    "functions": [
+      "mon.c:minliquid_core",
+      "mon.c:mondead",
+      "mon.c:m_detach",
+      "steed.c:dismount_steed"
+    ],
+    "callers": [
+      "mon.c:minliquid_core -> mon.c:mondead",
+      "mon.c:mondead -> mon.c:m_detach",
+      "mon.c:m_detach -> steed.c:dismount_steed(DISMOUNT_GENERIC)",
+      "trap.c:float_down -> trap.c:drown",
+      "trap.c:float_up -> steed.c:dismount_steed(DISMOUNT_GENERIC)",
+      "trap.c:drown -> steed.c:dismount_steed(DISMOUNT_GENERIC)",
+      "hack.c:pooleffects -> steed.c:dismount_steed(DISMOUNT_GENERIC)",
+      "dog.c:keepdogs -> steed.c:dismount_steed(DISMOUNT_GENERIC) after impossible()"
+    ],
+    "dependencies": [
+      "steed.c:landing_spot",
+      "trap.c:float_down",
+      "trap.c:drown",
+      "mon.c:mondead"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved combined queue /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json has SHA-256 7505fb24cd01792c8cb781d651dd66ffaa451361e46f7c456fd2705afde0a43a. Its v41 entry cites evaluation challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json at 0acc8a59f86065f8ff2d90ca1decab45701746e8, with 41/43 screens, 3337/3339 RNG calls, and 41/43 cursors matched. The first stop is step 41: simple monster action requires the death of the hero's steed.",
+    "The recorded C case shows step 41 printing “You kick the saddled pony. The saddled pony gallops!” and step 42 printing “The saddled pony drowns. You fall into the pool of water!” C records rn2(20)=11 at trap.c:water_damage and rn2(3)=1 at steed.c:landing_spot during that later step.",
+    "Upstream mon.c:minliquid_core (around lines 1058-1100) handles a non-amphibious monster in a pool and calls mondead when monster movement is active. mon.c:mondead reaches m_detach; mon.c:m_detach (2734-2803) removes the steed, sets its hit points to zero, and calls dismount_steed(DISMOUNT_GENERIC) at lines 2800-2801 when the departing monster equals u.usteed.",
+    "The current JS mon.js:m_detach reaches its unsupported “death of the hero’s steed” branch at the same condition. The turn planner converts that refusal to the queue’s simple-monster-action stop. Even if that caller were allowed through, js/steed.js:dismount_steed still throws for DISMOUNT_GENERIC before the common release and float_down effects.",
+    "The generic reason also has implemented JS call sites in trap.js:float_up and trap.js:drown that still record note_unported, while hack.js:pooleffects already calls dismount_steed. B225 should wire the two existing trap callers when it implements the generic branch. dog.c:keepdogs has a generic call only after impossible(); its JS keepdogs path still refuses the mounted-hero case before that branch, so it remains a separate caller gap."
+  ]
+}
