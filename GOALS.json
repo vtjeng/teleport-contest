@@ -250247,6 +250247,37 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "A2-v39-mounted-steed-poly-steed-20261010",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement mounted fall dismount after saddle loss",
+      "cFile": "steed.c",
+      "sessions": [],
+      "selectionReason": "The admitted v39 mounted pony polymorph case matches screens and cursors but misses two RNG calls when the new form loses its saddle; the traced path reaches steed.c dismount_steed with DISMOUNT_FELL through worn.c update_mon_extrinsics.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dismount_steed",
+      "session": "synthetic/v39/v39-mounted-steed-polymorph-trap",
+      "step": 28,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-mounted-steed-polymorph-trap": {
+          "session": "synthetic/v39/v39-mounted-steed-polymorph-trap",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-mounted-steed-polymorph-trap",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json",
+          "recordingSha256": "1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997",
+          "evaluationPath": "challenges/evaluations/accepted-d385af23ff14452feaff464fb82ad499ba63ccb3-v39.json",
+          "evaluationCommit": "d385af23ff14452feaff464fb82ad499ba63ccb3"
+        }
+      }
     }
   ]
 }
