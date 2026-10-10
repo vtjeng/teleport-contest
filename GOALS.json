@@ -253065,7 +253065,7 @@
     {
       "id": "divergence-minetown-special-room-shopkeeper-makemon-v41-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Admit source-defined special-level shopkeepers and High Clerics",
       "cFile": "makemon.c",
       "sessions": [],
@@ -253077,8 +253077,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "38d270ae4309c9d36dccf097fb299afadb180f0a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "makemon",
       "session": "synthetic/v41/v41-minetown3-special-program-generation",
       "step": 26,
@@ -253252,7 +253255,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "38d270ae4309c9d36dccf097fb299afadb180f0a",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
