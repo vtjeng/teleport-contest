@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first distinct dogmove.c:quickmimic case. Barbarian honors pettype:dog and names the small dog; C has attached the wished leash and confirmed the corpse slot. Drop the corpse under the hero and move east so the leashed pet reaches the meal.",
+  "segments": [
+    {
+      "seed": 41040127,
+      "datetime": "20510112131416",
+      "nethackrc": "OPTIONS=name:V41LittleDog,role:Barbarian,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017leash\naen\u0017small mimic corpse\ndfl"
+    }
+  ]
+}

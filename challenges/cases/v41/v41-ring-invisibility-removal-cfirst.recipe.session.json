@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate for the do_wear.c Ring_off RIN_INVISIBILITY branch. Wish an explicitly uncursed ring, wear it through the observed jewelry prompt, and then remove that source of invisibility; compare JavaScript only after the slate is complete.",
+  "segments": [
+    {
+      "seed": 41040119,
+      "datetime": "20491012131416",
+      "nethackrc": "OPTIONS=name:V41InvisRing,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017uncursed ring of invisibility\nPmR"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source candidate for pray.c:can_pray -> prayer_done(p_type 0) -> gods_upset/angrygods -> god_zaps_you. Accept three too-soon prayers while declining the Wizard force-pleased override; C confirms the third angrygods selector is rn2(15)=10, then reaches lightning and wide-angle disintegration. Extra final spaces clear the resulting pages.",
+  "segments": [
+    {
+      "seed": 41040170,
+      "datetime": "20511111111111",
+      "nethackrc": "OPTIONS=name:V41AngryPray,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#pray\ny n        #pray\ny n        #pray\ny n                "
+    }
+  ]
+}

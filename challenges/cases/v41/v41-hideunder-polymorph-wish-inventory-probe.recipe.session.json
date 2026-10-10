@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first setup continuation: drop all Wizard starting items through the source-observed menu, move to an empty tile, polymorph into a cave spider, dismiss the result page, and inspect the wished apple stack slot.",
+  "segments": [
+    {
+      "seed": 41040165,
+      "datetime": "20511010101013",
+      "nethackrc": "OPTIONS=name:V41HidePrep,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".Da\n*\nl#polyself\ncave spider\n \u00172 apples\ni"
+    }
+  ]
+}

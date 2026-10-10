@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected direction from the saved map: the tame pony is one southeast step from @. Force the mount, terrain-wish a pool on the rider/steed tile, then ask to kick the steed; preserve the prior westward mount miss. Second kick follows the observed gallop More page; test whether continued tame loss reaches DISMOUNT_THROWN.",
+  "segments": [
+    {
+      "seed": 41040174,
+      "datetime": "20511212121415",
+      "nethackrc": "OPTIONS=name:V41Steed,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0007tame saddled pony\n#ride\nny\u0017pool\n#kick\ny #kick\ny"
+    }
+  ]
+}

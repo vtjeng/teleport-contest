@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation: select the observed comestibles stack from the pickup object menu, leaving the polymorph-dropped cloak on the same tile as the eligible object underlay.",
+  "segments": [
+    {
+      "seed": 41040166,
+      "datetime": "20511010101014",
+      "nethackrc": "OPTIONS=name:V41HidePick,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".Da\n.\n             l#polyself\ncave spider\n  \u00172 apples\ndo ,b\n"
+    }
+  ]
+}

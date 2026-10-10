@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first leash attachment route using observed leash slot e and the little dog shown southeast of the Barbarian. Attach with direction n, then wish the mimic corpse to learn its C inventory selector before attempting the meal.",
+  "segments": [
+    {
+      "seed": 41040127,
+      "datetime": "20510112131416",
+      "nethackrc": "OPTIONS=name:V41LittleDog,role:Barbarian,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017leash\naen\u0017small mimic corpse\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first reached hider route. After the verified drop-all/page sequence and cave-spider polymorph, use the observed slot o to drop two apples and issue pickup; inspect the count prompt before choosing a partial amount.",
+  "segments": [
+    {
+      "seed": 41040166,
+      "datetime": "20511010101014",
+      "nethackrc": "OPTIONS=name:V41HidePick,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".Da\n.\n             l#polyself\ncave spider\n  \u00172 apples\ndo ,"
+    }
+  ]
+}

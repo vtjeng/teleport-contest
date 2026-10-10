@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved pagination correction: select the C-observed item letters through the spellbook and second-page tool, then dismiss drop messages and inspect what remains.",
+  "segments": [
+    {
+      "seed": 41040166,
+      "datetime": "20511010101014",
+      "nethackrc": "OPTIONS=name:V41HideDrop,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".Da\nabcdefghijklmn\n                i"
+    }
+  ]
+}

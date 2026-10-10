@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate for mhitu.c:doseduce -> mayberem armor removal. Create a hostile incubus in debug mode and let it approach a female hero wearing the starting cloak; preserve only after C shows the seduction/armor-removal branch.",
+  "segments": [
+    {
+      "seed": 41040131,
+      "datetime": "20510213141517",
+      "nethackrc": "OPTIONS=name:V41Incubus,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\nhostile incubus\n.............."
+    }
+  ]
+}

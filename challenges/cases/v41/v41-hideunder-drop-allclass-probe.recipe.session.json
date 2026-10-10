@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Setup probe using the observed all-types inventory menu and each C-displayed inventory letter; verify whether selection keys drop every starting item.",
+  "segments": [
+    {
+      "seed": 41040164,
+      "datetime": "20511010101012",
+      "nethackrc": "OPTIONS=name:V41HideDrop,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".Da\nabcdefghijkl\n"
+    }
+  ]
+}

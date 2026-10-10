@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Third C-first D4 shop-generation setup for sellobj. The first two fresh floor seeds did not reach a store; this independent level initialization checks whether a shop exists to test the dropped-owned-item caller.",
+  "segments": [
+    {
+      "seed": 41040156,
+      "datetime": "20511103132435",
+      "nethackrc": "OPTIONS=name:V41ShopSaleThree,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\n"
+    }
+  ]
+}
