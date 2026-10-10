@@ -142,6 +142,7 @@ import { strange_feeling } from './potion.js';
 import { rn2, rnd } from './rng.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
+import { instapetrify } from './trap.js';
 import {
     bimanual,
     set_twoweap,
@@ -374,7 +375,7 @@ export function welded(obj, state = game, env = {}) {
 }
 
 // C ref: wield.c cant_wield_corpse() (137-153).
-export async function cant_wield_corpse(obj, state = game) {
+export async function cant_wield_corpse(obj, state = game, env = {}) {
     if (state.uarmg || obj.otyp !== CORPSE
         || !touch_petrifies(state.mons[obj.corpsenm])
         || Stone_resistance(state)) return false;
@@ -384,10 +385,9 @@ export async function cant_wield_corpse(obj, state = game) {
         state,
     );
     const kbuf = `wielding ${killer_xname(obj, state)} bare-handed`;
-    // C discards instapetrify's void result. Do not simulate its death or
-    // life-saving state; the caller still takes the source TRUE return.
-    void kbuf;
-    note_unported('trap.c instapetrify');
+    // wield.c discards instapetrify's void result, but its messages and state
+    // changes still occur before ready_weapon() consumes this TRUE result.
+    await instapetrify(kbuf, state, env);
     return true;
 }
 
