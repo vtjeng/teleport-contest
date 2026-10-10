@@ -1,0 +1,134 @@
+{
+  "session": "synthetic/v42/v42-cursed-book-case0-teleport",
+  "corpus": "synthetic",
+  "batch": "v42",
+  "caseId": "v42-cursed-book-case0-teleport",
+  "manifestPath": "challenges/manifests/v42.json",
+  "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+  "recordingSha256": "d0c5af0dfb34abdcbba71b5a68295d7eb978417fa58d1d55beaab41ee931cef5",
+  "evaluationPath": "challenges/evaluations/v42-baseline-3bbc354f.json",
+  "evaluationCommit": "3bbc354f045f514a4f99c36ada7c39fdd58ed236",
+  "remainingScreens": 4,
+  "recordedSteps": 44,
+  "status": "complete",
+  "commit": "fda8b5904bedfd7f300ddda0c82725fe47d1e8bf",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v42",
+    "caseId": "v42-cursed-book-case0-teleport",
+    "session": "synthetic/v42/v42-cursed-book-case0-teleport",
+    "manifestPath": "challenges/manifests/v42.json",
+    "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+    "recording": "challenges/cases/v42/v42-cursed-book-healing-teleport-case0-cfirst.session.json",
+    "recordingPath": "challenges/cases/v42/v42-cursed-book-healing-teleport-case0-cfirst.session.json",
+    "recordingSha256": "d0c5af0dfb34abdcbba71b5a68295d7eb978417fa58d1d55beaab41ee931cef5",
+    "recipe": "challenges/cases/v42/v42-cursed-book-healing-teleport-case0-cfirst.recipe.session.json",
+    "recipeSha256": "882dbef886a32077b50fe32b3feb60a76efc240b726f98794e6e23463ebc1fa6",
+    "replayInputSha256": "ae6ea0b1f99b88ab25c9677b23e5050f54b62f6e314cd42e423c9b4ab28dd3b0",
+    "evaluationPath": "challenges/evaluations/v42-baseline-3bbc354f.json",
+    "evaluationCommit": "3bbc354f045f514a4f99c36ada7c39fdd58ed236",
+    "evaluationArtifact": "challenges/evaluations/v42-baseline-3bbc354f.json",
+    "evaluationUtc": "2026-10-10T20:44:07.598Z",
+    "remainingScreens": 4,
+    "recordedSteps": 44,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 40,
+        "total": 44
+      },
+      "rng": {
+        "matched": 2968,
+        "total": 2968
+      },
+      "cursors": {
+        "matched": 42,
+        "total": 44
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 40,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 40,
+          "key": "e"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 33,
+        "cCell": {
+          "ch": "W",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2968,
+        "cCaller": null,
+        "jsEntry": "rn2(5)=3",
+        "stepIndex": null
+      },
+      "cursor": {
+        "index": 40,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 40,
+          "key": "e"
+        },
+        "cCursor": [
+          76,
+          0,
+          1
+        ],
+        "jsCursor": [
+          4,
+          12,
+          1
+        ]
+      }
+    },
+    "step": 40,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "spell.c:cursed_book() case 0 calls teleport.c:tele() after the wrenching-sensation message. JS spell.js:cursed_book() skips this call through note_unported even though js/teleport.js:tele() is already implemented as scrolltele(null). The same C function owns three queued sibling branches: case 3 calls sit.c:take_gold(), case 5 calls attrib.c:poison_strdmg(), and case 6 calls hack.c:losehp(); their JS branches also skip existing source helpers. Port and wire the whole cursed_book() switch, retaining caller return/order behavior and the existing explicit gap policy for any still-unported discarded-result callee.",
+  "source": {
+    "file": "spell.c",
+    "branch": "For a cursed book, cursed_book() selects one switch arm with rn2(objects[bp->otyp].oc_level). On case 0 it emits \"You feel a wrenching sensation.\" then calls tele(); tele() delegates to scrolltele(NULL), which reaches controlled getpos when the game is in wizard mode. The selected debug-mode Barbarian recording enters this arm; JS currently records a gap at the call instead of running teleport.",
+    "functions": [
+      "cursed_book"
+    ],
+    "callers": [
+      "spell.c:learn() lines 450-456 calls cursed_book() and consumes its TRUE result to use up the book; read.c:doread() routes spellbooks into study_book().",
+      "spell.c:study_book() lines 605-616 calls cursed_book() when a book is too hard, then consumes its return while ending the occupation.",
+      "JS read.js:doread() -> spell.js:study_book() -> spell.js:cursed_book(); the selected v42 recording reaches the study_book() too-hard caller."
+    ],
+    "dependencies": [
+      "teleport.c:tele() is already implemented as js/teleport.js:tele() -> scrolltele(null); wire the existing helper at cursed_book() case 0.",
+      "The same whole source function has current v42 case-3, case-5, and case-6 mismatches for sit.c:take_gold(), attrib.c:poison_strdmg(), and hack.c:losehp(); include them in one function-complete task and preserve C branch order."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved v42 baseline queue ec8f819f1f56c99be47f89359d3b71599a2b7025a292b0a39578cec4dd9f15e1 selects this case at 40/44 screens and 42/44 cursors with all 2968 C RNG calls matched; its first screen/cursor mismatch is step 40, key e. The immutable manifest source pointer is spell.c:cursed_book case 0 -> teleport.c:tele.",
+    "Upstream nethack-c/upstream/src/spell.c:130-184 reads the spell level, selects rn2(lev), emits You_feel(\"a wrenching sensation.\") in case 0, calls tele(), and returns FALSE. Upstream teleport.c:842-845 defines tele() as scrolltele(NULL).",
+    "Current js/spell.js:397-409 emits the same message then calls note_unported(\"teleport.c tele\") instead of existing js/teleport.js:1517-1519 tele(), which awaits scrolltele(null). C step 40 displays the controlled teleport prompt and waits for location input; skipping it leaves subsequent input in a different command path and accounts for the screen/cursor divergence plus later RNG excess.",
+    "Production reachability is read.c:doread():608-610 -> spell.c:study_book(), with cursed books taking the too_hard branch at spell.c:605-606. JS read.js:1433-1437 -> spell.js:study_book(); the selected replay enters spell.js:cursed_book() at :956-958. The second source caller spell.c:learn() at :450-456 is already wired at js/spell.js:823-828 and must remain source-order compatible."
+  ]
+}
