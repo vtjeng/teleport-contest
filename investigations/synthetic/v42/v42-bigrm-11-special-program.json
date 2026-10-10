@@ -1,0 +1,53 @@
+{
+  "session": "synthetic/v42/v42-bigrm-11-special-program",
+  "remainingScreens": 9,
+  "recordedSteps": 35,
+  "corpus": "synthetic",
+  "batch": "v42",
+  "caseId": "v42-bigrm-11-special-program",
+  "manifestPath": "challenges/manifests/v42.json",
+  "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+  "recordingSha256": "a6e85ad50b4c44962572e9a7b8504baf7711c43e0af3eaae53e0a5f3b1217378",
+  "evaluationPath": "challenges/evaluations/v42-baseline-3bbc354f.json",
+  "evaluationCommit": "3bbc354f045f514a4f99c36ada7c39fdd58ed236",
+  "status": "complete",
+  "commit": "e052795a65af27c8ed652cee31e54ee98f6250c2",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "sourceFile": null,
+    "cFile": null,
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v42/v42-bigrm-11-special-program"
+    ],
+    "remainingScreens": 9,
+    "remainingScreensUpperBound": null,
+    "earliestStep": 26,
+    "caseId": "v42-bigrm-11-special-program",
+    "batch": "v42",
+    "recordingPath": "challenges/cases/v42/v42-bigrm-11-special-program.session.json",
+    "session": "synthetic/v42/v42-bigrm-11-special-program"
+  },
+  "summary": "Loading bigrm-11.lua through #wizloaddes reaches a registered JavaScript loader that throws before building the level. The C Lua program is the missing source unit; its maze initializer and level API calls already have JavaScript implementations.",
+  "source": {
+    "file": "dat/bigrm-11.lua",
+    "branch": "Runs when #wizloaddes names bigrm-11.lua or mkmaze.c:makemaz selects bigroom variant 11. The program sets mazelevel and noflip, chooses corridor width 3 + rn2(3), fixes wall thickness at 1, randomly enables dead-end removal, then places boulders, stairs, objects, rolling-boulder traps, and monsters.",
+    "functions": [
+      "bigrm-11"
+    ],
+    "callers": [
+      "wizcmds.c:wiz_load_splua -> sp_lev.c:load_special -> dat/bigrm-11.lua; JavaScript: cmd.js dispatch -> wizcmds.js:wiz_load_splua -> mklev.js:load_special -> BIGRM_LOADERS[\"bigrm-11\"].",
+      "mkmaze.c:makemaz selects the bigrm-11 protofile and calls sp_lev.c:load_special; JavaScript: mklev.js:makemaz calls load_special with the selected protofile."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "lua-port",
+  "evidence": [
+    "The saved v42 queue SHA-256 is ec8f819f1f56c99be47f89359d3b71599a2b7025a292b0a39578cec4dd9f15e1. Its original entry ranks v42-bigrm-11-special-program with 9 unmatched screens at step 26; the entry cites recording challenges/cases/v42/v42-bigrm-11-special-program.session.json.",
+    "The saved baseline evaluation challenges/evaluations/v42-baseline-3bbc354f.json records 26/35 screens, 26/35 cursors, and 2137/3449 RNG calls for this case. The C recording has 35 steps; step 26 follows filename entry and records 1,313 RNG calls with the generated maze visible, showing the program runs in the reference.",
+    "Upstream dat/bigrm-11.lua:7-38 defines t_or_f(), sets mazelevel/noflip and level_init(style=\"maze\", corrwid=3+nh.rn2(3), wallthick=1, deadends=t_or_f()), marks the map lit and non-diggable, replaces horizontal and vertical interior walls with floor plus boulders, adds stairs, and generates 15 objects, 6 rolling-boulder traps, and 28 monsters.",
+    "At the examined commit, js/bigrm.js:643-650 maps the registered bigrm-11 loader to an UnsupportedLevelChangeError before issuing any level API calls. js/mklev.js:1754-1815 imports BIGRM_LOADERS and implements load_special; js/wizcmds.js:wiz_load_splua awaits that loader and finalizes the level.",
+    "The initialization dependency is already wired: sp_lev.c:lspo_level_init and splev_initlev dispatch LVLINIT_MAZE to mkmaze.c:create_maze; JavaScript js/mklev.js:lspo_level_init dispatches the same style to js/mkmaze.js:create_maze. The diagnosis therefore scopes the implementation to the whole dat/bigrm-11.lua program in js/bigrm.js, its existing BIGRM_LOADERS registration, and focused bigroom level-generation coverage."
+  ]
+}
