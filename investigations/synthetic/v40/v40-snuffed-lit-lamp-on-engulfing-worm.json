@@ -1,0 +1,122 @@
+{
+  "session": "synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm",
+  "remainingScreens": 3,
+  "recordedSteps": 79,
+  "corpus": "synthetic",
+  "batch": "v40",
+  "caseId": "v40-snuffed-lit-lamp-on-engulfing-worm",
+  "manifestPath": "challenges/manifests/v40.json",
+  "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+  "recordingSha256": "7e55ad54b385d5102f3dcb242deabe6fb8a39a1a9d0f80f58579cb00ca59ecc3",
+  "evaluationPath": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
+  "evaluationCommit": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+  "status": "complete",
+  "commit": "40d9c7a70d0b3d097e124782460d5054458a6ffd",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v40",
+    "caseId": "v40-snuffed-lit-lamp-on-engulfing-worm",
+    "session": "synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm",
+    "manifestPath": "challenges/manifests/v40.json",
+    "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+    "recording": "challenges/cases/v40/v40-engulf-snuff-lit-lamp-inventory-check-corrected-cfirst.session.json",
+    "recordingPath": "challenges/cases/v40/v40-engulf-snuff-lit-lamp-inventory-check-corrected-cfirst.session.json",
+    "recordingSha256": "7e55ad54b385d5102f3dcb242deabe6fb8a39a1a9d0f80f58579cb00ca59ecc3",
+    "recipe": "challenges/cases/v40/v40-engulf-snuff-lit-lamp-inventory-check-corrected-cfirst.recipe.session.json",
+    "recipeSha256": "c8046964d872d71287caed6ac19d6556bf2bcd85e4ecb7977fc657f2270b40c5",
+    "replayInputSha256": "90a11c9d5aa3d0cce35b253c77a7117b1dae9dbb4ba50d6867b169fd0e9ed900",
+    "evaluationPath": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
+    "evaluationCommit": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+    "evaluationArtifact": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
+    "evaluationUtc": "2026-10-10T11:54:25.145Z",
+    "remainingScreens": 3,
+    "recordedSteps": 79,
+    "previousScreensMatched": 76,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 76,
+        "total": 79
+      },
+      "rng": {
+        "matched": 2812,
+        "total": 2825
+      },
+      "cursors": {
+        "matched": 79,
+        "total": 79
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 76,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 76,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2812,
+        "cEntry": "rn2(100)=79",
+        "cCaller": "obj_resists(zap.c:1469)",
+        "jsEntry": "rn2(1)=0",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 76,
+          "key": " "
+        },
+        "stepIndex": 76
+      },
+      "cursor": null
+    },
+    "step": 76,
+    "kind": "rng",
+    "sourceFile": "zap.c",
+    "function": "obj_resists",
+    "message": null,
+    "cFile": "zap.c",
+    "luaFile": null,
+    "line": 1469
+  },
+  "summary": "The first screen mismatch is the swallowed-hero light transition in mhitu.c:gulpmu: after swallowed(1), its non-flaming branch walks hero inventory and calls apply.c:snuff_lit before digest messages. C turns a carried lit oil lamp off and prints “Your lamp goes out!”; JavaScript currently records note_unported and leaves it lit. The queue’s RNG attribution to zap.c:obj_resists is a separate unresolved event at the same input step; the accepted manifest cautions that it is secondary and does not establish the caller. Fix the source-ordered gulp light call and then re-evaluate the residual RNG path.",
+  "source": {
+    "file": "mhitu.c",
+    "branch": "On the first engulf transition, after swallowed(1), if the engulfer is not flaming, gulpmu iterates the hero inventory in linked-list order and calls apply.c:snuff_lit for each object. The call result is discarded. For a lit oil lamp in OBJ_INVENT, snuff_lit emits its visibility-gated message and calls timeout.c:end_burn before gulpmu continues into digestion handling.",
+    "functions": [
+      "gulpmu"
+    ],
+    "callers": [
+      "mattacku() dispatches a monster engulf attack to mhitu.c:gulpmu()."
+    ],
+    "dependencies": [
+      "The relevant callee is apply.c:snuff_lit(); its lamp branch uses timeout.c:end_burn(). JavaScript already has end_burn() and snuff_candle(), but the existing snuff_monster_light() helper requires OBJ_MINVENT and cannot handle gulpmu’s OBJ_INVENT objects.",
+      "The current queue’s obj_resists(zap.c:1469) RNG annotation identifies the source of the C draw, not its caller. The v40 manifest and replay establish the visible lamp miss; the RNG residual needs a separate source trace after this correction."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Queue provenance: .cache/latest-saved-combined-queue.json (SHA-256 5943c7589ed17bc79c79f8eb5ce26173498e1301ce17ea080e6f0b5563201262), session synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm. Its accepted 4c7e8745 v40 evaluation is 76/79 screens, 2812/2825 RNG calls, and 79/79 cursors; first screen mismatch boundary is 77, with C cell “Y” and JS “T”.",
+    "The case source trace in challenges/manifests/v40.json names mhitu.c:gulpmu -> apply.c:snuff_lit -> timeout.c:end_burn. Its C outcome records “Your lamp goes out!” before digestion and explicitly treats the obj_resists RNG difference as secondary without an established caller.",
+    "Upstream mhitu.c:1389-1400 sets uswallow, calls swallowed(1), then—under !flaming(mtmp->data)—walks gi.invent and discards snuff_lit(otmp2) before continuing digestion. Upstream apply.c:1497-1512 has the lamplit lamp/pot-oil branch; it checks visibility, prints with Yname2()/otense(), calls end_burn(), and returns TRUE.",
+    "In js/mhitu.js:2289-2293 the matching inventory loop calls note_unported(\"light.c snuff_lit\") instead. js/apply_splash_lit.js:121-143 has only a monster-inventory helper that throws unless OBJ_MINVENT; gulpmu’s state.invent entries are OBJ_INVENT. js/timeout.js:2099-2112 already ports end_burn().",
+    "A fresh differential of the admitted recipe at worker commit 40d9c7a70d0b3d097e124782460d5054458a6ffd reproduced the mismatch: C=2825 RNG, JS=2821; at segment 1 step 77 C logged rn2(100)=79 from obj_resists(zap.c:1469), JS logged rn2(1)=0; the screen at that boundary starts “Y” in C and “T” in JS. Log: /tmp/teleport-validation-1000/run-YMftrC/stdout.log."
+  ]
+}
