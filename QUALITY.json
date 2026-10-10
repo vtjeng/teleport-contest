@@ -148,6 +148,8 @@
         "js/kni_goal_level_data.js",
         "js/kni_loca_level_data.js",
         "js/kni_strt_level_data.js",
+        "js/knox_level_data.js",
+        "js/knox_levels.js",
         "js/medusa_levels.js",
         "js/mineralize.js",
         "js/mines_levels.js",
