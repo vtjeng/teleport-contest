@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T16:15:33.451Z",
+  "capturedAt": "2026-10-10T16:37:01.328Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -82311,22 +82311,146 @@
         "worker": "B",
         "state": "idle",
         "reason": "B224 is ready to merge; waiting for a current queue before selecting the next independent task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v41-ring-invisibility-removed-investigation-20261010-d63e36a0e020d069049eef1a0f9d6c830ae08dd0",
+        "type": "published",
+        "at": "2026-10-10T16:15:41.496Z",
+        "task": "C-v41-ring-invisibility-removed-investigation-20261010",
+        "commit": "d63e36a0e020d069049eef1a0f9d6c830ae08dd0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B223-earth-plane-20261010",
+        "type": "received",
+        "at": "2026-10-10T16:17:44.507Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010",
+        "delivery": "9886401eb6cff2cf12e0f705b6056ffa9915369d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-post-d63-sync-20261010-01",
+        "type": "turn",
+        "at": "2026-10-10T16:17:56.486Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Reviewing the refreshed synthetic queue for an independent source task after B224 submission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v41-steed-pool-investigation-20261010-01",
+        "type": "assign",
+        "at": "2026-10-10T16:18:22.695Z",
+        "task": "B225-investigation-v41-forced-steed-dismount-at-pool-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B225-steed-dismount-blocked-by-B224-20261010-01",
+        "type": "park",
+        "at": "2026-10-10T16:18:56.434Z",
+        "task": "B225-investigation-v41-forced-steed-dismount-at-pool-20261010",
+        "reason": "The admitted C trace is steed.c:kick_steed -> trap.c:drown -> steed.c:dismount_steed(DISMOUNT_GENERIC). The required production caller is trap.c:drown / js/trap.js, still reserved by pending B224 apply.c:unleash_all wiring; dismount_steed cannot be delivered without that caller path. Resume after B224 is accepted and releases source:trap.c:drown."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-wave2-complete-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:19:03.720Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v42 currently has two distinct mismatches; 23 source-program controls match and C-first exploration continues."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B223-earth-fec4a610a",
+        "type": "integrating",
+        "at": "2026-10-10T16:22:32.990Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010",
+        "integration": "fec4a610aef94961dbb1188547f1ff229a85a381"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B226-shopdig-investigation-20261010-01",
+        "type": "assign",
+        "at": "2026-10-10T16:22:40.609Z",
+        "task": "B226-investigation-v40-shop-floor-digdown-warning-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-wave3-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:22:46.956Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v42 has one confirmed distinct C-first mismatch; 23 controls match, and minetn-6 is retained as a provisional reset/finalization overlap while the search continues."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B223-earth-07a45f0d0",
+        "type": "integrating",
+        "at": "2026-10-10T16:27:03.001Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010",
+        "integration": "07a45f0d02529c0ca8796e4a38578d49c418d1c3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B226-um-dist-dependency-20261010",
+        "type": "park",
+        "at": "2026-10-10T16:29:03.529Z",
+        "task": "B226-investigation-v40-shop-floor-digdown-warning-20261010",
+        "reason": "B226 investigation is committed at 0d94df979 and source-traced to shk.c:shopdig. Implementation requires canonical apply.c:um_dist because shopdig consumes its Boolean result; B224 still owns source:apply.c:um_dist and js/apply.js allowed path through pending delivery 2196247cfc60aa4c18ea634f74a17bf7d6de05f1. Preserve the report and resume after B224 acceptance releases this scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-blocked-B224-apply-um-dist-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:29:46.287Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "B226 shopdig investigation is preserved and parked on B224’s apply.c:um_dist scope; no other current queue candidate is free of pending ownership. Waiting for B224 acceptance to resume."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-wave3-adjudicated-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:32:46.918Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v42 has two approved distinct C-first mismatches and 32 matching controls; three valid probes are preserved as overlaps while source-based exploration continues."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-b223-earth-hosted-38067875710",
+        "type": "validated",
+        "at": "2026-10-10T16:34:26.095Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B223-investigation-v40-earth-plane-levelport-20261010-07a45f0d02529c0ca8796e4a38578d49c418d1c3-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T16:35:37.676Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-blocked-after-B223-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:36:26.521Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "B223 Earth is merged; the saved queue is pre-B223. Remaining current candidates overlap B224 or C ownership, so B is waiting for an accepted scope release and fresh queue."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B223-investigation-v40-earth-plane-levelport-20261010",
-        "worker": "B",
-        "goal": "port-earth-plane-lua-synthetic-v40-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "9886401eb6cff2cf12e0f705b6056ffa9915369d",
-        "since": "2026-10-10T14:57:17.431Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010",
         "worker": "C",
@@ -82670,12 +82794,34 @@
         "since": "2026-10-10T14:46:29.538Z",
         "blockedBy": [],
         "reason": "Parked after source trace showed the step-76 object-resistance RNG divergence follows the step-75 leash-snap dog movement. The obj_resists helper already performs the source-matched unconditional rn2(100); the active cause lies in dogmove.c:dog_move and js/dogmove.js, reserved by B220 until its delivery is accepted."
+      },
+      {
+        "task": "B225-investigation-v41-forced-steed-dismount-at-pool-20261010",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-10T16:18:56.434Z",
+        "blockedBy": [],
+        "reason": "The admitted C trace is steed.c:kick_steed -> trap.c:drown -> steed.c:dismount_steed(DISMOUNT_GENERIC). The required production caller is trap.c:drown / js/trap.js, still reserved by pending B224 apply.c:unleash_all wiring; dismount_steed cannot be delivered without that caller path. Resume after B224 is accepted and releases source:trap.c:drown."
+      },
+      {
+        "task": "B226-investigation-v40-shop-floor-digdown-warning-20261010",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-10T16:29:03.529Z",
+        "blockedBy": [],
+        "reason": "B226 investigation is committed at 0d94df979 and source-traced to shk.c:shopdig. Implementation requires canonical apply.c:um_dist because shopdig consumes its Boolean result; B224 still owns source:apply.c:um_dist and js/apply.js allowed path through pending delivery 2196247cfc60aa4c18ea634f74a17bf7d6de05f1. Preserve the report and resume after B224 acceptance releases this scope."
       }
     ]
   },
   "development": {
-    "executionCommit": "ffd2d10394fbb3c06612668aeaa38762cdfb84c1",
-    "measuredAt": "2026-10-10T16:12:01.328Z",
+    "executionCommit": "07a45f0d02529c0ca8796e4a38578d49c418d1c3",
+    "measuredAt": "2026-10-10T16:33:51.845Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
