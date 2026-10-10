@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent timeout.c region-summary route: a debug-mode Valkyrie wishes and reads a scroll of stinking cloud, centers the cloud one square east, then inspects the still-visible region with #timeout. Seed, clock, role, name, and target were chosen separately from the admitted wizard recipe.",
+  "segments": [
+    {
+      "seed": 5830164,
+      "datetime": "20560617111208",
+      "nethackrc": "OPTIONS=name:RegionQueue,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": ".\u0017scroll of stinking cloud\nrm    l.#timeout\n "
+    }
+  ]
+}

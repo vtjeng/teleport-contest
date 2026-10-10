@@ -281,7 +281,7 @@ test('wiz_intrinsic routes SLIMED through potion.c make_slimed', async () => {
     state.nhDisplay.onEmptyQueue = () => {
         throw new Error('the intrinsic menu requested an unprovided key');
     };
-    // WIZ_INTRINSIC_PROPERTIES maps its third source entry to 'c' (SLIMED).
+    // property_by_index() keeps SLIMED at the third source-table position.
     state.nhDisplay.pushKey('c'.charCodeAt(0));
     state.nhDisplay.pushKey('\n'.charCodeAt(0));
     const messages = [];

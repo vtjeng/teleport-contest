@@ -823,6 +823,37 @@ export async function m_in_out_region(monster, x, y, rawEnv = {}) {
     return true;
 }
 
+// C ref: region.c any_visible_region() (660-671).
+export function any_visible_region(state = game) {
+    for (const region of state.level?.regions ?? []) {
+        if (!region.visible || region.ttl === -2) continue;
+        return true;
+    }
+    return false;
+}
+
+// C ref: region.c visible_region_summary() (674-711). Lines are the
+// timeout.c NHW_MENU putstr() stream collected for the TTY text window.
+export function visible_region_summary(lines, state = game) {
+    let hdrDone = false;
+    const fieldSeparator = state.iflags?.menu_tab_sep ? '\t' : '  ';
+    for (const region of state.level?.regions ?? []) {
+        if (!region.visible || region.ttl === -2) continue;
+        if (!hdrDone) {
+            lines.push({ text: '' });
+            lines.push({ text: 'Visible regions' });
+            hdrDone = true;
+        }
+        const damage = Math.trunc(region.arg ?? 0);
+        const type = damage ? `poison gas (${damage})` : 'vapor';
+        const bounds = region.bounding_box;
+        const row = String(Math.trunc(region.ttl + 1)).padStart(5)
+            + fieldSeparator + type.padEnd(16)
+            + fieldSeparator + `@[${bounds.lx},${bounds.ly}..${bounds.hx},${bounds.hy}]`;
+        lines.push({ text: row });
+    }
+}
+
 export function visible_region_at(x, y, state = game) {
     for (const region of state.level?.regions ?? []) {
         if (!region.visible || region.ttl === -2) continue;

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent timeout.c diagnostic recording: a Wizard wishes an oil lamp, lights it, and opens #timeout while the BURN_OBJECT timer is active. The seed, clock, name, role, and item are new choices for this source witness.",
+  "segments": [
+    {
+      "seed": 4862017,
+      "datetime": "20530917214836",
+      "nethackrc": "OPTIONS=name:QueueTrace,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": ".\u0017uncursed oil lamp\nai#timeout\n "
+    }
+  ]
+}
