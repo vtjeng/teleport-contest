@@ -256234,6 +256234,49 @@
         "rng": 792838
       },
       "parkedReason": "The complete cannot_push and moverock_core implementations, their production caller chain, the v41 pit-push entry, and the independent blocked-push route are verified. The selected C-order range also contains rock_disappear_msg, moverock_done, and moverock. Their existing implementations were not included in the delivery completion evidence, and rock_disappear_msg still lacks matching runtime evidence for a boulder entering a teleport trap. Resume after an independent teleport-trap boulder recipe covers that message, then source-review and record completion evidence for all three remaining units."
+    },
+    {
+      "id": "port-mon-hideunder-v41-polymorphed-hider-20261010",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port mon.c hideunder and wire all active concealment callers.",
+      "cFile": "mon.c",
+      "sessions": [
+        "synthetic/v41/v41-polymorphed-hider-under-remaining-floor-object"
+      ],
+      "selectionReason": "The saved v41 mismatch reaches pickup.c:pickup and mon.c:hideunder after a polymorphed hero picks up one object from a floor pile; no accepted implementation owns the complete hideunder function.",
+      "detail": "Port the complete mon.c:hideunder function and wire every active JavaScript caller, including the teleport caller that consumes its return value.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "hideunder",
+          "line": 4726,
+          "endLine": 4805,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4726,
+        "to": 4805
+      },
+      "syntheticProvenance": {
+        "synthetic/v41/v41-polymorphed-hider-under-remaining-floor-object": {
+          "session": "synthetic/v41/v41-polymorphed-hider-under-remaining-floor-object",
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-polymorphed-hider-under-remaining-floor-object",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recordingPath": "challenges/cases/v41/v41-hideunder-remaining-cloak-pickup-cfirst.session.json",
+          "recordingSha256": "ce4f14368b0a3fb3090960d66c766a851af9ce10c9066f93660aaf3d31a664fe",
+          "evaluationPath": "challenges/evaluations/accepted-74c1c3969bad5b5c7ce7f19150a347466b056d24-v41.json",
+          "evaluationCommit": "74c1c3969bad5b5c7ce7f19150a347466b056d24"
+        }
+      }
     }
   ]
 }
