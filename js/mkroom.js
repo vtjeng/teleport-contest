@@ -13,6 +13,7 @@ import {
     ANTHOLE,
     BARRACKS,
     BEEHIVE,
+    COCKNEST,
     BLCORNER,
     BRCORNER,
     CLOUD,
@@ -59,7 +60,6 @@ import {
     MM_NOGRP,
     SPACE_POS,
     TEMPLE,
-    COCKNEST,
     LEPREHALL,
 } from './const.js';
 import { In_hell, induced_align, level_difficulty } from './dungeon.js';
@@ -83,6 +83,8 @@ import {
     PM_HOBGOBLIN,
     PM_KILLER_BEE,
     PM_FIRE_ANT,
+    PM_COCKATRICE,
+    PM_LEPRECHAUN,
     PM_OGRE_TYRANT,
     PM_QUEEN_BEE,
     PM_SOLDIER_ANT,
@@ -110,12 +112,22 @@ import {
     LARGE_BOX,
     LUMP_OF_ROYAL_JELLY,
     MACE,
+    RANDOM_CLASS,
+    FOOD_CLASS,
     SPBOOK_CLASS,
     STATUE,
     WAND_CLASS,
 } from './objects.js';
 import { make_grave } from './grave.js';
-import { mkgold, mksobj, mksobj_at, set_corpsenm, weight } from './obj.js';
+import {
+    mkobj,
+    mkobj_at,
+    mkgold,
+    mksobj,
+    mksobj_at,
+    set_corpsenm,
+    weight,
+} from './obj.js';
 import { priestini } from './priest.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { inside_room } from './room_coordinates.js';
@@ -224,15 +236,6 @@ export function cmap_to_type(symbol) {
     case S_stone:
     default:
         return STONE;
-    }
-}
-
-// A special room this port cannot build yet.
-export class UnsupportedSpecialRoomError extends Error {
-    constructor(reason) {
-        super(`unsupported special room: ${reason}`);
-        this.name = 'UnsupportedSpecialRoomError';
-        this.reason = reason;
     }
 }
 
@@ -683,9 +686,8 @@ export function courtCellIsFillable(sroom, x, y, state) {
         || (y === sroom.hy && door.y === y + 1));
 }
 
-// C ref: mkroom.c fill_zoo(). The COURT, BEEHIVE, MORGUE, BARRACKS, and ZOO
-// arms are ported; remaining zoo families retain their named generation
-// boundary.
+// C ref: mkroom.c fill_zoo(). Fills the complete set of room families passed
+// by sp_lev.c fill_special_room(), including their source-ordered side effects.
 export function fill_zoo(sroom, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? SOURCE_RANDOM;
@@ -699,13 +701,6 @@ export function fill_zoo(sroom, env = {}) {
         _specialRoomFill: true,
     };
     const type = sroom.rtype;
-    if (type !== COURT && type !== BEEHIVE && type !== MORGUE
-        && type !== BARRACKS
-        && type !== ZOO) {
-        throw new UnsupportedSpecialRoomError(
-            `fill_zoo(${type}) beyond the Zoo boundary`,
-        );
-    }
 
     // C ref: fill_zoo() lines 288-321 — pre-loop, type-specific setup.
     // tx/ty hold the throne position (COURT) or the queen-bee center (BEEHIVE).
@@ -714,16 +709,33 @@ export function fill_zoo(sroom, env = {}) {
     let ty = 0;
     let goldlim = 0;
     let pendingThroneMonster = null;
-    if (type === ZOO) {
+    if (type === ZOO || type === LEPREHALL) {
         goldlim = 500 * level_difficulty(state);
     } else if (type === COURT) {
-        const throne = { x: 0, y: 0 };
-        let remaining = 100;
-        do {
-            somexyspace(sroom, throne, normalized);
-        } while (occupied(throne.x, throne.y, state) && --remaining > 0);
-        tx = throne.x;
-        ty = throne.y;
+        // C reuses an explicitly placed throne only on maze levels. Scan
+        // x-major, then y-major, exactly as mkroom.c's nested loops do.
+        let throneFound = false;
+        if (state.level.flags.is_maze_lev) {
+            for (let x = sroom.lx; x <= sroom.hx && !throneFound; x++) {
+                for (let y = sroom.ly; y <= sroom.hy; y++) {
+                    if (state.level.at(x, y).typ === THRONE) {
+                        tx = x;
+                        ty = y;
+                        throneFound = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (!throneFound) {
+            const throne = { x: 0, y: 0 };
+            let remaining = 100;
+            do {
+                somexyspace(sroom, throne, normalized);
+            } while (occupied(throne.x, throne.y, state) && --remaining > 0);
+            tx = throne.x;
+            ty = throne.y;
+        }
         pendingThroneMonster = mk_zoo_thronemon(tx, ty, normalized);
     } else if (type === BEEHIVE) {
         // C ref: fill_zoo() lines 305-316. Center of the room; irregular rooms
@@ -757,7 +769,7 @@ export function fill_zoo(sroom, env = {}) {
         }
 
         // C ref: lines 369-418 — type-specific post-monster items.
-        if (type === ZOO) {
+        if (type === ZOO || type === LEPREHALL) {
             const sh = sroom.fdoor;
             const door = state.level.doors[sh];
             let i;
@@ -784,6 +796,19 @@ export function fill_zoo(sroom, env = {}) {
         } else if (type === BARRACKS && !random.rn2(20)) {
             mksobj_at(random.rn2(3) ? LARGE_BOX : CHEST,
                 x, y, true, false, normalized);
+        } else if (type === COCKNEST && !random.rn2(3)) {
+            const statue = mk_tt_object(STATUE, x, y, normalized);
+            if (statue) {
+                for (let count = random.rn2(5); count; count--)
+                    add_to_container(
+                        statue,
+                        mkobj(RANDOM_CLASS, false, normalized),
+                        normalized,
+                    );
+                statue.owt = weight(statue, normalized);
+            }
+        } else if (type === ANTHOLE && !random.rn2(3)) {
+            mkobj_at(FOOD_CLASS, x, y, false, normalized);
         }
     };
 
@@ -810,6 +835,12 @@ export function fill_zoo(sroom, env = {}) {
                             ? (x === tx && y === ty
                                 ? state.mons[PM_QUEEN_BEE]
                                 : state.mons[PM_KILLER_BEE])
+                            : type === LEPREHALL
+                                ? state.mons[PM_LEPRECHAUN]
+                                : type === COCKNEST
+                                    ? state.mons[PM_COCKATRICE]
+                                    : type === ANTHOLE
+                                        ? antholemon(state)
                             : null;
             const maybeMonster = makemon(
                 species,
@@ -860,6 +891,8 @@ export function fill_zoo(sroom, env = {}) {
             state.level.flags.has_beehive = true;
         } else if (type === BARRACKS) {
             state.level.flags.has_barracks = true;
+        } else if (type === SWAMP) {
+            state.level.flags.has_swamp = true;
         }
     };
 
