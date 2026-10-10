@@ -243128,7 +243128,7 @@
     {
       "id": "fix-arrow-trap-preflight-v38-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Admit hero arrow trap activation and wire the sitting caller",
       "cFile": "trap.c",
       "sessions": [
@@ -243142,8 +243142,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "dotrap",
       "session": "synthetic/v38/v38-arrow-trap-return-projectile",
       "step": 16,
@@ -243320,7 +243323,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

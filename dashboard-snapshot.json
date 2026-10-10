@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T02:20:15.770Z",
+  "capturedAt": "2026-10-10T02:34:09.145Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -77797,22 +77797,193 @@
         "type": "accepted",
         "at": "2026-10-10T02:19:35.304Z",
         "task": "A2-v38-wizard-teleport-energy-refusal-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-v38-wizard-teleport-energy-refusal-20261010-23ad55e978af11a23c660f6dd89cbd366c424606",
+        "type": "published",
+        "at": "2026-10-10T02:20:24.041Z",
+        "task": "A2-v38-wizard-teleport-energy-refusal-20261010",
+        "commit": "23ad55e978af11a23c660f6dd89cbd366c424606"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-Prep2-23ad55e978af11a23c660f6dd89cbd366c424606-supplemental-5e20fb154",
+        "type": "published",
+        "at": "2026-10-10T02:20:39.422Z",
+        "task": "Prep2",
+        "commit": "23ad55e978af11a23c660f6dd89cbd366c424606"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0cfb5d4ca92f9c1a96cd0ea8fa50c377be281ea3",
+        "type": "ready",
+        "at": "2026-10-10T02:21:48.961Z",
+        "task": "B205",
+        "delivery": "0cfb5d4ca92f9c1a96cd0ea8fa50c377be281ea3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-water-dip-investigation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T02:21:54.412Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Submitted the broken undead-turning wand fix with a matching 55-step replay; starting source diagnosis of the next unreserved v38 case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v38-water-dip-acid-potion-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T02:21:59.212Z",
+        "task": "A2-v38-water-dip-acid-potion-investigation-20261010",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-main-B204-b163add4e-20261010",
+        "type": "received",
+        "at": "2026-10-10T02:22:23.436Z",
+        "task": "B204",
+        "delivery": "b163add4e236bfc3597f6ae5e596d194629fe5c5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v38-selection-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T02:22:57.221Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B206-investigation-v38-bear-trap",
+        "type": "assign",
+        "at": "2026-10-10T02:23:15.910Z",
+        "task": "B206-investigation-v38-bear-trap",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-B204-f1a0e5e9c-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T02:24:02.863Z",
+        "task": "B204",
+        "integration": "f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v38-water-dip-pot-acid-20261010",
+        "type": "implement",
+        "at": "2026-10-10T02:25:42.444Z",
+        "task": "A2-v38-water-dip-acid-potion-investigation-20261010",
+        "goal": "port-trap-pot-acid-damage-v38-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B206-investigation-v38-bear-trap",
+        "type": "park",
+        "at": "2026-10-10T02:26:02.236Z",
+        "task": "B206-investigation-v38-bear-trap",
+        "reason": "Source trace shows apply.c:set_trap skips dotrap and causes the v38 mismatch; B204 still owns the unaccepted trap.c:dotrap callee, and A2 has pending js/apply.js work in do_break_wand. Investigation report committed at 8696c092c. Resume after B204 acceptance and recheck A2 file-level integration activity."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-quick-glance-investigation-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T02:26:03.675Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B207-investigation-v38-quick-glance-lootabc",
+        "type": "assign",
+        "at": "2026-10-10T02:26:17.172Z",
+        "task": "B207-investigation-v38-quick-glance-lootabc",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C184-trap-fire-damage-chain-v38-20261010",
+        "type": "implement",
+        "at": "2026-10-10T02:27:03.006Z",
+        "task": "C184",
+        "goal": "port-trap-fire-damage-chain-v38-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B207-v38-quick-glance-lootabc",
+        "type": "implement",
+        "at": "2026-10-10T02:28:11.729Z",
+        "task": "B207-investigation-v38-quick-glance-lootabc",
+        "goal": "fix-pager-quick-glance-lootabc-v38-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-water-implementation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T02:28:23.294Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 is implementing trap.c pot_acid_damage for the v38 acid-water dip case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-77b56d95c0d6504d182d39ad6c9fcffc293384b8",
+        "type": "ready",
+        "at": "2026-10-10T02:30:07.769Z",
+        "task": "A2-v38-water-dip-acid-potion-investigation-20261010",
+        "delivery": "77b56d95c0d6504d182d39ad6c9fcffc293384b8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-water-delivery-20261010",
+        "type": "turn",
+        "at": "2026-10-10T02:31:15.347Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 submitted the v38 acid-potion water-dip fix; waiting for its dependency to integrate and a refreshed queue with independent source work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-main-B204-f1a0e5e9c-20261010",
+        "type": "validated",
+        "at": "2026-10-10T02:31:49.365Z",
+        "task": "B204",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b944bbeac6a0e895cc123954e02157b986cf6b1e",
+        "type": "ready",
+        "at": "2026-10-10T02:32:09.780Z",
+        "task": "B207-investigation-v38-quick-glance-lootabc",
+        "delivery": "b944bbeac6a0e895cc123954e02157b986cf6b1e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-after-B207-submit-20261010",
+        "type": "turn",
+        "at": "2026-10-10T02:32:43.712Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B207 submitted; checking for independent source work while its delivery awaits integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B204-f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T02:33:16.417Z",
+        "task": "B204"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B204",
-        "worker": "B",
-        "goal": "fix-arrow-trap-preflight-v38-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "b163add4e236bfc3597f6ae5e596d194629fe5c5",
-        "since": "2026-10-10T02:03:21.506Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "C182",
         "worker": "C",
@@ -77833,6 +78004,43 @@
         "delivery": "d3cd4eb4bbda75918fc8b46a92e62a319ef4d4e7",
         "since": "2026-10-10T02:17:30.451Z",
         "blockedBy": [],
+        "unblocks": 1
+      },
+      {
+        "task": "B205",
+        "worker": "B",
+        "goal": "port-do-dodown-v38-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "0cfb5d4ca92f9c1a96cd0ea8fa50c377be281ea3",
+        "since": "2026-10-10T02:21:48.961Z",
+        "blockedBy": [],
+        "unblocks": 1
+      },
+      {
+        "task": "A2-v38-water-dip-acid-potion-investigation-20261010",
+        "worker": "A2",
+        "goal": "port-trap-pot-acid-damage-v38-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "77b56d95c0d6504d182d39ad6c9fcffc293384b8",
+        "since": "2026-10-10T02:30:07.769Z",
+        "blockedBy": [
+          "A2-v38-broken-undead-wand-investigation-20261010"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "B207-investigation-v38-quick-glance-lootabc",
+        "worker": "B",
+        "goal": "fix-pager-quick-glance-lootabc-v38-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "b944bbeac6a0e895cc123954e02157b986cf6b1e",
+        "since": "2026-10-10T02:32:09.780Z",
+        "blockedBy": [
+          "B205"
+        ],
         "unblocks": 0
       }
     ],
@@ -78134,12 +78342,23 @@
         "since": "2026-10-10T02:16:25.792Z",
         "blockedBy": [],
         "reason": "The v38 bear-trap case reaches apply.c:set_trap then trap.c:dotrap after feeltrap reveals the new bear trap; source passes flags 0. The accepted-base preflight rejects this seen BEAR_TRAP path, and B204 owns contract:hero-trap-preflight-admission. B204 change only admits arrow traps. The source trace is recorded in investigations/synthetic/v38/v38-cursed-bear-trap-bungle.json. The reserved contract was left untouched; moving to the next independent case."
+      },
+      {
+        "task": "B206-investigation-v38-bear-trap",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-10T02:26:02.236Z",
+        "blockedBy": [],
+        "reason": "Source trace shows apply.c:set_trap skips dotrap and causes the v38 mismatch; B204 still owns the unaccepted trap.c:dotrap callee, and A2 has pending js/apply.js work in do_break_wand. Investigation report committed at 8696c092c. Resume after B204 acceptance and recheck A2 file-level integration activity."
       }
     ]
   },
   "development": {
-    "executionCommit": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0",
-    "measuredAt": "2026-10-10T02:17:21.332Z",
+    "executionCommit": "f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21",
+    "measuredAt": "2026-10-10T02:30:58.353Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
