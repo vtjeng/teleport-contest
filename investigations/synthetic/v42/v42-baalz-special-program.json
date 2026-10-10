@@ -10,7 +10,7 @@
   "recordingSha256": "e9c61eb7ccd3bb01d963a220f7792ba4e5533458ffb93027f52315a5d9d6cf2e",
   "evaluationPath": "challenges/evaluations/accepted-37044eda52fe8b08877c9f10c3aa300bee7c5291-v42.json",
   "evaluationCommit": "37044eda52fe8b08877c9f10c3aa300bee7c5291",
-  "status": "complete",
+  "status": "in progress",
   "commit": "14a37e2c12bf5955315486bf68f1f77ce826feed",
   "mismatch": {
     "kind": "rng",
