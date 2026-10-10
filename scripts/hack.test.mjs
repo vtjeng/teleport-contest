@@ -112,7 +112,7 @@ import { GameMap } from '../js/game.js';
 import { initRng } from '../js/rng.js';
 import { runSegment } from '../js/jsmain.js';
 import {
-    M1_FLY, PM_GRID_BUG, PM_HUMAN, PM_IRON_PIERCER, PM_SOLDIER,
+    M1_FLY, M2_ROCKTHROW, PM_GRID_BUG, PM_HUMAN, PM_IRON_PIERCER, PM_SOLDIER,
     S_PIERCER, monst_globals_init,
 } from '../js/monsters.js';
 import {
@@ -834,6 +834,96 @@ test('moverock_core consumes the C liquid-push result before dopush', async () =
         'the source liquid helper owns the first random choice');
     assert.equal(game.level.at(rx, sy).typ, ROOM);
     assert.equal(sobj_at(BOULDER, bx, sy, game), null);
+});
+
+test('moverock_core and cannot_push keep the complete C return paths', async () => {
+    const cannotStart = HACK_SOURCE.indexOf(
+        'staticfn int\ncannot_push(struct obj *otmp',
+    );
+    const cannotEnd = HACK_SOURCE.indexOf(
+        '\nstaticfn void\nrock_disappear_msg', cannotStart,
+    );
+    const coreStart = HACK_SOURCE.indexOf(
+        'moverock_core(coordxy sx, coordxy sy)\n{',
+    );
+    const coreEnd = HACK_SOURCE.indexOf('\n/*\n *  still_chewing()', coreStart);
+    const jsCannotStart = HACK_JS_SOURCE.indexOf(
+        'async function cannot_push(otmp, sx, sy, state, env)',
+    );
+    const jsCannotEnd = HACK_JS_SOURCE.indexOf(
+        '\n// C ref: hack.c rock_disappear_msg', jsCannotStart,
+    );
+    const jsCoreStart = HACK_JS_SOURCE.indexOf('async function moverock_core(');
+    const jsCoreEnd = HACK_JS_SOURCE.indexOf(
+        '\n// C ref: hack.c test_move', jsCoreStart,
+    );
+    assert.ok(cannotStart >= 0 && cannotEnd > cannotStart);
+    assert.ok(coreStart >= 0 && coreEnd > coreStart);
+    assert.ok(jsCannotStart >= 0 && jsCannotEnd > jsCannotStart);
+    assert.ok(jsCoreStart >= 0 && jsCoreEnd > jsCoreStart);
+
+    const cannotC = HACK_SOURCE.slice(cannotStart, cannotEnd);
+    const cannotJs = HACK_JS_SOURCE.slice(jsCannotStart, jsCannotEnd);
+    const coreC = HACK_SOURCE.slice(coreStart, coreEnd);
+    const coreJs = HACK_JS_SOURCE.slice(jsCoreStart, jsCoreEnd);
+    assert.match(cannotC, /autopick_testobj\(otmp, TRUE\)/u);
+    assert.match(cannotC, /could_move_onto_boulder\(sx, sy\)/u);
+    assert.match(cannotJs, /autopick_testobj\(otmp, true, state\)/u);
+    assert.match(cannotJs, /note_unported\('trap\.c sokoban_guilt'\)/u);
+    assert.doesNotMatch(cannotJs, /UnsupportedHeroMoveBoundaryError/u);
+    assert.equal((coreC.match(/return cannot_push\(otmp, sx, sy\);/gu) ?? []).length, 5);
+    assert.equal((coreJs.match(/return await cannot_push\(otmp, sx, sy, state, effectEnv\);/gu) ?? []).length, 5);
+    assert.match(coreC, /case PIT:[\s\S]*?flooreffects\(otmp, rx, ry, "fall"\)/u);
+    assert.match(coreJs, /case PIT:[\s\S]*?flooreffects\(otmp, rx, ry, 'fall', effectEnv\)/u);
+    assert.doesNotMatch(coreJs, /throw new UnsupportedHeroMoveBoundaryError/u);
+});
+
+test('a blocked boulder can be stepped over and picked up by a giant', async () => {
+    await runSegment({
+        seed: 202610102,
+        datetime: '20431010101500',
+        nethackrc: 'OPTIONS=name:GiantBoulder,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none,!acoustics',
+        moves: '',
+    });
+    const sx = game.u.ux;
+    const sy = game.u.uy;
+    const bx = sx + 1;
+    const rx = sx + 2;
+    assert.ok(rx < COLNO);
+    for (const [x, typ] of [[sx, ROOM], [bx, ROOM], [rx, STONE]]) {
+        const location = game.level.at(x, sy);
+        location.typ = typ;
+        location.flags = location.doormask = 0;
+        game.level.monsters[x][sy] = null;
+        game.level.objects[x][sy] = null;
+    }
+    game.level.traps = [];
+    game.u.dx = 1;
+    game.u.dy = 0;
+    game.context.nopick = 0;
+    game.context.run = 0;
+    game.flags.pickup = true;
+    game.flags.pickup_types = [];
+    game.youmonst.data = {
+        ...game.youmonst.data,
+        mflags2: (game.youmonst.data.mflags2 ?? 0) | M2_ROCKTHROW,
+    };
+    const boulder = init_dummyobj(newObject(), BOULDER, 1, game);
+    const visionHooks = { blockPoint: () => {}, recalcBlockPoint: () => {} };
+    place_object(boulder, bx, sy, { state: game, hooks: visionHooks });
+    const messages = [];
+    const accepted = await test_move(sx, sy, 1, 0, DO_MOVE, game, {
+        message: async (line) => { messages.push(line); },
+        hooks: visionHooks,
+    });
+
+    assert.equal(accepted, true);
+    assert.ok(messages.includes('You try to move the boulder, but in vain.'));
+    assert.ok(messages.includes('However, you easily pick it up.'));
+    assert.equal(sobj_at(BOULDER, bx, sy, game), boulder);
+    assert.equal(sobj_at(BOULDER, rx, sy, game), null);
 });
 
 function swimDangerState(destinationTyp = POOL) {
