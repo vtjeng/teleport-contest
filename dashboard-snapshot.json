@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T22:13:45.365Z",
+  "capturedAt": "2026-10-10T22:56:31.809Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -84404,22 +84404,96 @@
         "type": "accepted",
         "at": "2026-10-10T22:13:09.680Z",
         "task": "C-v42-silver-sears-monk-polymorph-claw-ring-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v42-silver-sears-monk-polymorph-claw-ring-investigation-20261010-8ff38f105cd2b5a343f14a930050c099645dfbf4",
+        "type": "published",
+        "at": "2026-10-10T22:13:53.782Z",
+        "task": "C-v42-silver-sears-monk-polymorph-claw-ring-investigation-20261010",
+        "commit": "8ff38f105cd2b5a343f14a930050c099645dfbf4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-active-pre-sync-differential-20261010",
+        "type": "turn",
+        "at": "2026-10-10T22:15:52.873Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v43 C-first replays are ready; the first case matched on the assigned base. Waiting for accepted Main sync before remaining differentials."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-active-synced-8ff38f10-20261010",
+        "type": "turn",
+        "at": "2026-10-10T22:17:11.769Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v43 C-first slate and independent replays are ready; fresh differentials now use accepted Main 8ff38f10."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-b-still-chewing-990f9bc4c",
+        "type": "integrating",
+        "at": "2026-10-10T22:32:40.394Z",
+        "task": "B-v42-rust-monster-still-chewing-bars-investigation-20261010",
+        "integration": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-active-source-crosswalk-wizloca-20261010",
+        "type": "turn",
+        "at": "2026-10-10T22:49:18.186Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v43 has two approved C-first mismatches; source review is checking a distinct mklev.c stair-selection divergence in the Wizard locate case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-active-four-approved-leprechaun-20261010",
+        "type": "turn",
+        "at": "2026-10-10T22:53:16.291Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v43 has four approved distinct C-first mismatches; continuing candidate search."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-b-still-chewing-990f9bc4c",
+        "type": "validated",
+        "at": "2026-10-10T22:54:00.022Z",
+        "task": "B-v42-rust-monster-still-chewing-bars-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-v42-rust-monster-still-chewing-bars-investigation-20261010-990f9bc4c2964447a9adac4f0e54ea90728ee2cb-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T22:55:00.274Z",
+        "task": "B-v42-rust-monster-still-chewing-bars-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-v42-zhitu-acid-claim-20261010",
+        "type": "assign",
+        "at": "2026-10-10T22:56:02.609Z",
+        "task": "B-v42-zhitu-acid-damage-dual-wield-investigation-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-v42-zhitu-acid-investigation-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T22:56:06.929Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B is investigating the remaining v42 yellow-dragon acid damage mismatch, starting from its admitted dual-wield session and tracing the passive attack path in C."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B-v42-rust-monster-still-chewing-bars-investigation-20261010",
-        "worker": "B",
-        "goal": "port-hack-still-chewing-v42-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "69175aaa3697bb8e09a6f33f881dcd0c4b9b430f",
-        "since": "2026-10-10T21:34:34.654Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "A2-v42-observe-quantum-cat-box-tip-floor-investigation-20261010",
         "worker": "A2",
@@ -84789,8 +84863,8 @@
     ]
   },
   "development": {
-    "executionCommit": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185",
-    "measuredAt": "2026-10-10T22:11:56.081Z",
+    "executionCommit": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb",
+    "measuredAt": "2026-10-10T22:53:40.320Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
