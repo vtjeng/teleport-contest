@@ -1305,6 +1305,47 @@ test('special-room fill waits for delayed monster completion before cell work',
         assert.equal(state.level.flags.has_beehive, true);
     });
 
+test('shop special-room fill waits for stock_room before setting has_shop',
+    async () => {
+        // sp_lev.c:fill_special_room calls stock_room() before setting
+        // level.flags.has_shop. Keep that pointer-consuming C call order when
+        // shkinit() crosses makemon()'s asynchronous JS runtime tail.
+        const state = initializedState();
+        state.level.flags = { has_shop: false };
+        const room = shopCandidate(state);
+        room.rtype = SHOPBASE;
+        room.needfill = FILL_NORMAL;
+
+        const events = [];
+        let finishStock;
+        const pending = fill_special_room(room, {
+            state,
+            stockRoom(shopIndex, actualRoom) {
+                assert.equal(shopIndex, 0, 'SHOPBASE maps to shtypes[0]');
+                assert.equal(actualRoom, room);
+                events.push('stock:start');
+                return new Promise((resolve) => {
+                    finishStock = () => {
+                        events.push('stock:done');
+                        resolve(true);
+                    };
+                });
+            },
+        });
+
+        assert.equal(typeof pending?.then, 'function');
+        assert.deepEqual(events, ['stock:start']);
+        assert.equal(state.level.flags.has_shop, false);
+
+        finishStock();
+        assert.equal(state.level.flags.has_shop, false,
+            'the caller update waits for the stock promise continuation');
+        await pending;
+
+        assert.deepEqual(events, ['stock:start', 'stock:done']);
+        assert.equal(state.level.flags.has_shop, true);
+    });
+
 // Walk one Valkyrie from her up staircase to D:1's down staircase, descend,
 // and read back the shop that makelevel() stocked on D:2. Every seed and walk
 // passed here is a segment of scripts/run-shop-descent.mjs, which records the

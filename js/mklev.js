@@ -546,8 +546,15 @@ export function fill_special_room(croom, env = {}) {
         if (croom.needfill === FILL_NORMAL) {
             if (croom.rtype >= SHOPBASE) {
                 const stockRoom = env.stockRoom ?? stock_room;
-                stockRoom(croom.rtype - SHOPBASE, croom, normalized);
-                flags.has_shop = true;
+                const maybeStocked = stockRoom(
+                    croom.rtype - SHOPBASE, croom, normalized,
+                );
+                const finishShop = () => {
+                    flags.has_shop = true;
+                };
+                if (maybeStocked && typeof maybeStocked.then === 'function')
+                    return maybeStocked.then(finishShop);
+                finishShop();
                 return;
             }
 

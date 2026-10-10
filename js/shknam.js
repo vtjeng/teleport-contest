@@ -373,54 +373,59 @@ function shkinit(shop, sroom, normalized) {
     const occupant = m_at(placement.sx, placement.sy, state);
     if (occupant) rloc(occupant, RLOC_NOMSG, normalized);
 
-    const shk = makemon(
+    const maybeShk = makemon(
         state.mons[PM_SHOPKEEPER],
         placement.sx,
         placement.sy,
         MM_ESHK,
         normalized,
     );
-    if (!shk) return null;
-    const eshk = shk.mextra.eshk;
-    shk.isshk = true;
-    shk.mpeaceful = true;
-    set_malign(shk, state);
-    shk.msleeping = false;
-    shk.mtrapseen = -1;
+    const finishShopkeeper = (shk) => {
+        if (!shk) return null;
+        const eshk = shk.mextra.eshk;
+        shk.isshk = true;
+        shk.mpeaceful = true;
+        set_malign(shk, state);
+        shk.msleeping = false;
+        shk.mtrapseen = -1;
 
-    eshk.shoproom = (sroom.roomnoidx ?? -1) + ROOMOFFSET;
-    sroom.resident = shk;
-    eshk.shoptype = sroom.rtype;
-    eshk.shoplevel = { ...state.u.uz };
-    eshk.shd = { ...state.level.doors[placement.index] };
-    eshk.shk = { x: placement.sx, y: placement.sy };
-    eshk.robbed = 0;
-    eshk.credit = 0;
-    eshk.debit = 0;
-    eshk.loan = 0;
-    eshk.following = false;
-    eshk.surcharge = false;
-    eshk.dismiss_kops = false;
-    eshk.billct = 0;
-    eshk.visitct = 0;
-    eshk.bill_p = null;
-    eshk.customer = '';
+        eshk.shoproom = (sroom.roomnoidx ?? -1) + ROOMOFFSET;
+        sroom.resident = shk;
+        eshk.shoptype = sroom.rtype;
+        eshk.shoplevel = { ...state.u.uz };
+        eshk.shd = { ...state.level.doors[placement.index] };
+        eshk.shk = { x: placement.sx, y: placement.sy };
+        eshk.robbed = 0;
+        eshk.credit = 0;
+        eshk.debit = 0;
+        eshk.loan = 0;
+        eshk.following = false;
+        eshk.surcharge = false;
+        eshk.dismiss_kops = false;
+        eshk.billct = 0;
+        eshk.visitct = 0;
+        eshk.bill_p = null;
+        eshk.customer = '';
 
-    mkmonmoney(shk, 1000 + 30 * normalized.random.rnd(100), normalized);
-    // C's starting stock for the keeper, tested on the shop's name list rather
-    // than on the shop. The `||` chain short-circuits, so what each stocking
-    // shop draws here differs: a hardware store and a wand shop draw nothing
-    // and always get the scroll, a jewelers draws one rn2(2) after its
-    // touchstone, a general store draws one rn2(5), and an armor, weapon,
-    // liquor, food or health food shop draws nothing and gets neither item.
-    if (shop.shknms === shkrings) mongets(shk, TOUCHSTONE, normalized);
-    if (shop.shknms === shktools || shop.shknms === shkwands
-        || (shop.shknms === shkrings && normalized.random.rn2(2))
-        || (shop.shknms === shkgeneral && normalized.random.rn2(5))) {
-        mongets(shk, SCR_CHARGING, normalized);
-    }
-    nameshk(shk, shop.shknms, normalized);
-    return placement.index;
+        mkmonmoney(shk, 1000 + 30 * normalized.random.rnd(100), normalized);
+        // C's starting stock for the keeper, tested on the shop's name list rather
+        // than on the shop. The `||` chain short-circuits, so what each stocking
+        // shop draws here differs: a hardware store and a wand shop draw nothing
+        // and always get the scroll, a jewelers draws one rn2(2) after its
+        // touchstone, a general store draws one rn2(5), and an armor, weapon,
+        // liquor, food or health food shop draws nothing and gets neither item.
+        if (shop.shknms === shkrings) mongets(shk, TOUCHSTONE, normalized);
+        if (shop.shknms === shktools || shop.shknms === shkwands
+            || (shop.shknms === shkrings && normalized.random.rn2(2))
+            || (shop.shknms === shkgeneral && normalized.random.rn2(5))) {
+            mongets(shk, SCR_CHARGING, normalized);
+        }
+        nameshk(shk, shop.shknms, normalized);
+        return placement.index;
+    };
+    return maybeShk && typeof maybeShk.then === 'function'
+        ? maybeShk.then(finishShopkeeper)
+        : finishShopkeeper(maybeShk);
 }
 
 function stock_room_goodpos(sroom, roomNumber, doorIndex, sx, sy, state) {
@@ -498,76 +503,81 @@ export function stock_room(shopIndex, sroom, rawEnv = {}) {
     const shop = SHTYPES[shopIndex];
     if (!shop) throw new RangeError(`shtypes[] has no row ${shopIndex}`);
 
-    const shopDoor = shkinit(shop, sroom, normalized);
-    if (shopDoor == null) return false;
+    const finishStockRoom = (shopDoor) => {
+        if (shopDoor == null) return false;
 
-    const firstDoor = state.level.doors[sroom.fdoor];
-    const doorLoc = state.level.at(firstDoor.x, firstDoor.y);
-    if (doorLoc.doormask === D_NODOOR) {
-        doorLoc.doormask = D_ISOPEN;
-        doorLoc.flags = D_ISOPEN;
-        redrawDoor(firstDoor.x, firstDoor.y, normalized);
-    }
-    if (doorLoc.typ === SDOOR) {
-        doorLoc.typ = DOOR;
-        redrawDoor(firstDoor.x, firstDoor.y, normalized);
-    }
-    if (doorLoc.doormask & D_TRAPPED) {
-        doorLoc.doormask = D_LOCKED;
-        doorLoc.flags = D_LOCKED;
-    }
+        const firstDoor = state.level.doors[sroom.fdoor];
+        const doorLoc = state.level.at(firstDoor.x, firstDoor.y);
+        if (doorLoc.doormask === D_NODOOR) {
+            doorLoc.doormask = D_ISOPEN;
+            doorLoc.flags = D_ISOPEN;
+            redrawDoor(firstDoor.x, firstDoor.y, normalized);
+        }
+        if (doorLoc.typ === SDOOR) {
+            doorLoc.typ = DOOR;
+            redrawDoor(firstDoor.x, firstDoor.y, normalized);
+        }
+        if (doorLoc.doormask & D_TRAPPED) {
+            doorLoc.doormask = D_LOCKED;
+            doorLoc.flags = D_LOCKED;
+        }
 
-    if (doorLoc.doormask === D_LOCKED) {
-        let x = firstDoor.x;
-        let y = firstDoor.y;
-        if (insideShop(sroom, x + 1, y)) --x;
-        else if (insideShop(sroom, x - 1, y)) ++x;
-        if (insideShop(sroom, x, y + 1)) --y;
-        else if (insideShop(sroom, x, y - 1)) ++y;
-        make_engr_at(
-            x, y, 'Closed for inventory', null, 0, DUST, normalized,
-        );
-        const outside = state.level.at(x, y);
-        if (outside.typ !== CORR && outside.typ !== ROOM)
-            outside.typ = ROOM;
-    }
+        if (doorLoc.doormask === D_LOCKED) {
+            let x = firstDoor.x;
+            let y = firstDoor.y;
+            if (insideShop(sroom, x + 1, y)) --x;
+            else if (insideShop(sroom, x - 1, y)) ++x;
+            if (insideShop(sroom, x, y + 1)) --y;
+            else if (insideShop(sroom, x, y - 1)) ++y;
+            make_engr_at(
+                x, y, 'Closed for inventory', null, 0, DUST, normalized,
+            );
+            const outside = state.level.at(x, y);
+            if (outside.typ !== CORR && outside.typ !== ROOM)
+                outside.typ = ROOM;
+        }
 
-    const roomNumber = (sroom.roomnoidx ?? -1) + ROOMOFFSET;
-    let stockCount = 0;
-    let specialSpot = 0;
-    if (state.context?.tribute?.enabled
-        && !state.context.tribute.bookstock) {
+        const roomNumber = (sroom.roomnoidx ?? -1) + ROOMOFFSET;
+        let stockCount = 0;
+        let specialSpot = 0;
+        if (state.context?.tribute?.enabled
+            && !state.context.tribute.bookstock) {
+            for (let x = sroom.lx; x <= sroom.hx; ++x) {
+                for (let y = sroom.ly; y <= sroom.hy; ++y) {
+                    if (stock_room_goodpos(
+                        sroom, roomNumber, shopDoor, x, y, state,
+                    )) ++stockCount;
+                }
+            }
+            specialSpot = random.rnd(stockCount);
+            stockCount = 0;
+        }
+
         for (let x = sroom.lx; x <= sroom.hx; ++x) {
             for (let y = sroom.ly; y <= sroom.hy; ++y) {
-                if (stock_room_goodpos(
+                if (!stock_room_goodpos(
                     sroom, roomNumber, shopDoor, x, y, state,
-                )) ++stockCount;
+                )) continue;
+                ++stockCount;
+                mkshobj_at(
+                    shopIndex, x, y, stockCount === specialSpot, normalized,
+                );
             }
         }
-        specialSpot = random.rnd(stockCount);
-        stockCount = 0;
-    }
 
-    for (let x = sroom.lx; x <= sroom.hx; ++x) {
-        for (let y = sroom.ly; y <= sroom.hy; ++y) {
-            if (!stock_room_goodpos(
-                sroom, roomNumber, shopDoor, x, y, state,
-            )) continue;
-            ++stockCount;
-            mkshobj_at(
-                shopIndex, x, y, stockCount === specialSpot, normalized,
-            );
-        }
-    }
+        // C ref: shknam.c stock_room()'s Orcus-level ghost-town hack. The
+        // shopkeepers are created and their normal inventory is initialized so
+        // that object IDs and RNG calls remain in source order, then the keeper
+        // is dismissed after stocking. mongone() preserves special items while
+        // discarding ordinary inventory and consumes obj_resists() once per item.
+        if (on_level(state.u?.uz, state.orcus_level) && sroom.resident)
+            mongone(sroom.resident, normalized);
 
-    // C ref: shknam.c stock_room()'s Orcus-level ghost-town hack. The
-    // shopkeepers are created and their normal inventory is initialized so
-    // that object IDs and RNG calls remain in source order, then the keeper
-    // is dismissed after stocking. mongone() preserves special items while
-    // discarding ordinary inventory and consumes obj_resists() once per item.
-    if (on_level(state.u?.uz, state.orcus_level) && sroom.resident)
-        mongone(sroom.resident, normalized);
-
-    state.level.flags.has_shop = true;
-    return true;
+        state.level.flags.has_shop = true;
+        return true;
+    };
+    const maybeShopDoor = shkinit(shop, sroom, normalized);
+    return maybeShopDoor && typeof maybeShopDoor.then === 'function'
+        ? maybeShopDoor.then(finishStockRoom)
+        : finishStockRoom(maybeShopDoor);
 }
