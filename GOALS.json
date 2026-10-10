@@ -243334,7 +243334,7 @@
     {
       "id": "port-apply-do-break-wand-floor-callback-v38-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port apply.c do_break_wand floor-object callbacks",
       "cFile": "apply.c",
       "sessions": [
@@ -243348,8 +243348,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "do_break_wand",
@@ -243629,7 +243632,73 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "do_break_wand",
+            "implementation": "js/apply.js",
+            "symbol": "do_break_wand",
+            "sourceReview": "Read the whole nethack-c/upstream/src/apply.c do_break_wand() definition at lines 3907-4146 and compared its guard order, wand removal and charge restoration, special-type switch fallthrough, explosion-before-effects order, eight-neighbor-plus-hero coordinate order, monster-before-object order on adjacent squares, and object-before-zapyourself order on the hero square. In C, WAN_STRIKING, WAN_CANCELLATION, WAN_POLYMORPH, WAN_TELEPORTATION, and WAN_UNDEAD_TURNING set affects_objects; both adjacent and hero floor-object branches then call bhitpile(obj,bhito,x,y,0). JavaScript now calls the existing bhitpile() for every affectsObjects branch and removes the old striking/polymorph-only guard and note_unported('zap.c bhito') placeholder. Existing note_unported('zap.c bhitm') skips monster callbacks only where the C-discarded bhitm() result is not implemented; note_unported('shk.c pay_for_damage') records the discarded void result in the dig-shop branch. Other callee result/order behavior remains as previously implemented. The new callback preserves C's ordering: neighboring monsters first, neighboring object piles second, and the hero square's object pile before zapyourself().",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c:1677 binds the 'a' command to doapply(); js/cmd.js:runApplyCommand() is reached by rhack() command dispatch and calls js/apply.js:doapply()."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:4213-4235 selects do_break_wand() for WAND_CLASS objects; js/apply.js:doapply() at lines 4818-4839 has the same dispatch to do_break_wand()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-break-wand.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/broken-light-wand-independent-b45.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v38",
+                "caseId": "v38-broken-undead-wand-revives-floor-newt",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 54,
+                "source": "cmd.c:'a' -> apply.c:doapply() -> do_break_wand() -> bhitpile(obj,bhito,x,y,0) -> bhito() -> revive(); JavaScript path is rhack() -> runApplyCommand() -> doapply() -> do_break_wand() -> bhitpile()."
+              }
+            ],
+            "checkedAt": "4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99"
+          }
+        ],
+        "entryPointReview": "The selected source unit has one active game entry point: cmd.c:1677 binds the 'a' apply command to apply.c:doapply(), whose WAND_CLASS branch at apply.c:4234-4235 calls do_break_wand(). In JavaScript, js/cmd.js:runApplyCommand() calls js/apply.js:doapply(), whose WAND_CLASS branch calls do_break_wand(). The v38 recording follows that production path and exercises the undead-turning floor-object callback. No compile-time excluded entry point is in this function scope.",
+        "entryPoints": [
+          {
+            "name": "apply command with an undead-turning wand",
+            "functions": [
+              "do_break_wand"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v38",
+                "caseId": "v38-broken-undead-wand-revives-floor-newt",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 54,
+                "source": "cmd.c:'a' apply command -> apply.c:doapply() WAND_CLASS branch -> apply.c:do_break_wand(); the neighbor-plus-hero pass processes the hero floor pile through bhitpile(obj,bhito,x,y,0), and bhito() revives the dropped newt corpse. js/cmd.js:runApplyCommand() -> js/apply.js:doapply() -> do_break_wand() -> bhitpile()."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

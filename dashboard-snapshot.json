@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T02:34:09.145Z",
+  "capturedAt": "2026-10-10T02:50:17.718Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -77979,6 +77979,130 @@
         "type": "accepted",
         "at": "2026-10-10T02:33:16.417Z",
         "task": "B204"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B204-d054cafc770d603aa3a833e36f0c84cf351e7aef",
+        "type": "published",
+        "at": "2026-10-10T02:34:16.777Z",
+        "task": "B204",
+        "commit": "d054cafc770d603aa3a833e36f0c84cf351e7aef"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-B206-20261010",
+        "type": "turn",
+        "at": "2026-10-10T02:35:30.140Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Resuming B206 now that its dotrap dependency is accepted."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B206-after-B204-accepted-20261010",
+        "type": "resume",
+        "at": "2026-10-10T02:35:31.579Z",
+        "task": "B206-investigation-v38-bear-trap"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B206-set-trap-after-dotrap-accepted-20261010",
+        "type": "implement",
+        "at": "2026-10-10T02:35:32.954Z",
+        "task": "B206-investigation-v38-bear-trap",
+        "goal": "port-apply-set-trap-dotrap-callback-v38-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C184-implementation-validation-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T02:36:07.632Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C184 ports the lava fire-damage chain and its callers; focused checks and the admitted v38 replay prefix are passing."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-main-A2-v38-broken-undead-wand-investigation-20261010-d3cd4eb4b-20261010",
+        "type": "received",
+        "at": "2026-10-10T02:36:43.492Z",
+        "task": "A2-v38-broken-undead-wand-investigation-20261010",
+        "delivery": "d3cd4eb4bbda75918fc8b46a92e62a319ef4d4e7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-B206-dotrap-preflight-blocker-20261010",
+        "type": "turn",
+        "at": "2026-10-10T02:38:01.939Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B206 is paused at a missing seen bear-trap branch in accepted dotrap; awaiting scope direction."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d7d86ee902e0b6cca2d5be15e3d98b0ba4a95609",
+        "type": "ready",
+        "at": "2026-10-10T02:38:07.101Z",
+        "task": "C184",
+        "delivery": "d7d86ee902e0b6cca2d5be15e3d98b0ba4a95609"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C184-queue-blocked-after-submit-20261010",
+        "type": "turn",
+        "at": "2026-10-10T02:39:00.889Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "C184 is submitted; the remaining source mismatches are reserved or blocked, so I need a refreshed queue before choosing independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-A2-v38-broken-undead-wand-investigation-20261010-4ea7a3cda-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T02:41:11.289Z",
+        "task": "A2-v38-broken-undead-wand-investigation-20261010",
+        "integration": "4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-B206-finalize-20261010",
+        "type": "turn",
+        "at": "2026-10-10T02:41:15.405Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B206 validation is complete; finalizing the bounded trap changes and delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-31d65b94e42037fc58309647e19957a9af0b096c",
+        "type": "ready",
+        "at": "2026-10-10T02:41:41.587Z",
+        "task": "B206-investigation-v38-bear-trap",
+        "delivery": "31d65b94e42037fc58309647e19957a9af0b096c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-after-B206-selection-no-free-task-20261010",
+        "type": "turn",
+        "at": "2026-10-10T02:43:05.248Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B206 is submitted; the current queue has no unowned source mismatch. Waiting for acceptance or a refreshed queue before selecting more work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-main-A2-v38-broken-undead-wand-investigation-20261010-4ea7a3cda-20261010",
+        "type": "validated",
+        "at": "2026-10-10T02:48:18.448Z",
+        "task": "A2-v38-broken-undead-wand-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-v38-broken-undead-wand-investigation-20261010-4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T02:49:36.205Z",
+        "task": "A2-v38-broken-undead-wand-investigation-20261010"
       }
     ]
   },
@@ -77992,17 +78116,6 @@
         "status": "ready",
         "delivery": "553ca453878cd07da2d13138597e984396a0206e",
         "since": "2026-10-10T02:08:14.355Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-v38-broken-undead-wand-investigation-20261010",
-        "worker": "A2",
-        "goal": "port-apply-do-break-wand-floor-callback-v38-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "d3cd4eb4bbda75918fc8b46a92e62a319ef4d4e7",
-        "since": "2026-10-10T02:17:30.451Z",
         "blockedBy": [],
         "unblocks": 1
       },
@@ -78025,9 +78138,7 @@
         "status": "ready",
         "delivery": "77b56d95c0d6504d182d39ad6c9fcffc293384b8",
         "since": "2026-10-10T02:30:07.769Z",
-        "blockedBy": [
-          "A2-v38-broken-undead-wand-investigation-20261010"
-        ],
+        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -78040,6 +78151,33 @@
         "since": "2026-10-10T02:32:09.780Z",
         "blockedBy": [
           "B205"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "C184",
+        "worker": "C",
+        "goal": "port-trap-fire-damage-chain-v38-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "d7d86ee902e0b6cca2d5be15e3d98b0ba4a95609",
+        "since": "2026-10-10T02:38:07.101Z",
+        "blockedBy": [
+          "C182"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "B206-investigation-v38-bear-trap",
+        "worker": "B",
+        "goal": "port-apply-set-trap-dotrap-callback-v38-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "31d65b94e42037fc58309647e19957a9af0b096c",
+        "since": "2026-10-10T02:41:41.587Z",
+        "blockedBy": [
+          "B205",
+          "B207-investigation-v38-quick-glance-lootabc"
         ],
         "unblocks": 0
       }
@@ -78342,23 +78480,12 @@
         "since": "2026-10-10T02:16:25.792Z",
         "blockedBy": [],
         "reason": "The v38 bear-trap case reaches apply.c:set_trap then trap.c:dotrap after feeltrap reveals the new bear trap; source passes flags 0. The accepted-base preflight rejects this seen BEAR_TRAP path, and B204 owns contract:hero-trap-preflight-admission. B204 change only admits arrow traps. The source trace is recorded in investigations/synthetic/v38/v38-cursed-bear-trap-bungle.json. The reserved contract was left untouched; moving to the next independent case."
-      },
-      {
-        "task": "B206-investigation-v38-bear-trap",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-10T02:26:02.236Z",
-        "blockedBy": [],
-        "reason": "Source trace shows apply.c:set_trap skips dotrap and causes the v38 mismatch; B204 still owns the unaccepted trap.c:dotrap callee, and A2 has pending js/apply.js work in do_break_wand. Investigation report committed at 8696c092c. Resume after B204 acceptance and recheck A2 file-level integration activity."
       }
     ]
   },
   "development": {
-    "executionCommit": "f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21",
-    "measuredAt": "2026-10-10T02:30:58.353Z",
+    "executionCommit": "4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99",
+    "measuredAt": "2026-10-10T02:47:53.779Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
