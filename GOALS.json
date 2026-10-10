@@ -259705,7 +259705,7 @@
     {
       "id": "port-hack-still-chewing-v42-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port hack.c still_chewing and its active movement and eat-command callers",
       "cFile": "hack.c",
       "sessions": [
@@ -259719,8 +259719,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "still_chewing",
@@ -260015,6 +260018,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
