@@ -308,7 +308,7 @@ import {
     UnsupportedPrayerError,
 } from './pray.js';
 import { doextversion } from './version.js';
-import { kill_genocided_monsters, UnsupportedHideError } from './mon.js';
+import { kill_genocided_monsters } from './mon.js';
 import { dosave, dosave0, savelev } from './save.js';
 import {
     dohelp,
@@ -2997,9 +2997,6 @@ export function failClosedCommandRefusals() {
         // dokick.c retains this for inherited kick_monster callbacks
         // whose supporting owners still refuse their source branches.
         UnsupportedKickError,
-        // mon.c maybe_unhide_at() raises this from inside invent.c
-        // delobj_core(), which sit.c's cream-pie arm reaches through useupf().
-        UnsupportedHideError,
         // polyself.c polymon(), break_armor(), drop_weapon(), and polyself()
         // raise this for every form whose species-specific branches are not
         // ported: dragon HP, golem HP, breakarm armor paths, horned/headless

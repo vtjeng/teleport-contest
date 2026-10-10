@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -74,7 +75,13 @@ import {
 } from '../js/steed.js';
 import { teleds } from '../js/teleport.js';
 import { float_vs_flight, steed_vs_stealth } from '../js/polyself.js';
-import { float_down, fill_pit, reset_utrap, set_utrap } from '../js/trap.js';
+import {
+    float_down,
+    float_up,
+    fill_pit,
+    reset_utrap,
+    set_utrap,
+} from '../js/trap.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { game } from '../js/gstate.js';
 import { M1_FLY, PM_LICHEN } from '../js/monsters.js';
@@ -100,6 +107,13 @@ import { getRngLog } from '../js/rng.js';
 import { runSegment } from '../js/jsmain.js';
 import { RIDE_COMMAND, loadRideDismountRecipe }
     from './run-ride-dismount.mjs';
+
+const STEED_C = readFileSync(
+    new URL('../nethack-c/upstream/src/steed.c', import.meta.url), 'utf8',
+);
+const TRAP_C = readFileSync(
+    new URL('../nethack-c/upstream/src/trap.c', import.meta.url), 'utf8',
+);
 
 function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
@@ -310,7 +324,6 @@ test('unported dismount reasons keep their explicit source boundary', async () =
     // These reasons still have separate callers and behavior outside this
     // DISMOUNT_FELL branch.
     const reasons = [
-        [DISMOUNT_GENERIC, /DISMOUNT_GENERIC/u],
         [DISMOUNT_THROWN, /reason 2, a fall from the saddle/u],
         [DISMOUNT_POLY, /DISMOUNT_POLY/u],
         [DISMOUNT_ENGULFED, /DISMOUNT_ENGULFED/u],
@@ -326,6 +339,70 @@ test('unported dismount reasons keep their explicit source boundary', async () =
         );
     }
 });
+
+test('DISMOUNT_GENERIC releases a dead steed without a dismount message',
+    async () => {
+        // steed.c:679-681 has an empty generic-reason arm; m_detach() has
+        // already set mhp to zero, so the common tail releases the mount but
+        // skips placement and movement.
+        const sourceStart = STEED_C.indexOf('case DISMOUNT_GENERIC:');
+        const sourceEnd = STEED_C.indexOf('case DISMOUNT_BYCHOICE:', sourceStart);
+        const genericArm = STEED_C.slice(sourceStart, sourceEnd);
+        assert.match(genericArm,
+            /\/\* no messages, just make it so \*\/\s*break;/u);
+
+        const state = await mounted();
+        const steed = state.u.usteed;
+        const x = steed.mx;
+        const y = steed.my;
+        steed.mhp = 0; // m_detach():2800 makes DEADMONSTER() true first.
+        state.u.ugallop = 2; // A nonzero gait proves the shared release clears it.
+        quiet(state);
+        const randomBounds = [];
+
+        await dismount_steed(DISMOUNT_GENERIC, state, {
+            random: {
+                rn2(bound) {
+                    randomBounds.push(bound);
+                    return 0;
+                },
+            },
+        });
+
+        assert.equal(state.u.usteed, null);
+        assert.equal(state.u.ugallop, 0);
+        assert.equal(m_at(x, y, state), null,
+            'a dead steed remains off the map');
+        assert.doesNotMatch(toplines(), /You (?:dismount|fall|are thrown)/u,
+            'the generic reason adds no dismount message');
+        assert.ok(randomBounds.length > 0,
+            'landing_spot uses the caller-provided random stream');
+    });
+
+test('float_up awaits generic dismount before completing its caller effects',
+    async () => {
+        // trap.c:3992-3996 calls DISMOUNT_GENERIC for a grounded steed when
+        // levitation is not available at will. TIMEOUT alone exercises that
+        // branch without adding an unrelated flight source.
+        const sourceStart = TRAP_C.indexOf('\nfloat_up(void)');
+        const sourceEnd = TRAP_C.indexOf('\n/* a boulder fills a pit', sourceStart);
+        assert.match(TRAP_C.slice(sourceStart, sourceEnd),
+            /dismount_steed\(DISMOUNT_GENERIC\);/u);
+
+        const state = await mounted();
+        const steed = state.u.usteed;
+        state.u.uprops[LEVITATION].intrinsic = TIMEOUT;
+        quiet(state);
+
+        await float_up(state);
+
+        assert.equal(state.u.usteed, null);
+        assert.equal(m_at(steed.mx, steed.my, state), steed,
+            'the live steed returns to the square the hero left');
+        assert.match(toplines(), /You cannot stay on/u);
+        assert.equal(state.unported?.has('steed.c dismount_steed'), false,
+            'the generic helper is wired instead of recorded as a gap');
+    });
 
 test('DISMOUNT_FELL releases the steed and lands the hero', async () => {
     const state = await mounted();

@@ -180,7 +180,7 @@ import {
     is_pool_or_lava,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
-import { get_mleash, leashable, m_unleash } from './apply.js';
+import { get_mleash, leashable, m_unleash, um_dist } from './apply.js';
 import { artifact_exists, artifactTouchable } from './artifacts.js';
 import { night } from './calendar.js';
 import {
@@ -3686,12 +3686,6 @@ export async function m_respond(monster, rawEnv = {}) {
     }
 }
 
-// C ref: apply.c um_dist(). The hero is outside the square's Chebyshev radius
-// when either axis exceeds n.
-function um_dist(x, y, n, state) {
-    return Math.abs(state.u.ux - x) > n || Math.abs(state.u.uy - y) > n;
-}
-
 // C ref: mon.c qst_guardians_respond(). The role's guardian species is the
 // JavaScript equivalent of quest_info(MS_GUARDIAN), even after a shape change.
 export async function qst_guardians_respond(rawEnv = {}) {
@@ -4730,11 +4724,12 @@ export function mnearto(
 //   2741-2742  m_unleash(), for a leashed pet.
 //   2761-2762  wizdeadorgone(), for the Wizard of Yendor.
 //   2768-2776  nemdead(), nemesis_stinks() and leaddead(), the quest arms.
-//   2800-2801  dismount_steed(), when the hero was riding what just died.
+//   2800-2801  asynchronous DISMOUNT_GENERIC release when the departing
+//              monster was the hero's steed.
 // thiefdead(), shkgone(), wormgone(), MON_ENDGAME_FREE, and the detach flag
-// update are implemented in C order. Only the due_to_death branch awaits the
-// inventory drop; mongone()'s false path remains synchronous and surfaces a
-// thrown dependency error to its caller.
+// update are implemented in C order. The due_to_death branch awaits its
+// inventory drop; either death or departure can then await the generic steed
+// release so its caller observes the completed source-order effects.
 //
 // C's impossible() at 2791-2793 becomes a throw. A monster detached twice
 // would be counted twice against iflags.purge_monsters, and dmonsfree() checks
@@ -4788,8 +4783,30 @@ export function m_detach(
         state.iflags.purge_monsters = (state.iflags.purge_monsters ?? 0) + 1;
 
         /* "hero is thrown from his steed when it dies or gets genocided" */
-        if (mtmp === state.u.usteed)
-            unsupported("the death of the hero's steed");
+        if (mtmp === state.u.usteed) {
+            // A planned monster turn must replay the whole source-synchronous
+            // detach and dismount live. The tail reaches float_down()/drown(),
+            // whose water messages and hero inventory effects are not part of
+            // the clone-only monster scan. Stop before dismounting the clone
+            // rather than painting a planned fall or spending live RNG.
+            if (env.planning) {
+                if (typeof env.requestPlanningInput !== 'function') {
+                    throw new TypeError(
+                        'planned steed detach requires a replay boundary',
+                    );
+                }
+                env.requestPlanningInput('steed.c dismount_steed');
+            }
+            // C's void call is synchronous. Return its promise here so mondead()
+            // preserves the same order across JavaScript's async boundary.
+            // Keep the monster pass's random source attached to the helper's
+            // landing_spot() tie-breaks.
+            return import('./steed.js').then(({ dismount_steed }) =>
+                import('./const.js').then(({ DISMOUNT_GENERIC }) =>
+                    dismount_steed(DISMOUNT_GENERIC, state, {
+                        random: env.random,
+                    })));
+        }
     };
 
     const finishAfterLeaving = () => {
@@ -4860,8 +4877,6 @@ export function mongone(monster, env = {}) {
                 note_unported('quest.c nemdead');
             else if (branch === 'the quest leader\'s death')
                 note_unported('questpgr.c leaddead');
-            else if (branch === "the death of the hero's steed")
-                note_unported('steed.c dismount_steed');
             else
                 note_unported(`mon.c m_detach ${branch}`);
         };
@@ -6448,16 +6463,6 @@ export async function maybe_mnexto(mtmp, state = game, env = {}) {
     } while (--tryct > 0);
 }
 
-// Hiding paths outside the ordinary eel action below are not translated.
-// js/cmd.js failClosedCommandRefusals() lists this class so a segment keeps the
-// frames it already matched when one of those paths is reached.
-export class UnsupportedHideError extends Error {
-    constructor(what) {
-        super(`hiding reached an unported branch: ${what}`);
-        this.name = 'UnsupportedHideError';
-    }
-}
-
 // C ref: mon.c:4670-4672, restrap()'s trapped term,
 // `(mtmp->mtrapped && (t = t_at(mtmp->mx, mtmp->my)) != 0 && !is_pit(t->ttyp))`.
 // It is spelled as a function because C assigns inside the condition; t_at() is
@@ -6522,9 +6527,8 @@ export function restrap(monster, env = {}) {
     return false;
 }
 
-// C ref: mon.c hideunder() (4726-4801). All monster concealment paths use this
+// C ref: mon.c hideunder() (4726-4801). Monster and hero concealment use this
 // helper, including newcham() clearing concealment after a change of form.
-// Hero concealment remains fail-closed.
 //
 // The boundary is `seeit` alone rather than `seeit && undetected`, because C
 // evaluates `seenmon = y_monnam(mtmp)` for every visible monster, whether or
@@ -6539,15 +6543,13 @@ export function restrap(monster, env = {}) {
 // square the live display owes.
 export async function hideunder(monster, env = {}) {
     const state = env.state ?? game;
-    if (monster === state.youmonst) {
-        throw new UnsupportedHideError('hero concealment');
-    }
+    const is_u = monster === state.youmonst;
     const isEel = monster.data?.mlet === S_EEL;
 
     const seeit = state.in_mklev ? false : canseemon(monster, state);
 
-    const x = monster.mx;
-    const y = monster.my;
+    const x = is_u ? state.u.ux : monster.mx;
+    const y = is_u ? state.u.uy : monster.my;
     let undetected = false;
     let seenmon = null;
     let seenobj = null;
@@ -6556,10 +6558,11 @@ export async function hideunder(monster, env = {}) {
     // !is_pit(t->ttyp))` skips the lookup for a monster already recorded as
     // trapped. t_at() is a pure lookup, so the skip only spells out that a
     // trapped monster answers false whatever it is trapped in.
-    const trap = monster.mtrapped ? null : t_at(x, y, state);
+    let trap = null;
     if (monster === state.u?.ustuck) {
         /* can't hide if holding you or held by you */
-    } else if (monster.mtrapped || (trap && !is_pit(trap.ttyp))) {
+    } else if ((is_u ? state.u.utrap : monster.mtrapped)
+               || ((trap = t_at(x, y, state)) && !is_pit(trap.ttyp))) {
         /* can't hide while trapped or on a non-pit trap */
     } else if (isEel) {
         // "aquatic creatures only hide under water, not under objects; they
@@ -6594,32 +6597,38 @@ export async function hideunder(monster, env = {}) {
 
     // C names the monster before it changes mundetected. Calling y_monnam()
     // after that assignment would make its canspotmon() check answer "it".
-    if (seeit) seenmon = y_monnam(monster, state, env);
-    const oldundetctd = Boolean(monster.mundetected);
-    monster.mundetected = undetected ? 1 : 0;
-    if (undetected && seenmon && seenobj) {
-        if (!locomo) locomo = locomotion(monster.data, 'hide');
-        const message = env.message
-            ?? (env.planning ? async () => {} : ttyPline);
-        state.msg_xy = { x, y };
-        try {
-            await message(
-                messageAt(
-                    youSee(`${seenmon} ${locomo} under ${seenobj}.`, state),
-                    x,
-                    y,
+    let oldundetctd;
+    if (is_u) {
+        oldundetctd = Boolean(state.u.uundetected);
+        state.u.uundetected = undetected ? 1 : 0;
+    } else {
+        if (seeit) seenmon = y_monnam(monster, state, env);
+        oldundetctd = Boolean(monster.mundetected);
+        monster.mundetected = undetected ? 1 : 0;
+        if (undetected && seenmon && seenobj) {
+            if (!locomo) locomo = locomotion(monster.data, 'hide');
+            const message = env.message
+                ?? (env.planning ? async () => {} : ttyPline);
+            state.msg_xy = { x, y };
+            try {
+                await message(
+                    messageAt(
+                        youSee(`${seenmon} ${locomo} under ${seenobj}.`, state),
+                        x,
+                        y,
+                        state,
+                    ),
                     state,
-                ),
-                state,
-                env,
-            );
-        } finally {
-            state.msg_xy = null;
+                    env,
+                );
+            } finally {
+                state.msg_xy = null;
+            }
+            state.iflags ??= {};
+            state.iflags.last_msg = PLNMSG_HIDE_UNDER;
+            state.gv ??= {};
+            state.gv.last_hider = monster.m_id;
         }
-        state.iflags ??= {};
-        state.iflags.last_msg = PLNMSG_HIDE_UNDER;
-        state.gv ??= {};
-        state.gv.last_hider = monster.m_id;
     }
     if (undetected !== oldundetctd) (env.redraw ?? newsym)(x, y);
     return undetected;
@@ -6649,11 +6658,9 @@ export function mon_animal_list(construct, state = game) {
 // C ref: mon.c maybe_unhide_at() (4696-4720), "reveal a hiding monster at x,y,
 // either under nonexistent object, or an eel out of water".
 //
-// The lookup and guard are ported whole. Its hideunder() call covers the eel
-// and object-concealing monster state paths above; hero concealment records
-// the unported callee and returns because C discards hideunder()'s result. A
-// hidden monster is never visible through canseemon(), so this caller reaches
-// hideunder() only for the state-changing concealment paths.
+// The lookup and guard are ported whole. A hidden monster is never visible
+// through canseemon(), and the hero branch changes u.uundetected without a
+// message, so this source caller can discard hideunder()'s result directly.
 export function maybe_unhide_at(x, y, state = game, rawEnv = {}) {
     const monster = m_at(x, y, state);
     if (monster) {
@@ -6676,7 +6683,7 @@ export function maybe_unhide_at(x, y, state = game, rawEnv = {}) {
     }
     if (!u_at(x, y, state)) return;
     if (state.u?.uundetected) {
-        note_unported('mon.c hideunder');
+        hideunder(state.youmonst, { ...rawEnv, state });
     }
 }
 

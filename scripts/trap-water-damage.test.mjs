@@ -610,7 +610,28 @@ test('drown uses canonical leash counting and preserves the disrobe gap',
         assert.match(jsDisrobe,
             /lostsome\.value = true;[\s\S]*?note_unported\('do\.c dropx'\);\s*--invc;/u);
         assert.doesNotMatch(jsDisrobe, /await dropx\(/u);
-        assert.match(jsTrap, /import \{ number_leashed \} from '\.\/apply\.js';/u);
+        assert.match(jsTrap,
+            /import \{ number_leashed, unleash_all \} from '\.\/apply\.js';/u);
         assert.match(jsTrap, /const leashed = number_leashed\(state\);/u);
+        assert.match(cTrap,
+            /if \(\(i = number_leashed\(\)\) > 0\) \{\s*pline_The\([\s\S]*?unleash_all\(\);\s*\}/u);
+        const cDrown = cTrap.slice(
+            cTrap.indexOf('\ndrown(void)'),
+            cTrap.indexOf('\ndrain_en(', cTrap.indexOf('\ndrown(void)')),
+        );
+        assert.match(cDrown, /feel_newsym\(u\.ux, u\.uy\);/u);
+        assert.match(cDrown,
+            /if \(u\.usteed\) \{\s*dismount_steed\(DISMOUNT_GENERIC\);\s*if \(!is_pool\(u\.ux, u\.uy\)\)\s*return TRUE;/u);
+        assert.match(jsTrap,
+            /export async function drown\(state = game\) \{[\s\S]*?feel_newsym\(u\.ux, u\.uy, state\);/u);
+        assert.doesNotMatch(jsTrap,
+            /note_unported\('display\.c feel_newsym'\)/u);
+        assert.match(jsTrap,
+            /const leashed = number_leashed\(state\);\s*if \(leashed > 0\) \{[\s\S]*?await ttyPline\([\s\S]*?unleash_all\(state\);\s*\}/u);
+        assert.match(jsTrap,
+            /if \(u\.usteed\) \{[\s\S]*?await dismount_steed\(DISMOUNT_GENERIC, state\);\s*if \(!is_pool\(u\.ux, u\.uy, state\)\) return true;/u);
+        assert.doesNotMatch(jsTrap,
+            /note_unported\('steed\.c dismount_steed generic'\)/u);
+        assert.doesNotMatch(jsTrap, /note_unported\('apply\.c unleash_all'\)/u);
         assert.doesNotMatch(jsTrap, /function numberLeashed\(/u);
     });

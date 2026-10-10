@@ -42,6 +42,7 @@ import {
     KILLED_BY_AN,
     MMOVE_DONE,
     MMOVE_NOTHING,
+    MAX_NUM_WORMS,
     MOAT,
     NATTK,
     NEED_HTH_WEAPON,
@@ -83,12 +84,14 @@ import { losehp } from '../js/hack.js';
 import { tamedog } from '../js/dog.js';
 import { new_light_source } from '../js/light.js';
 import { runSegment } from '../js/jsmain.js';
+import { initworm } from '../js/worm.js';
 import {
     AD_PHYS,
     AT_GAZE,
     AT_NONE,
     AT_WEAP,
     PM_COBRA,
+    PM_CAVE_SPIDER,
     PM_CHAMELEON,
     PM_DISPLACER_BEAST,
     PM_EARTH_ELEMENTAL,
@@ -1932,6 +1935,30 @@ test('hideunder conceals an unseen eel in an ordinary pool', async () => {
     assert.equal(await hideunder(target.monster, env), true);
     assert.equal(target.monster.mundetected, 1);
     assert.deepEqual(redraws, [[target.monsterX, target.heroY]]);
+});
+
+test('hideunder updates hero concealment under a coverable floor object', async () => {
+    await prepareSelectedAction();
+    const { ux, uy } = game.u;
+    game.youmonst.data = game.mons[PM_CAVE_SPIDER];
+    game.u.umonnum = PM_CAVE_SPIDER;
+    const object = floorObject(ux, uy, 9301, ROCK);
+    installObject({}, object);
+    const redraws = [];
+    const env = { state: game, redraw: (x, y) => redraws.push([x, y]) };
+
+    assert.equal(await hideunder(game.youmonst, env), true);
+    assert.equal(game.u.uundetected, 1);
+    assert.deepEqual(redraws, [[ux, uy]]);
+
+    assert.equal(await hideunder(game.youmonst, env), true);
+    assert.deepEqual(redraws, [[ux, uy]],
+        'repeating an unchanged hero concealment does not redraw');
+
+    game.level.objects[ux][uy] = null;
+    assert.equal(await hideunder(game.youmonst, env), false);
+    assert.equal(game.u.uundetected, 0);
+    assert.deepEqual(redraws, [[ux, uy], [ux, uy]]);
 });
 
 // Each term of mon.c:4738-4747 that can answer FALSE, plus the two that keep
@@ -5584,9 +5611,9 @@ test('sleeping out-of-sight long worm takes the disturb no-op', async () => {
 });
 
 // C ref: monmove.c dochug():726-731 and m_move():1769. An awake or visible
-// long worm reaches m_move()'s ordinary not_special path. The discarded
-// worm.c worm_move/worm_nomove calls remain named gaps, but m_move itself must
-// not refuse the source branch before it can make that decision.
+// long worm reaches m_move()'s ordinary not_special path. worm_move() updates
+// its tail after relocation; the independent worm_nomove() branch remains a
+// named gap, but m_move itself must not refuse this source path.
 test('awake or visible long worms use the ordinary movement path', async () => {
     for (const testCase of [
         // Awake removes dochug()'s early disturb() return.
@@ -5598,6 +5625,8 @@ test('awake or visible long worms use the ordinary movement path', async () => {
         target.monster.msleeping = testCase.sleeping;
         // A positive worm number identifies the long-worm movement state in C.
         target.monster.wormno = 1;
+        game.level.worms = Array(MAX_NUM_WORMS).fill(null);
+        initworm(target.monster, 0, { state: game });
         if (testCase.visible)
             game.viz_array[target.heroY][target.monsterX] |= COULD_SEE;
         else

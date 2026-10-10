@@ -262,7 +262,7 @@ import { in_rooms } from './rooms.js';
 import { destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 import {
-    counter_were, egg_type_from_parent, killed, set_ustuck,
+    counter_were, egg_type_from_parent, hideunder, killed, set_ustuck,
     setmangry, wakeup,
 } from './mon.js';
 import { were_beastie, were_summon } from './were.js';
@@ -1173,11 +1173,8 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
     await drop_weapon(1, state, env);
     find_ac(state);
 
-    // polyself.c:887-890. hideunder()'s return is discarded; its hero arm is
-    // not ported, so keep the source call as an explicit gap only when the
-    // old form was actually hiding under something.
     if (wasHidingUnder)
-        note_unported('mon.c hideunder hero');
+        hideunder(state.youmonst, env);
 
     if (u.utrap && u.utraptype === TT_PIT) {
         set_utrap(random.rn1(6, 2), TT_PIT, state);
@@ -1211,18 +1208,12 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
                     state, env);
                 expulsionMessage = false;
             }
-            if (expulsionMessage) {
-                // mhitu.c expels()'s named-message arm is not implemented.
-                // The void result is discarded; record the exact source gap.
-                note_unported('mhitu.c expels named-message arm');
-            } else {
-                const { expels } = await import('./mhitu.js');
-                await expels(engulfer, {
-                    ...env,
-                    state,
-                    expulsionMessage: false,
-                });
-            }
+            const { expels } = await import('./mhitu.js');
+            await expels(engulfer, {
+                ...env,
+                state,
+                expulsionMessage,
+            });
             wasExpelled = true;
         }
     } else if (u.ustuck && !sticking
@@ -2297,8 +2288,8 @@ export async function doremove(state = game) {
 // trapped; inside an engulfer the fluid is expelled, swept away or
 // dissolved; over an existing trap the web covers, muffles, thickens,
 // vanishes or triggers it; on stairs it fails; otherwise a WEB trap is made.
-// mhitu.c expels() with a message, dig.c bury_objs() and shk.c add_damage()
-// are unported and C discards their results, so those calls record gaps.
+// dig.c bury_objs() and shk.c add_damage() remain unported discarded-result
+// calls; this function now delegates swallowed release to mhitu.c:expels().
 export async function dospinweb(state = game) {
     const u = state.u;
     const x = u.ux;
@@ -2326,8 +2317,8 @@ export async function dospinweb(state = game) {
             state,
         );
         if (is_animal(u.ustuck.data)) {
-            // expels(u.ustuck, u.ustuck->data, TRUE)
-            note_unported('mhitu.c expels');
+            const { expels } = await import('./mhitu.js');
+            await expels(u.ustuck, { state, expulsionMessage: true });
             return ECMD_OK;
         }
         if (is_whirly(u.ustuck.data)) {

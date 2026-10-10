@@ -428,11 +428,14 @@ export async function tamedog(
     // Grabbers let go whether or not the remaining taming checks succeed.
     if (state.u?.ustuck === monster) {
         if (state.u.uswallow) {
-            // expels() owns the swallowed redraw and is a void call in C;
-            // invoke it when supplied, otherwise preserve that source gap.
-            if (typeof normalized.expels === 'function')
-                await normalized.expels(monster, normalized);
-            else note_unported('mhitu.c expels');
+            // dog.c discards expels()'s result but performs the complete
+            // swallowed release before continuing the taming decisions.
+            const expel = normalized.expels
+                ?? (await import('./mhitu.js')).expels;
+            await expel(monster, {
+                ...normalized,
+                expulsionMessage: true,
+            });
         } else if (!(Upolyd(state.u) && sticks(state.youmonst?.data))) {
             const { unstuck } = await import('./mon.js');
             await unstuck(monster, state, normalized);

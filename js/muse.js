@@ -212,6 +212,7 @@ import {
     trapname,
     unconscious,
 } from './trap.js';
+import { worm_move } from './worm.js';
 
 import { mintrap, seetrap, wearing_iron_shoes } from './trap_effects.js';
 import { makeplural } from './fruit.js';
@@ -1002,7 +1003,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         newsym(mtmp.mx, mtmp.my);
         place_monster(mtmp, trapx, trapy, state);
         if (mtmp.wormno)
-            note_unported('worm.c worm_move');
+            worm_move(mtmp, { ...env, state });
         newsym(trapx, trapy);
         await migrate_to_level(mtmp, ledger_no(state.u?.uz, state) + 1,
             MIGR_RANDOM, null, { state });
@@ -1104,7 +1105,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         newsym(mtmp.mx, mtmp.my);
         place_monster(mtmp, trapx, trapy, state);
         if (mtmp.wormno)
-            note_unported('worm.c worm_move');
+            worm_move(mtmp, { ...env, state });
         maybe_unhide_at(mtmp.mx, mtmp.my, state);
         newsym(trapx, trapy);
         // C calls m_tele(mtmp, vismon, FALSE, 0), which runs mintrap() with
@@ -1466,7 +1467,6 @@ export async function mloot_container(mon, container, vismon, rawEnv = {}) {
 // Unported callees whose results the C discards:
 //   mon.c m_useup       -- consumed object stays in monster inventory
 //   mon.c newcham           -- polymorph skipped
-//   worm.c worm_move        -- worm segment relocation skipped
 export async function use_misc(mtmp, selection, state, env = {}) {
     const otmp = selection.object;
     const i = await precheck(mtmp, otmp, state, env);
@@ -1625,7 +1625,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
         place_monster(mtmp, trapX, trapY, state);
         maybe_unhide_at(trapX, trapY, state);
         if (mtmp.wormno)
-            note_unported('worm.c worm_move');
+            worm_move(mtmp, { ...env, state });
         newsym(trapX, trapY, state);
 
         note_unported('mon.c newcham');
@@ -3260,7 +3260,7 @@ async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
             redraw(mon.mx, mon.my, state);
             place_monster(mon, trap.tx, trap.ty, state);
             if (mon.wormno) /* won't happen; worms don't MUSE to unslime */
-                note_unported('worm.c worm_move');
+                worm_move(mon, { ...actionEnv, state });
             redraw(mon.mx, mon.my, state);
             if (vis)
                 await pline_mon(mon,

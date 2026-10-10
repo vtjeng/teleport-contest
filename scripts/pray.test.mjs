@@ -2124,6 +2124,24 @@ test('maybe_turn_mon_iter() clears a confused turn target once per command',
         state.u.uprops[CONFUSION].intrinsic = 0;
     });
 
+test('pray_revive follows the C floor-pile scan and both saved-pet branches', () => {
+    const cStart = PRAY_C.indexOf('staticfn boolean\npray_revive(void)');
+    const cBody = PRAY_C.slice(cStart, PRAY_C.indexOf('/* #pray command */', cStart));
+    const jsStart = PRAY_JS.indexOf('async function pray_revive(');
+    const jsBody = PRAY_JS.slice(jsStart, PRAY_JS.indexOf('// C ref: pray.c dopray()', jsStart));
+    // These are the source's corpse/statue kinds and saved-monster eligibility fields.
+    assert.ok(cStart >= 0);
+    assert.ok(jsStart >= 0);
+    assert.match(cBody, /for \(otmp = svl\.level\.objects\[u\.ux\]\[u\.uy\]; otmp; otmp = otmp->nexthere\)/u);
+    assert.match(cBody, /\(otmp->otyp == CORPSE \|\| otmp->otyp == STATUE\)[\s\S]*has_omonst\(otmp\)[\s\S]*OMONST\(otmp\)->mtame && !OMONST\(otmp\)->isminion/u);
+    assert.match(cBody, /revive\(otmp, TRUE\) != NULL[\s\S]*animate_statue\(otmp, u\.ux, u\.uy, ANIMATE_SPELL, NULL\) != NULL/u);
+    assert.match(jsBody, /let otmp = state\.level\.objects\[ux\]\[uy\];\s*for \(; otmp; otmp = otmp\.nexthere\)/u);
+    assert.match(jsBody, /\(otmp\.otyp === CORPSE \|\| otmp\.otyp === STATUE\)[\s\S]*saved\?\.mtame && !saved\.isminion/u);
+    assert.ok(jsBody.indexOf('revive(otmp, true, { state })')
+        < jsBody.indexOf('animate_statue('));
+    assert.ok(jsBody.includes('otmp, ux, uy, ANIMATE_SPELL, { state },'));
+});
+
 test('prayer_done reconciles the whole C callback and return order', () => {
     const cStart = PRAY_C.indexOf('staticfn int\nprayer_done(void)');
     const cBody = PRAY_C.slice(cStart, PRAY_C.indexOf('staticfn void\nmaybe_turn_mon_iter', cStart));
@@ -2140,6 +2158,10 @@ test('prayer_done reconciles the whole C callback and return order', () => {
     assert.match(jsBody, /state\.u\.ualign\.record <= 0 \|\| rnl\(state\.u\.ualign\.record\)/u);
     assert.match(jsBody, /return 0;/u);
     assert.doesNotMatch(jsBody, /throw new UnsupportedPrayerError/u);
+    // C revives before blessing altar water; its boolean result is discarded.
+    assert.match(cBody, /if \(on_altar\(\)\) \{\s*\(void\) pray_revive\(\);\s*\(void\) water_prayer\(TRUE\);/u);
+    assert.match(jsBody, /if \(on_altar\(state\)\) \{\s*await pray_revive\(state\);\s*await water_prayer\(true, state\);/u);
+    assert.doesNotMatch(jsBody, /note_unported\('pray\.c pray_revive'\)/u);
 });
 
 test('prayer_done unaligned-altar arm clears invulnerability and penalizes alignment', async () => {
