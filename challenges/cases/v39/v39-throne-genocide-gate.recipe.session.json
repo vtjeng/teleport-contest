@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Distinct seed follow-up after the source-described effect gate failed; preserve the C gate observation even if this setup again misses effect 8.",
+  "segments": [
+    {
+      "seed": 39139230,
+      "datetime": "20420403111400",
+      "nethackrc": "OPTIONS=name:V39ThroneGenocide,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017throne\n#sit\n 8\n",
+      "recorderIsDst": true
+    }
+  ]
+}

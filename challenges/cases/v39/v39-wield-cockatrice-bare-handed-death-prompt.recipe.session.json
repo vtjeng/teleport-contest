@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Reached wield.c:cant_wield_corpse with the C-observed all-inventory letter o. The hero wears no gloves and carries a cockatrice corpse; record the direct instapetrify/fatality prompt, then preserve wizard refusal as part of the history.",
+  "segments": [
+    {
+      "seed": 39139023,
+      "datetime": "20420315115000",
+      "nethackrc": "OPTIONS=name:V39WieldGloves,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017leather gloves\nPn\u0017cockatrice corpse\n,Tnyes\nw*o",
+      "recorderIsDst": true
+    }
+  ]
+}

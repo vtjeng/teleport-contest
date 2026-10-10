@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "The prior C trace ended on the confirmed “Other items in your inventory have been destroyed!” pager. Dismiss it with one additional space to capture the next lava-effects result.",
+  "segments": [
+    {
+      "seed": 39139078,
+      "datetime": "20420315132000",
+      "nethackrc": "OPTIONS=name:V39LavaRingDrop,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".\u0017ring of levitation\nPpl \u0017lava\nR    ",
+      "recorderIsDst": true
+    }
+  ]
+}

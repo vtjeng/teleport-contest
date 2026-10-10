@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first completion of the charged cursed Bell of Opening call: the C trace reached use_bell’s cursed charge arm and recorded mkundead monster construction; dismiss the ring page to capture the summoned outcome.",
+  "segments": [
+    {
+      "seed": 39139024,
+      "datetime": "20420315120000",
+      "nethackrc": "OPTIONS=name:V39BellUndead,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed Bell of Opening\nap ",
+      "recorderIsDst": true
+    }
+  ]
+}

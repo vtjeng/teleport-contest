@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first probe for hack.c:dosinkfall -> trap.c:selftouch when a carried cockatrice corpse meets the temporary levitation removal on a sink. Wish the corpse before the levitation ring, then wear the ring while standing on the sink. Compare only after C confirms the selftouch path.",
+  "segments": [
+    {
+      "seed": 39139031,
+      "datetime": "20420315110000",
+      "nethackrc": "OPTIONS=name:V39SinkTouch,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017sink\n\u0017cockatrice corpse\n\u0017ring of levitation\nPpl ",
+      "recorderIsDst": true
+    }
+  ]
+}

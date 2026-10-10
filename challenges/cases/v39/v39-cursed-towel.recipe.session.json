@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "v39 C-first cursed towel candidate from apply.c:use_towel; use the wished item and record the source rn2(3) result without changing inputs after any JS result.",
+  "segments": [
+    {
+      "seed": 39139006,
+      "datetime": "20420315100500",
+      "nethackrc": "OPTIONS=name:V39Towel,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed towel\nao",
+      "recorderIsDst": true
+    }
+  ]
+}

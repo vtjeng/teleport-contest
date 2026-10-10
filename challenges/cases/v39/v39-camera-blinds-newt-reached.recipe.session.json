@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Corrected v39 camera input after the observed slot-selection miss: camera is o; Ctrl-G places this seed’s newt southeast, so apply camera in direction n. Preserve both prior C observations.",
+  "segments": [
+    {
+      "seed": 39139003,
+      "datetime": "20420315100200",
+      "nethackrc": "OPTIONS=name:V39CameraRay,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed camera\n\u0007newt\naon",
+      "recorderIsDst": true
+    }
+  ]
+}

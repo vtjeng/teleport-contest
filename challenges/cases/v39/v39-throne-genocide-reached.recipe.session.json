@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Corrected pager completion from the independent C trace: dismiss the throne-effect page, select effect 8, dismiss its verbalization page, then answer the source do_genocide target prompt with newt.",
+  "segments": [
+    {
+      "seed": 39139230,
+      "datetime": "20420403111400",
+      "nethackrc": "OPTIONS=name:V39ThroneGenocide,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017throne\n#sit\n 8\n newt\n",
+      "recorderIsDst": true
+    }
+  ]
+}

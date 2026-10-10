@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first follow-up to the preserved level scan: level 7’s map showed a small room with gold, adjacent to the arrival tile. Enter the gold square, ring the carried cursed whistle, and wait one turn to check for the vault guard countdown arm.",
+  "segments": [
+    {
+      "seed": 39139033,
+      "datetime": "20420315110000",
+      "nethackrc": "OPTIONS=name:V39VaultGuard7,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed tin whistle\n#wizlevelport\n2\n#wizmap\n#wizlevelport\n3\n#wizmap\n#wizlevelport\n4\n#wizmap\n#wizlevelport\n5\n#wizmap\n#wizlevelport\n6\n#wizmap\n#wizlevelport\n7\n#wizmap\nyan.",
+      "recorderIsDst": true
+    }
+  ]
+}

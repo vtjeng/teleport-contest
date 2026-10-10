@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-confirmed slot correction: gloves occupy o and the corpse occupies p. Drop p while gloved, take off gloves o only after the corpse is on the floor, then issue manual pickup on that square.",
+  "segments": [
+    {
+      "seed": 39139240,
+      "datetime": "20420501111400",
+      "nethackrc": "OPTIONS=name:V39PickupCorpse,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017leather gloves\nPo\u0017cockatrice corpse\ndpTo,",
+      "recorderIsDst": true
+    }
+  ]
+}

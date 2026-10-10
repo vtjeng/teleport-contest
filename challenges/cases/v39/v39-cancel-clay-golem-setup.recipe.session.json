@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "v39 C-first cancellation setup: wish cancellation wand and create a clay golem so C confirms target placement and wand inventory letter before zap input is selected.",
+  "segments": [
+    {
+      "seed": 39139010,
+      "datetime": "20420315100800",
+      "nethackrc": "OPTIONS=name:V39Cancel,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed wand of cancellation\n\u0007clay golem\n",
+      "recorderIsDst": true
+    }
+  ]
+}

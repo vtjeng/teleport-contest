@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-source-proven HP setup complete: three blessed full-healing potions increase current and maximum HP in separate eight-point increments. Drink the last potion before mounting and creating the hostile titan.",
+  "segments": [
+    {
+      "seed": 39139026,
+      "datetime": "20420315122000",
+      "nethackrc": "OPTIONS=name:V39RideHP,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".\u00173 blessed potions of full healing\nqoqoqo",
+      "recorderIsDst": true
+    }
+  ]
+}

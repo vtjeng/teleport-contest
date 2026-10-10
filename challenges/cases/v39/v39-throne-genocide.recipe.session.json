@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Independent v39 probe of throne_sit_effect effect 8: the wizard chooses the source-supported genocide arm rather than the court-summon arm. C must confirm the sit, effect gate, selected effect, and genocide prompt before this probe can count.",
+  "segments": [
+    {
+      "seed": 39139229,
+      "datetime": "20420402111400",
+      "nethackrc": "OPTIONS=name:V39ThroneGenocide,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017throne\n#sit\n 8\n",
+      "recorderIsDst": true
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "v39 C-first stoning-cure setup: independently wish cockatrice and lizard corpses and inspect assigned selectors before using the source food route; setup only.",
+  "segments": [
+    {
+      "seed": 39139013,
+      "datetime": "20420315101100",
+      "nethackrc": "OPTIONS=name:V39Lizard,role=Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cockatrice corpse\n\u0017lizard corpse\n",
+      "recorderIsDst": true
+    }
+  ]
+}

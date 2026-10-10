@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C first trace is fully confirmed through the wizard death prompt after lava_effects; answer its displayed [yn] prompt with y to preserve the actual death result.",
+  "segments": [
+    {
+      "seed": 39139078,
+      "datetime": "20420315132000",
+      "nethackrc": "OPTIONS=name:V39LavaRingDrop,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".\u0017ring of levitation\nPpl \u0017lava\nR     y",
+      "recorderIsDst": true
+    }
+  ]
+}

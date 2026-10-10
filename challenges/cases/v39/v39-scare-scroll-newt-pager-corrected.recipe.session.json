@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first v39 read.c seffect_scare_monster recipe after preserving two setup probes: six pager acknowledgements close the item-identification pages created by the first wish; the scroll is then read while a visible hostile newt is present.",
+  "segments": [
+    {
+      "seed": 39139227,
+      "datetime": "20420401111200",
+      "nethackrc": "OPTIONS=name:V39ScareRead,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed scroll of scare monster\n      \u0007newt\nrj ",
+      "recorderIsDst": true
+    }
+  ]
+}

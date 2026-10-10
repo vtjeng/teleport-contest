@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "v39 C-first polymorph equipment retouch: C setup showed long sword in slot o. Wield it, then use #polyself to become a floating eye so polyself.c:polymon reaches retouch_equipment with an incompatible weapon.",
+  "segments": [
+    {
+      "seed": 39139012,
+      "datetime": "20420315101000",
+      "nethackrc": "OPTIONS=name:V39Retouch,role=Wizard,race=human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed long sword\nwo#polyself\nfloating eye\n",
+      "recorderIsDst": true
+    }
+  ]
+}
