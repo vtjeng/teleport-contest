@@ -3,6 +3,7 @@
 //
 // C ref: src/pray.c critically_low_hp() (116-156), stuck_in_wall() (161-181),
 //        in_trouble() (198-284), worst_cursed_item() (288-346),
+//        god_zaps_you() (610-694), fry_by_god() (696-702),
 //        angrygods() (704-784), gods_upset() (1436-1443),
 //        consume_offering() (1446-1474), bestow_artifact() (1780-1834),
 //        sacrifice_your_race() (1698-1778), sacrifice_value() (1838-1850),
@@ -13,8 +14,8 @@
 //        maybe_turn_mon_iter() (2347-2405), doturn() (2407-2489),
 //        u_gname() (2524), and align_gname() (2530).
 //
-// prayer_done() handles delayed prayer resolution; pray_revive() and
-// god_zaps_you() remains a source gap. pleased() is ported below;
+// prayer_done() handles delayed prayer resolution; pray_revive() remains a
+// source gap. pleased() is ported below;
 // its calls to helpers without a running-game owner use note_unported().
 
 import { you_unwere } from './were.js';
@@ -45,6 +46,8 @@ import {
     BOLT_LIM,
     CONFUSION,
     DEAF,
+    DIED,
+    DISINT_RES,
     ECMD_OK,
     ECMD_TIME,
     EXT_ENCUMBER,
@@ -58,10 +61,14 @@ import {
     HVY_ENCUMBER,
     INTRINSIC,
     IS_ALTAR,
+    KILLED_BY,
     KILLED_BY_AN,
     LARGEST_INT,
     MAXULEV,
     MM_NOMSG,
+    M_SEEN_DISINT,
+    M_SEEN_ELEC,
+    M_SEEN_REFL,
     NON_PM,
     NOTELL,
     IS_OBSTRUCTED,
@@ -77,11 +84,13 @@ import {
     PASSES_WALLS,
     PLNMSG_OBJ_GLOWS,
     PROTECTION,
+    REFLECTING,
     ROOM,
     SCORR,
     SDOOR,
     SICK,
     SICK_ALL,
+    SHOCK_RES,
     SLIMED,
     STRAT_APPEARMSG,
     STONED,
@@ -101,6 +110,12 @@ import {
     WEAK,
     WOUNDED_LEGS,
     W_SADDLE,
+    W_ARM,
+    W_ARMC,
+    W_ARMS,
+    XKILL_NOCONDUCT,
+    XKILL_NOCORPSE,
+    XKILL_NOMSG,
     EYE,
     voice_deity,
     ismnum,
@@ -109,6 +124,7 @@ import {
     M_AP_FURNITURE,
     M_AP_TYPMASK,
     CXN_ARTICLE,
+    uhim,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import {
@@ -130,10 +146,16 @@ import {
 } from './attrib.js';
 import { paranoid_query, y_n } from './cmd.js';
 import { eaten_stat, floorfood } from './eat.js';
-import { newsym, xlev_to_rank } from './display.js';
+import { newsym, shieldeff, xlev_to_rank } from './display.js';
 import { dropy, heal_legs } from './do.js';
-import { stuck_ring, unchanger, setwornEnv } from './do_wear.js';
-import { In_hell } from './dungeon.js';
+import {
+    disintegrate_arm,
+    stuck_ring,
+    unchanger,
+    setwornEnv,
+} from './do_wear.js';
+import { In_hell, on_level } from './dungeon.js';
+import { done } from './end.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { losehp, near_capacity, nomul, You_can_move_again } from './hack.js';
@@ -154,7 +176,10 @@ import {
     is_undead,
     is_unicorn,
     is_vampshifter,
+    monstseesu,
+    monstunseesu,
     nohands,
+    Resists_Elem,
     throws_rocks,
     your_race,
 } from './mondata.js';
@@ -239,14 +264,15 @@ import {
 } from './priest.js';
 import { couldsee } from './vision.js';
 import { heroIsBlind, messageAt } from './startup_a11y.js';
-import { Monnam, a_monnam } from './do_name.js';
-import { killed, mon_offmap, wake_nearby } from './mon.js';
+import { Monnam, a_monnam, mon_nam } from './do_name.js';
+import { killed, mon_offmap, wake_nearby, xkilled } from './mon.js';
 import { monflee } from './monmove.js';
 import { set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
 import { dlord, summon_minion } from './minion.js';
 import { cmap_to_type } from './mkroom.js';
 import { resist } from './zap.js';
+import { ureflects } from './muse.js';
 import { known_spell, spelleffects } from './spell.js';
 import { welded } from './wield.js';
 import { bimanual, setnotworn, which_armor } from './worn.js';
@@ -2250,6 +2276,151 @@ function Hallucination(state) {
         && !(resistance?.intrinsic || resistance?.extrinsic);
 }
 
+// C ref: pray.c god_zaps_you() (610-694). Divine retaliation checks the
+// swallowed monster first, then the hero's lightning defenses, and then
+// applies a second wide-angle disintegration effect. The two C helpers below
+// use the existing source ports for monster resistance, armor destruction,
+// lifesaving, reflection, and minion creation.
+async function god_zaps_you(resp_god, state) {
+    const { u } = state;
+
+    if (u.uswallow) {
+        await ttyPline(
+            'Suddenly a bolt of lightning comes down at you from the heavens!',
+            state,
+        );
+        await ttyPline(`It strikes ${mon_nam(u.ustuck, state)}!`, state);
+        if (!Resists_Elem(u.ustuck, SHOCK_RES, state)) {
+            await ttyPline(`${Monnam(u.ustuck, state)} fries to a crisp!`, state);
+            // xkilled()'s C result is unused; its state changes and messages
+            // still run before the next `if (u.uswallow)` source check.
+            await xkilled(
+                u.ustuck,
+                XKILL_NOMSG | XKILL_NOCONDUCT,
+                state,
+            );
+        } else {
+            await ttyPline(`${Monnam(u.ustuck, state)} seems unaffected.`, state);
+        }
+    } else {
+        await ttyPline('Suddenly, a bolt of lightning strikes you!', state);
+        const reflecting = u.uprops?.[REFLECTING];
+        if (reflecting?.intrinsic || reflecting?.extrinsic) {
+            await shieldeff(u.ux, u.uy, state);
+            if (heroIsBlind(state)) {
+                await ttyPline("For some reason you're unaffected.", state);
+            } else {
+                await ureflects('%s reflects from your %s.', 'It', state);
+            }
+            monstseesu(M_SEEN_REFL, state);
+        } else {
+            const shockResistance = u.uprops?.[SHOCK_RES];
+            if (shockResistance?.intrinsic || shockResistance?.extrinsic) {
+                await shieldeff(u.ux, u.uy, state);
+                await ttyPline('It seems not to affect you.', state);
+                monstseesu(M_SEEN_ELEC, state);
+                monstunseesu(M_SEEN_REFL, state);
+            } else {
+                await fry_by_god(resp_god, false, state);
+                if (state.program_state?.gameover) return;
+                monstunseesu(M_SEEN_REFL | M_SEEN_ELEC, state);
+            }
+        }
+    }
+
+    await ttyPline(`${align_gname(resp_god, state)} is not deterred...`, state);
+    if (u.uswallow) {
+        await ttyPline(
+            `A wide-angle disintegration beam aimed at you hits `
+                + `${mon_nam(u.ustuck, state)}!`,
+            state,
+        );
+        if (!Resists_Elem(u.ustuck, DISINT_RES, state)) {
+            await ttyPline(
+                `${Monnam(u.ustuck, state)} disintegrates into a pile of dust!`,
+                state,
+            );
+            await xkilled(
+                u.ustuck,
+                XKILL_NOMSG | XKILL_NOCORPSE | XKILL_NOCONDUCT,
+                state,
+            );
+        } else {
+            await ttyPline(`${Monnam(u.ustuck, state)} seems unaffected.`, state);
+        }
+    } else {
+        await ttyPline('A wide-angle disintegration beam hits you!', state);
+
+        // do_wear.c disintegrate_arm() owns the source object-resistance roll
+        // and all object/equipment effects. C discards its return value.
+        const reflectionExtrinsic = u.uprops?.[REFLECTING]?.extrinsic ?? 0;
+        const disintExtrinsic = u.uprops?.[DISINT_RES]?.extrinsic ?? 0;
+        if (state.uarms
+            && !(reflectionExtrinsic & W_ARMS)
+            && !(disintExtrinsic & W_ARMS)) {
+            await disintegrate_arm(state.uarms, { state });
+        }
+        if (state.uarmc
+            && !(reflectionExtrinsic & W_ARMC)
+            && !(disintExtrinsic & W_ARMC)) {
+            await disintegrate_arm(state.uarmc, { state });
+        }
+        if (state.uarm
+            && !(reflectionExtrinsic & W_ARM)
+            && !(disintExtrinsic & W_ARM)
+            && !state.uarmc) {
+            await disintegrate_arm(state.uarm, { state });
+        }
+        if (state.uarmu && !state.uarm && !state.uarmc)
+            await disintegrate_arm(state.uarmu, { state });
+
+        const disintResistance = u.uprops?.[DISINT_RES];
+        if (!(disintResistance?.intrinsic || disintResistance?.extrinsic)) {
+            await fry_by_god(resp_god, true, state);
+            if (state.program_state?.gameover) return;
+            monstunseesu(M_SEEN_DISINT, state);
+        } else {
+            await ttyPline(
+                `You bask in its ${hcolor('black', state)} glow for a minute...`,
+                state,
+            );
+            await godvoice(resp_god, 'I believe it not!', state);
+            monstseesu(M_SEEN_DISINT, state);
+        }
+
+        const astral = state.astral_level;
+        const sanctum = state.sanctum_level;
+        if ((astral && (astral.dlevel || astral.dnum)
+                && on_level(u.uz, astral))
+            || (sanctum && (sanctum.dlevel || sanctum.dnum)
+                && on_level(u.uz, sanctum))) {
+            // pray.c's final high-altar retaliation sends three minions.
+            set_voice(null, 0, 80, voice_deity, state);
+            await verbalize('Thou cannot escape my wrath, mortal!', state);
+            await summon_minion(resp_god, false, state);
+            await summon_minion(resp_god, false, state);
+            await summon_minion(resp_god, false, state);
+            set_voice(null, 0, 80, voice_deity, state);
+            await verbalize(`Destroy ${uhim(state)}, my servants!`, state);
+        }
+    }
+}
+
+// C ref: pray.c fry_by_god() (696-702). done(DIED) returns only after a
+// lifesaving or wizard/discover-mode survival; god_zaps_you() checks the
+// terminal state before continuing after this C nonreturning path.
+async function fry_by_god(resp_god, viaDisintegration, state) {
+    await ttyPline(
+        `You ${viaDisintegration
+            ? 'disintegrate into a pile of dust' : 'fry to a crisp'}!`,
+        state,
+    );
+    state.killer ??= { name: '', format: KILLED_BY_AN };
+    state.killer.format = KILLED_BY;
+    state.killer.name = `the wrath of ${align_gname(resp_god, state)}`;
+    await done(DIED, state);
+}
+
 // C ref: pray.c angrygods() (704-784). How badly a god reacts is
 // `rn2(maxanger)`, and maxanger grows with the anger already stored and with
 // bad luck, so the first prayer of a game -- one point of anger and the three
@@ -2261,7 +2432,7 @@ function Hallucination(state) {
 // attrcurse() when C selects that arm; their fallback calls sit.c rndcurse().
 // Case 6 reuses read.c punish(), or falls through to the curse arm when
 // already punished. Cases 7 and 8 summon a hostile divine minion; the default
-// records the discarded-void god_zaps_you() gap before updating the timer.
+// calls god_zaps_you() before updating the timer.
 const GOD_VOICES = ['booms out', 'thunders', 'rings out', 'booms'];
 
 // C ref: pray.c godvoice() (1414-1426). `words == NULL` leaves a trailing
@@ -2407,7 +2578,7 @@ export async function angrygods(resp_god, state = game) {
         break;
     default:
         await godvoice(resp_god, 'Thou hast angered me.', state);
-        note_unported('pray.c god_zaps_you');
+        await god_zaps_you(resp_god, state);
         break;
     }
     /* even though this might not be in response to prayer, set pray timer */
