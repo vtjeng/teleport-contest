@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T17:18:16.638Z",
+  "capturedAt": "2026-10-10T17:35:41.651Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -82589,6 +82589,149 @@
         "type": "accepted",
         "at": "2026-10-10T17:17:02.988Z",
         "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v40-hostile-long-worm-head-tail-investigation-20261010-854fc42bf880ff2ada55157fb7ab7006ab5c5089",
+        "type": "published",
+        "at": "2026-10-10T17:18:24.315Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "commit": "854fc42bf880ff2ada55157fb7ab7006ab5c5089"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-093643133f6cba16ef35974dadaa5a65361050f4",
+        "type": "ready",
+        "at": "2026-10-10T17:20:32.122Z",
+        "task": "B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010",
+        "delivery": "093643133f6cba16ef35974dadaa5a65361050f4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-b224-correction-09364313-20261010",
+        "type": "received",
+        "at": "2026-10-10T17:21:26.166Z",
+        "task": "B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010",
+        "delivery": "093643133f6cba16ef35974dadaa5a65361050f4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-post-B224-B225-blocked-20261010",
+        "type": "turn",
+        "at": "2026-10-10T17:22:39.459Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "B is waiting on Main integration to release trap.c:drown; then resume parked B225 steed-dismount investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-next-v40-opening-wand-investigation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T17:23:11.444Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C synced accepted Main and is investigating the next available v40 swallowed-hero wand case after the B-owned candidates."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v40-opening-wand-expulsion-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T17:23:21.658Z",
+        "task": "C-v40-opening-wand-expels-swallowed-hero-investigation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-b224-0acc8a59-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T17:27:05.033Z",
+        "task": "B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010",
+        "integration": "0acc8a59f86065f8ff2d90ca1decab45701746e8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v40-selection-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T17:30:48.833Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Synced accepted Main and checking v40 candidates for unreserved source scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C-v40-opening-wand-expulsion-b224-dependency-20261010",
+        "type": "park",
+        "at": "2026-10-10T17:30:50.330Z",
+        "task": "C-v40-opening-wand-expels-swallowed-hero-investigation-20261010",
+        "reason": "Committed investigation a1a2889d6 identifies the missing source behavior as zap.c:release_hold -> mhitu.c:expels(TRUE). Completing whole expels includes its gulpmu caller and the shared js/mhitu.js path reserved by pending B224. Preserve the report and resume after B224 acceptance clears source:mhitu.c:gulpmu and js/mhitu.js ownership, or after the coordinator grants a disjoint sequencing plan."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-next-v41-boulder-investigation-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T17:31:20.641Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "The swallowed-hero diagnosis is saved and parked on the pending expels caller scope; C is tracing the next free v41 boulder-pit case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v41-boulder-fills-pit-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T17:31:35.604Z",
+        "task": "C-v41-boulder-fills-pit-investigation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v41-polymorphed-hider-remaining-floor-object-20261010",
+        "type": "assign",
+        "at": "2026-10-10T17:32:22.852Z",
+        "task": "A2-investigation-v41-polymorphed-hider-remaining-floor-object-20261010",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v41-hider-investigation-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T17:32:26.383Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating the next unreserved v41 mismatch: a polymorphed hider beneath a remaining floor object."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-b224-0acc8a59-38071835110",
+        "type": "validated",
+        "at": "2026-10-10T17:32:48.521Z",
+        "task": "B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010-0acc8a59f86065f8ff2d90ca1decab45701746e8-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T17:33:55.430Z",
+        "task": "B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B225-after-B224-accepted-20261010",
+        "type": "resume",
+        "at": "2026-10-10T17:35:12.503Z",
+        "task": "B225-investigation-v41-forced-steed-dismount-at-pool-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B225-active-after-B224-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T17:35:18.007Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B224 is accepted and released trap.c:drown; continuing the parked v41 steed-dismount investigation."
       }
     ]
   },
@@ -82916,17 +83059,6 @@
         "reason": "Parked after source trace showed the step-76 object-resistance RNG divergence follows the step-75 leash-snap dog movement. The obj_resists helper already performs the source-matched unconditional rn2(100); the active cause lies in dogmove.c:dog_move and js/dogmove.js, reserved by B220 until its delivery is accepted."
       },
       {
-        "task": "B225-investigation-v41-forced-steed-dismount-at-pool-20261010",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-10T16:18:56.434Z",
-        "blockedBy": [],
-        "reason": "The admitted C trace is steed.c:kick_steed -> trap.c:drown -> steed.c:dismount_steed(DISMOUNT_GENERIC). The required production caller is trap.c:drown / js/trap.js, still reserved by pending B224 apply.c:unleash_all wiring; dismount_steed cannot be delivered without that caller path. Resume after B224 is accepted and releases source:trap.c:drown."
-      },
-      {
         "task": "B226-investigation-v40-shop-floor-digdown-warning-20261010",
         "worker": "B",
         "goal": null,
@@ -82936,12 +83068,23 @@
         "since": "2026-10-10T16:29:03.529Z",
         "blockedBy": [],
         "reason": "B226 investigation is committed at 0d94df979 and source-traced to shk.c:shopdig. Implementation requires canonical apply.c:um_dist because shopdig consumes its Boolean result; B224 still owns source:apply.c:um_dist and js/apply.js allowed path through pending delivery 2196247cfc60aa4c18ea634f74a17bf7d6de05f1. Preserve the report and resume after B224 acceptance releases this scope."
+      },
+      {
+        "task": "C-v40-opening-wand-expels-swallowed-hero-investigation-20261010",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-10T17:30:50.330Z",
+        "blockedBy": [],
+        "reason": "Committed investigation a1a2889d6 identifies the missing source behavior as zap.c:release_hold -> mhitu.c:expels(TRUE). Completing whole expels includes its gulpmu caller and the shared js/mhitu.js path reserved by pending B224. Preserve the report and resume after B224 acceptance clears source:mhitu.c:gulpmu and js/mhitu.js ownership, or after the coordinator grants a disjoint sequencing plan."
       }
     ]
   },
   "development": {
-    "executionCommit": "9970268482520fbfdae76892e79aa050c4ef5c4c",
-    "measuredAt": "2026-10-10T17:15:42.159Z",
+    "executionCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+    "measuredAt": "2026-10-10T17:32:11.562Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

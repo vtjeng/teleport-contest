@@ -51,6 +51,7 @@ import { mongone } from './mon.js';
 import { GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 import { can_carry } from './moncarry.js';
 import { artifact_light } from './artifacts.js';
+import { unleash_all } from './apply.js';
 import { obj_is_burning } from './light.js';
 import {
     next_ident,
@@ -362,7 +363,7 @@ export async function savebones(how, when, corpse, state) {
     }
 
     // make_bones:
-    // C: unleash_all() -- no leash logic to undo in this port's state.
+    unleash_all(state);
 
     // C: if (Punished) unpunish(); Punished is uball != null.
     if (state.uball) unpunish(state);
