@@ -251557,6 +251557,45 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-water-plane-lua-v40-20261010",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Port the complete Plane of Water special-level program.",
+      "luaFile": "water.lua",
+      "sessions": [
+        "synthetic/v40/v40-water-plane-levelport-generation"
+      ],
+      "selectionReason": "The admitted v40 Plane of Water level-teleport case reaches load_special for water.lua and stops because the JavaScript loader registry has no water program.",
+      "detail": "Port all top-level water.lua descriptors in source order and register the water special-level loader through the existing mklev load_special path.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "water.lua",
+          "line": 1,
+          "endLine": 102,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v40/v40-water-plane-levelport-generation": {
+          "session": "synthetic/v40/v40-water-plane-levelport-generation",
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-water-plane-levelport-generation",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recordingPath": "challenges/cases/v40/v40-water-plane-levelport-neutral-corrected-cfirst.session.json",
+          "recordingSha256": "24faa07ee35f0db92a9010b35c336a232af410245798c46dd9f8223fb8356805",
+          "evaluationPath": "challenges/evaluations/accepted-5c157f8e4976371080be6ac735788f14f6c6e136-v40.json",
+          "evaluationCommit": "5c157f8e4976371080be6ac735788f14f6c6e136"
+        }
+      }
     }
   ]
 }
