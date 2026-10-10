@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first behavior probe: zap.c:bhitm fire wand against a created newt; item choice and southward line verified from C prompts.",
+  "segments": [
+    {
+      "seed": 38100013,
+      "datetime": "20391009101112",
+      "nethackrc": "OPTIONS=name:V38Zap38100013,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizwish\nwand of fire\n.#wizgenesis\nnewt\nzoj"
+    }
+  ]
+}

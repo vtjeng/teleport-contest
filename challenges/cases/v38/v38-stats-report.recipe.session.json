@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "v38 C-first candidate: v38-stats-report; candidate plan predates JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 38100004,
+      "datetime": "20391009101112",
+      "nethackrc": "OPTIONS=name:V38Probe38100004,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#stats\n                "
+    }
+  ]
+}

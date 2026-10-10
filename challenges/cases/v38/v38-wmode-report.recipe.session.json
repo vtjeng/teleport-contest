@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "v38 C-first candidate: v38-wmode-report; candidate plan predates JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 38100003,
+      "datetime": "20391009101112",
+      "nethackrc": "OPTIONS=name:V38Probe38100003,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wmode\n                "
+    }
+  ]
+}
