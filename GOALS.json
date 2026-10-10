@@ -253266,7 +253266,7 @@
     {
       "id": "fix-wizcmds-makemap-remove-mons-v41-tower2-20261010",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port wizard special-level monster cleanup and arrival message delivery",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -253274,8 +253274,12 @@
       ],
       "selectionReason": "The accepted v41 Tower2 replay first diverges at step 24 because the wizard special-level reset omits wizcmds.c:makemap_remove_mons before Lua alignment shuffling.",
       "detail": "Port the complete wizcmds.c makemap_unmakemon and makemap_remove_mons family, its cmd.c makemap_prepost caller path, and questpgr.c deliver_splev_message required by destination arrival; preserve the dog.c keepdogs gap because its return is discarded.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "447bc9ef243dc416c399e707918717c78d8aed41",
+      "openStanding": {
+        "sha": "38d270ae4309c9d36dccf097fb299afadb180f0a",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -253329,7 +253333,244 @@
           "evaluationPath": "challenges/evaluations/accepted-38d270ae4309c9d36dccf097fb299afadb180f0a-v41.json",
           "evaluationCommit": "38d270ae4309c9d36dccf097fb299afadb180f0a"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "38d270ae4309c9d36dccf097fb299afadb180f0a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-tower2-special-program-generation",
+          "session": "synthetic/v41/v41-tower2-special-program-generation",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recording": "challenges/cases/v41/v41-tower2-wizloaddes-cfirst.session.json",
+          "recordingPath": "challenges/cases/v41/v41-tower2-wizloaddes-cfirst.session.json",
+          "recordingSha256": "f7ae5cff28ccd236fc296514843ce62728f470833b82630b4111a5860b1961e7",
+          "recipe": "challenges/cases/v41/v41-tower2-wizloaddes-cfirst.recipe.session.json",
+          "recipeSha256": "2538cff56993da9051400713aa5769281826be84a1b34af55a5daca848071c5b",
+          "replayInputSha256": "8e09ff5267e59e02cd6b6e7ae99ebcf404306fb484495ad7d4ab9fe134d0dffb",
+          "evaluationPath": "challenges/evaluations/accepted-38d270ae4309c9d36dccf097fb299afadb180f0a-v41.json",
+          "evaluationCommit": "38d270ae4309c9d36dccf097fb299afadb180f0a",
+          "evaluationArtifact": "challenges/evaluations/accepted-38d270ae4309c9d36dccf097fb299afadb180f0a-v41.json",
+          "evaluationUtc": "2026-10-10T15:21:55.315Z",
+          "remainingScreens": 9,
+          "recordedSteps": 33,
+          "previousScreensMatched": 24,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 24,
+              "total": 33
+            },
+            "rng": {
+              "matched": 3344,
+              "total": 3358
+            },
+            "cursors": {
+              "matched": 33,
+              "total": 33
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 24,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 24,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 7,
+              "column": 19,
+              "cCell": {
+                "ch": "(",
+                "color": 3,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "d",
+                "color": 6,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2744,
+              "cEntry": "rn2(100)=37",
+              "cCaller": "obj_resists(zap.c:1469)",
+              "jsEntry": "rn2(3)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 24,
+                "key": "\n"
+              },
+              "stepIndex": 24
+            },
+            "cursor": null
+          },
+          "step": 24,
+          "kind": "rng",
+          "sourceFile": "zap.c",
+          "function": "obj_resists",
+          "message": null,
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 1469,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v41/v41-tower2-special-program-generation.json",
+            "result": {
+              "session": "synthetic/v41/v41-tower2-special-program-generation",
+              "corpus": "synthetic",
+              "batch": "v41",
+              "caseId": "v41-tower2-special-program-generation",
+              "manifestPath": "challenges/manifests/v41.json",
+              "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+              "recordingSha256": "f7ae5cff28ccd236fc296514843ce62728f470833b82630b4111a5860b1961e7",
+              "evaluationPath": "challenges/evaluations/accepted-38d270ae4309c9d36dccf097fb299afadb180f0a-v41.json",
+              "evaluationCommit": "38d270ae4309c9d36dccf097fb299afadb180f0a",
+              "remainingScreens": 9,
+              "recordedSteps": 33,
+              "status": "complete",
+              "commit": "38d270ae4309c9d36dccf097fb299afadb180f0a",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v41",
+                "caseId": "v41-tower2-special-program-generation",
+                "session": "synthetic/v41/v41-tower2-special-program-generation",
+                "manifestPath": "challenges/manifests/v41.json",
+                "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+                "recording": "challenges/cases/v41/v41-tower2-wizloaddes-cfirst.session.json",
+                "recordingPath": "challenges/cases/v41/v41-tower2-wizloaddes-cfirst.session.json",
+                "recordingSha256": "f7ae5cff28ccd236fc296514843ce62728f470833b82630b4111a5860b1961e7",
+                "recipe": "challenges/cases/v41/v41-tower2-wizloaddes-cfirst.recipe.session.json",
+                "recipeSha256": "2538cff56993da9051400713aa5769281826be84a1b34af55a5daca848071c5b",
+                "replayInputSha256": "8e09ff5267e59e02cd6b6e7ae99ebcf404306fb484495ad7d4ab9fe134d0dffb",
+                "evaluationPath": "challenges/evaluations/accepted-38d270ae4309c9d36dccf097fb299afadb180f0a-v41.json",
+                "evaluationCommit": "38d270ae4309c9d36dccf097fb299afadb180f0a",
+                "evaluationArtifact": "challenges/evaluations/accepted-38d270ae4309c9d36dccf097fb299afadb180f0a-v41.json",
+                "evaluationUtc": "2026-10-10T15:21:55.315Z",
+                "remainingScreens": 9,
+                "recordedSteps": 33,
+                "previousScreensMatched": 24,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 24,
+                    "total": 33
+                  },
+                  "rng": {
+                    "matched": 3344,
+                    "total": 3358
+                  },
+                  "cursors": {
+                    "matched": 33,
+                    "total": 33
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 24,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 24,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 7,
+                    "column": 19,
+                    "cCell": {
+                      "ch": "(",
+                      "color": 3,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "d",
+                      "color": 6,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2744,
+                    "cEntry": "rn2(100)=37",
+                    "cCaller": "obj_resists(zap.c:1469)",
+                    "jsEntry": "rn2(3)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 24,
+                      "key": "\n"
+                    },
+                    "stepIndex": 24
+                  },
+                  "cursor": null
+                },
+                "step": 24,
+                "kind": "rng",
+                "sourceFile": "zap.c",
+                "function": "obj_resists",
+                "message": null,
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": 1469,
+                "investigation": {
+                  "status": "missing",
+                  "path": "investigations/synthetic/v41/v41-tower2-special-program-generation.json"
+                }
+              },
+              "summary": "The direct Tower2 load first diverges because the C reset path removes monsters from the current level before the Lua alignment shuffle, while JavaScript skips that cleanup at a note_unported site. C reaches steal.c:mdrop_special_objs and zap.c:obj_resists for inventory objects, consuming rn2(100); JavaScript reaches the alignment shuffle and consumes rn2(3). The source owner is wizcmds.c:makemap_remove_mons and its static helper makemap_unmakemon, wired through the existing cmd.c:makemap_prepost pre path.",
+              "source": {
+                "file": "wizcmds.c",
+                "branch": "On a wizard special-level reset, sp_lev.c:lspo_reset_level calls cmd.c:makemap_prepost with pre=true. That caller runs makemap_remove_mons before load_special initializes nhlib.lua and shuffles the level alignment table. makemap_remove_mons keeps eligible pets, uncreates ordinary and migrating monsters, and purges detached monsters; mongone reaches mdrop_special_objs, whose unconditional obj_resists call consumes rn2(100) for ordinary inventory objects even at zero resistance chance.",
+                "functions": [
+                  "makemap_unmakemon",
+                  "makemap_remove_mons"
+                ],
+                "callers": [
+                  "C: wizcmds.c:wiz_load_splua -> sp_lev.c:lspo_reset_level -> cmd.c:makemap_prepost(pre=true) -> wizcmds.c:makemap_remove_mons -> wizcmds.c:makemap_unmakemon -> mon.c:mongone -> steal.c:mdrop_special_objs -> zap.c:obj_resists",
+                  "C: wizcmds.c:wiz_makemap -> cmd.c:makemap_prepost(pre=true) -> wizcmds.c:makemap_remove_mons",
+                  "JavaScript: js/wizcmds.js:wiz_load_splua -> js/mklev.js:lspo_reset_level -> js/cmd.js:makemap_prepost; the caller currently records note_unported(\"wizcmds.c makemap_remove_mons\") instead of invoking a port",
+                  "JavaScript: js/wizcmds.js:wiz_makemap -> js/cmd.js:makemap_prepost; the same caller wiring is shared"
+                ],
+                "dependencies": [
+                  "cmd.c:makemap_prepost",
+                  "sp_lev.c:lspo_reset_level",
+                  "dog.c:keepdogs",
+                  "mon.c:mongone",
+                  "mon.c:dmonsfree",
+                  "steal.c:mdrop_special_objs",
+                  "zap.c:obj_resists",
+                  "mkobj.c:discard_minvent",
+                  "mkobj.c:dobjsfree"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved queue provenance: /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json SHA-256 63df254bc6597d72c4ae0a7de636a694779db6909e5a3cbb24a4133740d919d2; Tower2 row from accepted game commit 38d270ae4309c9d36dccf097fb299afadb180f0a has 9 remaining screens, 24/33 screens, 3344/3358 RNG calls, and 33/33 cursors matched. Its first mismatch remains at step 24, with source annotation zap.c:obj_resists.",
+                "The targeted scan-sessions diagnostic on b9d8eb55a1aa1487ddbcf52532e7adb9c5023a11 (run-Crd1U1) reports the first mismatch at segment 0, step 24, RNG index 2744: C rn2(100)=37 from obj_resists(zap.c:1469), JavaScript rn2(3)=0; the screen first differs at row 7, column 19.",
+                "challenges/cases/v41/v41-tower2-wizloaddes-cfirst.recipe.session.json is an independent C-first direct #wizloaddes recipe for tower2.lua; the admitted recording has 33 steps and the map source runs after the reset path.",
+                "C call evidence: nethack-c/upstream/src/wizcmds.c:376-395 calls lspo_reset_level(NULL) before load_special; nethack-c/upstream/src/sp_lev.c:5993-6012 calls makemap_prepost(TRUE, wtower); nethack-c/upstream/src/cmd.c:985-1050 calls makemap_remove_mons() in the pre path.",
+                "C owner evidence: nethack-c/upstream/src/wizcmds.c:73-148 implements makemap_unmakemon() and makemap_remove_mons(). The latter calls keepdogs(TRUE), removes current and qualifying migrating monsters through mongone(), then calls dmonsfree().",
+                "Random-call evidence: nethack-c/upstream/src/mon.c:3267-3286 calls mdrop_special_objs() before discard_minvent(); nethack-c/upstream/src/steal.c:852-873 checks every inventory object with obj_resists(obj, 0, 0); nethack-c/upstream/src/zap.c:1458-1470 always calls rn2(100) for non-protected ordinary objects, even when both chances are zero.",
+                "JavaScript gap evidence: js/mklev.js:4301-4321 calls js/cmd.js:makemap_prepost during lspo_reset_level; js/cmd.js:2581-2625 records note_unported(\"wizcmds.c makemap_remove_mons\") and skips it. The next source draw is js/mklev.js load_special alignment shuffle at lines 1804-1830.",
+                "Existing mdrop_special_objs and obj_resists ports preserve the C random behavior: js/steal.js:1009-1035 invokes obj_resists for each inventory object, and js/bury.js:83-108 performs the unconditional rn2(100). The missing call path, rather than those callees, is the first divergence.",
+                "The second production caller is #wizmakemap. Existing source recipes and recordings at recipes/wizcmds.c/makemap-ordinary.session.json, recipes/wizcmds.c/makemap-repeat-variation.session.json, recordings/wizcmds.c/makemap-ordinary.session.json, recordings/wizcmds.c/makemap-repeat-variation.session.json exercise that caller through the same cmd.c:makemap_prepost pre path."
+              ],
+              "replayInputSha256": "8e09ff5267e59e02cd6b6e7ae99ebcf404306fb484495ad7d4ab9fe134d0dffb"
+            }
+          }
+        }
+      ]
     }
   ]
 }
