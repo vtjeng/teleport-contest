@@ -247784,7 +247784,7 @@
     {
       "id": "port-zap-cancel-monst-clay-golem-kill-v39-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port monster cancellation and its clay-golem kill path",
       "cFile": "zap.c",
       "sessions": [
@@ -247798,8 +247798,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "52c9514b68146f66836e5ff89d4d0be624a2d33d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "cancel_monst",
@@ -248149,6 +248152,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "52c9514b68146f66836e5ff89d4d0be624a2d33d",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
