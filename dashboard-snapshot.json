@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T07:26:20.840Z",
+  "capturedAt": "2026-10-10T07:42:13.231Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -79664,6 +79664,88 @@
         "type": "accepted",
         "at": "2026-10-10T07:25:49.626Z",
         "task": "B210-investigation-v39-lava-after-ring-removal"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v39-pickup-fatal-corpse-20261010",
+        "type": "implement",
+        "at": "2026-10-10T07:26:21.605Z",
+        "task": "C-v39-pickup-cockatrice-barehanded-final-investigation-20261010",
+        "goal": "fix-pickup-fatal-corpse-instapetrify-v39-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B210-investigation-v39-lava-after-ring-removal-bd600718d81c324b5507c8771f29eb1aaf855804",
+        "type": "published",
+        "at": "2026-10-10T07:26:29.587Z",
+        "task": "B210-investigation-v39-lava-after-ring-removal",
+        "commit": "bd600718d81c324b5507c8771f29eb1aaf855804"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B211-7a54ede871b0-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T07:32:31.045Z",
+        "task": "B211-investigation-v39-selftouch-cockatrice-human-final",
+        "integration": "7a54ede871b0a32bf11496495532a9bbde5c46f3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B214-magic-trap-implementation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T07:32:44.539Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B214 resolves the seen magic-trap explosion; focused tests, lint, and the full v39 replay pass."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1d2b4383d02ec9259df1470e605ebeaaac8d4a17",
+        "type": "ready",
+        "at": "2026-10-10T07:34:25.747Z",
+        "task": "B214-investigation-v39-magic-trap-explosion",
+        "delivery": "1d2b4383d02ec9259df1470e605ebeaaac8d4a17"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-B214-1d2b438-20261010",
+        "type": "received",
+        "at": "2026-10-10T07:35:24.806Z",
+        "task": "B214-investigation-v39-magic-trap-explosion",
+        "delivery": "1d2b4383d02ec9259df1470e605ebeaaac8d4a17"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-B214-queue-reserved-20261010",
+        "type": "turn",
+        "at": "2026-10-10T07:35:52.621Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B214 is submitted and accepted Main is synced. All current queue cases are reserved or blocked by the B211 caller dependency; waiting for a refreshed queue to select independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-v39-mounted-steed-knockoff-validation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T07:40:41.800Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 has strict v39 mounted-knockback parity and is preparing its implementation delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B211-investigation-v39-selftouch-cockatrice-human-final-7a54ede871b0a32bf11496495532a9bbde5c46f3-validated",
+        "type": "validated",
+        "at": "2026-10-10T07:40:54.680Z",
+        "task": "B211-investigation-v39-selftouch-cockatrice-human-final",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B211-investigation-v39-selftouch-cockatrice-human-final-7a54ede871b0a32bf11496495532a9bbde5c46f3-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T07:41:41.723Z",
+        "task": "B211-investigation-v39-selftouch-cockatrice-human-final"
       }
     ]
   },
@@ -79681,17 +79763,6 @@
         "unblocks": 0
       },
       {
-        "task": "B211-investigation-v39-selftouch-cockatrice-human-final",
-        "worker": "B",
-        "goal": "port-trap-selftouch-wielded-corpse-v39-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "48e67da6816db6267bf1739fa6116f8336fd39a6",
-        "since": "2026-10-10T06:49:40.726Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
-      {
         "task": "B212-investigation-v39-cancellation-clay-golem-reached",
         "worker": "B",
         "goal": "port-zap-cancel-monst-clay-golem-kill-v39-20261010",
@@ -79699,10 +79770,8 @@
         "status": "ready",
         "delivery": "f007dae3536f50dc911c1480eb7ed1e963232fd5",
         "since": "2026-10-10T07:05:44.158Z",
-        "blockedBy": [
-          "B211-investigation-v39-selftouch-cockatrice-human-final"
-        ],
-        "unblocks": 0
+        "blockedBy": [],
+        "unblocks": 1
       },
       {
         "task": "C-v39-counted-wizgenesis-followup-20261010",
@@ -79725,6 +79794,19 @@
         "since": "2026-10-10T07:22:05.094Z",
         "blockedBy": [
           "C-v39-counted-wizgenesis-followup-20261010"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "B214-investigation-v39-magic-trap-explosion",
+        "worker": "B",
+        "goal": "fix-trap-seen-magic-trap-preflight-v39-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "1d2b4383d02ec9259df1470e605ebeaaac8d4a17",
+        "since": "2026-10-10T07:34:25.747Z",
+        "blockedBy": [
+          "B212-investigation-v39-cancellation-clay-golem-reached"
         ],
         "unblocks": 0
       }
@@ -80042,8 +80124,8 @@
     ]
   },
   "development": {
-    "executionCommit": "809afb4bf62208f778b639a4abb658400c11fd5a",
-    "measuredAt": "2026-10-10T07:24:13.944Z",
+    "executionCommit": "7a54ede871b0a32bf11496495532a9bbde5c46f3",
+    "measuredAt": "2026-10-10T07:40:13.422Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -247433,6 +247433,353 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-trap-selftouch-wielded-corpse-v39-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port trap.c selftouch for wielded petrifying corpses",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v39/v39-selftouch-cockatrice-human-final"
+      ],
+      "selectionReason": "The admitted v39 controlled rehumanization case reaches trap.c:selftouch while the bare handed hero wields a cockatrice corpse.",
+      "detail": "Port the complete selftouch function and wire polyself.c:newman to the existing instapetrify path.",
+      "openedAt": "e80218ea600a25704d37d78ff5b0292b2a4503ad",
+      "openStanding": {
+        "sha": "809afb4bf62208f778b639a4abb658400c11fd5a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "7a54ede871b0a32bf11496495532a9bbde5c46f3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "selftouch",
+          "line": 3883,
+          "endLine": 3912,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3883,
+        "to": 3912
+      },
+      "syntheticProvenance": {
+        "synthetic/v39/v39-selftouch-cockatrice-human-final": {
+          "session": "synthetic/v39/v39-selftouch-cockatrice-human-final",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-selftouch-cockatrice-human-final",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-selftouch-cockatrice-human-final.session.json",
+          "recordingSha256": "75b35b3d9bae7b8c0b5c4a3ba07be1b9896fcc942f8115aa9795cbb5e1d2ce39",
+          "evaluationPath": "challenges/evaluations/accepted-809afb4bf62208f778b639a4abb658400c11fd5a-v39.json",
+          "evaluationCommit": "809afb4bf62208f778b639a4abb658400c11fd5a"
+        }
+      },
+      "activeStanding": {
+        "sha": "809afb4bf62208f778b639a4abb658400c11fd5a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-selftouch-cockatrice-human-final",
+          "session": "synthetic/v39/v39-selftouch-cockatrice-human-final",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-selftouch-cockatrice-human-final.session.json",
+          "recordingPath": "challenges/cases/v39/v39-selftouch-cockatrice-human-final.session.json",
+          "recordingSha256": "75b35b3d9bae7b8c0b5c4a3ba07be1b9896fcc942f8115aa9795cbb5e1d2ce39",
+          "recipe": "challenges/cases/v39/v39-selftouch-cockatrice-human-final.recipe.session.json",
+          "recipeSha256": "50af5809709e91d559993f804d05f94d3e7548e7d6a31d17171f3fe5d9317c86",
+          "replayInputSha256": "ed926f4758cde1991459033c919a8ff0b52a3ee3261080b1ad536cdca2b06e90",
+          "evaluationPath": "challenges/evaluations/accepted-809afb4bf62208f778b639a4abb658400c11fd5a-v39.json",
+          "evaluationCommit": "809afb4bf62208f778b639a4abb658400c11fd5a",
+          "evaluationArtifact": "challenges/evaluations/accepted-809afb4bf62208f778b639a4abb658400c11fd5a-v39.json",
+          "evaluationUtc": "2026-10-10T07:23:07.230Z",
+          "remainingScreens": 5,
+          "recordedSteps": 64,
+          "previousScreensMatched": 59,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 59,
+              "total": 64
+            },
+            "rng": {
+              "matched": 2306,
+              "total": 2306
+            },
+            "cursors": {
+              "matched": 60,
+              "total": 64
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 59,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 59,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 24,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 59,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 59,
+                "key": "\n"
+              },
+              "cCursor": [
+                32,
+                0,
+                1
+              ],
+              "jsCursor": [
+                3,
+                10,
+                1
+              ]
+            }
+          },
+          "step": 59,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-selftouch-cockatrice-human-final.json",
+            "result": {
+              "session": "synthetic/v39/v39-selftouch-cockatrice-human-final",
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-selftouch-cockatrice-human-final",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recordingSha256": "75b35b3d9bae7b8c0b5c4a3ba07be1b9896fcc942f8115aa9795cbb5e1d2ce39",
+              "evaluationPath": "challenges/evaluations/accepted-bc442e36ad933de77a8051a6ae641fac42ab6780-v39.json",
+              "evaluationCommit": "bc442e36ad933de77a8051a6ae641fac42ab6780",
+              "remainingScreens": 5,
+              "recordedSteps": 64,
+              "status": "complete",
+              "commit": "730b2417130fc0c0bf5193cf26ce0028156a7e55",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v39",
+                "caseId": "v39-selftouch-cockatrice-human-final",
+                "session": "synthetic/v39/v39-selftouch-cockatrice-human-final",
+                "manifestPath": "challenges/manifests/v39.json",
+                "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+                "recording": "challenges/cases/v39/v39-selftouch-cockatrice-human-final.session.json",
+                "recordingPath": "challenges/cases/v39/v39-selftouch-cockatrice-human-final.session.json",
+                "recordingSha256": "75b35b3d9bae7b8c0b5c4a3ba07be1b9896fcc942f8115aa9795cbb5e1d2ce39",
+                "recipe": "challenges/cases/v39/v39-selftouch-cockatrice-human-final.recipe.session.json",
+                "recipeSha256": "50af5809709e91d559993f804d05f94d3e7548e7d6a31d17171f3fe5d9317c86",
+                "replayInputSha256": "9c849123a3d6d04f02b60b84dadcf1b460de318a7ca2ce052b1ffa6dbb7ce224",
+                "evaluationPath": "challenges/evaluations/accepted-bc442e36ad933de77a8051a6ae641fac42ab6780-v39.json",
+                "evaluationCommit": "bc442e36ad933de77a8051a6ae641fac42ab6780",
+                "evaluationArtifact": "challenges/evaluations/accepted-bc442e36ad933de77a8051a6ae641fac42ab6780-v39.json",
+                "evaluationUtc": "2026-10-10T06:34:43.125Z",
+                "remainingScreens": 5,
+                "recordedSteps": 64,
+                "previousScreensMatched": 59,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 59,
+                    "total": 64
+                  },
+                  "rng": {
+                    "matched": 2306,
+                    "total": 2306
+                  },
+                  "cursors": {
+                    "matched": 60,
+                    "total": 64
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 59,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 59,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 24,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 59,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 59,
+                      "key": "\n"
+                    },
+                    "cCursor": [
+                      32,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      3,
+                      10,
+                      1
+                    ]
+                  }
+                },
+                "step": 59,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At step 59, the controlled rehumanization path reaches trap.c:selftouch because the hero has no gloves and still wields a cockatrice corpse. JavaScript currently records that call as unported in polyself.c:newman, so it skips the long corpse-contact message and the following instapetrify path; C pauses on the previous “You feel like a new man!” line before drawing that message, causing the first screen and cursor mismatch. Port whole trap.c:selftouch and wire the selected polyself.c:newman caller.",
+              "source": {
+                "file": "trap.c",
+                "branch": "When the primary weapon (or, under the source two-weapon condition, secondary weapon) is a CORPSE whose monster touch_petrifies and the hero lacks Stone_resistance, selftouch prints the caller-supplied phrase plus corpse name, builds the killer phrase, and invokes instapetrify. If stoning is survived, it unwields the corpse when gloves and stone resistance are still absent.",
+                "functions": [
+                  "selftouch"
+                ],
+                "callers": [
+                  "polyself.c:newman:463-465 calls selftouch(no_longer_petrify_resistant) after polyman() and the post-rehumanization refreshes; this is the admitted session path and the only caller wired by this task."
+                ],
+                "dependencies": [
+                  "trap.c:instapetrify is already implemented in js/trap.js and supports wielding-corpse protection-loss callers; it issues the stoning message and enters done(STONING).",
+                  "mondata.c:touch_petrifies, do_name.c:obj_pmname, objnam.c:an, and wield.c:uwepgone/uswapwepgone already have JavaScript implementations used by other callers.",
+                  "artifact.c:retouch_equipment remains an explicit gap in newman and is outside this source scope; the recorded branch reaches selftouch after that call."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The authoritative saved queue at /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json (SHA-256 781129791f95cd10ec8578dd170fd5298182a9b4ad578f5c008d93d68d5bc37b) identifies this admitted v39 session with 5 remaining screens, 64 steps, 59/64 screens and 60/64 cursors matched, and all 2306/2306 RNG calls matched. The first mismatch is segment 0, step 59, newline: C cursor [32,0,1] and “You feel like a new man!--More--”; JavaScript cursor [3,10,1] and no More marker.",
+                "Direct JavaScript replay on examined commit 730b2417130fc0c0bf5193cf26ce0028156a7e55 reproduces the boundary: JS step 59 shows “You feel like a new man!” with cursor [3,10,1], then treats each of the four following spaces as an unknown command; C uses those spaces to dismiss the selftouch, instapetrify, and wizard death prompts.",
+                "The admitted recording’s actions first use #polyself to become a stone golem, wield a cockatrice corpse, then use #polyself to request human. At polyself.c:463-465, newman calls selftouch(no_longer_petrify_resistant) when !uarmg. The matching JS caller in polyself.js:newman at line 1698 instead records note_unported(\"trap.c selftouch\").",
+                "C trap.c:selftouch at lines 3883-3910 checks wielded CORPSE objects with touch_petrifies and !Stone_resistance, prints \"%s touch the %s corpse.\", builds the killer phrase, calls instapetrify, and after lifesaving calls uwepgone when the hero still lacks gloves/resistance. The source-order message call makes topl.c:update_topl show --More-- on the prior newman message when the longer contact line cannot share it.",
+                "The continuation is already owned by existing code: trap.c:instapetrify (js/trap.js:356-375) handles stone-golem transformation or the urgent “You turn to stone...” and done(STONING) path; touch_petrifies, obj_pmname, an, uwepgone, and uswapwepgone are already imported implementations. No RNG call is involved in the first divergence."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "selftouch",
+            "implementation": "js/trap.js",
+            "symbol": "selftouch",
+            "sourceReview": "Read the complete C definition trap.c:selftouch at lines 3883-3910. It checks the primary wielded corpse first, then the source's guarded secondary-weapon branch; each branch tests CORPSE, touch_petrifies, and Stone_resistance in order, prints the caller-provided phrase before calling instapetrify with the source-built killer text, and unwields only after stoning returns while gloves and resistance are still absent. The body makes no RNG calls. JavaScript now implements both branches and removes the selected polyself.c:newman note_unported call. Existing artifact.c:retouch_equipment remains an explicit gap immediately before the selected caller; it is outside this source scope.",
+            "callers": [
+              {
+                "path": "js/polyself.js",
+                "symbol": "newman",
+                "source": "polyself.c:newman lines 460-465 calls selftouch(no_longer_petrify_resistant) after polyman, livelog, monster redraw, and encumbrance handling when the hero has no gloves."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "polyself",
+                "source": "polyself.c:polyself lines 709-714 calls newman when controlled selection of PM_HUMAN fails polyok; the admitted session follows this branch."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runPolyselfCommand",
+                "source": "cmd.c command table lines 1801-1802 routes #polyself to wiz_polyself; wizcmds.c:wiz_polyself lines 566-570 calls polyself(POLY_CONTROLLED); the JavaScript extended-command dispatch reaches runPolyselfCommand, wiz_polyself, polyself, and newman."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v39",
+                "caseId": "v39-selftouch-cockatrice-human-final",
+                "segment": 0,
+                "fromStep": 59,
+                "throughStep": 63,
+                "source": "#polyself command dispatch -> wizcmds.c:wiz_polyself -> polyself.c:polyself -> polyself.c:newman -> trap.c:selftouch -> trap.c:instapetrify"
+              }
+            ],
+            "checkedAt": "d8d8a7ff9f1460c6792be078ab2168b531235e12"
+          }
+        ],
+        "entryPointReview": "The selected active entry point is wizard #polyself with a human choice while the hero has no gloves and still wields a cockatrice corpse. C dispatches through cmd.c's polyself extended-command row to wizcmds.c:wiz_polyself, then polyself.c:polyself selects newman, which calls selftouch. JavaScript follows the corresponding extcmdlist_data/cmd.js dispatcher through wiz_polyself and polyself.js:newman. The v39 recording reaches the corpse-contact message, instapetrify, wizard death prompt, and lifesaving return. Other C selftouch callers are outside this selected caller scope and retain their explicit gaps where their caller code is not ported.",
+        "entryPoints": [
+          {
+            "name": "Controlled #polyself rehumanization while wielding a cockatrice corpse without gloves",
+            "functions": [
+              "selftouch"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v39",
+                "caseId": "v39-selftouch-cockatrice-human-final",
+                "segment": 0,
+                "fromStep": 59,
+                "throughStep": 63,
+                "source": "cmd.c -> wizcmds.c:wiz_polyself -> polyself.c:polyself -> polyself.c:newman -> trap.c:selftouch -> trap.c:instapetrify"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7a54ede871b0a32bf11496495532a9bbde5c46f3",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
