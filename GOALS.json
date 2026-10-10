@@ -260708,13 +260708,13 @@
                 "source": "mhitu.c:mattacku -> muse.c:use_offensive -> muse.c:mbhitm -> zap.c:unturn_you -> zap.c:unturn_dead -> zap.c:revive -> makemon.c:makemon"
               }
             ],
-            "checkedAt": "25f382235d2b137fe23ae3de5b3ea7fb791a214f"
+            "checkedAt": "37e6562d0e540cb5f4838e2be7590cb18aa83f9c"
           },
           {
             "name": "unturn_you",
             "implementation": "js/zap.js",
             "symbol": "unturn_you",
-            "sourceReview": "Read the complete zap.c:unturn_you() definition at lines 1224-1235. It first calls unturn_dead() and discards the result; then undead heroes receive the frightened/stunned message and rnd(30) is added to the existing stun timeout before make_stunned(), while other heroes shudder in dread. The JS helper keeps direct self-zaps on the live RNG by default and accepts the caller's action RNG when invoked by muse.c:mbhitm.",
+            "sourceReview": "Read the complete zap.c:unturn_you() definition at lines 1224-1235. It first calls unturn_dead() and discards the result; then undead heroes receive the frightened/stunned message and rnd(30) is added to the existing stun timeout before make_stunned(), while other heroes shudder in dread. The JS helper starts with the full live random API needed by corpse revival, then overlays any caller-supplied random functions. Direct self-zaps therefore retain live defaults, while muse.c:mbhitm preserves its cloned action RNG.",
             "callers": [
               {
                 "path": "js/muse.js",
@@ -260729,9 +260729,12 @@
             ],
             "pure": false,
             "tests": [
-              "scripts/muse.test.mjs"
+              "scripts/muse.test.mjs",
+              "scripts/zap-ray.test.mjs"
             ],
-            "recordings": [],
+            "recordings": [
+              "recordings/zap.c/bhitm-self-unturn-revive-witness-b53.session.json"
+            ],
             "sourceFile": "zap.c",
             "synthetic": [
               {
@@ -260743,10 +260746,10 @@
                 "source": "mhitu.c:mattacku -> muse.c:use_offensive -> muse.c:mbhitm -> zap.c:unturn_you"
               }
             ],
-            "checkedAt": "25f382235d2b137fe23ae3de5b3ea7fb791a214f"
+            "checkedAt": "37e6562d0e540cb5f4838e2be7590cb18aa83f9c"
           }
         ],
-        "entryPointReview": "This task ports helper functions called during monster beam hits. The active monster-item entry sites are muse.c:use_defensive() line 978 and use_offensive() line 1884; both pass mbhitm to mbhit for a wand of undead turning. zap.c:zapyourself() is the existing direct caller of unturn_you(). The selected admitted v42 recording exercises the offensive caller with a hostile dwarf's wand hitting a hero carrying a lichen corpse. The defensive caller remains wired to the same callback, and the whole mbhitm source body is compared branch by branch.",
+        "entryPointReview": "This task ports helper functions called during monster beam hits. The active monster-item entry sites are muse.c:use_defensive() line 978 and use_offensive() line 1884; both pass mbhitm to mbhit for a wand of undead turning. zap.c:zapyourself() is the existing direct caller of unturn_you(). The selected admitted v42 recording exercises the offensive caller with a hostile dwarf's wand hitting a hero carrying a lichen corpse. The defensive caller remains wired to the same callback, and the whole mbhitm source body is compared branch by branch. The direct zapyourself -> unturn_you route is exercised by recordings/zap.c/bhitm-self-unturn-revive-witness-b53.session.json; the correction preserves full live RNG defaults for revival and lets injected action functions override them.",
         "entryPoints": []
       }
     }
