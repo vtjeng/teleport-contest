@@ -246930,7 +246930,7 @@
     {
       "id": "divergence-v39-mounted-steed-polymorph-trap-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix tame monster polymorph naming in mon.c newcham",
       "cFile": "mon.c",
       "sessions": [],
@@ -246942,8 +246942,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "998c20cf771d23d6f5faed181eee05f270b73b58",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "newcham",
       "session": "synthetic/v39/v39-mounted-steed-polymorph-trap",
       "step": 28,
@@ -247113,7 +247116,80 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-mounted-steed-polymorph-trap",
+          "session": "synthetic/v39/v39-mounted-steed-polymorph-trap",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json",
+          "recordingPath": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json",
+          "recordingSha256": "1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997",
+          "recipe": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.recipe.session.json",
+          "recipeSha256": "e2f5f7d33e071f8e837389af982cdfe8fb6754549295fac5ff069e3fea8df5d8",
+          "replayInputSha256": "0829ceb24a4dbcbea8c6089aa8de856c51982d20a277e4f3a173eccf4a339ac1",
+          "evaluationPath": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+          "evaluationCommit": "998c20cf771d23d6f5faed181eee05f270b73b58",
+          "evaluationArtifact": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+          "evaluationUtc": "2026-10-10T07:03:42.993Z",
+          "remainingScreens": 0,
+          "recordedSteps": 29,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 29,
+              "total": 29
+            },
+            "rng": {
+              "matched": 2640,
+              "total": 2642
+            },
+            "cursors": {
+              "matched": 29,
+              "total": 29
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2640,
+              "cEntry": "rn2(3)=2",
+              "cCaller": "landing_spot(steed.c:543)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 28,
+                "key": " "
+              },
+              "stepIndex": 28
+            },
+            "cursor": null
+          },
+          "step": 28,
+          "kind": "rng",
+          "sourceFile": "steed.c",
+          "function": "landing_spot",
+          "message": null,
+          "cFile": "steed.c",
+          "luaFile": null,
+          "line": 543,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v39/v39-mounted-steed-polymorph-trap.json",
+            "previousRemainingScreens": 29
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "998c20cf771d23d6f5faed181eee05f270b73b58",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
