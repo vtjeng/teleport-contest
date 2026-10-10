@@ -255891,7 +255891,7 @@
     {
       "id": "port-hack-moverock-core-cannot-push-v41-boulder-pit-20261010",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port complete hack.c cannot_push through moverock_core so boulder push failures preserve their return values and destination traps apply their source effects.",
       "cFile": "hack.c",
       "sessions": [
@@ -255899,8 +255899,12 @@
       ],
       "selectionReason": "Selected synthetic/v41/v41-boulder-fills-pit-from-hero-action from saved queue 7505fb24cd01792c8cb781d651dd66ffaa451361e46f7c456fd2705afde0a43a. The committed investigation traces the first refusal to hack.c:moverock_core and establishes its return-valued dependency on hack.c:cannot_push.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "e1c0516f2b1e10ed1f175b1ea38abbb5a5109f38",
+      "openStanding": {
+        "sha": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -255957,7 +255961,166 @@
           "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
           "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-boulder-fills-pit-from-hero-action",
+          "session": "synthetic/v41/v41-boulder-fills-pit-from-hero-action",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recording": "challenges/cases/v41/v41-boulder-push-into-pit-cfirst.session.json",
+          "recordingPath": "challenges/cases/v41/v41-boulder-push-into-pit-cfirst.session.json",
+          "recordingSha256": "2ba8ae8e20ef339fe14198ce24ec4d728e714a2cb581da4085b21cf62039efa9",
+          "recipe": "challenges/cases/v41/v41-boulder-push-into-pit-cfirst.recipe.session.json",
+          "recipeSha256": "319d616c033adc3ecc38d7bec7e49ce9b0a64c02387ebc8134487a044e78db2f",
+          "replayInputSha256": "a6dcd789e15a13fb210cfc99141576f8eb53a394de6422c724147c15682e49fd",
+          "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+          "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+          "evaluationArtifact": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+          "evaluationUtc": "2026-10-10T17:31:28.509Z",
+          "remainingScreens": 1,
+          "recordedSteps": 52,
+          "previousScreensMatched": 51,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 51,
+              "total": 52
+            },
+            "rng": {
+              "matched": 3199,
+              "total": 3210
+            },
+            "cursors": {
+              "matched": 51,
+              "total": 52
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: hack.c moverock_core boulder trap effect",
+            "step": 51
+          },
+          "step": 51,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero move: hack.c moverock_core boulder trap effect",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v41/v41-boulder-fills-pit-from-hero-action.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v41",
+              "caseId": "v41-boulder-fills-pit-from-hero-action",
+              "session": "synthetic/v41/v41-boulder-fills-pit-from-hero-action",
+              "manifestPath": "challenges/manifests/v41.json",
+              "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+              "recordingSha256": "2ba8ae8e20ef339fe14198ce24ec4d728e714a2cb581da4085b21cf62039efa9",
+              "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+              "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+              "remainingScreens": 1,
+              "recordedSteps": 52,
+              "status": "complete",
+              "commit": "c68b9a75a89aa77f5849526d239be99fca64ea9b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v41",
+                "caseId": "v41-boulder-fills-pit-from-hero-action",
+                "session": "synthetic/v41/v41-boulder-fills-pit-from-hero-action",
+                "manifestPath": "challenges/manifests/v41.json",
+                "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+                "recording": "challenges/cases/v41/v41-boulder-push-into-pit-cfirst.session.json",
+                "recordingPath": "challenges/cases/v41/v41-boulder-push-into-pit-cfirst.session.json",
+                "recordingSha256": "2ba8ae8e20ef339fe14198ce24ec4d728e714a2cb581da4085b21cf62039efa9",
+                "recipe": "challenges/cases/v41/v41-boulder-push-into-pit-cfirst.recipe.session.json",
+                "recipeSha256": "319d616c033adc3ecc38d7bec7e49ce9b0a64c02387ebc8134487a044e78db2f",
+                "replayInputSha256": "a6dcd789e15a13fb210cfc99141576f8eb53a394de6422c724147c15682e49fd",
+                "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+                "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+                "evaluationArtifact": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+                "evaluationUtc": "2026-10-10T17:31:28.509Z",
+                "remainingScreens": 1,
+                "recordedSteps": 52,
+                "previousScreensMatched": 51,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 51,
+                    "total": 52
+                  },
+                  "rng": {
+                    "matched": 3199,
+                    "total": 3210
+                  },
+                  "cursors": {
+                    "matched": 51,
+                    "total": 52
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: hack.c moverock_core boulder trap effect",
+                  "step": 51
+                },
+                "step": 51,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero move: hack.c moverock_core boulder trap effect",
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "investigation": {
+                  "status": "missing",
+                  "path": "investigations/synthetic/v41/v41-boulder-fills-pit-from-hero-action.json"
+                }
+              },
+              "summary": "The selected replay pushes a boulder from the hero-adjacent square into a pit. C removes it from the source square, lets flooreffects consume it in the pit, then returns 0 so the hero can advance. JavaScript stops at moverock_core’s blanket trap-effect refusal. Source review shows the full task must port moverock_core and its return-valued cannot_push helper, whose branches handle giant pickup/step-over and squeeze results for blocked-push callers.",
+              "source": {
+                "file": "hack.c",
+                "branch": "moverock_core spans source lines 348-638 and includes boulder visibility/pile ordering, movement prerequisites, return-valued cannot_push failure routes, and destination trap/liquid effects. The selected PIT/SPIKED_PIT branch extracts the boulder, temporarily marks the destination visible, calls flooreffects(otmp, rx, ry, \"fall\"), replaces it if the effect did not consume it, redraws a visible monster, and returns whether another boulder remains at the source. cannot_push spans lines 262-312: giants may pick up or step over the boulder depending on inventory/pickup/Sokoban state, riding skill changes feedback, and a small/light hero may squeeze into the square; these branches can change state and print messages.",
+                "functions": [
+                  "moverock_core",
+                  "cannot_push"
+                ],
+                "callers": [
+                  "cmd.c:rhack dispatches the recorded direction through hack.c:domove/domove_core and test_move(..., DO_MOVE); test_move calls moverock() for a boulder, and moverock() calls moverock_core(sx, sy) then resets next_boulder naming.",
+                  "hack.c:moverock_core is the only active caller of cannot_push. Its five call sites at lines 430, 447, 482, 487, and 634 cover too-small heroes, diagonal Sokoban refusal, a blocking corporeal monster, a closed destination door, and an invalid destination. Each returns cannot_push’s result unchanged."
+                ],
+                "dependencies": [
+                  "The natural trap route depends on do.c:flooreffects(otmp, rx, ry, \"fall\") and its existing pit behavior, which consumes the boulder and prints the pit-fill message.",
+                  "The source-complete moverock_core port must preserve existing dependencies and return use, including trap-effect helpers, boulder_hits_pool(), dopush(), cannot_push_msg(), and its active caller test_move(..., DO_MOVE). Do not replace a consumed return with a guessed value.",
+                  "cannot_push is impure: the giant branch may invoke autopick_testobj and sokoban_guilt, its branches print messages, and its return value controls whether the hero steps into the boulder square. Existing recording recordings/trap.c/hero-magic-trap-invisibility.session.json executes the ordinary blocked-push branch through moverock_core and cannot_push, so no duplicate recipe is needed."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved queue provenance: SHA-256 7505fb24cd01792c8cb781d651dd66ffaa451361e46f7c456fd2705afde0a43a; accepted evaluation 0acc8a59f86065f8ff2d90ca1decab45701746e8 reports 51/52 screens, 3199/3210 RNG values, and 51/52 cursors. At segment 0, step 51, the JS runner stops with: unsupported hero move: hack.c moverock_core boulder trap effect.",
+                "The immutable v41 recipe and recording are challenges/cases/v41/v41-boulder-push-into-pit-cfirst.recipe.session.json and challenges/cases/v41/v41-boulder-push-into-pit-cfirst.session.json. The route’s final action pushes the boulder into a pit.",
+                "Upstream hack.c:moverock_core at lines 348-638 handles the trap before normal dopush. In its PIT/SPIKED_PIT arm it detaches the boulder, temporarily sets IN_SIGHT, invokes flooreffects(..., \"fall\"), restores an unconsumed boulder, redraws a visible monster, then returns -1 only when another boulder remains at the hero’s source square.",
+                "Upstream hack.c:cannot_push at lines 262-312 has return-valued giant and squeeze branches, including pickup eligibility, riding-skill feedback, Sokoban guilt, and distinct messages. All five active call sites are in moverock_core and return its result without transformation.",
+                "The JavaScript caller chain is cmd.js:rhack -> hack.js:domove/domove_core -> test_move -> moverock -> moverock_core. Current js/hack.js still refuses the selected trap branch; cannot_push also refuses its giant and squeeze result branches.",
+                "The existing independent recipe recipes/trap.c/hero-magic-trap-invisibility.session.json reaches the blocked-push response at zero-based segment 0, steps 65-68; source hack.c:moverock_core calls cannot_push_msg() and then returns cannot_push() from the blocked destination path. A fresh differential run PzocmJ matched all 122 screens, 3438 RNG values, and 122 cursor positions after implementing the selected code."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
