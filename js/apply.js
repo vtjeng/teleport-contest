@@ -111,6 +111,7 @@ import {
     DISP_BEAM,
     DISP_END,
     FLYING,
+    FORCEBUNGLE,
     HALF_PHDAM,
     INTRINSIC,
     INVIS,
@@ -1943,9 +1944,13 @@ export async function set_trap(state = game, env = {}) {
         if (((obj.cursed || trapSettingFumbling(state))
             && (env.random?.rnl ?? rnl)(10) > 5)
             || trapinfo.force_bungle) {
-            // C discards dotrap()'s result. Its complete trigger chain is not
-            // in this task, so retain the named gap and skip its partial port.
-            note_unported('trap.c dotrap');
+            // C discards dotrap()'s return value but preserves its effects.
+            await dotrap(
+                trap,
+                trapinfo.force_bungle ? FORCEBUNGLE : 0,
+                state,
+                env,
+            );
         }
     } else {
         await ttyPline('Your trap setting attempt fails.', state);

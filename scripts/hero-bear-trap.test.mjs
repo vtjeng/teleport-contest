@@ -804,19 +804,15 @@ test('preflight_dotrap keeps bear refusal and admits a pit after dismount',
         );
     });
 
-test('preflight_dotrap admits seen traps when C forces their effect',
+test('preflight_dotrap admits seen bear traps to C escape and effect logic',
     async () => {
         await heroOnLevelOne();
         // trap.c:2999-3000 sets forcetrap for either bit; fixed_tele_trap()
         // at trap.c:3009-3012 also sets it before the seen-trap gate. A plain
-        // seen bear trap still uses the existing named boundary.
+        // seen bear trap reaches the source's rn2(5) escape test at :3038.
         const seenBearTrap = { tx: game.u.ux, ty: game.u.uy,
             ttyp: BEAR_TRAP, tseen: true, madeby_u: 0 };
-        assert.throws(
-            () => preflight_dotrap(seenBearTrap, game),
-            (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason === 'a trap the hero has already seen',
-        );
+        assert.doesNotThrow(() => preflight_dotrap(seenBearTrap, game));
         for (const [name, flags] of [
             ['FORCETRAP', FORCETRAP],
             ['FAILEDUNTRAP', FAILEDUNTRAP],
