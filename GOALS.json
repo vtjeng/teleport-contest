@@ -242777,7 +242777,7 @@
     {
       "id": "port-spell-tport-spell-wizard-teleport-v38-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port wizard teleport spell-slot toggling and wire dotelecmd menu modes",
       "cFile": "spell.c",
       "sessions": [
@@ -242791,15 +242791,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "tport_spell",
           "line": 1707,
           "endLine": 1762,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -243060,7 +243063,67 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "tport_spell",
+            "implementation": "js/spell.js",
+            "symbol": "tport_spell",
+            "sourceReview": "Read the complete nethack-c/upstream/src/spell.c tport_spell() at lines 1707-1756 and matched its ordered spell-slot scan, MAXSPELL branch, empty-slot HIDE/REMOVE and UNHIDE cases, ADD's complete slot save and id/level/KEEN installation, existing Teleport Away ADD/UNHIDE invalidation, REMOVE restoration, and HIDE's save-and-id-only clear. Checked the function-local static save_tport initial state and inverse return values against teleport.c:dotelecmd(). The only diagnostic callee is impossible() when the spell list is full; its return is unused, so the JS path records note_unported('pline.c impossible') and makes no gameplay substitution. The function is impure because it mutates the spell book and static saved slot; it makes no RNG call. No prior refusal or stub existed in js/spell.js.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:1890-1891 maps wizard m-prefix Ctrl-T to dotelecmd(); teleport.c:919-1027 mode s calls tport_spell(ADD_SPELL), runs dotele(), then applies the inverse operation. js/cmd.js:5414 command dispatch resolves the teleport command in rhack(); its wizard menu mode s calls tport_spell(ADD), routes through the existing known_spell()/dotele refusal path, and the finally block applies REMOVE (or the inverse HIDE action) while restoring teleport properties."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/spell.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v38",
+                "caseId": "v38-wizard-spell-teleport-energy-refusal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 4,
+                "source": "cmd.c m-prefix Ctrl-T dispatch -> teleport.c:dotelecmd() mode s -> spell.c:tport_spell(ADD_SPELL) -> dotele() energy refusal -> tport_spell(REMOVESPELL); js/cmd.js:rhack executes the menu, refusal, and slot cleanup."
+              }
+            ],
+            "checkedAt": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0"
+          }
+        ],
+        "entryPointReview": "The selected function has one active game entry point in this scope: cmd.c:1890-1891 binds the wizard m-prefix Ctrl-T command to teleport.c:dotelecmd(). dotelecmd() presents its wizard mode menu, and mode s installs Teleport Away temporarily before invoking dotele(). The admitted v38 case reaches this path with a level-1 debug Barbarian, selects spellcast, receives the normal energy refusal, and restores the empty spell slot; the final candidate matches all five steps. The production JS entry is rhack() command dispatch in js/cmd.js, not a direct unit-test invocation. The impossible() diagnostic for a full spell list is not an alternate entry point and its return is discarded.",
+        "entryPoints": [
+          {
+            "name": "wizard m-prefix Ctrl-T teleport mode s",
+            "functions": [
+              "tport_spell"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v38",
+                "caseId": "v38-wizard-spell-teleport-energy-refusal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 4,
+                "source": "cmd.c m-prefix Ctrl-T dispatch -> teleport.c:dotelecmd() mode s -> spell.c:tport_spell(ADD_SPELL) -> dotele() energy refusal -> tport_spell(REMOVESPELL); js/cmd.js:rhack executes the menu, refusal, and slot cleanup."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

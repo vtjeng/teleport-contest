@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T01:52:49.692Z",
+  "capturedAt": "2026-10-10T02:20:15.770Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -77589,11 +77589,253 @@
         "at": "2026-10-10T01:52:21.626Z",
         "task": "B204",
         "goal": "fix-arrow-trap-preflight-v38-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v38-wizard-tport-spell-20261010",
+        "type": "implement",
+        "at": "2026-10-10T01:55:33.013Z",
+        "task": "A2-v38-wizard-teleport-energy-refusal-20261010",
+        "goal": "port-spell-tport-spell-wizard-teleport-v38-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C182-v38-boulder-20261010",
+        "type": "implement",
+        "at": "2026-10-10T02:00:43.112Z",
+        "task": "C182",
+        "goal": "fix-pickup-zero-capacity-carry-count-v38-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5a34f603217bbea524f333779a6ea310840ed3b7",
+        "type": "ready",
+        "at": "2026-10-10T02:02:20.329Z",
+        "task": "A2-v38-wizard-teleport-energy-refusal-20261010",
+        "delivery": "5a34f603217bbea524f333779a6ea310840ed3b7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-main-A2-v38-tport-5a34f6032-20261010",
+        "type": "received",
+        "at": "2026-10-10T02:02:46.286Z",
+        "task": "A2-v38-wizard-teleport-energy-refusal-20261010",
+        "delivery": "5a34f603217bbea524f333779a6ea310840ed3b7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-A2-v38-tport-40e9dc963-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T02:03:16.271Z",
+        "task": "A2-v38-wizard-teleport-energy-refusal-20261010",
+        "integration": "40e9dc9638c8b09b54397b5a168fc1d40d62000a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b163add4e236bfc3597f6ae5e596d194629fe5c5",
+        "type": "ready",
+        "at": "2026-10-10T02:03:21.506Z",
+        "task": "B204",
+        "delivery": "b163add4e236bfc3597f6ae5e596d194629fe5c5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-v38-next-after-wizard-20261010",
+        "type": "turn",
+        "at": "2026-10-10T02:04:02.829Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating the next independent source-traced case from the saved v38 queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v38-broken-undead-wand-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T02:04:09.509Z",
+        "task": "A2-v38-broken-undead-wand-investigation-20261010",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B205-v38-dodown-piercer-investigation",
+        "type": "assign",
+        "at": "2026-10-10T02:04:29.110Z",
+        "task": "B205",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-20261010-v38-dodown-investigation-active",
+        "type": "turn",
+        "at": "2026-10-10T02:04:33.309Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C182-ready-to-submit-20261010",
+        "type": "turn",
+        "at": "2026-10-10T02:07:45.886Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C182 passes its focused tests and full v38 case replay; preparing immutable delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-553ca453878cd07da2d13138597e984396a0206e",
+        "type": "ready",
+        "at": "2026-10-10T02:08:14.355Z",
+        "task": "C182",
+        "delivery": "553ca453878cd07da2d13138597e984396a0206e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B205-whole-dodown-v38-20261010",
+        "type": "implement",
+        "at": "2026-10-10T02:09:09.991Z",
+        "task": "B205",
+        "goal": "port-do-dodown-v38-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C183-selection-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T02:09:12.710Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Selecting the next source task: investigate the remaining v38 bear-trap case without crossing B204 trap ownership."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C183-v38-bear-trap-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T02:09:16.802Z",
+        "task": "C183",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-20261010-v38-dodown-implementation-active",
+        "type": "turn",
+        "at": "2026-10-10T02:09:57.287Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v38-broken-undead-wand-20261010",
+        "type": "implement",
+        "at": "2026-10-10T02:09:59.548Z",
+        "task": "A2-v38-broken-undead-wand-investigation-20261010",
+        "goal": "port-apply-do-break-wand-floor-callback-v38-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-A2-v38-tport-5e20fb154-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T02:12:06.739Z",
+        "task": "A2-v38-wizard-teleport-energy-refusal-20261010",
+        "integration": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-20261010-v38-dodown-coding-active-v2",
+        "type": "turn",
+        "at": "2026-10-10T02:14:03.274Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B is implementing whole do.c:dodown from C source and checking the grouped v38 paths."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C183-bear-preflight-block-20261010",
+        "type": "park",
+        "at": "2026-10-10T02:16:25.792Z",
+        "task": "C183",
+        "reason": "The v38 bear-trap case reaches apply.c:set_trap then trap.c:dotrap after feeltrap reveals the new bear trap; source passes flags 0. The accepted-base preflight rejects this seen BEAR_TRAP path, and B204 owns contract:hero-trap-preflight-admission. B204 change only admits arrow traps. The source trace is recorded in investigations/synthetic/v38/v38-cursed-bear-trap-bungle.json. The reserved contract was left untouched; moving to the next independent case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d3cd4eb4bbda75918fc8b46a92e62a319ef4d4e7",
+        "type": "ready",
+        "at": "2026-10-10T02:17:30.451Z",
+        "task": "A2-v38-broken-undead-wand-investigation-20261010",
+        "delivery": "d3cd4eb4bbda75918fc8b46a92e62a319ef4d4e7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C184-lava-wish-investigation-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T02:18:04.241Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the next independent v38 mismatch in floor-item resistance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C184-v38-lava-wish-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T02:18:05.669Z",
+        "task": "C184",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-main-A2-v38-tport-5e20fb154-hosted-38016150641",
+        "type": "validated",
+        "at": "2026-10-10T02:18:20.012Z",
+        "task": "A2-v38-wizard-teleport-energy-refusal-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-v38-wizard-teleport-energy-refusal-20261010-5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T02:19:35.304Z",
+        "task": "A2-v38-wizard-teleport-energy-refusal-20261010"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [],
+    "deliveries": [
+      {
+        "task": "B204",
+        "worker": "B",
+        "goal": "fix-arrow-trap-preflight-v38-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "b163add4e236bfc3597f6ae5e596d194629fe5c5",
+        "since": "2026-10-10T02:03:21.506Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C182",
+        "worker": "C",
+        "goal": "fix-pickup-zero-capacity-carry-count-v38-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "553ca453878cd07da2d13138597e984396a0206e",
+        "since": "2026-10-10T02:08:14.355Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-v38-broken-undead-wand-investigation-20261010",
+        "worker": "A2",
+        "goal": "port-apply-do-break-wand-floor-callback-v38-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "d3cd4eb4bbda75918fc8b46a92e62a319ef4d4e7",
+        "since": "2026-10-10T02:17:30.451Z",
+        "blockedBy": [],
+        "unblocks": 0
+      }
+    ],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -77881,12 +78123,23 @@
         "since": "2026-10-09T17:46:04.357Z",
         "blockedBy": [],
         "reason": "The full Rog-goal Lua program reaches an object descriptor that sets tin montype=\"chameleon\" at dat/Rog-goal.lua:45. Upstream sp_lev.c:lspo_object resolves named species to a species index; current JavaScript carries that name string through the corpsenm path. This shared source contract overlaps parked C172. A198 remains blocked until the orchestrator adjudicates C172; do not edit or reserve sp_lev.c:lspo_object while that task is parked/shared."
+      },
+      {
+        "task": "C183",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-10T02:16:25.792Z",
+        "blockedBy": [],
+        "reason": "The v38 bear-trap case reaches apply.c:set_trap then trap.c:dotrap after feeltrap reveals the new bear trap; source passes flags 0. The accepted-base preflight rejects this seen BEAR_TRAP path, and B204 owns contract:hero-trap-preflight-admission. B204 change only admits arrow traps. The source trace is recorded in investigations/synthetic/v38/v38-cursed-bear-trap-bungle.json. The reserved contract was left untouched; moving to the next independent case."
       }
     ]
   },
   "development": {
-    "executionCommit": "6b12f38baac14afc1c8c0674b270d272898d343b",
-    "measuredAt": "2026-10-10T01:44:11.950Z",
+    "executionCommit": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0",
+    "measuredAt": "2026-10-10T02:17:21.332Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
