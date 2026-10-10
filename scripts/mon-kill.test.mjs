@@ -125,6 +125,9 @@ import {
     LL_UMONST,
 } from '../js/const.js';
 import { newedog } from '../js/dog.js';
+import { clearTtyMessageWindow } from '../js/tty_message.js';
+import { RIDE_COMMAND, loadRideDismountRecipe }
+    from './run-ride-dismount.mjs';
 import { glyph_is_invisible, map_invisible } from '../js/display.js';
 import { block_point } from '../js/vision.js';
 import { planningState } from '../js/unported_monster_actions.js';
@@ -805,6 +808,42 @@ test('m_detach takes the monster off the map and drops what it carried',
             () => m_detach(mon, mon.data, true, game, killEnv()),
             'm_detach: monster is already detached',
         );
+    });
+
+test('m_detach generically dismounts a steed after detaching its corpse',
+    async () => {
+        // Reuse the independently recorded ride setup, shortened before its
+        // voluntary dismount, so C's normal mount path owns the fixture.
+        const [rideSetup] = loadRideDismountRecipe().segments;
+        await runSegment({
+            ...rideSetup,
+            moves: `.${RIDE_COMMAND}j`,
+        });
+        clearTtyMessageWindow(game);
+        game._ttyToplines = '';
+        const pony = game.u.usteed;
+        assert.ok(pony, 'the setup leaves the hero mounted');
+        pony.mhp = 0; // mon.c mondead() kills it before calling m_detach().
+        game.u.ugallop = 2; // mon.c m_detach() must reach steed.c's reset.
+
+        const start = MON_C.indexOf("'mtmp' is going away; remove effects");
+        const bodyStart = MON_C.indexOf('\nm_detach(\n', start);
+        const bodyEnd = MON_C.indexOf('\n/* give a life-saved monster', bodyStart);
+        const source = MON_C.slice(bodyStart, bodyEnd);
+        assert.match(source,
+            /if \(mtmp == u\.usteed\)\s+dismount_steed\(DISMOUNT_GENERIC\);/u);
+
+        const env = killEnv();
+        await m_detach(pony, pony.data, true, game, env);
+
+        assert.equal(pony.mhp, 0,
+            'm_detach marks the removed monster dead before dismounting');
+        assert.equal(pony.mstate & MON_DETACH, MON_DETACH);
+        assert.equal(game.iflags.purge_monsters, 1);
+        assert.equal(game.u.usteed, null,
+            'the dying monster is no longer the hero’s steed');
+        assert.equal(game.u.ugallop, 0,
+            'dismount_steed clears the riding gait');
     });
 
 // mon.c m_detach():2744-2745. A luminous monster takes its light source with
@@ -1818,6 +1857,41 @@ test('a planned kill forgets only its clone-owned invisible marker',
     assert.equal(game.level.monsters[mx][my], mon, 'live monster survives');
     assert.equal(planned.level.monsters[mx][my], null, 'clone detaches');
     assert.deepEqual(game.coreCtx, beforeRandom, 'marker cleanup draws nothing');
+});
+
+test('a planned dead-steed detach stops for live replay', async () => {
+    await hero();
+    const steed = spawn(PM_PONY);
+    game.u.usteed = steed;
+
+    const liveCore = structuredClone(game.coreCtx);
+    const liveLog = [...getRngLog()];
+    const planned = planningState(game);
+    const plannedSteed = planned.u.usteed;
+    let requestedOperation;
+    const boundary = new Error('planning requests live monster replay');
+
+    // mon.c m_detach() calls dismount_steed() after leaving the monster map.
+    // Its float_down()/drown() tail can print and damage the hero's inventory,
+    // so the clone must stop there for the source-ordered live scan to replay.
+    assert.throws(
+        () => m_detach(plannedSteed, plannedSteed.data, false, planned, {
+            ...killEnv(),
+            planning: true,
+            requestPlanningInput(operation) {
+                requestedOperation = operation;
+                throw boundary;
+            },
+        }),
+        (error) => error === boundary,
+    );
+
+    assert.equal(requestedOperation, 'steed.c dismount_steed');
+    assert.deepEqual(game.coreCtx, liveCore, 'preflight leaves live RNG intact');
+    assert.deepEqual(getRngLog(), liveLog, 'preflight adds no live RNG entries');
+    assert.strictEqual(game.u.usteed, steed, 'the live rider remains mounted');
+    assert.strictEqual(planned.u.usteed, plannedSteed,
+        'the planning clone stops before generic dismount side effects');
 });
 
 // mon.c make_corpse():622-649, the mummy and zombie group. undead_to_corpse()
