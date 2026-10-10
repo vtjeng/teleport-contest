@@ -260459,7 +260459,7 @@
     {
       "id": "port-muse-mbhitm-undead-turning-v42-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port monster beam-hit undead-turning effects and validate the shared hero unturn helper.",
       "cFile": "muse.c",
       "sessions": [
@@ -260473,8 +260473,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "19f6a43d2e0643e804a1fc100a7fccb76e5d2577",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mbhitm",
@@ -260751,6 +260754,12 @@
         ],
         "entryPointReview": "This task ports helper functions called during monster beam hits. The active monster-item entry sites are muse.c:use_defensive() line 978 and use_offensive() line 1884; both pass mbhitm to mbhit for a wand of undead turning. zap.c:zapyourself() is the existing direct caller of unturn_you(). The selected admitted v42 recording exercises the offensive caller with a hostile dwarf's wand hitting a hero carrying a lichen corpse. The defensive caller remains wired to the same callback, and the whole mbhitm source body is compared branch by branch. The direct zapyourself -> unturn_you route is exercised by recordings/zap.c/bhitm-self-unturn-revive-witness-b53.session.json; the correction preserves full live RNG defaults for revival and lets injected action functions override them.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "19f6a43d2e0643e804a1fc100a7fccb76e5d2577",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
