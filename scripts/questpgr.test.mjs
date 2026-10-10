@@ -1,7 +1,14 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { com_pager, qtext_pronoun } from '../js/questpgr.js';
+import { com_pager, deliver_splev_message, qtext_pronoun } from '../js/questpgr.js';
+
+const QUESTPGR_SOURCE = readFileSync('nethack-c/upstream/src/questpgr.c', 'utf8');
+const CMD_C_SOURCE = readFileSync('nethack-c/upstream/src/cmd.c', 'utf8');
+const DO_C_SOURCE = readFileSync('nethack-c/upstream/src/do.c', 'utf8');
+const CMD_SOURCE = readFileSync('js/cmd.js', 'utf8');
+const DO_SOURCE = readFileSync('js/do.js', 'utf8');
 
 test('common array pager shuffles once, then chooses a Lua array entry', async () => {
     const draws = [];
@@ -58,4 +65,40 @@ test('quest pronouns pin plural artifacts and subject genders to C', () => {
     assert.equal(qtext_pronoun('n', 'J', state), 'Its');
     assert.equal(qtext_pronoun('?', 'h', state), 'it');
     assert.equal(qtext_pronoun('o', '?', state), '?');
+});
+
+test('deliver_splev_message follows questpgr.c and both active callers', () => {
+    const start = QUESTPGR_SOURCE.indexOf('\ndeliver_splev_message(void)');
+    const end = QUESTPGR_SOURCE.indexOf('\n}', start);
+    assert.ok(start >= 0 && end > start);
+    const source = QUESTPGR_SOURCE.slice(start, end);
+    assert.match(source, /if \(gl\.lev_message\)\s*\{\s*deliver_by_pline\(gl\.lev_message\);\s*free\(\(genericptr_t\) gl\.lev_message\);\s*gl\.lev_message = NULL;/u);
+    assert.match(CMD_C_SOURCE, /deliver_splev_message\(\); \/\* level entry \*\//u);
+    assert.match(DO_C_SOURCE, /deliver_splev_message\(\);/u);
+    assert.match(CMD_SOURCE, /await deliver_splev_message\(state\);\s*await check_special_room\(false, state\);/u);
+    assert.match(DO_SOURCE, /import \{ com_pager, deliver_splev_message \} from '\.\/questpgr\.js';[\s\S]*?await deliver_splev_message\(state\);/u);
+    assert.doesNotMatch(DO_SOURCE, /async function deliver_splev_message\(/u);
+});
+
+test('deliver_splev_message converts lines before clearing the source message', async () => {
+    const output = [];
+    const state = { gl: { lev_message: 'You arrive at 100%% safety.\n' } };
+
+    await deliver_splev_message(state, {
+        async pline(line, actualState) {
+            output.push({ line, pending: actualState.gl.lev_message });
+        },
+    });
+
+    assert.deepEqual(output, [{
+        line: 'You arrive at 100% safety.',
+        pending: 'You arrive at 100%% safety.\n',
+    }]);
+    assert.equal(state.gl.lev_message, null);
+
+    state.gl.lev_message = '';
+    await deliver_splev_message(state, { async pline() {
+        assert.fail('an empty C string emits no lines');
+    } });
+    assert.equal(state.gl.lev_message, null);
 });
