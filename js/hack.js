@@ -379,6 +379,7 @@ import {
 } from './monsters.js';
 import {
     curr_mon_load,
+    hideunder,
     m_in_air,
     minliquid,
     mnexto,
@@ -4453,6 +4454,15 @@ async function domove_core(state = game) {
 
     if (hero_tread_disturbs_buried_zombies(state))
         disturb_buried_zombies(newx, newy, state);
+
+    // C ref: hack.c domove_core():2950-2952. Recheck concealment after the
+    // final hero position is known, including failed movement attempts that
+    // leave dx/dy set for source hideunder() to clear or preserve.
+    if (hides_under(state.youmonst.data)
+        || state.youmonst.data.mlet === S_EEL
+        || u.dx || u.dy) {
+        hideunder(state.youmonst, { state });
+    }
 
     newsym(oldx, oldy);
     vision_recalc(1);

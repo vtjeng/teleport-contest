@@ -169,6 +169,7 @@ import {
     angry_guards,
     deal_with_overcrowding,
     get_iter_mons,
+    hideunder,
     maybe_unhide_at,
     minliquid,
     wake_nearby,
@@ -2107,9 +2108,7 @@ export async function rot_corpse(arg, timeout, rawEnv = {}) {
             mtmp.mundetected = 0;
         } else if (u_at(x, y, state) && state.u.uundetected
             && hides_under(state.youmonst.data)) {
-            // mon.c hideunder's hero arm remains unported; C discards its
-            // result, so retain the named gap without consuming a substitute.
-            note_unported('mon.c hideunder hero concealment');
+            hideunder(state.youmonst, { ...env, state });
         }
         env.hooks.newsym(x, y, env);
     } else if (inInvent) {
