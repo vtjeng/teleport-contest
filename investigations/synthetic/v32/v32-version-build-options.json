@@ -138,5 +138,10 @@
     "The admitted v32 manifest case sourceTrace explicitly identifies the same two differences as platform/build-data provenance, not a new portable game behavior. Its independent C replay reproduced the same bytes. The manifest retains the case as an uncounted configuration/startup frontier.",
     "scripts/run-help-version-information.mjs:3–25 and scripts/fresh-matrix.mjs:14–45 document the existing compatibility rule: keep Darwin judge strings in game code and normalize only these two compile-time host strings for qualified fresh comparisons. Raw synthetic scoring remains strict. Replacing the JS literals with Linux text would contradict that established contract and threaten Darwin recordings.",
     "No portable source implementation task is justified by this case. If the project later changes its build-profile contract, the bounded affected owners are version.c:getversionstring/mdlib.c:version_id_string and mdlib.c:build_options, with both direct #version and help-menu callers already wired. Independent validation must cover both entry points, exact pagination/RNG/cursors and the two profiles; session/seed detection or expected-screen branching is invalid. No game code, tests, recipes, recordings, evaluations or manifest were changed in this investigation."
-  ]
+  ],
+  "resolution": {
+    "kind": "build-provenance",
+    "reason": "The Linux C recorder embeds Unix and /dev/urandom while the JavaScript port preserves the Darwin judge profile, MacOS and /dev/random. The manifest classifies those compile-time labels as platform/build-data provenance rather than portable game behavior.",
+    "disposition": "Retain the Darwin judge profile and preserve the admitted v32 recording, manifest, and evaluations unchanged. Exclude this platform-only mismatch from JavaScript implementation work."
+  }
 }

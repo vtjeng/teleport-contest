@@ -261,6 +261,7 @@ function evaluationCase(batch, evaluation, entry, previous, owners) {
 
 export function buildSyntheticQueue(batches, { root = PROJECT_ROOT, owners = null } = {}) {
     const sessions = [];
+    const excluded = [];
     const blockers = [];
     const normalized = [];
     const sourceOwners = owners ?? (() => {
@@ -304,7 +305,13 @@ export function buildSyntheticQueue(batches, { root = PROJECT_ROOT, owners = nul
             }
             if (entry) {
                 entry.investigation = readInvestigation(root, entry);
-                sessions.push(entry);
+                const resolution = entry.investigation.status === 'complete'
+                    ? entry.investigation.result?.resolution : null;
+                if (resolution) {
+                    excluded.push({ ...entry, resolution });
+                } else {
+                    sessions.push(entry);
+                }
             }
         }
         // A cursor/RNG-only loss remains actionable, but it does not block
@@ -320,7 +327,7 @@ export function buildSyntheticQueue(batches, { root = PROJECT_ROOT, owners = nul
         || a.batch.localeCompare(b.batch) || a.caseId.localeCompare(b.caseId));
     return {
         mode: 'synthetic', corpus: 'synthetic', batches: normalized,
-        sessions: ordered, blockers,
+        sessions: ordered, excluded, blockers,
         generationReady: blockers.length === 0
             && normalized.every(batch => batch.generationReady),
         status: blockers.length ? 'blocked' : ordered.length ? 'actionable' : 'ready',
@@ -462,6 +469,7 @@ export function buildWorkQueue(fixed, synthetic) {
     return {
         mode: 'work', corpus: 'combined', fixed, synthetic,
         sessions, candidates: [...fixedCandidates, ...syntheticCandidates],
+        excluded: synthetic?.excluded ?? [],
         blockers, selectionBlocked: blockers.length > 0,
         generationReady: Boolean(synthetic?.generationReady)
             && blockers.length === 0 && fixedSessions.length === 0,
@@ -662,8 +670,13 @@ export function formatWorkQueue(queue) {
         const investigation = entry.investigation;
         lines.push(`      Investigation: ${investigation?.status ?? 'missing'}`);
     }
+    if (queue.excluded?.length) {
+        lines.push('  Resolved non-game evidence:');
+        for (const entry of queue.excluded)
+            lines.push(`    ${entry.session}: ${entry.resolution.disposition}`);
+    }
     lines.push('', queue.generationReady
-        ? 'Synthetic generation: ready (all admitted batches measured and matched).'
+        ? 'Synthetic generation: ready (no actionable screen debt remains).'
         : 'Synthetic generation: blocked until every admitted batch has current complete evidence.');
     return lines.join('\n');
 }

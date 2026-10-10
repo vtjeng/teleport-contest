@@ -109,7 +109,7 @@
   ],
   "resolution": {
     "kind": "recorder-defect",
-    "repair": "nethack-c/patches/006-nomux-capture.patch now sizes nomux_out for the serializer's 44,304-byte worst case, and challenge admission rejects invalid 24x80 C cursor coordinates.",
-    "corpus": "Preserve the admitted v35 recording, manifest, and evaluations unchanged. Treat its nine out-of-bounds cursors as historical defective recorder evidence, not behavior for the JavaScript port to reproduce."
+    "reason": "The old recorder output buffer was smaller than the serializer's worst case, corrupting nine captured cursor coordinates after otherwise matching play.",
+    "disposition": "Preserve the admitted v35 recording, manifest, and evaluations unchanged. The recorder patch now bounds output correctly, and the corrupted historical evidence is excluded from JavaScript implementation work."
   }
 }
