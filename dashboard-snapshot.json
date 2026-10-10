@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T16:57:17.738Z",
+  "capturedAt": "2026-10-10T17:18:16.638Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -82534,23 +82534,66 @@
         "at": "2026-10-10T16:56:12.768Z",
         "worker": "B",
         "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010-89d3d49a17ff032310ee20cf8b3105e2cca9f109",
+        "type": "published",
+        "at": "2026-10-10T16:57:25.461Z",
+        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010",
+        "commit": "89d3d49a17ff032310ee20cf8b3105e2cca9f109"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-c-worm-426dd3ff-20261010",
+        "type": "received",
+        "at": "2026-10-10T16:59:41.634Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "delivery": "426dd3ff80ebd553d529ea20613fbd31c28ce474"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-c-worm-28534382af4e-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T17:04:33.080Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "integration": "28534382af4e7637472e05c36442f78652ed1ac7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-c-worm-997026848252-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T17:09:19.289Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "integration": "9970268482520fbfdae76892e79aa050c4ef5c4c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B224-correction-blocked-bones-evidence-20261010",
+        "type": "turn",
+        "at": "2026-10-10T17:16:05.064Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-c-worm-997026848-38070711297",
+        "type": "validated",
+        "at": "2026-10-10T17:16:07.340Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v40-hostile-long-worm-head-tail-investigation-20261010-9970268482520fbfdae76892e79aa050c4ef5c4c-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T17:17:02.988Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
-        "worker": "C",
-        "goal": "port-worm-move-tail-tracking-v40-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "426dd3ff80ebd553d529ea20613fbd31c28ce474",
-        "since": "2026-10-10T16:55:13.442Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -82897,8 +82940,8 @@
     ]
   },
   "development": {
-    "executionCommit": "ab8908874e1e9d75514e41091f87203999314ce0",
-    "measuredAt": "2026-10-10T16:53:34.432Z",
+    "executionCommit": "9970268482520fbfdae76892e79aa050c4ef5c4c",
+    "measuredAt": "2026-10-10T17:15:42.159Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
