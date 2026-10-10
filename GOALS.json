@@ -249424,6 +249424,39 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-pickup-fatal-corpse-instapetrify-v39-20261010",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Finish fatal corpse handling for pickup and container routes",
+      "cFile": "pickup.c",
+      "sessions": [
+        "synthetic/v39/v39-pickup-cockatrice-barehanded-final"
+      ],
+      "selectionReason": "Oldest dependency-ready synthetic v39 mismatch after mounted knockback acceptance; investigation isolates pickup.c:fatal_corpse_mistake and all live callers.",
+      "detail": "Source routes pickup_object, in_container, and out_container call pickup.c:fatal_corpse_mistake, whose fatal branch awaits trap.c:instapetrify.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "fatal_corpse_mistake",
+      "session": "synthetic/v39/v39-pickup-cockatrice-barehanded-final",
+      "step": 52,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-pickup-cockatrice-barehanded-final": {
+          "session": "synthetic/v39/v39-pickup-cockatrice-barehanded-final",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-pickup-cockatrice-barehanded-final",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-pickup-cockatrice-barehanded-final.session.json",
+          "recordingSha256": "a2f2f75aa2c78f8e87f98a34888f5709c4a605a1142d6ebdc159d0475dfd9b75",
+          "evaluationPath": "challenges/evaluations/accepted-2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba-v39.json",
+          "evaluationCommit": "2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba"
+        }
+      }
     }
   ]
 }
