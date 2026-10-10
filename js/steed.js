@@ -849,9 +849,9 @@ async function landing_spot(reason, forceit, state = game) {
     return found ? spot : null;
 }
 
-// C ref: steed.c dismount_steed() (575-822). This port covers the
-// DISMOUNT_BYCHOICE and DISMOUNT_KNOCKED paths; other reasons still identify
-// their unported callers in the switch below.
+// C ref: steed.c dismount_steed() (575-826). This port covers the
+// DISMOUNT_BYCHOICE, DISMOUNT_KNOCKED, and DISMOUNT_FELL paths; other reasons
+// still identify their unported callers in the switch below.
 export async function dismount_steed(reason, state = game) {
     const u = state.u;
     const save_utrap = u.utrap;
@@ -875,11 +875,11 @@ export async function dismount_steed(reason, state = game) {
     const otmp = which_armor(mtmp, W_SADDLE);
     switch (reason) {
     case DISMOUNT_THROWN:
-    case DISMOUNT_FELL:
         throw new UnsupportedSteedError(
             `dismount_steed() reason ${reason}, a fall from the saddle`,
         );
     case DISMOUNT_KNOCKED:
+    case DISMOUNT_FELL:
         // uhitm.c:mhitm_knockback() supplies the preferred direction. The
         // source requests a farther landing square only when adjacent squares
         // have no usable candidate.
