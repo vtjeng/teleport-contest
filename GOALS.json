@@ -254526,7 +254526,7 @@
     {
       "id": "port-earth-plane-lua-synthetic-v40-20261010",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the Plane of Earth level program",
       "luaFile": "earth.lua",
       "sessions": [
@@ -254540,15 +254540,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "07a45f0d02529c0ca8796e4a38578d49c418d1c3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "earth.lua",
           "line": 1,
           "endLine": 130,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -254714,7 +254717,76 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "earth.lua",
+            "implementation": "js/earth_levels.js",
+            "symbol": "earth",
+            "sourceReview": "Read and compared all 130 lines of nethack-c/upstream/dat/earth.lua, including every top-level statement. The loader preserves source order for level_init, all four level flags, three messages, map creation, the 5-percent terrain replacement, fixed player arrival, air portal creation, 62 monster descriptors in their original positional/table forms, and the final boulder. The fixed 20-by-76 map and ordered monster descriptors are generated from the upstream file by scripts/generate-earth-level.mjs. Checked each des.* call against the existing sp_lev.c adapter in js/mklev.js; this program has no other Lua helper calls or unported callees. The production registry now dispatches earth to this loader, removing the observed no-loader stop for Earth.",
+            "callers": [
+              {
+                "path": "js/earth_levels.js",
+                "symbol": "earth",
+                "source": "C dat/earth.lua runs as the whole program passed to sp_lev.c:load_special(\"earth.lua\"). The JavaScript loader receives the corresponding special-level descriptor API and makes every source call in order."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "ensureSpecialLevelLoaders",
+                "source": "C mklev.c:makelevel() selects the endgame special level; mkmaze.c:makemaz() calls sp_lev.c:load_special(\"earth.lua\"). JavaScript ensureSpecialLevelLoaders() imports EARTH_LEVEL_LOADERS and registers earth, which load_special()/makemaz()/makelevel() dispatch through createSpecialLevelApi()."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_level_tele",
+                "source": "C wizcmds.c:wiz_level_tele() invokes teleport.c:level_tele(); the accepted destination schedules do.c:goto_level(), which generates the destination through mklev.c:makelevel(). The v40 recording reaches the program through this command and the wizard endgame level menu."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/earth-level-loader.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-earth-plane-levelport-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 24,
+                "source": "wizcmds.c:wiz_level_tele -> teleport.c:level_tele -> do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/earth.lua; JavaScript: js/wizcmds.js:wiz_level_tele -> js/teleport.js:level_tele -> js/do.js:goto_level -> js/mklev.js:makelevel/load_special -> js/earth_levels.js:earth"
+              }
+            ],
+            "checkedAt": "07a45f0d02529c0ca8796e4a38578d49c418d1c3"
+          }
+        ],
+        "entryPointReview": "The active entry point is special loading of the Earth endgame program after a wizard level-port. C reaches wizcmds.c:wiz_level_tele -> teleport.c:level_tele -> do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special. JavaScript follows js/wizcmds.js -> js/teleport.js -> js/do.js -> js/mklev.js and dispatches through the special-level loader registry. The whole top-level dat/earth.lua program is impure, and the admitted v40 range reaches the complete loader through the production dispatcher. There are no alternate active entry points in the selected Lua program.",
+        "entryPoints": [
+          {
+            "name": "Wizard level-port arrival on the Plane of Earth",
+            "functions": [
+              "earth.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-earth-plane-levelport-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 24,
+                "source": "wizcmds.c:wiz_level_tele -> teleport.c:level_tele -> do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/earth.lua; JavaScript: js/wizcmds.js:wiz_level_tele -> js/teleport.js:level_tele -> js/do.js:goto_level -> js/mklev.js:makelevel/load_special -> js/earth_levels.js:earth"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "07a45f0d02529c0ca8796e4a38578d49c418d1c3",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
