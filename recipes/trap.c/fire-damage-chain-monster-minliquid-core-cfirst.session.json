@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first natural monster-entry witness for trap.c:fire_damage_chain through apply.c:do_break_wand -> dig.c:liquid_flow -> mon.c:minliquid_core. A debug Barbarian enables Levitation and invulnerability, moves to a clear square, creates a peaceful fire giant with source-generated inventory, wishes a digging wand and lava underfoot, then breaks the wand. The blast angers but does not kill the fire-resistant giant; surrounding lava fills its square, liquid_flow calls minliquid, and the surviving giant burns slightly before relocation. The final spaces acknowledge C-observed More pages through that callback.",
+  "segments": [
+    {
+      "seed": 90227813,
+      "datetime": "20520618081247",
+      "nethackrc": "OPTIONS=name:LavaMonFlow,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizintrinsic\na\n #wizintrinsic\nq\n j#wizgenesis\npeaceful fire giant\n#wizwish\nwand of digging\n#wizwish\nlava\nafy      "
+    }
+  ]
+}
