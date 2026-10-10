@@ -8,8 +8,11 @@ import {
     ALLOW_U,
     CADAVER,
     COLNO,
+    COULD_SEE,
+    IN_SIGHT,
     ROWNO,
     M_AP_NOTHING,
+    M_AP_OBJECT,
     CONFLICT,
     DEAF,
     DISMOUNT_THROWN,
@@ -80,6 +83,7 @@ import {
     CREDIT_CARD,
     CORPSE,
     FOOD_CLASS,
+    LEASH,
     objects_globals_init,
     PICK_AXE,
     ROCK,
@@ -1665,13 +1669,16 @@ test('dog_move unleashes a pet before attacking the hero', async () => {
             y: state.u.uy,
             info: ALLOW_U,
         }]),
-        reportLeashBreak: () => events.push('message'),
-        unleashMonster: () => events.push('unleash'),
-        attackHero: () => events.push('attack'),
+        message: () => events.push('message'),
+        attackHero: () => {
+            assert.equal(monster.mleashed, 0,
+                'C clears the leash before mattacku()');
+            events.push('attack');
+        },
     }));
 
     assert.equal(result, MMOVE_DONE);
-    assert.deepEqual(events, ['message', 'unleash', 'attack']);
+    assert.deepEqual(events, ['message', 'attack']);
 });
 
 // C ref: dogmove.c dog_move():1298-1312. Each case below fixes one term of
@@ -2065,8 +2072,9 @@ test('dog_move retains raw fallback coordinates and rejected region', async () =
 });
 
 // dogmove.c:341 discards m_consume_obj's result, and mon.c:1447 discards
-// quickmimic's result. Its unported leash/steed effects cannot supply data.
-test('dog_eat retains its consumed return across the named quickmimic gap', async () => {
+// quickmimic's result. Leashed pets run its appearance and leashability path;
+// the mounted-pet branch still stops at steed.c:dismount_steed.
+test('dog_eat reaches quickmimic for leashed pets and keeps the steed gap', async () => {
     for (const mounted of [false, true]) {
         const {state, monster} = activePetState();
         state.context = {};
@@ -2076,22 +2084,40 @@ test('dog_eat retains its consumed return across the named quickmimic gap', asyn
         objects_globals_init(state);
         init_objects(state, () => 0);
         monster.mleashed = !mounted;
-        if (mounted) state.u.usteed = monster;
+        if (mounted) {
+            state.u.usteed = monster;
+        } else {
+            // The C leash lookup pairs this ordinary id with hero inventory.
+            monster.m_id = 137;
+            state.invent = { otyp: LEASH, leashmon: monster.m_id, nobj: null };
+            state.viz_array[monster.mx][monster.my] = COULD_SEE | IN_SIGHT;
+        }
         // Ordinary live object id; this corpse is neither a quest prize nor a stack.
         const corpse = newObject({otyp: CORPSE, oclass: FOOD_CLASS,
             corpsenm: PM_SMALL_MIMIC, quan: 1, o_id: 137, age: state.moves});
         place_object(corpse, monster.mx, monster.my, {state});
         game.unported ??= new Set();
         game.unported.delete('dogmove.c quickmimic');
+        game.unported.delete('steed.c dismount_steed');
         const bounds = [];
         assert.equal(await dog_eat(monster, corpse, monster.mx, monster.my, false, {
             state, random: {rn2: bound => (bounds.push(bound), 1)},
             redraw: () => {}, message: () => {},
         }), MMOVE_MOVED);
         assert.equal(state.level.objects[monster.mx][monster.my], null);
-        assert.equal(game.unported.has('dogmove.c quickmimic'), true);
-        assert.equal(monster.m_ap_type ?? M_AP_NOTHING, M_AP_NOTHING);
-        // dogfood and delobj each draw obj_resists(100); no quickmimic(9).
-        assert.deepEqual(bounds, [100, 100]);
+        if (mounted) {
+            assert.equal(game.unported.has('steed.c dismount_steed'), true);
+            assert.equal(monster.m_ap_type ?? M_AP_NOTHING, M_AP_NOTHING);
+            // Dogfood and delobj draw obj_resists(100); dismount stops before qm.
+            assert.deepEqual(bounds, [100, 100]);
+        } else {
+            assert.equal(game.unported.has('dogmove.c quickmimic'), false);
+            assert.equal(game.unported.has('steed.c dismount_steed'), false);
+            assert.equal(state.invent.leashmon, 0);
+            assert.equal(monster.mleashed, 0);
+            assert.equal(monster.m_ap_type, M_AP_OBJECT);
+            // Dogfood and delobj draw obj_resists(100); qm retries five times.
+            assert.deepEqual(bounds, [100, 100, 9, 9, 9, 9, 9]);
+        }
     }
 });

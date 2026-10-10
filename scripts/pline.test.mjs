@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { DEAF, FAINTED } from '../js/const.js';
-import { heroDeaf, heroUnaware, youHear } from '../js/pline.js';
+import { heroDeaf, heroUnaware, pline_mon, youHear } from '../js/pline.js';
 
 const C_PLINE_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/pline.c', import.meta.url),
@@ -95,4 +95,22 @@ test('negative multi alone is not enough to dream that one hears', () => {
     assert.equal(heroUnaware(state), true);
     assert.equal(youHear('someone searching.', state),
         'You dream that you hear someone searching.');
+});
+
+test('pline_mon forwards its formatted line through the source owner', async () => {
+    const start = C_PLINE_SOURCE.indexOf(
+        'pline_mon(struct monst *mtmp, const char *line, ...)',
+    );
+    const end = C_PLINE_SOURCE.indexOf('\n}\n', start) + 2;
+    assert.ok(start >= 0 && end > start);
+    const cBody = C_PLINE_SOURCE.slice(start, end);
+    assert.match(cBody, /mtmp == &gy\.youmonst\)\s*set_msg_xy\(0, 0\)/u);
+    assert.match(cBody, /set_msg_xy\(mtmp->mx, mtmp->my\)/u);
+
+    const monster = { mx: 7, my: 9 };
+    const seen = [];
+    await pline_mon(monster, 'The leash pulls free.', {}, {
+        message: async (line) => seen.push(line),
+    });
+    assert.deepEqual(seen, ['The leash pulls free.']);
 });

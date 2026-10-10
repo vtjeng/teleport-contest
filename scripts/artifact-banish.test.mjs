@@ -4,8 +4,9 @@ import test from 'node:test';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { invoke_banish } from '../js/artifacts.js';
-import { ECMD_TIME, MS_NEMESIS } from '../js/const.js';
+import { ECMD_TIME, MS_NEMESIS, MON_MIGRATING } from '../js/const.js';
 import { PM_IMP, PM_KITTEN, PM_ASMODEUS, PM_JUIBLEX } from '../js/monsters.js';
+import { LEASH } from '../js/objects.js';
 import { initRng, enableRngLog, getRngLog } from '../js/rng.js';
 
 // artifact.c:invoke_banish saves fmon's next pointer before a migration can
@@ -103,12 +104,15 @@ test('lord, prince and active Quest chance use canonical status and awaken staye
     }
 });
 
-test('a leashed target retains the named discarded migration gap', async () => {
+test('banishment migrates a leashed target through the dog.c leash release', async () => {
     const target = await targetFixture();
     target.mleashed = true;
+    target.mtame = 1;
+    const leash = { otyp: LEASH, leashmon: target.m_id, nobj: game.invent };
+    game.invent = leash;
     const before = { x: target.mx, y: target.my, migrating: game.gm.migrating_mons };
     // A plain imp has chance1, so C skips the chance draw, chooses a
-    // destination, then calls the unavailable leashed migration branch.
+    // destination, then dog.c:migrate_to_level releases the leash and moves it.
     enableRngLog();
     // A space acknowledges a possible disappearance message page.
     game.nhDisplay.pushKey(' '.charCodeAt(0));
@@ -116,9 +120,12 @@ test('a leashed target retains the named discarded migration gap', async () => {
     assert.equal(getRngLog().length, 1);
     // This independent map has23 Gehennom levels; only its destination is drawn.
     assert.match(getRngLog()[0], /^rn2\(23\)=/u);
-    assert.ok(game.unported.has('dog.c migrate_to_level leashed monster migration'));
-    assert.equal(target.mx, before.x);
-    assert.equal(target.my, before.y);
-    assert.equal(game.gm.migrating_mons, before.migrating);
-    assert.equal(target.mleashed, true, 'the gap does not fabricate leash removal');
+    assert.equal(leash.leashmon, 0);
+    assert.equal(target.mleashed, 0);
+    assert.equal(target.mtame, -1, 'dog.c decrements tameness before m_unleash');
+    assert.equal(target.mstate & MON_MIGRATING, MON_MIGRATING);
+    assert.equal(target.mx, 0);
+    assert.equal(target.my, 0);
+    assert.notEqual(game.gm.migrating_mons, before.migrating);
+    assert.equal(game.unported.has('dog.c migrate_to_level leashed monster migration'), false);
 });

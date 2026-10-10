@@ -240,7 +240,7 @@ test('teleport restriction precedes future pet and vault branches',
         assert.deepEqual([monster.mx, monster.my], [old.x, old.y]);
     });
 
-test('teleport_pet preserves the C leash continuation result and names its void gap',
+test('teleport_pet preserves the C leash continuation result and releases both attachments',
     async () => {
         const monster = await initializedMonster(
             TELEPORT_RESTRICTION_SEED,
@@ -261,7 +261,9 @@ test('teleport_pet preserves the C leash continuation result and names its void 
             teleportEnv(messages),
         ), true);
         assert.deepEqual(messages, ['Your leash goes slack.']);
-        assert.ok(game.unported.has('apply.c m_unleash'));
+        assert.equal(game.unported.has('apply.c m_unleash'), false);
+        assert.equal(game.invent.leashmon, 0);
+        assert.equal(monster.mleashed, 0);
     });
 
 test('mlevel_tele_trap hands an ordinary hole to dog.c migration',

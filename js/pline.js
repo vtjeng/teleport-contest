@@ -10,6 +10,7 @@ import { truncateByteString } from './hacklib.js';
 import { BUFSZ, DEAF, PLINE_VERBALIZE } from './const.js';
 import { is_fainted } from './eat.js';
 import { unconscious } from './trap.js';
+import { messageAt } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 
 // C refs: pline.c You_hear() (436-451), youprop.h Deaf/Unaware, and
@@ -35,6 +36,17 @@ export function youHear(line, state = game) {
     if (state.u?.uinwater) return `You barely hear ${line}`;
     if (heroUnaware(state)) return `You dream that you hear ${line}`;
     return `You hear ${line}`;
+}
+
+// C ref: pline.c pline_mon() (138-152). The C helper sets the message
+// position to the monster square, except for the hero monster at (0, 0), then
+// delegates to vpline(). messageAt() carries that location into accessible
+// output while the normal TTY path receives the unchanged formatted line.
+export async function pline_mon(monster, line, state = game, env = {}) {
+    const x = monster === state.youmonst ? 0 : monster.mx;
+    const y = monster === state.youmonst ? 0 : monster.my;
+    const message = env.message ?? ttyPline;
+    await message(messageAt(line, x, y, state), state, env);
 }
 
 // C ref: pline.c verbalize() (476-490). This helper is already used by

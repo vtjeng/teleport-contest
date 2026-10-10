@@ -60,10 +60,12 @@ import {
     ledger_to_dnum,
 } from './dungeon.js';
 import { newsym } from './display.js';
+import { m_unleash } from './apply.js';
 import {
     christen_monst, mon_pmname, Monnam,
 } from './do_name.js';
 import { UnsupportedHeroMoveBoundaryError } from './hack.js';
+import { s_suffix } from './hacklib.js';
 import { game } from './gstate.js';
 import { can_saddle, put_saddle_on_mon } from './steed.js';
 import { update_inventory } from './invent.js';
@@ -879,7 +881,7 @@ function keep_mon_accessible(monster, state) {
 //
 // `pets_only` is TRUE only for an ascension or a final escape, which end.c
 // drives and this port does not reach.
-export function keepdogs(pets_only, rawEnv = {}) {
+export async function keepdogs(pets_only, rawEnv = {}) {
     const env = dogEnv(rawEnv);
     const { state } = env;
     const u = state.u;
@@ -945,7 +947,7 @@ export function keepdogs(pets_only, rawEnv = {}) {
             mtmp.wormno = num_segs;
             mtmp.mlstmv = state.moves;
         } else if (keep_mon_accessible(mtmp, state)) {
-            migrate_to_level(
+            await migrate_to_level(
                 mtmp,
                 ledger_no(state.u.uz, state),
                 MIGR_EXACT_XY,
@@ -953,12 +955,14 @@ export function keepdogs(pets_only, rawEnv = {}) {
                 env,
             );
         } else if (mtmp.mleashed) {
-            // "%s leash goes slack." and m_unleash() at dog.c:879-882. Nothing
-            // in this keepdogs() branch ports m_unleash()'s state and feedback;
-            // apply.c:use_leash() can now establish mleashed in play.
-            throw new UnsupportedHeroMoveBoundaryError(
-                'keepdogs() leaving a leashed monster behind',
+            const message = env.message ?? (env.planning ? async () => {}
+                : ttyPline);
+            await message(
+                `${s_suffix(Monnam(mtmp, state, env))} leash goes slack.`,
+                state,
+                env,
             );
+            m_unleash(mtmp, false, { ...env, state });
         }
     }
 }
@@ -1118,8 +1122,17 @@ export function migrate_to_level(
         dnum: ledger_to_dnum(destinationLedger, state),
         dlevel: ledger_to_dlev(destinationLedger, state),
     };
-    if (monster.mleashed)
-        throw new RangeError('leashed monster migration is future work');
+    if (monster.mleashed) {
+        monster.mtame--;
+        return Promise.resolve(m_unleash(monster, true, { ...env, state }))
+            .then(() => migrate_to_level(
+                monster,
+                destinationLedger,
+                destinationCode,
+                coordinate,
+                rawEnv,
+            ));
+    }
     if (monster.isshk)
         throw new RangeError('shopkeeper migration is future work');
     if (monster.wormno)
@@ -1238,9 +1251,8 @@ export async function wary_dog(mtmp, was_dead, rawEnv = {}) {
                 + `${mtmp.mpeaceful ? 'is no longer tame' : 'has become feral'}.`,
             mtmp.mx, mtmp.my, state), state);
         redraw(mtmp.mx, mtmp.my);
-        // C discards these results. Their leash and thrown-steed owners are
-        // outside this port; retain their named gaps without invented effects.
-        if (mtmp.mleashed) note_unported('apply.c m_unleash');
+        if (mtmp.mleashed)
+            await m_unleash(mtmp, true, { ...env, state });
         if (mtmp === state.u.usteed) note_unported('steed.c dismount_steed');
     } else if (edog) {
         edog.revivals++;
@@ -1268,8 +1280,8 @@ export async function wary_dog(mtmp, was_dead, rawEnv = {}) {
  * a pet in the middle of migrating has mx == 0 and stays silent.
  *
  * A pet whose tameness reaches 0 while leashed calls m_unleash(), and a long
- * worm that loses its tameness calls redraw_worm(). Neither callee is ported;
- * apply.c:use_leash() can now establish mleashed, so the first gap is active.
+ * worm that loses its tameness calls redraw_worm(). The latter callee remains
+ * an explicit discarded-result gap.
  *
  * `random` is the injection seam for the complaint draw and for the
  * hallucination draw inside yelp() and growl(); the game passes nothing and
@@ -1285,11 +1297,8 @@ export async function abuse_dog(mtmp, state = game, random = { rn2 }) {
 
     if (mtmp.mtame && !mtmp.isminion) EDOG(mtmp).abuse++;
 
-    if (!mtmp.mtame && mtmp.mleashed) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'abuse_dog() unleashing a pet that stopped being tame',
-        );
-    }
+    if (!mtmp.mtame && mtmp.mleashed)
+        await m_unleash(mtmp, true, { state });
 
     /* don't make a sound if pet is in the middle of leaving the level */
     /* newsym isn't necessary in this case either */
