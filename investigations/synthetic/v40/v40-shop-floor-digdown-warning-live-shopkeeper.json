@@ -41,11 +41,39 @@
       "trap.c:fall_through calls shopdig(1) at line 668 when the hero falls through a hole or trapdoor while in a shop; js/trap.js:fall_through currently records note_unported(\"shk.c shopdig\") at line 718."
     ],
     "dependencies": [
-      "shop_keeper(), inhishop(), muteshk(), and rile_shk() are implemented in js/shk.js; the source shopdig branches consume their returned keeper or Boolean state.",
-      "m_next2u() is implemented in js/mhitu.js; shopdig consumes its Boolean result before and after the discarded mnexto() relocation call.",
-      "verbalize(), set_voice(), adjalign(), inventory operations, and shop billing helpers already have JavaScript implementations; shopdig must preserve their source order.",
-      "dig.c:dig calls shk.c:add_damage after shopdig(0), but that is a separate void helper and its existing note_unported remains outside this source diagnosis."
-    ]
+      "apply.c:um_dist is pure and must be the sole JavaScript implementation in js/apply.js; existing private copies in js/mon.js and js/vault.js will import it.",
+      "shop_keeper(), inhishop(), muteshk(), rile_shk(), m_next2u(), mnexto(), verbalize(), set_voice(), growl(), inventory operations, and shop billing helpers are already ported and must be called in C source order.",
+      "dig.c:dig calls shk.c:add_damage after shopdig(0); this discarded void helper remains an explicit gap outside scope."
+    ],
+    "requiredFunctions": [
+      {
+        "file": "apply.c",
+        "name": "um_dist",
+        "lines": "692-695",
+        "behavior": "Return true exactly when the hero differs from the target by more than n on either axis; shopdig consumes this Boolean to gate its fall-time theft branch."
+      }
+    ],
+    "callerScope": [
+      {
+        "source": "dig.c:dig",
+        "js": "js/dig.js:dig",
+        "call": "shopdig(0)",
+        "branch": "hero begins digging downward while inside a shop"
+      },
+      {
+        "source": "dig.c:digactualhole",
+        "js": "js/dig.js:digactualhole",
+        "call": "shopdig(1)",
+        "branch": "hero-caused hole falls through a shop"
+      },
+      {
+        "source": "trap.c:fall_through",
+        "js": "js/trap.js:fall_through",
+        "call": "shopdig(1)",
+        "branch": "hero falls through an existing hole or trapdoor while inside a shop"
+      }
+    ],
+    "contract": "canonical-hero-distance-helper"
   },
   "goalKind": "file-port",
   "evidence": [
@@ -53,6 +81,89 @@
     "Manifest challenges/manifests/v40.json has SHA-256 32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b; case recording challenges/cases/v40/v40-shop-floor-digdown-warning-cfirst.session.json has SHA-256 bb4ccfe19457e1a185556d86fc992be63305137125098ee45a0e1ac85437c099 and an independently reproduced C recording. The saved evaluation challenges/evaluations/accepted-ffd2d10394fbb3c06612668aeaa38762cdfb84c1-v40.json reports 52/53 screens, 5442/5442 RNG calls, and 52/53 cursors.",
     "Read the complete upstream shk.c:shopdig definition at lines 5019-5110. Its fall==0 branch emits the warning after shop_keeper, inhishop, helpless/silence/language, Deaf, and muteshk checks; its fall!=0 branch conditionally relocates an indebted shopkeeper and transfers eligible inventory.",
     "Cross-checked every C shopdig call site: dig.c:dig line 1350, dig.c:digactualhole line 782, and trap.c:fall_through line 668. The matching JavaScript functions exist and each currently records the corresponding shk.c shopdig gap.",
-    "The fresh mismatch source trace is explicit in the admitted manifest: dig.c:dig -> shk.c:shopdig(0), with the live keeper greeting as the first visual difference. The current source mismatch is missing implementation, not a screen-rendering or RNG-order defect."
-  ]
+    "The fresh mismatch source trace is explicit in the admitted manifest: dig.c:dig -> shk.c:shopdig(0), with the live keeper greeting as the first visual difference. The current source mismatch is missing implementation, not a screen-rendering or RNG-order defect.",
+    "After accepted Main 6818fe9b759b2ef8ae3d470f38c30808a0734640, the refreshed queue hash is 7505fb24cd01792c8cb781d651dd66ffaa451361e46f7c456fd2705afde0a43a. The exact v40 evaluation named by accepted Main remains at 52/53 screens, 5442/5442 RNG calls, and 52/53 cursors, with the step-52 shopdig(0) warning unmatched.",
+    "After implementation, a fresh C/JavaScript differential using the admitted v40 input-only recipe passed strict parity across all 53 screens, 53 cursor positions, and 5442 RNG calls. Its zero-based step 52 executes dig.c:dig -> shk.c:shopdig(0), including the restored keeper warning.",
+    "Focused source-pinned coverage also executes shopdig(fall=1) against an initialized game and checks that an eligible dart transfers while an attached leash, the current wand, and worn armor remain in hero inventory. A targeted search of existing recordings and admitted challenge cases found no matching fall-time shopdig trace."
+  ],
+  "currentQueue": {
+    "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+    "sha256": "7505fb24cd01792c8cb781d651dd66ffaa451361e46f7c456fd2705afde0a43a"
+  },
+  "revalidatedAtAcceptedMain": {
+    "acceptedMain": "6818fe9b759b2ef8ae3d470f38c30808a0734640",
+    "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v40.json",
+    "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+    "caseId": "v40-shop-floor-digdown-warning-live-shopkeeper",
+    "metrics": {
+      "screens": {
+        "matched": 52,
+        "total": 53
+      },
+      "rng": {
+        "matched": 5442,
+        "total": 5442
+      },
+      "cursors": {
+        "matched": 52,
+        "total": 53
+      }
+    },
+    "stillUnmatched": true
+  },
+  "implementationScope": {
+    "goal": "port-shk-shopdig-v40-shop-floor-digdown-warning-20261010",
+    "kind": "file-port",
+    "cFile": "shk.c",
+    "functions": [
+      "shopdig"
+    ],
+    "requiredFunctions": [
+      {
+        "sourceFile": "apply.c",
+        "name": "um_dist",
+        "line": 692,
+        "endLine": 695,
+        "jsFile": "js/apply.js"
+      }
+    ],
+    "sourceReservations": [
+      "source:shk.c:shopdig",
+      "source:apply.c:um_dist",
+      "source:dig.c:dig",
+      "source:dig.c:digactualhole",
+      "source:trap.c:fall_through",
+      "contract:canonical-hero-distance-helper"
+    ]
+  },
+  "implementationValidation": {
+    "differential": {
+      "recipe": "challenges/cases/v40/v40-shop-floor-digdown-warning-cfirst.recipe.session.json",
+      "screens": {
+        "matched": 53,
+        "total": 53
+      },
+      "rng": {
+        "matched": 5442,
+        "total": 5442
+      },
+      "cursors": {
+        "matched": 53,
+        "total": 53
+      },
+      "sourceRange": {
+        "batch": "v40",
+        "caseId": "v40-shop-floor-digdown-warning-live-shopkeeper",
+        "segment": 0,
+        "fromStep": 52,
+        "throughStep": 52,
+        "source": "dig.c:dig -> shk.c:shopdig(0)"
+      }
+    },
+    "focusedInventoryBranch": {
+      "test": "scripts/shk.test.mjs:shopdig takes only inventory the source leaves eligible",
+      "callerRuntimeRecording": null,
+      "note": "Direct helper behavior is source-pinned; no matching recording for the fall-time branch was found."
+    }
+  }
 }
