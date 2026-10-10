@@ -1,0 +1,94 @@
+{
+  "session": "synthetic/v41/v41-astral-special-program-generation",
+  "corpus": "synthetic",
+  "batch": "v41",
+  "caseId": "v41-astral-special-program-generation",
+  "manifestPath": "challenges/manifests/v41.json",
+  "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+  "recordingSha256": "3ed3c0749ec0b1ce7af6395a0d98877b1dc80f391b20201d699df60dfd2eeb69",
+  "evaluationPath": "challenges/evaluations/accepted-5c157f8e4976371080be6ac735788f14f6c6e136-v41.json",
+  "evaluationCommit": "5c157f8e4976371080be6ac735788f14f6c6e136",
+  "remainingScreens": 9,
+  "recordedSteps": 33,
+  "status": "complete",
+  "commit": "10392e989ff788488030f6d13751bdd3f7f0d885",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v41",
+    "caseId": "v41-astral-special-program-generation",
+    "session": "synthetic/v41/v41-astral-special-program-generation",
+    "manifestPath": "challenges/manifests/v41.json",
+    "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+    "recording": "challenges/cases/v41/v41-astral-wizloaddes-cfirst.session.json",
+    "recordingPath": "challenges/cases/v41/v41-astral-wizloaddes-cfirst.session.json",
+    "recordingSha256": "3ed3c0749ec0b1ce7af6395a0d98877b1dc80f391b20201d699df60dfd2eeb69",
+    "recipe": "challenges/cases/v41/v41-astral-wizloaddes-cfirst.recipe.session.json",
+    "recipeSha256": "933b8ac142f2a916263f7883f95b0d09b9015baf8bc320bc37f660116db9eda2",
+    "replayInputSha256": "c89dbd38886293873ec1ded4280e9fa082371dd667cfe549a7424248d30a2c9e",
+    "evaluationPath": "challenges/evaluations/accepted-5c157f8e4976371080be6ac735788f14f6c6e136-v41.json",
+    "evaluationCommit": "5c157f8e4976371080be6ac735788f14f6c6e136",
+    "evaluationArtifact": "challenges/evaluations/accepted-5c157f8e4976371080be6ac735788f14f6c6e136-v41.json",
+    "evaluationUtc": "2026-10-10T13:29:37.607Z",
+    "remainingScreens": 9,
+    "recordedSteps": 33,
+    "previousScreensMatched": 24,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 24,
+        "total": 33
+      },
+      "rng": {
+        "matched": 3790,
+        "total": 5602
+      },
+      "cursors": {
+        "matched": 24,
+        "total": 33
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: makemon() monster 276",
+      "step": 24
+    },
+    "step": 24,
+    "kind": "stop",
+    "sourceFile": "makemon.c",
+    "function": "makemon",
+    "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: makemon() monster 276",
+    "cFile": "makemon.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The first Astral sanctum altar reaches High Cleric PM_HIGH_CLERIC (276) through sp_lev.c:create_altar -> priest.c:priestini -> makemon.c:makemon. C makemon has no species admission allowlist and creates the high cleric with MM_EPRI; the JavaScript preflight applies its main-dungeon mklev species allowlist because #wizloaddes runs at the hero's current D:1, while priestini does not carry the special-level explicit-monster marker used by des.monster. The source-backed correction is to admit this existing MM_EPRI high-cleric creation path without changing unrelated species gates.",
+  "source": {
+    "file": "makemon.c",
+    "branch": "An explicit PM_HIGH_CLERIC pointer with MM_EPRI is not rejected by C makemon for being a unique or non-reservoir species. After the genocided check, C ignores propagate()'s return, allocates/links the monster, initializes EPRI because MM_EPRI is set, and continues the ordinary creation tail. The Astral special-level program reaches that branch from its sanctum altar while wiz_load_splua loads onto the current main-dungeon level.",
+    "functions": [
+      "makemon"
+    ],
+    "callers": [
+      "nethack-c/upstream/src/wizcmds.c:wiz_load_splua -> sp_lev.c:lspo_altar -> sp_lev.c:create_altar -> priest.c:priestini -> makemon.c:makemon (High Cleric PM 276, MM_EPRI)",
+      "JavaScript: js/wizcmds.js:wiz_load_splua -> js/mklev.js:load_special -> js/quest_levels.js:astral -> des.altar -> js/mklev.js:create_altar -> js/priest.js:priestini -> js/makemon_create.js:makemon"
+    ],
+    "dependencies": [
+      "priest.c:priestini",
+      "sp_lev.c:lspo_altar",
+      "sp_lev.c:create_altar",
+      "dat/astral.lua:whole program"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Queue source: .cache/latest-saved-combined-queue.json, SHA-256 a38b0a809148498811c066bdadb5ee8297bf9d9808597a4c025bbb3638746ade; the v41 Astral row reports the first stop at step 24, 9 remaining screens, and unsupported makemon() monster 276.",
+    "The independent recipe identifies the natural entry: challenges/cases/v41/v41-astral-wizloaddes-cfirst.recipe.session.json loads astral.lua with #wizloaddes and maps the result. The matching C recording is challenges/cases/v41/v41-astral-wizloaddes-cfirst.session.json (33 steps).",
+    "nethack-c/upstream/dat/astral.lua:72-96 builds three filled sanctum temple regions and places sanctum altars at 07,09; 37,05; and 67,09. The first altar calls lspo_altar.",
+    "nethack-c/upstream/src/sp_lev.c:2446-2494 creates the altar and calls priestini() for a shrine/sanctum; sp_lev.c:4283-4315 implements lspo_altar().",
+    "nethack-c/upstream/src/priest.c:220-287 chooses PM_HIGH_CLERIC for sanctum and calls makemon(prim,px,py,MM_EPRI); nethack-c/upstream/include/monsters.h:2760-2771 defines HIGH_CLERIC as PM 276 with G_NOGEN|G_UNIQ.",
+    "nethack-c/upstream/src/makemon.c:1147-1280 has no species allowlist and allocates the explicit monster after the genocided check; lines 1414-1429 initialize default emin only when MM_EPRI/MM_EMIN are absent; makemon.c:967 special-cases PM_HIGH_CLERIC in the source birth-limit path.",
+    "The JavaScript refusal site is js/makemon_create.js:1127-1237 assertSupportedSpecies and its preflight invocation around 1657-1660. js/mklev.js:lspo_reset_level sets in_mklev=true for wiz_load_splua; because the wizard remains on D:1, isMainDungeonLevel is true and the explicit high cleric is not marked _rndmonMklev. js/mklev.js:create_altar -> js/priest.js:priestini passes MM_EPRI but does not carry createMonsterBody()'s explicit special-level marker."
+  ]
+}
