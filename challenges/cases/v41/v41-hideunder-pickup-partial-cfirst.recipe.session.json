@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source probe for pickup.c:pickup() calling mon.c:hideunder for a hero cave spider when a stack remains on the tile after partial pickup. Use the source-backed M1_CONCEAL cave-spider form, wish a stack, drop it, and try a one-item pickup count; preserve this exact input if the count prompt behaves differently.",
+  "segments": [
+    {
+      "seed": 41040162,
+      "datetime": "20511010101010",
+      "nethackrc": "OPTIONS=name:V41HidePick,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#polyself\ncave spider\n\u00172 apples\ndoa,"
+    }
+  ]
+}

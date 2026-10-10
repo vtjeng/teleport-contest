@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved C setup correction: dismiss the polymorph result page before entering the wizard wish, then inspect the wished stack and inventory slots before constructing the floor pickup route.",
+  "segments": [
+    {
+      "seed": 41040163,
+      "datetime": "20511010101011",
+      "nethackrc": "OPTIONS=name:V41HideInv,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#polyself\ncave spider\n \u00172 apples\ni"
+    }
+  ]
+}

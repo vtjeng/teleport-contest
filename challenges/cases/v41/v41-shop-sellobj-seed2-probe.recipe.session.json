@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Second C-first D4 shop-generation setup for sellobj. The first fresh seed generated no shop; this independent seed checks another level layout before dropping an owned saleable item.",
+  "segments": [
+    {
+      "seed": 41040155,
+      "datetime": "20511002122334",
+      "nethackrc": "OPTIONS=name:V41ShopSaleTwo,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\n"
+    }
+  ]
+}

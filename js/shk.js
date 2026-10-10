@@ -1,7 +1,8 @@
 // Shop admission, entry/departure, pricing, pickup billing, itemized payment,
 // bill-object lifecycle, remembered-price queries, and shopkeeper movement.
 // C refs: shk.c inhishop(), inside_shop(), shop_keeper(), u_entered_shop(),
-// u_left_shop(), getprice(), get_cost(), get_cost_of_shop_item(),
+// u_left_shop(), call_kops(), makekops(), getprice(), get_cost(),
+// get_cost_of_shop_item(),
 // append_price_quote(), contained_gold(), check_unpaid(), costly_spot(),
 // shop_object(), shk_owns(), mon_owns(), shk_your(), shk_move(),
 // shk_fixes_damage(), and the end-of-game cleanup chain next_shkp(),
@@ -41,6 +42,7 @@ import {
     LOW_PM,
     MAXULEV,
     MENU_TRADITIONAL,
+    MM_NOMSG,
     M_AP_MONSTER,
     M_AP_NOTHING,
     M_AP_TYPE,
@@ -78,7 +80,7 @@ import { acurr, adjalign } from './attrib.js';
 import { arti_cost } from './artifacts.js';
 import { yn_function } from './cmd.js';
 import { bot, map_invisible } from './display.js';
-import { assign_level, on_level } from './dungeon.js';
+import { assign_level, depth, on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { getpos } from './getpos.js';
 import { intrinsic_possible } from './eat.js';
@@ -195,6 +197,8 @@ import { in_rooms } from './rooms.js';
 import { move_special } from './priest.js';
 import { SHTYPES } from './shtypes_data.js';
 import { m_at } from './monst.js';
+import { makemon_runtime } from './makemon_create.js';
+import { enexto } from './teleport.js';
 import { m_next2u } from './mhitu.js';
 import { mbodypart, poly_gender } from './polyself.js';
 import { livelog_printf, verbalize } from './pline.js';
@@ -206,7 +210,7 @@ import { note_unported } from './unported.js';
 import { findgold, mpickobj, remove_worn_item } from './steal.js';
 import { discover_object, observe_object } from './o_init.js';
 import { Monnam, x_monnam, y_monnam } from './do_name.js';
-import { rn2 } from './rng.js';
+import { rn2, rnd } from './rng.js';
 import { obj_stop_timers } from './timeout.js';
 import { ansimpleoname, Doname2, donameFresh, paydoname, safe_qbuf,
     simpleonames, the_unique_pm, thesimpleoname, The, the, xnameFresh } from './objnam.js';
@@ -214,6 +218,7 @@ import { hidden_gold } from './vault.js';
 import { cansee } from './vision.js';
 import { add_menu_heading, select_menu } from './windows.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
+import { choose_stairs } from './wizard.js';
 
 // C ref: shk.c:u_entered_shop()'s static `empty_shops[5]`. It survives calls
 // in one C process but is not saved; each recorder segment starts a new
@@ -411,9 +416,8 @@ export function addupbill(shopkeeper) {
     return total;
 }
 
-// C ref: shk.c call_kops() (509-564).  Soundeffect() is a no-op with the
-// recorder's nosound backend.  The Kops creation helpers are not ported and
-// have discarded return values, so each reached call is recorded as a gap.
+// C ref: shk.c call_kops() (510-567). Soundeffect() is a no-op with the
+// recorder's nosound backend; Kops generation is implemented by makekops().
 async function call_kops(
     shopkeeper,
     nearshop,
@@ -439,22 +443,48 @@ async function call_kops(
     }
     if (nokops) return;
 
-    // choose_stairs() writes only output coordinates; its result is not used
-    // when the unported makekops() calls below are skipped.
-    note_unported('wizard.c choose_stairs');
-    const sx = 0;
-    const sy = 0;
+    const { x: sx, y: sy } = choose_stairs(true, state);
 
     if (nearshop) {
         if (state.flags?.verbose)
             await message('The Keystone Kops appear!', state);
-        note_unported('shk.c makekops');
+        await makekops({ x: state.u.ux, y: state.u.uy }, state, { message });
         return;
     }
     if (state.flags?.verbose)
         await message('The Keystone Kops are after you!', state);
-    if (isok(sx, sy)) note_unported('shk.c makekops');
-    note_unported('shk.c makekops');
+    if (isok(sx, sy))
+        await makekops({ x: sx, y: sy }, state, { message });
+    await makekops({ x: shopkeeper.mx, y: shopkeeper.my }, state, { message });
+}
+
+// C ref: shk.c makekops() (5113-5137). Keep the mutable origin coordinate:
+// enexto() writes each chosen square back into C's coord pointer, so the next
+// Kops placement is selected around the preceding spawn.
+async function makekops(mm, state = game, { message = ttyPline } = {}) {
+    const count = Math.abs(depth(state.u.uz, state)) + rnd(5);
+    const counts = [count, Math.trunc(count / 3) + 1,
+        Math.trunc(count / 6), Math.trunc(count / 9)];
+    const speciesIds = [PM_KEYSTONE_KOP, PM_KOP_SERGEANT,
+        PM_KOP_LIEUTENANT, PM_KOP_KAPTAIN];
+
+    for (let rank = 0; rank < speciesIds.length; ++rank) {
+        let remaining = counts[rank];
+        if (remaining === 0) break;
+        const speciesId = speciesIds[rank];
+        if ((state.mvitals[speciesId].mvflags & G_GONE) !== 0) continue;
+
+        while (remaining-- > 0) {
+            const coordinate = enexto(mm.x, mm.y, state.mons[speciesId], { state });
+            if (!coordinate) continue;
+            mm.x = coordinate.x;
+            mm.y = coordinate.y;
+            // C discards makemon()'s return. The existing runtime adapter
+            // completes the same Kops creation path, including its inventory.
+            await makemon_runtime(state.mons[speciesId], mm.x, mm.y,
+                MM_NOMSG, { state, message });
+        }
+    }
 }
 
 // C ref: shk.c inside_shop(). A wall, boundary square, or non-shop room is

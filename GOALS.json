@@ -250663,7 +250663,7 @@
     {
       "id": "port-fort-ludios-knox-level-v40-20261010",
       "kind": "lua-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port the complete Fort Ludios Knox level program and the special-room filling functions it requires.",
       "luaFile": "knox.lua",
       "sessions": [
@@ -250671,17 +250671,24 @@
       ],
       "selectionReason": "Selected the admitted v40 Fort Ludios Knox wizloaddes mismatch; source tracing shows normal Fort Ludios generation uses the same prototype and requires mkroom.c fill_zoo plus sp_lev.c fill_special_room.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7",
+      "openStanding": {
+        "sha": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "knox.lua",
           "line": 1,
           "endLine": 167,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "requiredFunctions": [
@@ -250691,7 +250698,7 @@
           "endLine": 455,
           "declared": true,
           "sourceFile": "mkroom.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "fill_special_room",
@@ -250699,7 +250706,7 @@
           "endLine": 2806,
           "declared": true,
           "sourceFile": "sp_lev.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -250715,6 +250722,361 @@
           "evaluationPath": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
           "evaluationCommit": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5"
         }
+      },
+      "activeStanding": {
+        "sha": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "knox.lua",
+            "implementation": "js/knox_levels.js",
+            "symbol": "knox",
+            "sourceReview": "Compared all of dat/knox.lua (1-167), including the top-level initialization and every ordered des operation. The generated 20x76 map is derived from the exact upstream literal. Verified the two percent(50) branches, the source-ordered treasure iteration with nested math.random(0,2) draws and gold/trap effects, room/door/monster/object calls, and all registered regions. The randomInclusive helper uses one supplied rn2 draw with the inclusive upper bound; callers preserve source draw order. The listed des/selection APIs have active JavaScript implementations; no return-valued unported callee is used.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "Normal path: mklev.c:makelevel (1267-1270) -> mkmaze.c:makemaz (1127-1194) -> load_special for the prototype knox; JS registers KNOX_LEVEL_LOADERS and dispatches it from load_special."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "Direct path: wizcmds.c:wiz_load_splua (376-395) -> load_special -> lspo_finalize_level; JS wiz_load_splua loads the same registered knox program and finalizes it."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/knox.lua/v40-knox-natural-generation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-fort-ludios-knox-wizloaddes-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "wizcmds.c:wiz_load_splua -> sp_lev.c:load_special/lspo_finalize_level/fill_special_room -> mkroom.c:fill_zoo -> dat/knox.lua"
+              }
+            ],
+            "checkedAt": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7"
+          },
+          {
+            "name": "fill_zoo",
+            "implementation": "js/mkroom.js",
+            "symbol": "fill_zoo",
+            "sourceReview": "Compared the complete mkroom.c:fill_zoo() body (276-452) in source order: COURT maze-throne scan and fallback, BEEHIVE center relocation, ZOO/LEPREHALL gold budget, x-major/y-major cell iteration, irregular-room and door exclusion, explicit throne exclusion, source-ordered monster creation and item generation, and final room flags. Ported all current source branches without a refusal. No unported return-valued callee is substituted on the covered route.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "fill_special_room",
+                "source": "sp_lev.c:fill_special_room (2774) dispatches each supported special-room family to mkroom.c:fill_zoo after recursive subroom processing; js/mklev.js:fill_special_room calls js/mkroom.js:fill_zoo for the same source cases."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/knox.lua/v40-knox-natural-generation.session.json",
+              "recordings/mkroom.c/leprehall-debug-level-teleport-c176.session.json"
+            ],
+            "sourceFile": "mkroom.c",
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-fort-ludios-knox-wizloaddes-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "wizcmds.c:wiz_load_splua -> sp_lev.c:load_special/lspo_finalize_level/fill_special_room -> mkroom.c:fill_zoo -> dat/knox.lua"
+              }
+            ],
+            "checkedAt": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7"
+          },
+          {
+            "name": "fill_special_room",
+            "implementation": "js/mklev.js",
+            "symbol": "fill_special_room",
+            "sourceReview": "Compared all of sp_lev.c:fill_special_room() (2731-2804): null return; recursive subrooms before the outer room; OROOM/THEMEROOM/FILL_NONE early return; FILL_NORMAL shop stock and early return; vault gold iteration; source-listed special-room dispatch; and final room flags. The JavaScript now calls fill_zoo for ANTHOLE, COCKNEST and LEPREHALL and removes the obsolete UnsupportedSpecialRoomError class after its final throw site was removed. Async continuations finish the same room flag effects only after the fill operation resolves.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c:makelevel fills the generated rooms at 1414-1418; its Knox special prototype path begins at 1267-1270. JS makelevel calls fill_special_room for the same room list."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "lspo_finalize_level",
+                "source": "sp_lev.c:lspo_finalize_level (6014-6062) calls fill_special_room for each room at 6055-6059; JS lspo_finalize_level does so at 4363-4367 for natural special-level and wizard-load finalization."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/knox.lua/v40-knox-natural-generation.session.json",
+              "recordings/mkroom.c/leprehall-debug-level-teleport-c176.session.json"
+            ],
+            "sourceFile": "sp_lev.c",
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-fort-ludios-knox-wizloaddes-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "wizcmds.c:wiz_load_splua -> sp_lev.c:load_special/lspo_finalize_level/fill_special_room -> mkroom.c:fill_zoo -> dat/knox.lua"
+              }
+            ],
+            "checkedAt": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7"
+          }
+        ],
+        "entryPointReview": "Source enumeration: dat/knox.lua is entered by normal Fort Ludios generation through mklev.c:makelevel -> mkmaze.c:makemaz -> load_special, and by the recorder-active wizard #wizloaddes command through wizcmds.c:wiz_load_splua -> load_special -> sp_lev.c:lspo_finalize_level. Both active routes are wired to the same KNOX_LEVEL_LOADERS entry and have complete matching evidence. mkroom.c:fill_zoo has one active C caller in this range, sp_lev.c:fill_special_room. sp_lev.c:fill_special_room is reached both from mklev.c:makelevel (ordinary/special level population) and from sp_lev.c:lspo_finalize_level (special-level finalization); recursion into subrooms is included. The new LEPREHALL recording reaches the ordinary makelevel path and confirms that the removed refusal was replaced by the actual C behavior. The recording build has these callers enabled; no caller branch in this scope is excluded.",
+        "entryPoints": [
+          {
+            "name": "Normal Fort Ludios prototype generation",
+            "functions": [
+              "knox.lua",
+              {
+                "sourceFile": "sp_lev.c",
+                "name": "fill_special_room"
+              },
+              {
+                "sourceFile": "mkroom.c",
+                "name": "fill_zoo"
+              }
+            ],
+            "recordings": [
+              "recordings/knox.lua/v40-knox-natural-generation.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Wizard #wizloaddes special-level generation",
+            "functions": [
+              "knox.lua",
+              {
+                "sourceFile": "sp_lev.c",
+                "name": "fill_special_room"
+              },
+              {
+                "sourceFile": "mkroom.c",
+                "name": "fill_zoo"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-fort-ludios-knox-wizloaddes-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "wizcmds.c:wiz_load_splua -> sp_lev.c:load_special/lspo_finalize_level/fill_special_room -> mkroom.c:fill_zoo -> dat/knox.lua"
+              }
+            ]
+          },
+          {
+            "name": "Ordinary LEPREHALL special-room generation",
+            "functions": [
+              {
+                "sourceFile": "sp_lev.c",
+                "name": "fill_special_room"
+              },
+              {
+                "sourceFile": "mkroom.c",
+                "name": "fill_zoo"
+              }
+            ],
+            "recordings": [
+              "recordings/mkroom.c/leprehall-debug-level-teleport-c176.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-shk-call-kops-makekops-v40-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port the shop alarm's Keystone Kops response and its rank-ordered Kops spawning helper.",
+      "cFile": "shk.c",
+      "sessions": [
+        "synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport"
+      ],
+      "selectionReason": "Continue the accepted B216 replay at its next source boundary: unpaid shop departure reaches shk.c call_kops and makekops, while choose_stairs and enexto are already ported.",
+      "detail": "",
+      "openedAt": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699",
+      "openStanding": {
+        "sha": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "call_kops",
+          "line": 510,
+          "endLine": 567,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 510,
+        "to": 567
+      },
+      "requiredFunctions": [
+        {
+          "name": "makekops",
+          "line": 5113,
+          "endLine": 5137,
+          "declared": true,
+          "sourceFile": "shk.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport": {
+          "session": "synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recordingPath": "challenges/cases/v40/v40-shop-hotpursuit-unpaid-gem-wizlevelport-continued-cfirst.session.json",
+          "recordingSha256": "97f003174dd691f5176ea333f32c4765c06742a6395293348b778653148afb76",
+          "evaluationPath": "challenges/evaluations/accepted-fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7-v40.json",
+          "evaluationCommit": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7"
+        }
+      },
+      "activeStanding": {
+        "sha": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "call_kops",
+            "implementation": "js/shk.js",
+            "symbol": "call_kops",
+            "sourceReview": "Read all of upstream shk.c:call_kops (510-567). Preserved the null-shopkeeper return, alarm and Deaf output ordering, all-four-species G_GONE checks, angry_guards result branch, verbose refusal text, unconditional choose_stairs call, nearshop swarm at the hero, and the non-nearshop stair then shopkeeper swarms. Removed both choose_stairs/makekops note_unported sites; Soundeffect is a no-op in the recorder nosound backend.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "u_left_shop",
+                "source": "C shk.c:u_left_shop invokes call_kops after an uncovered balance remains at 623; JS does so after rob_shop returns true. The selected wizard level-port enters u_left_shop from teleport.c:level_tele:1329 and js/teleport.js:level_tele:2080."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "remote_burglary",
+                "source": "C shk.c:remote_burglary invokes call_kops(shkp, FALSE) after rob_shop at 680; JS pickup.js:pick_obj reaches js/shk.js:remote_burglary:1390."
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "level_tele",
+                "source": "C teleport.c:level_tele calls u_left_shop(u.ushops0, TRUE) for a negative wizard level-port at 1329; JS preserves that call before clearing shop state."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "pick_obj",
+                "source": "C pickup.c:pickup calls remote_burglary after a remote shop theft at 1939; JS pick_obj calls remote_burglary at 1390."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shop-billing.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 47,
+                "source": "teleport.c:level_tele -> shk.c:u_left_shop -> shk.c:call_kops -> wizard.c:choose_stairs -> shk.c:makekops -> teleport.c:enexto -> makemon.c:makemon(MM_NOMSG)"
+              }
+            ],
+            "checkedAt": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699"
+          },
+          {
+            "name": "makekops",
+            "implementation": "js/shk.js",
+            "symbol": "makekops",
+            "sourceReview": "Read the complete upstream shk.c:makekops (5113-5137). Preserved abs(depth(&u.uz))+rnd(5), integer rank counts, the zero-count break, extinct-rank skip, enexto retry loop, coordinate mutation through the shared coord pointer, and the discarded makemon return with MM_NOMSG. The existing wizard.c:choose_stairs, teleport.c:enexto, and Kops makemon/m_initweap paths supply the reached helpers; JS awaits makemon_runtime so the complete runtime creation tail executes.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "call_kops",
+                "source": "C shk.c:call_kops calls makekops around the hero for nearshop, and around the selected stairs then shopkeeper otherwise (510-567); JS call_kops awaits the same helper at each reached site."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "u_left_shop",
+                "source": "C teleport.c:level_tele -> shk.c:u_left_shop -> shk.c:call_kops -> shk.c:makekops; JS preserves this negative level-port chain."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shop-billing.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 47,
+                "source": "teleport.c:level_tele -> shk.c:u_left_shop -> shk.c:call_kops -> wizard.c:choose_stairs -> shk.c:makekops -> teleport.c:enexto -> makemon.c:makemon(MM_NOMSG)"
+              }
+            ],
+            "checkedAt": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699"
+          }
+        ],
+        "entryPointReview": "The selected active entry point is an unpaid shop robbery during a negative wizard level-port. It reaches call_kops with nearshop false, calls choose_stairs, and then reaches makekops around the selected stair and shopkeeper; the C/JS replay matches all 48 screens, RNG calls, and cursors through step 47. scripts/shop-billing.test.mjs also executes the nearshop true branch through u_left_shop and verifies that the helper spawns Kops. The alternative remote_burglary production caller remains wired to the same call_kops(FALSE) helper; the distinct rob_shop hot_pursuit gap is outside this Kops generation source scope.",
+        "entryPoints": [
+          {
+            "name": "Negative wizard level-port leaves a shop with debt",
+            "functions": [
+              "call_kops",
+              "makekops"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 47,
+                "source": "teleport.c:level_tele -> shk.c:u_left_shop -> shk.c:call_kops -> wizard.c:choose_stairs -> shk.c:makekops -> teleport.c:enexto -> makemon.c:makemon(MM_NOMSG)"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

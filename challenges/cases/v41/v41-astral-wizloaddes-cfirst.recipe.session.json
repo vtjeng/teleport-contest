@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source candidate for nethack-c/upstream/dat/astral.lua. Use the established direct special-level loader and map the result; keep only if C confirms this program's own generation outcome.",
+  "segments": [
+    {
+      "seed": 41040177,
+      "datetime": "20510415161721",
+      "nethackrc": "OPTIONS=name:V41astral,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nastral.lua\n#wizmap\n"
+    }
+  ]
+}

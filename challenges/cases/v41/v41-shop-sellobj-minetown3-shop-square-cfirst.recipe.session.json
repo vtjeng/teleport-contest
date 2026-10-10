@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first sellobj attempt using the earlier v41 Minetown-3 map probe as C-observed setup evidence: that seed placed the Wizard directly beside the scripted shopkeeper. Preserve the same generated starting state, wish a saleable white gem, and drop its confirmed inventory slot to test whether the square is costly.",
+  "segments": [
+    {
+      "seed": 41040158,
+      "datetime": "20520105152637",
+      "nethackrc": "OPTIONS=name:V41ShopMinetownThree,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-3.lua\n #wizmap\n\u0017diamond\ndo"
+    }
+  ]
+}

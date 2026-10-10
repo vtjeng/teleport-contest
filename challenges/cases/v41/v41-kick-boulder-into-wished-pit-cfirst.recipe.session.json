@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source candidate for dokick.c boulder movement into trap.c:fill_pit. Step off the starting upstairs, wish a pit trap onto ordinary floor A, move east to B and wish a boulder, move east to C, then kick west so the boulder travels from B into the pit at A.",
+  "segments": [
+    {
+      "seed": 41040172,
+      "datetime": "20511212121212",
+      "nethackrc": "OPTIONS=name:V41PitKick,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".l\u0017pit trap\nl\u0017boulder\nl\u0004h"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first Shirt_on control. The prior C trace showed T-shirt in slot o; W is the source wear-armor command, while P is put-on jewelry. Use the source-observed slot o after dismissing the welcome pager.",
+  "segments": [
+    {
+      "seed": 41040117,
+      "datetime": "20491011121315",
+      "nethackrc": "OPTIONS=name:V41Shirt,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017T-shirt\nWo"
+    }
+  ]
+}

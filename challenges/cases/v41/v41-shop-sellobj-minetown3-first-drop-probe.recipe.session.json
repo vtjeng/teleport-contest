@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first test of the shop location after direct Minetown loading. Wish a saleable diamond, then immediately drop the C-reported inventory slot o; retain as sellobj evidence only if the live shopkeeper responds or the C trace reaches the costly-square sellobj path.",
+  "segments": [
+    {
+      "seed": 41040160,
+      "datetime": "20520407172839",
+      "nethackrc": "OPTIONS=name:V41ShopSaleDrop,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-3.lua\n #wizmap\n\u0017diamond\ndo"
+    }
+  ]
+}

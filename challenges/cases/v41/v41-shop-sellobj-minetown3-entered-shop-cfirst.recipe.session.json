@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first sellobj route with the full shop doorway crossing. The prior C trace moved from source-observed shop room x=34,y=13 through the west door and left the hero standing on its door tile x=33,y=14; the added second east step returns onto the costly shop floor before dropping the white gem in slot o.",
+  "segments": [
+    {
+      "seed": 41040160,
+      "datetime": "20520407172839",
+      "nethackrc": "OPTIONS=name:V41ShopSaleDrop,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-3.lua\n #wizmap\n\u0017diamond\njhhll do"
+    }
+  ]
+}

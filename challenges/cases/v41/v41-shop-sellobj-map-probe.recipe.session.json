@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first route survey for a distinct sellobj case. Use a fresh seed and Monk setup, levelport to D4, then map the result to confirm whether this independent generation places a live general store before preparing a dropped-owned-item test.",
+  "segments": [
+    {
+      "seed": 41040154,
+      "datetime": "20510901112233",
+      "nethackrc": "OPTIONS=name:V41ShopSale,role:Monk,race:human,gender=female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected giant-eel coin route. The previous trace showed two separate C pages (polymorph/water damage, then movement burden), so dismiss both before applying the gold coin.",
+  "segments": [
+    {
+      "seed": 41040137,
+      "datetime": "20510314151618",
+      "nethackrc": "OPTIONS=name:V41WetCoin,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017amulet of magical breathing\nPo\u0017gold piece\n\u0017pool\n#polyself\ngiant eel\n  a$"
+    }
+  ]
+}

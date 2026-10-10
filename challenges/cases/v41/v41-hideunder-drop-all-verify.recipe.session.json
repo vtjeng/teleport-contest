@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected drop-menu setup: select every item using the C-observed a-l letters, commit, then dismiss all drop messages and verify the inventory is empty before polymorph.",
+  "segments": [
+    {
+      "seed": 41040166,
+      "datetime": "20511010101014",
+      "nethackrc": "OPTIONS=name:V41HideDrop,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".Da\nabcdefghijkl\n                i"
+    }
+  ]
+}

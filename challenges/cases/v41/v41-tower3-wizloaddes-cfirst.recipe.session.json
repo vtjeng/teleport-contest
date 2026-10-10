@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source-unit candidate for dat/tower3.lua, a separate Vlad's Tower program from v40's tower1.lua and this slate's tower2.lua. Load and map it directly in C, retaining only after the level program is confirmed.",
+  "segments": [
+    {
+      "seed": 41040143,
+      "datetime": "20510516171820",
+      "nethackrc": "OPTIONS=name:V41TowerThree,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\ntower3.lua\n#wizmap\n"
+    }
+  ]
+}

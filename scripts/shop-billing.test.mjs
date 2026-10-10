@@ -8,7 +8,15 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { PM_GIANT_RAT, PM_SHOPKEEPER, PM_TOURIST } from '../js/monsters.js';
+import {
+    PM_GIANT_RAT,
+    PM_KEYSTONE_KOP,
+    PM_KOP_KAPTAIN,
+    PM_KOP_LIEUTENANT,
+    PM_KOP_SERGEANT,
+    PM_SHOPKEEPER,
+    PM_TOURIST,
+} from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import { addinv_runtime, obfree, obj_extract_self, useupf } from '../js/invent.js';
 import { bill_dummy_object, mksobj_at, newObject } from '../js/obj.js';
@@ -23,6 +31,13 @@ import { addtobill, alter_cost, billable, contained_cost, costly_gold,
 import { saleable } from '../js/shknam.js';
 import { SHTYPES } from '../js/shtypes_data.js';
 import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
+
+const KOPS = new Set([
+    PM_KEYSTONE_KOP,
+    PM_KOP_SERGEANT,
+    PM_KOP_LIEUTENANT,
+    PM_KOP_KAPTAIN,
+]);
 
 async function shop() {
     // Independent seed/date initialize the catalogs. Each test replaces the
@@ -66,6 +81,13 @@ async function shop() {
 function object(state, otyp, overrides = {}) {
     return newObject({ otyp, oclass: state.objects[otyp].oc_class, quan: 1,
         o_id: state.context.ident++, dknown: true, where: OBJ_FREE, ...overrides });
+}
+
+function kopsOnLevel(state) {
+    let count = 0;
+    for (let monster = state.level.monlist; monster; monster = monster.nmon)
+        if (KOPS.has(monster.data.pmidx)) ++count;
+    return count;
 }
 
 test('saleable follows general, class, explicit-item, and vegetarian rows', async () => {
@@ -233,7 +255,7 @@ test('remote pick_obj inserts the acquired item before burglary clears its bill'
     assert.equal(eshk.billct, 0);
 });
 
-test('u_left_shop records an unpaid robbery on the level-exit path', async () => {
+test('u_left_shop records an unpaid robbery and calls the Kops on level exit', async () => {
     const { state, eshk, messages } = await shop();
     eshk.debit = 80;
     state.gamelog = [];
@@ -248,7 +270,28 @@ test('u_left_shop records an unpaid robbery on the level-exit path', async () =>
     assert.equal(state.gamelog.length, 1);
     assert.equal(state.gamelog[0].flags, LL_ACHIEVE);
     assert.match(state.gamelog[0].text, /^stole 80 /u);
+    assert.ok(messages.includes('The Keystone Kops are after you!'));
     assert.equal(state.unported.has('shk.c hot_pursuit'), true);
+    assert.equal(state.unported.has('wizard.c choose_stairs'), false);
+    assert.equal(state.unported.has('shk.c makekops'), false);
+    assert.ok(kopsOnLevel(state) > 0);
+});
+
+test('u_left_shop places the Kops around a hero stepping out of the shop', async () => {
+    const { state, eshk, messages } = await shop();
+    eshk.debit = 80;
+    state.u.ushops0 = [ROOMOFFSET, 0, 0, 0, 0];
+    state.u.ux0 = state.u.ux - 1;
+    state.u.uy0 = state.u.uy;
+    state.level.at(state.u.ux0, state.u.uy0).edge = true;
+
+    await u_left_shop(state.u.ushops0, false, state, {
+        message: text => messages.push(text),
+    });
+
+    assert.ok(messages.includes('The Keystone Kops appear!'));
+    assert.equal(state.unported.has('shk.c makekops'), false);
+    assert.ok(kopsOnLevel(state) > 0);
 });
 
 test('bill_dummy_object replaces the original bill and preserves its old price', async () => {

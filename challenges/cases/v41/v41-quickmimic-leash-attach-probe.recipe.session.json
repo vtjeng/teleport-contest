@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first setup probe for a genuinely leashed pet quickmimic path. Dismiss startup if needed, wish a leash, and use C's observed apply selector; later inputs will be chosen from the C prompt to attach it to the adjacent starter pet.",
+  "segments": [
+    {
+      "seed": 41040113,
+      "datetime": "20500112131416",
+      "nethackrc": "OPTIONS=name:V41LeashedMimic,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017leash\nam"
+    }
+  ]
+}
