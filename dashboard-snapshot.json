@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T04:18:01.425Z",
+  "capturedAt": "2026-10-10T04:54:41.890Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -78467,6 +78467,121 @@
         "type": "accepted",
         "at": "2026-10-10T04:17:28.316Z",
         "task": "C184"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C184-9d6319fc652eedc8b8c7d772c75811e3f6d3ac76",
+        "type": "published",
+        "at": "2026-10-10T04:18:09.382Z",
+        "task": "C184",
+        "commit": "9d6319fc652eedc8b8c7d772c75811e3f6d3ac76"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-main-C184-original-d7d86ee90-20261010",
+        "type": "received",
+        "at": "2026-10-10T04:20:17.301Z",
+        "task": "C184",
+        "delivery": "d7d86ee902e0b6cca2d5be15e3d98b0ba4a95609"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-main-Prep3-wait-v39-after-C184-20261010",
+        "type": "activity",
+        "at": "2026-10-10T04:20:40.738Z",
+        "task": "Prep3",
+        "phase": "waiting",
+        "reason": "v38 source work is exhausted; waiting for the active v39 preparation delivery before admission and new implementation assignments."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-after-C184-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:20:58.538Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "C184 is accepted; syncing Main and checking for remaining independent source work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-after-C184-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:22:16.906Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Resuming source-task selection after C184 acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-C184-v38-exhausted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:22:18.421Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "v38 source work is exhausted. Prep3 owns v39 preparation; remaining older queue entries are known recorder or platform-provenance blockers. Waiting for the next batch evaluation before selecting source work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-v38-exhausted-prep3-v39-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:22:43.008Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "All remaining v38 source mismatches are resolved; Prep3 is preparing v39. The open queue items are recorder/provenance issues or have no mismatches, so B is idle."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-idle-published-9d6319-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:27:01.282Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "No independent source task is eligible: remaining v35/v32 cases depend on known recorder or build-provenance owners, and the v38 whip case has zero mismatches. Prep3 owns v39."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-nine-of-twelve-20261010T0430Z",
+        "type": "turn",
+        "at": "2026-10-10T04:27:58.848Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has nine approved distinct C-first mismatches; three remain."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-bell-search-20261010T0436Z",
+        "type": "turn",
+        "at": "2026-10-10T04:33:00.932Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has nine approved distinct C-first mismatches; three remain."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-bell-overlap-20261010T0442Z",
+        "type": "turn",
+        "at": "2026-10-10T04:35:12.484Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has nine approved distinct C-first mismatches; three remain."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-v38-whip-investigation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:54:09.501Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating a remaining v38 lava-whip RNG divergence from the published Main boundary."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B208-v38-whip-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T04:54:33.942Z",
+        "task": "B208-investigation-v38-levitating-whip-over-lava",
+        "worker": "B",
+        "kind": "investigation"
       }
     ]
   },

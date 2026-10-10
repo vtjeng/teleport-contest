@@ -11,6 +11,7 @@ const SHA256 = /^[a-f\d]{64}$/u;
 const SHA = /^[a-f\d]{40}$/u;
 const EVALUATION_PATH = /^challenges\/evaluations\/[a-z0-9][a-z0-9.-]*\.json$/u;
 const SYNTHETIC_SESSION = /^synthetic\/(v[1-9][0-9]*)\/([a-z0-9][a-z0-9-]*)$/u;
+const RESOLUTION_KINDS = new Set(['recorder-defect', 'build-provenance']);
 
 export function syntheticSessionParts(session) {
     const match = SYNTHETIC_SESSION.exec(session ?? '');
@@ -67,6 +68,11 @@ export function validInvestigation(record, session, entry = { session }) {
             : record.mismatch.remainingScreensUpperBound !== record.remainingScreensUpperBound)
         || !texts(record.evidence) || record.evidence.length === 0) return false;
     if (synthetic && !sameSyntheticIdentity(record, entry)) return false;
+    if (record.resolution != null
+        && (!synthetic || record.status !== 'complete'
+            || !RESOLUTION_KINDS.has(record.resolution.kind)
+            || !text(record.resolution.reason)
+            || !text(record.resolution.disposition))) return false;
     if (record.source != null && (!text(record.source.file) || !texts(record.source.functions)))
         return false;
     if (record.status === 'partial') return true;
