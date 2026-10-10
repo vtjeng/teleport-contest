@@ -244563,7 +244563,7 @@
     {
       "id": "fix-pager-quick-glance-lootabc-v38-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Let quick glance bypass the whatis menu lootabc guard",
       "cFile": "pager.c",
       "sessions": [],
@@ -244575,8 +244575,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c863f395deb587c11a1121b76cb0ab9093392a15",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "do_look",
       "session": "synthetic/v38/v38-quick-glance-lootabc",
       "step": 1,
@@ -244741,7 +244744,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c863f395deb587c11a1121b76cb0ab9093392a15",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T03:13:27.644Z",
+  "capturedAt": "2026-10-10T03:27:39.176Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -78217,6 +78217,45 @@
         "type": "accepted",
         "at": "2026-10-10T03:12:55.031Z",
         "task": "B205"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B205-1f06dbe974c6dcdaee63d73991a5c4dfdfc169c8",
+        "type": "published",
+        "at": "2026-10-10T03:13:35.427Z",
+        "task": "B205",
+        "commit": "1f06dbe974c6dcdaee63d73991a5c4dfdfc169c8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-main-B207-b944bbeac-20261010",
+        "type": "received",
+        "at": "2026-10-10T03:15:32.428Z",
+        "task": "B207-investigation-v38-quick-glance-lootabc",
+        "delivery": "b944bbeac6a0e895cc123954e02157b986cf6b1e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-B207-c863f395d-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T03:18:58.898Z",
+        "task": "B207-investigation-v38-quick-glance-lootabc",
+        "integration": "c863f395deb587c11a1121b76cb0ab9093392a15"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-main-B207-c863f395d-hosted-38020284101",
+        "type": "validated",
+        "at": "2026-10-10T03:26:17.938Z",
+        "task": "B207-investigation-v38-quick-glance-lootabc",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B207-investigation-v38-quick-glance-lootabc-c863f395deb587c11a1121b76cb0ab9093392a15-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T03:27:11.728Z",
+        "task": "B207-investigation-v38-quick-glance-lootabc"
       }
     ]
   },
@@ -78232,17 +78271,6 @@
         "since": "2026-10-10T02:30:07.769Z",
         "blockedBy": [],
         "unblocks": 0
-      },
-      {
-        "task": "B207-investigation-v38-quick-glance-lootabc",
-        "worker": "B",
-        "goal": "fix-pager-quick-glance-lootabc-v38-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "b944bbeac6a0e895cc123954e02157b986cf6b1e",
-        "since": "2026-10-10T02:32:09.780Z",
-        "blockedBy": [],
-        "unblocks": 1
       },
       {
         "task": "C184",
@@ -78263,9 +78291,7 @@
         "status": "ready",
         "delivery": "31d65b94e42037fc58309647e19957a9af0b096c",
         "since": "2026-10-10T02:41:41.587Z",
-        "blockedBy": [
-          "B207-investigation-v38-quick-glance-lootabc"
-        ],
+        "blockedBy": [],
         "unblocks": 0
       }
     ],
@@ -78571,8 +78597,8 @@
     ]
   },
   "development": {
-    "executionCommit": "36aedf0efa51725346d44932c0e5cff80a38bb01",
-    "measuredAt": "2026-10-10T03:11:16.544Z",
+    "executionCommit": "c863f395deb587c11a1121b76cb0ab9093392a15",
+    "measuredAt": "2026-10-10T03:25:55.378Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
