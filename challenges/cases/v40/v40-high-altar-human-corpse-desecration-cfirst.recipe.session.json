@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source probe: enter the Sanctum high altar as a human hero, wish a human corpse, then offer it. The intended branch is offer_corpse -> sacrifice_your_race -> desecrate_altar.",
+  "segments": [
+    {
+      "seed": 40404041,
+      "datetime": "20461011121314",
+      "nethackrc": "OPTIONS=name:V40Sanctum,role:Monk,race:human,gender=female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0016?\n v  \u0017human corpse\n#offer\n"
+    }
+  ]
+}

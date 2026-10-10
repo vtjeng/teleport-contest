@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Dismiss the selected-Earth arrival pager, then inspect the C inventory to identify the wished cursed pick-axe letter before the digging action.",
+  "segments": [
+    {
+      "seed": 42060006,
+      "datetime": "20441017101112",
+      "nethackrc": "OPTIONS=name:V40EarthPage2,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?\n  N i"
+    }
+  ]
+}

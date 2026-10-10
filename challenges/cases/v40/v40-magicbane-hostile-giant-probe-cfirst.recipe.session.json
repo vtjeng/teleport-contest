@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first attempt to isolate the artifact caller gap: a Wizard wishes default Magicbane, becomes invulnerable through the wizard-only intrinsic command so the target cannot interrupt setup, wields the confirmed slot, creates one hostile stone giant, and attacks its C-confirmed adjacent tile. Preserve as a probe unless C reaches MB_INDEX_PROBE and probe_monster.",
+  "segments": [
+    {
+      "seed": 42080002,
+      "datetime": "20461011121314",
+      "nethackrc": "OPTIONS=name:V40MagicbaneGiant,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017Magicbane\n#wizintrinsic\n150a\nw o#wizgenesis\nhostile stone giant\nk"
+    }
+  ]
+}

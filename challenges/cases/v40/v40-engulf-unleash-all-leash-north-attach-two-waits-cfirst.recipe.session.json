@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected engulf probe. The C map shows the starting kitten directly north of the hero, so attach the leash with `aok`; the exact hostile purple worm and two m-prefixed waits then test its adjacent engulf attack.",
+  "segments": [
+    {
+      "seed": 30917106,
+      "datetime": "20590512094100",
+      "nethackrc": "OPTIONS=name:V40EngulfLeash,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017leash\naok\u0007hostile purple worm\nm.m."
+    }
+  ]
+}

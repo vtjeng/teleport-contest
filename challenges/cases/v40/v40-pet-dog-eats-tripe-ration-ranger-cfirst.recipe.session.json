@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first pet-food route corrected from the preceding observations: Ranger has the source-fixed little dog, and tripe ration is the dog-preferred food class. Drop the wished item from observed slot n and inspect C for dogmove.c:dog_eat.",
+  "segments": [
+    {
+      "seed": 41104103,
+      "datetime": "20441012101112",
+      "nethackrc": "OPTIONS=name:V40PetTripe,role:Ranger,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017tripe ration\ndn"
+    }
+  ]
+}

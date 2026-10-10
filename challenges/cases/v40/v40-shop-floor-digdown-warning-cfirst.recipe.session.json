@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first shop-floor digging case for dig.c:dig -> shk.c:shopdig(0). The C-confirmed level-4 route enters the shop and steps onto the for-sale red gem before wishing a pick-axe. Its observed inventory letter is n. The tool menu choice `a` auto-wields with a pager; dismiss it and enter `>` to start digging down from inside the shop. Preserve setup and exact shop warning.",
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopDebtAlt,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\nl\u0017uncursed pick-axe\niwna >"
+    }
+  ]
+}

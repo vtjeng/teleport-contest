@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first level-port input based on dungeon.c:level_map and lev_by_name: the accepted special-level identifier is “earth”; the prior probe shows the display name “Plane of Earth” is rejected.",
+  "segments": [
+    {
+      "seed": 42060002,
+      "datetime": "20441016101112",
+      "nethackrc": "OPTIONS=name:V40EarthDigProbe2,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016earth\n"
+    }
+  ]
+}

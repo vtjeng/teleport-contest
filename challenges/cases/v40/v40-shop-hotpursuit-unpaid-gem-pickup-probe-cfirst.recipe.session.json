@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopChase,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\nl,",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first setup probe for a live-shopkeeper robbery path. On the D4 store's for-sale red gem, test explicit pickup before a later self-targeted teleport-wand attempt. This uses an item-theft history distinct from v40 shopdig and the earlier v19 wizard teleport selector; do not compare JavaScript unless C confirms the gem is picked up and later leaves the shop."
+}

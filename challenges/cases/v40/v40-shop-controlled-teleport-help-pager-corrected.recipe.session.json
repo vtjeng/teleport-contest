@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C\u2019s `Where do you want to be teleported?` prompt is followed by the first-use getpos help window (\u201cFarlooking or selecting a map location\u201d, end). Dismiss both the prompt page and this separate help window; stop before cursor movement so the target selection starts from a clean confirmed boundary.",
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopDebtAlt,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\nl, ni #wizintrinsic\n150o>>150j\n  \u0014  "
+    }
+  ]
+}

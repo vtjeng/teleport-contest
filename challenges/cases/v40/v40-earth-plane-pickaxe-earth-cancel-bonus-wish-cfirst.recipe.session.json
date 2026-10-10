@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Correct Earth-plane entry sequence: dismiss six confirmed start/endgame messages, cancel the Amulet bonus-wish prompt with Escape, and inspect the C inventory.",
+  "segments": [
+    {
+      "seed": 42060006,
+      "datetime": "20441017101112",
+      "nethackrc": "OPTIONS=name:V40EarthPage2,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?\n  N      \u001bi"
+    }
+  ]
+}

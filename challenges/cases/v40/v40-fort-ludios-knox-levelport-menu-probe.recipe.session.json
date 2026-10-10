@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source probe for Fort Ludios special-level generation through wizard level-port. Stop at the observed level-port menu, then select only after the recorder shows the exact C entry for Fort Ludios.",
+  "segments": [
+    {
+      "seed": 62014721,
+      "datetime": "20500909131415",
+      "nethackrc": "OPTIONS=name:V40FortLudios,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0016?"
+    }
+  ]
+}

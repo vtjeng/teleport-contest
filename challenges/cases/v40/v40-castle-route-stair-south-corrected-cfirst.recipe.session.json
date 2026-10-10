@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only Castle route probe: step diagonally onto the up-stair, then south into the adjacent lower map row to test the actual path out of the arrival pocket.",
+  "segments": [
+    {
+      "seed": 71104331,
+      "datetime": "20591211140319",
+      "nethackrc": "OPTIONS=name:V40CastleBreak,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017uncursed wand of striking\n#wizlevelport\ncastle\n #wizmap\ni n j"
+    }
+  ]
+}

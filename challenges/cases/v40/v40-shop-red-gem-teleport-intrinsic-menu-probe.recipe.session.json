@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "The inventory screen confirms the carried red gem is unpaid at 500 zorkmids. Continue C-first by querying #wizintrinsic to inspect whether teleportation/control can be used to leave this shop while preserving an immediate same-level pursuit observation.",
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopDebtAlt,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\nl, ni#wizintrinsic\n"
+    }
+  ]
+}

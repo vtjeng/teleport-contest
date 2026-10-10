@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first #wizloaddes source probe for dat/knox.lua. Enter the debug command, load the named Fort Ludios level program, and preserve the exact C map/load result. Do not compare JavaScript until the C trace confirms which program and source branch execute.",
+  "segments": [
+    {
+      "seed": 74004001,
+      "datetime": "20580615103000",
+      "nethackrc": "OPTIONS=name:V40KnoxLoad,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nknox.lua\n"
+    }
+  ]
+}

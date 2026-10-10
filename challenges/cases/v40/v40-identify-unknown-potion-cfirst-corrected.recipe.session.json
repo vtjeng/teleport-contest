@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrects two C-observed input issues in the preserved first attempt: startup has no pager, and wishing the scroll opens a label pager that must be dismissed before the read command. The potion and scroll choices remain source-independent.",
+  "segments": [
+    {
+      "seed": 40100520,
+      "datetime": "20450102030405",
+      "nethackrc": "OPTIONS=name:V40IdentifyPotion,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017potion of see invisible\n\u0017scroll of identify\n r"
+    }
+  ]
+}

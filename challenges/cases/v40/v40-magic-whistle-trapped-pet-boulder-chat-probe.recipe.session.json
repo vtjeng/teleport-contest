@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserves a C-only pet identity probe after the boulder wish. The C map shows a creature directly north of the hero; #chat tests whether it is the tame dog required by the candidate before constructing the trapped state.",
+  "segments": [
+    {
+      "seed": 40100731,
+      "datetime": "20450607080910",
+      "nethackrc": "OPTIONS=name:V40TrapPetWhistle,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017boulder\n#chat\nk"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrects the preserved first trap route: south is a wall from the confirmed ordinary-floor tile, so this attempt moves east off the new pit. C chat independently confirms the tame kitten, and the boulder/pit remain on the hero's vacated tile.",
+  "segments": [
+    {
+      "seed": 40100731,
+      "datetime": "20450607080910",
+      "nethackrc": "OPTIONS=name:V40TrapPetWhistle,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "l\u0017boulder\n\u0017pit trap\nl"
+    }
+  ]
+}

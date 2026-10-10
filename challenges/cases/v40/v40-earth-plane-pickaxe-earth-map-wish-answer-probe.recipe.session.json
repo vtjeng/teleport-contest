@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Correct Plane of Earth arrival followed by an explicit uncursed-healing-potion response to the Amulet bonus wish, then #wizmap to reveal the stone target before a pickaxe action.",
+  "segments": [
+    {
+      "seed": 42060006,
+      "datetime": "20441017101112",
+      "nethackrc": "OPTIONS=name:V40EarthPage2,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?\n  N      uncursed potion of healing\n#wizmap\n"
+    }
+  ]
+}

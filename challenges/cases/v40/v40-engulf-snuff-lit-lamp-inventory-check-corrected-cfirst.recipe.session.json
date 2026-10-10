@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first correction from the prior probe: after the swallow prompt, C displays an additional leash-release page; use enough spaces to reach the subsequent lit-lamp state, then request inventory. Confirm the lamp has been extinguished before any JS comparison.",
+  "segments": [
+    {
+      "seed": 30917106,
+      "datetime": "20590512094100",
+      "nethackrc": "OPTIONS=name:V40EngulfLeash,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #levelchange\n10\n        \u0017leash\naok\u0017lit oil lamp\n\u0007hostile purple worm\nm.m.   i"
+    }
+  ]
+}

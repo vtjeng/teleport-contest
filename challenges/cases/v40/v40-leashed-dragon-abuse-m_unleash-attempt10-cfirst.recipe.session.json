@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only correction after attempt 9 reached the source-appropriate kick target prompt: kicking a tame pet requires confirmation. Confirm once and retain the resulting tame dragon state before deciding whether the remaining kicks stay reachable.",
+  "segments": [
+    {
+      "seed": 48230567,
+      "datetime": "20590506151617",
+      "nethackrc": "OPTIONS=name:V40LeashProbe,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0007tame baby gray dragon\n\u0017ring of conflict\n\u0017leash\napkPor\u0004ly"
+    }
+  ]
+}

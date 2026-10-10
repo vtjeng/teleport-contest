@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 40101001,
+      "datetime": "20460212101516",
+      "nethackrc": "OPTIONS=name:V40WishHelp,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017help\n nothing\n",
+      "comment": "C-first probe for zap.c:makewish -> wishcmdassist; dismiss the C assistance text and explicitly decline the wish."
+    }
+  ]
+}

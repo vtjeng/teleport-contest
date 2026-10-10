@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Continues the C-confirmed slot-e probe on the starting dog, testing whether sleep can hold the pet on the coaligned altar during a later swap. This is setup evidence only; no JS differential until the tame corpse and pray_revive caller are reached.",
+  "segments": [
+    {
+      "seed": 40101044,
+      "datetime": "20461011131417",
+      "nethackrc": "OPTIONS=name:V40PetRevival,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "l\u0017lawful altar\n\u0017wand of sleep\nzek"
+    }
+  ]
+}
