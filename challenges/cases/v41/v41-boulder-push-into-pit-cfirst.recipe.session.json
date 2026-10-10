@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected from dokick.c source: #kick returns kick_ouch for boulders. From the verified geometry, the final eastward move pushes the adjacent boulder into the wished pit through hack.c:moverock_core.",
+  "segments": [
+    {
+      "seed": 41040173,
+      "datetime": "20511212121213",
+      "nethackrc": "OPTIONS=name:V41PitKick,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017ring of levitation\nPnl h\u0017pit trap\nh\u0017boulder\nhRn l"
+    }
+  ]
+}

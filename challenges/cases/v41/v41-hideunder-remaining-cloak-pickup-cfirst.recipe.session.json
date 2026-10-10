@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source case for pickup.c:pickup()'s post-loop hideunder call. Dismiss the 13 selected-item drop pages, move off the starting pile, polymorph into a cave spider, clear its two pages, wish two apples, drop them at the hero's square, and choose only the observed comestibles class so the shrunk cloak remains beneath the hero.",
+  "segments": [
+    {
+      "seed": 41040166,
+      "datetime": "20511010101014",
+      "nethackrc": "OPTIONS=name:V41HidePick,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".Da\n.\n             l#polyself\ncave spider\n  \u00172 apples\ndo,b\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first matching-control candidate for do_wear.c:Shirt_on. Wish a T-shirt, use the observed C wear-armor prompt, and confirm the worn-slot state; no JavaScript comparison until the planned slate is complete.",
+  "segments": [
+    {
+      "seed": 41040117,
+      "datetime": "20491011121315",
+      "nethackrc": "OPTIONS=name:V41Shirt,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017T-shirt\nPm"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first Ring_off candidate with the observed ring slot and removal side. The previous trace showed the wished brass ring in slot o (it is the randomized description of the requested uncursed invisibility ring), and that P o did not occur; use P o, then remove the left-finger ring.",
+  "segments": [
+    {
+      "seed": 41040119,
+      "datetime": "20491012131416",
+      "nethackrc": "OPTIONS=name:V41InvisRing,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017uncursed ring of invisibility\nPoRl"
+    }
+  ]
+}

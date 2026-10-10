@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first sellobj setup. Load minetn-3.lua, which source-defines a shop room, then add a saleable diamond and inspect its assigned inventory letter before issuing the drop action.",
+  "segments": [
+    {
+      "seed": 41040159,
+      "datetime": "20520306162738",
+      "nethackrc": "OPTIONS=name:V41ShopSalePrep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-3.lua\n #wizmap\n\u0017diamond\n i"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected Shirt_on matching control. The prior trace showed the T-shirt cannot be worn over the starting cloak. Remove the observed cloak in slot b, then wear the T-shirt from slot o.",
+  "segments": [
+    {
+      "seed": 41040117,
+      "datetime": "20491011121315",
+      "nethackrc": "OPTIONS=name:V41Shirt,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017T-shirt\nTbWo"
+    }
+  ]
+}

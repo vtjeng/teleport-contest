@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first Ring_off candidate. The prior trace began on the welcome pager, so this revision dismisses it before wishing the uncursed invisibility ring and then follows C's jewelry-removal prompt.",
+  "segments": [
+    {
+      "seed": 41040119,
+      "datetime": "20491012131416",
+      "nethackrc": "OPTIONS=name:V41InvisRing,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017uncursed ring of invisibility\nPmRl"
+    }
+  ]
+}

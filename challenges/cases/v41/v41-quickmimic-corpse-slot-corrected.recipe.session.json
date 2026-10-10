@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first probe for mon.c:m_consume_obj -> dogmove.c:quickmimic. The prior C probe confirmed a small mimic corpse in inventory slot m and a kitten pet; this recipe drops m, moves east off the corpse square, and waits for the pet to act.",
+  "segments": [
+    {
+      "seed": 41040111,
+      "datetime": "20481010111214",
+      "nethackrc": "OPTIONS=name:V41QuickMimic,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017small mimic corpse\ndml........."
+    }
+  ]
+}

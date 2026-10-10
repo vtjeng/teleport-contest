@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected menu-wide selection uses the source-verified MENU_SELECT_ALL key `.`; dismiss the resulting messages and check remaining worn gear.",
+  "segments": [
+    {
+      "seed": 41040166,
+      "datetime": "20511010101014",
+      "nethackrc": "OPTIONS=name:V41HideDrop,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".Da\n.\n                i"
+    }
+  ]
+}

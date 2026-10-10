@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source-unit candidate for dat/tower2.lua, a separate Vlad's Tower program from v40's tower1.lua. Use the recorded direct special-level loader and map the generated level; keep only after C confirms this program executed.",
+  "segments": [
+    {
+      "seed": 41040141,
+      "datetime": "20510415161719",
+      "nethackrc": "OPTIONS=name:V41TowerTwo,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\ntower2.lua\n#wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first Shirt_on control. The prior trace began on the welcome pager, so this version dismisses it before wishing and wearing the shirt; the action sequence is selected from subsequent C prompts.",
+  "segments": [
+    {
+      "seed": 41040117,
+      "datetime": "20491011121315",
+      "nethackrc": "OPTIONS=name:V41Shirt,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017T-shirt\nPm"
+    }
+  ]
+}
