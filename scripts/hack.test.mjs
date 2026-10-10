@@ -113,7 +113,8 @@ import { GameMap } from '../js/game.js';
 import { initRng } from '../js/rng.js';
 import { runSegment } from '../js/jsmain.js';
 import {
-    M1_FLY, PM_CAVE_SPIDER, PM_GRID_BUG, PM_HUMAN, PM_IRON_PIERCER, PM_SOLDIER,
+    M1_FLY, M2_ROCKTHROW, PM_CAVE_SPIDER, PM_GRID_BUG, PM_HUMAN,
+    PM_IRON_PIERCER, PM_SOLDIER,
     S_PIERCER, monst_globals_init,
 } from '../js/monsters.js';
 import {
