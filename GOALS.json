@@ -250659,6 +250659,63 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-fort-ludios-knox-level-v40-20261010",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Port the complete Fort Ludios Knox level program and the special-room filling functions it requires.",
+      "luaFile": "knox.lua",
+      "sessions": [
+        "synthetic/v40/v40-fort-ludios-knox-wizloaddes-generation"
+      ],
+      "selectionReason": "Selected the admitted v40 Fort Ludios Knox wizloaddes mismatch; source tracing shows normal Fort Ludios generation uses the same prototype and requires mkroom.c fill_zoo plus sp_lev.c fill_special_room.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "knox.lua",
+          "line": 1,
+          "endLine": 167,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "requiredFunctions": [
+        {
+          "name": "fill_zoo",
+          "line": 276,
+          "endLine": 455,
+          "declared": true,
+          "sourceFile": "mkroom.c",
+          "complete": false
+        },
+        {
+          "name": "fill_special_room",
+          "line": 2731,
+          "endLine": 2806,
+          "declared": true,
+          "sourceFile": "sp_lev.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v40/v40-fort-ludios-knox-wizloaddes-generation": {
+          "session": "synthetic/v40/v40-fort-ludios-knox-wizloaddes-generation",
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-fort-ludios-knox-wizloaddes-generation",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recordingPath": "challenges/cases/v40/v40-knox-wizloaddes-map-cfirst.session.json",
+          "recordingSha256": "49252e7aeff2d0f0bce9f3f0d7a611f97412f6085a6f92fc3a26ba40d19fbbe2",
+          "evaluationPath": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
+          "evaluationCommit": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5"
+        }
+      }
     }
   ]
 }
