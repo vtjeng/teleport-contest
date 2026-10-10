@@ -137,6 +137,8 @@
         "js/cav_strt_level_data.js",
         "js/dungeon.js",
         "js/dungeon_data.js",
+        "js/earth_level_data.js",
+        "js/earth_levels.js",
         "js/extralev.js",
         "js/fire_level_data.js",
         "js/fire_levels.js",
