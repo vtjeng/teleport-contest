@@ -207,7 +207,7 @@ import {
 } from './worn.js';
 import { mdrop_obj, remove_worn_item } from './steal.js';
 import {
-    burn_away_slime, fall_asleep, obj_stop_timers, spot_stop_timers,
+    burn_away_slime, fall_asleep, kill_egg, obj_stop_timers, spot_stop_timers,
     spot_time_left, attach_egg_hatch_timeout, peek_timer, stop_timer,
     start_timer, attach_fig_transform_timeout,
 } from './timeout.js';
@@ -2285,11 +2285,9 @@ export async function poly_obj(obj, id, state = game,
     }
     if (obj.otyp === EGG && obj.spe) {
         // Eggs laid by the hero may not be converted into arbitrary objects.
-        // kill_egg() also removes a hatch timer; no supported immediate-zap
-        // path carries one today, so retain the call as a named discarded
-        // dependency and reset the same object fields here.
+        // Resetting a replacement egg must first cancel its old hatch timer.
         if (replacement.otyp === EGG)
-            note_unported('timeout.c kill_egg');
+            kill_egg(replacement, state, env);
         else {
             replacement.otyp = EGG;
             replacement.owt = weight(replacement, env);

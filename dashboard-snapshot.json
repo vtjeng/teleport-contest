@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T06:37:44.315Z",
+  "capturedAt": "2026-10-10T06:52:02.280Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -79223,22 +79223,153 @@
         "type": "accepted",
         "at": "2026-10-10T06:37:12.623Z",
         "task": "B209-investigation-v39-counted-wizgenesis"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B209-investigation-v39-counted-wizgenesis-36b60128a46d0543843cf2ae661eef92ecb5d696",
+        "type": "published",
+        "at": "2026-10-10T06:37:52.518Z",
+        "task": "B209-investigation-v39-counted-wizgenesis",
+        "commit": "36b60128a46d0543843cf2ae661eef92ecb5d696"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep4-v40-active-20261010T0750Z",
+        "type": "turn",
+        "at": "2026-10-10T06:38:11.371Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has seven independently replayed C-first controls with full JS matches; the Earth-plane candidate is still unresolved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-implement-v39-sink-levitation-boots-pickup-20261010",
+        "type": "implement",
+        "at": "2026-10-10T06:38:50.416Z",
+        "task": "A2-investigation-v39-sink-levitation-boots-pickup-20261010",
+        "goal": "divergence-v39-sink-levitation-boots-pickup-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B211-implement-selftouch-20261010",
+        "type": "turn",
+        "at": "2026-10-10T06:42:42.016Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing trap.c:selftouch and wiring polyself.c:newman to close the admitted v39 corpse-touch mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B211-selftouch-20261010",
+        "type": "implement",
+        "at": "2026-10-10T06:42:54.651Z",
+        "task": "B211-investigation-v39-selftouch-cockatrice-human-final",
+        "goal": "port-trap-selftouch-wielded-corpse-v39-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-c176-aed26ac9-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T06:45:06.548Z",
+        "task": "C-v39-cursed-jelly-nosafewait-20261010",
+        "integration": "aed26ac9ec69a4441421005e4110971d52d5eb53"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-aa2163952f9494c9f479695084307515af9770af",
+        "type": "ready",
+        "at": "2026-10-10T06:48:16.957Z",
+        "task": "A2-investigation-v39-sink-levitation-boots-pickup-20261010",
+        "delivery": "aa2163952f9494c9f479695084307515af9770af"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B211-finalize-delivery-20261010",
+        "type": "turn",
+        "at": "2026-10-10T06:49:13.558Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B211 validation passed; submitting the selftouch port and caller wiring."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep4-v40-active-20261010T0835Z",
+        "type": "turn",
+        "at": "2026-10-10T06:49:35.028Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has nine independent C-first controls with full JavaScript matches; two source-gap targets remain unresolved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-48e67da6816db6267bf1739fa6116f8336fd39a6",
+        "type": "ready",
+        "at": "2026-10-10T06:49:40.726Z",
+        "task": "B211-investigation-v39-selftouch-cockatrice-human-final",
+        "delivery": "48e67da6816db6267bf1739fa6116f8336fd39a6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-a2-sink-aa2163952f94",
+        "type": "received",
+        "at": "2026-10-10T06:49:50.113Z",
+        "task": "A2-investigation-v39-sink-levitation-boots-pickup-20261010",
+        "delivery": "aa2163952f9494c9f479695084307515af9770af"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-sink-ready-20261010",
+        "type": "turn",
+        "at": "2026-10-10T06:50:01.727Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 submitted the v39 sink levitation fix and is syncing accepted Main before selecting another independent task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B212-select-v39-clay-cancellation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T06:50:36.254Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B211 is submitted; checking the unreserved v39 cancellation case for an independent source cause."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B212-v39-cancellation-clay-golem-20261010",
+        "type": "assign",
+        "at": "2026-10-10T06:50:37.787Z",
+        "task": "B212-investigation-v39-cancellation-clay-golem-reached",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v39-cursed-jelly-nosafewait-20261010-aed26ac9ec69a4441421005e4110971d52d5eb53-validated",
+        "type": "validated",
+        "at": "2026-10-10T06:50:39.153Z",
+        "task": "C-v39-cursed-jelly-nosafewait-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v39-cursed-jelly-nosafewait-20261010-aed26ac9ec69a4441421005e4110971d52d5eb53-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T06:51:27.183Z",
+        "task": "C-v39-cursed-jelly-nosafewait-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-b211-48e67da6816d",
+        "type": "received",
+        "at": "2026-10-10T06:51:37.648Z",
+        "task": "B211-investigation-v39-selftouch-cockatrice-human-final",
+        "delivery": "48e67da6816db6267bf1739fa6116f8336fd39a6"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C-v39-cursed-jelly-nosafewait-20261010",
-        "worker": "C",
-        "goal": "port-kill-egg-timer-cancellation-v39-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "53d97686375899b982364527f1e74b2c55ae2dd7",
-        "since": "2026-10-10T06:30:23.252Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "A2-v39-mounted-steed-polymorph-trap-investigation-20261010",
         "worker": "A2",
@@ -79248,7 +79379,7 @@
         "delivery": "a32daf664bb995a1405c33407f5a339a017004cc",
         "since": "2026-10-10T06:33:58.880Z",
         "blockedBy": [],
-        "unblocks": 0
+        "unblocks": 1
       },
       {
         "task": "B210-investigation-v39-lava-after-ring-removal",
@@ -79259,6 +79390,32 @@
         "delivery": "730b2417130fc0c0bf5193cf26ce0028156a7e55",
         "since": "2026-10-10T06:35:09.852Z",
         "blockedBy": [],
+        "unblocks": 1
+      },
+      {
+        "task": "A2-investigation-v39-sink-levitation-boots-pickup-20261010",
+        "worker": "A2",
+        "goal": "divergence-v39-sink-levitation-boots-pickup-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "aa2163952f9494c9f479695084307515af9770af",
+        "since": "2026-10-10T06:48:16.957Z",
+        "blockedBy": [
+          "A2-v39-mounted-steed-polymorph-trap-investigation-20261010"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "B211-investigation-v39-selftouch-cockatrice-human-final",
+        "worker": "B",
+        "goal": "port-trap-selftouch-wielded-corpse-v39-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "48e67da6816db6267bf1739fa6116f8336fd39a6",
+        "since": "2026-10-10T06:49:40.726Z",
+        "blockedBy": [
+          "B210-investigation-v39-lava-after-ring-removal"
+        ],
         "unblocks": 0
       }
     ],
@@ -79564,8 +79721,8 @@
     ]
   },
   "development": {
-    "executionCommit": "bc442e36ad933de77a8051a6ae641fac42ab6780",
-    "measuredAt": "2026-10-10T06:35:21.083Z",
+    "executionCommit": "aed26ac9ec69a4441421005e4110971d52d5eb53",
+    "measuredAt": "2026-10-10T06:49:17.316Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -518,6 +518,7 @@ import { P_SKILL } from './startup_skills.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import {
     attach_egg_hatch_timeout,
+    kill_egg,
     obj_has_timer,
     obj_stop_timers,
     start_timer,
@@ -3896,8 +3897,7 @@ export function jelly_ok(obj) {
 }
 
 // C ref: apply.c use_royal_jelly() (3616-3682). The holder preserves C's
-// struct obj ** updates across both production callers. The cursed kill_egg()
-// result is discarded and remains a named gap until timeout.c:kill_egg() lands.
+// struct obj ** updates across both production callers.
 async function use_royal_jelly(objp, state = game, rawEnv = {}) {
     let obj = objp.obj;
     const env = { ...rawEnv, state };
@@ -3938,7 +3938,7 @@ async function use_royal_jelly(objp, state = game, rawEnv = {}) {
             } else {
                 await message(nothing_seems_to_happen, state);
             }
-            note_unported('timeout.c kill_egg');
+            kill_egg(eobj, state, rawEnv);
         } else {
             const wasTimed = eobj.timed;
             if (eobj.corpsenm !== NON_PM) {

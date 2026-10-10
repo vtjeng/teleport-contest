@@ -2753,6 +2753,12 @@ export function attach_egg_hatch_timeout(egg, when = 0, env = {}) {
         start_timer(delay, TIMER_OBJECT, HATCH_EGG, egg, state);
 }
 
+// C ref: timeout.c kill_egg() (1007-1013). C discards stop_timer()'s
+// remaining-time result; only cancellation of this egg's hatch timer matters.
+export function kill_egg(egg, state = game, env = {}) {
+    stop_timer(HATCH_EGG, egg, state, env);
+}
+
 // C ref: timeout.c learn_egg_type() (1193-1200). The species-wide flag
 // belongs to svm.mvitals; update_inventory() runs after the bit is set so
 // carried eggs can be renamed. env is only the existing inventory hook seam.

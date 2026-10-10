@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent wizard recipe for the active mon.c:kill_eggs path. It wishes a timed giant-ant egg and a genocide scroll, then reads the scroll against giant ants so the sweep cancels the egg timer through timeout.c:kill_egg. The seed and date were chosen for this task.",
+  "segments": [
+    {
+      "seed": 39261010,
+      "datetime": "20431009123456",
+      "nethackrc": "OPTIONS=name:EggSweep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017giant ant egg\n\u0017uncursed scroll of genocide\nrh  giant ant\n...."
+    }
+  ]
+}

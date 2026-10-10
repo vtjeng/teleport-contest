@@ -92,7 +92,7 @@ test('genociding only the current form awaits the source shapechange before egg 
     state.svm.mvitals[PM_NEWT].mvflags|=G_GENOD;
     state.wizard=true;state.iflags.mon_polycontrol=true;
     const events=[];
-    mon.minvent=egg('monster egg',events,PM_LICHEN); // Viable, so no kill_egg gap.
+    mon.minvent=egg('monster egg',events,PM_LICHEN); // A viable egg keeps its hatch timer.
     let announce,release;
     const reached=new Promise(resolve=>{announce=resolve;});
     const draws=[];
@@ -129,8 +129,8 @@ test('egg sweep skips dead monsters and visits live inventory then four global l
     state.svm.mvitals[PM_NEWT].mvflags|=G_GENOD;
     await kill_genocided_monsters(state,{random:noRandom()});
     assert.deepEqual(events,['live container','hero inventory','floor objects','migrating objects','buried objects']);
-    assert.ok(state.unported.has('timeout.c kill_egg'));
-    assert.equal(state.invent.age,118,'the inherited gap invents no egg timer state');
+    assert.equal(state.unported.has('timeout.c kill_egg'),false);
+    assert.equal(state.invent.age,118,'the timer cancellation leaves egg data intact');
 });
 
 test('genocide retains the existing life-saving death boundary without claiming it',async()=>{
