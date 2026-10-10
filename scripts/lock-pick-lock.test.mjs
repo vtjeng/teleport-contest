@@ -13,6 +13,13 @@ import { objectGenerationEnv } from '../js/object_generation.js';
 import { CHEST, CREDIT_CARD, LOCK_PICK, SKELETON_KEY, TOOL_CLASS } from '../js/objects.js';
 import { S_hcdoor, S_vcdoor } from '../js/symbols.js';
 
+const LOCK_C = fs.readFileSync(
+    new URL('../nethack-c/upstream/src/lock.c', import.meta.url), 'utf8',
+);
+const STEAL_C = fs.readFileSync(
+    new URL('../nethack-c/upstream/src/steal.c', import.meta.url), 'utf8',
+);
+
 async function setup() {
     // Independent container recipe startup; no recorded answers are supplied.
     const recipe = JSON.parse(fs.readFileSync(new URL('../recipes/lock.c/pick-lock-container-auto-b134.session.json', import.meta.url)));
@@ -97,11 +104,33 @@ test('pick_lock dummy tool stops before an apply-key prompt when trap is known a
 });
 
 test('pick_lock recognizes the current monst.h closed-door mimic symbols', async () => {
+    // Source-pinned call order: reveal first, then give the pick to the mimic
+    // with the ordinary/artifact chances specified by lock.c.
+    const callerStart = LOCK_C.indexOf('maybe_absorb_item(mtmp, pick, 50, 10)');
+    assert.notEqual(callerStart, -1);
+    assert.ok(LOCK_C.lastIndexOf('stumble_onto_mimic(mtmp);', callerStart) >= 0);
+    const absorbStart = STEAL_C.indexOf('maybe_absorb_item(');
+    const absorbEnd = STEAL_C.indexOf('/* drop one object taken from a (possibly dead) monster\'s inventory */', absorbStart);
+    assert.notEqual(absorbStart, -1);
+    assert.notEqual(absorbEnd, -1);
+    const absorbSource = STEAL_C.slice(absorbStart, absorbEnd);
+    assert.match(absorbSource,
+        /obj == uball \|\| obj == uchain \|\| obj->oclass == ROCK_CLASS[\s\S]*?obj_resists\(obj, 100 - ochance, 100 - achance\)[\s\S]*?!touch_artifact\(obj, mon\)[\s\S]*?return;/u);
+    assert.match(absorbSource,
+        /if \(carried\(obj\)\)[\s\S]*?remove_worn_item\(obj, TRUE\)[\s\S]*?subfrombill\(obj, shop_keeper\(\*u\.ushops\)\)[\s\S]*?freeinv\(obj\)[\s\S]*?encumber_msg\(\)[\s\S]*?\} else \{[\s\S]*?if \(canspotmon\(mon\)\)[\s\S]*?mpickobj\(mon, obj\)/u);
+
     // monst.h is_door_mappear tests current defsym.h constants, not the
     // old 36/37 table positions. Construct the furniture disguise because
     // wizard-created room mimics normally choose object appearances.
     for (const appearance of [S_hcdoor, S_vcdoor]) {
         const { env, messages } = await setup();
+        const randomCalls = [];
+        env.random = {
+            rn2(n) {
+                randomCalls.push(n);
+                return 19; // C's first mismatch value; 19 < 50 resists the pick.
+            },
+        };
         const x = game.u.ux + 1; // Adjacent east mimic; both axes share the predicate.
         const y = game.u.uy;
         const mimic = newMonster({ mx: x, my: y, mhp: 10,
@@ -111,6 +140,8 @@ test('pick_lock recognizes the current monst.h closed-door mimic symbols', async
         assert.equal(await pick_lock(newObject({ otyp: LOCK_PICK }), x, y, null, game, env), -1);
         assert.ok(messages.some(text => text.includes('small mimic')), messages.join('\n'));
         assert.equal(mimic.m_ap_type, 0, 'canonical stumble_onto_mimic reveals the monster');
-        assert.ok(game.unported.has('steal.c maybe_absorb_item'), 'only the discarded void absorption callee remains a gap');
+        assert.deepEqual(randomCalls, [100], 'maybe_absorb_item makes its ordinary resistance draw');
+        assert.equal(mimic.minvent, null, 'a resisted pick is not transferred');
+        assert.ok(!game.unported.has('steal.c maybe_absorb_item'));
     }
 });

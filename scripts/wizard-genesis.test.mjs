@@ -446,6 +446,30 @@ test('^G creates the named monster beside the hero without spending a turn',
         assert.equal(game.iflags.debug_mongen, false);
     });
 
+test('a counted direct ^G dispatch uses its remaining count as quantity',
+    async () => {
+        const base = segmentFor(`${GENESIS_KEY}gas spore\n`);
+        const segment = {
+            ...base,
+            moves: `${WAIT_KEY}2${GENESIS_KEY}gas spore\n`,
+        };
+        const boundaries = [];
+        const { added } = await createdBy(segment, segment.moves, {
+            onBoundary: (error) => boundaries.push(error),
+        });
+
+        // cmd.c:parse() sets gm.multi to count-1. wizcmds.c:wiz_genesis()
+        // reaches read.c:create_particular_parse(), whose 1+gm.multi quantity
+        // therefore creates the requested two monsters in one dispatch.
+        assert.deepEqual(boundaries, []);
+        assert.equal(
+            added.filter(({ mnum }) => mnum === PM_GAS_SPORE).length,
+            2,
+        );
+        assert.equal(game.multi, 0);
+        assert.equal(game.context.move, 0);
+    });
+
 test('^G admits a minotaur through the generic makemon path', async () => {
     // C read.c:create_particular_creation() passes a named species directly to
     // makemon(); it does not carry a fill_empty_maze-only admission marker.

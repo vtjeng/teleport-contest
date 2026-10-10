@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first eat.c:cpostfx entry-point recording. A newly chosen debug Wizard wishes for a human wererat corpse, eats it from the floor, and dismisses the poison page. C names it a wererat corpse and later reports cannibalism, establishing the human-corpse path; cpostfx maps PM_HUMAN_WERERAT to PM_WERERAT, calls set_ulycn, then retouch_equipment(2).",
+  "segments": [
+    {
+      "seed": 68492935,
+      "datetime": "21151018153400",
+      "nethackrc": "OPTIONS=name:EatRetouch,role:Wizard,race:human,gender=female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!safe_wait,pettype:none\n",
+      "moves": " \u0017human wererat corpse\ney "
+    }
+  ]
+}

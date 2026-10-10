@@ -3000,10 +3000,11 @@ test('counted comma pickup reaches the handler that consumes its count', () => {
     assert.ok(cChecks < cSelect);
 
     // Preserve the refusals for other counted nonmovement commands while
-    // admitting comma pickup and the `#` extended-command dispatch. The next
-    // test verifies that `#` passes its count to the selected handler.
+    // admitting comma pickup, `#` dispatch, and the direct wizgenesis row,
+    // whose selected handler consumes the count as a monster quantity. The
+    // next test verifies that `#` passes its count to the selected handler.
     assert.match(CMD_JS,
-        /state\.multi > 0 && command !== null && command !== 'pay'\s*&& command !== 'pickup'\s*&& command !== '#'\s*&& !Object\.hasOwn\(MOVEMENT_INTENTS, command\)/u);
+        /state\.multi > 0 && command !== null && command !== 'pay'\s*&& command !== 'pickup'\s*&& command !== '#'\s*&& command !== 'wizgenesis'\s*&& !Object\.hasOwn\(MOVEMENT_INTENTS, command\)/u);
     assert.match(CMD_JS,
         /if \(command === 'pickup'\)[\s\S]*?runPickupCommand\(key, state\)/u);
 
@@ -3058,7 +3059,7 @@ test('counted #wizgenesis carries its quantity through doextcmd then resets ECMD
         // only '#' is a container dispatch whose selected handler consumes
         // this already-decremented multi value.
         assert.match(CMD_JS,
-            /state\.multi > 0 && command !== null && command !== 'pay'\s*&& command !== 'pickup'\s*&& command !== '#'\s*&& !Object\.hasOwn\(MOVEMENT_INTENTS, command\)/u);
+            /state\.multi > 0 && command !== null && command !== 'pay'\s*&& command !== 'pickup'\s*&& command !== '#'\s*&& command !== 'wizgenesis'\s*&& !Object\.hasOwn\(MOVEMENT_INTENTS, command\)/u);
         const jsCountGuard = CMD_JS.indexOf('state.multi > 0 && command !== null');
         const jsGenesisDispatch = CMD_JS.indexOf("if (command === '#')", jsCountGuard);
         assert.ok(jsCountGuard >= 0 && jsGenesisDispatch > jsCountGuard);

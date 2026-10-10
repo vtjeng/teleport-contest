@@ -99,7 +99,7 @@ import {
 import {
     can_be_hatched, completelyburns, attacktype_fordmg, defended, dead_species, dmgtype, dmgtype_fromattack, is_demon, perceives, hides_under, is_whirly, mindless, is_mplayer, is_rider, is_reviver, is_vampshifter, resists_drli, is_swimmer, amphibious, breathless, Resists_Elem, resists_magm, resists_blnd, resists_blnd_by_arti, monstseesu, monstunseesu, nonliving, is_golem, carnivorous, nohands, is_undead, sticks, type_is_pname, unique_corpstat, } from './mondata.js';
 import {
-    AD_ACID, AD_ANY, AD_COLD, AD_DGST, AD_DISN, AD_DRLI, AD_ELEC, AD_FIRE, AD_DRST, AD_MAGM, AD_RBRE, AD_SEDU, AD_SSEX, AD_WRAP, AT_ENGL, PM_CLAY_GOLEM, PM_CROCODILE, PM_FLESH_GOLEM, PM_GLASS_GOLEM, PM_GOLD_GOLEM, PM_IRON_GOLEM, PM_LEATHER_GOLEM, PM_PAPER_GOLEM, PM_ROPE_GOLEM, PM_SKELETON, PM_STONE_GOLEM, PM_STRAW_GOLEM, PM_WOOD_GOLEM, PM_DEATH, PM_DOPPELGANGER, PM_MONK, PM_KNIGHT, PM_HEALER, PM_GHOST, PM_PESTILENCE, PM_GREMLIN, PM_LONG_WORM, PM_ARCHEOLOGIST, G_NOCORPSE, G_UNIQ, NUMMONS, S_EEL, S_GOLEM, S_MIMIC, S_ZOMBIE, MZ_MEDIUM, } from './monsters.js';
+    AD_ACID, AD_ANY, AD_COLD, AD_DGST, AD_DISN, AD_DRLI, AD_ELEC, AD_FIRE, AD_DRST, AD_MAGM, AD_RBRE, AD_SEDU, AD_SPEL, AD_SSEX, AD_WRAP, AT_ENGL, PM_CLAY_GOLEM, PM_CROCODILE, PM_FLESH_GOLEM, PM_GLASS_GOLEM, PM_GOLD_GOLEM, PM_IRON_GOLEM, PM_LEATHER_GOLEM, PM_PAPER_GOLEM, PM_ROPE_GOLEM, PM_SKELETON, PM_STONE_GOLEM, PM_STRAW_GOLEM, PM_WOOD_GOLEM, PM_DEATH, PM_DOPPELGANGER, PM_MONK, PM_KNIGHT, PM_HEALER, PM_GHOST, PM_PESTILENCE, PM_GREMLIN, PM_LONG_WORM, PM_ARCHEOLOGIST, G_NOCORPSE, G_UNIQ, NUMMONS, S_EEL, S_GOLEM, S_MIMIC, S_ZOMBIE, MZ_MEDIUM, } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
 import { obj_resists } from './bury.js';
 import { del_engr_at, engr_at, make_engr_at, rloc_engr } from './engrave.js';
@@ -207,7 +207,7 @@ import {
 } from './worn.js';
 import { mdrop_obj, remove_worn_item } from './steal.js';
 import {
-    burn_away_slime, fall_asleep, obj_stop_timers, spot_stop_timers,
+    burn_away_slime, fall_asleep, kill_egg, obj_stop_timers, spot_stop_timers,
     spot_time_left, attach_egg_hatch_timeout, peek_timer, stop_timer,
     start_timer, attach_fig_transform_timeout,
 } from './timeout.js';
@@ -2285,11 +2285,9 @@ export async function poly_obj(obj, id, state = game,
     }
     if (obj.otyp === EGG && obj.spe) {
         // Eggs laid by the hero may not be converted into arbitrary objects.
-        // kill_egg() also removes a hatch timer; no supported immediate-zap
-        // path carries one today, so retain the call as a named discarded
-        // dependency and reset the same object fields here.
+        // Resetting a replacement egg must first cancel its old hatch timer.
         if (replacement.otyp === EGG)
-            note_unported('timeout.c kill_egg');
+            kill_egg(replacement, state, env);
         else {
             replacement.otyp = EGG;
             replacement.owt = weight(replacement, env);
@@ -6475,7 +6473,7 @@ export async function weffects(
     }
 }
 
-// C ref: zap.c cancel_monst() (3150-3212). Cancellation effect on a monster
+// C ref: zap.c cancel_monst() (3150-3215). Cancellation effect on a monster
 // or the hero. When called from Magicbane's Mb_hit, allow_cancel_kill and
 // self_cancel are both false: inventory cancelling and clay-golem killing are
 // skipped. Returns true if cancellation was not resisted.
@@ -6554,10 +6552,13 @@ export async function cancel_monst(
                     state, env,
                 );
             }
-            // zap.c's kill/monkilled return is discarded; Magicbane passes
-            // allow_cancel_kill=false and keeps that source gap untouched.
+            // zap.c discards the void kill result. Magicbane passes
+            // allow_cancel_kill=false and deliberately skips this path.
             if (allow_cancel_kill) {
-                note_unported('zap.c cancel_monst kill path');
+                if (youattack)
+                    await killed(mdef, state, env);
+                else
+                    await monkilled(mdef, '', AD_SPEL, state, env);
             }
         }
     }

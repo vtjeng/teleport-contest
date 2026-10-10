@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Independent C-first route for mon.c:newcham's tame old-name branch: keep the default tame kitten, move off the starting stair, wish a polymorph trap under the hero, then leave west while the kitten follows; wait for it to trigger the trap. The pet is not mounted, avoiding steed.c:poly_steed.",
+  "segments": [
+    {
+      "seed": 39206001,
+      "datetime": "20430515115700",
+      "nethackrc": "OPTIONS=name:A2TameTrap,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": "l\u0017polymorph trap\nh......",
+      "recorderIsDst": true
+    }
+  ]
+}

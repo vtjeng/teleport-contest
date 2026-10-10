@@ -31,6 +31,7 @@ import {
     HALLUC,
     HALLUC_RES,
     has_mgivenname,
+    KILLED_BY_AN,
     LEG,
     LEVITATION,
     MAXULEV,
@@ -74,7 +75,7 @@ import {
 import { isok } from './cmd_isok.js';
 import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
 import { newsym } from './display.js';
-import { heal_legs, legs_in_no_shape } from './do.js';
+import { heal_legs, legs_in_no_shape, set_wounded_legs } from './do.js';
 import { finish_meating } from './dogmove.js';
 import {
     Monnam,
@@ -139,7 +140,7 @@ import { an } from './objnam.js';
 import { encumber_msg, u_handsy } from './pickup.js';
 import { body_part, polymon, steed_vs_stealth } from './polyself.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
-import { teleds } from './teleport.js';
+import { enexto, teleds } from './teleport.js';
 import {
     float_down,
     t_at,
@@ -744,11 +745,9 @@ export async function kick_steed(state = game) {
 // coord and returns a boolean; a nullable coordinate says the same thing
 // without letting a caller read a stale spot.
 //
-// Three RNG draws live here. `rn2(2)` picks between the two next-best
-// directions and belongs to DISMOUNT_KNOCKED alone; `rn2(viable)` breaks a tie
-// between equally distant candidates and fires on every reason; and
-// enexto() behind `forceit` draws through goodpos(). Only the second is
-// reachable from doride().
+// `rn2(2)` orders the two secondary directions for DISMOUNT_KNOCKED;
+// `rn2(viable)` breaks ties between equally distant candidates; and enexto()
+// behind `forceit` searches farther away if the adjacent squares fail.
 async function landing_spot(reason, forceit, state = game) {
     const u = state.u;
     const spot = { x: 0, y: 0 };
@@ -762,13 +761,15 @@ async function landing_spot(reason, forceit, state = game) {
     if (reason === DISMOUNT_KNOCKED && j !== DIR_ERR) {
         // The preferred direction and its two neighbours, which only a
         // knockback dismount supplies. uhitm.c is its only caller.
-        throw new UnsupportedSteedError(
-            'landing_spot() for a knockback dismount',
-        );
+        best_j = j;
+        tries[0] = { x: u.dx, y: u.dy };
+        const i = rn2(2);
+        clockwise_j = (j + 1) % N_DIRS;
+        tries[1 + i] = dirtocoord(clockwise_j);
+        counterclk_j = (j + N_DIRS - 1) % N_DIRS;
+        tries[2 - i] = dirtocoord(counterclk_j);
     } else {
-        best_j = -1;
-        clockwise_j = -1;
-        counterclk_j = -1;
+        best_j = clockwise_j = counterclk_j = -1;
     }
     for (j = 0; j < N_DIRS; ++j) {
         /* fortunately NODIAG() handling isn't needed for DISMOUNT_KNOCKED
@@ -838,19 +839,23 @@ async function landing_spot(reason, forceit, state = game) {
 
     if (forceit && !found) {
         // enexto() is the last resort for a dismount the hero did not choose.
-        throw new UnsupportedSteedError('landing_spot() forced through enexto');
+        const fallback = enexto(u.ux, u.uy, state.youmonst.data, { state });
+        if (fallback) {
+            spot.x = fallback.x;
+            spot.y = fallback.y;
+            found = true;
+        }
     }
     return found ? spot : null;
 }
 
-// C ref: steed.c dismount_steed() (575-822). doride() supplies
-// DISMOUNT_BYCHOICE and nothing else in this port reaches here, so the other
-// seven reasons refuse at the switch below, each naming the C callers that
-// would produce it.
+// C ref: steed.c dismount_steed() (575-822). This port covers the
+// DISMOUNT_BYCHOICE and DISMOUNT_KNOCKED paths; other reasons still identify
+// their unported callers in the switch below.
 export async function dismount_steed(reason, state = game) {
     const u = state.u;
     const save_utrap = u.utrap;
-    const repair_leg_damage = propertyActive(state, WOUNDED_LEGS);
+    let repair_leg_damage = propertyActive(state, WOUNDED_LEGS);
     // The initializers run before the `!u.usteed` sanity check, so
     // landing_spot() reads a hero who is still mounted.
     let have_spot = await landing_spot(reason, 0, state);
@@ -858,26 +863,43 @@ export async function dismount_steed(reason, state = game) {
     const mtmp = u.usteed; /* make a copy of steed pointer */
     /* Sanity check */
     if (!mtmp) return; /* Just return silently */
-    // C ref: steed.c:591-597. C clears u.usteed here so that its Flying and
-    // Levitation tests, and u_locomotion("fall"), answer for the hero alone,
-    // then restores it. All three values are read only by the _FELL, _THROWN
-    // and _KNOCKED arms, which refuse below, so that window has no observable
-    // effect and is not reproduced. u_locomotion() is imported all the same,
-    // because it is the arm's only other prerequisite.
-    void u_locomotion;
+    // C ref: steed.c:591-597. Clear the steed while querying the hero's own
+    // flight, levitation, and fall verb; restore it before the reason switch.
+    u.usteed = null;
+    const ufly = Flying(state);
+    const ulev = Levitation(state);
+    const verb = u_locomotion('fall', state);
+    u.usteed = mtmp;
 
     /* Check the reason for dismounting */
     const otmp = which_armor(mtmp, W_SADDLE);
     switch (reason) {
     case DISMOUNT_THROWN:
-    case DISMOUNT_KNOCKED:
     case DISMOUNT_FELL:
-        // "You %s off of %s!", then losehp(rn1(10, 10)) and
-        // set_wounded_legs(). steed.c kick_steed(), uhitm.c's knockback,
-        // trap.c, worn.c, timeout.c, do.c, eat.c and dogmove.c produce these.
         throw new UnsupportedSteedError(
             `dismount_steed() reason ${reason}, a fall from the saddle`,
         );
+    case DISMOUNT_KNOCKED:
+        // uhitm.c:mhitm_knockback() supplies the preferred direction. The
+        // source requests a farther landing square only when adjacent squares
+        // have no usable candidate.
+        await ttyPline(
+            `You ${verb} off of ${mon_nam(mtmp, state)}!`, state,
+        );
+        if (!have_spot)
+            have_spot = await landing_spot(reason, 1, state);
+        if (!ulev && !ufly) {
+            await losehp(
+                Maybe_Half_Phys(rn1(10, 10), state),
+                'riding accident', KILLED_BY_AN, state,
+            );
+            const wounded = state.u.uprops[WOUNDED_LEGS].intrinsic & TIMEOUT;
+            await set_wounded_legs(
+                BOTH_SIDES, wounded + rn1(5, 5), state,
+            );
+            repair_leg_damage = false;
+        }
+        break;
     case DISMOUNT_POLY:
         // "You can no longer ride %s." from polyself.c, uhitm.c, dogmove.c
         // and trap.c, when either party changes shape.
@@ -998,7 +1020,10 @@ export async function dismount_steed(reason, state = game) {
              * teleds() clears u.utrap.
              */
             state.in_steed_dismounting = 1;
-            await teleds(have_spot.x, have_spot.y, TELEDS_ALLOW_DRAG, state);
+            await teleds(
+                have_spot.x, have_spot.y, TELEDS_ALLOW_DRAG, state,
+                { redraw: newsym },
+            );
             if (sobj_at(BOULDER, have_spot.x, have_spot.y, state)) {
                 // sokoban.c sokoban_guilt() is only reachable on a Sokoban
                 // level, and requireSimpleHeroDestination() refuses a

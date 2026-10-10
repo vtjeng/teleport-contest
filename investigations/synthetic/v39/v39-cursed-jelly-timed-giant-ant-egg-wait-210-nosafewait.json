@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v39/v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait",
+  "corpus": "synthetic",
+  "batch": "v39",
+  "caseId": "v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait",
+  "manifestPath": "challenges/manifests/v39.json",
+  "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+  "recordingPath": "challenges/cases/v39/v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait.session.json",
+  "recordingSha256": "88929700e015925b02f79a3995fe62c8e8fe29390e08ae3de56b7b62533829d3",
+  "recipe": "challenges/cases/v39/v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait.recipe.session.json",
+  "recipeSha256": "5a8da78890d57e39551b61242aa0211a42c78e9bfb049eb0664eb983522f891c",
+  "replayInputSha256": "9c849123a3d6d04f02b60b84dadcf1b460de318a7ca2ce052b1ffa6dbb7ce224",
+  "evaluationPath": "challenges/evaluations/accepted-bc442e36ad933de77a8051a6ae641fac42ab6780-v39.json",
+  "evaluationCommit": "bc442e36ad933de77a8051a6ae641fac42ab6780",
+  "remainingScreens": 42,
+  "recordedSteps": 299,
+  "status": "complete",
+  "commit": "1e6a3f68331d221b81e6b49b4131dddee72809af",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "session": "synthetic/v39/v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait",
+    "sourceFile": "eat.c",
+    "cFile": "eat.c",
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v39/v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait"
+    ],
+    "remainingScreens": 42,
+    "remainingScreensUpperBound": null,
+    "earliestStep": 257,
+    "caseId": "v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait",
+    "batch": "v39",
+    "recordingPath": "challenges/cases/v39/v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait.session.json",
+    "firstMismatch": {
+      "reportedSegment": 1,
+      "reportedStep": 258,
+      "key": ".",
+      "sourceBehavior": "apply.c:use_royal_jelly -> timeout.c:kill_egg timer cancellation; later hatch timing changes",
+      "owner": "js/apply.js use_royal_jelly / js/timeout.js kill_egg",
+      "details": "The first downstream comparator divergence occurs at gethungry (C rn2(20)=1 versus JS rnd(1)=1) after the uncanceled JS egg timer changes later turns. The causal source gap is the omitted kill_egg cancellation, not gethungry itself. The recipe uses !safe_wait and a level change to prevent safe-wait occupation from obscuring the timer path."
+    },
+    "metrics": {
+      "screens": {
+        "matched": 257,
+        "total": 299
+      },
+      "rng": {
+        "matched": 4177,
+        "total": 4563
+      },
+      "cursors": {
+        "matched": 291,
+        "total": 299
+      }
+    }
+  },
+  "summary": "C cancels a timed egg’s HATCH_EGG timer through timeout.c:kill_egg. The JavaScript callers now share that implementation in the cursed-jelly, genocide-sweep, and hero-laid-egg polymorph branches.",
+  "source": {
+    "file": "timeout.c",
+    "branch": "A timed EGG is made permanently unhatchable when cursed royal jelly is applied, when genocide finds an egg of a dead species, or when polymorph converts a hero-laid egg into a generic egg. C calls kill_egg(), whose sole state change is stopping that object’s HATCH_EGG timer.",
+    "functions": [
+      "timeout.c:kill_egg",
+      "apply.c:use_royal_jelly",
+      "mon.c:kill_eggs",
+      "zap.c:poly_obj"
+    ],
+    "callers": [
+      "cmd.c:1678 dispatches the apply command to apply.c:doapply; doapply calls use_royal_jelly at apply.c:1800. The #rub command is registered at cmd.c:1836 and dorub calls use_royal_jelly at apply.c:4263. JS dispatch is cmd.js:3286-3293 to apply.js:doapply/dorub; apply.js:2241 and 4888 reach use_royal_jelly. The admitted v39 recipe exercises the #rub entry.",
+      "mon.c:kill_genocided_monsters calls kill_eggs for monster inventories and four object lists; active C callers include scroll/spell genocide (read.c:2749,2993), wizard level change (cmd.c:1048), and level arrival (do.c:1817). JS counterparts are read.js:2799,3024, cmd.js:2633, and do.js:3060.",
+      "zap.c:bhito invokes poly_obj for a floor object affected by polymorph; bhito is used by bhitpile and dozap. The z command dispatches to dozap at cmd.c:2005. JS wiring is cmd.js:3320 to zap.js:dozap, then zap.js:bhitpile/bhito to zap.js:poly_obj."
+    ],
+    "dependencies": [
+      "timeout.c:stop_timer is already ported as js/timeout.js:stop_timer; C discards its return value."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved queue SHA-256 781129791f95cd10ec8578dd170fd5298182a9b4ad578f5c008d93d68d5bc37b selects synthetic/v39/v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait, with 42 remaining screens and earliest mismatch step 257.",
+    "challenges/evaluations/20261009230658-v39.json (source evaluation commit 30d1b7936740e5f611781c85242eb860218d9e5d) records 257/299 matching screens; the first mismatch is downstream at step 258, after C cancels HATCH_EGG and JS leaves the timer active.",
+    "challenges/cases/v39/v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait.recipe.session.json and challenges/cases/v39/v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait.session.json are source-pinned to apply.c:use_royal_jelly -> timeout.c:kill_egg; recording SHA-256 88929700e015925b02f79a3995fe62c8e8fe29390e08ae3de56b7b62533829d3.",
+    "Upstream timeout.c:kill_egg (1009-1013) discards stop_timer(HATCH_EGG, obj_to_any(egg)); js/timeout.js:stop_timer already removes a matching object timer and decrements egg.timed.",
+    "Production dispatch is traced in source.callers. The saved ledger has no active reservation on source:timeout.c:kill_egg, source:apply.c:use_royal_jelly, source:mon.c:kill_eggs, or source:zap.c:poly_obj.",
+    "Implementation replaces the three former note_unported timeout.c:kill_egg calls in js/apply.js:use_royal_jelly, js/mon.js:kill_eggs, and js/zap.js:poly_obj with the shared js/timeout.js:kill_egg timer cancellation.",
+    "Independent recordings/timeout.c/kill-egg-genocide-wished-egg.session.json covers a timed wished egg followed by genocide; its recipe and recording are both retained under recipes/timeout.c and recordings/timeout.c.",
+    "Existing recordings/zap.c/immediate-polymorph-pile-variation.session.json is a strict matched production path through dozap -> bhitpile -> bhito -> poly_obj. Source-pinned tests cover the hero-laid egg replacement-egg branch order; this recipe does not claim that rare replacement type branch was selected.",
+    "A female-Wizard variation independently reaches the same timed-egg genocide sweep: recipes/timeout.c/kill-egg-genocide-wished-egg-variation.session.json and recordings/timeout.c/kill-egg-genocide-wished-egg-variation.session.json match completely."
+  ]
+}

@@ -32,6 +32,7 @@ import {
     ARTICLE_A,
     ARTICLE_NONE,
     ARTICLE_THE,
+    ARTICLE_YOUR,
     BOLT_LIM,
     QBUFSZ,
     BUSTDOOR,
@@ -665,7 +666,7 @@ import { corpse_intrinsic, should_givit } from './eat.js';
 import {
     extract_from_minvent, mon_adjust_speed, mon_set_minvis,
 } from './worn.js';
-import { end_burn } from './timeout.js';
+import { end_burn, kill_egg } from './timeout.js';
 import { migrate_to_level } from './dog.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import { heroIsBlind, messageAt } from './startup_a11y.js';
@@ -6773,15 +6774,13 @@ export function egg_type_from_parent(mnum, force_ordinary = false, rawEnv = {}) 
     return mnum;
 }
 
-// C ref: mon.c kill_eggs() (5609-5638). The TIN/CORPSE arms are under #if 0,
-// but the recursive container arm is active. kill_egg() belongs to timeout.c
-// and has no port yet, so the call is recorded exactly as required for a
-// discarded return value and does not invent timer state.
+// C ref: mon.c kill_eggs() (5609-5638). The TIN/CORPSE arms are under #if 0;
+// the recursive container arm and timeout.c egg-timer cancellation are active.
 export function kill_eggs(obj_list, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     for (let obj = obj_list; obj; obj = obj.nobj) {
         if (obj.otyp === EGG && dead_species(obj.corpsenm, true, { state }))
-            note_unported('timeout.c kill_egg');
+            kill_egg(obj, state, rawEnv);
         else if (obj.cobj)
             kill_eggs(obj.cobj, { ...rawEnv, state });
     }
@@ -6789,7 +6788,6 @@ export function kill_eggs(obj_list, rawEnv = {}) {
 
 // C ref: mon.c kill_genocided_monsters() (5639-5677). Save the next
 // monster before death or shapechange; both operations can change its state.
-// Egg timer cancellation remains owned by kill_eggs()'s timeout.c gap.
 export async function kill_genocided_monsters(state = game, env = {}) {
     const deathEnv = {
         ...env,

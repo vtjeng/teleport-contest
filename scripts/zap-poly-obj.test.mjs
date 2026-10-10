@@ -55,6 +55,21 @@ test('poly_obj calls target set_wear only for a worn ring in C order', () => {
         < JS_FUNCTION.indexOf('replacement = wearmask_to_obj('));
 });
 
+test('poly_obj cancels a replacement egg timer before making it generic', () => {
+    const cStart = C_SOURCE.indexOf('poly_obj(struct obj *obj, int id)\n{');
+    const cEnd = C_SOURCE.indexOf('\n}\n', cStart) + 2;
+    const cFunction = C_SOURCE.slice(cStart, cEnd);
+    const cEggBranch = cFunction.slice(cFunction.indexOf('/* avoid abusing eggs laid by you */'));
+    assert.match(cEggBranch,
+        /if \(otmp->otyp == EGG\)\s*kill_egg\(otmp\);\s*else\s*\{\s*otmp->otyp = EGG;/u);
+
+    const jsEggBranch = JS_FUNCTION.slice(JS_FUNCTION.indexOf('if (obj.otyp === EGG && obj.spe)'));
+    assert.match(jsEggBranch,
+        /if \(replacement\.otyp === EGG\)\s*kill_egg\(replacement, state, env\);\s*else\s*\{\s*replacement\.otyp = EGG;/u);
+    assert.ok(jsEggBranch.indexOf('kill_egg(replacement, state, env)')
+        < jsEggBranch.indexOf('replacement.corpsenm = NON_PM;'));
+});
+
 test('poly_obj replacement runs Ring_on for the new worn warning ring',
     async () => {
         // The independent seed and time initialize an ordinary wizard game;

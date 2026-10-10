@@ -94,7 +94,7 @@ test('egg_type_from_parent preserves the forced and breeder draws', () => {
     );
 });
 
-test('kill_eggs records the still-unported hatch timer call', async () => {
+test('kill_eggs cancels hatch timers for genocided species', async () => {
     await hero();
     game.svm.mvitals[PM_GNOME].mvflags |= G_GENOD;
     kill_eggs({
@@ -103,7 +103,7 @@ test('kill_eggs records the still-unported hatch timer call', async () => {
         cobj: { otyp: EGG, corpsenm: PM_GNOME, nobj: null },
         nobj: null,
     }, { state: game });
-    assert.ok(game.unported.has('timeout.c kill_egg'));
+    assert.equal(game.unported.has('timeout.c kill_egg'), false);
 });
 
 test('golemeffects heals and slows the matching golem',

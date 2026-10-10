@@ -127,6 +127,7 @@ import {
     attach_egg_hatch_timeout,
     attach_fig_transform_timeout,
     learn_egg_type,
+    kill_egg,
     fall_asleep,
     nh_timeout,
     nh_timeout_requires_live_state,
@@ -1835,6 +1836,26 @@ test('stop_timer returns remaining time and decrements object count', () => {
     assert.equal(stop_timer(HATCH_EGG, obj, state), 6);
     assert.equal(obj.timed, 0);
     assert.equal(stop_timer(HATCH_EGG, obj, state), 0);
+});
+
+test('kill_egg cancels only the object hatch timer and discards its result', () => {
+    const state = timerState(4);
+    const egg = { timed: 0 };
+    // Keep a second timer on the same object to show kill_egg targets HATCH_EGG.
+    start_timer(9, TIMER_OBJECT, ROT_CORPSE, egg, state);
+    start_timer(9, TIMER_OBJECT, HATCH_EGG, egg, state);
+
+    // timeout.c:kill_egg discards stop_timer's remaining-time return value.
+    assert.equal(kill_egg(egg, state), undefined);
+    assert.equal(peek_timer(HATCH_EGG, egg, state), 0);
+    assert.equal(peek_timer(ROT_CORPSE, egg, state), 13);
+    assert.equal(egg.timed, 1, 'only the hatch timer count is decremented');
+
+    const cStart = C_TIMEOUT.indexOf('kill_egg(struct obj *egg)\n{');
+    const cEnd = C_TIMEOUT.indexOf('\n}\n', cStart) + 2;
+    const cFunction = C_TIMEOUT.slice(cStart, cEnd);
+    assert.match(cFunction,
+        /\(void\) stop_timer\(HATCH_EGG, obj_to_any\(egg\)\);/u);
 });
 
 test('obj_stop_timers removes all and only the target object timers', () => {

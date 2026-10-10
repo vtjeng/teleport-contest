@@ -246,6 +246,7 @@ import {
     back_on_ground,
     t_at,
     chest_trap,
+    instapetrify,
     unconscious,
     uescaped_shaft,
     uteetering_at_seen_pit,
@@ -535,9 +536,9 @@ export function u_safe_from_fatal_corpse(obj, tests, state = game) {
     );
 }
 
-// C ref: pickup.c fatal_corpse_mistake() (284-299). Its two void callees
-// remain explicit gaps, but the stone-golem recovery and fatal return are
-// source-ordered around them.
+// C ref: pickup.c fatal_corpse_mistake() (284-299). The terminal wait after
+// a stone-golem recovery remains a named gap; ordinary fatal touch uses the
+// existing trap.c instapetrify() implementation before returning TRUE.
 async function fatal_corpse_mistake(obj, remotely, state) {
     if (u_safe_from_fatal_corpse(obj, st_all, state) || remotely) return false;
     if (poly_when_stoned(state.youmonst?.data, state)
@@ -551,8 +552,7 @@ async function fatal_corpse_mistake(obj, remotely, state) {
         )} is a fatal mistake.`,
         state,
     );
-    killer_xname(obj, state);
-    note_unported('trap.c instapetrify');
+    await instapetrify(killer_xname(obj, state), state);
     return true;
 }
 

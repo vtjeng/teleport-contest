@@ -58,7 +58,7 @@ test('royal jelly helper preserves C split, prompt, egg effects, and cleanup ord
     assert.match(cHelper,
         /kill_egg\(eobj\);[\s\S]*?setnotworn\(obj\);[\s\S]*?obfree\(obj, \(struct obj \*\) 0\);\s*\*optr = 0;\s*return ECMD_TIME;/u);
     assert.match(jsHelper,
-        /note_unported\('timeout\.c kill_egg'\);[\s\S]*?await setnotworn\(obj, env\);\s*obfree\(obj, null, env\);\s*objp\.obj = null;\s*return ECMD_TIME;/u);
+        /kill_egg\(eobj, state, rawEnv\);[\s\S]*?await setnotworn\(obj, env\);\s*obfree\(obj, null, env\);\s*objp\.obj = null;\s*return ECMD_TIME;/u);
     assert.match(jsHelper, /attach_egg_hatch_timeout\(eobj, 0, env\)/u);
 });
 

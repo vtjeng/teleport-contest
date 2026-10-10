@@ -143,6 +143,7 @@ import {
     untrap,
 } from './trap.js';
 import { stumble_onto_mimic } from './uhitm.js';
+import { maybe_absorb_item } from './steal.js';
 import { verbalize } from './pline.js';
 import { in_rooms } from './rooms.js';
 import { heroIsBlind, messageAt } from './startup_a11y.js';
@@ -844,7 +845,11 @@ export async function pick_lock(pick, rx, ry, container, state = game, env = {})
             return PICKLOCK_LEARNED_SOMETHING;
         } else if (mtmp && is_door_mappear(mtmp)) {
             await stumble_onto_mimic(mtmp, state, { state, pline: message });
-            note_unported('steal.c maybe_absorb_item');
+            await maybe_absorb_item(mtmp, pick, 50, 10, {
+                ...env,
+                state,
+                message,
+            });
             return PICKLOCK_LEARNED_SOMETHING;
         }
         if (!IS_DOOR(door.typ)) {

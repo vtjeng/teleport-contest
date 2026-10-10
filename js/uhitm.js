@@ -13,6 +13,7 @@ import {
     defends,
     is_art,
     permapoisoned,
+    retouch_equipment,
     shade_glare,
 } from './artifacts.js';
 import {
@@ -42,6 +43,7 @@ import {
     DRAIN_RES,
     DISP_ALWAYS,
     DISP_END,
+    DISMOUNT_KNOCKED,
     DISMOUNT_POLY,
     DROWNING,
     ERODE_BURN,
@@ -237,7 +239,7 @@ import {
 import { in_rooms } from './rooms.js';
 import { dopay, tended_shop } from './shk.js';
 import { paranoid_query } from './cmd.js';
-import { Punished } from './steed.js';
+import { dismount_steed, Punished } from './steed.js';
 import { dist2, highc, ing_suffix, s_suffix, sgn, strstri } from './hacklib.js';
 import { change_luck } from './moveloop_preamble.js';
 import { hurtle, mhurtle, will_hurtle } from './dothrow.js';
@@ -5476,8 +5478,7 @@ async function mhitm_ad_were(magr, mattk, mdef, mhm, state = game, env = {}) {
                 encumberMessage,
             });
             set_ulycn(monsndx(attackerData), state);
-            // uhitm.c discards retouch_equipment()'s void result here.
-            note_unported('artifact.c retouch_equipment');
+            await retouch_equipment(2, state, env); // uhitm.c:mhitm_ad_were
         }
     } else {
         await mhitm_ad_phys(magr, mattk, mdef, mhm, state, env);
@@ -7342,9 +7343,9 @@ export function m_is_steadfast(mon, state = game) {
 
 // C ref: uhitm.c mhitm_knockback() (5247-5420). The boolean answers whether
 // the knockback arm was accepted; `hitflags.value` carries the independent
-// attacker/defender death bits. The actual hurtle/mhurtle and dismount effects
-// are void calls outside this owner, so their boundaries are recorded without
-// fabricating movement or a death result.
+// attacker/defender death bits. Planned attacks record dismount as unported
+// rather than applying it to the cloned state; live knockback calls the steed
+// owner.
 export async function mhitm_knockback(
     magr,
     mdef,
@@ -7478,7 +7479,13 @@ export async function mhitm_knockback(
         if (dismount) {
             state.u.dx = dx;
             state.u.dy = dy;
-            note_unported('steed.c dismount_steed DISMOUNT_KNOCKED');
+            if (typeof env?.dismountSteed === 'function') {
+                await env.dismountSteed(DISMOUNT_KNOCKED, state, env);
+            } else if (env?.planning) {
+                note_unported('steed.c dismount_steed DISMOUNT_KNOCKED');
+            } else {
+                await dismount_steed(DISMOUNT_KNOCKED, state);
+            }
         } else {
             await hurtle(dx, dy, knockdistance, false, state, {
                 planning: Boolean(env?.planning),
