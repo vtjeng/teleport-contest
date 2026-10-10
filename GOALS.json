@@ -256844,6 +256844,59 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-shk-shopdig-v40-shop-floor-digdown-warning-20261010",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port shop-floor digging response and the canonical hero-distance helper.",
+      "cFile": "shk.c",
+      "sessions": [
+        "synthetic/v40/v40-shop-floor-digdown-warning-live-shopkeeper"
+      ],
+      "selectionReason": "The current saved v40 mismatch stops at dig.c:dig -> shk.c:shopdig(0), where the live shopkeeper warning is absent.",
+      "detail": "Port whole shk.c:shopdig and pure apply.c:um_dist; wire dig.c:dig, dig.c:digactualhole, and trap.c:fall_through in source order. Runtime evidence covers shopdig(0); the two shopdig(1) fall-time entries remain unrecorded.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "shopdig",
+          "line": 5019,
+          "endLine": 5112,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 5019,
+        "to": 5112
+      },
+      "requiredFunctions": [
+        {
+          "name": "um_dist",
+          "line": 692,
+          "endLine": 697,
+          "declared": true,
+          "sourceFile": "apply.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v40/v40-shop-floor-digdown-warning-live-shopkeeper": {
+          "session": "synthetic/v40/v40-shop-floor-digdown-warning-live-shopkeeper",
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-shop-floor-digdown-warning-live-shopkeeper",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recordingPath": "challenges/cases/v40/v40-shop-floor-digdown-warning-cfirst.session.json",
+          "recordingSha256": "bb4ccfe19457e1a185556d86fc992be63305137125098ee45a0e1ac85437c099",
+          "evaluationPath": "challenges/evaluations/accepted-d84b56ca399bd6cf8b3a529a46d3d5c96fcd2c43-v40.json",
+          "evaluationCommit": "d84b56ca399bd6cf8b3a529a46d3d5c96fcd2c43"
+        }
+      }
     }
   ]
 }
