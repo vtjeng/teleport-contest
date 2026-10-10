@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T17:35:41.651Z",
+  "capturedAt": "2026-10-10T18:19:10.819Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -82732,11 +82732,362 @@
         "worker": "B",
         "state": "active",
         "reason": "B224 is accepted and released trap.c:drown; continuing the parked v41 steed-dismount investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010-6818fe9b759b2ef8ae3d470f38c30808a0734640",
+        "type": "published",
+        "at": "2026-10-10T17:35:49.252Z",
+        "task": "B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010",
+        "commit": "6818fe9b759b2ef8ae3d470f38c30808a0734640"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-2196247cfc60aa4c18ea634f74a17bf7d6de05f1",
+        "type": "received",
+        "at": "2026-10-10T17:38:17.369Z",
+        "task": "B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010",
+        "delivery": "2196247cfc60aa4c18ea634f74a17bf7d6de05f1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep6-v42-active-20261010b",
+        "type": "turn",
+        "at": "2026-10-10T17:39:37.095Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v42 has seven approved distinct C-first mismatches; five remain."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v41-boulder-accepted-main-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T17:41:19.509Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C synced accepted Main and is source tracing the v41 boulder-pit mismatch; the session reservation is active."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v41-hider-implement-20261010",
+        "type": "turn",
+        "at": "2026-10-10T17:43:38.683Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Implementing the v41 polymorphed-hero concealment fix from mon.c:hideunder."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v41-hider-hideunder-20261010",
+        "type": "implement",
+        "at": "2026-10-10T17:43:40.433Z",
+        "task": "A2-investigation-v41-polymorphed-hider-remaining-floor-object-20261010",
+        "goal": "port-mon-hideunder-v41-polymorphed-hider-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B225-implement-steed-generic-death-dismount-20261010",
+        "type": "implement",
+        "at": "2026-10-10T17:44:36.508Z",
+        "task": "B225-investigation-v41-forced-steed-dismount-at-pool-20261010",
+        "goal": "div-v41-steed-death-dismount-pool-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v41-boulder-moverock-core-cannot-push-20261010",
+        "type": "implement",
+        "at": "2026-10-10T17:45:59.294Z",
+        "task": "C-v41-boulder-fills-pit-investigation-20261010",
+        "goal": "port-hack-moverock-core-cannot-push-v41-boulder-pit-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B225-active-after-main-sync-20261010",
+        "type": "turn",
+        "at": "2026-10-10T17:46:19.611Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B225 is active after syncing accepted Main; reviewing the generic steed death dismount and its reserved callers before the implementation change."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep6-v42-active-20261010c",
+        "type": "turn",
+        "at": "2026-10-10T17:49:02.655Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v42 has eight approved distinct C-first mismatches; four remain."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v41-boulder-implementation-validated-20261010",
+        "type": "turn",
+        "at": "2026-10-10T17:56:32.810Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-3340ca60f84aa17304b32d8b52e590565f237a53",
+        "type": "ready",
+        "at": "2026-10-10T17:57:39.123Z",
+        "task": "C-v41-boulder-fills-pit-investigation-20261010",
+        "delivery": "3340ca60f84aa17304b32d8b52e590565f237a53"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v41-boulder-ready-20261010",
+        "type": "turn",
+        "at": "2026-10-10T17:57:49.374Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C submitted the v41 boulder pit-fill implementation with passing focused, lint, and differential checks; delivery is ready for coordinator integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-3340ca60f84aa17304b32d8b52e590565f237a53",
+        "type": "received",
+        "at": "2026-10-10T17:57:58.315Z",
+        "task": "C-v41-boulder-fills-pit-investigation-20261010",
+        "delivery": "3340ca60f84aa17304b32d8b52e590565f237a53"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-review-C-v41-boulder-fills-pit-investigation-20261010-3340ca60",
+        "type": "activity",
+        "at": "2026-10-10T17:58:02.901Z",
+        "task": "C-v41-boulder-fills-pit-investigation-20261010",
+        "phase": "review",
+        "reason": "Reviewing the submitted boulder-pit and cannot_push source task before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-v40-opening-wand-after-B224-accepted-20261010",
+        "type": "resume",
+        "at": "2026-10-10T17:58:32.833Z",
+        "task": "C-v40-opening-wand-expels-swallowed-hero-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C-v40-expels-overlapping-js-paths-20261010",
+        "type": "park",
+        "at": "2026-10-10T18:02:30.072Z",
+        "task": "C-v40-opening-wand-expels-swallowed-hero-investigation-20261010",
+        "reason": "Committed refreshed complete expels caller map at 5d1a4c1e7. The full C function has 14 active call expressions across 13 caller functions. Implementation must wire all active direct callers; A2 currently owns overlapping js/zap.js, js/polyself.js, and js/mon.js paths, and B225 owns overlapping js/mon.js. Park until both A2-investigation-v41-polymorphed-hider-remaining-floor-object-20261010 and B225-investigation-v41-forced-steed-dismount-at-pool-20261010 are accepted; no game code or implementation scope was claimed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v41-underwater-coin-flip-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T18:02:38.327Z",
+        "task": "C-v41-underwater-coin-flip-drops-coin-investigation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v41-underwater-investigation-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T18:02:44.304Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C submitted the boulder fix, parked the expels task on active caller-path ownership, and is tracing the available underwater coin-drop case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B225-active-after-planning-replay-fix-20261010",
+        "type": "turn",
+        "at": "2026-10-10T18:03:25.120Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B225 is implementing generic dead-steed dismount, replaying its planning-only boundary live, and restoring the pool redraw; final checks are underway."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-v41-boulder-74c1c3969",
+        "type": "integrating",
+        "at": "2026-10-10T18:05:25.915Z",
+        "task": "C-v41-boulder-fills-pit-investigation-20261010",
+        "integration": "74c1c3969bad5b5c7ce7f19150a347466b056d24"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-3e98b56318c016298048b4598652777dc8a10280",
+        "type": "ready",
+        "at": "2026-10-10T18:06:58.066Z",
+        "task": "A2-investigation-v41-polymorphed-hider-remaining-floor-object-20261010",
+        "delivery": "3e98b56318c016298048b4598652777dc8a10280"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v41-hideunder-ready-20261010",
+        "type": "turn",
+        "at": "2026-10-10T18:07:11.094Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 submitted the v41 hero concealment fix and is available while the coordinator integrates it."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-hideunder-3e98b5631",
+        "type": "received",
+        "at": "2026-10-10T18:07:44.733Z",
+        "task": "A2-investigation-v41-polymorphed-hider-remaining-floor-object-20261010",
+        "delivery": "3e98b56318c016298048b4598652777dc8a10280"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a003590d5f2764e9b5fea1443567c719a13c8ede",
+        "type": "ready",
+        "at": "2026-10-10T18:08:37.339Z",
+        "task": "B225-investigation-v41-forced-steed-dismount-at-pool-20261010",
+        "delivery": "a003590d5f2764e9b5fea1443567c719a13c8ede"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B225-dismount-a003590d",
+        "type": "received",
+        "at": "2026-10-10T18:08:58.456Z",
+        "task": "B225-investigation-v41-forced-steed-dismount-at-pool-20261010",
+        "delivery": "a003590d5f2764e9b5fea1443567c719a13c8ede"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-underwater-turn-active-20261010-resume",
+        "type": "turn",
+        "at": "2026-10-10T18:09:48.058Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is implementing the source-traced underwater coin drop through the ordinary liquid-terrain drop path; focused validation and immutable delivery are next."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-A2-hideunder-review-20261010",
+        "type": "activity",
+        "at": "2026-10-10T18:09:51.800Z",
+        "task": "A2-investigation-v41-polymorphed-hider-remaining-floor-object-20261010",
+        "phase": "review",
+        "reason": "Previewing the immutable hideunder delivery, full caller wiring, and source evidence while the current boulder candidate runs hosted validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B226-after-B224-published-20261010",
+        "type": "resume",
+        "at": "2026-10-10T18:09:58.729Z",
+        "task": "B226-investigation-v40-shop-floor-digdown-warning-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B226-active-after-B224-acceptance-20261010",
+        "type": "turn",
+        "at": "2026-10-10T18:10:00.489Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B225 is ready for integration. B is resuming the independent shop-floor investigation after B224 accepted the um_dist prerequisite."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-underwater-implement-scope-20261010",
+        "type": "implement",
+        "at": "2026-10-10T18:10:58.109Z",
+        "task": "C-v41-underwater-coin-flip-drops-coin-investigation-20261010",
+        "goal": "fix-underwater-coin-drop-v41-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-A2-hideunder-review-done-20261010",
+        "type": "activity",
+        "at": "2026-10-10T18:11:00.172Z",
+        "task": "A2-investigation-v41-polymorphed-hider-remaining-floor-object-20261010",
+        "phase": "done",
+        "reason": "Immutable delivery preview found no correction request; full integration review will be rechecked against newly accepted Main."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-B225-dismount-review-20261010",
+        "type": "activity",
+        "at": "2026-10-10T18:11:12.006Z",
+        "task": "B225-investigation-v41-forced-steed-dismount-at-pool-20261010",
+        "phase": "review",
+        "reason": "Previewing the immutable generic dead-steed dismount delivery and saved validation evidence while the current candidate runs hosted validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B226-scope-shopdig-umdist-20261010",
+        "type": "implement",
+        "at": "2026-10-10T18:13:13.526Z",
+        "task": "B226-investigation-v40-shop-floor-digdown-warning-20261010",
+        "goal": "port-shk-shopdig-v40-shop-floor-digdown-warning-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-v41-boulder-74c1c3969",
+        "type": "validated",
+        "at": "2026-10-10T18:13:14.746Z",
+        "task": "C-v41-boulder-fills-pit-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep6-v42-active-20261010d",
+        "type": "turn",
+        "at": "2026-10-10T18:13:18.566Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v42 has nine approved distinct C-first mismatches; three remain."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B226-turn-active-implementation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T18:13:25.619Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B226 claims the canonical shopdig and hero-distance source scope after B224 acceptance; B225 remains queued unchanged."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep6-v42-active-20261010e",
+        "type": "turn",
+        "at": "2026-10-10T18:15:18.949Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v42 has ten approved distinct C-first mismatches; two remain."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v41-boulder-fills-pit-investigation-20261010-74c1c3969bad5b5c7ce7f19150a347466b056d24-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T18:18:03.086Z",
+        "task": "C-v41-boulder-fills-pit-investigation-20261010"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [],
+    "deliveries": [
+      {
+        "task": "A2-investigation-v41-polymorphed-hider-remaining-floor-object-20261010",
+        "worker": "A2",
+        "goal": "port-mon-hideunder-v41-polymorphed-hider-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "3e98b56318c016298048b4598652777dc8a10280",
+        "since": "2026-10-10T18:06:58.066Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B225-investigation-v41-forced-steed-dismount-at-pool-20261010",
+        "worker": "B",
+        "goal": "div-v41-steed-death-dismount-pool-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "a003590d5f2764e9b5fea1443567c719a13c8ede",
+        "since": "2026-10-10T18:08:37.339Z",
+        "blockedBy": [],
+        "unblocks": 0
+      }
+    ],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -83059,32 +83410,21 @@
         "reason": "Parked after source trace showed the step-76 object-resistance RNG divergence follows the step-75 leash-snap dog movement. The obj_resists helper already performs the source-matched unconditional rn2(100); the active cause lies in dogmove.c:dog_move and js/dogmove.js, reserved by B220 until its delivery is accepted."
       },
       {
-        "task": "B226-investigation-v40-shop-floor-digdown-warning-20261010",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-10T16:29:03.529Z",
-        "blockedBy": [],
-        "reason": "B226 investigation is committed at 0d94df979 and source-traced to shk.c:shopdig. Implementation requires canonical apply.c:um_dist because shopdig consumes its Boolean result; B224 still owns source:apply.c:um_dist and js/apply.js allowed path through pending delivery 2196247cfc60aa4c18ea634f74a17bf7d6de05f1. Preserve the report and resume after B224 acceptance releases this scope."
-      },
-      {
         "task": "C-v40-opening-wand-expels-swallowed-hero-investigation-20261010",
         "worker": "C",
         "goal": null,
         "kind": "investigation",
         "status": "parked",
         "delivery": null,
-        "since": "2026-10-10T17:30:50.330Z",
+        "since": "2026-10-10T18:02:30.072Z",
         "blockedBy": [],
-        "reason": "Committed investigation a1a2889d6 identifies the missing source behavior as zap.c:release_hold -> mhitu.c:expels(TRUE). Completing whole expels includes its gulpmu caller and the shared js/mhitu.js path reserved by pending B224. Preserve the report and resume after B224 acceptance clears source:mhitu.c:gulpmu and js/mhitu.js ownership, or after the coordinator grants a disjoint sequencing plan."
+        "reason": "Committed refreshed complete expels caller map at 5d1a4c1e7. The full C function has 14 active call expressions across 13 caller functions. Implementation must wire all active direct callers; A2 currently owns overlapping js/zap.js, js/polyself.js, and js/mon.js paths, and B225 owns overlapping js/mon.js. Park until both A2-investigation-v41-polymorphed-hider-remaining-floor-object-20261010 and B225-investigation-v41-forced-steed-dismount-at-pool-20261010 are accepted; no game code or implementation scope was claimed."
       }
     ]
   },
   "development": {
-    "executionCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
-    "measuredAt": "2026-10-10T17:32:11.562Z",
+    "executionCommit": "74c1c3969bad5b5c7ce7f19150a347466b056d24",
+    "measuredAt": "2026-10-10T18:12:27.587Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
