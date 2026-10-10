@@ -2289,7 +2289,7 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         if (!flaming(mtmp.data)) {
             for (let object = state.invent; object;) {
                 const next = object.nobj;
-                // apply.c snuff_lit() is void and its result is discarded.
+                // apply.c gulpmu() discards snuff_lit's boolean result.
                 await snuff_lit(object, { ...rawEnv, state, message });
                 object = next;
             }
