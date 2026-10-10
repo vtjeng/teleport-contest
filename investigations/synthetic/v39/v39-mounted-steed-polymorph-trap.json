@@ -74,36 +74,36 @@
     "luaFile": null,
     "line": 543
   },
-  "summary": "After the ARTICLE_YOUR binding fix, all 29 screens and cursors match the accepted v39 recording. The remaining divergence is two omitted RNG calls after mon.c:newcham changes the mounted pony into a form that cannot be ridden: C calls steed.c:poly_steed, which reaches dismount_steed(DISMOUNT_FELL) and landing_spot. JS still records note_unported(\"steed.c poly_steed\"), and its FELL switch arm is unsupported.",
+  "summary": "All screens and cursors match after the accepted naming fix, but C records two additional RNG calls when the polymorph trap removes the pony’s saddle. mon.c:newcham reaches worn.c:mon_break_armor, which drops the saddle through m_lose_armor; worn.c:update_mon_extrinsics then calls steed.c:dismount_steed(DISMOUNT_FELL). JS currently records a note_unported gap at the equivalent worn.js call sites, so it skips landing_spot, leaving the mount attached and later reaches a JS-only poly_steed gap. The mounted polymorph needs the FELL dismount and both of its worn.c caller sites wired.",
   "source": {
     "file": "steed.c",
-    "branch": "When a mounted monster changes form, mon.c:newcham calls poly_steed. If the new form cannot be saddled or ridden, poly_steed calls dismount_steed(DISMOUNT_FELL). dismount_steed initializes have_spot with landing_spot before switching on the reason; landing_spot scans adjacent squares and uses rn2(viable) for equal-distance viable locations.",
+    "branch": "A mounted pony polymorphs to a form that cannot be saddled. mon.c:newcham calls worn.c:mon_break_armor after changing its form; mon_break_armor drops the saddle with m_lose_armor, which removes its monster extrinsics. worn.c:update_mon_extrinsics then sees the mount losing its saddle and calls dismount_steed(DISMOUNT_FELL). The C dismount initializes have_spot with landing_spot before the reason switch, scans adjacent positions and uses rn2(viable) to break equal-distance ties. The successful dismount clears u.usteed, so mon.c:newcham skips its later poly_steed call.",
     "functions": [
-      "poly_steed",
-      "dismount_steed",
-      "landing_spot"
+      "dismount_steed"
     ],
     "callers": [
+      "worn.c:update_mon_extrinsics",
+      "worn.c:mon_break_armor",
       "mon.c:newcham",
       "trap.c:steedintrap"
     ],
     "dependencies": [
-      "do_name.c:x_monnam",
-      "steed.c:can_saddle",
-      "steed.c:can_ride",
-      "polyself.c:steed_vs_stealth",
+      "steed.c:landing_spot",
       "hack.c:losehp",
-      "attrib.c:set_wounded_legs"
+      "attrib.c:set_wounded_legs",
+      "worn.c:update_mon_extrinsics",
+      "worn.c:mon_break_armor"
     ]
   },
   "goalKind": "divergence-fix",
   "evidence": [
     "Saved accepted evaluation challenges/evaluations/accepted-2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba-v39.json at 2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba; v39 manifest SHA-256 02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0, recording SHA-256 1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997; 29/29 screens, 2640/2642 RNG calls, 29/29 cursors.",
-    "Fresh focused differential `node scripts/diff-fresh.mjs challenges/cases/v39/v39-mounted-steed-polymorph-trap.recipe.session.json` reproduced the same failure: screen and cursor streams match; C has 2642 RNG calls while JS has 2640; first missing call is rn2(3)=2 from steed.c:landing_spot at segment 0 step 28 (printed as segment 1 step 29 in the CLI). Bounded receipt: /tmp/teleport-validation-1000/run-BHW5cy/receipt.json.",
-    "Source path: trap.c:steedintrap calls newcham(steed, NULL, NC_SHOW_MSG); mon.c:newcham calls poly_steed(mtmp, olddata) after the monster form and gear are updated. In steed.c:poly_steed, a new form that fails can_saddle() or can_ride() calls dismount_steed(DISMOUNT_FELL).",
-    "Source path: steed.c:dismount_steed initializes have_spot with landing_spot(&cc, reason, 0) before its reason switch. DISMOUNT_FELL follows the thrown/knocked fall branch. landing_spot at line 543 breaks ties among viable adjacent squares with rn2(viable), accounting for the first missing call.",
-    "Likely JS gaps: js/mon.js:apply_newcham_steps still calls note_unported(\"steed.c poly_steed\") for state.u.usteed; js/steed.js:dismount_steed throws UnsupportedSteedError for DISMOUNT_FELL. Existing js/steed.js landing_spot is already wired and runs before the dismount switch.",
-    "The earlier ARTICLE_YOUR binding defect in mon.c:newcham was corrected and independently accepted. It accounts for the prior 0/29 replay stop; the current evidence supersedes that old remaining-screen count while retaining the naming fix as history.",
-    "An independent unmounted pet-polymorph recording remains in recipes/mon.c/tame-pet-polymorph-trap.session.json and recordings/mon.c/tame-pet-polymorph-trap.session.json; it matches 25/25 screens, 2850/2850 RNG calls, and 25/25 cursors, proving the mon.c:newcham tame naming path without entering the mounted branch."
+    "Fresh focused differential `node scripts/diff-fresh.mjs challenges/cases/v39/v39-mounted-steed-polymorph-trap.recipe.session.json` reproduces the same failure: screen and cursor streams match; C has 2642 RNG calls and JS has 2640; first missing call is rn2(3)=2 from steed.c:landing_spot at segment 0 step 28 (CLI prints segment 1 step 29). Bounded receipt: /tmp/teleport-validation-1000/run-BHW5cy/receipt.json.",
+    "Source path: trap.c:steedintrap calls newcham(steed, NULL, NC_SHOW_MSG). In mon.c:newcham (5278-5545), the changed form reaches mon_break_armor(mtmp, polyspot) before the later `if (mtmp == u.usteed) poly_steed(mtmp, olddata)` check.",
+    "Source path: worn.c:mon_break_armor (1177-1338) identifies the mount as unable to keep its saddle and calls m_lose_armor. m_lose_armor removes the saddle and calls update_mon_extrinsics with on=FALSE. worn.c:update_mon_extrinsics at 707-708 calls dismount_steed(DISMOUNT_FELL) when the removed saddle belonged to u.usteed. This earlier dismount clears u.usteed, so the later poly_steed call in mon.c:newcham is skipped; the JS poly_steed note is secondary to the skipped FELL call.",
+    "Source path: steed.c:dismount_steed (576-826) evaluates landing_spot(&cc, reason, 0) in its initializer before the reason switch. DISMOUNT_FELL shares the fall branch: print the fall message, request the forced landing fallback if needed, apply riding-accident damage and wounded legs when not flying or levitating, release and place the steed, move the hero, and run the shared float-down/status tail. landing_spot at line 543 breaks equal-distance ties with rn2(viable), consistent with the first missing call.",
+    "Likely JS gaps: js/worn.js:update_mon_extrinsics and js/worn.js:mon_break_armor_effects both currently record note_unported(\"steed.c dismount_steed DISMOUNT_FELL\") instead of calling dismount_steed; js/steed.js:dismount_steed still refuses DISMOUNT_FELL. The later js/mon.js poly_steed note is not on the C path after the dismount succeeds.",
+    "The earlier ARTICLE_YOUR binding defect in mon.c:newcham was corrected and independently accepted. It accounts for the prior 0/29 replay stop; this report supersedes that old count and earlier poly_steed source attribution.",
+    "An independent unmounted pet-polymorph recording remains in recipes/mon.c/tame-pet-polymorph-trap.session.json and recordings/mon.c/tame-pet-polymorph-trap.session.json; it matches 25/25 screens, 2850/2850 RNG calls, and 25/25 cursors, proving the separate mon.c:newcham tame-naming path."
   ]
 }
