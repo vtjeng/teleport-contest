@@ -83,6 +83,7 @@ import {
     REFLECTING,
     KILLED_BY,
     HAND,
+    HAIR,
     LEFT_RING,
     LARGEST_INT,
     RLOC_MSG,
@@ -244,6 +245,7 @@ import {
 import {
     an,
     cloak_simple_name,
+    suit_simple_name,
     donameFresh,
     safe_qbuf,
     simpleonames,
@@ -757,10 +759,50 @@ export function could_seduce(magr, mdef, mattk, rawEnv = {}) {
         : pagr.mlet === M.S_NYMPH ? 2 : 0;
 }
 
+// C ref: mhitu.c mayberem() (2307-2352). Remove one worn item after the
+// seducer's adjacent/transport checks, with the source's Deaf, confirmation,
+// and verbalization branches in order. remove_worn_item() owns the armor-state
+// updates and any landing effects.
+async function mayberem(mon, seducer, obj, str, state = game, rawEnv = {}) {
+    const random = rawEnv.random ?? { rn2 };
+    const message = rawEnv.message ?? ttyPline;
+    const pline = (text) => message(text, state);
+
+    if (!obj || !obj.owornmask) return;
+    if (state.utotype || !m_next2u(mon, state)) return;
+
+    if (heroDeaf(state)) {
+        await pline(`${seducer} takes off your ${str}.`);
+    } else if (random.rn2(20) < acurr(state, A_CHA)) {
+        set_voice(mon, 0, 80, 0, state);
+        const endearment = !random.rn2(2) ? 'lover'
+            : !random.rn2(2) ? 'dear' : 'sweetheart';
+        const query = `"Shall I remove your ${str}, ${endearment}?"`;
+        if (await y_n(query, state) === 'n') return;
+    } else {
+        const hair = body_part(HAIR, state.youmonst);
+        const hairText = `let me run my fingers through your ${hair}`;
+        const reason = obj === state.uarm
+            ? "let's get a little closer"
+            : obj === state.uarmc || obj === state.uarms
+                ? "it's in the way"
+                : obj === state.uarmf
+                    ? 'let me rub your feet'
+                    : obj === state.uarmg
+                        ? "they're too clumsy"
+                        : obj === state.uarmu
+                            ? 'let me massage you' : hairText;
+        set_voice(mon, 0, 80, 0, state);
+        await verbalize(`Take off your ${str}; ${reason}.`, state, { message });
+    }
+
+    await remove_worn_item(obj, true, state, rawEnv);
+}
+
 // C ref: mhitu.c doseduce() (1985-2305). Resolve one successful seduction,
-// retaining its early returns, inventory order, and outcome-draw order. The
-// source's private mayberem() calls are void and remain named gaps; they do
-// not supply a return value to this function.
+// retaining its early returns, inventory order, and outcome-draw order. C's
+// private mayberem() calls are void; await their side effects before continuing
+// through the same source-ordered armor slots.
 export async function doseduce(mon, state = game, rawEnv = {}) {
     const random = {
         d, rn1, rn2, rnd,
@@ -771,7 +813,11 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
     const urgentMessage = rawEnv.urgentMessage
         ?? (rawEnv.message ? rawEnv.message
             : rawEnv.planning ? async () => {} : ttyUrgentPline);
-    const effectEnv = { ...rawEnv, state, random, message };
+    const encumberMessage = rawEnv.encumberMessage
+        ?? ((currentState) => encumber_msg(currentState, { message }));
+    const effectEnv = {
+        ...rawEnv, state, random, message, encumberMessage,
+    };
     const namingEnv = {
         ...effectEnv,
         canSpotMonster: (monster, currentState) =>
@@ -785,7 +831,6 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
     const makeknown = (otyp) => discover_object(
         otyp, true, true, true, state, effectEnv,
     );
-    const mayberem = () => note_unported('mhitu.c mayberem');
     const femaleDemon = monsndx(mon.data) === M.PM_AMOROUS_DEMON
         && Boolean(mon.female);
     const pronounEnv = {
@@ -830,7 +875,9 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
 
         if (femaleDemon) {
             if (ring.owornmask && state.uarmg) {
-                if (!triedGloves++) mayberem();
+                if (!triedGloves++) await mayberem(
+                    mon, who, state.uarmg, 'gloves', state, effectEnv,
+                );
                 if (state.uarmg) {
                     ring = nextRing;
                     continue;
@@ -869,7 +916,9 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
                 continue;
             }
             if (state.uarmg) {
-                if (!triedGloves++) mayberem();
+                if (!triedGloves++) await mayberem(
+                    mon, who, state.uarmg, 'gloves', state, effectEnv,
+                );
                 if (state.uarmg) break;
             }
             if (!heroDeaf(state) && random.rn2(20) < acurr(state, A_CHA)) {
@@ -944,13 +993,27 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
                 : 'murmurs in your ear'}${naked
             ? '' : ', while helping you undress'}.`,
     );
-    mayberem(); // cloak
-    if (!state.uarmc) mayberem(); // suit
-    mayberem(); // boots
-    if (!triedGloves) mayberem(); // gloves
-    mayberem(); // shield
-    mayberem(); // helm
-    if (!state.uarmc && !state.uarm) mayberem(); // shirt
+    await mayberem(
+        mon, who, state.uarmc, cloak_simple_name(state.uarmc, state),
+        state, effectEnv,
+    ); // cloak
+    if (!state.uarmc) {
+        await mayberem(
+            mon, who, state.uarm, suit_simple_name(state.uarm, state),
+            state, effectEnv,
+        ); // suit
+    }
+    await mayberem(mon, who, state.uarmf, 'boots', state, effectEnv);
+    if (!triedGloves)
+        await mayberem(mon, who, state.uarmg, 'gloves', state, effectEnv);
+    await mayberem(mon, who, state.uarms, 'shield', state, effectEnv);
+    await mayberem(
+        mon, who, state.uarmh, helm_simple_name(state.uarmh, state),
+        state, effectEnv,
+    ); // helm
+    if (!state.uarmc && !state.uarm) {
+        await mayberem(mon, who, state.uarmu, 'shirt', state, effectEnv);
+    }
 
     if (state.utotype || !m_next2u(mon, state)) return 1;
     if (state.uarm || state.uarmc) {

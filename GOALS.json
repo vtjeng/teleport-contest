@@ -253061,6 +253061,1076 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "divergence-minetown-special-room-shopkeeper-makemon-v41-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Admit source-defined special-level shopkeepers and High Clerics",
+      "cFile": "makemon.c",
+      "sessions": [],
+      "selectionReason": "The fresh queue stops Minetown at the explicit MM_ESHK shopkeeper call after topology finalization; C makemon admits that source call.",
+      "detail": "Implement the exact makemon admission and preserve the synchronous pointer-consuming caller chain through priestini, shkinit, stock_room, and fill_special_room. The implementation also carries independent Astral High Cleric prefix evidence.",
+      "openedAt": "c67adb44d6461c0971e9a048959fdefc015fe506",
+      "openStanding": {
+        "sha": "2e5a22fcb59f677d8f21f487546440d26850930c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "38d270ae4309c9d36dccf097fb299afadb180f0a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "makemon",
+      "session": "synthetic/v41/v41-minetown3-special-program-generation",
+      "step": 26,
+      "syntheticProvenance": {
+        "synthetic/v41/v41-minetown3-special-program-generation": {
+          "session": "synthetic/v41/v41-minetown3-special-program-generation",
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-minetown3-special-program-generation",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recordingPath": "challenges/cases/v41/v41-shop-sellobj-minetown3-map.session.json",
+          "recordingSha256": "dc249560ba2c73c04834f24418965d8d18b1318af88353ec54a50ecbec35e846",
+          "evaluationPath": "challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v41.json",
+          "evaluationCommit": "2e5a22fcb59f677d8f21f487546440d26850930c"
+        }
+      },
+      "activeStanding": {
+        "sha": "2e5a22fcb59f677d8f21f487546440d26850930c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-minetown3-special-program-generation",
+          "session": "synthetic/v41/v41-minetown3-special-program-generation",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recording": "challenges/cases/v41/v41-shop-sellobj-minetown3-map.session.json",
+          "recordingPath": "challenges/cases/v41/v41-shop-sellobj-minetown3-map.session.json",
+          "recordingSha256": "dc249560ba2c73c04834f24418965d8d18b1318af88353ec54a50ecbec35e846",
+          "recipe": "challenges/cases/v41/v41-shop-sellobj-minetown3-map.recipe.session.json",
+          "recipeSha256": "14f60545712d9fb5c88f9fc7cbd504758ed9ab4ef0b9a66ee212062d1fc346ca",
+          "replayInputSha256": "3a8607442a4db9da0a044ecb1fbd686a944e2c52497a9d21d1ba96df0c8f14b2",
+          "evaluationPath": "challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v41.json",
+          "evaluationCommit": "2e5a22fcb59f677d8f21f487546440d26850930c",
+          "evaluationArtifact": "challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v41.json",
+          "evaluationUtc": "2026-10-10T14:51:09.023Z",
+          "remainingScreens": 10,
+          "recordedSteps": 36,
+          "previousScreensMatched": 26,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 26,
+              "total": 36
+            },
+            "rng": {
+              "matched": 4464,
+              "total": 4814
+            },
+            "cursors": {
+              "matched": 26,
+              "total": 36
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: shopkeeper extension outside shkinit",
+            "step": 26
+          },
+          "step": 26,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: shopkeeper extension outside shkinit",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v41/v41-minetown3-special-program-generation.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v41",
+              "caseId": "v41-minetown3-special-program-generation",
+              "session": "synthetic/v41/v41-minetown3-special-program-generation",
+              "manifestPath": "challenges/manifests/v41.json",
+              "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+              "recordingPath": "challenges/cases/v41/v41-shop-sellobj-minetown3-map.session.json",
+              "recordingSha256": "dc249560ba2c73c04834f24418965d8d18b1318af88353ec54a50ecbec35e846",
+              "evaluationPath": "challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v41.json",
+              "evaluationCommit": "2e5a22fcb59f677d8f21f487546440d26850930c",
+              "replayInputSha256": "3a8607442a4db9da0a044ecb1fbd686a944e2c52497a9d21d1ba96df0c8f14b2",
+              "remainingScreens": 10,
+              "recordedSteps": 36,
+              "status": "complete",
+              "commit": "2e5a22fcb59f677d8f21f487546440d26850930c",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v41",
+                "caseId": "v41-minetown3-special-program-generation",
+                "session": "synthetic/v41/v41-minetown3-special-program-generation",
+                "manifestPath": "challenges/manifests/v41.json",
+                "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+                "recording": "challenges/cases/v41/v41-shop-sellobj-minetown3-map.session.json",
+                "recordingPath": "challenges/cases/v41/v41-shop-sellobj-minetown3-map.session.json",
+                "recordingSha256": "dc249560ba2c73c04834f24418965d8d18b1318af88353ec54a50ecbec35e846",
+                "recipe": "challenges/cases/v41/v41-shop-sellobj-minetown3-map.recipe.session.json",
+                "recipeSha256": "14f60545712d9fb5c88f9fc7cbd504758ed9ab4ef0b9a66ee212062d1fc346ca",
+                "replayInputSha256": "3a8607442a4db9da0a044ecb1fbd686a944e2c52497a9d21d1ba96df0c8f14b2",
+                "evaluationPath": "challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v41.json",
+                "evaluationCommit": "2e5a22fcb59f677d8f21f487546440d26850930c",
+                "evaluationArtifact": "challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v41.json",
+                "evaluationUtc": "2026-10-10T14:51:09.023Z",
+                "remainingScreens": 10,
+                "recordedSteps": 36,
+                "previousScreensMatched": 26,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 26,
+                    "total": 36
+                  },
+                  "rng": {
+                    "matched": 4464,
+                    "total": 4814
+                  },
+                  "cursors": {
+                    "matched": 26,
+                    "total": 36
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: shopkeeper extension outside shkinit",
+                  "step": 26
+                },
+                "step": 26,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: shopkeeper extension outside shkinit",
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "investigation": {
+                  "status": "missing",
+                  "path": "investigations/synthetic/v41/v41-minetown3-special-program-generation.json"
+                }
+              },
+              "summary": "The v41 replay reaches an implemented minetn-3 loader, but JS preflight rejects its shopkeeper while lspo_finalize_level fills rooms after level_finalize_topology clears in_mklev. C explicitly calls fill_special_room after that clear, and shknam.c:shkinit creates the shopkeeper with MM_ESHK. The JS caller already marks this path as _specialRoomFill; makemon preflight fails to honor that marker for MM_ESHK.",
+              "source": {
+                "file": "makemon.c",
+                "branch": "shknam.c:shkinit creates PM_SHOPKEEPER with MM_ESHK while filling a special level after sp_lev.c:lspo_finalize_level has called level_finalize_topology and cleared gi.in_mklev.",
+                "functions": [
+                  "makemon() explicit MM_ESHK shopkeeper creation"
+                ],
+                "callers": [
+                  "sp_lev.c:lspo_finalize_level: calls level_finalize_topology() and then fill_special_room() for each room",
+                  "shknam.c:stock_room -> shkinit: calls makemon(&mons[PM_SHOPKEEPER], sx, sy, MM_ESHK)"
+                ],
+                "dependencies": [
+                  "mklev.c:level_finalize_topology clears gi.in_mklev before the special-room fill loop; the JS fill_special_room caller passes _specialRoomFill through stock_room and shkinit."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The authoritative saved queue entry at .cache/latest-saved-combined-queue.json (SHA-256 bfaeeff70f6ec230b5a26c1b99df918a8391aaa0f54a280b71c0c2dcb00a165e), evaluation challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v41.json, and recording challenges/cases/v41/v41-shop-sellobj-minetown3-map.session.json identify 10 remaining screens of 36, 26/36 cursors, 4464/4814 RNG calls, and a stop at step 26: unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: shopkeeper extension outside shkinit. Queue case, manifest corpus digest, recipe and recording hashes, and evaluation provenance were rechecked at accepted game commit 2e5a22fcb59f677d8f21f487546440d26850930c.",
+                "The queue annotation says the top-level dat/minetn-3.lua program is reached by wiz_load_splua/load_special, but this source is already ported: js/mines_levels.js:minetn3 implements the program and MINES_LEVEL_LOADERS registers minetn-3; js/mklev.js:ensureSpecialLevelLoaders includes that registry. The missing program/loader diagnosis is stale for the examined tree.",
+                "C source order is explicit: sp_lev.c:lspo_finalize_level calls level_finalize_topology() and then fill_special_room() for each room (sp_lev.c:6055-6058). mklev.c:level_finalize_topology sets gi.in_mklev = FALSE before returning. shknam.c:shkinit then calls makemon(&mons[PM_SHOPKEEPER], sx, sy, MM_ESHK) (shknam.c:663-665); makemon.c allocates ESHK for MM_ESHK without an in_mklev restriction (makemon.c:1242).",
+                "The JS path preserves the source context: mklev.js:fill_special_room creates normalized env with _specialRoomFill=true before calling stock_room; shknam.js:shkinit passes MM_ESHK and the normalized env to makemon. makemon_create.js:preflightCreation recognizes _specialRoomFill for calls after topology finalization, but shopkeeperCall at the MM_ESHK gate requires state.in_mklev, so the valid post-finalization shopkeeper call is refused.",
+                "The minimal source-backed divergence scope is makemon.c:makemon behavior represented by js/makemon_create.js:preflightCreation: admit the exact PM_SHOPKEEPER/MM_ESHK shape when either in_mklev is true or the existing _specialRoomFill caller marker is true. No loader-registry edit is needed; B219 owns that shared contract, but minetn-3 is already registered in the examined tree."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "38d270ae4309c9d36dccf097fb299afadb180f0a",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-wizcmds-makemap-remove-mons-v41-tower2-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port wizard special-level monster cleanup and arrival message delivery",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v41/v41-tower2-special-program-generation"
+      ],
+      "selectionReason": "The accepted v41 Tower2 replay first diverges at step 24 because the wizard special-level reset omits wizcmds.c:makemap_remove_mons before Lua alignment shuffling.",
+      "detail": "Port the complete wizcmds.c makemap_unmakemon and makemap_remove_mons family, its cmd.c makemap_prepost caller path, and questpgr.c deliver_splev_message required by destination arrival; preserve the dog.c keepdogs gap because its return is discarded.",
+      "openedAt": "447bc9ef243dc416c399e707918717c78d8aed41",
+      "openStanding": {
+        "sha": "38d270ae4309c9d36dccf097fb299afadb180f0a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "makemap_unmakemon",
+          "line": 73,
+          "endLine": 109,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "makemap_remove_mons",
+          "line": 110,
+          "endLine": 155,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 73,
+        "to": 155
+      },
+      "requiredFunctions": [
+        {
+          "name": "makemap_prepost",
+          "line": 986,
+          "endLine": 1088,
+          "declared": true,
+          "sourceFile": "cmd.c",
+          "complete": true
+        },
+        {
+          "name": "deliver_splev_message",
+          "line": 655,
+          "endLine": 669,
+          "declared": true,
+          "sourceFile": "questpgr.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v41/v41-tower2-special-program-generation": {
+          "session": "synthetic/v41/v41-tower2-special-program-generation",
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-tower2-special-program-generation",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recordingPath": "challenges/cases/v41/v41-tower2-wizloaddes-cfirst.session.json",
+          "recordingSha256": "f7ae5cff28ccd236fc296514843ce62728f470833b82630b4111a5860b1961e7",
+          "evaluationPath": "challenges/evaluations/accepted-38d270ae4309c9d36dccf097fb299afadb180f0a-v41.json",
+          "evaluationCommit": "38d270ae4309c9d36dccf097fb299afadb180f0a"
+        }
+      },
+      "activeStanding": {
+        "sha": "38d270ae4309c9d36dccf097fb299afadb180f0a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-tower2-special-program-generation",
+          "session": "synthetic/v41/v41-tower2-special-program-generation",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recording": "challenges/cases/v41/v41-tower2-wizloaddes-cfirst.session.json",
+          "recordingPath": "challenges/cases/v41/v41-tower2-wizloaddes-cfirst.session.json",
+          "recordingSha256": "f7ae5cff28ccd236fc296514843ce62728f470833b82630b4111a5860b1961e7",
+          "recipe": "challenges/cases/v41/v41-tower2-wizloaddes-cfirst.recipe.session.json",
+          "recipeSha256": "2538cff56993da9051400713aa5769281826be84a1b34af55a5daca848071c5b",
+          "replayInputSha256": "8e09ff5267e59e02cd6b6e7ae99ebcf404306fb484495ad7d4ab9fe134d0dffb",
+          "evaluationPath": "challenges/evaluations/accepted-38d270ae4309c9d36dccf097fb299afadb180f0a-v41.json",
+          "evaluationCommit": "38d270ae4309c9d36dccf097fb299afadb180f0a",
+          "evaluationArtifact": "challenges/evaluations/accepted-38d270ae4309c9d36dccf097fb299afadb180f0a-v41.json",
+          "evaluationUtc": "2026-10-10T15:21:55.315Z",
+          "remainingScreens": 9,
+          "recordedSteps": 33,
+          "previousScreensMatched": 24,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 24,
+              "total": 33
+            },
+            "rng": {
+              "matched": 3344,
+              "total": 3358
+            },
+            "cursors": {
+              "matched": 33,
+              "total": 33
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 24,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 24,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 7,
+              "column": 19,
+              "cCell": {
+                "ch": "(",
+                "color": 3,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "d",
+                "color": 6,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2744,
+              "cEntry": "rn2(100)=37",
+              "cCaller": "obj_resists(zap.c:1469)",
+              "jsEntry": "rn2(3)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 24,
+                "key": "\n"
+              },
+              "stepIndex": 24
+            },
+            "cursor": null
+          },
+          "step": 24,
+          "kind": "rng",
+          "sourceFile": "zap.c",
+          "function": "obj_resists",
+          "message": null,
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 1469,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v41/v41-tower2-special-program-generation.json",
+            "result": {
+              "session": "synthetic/v41/v41-tower2-special-program-generation",
+              "corpus": "synthetic",
+              "batch": "v41",
+              "caseId": "v41-tower2-special-program-generation",
+              "manifestPath": "challenges/manifests/v41.json",
+              "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+              "recordingSha256": "f7ae5cff28ccd236fc296514843ce62728f470833b82630b4111a5860b1961e7",
+              "evaluationPath": "challenges/evaluations/accepted-38d270ae4309c9d36dccf097fb299afadb180f0a-v41.json",
+              "evaluationCommit": "38d270ae4309c9d36dccf097fb299afadb180f0a",
+              "remainingScreens": 9,
+              "recordedSteps": 33,
+              "status": "complete",
+              "commit": "38d270ae4309c9d36dccf097fb299afadb180f0a",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v41",
+                "caseId": "v41-tower2-special-program-generation",
+                "session": "synthetic/v41/v41-tower2-special-program-generation",
+                "manifestPath": "challenges/manifests/v41.json",
+                "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+                "recording": "challenges/cases/v41/v41-tower2-wizloaddes-cfirst.session.json",
+                "recordingPath": "challenges/cases/v41/v41-tower2-wizloaddes-cfirst.session.json",
+                "recordingSha256": "f7ae5cff28ccd236fc296514843ce62728f470833b82630b4111a5860b1961e7",
+                "recipe": "challenges/cases/v41/v41-tower2-wizloaddes-cfirst.recipe.session.json",
+                "recipeSha256": "2538cff56993da9051400713aa5769281826be84a1b34af55a5daca848071c5b",
+                "replayInputSha256": "8e09ff5267e59e02cd6b6e7ae99ebcf404306fb484495ad7d4ab9fe134d0dffb",
+                "evaluationPath": "challenges/evaluations/accepted-38d270ae4309c9d36dccf097fb299afadb180f0a-v41.json",
+                "evaluationCommit": "38d270ae4309c9d36dccf097fb299afadb180f0a",
+                "evaluationArtifact": "challenges/evaluations/accepted-38d270ae4309c9d36dccf097fb299afadb180f0a-v41.json",
+                "evaluationUtc": "2026-10-10T15:21:55.315Z",
+                "remainingScreens": 9,
+                "recordedSteps": 33,
+                "previousScreensMatched": 24,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 24,
+                    "total": 33
+                  },
+                  "rng": {
+                    "matched": 3344,
+                    "total": 3358
+                  },
+                  "cursors": {
+                    "matched": 33,
+                    "total": 33
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 24,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 24,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 7,
+                    "column": 19,
+                    "cCell": {
+                      "ch": "(",
+                      "color": 3,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "d",
+                      "color": 6,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2744,
+                    "cEntry": "rn2(100)=37",
+                    "cCaller": "obj_resists(zap.c:1469)",
+                    "jsEntry": "rn2(3)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 24,
+                      "key": "\n"
+                    },
+                    "stepIndex": 24
+                  },
+                  "cursor": null
+                },
+                "step": 24,
+                "kind": "rng",
+                "sourceFile": "zap.c",
+                "function": "obj_resists",
+                "message": null,
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": 1469,
+                "investigation": {
+                  "status": "missing",
+                  "path": "investigations/synthetic/v41/v41-tower2-special-program-generation.json"
+                }
+              },
+              "summary": "The direct Tower2 load first diverges because the C reset path removes monsters from the current level before the Lua alignment shuffle, while JavaScript skips that cleanup at a note_unported site. C reaches steal.c:mdrop_special_objs and zap.c:obj_resists for inventory objects, consuming rn2(100); JavaScript reaches the alignment shuffle and consumes rn2(3). The source owner is wizcmds.c:makemap_remove_mons and its static helper makemap_unmakemon, wired through the existing cmd.c:makemap_prepost pre path.",
+              "source": {
+                "file": "wizcmds.c",
+                "branch": "On a wizard special-level reset, sp_lev.c:lspo_reset_level calls cmd.c:makemap_prepost with pre=true. That caller runs makemap_remove_mons before load_special initializes nhlib.lua and shuffles the level alignment table. makemap_remove_mons keeps eligible pets, uncreates ordinary and migrating monsters, and purges detached monsters; mongone reaches mdrop_special_objs, whose unconditional obj_resists call consumes rn2(100) for ordinary inventory objects even at zero resistance chance.",
+                "functions": [
+                  "makemap_unmakemon",
+                  "makemap_remove_mons"
+                ],
+                "callers": [
+                  "C: wizcmds.c:wiz_load_splua -> sp_lev.c:lspo_reset_level -> cmd.c:makemap_prepost(pre=true) -> wizcmds.c:makemap_remove_mons -> wizcmds.c:makemap_unmakemon -> mon.c:mongone -> steal.c:mdrop_special_objs -> zap.c:obj_resists",
+                  "C: wizcmds.c:wiz_makemap -> cmd.c:makemap_prepost(pre=true) -> wizcmds.c:makemap_remove_mons",
+                  "JavaScript: js/wizcmds.js:wiz_load_splua -> js/mklev.js:lspo_reset_level -> js/cmd.js:makemap_prepost; the caller currently records note_unported(\"wizcmds.c makemap_remove_mons\") instead of invoking a port",
+                  "JavaScript: js/wizcmds.js:wiz_makemap -> js/cmd.js:makemap_prepost; the same caller wiring is shared"
+                ],
+                "dependencies": [
+                  "cmd.c:makemap_prepost",
+                  "sp_lev.c:lspo_reset_level",
+                  "dog.c:keepdogs",
+                  "mon.c:mongone",
+                  "mon.c:dmonsfree",
+                  "steal.c:mdrop_special_objs",
+                  "zap.c:obj_resists",
+                  "mkobj.c:discard_minvent",
+                  "mkobj.c:dobjsfree"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved queue provenance: /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json SHA-256 63df254bc6597d72c4ae0a7de636a694779db6909e5a3cbb24a4133740d919d2; Tower2 row from accepted game commit 38d270ae4309c9d36dccf097fb299afadb180f0a has 9 remaining screens, 24/33 screens, 3344/3358 RNG calls, and 33/33 cursors matched. Its first mismatch remains at step 24, with source annotation zap.c:obj_resists.",
+                "The targeted scan-sessions diagnostic on b9d8eb55a1aa1487ddbcf52532e7adb9c5023a11 (run-Crd1U1) reports the first mismatch at segment 0, step 24, RNG index 2744: C rn2(100)=37 from obj_resists(zap.c:1469), JavaScript rn2(3)=0; the screen first differs at row 7, column 19.",
+                "challenges/cases/v41/v41-tower2-wizloaddes-cfirst.recipe.session.json is an independent C-first direct #wizloaddes recipe for tower2.lua; the admitted recording has 33 steps and the map source runs after the reset path.",
+                "C call evidence: nethack-c/upstream/src/wizcmds.c:376-395 calls lspo_reset_level(NULL) before load_special; nethack-c/upstream/src/sp_lev.c:5993-6012 calls makemap_prepost(TRUE, wtower); nethack-c/upstream/src/cmd.c:985-1050 calls makemap_remove_mons() in the pre path.",
+                "C owner evidence: nethack-c/upstream/src/wizcmds.c:73-148 implements makemap_unmakemon() and makemap_remove_mons(). The latter calls keepdogs(TRUE), removes current and qualifying migrating monsters through mongone(), then calls dmonsfree().",
+                "Random-call evidence: nethack-c/upstream/src/mon.c:3267-3286 calls mdrop_special_objs() before discard_minvent(); nethack-c/upstream/src/steal.c:852-873 checks every inventory object with obj_resists(obj, 0, 0); nethack-c/upstream/src/zap.c:1458-1470 always calls rn2(100) for non-protected ordinary objects, even when both chances are zero.",
+                "JavaScript gap evidence: js/mklev.js:4301-4321 calls js/cmd.js:makemap_prepost during lspo_reset_level; js/cmd.js:2581-2625 records note_unported(\"wizcmds.c makemap_remove_mons\") and skips it. The next source draw is js/mklev.js load_special alignment shuffle at lines 1804-1830.",
+                "Existing mdrop_special_objs and obj_resists ports preserve the C random behavior: js/steal.js:1009-1035 invokes obj_resists for each inventory object, and js/bury.js:83-108 performs the unconditional rn2(100). The missing call path, rather than those callees, is the first divergence.",
+                "The second production caller is #wizmakemap. Existing source recipes and recordings at recipes/wizcmds.c/makemap-ordinary.session.json, recipes/wizcmds.c/makemap-repeat-variation.session.json, recordings/wizcmds.c/makemap-ordinary.session.json, recordings/wizcmds.c/makemap-repeat-variation.session.json exercise that caller through the same cmd.c:makemap_prepost pre path."
+              ],
+              "replayInputSha256": "8e09ff5267e59e02cd6b6e7ae99ebcf404306fb484495ad7d4ab9fe134d0dffb"
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "makemap_unmakemon",
+            "implementation": "js/wizcmds.js",
+            "symbol": "makemap_unmakemon",
+            "sourceReview": "Read wizcmds.c:73-107 in full. Preserved the unique-species G_EXTINCT clear and born decrement before the vault-guard/dead/shopkeeper branches; the isgd case falls through after clearing isgd, while a dead non-guard returns. The migratory arm marks MON_OFFMAP, clears MON_MIGRATING | MON_LIMBO | MON_ENDGAME_MIGR, links the monster into fmon, then calls mongone. setpaid and mongone are existing ports. The function has no random calls; its state mutations make it impure.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "makemap_remove_mons",
+                "source": "wizcmds.c:makemap_remove_mons calls makemap_unmakemon for each live fmon resident with FALSE and for each migrating monster whose shopkeeper, priest, or guard home is the current level with TRUE."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/makemap-remove-mons.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/makemap-ordinary.session.json",
+              "recordings/wizcmds.c/makemap-repeat-variation.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-tower2-special-program-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "cmd.c command registry (#wizloaddes) -> wizcmds.c:wiz_load_splua -> sp_lev.c:lspo_reset_level -> cmd.c:makemap_prepost(TRUE) -> wizcmds.c:makemap_remove_mons -> wizcmds.c:makemap_unmakemon; the later level finalization reaches makemap_prepost(FALSE)."
+              }
+            ],
+            "checkedAt": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d"
+          },
+          {
+            "name": "makemap_remove_mons",
+            "implementation": "js/wizcmds.js",
+            "symbol": "makemap_remove_mons",
+            "sourceReview": "Read wizcmds.c:109-150 in full. Preserved source order: the discarded keepdogs(TRUE) call precedes the fmon scan; live current-level monsters are unmade; migrating monsters with current-level shopkeeper/priest/guard extras are unlinked and unmade; dmonsfree releases the resulting list and the final fmon check reports an impossible leftover. dog.c:keepdogs remains explicitly unported and is recorded with note_unported; that separate source unit remains unported, and this caller discards its result. No other function in dog.c was changed.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "makemap_prepost",
+                "source": "cmd.c:makemap_prepost(TRUE, ...) calls makemap_remove_mons() as its first pre-reset action; both wiz_makemap and lspo_reset_level reach this caller."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/makemap-remove-mons.test.mjs",
+              "scripts/sp-lev-reset-finalize-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/makemap-ordinary.session.json",
+              "recordings/wizcmds.c/makemap-repeat-variation.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-tower2-special-program-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "cmd.c command registry (#wizloaddes) -> wizcmds.c:wiz_load_splua -> sp_lev.c:lspo_reset_level -> cmd.c:makemap_prepost(TRUE) -> wizcmds.c:makemap_remove_mons -> wizcmds.c:makemap_unmakemon; the later level finalization reaches makemap_prepost(FALSE)."
+              }
+            ],
+            "checkedAt": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d"
+          },
+          {
+            "name": "makemap_prepost",
+            "implementation": "js/cmd.js",
+            "symbol": "makemap_prepost",
+            "sourceReview": "Read cmd.c:986-1088 in full and verified the integration at the pre branch: makemap_remove_mons is awaited before rm_mapseen and the remaining level-reset work. The post branch retains the existing arrival sequence. This task replaced only the old wizcmds.c makemap_remove_mons gap; other pre-existing cmd.c callee gaps remain explicitly represented by their existing note_unported calls.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_makemap",
+                "source": "wizcmds.c:156-168 calls makemap_prepost(TRUE, was_in_W_tower), creates the replacement level, then calls makemap_prepost(FALSE, was_in_W_tower)."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "lspo_reset_level",
+                "source": "sp_lev.c:lspo_reset_level calls makemap_prepost(TRUE, wtower) before special-level generation; wizcmds.c:wiz_load_splua reaches this production path through load_special."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "lspo_finalize_level",
+                "source": "sp_lev.c:lspo_finalize_level calls makemap_prepost(FALSE, wtower) after special-level generation."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/makemap-remove-mons.test.mjs",
+              "scripts/sp-lev-reset-finalize-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/makemap-ordinary.session.json",
+              "recordings/wizcmds.c/makemap-repeat-variation.session.json"
+            ],
+            "sourceFile": "cmd.c",
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-tower2-special-program-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "cmd.c command registry (#wizloaddes) -> wizcmds.c:wiz_load_splua -> sp_lev.c:lspo_reset_level -> cmd.c:makemap_prepost(TRUE) -> wizcmds.c:makemap_remove_mons -> wizcmds.c:makemap_unmakemon; the later level finalization reaches makemap_prepost(FALSE)."
+              }
+            ],
+            "checkedAt": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d"
+          },
+          {
+            "name": "deliver_splev_message",
+            "implementation": "js/questpgr.js",
+            "symbol": "deliver_splev_message",
+            "sourceReview": "Read questpgr.c:655-664 in full. If gl.lev_message is non-NULL, deliver_by_pline converts each newline-delimited source line with convert_line and emits each through pline, then frees the message and clears gl.lev_message. The JavaScript function retains that output-before-clear order, does not emit a phantom line for a trailing newline, and clears a non-NULL empty string without output. It is impure because it emits messages and mutates gl.lev_message. The recorded special-true endgame variation reaches the non-NULL arrival-message branch and emits the custom Astral messages through do.c:goto_level.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "makemap_prepost",
+                "source": "cmd.c:1061 calls deliver_splev_message() after arrival rendering and flush_screen(1), before check_special_room(FALSE)."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "goto_level",
+                "source": "do.c:1858 calls deliver_splev_message() after destination rendering and flush_screen(-1), before level-transition follow-up effects."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/questpgr.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/makemap-ordinary.session.json",
+              "recordings/wizcmds.c/makemap-repeat-variation.session.json",
+              "recordings/do.c/goto-level-mines-independent.session.json",
+              "recordings/mplayer.c/special-true-endgame-cfirst.session.json"
+            ],
+            "sourceFile": "questpgr.c",
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-tower2-special-program-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "cmd.c command registry (#wizloaddes) -> wizcmds.c:wiz_load_splua -> sp_lev.c:lspo_reset_level -> cmd.c:makemap_prepost(TRUE) -> wizcmds.c:makemap_remove_mons -> wizcmds.c:makemap_unmakemon; the later level finalization reaches makemap_prepost(FALSE)."
+              }
+            ],
+            "checkedAt": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d"
+          }
+        ],
+        "entryPointReview": "The active production entries reaching this scope are (1) the cmd.c command registry entry for wiz_load_splua -> wizcmds.c:wiz_load_splua -> load_special -> sp_lev.c:lspo_reset_level -> cmd.c:makemap_prepost(TRUE), with lspo_finalize_level reaching the post branch and delivering any custom arrival text; (2) the cmd.c registry entry for wiz_makemap -> wizcmds.c:wiz_makemap -> cmd.c:makemap_prepost(TRUE/FALSE); and (3) ordinary level transitions through do.c:goto_level -> questpgr.c:deliver_splev_message. All three have matching runtime evidence below. The only intentionally skipped source call is keepdogs(TRUE), whose result is discarded; its pets-only side effects remain an explicit unported dog.c:keepdogs dependency.",
+        "entryPoints": [
+          {
+            "name": "wiz_load_splua special-level load",
+            "functions": [
+              {
+                "sourceFile": "wizcmds.c",
+                "name": "makemap_unmakemon"
+              },
+              {
+                "sourceFile": "wizcmds.c",
+                "name": "makemap_remove_mons"
+              },
+              {
+                "sourceFile": "cmd.c",
+                "name": "makemap_prepost"
+              },
+              {
+                "sourceFile": "questpgr.c",
+                "name": "deliver_splev_message"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-tower2-special-program-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "cmd.c command registry (#wizloaddes) -> wizcmds.c:wiz_load_splua -> sp_lev.c:lspo_reset_level -> cmd.c:makemap_prepost(TRUE) -> wizcmds.c:makemap_remove_mons -> wizcmds.c:makemap_unmakemon; the later level finalization reaches makemap_prepost(FALSE)."
+              }
+            ]
+          },
+          {
+            "name": "wiz_makemap level replacement",
+            "functions": [
+              {
+                "sourceFile": "wizcmds.c",
+                "name": "makemap_unmakemon"
+              },
+              {
+                "sourceFile": "wizcmds.c",
+                "name": "makemap_remove_mons"
+              },
+              {
+                "sourceFile": "cmd.c",
+                "name": "makemap_prepost"
+              },
+              {
+                "sourceFile": "questpgr.c",
+                "name": "deliver_splev_message"
+              }
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/makemap-ordinary.session.json",
+              "recordings/wizcmds.c/makemap-repeat-variation.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "goto_level destination arrival message delivery",
+            "functions": [
+              {
+                "sourceFile": "questpgr.c",
+                "name": "deliver_splev_message"
+              }
+            ],
+            "recordings": [
+              "recordings/do.c/goto-level-mines-independent.session.json",
+              "recordings/mplayer.c/special-true-endgame-cfirst.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-mhitu-mayberem-v41-incubus-20261010",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port seduction armor removal",
+      "cFile": "mhitu.c",
+      "sessions": [
+        "synthetic/v41/v41-incubus-seduction-removes-worn-armor"
+      ],
+      "selectionReason": "The accepted v41 incubus replay first diverges when mhitu.c:mayberem consumes rn2(20), verbalizes the cloak removal, and removes the worn cloak while JavaScript records an unported gap.",
+      "detail": "Port the complete private mhitu.c mayberem helper and wire every existing doseduce call in source order, reusing steal.c remove_worn_item.",
+      "openedAt": "2e2ecfca5031c18f0e351d915a544f1ed28ba2c2",
+      "openStanding": {
+        "sha": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mayberem",
+          "line": 2309,
+          "endLine": 2354,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2309,
+        "to": 2354
+      },
+      "requiredFunctions": [
+        {
+          "name": "doseduce",
+          "line": 1985,
+          "endLine": 2308,
+          "declared": true,
+          "sourceFile": "mhitu.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v41/v41-incubus-seduction-removes-worn-armor": {
+          "session": "synthetic/v41/v41-incubus-seduction-removes-worn-armor",
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-incubus-seduction-removes-worn-armor",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recordingPath": "challenges/cases/v41/v41-incubus-mayberem-pager-corrected.session.json",
+          "recordingSha256": "eeff21fe87bec9c6dd84419df9e734f5a7bf35f57cb71c5098f124c85e26163d",
+          "evaluationPath": "challenges/evaluations/accepted-8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d-v41.json",
+          "evaluationCommit": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d"
+        }
+      },
+      "activeStanding": {
+        "sha": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-incubus-seduction-removes-worn-armor",
+          "session": "synthetic/v41/v41-incubus-seduction-removes-worn-armor",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recording": "challenges/cases/v41/v41-incubus-mayberem-pager-corrected.session.json",
+          "recordingPath": "challenges/cases/v41/v41-incubus-mayberem-pager-corrected.session.json",
+          "recordingSha256": "eeff21fe87bec9c6dd84419df9e734f5a7bf35f57cb71c5098f124c85e26163d",
+          "recipe": "challenges/cases/v41/v41-incubus-mayberem-pager-corrected.recipe.session.json",
+          "recipeSha256": "22cc5ba7776b87e776653784885669a25e4132ef229a2fc74ef2f470c14546b9",
+          "replayInputSha256": "b49bbb5a41c55e8d8696ee6c8da33a16560a07ce51f91533ed3a8f4a54ee77a8",
+          "evaluationPath": "challenges/evaluations/accepted-8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d-v41.json",
+          "evaluationCommit": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d",
+          "evaluationArtifact": "challenges/evaluations/accepted-8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d-v41.json",
+          "evaluationUtc": "2026-10-10T15:38:45.097Z",
+          "remainingScreens": 4,
+          "recordedSteps": 46,
+          "previousScreensMatched": 42,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 42,
+              "total": 46
+            },
+            "rng": {
+              "matched": 6335,
+              "total": 6338
+            },
+            "cursors": {
+              "matched": 42,
+              "total": 46
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 42,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 42,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 1,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 6335,
+              "cEntry": "rn2(20)=14",
+              "cCaller": "mayberem(mhitu.c:2325)",
+              "jsEntry": "rnd(79)=19",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 40,
+                "key": " "
+              },
+              "stepIndex": 40
+            },
+            "cursor": {
+              "index": 42,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 42,
+                "key": " "
+              },
+              "cCursor": [
+                47,
+                0,
+                1
+              ],
+              "jsCursor": [
+                43,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 40,
+          "kind": "rng",
+          "sourceFile": "mhitu.c",
+          "function": "mayberem",
+          "message": null,
+          "cFile": "mhitu.c",
+          "luaFile": null,
+          "line": 2325,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v41/v41-incubus-seduction-removes-worn-armor.json",
+            "result": {
+              "session": "synthetic/v41/v41-incubus-seduction-removes-worn-armor",
+              "corpus": "synthetic",
+              "batch": "v41",
+              "caseId": "v41-incubus-seduction-removes-worn-armor",
+              "manifestPath": "challenges/manifests/v41.json",
+              "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+              "recordingPath": "challenges/cases/v41/v41-incubus-mayberem-pager-corrected.session.json",
+              "recordingSha256": "eeff21fe87bec9c6dd84419df9e734f5a7bf35f57cb71c5098f124c85e26163d",
+              "evaluationPath": "challenges/evaluations/accepted-8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d-v41.json",
+              "evaluationCommit": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d",
+              "remainingScreens": 4,
+              "recordedSteps": 46,
+              "status": "complete",
+              "commit": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v41",
+                "caseId": "v41-incubus-seduction-removes-worn-armor",
+                "session": "synthetic/v41/v41-incubus-seduction-removes-worn-armor",
+                "manifestPath": "challenges/manifests/v41.json",
+                "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+                "recording": "challenges/cases/v41/v41-incubus-mayberem-pager-corrected.session.json",
+                "recordingPath": "challenges/cases/v41/v41-incubus-mayberem-pager-corrected.session.json",
+                "recordingSha256": "eeff21fe87bec9c6dd84419df9e734f5a7bf35f57cb71c5098f124c85e26163d",
+                "recipe": "challenges/cases/v41/v41-incubus-mayberem-pager-corrected.recipe.session.json",
+                "recipeSha256": "22cc5ba7776b87e776653784885669a25e4132ef229a2fc74ef2f470c14546b9",
+                "replayInputSha256": "b49bbb5a41c55e8d8696ee6c8da33a16560a07ce51f91533ed3a8f4a54ee77a8",
+                "evaluationPath": "challenges/evaluations/accepted-8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d-v41.json",
+                "evaluationCommit": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d",
+                "evaluationArtifact": "challenges/evaluations/accepted-8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d-v41.json",
+                "evaluationUtc": "2026-10-10T15:38:45.097Z",
+                "remainingScreens": 4,
+                "recordedSteps": 46,
+                "previousScreensMatched": 42,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 42,
+                    "total": 46
+                  },
+                  "rng": {
+                    "matched": 6335,
+                    "total": 6338
+                  },
+                  "cursors": {
+                    "matched": 42,
+                    "total": 46
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 42,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 42,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 1,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 6335,
+                    "cEntry": "rn2(20)=14",
+                    "cCaller": "mayberem(mhitu.c:2325)",
+                    "jsEntry": "rnd(79)=19",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 40,
+                      "key": " "
+                    },
+                    "stepIndex": 40
+                  },
+                  "cursor": {
+                    "index": 42,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 42,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      47,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      43,
+                      6,
+                      1
+                    ]
+                  }
+                },
+                "step": 40,
+                "kind": "rng",
+                "sourceFile": "mhitu.c",
+                "function": "mayberem",
+                "message": null,
+                "cFile": "mhitu.c",
+                "luaFile": null,
+                "line": 2325,
+                "investigation": {
+                  "status": "missing",
+                  "path": "investigations/synthetic/v41/v41-incubus-seduction-removes-worn-armor.json"
+                }
+              },
+              "summary": "The v41 hostile incubus reaches mhitu.c:doseduce and calls the private mayberem helper for the hero’s worn cloak. In the recorded branch, rn2(20)=14 is not below charisma 10, so C calls SetVoice, verbalizes “Take off your cloak; it’s in the way.”, and removes the cloak with remove_worn_item. JavaScript currently replaces every doseduce mayberem call with note_unported, skipping the RNG, message/pause, and armor state change; the first differing C RNG call is mayberem and screen/cursor output diverges immediately after it. Port the complete void helper and wire all existing doseduce call sites in C source order.",
+              "source": {
+                "file": "mhitu.c",
+                "branch": "doseduce reaches mayberem with a worn armor object while no transport is pending and the monster remains adjacent; mayberem chooses the deaf path, charisma prompt path, or verbalized removal path, then removes the item unless the player declines.",
+                "functions": [
+                  "doseduce",
+                  "mayberem"
+                ],
+                "callers": [
+                  "mhitu.c:doseduce -> mayberem",
+                  "uhitm.c:hitmu -> mhitu.c:doseduce",
+                  "sounds.c:domonnoise -> mhitu.c:doseduce"
+                ],
+                "dependencies": [
+                  "rnd.c:rn2",
+                  "sounds.c:SetVoice",
+                  "cmd.c:y_n",
+                  "pline.c:verbalize",
+                  "polyself.c:body_part",
+                  "steal.c:remove_worn_item"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "nethack-c/upstream/src/mhitu.c:2309-2350 defines mayberem as a void helper. It first skips absent/unworn items and refuses after transport or loss of adjacency; then Deaf emits a direct pline, high charisma draws rn2(20) and may ask a y_n question using short-circuited rn2(2) terms, and the other path calls SetVoice and verbalize before remove_worn_item(obj, TRUE).",
+                "nethack-c/upstream/src/mhitu.c:doseduce calls mayberem for gloves during ring handling and then for cloak, suit, boots, gloves, shield, helm, and shirt in that exact order. Its void result is ignored; side effects and pauses determine subsequent behavior.",
+                "challenges/cases/v41/v41-incubus-mayberem-pager-corrected.session.json, segment 0, zero-based step 40 records rn2(20)=14 at mayberem(mhitu.c:2325); step 42 records the C line “Take off your cloak; it’s in the way.” The session reaches the helper through #wizgenesis hostile incubus and wait actions.",
+                "challenges/evaluations/accepted-8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d-v41.json from accepted game commit 8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d records 42/46 matching screens, 6335/6338 matching RNG calls, and 42/46 matching cursors. Saved queue SHA-256 e13363035a8e7a3b6bdb38611b40f692b155bb781fc7c7bfb6e7553b345e572a; the first C RNG call remains rn2(20)=14 from mayberem at step 40.",
+                "js/mhitu.js: doseduce defines mayberem as note_unported and invokes that no-op at every corresponding call site. scripts/mhitu-doseduce.test.mjs explicitly pins the gap. js/steal.js already contains the remove_worn_item armor-removal path used by C, so the bounded implementation is the complete mhitu.c helper and its doseduce caller wiring."
+              ],
+              "replayInputSha256": "b49bbb5a41c55e8d8696ee6c8da33a16560a07ce51f91533ed3a8f4a54ee77a8"
+            }
+          }
+        }
+      ]
     }
   ]
 }
