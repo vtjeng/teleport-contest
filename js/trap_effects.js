@@ -736,8 +736,14 @@ async function trapeffect_arrow_trap(mtmp, trap, _trflags, env) {
                 message: (text, target) => message(text, target ?? state),
                 losehp: (amount, killer, format) =>
                     losehp(amount, killer, format, state),
-                exercise: (index, increase) =>
-                    exercise(index, increase, state, random),
+                exercise: (index, increase) => exercise(
+                    index,
+                    increase,
+                    state,
+                    random,
+                    { encumberMessage: (subject) =>
+                        encumber_msg(subject, { message }) },
+                ),
             },
         )) {
             if (otmp) obfree(otmp, null, { state });
@@ -3858,7 +3864,7 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 // that arrives another way.
 //
 // The stops, and what each of them needs:
-//   every type but BEAR_TRAP, DART_TRAP, ROCKTRAP, MAGIC_TRAP, POLY_TRAP,
+//   every type but ARROW_TRAP, BEAR_TRAP, DART_TRAP, ROCKTRAP, MAGIC_TRAP, POLY_TRAP,
 //     ANTI_MAGIC,
 //     FIRE_TRAP, SLP_GAS_TRAP, RUST_TRAP, LANDMINE, PIT, SPIKED_PIT,
 //     TELEP_TRAP, WEB, STATUE_TRAP and ROLLING_BOULDER_TRAP -- its own
@@ -3866,18 +3872,20 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //   a fixed-destination teleport trap with a monster standing on the
 //     destination -- teleport.c:1516's rloc_to(), whose port covers only a
 //     monster that is not yet on the map;
-//   a seen trap except WEB, LANDMINE, ROCKTRAP, ANTI_MAGIC, STATUE_TRAP,
-//     SQKY_BOARD and pits/holes -- the "You escape ..." line at trap.c:3039
+//   a seen trap except ARROW_TRAP, WEB, LANDMINE, ROCKTRAP, ANTI_MAGIC,
+//     STATUE_TRAP, SQKY_BOARD and pits/holes -- the "You escape ..." line
+//     at trap.c:3039
 //     is outside those effects;
 //   a mounted hero where the effect has no corresponding source arm --
 //     s_suffix(mon_nam()) and mbodypart() at trap.c:1508-1509 (bear trap),
-//     while steedintrap() handles the dart, gas, magic, polymorph, landmine
-//     and pit arms;
+//     while steedintrap() handles the arrow, dart, gas, magic, polymorph,
+//     landmine and pit arms;
 //     ROCKTRAP still targets the hero and ANTI_MAGIC acts directly on them;
 //   iron shoes -- Yname2(uarmf), at trap.c:1518 (bear trap only).
 export function preflight_dotrap(trap, state = game, trflags = 0) {
     const pitTrap = is_pit(trap.ttyp);
-    if (trap.ttyp !== BEAR_TRAP && trap.ttyp !== DART_TRAP
+    if (trap.ttyp !== ARROW_TRAP && trap.ttyp !== BEAR_TRAP
+        && trap.ttyp !== DART_TRAP
         && trap.ttyp !== MAGIC_TRAP && trap.ttyp !== FIRE_TRAP
         && trap.ttyp !== SLP_GAS_TRAP
         && trap.ttyp !== ANTI_MAGIC
@@ -3906,7 +3914,8 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
     // nomul(0), so compute the same pure predicate without applying that write.
     const forcetrap = (trflags & (FORCETRAP | FAILEDUNTRAP)) !== 0
         || fixed_tele_trap(trap);
-    if (trap.tseen && !forcetrap && trap.ttyp !== WEB
+    if (trap.tseen && !forcetrap && trap.ttyp !== ARROW_TRAP
+        && trap.ttyp !== WEB
         && trap.ttyp !== LANDMINE && trap.ttyp !== ROCKTRAP
         && trap.ttyp !== ANTI_MAGIC && trap.ttyp !== STATUE_TRAP
         && trap.ttyp !== SQKY_BOARD
@@ -3915,7 +3924,8 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
             'a trap the hero has already seen',
         );
     }
-    if (state.u.usteed && trap.ttyp !== WEB
+    if (state.u.usteed && trap.ttyp !== ARROW_TRAP
+        && trap.ttyp !== WEB
         && trap.ttyp !== LANDMINE && trap.ttyp !== DART_TRAP
         && trap.ttyp !== ROCKTRAP
         && trap.ttyp !== SLP_GAS_TRAP && trap.ttyp !== MAGIC_TRAP
@@ -3989,7 +3999,8 @@ export async function dotrap(trap, trflags, state = game, rawEnv = {}) {
             if (already_seen) {
                 await env.message(
                     `You ${u_locomotion('step', state)} over `
-                        + `${a_your[Number(Boolean(trap.madeby_u))]} `
+                        + `${ttype === ARROW_TRAP && !trap.madeby_u
+                            ? 'an' : a_your[Number(Boolean(trap.madeby_u))]} `
                         + `${trapname(ttype, false, state)}.`,
                     state,
                 );
@@ -4005,7 +4016,8 @@ export async function dotrap(trap, trflags, state = game, rawEnv = {}) {
             && (!env.random.rn2(5)
                 || (is_pit(ttype) && is_clinger(state.youmonst.data)))) {
             await env.message(
-                `You escape ${a_your[Number(Boolean(trap.madeby_u))]}`
+                `You escape ${ttype === ARROW_TRAP && !trap.madeby_u
+                    ? 'an' : a_your[Number(Boolean(trap.madeby_u))]}`
                     + ` ${trapname(ttype, false, state)}.`,
                 state,
             );

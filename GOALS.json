@@ -242777,7 +242777,7 @@
     {
       "id": "port-spell-tport-spell-wizard-teleport-v38-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port wizard teleport spell-slot toggling and wire dotelecmd menu modes",
       "cFile": "spell.c",
       "sessions": [
@@ -242791,15 +242791,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "tport_spell",
           "line": 1707,
           "endLine": 1762,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -243060,7 +243063,851 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "tport_spell",
+            "implementation": "js/spell.js",
+            "symbol": "tport_spell",
+            "sourceReview": "Read the complete nethack-c/upstream/src/spell.c tport_spell() at lines 1707-1756 and matched its ordered spell-slot scan, MAXSPELL branch, empty-slot HIDE/REMOVE and UNHIDE cases, ADD's complete slot save and id/level/KEEN installation, existing Teleport Away ADD/UNHIDE invalidation, REMOVE restoration, and HIDE's save-and-id-only clear. Checked the function-local static save_tport initial state and inverse return values against teleport.c:dotelecmd(). The only diagnostic callee is impossible() when the spell list is full; its return is unused, so the JS path records note_unported('pline.c impossible') and makes no gameplay substitution. The function is impure because it mutates the spell book and static saved slot; it makes no RNG call. No prior refusal or stub existed in js/spell.js.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:1890-1891 maps wizard m-prefix Ctrl-T to dotelecmd(); teleport.c:919-1027 mode s calls tport_spell(ADD_SPELL), runs dotele(), then applies the inverse operation. js/cmd.js:5414 command dispatch resolves the teleport command in rhack(); its wizard menu mode s calls tport_spell(ADD), routes through the existing known_spell()/dotele refusal path, and the finally block applies REMOVE (or the inverse HIDE action) while restoring teleport properties."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/spell.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v38",
+                "caseId": "v38-wizard-spell-teleport-energy-refusal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 4,
+                "source": "cmd.c m-prefix Ctrl-T dispatch -> teleport.c:dotelecmd() mode s -> spell.c:tport_spell(ADD_SPELL) -> dotele() energy refusal -> tport_spell(REMOVESPELL); js/cmd.js:rhack executes the menu, refusal, and slot cleanup."
+              }
+            ],
+            "checkedAt": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0"
+          }
+        ],
+        "entryPointReview": "The selected function has one active game entry point in this scope: cmd.c:1890-1891 binds the wizard m-prefix Ctrl-T command to teleport.c:dotelecmd(). dotelecmd() presents its wizard mode menu, and mode s installs Teleport Away temporarily before invoking dotele(). The admitted v38 case reaches this path with a level-1 debug Barbarian, selects spellcast, receives the normal energy refusal, and restores the empty spell slot; the final candidate matches all five steps. The production JS entry is rhack() command dispatch in js/cmd.js, not a direct unit-test invocation. The impossible() diagnostic for a full spell list is not an alternate entry point and its return is discarded.",
+        "entryPoints": [
+          {
+            "name": "wizard m-prefix Ctrl-T teleport mode s",
+            "functions": [
+              "tport_spell"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v38",
+                "caseId": "v38-wizard-spell-teleport-energy-refusal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 4,
+                "source": "cmd.c m-prefix Ctrl-T dispatch -> teleport.c:dotelecmd() mode s -> spell.c:tport_spell(ADD_SPELL) -> dotele() energy refusal -> tport_spell(REMOVESPELL); js/cmd.js:rhack executes the menu, refusal, and slot cleanup."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-arrow-trap-preflight-v38-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Admit hero arrow trap activation and wire the sitting caller",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v38/v38-arrow-trap-return-projectile"
+      ],
+      "selectionReason": "The admitted v38 arrow-trap case first stops in movement preflight before trap.c dotrap, then reaches the existing arrow effect and the sit.c dosit caller.",
+      "detail": "Admit ARROW_TRAP through the existing hero trap preflight gates, preserve the source article and exercise callback behavior, and wire sit.c dosit to dotrap with VIASITTING. This is bounded divergence work without whole-function completion credit.",
+      "openedAt": "5c1a123e774f640b178773c89027a9aedcbd91cb",
+      "openStanding": {
+        "sha": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "dotrap",
+      "session": "synthetic/v38/v38-arrow-trap-return-projectile",
+      "step": 16,
+      "syntheticProvenance": {
+        "synthetic/v38/v38-arrow-trap-return-projectile": {
+          "session": "synthetic/v38/v38-arrow-trap-return-projectile",
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-arrow-trap-return-projectile",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recordingPath": "challenges/cases/v38/v38-arrow-trap-return-projectile.session.json",
+          "recordingSha256": "4da1395ef578601a402a13cb470a5f9126b5bbce7b6e83fba16b1684d4b7c8b6",
+          "evaluationPath": "challenges/evaluations/accepted-5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0-v38.json",
+          "evaluationCommit": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0"
+        }
+      },
+      "activeStanding": {
+        "sha": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-arrow-trap-return-projectile",
+          "session": "synthetic/v38/v38-arrow-trap-return-projectile",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recording": "challenges/cases/v38/v38-arrow-trap-return-projectile.session.json",
+          "recordingPath": "challenges/cases/v38/v38-arrow-trap-return-projectile.session.json",
+          "recordingSha256": "4da1395ef578601a402a13cb470a5f9126b5bbce7b6e83fba16b1684d4b7c8b6",
+          "recipe": "challenges/cases/v38/v38-arrow-trap-return-projectile.recipe.session.json",
+          "recipeSha256": "f98fce8148ef6d5520b0e33b47053f2ec8a49afd320031f9a473e4382b9e9924",
+          "replayInputSha256": "99b9ea18042feeef02df123c8f0e7d05f3fe0ed35e990ecdb577c1153d0a92aa",
+          "evaluationPath": "challenges/evaluations/accepted-5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0-v38.json",
+          "evaluationCommit": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0",
+          "evaluationArtifact": "challenges/evaluations/accepted-5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0-v38.json",
+          "evaluationUtc": "2026-10-10T02:16:24.381Z",
+          "remainingScreens": 6,
+          "recordedSteps": 22,
+          "previousScreensMatched": 16,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 16,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2985,
+              "total": 3024
+            },
+            "cursors": {
+              "matched": 16,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: trap activation",
+            "step": 16
+          },
+          "step": 16,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero move: trap activation",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v38/v38-arrow-trap-return-projectile.json",
+            "result": {
+              "session": "synthetic/v38/v38-arrow-trap-return-projectile",
+              "corpus": "synthetic",
+              "batch": "v38",
+              "caseId": "v38-arrow-trap-return-projectile",
+              "manifestPath": "challenges/manifests/v38.json",
+              "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+              "recordingSha256": "4da1395ef578601a402a13cb470a5f9126b5bbce7b6e83fba16b1684d4b7c8b6",
+              "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+              "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+              "remainingScreens": 6,
+              "recordedSteps": 22,
+              "status": "complete",
+              "commit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v38",
+                "caseId": "v38-arrow-trap-return-projectile",
+                "session": "synthetic/v38/v38-arrow-trap-return-projectile",
+                "manifestPath": "challenges/manifests/v38.json",
+                "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+                "recording": "challenges/cases/v38/v38-arrow-trap-return-projectile.session.json",
+                "recordingPath": "challenges/cases/v38/v38-arrow-trap-return-projectile.session.json",
+                "recordingSha256": "4da1395ef578601a402a13cb470a5f9126b5bbce7b6e83fba16b1684d4b7c8b6",
+                "recipe": "challenges/cases/v38/v38-arrow-trap-return-projectile.recipe.session.json",
+                "recipeSha256": "f98fce8148ef6d5520b0e33b47053f2ec8a49afd320031f9a473e4382b9e9924",
+                "replayInputSha256": "b71bf3fbcb07fcfb0eb0ae1f4a4851cee6588d354239d49084516f65d1ad7577",
+                "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+                "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+                "evaluationArtifact": "challenges/evaluations/20261010014622-v38.json",
+                "evaluationUtc": "2026-10-10T01:46:34.186Z",
+                "remainingScreens": 6,
+                "recordedSteps": 22,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 16,
+                    "total": 22
+                  },
+                  "rng": {
+                    "matched": 2985,
+                    "total": 3024
+                  },
+                  "cursors": {
+                    "matched": 16,
+                    "total": 22
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: trap activation",
+                  "step": 16
+                },
+                "step": 16,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero move: trap activation",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The selected arrow-trap path exposed four JS gaps. preflight_dotrap refused ARROW_TRAP; after admission, the arrow-hit exercise callback omitted encumber_msg; the later #sit branch recorded note_unported for trap.c:dotrap; and the seen-arrow escape message used “a arrow trap” instead of C’s “an arrow trap”. The task admits source-supported arrow cases, wires the exercise callback and sit caller, and preserves C’s article rule.",
+              "source": {
+                "file": "trap.c",
+                "branch": "A hero enters an unseen ARROW_TRAP on ordinary floor, causing hack.c movement preflight and then trap.c:dotrap to dispatch trapeffect_arrow_trap; the trap hits the hero and reaches thitu’s Strength-exercise tail. After that trap becomes seen, the hero uses #sit without moving, causing sit.c:dosit to call dotrap(trap, VIASITTING) and exercise trap.c:dotrap’s seen-arrow escape branch, which uses “an” for an unowned arrow trap.",
+                "functions": [
+                  "dotrap",
+                  "trapeffect_arrow_trap"
+                ],
+                "callers": [
+                  "hack.c:domove_core and hack.c:spoteffects call the hero movement admission and trap-arrival path; trap.c:dotrap dispatches ARROW_TRAP through trapeffect_selector to trapeffect_arrow_trap.",
+                  "mthrowu.c:thitu is called by trap.c:trapeffect_arrow_trap after missile damage; its nonlethal hit path calls attrib.c:exercise(A_STR, FALSE), whose after-play wrapper can call pickup.c:encumber_msg.",
+                  "sit.c:dosit calls trap.c:dotrap(trap, VIASITTING) for a trap under the hero; the current recording reaches this with the previously triggered, now-seen arrow trap."
+                ],
+                "dependencies": [
+                  "hack.c:requireSimpleHeroDestination corresponds to js/hack.js:requireSimpleHeroDestination and calls preflight_dotrap before the hero position changes.",
+                  "trap.c:dotrap common gates and selector dispatch are already implemented by js/trap_effects.js:dotrap and trapeffect_selector.",
+                  "trap.c:trapeffect_arrow_trap is implemented by js/trap_effects.js:trapeffect_arrow_trap; the hit path delegates to mthrowu.c:thitu, which calls attrib.c:exercise(A_STR, FALSE) after nonlethal damage.",
+                  "js/attrib.js:exerciseAttribute requires an encumberMessage callback for Strength exercise after moves begin; the adjacent JS dart-trap arm already supplies pickup.c:encumber_msg, but the arrow-trap arm does not.",
+                  "C sit.c:dosit is fully mirrored by js/sit.js:dosit except its no-utrap trap branch, which records note_unported instead of calling dotrap. C discards dotrap’s return value, so the JS caller must await its effects and ignore the return.",
+                  "sit.c:dosit’s branch corresponds to js/sit.js:dosit and uses the shared trap.c:dotrap path for the trap under the hero."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The accepted queue at /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json (SHA-256 019311686e951c969402a82d519dcb00db6b3434d0c13e5123df0a1ba1ebe5e3) reports the first mismatch at segment 0, step 16, key h: “unsupported hero move: trap activation”; the evaluation names e2a08814ab03e27c9cd538cbe79526e43c1232f8 and compares 16/22 screens, 2,985/3,024 RNG calls, and 16/22 cursors.",
+                "The immutable recording challenges/cases/v38/v38-arrow-trap-return-projectile.session.json follows a wish-created unseen arrow trap with hero movement. Upstream trap.c:dotrap (2996-3060) reaches trapeffect_selector after the common force, air, seen-trap, learning, and reveal checks; trap.c:trapeffect_selector routes ARROW_TRAP to trapeffect_arrow_trap (1190-1249).",
+                "JavaScript js/hack.js:requireSimpleHeroDestination invokes preflight_dotrap before committing a move, and js/trap_effects.js:dotrap invokes it again before nomul(0). js/trap_effects.js already ports dotrap, trapeffect_selector, and the hero arm of trapeffect_arrow_trap. The early preflight type allowlist omits ARROW_TRAP, causing the step-16 stop before the existing source behavior.",
+                "After adding ARROW_TRAP to the type gate in the working tree, a targeted scan of the same case reached the arrow hit and stopped with “exercise requires encumber_msg”; the stack traces trapeffect_arrow_trap -> mthrowu.js:thitu -> attrib.js:exerciseAttribute. Upstream trap.c:trapeffect_arrow_trap calls thitu; mthrowu.c:thitu calls exercise(A_STR, FALSE) after nonlethal damage, and attrib.c:exercise may run pickup.c:encumber_msg after Strength or Constitution changes.",
+                "The later #sit action is source-valid: sit.c:dosit (400-565) calls dotrap(trap, VIASITTING) after its sitting message when the hero has no u.utrap value and t_at() returns a trap. At inspected commit e2a08814ab03e27c9cd538cbe79526e43c1232f8, js/sit.js:dosit recorded note_unported('trap.c dotrap') at line 898 instead of invoking the already-ported JS dotrap; this omitted the source seen-trap rn2(5) escape check and effect.",
+                "After wiring the #sit caller and the arrow-hit encumber_msg callback, one focused scan still found a single character divergence at segment 0 step 21: C shows “You sit down.  You escape an arrow trap.  The sewer rat misses!”, while JS showed “You sit down.  You escape a arrow trap.  The sewer rat misses!”. The C and JS RNG logs matched and no unported calls remained. trap.c:dotrap (3028-3031, 3039-3042) uses “an” when ttype is ARROW_TRAP and trap->madeby_u is false; js/trap_effects.js:dotrap used the generic a_your[0] article in both seen-trap messages.",
+                "The selected scope is a source-traced divergence fix in js/trap_effects.js:preflight_dotrap and trapeffect_arrow_trap/dotrap, plus the missing C caller handoff in js/sit.js:dosit. It adds ARROW_TRAP to the type, seen-trap, and mounted-steed admissions; passes pickup.c:encumber_msg through attrib.c:exercise for the hit path; calls dotrap with VIASITTING after the sit message; and preserves C’s special article. Production routes are hack.c:domove_core/spoteffects and sit.c:dosit."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-apply-do-break-wand-floor-callback-v38-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port apply.c do_break_wand floor-object callbacks",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v38/v38-broken-undead-wand-revives-floor-newt"
+      ],
+      "selectionReason": "The admitted v38 broken undead-turning wand case reaches apply.c do_break_wand and stops because the floor-object bhitpile callback is skipped.",
+      "detail": "Port the whole do_break_wand function scope, preserve neighbor and hero-square callback order, and wire the existing bhitpile and bhito path.",
+      "openedAt": "2fa6235f53b3a30bb3deefeafe2c92c93bdc0b5d",
+      "openStanding": {
+        "sha": "f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "do_break_wand",
+          "line": 3909,
+          "endLine": 4150,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3909,
+        "to": 4150
+      },
+      "syntheticProvenance": {
+        "synthetic/v38/v38-broken-undead-wand-revives-floor-newt": {
+          "session": "synthetic/v38/v38-broken-undead-wand-revives-floor-newt",
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-broken-undead-wand-revives-floor-newt",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recordingPath": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.session.json",
+          "recordingSha256": "db67a7d6f541d39d59d06d1120ac8a87ab0d5a061f3afd7d62d28f69814a40cd",
+          "evaluationPath": "challenges/evaluations/accepted-f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21-v38.json",
+          "evaluationCommit": "f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21"
+        }
+      },
+      "activeStanding": {
+        "sha": "f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-broken-undead-wand-revives-floor-newt",
+          "session": "synthetic/v38/v38-broken-undead-wand-revives-floor-newt",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recording": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.session.json",
+          "recordingPath": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.session.json",
+          "recordingSha256": "db67a7d6f541d39d59d06d1120ac8a87ab0d5a061f3afd7d62d28f69814a40cd",
+          "recipe": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.recipe.session.json",
+          "recipeSha256": "9b6847608d1caeb40ef7473fb0628c44e8f6e2cfd56490aa78332bd016d93d97",
+          "replayInputSha256": "f0a6c537d1e74b9fec2e15af122def60ea6220a64e4e0eadb181d30fc3d3bdda",
+          "evaluationPath": "challenges/evaluations/accepted-f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21-v38.json",
+          "evaluationCommit": "f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21",
+          "evaluationArtifact": "challenges/evaluations/accepted-f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21-v38.json",
+          "evaluationUtc": "2026-10-10T02:29:40.455Z",
+          "remainingScreens": 2,
+          "recordedSteps": 55,
+          "previousScreensMatched": 53,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 53,
+              "total": 55
+            },
+            "rng": {
+              "matched": 2551,
+              "total": 2593
+            },
+            "cursors": {
+              "matched": 53,
+              "total": 55
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 53,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 53,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 43,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2551,
+              "cEntry": "rn2(8)=4",
+              "cCaller": "collect_coords(teleport.c:700)",
+              "jsEntry": "rn2(19)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 53,
+                "key": " "
+              },
+              "stepIndex": 53
+            },
+            "cursor": {
+              "index": 53,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 53,
+                "key": " "
+              },
+              "cCursor": [
+                51,
+                0,
+                1
+              ],
+              "jsCursor": [
+                57,
+                19,
+                1
+              ]
+            }
+          },
+          "step": 53,
+          "kind": "rng",
+          "sourceFile": "teleport.c",
+          "function": "collect_coords",
+          "message": null,
+          "cFile": "teleport.c",
+          "luaFile": null,
+          "line": 700,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v38/v38-broken-undead-wand-revives-floor-newt.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v38",
+              "caseId": "v38-broken-undead-wand-revives-floor-newt",
+              "session": "synthetic/v38/v38-broken-undead-wand-revives-floor-newt",
+              "manifestPath": "challenges/manifests/v38.json",
+              "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+              "recordingSha256": "db67a7d6f541d39d59d06d1120ac8a87ab0d5a061f3afd7d62d28f69814a40cd",
+              "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+              "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+              "remainingScreens": 2,
+              "recordedSteps": 55,
+              "status": "complete",
+              "commit": "5a34f603217bbea524f333779a6ea310840ed3b7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v38",
+                "caseId": "v38-broken-undead-wand-revives-floor-newt",
+                "session": "synthetic/v38/v38-broken-undead-wand-revives-floor-newt",
+                "manifestPath": "challenges/manifests/v38.json",
+                "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+                "recording": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.session.json",
+                "recordingPath": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.session.json",
+                "recordingSha256": "db67a7d6f541d39d59d06d1120ac8a87ab0d5a061f3afd7d62d28f69814a40cd",
+                "recipe": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.recipe.session.json",
+                "recipeSha256": "9b6847608d1caeb40ef7473fb0628c44e8f6e2cfd56490aa78332bd016d93d97",
+                "replayInputSha256": "b71bf3fbcb07fcfb0eb0ae1f4a4851cee6588d354239d49084516f65d1ad7577",
+                "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+                "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+                "evaluationArtifact": "challenges/evaluations/20261010014622-v38.json",
+                "evaluationUtc": "2026-10-10T01:46:34.186Z",
+                "remainingScreens": 2,
+                "recordedSteps": 55,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 53,
+                    "total": 55
+                  },
+                  "rng": {
+                    "matched": 2551,
+                    "total": 2593
+                  },
+                  "cursors": {
+                    "matched": 53,
+                    "total": 55
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 53,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 53,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 43,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2551,
+                    "cEntry": "rn2(8)=4",
+                    "cCaller": "collect_coords(teleport.c:700)",
+                    "jsEntry": "rn2(19)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 53,
+                      "key": " "
+                    },
+                    "stepIndex": 53
+                  },
+                  "cursor": {
+                    "index": 53,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 53,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      51,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      57,
+                      19,
+                      1
+                    ]
+                  }
+                },
+                "step": 53,
+                "kind": "rng",
+                "sourceFile": "teleport.c",
+                "function": "collect_coords",
+                "message": null,
+                "cFile": "teleport.c",
+                "luaFile": null,
+                "line": 700
+              },
+              "summary": "Breaking an undead-turning wand skips its source floor-object callback for a dropped corpse. C do_break_wand() sets affects_objects for WAN_UNDEAD_TURNING and calls bhitpile(..., bhito, ...) on the floor pile, so the already-ported bhito() revives the corpse. JavaScript do_break_wand() currently records zap.c bhito as unported for this effect. The later collect_coords() RNG-bound mismatch is downstream of the missing revival, not a collect_coords defect.",
+              "source": {
+                "file": "apply.c",
+                "branch": "After the wand passes the break gates and its magical explosion, WAN_UNDEAD_TURNING sets affects_objects. During the eight-neighbor-plus-hero pass, a floor pile at the target square reaches bhitpile(obj, bhito, ...); for the claimed recipe, the hero-square pile contains the dropped newt corpse and the callback revives it.",
+                "functions": [
+                  "do_break_wand"
+                ],
+                "callers": [
+                  "apply.c:doapply() dispatches an applied WAND_CLASS object to do_break_wand(); js/apply.js:doapply() has the corresponding dispatch.",
+                  "apply.c:do_break_wand() calls bhitpile(obj,bhito,x,y,0) in both the adjacent-square and hero-square object branches; js/apply.js:do_break_wand() currently gates bhitpile() to striking/polymorph and substitutes note_unported for other effects."
+                ],
+                "dependencies": [
+                  "zap.c:bhitpile() is already implemented in js/zap.js and iterates the floor-object pile with its callback.",
+                  "zap.c:bhito() is already implemented in js/zap.js, including WAN_UNDEAD_TURNING corpse -> revive().",
+                  "The later revive placement reaches teleport.c:collect_coords(); that existing helper is the downstream RNG observation, not the missing source owner."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/a2-v38-broken-undead-wand.scan.log reproduces 55 recorded steps and the first divergence at segment 0, step 53: C consumes rn2(8)=4 in collect_coords(teleport.c:700), JavaScript consumes rn2(19)=1, and the diagnostic reports unported zap.c bhito.",
+                "The admitted recipe challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.recipe.session.json wishes an undead-turning wand and newt corpse, drops the corpse, and breaks the wand. Its recording is unchanged and has the v38 manifest/recording hashes retained above.",
+                "apply.c:4015-4020 marks WAN_UNDEAD_TURNING as affecting objects; apply.c:4037-4146 processes neighbors and then the hero square, calling bhitpile(obj,bhito,x,y,0) at 4099-4103 and 4117-4121. apply.c:doapply() dispatches WAND_CLASS to do_break_wand() at 4234-4235.",
+                "js/apply.js:4786-4800 contains the missing behavior: despite affectsObjects, it calls bhitpile() only for WAN_STRIKING or WAN_POLYMORPH, otherwise note_unported('zap.c bhito'). js/zap.js bhito() has the C undead-turning corpse branch and calls revive(); js/teleport.js collect_coords() is reached downstream during revived-monster placement.",
+                "GOALS.json has older do_break_wand evidence for WAN_NOTHING and WAN_LIGHT recordings, but that evidence does not cover this undead-turning floor-object callback and its sourceReview omitted the current zap.c:bhito caller gap."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "do_break_wand",
+            "implementation": "js/apply.js",
+            "symbol": "do_break_wand",
+            "sourceReview": "Read the whole nethack-c/upstream/src/apply.c do_break_wand() definition at lines 3907-4146 and compared its guard order, wand removal and charge restoration, special-type switch fallthrough, explosion-before-effects order, eight-neighbor-plus-hero coordinate order, monster-before-object order on adjacent squares, and object-before-zapyourself order on the hero square. In C, WAN_STRIKING, WAN_CANCELLATION, WAN_POLYMORPH, WAN_TELEPORTATION, and WAN_UNDEAD_TURNING set affects_objects; both adjacent and hero floor-object branches then call bhitpile(obj,bhito,x,y,0). JavaScript now calls the existing bhitpile() for every affectsObjects branch and removes the old striking/polymorph-only guard and note_unported('zap.c bhito') placeholder. Existing note_unported('zap.c bhitm') skips monster callbacks only where the C-discarded bhitm() result is not implemented; note_unported('shk.c pay_for_damage') records the discarded void result in the dig-shop branch. Other callee result/order behavior remains as previously implemented. The new callback preserves C's ordering: neighboring monsters first, neighboring object piles second, and the hero square's object pile before zapyourself().",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c:1677 binds the 'a' command to doapply(); js/cmd.js:runApplyCommand() is reached by rhack() command dispatch and calls js/apply.js:doapply()."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:4213-4235 selects do_break_wand() for WAND_CLASS objects; js/apply.js:doapply() at lines 4818-4839 has the same dispatch to do_break_wand()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-break-wand.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/broken-light-wand-independent-b45.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v38",
+                "caseId": "v38-broken-undead-wand-revives-floor-newt",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 54,
+                "source": "cmd.c:'a' -> apply.c:doapply() -> do_break_wand() -> bhitpile(obj,bhito,x,y,0) -> bhito() -> revive(); JavaScript path is rhack() -> runApplyCommand() -> doapply() -> do_break_wand() -> bhitpile()."
+              }
+            ],
+            "checkedAt": "4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99"
+          }
+        ],
+        "entryPointReview": "The selected source unit has one active game entry point: cmd.c:1677 binds the 'a' apply command to apply.c:doapply(), whose WAND_CLASS branch at apply.c:4234-4235 calls do_break_wand(). In JavaScript, js/cmd.js:runApplyCommand() calls js/apply.js:doapply(), whose WAND_CLASS branch calls do_break_wand(). The v38 recording follows that production path and exercises the undead-turning floor-object callback. No compile-time excluded entry point is in this function scope.",
+        "entryPoints": [
+          {
+            "name": "apply command with an undead-turning wand",
+            "functions": [
+              "do_break_wand"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v38",
+                "caseId": "v38-broken-undead-wand-revives-floor-newt",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 54,
+                "source": "cmd.c:'a' apply command -> apply.c:doapply() WAND_CLASS branch -> apply.c:do_break_wand(); the neighbor-plus-hero pass processes the hero floor pile through bhitpile(obj,bhito,x,y,0), and bhito() revives the dropped newt corpse. js/cmd.js:runApplyCommand() -> js/apply.js:doapply() -> do_break_wand() -> bhitpile()."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-pickup-zero-capacity-carry-count-v38-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Port pickup carry-count refusal at maximum capacity",
+      "cFile": "pickup.c",
+      "sessions": [
+        "synthetic/v38/v38-single-boulder-pickup-refusal"
+      ],
+      "selectionReason": "The admitted v38 single-boulder pickup case reaches pickup.c carry_count and stops at the JavaScript failed-lift preflight before the source refusal message.",
+      "detail": "Allow the exact ordinary single-object zero-lift path through preflight, preserve floor state, and emit carry_count partial and zero-lift messages in source order.",
+      "openedAt": "f1590cd6e8223f4237a4e742d88499381307db93",
+      "openStanding": {
+        "sha": "4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "4da7886ebee2489278141ddd7eba55370ed35601",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "carry_count",
+      "session": "synthetic/v38/v38-single-boulder-pickup-refusal",
+      "step": 19,
+      "syntheticProvenance": {
+        "synthetic/v38/v38-single-boulder-pickup-refusal": {
+          "session": "synthetic/v38/v38-single-boulder-pickup-refusal",
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-single-boulder-pickup-refusal",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recordingPath": "challenges/cases/v38/v38-single-boulder-pickup-refusal.session.json",
+          "recordingSha256": "0958de31510bbf25456ee12eb6d9f3693b89dc5472d48a2b393be5af773feec0",
+          "evaluationPath": "challenges/evaluations/accepted-4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99-v38.json",
+          "evaluationCommit": "4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99"
+        }
+      },
+      "activeStanding": {
+        "sha": "4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-single-boulder-pickup-refusal",
+          "session": "synthetic/v38/v38-single-boulder-pickup-refusal",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recording": "challenges/cases/v38/v38-single-boulder-pickup-refusal.session.json",
+          "recordingPath": "challenges/cases/v38/v38-single-boulder-pickup-refusal.session.json",
+          "recordingSha256": "0958de31510bbf25456ee12eb6d9f3693b89dc5472d48a2b393be5af773feec0",
+          "recipe": "challenges/cases/v38/v38-single-boulder-pickup-refusal.recipe.session.json",
+          "recipeSha256": "16790bbdea1940fc829397dd16d6dffb99395072f28fce7df45218500b23403c",
+          "replayInputSha256": "c89c89c911048d9c73a359da1ec33f6541faf51eb2b1a2f65bc7b5b463b554f7",
+          "evaluationPath": "challenges/evaluations/accepted-4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99-v38.json",
+          "evaluationCommit": "4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99",
+          "evaluationArtifact": "challenges/evaluations/accepted-4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99-v38.json",
+          "evaluationUtc": "2026-10-10T02:46:52.634Z",
+          "remainingScreens": 2,
+          "recordedSteps": 21,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 21
+            },
+            "rng": {
+              "matched": 4310,
+              "total": 4313
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 21
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup() requiring a partial or failed lift",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "pickup.c",
+          "function": "pickup",
+          "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup() requiring a partial or failed lift",
+          "cFile": "pickup.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v38/v38-single-boulder-pickup-refusal.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v38",
+              "caseId": "v38-single-boulder-pickup-refusal",
+              "session": "synthetic/v38/v38-single-boulder-pickup-refusal",
+              "manifestPath": "challenges/manifests/v38.json",
+              "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+              "recordingPath": "challenges/cases/v38/v38-single-boulder-pickup-refusal.session.json",
+              "recordingSha256": "0958de31510bbf25456ee12eb6d9f3693b89dc5472d48a2b393be5af773feec0",
+              "replayInputSha256": "b71bf3fbcb07fcfb0eb0ae1f4a4851cee6588d354239d49084516f65d1ad7577",
+              "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+              "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+              "remainingScreens": 2,
+              "recordedSteps": 21,
+              "status": "complete",
+              "commit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v38",
+                "caseId": "v38-single-boulder-pickup-refusal",
+                "session": "synthetic/v38/v38-single-boulder-pickup-refusal",
+                "manifestPath": "challenges/manifests/v38.json",
+                "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+                "recording": "challenges/cases/v38/v38-single-boulder-pickup-refusal.session.json",
+                "recordingPath": "challenges/cases/v38/v38-single-boulder-pickup-refusal.session.json",
+                "recordingSha256": "0958de31510bbf25456ee12eb6d9f3693b89dc5472d48a2b393be5af773feec0",
+                "recipe": "challenges/cases/v38/v38-single-boulder-pickup-refusal.recipe.session.json",
+                "recipeSha256": "16790bbdea1940fc829397dd16d6dffb99395072f28fce7df45218500b23403c",
+                "replayInputSha256": "b71bf3fbcb07fcfb0eb0ae1f4a4851cee6588d354239d49084516f65d1ad7577",
+                "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+                "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+                "evaluationArtifact": "challenges/evaluations/20261010014622-v38.json",
+                "evaluationUtc": "2026-10-10T01:46:34.186Z",
+                "remainingScreens": 2,
+                "recordedSteps": 21,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 21
+                  },
+                  "rng": {
+                    "matched": 4310,
+                    "total": 4313
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 21
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup() requiring a partial or failed lift",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "pickup.c",
+                "function": "pickup",
+                "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup() requiring a partial or failed lift",
+                "cFile": "pickup.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At command step 19, JavaScript preflight refuses a selected boulder before pickup_object runs. C reaches lift_object and carry_count; for one non-gold object whose weight reaches max_capacity, carry_count reports that it cannot be lifted and returns zero, so pickup ends normally with the object still on the floor. Port that complete message branch and bypass preflight only when one ordinary quantity-one object is certainly unliftable. Automatic random-arrival projection must continue to treat that object as remaining on the floor.",
+              "source": {
+                "file": "pickup.c",
+                "branch": "For an ordinary non-gold object with count 1, when max_capacity() + obj->owt >= 0, the preliminary weight check does not return count; the single-object branch sets qq to 0, emits the cannot-lift message, and returns 0. The selected boulder is not in Sokoban, is not a loadstone, and the hero is not a giant, so lift_object reaches carry_count.",
+                "functions": [
+                  "carry_count",
+                  "lift_object",
+                  "pickup_object"
+                ],
+                "callers": [
+                  "cmd.c:1800 comma command row invokes dopickup",
+                  "hack.c:3876-3891 dopickup calls pickup(-count)",
+                  "pickup.c:pickup single-object query path calls pickup_object",
+                  "pickup.c:lift_object calls carry_count and consumes its returned count",
+                  "pickup.c:pickup_object scare-scroll branch calls carry_count directly"
+                ],
+                "dependencies": [
+                  "pickup.c:pickup selection and pickup_object dispatch",
+                  "pickup.c:lift_object special-case ordering and return handling",
+                  "hack.c:max_capacity",
+                  "pickup.c:weight and delta_cwt",
+                  "objnam.c:doname, xname, otense",
+                  "pline.c:There output"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved v38 queue entry at challenges/evaluations/20261010014622-v38.json identifies synthetic/v38/v38-single-boulder-pickup-refusal, manifest SHA-256 2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05, recording SHA-256 0958de31510bbf25456ee12eb6d9f3693b89dc5472d48a2b393be5af773feec0, replay input SHA-256 b71bf3fbcb07fcfb0eb0ae1f4a4851cee6588d354239d49084516f65d1ad7577, and the first stop mismatch at zero-based segment 0 step 19. Baseline fresh scan at e2a08814ab03e27c9cd538cbe79526e43c1232f8 stopped with UnsupportedPickupError after 19 of 21 recorded steps; diagnostic output is /tmp/teleport-validation-1000/run-d8URmr.",
+                "Upstream pickup.c:carry_count (1570-1701) computes iw=max_capacity(); when wt is not negative and the object is non-gold with count equal to its quantity of one, it selects qq=0, builds the name and location, emits There(...) at 1685-1699, and returns zero. This is an impure source function because it writes a message.",
+                "Upstream pickup.c:lift_object (1705-1794) handles Sokoban boulders, loadstones, and giant boulders before carry_count; on the selected ordinary boulder path it consumes carry_count’s result and returns -1 when the count is zero. Upstream pickup.c:pickup_object (1803-1888) invokes lift_object after observation and special-object checks; its scare-scroll branch separately consumes carry_count before mutating a scroll.",
+                "Production entry path is nethack-c/upstream/src/cmd.c:1800 comma binding to dopickup, nethack-c/upstream/src/hack.c:3876-3891 calling pickup(-count), then pickup.c:pickup single-item selection and pickup_object. JavaScript js/cmd.js:3424-3425 dispatches to js/hack.js:dopickup, which calls js/pickup.js:pickup.",
+                "JavaScript js/pickup.js:preflightPickupObjects currently rejects when inv_weight(state)+addedWeight >= 2*weight_cap(state), before the source-ordered pickup_object call. For a sole ordinary quantity-one object this is equivalent to carry_count’s no-lift preliminary condition, but source behavior is to let pickup_object reach carry_count, print the message, and return normally. Automatic floor-pickup planning also uses this preflight, so its remaining-object projection must retain the unliftable object for check_here."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4da7886ebee2489278141ddd7eba55370ed35601",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

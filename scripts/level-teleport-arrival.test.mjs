@@ -966,7 +966,7 @@ test('random-arrival pickup admission requires a projected state', async () => {
     assert.deepEqual(game.gw, before);
 });
 
-test('rejected overweight random arrival preserves the live weight cache',
+test('random-arrival projection retains a selected object that cannot be lifted',
     async () => {
         await runSegment({
             seed: 7632401,
@@ -1008,30 +1008,13 @@ test('rejected overweight random arrival preserves the live weight cache',
         };
         game.gw.wc = 123456;
         enableRngLog();
-        const before = {
-            position: [game.u.ux, game.u.uy],
-            gw: structuredClone(game.gw),
-            rng: structuredClone(game.coreCtx),
-            log: [...getRngLog()],
-            floor: game.level.objects[destination.x][destination.y],
-            object: { where: apple.where, dknown: apple.dknown },
-        };
+        await place_random_arrival(0, game);
 
-        await assert.rejects(
-            () => place_random_arrival(0, game),
-            /partial or failed lift/u,
-        );
-
-        assert.deepEqual([game.u.ux, game.u.uy], before.position);
-        assert.deepEqual(game.gw, before.gw);
-        assert.deepEqual(game.coreCtx, before.rng);
-        assert.deepEqual(getRngLog(), before.log);
+        assert.deepEqual([game.u.ux, game.u.uy],
+            [destination.x, destination.y]);
         assert.equal(game.level.objects[destination.x][destination.y],
-            before.floor);
-        assert.deepEqual(
-            { where: apple.where, dknown: apple.dknown },
-            before.object,
-        );
+            apple);
+        assert.equal(apple.where, OBJ_FLOOR);
     });
 
 test('random shop arrival admits and manually bills source-priced stock', async () => {

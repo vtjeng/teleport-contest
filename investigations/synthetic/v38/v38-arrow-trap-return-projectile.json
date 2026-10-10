@@ -1,0 +1,98 @@
+{
+  "session": "synthetic/v38/v38-arrow-trap-return-projectile",
+  "corpus": "synthetic",
+  "batch": "v38",
+  "caseId": "v38-arrow-trap-return-projectile",
+  "manifestPath": "challenges/manifests/v38.json",
+  "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+  "recordingSha256": "4da1395ef578601a402a13cb470a5f9126b5bbce7b6e83fba16b1684d4b7c8b6",
+  "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+  "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+  "remainingScreens": 6,
+  "recordedSteps": 22,
+  "status": "complete",
+  "commit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v38",
+    "caseId": "v38-arrow-trap-return-projectile",
+    "session": "synthetic/v38/v38-arrow-trap-return-projectile",
+    "manifestPath": "challenges/manifests/v38.json",
+    "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+    "recording": "challenges/cases/v38/v38-arrow-trap-return-projectile.session.json",
+    "recordingPath": "challenges/cases/v38/v38-arrow-trap-return-projectile.session.json",
+    "recordingSha256": "4da1395ef578601a402a13cb470a5f9126b5bbce7b6e83fba16b1684d4b7c8b6",
+    "recipe": "challenges/cases/v38/v38-arrow-trap-return-projectile.recipe.session.json",
+    "recipeSha256": "f98fce8148ef6d5520b0e33b47053f2ec8a49afd320031f9a473e4382b9e9924",
+    "replayInputSha256": "b71bf3fbcb07fcfb0eb0ae1f4a4851cee6588d354239d49084516f65d1ad7577",
+    "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+    "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+    "evaluationArtifact": "challenges/evaluations/20261010014622-v38.json",
+    "evaluationUtc": "2026-10-10T01:46:34.186Z",
+    "remainingScreens": 6,
+    "recordedSteps": 22,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 16,
+        "total": 22
+      },
+      "rng": {
+        "matched": 2985,
+        "total": 3024
+      },
+      "cursors": {
+        "matched": 16,
+        "total": 22
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero move: trap activation",
+      "step": 16
+    },
+    "step": 16,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero move: trap activation",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The selected arrow-trap path exposed four JS gaps. preflight_dotrap refused ARROW_TRAP; after admission, the arrow-hit exercise callback omitted encumber_msg; the later #sit branch recorded note_unported for trap.c:dotrap; and the seen-arrow escape message used “a arrow trap” instead of C’s “an arrow trap”. The task admits source-supported arrow cases, wires the exercise callback and sit caller, and preserves C’s article rule.",
+  "source": {
+    "file": "trap.c",
+    "branch": "A hero enters an unseen ARROW_TRAP on ordinary floor, causing hack.c movement preflight and then trap.c:dotrap to dispatch trapeffect_arrow_trap; the trap hits the hero and reaches thitu’s Strength-exercise tail. After that trap becomes seen, the hero uses #sit without moving, causing sit.c:dosit to call dotrap(trap, VIASITTING) and exercise trap.c:dotrap’s seen-arrow escape branch, which uses “an” for an unowned arrow trap.",
+    "functions": [
+      "dotrap",
+      "trapeffect_arrow_trap"
+    ],
+    "callers": [
+      "hack.c:domove_core and hack.c:spoteffects call the hero movement admission and trap-arrival path; trap.c:dotrap dispatches ARROW_TRAP through trapeffect_selector to trapeffect_arrow_trap.",
+      "mthrowu.c:thitu is called by trap.c:trapeffect_arrow_trap after missile damage; its nonlethal hit path calls attrib.c:exercise(A_STR, FALSE), whose after-play wrapper can call pickup.c:encumber_msg.",
+      "sit.c:dosit calls trap.c:dotrap(trap, VIASITTING) for a trap under the hero; the current recording reaches this with the previously triggered, now-seen arrow trap."
+    ],
+    "dependencies": [
+      "hack.c:requireSimpleHeroDestination corresponds to js/hack.js:requireSimpleHeroDestination and calls preflight_dotrap before the hero position changes.",
+      "trap.c:dotrap common gates and selector dispatch are already implemented by js/trap_effects.js:dotrap and trapeffect_selector.",
+      "trap.c:trapeffect_arrow_trap is implemented by js/trap_effects.js:trapeffect_arrow_trap; the hit path delegates to mthrowu.c:thitu, which calls attrib.c:exercise(A_STR, FALSE) after nonlethal damage.",
+      "js/attrib.js:exerciseAttribute requires an encumberMessage callback for Strength exercise after moves begin; the adjacent JS dart-trap arm already supplies pickup.c:encumber_msg, but the arrow-trap arm does not.",
+      "C sit.c:dosit is fully mirrored by js/sit.js:dosit except its no-utrap trap branch, which records note_unported instead of calling dotrap. C discards dotrap’s return value, so the JS caller must await its effects and ignore the return.",
+      "sit.c:dosit’s branch corresponds to js/sit.js:dosit and uses the shared trap.c:dotrap path for the trap under the hero."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The accepted queue at /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json (SHA-256 019311686e951c969402a82d519dcb00db6b3434d0c13e5123df0a1ba1ebe5e3) reports the first mismatch at segment 0, step 16, key h: “unsupported hero move: trap activation”; the evaluation names e2a08814ab03e27c9cd538cbe79526e43c1232f8 and compares 16/22 screens, 2,985/3,024 RNG calls, and 16/22 cursors.",
+    "The immutable recording challenges/cases/v38/v38-arrow-trap-return-projectile.session.json follows a wish-created unseen arrow trap with hero movement. Upstream trap.c:dotrap (2996-3060) reaches trapeffect_selector after the common force, air, seen-trap, learning, and reveal checks; trap.c:trapeffect_selector routes ARROW_TRAP to trapeffect_arrow_trap (1190-1249).",
+    "JavaScript js/hack.js:requireSimpleHeroDestination invokes preflight_dotrap before committing a move, and js/trap_effects.js:dotrap invokes it again before nomul(0). js/trap_effects.js already ports dotrap, trapeffect_selector, and the hero arm of trapeffect_arrow_trap. The early preflight type allowlist omits ARROW_TRAP, causing the step-16 stop before the existing source behavior.",
+    "After adding ARROW_TRAP to the type gate in the working tree, a targeted scan of the same case reached the arrow hit and stopped with “exercise requires encumber_msg”; the stack traces trapeffect_arrow_trap -> mthrowu.js:thitu -> attrib.js:exerciseAttribute. Upstream trap.c:trapeffect_arrow_trap calls thitu; mthrowu.c:thitu calls exercise(A_STR, FALSE) after nonlethal damage, and attrib.c:exercise may run pickup.c:encumber_msg after Strength or Constitution changes.",
+    "The later #sit action is source-valid: sit.c:dosit (400-565) calls dotrap(trap, VIASITTING) after its sitting message when the hero has no u.utrap value and t_at() returns a trap. At inspected commit e2a08814ab03e27c9cd538cbe79526e43c1232f8, js/sit.js:dosit recorded note_unported('trap.c dotrap') at line 898 instead of invoking the already-ported JS dotrap; this omitted the source seen-trap rn2(5) escape check and effect.",
+    "After wiring the #sit caller and the arrow-hit encumber_msg callback, one focused scan still found a single character divergence at segment 0 step 21: C shows “You sit down.  You escape an arrow trap.  The sewer rat misses!”, while JS showed “You sit down.  You escape a arrow trap.  The sewer rat misses!”. The C and JS RNG logs matched and no unported calls remained. trap.c:dotrap (3028-3031, 3039-3042) uses “an” when ttype is ARROW_TRAP and trap->madeby_u is false; js/trap_effects.js:dotrap used the generic a_your[0] article in both seen-trap messages.",
+    "The selected scope is a source-traced divergence fix in js/trap_effects.js:preflight_dotrap and trapeffect_arrow_trap/dotrap, plus the missing C caller handoff in js/sit.js:dosit. It adds ARROW_TRAP to the type, seen-trap, and mounted-steed admissions; passes pickup.c:encumber_msg through attrib.c:exercise for the hit path; calls dotrap with VIASITTING after the sit message; and preserves C’s special article. Production routes are hack.c:domove_core/spoteffects and sit.c:dosit."
+  ]
+}

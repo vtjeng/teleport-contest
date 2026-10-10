@@ -6,7 +6,9 @@ import {
     A_STR,
     ARROW_TRAP,
     DART_TRAP,
+    FLYING,
     KILLED_BY_AN,
+    LEVITATION,
     POISON_RES,
     ROOM,
     Trap_Is_Gone,
@@ -18,6 +20,7 @@ import { DART, WEAPON_CLASS } from '../js/objects.js';
 import { rn2, rnd } from '../js/rng.js';
 import { maketrap, t_at } from '../js/trap.js';
 import {
+    dotrap,
     preflight_dotrap,
     trapeffect_selector,
 } from '../js/trap_effects.js';
@@ -38,6 +41,63 @@ test('preflight_dotrap admits an unseen DART_TRAP', async () => {
     const trap = { ttyp: DART_TRAP, once: false, tseen: false };
     assert.doesNotThrow(() => preflight_dotrap(trap, game));
 });
+
+test('preflight_dotrap admits an unseen ARROW_TRAP', async () => {
+    await runSegment({ seed: SEED, datetime: DATETIME, nethackrc: RC, moves: '' });
+    // A new arrow trap starts unseen and unused; the arrow effect handles this
+    // ordinary hero activation through the existing dotrap() dispatch.
+    const trap = { ttyp: ARROW_TRAP, once: false, tseen: false };
+    assert.doesNotThrow(() => preflight_dotrap(trap, game));
+});
+
+test('preflight_dotrap admits a seen ARROW_TRAP', async () => {
+    await runSegment({ seed: SEED, datetime: DATETIME, nethackrc: RC, moves: '' });
+    // A triggered arrow trap is seen and used; dotrap() owns the C escape roll.
+    const trap = { ttyp: ARROW_TRAP, once: true, tseen: true };
+    assert.doesNotThrow(() => preflight_dotrap(trap, game));
+});
+
+test('dotrap uses "an" for the escape message from an unowned arrow trap',
+    async () => {
+        const state = await heroState();
+        // The empty seed-4 fixture stops before the level property array exists;
+        // dotrap() needs it for the source airborne and Fumbling checks.
+        state.u.uprops ??= [];
+        // trap.c Levitation() and Flying() read these initialized properties.
+        state.u.uprops[LEVITATION] ??= {};
+        state.u.uprops[FLYING] ??= {};
+        const messages = [];
+        const draws = [];
+        // C trap.c:3039 uses "an" for an unowned arrow trap; a zero on this
+        // rn2(5) draw forces the source escape branch before trap effects.
+        const trap = {
+            tx: state.u.ux,
+            ty: state.u.uy,
+            ttyp: ARROW_TRAP,
+            madeby_u: false,
+            tseen: true,
+            once: true,
+        };
+        await dotrap(trap, 0, state, {
+            random: { rn2: (bound) => { draws.push(bound); return 0; } },
+            message: async (line) => messages.push(line),
+            redraw: () => {},
+        });
+        assert.deepEqual(draws, [5]);
+        assert.deepEqual(messages, ['You escape an arrow trap.']);
+    });
+
+test('preflight_dotrap admits an ARROW_TRAP when the hero rides a steed',
+    async () => {
+        await runSegment(
+            { seed: SEED, datetime: DATETIME, nethackrc: RC, moves: '' },
+        );
+        // trapeffect_arrow_trap() delegates this source branch to steedintrap().
+        game.u.usteed = { mx: game.u.ux, my: game.u.uy };
+        const trap = { ttyp: ARROW_TRAP, once: false, tseen: false };
+        assert.doesNotThrow(() => preflight_dotrap(trap, game));
+        game.u.usteed = null;
+    });
 
 test('preflight_dotrap refuses a seen DART_TRAP', async () => {
     await runSegment({ seed: SEED, datetime: DATETIME, nethackrc: RC, moves: '' });

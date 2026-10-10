@@ -93,6 +93,30 @@ const C_SIT = readFileSync(
 );
 const JS_SIT = readFileSync(new URL('../js/sit.js', import.meta.url), 'utf8');
 
+test('dosit calls dotrap with VIASITTING after its sitting message', () => {
+    const cStart = C_SIT.indexOf('dosit(void)');
+    const cEnd = C_SIT.indexOf('\n/* curse a few inventory items at random! */', cStart);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    const cDosit = C_SIT.slice(cStart, cEnd);
+    const cSitMessage = cDosit.indexOf(
+        'You("%s.", Flying ? "land" : "sit down");',
+    );
+    const cDotrap = cDosit.indexOf('dotrap(trap, VIASITTING);', cSitMessage);
+    assert.ok(cSitMessage >= 0 && cDotrap > cSitMessage);
+
+    const jsStart = JS_SIT.indexOf('export async function dosit(');
+    const jsEnd = JS_SIT.indexOf('\n// C ref: sit.c rndcurse()', jsStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    const jsDosit = JS_SIT.slice(jsStart, jsEnd);
+    const jsSitMessage = jsDosit.indexOf(
+        "await message(`${Flying(state) ? 'You land' : 'You sit down'}.`, state);",
+    );
+    const jsDotrap = jsDosit.indexOf(
+        'await dotrap(trap, VIASITTING, state, rawEnv);', jsSitMessage,
+    );
+    assert.ok(jsSitMessage >= 0 && jsDotrap > jsSitMessage);
+});
+
 test('sit.c dosit awaits burn_away_slime in both lava branches', () => {
     const cStart = C_SIT.indexOf('dosit(void)');
     const cEnd = C_SIT.indexOf('\n/* curse a few inventory items at random! */', cStart);
@@ -1054,8 +1078,8 @@ test('a seen pit under the pile diverts the command into the trap arm',
     async () => {
     // sit.c:437-439. trap.c uteetering_at_seen_pit() is TRUE for a hero who
     // climbed out of a pit and stands on its edge, and it takes the command
-    // past the object arm into the trap arm, which records the unported
-    // dotrap() call after its source message. This remains a later dependency.
+    // past the object arm into the trap arm, which calls dotrap() after its
+    // source message.
     await standOnStairs();
     putObject(FOOD_RATION);
     game.level.traps.push({
@@ -1064,7 +1088,7 @@ test('a seen pit under the pile diverts the command into the trap arm',
     game.u.utrap = 0;
     assert.equal(await dosit(game), ECMD_TIME);
     assert.ok(toplines().includes('You sit down.'));
-    assert.ok(game.unported.has('trap.c dotrap'));
+    assert.ok(!game.unported.has('trap.c dotrap'));
 
     // A hero still caught in the pit is not teetering, so the object arm runs
     // even though the trap is there. Start a fresh segment to clear the tty

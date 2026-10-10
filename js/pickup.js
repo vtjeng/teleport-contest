@@ -955,7 +955,28 @@ function preflightPickupObjects(selected, state) {
         }
         addedWeight += objectWeight;
     }
-    if (inv_weight(state) + addedWeight >= 2 * weight_cap(state)) {
+    const exceedsCarryCapacity = inv_weight(state) + addedWeight
+        >= 2 * weight_cap(state);
+    const selectedObject = selected.length === 1 ? selected[0] : null;
+    const object = selectedObject?.obj;
+    // pickup.c:carry_count() returns zero for one ordinary, non-gold object
+    // when max_capacity() + obj->owt >= 0. Let that exact source path run so
+    // it can print its refusal. Special lift_object() branches stay with the
+    // existing preflight guards.
+    const sourceZeroLift = exceedsCarryCapacity
+        && selected.length === 1
+        && actionable.length === 1
+        && object.where === OBJ_FLOOR
+        && object.quan === 1
+        && selectedObject.count === 1
+        && object.oclass !== COIN_CLASS
+        && object.otyp !== LOADSTONE
+        && !(object.otyp === BOULDER
+            && (state.Sokoban || throws_rocks(state.youmonst?.data)))
+        && !object.oartifact
+        && object.otyp !== CORPSE
+        && object.otyp !== SCR_SCARE_MONSTER;
+    if (exceedsCarryCapacity && !sourceZeroLift) {
         throw new UnsupportedPickupError(
             'pickup() requiring a partial or failed lift',
         );
@@ -967,7 +988,7 @@ function preflightPickupObjects(selected, state) {
     const promptLimit = Math.max(
         near_capacity(state), state.flags.pickup_burden,
     );
-    if (calc_capacity(addedWeight, state) > promptLimit) {
+    if (!sourceZeroLift && calc_capacity(addedWeight, state) > promptLimit) {
         throw new UnsupportedPickupError('pickup() requiring a burden prompt');
     }
 
@@ -981,6 +1002,15 @@ function preflightPickupObjects(selected, state) {
             ),
         },
     });
+    if (sourceZeroLift) {
+        // No addinv plan can be consumed: pickup_object() reaches carry_count,
+        // which returns zero before extraction or inventory mutation.
+        return {
+            addPlans: selected.map(() => null),
+            env,
+            unliftable: [object],
+        };
+    }
     const computedPlans = preflight_addinv_sequence(
         actionable.map(({ obj }) => obj),
         env,
@@ -1015,7 +1045,7 @@ function preflightPickupObjects(selected, state) {
             ++projectedSlots;
         }
     }
-    return { addPlans, env };
+    return { addPlans, env, unliftable: [] };
 }
 
 // C ref: pickup.c check_autopickup_exceptions() (913-927).  The exception
@@ -1115,13 +1145,16 @@ function planAutomaticPickupAndRefreshCapacityCache(
         { dryRun },
     );
     const selectedObjects = new Set(selected.map(({ obj }) => obj));
-    const remaining = [];
+    const sourceObjects = [];
     for (let obj = sourceHead; obj; obj = FOLLOW(obj, follow)) {
-        if (!selectedObjects.has(obj)) remaining.push(obj);
+        sourceObjects.push(obj);
     }
+    const prepared = preflightPickupObjects(selected, state);
+    const unliftableObjects = new Set(prepared.unliftable);
     return {
-        ...preflightPickupObjects(selected, state),
-        remaining,
+        ...prepared,
+        remaining: sourceObjects.filter((obj) =>
+            !selectedObjects.has(obj) || unliftableObjects.has(obj)),
         selected,
     };
 }
@@ -1283,7 +1316,7 @@ export async function pickup_object(
             || await rider_corpse_revival(obj, telekinesis, state)))
         return -1;
     if (obj.otyp === SCR_SCARE_MONSTER) {
-        const carried = carry_count(
+        const carried = await carry_count(
             obj, null, count || obj.quan, false, state,
         );
         if (carried.count < 1) return -1;
@@ -2688,7 +2721,7 @@ function delta_cwt(container, obj, state) {
 // C ref: pickup.c:1568-1701. carry_count().
 // Returns how many of obj can be picked up.  Writes wt_before and
 // wt_after through the returned object.
-function carry_count(obj, container, count, telekinesis, state) {
+async function carry_count(obj, container, count, telekinesis, state) {
     const adjust_wt = Boolean(container && carried(container));
     const is_gold = obj.oclass === COIN_CLASS;
     const savequan = obj.quan;
@@ -2767,8 +2800,11 @@ function carry_count(obj, container, count, telekinesis, state) {
         const verb = container ? 'carry'
             : telekinesis ? 'acquire' : 'lift';
         if (qq > 0) {
-            // "You can only carry some of the ..." -- not printed yet,
-            // but counted.
+            await ttyPline(
+                `You can only ${verb} ${qq === 1 ? 'one' : 'some'} of the `
+                    + `${obj_nambuf} ${where_str}.`,
+                state,
+            );
             result.wt_after = wt;
             result.count = qq;
             return result;
@@ -2785,8 +2821,11 @@ function carry_count(obj, container, count, telekinesis, state) {
             prefx2 = 'is too heavy for you to ';
             suffx = '';
         }
-        // "There are ... lying here, but you cannot lift any more."
-        // This is a pline(); the caller interprets cnt_p < 1 as failure.
+        await ttyPline(
+            `There ${otense(obj, 'are', state)} ${obj_nambuf} ${where2}, `
+                + `but ${prefx1}${prefx2}${verb}${suffx}.`,
+            state,
+        );
     }
     result.wt_after = wt;
     result.count = qq;
@@ -2819,7 +2858,7 @@ async function lift_object(obj, container, cnt_p, telekinesis, state) {
         return { result: -1, count: cnt_p };
     }
 
-    const cc = carry_count(obj, container, cnt_p, telekinesis, state);
+    const cc = await carry_count(obj, container, cnt_p, telekinesis, state);
     let count = cc.count;
 
     let result;
