@@ -251078,6 +251078,37 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-mhitu-gulpmu-snuff-lit-v40-20261010",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement apply.c snuff_lit and wire every direct caller.",
+      "cFile": "apply.c",
+      "sessions": [],
+      "selectionReason": "Continue the admitted v40 swallowed-hero lamp case at its first visible source boundary: mhitu.c gulpmu reaches apply.c snuff_lit before the separate obj_resists RNG residual.",
+      "detail": "Port the whole helper and replace its caller gaps across splash_lit, gulpmu, gulpmm, gulpum, use_container, and litroom.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "snuff_lit",
+      "session": "synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm",
+      "step": 77,
+      "syntheticProvenance": {
+        "synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm": {
+          "session": "synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm",
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-snuffed-lit-lamp-on-engulfing-worm",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recordingPath": "challenges/cases/v40/v40-engulf-snuff-lit-lamp-inventory-check-corrected-cfirst.session.json",
+          "recordingSha256": "7e55ad54b385d5102f3dcb242deabe6fb8a39a1a9d0f80f58579cb00ca59ecc3",
+          "evaluationPath": "challenges/evaluations/accepted-5bb7bbae79d5d14f8de04d0ebbd933e7a241a699-v40.json",
+          "evaluationCommit": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699"
+        }
+      }
     }
   ]
 }
