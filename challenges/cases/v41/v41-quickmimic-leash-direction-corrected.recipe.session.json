@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected leash attachment probe. The C map after selecting the leash shows the starter kitten directly south of the hero, so j is the observed direction. Wish the mimic corpse only after the C leash interaction and record its resulting inventory slot.",
+  "segments": [
+    {
+      "seed": 41040113,
+      "datetime": "20500112131416",
+      "nethackrc": "OPTIONS=name:V41LeashedMimic,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017leash\naoj\u0017small mimic corpse\n"
+    }
+  ]
+}

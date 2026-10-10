@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first setup probe for steed.c:kick_steed -> dismount_steed(DISMOUNT_THROWN). Spawn a tame saddled pony and inspect the rider selector/direction before preparing the pool-on-steed state.",
+  "segments": [
+    {
+      "seed": 41040174,
+      "datetime": "20511212121415",
+      "nethackrc": "OPTIONS=name:V41Steed,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0007tame saddled pony\n#ride\n"
+    }
+  ]
+}

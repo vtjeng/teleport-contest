@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first alternative pool-entry setup after ordinary movement was refused. Use the source-supported controlled #polyself route for a giant eel, whose swimming form should allow entry to the pool; apply the gold coin only after C shows an underwater state.",
+  "segments": [
+    {
+      "seed": 41040137,
+      "datetime": "20510314151618",
+      "nethackrc": "OPTIONS=name:V41WetCoin,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017amulet of magical breathing\nPo\u0017gold piece\n\u0017pool\n#polyself\ngiant eel\na$"
+    }
+  ]
+}

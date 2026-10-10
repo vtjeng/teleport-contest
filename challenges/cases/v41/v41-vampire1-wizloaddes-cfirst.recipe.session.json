@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate for dat/vampire1.lua as a separate special-level program. Directly load the Lua program with the source-observed wizard command, then map the generated level; compare only after C confirms the program and generated map.",
+  "segments": [
+    {
+      "seed": 41040123,
+      "datetime": "20500111121315",
+      "nethackrc": "OPTIONS=name:V41Vampire1,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nvampire1.lua\n#wizmap\n"
+    }
+  ]
+}

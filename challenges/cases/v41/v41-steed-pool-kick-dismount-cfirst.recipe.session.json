@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first forced pool dismount candidate. The setup probe showed a tame saddled pony immediately west of the hero. Force the mount, terrain-wish a pool on the shared rider/steed tile, then kick the steed once; retain only if C reaches kick_steed -> DISMOUNT_THROWN and the steed liquid-landing outcome.",
+  "segments": [
+    {
+      "seed": 41040174,
+      "datetime": "20511212121415",
+      "nethackrc": "OPTIONS=name:V41Steed,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0007tame saddled pony\n#ride\nhy\u0017pool\n#kick\ny"
+    }
+  ]
+}

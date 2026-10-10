@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first alternate setup for the sellobj candidate. Random D4 generation in the previous fresh probes produced no shop, so load the real minetn-1.lua level program, then map its shops and stock before constructing the owned-item sale action.",
+  "segments": [
+    {
+      "seed": 41040157,
+      "datetime": "20511204142536",
+      "nethackrc": "OPTIONS=name:V41ShopMinetown,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-1.lua\n #wizmap\n"
+    }
+  ]
+}

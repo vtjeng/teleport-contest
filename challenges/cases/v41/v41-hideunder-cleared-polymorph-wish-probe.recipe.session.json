@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected hider setup: use the observed menu-wide select-all key, dismiss all 13 drop/pager messages, move off the dropped inventory, polymorph into the source-confirmed cave spider, dismiss its follow-up pages, then wish a light two-apple stack and inspect its slot before recording pickup.",
+  "segments": [
+    {
+      "seed": 41040166,
+      "datetime": "20511010101014",
+      "nethackrc": "OPTIONS=name:V41HidePick,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".Da\n.\n             l#polyself\ncave spider\n  \u00172 apples\ni"
+    }
+  ]
+}

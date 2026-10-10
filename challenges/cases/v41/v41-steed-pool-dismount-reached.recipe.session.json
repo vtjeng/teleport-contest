@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Final C-first route: C-observed southeast mount selection succeeds. A pool is wished on the steed tile; the first kick gallops, and dismissing that C message reveals the subsequent steed drowning and rider fall. Stop at that exact reached boundary; preserve the wrong-direction and overlong continuation probes.",
+  "segments": [
+    {
+      "seed": 41040174,
+      "datetime": "20511212121415",
+      "nethackrc": "OPTIONS=name:V41Steed,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0007tame saddled pony\n#ride\nny\u0017pool\n#kick\ny "
+    }
+  ]
+}

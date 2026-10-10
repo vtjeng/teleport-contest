@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Pager-corrected C-first doseduce candidate. The prior probe reached the incubus attraction message and paused; spaces now dismiss C's observed pager, with short wait turns between them so the incubuѕ can finish the seduction and call mayberem.",
+  "segments": [
+    {
+      "seed": 41040131,
+      "datetime": "20510213141517",
+      "nethackrc": "OPTIONS=name:V41Incubus,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\nhostile incubus\n.. . . . . . . ."
+    }
+  ]
+}
