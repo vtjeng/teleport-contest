@@ -242163,6 +242163,465 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-timeout-diagnostic-family-v35-20261010",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port timeout diagnostic queue",
+      "cFile": "timeout.c",
+      "sessions": [
+        "synthetic/v35/v35-timeout-queue"
+      ],
+      "selectionReason": "Selected synthetic/v35/v35-timeout-queue after accepted alloc.c:fmt_ptr removed its final source dependency. Port the whole timeout diagnostic family, its generated property table, visible-region helpers, and the bounded command callers.",
+      "detail": "Port timeout.c property_by_index through wiz_timeout_queue in source order, generate the canonical propertynames table from C, preserve start_timer kind validation, and wire region.c visibility summaries plus cmd.c and wizcmds.c callers. Matching evidence covers the admitted timeout queue, a lit object timer, a visible poison-cloud region, and the existing wizard intrinsic entry.",
+      "openedAt": "a835f98c89801adf0c1c44f6cabb63e7dcb0952f",
+      "openStanding": {
+        "sha": "fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "property_by_index",
+          "line": 117,
+          "endLine": 136,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "stoned_dialogue",
+          "line": 137,
+          "endLine": 196,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "vomiting_dialogue",
+          "line": 197,
+          "endLine": 267,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "sleep_dialogue",
+          "line": 268,
+          "endLine": 294,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "choke_dialogue",
+          "line": 295,
+          "endLine": 322,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "sickness_dialogue",
+          "line": 323,
+          "endLine": 352,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "levitation_dialogue",
+          "line": 353,
+          "endLine": 388,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "slime_dialogue",
+          "line": 389,
+          "endLine": 447,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "burn_away_slime",
+          "line": 448,
+          "endLine": 456,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "slimed_to_death",
+          "line": 457,
+          "endLine": 533,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "phaze_dialogue",
+          "line": 534,
+          "endLine": 553,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "region_dialogue",
+          "line": 554,
+          "endLine": 574,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "done_timeout",
+          "line": 575,
+          "endLine": 587,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "nh_timeout",
+          "line": 588,
+          "endLine": 950,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "fall_asleep",
+          "line": 951,
+          "endLine": 980,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "attach_egg_hatch_timeout",
+          "line": 981,
+          "endLine": 1008,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "kill_egg",
+          "line": 1009,
+          "endLine": 1016,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "hatch_egg",
+          "line": 1017,
+          "endLine": 1192,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "learn_egg_type",
+          "line": 1193,
+          "endLine": 1203,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "attach_fig_transform_timeout",
+          "line": 1204,
+          "endLine": 1221,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "slip_or_trip",
+          "line": 1222,
+          "endLine": 1344,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "see_lamp_flicker",
+          "line": 1345,
+          "endLine": 1359,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "lantern_message",
+          "line": 1360,
+          "endLine": 1382,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "burn_object",
+          "line": 1383,
+          "endLine": 1711,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "begin_burn",
+          "line": 1712,
+          "endLine": 1803,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "end_burn",
+          "line": 1804,
+          "endLine": 1827,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "cleanup_burn",
+          "line": 1828,
+          "endLine": 1846,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "do_storms",
+          "line": 1847,
+          "endLine": 1994,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "kind_name",
+          "line": 1995,
+          "endLine": 2013,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "print_queue",
+          "line": 2014,
+          "endLine": 2040,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "wiz_timeout_queue",
+          "line": 2041,
+          "endLine": 2129,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 117,
+        "to": 2129
+      },
+      "requiredFunctions": [
+        {
+          "name": "start_timer",
+          "line": 2247,
+          "endLine": 2298,
+          "declared": true,
+          "sourceFile": "timeout.c",
+          "complete": false
+        },
+        {
+          "name": "any_visible_region",
+          "line": 660,
+          "endLine": 673,
+          "declared": false,
+          "sourceFile": "region.c",
+          "complete": false
+        },
+        {
+          "name": "visible_region_summary",
+          "line": 674,
+          "endLine": 717,
+          "declared": false,
+          "sourceFile": "region.c",
+          "complete": false
+        },
+        {
+          "name": "doextcmd",
+          "line": 493,
+          "endLine": 523,
+          "declared": true,
+          "sourceFile": "cmd.c",
+          "complete": false
+        },
+        {
+          "name": "wiz_intrinsic",
+          "line": 949,
+          "endLine": 1101,
+          "declared": true,
+          "sourceFile": "wizcmds.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v35/v35-timeout-queue": {
+          "session": "synthetic/v35/v35-timeout-queue",
+          "corpus": "synthetic",
+          "batch": "v35",
+          "caseId": "v35-timeout-queue",
+          "manifestPath": "challenges/manifests/v35.json",
+          "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+          "recordingPath": "challenges/cases/v35/v35-timeout-queue.session.json",
+          "recordingSha256": "7856fe2b3f45ceb790bea0f03525626340cd0c563c3ba7382ba3b14e8410b132",
+          "evaluationPath": "challenges/evaluations/accepted-fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8-v35.json",
+          "evaluationCommit": "fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8"
+        }
+      },
+      "activeStanding": {
+        "sha": "fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v35",
+          "caseId": "v35-timeout-queue",
+          "session": "synthetic/v35/v35-timeout-queue",
+          "manifestPath": "challenges/manifests/v35.json",
+          "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+          "recording": "challenges/cases/v35/v35-timeout-queue.session.json",
+          "recordingPath": "challenges/cases/v35/v35-timeout-queue.session.json",
+          "recordingSha256": "7856fe2b3f45ceb790bea0f03525626340cd0c563c3ba7382ba3b14e8410b132",
+          "recipe": "challenges/cases/v35/v35-timeout-queue.recipe.session.json",
+          "recipeSha256": "02d0e070a6e07c8eadc20700afcfc6f0e44573cb246ab37d9cc309168698bcf2",
+          "replayInputSha256": "a16a6b5ae8c17b2e801372866183b23d223644f0bf7c64fb2f97694f7c8fad2a",
+          "evaluationPath": "challenges/evaluations/accepted-fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8-v35.json",
+          "evaluationCommit": "fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8",
+          "evaluationArtifact": "challenges/evaluations/accepted-fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8-v35.json",
+          "evaluationUtc": "2026-10-09T23:54:11.392Z",
+          "remainingScreens": 24,
+          "recordedSteps": 67,
+          "previousScreensMatched": 43,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 43,
+              "total": 67
+            },
+            "rng": {
+              "matched": 2347,
+              "total": 2347
+            },
+            "cursors": {
+              "matched": 43,
+              "total": 67
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_timeout_queue() for the extended command 'timeout' is not ported",
+            "step": 43
+          },
+          "step": 43,
+          "kind": "stop",
+          "sourceFile": "timeout.c",
+          "function": "wiz_timeout_queue",
+          "message": "unsupported hero command: wiz_timeout_queue() for the extended command 'timeout' is not ported",
+          "cFile": "timeout.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v35/v35-timeout-queue.json",
+            "result": {
+              "session": "synthetic/v35/v35-timeout-queue",
+              "corpus": "synthetic",
+              "batch": "v35",
+              "caseId": "v35-timeout-queue",
+              "manifestPath": "challenges/manifests/v35.json",
+              "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+              "recordingSha256": "7856fe2b3f45ceb790bea0f03525626340cd0c563c3ba7382ba3b14e8410b132",
+              "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+              "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+              "remainingScreens": 24,
+              "recordedSteps": 67,
+              "status": "complete",
+              "commit": "72f59958d0cd6ee12e1ea3a857c632dda4b53b44",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v35",
+                "caseId": "v35-timeout-queue",
+                "session": "synthetic/v35/v35-timeout-queue",
+                "manifestPath": "challenges/manifests/v35.json",
+                "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+                "recording": "challenges/cases/v35/v35-timeout-queue.session.json",
+                "recordingPath": "challenges/cases/v35/v35-timeout-queue.session.json",
+                "recordingSha256": "7856fe2b3f45ceb790bea0f03525626340cd0c563c3ba7382ba3b14e8410b132",
+                "recipe": "challenges/cases/v35/v35-timeout-queue.recipe.session.json",
+                "recipeSha256": "02d0e070a6e07c8eadc20700afcfc6f0e44573cb246ab37d9cc309168698bcf2",
+                "replayInputSha256": "9a345b9f1c2c4f64668854b1f41843898e09b9498646789c8c4a14892bfcd5a5",
+                "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+                "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+                "evaluationArtifact": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+                "evaluationUtc": "2026-10-09T08:22:23.377Z",
+                "remainingScreens": 24,
+                "recordedSteps": 67,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 43,
+                    "total": 67
+                  },
+                  "rng": {
+                    "matched": 2347,
+                    "total": 2347
+                  },
+                  "cursors": {
+                    "matched": 43,
+                    "total": 67
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: wiz_timeout_queue() for the extended command 'timeout' is not ported",
+                  "step": 43
+                },
+                "step": 43,
+                "kind": "stop",
+                "sourceFile": "timeout.c",
+                "function": "wiz_timeout_queue",
+                "message": "unsupported hero command: wiz_timeout_queue() for the extended command 'timeout' is not ported",
+                "cFile": "timeout.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The wizard timeout display is missing. Its empty queue and timed speed property are reproducible, but the whole queue helper consumes native pointer formatting in populated rows. The shared property table also needs source-owner reconciliation after the pending panic task. The source task is blocked; no partial timeout completion is established.",
+              "source": {
+                "file": "timeout.c",
+                "branch": "wiz_timeout_queue2040–2127 prints current time, timer queue, timed properties in source table order, swallow/vault counters, visible-region summary and level no-teleport duration before displaying a corner menu.",
+                "functions": [
+                  "wiz_timeout_queue",
+                  "print_queue",
+                  "kind_name",
+                  "property_by_index"
+                ],
+                "callers": [
+                  "cmd.c:doextcmd491–521 dispatches timeout row1903–1904 (IFBURIED|AUTOCOMPLETE|WIZMODECMD); generated js/extcmdlist_data.js138 retains this row but js/cmd.js lacks its owner arm.",
+                  "cmd.c:rhack3682–3825 invokes rebound/canned rows and clears counts after ECMD_OK; any future task needs only the distinct timeout import/admission/awaited owner/result-reset seams.",
+                  "wizcmds.c:wiz_intrinsic consumes timeout.c:property_by_index to build and resolve its intrinsic menu. js/wizcmds.js490–562 instead owns a private WIZ_INTRINSIC_PROPERTIES copy; move the source table to the timeout owner and reconcile those consumers together."
+                ],
+                "dependencies": [
+                  "Read whole alloc.c:fmt_ptr125–135: it formats the native C address through PTR_FMT/PTR_TYP and rotates its static result buffer. print_queue consumes this return for every populated timer. Existing js/obj.js3573–3581 uses object/monster IDs instead of C addresses and cannot establish this source contract. VERBOSE_TIMER is unconditionally defined in timeout.c1963, so timer callback names do not remove the address dependency. Same native-pointer frontier as parked light.c:wiz_light_sources; do not invent addresses or substitute IDs.",
+                  "kind_name1997–2012 returns source names for all five kinds/default, but TIMER_NONE also discards impossible(\"no timer type\"); that source gap must remain explicit if the helper is ported. Empty print_queue skips kind_name/fmt_ptr, but that branch alone does not establish whole print_queue completion.",
+                  "Required consumed region.c:any_visible_region660–671 is missing in JS and is pure: return true on first visible region whose ttl!=-2, false otherwise. Canonical region list already lives at state.level.regions. Port and source-pin this complete helper rather than infer visibility from a display cache.",
+                  "Discarded region.c:visible_region_summary674–714 is also missing: visible/nonexpired traversal, first header, ttl+1, damage-dependent vapor/poison label, menu_tab_sep and bounding-box formatting. A future complete diagnostic family should port it with independent gas-region evidence, or retain a named discarded-result gap without summary credit.",
+                  "timeout.c propertynames30–114 is a large fixed source table; generate one canonical table deterministically and port pure property_by_index118–125 with source-pinned invalid-index sentinel/output values. Reconcile existing wizintrinsic reads in js/wizcmds.js. That owner file overlaps immutable unaccepted B185; preserve this exact dependency until accepted.",
+                  "Existing window create/putstr/display/destroy primitives are the production owner for the corner NHW_MENU. Match output/input ordering without spending time or random draws. No timer creation, timer callback or general turn-loop source expansion is needed."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved accepted-672aef01 v35 entry has43/67 screens/cursors and2347/2347 RNG,24 remaining. Current single-case run-TgUOf9 at72f59958 confirms no earlier divergence and stops at segment0 step43 Enter with unsupported hero command: wiz_timeout_queue() for the extended command 'timeout' is not ported. Expected C first row is Current time = 3.",
+                "Independent admitted recipe drinks an uncursed speed potion then requests #timeout. This reaches the empty active timer queue and temporary FAST property. Its existence does not cover a populated queue or native-address formatting. Recipe/recording hashes verified against the exact saved queue entry.",
+                "Complete timeout.c selected helper/display source1997–2127, property table/index helper30–125, alloc.c native formatter125–135 and region.c helpers660–714 were read. The display loops twice through all properties: count/max width first, then emit TIMEOUT bits in source order and insert the special marker before the first timed property at or beyond COLD_RES. Swallow/vault and stasis_until branches follow regions in source order.",
+                "Required future evidence includes independent typed/bound/count/no-properties and multiple timed-property/COLD_RES threshold variations; swallow/vault/stasis/region branches need source-pinned state coverage and reproducible active entry evidence. A populated lit-lamp timer witness is outside matching portable evidence until native-pointer formatting is resolved. No new C game was recorded during this investigation.",
+                "Main directed parking the source task on this native fmt_ptr consumed-return blocker and B185-owned table relocation, with no partial timeout source credit. This record identifies the whole-source closure; it does not claim game implementation or runtime completion."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
