@@ -75,6 +75,7 @@ test('malformed or misassigned results cannot masquerade as completed investigat
         { ...record, evidence: [] },
         { ...record, source: { ...record.source, callers: [] } },
         { ...record, mismatch: { ...entry, remainingScreensUpperBound: 9 } }, // Inconsistent provenance.
+        { ...record, resolution: { kind: 'recorder-defect', repair: 'bounded buffer' } },
     ]) {
         put(broken);
         assert.equal(readInvestigation(root, entry).status, 'invalid');

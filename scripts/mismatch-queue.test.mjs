@@ -313,11 +313,41 @@ test('synthetic queue keeps exact screen debt and cursor/RNG losses visible', ()
         assert.equal(batch.generationReady, false, 'screen debt blocks generation');
         assert.equal(batch.blockers.length, 0);
 
+        const investigationPath = join(root, 'investigations/synthetic/v1/alpha.json');
+        mkdirSync(join(root, 'investigations/synthetic/v1'), { recursive: true });
+        writeFileSync(investigationPath, JSON.stringify({
+            corpus: 'synthetic', batch: 'v1', caseId: 'alpha',
+            session: 'synthetic/v1/alpha', manifestPath: 'challenges/manifest.json',
+            manifestSha256: 'a'.repeat(64), recordingSha256,
+            evaluationPath: 'challenges/evaluations/one.json', evaluationCommit: evaluation.sha,
+            remainingScreens: 3, recordedSteps: 5, status: 'complete', commit: 'f'.repeat(40),
+            mismatch: { session: 'synthetic/v1/alpha', remainingScreens: 3 },
+            goalKind: 'divergence-fix',
+            summary: 'The recorder corrupted evidence after otherwise matching play.',
+            source: { file: 'termcap.c', functions: ['capture_screen'],
+                branch: 'The serializer exceeded its old buffer.',
+                callers: ['capture boundary calls capture_screen'], dependencies: [] },
+            evidence: ['A bounded fresh recording reproduces every game result.'],
+            resolution: { kind: 'recorder-defect', repair: 'Bound the recorder output.',
+                corpus: 'Preserve the immutable historical recording.' },
+        }));
+        const resolved = buildSyntheticQueue([{
+            corpus: 'synthetic', batch: 'v1', manifestPath: 'challenges/manifest.json',
+            manifestSha256: 'a'.repeat(64), cases, status: 'measured',
+            evaluation, evaluationPath: 'challenges/evaluations/one.json', previous,
+        }], { root });
+        assert.deepEqual(resolved.sessions.map(entry => entry.caseId), ['beta']);
+        assert.equal(resolved.excluded[0].caseId, 'alpha');
+        assert.equal(resolved.excluded[0].resolution.kind, 'recorder-defect');
+        assert.equal(resolved.generationReady, true,
+            'resolved recorder corruption does not block the next batch');
+
         const fixed = build([passing]);
-        const work = buildWorkQueue(fixed, batch);
+        const work = buildWorkQueue(fixed, resolved);
         assert.equal(work.mode, 'work');
-        assert.equal(work.generationReady, false, 'fixed regressions also block generation');
-        assert.equal(work.sessions[0].session, 'synthetic/v1/alpha');
+        assert.equal(work.generationReady, true);
+        assert.equal(work.sessions[0].session, 'synthetic/v1/beta');
+        assert.equal(work.excluded[0].session, 'synthetic/v1/alpha');
     } finally {
         rmSync(root, { recursive: true, force: true });
     }

@@ -67,6 +67,10 @@ export function validInvestigation(record, session, entry = { session }) {
             : record.mismatch.remainingScreensUpperBound !== record.remainingScreensUpperBound)
         || !texts(record.evidence) || record.evidence.length === 0) return false;
     if (synthetic && !sameSyntheticIdentity(record, entry)) return false;
+    if (record.resolution != null
+        && (!synthetic || record.status !== 'complete'
+            || record.resolution.kind !== 'recorder-defect'
+            || !text(record.resolution.repair) || !text(record.resolution.corpus))) return false;
     if (record.source != null && (!text(record.source.file) || !texts(record.source.functions)))
         return false;
     if (record.status === 'partial') return true;
