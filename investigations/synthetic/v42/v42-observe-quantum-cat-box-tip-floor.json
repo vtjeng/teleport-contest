@@ -119,7 +119,7 @@
     "luaFile": null,
     "line": 2832
   },
-  "summary": "The first mismatch is the unported Schrödinger box observation on the #tip floor path. C observes the box before spilling its contents; JavaScript skips the observer in tipcontainer_checks, so it misses the coin flip, dead-cat message, corpse timer reset, and experience award. The observer implementation already exists in JavaScript; both active pickup.c callers need to reach it.",
+  "summary": "The first mismatch is the unported Schrödinger box observation on the #tip floor path. C observes the box before spilling its contents; JavaScript skips the observer in tipcontainer_checks. Wiring the existing observer also exposed an unsupported makemon runtime call shape in its live-cat arm.",
   "source": {
     "file": "pickup.c",
     "branch": "When a LARGE_BOX with spe == 1 is tipped, pickup.c:tipcontainer_checks recognizes SchroedingersBox(box) and calls observe_quantum_cat(box, TRUE, TRUE) before the remaining-content check. For a dead result, the observer clears spe, prints the dead-cat message, resets the contained corpse age and corpsenm (starting its rot timer), and awards experience when the hero is not monster-moving. The same observer is called from use_container before its action prompt.",
@@ -133,9 +133,9 @@
       "C end.c:disclose_to_monlist -> observe_quantum_cat(obj, FALSE, FALSE); JavaScript end.js already calls pickup.js:observe_quantum_cat with the same flags."
     ],
     "dependencies": [
-      "makemon.c:makemon S_QUANTMECH creates a LARGE_BOX with spe=1 and a nonrotting housecat corpse. This setup path is reached before the case mismatch; the admitted recording matches through step 72.",
-      "pickup.c:observe_quantum_cat uses makemon, corpse extraction/freeing, weight, experience, set_corpsenm, and oname. The corresponding JavaScript observer is already implemented at js/pickup.js:1910; source-audit its helper calls while wiring both pickup callers.",
-      "obj.c:set_corpsenm/start_corpse_timeout supplies the corpse-aging RNG after a dead observation; preserve the source call order and random stream."
+      "makemon.c:makemon creates the live housecat at the box coordinates with NO_MINVENT | MM_ADJACENTOK | MM_NOMSG. C relocates a hero-square request with enexto_core and uses MM_ADJACENTOK if the requested square is occupied. JS must run this through makemon_runtime so its asynchronous source tail completes; js/makemon_create.js currently rejects this explicit-coordinate flag shape outside mklev. The correction is bounded to this source call shape and does not claim whole makemon.c:makemon completion.",
+      "pickup.c:observe_quantum_cat calls get_obj_location, makemon, set_malign, visibility/message helpers, corpse extraction/freeing, weight, experience/newexplevel, set_corpsenm, and oname. Its JS owner is js/pickup.js:1910; source-aligned helper contracts are part of this caller path.",
+      "obj.c:set_corpsenm/start_corpse_timeout supplies the corpse-aging RNG after a dead observation; its call must receive the complete random interface and preserve source order."
     ]
   },
   "goalKind": "file-port",
@@ -146,6 +146,8 @@
     "Upstream pickup.c:3953-4055 has the missing active #tip call in tipcontainer_checks: the SchroedingersBox branch calls observe_quantum_cat(box, TRUE, TRUE), then examines the now-resolved contents and sets cknown. JavaScript js/pickup.js:3959-3972 instead records note_unported(\"pickup.c observe_quantum_cat\") and proceeds with the floor spill.",
     "The second active pickup caller is upstream pickup.c:3021-3024 in use_container. JavaScript js/pickup.js:2134-2139 throws UnsupportedPickupError for LARGE_BOX with spe===1 rather than invoking its existing observe_quantum_cat implementation. End-game disclosure is already wired at upstream end.c:1268-1271 and js/end.js:1091-1092.",
     "The selected implementation scope is the complete pickup.c:observe_quantum_cat source function and source-aligned wiring at both active pickup callers. Complete the Schroedinger-box branch inside the whole pickup.c:tipcontainer_checks function and replace the matching use_container refusal with the observer call; preserve the already-wired end-disclosure path. The caller functions have other unrelated behaviors and are not claimed as whole-function ports.",
-    "The observed setup helper is upstream makemon.c:makemon S_QUANTMECH at lines 775-793, which creates the flagged large box and contained nonrotting housecat corpse. It is not the first mismatch owner and does not need expansion based on this recording."
+    "The observed setup helper is upstream makemon.c:makemon S_QUANTMECH at lines 775-793, which creates the flagged large box and contained nonrotting housecat corpse. It is not the first mismatch owner and does not need expansion based on this recording.",
+    "The C live-cat call in pickup.c:2834-2835 passes the box coordinates and NO_MINVENT | MM_ADJACENTOK | MM_NOMSG to makemon(), then consumes the returned monster to set peacefulness, name it, remove the contained dead corpse, and update box weight. Upstream makemon.c:1147-1200 handles explicit coordinates, hero-square relocation, and the MM_ADJACENTOK occupied-square fallback. JS js/pickup.js passed a synchronous makemon() call without a runtime continuation; a focused #tip reproduction at seed 83001622 reaches UnsupportedMonsterCreationError: outside mklev. js/makemon_create.js:1277 currently admits explicit runtime NO_MINVENT only without the two additional flags, while makemon_runtime at 3315 owns the source-ordered asynchronous runtime tail.",
+    "Source-aligned observer wiring exposed two additional JS call-contract gaps before the live-cat path: set_corpsenm requires rn2/rnd/rn1/rne, so the observer must supply its full random interface; newexplevel can level the hero from the award and requires the tty message owner. The implementation now uses the full RNG bundle and passes {message: ttyPline, random}."
   ]
 }
