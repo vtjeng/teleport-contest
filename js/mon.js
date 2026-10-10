@@ -2156,13 +2156,20 @@ async function liquidRelocate(monster, flags, env) {
 
 async function liquidDamageInventory(monster, lava, env) {
     const operationName = lava ? 'fireDamageChain' : 'waterDamageChain';
-    const sourceName = lava ? 'fire_damage_chain' : 'water_damage_chain';
     const operation = env[operationName];
-    // C discards both chain results. The water chain is ported in trap.c;
-    // keep lava's still-unported chain named at its exact call site.
+    // C discards both chain results. Forward the lava chain through the same
+    // trap.c function whether minliquid was reached live or from a test caller.
     if (typeof operation !== 'function') {
-        if (lava && monster.minvent) {
-            note_unported('trap.c ' + sourceName);
+        if (lava) {
+            const { fire_damage_chain } = await import('./trap.js');
+            await fire_damage_chain(
+                monster.minvent,
+                false,
+                false,
+                monster.mx,
+                monster.my,
+                env,
+            );
         } else if (!lava) {
             const { water_damage_chain } = await import(
                 './trap_water_damage.js'

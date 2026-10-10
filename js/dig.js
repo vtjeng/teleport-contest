@@ -165,7 +165,14 @@ import { stop_timer, obj_stop_timers } from './timeout.js';
 import { costly_spot, shop_keeper, stolen_value } from './shk.js';
 import { shkname } from './shknam.js';
 import { grounded, hides_under, is_flyer, is_floater, is_watch } from './mondata.js';
-import { angry_guards, get_iter_mons, maybe_unhide_at, minliquid, wake_nearby } from './mon.js';
+import {
+    angry_guards,
+    deal_with_overcrowding,
+    get_iter_mons,
+    maybe_unhide_at,
+    minliquid,
+    wake_nearby,
+} from './mon.js';
 import { closed_door, youHear } from './monmove.js';
 import { m_at } from './monst.js';
 import {
@@ -261,7 +268,7 @@ import { Monnam } from './do_name.js';
 import { goto_level } from './do.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { mintrap } from './trap_effects.js';
-import { teleport_pet } from './teleport.js';
+import { rloc, teleport_pet } from './teleport.js';
 import { migrate_to_level } from './dog.js';
 import { count_wsegs } from './worm.js';
 import { MZ_HUGE } from './monsters.js';
@@ -1247,12 +1254,12 @@ export async function liquid_flow(
         );
     }
 
-    // Handle exposed floor objects before the occupant, as dig.c does. The
-    // lava chain is still unported; water_damage_chain is the existing owner.
+    // Handle exposed floor objects before the occupant, as dig.c does.
     const objects = state.level.objects[x][y];
     if (objects) {
         if (typ === LAVAPOOL) {
-            note_unported('trap.c fire_damage_chain');
+            const { fire_damage_chain } = await import('./trap.js');
+            await fire_damage_chain(objects, true, true, x, y, env);
         } else {
             const { water_damage_chain } = await import(
                 './trap_water_damage.js'
@@ -1265,7 +1272,21 @@ export async function liquid_flow(
         await pooleffects(false, state, env);
     } else {
         const monster = m_at(x, y, state);
-        if (monster) await minliquid(monster, { ...env, random });
+        if (monster) {
+            // C dig.c:liquid_flow() -> minliquid() reaches mon.c:minliquid_core(),
+            // which calls teleport.c:rloc() and deal_with_overcrowding().
+            await minliquid(monster, {
+                ...env,
+                random,
+                relocateMonster: rawEnv.relocateMonster ?? rloc,
+                dealWithOvercrowding: rawEnv.dealWithOvercrowding
+                    ?? ((target, liquidEnv) => deal_with_overcrowding(
+                        target,
+                        state,
+                        liquidEnv,
+                    )),
+            });
+        }
     }
 }
 
