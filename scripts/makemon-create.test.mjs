@@ -3828,7 +3828,7 @@ test('spider creation places its side object before inventory and hides when leg
             [MON_X, MON_Y],
             scenario.name,
         );
-        assert.equal(monster.mundetected, scenario.hidden ? 1 : 0, scenario.name);
+        assert.equal(monster.mundetected, scenario.hidden, scenario.name);
         const objectClassDraw = random.calls.findIndex(
             (call) => call.kind === 'rnd' && call.args[0] === 100,
         );

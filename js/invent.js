@@ -206,7 +206,7 @@ import {
     S_vodoor,
 } from './symbols.js';
 import { hides_under, poly_when_stoned, touch_petrifies } from './mondata.js';
-import { hideunder, maybe_unhide_at } from './mon.js';
+import { maybe_unhide_at } from './mon.js';
 import { newsym, obj_to_glyph } from './display.js';
 import { livelog_printf } from './pline.js';
 import { fingers_or_gloves } from './do_wear.js';
@@ -3444,7 +3444,7 @@ export async function useupf(obj, numused, env = {}) {
     }
     delobj(otmp, normalized);
     if (at_u && state.u.uundetected && hides_under(state.youmonst?.data))
-        hideunder(state.youmonst, { ...normalized, state });
+        note_unported('mon.c hideunder');
 }
 
 function hasTextExtra(obj, field) {

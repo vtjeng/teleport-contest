@@ -230,7 +230,6 @@ import {
     WAN_CANCELLATION,
 } from './objects.js';
 import { PM_CLERIC, PM_HOUSECAT, PM_ICE_TROLL, PM_STONE_GOLEM } from './monsters.js';
-import { hideunder } from './mon.js';
 import {
     an, ansimpleoname, corpse_xname, Doname2, killer_xname, Tobjnam, Yname2,
     Ysimple_name2, donameFresh, doname_with_price,
@@ -1685,8 +1684,11 @@ export async function pickup(what, state = game) {
     }
 
     if (!swallowed && !skipFloorTail) {
+        // C calls hideunder(&youmonst) for a discarded result.  The existing
+        // hero-concealment owner is still an explicit source gap; keep that
+        // call visible in game.unported rather than fabricating a redraw.
         if (hides_under(state.youmonst?.data))
-            hideunder(state.youmonst, { state });
+            note_unported('mon.c hideunder');
         // newsym_force is newsym() plus dirty bookkeeping; the display owner
         // treats the ordinary redraw as the complete effect here.
         if (n_picked) newsym(u.ux, u.uy);

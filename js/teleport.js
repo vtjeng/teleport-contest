@@ -35,7 +35,6 @@ import {
     MIGR_PORTAL,
     MM_IGNORELAVA,
     MM_IGNOREWATER,
-    M_AP_NOTHING,
     NO_MM_FLAGS,
     NO_TRAP,
     NO_TRAP_FLAGS,
@@ -177,7 +176,6 @@ import {
 } from './monsters.js';
 import {
     get_iter_mons,
-    hideunder,
     m_in_air,
     maybe_unhide_at,
     mon_offmap,
@@ -1576,11 +1574,12 @@ export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) 
     u.ux0 = u.ux;
     u.uy0 = u.uy;
 
-    const concealed = await hideunder(state.youmonst, { ...env, state });
-    if (!concealed && state.youmonst?.data?.mlet === S_MIMIC) {
-        // C teleds():493 clears a mimic's appearance only when hideunder()
-        // says the hero is no longer concealed.
-        state.youmonst.m_ap_type = M_AP_NOTHING;
+    if (state.youmonst?.data?.mlet === S_MIMIC) {
+        // hideunder() and the M_AP_NOTHING reset belong to a hero polymorphed
+        // into a mimic, which nothing in this port can do.
+        throw new UnsupportedHeroMoveBoundaryError(
+            'teleds() with the hero disguised as a mimic',
+        );
     }
     if (was_swallowed) {
         // C sets ball_active and redraws the map here when Punished. The

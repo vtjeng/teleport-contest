@@ -1121,9 +1121,9 @@ test('useupf splits a stack and leaves the remainder on the floor', async () => 
     assert.equal(left.quan, 2);
 });
 
-test('useupf awaits shop billing and recomputes hero concealment', async () => {
-    // invent.c useupf():4774-4779 and :4782-4783. The shop call completes
-    // before deletion, and hideunder updates u.uundetected from the floor pile.
+test('useupf awaits shop billing and continues to its concealment tail', async () => {
+    // invent.c useupf():4774-4779 and :4782-4783. The shop call now completes
+    // before deletion; hideunder remains a discarded-return source gap.
     await standOnStairs();
     const pie = putObject(CREAM_PIE);
     makeHeroRoomAShop();
@@ -1134,7 +1134,8 @@ test('useupf awaits shop billing and recomputes hero concealment', async () => {
     assert.equal(game.level.objects[game.u.ux][game.u.uy], null);
 
     // delobj() runs maybe_unhide_at() over the same square before useupf()'s
-    // concealment tail. Both calls leave the deleted square empty.
+    // concealment tail. Both calls record the unported hideunder() dependency
+    // and leave the deleted square empty.
     await standOnStairs();
     const second = putObject(CREAM_PIE);
     game.youmonst.data = species({ mflags1: M1_CONCEAL });
@@ -1147,15 +1148,12 @@ test('useupf awaits shop billing and recomputes hero concealment', async () => {
 
     await standOnStairs();
     const third = putObject(CREAM_PIE);
-    game.youmonst.data = species({ mflags1: M1_CONCEAL });
     game.u.uundetected = 1;
     await assert.doesNotReject(() => useupf(third, third.quan, {
         state: game,
         hooks: { extractExternalObject: remove_object },
     }));
     assert.equal(game.level.objects[game.u.ux][game.u.uy], null);
-    assert.equal(game.u.uundetected, 0);
-    assert.equal(game.unported.has('mon.c hideunder'), false);
     game.u.uundetected = 0;
 });
 
@@ -1226,12 +1224,12 @@ test('maybe_unhide_at returns for a square holding nobody', async () => {
     // The hero herself is on this square and is not hidden.
     assert.equal(maybe_unhide_at(game.u.ux, game.u.uy, game), undefined);
     game.u.uundetected = 1;
-    // The source helper clears a hidden hero when the square has no cover.
+    // mon.c hideunder() is still unported; maybe_unhide_at() records the
+    // discarded call and returns so inventory deletion can continue.
     assert.doesNotThrow(
         () => maybe_unhide_at(game.u.ux, game.u.uy, game),
     );
-    assert.equal(game.u.uundetected, 0);
-    assert.equal(game.unported.has('mon.c hideunder'), false);
+    game.u.uundetected = 0;
 });
 
 

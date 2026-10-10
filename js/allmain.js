@@ -56,6 +56,7 @@ import {
     movemon,
     movemon_singlemon,
     restrap,
+    UnsupportedHideError,
     were_change,
 } from './mon.js';
 import {
@@ -1218,6 +1219,7 @@ function unavailableElapsedTurnOperation(operation) {
 function elapsedTurnPlanningRefusals() {
     return [
         UnsupportedSimpleMonsterActionError,
+        UnsupportedHideError,
         UnsupportedHeroTimeoutBoundaryError,
         UnsupportedMonsterCreationError,
         // Both pickup arms -- dogmove.c dog_invent()'s and mon.c

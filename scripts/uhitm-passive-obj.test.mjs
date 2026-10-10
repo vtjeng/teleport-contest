@@ -129,7 +129,7 @@ test('polymon preserves its C return and post-form branch order', () => {
     assert.match(c, /return 1;/u);
     assert.match(js,
         /if \(u\.uprops\[STONED\]\.intrinsic[\s\S]*?poly_when_stoned\(mdat, state\)[\s\S]*?mntmp = M\.PM_STONE_GOLEM;[\s\S]*?make_stoned/u);
-    assert.match(js, /if \(wasHidingUnder\)\s*hideunder\(state\.youmonst, env\)/u);
+    assert.match(js, /if \(wasHidingUnder\)\s*note_unported\('mon\.c hideunder hero'\)/u);
     assert.match(js,
         /if \(u\.uswallow\)[\s\S]*?await expels\(engulfer[\s\S]*?wasExpelled = true/u);
     assert.match(js, /else if \(sticking && !sticks\(state\.youmonst\.data\)\)\s*\{\s*await uunstick/u);

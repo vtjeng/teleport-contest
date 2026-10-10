@@ -14,7 +14,6 @@ import {
     DRAWBRIDGE_UP,
     DOOR,
     M_AP_FURNITURE,
-    OBJ_FLOOR,
     PROT_FROM_SHAPE_CHANGERS,
     TELEPAT,
     THRONE,
@@ -113,8 +112,7 @@ import { GameMap } from '../js/game.js';
 import { initRng } from '../js/rng.js';
 import { runSegment } from '../js/jsmain.js';
 import {
-    M1_FLY, M2_ROCKTHROW, PM_CAVE_SPIDER, PM_GRID_BUG, PM_HUMAN,
-    PM_IRON_PIERCER, PM_SOLDIER,
+    M1_FLY, M2_ROCKTHROW, PM_GRID_BUG, PM_HUMAN, PM_IRON_PIERCER, PM_SOLDIER,
     S_PIERCER, monst_globals_init,
 } from '../js/monsters.js';
 import {
@@ -2185,58 +2183,6 @@ test('domove applies success effects only to explicit movement attempts',
     assert.deepEqual([game.u.ux, game.u.uy], [walkX + 1, walkY]);
     assert.equal(game.domoveSucceeded, DOMOVE_WALK);
     assert.equal(game.domoveAttempting, 0);
-});
-
-test('domove_core rechecks hero concealment at the final square', async () => {
-    // hack.c domove_core():2950-2952 calls mon.c hideunder() after u_on_newpos
-    // and the zombie-disturbance check. A hider enters cover, then steps into
-    // an uncovered room and loses u.uundetected.
-    await runSegment({
-        seed: 840032,
-        datetime: '20310314150926',
-        nethackrc: 'OPTIONS=name:DomoveHideunder,role:Healer,race:human,'
-            + 'gender:female,align:neutral,!legacy,!tutorial,'
-            + '!splash_screen,pettype:none,!acoustics',
-        moves: '',
-    });
-    const startX = game.u.ux;
-    const startY = game.u.uy;
-    game.youmonst.data = game.mons[PM_CAVE_SPIDER];
-    game.u.umonnum = PM_CAVE_SPIDER;
-    game.flags.pickup = false;
-    game.invent = null;
-    game.context.run = 0;
-    game.context.move = 1;
-    game.domoveAttempting = DOMOVE_WALK;
-    game.level.at(startX + 1, startY).typ = ROOM;
-    game.level.objects[startX + 1][startY] = {
-        where: OBJ_FLOOR,
-        oclass: 1,
-        otyp: 0,
-        ox: startX + 1,
-        oy: startY,
-        nexthere: null,
-    };
-    // Arrival describes the floor object and waits for the source pager key.
-    game.nhDisplay.terminal._inputQueue.push(32);
-    game.u.dx = 1;
-    game.u.dy = 0;
-
-    await domove(game);
-
-    assert.deepEqual([game.u.ux, game.u.uy], [startX + 1, startY]);
-    assert.equal(game.u.uundetected, 1);
-
-    game.context.move = 1;
-    game.domoveAttempting = DOMOVE_WALK;
-    game.u.dx = 1;
-    game.u.dy = 0;
-    game.level.at(startX + 2, startY).typ = ROOM;
-    game.level.objects[startX + 2][startY] = null;
-    await domove(game);
-
-    assert.deepEqual([game.u.ux, game.u.uy], [startX + 2, startY]);
-    assert.equal(game.u.uundetected, 0);
 });
 
 test('the run stop before a monster reads each of C\'s three terms', () => {

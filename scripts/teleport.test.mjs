@@ -21,8 +21,6 @@ import {
     LEVITATION,
     LR_MONGEN,
     MAX_NUM_WORMS,
-    M_AP_NOTHING,
-    M_AP_OBJECT,
     MON_FLOOR,
     MON_MIGRATING,
     OBJ_FLOOR,
@@ -33,7 +31,6 @@ import {
     ROWNO,
     SWIMMING,
     TELEPORT_CONTROL,
-    TELEDS_TELEPORT,
     WWALKING,
     OBJ_FREE,
     STONE,
@@ -51,7 +48,6 @@ import {
     PM_ORCUS,
     PM_JUIBLEX,
     PM_PONY,
-    PM_SMALL_MIMIC,
     PM_SEWER_RAT,
     PM_WIZARD_OF_YENDOR,
     monst_globals_init,
@@ -79,7 +75,6 @@ import {
     scrolltele,
     stairway_find_forwiz,
     tele,
-    teleds,
     tele_restrict,
     u_teleport_mon,
 } from '../js/teleport.js';
@@ -944,44 +939,10 @@ test('teleds awaits spoteffects on an occupied destination', () => {
     assert.match(jsTeleds, /u_on_newpos\(nux, nuy, state, \{/u);
     assert.match(jsTeleds, /await spoteffects\(true, state, env\)/u);
     assert.doesNotMatch(jsTeleds, /m_at\(nux, nuy, state\)/u);
-    assert.match(cTeleds,
-        /if \(!hideunder\(&gy\.youmonst\) && gy\.youmonst\.data->mlet == S_MIMIC\)\s*\{\s*\/\* mimics stop being unnoticed \*\/\s*gy\.youmonst\.m_ap_type = M_AP_NOTHING;/u);
-    assert.match(jsTeleds,
-        /const concealed = await hideunder\(state\.youmonst, \{ \.\.\.env, state \}\);\s*if \(!concealed && state\.youmonst\?\.data\?\.mlet === S_MIMIC\)\s*\{[\s\S]*?state\.youmonst\.m_ap_type = M_AP_NOTHING;/u);
     assert.ok(jsTeleds.indexOf('u_on_newpos(nux, nuy, state, {')
         < jsTeleds.indexOf('await spoteffects(true, state, env)'),
     'the hero arrives before the surprise effects are awaited');
 });
-
-test('teleds clears a mimic appearance after hideunder loses concealment',
-    async () => {
-        await runSegment({
-            seed: 840033,
-            datetime: '20310314151026',
-            nethackrc: 'OPTIONS=name:TeledsMimic,role:Wizard,race:human,'
-                + 'gender:female,align:neutral,!legacy,!tutorial,'
-                + '!splash_screen,pettype:none,!acoustics',
-            moves: '',
-        });
-        const startX = game.u.ux;
-        const startY = game.u.uy;
-        const destX = startX + 1;
-        const destY = startY;
-        game.level.at(destX, destY).typ = ROOM;
-        game.level.objects[destX][destY] = null;
-        game.level.monsters[destX][destY] = null;
-        game.flags.pickup = false;
-        game.youmonst.data = game.mons[PM_SMALL_MIMIC];
-        game.u.umonnum = PM_SMALL_MIMIC;
-        game.youmonst.m_ap_type = M_AP_OBJECT;
-        game.youmonst.mappearance = 0;
-        game.nhDisplay.terminal._inputQueue.push(32);
-
-        await teleds(destX, destY, TELEDS_TELEPORT, game);
-
-        assert.deepEqual([game.u.ux, game.u.uy], [destX, destY]);
-        assert.equal(game.youmonst.m_ap_type, M_AP_NOTHING);
-    });
 
 test('goodpos reads hero pool and lava properties directly from source state', () => {
     const state = positionState();

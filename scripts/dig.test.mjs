@@ -694,7 +694,7 @@ test('unportedRotCorpseReason names the arm each corpse is waiting on', () => {
     );
 
     // Billing is owned by canonical obfree; the discarded hero hideunder
-    // call updates concealment without refusing corpse deletion.
+    // call records a named mon.c gap instead of refusing corpse deletion.
     const owed = floorCorpse(state, 14, 6);
     owed.unpaid = true;
     assert.equal(unportedRotCorpseReason(owed, seam), null);

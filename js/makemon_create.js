@@ -32,9 +32,12 @@ import {
     In_mines,
     In_sokoban,
     In_V_tower,
+    IS_LAVA,
+    IS_POOL,
     Is_earthlevel,
     Is_knox_level,
     Is_stronghold,
+    is_pit,
     LS_MONSTER,
     MM_NOTAIL,
     MM_ANGRY,
@@ -69,6 +72,7 @@ import {
     ONAME,
     ONAME_NO_FLAGS,
     ONAME_RANDOM,
+    OBJ_FLOOR,
     ROOMOFFSET,
     ROT_CORPSE,
     ROWNO,
@@ -94,6 +98,9 @@ import {
     IS_WALL,
     ZOO,
 } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import {
     ART_DEMONBANE,
@@ -168,7 +175,6 @@ import {
 import { dochugw, set_apparxy } from './monmove.js';
 import {
     dealloc_monst,
-    hideunder,
     newcham,
     newcham_initial,
 } from './mon.js';
@@ -184,7 +190,6 @@ import {
 // is in js/mon.js alongside the rest of mon.c.
 export {
     accept_newcham_form,
-    hideunder,
     newcham,
     newcham_distress,
     preflight_newcham_distress,
@@ -231,10 +236,12 @@ import {
     PM_CENTIPEDE,
     PM_CROESUS,
     PM_CHAMELEON,
+    PM_CHICKATRICE,
     PM_CHIEFTAIN,
     PM_CLERIC,
     PM_MONK,
     PM_COBRA,
+    PM_COCKATRICE,
     PM_DEMILICH,
     PM_DISPATER,
     PM_DWARF_RULER,
@@ -654,12 +661,14 @@ const TUTORIAL_LEVEL_MONSTERS = new Set([
 const AT_EXPL = 13;
 // include/monflag.h creation-time predicates not yet exported by monsters.js.
 const M1_WALLWALK = 0x00000008;
+const M1_CONCEAL = 0x00000080;
 const M1_SLITHY = 0x00080000;
 const M2_NOPOLY = 0x00000001;
 const M2_LORD = 0x00000400;
 const M2_PRINCE = 0x00000800;
 const M2_SHAPESHIFTER = 0x00004000;
 const M2_STRONG = 0x04000000;
+const MR_STONE = 0x80;
 // include/monflag.h random-generation group flags.
 const G_LGROUP = 0x0040;
 const G_SGROUP = 0x0080;
@@ -831,6 +840,56 @@ function runtimeAppearanceMessage(monster, mmflags, normalized) {
         monster.my,
         state,
     );
+}
+
+function canHideUnderObject(obj) {
+    if (!obj || obj.where !== OBJ_FLOOR) return false;
+    if (obj.oclass !== COIN_CLASS) return true;
+    let quantity = 0;
+    let current = obj;
+    while (current?.oclass === COIN_CLASS) {
+        quantity += current.quan;
+        if (quantity >= 10) return true;
+        current = current.nexthere;
+    }
+    return Boolean(current);
+}
+
+// C ref: mon.c hideunder(). Covers the S_EEL aquatic-hide and M1_CONCEAL
+// object-concealing branches for the level-creation and newcham() callers in
+// this file, which owe neither newsym() nor the "you see it hide" message.
+// js/mon.js hideunder() is the monster-turn port of the same C function and
+// owes both; the S_EEL predicate has to stay identical in the two.
+export function hideunder(monster, state) {
+    const { mx: x, my: y } = monster;
+    let hidden = false;
+    const trap = t_at(x, y, state);
+    if (monster !== state.u?.ustuck
+        && !monster.mtrapped
+        && (!trap || is_pit(trap.ttyp))) {
+        if (monster.data.mlet === S_EEL) {
+            // C ref: mon.c:4742-4747. Eels hide in water, not under objects.
+            hidden = is_pool(x, y, state)
+                && !on_level(state.u?.uz, state.water_level)
+                && (!state.u?.uinwater || !couldsee(x, y, state));
+        } else if ((monster.data.mflags1 & M1_CONCEAL)
+            && !IS_POOL(state.level.at(x, y).typ)
+            && !IS_LAVA(state.level.at(x, y).typ)) {
+            let obj = state.level.objects[x][y];
+            if (canHideUnderObject(obj)) {
+                if (!(monster.data.mresists & MR_STONE)) {
+                    while (obj?.otyp === CORPSE
+                        && (obj.corpsenm === PM_COCKATRICE
+                            || obj.corpsenm === PM_CHICKATRICE)) {
+                        obj = obj.nexthere;
+                    }
+                }
+                hidden = Boolean(obj);
+            }
+        }
+    }
+    monster.mundetected = hidden;
+    return hidden;
 }
 
 // C ref: makemon.c set_mimic_sym(). Covers all location-based branches:
@@ -3099,13 +3158,13 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     } else if (ptr.mlet === S_SPIDER || ptr.mlet === S_SNAKE) {
         if (state.in_mklev) {
             if (x && y) mkobj_at(RANDOM_CLASS, x, y, true, normalized);
-            hideunder(monster, { state });
+            hideunder(monster, state);
         }
     } else if (startsPermanentlyInvisible(ptr)) {
         monster.perminvis = true;
         monster.minvis = true;
     } else if (ptr.mlet === S_EEL) {
-        if (state.in_mklev) hideunder(monster, { state });
+        if (state.in_mklev) hideunder(monster, state);
     } else if (ptr.mlet === S_LEPRECHAUN) {
         monster.msleeping = true;
     } else if (ptr.mlet === S_JABBERWOCK || ptr.mlet === S_NYMPH) {
