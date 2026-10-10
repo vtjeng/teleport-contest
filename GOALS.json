@@ -248912,6 +248912,196 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-trap-seen-magic-trap-preflight-v39-20261010",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Complete the seen magic trap escape and explosion path",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v39/v39-magic-trap-explosion"
+      ],
+      "selectionReason": "Oldest dependency-clearing admitted v39 mismatch, traced to trap.c:dotrap and trapeffect_magic_trap at step 24.",
+      "detail": "v39/v39-magic-trap-explosion segment 0 stops at step 24 because preflight rejects an already-seen MAGIC_TRAP. C dotrap consumes the seen-trap escape roll, then trapeffect_magic_trap takes the 1-in-30 explosion arm: delete and redraw the trap, damage the hero, and restore maximum energy.",
+      "openedAt": "eb7bc814e442092076e6566bfd3cb61ea1a3906a",
+      "openStanding": {
+        "sha": "0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "trapeffect_magic_trap",
+      "session": "synthetic/v39/v39-magic-trap-explosion",
+      "step": 24,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-magic-trap-explosion": {
+          "session": "synthetic/v39/v39-magic-trap-explosion",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-magic-trap-explosion",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-magic-trap-explosion.session.json",
+          "recordingSha256": "b5702f57168e0054738cfa70a31d76dfdf2a43d0297c3f67b231b97e2b001142",
+          "evaluationPath": "challenges/evaluations/accepted-0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b-v39.json",
+          "evaluationCommit": "0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b"
+        }
+      },
+      "activeStanding": {
+        "sha": "0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-magic-trap-explosion",
+          "session": "synthetic/v39/v39-magic-trap-explosion",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-magic-trap-explosion.session.json",
+          "recordingPath": "challenges/cases/v39/v39-magic-trap-explosion.session.json",
+          "recordingSha256": "b5702f57168e0054738cfa70a31d76dfdf2a43d0297c3f67b231b97e2b001142",
+          "recipe": "challenges/cases/v39/v39-magic-trap-explosion.recipe.session.json",
+          "recipeSha256": "f8510b7221b3feb6dbdec3d52efc556ea308cb524f655b10df7406997d5ee046",
+          "replayInputSha256": "af4a14bbcf2249cb73834dd511429aa7ab71dc337d9cb7cbd7d14e2cb025ff42",
+          "evaluationPath": "challenges/evaluations/accepted-0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b-v39.json",
+          "evaluationCommit": "0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b",
+          "evaluationArtifact": "challenges/evaluations/accepted-0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b-v39.json",
+          "evaluationUtc": "2026-10-10T08:40:29.787Z",
+          "remainingScreens": 1,
+          "recordedSteps": 25,
+          "previousScreensMatched": 24,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 24,
+              "total": 25
+            },
+            "rng": {
+              "matched": 2743,
+              "total": 2746
+            },
+            "cursors": {
+              "matched": 24,
+              "total": 25
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: a trap the hero has already seen",
+            "step": 24
+          },
+          "step": 24,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero move: a trap the hero has already seen",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-magic-trap-explosion.json",
+            "result": {
+              "session": "synthetic/v39/v39-magic-trap-explosion",
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-magic-trap-explosion",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recordingSha256": "b5702f57168e0054738cfa70a31d76dfdf2a43d0297c3f67b231b97e2b001142",
+              "evaluationPath": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+              "evaluationCommit": "998c20cf771d23d6f5faed181eee05f270b73b58",
+              "remainingScreens": 1,
+              "recordedSteps": 25,
+              "status": "complete",
+              "commit": "505a2094f7a36fa0df072b39b4d76e3efe978041",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v39",
+                "caseId": "v39-magic-trap-explosion",
+                "session": "synthetic/v39/v39-magic-trap-explosion",
+                "manifestPath": "challenges/manifests/v39.json",
+                "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+                "recording": "challenges/cases/v39/v39-magic-trap-explosion.session.json",
+                "recordingPath": "challenges/cases/v39/v39-magic-trap-explosion.session.json",
+                "recordingSha256": "b5702f57168e0054738cfa70a31d76dfdf2a43d0297c3f67b231b97e2b001142",
+                "recipe": "challenges/cases/v39/v39-magic-trap-explosion.recipe.session.json",
+                "recipeSha256": "f8510b7221b3feb6dbdec3d52efc556ea308cb524f655b10df7406997d5ee046",
+                "replayInputSha256": "0829ceb24a4dbcbea8c6089aa8de856c51982d20a277e4f3a173eccf4a339ac1",
+                "evaluationPath": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+                "evaluationCommit": "998c20cf771d23d6f5faed181eee05f270b73b58",
+                "evaluationArtifact": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+                "evaluationUtc": "2026-10-10T07:03:42.993Z",
+                "remainingScreens": 1,
+                "recordedSteps": 25,
+                "previousScreensMatched": 24,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 24,
+                    "total": 25
+                  },
+                  "rng": {
+                    "matched": 2743,
+                    "total": 2746
+                  },
+                  "cursors": {
+                    "matched": 24,
+                    "total": 25
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: a trap the hero has already seen",
+                  "step": 24
+                },
+                "step": 24,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero move: a trap the hero has already seen",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The saved replay stops on the second #sit because JavaScript preflight rejects a seen MAGIC_TRAP before dotrap runs. C permits the seen-trap escape roll; this recording rolls 3 on rn2(5), continues into trapeffect_magic_trap, and triggers the explosion.",
+              "source": {
+                "file": "trap.c",
+                "branch": "For an already-seen trap, dotrap performs the escape roll only when the hero is not fumbling, the trap is destroyable, the trap is not ANTI_MAGIC, no force-bungle/plunge/conjoined-pit/adjacent-pit condition applies, and the call is not forced. MAGIC_TRAP satisfies those conditions. If rn2(5) is nonzero, dotrap proceeds to trapeffect_selector and the magic-trap effect.",
+                "functions": [
+                  "dotrap"
+                ],
+                "callers": [
+                  "sit.c:dosit (400-568) calls dotrap(trap, VIASITTING) when a trap is under the hero and the hero is not already trapped; js/sit.js:dosit already dispatches this call from cmd.js #sit."
+                ],
+                "dependencies": [
+                  "trap.c:trapeffect_selector",
+                  "trap.c:trapeffect_magic_trap"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved queue SHA-256 8159324bc02a3fa2724e8603cae7a6809fbbbaff1883c62684a0478b91a06f03 records v39-magic-trap-explosion with 1 remaining screen, 25 recorded steps, and a stop at segment 0 step 24: unsupported hero move: a trap the hero has already seen. Its admitted recipe creates a magic trap with wizard debug input, then runs #sit twice.",
+                "The C caller path is sit.c:dosit at lines 400-568: when a trap is under the hero and the hero is not already trapped, it prints the landing/sitting message and calls dotrap(trap, VIASITTING). The JavaScript caller already does the same at js/sit.js:898-902.",
+                "Upstream trap.c:dotrap lines 3035-3043 does not blanket-refuse seen traps. MAGIC_TRAP is not undestroyable and is not ANTI_MAGIC, so C rolls rn2(5); the saved second #sit records rn2(5)=3 at dotrap(trap.c:3038), proceeds to trapeffect_selector, then records rn2(30)=0 and rnd(10)=5 in trapeffect_magic_trap(trap.c:2300-2304).",
+                "js/trap_effects.js:preflight_dotrap rejects a seen trap at lines 3918-3927 because MAGIC_TRAP is absent from its allowlist. That guard runs before the already-ported dotrap seen-trap roll and trapeffect_magic_trap branch, producing the saved unsupported-move stop. scripts/hero-magic-trap.test.mjs:134-142 currently pins this incorrect refusal.",
+                "The narrowly actionable fix is to admit already-seen MAGIC_TRAP through preflight while preserving all other unsupported seen-trap refusals. The existing dotrap implementation then performs C-order rn2(5) and reaches the existing magic-trap effect. No sit caller change or new recipe is needed; the admitted v39 range covers segment 0 step 24.",
+                "Fresh C/JavaScript differential `node scripts/diff-fresh.mjs challenges/cases/v39/v39-magic-trap-explosion.recipe.session.json` reproduced the same refusal at segment 1 step 25 (bounded run-4DTJbH, .cache/B214-investigation-fresh-diff.log): C records rn2(5)=3 at dotrap(trap.c:3038), then has the screen and cursor boundary that JavaScript omits after the seen-MAGIC_TRAP preflight error."
+              ],
+              "savedQueueSha256": "8159324bc02a3fa2724e8603cae7a6809fbbbaff1883c62684a0478b91a06f03"
+            }
+          }
+        }
+      ]
     }
   ]
 }
