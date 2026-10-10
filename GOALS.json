@@ -251869,6 +251869,770 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-wishcmdassist-display-v40-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Display the complete wish assistance text window before retrying a wizard wish.",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v40/v40-wizard-wish-assistance"
+      ],
+      "selectionReason": "The refreshed admitted v40 case first differs at step 6 because zap.c:makewish calls wishcmdassist while JavaScript records the helper as unported and immediately retries.",
+      "detail": "Port zap.c:wishcmdassist lines 6165-6226 in source order, wire the existing makewish help branch, preserve the conditional wishless and cmdassist lines and retry wording, and use the existing blocking TTY text-window owner.",
+      "openedAt": "a831895abbb238072b000344a5860a6a2b7aa7dd",
+      "openStanding": {
+        "sha": "10b2dc61ddff793aef1185581dff8f3c576097e0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "80ea59cc5def2fbf4019977110084cad10dd5518",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "wishcmdassist",
+      "session": "synthetic/v40/v40-wizard-wish-assistance",
+      "step": 6,
+      "syntheticProvenance": {
+        "synthetic/v40/v40-wizard-wish-assistance": {
+          "session": "synthetic/v40/v40-wizard-wish-assistance",
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-wizard-wish-assistance",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recordingPath": "challenges/cases/v40/v40-wizard-wish-assistance-cfirst.session.json",
+          "recordingSha256": "a002883b9c47c5151fbe3c6e7d8a8484e9f8f836b1cf3d829351fc90b7dca2c4",
+          "evaluationPath": "challenges/evaluations/accepted-10b2dc61ddff793aef1185581dff8f3c576097e0-v40.json",
+          "evaluationCommit": "10b2dc61ddff793aef1185581dff8f3c576097e0"
+        }
+      },
+      "activeStanding": {
+        "sha": "10b2dc61ddff793aef1185581dff8f3c576097e0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-wizard-wish-assistance",
+          "session": "synthetic/v40/v40-wizard-wish-assistance",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recording": "challenges/cases/v40/v40-wizard-wish-assistance-cfirst.session.json",
+          "recordingPath": "challenges/cases/v40/v40-wizard-wish-assistance-cfirst.session.json",
+          "recordingSha256": "a002883b9c47c5151fbe3c6e7d8a8484e9f8f836b1cf3d829351fc90b7dca2c4",
+          "recipe": "challenges/cases/v40/v40-wizard-wish-assistance-cfirst.recipe.session.json",
+          "recipeSha256": "d7469c501ab338befa7376ca81a8102578ebb127e97c07fb2d68ea010160913a",
+          "replayInputSha256": "8558a5e81c1172786b98403ff215e1acf892a18dd994627ed6e6b2c3f5575acf",
+          "evaluationPath": "challenges/evaluations/accepted-10b2dc61ddff793aef1185581dff8f3c576097e0-v40.json",
+          "evaluationCommit": "10b2dc61ddff793aef1185581dff8f3c576097e0",
+          "evaluationArtifact": "challenges/evaluations/accepted-10b2dc61ddff793aef1185581dff8f3c576097e0-v40.json",
+          "evaluationUtc": "2026-10-10T14:03:06.126Z",
+          "remainingScreens": 9,
+          "recordedSteps": 16,
+          "previousScreensMatched": 7,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 7,
+              "total": 16
+            },
+            "rng": {
+              "matched": 2152,
+              "total": 2152
+            },
+            "cursors": {
+              "matched": 7,
+              "total": 16
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 6,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 6,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "F",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 6,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 6,
+                "key": "\n"
+              },
+              "cCursor": [
+                8,
+                23,
+                1
+              ],
+              "jsCursor": [
+                22,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 6,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v40/v40-wizard-wish-assistance.json",
+            "result": {
+              "session": "synthetic/v40/v40-wizard-wish-assistance",
+              "remainingScreens": 9,
+              "recordedSteps": 16,
+              "corpus": "synthetic",
+              "batch": "v40",
+              "caseId": "v40-wizard-wish-assistance",
+              "manifestPath": "challenges/manifests/v40.json",
+              "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+              "recordingSha256": "a002883b9c47c5151fbe3c6e7d8a8484e9f8f836b1cf3d829351fc90b7dca2c4",
+              "evaluationPath": "challenges/evaluations/accepted-10b2dc61ddff793aef1185581dff8f3c576097e0-v40.json",
+              "evaluationCommit": "10b2dc61ddff793aef1185581dff8f3c576097e0",
+              "status": "complete",
+              "commit": "10b2dc61ddff793aef1185581dff8f3c576097e0",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v40",
+                "caseId": "v40-wizard-wish-assistance",
+                "session": "synthetic/v40/v40-wizard-wish-assistance",
+                "manifestPath": "challenges/manifests/v40.json",
+                "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+                "recording": "challenges/cases/v40/v40-wizard-wish-assistance-cfirst.session.json",
+                "recordingPath": "challenges/cases/v40/v40-wizard-wish-assistance-cfirst.session.json",
+                "recordingSha256": "a002883b9c47c5151fbe3c6e7d8a8484e9f8f836b1cf3d829351fc90b7dca2c4",
+                "recipe": "challenges/cases/v40/v40-wizard-wish-assistance-cfirst.recipe.session.json",
+                "recipeSha256": "d7469c501ab338befa7376ca81a8102578ebb127e97c07fb2d68ea010160913a",
+                "replayInputSha256": "8558a5e81c1172786b98403ff215e1acf892a18dd994627ed6e6b2c3f5575acf",
+                "evaluationPath": "challenges/evaluations/accepted-10b2dc61ddff793aef1185581dff8f3c576097e0-v40.json",
+                "evaluationCommit": "10b2dc61ddff793aef1185581dff8f3c576097e0",
+                "evaluationArtifact": "challenges/evaluations/accepted-10b2dc61ddff793aef1185581dff8f3c576097e0-v40.json",
+                "evaluationUtc": "2026-10-10T14:03:06.126Z",
+                "remainingScreens": 9,
+                "recordedSteps": 16,
+                "previousScreensMatched": 7,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 7,
+                    "total": 16
+                  },
+                  "rng": {
+                    "matched": 2152,
+                    "total": 2152
+                  },
+                  "cursors": {
+                    "matched": 7,
+                    "total": 16
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 6,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 6,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "W",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "F",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 6,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 6,
+                      "key": "\n"
+                    },
+                    "cCursor": [
+                      8,
+                      23,
+                      1
+                    ],
+                    "jsCursor": [
+                      22,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 6,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "investigation": {
+                  "status": "missing",
+                  "path": "investigations/synthetic/v40/v40-wizard-wish-assistance.json"
+                }
+              },
+              "summary": "The admitted help response diverges because zap.c:makewish calls wishcmdassist() to display the wish guidance text window before retrying, while js/zap.js records that helper as unported and retries immediately. Port the whole helper in js/zap.js and replace the placeholder with the existing TTY text-window API; makewish and its production callers already share that path.",
+              "source": {
+                "file": "zap.c",
+                "branch": "After makewish() reads and normalizes the wish line, case-insensitive \"help\" invokes wishcmdassist(MAXWISHTRY - tries), clears the pending line, and retries before readobjnam(). The helper always emits the static wish guidance and retry text, emits the wishless-conduct sentence only while u.uconduct.wishes is zero, and emits the cmdassist suppression sentence only while iflags.cmdassist is true. Retry wording uses the remaining attempt count and plur(triesleft).",
+                "functions": [
+                  "wishcmdassist"
+                ],
+                "callers": [
+                  "Direct helper caller: zap.c:makewish() (6348-6352) invokes wishcmdassist(MAXWISHTRY - tries) for the normalized help line, then clears buf and retries at 6349-6352.",
+                  "Production entry path exercised by this case: cmd.c:2000 binds Ctrl-W to wiz_wish; wizcmds.c:wiz_wish() calls makewish() at 38; JS is cmd.js wizard-wish dispatch -> wizcmds.js:wiz_wish -> zap.js:makewish -> wishcmdassist.",
+                  "Other makewish callers all converge on the same helper branch: zap.c:weffects() (2583), potion.c:mongrantswish() (2809), sit.c:special_throne_effect() (110, 251), and allmain.c:moveloop()/moveloop_core() (201, 450). Their caller wiring already reaches the shared JS makewish()."
+                ],
+                "dependencies": [
+                  "C creates an NHW_TEXT window, streams lines with putstr(), blocks in display_nhwindow(win, TRUE), then destroys the window. The existing JS displayTtyTextWindow(state, lines) in js/tty_menu.js owns the equivalent text rendering, --More-- input, and screen restoration; no window ID or display return value escapes wishcmdassist().",
+                  "hack.h:1520 defines plur(x) as an empty suffix only for x == 1 and \"s\" otherwise; it is a macro, so formatting the same suffix locally requires no additional C function port or source reservation."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The authoritative combined queue SHA-256 b521bb87540b2a1399a0c331b429c561a587eb7c22e1c79b534e47ff3f40ae59 identifies synthetic/v40/v40-wizard-wish-assistance, with 9 remaining screens, 16 recorded steps, and 7/16 screen/cursor matches. Its first mismatch is segment 0, step 6, key newline: C cursor [8,23,1] on the Wish details text window versus JS cursor [22,0,1] at the retried wish prompt; all 2152/2152 RNG calls match.",
+                "The admitted recipe is challenges/cases/v40/v40-wizard-wish-assistance-cfirst.recipe.session.json; it enters Ctrl-W, types help, dismisses the guidance, then explicitly answers nothing. Its C recording is challenges/cases/v40/v40-wizard-wish-assistance-cfirst.session.json. A fresh C/JS differential on the assigned branch reproduced the same boundary and full RNG parity (run-QjUnfH).",
+                "Upstream nethack-c/upstream/src/zap.c:6165-6221 defines the complete wishcmdassist() window content and conditionals. Lines 6348-6352 in makewish() call it only for the normalized help line and retry without consuming an attempt.",
+                "Upstream nethack-c/upstream/include/hack.h:1520 defines plur(x), used in the retry sentence. The helper takes remaining tries as an argument and does not mutate game state or make RNG calls, but it writes and waits on an NHW_TEXT window, so matching recorded play is its runtime evidence.",
+                "At accepted game commit 10b2dc61ddff793aef1185581dff8f3c576097e0, js/zap.js:1847-1852 handles help with note_unported(\"zap.c wishcmdassist\") and immediately retries. The C caller behavior is therefore present, while the source helper’s visible output and blocking input are absent.",
+                "The existing displayTtyTextWindow implementation at js/tty_menu.js:880-970 is the TTY text-window path used by other source ports and provides the exact synchronous wait boundary required by display_nhwindow(win, TRUE)."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "80ea59cc5def2fbf4019977110084cad10dd5518",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-pray-god-zaps-you-v41-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port divine lightning and disintegration retaliation from pray.c",
+      "cFile": "pray.c",
+      "sessions": [
+        "synthetic/v41/v41-anger-prayer-god-zaps-hero"
+      ],
+      "selectionReason": "The current v41 replay first diverges when angrygods selects its default arm and JavaScript records god_zaps_you as unported.",
+      "detail": "Port whole pray.c god_zaps_you, fry_by_god, and angrygods in source order. Wire the existing prayer callers; retain desecrate_altar as a separate absent JavaScript route.",
+      "openedAt": "f4656cbf698cdf7f6ff78bc215a57eb67156c998",
+      "openStanding": {
+        "sha": "80ea59cc5def2fbf4019977110084cad10dd5518",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "6e5dacedc7638246a629e7fe6295014ecbb0083d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "god_zaps_you",
+          "line": 610,
+          "endLine": 693,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "fry_by_god",
+          "line": 694,
+          "endLine": 703,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "angrygods",
+          "line": 704,
+          "endLine": 787,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 610,
+        "to": 787
+      },
+      "syntheticProvenance": {
+        "synthetic/v41/v41-anger-prayer-god-zaps-hero": {
+          "session": "synthetic/v41/v41-anger-prayer-god-zaps-hero",
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-anger-prayer-god-zaps-hero",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recordingPath": "challenges/cases/v41/v41-prayer-too-soon-angrygod-zap-cfirst-precise.session.json",
+          "recordingSha256": "4a19c08212339e1e84343d3d7a94fd1c93379f9314964e2f5ca1d30fced3ff6b",
+          "evaluationPath": "challenges/evaluations/accepted-80ea59cc5def2fbf4019977110084cad10dd5518-v41.json",
+          "evaluationCommit": "80ea59cc5def2fbf4019977110084cad10dd5518"
+        }
+      },
+      "activeStanding": {
+        "sha": "80ea59cc5def2fbf4019977110084cad10dd5518",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-anger-prayer-god-zaps-hero",
+          "session": "synthetic/v41/v41-anger-prayer-god-zaps-hero",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recording": "challenges/cases/v41/v41-prayer-too-soon-angrygod-zap-cfirst-precise.session.json",
+          "recordingPath": "challenges/cases/v41/v41-prayer-too-soon-angrygod-zap-cfirst-precise.session.json",
+          "recordingSha256": "4a19c08212339e1e84343d3d7a94fd1c93379f9314964e2f5ca1d30fced3ff6b",
+          "recipe": "challenges/cases/v41/v41-prayer-too-soon-angrygod-zap-cfirst-precise.recipe.session.json",
+          "recipeSha256": "c398eb9c1ae4343f9995872f28937c99389ab86e912291311809ea79585064fe",
+          "replayInputSha256": "5c75316e170748b82cd1d24eb6b686958479e7df7eecceac795dcb71776adadc",
+          "evaluationPath": "challenges/evaluations/accepted-80ea59cc5def2fbf4019977110084cad10dd5518-v41.json",
+          "evaluationCommit": "80ea59cc5def2fbf4019977110084cad10dd5518",
+          "evaluationArtifact": "challenges/evaluations/accepted-80ea59cc5def2fbf4019977110084cad10dd5518-v41.json",
+          "evaluationUtc": "2026-10-10T14:19:29.362Z",
+          "remainingScreens": 13,
+          "recordedSteps": 48,
+          "previousScreensMatched": 35,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 35,
+              "total": 48
+            },
+            "rng": {
+              "matched": 2994,
+              "total": 3026
+            },
+            "cursors": {
+              "matched": 36,
+              "total": 48
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 35,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 35,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 52,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2992,
+              "cEntry": "rn2(100)=56",
+              "cCaller": "obj_resists(zap.c:1469)",
+              "jsEntry": "rn2(1000)=356",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 39,
+                "key": " "
+              },
+              "stepIndex": 39
+            },
+            "cursor": {
+              "index": 35,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 35,
+                "key": " "
+              },
+              "cCursor": [
+                60,
+                0,
+                1
+              ],
+              "jsCursor": [
+                5,
+                8,
+                1
+              ]
+            }
+          },
+          "step": 35,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v41/v41-anger-prayer-god-zaps-hero.json",
+            "result": {
+              "session": "synthetic/v41/v41-anger-prayer-god-zaps-hero",
+              "remainingScreens": 13,
+              "recordedSteps": 48,
+              "corpus": "synthetic",
+              "batch": "v41",
+              "caseId": "v41-anger-prayer-god-zaps-hero",
+              "manifestPath": "challenges/manifests/v41.json",
+              "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+              "recordingSha256": "4a19c08212339e1e84343d3d7a94fd1c93379f9314964e2f5ca1d30fced3ff6b",
+              "evaluationPath": "challenges/evaluations/accepted-80ea59cc5def2fbf4019977110084cad10dd5518-v41.json",
+              "evaluationCommit": "80ea59cc5def2fbf4019977110084cad10dd5518",
+              "status": "complete",
+              "commit": "80ea59cc5def2fbf4019977110084cad10dd5518",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v41",
+                "caseId": "v41-anger-prayer-god-zaps-hero",
+                "session": "synthetic/v41/v41-anger-prayer-god-zaps-hero",
+                "manifestPath": "challenges/manifests/v41.json",
+                "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+                "recording": "challenges/cases/v41/v41-prayer-too-soon-angrygod-zap-cfirst-precise.session.json",
+                "recordingPath": "challenges/cases/v41/v41-prayer-too-soon-angrygod-zap-cfirst-precise.session.json",
+                "recordingSha256": "4a19c08212339e1e84343d3d7a94fd1c93379f9314964e2f5ca1d30fced3ff6b",
+                "recipe": "challenges/cases/v41/v41-prayer-too-soon-angrygod-zap-cfirst-precise.recipe.session.json",
+                "recipeSha256": "c398eb9c1ae4343f9995872f28937c99389ab86e912291311809ea79585064fe",
+                "replayInputSha256": "5c75316e170748b82cd1d24eb6b686958479e7df7eecceac795dcb71776adadc",
+                "evaluationPath": "challenges/evaluations/accepted-80ea59cc5def2fbf4019977110084cad10dd5518-v41.json",
+                "evaluationCommit": "80ea59cc5def2fbf4019977110084cad10dd5518",
+                "evaluationArtifact": "challenges/evaluations/accepted-80ea59cc5def2fbf4019977110084cad10dd5518-v41.json",
+                "evaluationUtc": "2026-10-10T14:19:29.362Z",
+                "remainingScreens": 13,
+                "recordedSteps": 48,
+                "previousScreensMatched": 35,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 35,
+                    "total": 48
+                  },
+                  "rng": {
+                    "matched": 2994,
+                    "total": 3026
+                  },
+                  "cursors": {
+                    "matched": 36,
+                    "total": 48
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 35,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 35,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 52,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2992,
+                    "cEntry": "rn2(100)=56",
+                    "cCaller": "obj_resists(zap.c:1469)",
+                    "jsEntry": "rn2(1000)=356",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 39,
+                      "key": " "
+                    },
+                    "stepIndex": 39
+                  },
+                  "cursor": {
+                    "index": 35,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 35,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      60,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      5,
+                      8,
+                      1
+                    ]
+                  }
+                },
+                "step": 35,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "investigation": {
+                  "status": "missing",
+                  "path": "investigations/synthetic/v41/v41-anger-prayer-god-zaps-hero.json"
+                }
+              },
+              "summary": "The accepted replay stops at the missing pray.c:god_zaps_you source function: pray.c:angrygods() already selects and voices the default retaliation, but js/pray.js records the helper as unported. Port the whole lightning/disintegration helper, its same-file fry_by_god helper, and the full angrygods caller unit. The separate C-only desecrate_altar caller has no JavaScript implementation or caller path and remains outside this task.",
+              "source": {
+                "file": "pray.c",
+                "branch": "After prayer_done() resolves an unforced too-soon prayer (p_type 0), gods_upset() increments anger and calls angrygods(). Its rn2(maxanger) result must be in the default arm (> 8) after the cap to 15; this case source-records rn2(15)=10. That arm calls gods_angry(resp_god), then god_zaps_you(resp_god), before angrygods() updates ublesscnt with rnz(300). In god_zaps_you(), an unswallowed hero without shock resistance reaches fry_by_god() for lightning; a surviving wizard then receives the not-deterred line, wide-angle disintegration, worn cloak destruction, and the disintegration fry path. The direct C desecrate_altar() caller is a distinct absent JS path.",
+                "functions": [
+                  "angrygods",
+                  "god_zaps_you",
+                  "fry_by_god"
+                ],
+                "callers": [
+                  "Production C route exercised: pray.c:dopray() installs prayer_done() as afternmv; allmain.c:unmul() invokes it after the three immobile turns; pray.c:prayer_done() p_type 0 calls gods_upset(), which reaches angrygods() default and god_zaps_you(). Existing JavaScript wiring is pray.js:dopray/prayer_done -> gods_upset -> angrygods; only the default helper call is missing.",
+                  "Other direct C call: pray.c:desecrate_altar() calls god_zaps_you() after its own deity voice. There is no JavaScript desecrate_altar function or JS caller route in this base; this task records that separate source gap and does not invent the route."
+                ],
+                "dependencies": [
+                  "pray.c:godvoice and gods_angry supply the source-ordered line before the helper; the existing JS angrygods default already calls godvoice with that text.",
+                  "mondata.c:Resists_Elem(), already ported in js/mondata.js, supplies the return values for C resists_elec()/resists_disint() macros; its return is used for swallowed-monster branches.",
+                  "do_wear.c:disintegrate_arm(), already ported in js/do_wear.js, is called for worn armor in the same shield, cloak, suit, shirt order; C discards its return and relies on effects.",
+                  "mon.c:xkilled(), end.c:done(), display.c:shieldeff(), muse.c:ureflects(), mondata.c:monstseesu()/monstunseesu(), sounds.c:SetVoice(), pline.c:verbalize(), and minion.c:summon_minion() have existing JS implementations used for corresponding effects."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The authoritative saved queue (SHA-256 a422c91ed2b2adcfc2671f352702f5ae9f52986af4e8cae87c017f69f5b73b64) identifies synthetic/v41/v41-anger-prayer-god-zaps-hero at 13 remaining screens of 48; C/JS currently match 35 screens, 2994 RNG calls, and 36 cursors. The first mismatch is segment 0, step 35, key space: C cursor [60,0,1] after the quoted divine anger voice; JS cursor [5,8,1] because the helper is absent.",
+                "The admitted recipe is challenges/cases/v41/v41-prayer-too-soon-angrygod-zap-cfirst-precise.recipe.session.json and the C recording is challenges/cases/v41/v41-prayer-too-soon-angrygod-zap-cfirst-precise.session.json. Three too-soon prayers reach prayer_done() p_type 0; the third C selector is rn2(15)=10. C then records lightning, the Wizard survival query, a disintegration beam, cloak destruction, a second survival query, and continued play through step 47.",
+                "Upstream nethack-c/upstream/src/pray.c:610-694 is the complete god_zaps_you() body and lines 696-702 are its static fry_by_god() helper. Lines 775-776 call it only from angrygods() default; pray.c:1522 also calls it from desecrate_altar(), whose caller path is not implemented in JS. Lines 2276-2335 trace the selected prayer route through prayer_done().",
+                "At accepted game commit 80ea59cc5def2fbf4019977110084cad10dd5518, js/pray.js:2410 has note_unported(\"pray.c god_zaps_you\") immediately after the source-matched angrygods() anger voice. js/mondata.js:645 implements Resists_Elem(), js/do_wear.js:4122 implements disintegrate_arm(), and the remaining listed dependencies are existing source ports."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "god_zaps_you",
+            "implementation": "js/pray.js",
+            "symbol": "god_zaps_you",
+            "sourceReview": "Read pray.c:610-693 in full. Preserved the swallowed-monster lightning branch and its Resists_Elem result, then the unswallowed reflection -> shock-resistance -> fry order and M_SEEN updates. The second effect rechecks u.uswallow, resolves the wide-angle beam, and visits shield, cloak, suit-without-cloak, and shirt-without-suit-or-cloak in source order using the ported disintegrate_arm effects (its C return is discarded). It then applies hero disintegration resistance or fry_by_god and the three high-altar minion attempts. The source direct angry gods call at pray.c:775-776 is wired. A second C caller at pray.c:1522 is desecrate_altar(); its JavaScript function and caller path are absent at this base and remain a separately named source gap, so no route was invented.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "angrygods",
+                "source": "pray.c:775-776 default arm calls gods_angry(resp_god), then god_zaps_you(resp_god); the existing prayer dispatch reaches this function through pray.c:prayer_done -> gods_upset -> angrygods."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-anger-prayer-god-zaps-hero",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 47,
+                "source": "pray.c:dopray -> allmain.c:unmul -> prayer_done(p_type 0) -> gods_upset -> angrygods default -> god_zaps_you -> fry_by_god; the matching tail includes the second disintegration fry and prayer timer."
+              }
+            ],
+            "checkedAt": "6e5dacedc7638246a629e7fe6295014ecbb0083d"
+          },
+          {
+            "name": "fry_by_god",
+            "implementation": "js/pray.js",
+            "symbol": "fry_by_god",
+            "sourceReview": "Read pray.c:694-703 in full. The helper chooses the source phrase from via_disintegration, then sets svk.killer.format to KILLED_BY, writes \"the wrath of <aligned god>\", and calls done(DIED). god_zaps_you reaches it after lethal lightning and after nonresisted disintegration. In JavaScript done() may return after a lifesaving or wizard/discover survival; god_zaps_you() continues in that source-return case and returns after the terminal gameover path.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "god_zaps_you",
+                "source": "pray.c:610-693 calls fry_by_god(resp_god,FALSE) for unresisted lightning and fry_by_god(resp_god,TRUE) after unresisted disintegration."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-anger-prayer-god-zaps-hero",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 47,
+                "source": "pray.c:dopray -> allmain.c:unmul -> prayer_done(p_type 0) -> gods_upset -> angrygods default -> god_zaps_you -> fry_by_god; the matching tail includes the second disintegration fry and prayer timer."
+              }
+            ],
+            "checkedAt": "6e5dacedc7638246a629e7fe6295014ecbb0083d"
+          },
+          {
+            "name": "angrygods",
+            "implementation": "js/pray.js",
+            "symbol": "angrygods",
+            "sourceReview": "Read pray.c:704-787 in full. Kept the Inhell alignment override, divine-protection clear, C integer truncation and maxanger clamp, rn2(maxanger) arms, source-order effects, and the shared upward-only rnz(300) prayer timer. The default source arm now calls gods_angry then the complete god_zaps_you helper before the timer. Existing non-default branches and their callers remain unchanged.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "gods_upset",
+                "source": "pray.c:1442; gods_upset is reached by prayer_done p_type 0/2 and offer_too_soon/offering cases, including the selected p_type 0 callback."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "offer_different_alignment_altar",
+                "source": "pray.c:1656 rejected-alignment offering arm calls angrygods after its source alignment/luck/Wisdom effects."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "sacrifice_your_race",
+                "source": "pray.c:1770 calls angrygods before the source change_luck(-5); #offer reaches this function."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "prayer_done",
+                "source": "pray.c:2312/2325 calls angry gods for p_type 0 in Gehennom or p_type 1; p_type 0 outside Gehennom uses gods_upset at 2321."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-anger-prayer-god-zaps-hero",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 47,
+                "source": "pray.c:dopray -> allmain.c:unmul -> prayer_done(p_type 0) -> gods_upset -> angrygods default -> god_zaps_you -> fry_by_god; the matching tail includes the second disintegration fry and prayer timer."
+              },
+              {
+                "batch": "v29",
+                "caseId": "v29-sacrifice-human-race",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 53,
+                "source": "cmd.c doextcmd #offer -> pray.c dosacrifice/offer_corpse -> sacrifice_your_race -> angrygods case 8 -> summon_minion; the admitted tail fully matches."
+              }
+            ],
+            "checkedAt": "6e5dacedc7638246a629e7fe6295014ecbb0083d"
+          }
+        ],
+        "entryPointReview": "The selected active entry point is the delayed #pray response: dopray installs prayer_done, allmain.c:unmul resumes it, p_type 0 uses gods_upset, and the source-selected angry gods default enters god_zaps_you/fry_by_god; v41 covers all three units through step 47. The existing admitted v29 own-race #offer range separately exercises sacrifice_your_race -> angrygods through its minion branch. Other JS angry gods callers are wired in gods_upset, prayer_done, offer_different_alignment_altar, and sacrifice_your_race. C pray.c:desecrate_altar at 1501-1528 is a second active direct god_zaps_you caller, but no JS desecrate_altar function or caller adapter exists; current JS wrappers preserve that separate gap with note_unported(\"pray.c desecrate_altar\"). It is not claimed as covered or synthesized in this task.",
+        "entryPoints": [
+          {
+            "name": "delayed #pray too-soon default divine retaliation",
+            "functions": [
+              "angrygods",
+              "god_zaps_you",
+              "fry_by_god"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-anger-prayer-god-zaps-hero",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 47,
+                "source": "pray.c:dopray -> allmain.c:unmul -> prayer_done(p_type 0) -> gods_upset -> angrygods default -> god_zaps_you -> fry_by_god; the matching tail includes the second disintegration fry and prayer timer."
+              }
+            ]
+          },
+          {
+            "name": "#offer own-race sacrifice anger response",
+            "functions": [
+              "angrygods"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-sacrifice-human-race",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 53,
+                "source": "cmd.c doextcmd #offer -> pray.c dosacrifice/offer_corpse -> sacrifice_your_race -> angrygods case 8 -> summon_minion; the admitted tail fully matches."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6e5dacedc7638246a629e7fe6295014ecbb0083d",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
