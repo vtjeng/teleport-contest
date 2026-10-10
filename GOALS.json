@@ -259430,6 +259430,277 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-weapon-silver-sears-v42-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port weapon.c silver_sears and wire every active hmonas caller",
+      "cFile": "weapon.c",
+      "sessions": [
+        "synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring"
+      ],
+      "selectionReason": "The admitted v42 silver-ring polymorph case diverges at the source silver_sears message path, and all active hmonas call sites can be wired in the same bounded source task.",
+      "detail": "The investigation traces hack.c:domove_core through uhitm.c:hmonas to weapon.c:silver_sears; the complete helper is lines 436-466 and writes feedback without RNG or state mutation.",
+      "openedAt": "c695337cd79684138af1d86349f620f7fae86525",
+      "openStanding": {
+        "sha": "37044eda52fe8b08877c9f10c3aa300bee7c5291",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "silver_sears",
+          "line": 436,
+          "endLine": 475,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 436,
+        "to": 475
+      },
+      "syntheticProvenance": {
+        "synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring": {
+          "session": "synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring",
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-silver-sears-monk-polymorph-claw-ring",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recordingPath": "challenges/cases/v42/v42-silver-sears-monk-polymorph-claw-ring.session.json",
+          "recordingSha256": "90c23f842e66c1a9828e85c6ec844d2f548c60e58b6eb081977d15a63d67fded",
+          "evaluationPath": "challenges/evaluations/accepted-37044eda52fe8b08877c9f10c3aa300bee7c5291-v42.json",
+          "evaluationCommit": "37044eda52fe8b08877c9f10c3aa300bee7c5291"
+        }
+      },
+      "activeStanding": {
+        "sha": "37044eda52fe8b08877c9f10c3aa300bee7c5291",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-silver-sears-monk-polymorph-claw-ring",
+          "session": "synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recording": "challenges/cases/v42/v42-silver-sears-monk-polymorph-claw-ring.session.json",
+          "recordingPath": "challenges/cases/v42/v42-silver-sears-monk-polymorph-claw-ring.session.json",
+          "recordingSha256": "90c23f842e66c1a9828e85c6ec844d2f548c60e58b6eb081977d15a63d67fded",
+          "recipe": "challenges/cases/v42/v42-silver-sears-monk-polymorph-claw-ring.recipe.session.json",
+          "recipeSha256": "2d9b2a0d91e039b4e9ddf75260bc1929ac7091074bb27827c068eac34aeb235d",
+          "replayInputSha256": "71f8dfeb7da7c208ce50657e94ba83730a35ca2506a1b12b854cc25f504b3d43",
+          "evaluationPath": "challenges/evaluations/accepted-37044eda52fe8b08877c9f10c3aa300bee7c5291-v42.json",
+          "evaluationCommit": "37044eda52fe8b08877c9f10c3aa300bee7c5291",
+          "evaluationArtifact": "challenges/evaluations/accepted-37044eda52fe8b08877c9f10c3aa300bee7c5291-v42.json",
+          "evaluationUtc": "2026-10-10T21:57:40.859Z",
+          "remainingScreens": 1,
+          "recordedSteps": 72,
+          "previousScreensMatched": 71,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 71,
+              "total": 72
+            },
+            "rng": {
+              "matched": 2512,
+              "total": 2512
+            },
+            "cursors": {
+              "matched": 71,
+              "total": 72
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 71,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 71,
+                "key": "k"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 23,
+              "cCell": {
+                "ch": "r",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2512,
+              "cCaller": null,
+              "jsEntry": "rn2(6)=2",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 71,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 71,
+                "key": "k"
+              },
+              "cCursor": [
+                61,
+                0,
+                1
+              ],
+              "jsCursor": [
+                5,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 71,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v42",
+              "caseId": "v42-silver-sears-monk-polymorph-claw-ring",
+              "remainingScreens": 1,
+              "status": "complete",
+              "commit": "3789ea8a86afba7e326d8cc3e3bcd0440cc42268",
+              "mismatch": {
+                "kind": "synthetic",
+                "corpus": "synthetic",
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "session": "synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring",
+                "sessions": [
+                  "synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring"
+                ],
+                "remainingScreens": 1,
+                "remainingScreensUpperBound": null,
+                "earliestStep": 71,
+                "caseId": "v42-silver-sears-monk-polymorph-claw-ring",
+                "batch": "v42",
+                "recordingPath": "challenges/cases/v42/v42-silver-sears-monk-polymorph-claw-ring.session.json"
+              },
+              "summary": "At the final bare-handed claw attack, C reports that the silver ring sears the manes and waits for the message pager. JavaScript skips the missing weapon.c:silver_sears call, omits that message, and continues the turn; the manes die and the final screen and cursor diverge.",
+              "source": {
+                "file": "weapon.c",
+                "branch": "When a polymorphed hero's landed attack earns silver-ring damage and verbose messages are enabled, hmonas calls silver_sears with the worn-ring mask. The helper names the left or right ring, uses plural wording when both ring slots qualify, and emits the searing message.",
+                "functions": [
+                  "silver_sears"
+                ],
+                "callers": [
+                  "uhitm.c:do_attack() selects hmonas() for Upolyd at lines 565-568; hmonas() calls silver_sears() in its claw/touch and hug branches at lines 5662, 5726, 5744, and 5756.",
+                  "hack.c:domove_core() calls do_attack(); the JavaScript production route is hack.js:domove_core() -> uhitm.js:do_attack() -> hmonas()."
+                ],
+                "dependencies": [
+                  "weapon.c:special_dmgval() supplies the silverhit ring mask and is already implemented in js/weapon.js.",
+                  "The hmonas attack and damage branches are already implemented in js/uhitm.js; four corresponding silver_sears call sites still use note_unported().",
+                  "do_name.c:mon_nam(), objnam.c:vtense(), and the existing message operation provide the helper's naming, agreement, and output behavior."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The authoritative saved queue has SHA-256 6889a7ab6f060b3cf8f6536df5fe921c893bc9abb7bb34f67702818e4b845e61 and selects this v42 case with one remaining screen at step 71. Its recording SHA-256 is 90c23f842e66c1a9828e85c6ec844d2f548c60e58b6eb081977d15a63d67fded; its recipe SHA-256 is 2d9b2a0d91e039b4e9ddf75260bc1929ac7091074bb27827c068eac34aeb235d; the accepted evaluation is challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json at commit 2634fa9f632f0bd97556887204d19f3fdb2645f2, with manifest SHA-256 85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418.",
+                "A fresh C-versus-JavaScript replay of the admitted recipe at accepted Main 2634fa9 showed 2512 matching RNG calls before the final input boundary. At segment 0, step 71, key k, C's message is 'You hit the manes. Your silver ring sears the manes!--More--' and its map retains the manes; JavaScript instead prints 'You hit the manes. You destroy the manes!' and removes them. The missing pager lets JavaScript continue and consume four extra RNG calls, beginning with rn2(6)=2.",
+                "Upstream weapon.c:silver_sears() at lines 436-466 selects ring types from uleft, uright, and silverhit; its both, l_ag, and r_ag expressions preserve left/right identification, plural agreement, and whether the silver material is known. It writes one message through Your() and makes no random draw or game-state mutation.",
+                "The complete source search rg -n '\\bsilver_sears\\s*\\(' nethack-c/upstream/src js found the four active C call sites in uhitm.c:hmonas() at lines 5662, 5726, 5744, and 5756. js/uhitm.js has a matching note_unported('weapon.c silver_sears') at each corresponding branch; no other C caller exists in the checked source tree."
+              ],
+              "session": "synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring",
+              "manifestPath": "challenges/manifests/v42.json",
+              "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+              "recordingSha256": "90c23f842e66c1a9828e85c6ec844d2f548c60e58b6eb081977d15a63d67fded",
+              "evaluationPath": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+              "evaluationCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+              "recordedSteps": 72
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "silver_sears",
+            "implementation": "js/weapon.js",
+            "symbol": "silver_sears",
+            "sourceReview": "Read the complete weapon.c:silver_sears() body at lines 436-466. It derives left and right ring types from uleft, uright, and the W_RINGL/W_RINGR silverhit bits; reads dknown and silver material; computes both using equal ring type plus equal identification state or two identified silver rings; selects the silver, no-adjective, left, or right prefix; forms singular/plural ring and sear words; and writes the target message. It makes no RNG call and changes no game state, but writes a message, so it is impure. The magr parameter is explicitly UNUSED in C. Its consumed callees are Your(), vtense(), and mon_nam(), all already implemented; no unported return-bearing or discarded callee remains. The previous note_unported placeholders at all four hmonas branches were replaced by awaited calls to this helper.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmonas",
+                "source": "uhitm.c:hmonas calls silver_sears(&gy.youmonst, mon, silverhit) after the hit message in the claw/touch branch and in the corresponding hug branches at lines 5662, 5726, 5744, and 5756. JS hmonas now awaits the same helper at each branch. Its production route is hack.c:domove_core -> uhitm.c:do_attack -> uhitm.c:hmonas."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-hmon.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-silver-sears-monk-polymorph-claw-ring",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 71,
+                "source": "hack.c:domove_core -> uhitm.c:do_attack -> uhitm.c:hmonas -> weapon.c:silver_sears"
+              }
+            ],
+            "checkedAt": "6152b107e8bbb15c62228d16ed04d093986994ee"
+          }
+        ],
+        "entryPointReview": "The active entry point exercised here is a polymorphed hero melee attack that lands a silver-ring hit. The source route is hack.c:domove_core -> uhitm.c:do_attack -> uhitm.c:hmonas -> weapon.c:silver_sears. The admitted v42 replay reaches the helper at segment 0 step 71 and pauses on its searing message. The same source helper is called at four active hmonas attack branches; all four JS call sites are wired. The source-pinned focused test separately covers left/right identity, identified silver, plural same-ring behavior, unidentified plural behavior, and the no-ring-mask branch.",
+        "entryPoints": [
+          {
+            "name": "Polymorphed hero melee hit sears a target with a worn silver ring",
+            "functions": [
+              "silver_sears"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-silver-sears-monk-polymorph-claw-ring",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 71,
+                "source": "hack.c:domove_core -> uhitm.c:do_attack -> uhitm.c:hmonas -> weapon.c:silver_sears"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
