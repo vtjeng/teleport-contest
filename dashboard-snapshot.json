@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T05:30:28.173Z",
+  "capturedAt": "2026-10-10T05:37:53.853Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -78772,6 +78772,15 @@
         "worker": "Prep",
         "state": "active",
         "reason": "v39 has twelve approved distinct C-first mismatches; packaging the manifest and validation evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-v39-eleven-overlap-review-20261010T0545Z",
+        "type": "turn",
+        "at": "2026-10-10T05:37:13.082Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has eleven approved distinct C-first mismatches; searching for a distinct replacement after a throne overlap check."
       }
     ]
   },
