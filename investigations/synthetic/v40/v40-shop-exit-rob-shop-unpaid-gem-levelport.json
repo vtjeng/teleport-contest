@@ -63,7 +63,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The admitted shop-exit recipe reaches shk.c:rob_shop with unpaid merchandise, but JavaScript throws while evaluating the LL_ACHIEVE argument to its livelog call. LL_ACHIEVE is exported by const.js but is not imported by shk.js. This missing module binding is the actionable divergence; rob_shop otherwise follows the C billing and robbery-message order up to the livelog expression. The later hot_pursuit call remains an explicit unported void dependency and must be checked for a subsequent mismatch after the import is fixed.",
+  "summary": "The saved v40 diagnosis was a missing LL_ACHIEVE import in js/shk.js:rob_shop, now corrected in B216. A post-fix fresh replay completes all 48 screens and cursors; its remaining RNG divergence begins at step 48 in C shk.c:makekops (rnd(5)), reached through u_left_shop -> call_kops -> choose_stairs/makekops. JS call_kops retains explicit gaps for wizard.c:choose_stairs and shk.c:makekops, a separate source family. The distinct shk.c:hot_pursuit void gap remains explicit in rob_shop.",
   "source": {
     "file": "shk.c",
     "branch": "When u_left_shop finds a live in-shop keeper and a bill or debit, rob_shop settles credit and the bill. If total remains nonzero, C adds it to robbed, emits the theft message and LL_ACHIEVE livelog, adjusts non-Rogue alignment, then calls hot_pursuit and returns TRUE. The selected recipe reaches this unpaid robbery branch during a wizard level-port from the shop.",
@@ -77,7 +77,8 @@
     "dependencies": [
       "pline.c:livelog_printf receives LL_ACHIEVE at shk.c:710; JavaScript js/shk.js:890 passes the same flag to pline.js:livelog_printf.",
       "const.h:LL_ACHIEVE is exported by js/const.js as value 0x0002 but is absent from js/shk.js imports, causing the ReferenceError.",
-      "shk.c:hot_pursuit is still explicitly skipped with note_unported in js/shk.js:898. Its void result is discarded by rob_shop; after removing the earlier ReferenceError, replay must determine whether this existing gap creates a later mismatch."
+      "shk.c:hot_pursuit is still explicitly skipped with note_unported in js/shk.js:899. Its void result is discarded by rob_shop; it remains separate from the post-fix RNG divergence.",
+      "After the LL_ACHIEVE import, the fresh differential matches all 48 screens and cursors. Its first RNG mismatch is step 48: C rnd(5) in shk.c:makekops (5113-5132), called from shk.c:call_kops (510-565) after choose_stairs; JS call_kops (416-458) still records explicit wizard.c:choose_stairs and shk.c:makekops gaps. This separate family is outside the B216 rob_shop fix."
     ]
   },
   "goalKind": "divergence-fix",
@@ -86,7 +87,8 @@
     "Fresh differential .cache/B216-before-diff.log (bounded run-PTXWwi) reproduced the JavaScript ReferenceError while patched C produced one segment, 9,230 RNG calls, 48 screens, and 48 cursors.",
     "Upstream shk.c:rob_shop (687-719) calls livelog_printf(LL_ACHIEVE, ...) only after credit settlement leaves a nonzero robbery total. JavaScript js/shk.js:861-899 follows the corresponding branch but references LL_ACHIEVE at 890 without importing it; the ReferenceError occurs before livelog_printf receives its flag.",
     "The constant exists as export LL_ACHIEVE = 0x0002 in js/const.js:812. Other modules import it from const.js; the error is a missing module binding, not a C behavior or recorder discrepancy.",
-    "The selected production route is teleport.c:level_tele -> u_left_shop -> rob_shop, mirrored by js/teleport.js:level_tele -> js/shk.js:u_left_shop -> rob_shop. The other direct caller, remote_burglary, shares rob_shop but is not exercised by this case."
+    "The selected production route is teleport.c:level_tele -> u_left_shop -> rob_shop, mirrored by js/teleport.js:level_tele -> js/shk.js:u_left_shop -> rob_shop. The other direct caller, remote_burglary, shares rob_shop but is not exercised by this case.",
+    "Fresh post-fix differential in bounded run-6KmZRv (.cache/B216-after-diff.log): screen/cursor streams match 48/48, while RNG is C=9230 vs JS=7525; first mismatch is call 5385, segment 1 step 48, C rnd(5)=4 at makekops(shk.c:5119), versus JS rn2(3)=0. This is the explicit call_kops/makekops gap, not the LL_ACHIEVE failure."
   ],
   "savedQueueSha256": "7f80ab63c352c92456b75ab0acd7a8a52b7bcd74ae955c0d143744bb49d8ff9d"
 }
