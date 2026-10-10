@@ -3,6 +3,8 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { BIGRM_LOADERS } from '../js/bigrm.js';
+import { COLNO, HWALL, ROOM, ROWNO, STONE, VWALL } from '../js/const.js';
+import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 
 // Verify that all 13 bigrm variants are registered.
 // C ref: dat/bigrm-*.lua. dungeon_data.js bigrm entry has nlevels=13.
@@ -28,6 +30,74 @@ test('bigrm-12 loader is a callable async function', async () => {
     assert.equal(typeof loader, 'function');
     // An AsyncFunction's constructor name is AsyncFunction.
     assert.equal(loader.constructor.name, 'AsyncFunction');
+});
+
+test('bigrm-11 follows the Lua maze and placement sequence', async () => {
+    const loader = BIGRM_LOADERS['bigrm-11'];
+    assert.equal(loader.constructor.name, 'AsyncFunction');
+
+    initRng(0x424947524d11n);
+    enableRngLog();
+
+    const cells = Array.from({ length: COLNO }, () =>
+        Array.from({ length: ROWNO }, () => ({ typ: STONE })),
+    );
+    // Provide one horizontal and one vertical interior wall for the Lua
+    // selection.match() union; terrain() turns both into floor before the
+    // second, horizontal-only corner pass.
+    cells[9][10].typ = ROOM;
+    cells[10][10].typ = HWALL;
+    cells[11][10].typ = ROOM;
+    cells[20][9].typ = ROOM;
+    cells[20][10].typ = VWALL;
+    cells[20][11].typ = ROOM;
+    const state = {
+        xstart: 1,
+        ystart: 0,
+        level: { at: (x, y) => cells[x][y] },
+    };
+    const calls = [];
+    const record = (name) => (...args) => {
+        calls.push([name, ...args]);
+        if (name === 'terrain') {
+            cells[args[0] + state.xstart][args[1] + state.ystart].typ = ROOM;
+        }
+    };
+    const des = Object.fromEntries([
+        'level_flags', 'level_init', 'region', 'non_diggable',
+        'terrain', 'object', 'stair', 'trap', 'monster',
+    ].map((name) => [name, record(name)]));
+
+    await loader(des, state);
+
+    assert.deepEqual(calls.slice(0, 4).map(([name]) => name), [
+        'level_flags', 'level_init', 'region', 'non_diggable',
+    ]);
+    assert.deepEqual(calls[0], ['level_flags', 'mazelevel', 'noflip']);
+    assert.equal(calls[1][0], 'level_init');
+    assert.equal(calls[1][1].style, 'maze');
+    assert.ok(calls[1][1].corrwid >= 3 && calls[1][1].corrwid <= 5);
+    assert.equal(calls[1][1].wallthick, 1);
+    assert.equal(typeof calls[1][1].deadends, 'boolean');
+
+    assert.deepEqual(calls
+        .filter(([name, objectName]) => name === 'object'
+            && objectName === 'boulder')
+        // selection:iterate() converts map points to Lua-relative coords;
+        // des.object() receives these before the API restores frame origin.
+        .map(([, , x, y]) => [x, y]), [[9, 10], [19, 10]]);
+    assert.equal(calls.filter(([name]) => name === 'stair').length, 2);
+    assert.deepEqual(calls.filter(([name]) => name === 'stair')
+        .map(([, direction]) => direction), ['up', 'down']);
+    assert.equal(calls.filter((call) => call[0] === 'object'
+        && call.length === 1).length, 15);
+    assert.deepEqual(calls.filter(([name]) => name === 'trap')
+        .map(([, trap]) => trap), Array(6).fill('rolling boulder'));
+    assert.equal(calls.filter((call) => call[0] === 'monster'
+        && call.length === 1).length, 28);
+    assert.deepEqual(getRngLog().map((entry) => entry.replace(/=\d+$/u, '')), [
+        'rn2(3)', 'rn2(100)',
+    ]);
 });
 
 // Verify that bigrm-12's Lua-to-JS map has the same dimensions as the
