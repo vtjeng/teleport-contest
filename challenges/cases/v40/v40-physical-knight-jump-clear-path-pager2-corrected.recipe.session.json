@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Second pager-corrected C-only attempt. The prior trace confirmed that #jump opens a blocking page “Where do you want to jump? --More--” before getpos accepts directions, so this recipe dismisses that page before selecting the Knight landing square. No JavaScript comparison is performed.",
+  "segments": [
+    {
+      "seed": 40100021,
+      "datetime": "20430621110000",
+      "nethackrc": "OPTIONS=name:V40KnightJump,role:Knight,race:human,gender=male,align=lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #jump\n ljj.",
+      "recorderIsDst": true
+    }
+  ]
+}

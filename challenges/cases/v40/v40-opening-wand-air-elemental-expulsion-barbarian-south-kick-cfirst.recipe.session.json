@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 40101003,
+      "datetime": "20460421123827",
+      "nethackrc": "OPTIONS=name:V40BarbExpel,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017wand of opening\n\u0007hostile air elemental\n\u0004jm.  z",
+      "comment": "C-first role variation to survive the observed air-elemental pummeling: dismiss startup, wish for the opening wand, create a hostile air elemental, kick south based on the C-observed placement, force one turn, dismiss the observed pages, then inspect the zap selector before the self-zap."
+    }
+  ]
+}

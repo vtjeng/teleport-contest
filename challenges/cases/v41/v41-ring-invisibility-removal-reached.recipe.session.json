@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first Ring_off RIN_INVISIBILITY candidate. The corrected C trace confirmed the ring in slot o, right-finger selection, and an initial pager after Ring_on. Dismiss that page, invoke the observed removal command, and select right ring so C reaches Ring_off.",
+  "segments": [
+    {
+      "seed": 41040119,
+      "datetime": "20491012131416",
+      "nethackrc": "OPTIONS=name:V41InvisRing,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017uncursed ring of invisibility\nPoR Rr"
+    }
+  ]
+}

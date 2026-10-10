@@ -1332,8 +1332,8 @@ test('an ice vortex swallows, freezes, and expels an ordinary hero',
     assert.deepEqual(first.bounds, [
         'rnd(20)', 'd(1,6)', 'rnd(10)', 'rn2(2)',
     ]);
-    assert.equal(state.unported.has('light.c snuff_lit'), true,
-        'the swallowed nonflaming source path visits the discarded snuff_lit calls');
+    assert.equal(state.unported.has('light.c snuff_lit'), false,
+        'gulpmu now applies its discarded snuff_lit calls');
     assert.equal(state.u.uswallow, 1);
     assert.equal(state.u.ustuck, vortex);
     assert.equal(state.u.uswldtim, 8);

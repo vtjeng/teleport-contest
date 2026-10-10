@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "The pager-corrected C trace reaches the actual Which intrinsics menu and shows `o - teleporting` on page one. Page forward once to find the Teleport control entry; no selection is made in this probe.",
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopDebtAlt,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\nl, ni #wizintrinsic\n>"
+    }
+  ]
+}

@@ -773,7 +773,7 @@ test('set_ulycn stores one value and refreshes form drain resistance', async () 
     const potionJs = readFileSync(new URL('../js/potion.js', import.meta.url), 'utf8');
     const eatJs = readFileSync(new URL('../js/eat.js', import.meta.url), 'utf8');
     assert.match(potionJs, /set_ulycn\(NON_PM, state\);/u);
-    assert.match(eatJs, /set_ulycn\(catch_lycanthropy, state\);\s*note_unported\('artifact\.c retouch_equipment'\);/u);
+    assert.match(eatJs, /set_ulycn\(catch_lycanthropy, state\);\s*await retouch_equipment\(2, state, env\)/u);
 
     await runSegment({
         // Seed 8806410 initializes a human hero so this test isolates the
@@ -903,7 +903,8 @@ test('mhitm_ad_were preserves all three source direction arms and infection orde
     assert.equal(infectionAttacker.data, game.mons[PM_SEWER_RAT]);
     assert.equal(game.u.ulycn, PM_WEREJACKAL);
     assert.equal(game.u.uprops[DRAIN_RES].intrinsic & FROMFORM, FROMFORM);
-    assert.ok(game.unported.has('artifact.c retouch_equipment'));
+    assert.equal(game.unported.has('artifact.c retouch_equipment'), false);
+    assert.equal(game.artifactRetouchNesting, 0);
 });
 
 test('mhitm_ad_drin preserves source order in all three attack directions', async () => {

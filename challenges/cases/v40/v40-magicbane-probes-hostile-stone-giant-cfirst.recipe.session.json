@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first Magicbane artifact call-site route. C shows the hostile stone giant directly south of the hero after the preserved setup; after wielding Magicbane in slot o, j targets the adjacent giant. Retain only if the artifact-hit log enters Mb_hit(MB_INDEX_PROBE) and calls probe_monster.",
+  "segments": [
+    {
+      "seed": 42080003,
+      "datetime": "20461012131415",
+      "nethackrc": "OPTIONS=name:V40MagicbaneGiant2,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017Magicbane\n.\u0007hostile stone giant\nwoj"
+    }
+  ]
+}

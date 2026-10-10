@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 40101002,
+      "datetime": "20460420123516",
+      "nethackrc": "OPTIONS=name:V40WandExpel,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017wand of opening\n\u0007hostile air elemental\n",
+      "comment": "C-first setup for zap.c:release_hold; establish the wished wand and inspect the hostile air elemental placement before committing turns toward engulfment."
+    }
+  ]
+}

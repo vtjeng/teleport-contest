@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source probe for lizard-corpse stoning cure. The source path will be kept only after C confirms the wizard-intrinsic setup reaches make_stoned and the meal reaches the lizard cpostfx branch.",
+  "segments": [
+    {
+      "seed": 41104107,
+      "datetime": "20441014101112",
+      "nethackrc": "OPTIONS=name:V40LizardCure,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017lizard corpse\n#wizintrinsic\nb "
+    }
+  ]
+}

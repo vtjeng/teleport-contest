@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 40101003,
+      "datetime": "20460421123827",
+      "nethackrc": "OPTIONS=name:V40BarbExpel,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017wand of opening\n\u0007hostile air elemental\n\u0004jm.  zf.",
+      "comment": "Observed selector identifies the wished oak wand in slot f; select it and self-zap after the Barbarian survives the engulfing air elemental."
+    }
+  ]
+}

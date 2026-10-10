@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-only reachability retry with a fresh seed and ordinary generated dungeon map. Prior debug-mode map was a cramped wizard box whose legal Knight L-step landed on a wall. This recipe keeps Knight’s physical-jump ability and selects a nearby visible floor target; no JavaScript comparison is performed.",
+  "segments": [
+    {
+      "seed": 40100022,
+      "datetime": "20430622111500",
+      "nethackrc": "OPTIONS=name:V40KnightJump,role:Knight,race:human,gender=male,align=lawful,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": " #jump\n  ljj.",
+      "recorderIsDst": true
+    }
+  ]
+}

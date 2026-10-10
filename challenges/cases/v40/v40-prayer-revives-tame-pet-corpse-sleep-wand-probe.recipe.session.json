@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserves a source-based setup correction for the pray.c:pray_revive target. A sleep wand may hold the tame dog still while it is swapped onto the coaligned altar before the pet corpse is created; no JS differential until C confirms the altar corpse and reached pray_revive.",
+  "segments": [
+    {
+      "seed": 40101044,
+      "datetime": "20461011131417",
+      "nethackrc": "OPTIONS=name:V40PetRevival,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "l\u0017lawful altar\n\u0017wand of sleep\nz"
+    }
+  ]
+}

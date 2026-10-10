@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first final source candidate for dog.c:abuse_dog reaching apply.c:m_unleash. A tame baby gray dragon starts north, receives a leash, then is kicked ten times without Conflict; after each observed More the next C screen alternates its adjacent position east/north as it follows the hero. The last kick should reduce initial tame 10 to zero and release the leash through m_unleash(TRUE).",
+  "segments": [
+    {
+      "seed": 48230567,
+      "datetime": "20590506151617",
+      "nethackrc": "OPTIONS=name:V40LeashProbe,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0007tame baby gray dragon\n\u0017leash\naok\u0004ky \u0004ly \u0004ky \u0004ly \u0004ky \u0004ly \u0004ky \u0004ly \u0004ky \u0004ly \u0004ky \u0004ly \u0004ky \u0004ly"
+    }
+  ]
+}

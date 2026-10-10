@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only corrected candidate using explicitly wished ring of conflict and leash, with observed slots from an inventory listing. After creating a tame baby gray dragon, attach the leash to its east-adjacent square, wear the conflict ring, then kick it four times to test dog.c:abuse_dog -> apply.c:m_unleash.",
+  "segments": [
+    {
+      "seed": 48230566,
+      "datetime": "20590405141516",
+      "nethackrc": "OPTIONS=name:V40LeashProbe,role:Wizard,race:human,gender:female,align:neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0007tame baby gray dragon\n\u0017ring of conflict\n\u0017leash\niaolPnr\u0004l\u0004l\u0004l\u0004l"
+    }
+  ]
+}

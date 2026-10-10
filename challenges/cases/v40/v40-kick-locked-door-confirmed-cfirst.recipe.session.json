@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source-confirmed locked-door kick. After dismissing the start pager, the northwest bump prints “This door is locked.”; Ctrl-D and the same direction then enter dokick.c:kick_door. Seed 42005015 was the first kept setup in the documented independent 42005000–42007000 source-state scan.",
+  "segments": [
+    {
+      "seed": 42005015,
+      "datetime": "20441015101112",
+      "nethackrc": "OPTIONS=name:V40LockedDoorKick,role:Valkyrie,race:human,gender=female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " y\u0004y"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first probe for active long-worm movement. Create an awake hostile worm with the wizard tool, then use one wait turn so C either executes the source tail-shift or provides a concrete reachability blocker.",
+  "segments": [
+    {
+      "seed": 62014739,
+      "datetime": "20500911131415",
+      "nethackrc": "OPTIONS=name:V40WormTailShift,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizgenesis\nhostile long worm\n."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first probe: enter the Plane of Air through the third page of the wizard level-port menu, selecting M - air: -2; the arrival boundary establishes whether dat/air.lua generation is reached.",
+  "segments": [
+    {
+      "seed": 40940112,
+      "datetime": "20461010111213",
+      "nethackrc": "OPTIONS=name:V40AirPort,role:Ranger,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?\n  M "
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-only slot probe for the planned music.c bugle behavior. It dismisses the debug welcome page, wishes a bugle, and opens the apply selector to observe the assigned inventory letter; no JavaScript comparison is performed.",
+  "segments": [
+    {
+      "seed": 40100401,
+      "datetime": "20430701101500",
+      "nethackrc": "OPTIONS=name:V40Bugle,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017bugle\na",
+      "recorderIsDst": true
+    }
+  ]
+}

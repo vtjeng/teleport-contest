@@ -85,6 +85,7 @@ import {
 import {
     ART_EYES_OF_THE_OVERWORLD,
     ART_OGRESMASHER,
+    retouch_equipment,
     SPFX_LUCK,
     what_gives,
 } from './artifacts.js';
@@ -142,7 +143,6 @@ import { aligns } from './roles.js';
 import { ttyPline } from './tty_message.js';
 import { unconscious } from './trap.js';
 import { summon_furies } from './makemon.js';
-import { note_unported } from './unported.js';
 import { livelog_printf } from './pline.js';
 import { add_weapon_skill, lose_weapon_skill } from './weapon.js';
 
@@ -1413,7 +1413,7 @@ export async function uchangealign(newalign, reason, state = game) {
     }
     if (state.u.ualign.type !== oldalign) {
         state.u.ualign.record = 0; /* slate is wiped clean */
-        note_unported('artifact.c retouch_equipment');
+        await retouch_equipment(0, state); // attrib.c:uchangealign
     }
 }
 

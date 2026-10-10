@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected sellobj route. The prior direct-load trace placed the hero at minetn-3's source-defined shop region (relative x=10,y=10 within the x=24,y=3 aligned outer room) but a drop before entering through the shop doorway produced no sale. Starting from that observed square, enter the room, step through its west door into the adjacent corridor, re-enter, then drop the wished white gem from the confirmed slot o.",
+  "segments": [
+    {
+      "seed": 41040160,
+      "datetime": "20520407172839",
+      "nethackrc": "OPTIONS=name:V41ShopSaleDrop,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-3.lua\n #wizmap\n\u0017diamond\njhhldo"
+    }
+  ]
+}

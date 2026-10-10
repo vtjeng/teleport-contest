@@ -39,7 +39,8 @@ test('MS_SEDUCE calls doseduce through #chat and preserves its no-armor route', 
     // the strict fresh comparison matches all 47 boundaries for this route.
     await runSegment(route);
     assert.equal(game._ttyToplines, 'The succubus vanishes!');
-    assert.ok(game.unported.has('mhitu.c mayberem'));
+    assert.equal(game.unported?.has('mhitu.c mayberem') ?? false, false,
+        'the complete mayberem helper leaves no stale unported marker');
     for (const slot of ['uarm', 'uarmc', 'uarmf', 'uarmg', 'uarms', 'uarmh', 'uarmu']) {
         assert.ok(!game[slot], `the no-worn recipe leaves ${slot} empty`);
     }

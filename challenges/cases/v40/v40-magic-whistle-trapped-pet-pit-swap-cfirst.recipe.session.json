@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C setup variation based on the confirmed map: the kitten is directly north of the hero. Swap places with it first, leaving the kitten on the upstairs and the hero on ordinary floor; place the boulder/pit under the hero and move north to invite the kitten onto that tile.",
+  "segments": [
+    {
+      "seed": 40100731,
+      "datetime": "20450607080910",
+      "nethackrc": "OPTIONS=name:V40TrapPetWhistle,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "k\u0017boulder\n\u0017pit trap\nk"
+    }
+  ]
+}

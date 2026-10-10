@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first leashed-pet level migration probe. Create a tame baby gray dragon, wish and attach a leash using the C-observed north direction, then use #wizlevelport to move the hero to dungeon level 2 while the pet remains adjacent and attached. Preserve the source-traced dog.c:migrate_to_level setup and compare only after C confirms the pet migration caller.",
+  "segments": [
+    {
+      "seed": 48230567,
+      "datetime": "20590506151617",
+      "nethackrc": "OPTIONS=name:V40LeashProbe,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0007tame baby gray dragon\n\u0017leash\naok#wizlevelport\n2\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 48103117,
+      "datetime": "20570913112233",
+      "nethackrc": "OPTIONS=name:V40FingerElbereth,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " w-E- Elbereth\n",
+      "comment": "Corrected C-first finger inscription route: dismiss the page after choosing fingertip writing before entering Elbereth."
+    }
+  ]
+}

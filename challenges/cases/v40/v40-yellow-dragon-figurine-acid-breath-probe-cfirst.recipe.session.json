@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 82733195,
+      "datetime": "20610219125506",
+      "nethackrc": "OPTIONS=name:V40DragonProbe,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017cursed figurine of a yellow dragon\naoh..",
+      "comment": "C-first route to monster acid breath against the Wizard's wielded quarterstaff: spawn the cursed yellow-dragon figurine west, then wait for its acid breath."
+    }
+  ]
+}

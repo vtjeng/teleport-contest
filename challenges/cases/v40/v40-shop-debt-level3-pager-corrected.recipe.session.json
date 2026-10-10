@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first correction after the prior recording showed the startup --More-- prompt consumed all command keys. Dismiss that observed pager, levelport to fresh ordinary D:3, dismiss the arrival page, and inspect the C map for a generated shop before any theft action.",
+  "segments": [
+    {
+      "seed": 73144291,
+      "datetime": "20570319140923",
+      "nethackrc": "OPTIONS=name:V40ShopDebt,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n3\n #wizmap\n"
+    }
+  ]
+}

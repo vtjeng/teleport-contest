@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Direction correction after C’s map placed the wished dog one tile southwest of the hero behind the debug-room edge. The prior `l` spoke toward floor; this C-only attempt uses the observed dog tile direction `b`.",
+  "segments": [
+    {
+      "seed": 40100403,
+      "datetime": "20430703100000",
+      "nethackrc": "OPTIONS=name:V40DogChat,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0007dog\n#chat\nb",
+      "recorderIsDst": true
+    }
+  ]
+}

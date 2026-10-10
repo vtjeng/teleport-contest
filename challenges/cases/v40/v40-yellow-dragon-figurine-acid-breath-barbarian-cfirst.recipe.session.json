@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 82733196,
+      "datetime": "20620421130617",
+      "nethackrc": "OPTIONS=name:V40AcidBarbarian,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017cursed figurine of a yellow dragon\naoh j j",
+      "comment": "C-first reachability probe using a high-HP Barbarian so the hero can survive the yellow dragon's adjacent bite and reach its source acid-breath attack."
+    }
+  ]
+}

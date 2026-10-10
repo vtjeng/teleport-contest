@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 82733195,
+      "datetime": "20610219125506",
+      "nethackrc": "OPTIONS=name:V40DragonProbe,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017cursed figurine of a yellow dragon\naoh j j",
+      "comment": "C-first reachability correction: move south twice after releasing the hostile yellow dragon so its ranged acid breath can target the wielded quarterstaff."
+    }
+  ]
+}

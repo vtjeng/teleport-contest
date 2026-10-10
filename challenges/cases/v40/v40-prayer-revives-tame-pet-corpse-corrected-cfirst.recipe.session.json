@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "The altar is wished before swapping with the east-adjacent starting dog. This places the dog on the hero's former altar square; #wizkill then targets it from the adjacent square, leaving the tame pet corpse on the altar for a forced-pleased #pray. C-only until the source reaches pray.c:pray_revive.",
+  "segments": [
+    {
+      "seed": 40101044,
+      "datetime": "20461011131417",
+      "nethackrc": "OPTIONS=name:V40PetRevival,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017lawful altar\nl#wizkill\n  h.\u001b h#pray\ny y "
+    }
+  ]
+}

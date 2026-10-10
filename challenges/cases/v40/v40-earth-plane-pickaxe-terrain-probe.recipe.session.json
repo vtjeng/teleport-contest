@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first terrain-type inspection after the level-up pager and #wizkill getpos boundary. #terrain on a wizard level prints the source-coded map, allowing a stone target coordinate to be confirmed before another pickaxe action.",
+  "segments": [
+    {
+      "seed": 42060006,
+      "datetime": "20441017101112",
+      "nethackrc": "OPTIONS=name:V40EarthPage2,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?\n  N       uncursed potion of healing\n #wizkill\n  y. \u001b#terrain\n"
+    }
+  ]
+}

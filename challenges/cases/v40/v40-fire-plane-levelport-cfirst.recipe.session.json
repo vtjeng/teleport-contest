@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Independent C-first level-program probe: dismiss startup, open wizard level-port selection, page to the elemental planes, choose the Plane of Fire entry, and stop after the arrival boundary.",
+  "segments": [
+    {
+      "seed": 48230527,
+      "datetime": "20580621140817",
+      "nethackrc": "OPTIONS=name:V40FirePort,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0016?\n  L ",
+      "comment": "C-first direct elemental-plane route; the seed/date/role differ from v40 Air and Earth."
+    }
+  ]
+}

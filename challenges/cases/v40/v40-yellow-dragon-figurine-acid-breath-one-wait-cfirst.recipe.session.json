@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 82733195,
+      "datetime": "20610219125506",
+      "nethackrc": "OPTIONS=name:V40DragonProbe,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017cursed figurine of a yellow dragon\naoh .",
+      "comment": "Corrected C-first route: dismiss the transformation page with space, then give the hostile yellow dragon one turn to use its acid-breath attack."
+    }
+  ]
+}

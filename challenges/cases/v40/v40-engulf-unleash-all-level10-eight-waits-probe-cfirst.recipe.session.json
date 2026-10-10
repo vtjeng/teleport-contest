@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first high-HP reachability probe for mhitu.c:gulpum -> apply.c:unleash_all. Keep the confirmed level-10 route and allow eight explicit m-prefixed no-op turns for the hostile adjacent purple worm, retaining the trial whether or not the worm engulfs.",
+  "segments": [
+    {
+      "seed": 30917106,
+      "datetime": "20590512094100",
+      "nethackrc": "OPTIONS=name:V40EngulfLeash,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #levelchange\n10\n        \u0017leash\naok\u0007hostile purple worm\nm.m.m.m.m.m.m.m."
+    }
+  ]
+}

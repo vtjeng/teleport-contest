@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected level-port menu input: C requires Enter after ? before it draws “Level teleport to where”; the previous preserved attempt only left ?a in the line editor. This uses the menu row a shown in that C screen.",
+  "segments": [
+    {
+      "seed": 42060005,
+      "datetime": "20441016101112",
+      "nethackrc": "OPTIONS=name:V40EarthDigProbe5,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?\na"
+    }
+  ]
+}

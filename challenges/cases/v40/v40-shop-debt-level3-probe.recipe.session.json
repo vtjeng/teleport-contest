@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first shop-debt source probe: levelport to a fresh ordinary D:3 at a new independent seed, then map the level and use only C-observed shop state/actions. The target requires an actual unpaid stock object leaving a generated shop; a missing shop is retained as a mission miss.",
+  "segments": [
+    {
+      "seed": 73144291,
+      "datetime": "20570319140923",
+      "nethackrc": "OPTIONS=name:V40ShopDebt,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n3\n #wizmap\n"
+    }
+  ]
+}

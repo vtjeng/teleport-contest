@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Continue after the observed first too-soon prayer: dismiss its deity voice, repeat prayer on the same ordinary floor, and inspect the source-generated second anger magnitude/angrygods selector. Extra post-result spaces are preserved to clear any chained message pages.",
+  "segments": [
+    {
+      "seed": 41040170,
+      "datetime": "20511111111111",
+      "nethackrc": "OPTIONS=name:V41AngryPray,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#pray\ny n        #pray\ny n        "
+    }
+  ]
+}

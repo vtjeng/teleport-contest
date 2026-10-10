@@ -71,6 +71,7 @@ import {
 import { on_level } from './dungeon.js';
 import { dogfood as classifyDogFood } from './dogfood.js';
 import { eaten_stat } from './eat.js';
+import { leashable, m_unleash } from './apply.js';
 import { lose_guardian_angel } from './minion.js';
 import { game } from './gstate.js';
 import { currency, obj_extract_self, sobj_at } from './invent.js';
@@ -200,6 +201,7 @@ import { unpaid_cost } from './shk.js';
 import { canseemon, canspotmon, mon_visible } from './display.js';
 import { goodpos } from './teleport.js';
 import { note_unported } from './unported.js';
+import { pline_mon } from './pline.js';
 import { beg, domonnoise } from './sounds.js';
 import { stop_occupation } from './allmain.js';
 import { mattacku } from './mhitu.js';
@@ -665,10 +667,11 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
             ...rawEnv,
             state,
             quickMimic: async (subject, env) => {
-                // mon.c:m_consume_obj discards this result. Keep unported
-                // leash/steed effects explicit while ordinary quickmimic runs.
-                if (subject.mleashed || subject === state.u.usteed) {
-                    if (!env.planning) note_unported('dogmove.c quickmimic');
+                // mon.c:m_consume_obj discards this result. Leashed pets now
+                // run quickmimic's C leashability check; only its steed
+                // dismount remains outside this caller's implemented path.
+                if (subject === state.u.usteed) {
+                    if (!env.planning) note_unported('steed.c dismount_steed');
                     return;
                 }
                 await quickmimic(subject, env);
@@ -695,11 +698,11 @@ function activeHeroProperty(state, property) {
     return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
-// C ref: dogmove.c quickmimic() (1481-1530).  The source table and retry
-// loop are complete.  The steed and leash effects are excluded before the
-// first draw; the live starting-pet caller has neither state.
+// C ref: dogmove.c quickmimic() (1481-1530). The source table and retry loop
+// are complete; leashes are released after the changed appearance is drawn.
 export async function quickmimic(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
+    const wasLeashed = mtmp.mleashed;
     if (activeHeroProperty(state, PROT_FROM_SHAPE_CHANGERS)
         || !mtmp.meating) return;
     const unsupported = rawEnv.unsupported;
@@ -708,7 +711,6 @@ export async function quickmimic(mtmp, rawEnv = {}) {
         throw new TypeError(`quickmimic requires ${reason}`);
     };
     if (mtmp === state.u?.usteed) stop('a non-steed pet');
-    if (mtmp.mleashed) stop('an unleashed pet');
     const random = rawEnv.random ?? { rn2 };
     if (typeof random.rn2 !== 'function')
         throw new TypeError('quickmimic random injection requires rn2');
@@ -750,8 +752,17 @@ export async function quickmimic(mtmp, rawEnv = {}) {
 
         const redraw = rawEnv.redraw ?? newsym;
         redraw(mtmp.mx, mtmp.my);
-        const currentGlyph = location.disp_glyph?.glyph;
         const message = rawEnv.message ?? ttyPline;
+        if (wasLeashed
+            && (appearanceType !== M_AP_MONSTER
+                || !leashable({
+                    mnum: appearance,
+                    data: state.mons[appearance],
+                }))) {
+            await message('Your leash goes slack.', state);
+            m_unleash(mtmp, false, { ...rawEnv, state });
+        }
+        const currentGlyph = location.disp_glyph?.glyph;
         if (currentGlyph !== previousGlyph) {
             await message(
                 `You ${seeloc ? 'see' : 'sense that'} `
@@ -1657,16 +1668,17 @@ export async function dog_move(monster, after, rawEnv = {}) {
     if (nextX !== originX || nextY !== originY) {
         if (data.info[chosenIndex] & ALLOW_U) {
             if (monster.mleashed) {
-                if (env.reportLeashBreak) await env.reportLeashBreak(monster, env);
-                else await (env.message ?? ttyPline)(messageAt(
+                await pline_mon(monster,
                     `${Monnam(monster, state, env)} breaks loose of `
-                        + `${mhis(monster, env)} leash!`,
-                    monster.mx, monster.my, state,
-                ), state);
-                // C discards m_unleash's result. Its attachment cleanup is
-                // a separate apply.c owner; planning records no live gap.
-                if (env.unleashMonster) await env.unleashMonster(monster, false, env);
-                else if (!env.planning) note_unported('apply.c m_unleash');
+                        + `${mhis(monster, {
+                            ...env,
+                            state,
+                            canSpotMonster: env.canSpotMonster ?? canspotmon,
+                        })} leash!`,
+                    state,
+                    env,
+                );
+                m_unleash(monster, false, { ...env, state });
             }
             await petMoveOperation(env, 'attackHero')(monster, env);
             return MMOVE_DONE;

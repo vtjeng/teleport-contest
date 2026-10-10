@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Isolates the C-confirmed wear path from the later scroll read: after the initial-pager dismissal and ring-slot e, this sends only the right-ring-finger answer and stops at the resulting game state.",
+  "segments": [
+    {
+      "seed": 40100624,
+      "datetime": "20450304050607",
+      "nethackrc": "OPTIONS=name:V40RemoveCurseRing,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017cursed ring of protection\nPer"
+    }
+  ]
+}

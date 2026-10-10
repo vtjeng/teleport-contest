@@ -14,6 +14,7 @@ import {
 } from '../js/objects.js';
 import {
     snuff_candle,
+    snuff_lit,
     splash_monster_light,
 } from '../js/apply_splash_lit.js';
 import { Shk_Your } from '../js/shk.js';
@@ -66,7 +67,8 @@ test('a visible monster-carried oil lamp goes out before burn cleanup',
                 return true;
             },
             message: (text) => events.push(['message', text]),
-            objectName: () => 'oil lamp',
+            // C Yname2 uses this visible monster-carried form.
+            objectYname: () => 'The oil lamp',
             squareVisible: () => true,
             state: state(),
         });
@@ -74,6 +76,42 @@ test('a visible monster-carried oil lamp goes out before burn cleanup',
         assert.equal(result, true);
         assert.deepEqual(events, [
             ['message', 'The oil lamp goes out!'],
+            ['end', true],
+        ]);
+        assert.equal(obj.lamplit, false);
+    });
+
+test('snuff_lit handles a hero-carried lamp in the gulp inventory path',
+    async () => {
+        const currentState = state();
+        // These fields select C's lit OIL_LAMP in OBJ_INVENT branch from
+        // mhitu.c:gulpmu; age 300 leaves a valid fueled lamp for end_burn.
+        const obj = {
+            age: 300, // Positive fuel for the burning object cleanup.
+            lamplit: true, // Enters apply.c:snuff_lit's active branch.
+            otyp: OIL_LAMP, // Selects the lamp message and end_burn branch.
+            quan: 1, // A single inventory object, as in the recorded recipe.
+            spe: 0, // Oil-lamp snuffing does not use candle attachment data.
+            where: OBJ_INVENT, // Exercises gulpmu's hero inventory location.
+        };
+        const events = [];
+
+        const result = await snuff_lit(obj, {
+            endBurn: (target) => {
+                events.push(['end', target.lamplit]);
+                target.lamplit = false;
+                return true;
+            },
+            heroBlind: () => false, // C prints the message when the hero is not blind.
+            message: (text) => events.push(['message', text]),
+            objectYname: () => 'Your lamp', // C Yname2 uses this carried form.
+            state: currentState,
+        });
+
+        // C prints the Yname2/otense result before stopping the lamp timer.
+        assert.equal(result, true);
+        assert.deepEqual(events, [
+            ['message', 'Your lamp goes out!'],
             ['end', true],
         ]);
         assert.equal(obj.lamplit, false);
@@ -231,7 +269,7 @@ test('a nonhumanoid carrier receives ordinary lantern snuffing', async () => {
             return true;
         },
         message: (text) => events.push(text),
-        objectName: () => 'brass lantern',
+        objectYname: () => 'The brass lantern',
         squareVisible: () => true,
         state: state(),
     });

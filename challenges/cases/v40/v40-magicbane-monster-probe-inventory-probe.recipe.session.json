@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first setup and inventory probe for the source candidate artifact.c:Mb_hit(MB_INDEX_PROBE) -> zap.c:probe_monster. Create Magicbane and a hostile newt without advancing ordinary turns, then inspect C inventory to choose the exact weapon slot before building the hit recipe. Do not compare JavaScript until the artifact and target are confirmed.",
+  "segments": [
+    {
+      "seed": 42080001,
+      "datetime": "20461010111213",
+      "nethackrc": "OPTIONS=name:V40MagicbaneProbe,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017Magicbane\n.\u0007hostile newt\ni"
+    }
+  ]
+}

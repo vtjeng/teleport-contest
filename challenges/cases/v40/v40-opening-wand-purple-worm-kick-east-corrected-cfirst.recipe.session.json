@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 40101004,
+      "datetime": "20460422124031",
+      "nethackrc": "OPTIONS=name:V40WandExpel,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017wand of opening\n\u0007hostile purple worm\n\u0004lm.",
+      "comment": "Corrected C-only recipe after the prior input-shape miss: terminate the #wizgenesis prompt before kicking east at the confirmed adjacent hostile purple worm, then force a turn."
+    }
+  ]
+}

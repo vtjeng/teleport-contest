@@ -63,6 +63,7 @@ import {
 import { done } from './end.js';
 import { losexp, more_experienced, newexplevel } from './exper.js';
 import { getlin } from './windows.js';
+import { displayTtyTextWindow } from './tty_menu.js';
 import { game } from './gstate.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import {
@@ -1784,10 +1785,51 @@ export async function zhitm(
     return { damage: tmp, otmp };
 }
 
-// C ref: zap.c makewish() (6314-6428). The help arm keeps its unported void
-// wishcmdassist() call explicit, then retries without counting a failed wish.
+// C ref: zap.c makewish() (6314-6428) and wishcmdassist() (6165-6226).
 // Object wishes pass through readobjnam() and hold_another_object(); artifact
 // bookkeeping and wizard-terrain hands_obj returns are handled in source order.
+const MAXWISHTRY = 5;
+
+// C ref: zap.c wishcmdassist(). Its NHW_TEXT window is displayed as one
+// blocking text window; displayTtyTextWindow() owns that TTY lifecycle.
+async function wishcmdassist(triesleft, state = game) {
+    const lines = [
+        'Wish details:',
+        '',
+        'Enter the name of an object, such as "potion of monster detection",',
+        '"scroll labeled README", "elven mithril-coat", or "Grimtooth"',
+        '(without the quotes).',
+        '',
+        'For object types which come in stacks, you may specify a plural name',
+        'such as "potions of healing", or specify a count, such as "1000 gold',
+        'pieces", although that aspect of your wish might not be granted.',
+        '',
+        'You may also specify various prefix values which might be used to',
+        'modify the item, such as "uncursed" or "rustproof" or "+1".',
+        'Most modifiers shown when viewing your inventory can be specified.',
+        '',
+        "You may specify 'nothing' to explicitly decline this wish.",
+    ];
+    if (!(state.u?.uconduct?.wishes ?? 0))
+        lines.push("Doing so will preserve 'wishless' conduct.");
+    lines.push('');
+
+    const cardinals = ['zero', 'one', 'two', 'three', 'four', 'five'];
+    const count = triesleft >= 0 && triesleft < cardinals.length
+        ? cardinals[triesleft] : 'too many';
+    const more = triesleft < MAXWISHTRY ? ' more' : '';
+    const plural = triesleft === 1 ? '' : 's';
+    lines.push(
+        `If you specify an unrecognized object name ${count}${more} time${plural},`,
+        'a randomly chosen item will be granted.',
+        '',
+    );
+    if (state.iflags?.cmdassist)
+        lines.push('(Suppress this assistance with !cmdassist in your config file.)');
+
+    await displayTtyTextWindow(state, lines.map(text => ({ text })));
+}
+
 export async function makewish(state = game) {
     state.u.uconduct ??= {};
     state.context ??= {};
@@ -1845,10 +1887,9 @@ export async function makewish(state = game) {
             // and chooses the class with wrpsym[rn2(sizeof wrpsym)].
             buf = '';
         } else if (lcase(buf) === 'help') {
-            // 6348-6352 opens wishcmdassist() before retrying without
-            // incrementing `tries`. C discards wishcmdassist()'s return, so
-            // keep the unported void helper explicit and continue the retry.
-            note_unported('zap.c wishcmdassist');
+            // 6348-6352 opens the text window and retries without counting
+            // help as an unsuccessful wish.
+            await wishcmdassist(MAXWISHTRY - tries, state);
             continue;
         }
 
@@ -1860,7 +1901,7 @@ export async function makewish(state = game) {
         await ttyPline(
             'Nothing fitting that description exists in the game.', state,
         );
-        if (++tries < 5) continue;
+        if (++tries < MAXWISHTRY) continue;
         await ttyPline(thats_enough_tries, state);
         // zap.c:6367-6368 asks readobjnam() for a random class-only wish
         // after the fifth failed line. Its result is expected to be non-null.

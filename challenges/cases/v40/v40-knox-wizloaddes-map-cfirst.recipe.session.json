@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first Fort Ludios special-level source probe. #wizloaddes opens its named special Lua loader with `knox.lua`; C logs the actual program at knox.lua:58 plus its Lua initialization and level-construction calls. Follow with #wizmap to preserve the loaded map evidence. Keep this unclassified until first differential and program-overlap review.",
+  "segments": [
+    {
+      "seed": 74004001,
+      "datetime": "20580615103000",
+      "nethackrc": "OPTIONS=name:V40KnoxLoad,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nknox.lua\n#wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first controlled robbery: from the confirmed getpos start at the hero inside the shop, move the destination cursor three cells west and three north to the visible open corridor at (63,7), then confirm with `.`. Preserve the unpaid red gem and stop at the first post-teleport C boundary so hot_pursuit and shopkeeper movement can be traced.",
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopDebtAlt,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\nl, ni #wizintrinsic\n150o>>150j\n  \u0014  hhhkkk."
+    }
+  ]
+}

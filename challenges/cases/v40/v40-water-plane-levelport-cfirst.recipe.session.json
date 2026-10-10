@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Independent C-first level-program probe: dismiss startup, open wizard level-port selection, page to the elemental planes, choose the Plane of Water entry, and stop after the arrival boundary.",
+  "segments": [
+    {
+      "seed": 48230529,
+      "datetime": "20580722131409",
+      "nethackrc": "OPTIONS=name:V40WaterPort,role:Wizard,race:human,gender=female,align=lawful,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0016?\n  K ",
+      "comment": "C-first direct Water-plane route with an independent seed/date and character alignment."
+    }
+  ]
+}

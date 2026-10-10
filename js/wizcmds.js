@@ -1,7 +1,8 @@
 // wizcmds.js -- the wizard-mode extended commands.
-// C refs: src/wizcmds.c wiz_map(), wiz_genesis(), wiz_level_change(),
-// wiz_level_tele(), wiz_wish(), wiz_identify(), wiz_polyself(),
-// wiz_intrinsic(), wiz_kill(), and wiz_makemap(), among the rows cmd.c dispatches here.
+// C refs: src/wizcmds.c makemap_unmakemon(), makemap_remove_mons(),
+// wiz_map(), wiz_genesis(), wiz_level_change(), wiz_level_tele(), wiz_wish(),
+// wiz_identify(), wiz_polyself(), wiz_intrinsic(), wiz_kill(), and
+// wiz_makemap(), among the rows cmd.c dispatches here.
 
 import { NO_COLOR } from './terminal.js';
 import { engr_stats } from './engrave.js';
@@ -27,6 +28,7 @@ import {
     DIED,
     ECMD_OK,
     ECMD_CANCEL,
+    G_EXTINCT,
     FIRE_RES,
     FLYING,
     GLIB,
@@ -53,6 +55,7 @@ import {
     WWALKING,
     XKILL_NOMSG,
     has_mgivenname, MGIVENNAME, MM_NOMSG, MIGR_RANDOM, MIGR_EXACT_XY,
+    MON_ENDGAME_MIGR, MON_LIMBO, MON_MIGRATING, MON_OFFMAP,
     u_at,
 } from './const.js';
 import { losexp, pluslvl } from './exper.js';
@@ -66,7 +69,7 @@ import { minimal_monnam, mon_nam, x_monnam } from './do_name.js';
 import { dmonsfree, makemon_runtime } from './makemon_create.js';
 import { rndmonst } from './makemon.js';
 import { migrate_to_level } from './dog.js';
-import { AD_PHYS, PM_GRID_BUG, PM_SAMURAI } from './monsters.js';
+import { AD_PHYS, G_UNIQ, PM_GRID_BUG, PM_SAMURAI } from './monsters.js';
 import { note_unported } from './unported.js';
 import { load_lua } from './nhlua.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
@@ -79,7 +82,7 @@ import {
     notice_mon_off, notice_mon_on, pooleffects,
     may_dig,
 } from './hack.js';
-import { monkilled, rescham, usmellmon, xkilled } from './mon.js';
+import { mongone, monkilled, rescham, usmellmon, xkilled } from './mon.js';
 import { dist2, mungspaces, strncmpi, upstart, truncateByteString } from './hacklib.js';
 import { encumber_msg } from './pickup.js';
 import { level_tele } from './teleport.js';
@@ -105,7 +108,86 @@ import { flip_level, flip_level_rnd } from './sp_lev.js';
 import { vision_recalc } from './vision.js';
 import { getpos } from './getpos.js';
 import { m_at } from './monst.js';
-import { nonliving, olfaction } from './mondata.js';
+import { monsndx, nonliving, olfaction } from './mondata.js';
+import { setpaid } from './shk.js';
+
+// C refs: wizcmds.c makemap_unmakemon() and makemap_remove_mons(). The
+// discarded keepdogs(TRUE) call is still an explicit gap because dog.js does
+// not implement keepdogs()'s pets-only branch.
+async function makemap_unmakemon(monster, migratory, state) {
+    const mndx = monsndx(monster.data);
+    const mvitals = state.svm?.mvitals ?? state.mvitals;
+    const vital = mvitals?.[mndx];
+    if (!vital)
+        throw new Error('makemap_unmakemon requires initialized monster vital data');
+
+    // wizcmds.c clears G_EXTINCT so a unique monster can be generated on the
+    // replacement level, then decrements the birth count for every removal.
+    if (monster.data.geno & G_UNIQ) vital.mvflags &= ~G_EXTINCT;
+    if (vital.born) vital.born--;
+
+    // A vault guard can be parked at <0,0> and already marked dead; clearing
+    // isgd lets mongone() detach it instead of taking the vault death branch.
+    if (monster.isgd) {
+        monster.isgd = false;
+    } else if (monster.mhp < 1) {
+        return;
+    } else if (monster.isshk
+        && on_level(state.u.uz, monster.mextra.eshk.shoplevel)) {
+        setpaid(monster, state);
+    }
+
+    if (migratory) {
+        // A selected resident leaves migrating_mons but must join fmon until
+        // dmonsfree() accounts for its removal, just as C does.
+        state.level.monlist ??= null;
+        monster.mstate = (monster.mstate ?? 0) | MON_OFFMAP;
+        monster.mstate &= ~(MON_MIGRATING | MON_LIMBO | MON_ENDGAME_MIGR);
+        monster.nmon = state.level.monlist;
+        state.level.monlist = monster;
+    }
+
+    await mongone(monster, { state });
+}
+
+export async function makemap_remove_mons(state = game) {
+    state.level.monlist ??= null;
+    state.gm ??= {};
+
+    // C keepdogs(TRUE) has side effects but returns no value. Its pets-only
+    // arm is not implemented in dog.js, so retain the documented gap and skip
+    // the unsupported call, following the unported-callee rule.
+    note_unported('dog.c keepdogs');
+
+    for (let monster = state.level.monlist; monster;) {
+        const next = monster.nmon;
+        if (monster.mhp >= 1)
+            await makemap_unmakemon(monster, false, state);
+        monster = next;
+    }
+
+    let previous = null;
+    for (let monster = state.gm.migrating_mons ?? null; monster;) {
+        const next = monster.nmon;
+        const mextra = monster.mextra;
+        const hasLevelSpecificHome = mextra && (
+            (monster.isshk && on_level(state.u.uz, mextra.eshk.shoplevel))
+            || (monster.ispriest && on_level(state.u.uz, mextra.epri.shrlevel))
+            || (monster.isgd && on_level(state.u.uz, mextra.egd.gdlevel))
+        );
+        if (hasLevelSpecificHome) {
+            if (previous) previous.nmon = next;
+            else state.gm.migrating_mons = next;
+            await makemap_unmakemon(monster, true, state);
+        } else {
+            previous = monster;
+        }
+        monster = next;
+    }
+
+    dmonsfree(state);
+    if (state.level.monlist) note_unported('pline.c impossible');
+}
 
 // C ref: wizcmds.c wiz_show_wmodes() (657-689). The canonical interface
 // in options.js is tty, matching the recorder's active WINDOWPORT(tty).

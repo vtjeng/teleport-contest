@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected role/pet setup. The initial recorder screen has a welcome pager; dismiss it before wizard wish. The C map shows the Barbarian's pettype:dog as a little dog (d), unlike the Wizard's role-fixed kitten.",
+  "segments": [
+    {
+      "seed": 41040127,
+      "datetime": "20510112131416",
+      "nethackrc": "OPTIONS=name:V41LittleDog,role:Barbarian,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017leash\n"
+    }
+  ]
+}

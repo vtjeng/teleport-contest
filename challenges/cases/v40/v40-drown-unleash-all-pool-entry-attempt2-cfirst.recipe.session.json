@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first attempt 2 for trap.c:drown -> apply.c:unleash_all. The pool wish only changes terrain; step south onto ordinary floor, then north back into the pool so movement invokes pooleffects and drown.",
+  "segments": [
+    {
+      "seed": 40762113,
+      "datetime": "20590512093700",
+      "nethackrc": "OPTIONS=name:V40DrownLeash,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017leash\naol\u0017pool\njk"
+    }
+  ]
+}

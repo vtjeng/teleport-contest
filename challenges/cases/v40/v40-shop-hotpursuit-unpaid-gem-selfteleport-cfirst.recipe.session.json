@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopChase,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\nl, \u0017uncursed wand of teleportation\nz o .",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first distinct shopkeeper-pursuit candidate. The hero takes the for-sale red gem on D4, which C confirms as unpaid, then self-zaps a wished wand of teleportation from inside the live shop. Count only if the C trace reaches shop exit/rob_shop/hot_pursuit and the JavaScript first divergence occurs after the teleport placement/output has matched; the v19 controlled getpos selector remains an overlap blocker if it diverges first."
+}

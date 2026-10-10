@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected selector attempt: the prior C inventory menu identifies the wished yellow potion as slot p; use it and observe the potion enlightenment effect.",
+  "segments": [
+    {
+      "seed": 40101062,
+      "datetime": "20461203121115",
+      "nethackrc": "OPTIONS=name:V40Enlightenment,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017potion of enlightenment\nqp"
+    }
+  ]
+}

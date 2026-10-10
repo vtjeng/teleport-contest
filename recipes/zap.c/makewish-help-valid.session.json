@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8562105,
+      "datetime": "20261001094500",
+      "nethackrc": "OPTIONS=name:WishHelpRetry,role:Wizard,race:human,gender=male,align=neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u0017help\n magic lamp\n."
+    }
+  ],
+  "comment": "Independent zap.c:makewish help route; dismiss the wishcmdassist text window with space, then grant a magic lamp."
+}

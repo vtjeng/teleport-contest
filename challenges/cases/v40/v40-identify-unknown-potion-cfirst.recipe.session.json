@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v40 probe for read.c:seffects(SCR_IDENTIFY). Wish one potion and an identify scroll independently, then stop at the scroll's inventory selection so the C-confirmed slots and follow-up pages can guide the completed input.",
+  "segments": [
+    {
+      "seed": 40100520,
+      "datetime": "20450102030405",
+      "nethackrc": "OPTIONS=name:V40IdentifyPotion,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017potion of see invisible\n\u0017scroll of identify\nr"
+    }
+  ]
+}

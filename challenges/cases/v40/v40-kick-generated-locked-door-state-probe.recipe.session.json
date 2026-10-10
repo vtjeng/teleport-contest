@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only door-state confirmation probe using the same independent seed and the map-screen northwest direction. Walking into the target before kicking should print the source refusal if C confirms the door is locked; preserve the kick recording separately.",
+  "segments": [
+    {
+      "seed": 42005015,
+      "datetime": "20441015101112",
+      "nethackrc": "OPTIONS=name:V40LockedDoorKick,role:Valkyrie,race:human,gender=female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " y"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrects the C-observed dog location from the previous probe: the little dog is immediately west after the wizard wishes. The slot-e sleep wand is now aimed west to test whether a sleeping pet can remain on the coaligned altar through a swap.",
+  "segments": [
+    {
+      "seed": 40101044,
+      "datetime": "20461011131417",
+      "nethackrc": "OPTIONS=name:V40PetRevival,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "l\u0017lawful altar\n\u0017wand of sleep\nzeh"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "First C setup probe for the source-explicit `magic_whistled -> fill_pit` path. Wish a boulder while a tame dog is on the start level, then inspect C's item and map before arranging the pit state.",
+  "segments": [
+    {
+      "seed": 40100731,
+      "datetime": "20450607080910",
+      "nethackrc": "OPTIONS=name:V40TrapPetWhistle,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017boulder\n"
+    }
+  ]
+}

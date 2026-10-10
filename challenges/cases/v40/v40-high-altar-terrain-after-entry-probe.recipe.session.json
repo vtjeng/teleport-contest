@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved reached door route with #terrain e appended to capture the full internal terrain typ map after entering the Sanctum secret exit; use this C-derived map to route toward the high altar.",
+  "segments": [
+    {
+      "seed": 40404042,
+      "datetime": "20461012131415",
+      "nethackrc": "OPTIONS=name:V40SanctumMap,role=Monk,race=human,gender=female,align=lawful,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0016?\n v #wizdetect\njj  #wizkill\n  k.   \n m.\u001b\u001b ojj#wizmap\n#terrain\ne"
+    }
+  ]
+}

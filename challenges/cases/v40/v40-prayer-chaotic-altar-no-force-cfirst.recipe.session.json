@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Continues the C-confirmed debug prayer prompt and declines its force-pleased option, preserving the ordinary cross-aligned prayer outcome rather than taking the wizard shortcut.",
+  "segments": [
+    {
+      "seed": 40100842,
+      "datetime": "20450708091011",
+      "nethackrc": "OPTIONS=name:V40PrayerAltar,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "l\u0017chaotic altar\n#pray\ny n"
+    }
+  ]
+}

@@ -1,13 +1,22 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
-    A_CHA, BILLSZ, COST_CONTENTS, DEAF, HALLUC, LAVAPOOL, MON_MIGRATING,
+    A_CHA, BILLSZ, COST_CONTENTS, DEAF, HALLUC, LAVAPOOL, LL_ACHIEVE,
+    MON_MIGRATING,
     NORMAL_SPEED, OBJ_BURIED, OBJ_CONTAINED, OBJ_DELETED, OBJ_FLOOR,
     OBJ_FREE, OBJ_INVENT, OBJ_MINVENT, OBJ_ONBILL, ROOM, ROOMOFFSET, SHOPBASE,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { PM_GIANT_RAT, PM_SHOPKEEPER, PM_TOURIST } from '../js/monsters.js';
+import {
+    PM_GIANT_RAT,
+    PM_KEYSTONE_KOP,
+    PM_KOP_KAPTAIN,
+    PM_KOP_LIEUTENANT,
+    PM_KOP_SERGEANT,
+    PM_SHOPKEEPER,
+    PM_TOURIST,
+} from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import { addinv_runtime, obfree, obj_extract_self, useupf } from '../js/invent.js';
 import { bill_dummy_object, mksobj_at, newObject } from '../js/obj.js';
@@ -17,10 +26,18 @@ import { DART, DIAMOND, FOOD_RATION, GOLD_PIECE, POT_HEALING, SACK,
     TALLOW_CANDLE } from '../js/objects.js';
 import { pick_obj } from '../js/pickup.js';
 import { addtobill, alter_cost, billable, contained_cost, costly_gold,
-    picked_container, set_cost, setpaid, subfrombill, unpaid_cost } from '../js/shk.js';
+    picked_container, set_cost, setpaid, subfrombill, u_left_shop, unpaid_cost }
+    from '../js/shk.js';
 import { saleable } from '../js/shknam.js';
 import { SHTYPES } from '../js/shtypes_data.js';
 import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
+
+const KOPS = new Set([
+    PM_KEYSTONE_KOP,
+    PM_KOP_SERGEANT,
+    PM_KOP_LIEUTENANT,
+    PM_KOP_KAPTAIN,
+]);
 
 async function shop() {
     // Independent seed/date initialize the catalogs. Each test replaces the
@@ -43,7 +60,8 @@ async function shop() {
         mextra: { eshk: { shoproom: ROOMOFFSET, shoptype: SHOPBASE,
             shoplevel: { ...state.u.uz }, shk: { x: x - 1, y },
             bill: [], bill_p: null, billct: 0, credit: 0, debit: 0,
-            loan: 0, surcharge: false, shknam: 'Testkeeper' } }, nmon: null };
+            loan: 0, robbed: 0, surcharge: false, shknam: 'Testkeeper' } },
+        nmon: null };
     room.resident = keeper;
     state.level.monlist = keeper;
     state.u.ushops = [ROOMOFFSET, 0, 0, 0, 0];
@@ -63,6 +81,13 @@ async function shop() {
 function object(state, otyp, overrides = {}) {
     return newObject({ otyp, oclass: state.objects[otyp].oc_class, quan: 1,
         o_id: state.context.ident++, dknown: true, where: OBJ_FREE, ...overrides });
+}
+
+function kopsOnLevel(state) {
+    let count = 0;
+    for (let monster = state.level.monlist; monster; monster = monster.nmon)
+        if (KOPS.has(monster.data.pmidx)) ++count;
+    return count;
 }
 
 test('saleable follows general, class, explicit-item, and vegetarian rows', async () => {
@@ -228,6 +253,45 @@ test('remote pick_obj inserts the acquired item before burglary clears its bill'
     assert.equal(acquired, stock);
     assert.equal(Boolean(acquired.unpaid), false);
     assert.equal(eshk.billct, 0);
+});
+
+test('u_left_shop records an unpaid robbery and calls the Kops on level exit', async () => {
+    const { state, eshk, messages } = await shop();
+    eshk.debit = 80;
+    state.gamelog = [];
+    state.u.ushops0 = [ROOMOFFSET, 0, 0, 0, 0];
+
+    await u_left_shop(state.u.ushops0, true, state, {
+        message: text => messages.push(text),
+    });
+
+    assert.equal(eshk.robbed, 80);
+    assert.equal(eshk.debit, 0);
+    assert.equal(state.gamelog.length, 1);
+    assert.equal(state.gamelog[0].flags, LL_ACHIEVE);
+    assert.match(state.gamelog[0].text, /^stole 80 /u);
+    assert.ok(messages.includes('The Keystone Kops are after you!'));
+    assert.equal(state.unported.has('shk.c hot_pursuit'), true);
+    assert.equal(state.unported.has('wizard.c choose_stairs'), false);
+    assert.equal(state.unported.has('shk.c makekops'), false);
+    assert.ok(kopsOnLevel(state) > 0);
+});
+
+test('u_left_shop places the Kops around a hero stepping out of the shop', async () => {
+    const { state, eshk, messages } = await shop();
+    eshk.debit = 80;
+    state.u.ushops0 = [ROOMOFFSET, 0, 0, 0, 0];
+    state.u.ux0 = state.u.ux - 1;
+    state.u.uy0 = state.u.uy;
+    state.level.at(state.u.ux0, state.u.uy0).edge = true;
+
+    await u_left_shop(state.u.ushops0, false, state, {
+        message: text => messages.push(text),
+    });
+
+    assert.ok(messages.includes('The Keystone Kops appear!'));
+    assert.equal(state.unported.has('shk.c makekops'), false);
+    assert.ok(kopsOnLevel(state) > 0);
 });
 
 test('bill_dummy_object replaces the original bill and preserves its old price', async () => {

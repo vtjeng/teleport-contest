@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Continue the C-confirmed hostile newt spawn and inspect the zap menu to identify the slow-monster wand slot before targeting it.",
+  "segments": [
+    {
+      "seed": 41410103,
+      "datetime": "20461013141516",
+      "nethackrc": "OPTIONS=name:V40WandSlow,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017wand of slow monster\n\u0007hostile newt\nz?"
+    }
+  ]
+}

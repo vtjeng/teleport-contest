@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Inspect the second inventory page after the C-confirmed Earth arrival; identify whether the cursed pick-axe survived the Amulet entry.",
+  "segments": [
+    {
+      "seed": 42060006,
+      "datetime": "20441017101112",
+      "nethackrc": "OPTIONS=name:V40EarthPage2,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?\n  N      \u001b\u001bi "
+    }
+  ]
+}

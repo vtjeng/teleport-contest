@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first attempt 3 for trap.c:drown -> apply.c:unleash_all. Attempt 2 entered ordinary floor but C avoided the known pool on the return step. Dismiss that page and use the no-pickup movement prefix to force the north step onto the pool.",
+  "segments": [
+    {
+      "seed": 40762113,
+      "datetime": "20590512093700",
+      "nethackrc": "OPTIONS=name:V40DrownLeash,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017leash\naol\u0017pool\njk mk"
+    }
+  ]
+}

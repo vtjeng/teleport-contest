@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent pickup.c:fatal_corpse_mistake pickup_object caller witness through apply.c:use_grapple. The debug Wizard wishes gloves and a life-saving amulet, drops a cockatrice corpse on the staircase, removes the gloves, steps north, and targets the corpse with a grappling hook.",
+  "segments": [
+    {
+      "seed": 6120731,
+      "datetime": "20370709081200",
+      "nethackrc": "OPTIONS=name:GrappleCorpseC,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": " \u0017uncursed gauntlets of dexterity\nWo\u0017uncursed amulet of life saving\nPp\u0017grappling hook\n\u0017uncursed cockatrice corpse\ndrTokaq $j.     "
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-only reachability attempt for sounds.c:dochat -> domonnoise(MS_BARK). A debug-created dog is addressed with #chat from the source-confirmed adjacent direction; no JavaScript comparison is performed.",
+  "segments": [
+    {
+      "seed": 40100403,
+      "datetime": "20430703100000",
+      "nethackrc": "OPTIONS=name:V40DogChat,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0007dog\n#chat\nl",
+      "recorderIsDst": true
+    }
+  ]
+}

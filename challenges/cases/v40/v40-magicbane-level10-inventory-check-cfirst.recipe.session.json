@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only inventory check after the preserved level-10 route rejected wield slot o. Reproduce that exact #levelchange setup, dismiss its source-observed pager sequence, and inspect the C inventory without attempting a hit.",
+  "segments": [
+    {
+      "seed": 42080005,
+      "datetime": "20461014151617",
+      "nethackrc": "OPTIONS=name:V40MagicbaneLevel10,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017Magicbane\n#levelchange\n10\n         i"
+    }
+  ]
+}

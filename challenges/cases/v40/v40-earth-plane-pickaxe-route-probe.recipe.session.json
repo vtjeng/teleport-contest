@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first route probe for dig.c:mkcavearea: wish a cursed pick-axe, then use wizard Ctrl-V to reach the source-named Plane of Earth. The saved C map and transition will determine the later stone target and pager inputs.",
+  "segments": [
+    {
+      "seed": 42060001,
+      "datetime": "20441016101112",
+      "nethackrc": "OPTIONS=name:V40EarthDigProbe,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016Plane of Earth\n"
+    }
+  ]
+}

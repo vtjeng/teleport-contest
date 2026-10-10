@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Keeps the altar-first, adjacent tame-dog kill route but changes the seed because C's corpse_chance roll rejected the prior corpse (rn2(3)=1). The seed variation changes the source-controlled corpse guard; C-only until a corpse is present and pray_revive is reached.",
+  "segments": [
+    {
+      "seed": 40101045,
+      "datetime": "20461012141518",
+      "nethackrc": "OPTIONS=name:V40PetRevival,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017lawful altar\nl#wizkill\n  h.\u001b h#pray\ny y "
+    }
+  ]
+}

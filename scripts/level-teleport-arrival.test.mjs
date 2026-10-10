@@ -17,6 +17,7 @@ import {
     INVIS,
     LAST_PROP,
     LEVITATION,
+    LEPREHALL,
     LOW_PM,
     LR_BRANCH,
     LR_DOWNTELE,
@@ -1743,28 +1744,32 @@ test('empty-shop suppression resets with each recorder segment', async () => {
     }
 });
 
-test('the first later room family reaches the LEPREHALL population boundary',
+test('level teleport fills a LEPREHALL special room',
     async () => {
         let boundary = null;
+        // The first seed in the 7646011-7646020 debug-teleport probe whose
+        // D:6 generated rooms include LEPREHALL exercises the later room
+        // family through ordinary level initialization.
         await runSegment({
-            seed: 7646010,
-            datetime: '20310417113000',
+            seed: 7646015,
+            // A fixed clock and new Wizard identity keep this route repeatable
+            // while leaving the generated D:6 room family seed-driven.
+            datetime: '20310417123100',
             nethackrc: [
-                'OPTIONS=name:Arrival,role:Wizard,race:human,gender:male,align:neutral',
+                'OPTIONS=name:KnoxRoute,role:Wizard,race:human,gender:male,align:neutral',
                 'OPTIONS=!legacy,!tutorial,!splash_screen',
                 'OPTIONS=pettype:none,!acoustics,playmode:debug',
                 '',
             ].join('\n'),
+            // The final wait verifies play resumes after D:6 room filling.
             moves: '.\x166\n.',
         }, { onBoundary: (error) => { boundary = error; } });
 
-        assert.equal(boundary?.name, 'UnsupportedSpecialRoomError');
-        assert.equal(
-            boundary?.message,
-            'unsupported special room: fill_special_room(11) beyond the Morgue boundary',
-        );
+        assert.equal(boundary, null);
         assert.equal(game.u.uz.dlevel, 6);
-        assert.equal(game._commandDispatchCount, 2);
+        // Startup and level-teleport dispatch precede the final wait command.
+        assert.equal(game._commandDispatchCount, 3);
+        assert.ok(game.level.rooms.some((room) => room.rtype === LEPREHALL));
     });
 
 // C ref: do.c:1860-1876.  When goto_level() moves the hero from a non-hellish

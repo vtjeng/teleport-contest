@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked source probe for find_defensive -> use_defensive(MUSE_TRAPDOOR) -> worm.c:worm_move. find_defensive() returns before its trap scan when the monster is an animal (muse.c:453-455); PM_LONG_WORM is M1_ANIMAL (monsters.h:1134-1137). The Wizard attempts a trap-door action after creating a hostile long worm, but a valid long worm cannot select it.",
+  "segments": [
+    {
+      "seed": 418200416,
+      "datetime": "21051117101000",
+      "nethackrc": "OPTIONS=name:WormTrapDoor,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#wizgenesis\nhostile long worm\nh#wizwish\ntrap door\nh..."
+    }
+  ]
+}

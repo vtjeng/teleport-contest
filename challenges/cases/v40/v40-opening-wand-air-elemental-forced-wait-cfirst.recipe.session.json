@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 40101003,
+      "datetime": "20460421123827",
+      "nethackrc": "OPTIONS=name:V40WandExpel,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017wand of opening\n\u0007hostile air elemental\nm.",
+      "comment": "C-first corrected one-turn probe uses the source-confirmed `m` prefix to force the no-op wait when the hostile air elemental is adjacent."
+    }
+  ]
+}

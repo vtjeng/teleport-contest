@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrects the preserved trap-creation miss using C source and map evidence: the hero starts on the upstairs, so maketrap rejects that tile. Step east onto ordinary floor first, then place the boulder and pit trap at the current ordinary-floor tile and move south to lure the tame kitten onto it.",
+  "segments": [
+    {
+      "seed": 40100731,
+      "datetime": "20450607080910",
+      "nethackrc": "OPTIONS=name:V40TrapPetWhistle,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "l\u0017boulder\n\u0017pit trap\nj"
+    }
+  ]
+}

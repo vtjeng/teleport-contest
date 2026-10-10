@@ -6,6 +6,7 @@ import {
     ADORNED,
     BLINDED,
     CONFLICT,
+    HAND,
     LEFT_HANDED,
     LEFT_RING,
     LOST_DROPPED,
@@ -57,7 +58,7 @@ import {
 import { droppables } from './dogmove.js';
 import { game } from './gstate.js';
 import { inv_cnt, nomul } from './hack.js';
-import { dist2 } from './hacklib.js';
+import { dist2, upstart } from './hacklib.js';
 import {
     add_to_minv,
     carry_obj_effects,
@@ -77,7 +78,7 @@ import {
 } from './mondata.js';
 import { AD_SITM, AT_ENGL, S_NYMPH } from './monsters.js';
 import { can_carry } from './moncarry.js';
-import { objectType, place_object, unknow_object } from './obj.js';
+import { carried, objectType, place_object, unknow_object } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
     ARMOR_CLASS,
@@ -89,6 +90,7 @@ import {
     GOLD_PIECE,
     LEASH,
     RING_CLASS,
+    ROCK_CLASS,
     TOOL_CLASS,
 } from './objects.js';
 import {
@@ -96,8 +98,10 @@ import {
     distant_name,
     donameFresh,
     doname_with_price,
+    otense,
     yname,
 } from './objnam.js';
+import { makeplural } from './fruit.js';
 import { encumber_msg } from './pickup.js';
 import { in_rooms } from './rooms.js';
 import { rn2, rnd } from './rng.js';
@@ -130,6 +134,8 @@ import { rloc, tele_restrict } from './teleport.js';
 import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
 import { canseemon, canspotmon } from './display.js';
+import { touch_artifact } from './artifacts.js';
+import { body_part } from './polyself.js';
 
 export class UnsupportedMonsterPickupOperationError extends Error {
     constructor(operation, obj = null) {
@@ -937,6 +943,62 @@ export async function mdrop_obj(mon, obj, verbosely, rawEnv = {}) {
             state,
             silent: true,
         });
+}
+
+// C ref: steal.c maybe_absorb_item() (772-810). A revealed mimic can absorb
+// the hero's lockpick unless its ordinary/artifact resistance roll succeeds.
+// Keep the source guard order: obj_resists() draws for an ordinary item even
+// when no later transfer or message can occur.
+export async function maybe_absorb_item(mon, obj, ochance, achance, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2, rnd };
+    const message = rawEnv.message ?? ttyPline;
+
+    if (obj === state.uball || obj === state.uchain
+        || obj.oclass === ROCK_CLASS
+        || obj_resists(obj, 100 - ochance, 100 - achance, {
+            ...rawEnv,
+            state,
+            random,
+        })
+        || !await touch_artifact(obj, mon, { ...rawEnv, state, random })) {
+        return;
+    }
+
+    if (carried(obj)) {
+        if (obj.owornmask)
+            await remove_worn_item(obj, true, state, { ...rawEnv, state, message });
+        if (obj.unpaid)
+            subfrombill(
+                obj,
+                shop_keeper(state.u.ushops[0], state),
+                state,
+                rawEnv,
+            );
+        if (cansee(mon.mx, mon.my, state)) {
+            await message(
+                `${Some_Monnam(mon, state)} pulls ${yname(obj, state, rawEnv)} away from you and absorbs ${obj.quan > 1 ? 'them' : 'it'}!`,
+                state,
+            );
+        } else {
+            let hand = body_part(HAND, state.youmonst);
+            if (bimanual(obj, state)) hand = makeplural(hand);
+            await message(
+                `${upstart(yname(obj, state, rawEnv))} ${otense(obj, 'are', state)} pulled from your ${hand}!`,
+                state,
+            );
+        }
+        await freeinv(obj, { ...rawEnv, state });
+        await encumber_msg(state, { message });
+    } else if (canspotmon(mon, state)) {
+        await message(
+            `${Monnam(mon, state)} absorbs ${yname(obj, state, rawEnv)}!`,
+            state,
+        );
+    }
+
+    // The C caller discards mpickobj()'s merge/free result.
+    mpickobj(mon, obj, { ...rawEnv, state, random });
 }
 
 // C ref: steal.c mdrop_special_objs() (852-873). Preserve its unconditional

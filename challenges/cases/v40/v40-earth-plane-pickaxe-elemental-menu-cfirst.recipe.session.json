@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first endgame destination-menu route: the previous C probe shows level-port accepts ? and presents a one-way Elemental Planes choice. This input selects that C-confirmed menu row to test the source special-level path.",
+  "segments": [
+    {
+      "seed": 42060004,
+      "datetime": "20441016101112",
+      "nethackrc": "OPTIONS=name:V40EarthDigProbe4,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?a"
+    }
+  ]
+}

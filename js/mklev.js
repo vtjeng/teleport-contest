@@ -27,7 +27,6 @@ import {
 } from './dungeon.js';
 import { UnsupportedLevelChangeError } from './do.js';
 import {
-    UnsupportedSpecialRoomError,
     antholemon,
     do_mkroom,
     fill_zoo,
@@ -547,8 +546,15 @@ export function fill_special_room(croom, env = {}) {
         if (croom.needfill === FILL_NORMAL) {
             if (croom.rtype >= SHOPBASE) {
                 const stockRoom = env.stockRoom ?? stock_room;
-                stockRoom(croom.rtype - SHOPBASE, croom, normalized);
-                flags.has_shop = true;
+                const maybeStocked = stockRoom(
+                    croom.rtype - SHOPBASE, croom, normalized,
+                );
+                const finishShop = () => {
+                    flags.has_shop = true;
+                };
+                if (maybeStocked && typeof maybeStocked.then === 'function')
+                    return maybeStocked.then(finishShop);
+                finishShop();
                 return;
             }
 
@@ -574,10 +580,12 @@ export function fill_special_room(croom, env = {}) {
             }
             case ANTHOLE:
             case COCKNEST:
-            case LEPREHALL:
-                throw new UnsupportedSpecialRoomError(
-                    `fill_special_room(${croom.rtype}) beyond the Morgue boundary`,
-                );
+            case LEPREHALL: {
+                const maybeFill = fill_zoo(croom, normalized);
+                if (maybeFill && typeof maybeFill.then === 'function')
+                    return maybeFill.then(() => finishFlags());
+                break;
+            }
             default:
                 break;
             }
@@ -1755,6 +1763,8 @@ async function ensureSpecialLevelLoaders() {
     const { MINES_LEVEL_LOADERS } = await import('./mines_levels.js');
     const { FIRE_LEVEL_LOADERS } = await import('./fire_levels.js');
     const { AIR_LEVEL_LOADERS } = await import('./air_levels.js');
+    const { EARTH_LEVEL_LOADERS } = await import('./earth_levels.js');
+    const { WATER_LEVEL_LOADERS } = await import('./water_levels.js');
     const { HELL_LEVEL_LOADERS } = await import('./hell_levels.js');
     const { VALLEY_LEVEL_LOADERS } = await import('./valley_levels.js');
     const { MEDUSA_LEVEL_LOADERS } = await import('./medusa_levels.js');
@@ -1766,6 +1776,7 @@ async function ensureSpecialLevelLoaders() {
     const { WIZARD1_LEVEL_LOADERS } = await import('./wizard1_levels.js');
     const { WIZARD2_LEVEL_LOADERS } = await import('./wizard2_levels.js');
     const { WIZARD3_LEVEL_LOADERS } = await import('./wizard3_levels.js');
+    const { KNOX_LEVEL_LOADERS } = await import('./knox_levels.js');
     SPECIAL_LEVEL_LOADERS = {
         ...BIGRM_LOADERS,
         ...QUEST_LEVEL_LOADERS,
@@ -1774,6 +1785,8 @@ async function ensureSpecialLevelLoaders() {
         ...MINES_LEVEL_LOADERS,
         ...FIRE_LEVEL_LOADERS,
         ...AIR_LEVEL_LOADERS,
+        ...EARTH_LEVEL_LOADERS,
+        ...WATER_LEVEL_LOADERS,
         ...HELL_LEVEL_LOADERS,
         ...VALLEY_LEVEL_LOADERS,
         ...MEDUSA_LEVEL_LOADERS,
@@ -1785,6 +1798,7 @@ async function ensureSpecialLevelLoaders() {
         ...WIZARD1_LEVEL_LOADERS,
         ...WIZARD2_LEVEL_LOADERS,
         ...WIZARD3_LEVEL_LOADERS,
+        ...KNOX_LEVEL_LOADERS,
     };
     // Val-strt is the first translated level to use the Lua selection global.
     // Keep the established loader signature for every other level, including

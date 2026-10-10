@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T09:12:00.749Z",
+  "capturedAt": "2026-10-10T17:18:16.638Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -80226,34 +80226,2374 @@
         "type": "accepted",
         "at": "2026-10-10T09:11:20.068Z",
         "task": "A2-v39-mounted-steed-knockoff-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-v39-mounted-steed-knockoff-investigation-20261010-678932e31dba7e13278a19676b3509b26d6216ad",
+        "type": "published",
+        "at": "2026-10-10T09:12:09.173Z",
+        "task": "A2-v39-mounted-steed-knockoff-investigation-20261010",
+        "commit": "678932e31dba7e13278a19676b3509b26d6216ad"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1db0d3868797b102a94297f7d688960ab62c58cc",
+        "type": "ready",
+        "at": "2026-10-10T09:14:40.465Z",
+        "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010",
+        "delivery": "1db0d3868797b102a94297f7d688960ab62c58cc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-v39-mounted-steed-polymorph-followup-20261010",
+        "type": "turn",
+        "at": "2026-10-10T09:17:28.097Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 resumed on the remaining mounted-steed polymorph RNG gap after accepted knockoff; validating the current source trace before claiming its follow-up scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "type": "assign",
+        "at": "2026-10-10T09:17:37.408Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-v40-m-unleash-approved-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T09:18:00.634Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has six approved distinct C-first mismatches; continuing source-based preparation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-B215-20261010",
+        "type": "turn",
+        "at": "2026-10-10T09:18:42.081Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B215 is submitted; all four saved v39 candidates are reserved by B deliveries, C pickup, or A2 mounted-steed work. Waiting for delivery outcomes and a refreshed queue before selecting independent scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-pickup-60c8754-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T09:20:16.111Z",
+        "task": "C-v39-pickup-cockatrice-barehanded-final-investigation-20261010",
+        "integration": "60c8754be3b41237ce63db1b0bf71203c99b32bb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v39-mounted-steed-poly-steed-20261010",
+        "type": "implement",
+        "at": "2026-10-10T09:23:21.202Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "goal": "A2-v39-mounted-steed-poly-steed-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-v40-worm-move-approved-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T09:25:58.044Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has seven approved distinct C-first mismatches; continuing source-based preparation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-v39-fell-dismount-20261010",
+        "type": "turn",
+        "at": "2026-10-10T09:26:20.715Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 has source-traced the mounted polymorph RNG gap to steed.c:dismount_steed(DISMOUNT_FELL), called while the saddle is removed during the monster polymorph. The investigation report now records the full C caller path and the active scope covers both worn.c FELL call sites."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-pickup-38041134702-20261010",
+        "type": "validated",
+        "at": "2026-10-10T09:26:41.700Z",
+        "task": "C-v39-pickup-cockatrice-barehanded-final-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v39-pickup-cockatrice-barehanded-final-investigation-20261010-60c8754be3b41237ce63db1b0bf71203c99b32bb-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T09:27:29.574Z",
+        "task": "C-v39-pickup-cockatrice-barehanded-final-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-after-pickup-acceptance-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T09:28:03.411Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C merged the accepted pickup fix and is refreshing the challenge queue before choosing its next independent task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v39-pickup-cockatrice-barehanded-final-investigation-20261010-fc77d97d60813d8b19bee57639c05a63b0422038",
+        "type": "published",
+        "at": "2026-10-10T09:28:11.038Z",
+        "task": "C-v39-pickup-cockatrice-barehanded-final-investigation-20261010",
+        "commit": "fc77d97d60813d8b19bee57639c05a63b0422038"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-after-pickup-queue-refresh-idle-20261010",
+        "type": "turn",
+        "at": "2026-10-10T09:31:49.749Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C merged accepted Main and completed a private queue refresh. The private result was stale, so the current actionable shared queue was preserved; its remaining cases are reserved or resolved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-review-B213-20261010T",
+        "type": "activity",
+        "at": "2026-10-10T09:32:28.246Z",
+        "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete",
+        "phase": "review",
+        "reason": "Integrating the oldest dependency-ready equipment retouch delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-67b0d0d7533a2aa8ad99bd0e22d68468e5ccd44d",
+        "type": "ready",
+        "at": "2026-10-10T09:32:47.358Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "delivery": "67b0d0d7533a2aa8ad99bd0e22d68468e5ccd44d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-poly-fell-67b0d0d-20261010",
+        "type": "received",
+        "at": "2026-10-10T09:33:31.344Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "delivery": "67b0d0d7533a2aa8ad99bd0e22d68468e5ccd44d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-post-poly-fell-20261010",
+        "type": "turn",
+        "at": "2026-10-10T09:34:12.038Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 delivery is queued behind B213 integration. Current saved candidates are reserved by B213, B215, or this submitted delivery; available for independent work after publication and queue refresh."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B213-23d07ff38df5-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T09:36:41.107Z",
+        "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete",
+        "integration": "23d07ff38df570228278bc8af9679db5ae6fdab7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B213-38042129723-20261010",
+        "type": "validated",
+        "at": "2026-10-10T09:43:44.176Z",
+        "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B213-investigation-v39-polyself-retouch-silver-vampire-complete-23d07ff38df570228278bc8af9679db5ae6fdab7-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T09:44:39.447Z",
+        "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B213-investigation-v39-polyself-retouch-silver-vampire-complete-fcee2124409bf1a287b11a21f253470ed26317bc",
+        "type": "published",
+        "at": "2026-10-10T09:45:41.794Z",
+        "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete",
+        "commit": "fcee2124409bf1a287b11a21f253470ed26317bc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-after-B213-accept-20261010",
+        "type": "turn",
+        "at": "2026-10-10T09:45:46.461Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B213 is accepted. Syncing accepted Main while preserving submitted B215, then checking the queue for independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-B213-sync-20261010",
+        "type": "turn",
+        "at": "2026-10-10T09:47:22.547Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Accepted Main is synced. The current queue has only A2’s mounted-steed case and B215’s counted-wizgenesis case; both are reserved, so no independent task is free."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-v40-shopdig-approved-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T09:47:25.709Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has eight approved distinct C-first mismatches; continuing source-based preparation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B215-1db0d386-20261010",
+        "type": "received",
+        "at": "2026-10-10T09:48:29.484Z",
+        "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010",
+        "delivery": "1db0d3868797b102a94297f7d688960ab62c58cc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-review-B215-20261010T0949",
+        "type": "activity",
+        "at": "2026-10-10T09:48:38.755Z",
+        "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010",
+        "phase": "review",
+        "reason": "Integrating the oldest ready mimic item absorption delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B215-d385af23ff14-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T09:52:34.380Z",
+        "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010",
+        "integration": "d385af23ff14452feaff464fb82ad499ba63ccb3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-v40-knox-approved-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T09:52:50.258Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has nine approved distinct C-first mismatches; three remain, and the direct Fort Ludios knox.lua case is recorded."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B215-38043049695-20261010",
+        "type": "validated",
+        "at": "2026-10-10T09:59:14.380Z",
+        "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B215-investigation-v39-counted-wizgenesis-obj-resists-20261010-d385af23ff14452feaff464fb82ad499ba63ccb3-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T10:00:07.181Z",
+        "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-after-B215-accept-20261010",
+        "type": "turn",
+        "at": "2026-10-10T10:01:41.503Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B215 is accepted. Syncing the accepted Main boundary and checking the queue for independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-v40-shop-robshop-approved-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T10:01:53.292Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has ten approved distinct C-first mismatches; two remain, and the unpaid-shop level-exit case is recorded."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B215-investigation-v39-counted-wizgenesis-obj-resists-20261010-6ea3cb1a885b183629f5b321143b41cb55319528",
+        "type": "published",
+        "at": "2026-10-10T10:02:13.599Z",
+        "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010",
+        "commit": "6ea3cb1a885b183629f5b321143b41cb55319528"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-B215-sync-20261010",
+        "type": "turn",
+        "at": "2026-10-10T10:02:36.368Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Accepted Main is synced. The only current queue candidate is the mounted-steed case reserved by A2, so B has no independent task available."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-v39-fell-72c22815-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T10:09:06.731Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "integration": "72c22815f96107860b1f573159dc8af4a135594c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A2-v39-fell-72c22815-failed-38043915633",
+        "type": "validated",
+        "at": "2026-10-10T10:15:05.648Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A2-v39-fell-test-shard4-38043915633",
+        "type": "feedback",
+        "at": "2026-10-10T10:15:12.223Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "delivery": "67b0d0d7533a2aa8ad99bd0e22d68468e5ccd44d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-v39-poly-fell-correction-20261010",
+        "type": "resume",
+        "at": "2026-10-10T10:15:38.292Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-poly-fell-correction-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T10:15:41.836Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Fixing missing test pager input and source assertions for the downward steed polymorph zap; delivery remains tied to the original A2 source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-bd651da841da57ab0f2f411ed61c7fc9383e7b84",
+        "type": "ready",
+        "at": "2026-10-10T10:19:13.985Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "delivery": "bd651da841da57ab0f2f411ed61c7fc9383e7b84"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-poly-fell-correction-ready-20261010",
+        "type": "turn",
+        "at": "2026-10-10T10:19:24.626Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Correction adds pager input and asserts completed downward FELL dismount plus directionless mount preservation. No production changes were needed; awaiting integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-v39-fell-correction-bd651da8",
+        "type": "received",
+        "at": "2026-10-10T10:21:10.754Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "delivery": "bd651da841da57ab0f2f411ed61c7fc9383e7b84"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-v39-fell-97b84cc6-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T10:22:27.755Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "integration": "97b84cc6b58a15fd2a536c0d8caaa2e86be47335"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep4-v40-resume-active-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T10:22:41.095Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A2-v39-fell-97b84cc6-pass-38044682406",
+        "type": "validated",
+        "at": "2026-10-10T10:27:12.642Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-v39-mounted-steed-poly-fell-followup-20261010-97b84cc6b58a15fd2a536c0d8caaa2e86be47335-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T10:27:58.890Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-v39-mounted-steed-poly-fell-followup-20261010-fdde1ae0b42abd6054db33ebfc2f06fc381a3aa1",
+        "type": "published",
+        "at": "2026-10-10T10:28:42.159Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "commit": "fdde1ae0b42abd6054db33ebfc2f06fc381a3aa1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-post-accepted-empty-queue-20261010",
+        "type": "turn",
+        "at": "2026-10-10T10:29:49.618Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 task accepted; fresh saved queue has no unresolved candidates. Available for independent work after new admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep4-v40-pool11-active-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T10:47:31.858Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has eleven approved distinct C-first mismatches; one remains. The reached pool case exposes missing apply.c:unleash_all state clearing after drowning."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep4-v40-twelve-packaging-active-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T11:00:24.783Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has twelve approved distinct C-first mismatches; packaging the manifest and validation evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-bd909b789b15d5d489eb86a65f34a3b4a83f6038",
+        "type": "ready",
+        "at": "2026-10-10T11:10:35.364Z",
+        "task": "Prep4",
+        "delivery": "bd909b789b15d5d489eb86a65f34a3b4a83f6038"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep4-v40-submitted-idle-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T11:11:25.849Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "v40 is prepared and submitted with twelve distinct C-first mismatches and sixteen matching controls; awaiting Main validation and admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-Prep4-v40-bd909b78",
+        "type": "received",
+        "at": "2026-10-10T11:13:16.488Z",
+        "task": "Prep4",
+        "delivery": "bd909b789b15d5d489eb86a65f34a3b4a83f6038"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-Prep4-v40-f1d7fe1d",
+        "type": "integrating",
+        "at": "2026-10-10T11:15:01.822Z",
+        "task": "Prep4",
+        "integration": "f1d7fe1d045209dad738129df41648679da89fcf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-Prep4-v40-f1d7fe1d",
+        "type": "validated",
+        "at": "2026-10-10T11:21:39.425Z",
+        "task": "Prep4",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep4-f1d7fe1d045209dad738129df41648679da89fcf-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T11:21:59.631Z",
+        "task": "Prep4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep4-v40-accepted-main-synced-idle-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T11:23:00.549Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Accepted Main is synced. v40 is accepted as preparation but not admitted; waiting for the coordinator before any next batch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-active-after-v40-admission-20261010",
+        "type": "turn",
+        "at": "2026-10-10T11:24:23.882Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Rechecking Prep after v40 admission; verify the latest complete combined queue before choosing v41."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-v40-shop-exit-20261010",
+        "type": "turn",
+        "at": "2026-10-10T11:25:25.370Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Resuming the v40 shop-exit investigation; syncing accepted Main and confirming the session reservation before diagnosis."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep5-assign-v41-20261010",
+        "type": "assign",
+        "at": "2026-10-10T11:25:39.048Z",
+        "task": "Prep5",
+        "worker": "Prep",
+        "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep4-v40-admitted-20261010",
+        "type": "activity",
+        "at": "2026-10-10T11:26:00.314Z",
+        "task": "Prep4",
+        "phase": "admission",
+        "reason": "Admitted v40 with 28 independently recorded cases after the accepted preparation checkpoint passed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep4-v40-baseline-20261010",
+        "type": "activity",
+        "at": "2026-10-10T11:26:01.964Z",
+        "task": "Prep4",
+        "phase": "baseline",
+        "reason": "Recorded the v40 baseline: 16 of 28 sessions and 858 of 961 screens match; 12 mismatches are available to implementation workers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v40-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T11:26:17.185Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is investigating the admitted Fort Ludios Knox map-generation mismatch from its saved queue entry."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T11:26:21.946Z",
+        "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v40-shop-exit-rob-shop-20261010",
+        "type": "assign",
+        "at": "2026-10-10T11:26:54.374Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v40-knox-port-20261010",
+        "type": "implement",
+        "at": "2026-10-10T11:29:49.049Z",
+        "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
+        "goal": "port-fort-ludios-knox-level-v40-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep4-b56c57e7ad94675d95d3b4434b555ffdb2fbd4f7",
+        "type": "published",
+        "at": "2026-10-10T11:33:03.879Z",
+        "task": "Prep4",
+        "commit": "b56c57e7ad94675d95d3b4434b555ffdb2fbd4f7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-active-v41-candidates-20261010",
+        "type": "turn",
+        "at": "2026-10-10T11:34:16.713Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has 12 unmatched sessions; v41 is claimed and C-first candidate recording is underway."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B216-implement-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T11:38:18.871Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing the v40 unpaid shop robbery divergence in shk.c:rob_shop, with a regression through the real level-exit caller."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B216-rob-shop-20261010",
+        "type": "implement",
+        "at": "2026-10-10T11:38:26.258Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "goal": "fix-shk-rob-shop-livelog-flag-v40-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-18aa859a27d02c2cc13316ac4547c5a687bd9e0f",
+        "type": "ready",
+        "at": "2026-10-10T11:45:31.215Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "delivery": "18aa859a27d02c2cc13316ac4547c5a687bd9e0f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B216-18aa859a",
+        "type": "received",
+        "at": "2026-10-10T11:46:55.516Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "delivery": "18aa859a27d02c2cc13316ac4547c5a687bd9e0f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B216-4c7e8745",
+        "type": "integrating",
+        "at": "2026-10-10T11:49:05.023Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "integration": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-active-v41-resume-20261010",
+        "type": "turn",
+        "at": "2026-10-10T11:51:05.460Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v41 C-first recording continues; the leashed-pet and underwater routes are reached, and tower2/tower3 generation is recorded."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B216-4c7e8745",
+        "type": "validated",
+        "at": "2026-10-10T11:56:04.532Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v40-knox-implementation-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T11:59:56.031Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Implementing the v40 Fort Ludios loader and its complete special-room fill path; focused tests, lint, and all three C replays pass."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8a5901cb85f4fbdad784ca0643fe992c1890477c",
+        "type": "ready",
+        "at": "2026-10-10T12:02:50.989Z",
+        "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
+        "delivery": "8a5901cb85f4fbdad784ca0643fe992c1890477c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v40-wizard-wish-assistance-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T12:06:11.541Z",
+        "task": "C-v40-wizard-wish-assistance-investigation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T12:07:08.360Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010-8f7a009491843386af4cd64fc2ac96b21c96975d",
+        "type": "published",
+        "at": "2026-10-10T12:08:10.521Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "commit": "8f7a009491843386af4cd64fc2ac96b21c96975d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B217-kops-residual-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T12:08:52.177Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Continuing the accepted v40 shop-exit seed to investigate the residual Kops RNG divergence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B217-v40-shop-exit-kops-residual-20261010",
+        "type": "assign",
+        "at": "2026-10-10T12:09:09.972Z",
+        "task": "B217-investigation-v40-shop-exit-kops-residual-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep5-turn-active-20261010-1216",
+        "type": "turn",
+        "at": "2026-10-10T12:12:40.262Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v41’s C-first slate is reached; independent C replays are in progress before JavaScript comparisons."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B217-kops-family-20261010-retry1",
+        "type": "implement",
+        "at": "2026-10-10T12:14:18.571Z",
+        "task": "B217-investigation-v40-shop-exit-kops-residual-20261010",
+        "goal": "port-shk-call-kops-makekops-v40-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-knox-8a5901cb",
+        "type": "received",
+        "at": "2026-10-10T12:14:57.027Z",
+        "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
+        "delivery": "8a5901cb85f4fbdad784ca0643fe992c1890477c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-knox-79f97904",
+        "type": "integrating",
+        "at": "2026-10-10T12:16:35.800Z",
+        "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
+        "integration": "79f979040a27a497adfee661a188aab8a94ee863"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-knox-fb78eff7",
+        "type": "integrating",
+        "at": "2026-10-10T12:20:27.164Z",
+        "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
+        "integration": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep5-turn-active-20261010-1255",
+        "type": "turn",
+        "at": "2026-10-10T12:20:46.952Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v41 has ten confirmed distinct mismatches; two source-program candidates and one mounted-pool case are under overlap review."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-40d9c7a70d0b3d097e124782460d5054458a6ffd",
+        "type": "ready",
+        "at": "2026-10-10T12:21:00.275Z",
+        "task": "B217-investigation-v40-shop-exit-kops-residual-20261010",
+        "delivery": "40d9c7a70d0b3d097e124782460d5054458a6ffd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-after-B216-sync-20261010",
+        "type": "turn",
+        "at": "2026-10-10T12:23:50.464Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B217 is queued for integration; investigating the next unreserved v40 mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B218-assign-snuffed-lit-lamp-20261010",
+        "type": "assign",
+        "at": "2026-10-10T12:23:51.994Z",
+        "task": "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-knox-fb78eff7",
+        "type": "validated",
+        "at": "2026-10-10T12:27:34.639Z",
+        "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep5-turn-active-20261010-1229",
+        "type": "turn",
+        "at": "2026-10-10T12:29:30.297Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v41 has eleven approved distinct mismatches; the Minetown-5 replacement is under first-gap overlap review."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B218-implement-snuff-lit-v40-20261010",
+        "type": "implement",
+        "at": "2026-10-10T12:31:13.069Z",
+        "task": "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010",
+        "goal": "fix-mhitu-gulpmu-snuff-lit-v40-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v40-fort-ludios-knox-wizloaddes-generation-20261010-fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T12:32:55.345Z",
+        "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep5-package-turn-20261010-12",
+        "type": "turn",
+        "at": "2026-10-10T12:33:04.462Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v41 has twelve approved distinct C-first mismatches; packaging the manifest and replay evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v40-fort-ludios-knox-wizloaddes-generation-20261010-8d770e5de218113d9c2c0b6136eeb8ee4ffc4221",
+        "type": "published",
+        "at": "2026-10-10T12:33:45.810Z",
+        "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
+        "commit": "8d770e5de218113d9c2c0b6136eeb8ee4ffc4221"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-v40-wish-assistance-resume-after-knox-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T12:37:08.616Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is fixing the wizard wish help window from the v40 source trace and admitted replay."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-16e1c7f16f8321c293b21a9bafa7b2f77738c19e",
+        "type": "ready",
+        "at": "2026-10-10T12:38:08.656Z",
+        "task": "Prep5",
+        "delivery": "16e1c7f16f8321c293b21a9bafa7b2f77738c19e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep5-idle-after-submit-20261010",
+        "type": "turn",
+        "at": "2026-10-10T12:38:30.185Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep5 v41 is submitted with twelve distinct mismatches; waiting for Main validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B217-40d9c7a7",
+        "type": "received",
+        "at": "2026-10-10T12:38:34.451Z",
+        "task": "B217-investigation-v40-shop-exit-kops-residual-20261010",
+        "delivery": "40d9c7a70d0b3d097e124782460d5054458a6ffd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B217-5bb7bbae",
+        "type": "integrating",
+        "at": "2026-10-10T12:40:48.554Z",
+        "task": "B217-investigation-v40-shop-exit-kops-residual-20261010",
+        "integration": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B218-turn-finalize-20261010",
+        "type": "turn",
+        "at": "2026-10-10T12:41:56.294Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B218 fixes lamp snuffing and wires apply.c:snuff_lit through its direct callers; validating runtime evidence before submission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v40-wishcmdassist-20261010",
+        "type": "implement",
+        "at": "2026-10-10T12:43:08.063Z",
+        "task": "C-v40-wizard-wish-assistance-investigation-20261010",
+        "goal": "fix-wishcmdassist-display-v40-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B217-validated-hosted-38052951559",
+        "type": "validated",
+        "at": "2026-10-10T12:47:41.934Z",
+        "task": "B217-investigation-v40-shop-exit-kops-residual-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-97ce9a471a925ec6968a14b5a16a56dd8089aeaa",
+        "type": "ready",
+        "at": "2026-10-10T12:47:49.113Z",
+        "task": "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010",
+        "delivery": "97ce9a471a925ec6968a14b5a16a56dd8089aeaa"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-after-B218-submit-20261010",
+        "type": "turn",
+        "at": "2026-10-10T12:48:23.333Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B218 is ready for integration. B is syncing accepted Main and checking the refreshed queue for an independent source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B219-assign-water-plane-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T12:49:13.359Z",
+        "task": "B219-investigation-v40-water-plane-levelport-generation-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-B219-water-plane-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T12:49:17.399Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B is investigating the v40 Water-plane level-arrival mismatch under B219 after submitting B218."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B217-investigation-v40-shop-exit-kops-residual-20261010-5bb7bbae79d5d14f8de04d0ebbd933e7a241a699-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T12:52:53.900Z",
+        "task": "B217-investigation-v40-shop-exit-kops-residual-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B218-received-97ce9a471a925ec6968a14b5a16a56dd8089aeaa",
+        "type": "received",
+        "at": "2026-10-10T12:53:08.649Z",
+        "task": "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010",
+        "delivery": "97ce9a471a925ec6968a14b5a16a56dd8089aeaa"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B217-investigation-v40-shop-exit-kops-residual-20261010-7a9d9fca0ff339187ebaa48f39c440894a663ed8",
+        "type": "published",
+        "at": "2026-10-10T12:54:01.524Z",
+        "task": "B217-investigation-v40-shop-exit-kops-residual-20261010",
+        "commit": "7a9d9fca0ff339187ebaa48f39c440894a663ed8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B219-implement-water-lua-v40-20261010",
+        "type": "implement",
+        "at": "2026-10-10T12:54:04.370Z",
+        "task": "B219-investigation-v40-water-plane-levelport-generation-20261010",
+        "goal": "port-water-plane-lua-v40-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B219-water-lua-implementation-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T12:54:13.763Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B219 is implementing the Plane of Water Lua program and registering its special-level loader, using the admitted v40 levelport case as runtime evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep5-received-16e1c7f16f8321c293b21a9bafa7b2f77738c19e",
+        "type": "received",
+        "at": "2026-10-10T12:55:56.985Z",
+        "task": "Prep5",
+        "delivery": "16e1c7f16f8321c293b21a9bafa7b2f77738c19e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep5-integrating-2742030c1e6b68c098598aef3789567aed93b5a1",
+        "type": "integrating",
+        "at": "2026-10-10T12:58:04.261Z",
+        "task": "Prep5",
+        "integration": "2742030c1e6b68c098598aef3789567aed93b5a1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v40-wishcmdassist-implementation-validated-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:00:52.907Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C completed the wizard wish help window; focused tests, lint, and both C replays match while the immutable packet is prepared."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-84825b279932627cb54c181fe75622060c38070f",
+        "type": "ready",
+        "at": "2026-10-10T13:01:09.203Z",
+        "task": "C-v40-wizard-wish-assistance-investigation-20261010",
+        "delivery": "84825b279932627cb54c181fe75622060c38070f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e4ae2349acbc7654db226caf6ae0004f22cb61e9",
+        "type": "ready",
+        "at": "2026-10-10T13:01:12.289Z",
+        "task": "B219-investigation-v40-water-plane-levelport-generation-20261010",
+        "delivery": "e4ae2349acbc7654db226caf6ae0004f22cb61e9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B219-received-e4ae2349acbc7654db226caf6ae0004f22cb61e9",
+        "type": "received",
+        "at": "2026-10-10T13:02:05.065Z",
+        "task": "B219-investigation-v40-water-plane-levelport-generation-20261010",
+        "delivery": "e4ae2349acbc7654db226caf6ae0004f22cb61e9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-wish-received-84825b279932627cb54c181fe75622060c38070f",
+        "type": "received",
+        "at": "2026-10-10T13:02:14.037Z",
+        "task": "C-v40-wizard-wish-assistance-investigation-20261010",
+        "delivery": "84825b279932627cb54c181fe75622060c38070f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-after-B219-submit-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:02:40.884Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B219 is ready for integration. B is investigating an unreserved v40 pet-unleashing case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B220-assign-v40-leashed-dragon-abuse-20261010",
+        "type": "assign",
+        "at": "2026-10-10T13:02:49.782Z",
+        "task": "B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep5-validated-hosted-38054067980",
+        "type": "validated",
+        "at": "2026-10-10T13:05:57.738Z",
+        "task": "Prep5",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep5-2742030c1e6b68c098598aef3789567aed93b5a1-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T13:06:17.125Z",
+        "task": "Prep5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B220-turn-main-sync-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:07:46.827Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B220 is tracing the v40 leashed pet failure at dog.c:abuse_dog; accepted Main is synced and implementation scope is still unclaimed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep5-v41-admitted-20261010",
+        "type": "activity",
+        "at": "2026-10-10T13:08:33.208Z",
+        "task": "Prep5",
+        "phase": "admission",
+        "reason": "Admitted v41 with 15 independently recorded cases after the accepted preparation checkpoint passed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep5-v41-baseline-20261010",
+        "type": "activity",
+        "at": "2026-10-10T13:08:43.251Z",
+        "task": "Prep5",
+        "phase": "baseline",
+        "reason": "Recorded the v41 baseline: 3 of 15 sessions and 553 of 615 screens match; 12 mismatches are available to implementation workers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep5-6caa1e6cb7a07dd811726f8e7b22b1c3b9b8e6ad",
+        "type": "published",
+        "at": "2026-10-10T13:15:51.029Z",
+        "task": "Prep5",
+        "commit": "6caa1e6cb7a07dd811726f8e7b22b1c3b9b8e6ad"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-turn-trigger-check-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:16:58.301Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Accepted Main is synced; the saved queue has 22 unmatched sessions, so Prep is checking the coordinator’s v42 assignment basis before claiming a batch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-idle-trigger-not-met-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:18:01.745Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep is idle: 22 actionable unmatched sessions remain, so v42 is not claimed; waiting for the preparation trigger."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B220-implement-m-unleash-callers-20261010",
+        "type": "implement",
+        "at": "2026-10-10T13:18:44.993Z",
+        "task": "B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010",
+        "goal": "port-apply-m-unleash-v40-leashed-dog-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B220-turn-expanded-implementation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:18:56.365Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing apply.c:m_unleash and wiring its 11 existing JavaScript callers; three C-only caller branches remain documented as unported."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B218-d8e908fd3-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T13:21:21.538Z",
+        "task": "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010",
+        "integration": "d8e908fd38f29d36670a2c460103fa2417892e09"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B218-5c157f8e4-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T13:24:02.694Z",
+        "task": "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010",
+        "integration": "5c157f8e4976371080be6ac735788f14f6c6e136"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v41-anger-prayer-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:28:11.927Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is investigating the next independent v41 prayer and retaliation mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v41-anger-prayer-god-zaps-hero-20261010",
+        "type": "assign",
+        "at": "2026-10-10T13:28:13.504Z",
+        "task": "C-v41-anger-prayer-god-zaps-hero-investigation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B218-5c157f8e4-38055712489",
+        "type": "validated",
+        "at": "2026-10-10T13:31:37.712Z",
+        "task": "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v41-anger-prayer-trace-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:33:07.278Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Tracing and implementing the v41 anger-prayer lightning and disintegration branch in pray.c."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-40dafcefebb93644d94e3282e6c2ff297c81df0c",
+        "type": "ready",
+        "at": "2026-10-10T13:33:37.011Z",
+        "task": "B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010",
+        "delivery": "40dafcefebb93644d94e3282e6c2ff297c81df0c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B220-turn-post-submit-accepted-main-sync-block-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:34:57.404Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "B220 is ready for integration; next task selection is waiting on the rejected accepted-Main sync."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v41-anger-god-zaps-source-20261010",
+        "type": "implement",
+        "at": "2026-10-10T13:35:13.467Z",
+        "task": "C-v41-anger-prayer-god-zaps-hero-investigation-20261010",
+        "goal": "port-pray-god-zaps-you-v41-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010-5c157f8e4976371080be6ac735788f14f6c6e136-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T13:39:19.723Z",
+        "task": "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B220-turn-resume-after-B218-acceptance-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:39:52.675Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B220 is ready for integration; B is synced to accepted Main and selecting the next independent queue task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010-609eeee9a7150ee05bfaaa9e7e2c9d63e4242173",
+        "type": "published",
+        "at": "2026-10-10T13:40:24.021Z",
+        "task": "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010",
+        "commit": "609eeee9a7150ee05bfaaa9e7e2c9d63e4242173"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B221-assign-v41-minetown3-special-program-generation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T13:41:07.704Z",
+        "task": "B221-investigation-v41-minetown3-special-program-generation-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B221-turn-active-minetown3-investigation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:41:16.195Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B220 is ready for integration; B is investigating the unreserved v41 Minetown 3 generation mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5567a2a32b06b1d121b54af55cb63bf627398de2",
+        "type": "ready",
+        "at": "2026-10-10T13:42:49.161Z",
+        "task": "C-v41-anger-prayer-god-zaps-hero-investigation-20261010",
+        "delivery": "5567a2a32b06b1d121b54af55cb63bf627398de2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-after-prayer-ready-accepted-main-sync-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:44:42.440Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C submitted a source fix and is investigating the next unreserved synthetic mismatch from the saved queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v41-astral-special-program-generation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T13:44:48.511Z",
+        "task": "C-v41-astral-special-program-generation-investigation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B221-implement-makemon-special-room-shopkeeper-20261010",
+        "type": "implement",
+        "at": "2026-10-10T13:47:24.433Z",
+        "task": "B221-investigation-v41-minetown3-special-program-generation-20261010",
+        "goal": "divergence-minetown-special-room-shopkeeper-makemon-v41-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B221-turn-active-shopkeeper-divergence-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:48:13.761Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing the source-traced makemon shopkeeper admission fix for v41 Minetown3; B219’s loader reservation is unaffected."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B221-turn-blocked-shared-makemon-boundary-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:48:50.993Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Waiting for the coordinator to reconcile two v41 mismatches in makemon.c:makemon; B221 has claimed the shopkeeper branch and has not edited game code."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B221-turn-blocked-wait-C-astral-park-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:49:14.435Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Waiting for C to park the Astral session, then B221 will cover both v41 shopkeeper and High Cleric admission branches."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C-v41-astral-special-program-generation-investigation-20261010-b221-owner",
+        "type": "park",
+        "at": "2026-10-10T13:49:28.557Z",
+        "task": "C-v41-astral-special-program-generation-investigation-20261010",
+        "reason": "Parked after source trace showed the shared explicit-monster admission defect belongs to B221, which owns the canonical makemon.c:makemon fix; resume only if B221 leaves entry-point coverage incomplete."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B219-5a43ab283-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T13:51:45.513Z",
+        "task": "B219-investigation-v40-water-plane-levelport-generation-20261010",
+        "integration": "5a43ab28378f5adb9fbf4d8355547b09588d0e15"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B221-active-astral-scope-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:52:22.441Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing one source-backed monster admission design for v41 Minetown shopkeeper and Astral High Cleric generation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v41-tower2-special-program-generation-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T13:53:26.005Z",
+        "task": "C-v41-tower2-special-program-generation-investigation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-active-tower2-investigation-after-astral-park-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:53:31.811Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is investigating the next independent v41 Tower2 mismatch after parking Astral for B221’s shared admission fix."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B219-10b2dc61d-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T13:55:18.459Z",
+        "task": "B219-investigation-v40-water-plane-levelport-generation-20261010",
+        "integration": "10b2dc61ddff793aef1185581dff8f3c576097e0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-received-B220-20261010T1403Z",
+        "type": "received",
+        "at": "2026-10-10T14:00:24.055Z",
+        "task": "B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010",
+        "delivery": "40dafcefebb93644d94e3282e6c2ff297c81df0c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-received-C-prayer-20261010T1403Z",
+        "type": "received",
+        "at": "2026-10-10T14:00:25.496Z",
+        "task": "C-v41-anger-prayer-god-zaps-hero-investigation-20261010",
+        "delivery": "5567a2a32b06b1d121b54af55cb63bf627398de2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v41-tower2-wizcmds-20261010",
+        "type": "implement",
+        "at": "2026-10-10T14:00:47.461Z",
+        "task": "C-v41-tower2-special-program-generation-investigation-20261010",
+        "goal": "fix-wizcmds-makemap-remove-mons-v41-tower2-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-validated-B219-10b2dc61-20261010T1408Z",
+        "type": "validated",
+        "at": "2026-10-10T14:04:40.637Z",
+        "task": "B219-investigation-v40-water-plane-levelport-generation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B219-investigation-v40-water-plane-levelport-generation-20261010-10b2dc61ddff793aef1185581dff8f3c576097e0-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T14:06:31.106Z",
+        "task": "B219-investigation-v40-water-plane-levelport-generation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B219-investigation-v40-water-plane-levelport-generation-20261010-88aa02a2787d3e51de5058298352508e28660543",
+        "type": "published",
+        "at": "2026-10-10T14:07:22.207Z",
+        "task": "B219-investigation-v40-water-plane-levelport-generation-20261010",
+        "commit": "88aa02a2787d3e51de5058298352508e28660543"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-review-C-wish-20261010T1410Z",
+        "type": "activity",
+        "at": "2026-10-10T14:09:47.539Z",
+        "task": "C-v40-wizard-wish-assistance-investigation-20261010",
+        "phase": "review",
+        "reason": "Reviewing the dependency-clearing wizard wish assistance delivery against the refreshed v40 mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-901fa67d34550869a3628e46a003604b81512c12",
+        "type": "ready",
+        "at": "2026-10-10T14:10:54.585Z",
+        "task": "B221-investigation-v41-minetown3-special-program-generation-20261010",
+        "delivery": "901fa67d34550869a3628e46a003604b81512c12"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-integrating-C-wish-80ea59cc5-20261010T1414Z",
+        "type": "integrating",
+        "at": "2026-10-10T14:14:09.032Z",
+        "task": "C-v40-wizard-wish-assistance-investigation-20261010",
+        "integration": "80ea59cc5def2fbf4019977110084cad10dd5518"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B222-v41-incubus-seduction-20261010",
+        "type": "assign",
+        "at": "2026-10-10T14:14:37.692Z",
+        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B222-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T14:14:42.521Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-received-B221-20261010T1417Z",
+        "type": "received",
+        "at": "2026-10-10T14:16:23.320Z",
+        "task": "B221-investigation-v41-minetown3-special-program-generation-20261010",
+        "delivery": "901fa67d34550869a3628e46a003604b81512c12"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B222-mhitu-mayberem-20261010",
+        "type": "implement",
+        "at": "2026-10-10T14:19:09.404Z",
+        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010",
+        "goal": "port-mhitu-mayberem-v41-incubus-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-validated-C-wish-80ea59cc5-20261010T1421Z",
+        "type": "validated",
+        "at": "2026-10-10T14:20:50.870Z",
+        "task": "C-v40-wizard-wish-assistance-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v41-tower2-questpgr-evidence-20261010",
+        "type": "turn",
+        "at": "2026-10-10T14:20:52.685Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is packaging source-backed Tower2 changes and matching replay evidence. The discarded keepdogs dependency remains assigned to B220."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v40-wizard-wish-assistance-investigation-20261010-80ea59cc5def2fbf4019977110084cad10dd5518-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T14:22:14.148Z",
+        "task": "C-v40-wizard-wish-assistance-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-da7e40e4280310e3eca2c66daeb84624f9b542e8",
+        "type": "ready",
+        "at": "2026-10-10T14:22:31.747Z",
+        "task": "C-v41-tower2-special-program-generation-investigation-20261010",
+        "delivery": "da7e40e4280310e3eca2c66daeb84624f9b542e8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v40-wizard-wish-assistance-investigation-20261010-65ef885cfff7c7387dce3bd26a64bb48b6ecd396",
+        "type": "published",
+        "at": "2026-10-10T14:22:53.378Z",
+        "task": "C-v40-wizard-wish-assistance-investigation-20261010",
+        "commit": "65ef885cfff7c7387dce3bd26a64bb48b6ecd396"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C-prayer-review-20261010",
+        "type": "activity",
+        "at": "2026-10-10T14:25:50.276Z",
+        "task": "C-v41-anger-prayer-god-zaps-hero-investigation-20261010",
+        "phase": "review",
+        "reason": "Verify the prayer source delivery and current queue evidence before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C-prayer-integrating-6e5daced",
+        "type": "integrating",
+        "at": "2026-10-10T14:29:50.040Z",
+        "task": "C-v41-anger-prayer-god-zaps-hero-investigation-20261010",
+        "integration": "6e5dacedc7638246a629e7fe6295014ecbb0083d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b843ad9e2743aa3e6d895fe45e243db421a80329",
+        "type": "ready",
+        "at": "2026-10-10T14:29:55.912Z",
+        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010",
+        "delivery": "b843ad9e2743aa3e6d895fe45e243db421a80329"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v41-anger-prayer-god-zaps-hero-investigation-20261010-6e5dacedc7638246a629e7fe6295014ecbb0083d-validated",
+        "type": "validated",
+        "at": "2026-10-10T14:37:11.392Z",
+        "task": "C-v41-anger-prayer-god-zaps-hero-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v41-anger-prayer-god-zaps-hero-investigation-20261010-6e5dacedc7638246a629e7fe6295014ecbb0083d-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T14:38:17.461Z",
+        "task": "C-v41-anger-prayer-god-zaps-hero-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v41-anger-prayer-god-zaps-hero-investigation-20261010-21b930fb03b968dee2d935786252c1043ec1b1f1",
+        "type": "published",
+        "at": "2026-10-10T14:38:41.739Z",
+        "task": "C-v41-anger-prayer-god-zaps-hero-investigation-20261010",
+        "commit": "21b930fb03b968dee2d935786252c1043ec1b1f1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B220-review-20261010",
+        "type": "activity",
+        "at": "2026-10-10T14:41:08.926Z",
+        "task": "B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010",
+        "phase": "review",
+        "reason": "Verify the submitted m_unleash source delivery and current queue evidence before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v40-snuffed-lit-lamp-followup-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T14:42:54.391Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Tracing the remaining v40 lamp mismatch at zap.c:obj_resists before claiming implementation scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v40-snuffed-lit-lamp-followup-20261010",
+        "type": "assign",
+        "at": "2026-10-10T14:42:56.053Z",
+        "task": "C-v40-snuffed-lit-lamp-obj-resists-followup-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "worker-B-turn-20261010-prayer-sync",
+        "type": "turn",
+        "at": "2026-10-10T14:43:07.074Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Accepted Main is synced; checking the highest-ranked unreserved mismatch and its source scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B220-integrating-2e5a22fc",
+        "type": "integrating",
+        "at": "2026-10-10T14:45:20.651Z",
+        "task": "B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010",
+        "integration": "2e5a22fcb59f677d8f21f487546440d26850930c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B223-earth-plane-session",
+        "type": "assign",
+        "at": "2026-10-10T14:45:28.590Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C-v40-snuffed-lit-lamp-overlap-B220-20261010",
+        "type": "park",
+        "at": "2026-10-10T14:46:29.538Z",
+        "task": "C-v40-snuffed-lit-lamp-obj-resists-followup-20261010",
+        "reason": "Parked after source trace showed the step-76 object-resistance RNG divergence follows the step-75 leash-snap dog movement. The obj_resists helper already performs the source-matched unconditional rn2(100); the active cause lies in dogmove.c:dog_move and js/dogmove.js, reserved by B220 until its delivery is accepted."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v41-ring-invisibility-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T14:47:05.930Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the v41 ring-of-invisibility removal mismatch at step 37."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v41-ring-invisibility-removed-20261010",
+        "type": "assign",
+        "at": "2026-10-10T14:47:07.538Z",
+        "task": "C-v41-ring-invisibility-removed-investigation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B223-earth-plane-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T14:50:02.019Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Tracing the v40 Earth-plane special-level loader mismatch through the source program and level-generation path."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v41-ring-invisibility-removed-20261010",
+        "type": "implement",
+        "at": "2026-10-10T14:51:37.293Z",
+        "task": "C-v41-ring-invisibility-removed-investigation-20261010",
+        "goal": "port-do-wear-ring-off-or-gone-v41-invisibility-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B223-earth-loader-20261010-v2",
+        "type": "implement",
+        "at": "2026-10-10T14:53:06.777Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010",
+        "goal": "port-earth-plane-lua-synthetic-v40-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010-2e5a22fcb59f677d8f21f487546440d26850930c-validated",
+        "type": "validated",
+        "at": "2026-10-10T14:53:22.224Z",
+        "task": "B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010-2e5a22fcb59f677d8f21f487546440d26850930c-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T14:54:25.706Z",
+        "task": "B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010-d9cfd423cf71b447d9949ae38070c186f053d7ab",
+        "type": "published",
+        "at": "2026-10-10T14:54:47.287Z",
+        "task": "B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010",
+        "commit": "d9cfd423cf71b447d9949ae38070c186f053d7ab"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-9886401eb6cff2cf12e0f705b6056ffa9915369d",
+        "type": "ready",
+        "at": "2026-10-10T14:57:17.431Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010",
+        "delivery": "9886401eb6cff2cf12e0f705b6056ffa9915369d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B223-postsubmit-turn-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T15:00:14.079Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B223 is submitted; synced accepted Main and checking the current queue for the next independent source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B224-v40-snuffed-leash-followup-20261010",
+        "type": "assign",
+        "at": "2026-10-10T15:00:31.784Z",
+        "task": "B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B221-02d1589532a7ed6d5b1357dc58d2c0b1e0d87627",
+        "type": "integrating",
+        "at": "2026-10-10T15:01:29.680Z",
+        "task": "B221-investigation-v41-minetown3-special-program-generation-20261010",
+        "integration": "02d1589532a7ed6d5b1357dc58d2c0b1e0d87627"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-caccbf4858d3dbc47ee6195f4641ab9d24c587c0",
+        "type": "ready",
+        "at": "2026-10-10T15:05:31.054Z",
+        "task": "C-v41-ring-invisibility-removed-investigation-20261010",
+        "delivery": "caccbf4858d3dbc47ee6195f4641ab9d24c587c0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B224-turn-active-check-leash-20261010",
+        "type": "turn",
+        "at": "2026-10-10T15:05:45.079Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Tracing the v40 leash release through apply.c:check_leash and its movement callers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B224-check-leash-20261010",
+        "type": "implement",
+        "at": "2026-10-10T15:05:46.803Z",
+        "task": "B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010",
+        "goal": "divergence-apply-check-leash-v40-snuffed-lit-lamp-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B221-failed-38062012235",
+        "type": "validated",
+        "at": "2026-10-10T15:09:07.350Z",
+        "task": "B221-investigation-v41-minetown3-special-program-generation-20261010",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-ring-delivered-select-next-20261010",
+        "type": "turn",
+        "at": "2026-10-10T15:09:46.080Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Ring-removal delivery is ready; selecting the next independent source task from the saved queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v40-coaligned-prayer-revive-coords-20261010",
+        "type": "assign",
+        "at": "2026-10-10T15:10:34.512Z",
+        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B224-for-B221-correction-20261010T1509",
+        "type": "park",
+        "at": "2026-10-10T15:13:26.313Z",
+        "task": "B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010",
+        "reason": "Pausing at the committed investigation boundary so worker B can submit the required B221 checkpoint correction; no B224 game-code edits exist."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B221-shopkeeper-assertion-correction-20261010",
+        "type": "resume",
+        "at": "2026-10-10T15:13:44.743Z",
+        "task": "B221-investigation-v41-minetown3-special-program-generation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B221-correction-turn-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T15:14:24.436Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Updating B221’s stale source-pinned shopkeeper assertion for a new immutable correction delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a53734c966cb4903189adf6bda7f3f6100348625",
+        "type": "ready",
+        "at": "2026-10-10T15:16:44.917Z",
+        "task": "B221-investigation-v41-minetown3-special-program-generation-20261010",
+        "delivery": "a53734c966cb4903189adf6bda7f3f6100348625"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B224-check-leash-after-B221-correction-20261010",
+        "type": "resume",
+        "at": "2026-10-10T15:17:13.132Z",
+        "task": "B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B221-correction-a53734c966cb4903189adf6bda7f3f6100348625",
+        "type": "received",
+        "at": "2026-10-10T15:17:17.755Z",
+        "task": "B221-investigation-v41-minetown3-special-program-generation-20261010",
+        "delivery": "a53734c966cb4903189adf6bda7f3f6100348625"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B221-38d270ae4309c9d36dccf097fb299afadb180f0a",
+        "type": "integrating",
+        "at": "2026-10-10T15:18:30.253Z",
+        "task": "B221-investigation-v41-minetown3-special-program-generation-20261010",
+        "integration": "38d270ae4309c9d36dccf097fb299afadb180f0a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-prayer-revive-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T15:19:50.208Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the v40 co-aligned prayer case. The current trace points to the missing pray_revive helper; implementation scope will preserve its source-ordered corpse and statue branches."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-pray-revive-v40-20261010",
+        "type": "implement",
+        "at": "2026-10-10T15:22:10.071Z",
+        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010",
+        "goal": "port-pray-revive-tame-pet-v40-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B221-investigation-v41-minetown3-special-program-generation-20261010-38d270ae4309c9d36dccf097fb299afadb180f0a-validated",
+        "type": "validated",
+        "at": "2026-10-10T15:23:26.360Z",
+        "task": "B221-investigation-v41-minetown3-special-program-generation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B221-investigation-v41-minetown3-special-program-generation-20261010-38d270ae4309c9d36dccf097fb299afadb180f0a-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T15:24:24.665Z",
+        "task": "B221-investigation-v41-minetown3-special-program-generation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B221-investigation-v41-minetown3-special-program-generation-20261010-5354fa6915b5e39dec5e479753f17c2c85b4266e",
+        "type": "published",
+        "at": "2026-10-10T15:25:16.172Z",
+        "task": "B221-investigation-v41-minetown3-special-program-generation-20261010",
+        "commit": "5354fa6915b5e39dec5e479753f17c2c85b4266e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c7d54e26678cf40ee190cfe19a5e0248e153672a",
+        "type": "ready",
+        "at": "2026-10-10T15:26:36.041Z",
+        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010",
+        "delivery": "c7d54e26678cf40ee190cfe19a5e0248e153672a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-Tower2-da7e40e4280310e3eca2c66daeb84624f9b542e8",
+        "type": "received",
+        "at": "2026-10-10T15:27:03.900Z",
+        "task": "C-v41-tower2-special-program-generation-investigation-20261010",
+        "delivery": "da7e40e4280310e3eca2c66daeb84624f9b542e8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-pray-submitted-next-worm-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T15:27:31.715Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "The prayer-revival fix is submitted. C is tracing the v40 long-worm head movement case through worm_move; Tower2 and ring deliveries remain preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T15:27:33.362Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-worm-investigation-wait-B222-acceptance-20261010",
+        "type": "turn",
+        "at": "2026-10-10T15:31:00.075Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "C’s v40 long-worm diagnosis is committed. Implementation is waiting for B222 acceptance so all six worm_move callers can be wired together."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-v41-tower2-8cc0a33bda69",
+        "type": "integrating",
+        "at": "2026-10-10T15:32:58.704Z",
+        "task": "C-v41-tower2-special-program-generation-investigation-20261010",
+        "integration": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-v41-tower2-8cc0a33bda69",
+        "type": "validated",
+        "at": "2026-10-10T15:40:28.597Z",
+        "task": "C-v41-tower2-special-program-generation-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v41-tower2-special-program-generation-investigation-20261010-8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T15:41:51.360Z",
+        "task": "C-v41-tower2-special-program-generation-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v41-tower2-special-program-generation-investigation-20261010-c55634db09f335857850c556e79a4e0ea3304cc7",
+        "type": "published",
+        "at": "2026-10-10T15:43:25.551Z",
+        "task": "C-v41-tower2-special-program-generation-investigation-20261010",
+        "commit": "c55634db09f335857850c556e79a4e0ea3304cc7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B222-b843ad9e2743",
+        "type": "received",
+        "at": "2026-10-10T15:45:38.970Z",
+        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010",
+        "delivery": "b843ad9e2743aa3e6d895fe45e243db421a80329"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B224-turn-blocked-wait-B222-mhitu-release-20261010",
+        "type": "turn",
+        "at": "2026-10-10T15:46:17.506Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "B224 traced the v40 leash page to gulp-time unleash_all. Waiting for B222 to release js/mhitu.js before implementing the corrected scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B222-9b38c7216cfd",
+        "type": "integrating",
+        "at": "2026-10-10T15:48:12.914Z",
+        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010",
+        "integration": "9b38c7216cfd3143b81177c48bfb6b718806f17f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B222-9b38c7216cfd",
+        "type": "validated",
+        "at": "2026-10-10T15:53:55.265Z",
+        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B222-investigation-v41-incubus-mayberem-seduction-20261010-9b38c7216cfd3143b81177c48bfb6b718806f17f-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T15:55:14.311Z",
+        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B224-turn-active-unleash-all-after-B222-20261010",
+        "type": "turn",
+        "at": "2026-10-10T15:56:43.376Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing the recorded gulp-time leash release through unleash_all and its active JavaScript callers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-resume-worm-after-B222-acceptance-20261010",
+        "type": "turn",
+        "at": "2026-10-10T15:56:49.380Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "B222 acceptance cleared the shared-module dependency. C is syncing accepted Main before claiming worm_move and its caller paths."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B222-investigation-v41-incubus-mayberem-seduction-20261010-01a6ae28ca1427498af51ff27264fbd55f81288a",
+        "type": "published",
+        "at": "2026-10-10T15:57:40.625Z",
+        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010",
+        "commit": "01a6ae28ca1427498af51ff27264fbd55f81288a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-assign-20261010",
+        "type": "assign",
+        "at": "2026-10-10T15:58:28.388Z",
+        "task": "Prep6",
+        "worker": "Prep",
+        "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T15:58:30.117Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "The 12-session preparation trigger fired; v42 is claimed and C-first candidate planning is underway."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-ring-invisibility-20261010",
+        "type": "received",
+        "at": "2026-10-10T15:59:37.377Z",
+        "task": "C-v41-ring-invisibility-removed-investigation-20261010",
+        "delivery": "caccbf4858d3dbc47ee6195f4641ab9d24c587c0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-ring-invisibility-ffd2d10394",
+        "type": "integrating",
+        "at": "2026-10-10T16:04:50.118Z",
+        "task": "C-v41-ring-invisibility-removed-investigation-20261010",
+        "integration": "ffd2d10394fbb3c06612668aeaa38762cdfb84c1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-worm-move-tail-v40-20261010",
+        "type": "implement",
+        "at": "2026-10-10T16:05:05.794Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "goal": "port-worm-move-tail-tracking-v40-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-c-first-complete-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:05:09.460Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v42’s first C-first slate has one mismatch and eleven matches; source review and new candidate work continue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-ring-invisibility-38066391423",
+        "type": "validated",
+        "at": "2026-10-10T16:12:26.450Z",
+        "task": "C-v41-ring-invisibility-removed-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2196247cfc60aa4c18ea634f74a17bf7d6de05f1",
+        "type": "ready",
+        "at": "2026-10-10T16:13:41.084Z",
+        "task": "B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010",
+        "delivery": "2196247cfc60aa4c18ea634f74a17bf7d6de05f1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v41-ring-invisibility-removed-investigation-20261010-ffd2d10394fbb3c06612668aeaa38762cdfb84c1-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T16:13:49.096Z",
+        "task": "C-v41-ring-invisibility-removed-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B224-turn-idle-after-submit-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:14:55.656Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B224 is ready to merge; waiting for a current queue before selecting the next independent task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v41-ring-invisibility-removed-investigation-20261010-d63e36a0e020d069049eef1a0f9d6c830ae08dd0",
+        "type": "published",
+        "at": "2026-10-10T16:15:41.496Z",
+        "task": "C-v41-ring-invisibility-removed-investigation-20261010",
+        "commit": "d63e36a0e020d069049eef1a0f9d6c830ae08dd0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B223-earth-plane-20261010",
+        "type": "received",
+        "at": "2026-10-10T16:17:44.507Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010",
+        "delivery": "9886401eb6cff2cf12e0f705b6056ffa9915369d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-post-d63-sync-20261010-01",
+        "type": "turn",
+        "at": "2026-10-10T16:17:56.486Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Reviewing the refreshed synthetic queue for an independent source task after B224 submission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v41-steed-pool-investigation-20261010-01",
+        "type": "assign",
+        "at": "2026-10-10T16:18:22.695Z",
+        "task": "B225-investigation-v41-forced-steed-dismount-at-pool-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B225-steed-dismount-blocked-by-B224-20261010-01",
+        "type": "park",
+        "at": "2026-10-10T16:18:56.434Z",
+        "task": "B225-investigation-v41-forced-steed-dismount-at-pool-20261010",
+        "reason": "The admitted C trace is steed.c:kick_steed -> trap.c:drown -> steed.c:dismount_steed(DISMOUNT_GENERIC). The required production caller is trap.c:drown / js/trap.js, still reserved by pending B224 apply.c:unleash_all wiring; dismount_steed cannot be delivered without that caller path. Resume after B224 is accepted and releases source:trap.c:drown."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-wave2-complete-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:19:03.720Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v42 currently has two distinct mismatches; 23 source-program controls match and C-first exploration continues."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B223-earth-fec4a610a",
+        "type": "integrating",
+        "at": "2026-10-10T16:22:32.990Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010",
+        "integration": "fec4a610aef94961dbb1188547f1ff229a85a381"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B226-shopdig-investigation-20261010-01",
+        "type": "assign",
+        "at": "2026-10-10T16:22:40.609Z",
+        "task": "B226-investigation-v40-shop-floor-digdown-warning-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-wave3-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:22:46.956Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v42 has one confirmed distinct C-first mismatch; 23 controls match, and minetn-6 is retained as a provisional reset/finalization overlap while the search continues."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B223-earth-07a45f0d0",
+        "type": "integrating",
+        "at": "2026-10-10T16:27:03.001Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010",
+        "integration": "07a45f0d02529c0ca8796e4a38578d49c418d1c3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B226-um-dist-dependency-20261010",
+        "type": "park",
+        "at": "2026-10-10T16:29:03.529Z",
+        "task": "B226-investigation-v40-shop-floor-digdown-warning-20261010",
+        "reason": "B226 investigation is committed at 0d94df979 and source-traced to shk.c:shopdig. Implementation requires canonical apply.c:um_dist because shopdig consumes its Boolean result; B224 still owns source:apply.c:um_dist and js/apply.js allowed path through pending delivery 2196247cfc60aa4c18ea634f74a17bf7d6de05f1. Preserve the report and resume after B224 acceptance releases this scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-blocked-B224-apply-um-dist-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:29:46.287Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "B226 shopdig investigation is preserved and parked on B224’s apply.c:um_dist scope; no other current queue candidate is free of pending ownership. Waiting for B224 acceptance to resume."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-wave3-adjudicated-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:32:46.918Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v42 has two approved distinct C-first mismatches and 32 matching controls; three valid probes are preserved as overlaps while source-based exploration continues."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-b223-earth-hosted-38067875710",
+        "type": "validated",
+        "at": "2026-10-10T16:34:26.095Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B223-investigation-v40-earth-plane-levelport-20261010-07a45f0d02529c0ca8796e4a38578d49c418d1c3-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T16:35:37.676Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-blocked-after-B223-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:36:26.521Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "B223 Earth is merged; the saved queue is pre-B223. Remaining current candidates overlap B224 or C ownership, so B is waiting for an accepted scope release and fresh queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B223-investigation-v40-earth-plane-levelport-20261010-9f48c699271a7cea2697a739142c949ee119be3d",
+        "type": "published",
+        "at": "2026-10-10T16:37:09.658Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010",
+        "commit": "9f48c699271a7cea2697a739142c949ee119be3d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-wave3-approved-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:40:14.112Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v42 has two approved distinct C-first mismatches and 32 matching controls; three valid overlap probes are preserved while source-based exploration continues."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-c-prayer-c7d54e26678cf40ee190cfe19a5e0248e153672a",
+        "type": "received",
+        "at": "2026-10-10T16:42:19.612Z",
+        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010",
+        "delivery": "c7d54e26678cf40ee190cfe19a5e0248e153672a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-worm-move-active-after-source-guards-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:43:21.652Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C continues the accepted-base worm tail fix. Ordinary movement and the ceiling-hiding attack have matching runtime evidence; source guards block the four MUSE branches for valid long worms."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-c-prayer-ab8908874",
+        "type": "integrating",
+        "at": "2026-10-10T16:46:50.952Z",
+        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010",
+        "integration": "ab8908874e1e9d75514e41091f87203999314ce0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-c-prayer-hosted-38069190355",
+        "type": "validated",
+        "at": "2026-10-10T16:53:52.845Z",
+        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010-ab8908874e1e9d75514e41091f87203999314ce0-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T16:55:05.164Z",
+        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-426dd3ff80ebd553d529ea20613fbd31c28ce474",
+        "type": "ready",
+        "at": "2026-10-10T16:55:13.442Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "delivery": "426dd3ff80ebd553d529ea20613fbd31c28ce474"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-b224-bones-runtime-evidence-20261010",
+        "type": "feedback",
+        "at": "2026-10-10T16:55:30.890Z",
+        "task": "B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010",
+        "delivery": "2196247cfc60aa4c18ea634f74a17bf7d6de05f1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B224-bones-correction-20261010",
+        "type": "resume",
+        "at": "2026-10-10T16:56:10.971Z",
+        "task": "B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B224-bones-correction-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:56:12.768Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010-89d3d49a17ff032310ee20cf8b3105e2cca9f109",
+        "type": "published",
+        "at": "2026-10-10T16:57:25.461Z",
+        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010",
+        "commit": "89d3d49a17ff032310ee20cf8b3105e2cca9f109"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-c-worm-426dd3ff-20261010",
+        "type": "received",
+        "at": "2026-10-10T16:59:41.634Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "delivery": "426dd3ff80ebd553d529ea20613fbd31c28ce474"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-c-worm-28534382af4e-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T17:04:33.080Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "integration": "28534382af4e7637472e05c36442f78652ed1ac7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-c-worm-997026848252-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T17:09:19.289Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "integration": "9970268482520fbfdae76892e79aa050c4ef5c4c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B224-correction-blocked-bones-evidence-20261010",
+        "type": "turn",
+        "at": "2026-10-10T17:16:05.064Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-c-worm-997026848-38070711297",
+        "type": "validated",
+        "at": "2026-10-10T17:16:07.340Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v40-hostile-long-worm-head-tail-investigation-20261010-9970268482520fbfdae76892e79aa050c4ef5c4c-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T17:17:02.988Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "C-v39-pickup-cockatrice-barehanded-final-investigation-20261010",
-        "worker": "C",
-        "goal": "fix-pickup-fatal-corpse-instapetrify-v39-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "eec51067322c1ecce023196d7e29f916c00ded71",
-        "since": "2026-10-10T07:47:41.562Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete",
-        "worker": "B",
-        "goal": "port-artifact-retouch-equipment-v39-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "866131f2ddbaa1555be7682b35e1cb909e2d67d2",
-        "since": "2026-10-10T08:24:46.868Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -80552,12 +82892,56 @@
         "since": "2026-10-10T02:16:25.792Z",
         "blockedBy": [],
         "reason": "The v38 bear-trap case reaches apply.c:set_trap then trap.c:dotrap after feeltrap reveals the new bear trap; source passes flags 0. The accepted-base preflight rejects this seen BEAR_TRAP path, and B204 owns contract:hero-trap-preflight-admission. B204 change only admits arrow traps. The source trace is recorded in investigations/synthetic/v38/v38-cursed-bear-trap-bungle.json. The reserved contract was left untouched; moving to the next independent case."
+      },
+      {
+        "task": "C-v41-astral-special-program-generation-investigation-20261010",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-10T13:49:28.557Z",
+        "blockedBy": [],
+        "reason": "Parked after source trace showed the shared explicit-monster admission defect belongs to B221, which owns the canonical makemon.c:makemon fix; resume only if B221 leaves entry-point coverage incomplete."
+      },
+      {
+        "task": "C-v40-snuffed-lit-lamp-obj-resists-followup-20261010",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-10T14:46:29.538Z",
+        "blockedBy": [],
+        "reason": "Parked after source trace showed the step-76 object-resistance RNG divergence follows the step-75 leash-snap dog movement. The obj_resists helper already performs the source-matched unconditional rn2(100); the active cause lies in dogmove.c:dog_move and js/dogmove.js, reserved by B220 until its delivery is accepted."
+      },
+      {
+        "task": "B225-investigation-v41-forced-steed-dismount-at-pool-20261010",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-10T16:18:56.434Z",
+        "blockedBy": [],
+        "reason": "The admitted C trace is steed.c:kick_steed -> trap.c:drown -> steed.c:dismount_steed(DISMOUNT_GENERIC). The required production caller is trap.c:drown / js/trap.js, still reserved by pending B224 apply.c:unleash_all wiring; dismount_steed cannot be delivered without that caller path. Resume after B224 is accepted and releases source:trap.c:drown."
+      },
+      {
+        "task": "B226-investigation-v40-shop-floor-digdown-warning-20261010",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-10T16:29:03.529Z",
+        "blockedBy": [],
+        "reason": "B226 investigation is committed at 0d94df979 and source-traced to shk.c:shopdig. Implementation requires canonical apply.c:um_dist because shopdig consumes its Boolean result; B224 still owns source:apply.c:um_dist and js/apply.js allowed path through pending delivery 2196247cfc60aa4c18ea634f74a17bf7d6de05f1. Preserve the report and resume after B224 acceptance releases this scope."
       }
     ]
   },
   "development": {
-    "executionCommit": "2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba",
-    "measuredAt": "2026-10-10T09:09:43.966Z",
+    "executionCommit": "9970268482520fbfdae76892e79aa050c4ef5c4c",
+    "measuredAt": "2026-10-10T17:15:42.159Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

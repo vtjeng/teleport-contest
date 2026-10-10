@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first state check for mhitu.c:gulpmu -> apply.c:snuff_lit. After the C-confirmed swallow, press one space to clear the urgent More page and request inventory; verify the wished lamp no longer carries the lit marker before comparing JavaScript.",
+  "segments": [
+    {
+      "seed": 30917106,
+      "datetime": "20590512094100",
+      "nethackrc": "OPTIONS=name:V40EngulfLeash,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #levelchange\n10\n        \u0017leash\naok\u0017lit oil lamp\n\u0007hostile purple worm\nm.m. i"
+    }
+  ]
+}

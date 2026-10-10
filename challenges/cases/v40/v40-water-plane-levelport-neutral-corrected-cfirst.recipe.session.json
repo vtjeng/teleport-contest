@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Corrected independent C-first Water-plane route after the lawful-Wizard trial exposed the alignment picker and consumed the level-port input. Neutral Wizard settings skip that prompt; dismiss startup, open wizard level-port, page to elemental planes, choose Water.",
+  "segments": [
+    {
+      "seed": 48230531,
+      "datetime": "20580824161247",
+      "nethackrc": "OPTIONS=name:V40WaterPort,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0016?\n  K ",
+      "comment": "C-first Water-plane route using a neutral Wizard after the lawful alignment selection setup miss."
+    }
+  ]
+}

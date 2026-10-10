@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first high-HP engulf setup probe. Dismiss startup, raise the Wizard to level 10 through #levelchange and the source-observed nine level-up pages, wish a leash, then open the apply selector to inspect the changed C map and confirmed leash letter before choosing a direction.",
+  "segments": [
+    {
+      "seed": 30917106,
+      "datetime": "20590512094100",
+      "nethackrc": "OPTIONS=name:V40EngulfLeash,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #levelchange\n10\n         \u0017leash\na"
+    }
+  ]
+}

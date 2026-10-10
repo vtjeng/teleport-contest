@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first report dismissal after the source-confirmed slot-p potion reaches its `--More--` enlightenment report; inspect the next C screen before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 40101062,
+      "datetime": "20461203121115",
+      "nethackrc": "OPTIONS=name:V40Enlightenment,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017potion of enlightenment\nqp "
+    }
+  ]
+}

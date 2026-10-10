@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 40101004,
+      "datetime": "20460422124031",
+      "nethackrc": "OPTIONS=name:V40WandExpel,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017wand of opening\n\u0007hostile purple worm\n\u0004lm. zo.",
+      "comment": "Reached C route: dismiss the worm engulfment page, then use the observed first-wished wand slot o to zap self with wand of opening, testing zap.c:release_hold -> mhitu.c:expels(TRUE)."
+    }
+  ]
+}

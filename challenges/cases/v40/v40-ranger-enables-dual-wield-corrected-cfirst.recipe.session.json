@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first dual-wield probe. C reported the independently wished short sword in inventory slot g and mace in slot h; the previous selector letters o/p and inserted spaces were source-confirmed setup errors. Select the observed slots, use pushweapon to establish both one-handed weapon slots, then invoke #twoweapon.",
+  "segments": [
+    {
+      "seed": 40404101,
+      "datetime": "20461014151617",
+      "nethackrc": "OPTIONS=name:V40RangerTwin,role=Ranger,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,pushweapon\n",
+      "moves": "\u0016?\n#wizwish\nshort sword\n#wizwish\nmace\nw-\nwg\nwh\n#twoweapon\n"
+    }
+  ]
+}

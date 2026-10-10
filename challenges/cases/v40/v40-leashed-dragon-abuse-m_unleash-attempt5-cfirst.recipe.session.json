@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only correction: attempt 4 omitted the leash wish, so its apply selector correctly rejected slot `o`. The observed baseline inventory has a ring of conflict at `d`; after wishing only a leash, use expected new slot `n`, attach to the east-adjacent baby gray dragon, then wear the existing ring and test repeated kicks.",
+  "segments": [
+    {
+      "seed": 48230565,
+      "datetime": "20590203121314",
+      "nethackrc": "OPTIONS=name:V40LeashProbe,role:Wizard,race:human,gender:female,align:neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0007tame baby gray dragon\n\u0017leash\na n lPdr\u0004l\u0004l\u0004l\u0004l"
+    }
+  ]
+}

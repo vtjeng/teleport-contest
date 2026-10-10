@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first setup probe: after selecting the Sanctum and dismissing its arrival page, open #terrain to reveal internal tile codes and verify whether the path from the arrival chamber to its high altar is blocked by an unmapped secret door.",
+  "segments": [
+    {
+      "seed": 40404042,
+      "datetime": "20461012131415",
+      "nethackrc": "OPTIONS=name:V40SanctumMap,role:Monk,race:human,gender=female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0016?\n v #terrain\n"
+    }
+  ]
+}

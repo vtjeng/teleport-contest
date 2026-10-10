@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7646015,
+      "datetime": "20310417123100",
+      "nethackrc": "OPTIONS=name:KnoxRoute,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u00166\n.",
+      "comment": "Independent Wizard debug teleport to D:6; seed 7646015 was selected as the first LEPREHALL room in the 7646011-7646020 generation probe. Exercises mklev.c makelevel -> sp_lev.c fill_special_room -> mkroom.c fill_zoo through natural level initialization."
+    }
+  ]
+}

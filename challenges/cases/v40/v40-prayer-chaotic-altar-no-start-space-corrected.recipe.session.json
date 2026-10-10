@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserves the start-space miss and corrects it from C evidence: the Valkyrie greeting has no More page, so the corrected input starts with movement l. At the C-confirmed prayer guard, it answers yes to proceed.",
+  "segments": [
+    {
+      "seed": 40100842,
+      "datetime": "20450708091011",
+      "nethackrc": "OPTIONS=name:V40PrayerAltar,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "l\u0017chaotic altar\n#pray\ny"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only Castle route probe: after closing the inventory listing, test south from the mapped entry location to identify whether the visible up-stair is the exit from the arrival pocket.",
+  "segments": [
+    {
+      "seed": 71104331,
+      "datetime": "20591211140319",
+      "nethackrc": "OPTIONS=name:V40CastleBreak,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017uncursed wand of striking\n#wizlevelport\ncastle\n #wizmap\ni j"
+    }
+  ]
+}

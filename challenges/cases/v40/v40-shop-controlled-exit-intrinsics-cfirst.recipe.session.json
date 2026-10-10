@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first controlled shop exit. After the still-open inventory window, dismiss it, use #wizintrinsic\u2019s confirmed menu labels to set teleporting (page one, o) and teleport control (page three, j) for 150 turns, then invoke Ctrl-T. The teleport destination must be chosen from the C map outside the shop; the carried gem remains unpaid.",
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopDebtAlt,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\nl, ni #wizintrinsic\n150o>>150j\n\u0014"
+    }
+  ]
+}

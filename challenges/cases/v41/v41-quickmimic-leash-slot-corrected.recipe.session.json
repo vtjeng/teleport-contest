@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected leash attachment setup. The previous C prompt showed the wished leash in inventory slot o; this revision selects o instead of the spellbook in slot m, then follows the observed pet target prompt.",
+  "segments": [
+    {
+      "seed": 41040113,
+      "datetime": "20500112131416",
+      "nethackrc": "OPTIONS=name:V41LeashedMimic,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017leash\nao"
+    }
+  ]
+}

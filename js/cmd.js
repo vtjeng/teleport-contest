@@ -351,6 +351,7 @@ import {
 } from './tty_menu.js';
 import { add_menu_heading, getlin, select_menu } from './windows.js';
 import { pmatchi } from './strutil.js';
+import { deliver_splev_message } from './questpgr.js';
 import {
     check_capacity,
     domove,
@@ -384,6 +385,7 @@ import {
 import {
     wiz_detect, wiz_flip_level, wiz_genesis, wiz_identify, wiz_intrinsic, wiz_level_change, wiz_kill, wiz_smell, wiz_show_seenv, wiz_show_vision, wiz_show_stats, wiz_show_wmodes, wiz_objprobs, wiz_display_macros, wiz_mon_diff, wiz_telekinesis, wiz_custom,
     wiz_level_tele, wiz_load_lua, wiz_load_splua, wiz_makemap, wiz_map, wiz_polyself, wiz_wish, wiz_where, wiz_rumor_check, wiz_migrate_mons,
+    makemap_remove_mons,
     wiz_map_levltyp, wiz_levltyp_legend, wiz_panic, wiz_show_nhuuid,
 } from './wizcmds.js';
 import {
@@ -2581,7 +2583,7 @@ export async function dotoggleoption(state = game) {
 export async function makemap_prepost(pre, wiztower = false, state = game) {
     state.context ??= {};
     if (pre) {
-        note_unported('wizcmds.c makemap_remove_mons');
+        await makemap_remove_mons(state);
         const ledger = ledger_no(state.u.uz, state);
         note_unported('dungeon.c rm_mapseen');
         state.context.achieveo ??= {};
@@ -2640,7 +2642,7 @@ export async function makemap_prepost(pre, wiztower = false, state = game) {
     }
     await docrt();
     await flush_screen(1);
-    note_unported('questpgr.c deliver_splev_message');
+    await deliver_splev_message(state);
     await check_special_room(false, state);
     return ECMD_OK;
 }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Fourth independent random D4 layout probe for the sellobj source path. The previous D4 seeds and directly loaded Minetown route did not yet establish a costly square; this records a new level initialization for shop-state inspection.",
+  "segments": [
+    {
+      "seed": 41040161,
+      "datetime": "20520508182940",
+      "nethackrc": "OPTIONS=name:V41ShopSaleFour,role:Wizard,race:human,gender=male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\n"
+    }
+  ]
+}

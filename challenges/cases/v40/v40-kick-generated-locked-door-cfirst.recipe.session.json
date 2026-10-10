@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source-state seed scan in the fresh 42005000–42007000 range identified seed 42005015 with an adjacent generated locked door. The JS scan used only terrain/mask/occupancy predicates; this patched C recording must confirm that the source kick_door branch is actually reached.",
+  "segments": [
+    {
+      "seed": 42005015,
+      "datetime": "20441015101112",
+      "nethackrc": "OPTIONS=name:V40LockedDoorKick,role:Valkyrie,race:human,gender=female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0004y"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first reachability attempt for mhitu.c:gulpum -> apply.c:unleash_all. The first C map showed the tame kitten northeast, so attach with `aou`; create the exact hostile purple worm, then use the C-confirmed `m.` wait prefix.",
+  "segments": [
+    {
+      "seed": 30917106,
+      "datetime": "20590512094100",
+      "nethackrc": "OPTIONS=name:V40EngulfLeash,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017leash\naou\u0007hostile purple worm\nm."
+    }
+  ]
+}

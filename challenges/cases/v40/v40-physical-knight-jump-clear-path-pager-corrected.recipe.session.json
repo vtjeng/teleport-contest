@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Pager-corrected C-only reachability probe for apply.c:dojump. The first recording showed a confirmed initial --More-- boundary consumed the original #jump. The corrected route dismisses that page before issuing the Knight jump; no JavaScript comparison is performed.",
+  "segments": [
+    {
+      "seed": 40100021,
+      "datetime": "20430621110000",
+      "nethackrc": "OPTIONS=name:V40KnightJump,role:Knight,race:human,gender=male,align=lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #jump\nljj.",
+      "recorderIsDst": true
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 82733194,
+      "datetime": "20600118124455",
+      "nethackrc": "OPTIONS=name:V40DragonProbe,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed figurine of a yellow dragon\ni\n",
+      "comment": "C-first setup probe for reaching zap.c:zhitu acid_damage() from an angry yellow dragon's acid breath while the Wizard wields a weapon."
+    }
+  ]
+}

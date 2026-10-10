@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C terrain inspection confirms the hero stands in ROOM terrain (code 25) with STONE (code 0) immediately east; use the observed slot n, apply the cursed pick-axe east, and wait through digging until the Earth mkcavearea chance is reached.",
+  "segments": [
+    {
+      "seed": 42060006,
+      "datetime": "20441017101112",
+      "nethackrc": "OPTIONS=name:V40EarthPage2,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?\n  N       uncursed potion of healing\n #wizkill\n  y. \u001bwnal........"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 40101003,
+      "datetime": "20460421123827",
+      "nethackrc": "OPTIONS=name:V40WandExpel,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017wand of opening\n\u0007hostile air elemental\n\u0004lm.  zc.",
+      "comment": "Corrected opening-wand route: dismiss the startup welcome pager before Ctrl-W; wish for an opening wand, create and kick a hostile air elemental east, force the engulfing turn, dismiss the observed damage pages, then self-zap using C-confirmed inventory slot."
+    }
+  ]
+}

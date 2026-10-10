@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first pet-food route after the previous recorder showed the wished tripe ration occupies slot g in the Ranger starting inventory. The recipe now uses that C-confirmed slot.",
+  "segments": [
+    {
+      "seed": 41104104,
+      "datetime": "20441012101112",
+      "nethackrc": "OPTIONS=name:V40PetTripe2,role:Ranger,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017tripe ration\ndg"
+    }
+  ]
+}

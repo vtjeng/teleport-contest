@@ -6,8 +6,11 @@ import { A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { mon_aligntyp } from '../js/priest.js';
 import { runSegment } from '../js/jsmain.js';
-import { PM_ALIGNED_CLERIC } from '../js/monsters.js';
+import { PM_ALIGNED_CLERIC, PM_HIGH_CLERIC } from '../js/monsters.js';
 import { getRngLog } from '../js/rng.js';
+
+const PRIEST_C_SOURCE = readFileSync('nethack-c/upstream/src/priest.c', 'utf8');
+const PRIEST_JS_SOURCE = readFileSync('js/priest.js', 'utf8');
 
 const RECIPE = JSON.parse(readFileSync(
     new URL('../recordings/priest.c/roamer-sanctum-gnome-wizard.session.json',
@@ -111,6 +114,30 @@ test('priest.c mon_aligntyp selects the source extension and preserves A_NONE', 
         ispriest: true,
         mextra: { epri: { shralign: A_NONE } },
     }), A_NONE);
+});
+
+test('priestini marks only its source sanctum High Cleric creation for makemon', () => {
+    const cStart = PRIEST_C_SOURCE.indexOf('\npriestini(');
+    const cEnd = PRIEST_C_SOURCE.indexOf('\n/* get a monster\'s alignment', cStart);
+    const cFunction = PRIEST_C_SOURCE.slice(cStart, cEnd);
+    const jsStart = PRIEST_JS_SOURCE.indexOf('export function priestini(');
+    const jsEnd = PRIEST_JS_SOURCE.indexOf('\n}\n', jsStart) + 2;
+    const jsFunction = PRIEST_JS_SOURCE.slice(jsStart, jsEnd);
+
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    assert.match(cFunction, /sanctum \? PM_HIGH_CLERIC\s*: PM_ALIGNED_CLERIC/u);
+    assert.match(cFunction, /makemon\(prim, px, py, MM_EPRI\)/u);
+    assert.match(jsFunction, /sanctum \? PM_HIGH_CLERIC : PM_ALIGNED_CLERIC/u);
+    assert.match(
+        jsFunction,
+        /const priestEnv = \{ \.\.\.env, _priestiniHighCleric: Boolean\(sanctum\) \};/u,
+    );
+    assert.match(
+        jsFunction,
+        /makemon\(prim, px, py, MM_EPRI, priestEnv\)/u,
+    );
+    assert.equal(PM_HIGH_CLERIC, 276);
 });
 
 test('pri_move preserves altar draws then awaits its adjacent hostile attack', async () => {

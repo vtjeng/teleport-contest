@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Targeted C-first source recording: enter Earth through the page-three `N - earth` level choice, accept a safe uncursed healing-potion bonus wish, dismiss the plane-entry messages, use #wizkill to remove the adjacent Wizard of Yendor without advancing time, then wield slot n and apply the cursed pick-axe west at the adjacent blank rock tile. Wait through the dig occupation to reach the Earth-plane mkcavearea draw/message if possible.",
+  "segments": [
+    {
+      "seed": 42060006,
+      "datetime": "20441017101112",
+      "nethackrc": "OPTIONS=name:V40EarthPage2,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?\n  N       uncursed potion of healing\n #wizkill\n  y.\u001bwnanh........"
+    }
+  ]
+}

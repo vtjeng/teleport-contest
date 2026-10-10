@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected the getpos/message dismissal from the prior C setup. This seed produced a pet corpse through rn2(3)=0 at mon.c:corpse_chance; dismiss the #wizkill follow-up, step onto the altar corpse, dismiss the location page, then reach the forced-pleased prayer path.",
+  "segments": [
+    {
+      "seed": 40101045,
+      "datetime": "20461012141518",
+      "nethackrc": "OPTIONS=name:V40PetRevival,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017lawful altar\nl#wizkill\n  h.\u001b h #pray\ny y "
+    }
+  ]
+}

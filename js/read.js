@@ -433,6 +433,7 @@ import { getpos, getpos_sethilite } from './getpos.js';
 import { explode } from './explode.js';
 import { create_gas_cloud, valid_cloud_pos } from './region.js';
 import { burn_away_slime, end_burn } from './timeout.js';
+import { snuff_lit } from './apply_splash_lit.js';
 import { encumber_msg } from './pickup.js';
 import { remove_worn_item } from './steal.js';
 import { canspotmon } from './display.js';
@@ -2061,18 +2062,7 @@ export async function litroom(on, object, state) {
         for (let current = state.invent; current; current = current.nobj) {
             if (!current.lamplit) continue;
             if (!artifact_light(current)) {
-                current.lamplit = false;
-                for (let source = state.gl?.light_base ?? null; source;) {
-                    const next = source.next;
-                    if (source.type === LS_OBJECT && source.id === current) {
-                        try {
-                            del_light_source(source.type, source.id, state);
-                        } catch {
-                            // The source can already have gone stale.
-                        }
-                    }
-                    source = next;
-                }
+                await snuff_lit(current, { state });
             }
             if (current.lamplit) ++stillLit;
         }

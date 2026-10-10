@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent pickup.c:fatal_corpse_mistake in_container caller witness. A debug Wizard wishes gloves and a life-saving amulet, holds a cockatrice corpse safely, then stashes it in a floor large box so in_container reaches the helper's st_gloves guard.",
+  "segments": [
+    {
+      "seed": 6120729,
+      "datetime": "20350709081200",
+      "nethackrc": "OPTIONS=name:InBoxProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017uncursed gauntlets of dexterity\nWo\u0017uncursed amulet of life saving\nPp\u0017unlocked large box\n dq\u0017uncursed cockatrice corpse\n#loot\nsr     "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first high-HP test of mhitu.c:gulpum -> apply.c:unleash_all. The inspected level-10 C map places the starting kitten directly north; attach with `aok`, spawn the exact hostile purple worm, and allow up to two forced wait turns. Eight spaces clear level-up pages 2 through 9; level 10 is the final non-paged message.",
+  "segments": [
+    {
+      "seed": 30917106,
+      "datetime": "20590512094100",
+      "nethackrc": "OPTIONS=name:V40EngulfLeash,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #levelchange\n10\n        \u0017leash\naok\u0007hostile purple worm\nm.m."
+    }
+  ]
+}

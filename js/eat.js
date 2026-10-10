@@ -142,7 +142,7 @@ import {
     poison_strdmg,
     setuhpmax,
     } from './attrib.js';
-import { ART_ORB_OF_DETECTION } from './artifacts.js';
+import { ART_ORB_OF_DETECTION, retouch_equipment } from './artifacts.js';
 import {
     paranoid_query,
     set_occupation,
@@ -2822,7 +2822,7 @@ async function cpostfx(pm, state, env = {}) {
 
     if (ismnum(catch_lycanthropy)) {
         set_ulycn(catch_lycanthropy, state);
-        note_unported('artifact.c retouch_equipment');
+        await retouch_equipment(2, state, env); // eat.c:cpostfx
     }
 }
 

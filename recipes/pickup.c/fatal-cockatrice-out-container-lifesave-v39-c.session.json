@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent pickup.c:fatal_corpse_mistake out_container caller witness. A debug Wizard wishes gloves and a life-saving amulet, stashes a cockatrice corpse in a sack while protected, removes gloves, then tries to retrieve it.",
+  "segments": [
+    {
+      "seed": 6120730,
+      "datetime": "20360709081200",
+      "nethackrc": "OPTIONS=name:OutSackProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017uncursed gauntlets of dexterity\nWo\u0017uncursed amulet of life saving\nPp\u0017unlocked large box\n dq\u0017uncursed cockatrice corpse\n#loot\nsrTo#loot\noa\na\n     "
+    }
+  ]
+}

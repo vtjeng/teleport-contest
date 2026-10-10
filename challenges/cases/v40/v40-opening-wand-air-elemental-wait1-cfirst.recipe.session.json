@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 40101003,
+      "datetime": "20460421123827",
+      "nethackrc": "OPTIONS=name:V40WandExpel,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017wand of opening\n\u0007hostile air elemental\n.",
+      "comment": "C-first one-turn engulfing probe: the air elemental is confirmed adjacent, directly north of the Wizard, before turn advancement."
+    }
+  ]
+}

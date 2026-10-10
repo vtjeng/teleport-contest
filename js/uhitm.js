@@ -13,6 +13,7 @@ import {
     defends,
     is_art,
     permapoisoned,
+    retouch_equipment,
     shade_glare,
 } from './artifacts.js';
 import {
@@ -22,6 +23,7 @@ import {
 import { isok } from './cmd_isok.js';
 import { adjalign, adjattrib, exercise } from './attrib.js';
 import { some_armor, setwornEnv } from './do_wear.js';
+import { snuff_lit } from './apply_splash_lit.js';
 import {
     A_INT,
     A_CON,
@@ -1512,7 +1514,7 @@ export async function gulpum(mdef, mattk, state = game, env = {}) {
     if (!(uDigest && state.u.uhunger >= 1500) && !state.u.uswallow) {
         if (!flaming(state.youmonst.data)) {
             for (let obj = mdef.minvent; obj; obj = obj.nobj)
-                note_unported('apply.c snuff_lit');
+                await snuff_lit(obj, { ...env, state, message });
         }
 
         if (is_vampshifter(mdef)
@@ -5477,8 +5479,7 @@ async function mhitm_ad_were(magr, mattk, mdef, mhm, state = game, env = {}) {
                 encumberMessage,
             });
             set_ulycn(monsndx(attackerData), state);
-            // uhitm.c discards retouch_equipment()'s void result here.
-            note_unported('artifact.c retouch_equipment');
+            await retouch_equipment(2, state, env); // uhitm.c:mhitm_ad_were
         }
     } else {
         await mhitm_ad_phys(magr, mattk, mdef, mhm, state, env);

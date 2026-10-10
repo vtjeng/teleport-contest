@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source probe for potion.c:peffect_enlightenment; reveal the quaff item selector and confirm the potion inventory slot before finishing the effect.",
+  "segments": [
+    {
+      "seed": 40101062,
+      "datetime": "20461203121115",
+      "nethackrc": "OPTIONS=name:V40Enlightenment,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017potion of enlightenment\nq?"
+    }
+  ]
+}

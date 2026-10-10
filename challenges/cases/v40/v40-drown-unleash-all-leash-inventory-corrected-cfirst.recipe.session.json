@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first setup probe for trap.c:drown -> apply.c:unleash_all. C confirmed startup --More--; dismiss it with one space before wishing a leash and inspecting inventory.",
+  "segments": [
+    {
+      "seed": 40762113,
+      "datetime": "20590512093700",
+      "nethackrc": "OPTIONS=name:V40DrownLeash,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017leash\ni"
+    }
+  ]
+}

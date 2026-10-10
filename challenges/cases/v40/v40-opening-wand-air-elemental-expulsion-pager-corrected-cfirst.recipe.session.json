@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 40101003,
+      "datetime": "20460421123827",
+      "nethackrc": "OPTIONS=name:V40WandExpel,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017wand of opening\n\u0007hostile air elemental\n\u0004lm.            zo.",
+      "comment": "Pager-corrected C-first route. Kick and wait to trigger air-elemental engulfing, then dismiss the remaining fast-monster pummel pages before using the opening wand from slot o on self."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected the first pet-corpse setup: wish the lawful altar on the initial hero square before swapping with the adjacent dog, so the dog lands on the altar tile. Then use the C wizard kill selector, step onto the pet corpse, and attempt pleased prayer. C-only until pray_revive is confirmed.",
+  "segments": [
+    {
+      "seed": 40101044,
+      "datetime": "20461011131417",
+      "nethackrc": "OPTIONS=name:V40PetRevival,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017lawful altar\nl#wizkill\nh\nyh#pray\nyy"
+    }
+  ]
+}

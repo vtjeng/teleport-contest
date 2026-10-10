@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopChase,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\nl, #wizlevelport\n5\n ",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Continue the C-only level-port robbery probe through one recorded message page. Preserve the prior stopped-at-first-page recording; inspect the next C shop-debt output and do not compare JS until the hot_pursuit caller is reached or conclusively missed."
+}

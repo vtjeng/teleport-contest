@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopChase,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\nl, #wizlevelport\n5\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first shopkeeper pursuit via a level exit. Pick up the D4 shop's for-sale red gem (C confirms it is unpaid), then use wizard level-port to leave the level, avoiding the v19 controlled-teleport getpos selector. Count only if C reaches shop-debt settlement/hot_pursuit and JS matches all level-port output before a distinct hot_pursuit first divergence."
+}

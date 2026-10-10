@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source probe for dig.c:dig downward from the shop floor into shk.c:shopdig(0). The C-observed inventory slot n holds the wished pick-axe. Enter the observed Dungeon 4 shop, step onto the for-sale red gem tile, wield the pick-axe, and start digging down. Record whether the shopkeeper warning and shop-damage accounting branch are reached; do not classify until the exact first mismatch and overlap are reviewed.",
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopDebtAlt,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017uncursed pick-axe\n#wizlevelport\n4\n #wizmap\nliwn\u0004"
+    }
+  ]
+}

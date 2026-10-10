@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C menu-input correction after the first attempt showed that b selects the displayed petrifying timeout entry and space pages forward. This variation submits the selected entry with Enter and records the resulting state/message.",
+  "segments": [
+    {
+      "seed": 41104108,
+      "datetime": "20441014101112",
+      "nethackrc": "OPTIONS=name:V40LizardCure2,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017lizard corpse\n#wizintrinsic\nb\n"
+    }
+  ]
+}

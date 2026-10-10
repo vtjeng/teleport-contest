@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Extends the C-confirmed identify read path by dismissing the scroll-consumption page. The follow-up selection is preserved as a separate C observation before choosing the unknown potion.",
+  "segments": [
+    {
+      "seed": 40100520,
+      "datetime": "20450102030405",
+      "nethackrc": "OPTIONS=name:V40IdentifyPotion,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017potion of see invisible\n\u0017scroll of identify\n rj "
+    }
+  ]
+}

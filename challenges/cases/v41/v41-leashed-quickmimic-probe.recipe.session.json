@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first probe for mon.c:m_consume_obj -> dogmove.c:quickmimic. Wish a small mimic corpse, drop it, move east from the west-adjacent dog, and let the pet act; do not compare JavaScript before C confirms the corpse is eaten.",
+  "segments": [
+    {
+      "seed": 41040111,
+      "datetime": "20481010111214",
+      "nethackrc": "OPTIONS=name:V41QuickMimic,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017small mimic corpse\n da\nl........."
+    }
+  ]
+}

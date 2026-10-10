@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first completed-route attempt: after the selected petrifying entry produces the stoning page, dismiss that page, invoke eat, and select the C-observed lizard corpse slot p while the 30-turn timer is active.",
+  "segments": [
+    {
+      "seed": 41104109,
+      "datetime": "20441014101112",
+      "nethackrc": "OPTIONS=name:V40LizardCure3,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017lizard corpse\n#wizintrinsic\nb\n ep"
+    }
+  ]
+}

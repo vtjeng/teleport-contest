@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source-guided bugle setup for an actual wake effect: wish a bugle and wand of sleep, create a soldier with the debug monster generator, zap the soldier on its C-confirmed adjacent direction, then play the bugle and dismiss its page. This is a new C-only attempt; no JavaScript comparison is performed.",
+  "segments": [
+    {
+      "seed": 40100401,
+      "datetime": "20430701101500",
+      "nethackrc": "OPTIONS=name:V40BugleSleep,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017bugle\n\u0017wand of sleep\n\u0007soldier\nzoyany "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only Castle arrival-location probe: change the seed because Castle entry placement is random, then inspect whether an independently selected seed places the Wizard on an accessible approach to the drawbridge.",
+  "segments": [
+    {
+      "seed": 31415927,
+      "datetime": "20591211140319",
+      "nethackrc": "OPTIONS=name:V40CastleBreak,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017uncursed wand of striking\n#wizlevelport\ncastle\n #wizmap\n"
+    }
+  ]
+}

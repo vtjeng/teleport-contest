@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 40101003,
+      "datetime": "20460421123827",
+      "nethackrc": "OPTIONS=name:V40WandExpel,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017wand of opening\n\u0007hostile air elemental\n\u0004lm. zo.",
+      "comment": "Reaches the confirmed C state: kick the adjacent hostile air elemental awake, force the engulfing turn, dismiss the page, then zap self with wand of opening from observed inventory slot o."
+    }
+  ]
+}

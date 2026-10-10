@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only setup probe: after independently loading and mapping dat/castle.lua, list inventory to observe the wished wand letter before attempting a ray at the drawbridge. Keep the target unclassified until C confirms the strike reaches destroy_drawbridge.",
+  "segments": [
+    {
+      "seed": 71104331,
+      "datetime": "20591211140319",
+      "nethackrc": "OPTIONS=name:V40CastleBreak,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017uncursed wand of striking\n#wizlevelport\ncastle\n #wizmap\ni"
+    }
+  ]
+}

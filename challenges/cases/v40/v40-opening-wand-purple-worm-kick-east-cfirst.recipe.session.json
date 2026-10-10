@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 40101004,
+      "datetime": "20460422124031",
+      "nethackrc": "OPTIONS=name:V40WandExpel,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017wand of opening\n\u0007hostile purple worm\u0004lm.",
+      "comment": "Correct C-only route based on the observed adjacent worm: kick east once to provoke/awaken it, then force a turn so it can attempt engulfing before the wand action."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected inventory selection using the C prompt from the previous preserved attempt, which showed the lizard corpse in slot o. The wizard-intrinsic stoning setup is unchanged; this reaches the eat action with the C-confirmed slot.",
+  "segments": [
+    {
+      "seed": 41104109,
+      "datetime": "20441014101112",
+      "nethackrc": "OPTIONS=name:V40LizardCure3,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017lizard corpse\n#wizintrinsic\nb\n eo"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first setup probe for the leashed little-dog quickmimic effect. Wizard fixed-pet rules were verified in dog.c:pet_type(), so this uses a Barbarian whose pettype:dog request yields a little dog; first record the leash slot from C.",
+  "segments": [
+    {
+      "seed": 41040127,
+      "datetime": "20510112131416",
+      "nethackrc": "OPTIONS=name:V41LittleDog,role:Barbarian,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017leash\n"
+    }
+  ]
+}

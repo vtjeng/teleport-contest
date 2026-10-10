@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Complete C-first bugle wake route. The previous trace confirmed the soldier is adjacent and the sleep ray hits it, then showed the two bugle message pages. This version dismisses both pages and captures the source awaken_soldiers result for the sleeping mercenary.",
+  "segments": [
+    {
+      "seed": 40100401,
+      "datetime": "20430701101500",
+      "nethackrc": "OPTIONS=name:V40BugleSleep,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017bugle\n\u0017wand of sleep\n\u0007soldier\nzolany  ",
+      "recorderIsDst": true
+    }
+  ]
+}

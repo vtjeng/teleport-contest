@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source-guided correction to the preserved cfirst pit setup: levitate while leaving a newly wished pit tile so C does not trap the hero there. Place the pit at A, wish a boulder at adjacent B, stand on C, remove levitation, then kick east so the boulder moves from B into A. Keep the earlier same-square fill/setup miss as separate evidence.",
+  "segments": [
+    {
+      "seed": 41040173,
+      "datetime": "20511212121213",
+      "nethackrc": "OPTIONS=name:V41PitKick,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017ring of levitation\nPplh\u0017pit trap\nh\u0017boulder\nhRph\u0004l"
+    }
+  ]
+}

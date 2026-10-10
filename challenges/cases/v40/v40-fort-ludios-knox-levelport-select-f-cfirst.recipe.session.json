@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first Fort Ludios source probe: select its menu entry only after the prior C menu observation identified the entry at page 2. This tests the menu/branch gate without comparing JavaScript.",
+  "segments": [
+    {
+      "seed": 62014729,
+      "datetime": "20500910131415",
+      "nethackrc": "OPTIONS=name:V40FortLudios,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0016?\n F"
+    }
+  ]
+}

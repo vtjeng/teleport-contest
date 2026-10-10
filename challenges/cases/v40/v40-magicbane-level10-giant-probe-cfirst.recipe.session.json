@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first setup after preserving the level-30 pager overrun. Set experience level 10 through #levelchange and clear its nine source-confirmed level-up pages, then create the hostile stone giant and wield the default-enchantment Magicbane. Attack only after C shows the giant adjacent.",
+  "segments": [
+    {
+      "seed": 42080005,
+      "datetime": "20461014151617",
+      "nethackrc": "OPTIONS=name:V40MagicbaneLevel10,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017Magicbane\n#levelchange\n10\n         \u0007hostile stone giant\nwoj"
+    }
+  ]
+}
