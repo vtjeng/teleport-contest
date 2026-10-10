@@ -246430,7 +246430,7 @@
     {
       "id": "port-kill-egg-timer-cancellation-v39-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port timeout.c kill_egg and wire active egg timer cancellation callers",
       "cFile": "timeout.c",
       "sessions": [
@@ -246444,15 +246444,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "aed26ac9ec69a4441421005e4110971d52d5eb53",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "kill_egg",
           "line": 1009,
           "endLine": 1016,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -246474,7 +246477,7 @@
           "endLine": 5638,
           "declared": true,
           "sourceFile": "mon.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "poly_obj",
@@ -246707,7 +246710,222 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "kill_egg",
+            "implementation": "js/timeout.js",
+            "symbol": "kill_egg",
+            "sourceReview": "Read the complete timeout.c:kill_egg body (1009–1013): it casts away stop_timer(HATCH_EGG, obj_to_any(egg))'s result, consuming no RNG and producing no message. The only effect is removing that egg's existing HATCH_EGG timer. JavaScript calls the existing stop_timer owner with the same timer kind and object, preserving its timer count and unrelated timers, and returns undefined. No substitute state or gap marker remains.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_royal_jelly",
+                "source": "apply.c:use_royal_jelly line 3657 calls kill_egg(eobj) in the cursed-jelly branch."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "kill_eggs",
+                "source": "mon.c:kill_eggs line 5622 calls kill_egg(otmp) for an egg of a dead species."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "poly_obj",
+                "source": "zap.c:poly_obj line 1762 calls kill_egg(otmp) when the polymorphed hero-laid egg's replacement is itself an egg."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout.test.mjs",
+              "scripts/apply-royal-jelly.test.mjs",
+              "scripts/mon-span.test.mjs",
+              "scripts/zap-poly-obj.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/kill-egg-genocide-wished-egg.session.json",
+              "recordings/timeout.c/kill-egg-genocide-wished-egg-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v39",
+                "caseId": "v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 298,
+                "source": "#rub -> cmd.c:doextcmd -> apply.c:dorub -> apply.c:use_royal_jelly -> timeout.c:kill_egg. The complete assigned cursed-jelly replay matches through its final zero-based step."
+              }
+            ],
+            "checkedAt": "aed26ac9ec69a4441421005e4110971d52d5eb53"
+          },
+          {
+            "name": "use_royal_jelly",
+            "implementation": "js/apply.js",
+            "symbol": "use_royal_jelly",
+            "sourceReview": "Read the whole apply.c:use_royal_jelly body (3616–3683) and its JS implementation. Preserved split/free-inventory, cancellation reassembly, target prompt/filter, killer-bee species change, cursed versus blessed/uncursed branches, timer attachment, feedback predicates, object destruction and ECMD result ordering. The cursed branch now invokes kill_egg at the C call site and discards its result. No other caller behavior was expanded.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply line 1800 dispatches LUMP_OF_ROYAL_JELLY to use_royal_jelly; the JS apply command reaches doapply."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "dorub",
+                "source": "apply.c:dorub line 4263 dispatches the #rub command to use_royal_jelly; cmd.c registers #rub at line 1836."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-royal-jelly.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "apply.c",
+            "synthetic": [
+              {
+                "batch": "v39",
+                "caseId": "v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 298,
+                "source": "cmd.c #rub -> apply.c:dorub -> apply.c:use_royal_jelly -> timeout.c:kill_egg."
+              }
+            ],
+            "checkedAt": "aed26ac9ec69a4441421005e4110971d52d5eb53"
+          },
+          {
+            "name": "kill_eggs",
+            "implementation": "js/mon.js",
+            "symbol": "kill_eggs",
+            "sourceReview": "Read the whole mon.c:kill_eggs body (5609–5635). Its active path walks object siblings, calls dead_species with egg semantics, stops the egg timer only for a genocided species, and recursively scans containers; the TIN/CORPSE arms are excluded by #if 0. JavaScript preserves this order and now invokes the shared kill_egg implementation. The discarded kill_egg result has no caller use.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "kill_genocided_monsters",
+                "source": "mon.c:kill_genocided_monsters calls kill_eggs for monster inventories plus hero, floor, migrating, and buried object lists."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "do_class_genocide",
+                "source": "read.c:2749 class genocide invokes kill_genocided_monsters; JS do_class_genocide reaches the shared sweep at read.js:2799."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "do_genocide",
+                "source": "read.c:2993 genocide scroll invokes kill_genocided_monsters; JS do_genocide reaches the sweep at read.js:3024."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "makemap_prepost",
+                "source": "cmd.c:1048 is the post-processing arm of makemap_prepost(false); wizcmds.c:166 and sp_lev.c:6061 are active post-map callers. JS makemap_prepost reaches the sweep at cmd.js:2633."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "goto_level",
+                "source": "do.c:1817 catches genocided eggs on level arrival after migrating objects are delivered; JS goto_level invokes the sweep at do.js:3060."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-genocide.test.mjs",
+              "scripts/mon-span.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/kill-egg-genocide-wished-egg.session.json",
+              "recordings/timeout.c/kill-egg-genocide-wished-egg-variation.session.json"
+            ],
+            "sourceFile": "mon.c",
+            "synthetic": [],
+            "checkedAt": "aed26ac9ec69a4441421005e4110971d52d5eb53"
+          },
+          {
+            "name": "poly_obj",
+            "implementation": "js/zap.js",
+            "symbol": "poly_obj",
+            "sourceReview": "Read the whole zap.c:poly_obj body (1702–1989) and the corresponding JS implementation in source order. The hero-laid EGG branch cancels the replacement egg's HATCH_EGG timer before clearing corpsenm and spe; the else branch retains C's conversion/weight order. Other type/field preservation, inventory/floor replacement, class-specific degradation and billing ordering remain unchanged. Existing discarded void calls remain explicit note_unported gaps: sokoban.c:sokoban_guilt, steal.c:remove_worn_item, do_wear.c:set_wear, and shk.c:make_angry_shk/hot_pursuit. No result from those calls is used as data.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhito",
+                "source": "zap.c:bhito line 2219 calls poly_obj(obj, STRANGE_OBJECT) on the object hit by polymorph; bhito is passed to bhitpile from dozap."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "dozap",
+                "source": "cmd.c:2005 dispatches the z command to dozap; JS cmd.js dispatches to zap.js:dozap, which reaches bhitpile/bhito for floor objects."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-poly-obj.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/immediate-polymorph-pile-variation.session.json"
+            ],
+            "sourceFile": "zap.c",
+            "synthetic": [],
+            "checkedAt": "aed26ac9ec69a4441421005e4110971d52d5eb53"
+          }
+        ],
+        "entryPointReview": "The selected v39 recipe exercises #rub -> dorub -> use_royal_jelly and reaches the cursed-egg kill_egg call; it matches the full recording. The independent genocide recordings exercise the read-scroll -> kill_genocided_monsters -> kill_eggs path on a timed egg in hero inventory, with a female-Wizard variation. The existing immediate polymorph-pile recording exercises z -> dozap -> bhitpile -> bhito -> poly_obj on a floor-object pile. The rare poly_obj branch where a hero-laid egg's random replacement remains EGG is source-pinned by scripts/zap-poly-obj.test.mjs but is not asserted as reached by that ordinary pile recording. The separate active doapply route to use_royal_jelly is traced and covered by the same shared helper source evidence; no separate C recording is claimed for the doapply route. The cmd.c:1048 call is the post-map branch of makemap_prepost(false), reached by wizard map and special-level loading; do.c:1817 is level arrival. The four pre-existing discarded void-owner gaps in poly_obj remain explicit and outside this timer-cancellation change.",
+        "entryPoints": [
+          {
+            "name": "Cursed royal jelly cancels a timed egg via #rub",
+            "functions": [
+              {
+                "sourceFile": "apply.c",
+                "name": "use_royal_jelly"
+              },
+              "kill_egg"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v39",
+                "caseId": "v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 298,
+                "source": "cmd.c #rub -> apply.c:dorub -> use_royal_jelly -> kill_egg"
+              }
+            ]
+          },
+          {
+            "name": "Genocide scroll sweeps a timed egg in the hero inventory",
+            "functions": [
+              {
+                "sourceFile": "mon.c",
+                "name": "kill_eggs"
+              },
+              "kill_egg"
+            ],
+            "recordings": [
+              "recordings/timeout.c/kill-egg-genocide-wished-egg.session.json",
+              "recordings/timeout.c/kill-egg-genocide-wished-egg-variation.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Polymorph wand hits a floor-object pile and enters poly_obj",
+            "functions": [
+              {
+                "sourceFile": "zap.c",
+                "name": "poly_obj"
+              }
+            ],
+            "recordings": [
+              "recordings/zap.c/immediate-polymorph-pile-variation.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "aed26ac9ec69a4441421005e4110971d52d5eb53",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
