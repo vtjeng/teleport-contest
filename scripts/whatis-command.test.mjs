@@ -446,6 +446,26 @@ test('direct glance dispatches the quick cursor lookup without a turn',
         assert.equal(game.context.pendingCommand, undefined);
     });
 
+test('lootabc does not block quick glance because it bypasses the menu',
+    async () => {
+        const replay = await runSegment({
+            seed: 94720031,
+            datetime: '20311225091500',
+            nethackrc: [
+                'OPTIONS=name:LootabcQuickGlance,role:Wizard,race:human,gender:male,align:neutral',
+                'OPTIONS=lootabc,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics',
+            ].join('\n') + '\n',
+            // The welcome pager consumes one key before command input.
+            moves: ' ;',
+        });
+        assert.equal(game.flags.lootabc, true);
+        assert.equal(replay.getScreens().length, 3);
+        assert.equal(replay.getCursors().length, 3);
+        const screen = replay.getScreens().at(-1);
+        assert.match(screen, /Pick a monster, object or location\./u);
+        assert.doesNotMatch(screen, /What do you want to look at/u);
+    });
+
 test('blind heroes enter the production quick-glance cursor path',
     async () => {
         // pager.c do_look has no blind admission guard. This initialized
