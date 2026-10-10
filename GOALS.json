@@ -259434,7 +259434,7 @@
     {
       "id": "port-weapon-silver-sears-v42-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port weapon.c silver_sears and wire every active hmonas caller",
       "cFile": "weapon.c",
       "sessions": [
@@ -259448,8 +259448,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "silver_sears",
@@ -259691,6 +259694,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
