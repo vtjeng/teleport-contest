@@ -259230,7 +259230,7 @@
           "line": 1,
           "endLine": 39,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -259361,7 +259361,66 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "bigrm-11.lua",
+            "implementation": "js/bigrm.js",
+            "symbol": "bigrm11",
+            "sourceReview": "Read the complete nethack-c/upstream/dat/bigrm-11.lua:1-39, including helpers t_or_f() and replace_wall_boulder(). Preserved level_flags before level_init; Lua table evaluation consumes rn2(3) for corrwid before percent(50) consumes rn2(100) for deadends. Then the program marks the 0,0..75,18 area lit, marks walls non-diggable, unions the horizontal .w. and vertical .\\nw\\n. selections in source order, visits selected cells y-major, sets each to floor before creating its boulder, runs the leftover horizontal pass after those mutations, creates up/down stairs, then 15 default objects, 6 rolling-boulder traps and 28 default monsters. The asynchronous JS helper snapshots the same y-major selection and awaits each terrain/object pair in order. Removed the UnsupportedLevelChangeError placeholder. Checked the called special-level APIs against sp_lev.c lspo_level_flags, lspo_level_init, lspo_region, lspo_non_diggable, lspo_terrain, lspo_object, lspo_stair, lspo_trap, and lspo_monster; selection matching and union use the existing nhlsel/selection implementations, and maze initialization dispatches through the existing mkmaze.c create_maze port. No unported dependency remains on the exercised program path. The admitted runtime trace exposed two existing caller defects required by this program: JavaScript create_maze() passed {xMax,yMax} to maze_remove_deadends(), which expects {xMazeMax,yMazeMax} for maze_inbounds(); it now passes the reduced source bounds under those fields. C nhlsel.c:l_selection_iterate() converts absolute map points to frame-relative Lua callback coordinates, so replaceWallBoulders() now passes {x:state.xstart,y:state.ystart} to selection.iterate() before lspo_terrain/lspo_object add the frame origin. The reduced-bounds correction is limited to the existing mkmaze.js:create_maze() branch reached by dat/bigrm-11.lua through sp_lev.c:lspo_level_init -> splev_initlev(LVLINIT_MAZE); it does not claim whole-function completion. The separate mkmaze.c:makemaz procedural fallback caller remains refused by js/mklev.js:makemaz before create_maze() is called.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "Production level generation: mkmaze.c:makemaz selects bigrm-11 and calls sp_lev.c:load_special; load_special dispatches the registered bigrm-11 program."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "Wizard command: wizcmds.c:wiz_load_splua prompts for the Lua filename and calls sp_lev.c:load_special; JavaScript calls mklev.js:load_special before finalizing the level."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/bigrm-level-generation.test.mjs",
+              "scripts/mkmaze-span.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-bigrm-11-special-program",
+                "segment": 0,
+                "fromStep": 26,
+                "throughStep": 34,
+                "source": "The recorded #wizloaddes command runs wizcmds.c:wiz_load_splua -> sp_lev.c:load_special -> dat/bigrm-11.lua:level_init/create_maze/maze_remove_deadends, then source-ordered wall selection iteration, terrain and boulder replacement, stairs, objects, traps, monsters, and level finalization. The full segment also includes the final #wizmap redraw."
+              }
+            ],
+            "checkedAt": "c14734d08727bed3d4c4b05bea0d277dc5193d51"
+          }
+        ],
+        "entryPointReview": "The whole dat/bigrm-11.lua program has two active C callers: mkmaze.c:makemaz selects the named bigroom variant and calls sp_lev.c:load_special, while wizcmds.c:wiz_load_splua loads the named Lua script from the wizard command. Both use the existing JavaScript mklev.js:load_special registry and BIGRM_LOADERS[\"bigrm-11\"]. The admitted v42 replay exercises the wizard entry point through the full program and final map redraw. Its style=\"maze\" request calls sp_lev.c:lspo_level_init -> splev_initlev -> mkmaze.c:create_maze; the bounded caller correction supplies create_maze() reduced bounds under the xMazeMax/yMazeMax fields used by maze_inbounds(). The separate mkmaze.c:makemaz procedural fallback also calls create_maze() at lines 1201-1203, but js/mklev.js:makemaz still refuses before that unported call. This task covers the BigRM special-level caller only and makes no whole-function or procedural-fallback completion claim.",
+        "entryPoints": [
+          {
+            "name": "BigRM-11 special-level generation through load_special",
+            "functions": [
+              "bigrm-11.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-bigrm-11-special-program",
+                "segment": 0,
+                "fromStep": 26,
+                "throughStep": 34,
+                "source": "The recorded #wizloaddes command runs wizcmds.c:wiz_load_splua -> sp_lev.c:load_special -> dat/bigrm-11.lua:level_init/create_maze/maze_remove_deadends, then source-ordered wall selection iteration, terrain and boulder replacement, stairs, objects, traps, monsters, and level finalization. The full segment also includes the final #wizmap redraw."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
