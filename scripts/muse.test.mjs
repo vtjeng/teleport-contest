@@ -142,6 +142,7 @@ import {
 const MUSE_C = readFileSync(
     new URL('../nethack-c/upstream/src/muse.c', import.meta.url), 'utf8',
 );
+const MUSE_JS = readFileSync(new URL('../js/muse.js', import.meta.url), 'utf8');
 
 test('mon_reflects preserves C printf escapes and substitutes both values',
     async () => {
@@ -1615,6 +1616,48 @@ test('mbhitm forwards discarded cancellation result through its C caller',
     assert.ok(golem.mhp < 1);
     assert.ok(messages.some((line) => line.includes('writing vanishes')));
     assert.equal(state.unported.has('zap.c cancel_monst'), oldUnported);
+});
+
+test('mbhitm turns a hit hero and uses the action RNG for undead fear',
+    async () => {
+    const cAt = MUSE_C.indexOf('\nmbhitm(');
+    const cEnd = MUSE_C.indexOf('\n/* hit all objects at x,y', cAt);
+    const cSource = MUSE_C.slice(cAt, cEnd);
+    assert.match(cSource,
+        /case WAN_UNDEAD_TURNING:\s*if \(hits_you\) \{\s*unturn_you\(\);/u);
+    assert.match(cSource,
+        /if \(unturn_dead\(mtmp\)\)\s*\/\* affects mtmp's invent, not mtmp \*\/\s*wake = TRUE/u);
+
+    const jsAt = MUSE_JS.indexOf('export async function mbhitm(');
+    const jsEnd = MUSE_JS.indexOf('\n}\n\n// C ref: muse.c fhito_loc', jsAt);
+    const jsSource = MUSE_JS.slice(jsAt, jsEnd);
+    assert.match(jsSource, /await unturn_you\(state, \{ \.\.\.rawEnv, random, message \}\)/u);
+    assert.match(jsSource,
+        /if \(await unturn_dead\(mtmp, state, \{ \.\.\.rawEnv, random, message \}\)\)/u);
+    assert.doesNotMatch(jsSource,
+        /note_unported\('zap\.c unturn_(?:you|dead)'\)/u);
+
+    const state = await offensiveHero();
+    // A ghost hero reaches unturn_you()'s undead branch and its source rnd(30).
+    state.youmonst.data = state.mons[PM_GHOST];
+    // The callback's visibility flag is false so object discovery does not
+    // add an unrelated branch to this random-stream test.
+    state.gz ??= {};
+    state.gz.zap_oseen = false;
+    const wand = makeObject(state, WAN_UNDEAD_TURNING);
+    const bounds = [];
+    const messages = [];
+    assert.equal(await mbhitm(state.youmonst, wand, state, {
+        random: {
+            rnd: (bound) => {
+                bounds.push(bound);
+                return 17; // within rnd(30), used to check action-stream routing
+            },
+        },
+        message: async (line) => { messages.push(line); },
+    }), 0);
+    assert.deepEqual(bounds, [30]);
+    assert.deepEqual(messages, ['You feel frightened and stunned.']);
 });
 
 test('find_offensive declines for a nurse beside an unarmed, unarmored hero',

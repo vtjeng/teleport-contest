@@ -1085,19 +1085,25 @@ export async function unturn_dead(monster, state = game, rawEnv = {}) {
 }
 
 // C ref: zap.c unturn_you() (1225-1234).
-async function unturn_you(state = game) {
-    await unturn_dead(state.youmonst, state);
+export async function unturn_you(state = game, rawEnv = {}) {
+    // Monster actions pass a cloned RNG through mbhitm(); direct self-zaps
+    // keep using the live game stream when no invocation stream is supplied.
+    const random = { rnd, ...(rawEnv.random ?? {}) };
+    const env = { ...rawEnv, random };
+    const message = rawEnv.message ?? ttyPline;
+    await unturn_dead(state.youmonst, state, env);
     if (is_undead(state.youmonst?.data)) {
         const already = Boolean(state.u?.uprops?.[STUNNED]?.intrinsic);
-        await ttyPline(
+        await message(
             `You feel frightened and ${already ? 'even more ' : ''}stunned.`,
             state,
+            rawEnv,
         );
         const stunTimeout = (state.u?.uprops?.[STUNNED]?.intrinsic ?? 0)
             & TIMEOUT;
-        await make_stunned(stunTimeout + rnd(30), false, state);
+        await make_stunned(stunTimeout + random.rnd(30), false, state, env);
     } else {
-        await ttyPline('You shudder in dread.', state);
+        await message('You shudder in dread.', state, rawEnv);
     }
 }
 

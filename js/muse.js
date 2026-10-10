@@ -238,7 +238,8 @@ import {
 import { mwelded, welded } from './wield.js';
 import { mon_has_amulet, mon_has_special } from './wizard.js';
 import {
-    cancel_monst, dobuzz, exclam, hit, miss, resist, zhitm,
+    cancel_monst, dobuzz, exclam, hit, miss, resist, unturn_dead, unturn_you,
+    zhitm,
 } from './zap.js';
 import { which_armor } from './worn.js';
 import { hard_helmet } from './do_wear.js';
@@ -2290,15 +2291,15 @@ export async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
         break;
     case O.WAN_UNDEAD_TURNING:
         if (hits_you) {
-            note_unported('zap.c unturn_you');
+            await unturn_you(state, { ...rawEnv, random, message });
             learnit = Boolean(state.gz?.zap_oseen);
         } else {
             let wake = false;
 
-            // unturn_dead() revives carried corpses. Its return value is used
-            // (gates wakeup), but the function itself calls revive() and many
-            // other unported functions; skip and lose the corpse-revival wake.
-            note_unported('zap.c unturn_dead');
+            // C uses unturn_dead()'s result to wake a monster whose carried
+            // corpse revived, even when the target itself is not undead.
+            if (await unturn_dead(mtmp, state, { ...rawEnv, random, message }))
+                wake = true;
             if (is_undead(mtmp.data) || is_vampshifter(mtmp)) {
                 wake = true;
                 reveal_invis = true;
