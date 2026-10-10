@@ -250251,7 +250251,7 @@
     {
       "id": "A2-v39-mounted-steed-poly-steed-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Implement mounted fall dismount after saddle loss",
       "cFile": "steed.c",
       "sessions": [],
@@ -250263,8 +250263,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "97b84cc6b58a15fd2a536c0d8caaa2e86be47335",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "dismount_steed",
       "session": "synthetic/v39/v39-mounted-steed-polymorph-trap",
       "step": 28,
@@ -250462,7 +250465,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "97b84cc6b58a15fd2a536c0d8caaa2e86be47335",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
