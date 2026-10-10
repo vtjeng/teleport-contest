@@ -307,7 +307,7 @@ export function buildSyntheticQueue(batches, { root = PROJECT_ROOT, owners = nul
                 entry.investigation = readInvestigation(root, entry);
                 const resolution = entry.investigation.status === 'complete'
                     ? entry.investigation.result?.resolution : null;
-                if (resolution?.kind === 'recorder-defect') {
+                if (resolution) {
                     excluded.push({ ...entry, resolution });
                 } else {
                     sessions.push(entry);
@@ -671,9 +671,9 @@ export function formatWorkQueue(queue) {
         lines.push(`      Investigation: ${investigation?.status ?? 'missing'}`);
     }
     if (queue.excluded?.length) {
-        lines.push('  Resolved recorder evidence:');
+        lines.push('  Resolved non-game evidence:');
         for (const entry of queue.excluded)
-            lines.push(`    ${entry.session}: ${entry.resolution.repair}`);
+            lines.push(`    ${entry.session}: ${entry.resolution.disposition}`);
     }
     lines.push('', queue.generationReady
         ? 'Synthetic generation: ready (no actionable screen debt remains).'

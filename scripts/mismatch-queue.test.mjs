@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -328,8 +328,9 @@ test('synthetic queue keeps exact screen debt and cursor/RNG losses visible', ()
                 branch: 'The serializer exceeded its old buffer.',
                 callers: ['capture boundary calls capture_screen'], dependencies: [] },
             evidence: ['A bounded fresh recording reproduces every game result.'],
-            resolution: { kind: 'recorder-defect', repair: 'Bound the recorder output.',
-                corpus: 'Preserve the immutable historical recording.' },
+            resolution: { kind: 'recorder-defect',
+                reason: 'The recorder exceeded its old fixed-size output buffer.',
+                disposition: 'Preserve the immutable historical recording.' },
         }));
         const resolved = buildSyntheticQueue([{
             corpus: 'synthetic', batch: 'v1', manifestPath: 'challenges/manifest.json',
@@ -341,6 +342,18 @@ test('synthetic queue keeps exact screen debt and cursor/RNG losses visible', ()
         assert.equal(resolved.excluded[0].resolution.kind, 'recorder-defect');
         assert.equal(resolved.generationReady, true,
             'resolved recorder corruption does not block the next batch');
+
+        const buildProvenance = JSON.parse(readFileSync(investigationPath, 'utf8'));
+        buildProvenance.resolution = { kind: 'build-provenance',
+            reason: 'The recorder and judge use different compile-time platform labels.',
+            disposition: 'Retain the judge profile and preserve this historical case.' };
+        writeFileSync(investigationPath, JSON.stringify(buildProvenance));
+        const resolvedBuild = buildSyntheticQueue([{
+            corpus: 'synthetic', batch: 'v1', manifestPath: 'challenges/manifest.json',
+            manifestSha256: 'a'.repeat(64), cases, status: 'measured',
+            evaluation, evaluationPath: 'challenges/evaluations/one.json', previous,
+        }], { root });
+        assert.equal(resolvedBuild.excluded[0].resolution.kind, 'build-provenance');
 
         const fixed = build([passing]);
         const work = buildWorkQueue(fixed, resolved);
