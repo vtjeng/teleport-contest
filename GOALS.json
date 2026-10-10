@@ -249428,7 +249428,7 @@
     {
       "id": "fix-pickup-fatal-corpse-instapetrify-v39-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Finish fatal corpse handling for pickup and container routes",
       "cFile": "pickup.c",
       "sessions": [
@@ -249442,8 +249442,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "60c8754be3b41237ce63db1b0bf71203c99b32bb",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "fatal_corpse_mistake",
       "session": "synthetic/v39/v39-pickup-cockatrice-barehanded-final",
       "step": 52,
@@ -249708,7 +249711,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "60c8754be3b41237ce63db1b0bf71203c99b32bb",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
