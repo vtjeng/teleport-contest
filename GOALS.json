@@ -254526,7 +254526,7 @@
     {
       "id": "port-earth-plane-lua-synthetic-v40-20261010",
       "kind": "lua-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port the Plane of Earth level program",
       "luaFile": "earth.lua",
       "sessions": [
@@ -254534,8 +254534,12 @@
       ],
       "selectionReason": "The accepted v40 Earth-plane replay stops at step 23 because the special-level registry has no loader for dat/earth.lua; the complete Lua program owns the remaining level generation.",
       "detail": "Port every top-level dat/earth.lua statement in source order, generate its fixed map and monster descriptors deterministically from upstream, and register the production loader in js/mklev.js.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "176f1e6dffd5103dfcd0182ca02d16b6d1e8c1b5",
+      "openStanding": {
+        "sha": "ffd2d10394fbb3c06612668aeaa38762cdfb84c1",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -254560,7 +254564,157 @@
           "evaluationPath": "challenges/evaluations/accepted-ffd2d10394fbb3c06612668aeaa38762cdfb84c1-v40.json",
           "evaluationCommit": "ffd2d10394fbb3c06612668aeaa38762cdfb84c1"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "ffd2d10394fbb3c06612668aeaa38762cdfb84c1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-earth-plane-levelport-generation",
+          "session": "synthetic/v40/v40-earth-plane-levelport-generation",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recording": "challenges/cases/v40/v40-earth-plane-pickaxe-earth-arrival-probe.session.json",
+          "recordingPath": "challenges/cases/v40/v40-earth-plane-pickaxe-earth-arrival-probe.session.json",
+          "recordingSha256": "af27f4b0efd9bf8c21e05169ec8cf907bc43948eaa5c0559f918b2dbbb29a0e5",
+          "recipe": "challenges/cases/v40/v40-earth-plane-pickaxe-earth-arrival-probe.recipe.session.json",
+          "recipeSha256": "8c3d7d360adfa2747265f935eb4098f39c36d5a5cc923da7f77d4ea4bcca6a30",
+          "replayInputSha256": "d56d3d58f50d66406e9c70bf637e2f3f7c89b817d1398def65845b8591284c0e",
+          "evaluationPath": "challenges/evaluations/accepted-ffd2d10394fbb3c06612668aeaa38762cdfb84c1-v40.json",
+          "evaluationCommit": "ffd2d10394fbb3c06612668aeaa38762cdfb84c1",
+          "evaluationArtifact": "challenges/evaluations/accepted-ffd2d10394fbb3c06612668aeaa38762cdfb84c1-v40.json",
+          "evaluationUtc": "2026-10-10T16:10:42.956Z",
+          "remainingScreens": 2,
+          "recordedSteps": 25,
+          "previousScreensMatched": 23,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 23,
+              "total": 25
+            },
+            "rng": {
+              "matched": 2678,
+              "total": 4897
+            },
+            "cursors": {
+              "matched": 23,
+              "total": 25
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"earth\"",
+            "step": 23
+          },
+          "step": 23,
+          "kind": "stop",
+          "sourceFile": "earth.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"earth\"",
+          "cFile": null,
+          "luaFile": "earth.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v40/v40-earth-plane-levelport-generation.json",
+            "result": {
+              "session": "synthetic/v40/v40-earth-plane-levelport-generation",
+              "remainingScreens": 2,
+              "recordedSteps": 25,
+              "corpus": "synthetic",
+              "batch": "v40",
+              "caseId": "v40-earth-plane-levelport-generation",
+              "manifestPath": "challenges/manifests/v40.json",
+              "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+              "recordingSha256": "af27f4b0efd9bf8c21e05169ec8cf907bc43948eaa5c0559f918b2dbbb29a0e5",
+              "evaluationPath": "challenges/evaluations/accepted-6e5dacedc7638246a629e7fe6295014ecbb0083d-v40.json",
+              "evaluationCommit": "6e5dacedc7638246a629e7fe6295014ecbb0083d",
+              "status": "complete",
+              "commit": "1c04793d36e33df7aef6186d38a0ddf1d86b62f8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v40",
+                "caseId": "v40-earth-plane-levelport-generation",
+                "session": "synthetic/v40/v40-earth-plane-levelport-generation",
+                "manifestPath": "challenges/manifests/v40.json",
+                "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+                "recording": "challenges/cases/v40/v40-earth-plane-pickaxe-earth-arrival-probe.session.json",
+                "recordingPath": "challenges/cases/v40/v40-earth-plane-pickaxe-earth-arrival-probe.session.json",
+                "recordingSha256": "af27f4b0efd9bf8c21e05169ec8cf907bc43948eaa5c0559f918b2dbbb29a0e5",
+                "recipe": "challenges/cases/v40/v40-earth-plane-pickaxe-earth-arrival-probe.recipe.session.json",
+                "recipeSha256": "8c3d7d360adfa2747265f935eb4098f39c36d5a5cc923da7f77d4ea4bcca6a30",
+                "replayInputSha256": "a711391a7d2ec0ee1498a65e5df13d8ec9352584a3bd45c28d4d95d6d7cf66a5",
+                "evaluationPath": "challenges/evaluations/accepted-6e5dacedc7638246a629e7fe6295014ecbb0083d-v40.json",
+                "evaluationCommit": "6e5dacedc7638246a629e7fe6295014ecbb0083d",
+                "evaluationArtifact": "challenges/evaluations/accepted-6e5dacedc7638246a629e7fe6295014ecbb0083d-v40.json",
+                "evaluationUtc": "2026-10-10T14:35:17.689Z",
+                "remainingScreens": 2,
+                "recordedSteps": 25,
+                "previousScreensMatched": 23,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 23,
+                    "total": 25
+                  },
+                  "rng": {
+                    "matched": 2678,
+                    "total": 4897
+                  },
+                  "cursors": {
+                    "matched": 23,
+                    "total": 25
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"earth\"",
+                  "step": 23
+                },
+                "step": 23,
+                "kind": "stop",
+                "sourceFile": "earth.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"earth\"",
+                "cFile": null,
+                "luaFile": "earth.lua",
+                "line": null
+              },
+              "summary": "The C replay enters the Plane of Earth, but JavaScript stops at makelevel because the special-level registry has no earth loader. The actionable scope is the whole dat/earth.lua program plus its registry entry; the remaining level-description calls already have JavaScript adapters. Earth is an endgame level, so current level-generation species admission skips the main-dungeon allowlist; no Makemon change is indicated by this diagnosis.",
+              "source": {
+                "file": "dat/earth.lua",
+                "branch": "When a wizard uses #wizlevelport to choose Earth, the destination takes mklev.c:makelevel through the special-level branch and loads earth.lua. The program initializes the endgame map, flags, messages, terrain, arrival and portal regions, monsters, and boulder.",
+                "functions": [
+                  "earth.lua"
+                ],
+                "callers": [
+                  "C entry: wizcmds.c:wiz_level_tele() calls teleport.c:level_tele(); its accepted destination schedules do.c:goto_level(), which reaches mklev.c:makelevel() and the special-level branch. JavaScript: js/wizcmds.js:wiz_level_tele() calls js/teleport.js:level_tele(), then js/do.js:goto_level() reaches js/mklev.js:makelevel().",
+                  "C loader: mklev.c:makelevel() calls mkmaze.c:makemaz(), which calls sp_lev.c:load_special(\"earth.lua\") and runs the complete dat/earth.lua top-level program. JavaScript: js/mklev.js:makelevel() calls makemaz()/load_special(); ensureSpecialLevelLoaders() must register the imported js/earth_levels.js:earth() loader.",
+                  "Earth Lua API calls are dispatched by sp_lev.c:lspo_level_init(), lspo_level_flags(), lspo_message(), lspo_map(), lspo_replace_terrain(), lspo_teleport_region(), lspo_levregion(), lspo_monster(), and lspo_object(); JavaScript dispatches through createSpecialLevelApi() in js/mklev.js."
+                ],
+                "dependencies": []
+              },
+              "goalKind": "lua-port",
+              "evidence": [
+                "Queue provenance was refreshed after accepted ring removal at game commit ffd2d10394fbb3c06612668aeaa38762cdfb84c1: .cache/latest-saved-combined-queue.json at SHA-256 476cfed81c5d0a21a6ea2664cecd3404b45eb6b765ee7d9ccfc94436edb0bc2 still has 2 remaining screens, earliest mismatch step 23, and 25 recorded boundaries for synthetic/v40/v40-earth-plane-levelport-generation. The v40 manifest is 32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b and the recording is af27f4b0efd9bf8c21e05169ec8cf907bc43948eaa5c0559f918b2dbbb29a0e5.",
+                "The accepted v40 evaluation reports 23/25 screens and cursors, 2678/4897 RNG calls, and the first stop at zero-based step 23 with `unsupported level change: makelevel: load_special() has no loader for special level \"earth\"`.",
+                "The complete upstream program `nethack-c/upstream/dat/earth.lua` defines `des.level_init`, four level flags, three messages, the 76-by-20 map, a 5-percent rock-to-room replacement over the level, a fixed arrival tile, an air portal, the ordered monster list, and a boulder. Existing level-description dispatch covers these APIs in `js/mklev.js`.",
+                "In `js/mklev.js`, `makelevel()` throws the observed refusal at line 705 when `SPECIAL_LEVEL_LOADERS` has no base loader; `ensureSpecialLevelLoaders()` imports the Fire, Air, and Water modules but registers no Earth module. The source-backed fix is the whole Earth Lua program in `js/earth_levels.js`, generated map data from the upstream map literal, and one registry entry under `contract:special-level-loader-registry`.",
+                "The Earth level is in the Endgame. `js/makemon_create.js:preflightCreation()` applies its explicit species allowlist only outside level creation or for main-dungeon level generation; the Earth generation path is `in_mklev` on a non-main dungeon. The existing Makemon path is therefore not an identified prerequisite for this loader task; the admitted differential will verify its descriptors."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
