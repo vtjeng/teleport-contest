@@ -26,6 +26,7 @@ import {
     OBJ_FLOOR,
     OBJ_INVENT,
     OBJ_MINVENT,
+    POOL,
     ROOM,
     SEE_INVIS,
     SVALL,
@@ -332,7 +333,7 @@ test('a non-pit trap does not limit ordinary sight', () => {
     assert.equal(couldsee(state.u.ux + 4, state.u.uy, state), true);
 });
 
-test('pit sight leaves Blind, Rogue-level, and underwater paths in precedence', () => {
+test('pit sight leaves Blind and Rogue-level paths in precedence', () => {
     const cases = [
         ['Blind (intrinsic)', (state) => {
             state.u.uprops = { [BLINDED]: { intrinsic: true } };
@@ -343,11 +344,6 @@ test('pit sight leaves Blind, Rogue-level, and underwater paths in precedence', 
         ['Rogue level', (state) => {
             state.u.uz = { dnum: 0, dlevel: 1 };
             state.rogue_level = { ...state.u.uz };
-        }],
-        ['underwater away from the water level', (state) => {
-            state.u.uz = { dnum: 0, dlevel: 1 };
-            state.u.uinwater = true;
-            state.water_level = { dnum: 0, dlevel: 2 };
         }],
     ];
 
@@ -363,11 +359,30 @@ test('pit sight leaves Blind, Rogue-level, and underwater paths in precedence', 
         assert.equal(
             couldsee(state.u.ux + 4, state.u.uy, state),
             true,
-            `${name} keeps its preexisting view_from path`,
+            `${name} sight takes precedence over the pit branch`,
         );
         if (name.startsWith('Blind'))
             assert.equal(cansee(state.u.ux + 4, state.u.uy, state), false);
     }
+
+    // C vision.c:589-606 gives underwater sight precedence over a pit and
+    // marks only adjacent pool squares as both IN_SIGHT and COULD_SEE.
+    const underwater = darkRoomState();
+    underwater.u.uz = { dnum: 0, dlevel: 1 };
+    underwater.u.uinwater = true;
+    underwater.water_level = { dnum: 0, dlevel: 2 };
+    underwater.rogue_level = { dnum: 1, dlevel: 1 };
+    underwater.u.utrap = 2;
+    underwater.u.utraptype = TT_PIT;
+    underwater.level.at(underwater.u.ux + 1, underwater.u.uy).typ = POOL;
+    vision_reset();
+    vision_recalc(0);
+    assert.equal(couldsee(underwater.u.ux + 1, underwater.u.uy, underwater), true,
+        'an adjacent pool remains visible underwater');
+    assert.equal(couldsee(underwater.u.ux + 2, underwater.u.uy, underwater), false,
+        'an adjacent ordinary floor square is not visible underwater');
+    assert.equal(couldsee(underwater.u.ux + 4, underwater.u.uy, underwater), false,
+        'underwater sight takes precedence over pit and ordinary view_from sight');
 
     // A blocked Blind property is not active, so the pit branch applies.
     const blockedBlind = darkRoomState();

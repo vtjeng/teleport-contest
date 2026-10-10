@@ -740,12 +740,15 @@ test('accepting a known healing refresh continues through the difficulty roll', 
     const movesBefore = game.moves;
     const rngBefore = replay.getRngLog().length;
     const literateBefore = game.u.uconduct.literate;
+    const positionBefore = { x: game.u.ux, y: game.u.uy };
 
     // The direct doread() call bypasses rhack()'s repeat-command boundary.
     cmdq_clear(CQ_REPEAT, game);
     game.nhDisplay.pushKey(HEALING_BOOK_LETTER.charCodeAt(0));
     game.nhDisplay.pushKey(HEALING_MESSAGE_MORE.charCodeAt(0));
     game.nhDisplay.pushKey('y'.charCodeAt(0));
+    // Accept the cursed-book relocation page after confirming the refresh.
+    game.nhDisplay.pushKey(HEALING_MESSAGE_MORE.charCodeAt(0));
     assert.equal(await doread(game), ECMD_TIME);
     assert.equal(game.moves, movesBefore);
     assert.ok(replay.getRngLog().length > rngBefore);
@@ -754,11 +757,16 @@ test('accepting a known healing refresh continues through the difficulty roll', 
     assert.equal(game.context.spbook.book, null);
     assert.equal(game.context.spbook.o_id, 0);
     assert.equal(book.in_use, false);
+    assert.notDeepEqual(
+        { x: game.u.ux, y: game.u.uy },
+        positionBefore,
+        'the accepted read reaches the cursed-book teleport branch',
+    );
     assert.equal(game.go?.occupation ?? null, null);
     assert.equal(
         inventorySnapshot().some((obj) => obj.o_id === book.o_id), true,
     );
-    assert.match(game._pending_message, /wrenching sensation/u);
+    assert.match(game._pending_message, /materialize in a different location/u);
     // The selected book key precedes the accepted refresh answer in C's
     // repeat queue.
     assert.deepEqual(cmdq_peek(CQ_REPEAT, game), {
@@ -769,16 +777,24 @@ test('accepting a known healing refresh continues through the difficulty roll', 
 
 test('the command wrapper accepts a known healing refresh', async () => {
     const segment = loadReadKnownHealingRecipe().segments[0];
+    await runSegment({ ...segment, moves: HEALING_READ_WAIT });
+    const positionBefore = { x: game.u.ux, y: game.u.uy };
     let boundary = null;
     const replay = await runSegment({
         ...segment,
         moves: `${HEALING_READ_WAIT}${HEALING_READ_COMMAND}`
-            + `${HEALING_BOOK_LETTER}${HEALING_MESSAGE_MORE}y`,
+            + `${HEALING_BOOK_LETTER}${HEALING_MESSAGE_MORE}y`
+            + HEALING_MESSAGE_MORE,
     }, { onBoundary: (error) => { boundary = error; } });
     let book = game.invent;
     while (book && book.otyp !== SPE_HEALING) book = book.nobj;
 
     assert.equal(boundary, null);
+    assert.notDeepEqual(
+        { x: game.u.ux, y: game.u.uy },
+        positionBefore,
+        'the command wrapper completes cursed-book teleportation',
+    );
     assert.equal(game.context.pendingCommand ?? null, null);
     assert.equal(game.context.spbook.delay, 0);
     assert.equal(game.context.spbook.book, null);
@@ -787,7 +803,10 @@ test('the command wrapper accepts a known healing refresh', async () => {
     assert.equal(
         inventorySnapshot().some((obj) => obj.o_id === book?.o_id), true,
     );
-    assert.ok(replay.getRngLog().some((entry) => entry === 'rn2(20)=12'));
+    // read.c:study_book() still completes rnd(20) before cursed_book()'s
+    // teleport, then the turn continues after acknowledging the relocation.
+    assert.ok(replay.getRngLog().some((entry) => entry === 'rnd(20)=14'));
+    assert.match(game._pending_message, /materialize in a different location/u);
 });
 
 test('magic mapping uses the source path on a special level', async () => {
