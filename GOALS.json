@@ -248437,6 +248437,202 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-wizard-create-particular-object-generation-v39-20261010",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Supply object construction hooks during wizard monster creation",
+      "cFile": "read.c",
+      "sessions": [],
+      "selectionReason": "The current admitted v39 wizard genesis case has 20 unmatched screens and stops in read.c:create_particular_creation when mimic disguise construction lacks the existing monsterObject hook.",
+      "detail": "Pass the canonical objectGenerationEnv into the production makemon call and cover the direct wizard command plus scroll and wand prompt callers with independent recordings.",
+      "openedAt": "58a3a7c2818e8338986f5af3002ce1719a840af7",
+      "openStanding": {
+        "sha": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "create_particular_creation",
+      "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+      "step": 94,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-counted-wizgenesis-mimic-population": {
+          "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-counted-wizgenesis-mimic-population",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+          "evaluationPath": "challenges/evaluations/accepted-6d9d5654bcd5444ec53ec2dbd558780ffe15ae37-v39.json",
+          "evaluationCommit": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37"
+        }
+      },
+      "activeStanding": {
+        "sha": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-counted-wizgenesis-mimic-population",
+          "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+          "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
+          "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
+          "replayInputSha256": "6c5eebb8ac589d2138034213c7b9c1eeab0007a593767809178d3a4cc278cf93",
+          "evaluationPath": "challenges/evaluations/accepted-6d9d5654bcd5444ec53ec2dbd558780ffe15ae37-v39.json",
+          "evaluationCommit": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37",
+          "evaluationArtifact": "challenges/evaluations/accepted-6d9d5654bcd5444ec53ec2dbd558780ffe15ae37-v39.json",
+          "evaluationUtc": "2026-10-10T08:14:26.793Z",
+          "remainingScreens": 20,
+          "recordedSteps": 114,
+          "previousScreensMatched": 94,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 94,
+              "total": 114
+            },
+            "rng": {
+              "matched": 6232,
+              "total": 6551
+            },
+            "cursors": {
+              "matched": 94,
+              "total": 114
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: monsterObject is not available",
+            "step": 94
+          },
+          "step": 94,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: monsterObject is not available",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-counted-wizgenesis-mimic-population.json",
+            "result": {
+              "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-counted-wizgenesis-mimic-population",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+              "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+              "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
+              "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
+              "replayInputSha256": "47593086a1baa7723744c3a7331b13272c438f1e0c7426f5a9c944273e35682e",
+              "evaluationPath": "challenges/evaluations/accepted-6d9d5654bcd5444ec53ec2dbd558780ffe15ae37-v39.json",
+              "evaluationCommit": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37",
+              "remainingScreens": 20,
+              "recordedSteps": 114,
+              "status": "complete",
+              "commit": "161dbdcdd9b497dc526bb79ee7d62761c01c91ec",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v39",
+                "caseId": "v39-counted-wizgenesis-mimic-population",
+                "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+                "manifestPath": "challenges/manifests/v39.json",
+                "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+                "recording": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+                "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+                "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+                "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
+                "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
+                "replayInputSha256": "47593086a1baa7723744c3a7331b13272c438f1e0c7426f5a9c944273e35682e",
+                "evaluationPath": "challenges/evaluations/accepted-aed26ac9ec69a4441421005e4110971d52d5eb53-v39.json",
+                "evaluationCommit": "aed26ac9ec69a4441421005e4110971d52d5eb53",
+                "evaluationArtifact": "challenges/evaluations/accepted-aed26ac9ec69a4441421005e4110971d52d5eb53-v39.json",
+                "evaluationUtc": "2026-10-10T06:48:19.323Z",
+                "remainingScreens": 20,
+                "recordedSteps": 114,
+                "previousScreensMatched": 94,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 94,
+                    "total": 114
+                  },
+                  "rng": {
+                    "matched": 6232,
+                    "total": 6551
+                  },
+                  "cursors": {
+                    "matched": 94,
+                    "total": 114
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: monsterObject is not available",
+                  "step": 94
+                },
+                "step": 94,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: monsterObject is not available",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "When a wizard creates a mimic through Genesis or the wizard-mode create-monster prompt, makemon.c:makemon() calls set_mimic_sym(), which can create a temporary disguise object with mkobj(). JavaScript passes create_particular_creation() a bare monster-creation environment, so a statue or figurine disguise reaches obj.js without the existing monsterObject lifecycle hook and stops before the next turn. The source-matched fix is to supply the standard objectGenerationEnv at that production makemon call.",
+              "source": {
+                "file": "read.c",
+                "branch": "create_particular_creation() creates a named S_MIMIC; makemon() enters its S_MIMIC arm, and set_mimic_sym() selects a random object class for an ordinary-room disguise. When mkobj() produces a STATUE or FIGURINE, JavaScript must run the residual monster-object initialize/finalize behavior just as C mksobj() does before set_mimic_sym() reads the temporary object type and frees it.",
+                "functions": [
+                  "create_particular_creation"
+                ],
+                "callers": [
+                  "read.c:create_particular() (3372-3405) calls create_particular_creation(); wizcmds.c:wiz_genesis() (203-210) calls create_particular() for the direct Ctrl-G/#wizgenesis entry.",
+                  "makemon.c:create_critters() (1556-1574) calls create_particular() when wizard mode and !neverask; active production callers include read.c:seffect_create_monster() (1607-1619) and zap.c:weffects() for WAN_CREATE_MONSTER (2569-2573). JS wiring is makemon.js:create_critters() and read.js:seffect_create_monster().",
+                  "makemon.c:makemon() (1303-1306) calls set_mimic_sym() for S_MIMIC; makemon.c:set_mimic_sym() (2393-2509) calls mkobj(), consumes otmp->otyp, and obfree()s the temporary object. JS equivalents are makemon_create.js:makemon() and set_mimic_sym().",
+                  "mkobj.c:mkobj()/mksobj_init() build the temporary object. JavaScript obj.js routes statue/figurine initialization through initializeResidualMonsterObject(); object_generation.js:objectGenerationEnv() already supplies the monsterObject implementation."
+                ],
+                "dependencies": [
+                  "makemon.c:makemon() is already ported for this explicit runtime species call and returns the monster consumed by create_particular_creation().",
+                  "makemon.c:set_mimic_sym() is already ported as a whole function; its mkobj()/obfree() return and cleanup order match C.",
+                  "mkobj.c:mkobj() and mksobj_init() are already ported; their statue/figurine lifecycle requires the monsterObject hook.",
+                  "objectGenerationEnv() is the existing JS composition point for object-construction hooks, including monsterObject."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved combined queue SHA-256 e153a1e0869be21cb7a70ad69de92d64fced50b7a39196a9515a6760416d7d0d selects synthetic/v39/v39-counted-wizgenesis-mimic-population; after the accepted B209 counted-dispatch fix, the immutable recipe matches 94/114 screens and first stops at step 94 with “monsterObject is not available”.",
+                "Focused fresh C differential `node scripts/diff-fresh.mjs challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json` (run-ANLf80) records C=114 screens/6551 RNG and JavaScript=94 screens/6232 RNG; the next missing source draw is C rn2(3)=0 at rndmonst_adj(makemon.c:1716), step 95, after the JS boundary.",
+                "Direct JavaScript runSegment() replay of the same independent recipe stops with UnsupportedHeroCommandBoundaryError from cmd.js:failClosedCommand(), message “an unported branch of this command: monsterObject is not available”, after 94 screens and 6232 RNG calls.",
+                "C source trace: read.c:create_particular_creation() calls makemon(whichpm, u.ux, u.uy, mmflags) at read.c:3315; makemon.c:makemon() calls set_mimic_sym() at 1303-1306; set_mimic_sym() calls mkobj() and reads otmp->otyp at 2505-2508. In an ordinary room the source symbol table at makemon.c:2388-2391 includes ROCK_CLASS, whose selected object may be a statue or figurine.",
+                "JavaScript source trace: read.js:create_particular_creation() passes only `{ state, _createParticular: true }` to makemon_runtime() at 3570-3573. makemon_create.js:creationEnv() preserves hooks but does not add object-generation hooks; set_mimic_sym() passes that bare normalized environment to mkobj() at 1029-1031; obj.js:initializeResidualMonsterObject() requires env.hooks.monsterObject at 2020-2021. object_generation.js:objectGenerationEnv() already composes the exact adapter at lines 20-64.",
+                "The common create_particular() caller is reachable both directly from wizcmds.c:wiz_genesis() and through makemon.c:create_critters() from the wizard create-monster scroll/spell and WAN_CREATE_MONSTER paths. Applying objectGenerationEnv at create_particular_creation() preserves source branch order while fixing the shared object constructor dependency."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
