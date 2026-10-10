@@ -1,0 +1,66 @@
+{
+  "session": "synthetic/v42/v42-zhitu-acid-damage-dual-wield",
+  "corpus": "synthetic",
+  "batch": "v42",
+  "caseId": "v42-zhitu-acid-damage-dual-wield",
+  "manifestPath": "challenges/manifests/v42.json",
+  "manifestSha256": "59839eb0c0958a187bc44638b55dafca3726adb7aba5e2a7b1522ce0ec6e2912",
+  "recordingPath": "challenges/cases/v42/v42-yellow-dragon-weapon-acid-damage-dual-wield-west-seed42044203-cfirst.session.json",
+  "recordingSha256": "50dae38203aeac670cf78b9b2deeafba38ca1ddecce804b23fcb13bb8a873a48",
+  "recipePath": "challenges/cases/v42/v42-yellow-dragon-weapon-acid-damage-dual-wield-west-seed42044203-cfirst.recipe.session.json",
+  "recipeSha256": "d1ebcc8e6b50c27ec36757190cc7492f8b5c754646cb9fe81dfb6fddf8bf2b0c",
+  "evaluationPath": "challenges/evaluations/accepted-990f9bc4c2964447a9adac4f0e54ea90728ee2cb-v42.json",
+  "evaluationCommit": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb",
+  "status": "diagnosed",
+  "remainingScreens": 1,
+  "recordedSteps": 84,
+  "commit": "9cdea202af88c860df94f59755ea1cbc5e70eba7",
+  "summary": "The v42 yellow dragon's acid breath reaches zap.c:zhitu's dual-wield off-hand corrosion gate. The C and JavaScript RNG streams match through step 83, but C prints 'Your wakizashi corrodes!' and waits at the final message page while JavaScript skips the effect. The missing callee is trap.c:acid_damage(uswapwep), represented in js/zap.js by note_unported('trap.c acid_damage').",
+  "mismatch": {
+    "firstMismatch": {
+      "segment": 0,
+      "step": 83,
+      "key": "l",
+      "kind": "screen+cursor"
+    },
+    "metrics": {
+      "screens": "83/84",
+      "rng": "3005/3005",
+      "cursors": "83/84"
+    },
+    "cObservation": "The blast of acid hits you! The acid burns! Your wakizashi corrodes!--More--",
+    "cSourceCalls": [
+      "dobuzz(zap.c:4823)",
+      "zap_hit(zap.c:4709)",
+      "zhitu(zap.c:4535) d(4,6)=20",
+      "zhitu(zap.c:4540) rn2(3)=1: main-hand acid_damage gate is false",
+      "zhitu(zap.c:4542) rn2(3)=0: off-hand acid_damage gate is true",
+      "zhitu(zap.c:4544) rn2(6)=2"
+    ],
+    "jsBehavior": "js/zap.js:zhitu preserves the source rn2(3) gates but calls note_unported('trap.c acid_damage') for the selected off-hand object, so it omits erosion and the corrosion message."
+  },
+  "source": {
+    "file": "trap.c",
+    "functions": ["acid_damage"],
+    "branch": "acid_damage returns on a null object or acid-resistant hero inventory; grease absorbs the effect; nonblank scrolls become blank paper; other objects are passed to erode_obj with ERODE_CORRODE and EF_GREASE|EF_VERBOSE.",
+    "callers": [
+      "zap.c:zhitu calls acid_damage(uwep) and acid_damage(uswapwep) under distinct dual-wield probability gates; js/zap.js has matching unported calls.",
+      "zap.c:zhitm calls acid_damage(MON_WEP(mon)); js/zap.js has a matching unported call.",
+      "mhitu.c:passiveum calls acid_damage(MON_WEP(mtmp)); js/mhitu.js has a matching unported call.",
+      "mhitm.c:mhitm_ad_acid calls acid_damage(MON_WEP(magr)); js/mhitm.js has a matching unported call.",
+      "uhitm.c:mhitm_ad_acid also calls acid_damage(MON_WEP(mdef)); js/uhitm.js currently refuses the whole mhitm_ad_acid caller branch, so that call remains behind a documented unported boundary."
+    ],
+    "dependencies": [
+      "trap.c:erode_obj is already implemented in js/trap_erode_obj.js, including the EF_GREASE and EF_VERBOSE behavior acid_damage needs.",
+      "zap.c:inventory_resistance_check is already implemented in js/zap.js.",
+      "The current one-screen defect is the skipped trap.c:acid_damage call from zap.c:zhitu; no RNG call is missing."
+    ]
+  },
+  "evidence": [
+    "The saved queue SHA-256 is acd623dbdaf757c62d59919167f5997850d5e3316fb49e2782320882aa8695a9. It selected this case with one remaining screen at step 83.",
+    "The accepted evaluation at 990f9bc4c2964447a9adac4f0e54ea90728ee2cb reports 83/84 screens, 3005/3005 RNG values, and 83/84 cursors. The final C step records the off-hand rn2(3)=0 corrosion gate and the wakizashi message; JavaScript takes the same random branch but omits the helper's object effect.",
+    "Upstream trap.c:acid_damage at lines 4618-4653 explicitly protects carried objects only when inventory_resistance_check(AD_ACID) succeeds; otherwise it consumes grease, blanks eligible scrolls, or calls erode_obj(obj, NULL, ERODE_CORRODE, EF_GREASE|EF_VERBOSE). The existing JavaScript owner js/trap_erode_obj.js provides erode_obj and its inlined grease_protect branch.",
+    "A full source search found acid_damage callers at zap.c:zhitm, zap.c:zhitu (two object slots), mhitu.c:passiveum, mhitm.c:mhitm_ad_acid, and uhitm.c:mhitm_ad_acid. JavaScript has matching skipped calls in zap.js, mhitu.js, and mhitm.js; uhitm.js still refuses its whole mhitm_ad_acid branch and remains explicitly unported.",
+    "The existing v42 yellow-dragon acid-breath control reaches zhitu but misses the off-hand corrosion gate. It is not evidence for the dual-wield object effect exercised by this selected case."
+  ]
+}
