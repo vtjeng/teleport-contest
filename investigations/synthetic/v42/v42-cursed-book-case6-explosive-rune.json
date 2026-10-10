@@ -1,0 +1,117 @@
+{
+  "session": "synthetic/v42/v42-cursed-book-case6-explosive-rune",
+  "corpus": "synthetic",
+  "batch": "v42",
+  "caseId": "v42-cursed-book-case6-explosive-rune",
+  "manifestPath": "challenges/manifests/v42.json",
+  "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+  "recordingSha256": "142c03ec6a4dbd6c7689e9c5ef0c65bc66a0dc3e46e69750e9c2d63d94471441",
+  "evaluationPath": "challenges/evaluations/v42-baseline-3bbc354f.json",
+  "evaluationCommit": "3bbc354f045f514a4f99c36ada7c39fdd58ed236",
+  "remainingScreens": 1,
+  "recordedSteps": 49,
+  "status": "complete",
+  "commit": "fda8b5904bedfd7f300ddda0c82725fe47d1e8bf",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v42",
+    "caseId": "v42-cursed-book-case6-explosive-rune",
+    "session": "synthetic/v42/v42-cursed-book-case6-explosive-rune",
+    "manifestPath": "challenges/manifests/v42.json",
+    "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+    "recording": "challenges/cases/v42/v42-cursed-book-case6-seed-probe-42043609.session.json",
+    "recordingPath": "challenges/cases/v42/v42-cursed-book-case6-seed-probe-42043609.session.json",
+    "recordingSha256": "142c03ec6a4dbd6c7689e9c5ef0c65bc66a0dc3e46e69750e9c2d63d94471441",
+    "recipe": "challenges/cases/v42/v42-cursed-book-case6-seed-probe-42043609.recipe.session.json",
+    "recipeSha256": "98360dbb21778dba3595e9f7d9d368a915f67d6b5ccbb142c39c292a72894b4b",
+    "replayInputSha256": "ae6ea0b1f99b88ab25c9677b23e5050f54b62f6e314cd42e423c9b4ab28dd3b0",
+    "evaluationPath": "challenges/evaluations/v42-baseline-3bbc354f.json",
+    "evaluationCommit": "3bbc354f045f514a4f99c36ada7c39fdd58ed236",
+    "evaluationArtifact": "challenges/evaluations/v42-baseline-3bbc354f.json",
+    "evaluationUtc": "2026-10-10T20:44:07.598Z",
+    "remainingScreens": 1,
+    "recordedSteps": 49,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 48,
+        "total": 49
+      },
+      "rng": {
+        "matched": 2689,
+        "total": 2689
+      },
+      "cursors": {
+        "matched": 49,
+        "total": 49
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 48,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 48,
+          "key": "e"
+        },
+        "kind": "ch",
+        "row": 6,
+        "column": 13,
+        "cCell": {
+          "ch": ".",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": ":",
+          "color": 11,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2689,
+        "cCaller": null,
+        "jsEntry": "rn2(12)=5",
+        "stepIndex": null
+      },
+      "cursor": null
+    },
+    "step": 48,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "spell.c:cursed_book() selects case 6 when rn2(objects[bp->otyp].oc_level) returns 6, emits the explosion message, computes 2 * rnd(10) + 5, and calls hack.c:losehp() with the resulting damage. The function then returns TRUE so its caller consumes the book JS leaves its source callee unapplied or skipped. This mismatch belongs to the same whole C function as the other v42 cursed-book cases; port and wire the complete function while preserving caller return/order behavior.",
+  "source": {
+    "file": "spell.c",
+    "branch": "For a cursed book without antimagic, cursed_book() selects case 6 when rn2(objects[bp->otyp].oc_level) returns 6, emits the explosion message, computes 2 * rnd(10) + 5, and calls hack.c:losehp() with the resulting damage. The function then returns TRUE so its caller consumes the book.",
+    "functions": [
+      "cursed_book"
+    ],
+    "callers": [
+      "spell.c:learn() lines 450-456 calls cursed_book() and consumes its TRUE result to use up the book; read.c:doread() routes spellbooks into study_book().",
+      "spell.c:study_book() lines 605-616 calls cursed_book() when a book is too hard, then consumes its return while ending the occupation.",
+      "JS read.js:doread() -> spell.js:study_book() -> spell.js:cursed_book(); current v42 cases reach study_book()'s too-hard caller."
+    ],
+    "dependencies": [
+      "hack.c:losehp() is already implemented and imported by js/spell.js:72, so no new health implementation is required.",
+      "The same whole source unit contains the case-0 teleport, case-3 gold, case-5 contact-poison, and case-6 explosion branches; include all four queued sessions in one source-complete task."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved v42 baseline queue ec8f819f1f56c99be47f89359d3b71599a2b7025a292b0a39578cec4dd9f15e1 identifies this case with The saved v42 baseline has one remaining screen at step 48; the manifest confirms C consumes rnd(10) and calls losehp for explosive-rune damage. Evaluation: challenges/evaluations/v42-baseline-3bbc354f.json.",
+    "Upstream spell.c:169-179 is a switch arm of the whole spell.c:cursed_book() function (130-184). hack.c:losehp() is already implemented and imported by js/spell.js:72, so no new health implementation is required.",
+    "js/spell.js:457-473 currently computes damage, discards it, and calls note_unported(\"hack.c losehp\") rather than applying C damage. The admitted manifest source pointer and current JavaScript branch identify the same source call; this is a consumed state/output behavior, not a naming-only discrepancy.",
+    "Production reachability is read.c:doread() -> spell.c:study_book() -> cursed_book(); JS read.js:doread() -> spell.js:study_book() -> spell.js:cursed_book(). spell.c:learn() is the second existing direct caller and its return handling must remain intact."
+  ]
+}
