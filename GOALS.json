@@ -257224,6 +257224,39 @@
         "rng": 792838
       },
       "parkedReason": "shopdig(1) remains without matching runtime evidence through dig.c:digactualhole and trap.c:fall_through; shopdig(0) and pure apply.c:um_dist are validated."
+    },
+    {
+      "id": "fix-underwater-coin-drop-v41-20261010",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Route underwater lost coins through ordinary liquid floor effects.",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v41/v41-underwater-coin-flip-drops-coin"
+      ],
+      "selectionReason": "The refreshed synthetic queue selects the underwater coin-flip mismatch, and the source trace identifies apply.c:flip_coin calling do.c:dropx.",
+      "detail": "Port the underwater lose_coin path through dropx and admit ordinary non-boulder objects to the existing pool/lava flooreffects path while preserving the pool-boulder exception.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "flip_coin",
+      "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+      "step": 81,
+      "syntheticProvenance": {
+        "synthetic/v41/v41-underwater-coin-flip-drops-coin": {
+          "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-underwater-coin-flip-drops-coin",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recordingPath": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+          "recordingSha256": "eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79",
+          "evaluationPath": "challenges/evaluations/accepted-cfc1d11b531810c2645a6318fe1a63f8eb37970d-v41.json",
+          "evaluationCommit": "cfc1d11b531810c2645a6318fe1a63f8eb37970d"
+        }
+      }
     }
   ]
 }
