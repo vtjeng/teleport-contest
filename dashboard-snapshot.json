@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T19:14:12.782Z",
+  "capturedAt": "2026-10-10T19:30:23.061Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -83367,6 +83367,55 @@
         "worker": "B",
         "state": "active",
         "reason": "B225 is accepted; syncing its published Main boundary and checking for a free independent candidate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B225-investigation-v41-forced-steed-dismount-at-pool-20261010-09ed5da82131b6d64f585a9606eab1e4f050431e",
+        "type": "published",
+        "at": "2026-10-10T19:14:21.560Z",
+        "task": "B225-investigation-v41-forced-steed-dismount-at-pool-20261010",
+        "commit": "09ed5da82131b6d64f585a9606eab1e4f050431e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-after-B225-idle-no-free-candidate-20261010",
+        "type": "turn",
+        "at": "2026-10-10T19:15:02.890Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B has two deliveries queued for integration: B226 shopdig and B227 expels. The refreshed queue has no free independent candidate; its remaining cases are reserved by those deliveries or C."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-integrating-b226-cfc1d11b5",
+        "type": "integrating",
+        "at": "2026-10-10T19:21:51.493Z",
+        "task": "B226-investigation-v40-shop-floor-digdown-warning-20261010",
+        "integration": "cfc1d11b531810c2645a6318fe1a63f8eb37970d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-validated-B226-cfc1d11b-20261010",
+        "type": "validated",
+        "at": "2026-10-10T19:27:06.248Z",
+        "task": "B226-investigation-v40-shop-floor-digdown-warning-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B226-investigation-v40-shop-floor-digdown-warning-20261010-cfc1d11b531810c2645a6318fe1a63f8eb37970d-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T19:28:35.530Z",
+        "task": "B226-investigation-v40-shop-floor-digdown-warning-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-resume-after-B226-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T19:29:08.044Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B226 is accepted; syncing its published Main/report descendant and checking for a free independent task."
       }
     ]
   },
@@ -83384,17 +83433,6 @@
         "unblocks": 0
       },
       {
-        "task": "B226-investigation-v40-shop-floor-digdown-warning-20261010",
-        "worker": "B",
-        "goal": "port-shk-shopdig-v40-shop-floor-digdown-warning-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "3d3d82265f4fd38d330c5a3931692876d99c9dfb",
-        "since": "2026-10-10T18:32:29.797Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
-      {
         "task": "B227-investigation-v40-opening-wand-expels-swallowed-hero-20261010",
         "worker": "B",
         "goal": "port-mhitu-expels-v40-20261010",
@@ -83402,9 +83440,7 @@
         "status": "ready",
         "delivery": "a78b8838709b5d78358edd3d1cc2920a8e8fb738",
         "since": "2026-10-10T18:53:25.453Z",
-        "blockedBy": [
-          "B226-investigation-v40-shop-floor-digdown-warning-20261010"
-        ],
+        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -83754,8 +83790,8 @@
     ]
   },
   "development": {
-    "executionCommit": "d84b56ca399bd6cf8b3a529a46d3d5c96fcd2c43",
-    "measuredAt": "2026-10-10T19:12:02.486Z",
+    "executionCommit": "cfc1d11b531810c2645a6318fe1a63f8eb37970d",
+    "measuredAt": "2026-10-10T19:26:38.668Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
