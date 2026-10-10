@@ -1,10 +1,9 @@
 // vision.js — C ref: vision.c Algorithm C shadow-casting
-// Stripped-down port for the contest skeleton: no underwater handling.
-// Contestants should port the full vision.c for complete parity.
 
 import { game } from './gstate.js';
 import { on_level } from './dungeon.js';
 import { do_light_sources } from './light.js';
+import { is_pool } from './dbridge.js';
 import { worm_known } from './worm.js';
 import { BOULDER } from './objects.js';
 import { visible_region_at } from './region.js';
@@ -754,13 +753,15 @@ export function vision_recalc(control = 0, env = {}) {
     // buffer remains empty until the swallowed display is drawn by the
     // caller. Keeping the guard here also makes couldsee() agree with the C
     // bitmap while monster movement runs inside the engulfment. C gives Blind
-    // and Rogue-level vision precedence over the water/pit arms; underwater
-    // vision in turn precedes pit vision. Those other specialized branches
-    // remain unported here, so leave their prior view_from behavior intact
-    // rather than letting the new pit arm take them over.
+    // and Rogue-level vision precedence over underwater and pit sight, and
+    // underwater sight precedence over pit sight. The Rogue-specific bitmap
+    // remains unported, so preserve its existing view_from path.
     const rogueLevel = on_level(u.uz, state.rogue_level);
     const underwaterOutsideWaterLevel = Boolean(
         u.uinwater && !on_level(u.uz, state.water_level),
+    );
+    const underwaterSight = Boolean(
+        underwaterOutsideWaterLevel && !heroIsBlind(u) && !rogueLevel,
     );
     const pitSight = Boolean(
         u.utrap && u.utraptype === TT_PIT
@@ -769,7 +770,22 @@ export function vision_recalc(control = 0, env = {}) {
         && !underwaterOutsideWaterLevel,
     );
     if (control !== 2 && !state.u?.uswallow) {
-        if (pitSight) {
+        if (underwaterSight) {
+            // vision.c:589-606. Underwater vision replaces ordinary LOS with
+            // only the adjacent pool squares. The earlier Blind and Rogue
+            // branches retain precedence, and x-ray sight is overlaid below.
+            const minCol = Math.max(u.ux - 1, 1);
+            for (let row = u.uy - 1; row <= u.uy + 1; ++row) {
+                if (row < 0 || row >= ROWNO) continue;
+                for (let col = minCol; col <= u.ux + 1; ++col) {
+                    if (col < 1 || col >= COLNO || !is_pool(col, row, state))
+                        continue;
+                    next_rmin[row] = Math.min(next_rmin[row], col);
+                    next_rmax[row] = Math.max(next_rmax[row], col);
+                    next[row][col] = IN_SIGHT | COULD_SEE;
+                }
+            }
+        } else if (pitSight) {
             // vision.c:609-622. The pit branch starts ordinary sight with
             // COULD_SEE and IN_SIGHT only in the adjacent 3-by-3 area. C can
             // add IN_SIGHT farther away in its later x-ray overlay. C checks

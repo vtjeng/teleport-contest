@@ -2,8 +2,13 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { COLNO, ROWNO } from '../js/const.js';
-import { do_clear_area_async, vision_reset, recalc_block_point } from '../js/vision.js';
+import {
+    COLNO, COULD_SEE, IN_SIGHT, POOL, ROOM, ROWNO,
+} from '../js/const.js';
+import {
+    do_clear_area_async, makeVisionBuffers, recalc_block_point,
+    vision_recalc, vision_reset,
+} from '../js/vision.js';
 import { GameMap } from '../js/game.js';
 
 const VISION_C = readFileSync(
@@ -77,6 +82,42 @@ test('vision_reset publishes the source ready and deferred recalculation flags',
     vision_reset(state);
     assert.equal(state.iflags.vision_inited, true);
     assert.equal(state.vision_full_recalc, 1);
+});
+
+test('underwater sight includes only adjacent pool squares', () => {
+    assert.match(VISION_C,
+        /if \(Underwater && !Is_waterlevel\(&u\.uz\)\)[\s\S]*?has_night_vision = 0;[\s\S]*?if \(!isok\(col, row\) \|\| !is_pool\(col, row\)\)[\s\S]*?IN_SIGHT \| COULD_SEE/u);
+
+    const level = new GameMap();
+    level.at(10, 10).typ = POOL;
+    level.at(11, 10).typ = POOL;
+    level.at(9, 10).typ = ROOM;
+    level.at(12, 10).typ = POOL;
+    const state = {
+        level,
+        u: {
+            ux: 10, uy: 10, uz: { dnum: 0, dlevel: 1 },
+            uinwater: true, xray_range: -1, nv_range: 3,
+            uprops: {}, uswallow: 0,
+        },
+        water_level: { dnum: 1, dlevel: 1 },
+        rogue_level: { dnum: 2, dlevel: 1 },
+        _visionBuffers: makeVisionBuffers(),
+        program_state: {}, context: {}, flags: {}, iflags: {},
+    };
+    vision_reset(state);
+    state.viz_array = Array.from(
+        { length: ROWNO }, () => new Uint8Array(COLNO),
+    );
+
+    vision_recalc(0, { state, redraw() {} });
+
+    assert.equal(state.viz_array[10][10], IN_SIGHT | COULD_SEE);
+    assert.equal(state.viz_array[10][11], IN_SIGHT | COULD_SEE);
+    assert.equal(state.viz_array[10][9], 0,
+        'an adjacent ordinary floor square is outside underwater sight');
+    assert.equal(state.viz_array[10][12], 0,
+        'a pool square beyond the adjacent 3-by-3 area is outside sight');
 });
 
 test('borrowed transparency rebuilding preserves live publication and display bounds', () => {
