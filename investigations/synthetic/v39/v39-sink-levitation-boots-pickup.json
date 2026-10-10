@@ -102,7 +102,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The first mismatch is the missing “You were wearing a +0 pair of levitation boots.” message after the sink fall death refusal. C reaches dosinkfall from Boots_on → spoteffects; dosinkfall removes the levitation boots and calls off_msg. JS dosinkfall skips Boots_off and off_msg even though Boots_off is implemented and off_msg exists as a private helper in do_wear.js.",
+  "summary": "The original mismatch was the omitted do_wear.c:Boots_off() and off_msg() calls at the end of hack.c:dosinkfall(). The JS port now invokes Ring_off()/Boots_off() and off_msg() in C order; the selected sink fall case matches all 37 screens/cursors and 2,586 RNG calls.",
   "source": {
     "file": "hack.c",
     "branch": "spoteffects runs on an IS_SINK square while levitation is active; when levitation comes only from worn boots and the hero is not innately levitating, blocked, or flying, dosinkfall takes the fall branch, then removes worn levitation items and reports each removal.",
@@ -124,10 +124,11 @@
   "evidence": [
     "nethack-c/upstream/src/do_wear.c:186-259: Boots_on() activates levitation boots, calls float_up(), then spoteffects(FALSE) when Levitation is true.",
     "nethack-c/upstream/src/hack.c:3320-3354: spoteffects() calls dosinkfall() when the current terrain is a sink and Levitation is active.",
-    "nethack-c/upstream/src/hack.c:836-919: dosinkfall() crashes when levitation is only extrinsic from boots, restores the saved levitation fields after damage, then calls Boots_off() followed by off_msg(obj).",
+    "nethack-c/upstream/src/hack.c:836-922: dosinkfall() crashes when levitation is only extrinsic from boots, restores the saved levitation fields after damage, then removes levitating rings and boots and calls off_msg(obj) in source order.",
     "nethack-c/upstream/src/do_wear.c:67-72,262-323: off_msg() prints the removal message and Boots_off() clears the footwear slot and recalculates levitation in source order.",
-    "js/hack.js:2062-2129: dosinkfall() currently records note_unported(\"do_wear.c Boots_off/off_msg\") instead of invoking the implemented Boots_off() and off_msg() helpers.",
-    ".cache/A2-v39-sink-diff-fresh.log: fresh C differential has matching PRNG values (2586/2586) and first screen/cursor mismatch at boundary 33, segment 1, step 33, input space; C displays the boots removal message while JS skips it.",
-    "challenges/cases/v39/v39-sink-levitation-boots-pickup.recipe.session.json: independently designed wizard recipe wishes for a sink and levitation boots, picks up the boots, and starts wearing them over the sink; the C recording proves the sink fall branch is reached."
+    "Before the fix, .cache/A2-v39-sink-diff-fresh.log showed identical RNG values (2586/2586) but the first screen/cursor mismatch at boundary 33, segment 1, zero-based step 32, input space: C reported the boots removal message after the death refusal; JS skipped it.",
+    "After the fix, .cache/A2-v39-sink-after.log reports exact parity: 2586/2586 RNG calls, 37/37 screens, 37/37 cursors, and no animation frames.",
+    "js/hack.js:2062-2134 now calls the existing Ring_off(), Boots_off(), and off_msg() implementations in C source order; js/do_wear.js exports its existing off_msg() helper for the hack.c caller.",
+    "challenges/cases/v39/v39-sink-levitation-boots-pickup.recipe.session.json reaches this path by wishing a sink and levitation boots, picking up the boots, and wearing them on the sink; the admitted recording supplies the complete matching replay."
   ]
 }
