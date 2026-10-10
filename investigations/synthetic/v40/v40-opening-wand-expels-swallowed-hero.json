@@ -1,17 +1,17 @@
 {
+  "session": "synthetic/v40/v40-opening-wand-expels-swallowed-hero",
+  "remainingScreens": 1,
+  "recordedSteps": 51,
   "corpus": "synthetic",
   "batch": "v40",
   "caseId": "v40-opening-wand-expels-swallowed-hero",
-  "session": "synthetic/v40/v40-opening-wand-expels-swallowed-hero",
   "manifestPath": "challenges/manifests/v40.json",
   "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
   "recordingSha256": "252399200ed78399512db60e6d28f88009f5fd722375b19d5db1f848d84aa35a",
-  "evaluationPath": "challenges/evaluations/accepted-9970268482520fbfdae76892e79aa050c4ef5c4c-v40.json",
-  "evaluationCommit": "9970268482520fbfdae76892e79aa050c4ef5c4c",
-  "remainingScreens": 1,
-  "recordedSteps": 51,
+  "evaluationPath": "challenges/evaluations/accepted-9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b-v40.json",
+  "evaluationCommit": "9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b",
   "status": "complete",
-  "commit": "3340ca60f84aa17304b32d8b52e590565f237a53",
+  "commit": "1751433d6bccc7f1e1bc8792784dd43be2b4abc7",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v40",
@@ -23,241 +23,47 @@
     "recordingPath": "challenges/cases/v40/v40-opening-wand-air-elemental-expulsion-barbarian-south-kick-actual-selfzap-cfirst.session.json",
     "recordingSha256": "252399200ed78399512db60e6d28f88009f5fd722375b19d5db1f848d84aa35a",
     "recipe": "challenges/cases/v40/v40-opening-wand-air-elemental-expulsion-barbarian-south-kick-actual-selfzap-cfirst.recipe.session.json",
-    "recipeSha256": "671ba931709046264a19892f8c0d278d6306b963bdcf3cae972644fa77ce9d27",
-    "replayInputSha256": "51f806a7fbea621b9654f7b33d22f103f5e1f912910efc8da6ebe58e54937457",
-    "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v40.json",
-    "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
-    "evaluationArtifact": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v40.json",
-    "evaluationUtc": "2026-10-10T17:31:28.509Z",
+    "recipePath": "challenges/cases/v40/v40-opening-wand-air-elemental-expulsion-barbarian-south-kick-actual-selfzap-cfirst.recipe.session.json",
     "remainingScreens": 1,
     "recordedSteps": 51,
-    "previousScreensMatched": 50,
-    "regression": false,
-    "passed": false,
-    "error": null,
-    "metrics": {
-      "screens": {
-        "matched": 50,
-        "total": 51
-      },
-      "rng": {
-        "matched": 2158,
-        "total": 2158
-      },
-      "cursors": {
-        "matched": 50,
-        "total": 51
-      }
-    },
-    "firstMismatch": {
-      "screen": {
-        "index": 50,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 50,
-          "key": "."
-        },
-        "kind": "ch",
-        "row": 0,
-        "column": 4,
-        "cCell": {
-          "ch": "g",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        },
-        "jsCell": {
-          "ch": "a",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        }
-      },
-      "rng": {
-        "index": 2158,
-        "cCaller": null,
-        "jsEntry": "rn2(19)=5",
-        "stepIndex": null
-      },
-      "cursor": {
-        "index": 50,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 50,
-          "key": "."
-        },
-        "cCursor": [
-          48,
-          0,
-          1
-        ],
-        "jsCursor": [
-          68,
-          0,
-          1
-        ]
-      }
-    },
     "step": 50,
-    "kind": "screen",
-    "sourceFile": null,
-    "function": null,
-    "message": null,
-    "cFile": null,
-    "luaFile": null,
-    "line": null,
-    "investigation": {
-      "status": "missing",
-      "path": "investigations/synthetic/v40/v40-opening-wand-expels-swallowed-hero.json"
+    "sourceFile": "zap.c",
+    "function": "release_hold",
+    "line": 592,
+    "metrics": {
+      "screens": { "matched": 50, "total": 51 },
+      "rng": { "matched": 2158, "total": 2158 },
+      "cursors": { "matched": 50, "total": 51 }
     }
   },
-  "summary": "The selected self-zapped wand of opening reaches zap.c:release_hold -> mhitu.c:expels(TRUE); fresh replay still stops at the same final screen after 50/51 matches. Whole expels has 14 active call sites across mhitu.c, dog.c, mon.c, polyself.c, end.c, wizard.c, dig.c, monmove.c, and zap.c. Its JS adapters include named expels gaps as well as direct false-message calls. B224 is accepted, but A2 and B225 currently own overlapping js/zap.js, js/polyself.js, and js/mon.js paths, so no game-code scope is claimed until those owners finish.",
+  "summary": "At step 50, self-zapping a wished wand of opening while engulfed by an air elemental reaches zap.c:zapyourself -> zap.c:release_hold -> mhitu.c:expels(TRUE). C emits ‘You get expelled from the air elemental!’ before unsticking and relocating the monster. JavaScript reaches js/zap.js:release_hold, records note_unported('mhitu.c expels TRUE'), and skips the shared transition; js/mhitu.js:expels also explicitly refuses its message=true arm. The recorded RNG matches through the whole session, while the final screen and cursor differ. The source correction is the full mhitu.c:expels function plus wiring every active JavaScript caller whose corresponding C call may pass TRUE.",
   "source": {
-    "file": "zap.c",
-    "branch": "When the hero self-zaps with WAN_OPENING or SPE_KNOCK while held or swallowed, zapyourself calls release_hold; the swallowed arm of release_hold calls expels(mtmp, mtmp->data, TRUE).",
-    "functions": [
-      "release_hold"
-    ],
+    "file": "mhitu.c",
+    "branch": "expels(mtmp, mdat, message): when message is TRUE choose regurgitation for digests(), an unfold-and-release line for enfolds(), or the engulf-attack-specific expulsion suffix; then always unstuck, mnexto(RLOC_NOMSG), redraw the hero square, emit the distant-landing line when um_dist exceeds one, and call spoteffects(TRUE).",
+    "functions": ["expels"],
     "callers": [
-      "zap.c:dozap() sends a zero-direction wand to zapyourself(); zapyourself() reaches release_hold() for WAN_OPENING and SPE_KNOCK while stuck.",
-      "zap.c:bhitm() also releases an engulfing whirly monster after disintegration.",
-      "Direct active callers and JS adapter status are recorded in directCallers below; detect.c:1919 is inside #if 0 and is not active."
+      "zap.c:bhitm (whirly engulfer hit by WAN_SLOW_MONSTER/SPE_SLOW_MONSTER)",
+      "zap.c:release_hold (swallowed hero hit by WAN_OPENING/SPE_KNOCK or self-zap)",
+      "dog.c:tamedog (taming a monster currently engulfing the hero)",
+      "monmove.c:release_hero (swallowing monster releases the hero)",
+      "end.c:savelife (life-saving while swallowed)",
+      "polyself.c:polymon (new player form cannot remain engulfed; message flag may be FALSE for unsolid form)",
+      "polyself.c:dospinweb (hero spins a web while swallowed by an animal)",
+      "wizard.c:tactics (covetous monster switches to STRAT_HEAL while swallowing the hero)",
+      "dig.c:zap_dig (swallowed hero; message flag is !digests(mtmp->data))",
+      "detect.c:openit (swallowed hero hit by opening magic)"
     ],
     "dependencies": [
-      "A2-investigation-v41-polymorphed-hider-remaining-floor-object-20261010 currently reserves overlapping js/zap.js, js/polyself.js and js/mon.js write paths while implementing mon.c:hideunder and its callers.",
-      "B225-investigation-v41-forced-steed-dismount-at-pool-20261010 currently reserves overlapping js/mon.js while implementing mon.c:m_detach and steed/drowning callers. Resume this expels task after both tasks are accepted; no implementation scope or game-code edits are claimed now."
-    ],
-    "directCallers": [
-      {
-        "source": "mhitu.c:gulpmu",
-        "lines": [
-          1572,
-          1584
-        ],
-        "message": false,
-        "js": "js/mhitu.js:gulpmm",
-        "state": "Both false-message expulsion calls are wired; caller emits its own message first."
-      },
-      {
-        "source": "dog.c:tamedog",
-        "lines": [
-          1187
-        ],
-        "message": true,
-        "js": "js/dog.js:tamedog",
-        "state": "Uses the optional normalized.expels adapter; if absent, records note_unported."
-      },
-      {
-        "source": "mon.c:vamprises",
-        "lines": [
-          2928
-        ],
-        "message": false,
-        "js": "js/mon.js:vamprises",
-        "state": "Direct expels call passes expulsionMessage:false."
-      },
-      {
-        "source": "mon.c:vamp_stone",
-        "lines": [
-          3792
-        ],
-        "message": false,
-        "js": "js/mon.js:vamp_stone",
-        "state": "Direct expels call passes expulsionMessage:false."
-      },
-      {
-        "source": "mon.c:newcham",
-        "lines": [
-          5435
-        ],
-        "message": false,
-        "argument": "olddata",
-        "js": "js/mon.js:newcham",
-        "state": "Direct expels call passes expulsionMessage:false; must preserve the old species argument if message behavior is requested."
-      },
-      {
-        "source": "polyself.c:polymon",
-        "lines": [
-          929
-        ],
-        "message": "expels_mesg",
-        "js": "js/polyself.js:polymon",
-        "state": "False-message arm calls expels; true-message arm records note_unported."
-      },
-      {
-        "source": "polyself.c:dospinweb",
-        "lines": [
-          1515
-        ],
-        "message": true,
-        "js": "js/polyself.js:dospinweb",
-        "state": "After a distinct web-fluid message, records note_unported for expels."
-      },
-      {
-        "source": "end.c:savelife",
-        "lines": [
-          748
-        ],
-        "message": true,
-        "js": "js/end.js:savelife",
-        "state": "Records note_unported."
-      },
-      {
-        "source": "wizard.c:tactics",
-        "lines": [
-          382
-        ],
-        "message": true,
-        "js": "js/wizard.js:tactics",
-        "state": "Records note_unported."
-      },
-      {
-        "source": "dig.c:zap_dig",
-        "lines": [
-          1579
-        ],
-        "message": "!digests(mtmp->data)",
-        "js": "js/zap.js:zap_dig",
-        "state": "JS emits the corresponding expulsion line locally then calls expels without a message flag; this is a direct caller whose message ownership should be reviewed."
-      },
-      {
-        "source": "monmove.c:release_hero",
-        "lines": [
-          366
-        ],
-        "message": true,
-        "js": "js/monmove.js:release_hero",
-        "state": "Records note_unported."
-      },
-      {
-        "source": "zap.c:bhitm",
-        "lines": [
-          229
-        ],
-        "message": true,
-        "js": "js/zap.js:bhitm",
-        "state": "After wand-disintegration messages, records note_unported for expels."
-      },
-      {
-        "source": "zap.c:release_hold",
-        "lines": [
-          592
-        ],
-        "message": true,
-        "js": "js/zap.js:release_hold",
-        "state": "Selected self-zap route; records note_unported for expels TRUE."
-      }
+      "digests", "enfolds", "attacktype_fordmg", "is_whirly", "unstuck", "mon.c:mnexto",
+      "newsym", "um_dist", "hack.c:spoteffects"
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
-    "The selected recipe and recording are challenges/cases/v40/v40-opening-wand-air-elemental-expulsion-barbarian-south-kick-actual-selfzap-cfirst.recipe.session.json and its .session.json recording. The recipe wishes a wand of opening, creates a hostile air elemental, survives its engulfing attack, then self-zaps with the wished wand while swallowed.",
-    "Upstream zap.c:dozap() at line 2658 dispatches a zero-direction self-zap to zapyourself(). Its WAN_OPENING/SPE_KNOCK arm at lines 2929-2935 calls release_hold() when u.ustuck is set. zap.c:release_hold() at lines 578-606 calls expels(mtmp, mtmp->data, TRUE) when u.uswallow is true.",
-    "Upstream mhitu.c:expels() at lines 264-306 prints the selected expulsion message, calls unstuck(), relocates the engulfer with mnexto(), redraws the hero square, may report a distant landing, and calls spoteffects(TRUE).",
-    "JavaScript zap.js:release_hold() at lines 972-991 emits note_unported(\"mhitu.c expels TRUE\") in the swallowed branch. JavaScript mhitu.js:expels() at lines 2099-2140 implements only the FALSE-message caller path and rejects an expulsionMessage request.",
-    "The source-complete scope crosses B224: expels() is called from mhitu.c:gulpmu(), which B224 owns, and its JavaScript implementation is in js/mhitu.js, which B224 lists in its pending write set. The exact scope requires coordinator sequencing before edits.",
-    "Saved queue provenance: .cache/latest-saved-combined-queue.json SHA-256 7505fb24cd01792c8cb781d651dd66ffaa451361e46f7c456fd2705afde0a43a. The v40 entry remains one screen at zero-based segment 0 step 50, key \".\", C cell row 0 column 4 = \"g\", JS = \"a\", cursor C [48,0,1] versus JS [68,0,1]. Current accepted evaluation 0acc8a59f86065f8ff2d90ca1decab45701746e8 records 50/51 screens, 2158/2158 RNG, and 50/51 cursors.",
-    "Fresh replay of the selected recipe at worker commit 3340ca60f84aa17304b32d8b52e590565f237a53 after published B224 boundary 6818fe9b759b2ef8ae3d470f38c30808a0734640 (node scripts/diff-fresh.mjs challenges/cases/v40/v40-opening-wand-air-elemental-expulsion-barbarian-south-kick-actual-selfzap-cfirst.recipe.session.json, bounded run-X0IhwE) still reports C=2158 and JS=2171 RNG; 50/51 screens and 50/51 cursors match, with the same step-50 final screen/cursor mismatch. This confirms B224 did not resolve the entry-point defect.",
-    "Source caller audit at worker commit 3340ca60 traced every active expels() call: 14 call expressions across 13 caller functions (mhitu.c:gulpmu has two); detect.c:1919 is compiled out under #if 0, and mon.c:3638 is only a comment. The audit maps each active caller to its existing JS adapter and identifies the remaining named gaps."
+    "The accepted v40 recording has 51 steps; the first mismatch is segment 0, step 50, on the final screen and cursor. Its last C message is ‘You get expelled from the air elemental!’; RNG is complete at 2158/2158.",
+    "The C route is cmd.c:rhack -> zap.c:dozap -> zap.c:zapyourself (WAN_OPENING) -> zap.c:release_hold -> mhitu.c:expels(TRUE). See upstream zap.c:2705-3013 and 578-611; mhitu.c:264-309.",
+    "js/zap.js:release_hold currently replaces the swallowed call with note_unported('mhitu.c expels TRUE'); js/mhitu.js:expels explicitly refuses rawEnv.expulsionMessage. The caller misses both the C message and the following shared relocation/redraw/spoteffects work.",
+    "The full direct C caller inventory has ten active TRUE-capable functions: zap.c:bhitm, zap.c:release_hold, dog.c:tamedog, monmove.c:release_hero, end.c:savelife, polyself.c:polymon, polyself.c:dospinweb, wizard.c:tactics, dig.c:zap_dig, and detect.c:openit. Existing JavaScript paths exist for all ten; each must invoke the canonical helper with its source message argument rather than retain the placeholder or duplicate message.",
+    "FALSE-only callers mhitu.c:gulpmu, mon.c:vamprises, mon.c:vamp_stone, and mon.c:newcham are already wired to js/mhitu.js:expels and will retain the false-message behavior. mon.c:xkilled uses spoteffects directly as a poor-man’s expels and is not a direct caller."
   ]
 }

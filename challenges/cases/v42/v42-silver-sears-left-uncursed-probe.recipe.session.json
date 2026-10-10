@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only correction after the cursed right-hand ring did not enter the expected special_dmgval branch: wish an explicitly uncursed teleportation ring, wear it on the left, retain the one-claw stone-golem/unwielded state, and retest against adjacent manes. No JS comparison is run.",
+  "segments": [
+    {
+      "seed": 42043403,
+      "datetime": "20520314151619",
+      "nethackrc": "OPTIONS=name:V42Silver,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " .#wizwish\nuncursed ring of teleportation\nPpl#polyself\nstone golem\nw-\u0007manes\nFh     Fl     Fk     Fj     Fy     Fu     Fb     Fn     Fh     Fl     Fk     Fj     Fy     Fu     Fb     Fn     "
+    }
+  ]
+}

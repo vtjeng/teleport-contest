@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate source: nethack-c/upstream/dat/minend-3.lua. Catacombs program: A nommap undead level with a shuffled placement list, explicit westward mazewalk, two level-teleport traps, and fixed undead population. Reachability must be established in patched C before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 42042203,
+      "datetime": "20511213131415",
+      "nethackrc": "OPTIONS=name:V42minend3specialprogram,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminend-3.lua\n#wizmap\n"
+    }
+  ]
+}

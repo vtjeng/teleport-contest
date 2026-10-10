@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42044203,
+      "datetime": "20520323150619",
+      "nethackrc": "OPTIONS=name:V42AcidBreath3,role:Samurai,race=human,gender=male,align=lawful,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": "#levelchange\n10\n         #wizgenesis\nhostile yellow dragon\n#wizwish\nuncursed potion of water\nFkhh "
+    }
+  ],
+  "comment": "C-first post-spawn RNG-shift probe for zap.c:zhitu acid_damage(uwep). Preserve the seed and already reached yellow-dragon geometry; wish one uncursed potion after the dragon is spawned (so its position is fixed), then follow the corrected base movement route. No JS comparison unless C reaches weapon erosion."
+}

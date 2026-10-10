@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42043604,
+      "datetime": "20520314153300",
+      "nethackrc": "OPTIONS=name:V42Map4,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nmedusa-2.lua\n#wizmap\n"
+    }
+  ],
+  "comment": "Fresh debug Wizard directly loads medusa-2.lua, then displays #wizmap. C-first recipe; normalized from preserved attempt v42-medusa-2-special-program-cfirst.recipe.session.json."
+}

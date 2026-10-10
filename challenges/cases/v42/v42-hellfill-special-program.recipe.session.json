@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate source: nethack-c/upstream/dat/hellfill.lua. Gehennom filler generator: The selected helper populates randomized prefab maps, alignments, and one of seven lava, ice, or mixed maze variants. Reachability must be established in patched C before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 42042205,
+      "datetime": "20511213131415",
+      "nethackrc": "OPTIONS=name:V42hellfillspecialprogram,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nhellfill.lua\n#wizmap\n"
+    }
+  ]
+}

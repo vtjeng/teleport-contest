@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source candidate: nethack-c/upstream/dat/tut-1.lua; special-level program through wizcmds.c:wiz_load_splua. C accepts and executes the tutorial source program; recording the source messages/screens and any generated terrain establishes the reached top-level program.",
+  "segments": [
+    {
+      "seed": 42042310,
+      "datetime": "20511214151617",
+      "nethackrc": "OPTIONS=name:V42C10,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\ntut-1.lua\n#wizmap\n"
+    }
+  ]
+}

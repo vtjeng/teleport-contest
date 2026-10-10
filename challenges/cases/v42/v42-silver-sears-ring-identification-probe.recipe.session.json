@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source probe to establish the actual wished ring type/material without a JS comparison: #wizidentify should expose the inventory identity before any combat setup.",
+  "segments": [
+    {
+      "seed": 42043401,
+      "datetime": "20520314151617",
+      "nethackrc": "OPTIONS=name:V42Silver,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " .#wizwish\nring of teleportation\n#wizidentify\n"
+    }
+  ]
+}

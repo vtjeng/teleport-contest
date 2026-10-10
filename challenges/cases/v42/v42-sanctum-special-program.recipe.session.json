@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source candidate: sanctum_levels.js sanctum; dat/sanctum.lua. C runs Sanctum’s own level initialization, map/region, monster, and feature operations, then exposes the resulting source map.",
+  "segments": [
+    {
+      "seed": 42042307,
+      "datetime": "20511214151617",
+      "nethackrc": "OPTIONS=name:V42C7,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nsanctum.lua\n#wizmap\n"
+    }
+  ]
+}

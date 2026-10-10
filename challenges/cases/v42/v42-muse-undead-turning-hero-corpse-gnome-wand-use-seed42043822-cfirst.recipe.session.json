@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42043822,
+      "datetime": "20520321120000",
+      "nethackrc": "OPTIONS=name:V42UnturnProbe,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": " #wizwish\ncorpse of lichen\n#wizwish\nwand of undead turning (0:3)\n#wizidentify\n\t\n#wizgenesis\nhostile gnomish wizard\n#wizmap\ndflm."
+    }
+  ],
+  "comment": "C-first reached-branch attempt for muse.c:m_use_undead_turning with the source-named M2_MAGIC gnomish wizard. Drop the explicitly 3-charge wand, step east to draw the wizard onto the wand square, then grant it a turn with m.; retain only if the C trace confirms its monster-held wand hits the hero carrying a corpse."
+}

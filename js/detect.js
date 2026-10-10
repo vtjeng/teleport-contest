@@ -2756,7 +2756,8 @@ export async function openit(state = game, rawEnv = {}) {
                 ? 'Its mouth opens!'
                 : `${Monnam(state.u.ustuck, state)} opens its mouth!`);
         }
-        note_unported('mhitu.c expels TRUE');
+        const { expels } = await import('./mhitu.js');
+        await expels(state.u.ustuck, { ...rawEnv, state, expulsionMessage: true });
         return -1;
     }
     const counter = { value: 0 };

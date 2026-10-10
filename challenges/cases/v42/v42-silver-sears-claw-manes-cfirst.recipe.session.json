@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate for uhitm.c:hmonas AT_CLAW -> special_dmgval(W_RINGR) -> weapon.c:silver_sears. Wear the C-confirmed wished teleportation ring, become a stone golem with a single claw, explicitly unwield the starter staff, create adjacent hostile manes, and sweep the eight adjacent directions. Require C to show the ring-searing message before any JS comparison.",
+  "segments": [
+    {
+      "seed": 42043401,
+      "datetime": "20520314151617",
+      "nethackrc": "OPTIONS=name:V42Silver,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " .#wizwish\nring of teleportation\nPpr#polyself\nstone golem\nw-\u0007manes\nFh     Fl     Fk     Fj     Fy     Fu     Fb     Fn     Fh     Fl     Fk     Fj     Fy     Fu     Fb     Fn     "
+    }
+  ]
+}

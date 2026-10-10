@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42044203,
+      "datetime": "20520323150619",
+      "nethackrc": "OPTIONS=name:V42AcidBreath3,role:Samurai,race=human,gender=male,align=lawful,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": "#levelchange\n10\n         #wizwish\nuncursed potion of water\n#wizgenesis\nhostile yellow dragon\nFkhh "
+    }
+  ],
+  "comment": "C-first RNG-shift probe for zap.c:zhitu ZT_ACID -> trap.c:acid_damage(uwep). Preserve the seed/map and level-10 route, wish one uncursed water potion before monster creation to alter only the setup RNG stream, then require the dragon acid breath to reach the wielded-weapon erosion gate. No JS comparison."
+}

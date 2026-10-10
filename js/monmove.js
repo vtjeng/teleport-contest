@@ -1904,16 +1904,15 @@ function requireFleeOperation(env, name) {
 }
 
 // C ref: monmove.c release_hero() (362-374). If the monster is grabbing or
-// engulfing the hero, release them. The u.uswallow branch calls expels()
-// (mhitu.c, void, not exported), so it is note_unported; the non-swallow
-// branch calls unstuck() and prints "You get released!".
+// engulfing the hero, release them. The swallowed branch delegates its message
+// and relocation to mhitu.c:expels; the grab-only branch calls unstuck().
 async function release_hero(mon, env = {}) {
     const state = env.state ?? game;
     const message = env.message ?? ttyPline;
     if (mon === state.u?.ustuck) {
         if (state.u.uswallow) {
-            // expels(mon, mon->data, TRUE) is void and not exported.
-            note_unported('mhitu.c expels');
+            const { expels } = await import('./mhitu.js');
+            await expels(mon, { ...env, state, expulsionMessage: true });
         } else if (!sticks(state.youmonst?.data)) {
             await unstuck(mon, state, env);
             await message('You get released!', state, env);

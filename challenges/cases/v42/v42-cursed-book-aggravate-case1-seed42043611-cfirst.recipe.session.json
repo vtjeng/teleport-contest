@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42043611,
+      "datetime": "20520314151702",
+      "nethackrc": "OPTIONS=name:V42GloveBook,role:Barbarian,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": " #wizwish\nuncursed +0 leather gloves\n#wizwish\ncursed spellbook of finger of death\nWerf"
+    }
+  ],
+  "comment": "Corrected case identity from the recorded C outcome: this seed selects spell.c:cursed_book case 1 -> wizard.c:aggravate, not the planned case-5 glove erosion. The live monster immobility state and JS rn2(5) thaw guard remain a causal caveat. Inputs are preserved exactly."
+}
