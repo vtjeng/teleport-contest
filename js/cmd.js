@@ -5582,6 +5582,7 @@ export async function rhack(key, state = game) {
             );
         } else if (state.multi > 0 && command !== null && command !== 'pay'
             && command !== 'pickup' && command !== '#'
+            && command !== 'wizgenesis'
             && !Object.hasOwn(MOVEMENT_INTENTS, command)
             // These commands clear a count with their no-time result.
             && command !== 'wizsmell' && command !== 'wizkill'
@@ -5592,6 +5593,10 @@ export async function rhack(key, state = game) {
             // monster quantity) and its ECMD result own count consumption and
             // reset. A repeated selected command still reaches its own ported
             // handler or its existing refusal.
+            // The direct Ctrl-G binding selects that same wiz_genesis() row.
+            // cmd.c:3726-3729 spends one count before dispatch; read.c's
+            // create_particular_parse() consumes the remaining gm.multi as
+            // quantity, and ECMD_OK resets it after this single dispatch.
             // shk.c dopay:1755 clears multi before its first action, so pay
             // never reaches the repeated-command path refused here. Likewise,
             // hack.c dopickup consumes gc.command_count and clears gm.multi

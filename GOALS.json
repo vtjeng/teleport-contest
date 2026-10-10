@@ -246170,6 +246170,262 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-counted-wizgenesis-v39-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Fix counted direct wizard Genesis dispatch",
+      "cFile": "cmd.c",
+      "sessions": [
+        "synthetic/v39/v39-counted-wizgenesis-mimic-population"
+      ],
+      "selectionReason": "Highest-priority unreserved v39 mismatch after C claimed the timed-egg case; source tracing identifies cmd.c rhack count dispatch as the first owner.",
+      "detail": "In v39-counted-wizgenesis-mimic-population segment 0 input step 85, a count-prefixed Ctrl-G reaches cmd.c rhack with positive gm.multi. C dispatches wiz_genesis once; read.c create_particular_parse consumes 1+gm.multi as monster quantity, then ECMD_OK clears the count. JavaScript js/cmd.js rhack rejects the already-ported direct wizgenesis row at its counted nonmovement preflight. Exempt only that handler and preserve the refusal for commands without a count consumer.",
+      "openedAt": "4dc9b5c9dd12c600ad4212fa354efcb469315160",
+      "openStanding": {
+        "sha": "3eecb35969ddbbd8e2b5278d49fb748de8442d5b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "bc442e36ad933de77a8051a6ae641fac42ab6780",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "rhack",
+      "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+      "step": 85,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-counted-wizgenesis-mimic-population": {
+          "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-counted-wizgenesis-mimic-population",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+          "evaluationPath": "challenges/evaluations/20261009230658-v39.json",
+          "evaluationCommit": "30d1b7936740e5f611781c85242eb860218d9e5d"
+        }
+      },
+      "activeStanding": {
+        "sha": "3eecb35969ddbbd8e2b5278d49fb748de8442d5b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-counted-wizgenesis-mimic-population",
+          "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+          "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
+          "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
+          "replayInputSha256": "938dd44564a49459a54ba4ef8fe7d579c3f64eafbfef8f1e25fd9ef82dde4e3c",
+          "evaluationPath": "challenges/evaluations/20261009230658-v39.json",
+          "evaluationCommit": "30d1b7936740e5f611781c85242eb860218d9e5d",
+          "evaluationArtifact": "challenges/evaluations/20261009230658-v39.json",
+          "evaluationUtc": "2026-10-10T06:07:16.397Z",
+          "remainingScreens": 29,
+          "recordedSteps": 114,
+          "previousScreensMatched": null,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 85,
+              "total": 114
+            },
+            "rng": {
+              "matched": 5761,
+              "total": 6551
+            },
+            "cursors": {
+              "matched": 85,
+              "total": 114
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a nonmovement row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that nonmovement command path remains unsupported",
+            "step": 85
+          },
+          "step": 85,
+          "kind": "stop",
+          "sourceFile": "cmd.c",
+          "function": "parse",
+          "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a nonmovement row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that nonmovement command path remains unsupported",
+          "cFile": "cmd.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-counted-wizgenesis-mimic-population.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-counted-wizgenesis-mimic-population",
+              "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+              "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+              "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
+              "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
+              "replayInputSha256": "938dd44564a49459a54ba4ef8fe7d579c3f64eafbfef8f1e25fd9ef82dde4e3c",
+              "evaluationPath": "challenges/evaluations/20261009230658-v39.json",
+              "evaluationCommit": "30d1b7936740e5f611781c85242eb860218d9e5d",
+              "remainingScreens": 29,
+              "recordedSteps": 114,
+              "status": "complete",
+              "commit": "ccbfb0379575353de8168956e30255ecef25f47d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v39",
+                "caseId": "v39-counted-wizgenesis-mimic-population",
+                "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+                "manifestPath": "challenges/manifests/v39.json",
+                "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+                "recording": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+                "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+                "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+                "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
+                "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
+                "replayInputSha256": "938dd44564a49459a54ba4ef8fe7d579c3f64eafbfef8f1e25fd9ef82dde4e3c",
+                "evaluationPath": "challenges/evaluations/20261009230658-v39.json",
+                "evaluationCommit": "30d1b7936740e5f611781c85242eb860218d9e5d",
+                "evaluationArtifact": "challenges/evaluations/20261009230658-v39.json",
+                "evaluationUtc": "2026-10-10T06:07:16.397Z",
+                "remainingScreens": 29,
+                "recordedSteps": 114,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 85,
+                    "total": 114
+                  },
+                  "rng": {
+                    "matched": 5761,
+                    "total": 6551
+                  },
+                  "cursors": {
+                    "matched": 85,
+                    "total": 114
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a nonmovement row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that nonmovement command path remains unsupported",
+                  "step": 85
+                },
+                "step": 85,
+                "kind": "stop",
+                "sourceFile": "cmd.c",
+                "function": "parse",
+                "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a nonmovement row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that nonmovement command path remains unsupported",
+                "cFile": "cmd.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v39 recording prefixes the wizard Genesis command with a count. C carries that count into read.c:create_particular_parse(), which uses 1 + gm.multi as the requested mimic population; cmd.c:rhack() dispatches wiz_genesis once and clears the count after ECMD_OK. JavaScript rejects the selected wizgenesis row at rhack’s generic counted nonmovement-command boundary before the prompt. Allow this already-ported counted handler through that guard so Genesis consumes the count and clears it in source order.",
+              "source": {
+                "file": "cmd.c",
+                "branch": "For the input count before C-g, parse() stores the count in gm.multi and spends the initial dispatch by decrementing it once (cmd.c:5142-5144). The C-g binding selects wiz_genesis (cmd.c:1961-1962); rhack() executes that handler while the positive remainder is intact, and its successful ECMD_OK result calls reset_cmd_vars(), clearing gm.multi before allmain.c:moveloop_core() can repeat the command (cmd.c:3810-3816). wiz_genesis() calls create_particular(); read.c:create_particular_parse() initializes d.quan to 1 + gm.multi (read.c:3144-3150), so the count is consumed as population size. The missing behavior is JavaScript cmd.js:rhack()’s fail-closed preflight for counted nonmovement commands, which does not exempt the already-ported wizgenesis row.",
+                "functions": [
+                  "rhack"
+                ],
+                "callers": [
+                  "cmd.c:parse() at 5142-5146 supplies the counted C-g command key; cmd.c:1961-1962 maps C-g to wiz_genesis().",
+                  "wizcmds.c:wiz_genesis() at 203-215 calls read.c:create_particular(); read.c:create_particular_parse() at 3144-3150 turns the remaining gm.multi into a monster quantity before create_particular_creation() selects each monster with mkclass()."
+                ],
+                "dependencies": [
+                  "The existing JavaScript wiz_genesis() and read.js:create_particular_parse()/create_particular_creation() are wired and retain the count quantity; only cmd.js:rhack() rejects this counted dispatch."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Fresh C differential on examined commit ccbfb0379575353de8168956e30255ecef25f47d: /tmp/teleport-validation-1000/run-DhW2H8/stdout.log reports C=114 screens, 6551 RNG calls; JavaScript stops at boundary 86 after 85 screens and 5761 RNG calls. The first downstream absent draw is C rn2(9)=0 at mkclass_aligned(makemon.c:1934), after the missing command dispatch.",
+                "Fresh JavaScript replay of the immutable v39 recipe with runSegment on the same commit captures UnsupportedHeroCommandBoundaryError at js/cmd.js:5616: counted nonmovement dispatch is rejected while state.multi is positive; no screen follows the Ctrl-G key at input step 85.",
+                "Source trace: upstream cmd.c:parse() sets gm.multi then decrements once (5142-5144); cmd.c rhack() dispatches the selected function before the successful ECMD_OK reset (3810-3816); the C-g row selects wiz_genesis (1961-1962); wizcmds.c:wiz_genesis() calls create_particular() (203-215); read.c:create_particular_parse() sets d.quan=1+gm.multi (3144-3150)."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-counted-wizgenesis-mimic-population",
+          "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+          "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
+          "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
+          "replayInputSha256": "9c849123a3d6d04f02b60b84dadcf1b460de318a7ca2ce052b1ffa6dbb7ce224",
+          "evaluationPath": "challenges/evaluations/accepted-bc442e36ad933de77a8051a6ae641fac42ab6780-v39.json",
+          "evaluationCommit": "bc442e36ad933de77a8051a6ae641fac42ab6780",
+          "evaluationArtifact": "challenges/evaluations/accepted-bc442e36ad933de77a8051a6ae641fac42ab6780-v39.json",
+          "evaluationUtc": "2026-10-10T06:34:43.125Z",
+          "remainingScreens": 20,
+          "recordedSteps": 114,
+          "previousScreensMatched": 85,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 94,
+              "total": 114
+            },
+            "rng": {
+              "matched": 6232,
+              "total": 6551
+            },
+            "cursors": {
+              "matched": 94,
+              "total": 114
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: monsterObject is not available",
+            "step": 94
+          },
+          "step": 94,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: monsterObject is not available",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v39/v39-counted-wizgenesis-mimic-population.json",
+            "previousRemainingScreens": 29
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "bc442e36ad933de77a8051a6ae641fac42ab6780",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
