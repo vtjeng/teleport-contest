@@ -1088,7 +1088,15 @@ export async function unturn_dead(monster, state = game, rawEnv = {}) {
 export async function unturn_you(state = game, rawEnv = {}) {
     // Monster actions pass a cloned RNG through mbhitm(); direct self-zaps
     // keep using the live game stream when no invocation stream is supplied.
-    const random = { rnd, ...(rawEnv.random ?? {}) };
+    const random = {
+        d,
+        rn1,
+        rn2,
+        rnd,
+        rne,
+        rnz,
+        ...(rawEnv.random ?? {}),
+    };
     const env = { ...rawEnv, random };
     const message = rawEnv.message ?? ttyPline;
     await unturn_dead(state.youmonst, state, env);
