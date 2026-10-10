@@ -254522,6 +254522,45 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-earth-plane-lua-synthetic-v40-20261010",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Port the Plane of Earth level program",
+      "luaFile": "earth.lua",
+      "sessions": [
+        "synthetic/v40/v40-earth-plane-levelport-generation"
+      ],
+      "selectionReason": "The accepted v40 Earth-plane replay stops at step 23 because the special-level registry has no loader for dat/earth.lua; the complete Lua program owns the remaining level generation.",
+      "detail": "Port every top-level dat/earth.lua statement in source order, generate its fixed map and monster descriptors deterministically from upstream, and register the production loader in js/mklev.js.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "earth.lua",
+          "line": 1,
+          "endLine": 130,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v40/v40-earth-plane-levelport-generation": {
+          "session": "synthetic/v40/v40-earth-plane-levelport-generation",
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-earth-plane-levelport-generation",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recordingPath": "challenges/cases/v40/v40-earth-plane-pickaxe-earth-arrival-probe.session.json",
+          "recordingSha256": "af27f4b0efd9bf8c21e05169ec8cf907bc43948eaa5c0559f918b2dbbb29a0e5",
+          "evaluationPath": "challenges/evaluations/accepted-ffd2d10394fbb3c06612668aeaa38762cdfb84c1-v40.json",
+          "evaluationCommit": "ffd2d10394fbb3c06612668aeaa38762cdfb84c1"
+        }
+      }
     }
   ]
 }
