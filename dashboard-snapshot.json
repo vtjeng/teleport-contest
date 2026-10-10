@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T04:00:30.002Z",
+  "capturedAt": "2026-10-10T04:18:01.425Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -78410,23 +78410,68 @@
         "type": "accepted",
         "at": "2026-10-10T03:59:49.925Z",
         "task": "B206-investigation-v38-bear-trap"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B206-investigation-v38-bear-trap-0e161e367594bd7a61d9af200907aabc85d981af",
+        "type": "published",
+        "at": "2026-10-10T04:00:37.811Z",
+        "task": "B206-investigation-v38-bear-trap",
+        "commit": "0e161e367594bd7a61d9af200907aabc85d981af"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-main-C184-fire-chain-4e388f06e-20261010",
+        "type": "received",
+        "at": "2026-10-10T04:02:45.716Z",
+        "task": "C184",
+        "delivery": "4e388f06e17dfab0643c8cb6e6dc1f52b3cc7434"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-C184-fire-chain-151a26738-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T04:08:07.249Z",
+        "task": "C184",
+        "integration": "151a267386062542bb297b399bd4ce5473bcbde4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-after-B206-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:11:45.418Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B206 is accepted; syncing published Main and selecting the next independent source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-after-refresh-current-queue-blocker-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:15:03.176Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Queue refreshed; only remaining source mismatch is reserved by C184 during integration. No independent source task is currently eligible."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-main-C184-fire-chain-151a26738-20261010",
+        "type": "validated",
+        "at": "2026-10-10T04:16:28.355Z",
+        "task": "C184",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C184-151a267386062542bb297b399bd4ce5473bcbde4-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T04:17:28.316Z",
+        "task": "C184"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "C184",
-        "worker": "C",
-        "goal": "port-trap-fire-damage-chain-v38-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "4e388f06e17dfab0643c8cb6e6dc1f52b3cc7434",
-        "since": "2026-10-10T03:58:47.444Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -78729,8 +78774,8 @@
     ]
   },
   "development": {
-    "executionCommit": "83aba82e9fb63b93f4fda8cf74a8ee6d049e3cb1",
-    "measuredAt": "2026-10-10T03:58:29.708Z",
+    "executionCommit": "151a267386062542bb297b399bd4ce5473bcbde4",
+    "measuredAt": "2026-10-10T04:15:16.714Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

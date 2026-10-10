@@ -245488,7 +245488,7 @@
     {
       "id": "port-trap-fire-damage-chain-v38-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port trap.c fire_damage_chain and wire all active callers",
       "cFile": "trap.c",
       "sessions": [
@@ -245502,15 +245502,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "151a267386062542bb297b399bd4ce5473bcbde4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "fire_damage_chain",
           "line": 4550,
           "endLine": 4575,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -245761,7 +245764,109 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "fire_damage_chain",
+            "implementation": "js/trap.js",
+            "symbol": "fire_damage_chain",
+            "sourceReview": "Compared the full C function branch-by-branch. JS sets state.gb.bhitpos first; picks nexthere or nobj from here; saves the next link before awaiting fire_damage; counts true results; checks blindness plus couldsee only when count is nonzero; emits the exact smoke message; returns num. The existing fire_damage implementation supplies all destruction behavior and source-ordered obj_resists calls. The default extractExternalObject adapter is the existing remove_object owner; caller-provided hooks are preserved. The independent dig.c liquid_flow recording reaches fire_damage_chain through a filled hole with a floor object, and the minliquid_core recording reaches its surviving fire-resistant monster inventory path. In the production liquid_flow adapter, minliquid receives the existing teleport.c:rloc operation and mon.c:deal_with_overcrowding fallback while preserving caller-supplied overrides.",
+            "callers": [
+              {
+                "path": "js/dig.js",
+                "symbol": "liquid_flow",
+                "source": "dig.c:869 applies the floor fire chain during liquid_flow. Its monster branch also invokes minliquid(); JS supplies the existing teleport.c:rloc and mon.c:deal_with_overcrowding dependencies used by mon.c:minliquid_core."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "liquidDamageInventory",
+                "source": "mon.c:1059 calls fire_damage_chain(mtmp->minvent, FALSE, FALSE, mtmp->mx, mtmp->my) in minliquid_core(); the wrapper preserves the inventory-chain selector and coordinates."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "elapsedTurnMinLiquid",
+                "source": "For the production turn path, elapsedTurnMinLiquid() supplies the minliquid fireDamageChain adapter; mon.c:1059 is the source call reached by minliquid_core()."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "planSimpleMonsterScan",
+                "source": "The planner clone adapter forwards the same mon.c:1059 call and arguments into trap.c:fire_damage_chain()."
+              },
+              {
+                "path": "js/objnam_readobjnam.js",
+                "symbol": "apply_wizterrainwish",
+                "source": "objnam.c:3664 calls fire_damage_chain(svl.level.objects[x][y], TRUE, TRUE, x, y) after changing the wished square to lava."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-fire-damage-chain.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/fire-damage-chain-dig-liquid-flow-cfirst.session.json",
+              "recordings/trap.c/fire-damage-chain-monster-minliquid-core-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v38",
+                "caseId": "v38-lava-wish-burns-floor-scroll",
+                "segment": 0,
+                "fromStep": 57,
+                "throughStep": 57,
+                "source": "wizard debug wish -> objnam.c readobjnam() -> wizterrainwish() -> trap.c fire_damage_chain()"
+              }
+            ],
+            "checkedAt": "151a267386062542bb297b399bd4ce5473bcbde4"
+          }
+        ],
+        "entryPointReview": "All three active source entry points now have production runtime evidence. (1) The admitted v38 wizard terrain-wish range executes objnam.c:readobjnam() -> wizterrainwish() -> trap.c:fire_damage_chain(). (2) recordings/trap.c/fire-damage-chain-dig-liquid-flow-cfirst.session.json executes dighole() -> dig.c:liquid_flow() -> trap.c:fire_damage_chain() on a floor scroll after a lava-filled hole forms; its 193-step C and JavaScript replay matches completely. (3) recordings/trap.c/fire-damage-chain-monster-minliquid-core-cfirst.session.json executes apply.c:do_break_wand() -> dig.c:liquid_flow() -> mon.c:minliquid_core() -> trap.c:fire_damage_chain() for a surviving fire giant with generated inventory; its 116-step C and JavaScript replay matches completely through inventory damage and relocation. Both recordings match complete PRNG logs, screens, cursors, and animations. Source-pinned tests also cover floor/inventory chain selection and deletion order.",
+        "entryPoints": [
+          {
+            "name": "Wizard terrain wish creates lava under the hero and burns the floor chain",
+            "functions": [
+              "fire_damage_chain"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v38",
+                "caseId": "v38-lava-wish-burns-floor-scroll",
+                "segment": 0,
+                "fromStep": 57,
+                "throughStep": 57,
+                "source": "wizard debug wish -> objnam.c readobjnam() -> wizterrainwish() -> trap.c fire_damage_chain()"
+              }
+            ]
+          },
+          {
+            "name": "Digging creates a lava-filled hole with floor objects",
+            "functions": [
+              "fire_damage_chain"
+            ],
+            "recordings": [
+              "recordings/trap.c/fire-damage-chain-dig-liquid-flow-cfirst.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "A surviving monster enters lava with an inventory chain",
+            "functions": [
+              "fire_damage_chain"
+            ],
+            "recordings": [
+              "recordings/trap.c/fire-damage-chain-monster-minliquid-core-cfirst.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "151a267386062542bb297b399bd4ce5473bcbde4",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
