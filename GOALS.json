@@ -250028,7 +250028,7 @@
     {
       "id": "fix-mimic-absorb-item-lockpick-rng-v39-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Port mimic item absorption after lock-pick reveal",
       "cFile": "steal.c",
       "sessions": [
@@ -250042,8 +250042,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "d385af23ff14452feaff464fb82ad499ba63ccb3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "maybe_absorb_item",
       "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
       "step": 113,
@@ -250237,7 +250240,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "d385af23ff14452feaff464fb82ad499ba63ccb3",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T09:45:33.577Z",
+  "capturedAt": "2026-10-10T10:02:05.638Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -80410,22 +80410,113 @@
         "type": "accepted",
         "at": "2026-10-10T09:44:39.447Z",
         "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B213-investigation-v39-polyself-retouch-silver-vampire-complete-fcee2124409bf1a287b11a21f253470ed26317bc",
+        "type": "published",
+        "at": "2026-10-10T09:45:41.794Z",
+        "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete",
+        "commit": "fcee2124409bf1a287b11a21f253470ed26317bc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-after-B213-accept-20261010",
+        "type": "turn",
+        "at": "2026-10-10T09:45:46.461Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B213 is accepted. Syncing accepted Main while preserving submitted B215, then checking the queue for independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-B213-sync-20261010",
+        "type": "turn",
+        "at": "2026-10-10T09:47:22.547Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Accepted Main is synced. The current queue has only A2’s mounted-steed case and B215’s counted-wizgenesis case; both are reserved, so no independent task is free."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-v40-shopdig-approved-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T09:47:25.709Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has eight approved distinct C-first mismatches; continuing source-based preparation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B215-1db0d386-20261010",
+        "type": "received",
+        "at": "2026-10-10T09:48:29.484Z",
+        "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010",
+        "delivery": "1db0d3868797b102a94297f7d688960ab62c58cc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-review-B215-20261010T0949",
+        "type": "activity",
+        "at": "2026-10-10T09:48:38.755Z",
+        "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010",
+        "phase": "review",
+        "reason": "Integrating the oldest ready mimic item absorption delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B215-d385af23ff14-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T09:52:34.380Z",
+        "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010",
+        "integration": "d385af23ff14452feaff464fb82ad499ba63ccb3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-v40-knox-approved-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T09:52:50.258Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has nine approved distinct C-first mismatches; three remain, and the direct Fort Ludios knox.lua case is recorded."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B215-38043049695-20261010",
+        "type": "validated",
+        "at": "2026-10-10T09:59:14.380Z",
+        "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B215-investigation-v39-counted-wizgenesis-obj-resists-20261010-d385af23ff14452feaff464fb82ad499ba63ccb3-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T10:00:07.181Z",
+        "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-after-B215-accept-20261010",
+        "type": "turn",
+        "at": "2026-10-10T10:01:41.503Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B215 is accepted. Syncing the accepted Main boundary and checking the queue for independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-v40-shop-robshop-approved-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T10:01:53.292Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has ten approved distinct C-first mismatches; two remain, and the unpaid-shop level-exit case is recorded."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010",
-        "worker": "B",
-        "goal": "fix-mimic-absorb-item-lockpick-rng-v39-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "1db0d3868797b102a94297f7d688960ab62c58cc",
-        "since": "2026-10-10T09:14:40.465Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
         "worker": "A2",
@@ -80740,8 +80831,8 @@
     ]
   },
   "development": {
-    "executionCommit": "23d07ff38df570228278bc8af9679db5ae6fdab7",
-    "measuredAt": "2026-10-10T09:43:11.124Z",
+    "executionCommit": "d385af23ff14452feaff464fb82ad499ba63ccb3",
+    "measuredAt": "2026-10-10T09:58:47.610Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
