@@ -1,7 +1,8 @@
 // questpgr.js -- quest text and quest-artifact bookkeeping.
 // C ref: questpgr.c com_pager_core(), com_pager(), qt_pager(),
 // convert_line(), convert_arg(), qtext_pronoun(), ldrname(), neminame(),
-// guardname(), homebase(), intermed(), and is_quest_artifact().
+// guardname(), homebase(), intermed(), deliver_splev_message(), and
+// is_quest_artifact().
 
 import {
     A_CHAOTIC,
@@ -311,6 +312,23 @@ async function deliverByPline(text, state, output) {
         const converted = convertLine(line, state);
         await output.pline(converted, state);
     }
+}
+
+// C ref: questpgr.c deliver_splev_message(). Special-level text is converted
+// and sent through pline after arrival; gl.lev_message is cleared afterward.
+export async function deliver_splev_message(state = game, output = QUEST_PAGER_OUTPUT) {
+    const message = state.gl?.lev_message;
+    if (message == null) return;
+
+    // deliver_by_pline() advances past a newline and stops at eos(), so a
+    // final newline does not create an extra final pline call.
+    if (message !== '') {
+        const lines = message.split('\n');
+        if (message.endsWith('\n')) lines.pop();
+        for (const line of lines)
+            await output.pline(convertLine(line, state), state);
+    }
+    state.gl.lev_message = null;
 }
 
 // C ref: questpgr.c deliver_by_window().  Splits multi-line text at

@@ -106,7 +106,8 @@ test('reset_level marks Lua testing, remakes the coder, and clears the level', a
         assert.equal(des.frame.ystart, 0);
         assert.equal(des.frame.splevMap[painted.x][painted.y], 0);
         assert.equal(game.unported.has('cmd.c makemap_prepost'), false);
-        assert.ok(game.unported.has('wizcmds.c makemap_remove_mons'));
+        assert.equal(game.unported.has('wizcmds.c makemap_remove_mons'), false);
+        assert.ok(game.unported.has('dog.c keepdogs'));
         assert.ok(game.unported.has('dungeon.c rm_mapseen'));
         assert.equal(game.in_mklev, true);
         // clear_level_structures(): a fresh level with no rooms.
