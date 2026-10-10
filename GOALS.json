@@ -258200,7 +258200,7 @@
           "line": 130,
           "endLine": 188,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -259095,7 +259095,106 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "cursed_book",
+            "implementation": "js/spell.js",
+            "symbol": "cursed_book",
+            "sourceReview": "Read the complete upstream spell.c:cursed_book() definition (130-183), including every switch arm and its return behavior. The port preserves the initial rn2(oc_level) selection; message/callee order for cases 0-6 and default; state and RNG threading; poison resistance-dependent rn1/rnd argument order; temporary bp->in_use save, clear, and restore around poison_strdmg; Maybe_Half_Phys before losehp; TRUE only for case 6; and the callers' useup behavior. Replaced all four stale gaps with their existing source owners: teleport.c:tele, sit.c:take_gold, attrib.c:poison_strdmg, and hack.c:losehp. Other callees used by this function are already implemented. No unported callee remains in this function. The too-hard study_book caller preserves its source order: nomul, state fields, then do.c:trycall before useup. This uses the existing whole js/do.js:trycall port, because the discarded C result does not erase its naming prompt side effect; the new independent recording verifies the prompt and delayed-study boundary.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "learn",
+                "source": "spell.c:learn() (450-456) calls cursed_book() after a cursed book is used for study and consumes TRUE by using up the book; JavaScript preserves that return check."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "study_book",
+                "source": "spell.c:study_book() (605-616) calls cursed_book() on the too-hard path and consumes its result when deciding whether to use up the book; JavaScript preserves that return check."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread() dispatches spellbook reads to study_book(); the admitted v42 cases reach cursed_book() from study_book()'s too-hard arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/spell.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/cursed-book-explosive-rune-followup-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-cursed-book-case0-teleport",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 43,
+                "source": "read.c:doread -> spell.c:study_book(too_hard) -> spell.c:cursed_book(case 0) -> teleport.c:tele -> teleport.c:scrolltele"
+              },
+              {
+                "batch": "v42",
+                "caseId": "v42-cursed-book-case3-take-gold",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 48,
+                "source": "read.c:doread -> spell.c:study_book(too_hard) -> spell.c:cursed_book(case 3) -> sit.c:take_gold"
+              },
+              {
+                "batch": "v42",
+                "caseId": "v42-cursed-book-contact-poison-resistant",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 48,
+                "source": "read.c:doread -> spell.c:study_book(too_hard) -> spell.c:cursed_book(case 5) -> attrib.c:poison_strdmg -> attrib.c:losestr"
+              }
+            ],
+            "checkedAt": "3dd95b8bf7fd38a1706e164be4e2aba9204a846f"
+          }
+        ],
+        "entryPointReview": "The source range implements cursed spellbook reading effects. Its active command entry is read.c:doread() -> spell.c:study_book() -> spell.c:cursed_book(). Three admitted v42 ranges verify cases 0, 3, and 5. An independently chosen recording reaches case 6 through do.c:trycall, acknowledges the page, and completes spell.c:study_book’s delayed boundary. The original v42 case6 range remains an admitted mismatch at the final step and is not completion evidence. spell.c:learn() is the other existing direct caller; it remains wired to the completed helper and retains its return/useup handling.",
+        "entryPoints": [
+          {
+            "name": "Read a cursed spellbook",
+            "functions": [
+              "cursed_book"
+            ],
+            "recordings": [
+              "recordings/spell.c/cursed-book-explosive-rune-followup-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-cursed-book-case0-teleport",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 43,
+                "source": "read.c:doread -> spell.c:study_book(too_hard) -> spell.c:cursed_book(case 0)"
+              },
+              {
+                "batch": "v42",
+                "caseId": "v42-cursed-book-case3-take-gold",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 48,
+                "source": "read.c:doread -> spell.c:study_book(too_hard) -> spell.c:cursed_book(case 3)"
+              },
+              {
+                "batch": "v42",
+                "caseId": "v42-cursed-book-contact-poison-resistant",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 48,
+                "source": "read.c:doread -> spell.c:study_book(too_hard) -> spell.c:cursed_book(case 5)"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
