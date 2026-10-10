@@ -195,6 +195,7 @@
         "js/val_loca_level_data.js",
         "js/val_strt_level_data.js",
         "js/valley_levels.js",
+        "js/water_levels.js",
         "js/wizard1_levels.js",
         "js/wizard3_levels.js"
       ],
