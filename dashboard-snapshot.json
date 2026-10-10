@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T23:09:06.987Z",
+  "capturedAt": "2026-10-10T23:34:05.110Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -84537,22 +84537,160 @@
         "type": "accepted",
         "at": "2026-10-10T23:07:51.369Z",
         "task": "A2-v42-observe-quantum-cat-box-tip-floor-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-v42-observe-quantum-cat-box-tip-floor-investigation-20261010-df482fec862c15387fa5944ad80af4d50ff4cbab",
+        "type": "published",
+        "at": "2026-10-10T23:09:15.635Z",
+        "task": "A2-v42-observe-quantum-cat-box-tip-floor-investigation-20261010",
+        "commit": "df482fec862c15387fa5944ad80af4d50ff4cbab"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-idle-after-quantum-acceptance-20261010",
+        "type": "turn",
+        "at": "2026-10-10T23:11:50.409Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Idle at accepted Main df482fec. Three saved-queue cases are all reserved: C lichen, A2 Baalz queued delivery, and B Zhitu."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-active-six-ghod-hitsu-20261010",
+        "type": "turn",
+        "at": "2026-10-10T23:14:07.772Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v43 has six approved distinct C-first mismatches; continuing the source-based candidate search."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-c-lichen-21d0bfb8b",
+        "type": "received",
+        "at": "2026-10-10T23:14:14.144Z",
+        "task": "C-v42-monster-undead-turning-lichen-corpse-investigation-20261010",
+        "delivery": "21d0bfb8be99a2198d35bfbdb2ebd8393a30ec7f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-c-lichen-4231cb868",
+        "type": "integrating",
+        "at": "2026-10-10T23:14:24.775Z",
+        "task": "C-v42-monster-undead-turning-lichen-corpse-investigation-20261010",
+        "integration": "4231cb868fd0e0ad2218e2135b88aa34a35e3596"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-c-lichen-4231cb868-fail",
+        "type": "validated",
+        "at": "2026-10-10T23:21:09.044Z",
+        "task": "C-v42-monster-undead-turning-lichen-corpse-investigation-20261010",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-c-lichen-21d0bfb8b-rng-env",
+        "type": "feedback",
+        "at": "2026-10-10T23:21:20.987Z",
+        "task": "C-v42-monster-undead-turning-lichen-corpse-investigation-20261010",
+        "delivery": "21d0bfb8be99a2198d35bfbdb2ebd8393a30ec7f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-v42-lichen-rng-correction-20261010",
+        "type": "resume",
+        "at": "2026-10-10T23:23:25.250Z",
+        "task": "C-v42-monster-undead-turning-lichen-corpse-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-lichen-rng-correction-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T23:23:31.241Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Correcting the lichen revival RNG fallback after integration feedback."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c3d5cb8dab5064349188adf36595a865dfffb1b4",
+        "type": "ready",
+        "at": "2026-10-10T23:24:41.113Z",
+        "task": "C-v42-monster-undead-turning-lichen-corpse-investigation-20261010",
+        "delivery": "c3d5cb8dab5064349188adf36595a865dfffb1b4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-c-lichen-c3d5cb8da",
+        "type": "received",
+        "at": "2026-10-10T23:25:04.407Z",
+        "task": "C-v42-monster-undead-turning-lichen-corpse-investigation-20261010",
+        "delivery": "c3d5cb8dab5064349188adf36595a865dfffb1b4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-after-lichen-rng-correction-20261010",
+        "type": "turn",
+        "at": "2026-10-10T23:25:08.212Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Submitted the lichen RNG correction; all currently saved v42 cases are reserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-c-lichen-correction-19f6a43d2",
+        "type": "integrating",
+        "at": "2026-10-10T23:25:55.243Z",
+        "task": "C-v42-monster-undead-turning-lichen-corpse-investigation-20261010",
+        "integration": "19f6a43d2e0643e804a1fc100a7fccb76e5d2577"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-active-seven-boulder-20261010",
+        "type": "turn",
+        "at": "2026-10-10T23:28:29.084Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v43 has seven approved distinct C-first mismatches; continuing candidate search."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-c-lichen-19f6a43d2-pass",
+        "type": "validated",
+        "at": "2026-10-10T23:31:30.704Z",
+        "task": "C-v42-monster-undead-turning-lichen-corpse-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-active-nine-20261010",
+        "type": "turn",
+        "at": "2026-10-10T23:32:01.270Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v43 has nine approved distinct C-first mismatches; continuing candidate search."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v42-monster-undead-turning-lichen-corpse-investigation-20261010-19f6a43d2e0643e804a1fc100a7fccb76e5d2577-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T23:32:33.194Z",
+        "task": "C-v42-monster-undead-turning-lichen-corpse-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-after-lichen-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T23:33:01.523Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Synced accepted lichen; waiting for published closure and refreshed work queue."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C-v42-monster-undead-turning-lichen-corpse-investigation-20261010",
-        "worker": "C",
-        "goal": "port-muse-mbhitm-undead-turning-v42-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "21d0bfb8be99a2198d35bfbdb2ebd8393a30ec7f",
-        "since": "2026-10-10T22:01:40.689Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "A2-investigation-v42-baalz-special-program-20261010",
         "worker": "A2",
@@ -84900,8 +85038,8 @@
     ]
   },
   "development": {
-    "executionCommit": "81769a199b1df6e6234f7dbbe5654ec6270af878",
-    "measuredAt": "2026-10-10T23:06:35.335Z",
+    "executionCommit": "19f6a43d2e0643e804a1fc100a7fccb76e5d2577",
+    "measuredAt": "2026-10-10T23:30:56.379Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
