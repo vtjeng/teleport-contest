@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T14:38:33.234Z",
+  "capturedAt": "2026-10-10T14:54:38.320Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -81773,22 +81773,138 @@
         "type": "accepted",
         "at": "2026-10-10T14:38:17.461Z",
         "task": "C-v41-anger-prayer-god-zaps-hero-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v41-anger-prayer-god-zaps-hero-investigation-20261010-21b930fb03b968dee2d935786252c1043ec1b1f1",
+        "type": "published",
+        "at": "2026-10-10T14:38:41.739Z",
+        "task": "C-v41-anger-prayer-god-zaps-hero-investigation-20261010",
+        "commit": "21b930fb03b968dee2d935786252c1043ec1b1f1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B220-review-20261010",
+        "type": "activity",
+        "at": "2026-10-10T14:41:08.926Z",
+        "task": "B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010",
+        "phase": "review",
+        "reason": "Verify the submitted m_unleash source delivery and current queue evidence before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v40-snuffed-lit-lamp-followup-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T14:42:54.391Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Tracing the remaining v40 lamp mismatch at zap.c:obj_resists before claiming implementation scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v40-snuffed-lit-lamp-followup-20261010",
+        "type": "assign",
+        "at": "2026-10-10T14:42:56.053Z",
+        "task": "C-v40-snuffed-lit-lamp-obj-resists-followup-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "worker-B-turn-20261010-prayer-sync",
+        "type": "turn",
+        "at": "2026-10-10T14:43:07.074Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Accepted Main is synced; checking the highest-ranked unreserved mismatch and its source scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B220-integrating-2e5a22fc",
+        "type": "integrating",
+        "at": "2026-10-10T14:45:20.651Z",
+        "task": "B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010",
+        "integration": "2e5a22fcb59f677d8f21f487546440d26850930c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B223-earth-plane-session",
+        "type": "assign",
+        "at": "2026-10-10T14:45:28.590Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C-v40-snuffed-lit-lamp-overlap-B220-20261010",
+        "type": "park",
+        "at": "2026-10-10T14:46:29.538Z",
+        "task": "C-v40-snuffed-lit-lamp-obj-resists-followup-20261010",
+        "reason": "Parked after source trace showed the step-76 object-resistance RNG divergence follows the step-75 leash-snap dog movement. The obj_resists helper already performs the source-matched unconditional rn2(100); the active cause lies in dogmove.c:dog_move and js/dogmove.js, reserved by B220 until its delivery is accepted."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v41-ring-invisibility-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T14:47:05.930Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the v41 ring-of-invisibility removal mismatch at step 37."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v41-ring-invisibility-removed-20261010",
+        "type": "assign",
+        "at": "2026-10-10T14:47:07.538Z",
+        "task": "C-v41-ring-invisibility-removed-investigation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B223-earth-plane-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T14:50:02.019Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Tracing the v40 Earth-plane special-level loader mismatch through the source program and level-generation path."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v41-ring-invisibility-removed-20261010",
+        "type": "implement",
+        "at": "2026-10-10T14:51:37.293Z",
+        "task": "C-v41-ring-invisibility-removed-investigation-20261010",
+        "goal": "port-do-wear-ring-off-or-gone-v41-invisibility-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B223-earth-loader-20261010-v2",
+        "type": "implement",
+        "at": "2026-10-10T14:53:06.777Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010",
+        "goal": "port-earth-plane-lua-synthetic-v40-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010-2e5a22fcb59f677d8f21f487546440d26850930c-validated",
+        "type": "validated",
+        "at": "2026-10-10T14:53:22.224Z",
+        "task": "B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010-2e5a22fcb59f677d8f21f487546440d26850930c-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T14:54:25.706Z",
+        "task": "B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010",
-        "worker": "B",
-        "goal": "port-apply-m-unleash-v40-leashed-dog-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "40dafcefebb93644d94e3282e6c2ff297c81df0c",
-        "since": "2026-10-10T13:33:37.011Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "B221-investigation-v41-minetown3-special-program-generation-20261010",
         "worker": "B",
@@ -82132,12 +82248,23 @@
         "since": "2026-10-10T13:49:28.557Z",
         "blockedBy": [],
         "reason": "Parked after source trace showed the shared explicit-monster admission defect belongs to B221, which owns the canonical makemon.c:makemon fix; resume only if B221 leaves entry-point coverage incomplete."
+      },
+      {
+        "task": "C-v40-snuffed-lit-lamp-obj-resists-followup-20261010",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-10T14:46:29.538Z",
+        "blockedBy": [],
+        "reason": "Parked after source trace showed the step-76 object-resistance RNG divergence follows the step-75 leash-snap dog movement. The obj_resists helper already performs the source-matched unconditional rn2(100); the active cause lies in dogmove.c:dog_move and js/dogmove.js, reserved by B220 until its delivery is accepted."
       }
     ]
   },
   "development": {
-    "executionCommit": "6e5dacedc7638246a629e7fe6295014ecbb0083d",
-    "measuredAt": "2026-10-10T14:36:19.953Z",
+    "executionCommit": "2e5a22fcb59f677d8f21f487546440d26850930c",
+    "measuredAt": "2026-10-10T14:52:27.697Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
