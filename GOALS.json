@@ -255422,6 +255422,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-apply-unleash-all-v40-20261010",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete apply.c unleash_all and wire the engulfment, drowning, and bones-save callers so every attached leash and monster leash flag is cleared in source order.",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm"
+      ],
+      "selectionReason": "The v40 engulf replay reaches gulpmu’s leash-release page at steps 74-75 and then diverges because JavaScript leaves the pet leashed; an admitted v40 drowning case independently reaches trap.c:drown -> unleash_all at step 27.",
+      "detail": "Port whole apply.c:unleash_all lines 746-755. Wire mhitu.c:gulpmu, trap.c:drown, and bones.c:savebones at their source positions. shk.c:finish_paybill has no JavaScript function and remains explicitly unported. Runtime evidence covers engulfment and drowning; preserve the independent D4 bones recipe as blocked at do.c:goto_level -> mklev.c:mklev/getbones and park this source goal after integration because savebones entry evidence is incomplete.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "unleash_all",
+          "line": 746,
+          "endLine": 760,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 746,
+        "to": 760
+      },
+      "syntheticProvenance": {
+        "synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm": {
+          "session": "synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm",
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-snuffed-lit-lamp-on-engulfing-worm",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recordingPath": "challenges/cases/v40/v40-engulf-snuff-lit-lamp-inventory-check-corrected-cfirst.session.json",
+          "recordingSha256": "7e55ad54b385d5102f3dcb242deabe6fb8a39a1a9d0f80f58579cb00ca59ecc3",
+          "evaluationPath": "challenges/evaluations/accepted-9970268482520fbfdae76892e79aa050c4ef5c4c-v40.json",
+          "evaluationCommit": "9970268482520fbfdae76892e79aa050c4ef5c4c"
+        }
+      }
     }
   ]
 }
