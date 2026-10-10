@@ -37,6 +37,7 @@ import {
     ismnum,
     INVIS,
     IS_DOOR,
+    LL_ACHIEVE,
     LOW_PM,
     MAXULEV,
     MENU_TRADITIONAL,
