@@ -142,17 +142,21 @@ test('stone-to-flesh beam leaves ordinary creatures asleep after statue revival'
     assert.equal(monster.msleeping, true);
 });
 
-test('wary_dog preserves explicit discarded leash and thrown-steed gaps', async () => {
+test('wary_dog releases a leash before retaining only the thrown-steed gap', async () => {
     const f=fixture({monster:{mleashed:true},edog:{killed_by_u:1},draws:[[1,0]]});
     f.state.u.usteed=f.monster;
     const previous=game.unported;
     game.unported=new Set();
     try {
         await dog.wary_dog(f.monster,true,f.env);
-        assert.deepEqual([...game.unported],['apply.c m_unleash','steed.c dismount_steed']);
-        assert.equal(f.monster.mleashed,true,'no invented leash cleanup');
+        assert.deepEqual([...game.unported],['steed.c dismount_steed']);
+        assert.equal(f.monster.mleashed,0,'m_unleash clears the monster attachment');
         assert.equal(f.state.u.usteed,f.monster,'no invented thrown dismount');
-        assert.deepEqual(f.events,[['rn2',1],['redraw',4,5]]);
+        assert.deepEqual(f.events,[
+            ['rn2',1],
+            ['redraw',4,5],
+            ['message','Your leash falls slack.'],
+        ]);
     } finally { game.unported=previous; }
 });
 

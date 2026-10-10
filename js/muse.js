@@ -191,6 +191,7 @@ import { in_rooms } from './rooms.js';
 import { inhishop } from './shk.js';
 import { stairway_at } from './stairs.js';
 import { messageAt } from './startup_a11y.js';
+import { pline_mon } from './pline.js';
 import {
     find_drawbridge,
     is_drawbridge_wall,
@@ -289,14 +290,6 @@ function Deaf(state) {
     const deafness = state.u?.uprops?.[DEAF];
     return Boolean(deafness?.intrinsic || deafness?.extrinsic
         || state.u?.uroleplay?.deaf);
-}
-
-// C ref: pline.c pline_mon() (138-150). Set the message location to the
-// monster's square and output the message. The JS port prefixes an accessible
-// location through messageAt().
-async function pline_mon(mon, text, state, env = {}) {
-    const message = env.message ?? ttyPline;
-    await message(messageAt(text, mon.mx, mon.my, state), state, env);
 }
 
 function activeHeroProperty(state, property) {
@@ -857,7 +850,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
             } else {
                 const flev = {};
                 get_level(flev, nlev, state);
-                migrate_to_level(mtmp, ledger_no(flev, state),
+                await migrate_to_level(mtmp, ledger_no(flev, state),
                     MIGR_RANDOM, null, { state });
             }
         } else {
@@ -928,7 +921,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
             if (heard) await ttyPline(heard, state);
         }
         fill_pit(mtmp.mx, mtmp.my, state);
-        migrate_to_level(mtmp, ledger_no(state.u?.uz, state) + 1,
+        await migrate_to_level(mtmp, ledger_no(state.u?.uz, state) + 1,
             MIGR_RANDOM, null, { state });
         return 2;
     }
@@ -1011,7 +1004,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         if (mtmp.wormno)
             note_unported('worm.c worm_move');
         newsym(trapx, trapy);
-        migrate_to_level(mtmp, ledger_no(state.u?.uz, state) + 1,
+        await migrate_to_level(mtmp, ledger_no(state.u?.uz, state) + 1,
             MIGR_RANDOM, null, { state });
         return 2;
     }
@@ -1028,14 +1021,14 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
                 await ttyPline(
                     `As ${monsterCommonName(mtmp, state)} climbs the stairs, a mysterious force momentarily surrounds ${mhim(mtmp, { state })}...`,
                     state);
-            migrate_to_level(mtmp, ledger_no(state.u?.uz, state) + 1,
+            await migrate_to_level(mtmp, ledger_no(state.u?.uz, state) + 1,
                 MIGR_RANDOM, null, { state });
         } else {
             if (vismon)
                 await pline_mon(mtmp,
                     `${capitalizedMonsterName(mtmp, state)} escapes upstairs!`,
                     state);
-            migrate_to_level(mtmp, ledger_no(stway.tolev, state),
+            await migrate_to_level(mtmp, ledger_no(stway.tolev, state),
                 MIGR_STAIRS_DOWN, null, { state });
         }
         return 2;
@@ -1049,7 +1042,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
             await pline_mon(mtmp,
                 `${capitalizedMonsterName(mtmp, state)} escapes downstairs!`,
                 state);
-        migrate_to_level(mtmp, ledger_no(stway.tolev, state),
+        await migrate_to_level(mtmp, ledger_no(stway.tolev, state),
             MIGR_STAIRS_UP, null, { state });
         return 2;
     }
@@ -1062,7 +1055,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
             await pline_mon(mtmp,
                 `${capitalizedMonsterName(mtmp, state)} escapes up the ladder!`,
                 state);
-        migrate_to_level(mtmp, ledger_no(stway.tolev, state),
+        await migrate_to_level(mtmp, ledger_no(stway.tolev, state),
             MIGR_LADDER_DOWN, null, { state });
         return 2;
     }
@@ -1075,7 +1068,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
             await pline_mon(mtmp,
                 `${capitalizedMonsterName(mtmp, state)} escapes down the ladder!`,
                 state);
-        migrate_to_level(mtmp, ledger_no(stway.tolev, state),
+        await migrate_to_level(mtmp, ledger_no(stway.tolev, state),
             MIGR_LADDER_UP, null, { state });
         return 2;
     }
@@ -1090,7 +1083,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
             await pline_mon(mtmp,
                 `${capitalizedMonsterName(mtmp, state)} escapes ${stway.up ? 'up' : 'down'}stairs!`,
                 state);
-        migrate_to_level(mtmp, ledger_no(stway.tolev, state),
+        await migrate_to_level(mtmp, ledger_no(stway.tolev, state),
             MIGR_SSTAIRS, null, { state });
         return 2;
     }
@@ -1501,7 +1494,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
                         await trycall(otmp, state);
                     }
                     await m_useup(mtmp, otmp, { state });
-                    migrate_to_level(mtmp, ledger_no(tolevel, state),
+                    await migrate_to_level(mtmp, ledger_no(tolevel, state),
                         MIGR_RANDOM, null, { state });
                     return 2;
                 }

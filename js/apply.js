@@ -300,6 +300,7 @@ import {
     haseyes,
     has_head,
     mhe,
+    mhis,
     is_rider,
     is_whirly,
     nohands,
@@ -617,7 +618,7 @@ import {
     zapyourself,
 } from './zap.js';
 import { explode } from './explode.js';
-import { heroUnaware, verbalize } from './pline.js';
+import { heroUnaware, pline_mon, verbalize } from './pline.js';
 import { note_unported } from './unported.js';
 import {
     dbon, dry_a_towel, setmnotwielded, uwep_skill_type,
@@ -1137,6 +1138,45 @@ export function o_unleash(object, env = {}) {
     }
     object.leashmon = 0;
     update_inventory({ ...env, state });
+}
+
+// C ref: apply.c m_unleash() (726-745). This releases the monster-side
+// attachment. Unlike o_unleash(), C clears the inventory object's leashmon,
+// refreshes inventory while mleashed is still set, then clears mleashed.
+// Feedback is Promise-returning because pline_mon()/pline() may pause for the
+// message before C proceeds with attachment cleanup.
+export function m_unleash(monster, feedback, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const release = () => {
+        const leash = get_mleash(monster, state);
+        if (leash) {
+            leash.leashmon = 0;
+            update_inventory({ ...rawEnv, state });
+        }
+        monster.mleashed = 0;
+    };
+
+    if (feedback) {
+        const message = rawEnv.message ?? ttyPline;
+        const pronounEnv = {
+            ...rawEnv,
+            state,
+            canSpotMonster: rawEnv.canSpotMonster ?? canspotmon,
+        };
+        const pending = canseemon(monster, state)
+            ? pline_mon(
+                monster,
+                `${Monnam(monster, state, pronounEnv)} pulls free of `
+                    + `${mhis(monster, pronounEnv)} leash!`,
+                state,
+                { ...pronounEnv, message },
+            )
+            : message('Your leash falls slack.', state, rawEnv);
+        return Promise.resolve(pending).then(release);
+    }
+
+    release();
+    return undefined;
 }
 
 // C ref: apply.c leashable() (761-766). The source reads mnum and the

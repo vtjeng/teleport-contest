@@ -2583,13 +2583,7 @@ export async function invoke_banish(obj, state = game) {
             if (!inhell) {
                 nvanished++;
                 dest.dlevel = rn2(dunlevs_in_dungeon(dest, state));
-                if (mtmp.mleashed) {
-                    // C discards migrate_mon's result. Its leashed
-                    // migrate_to_level path still belongs to dog.c.
-                    note_unported('dog.c migrate_to_level leashed monster migration');
-                } else {
-                    await migrate_mon(mtmp, ledger_no(dest, state), MIGR_RANDOM, state);
-                }
+                await migrate_mon(mtmp, ledger_no(dest, state), MIGR_RANDOM, state);
             } else {
                 await u_teleport_mon(mtmp, false, { state });
             }

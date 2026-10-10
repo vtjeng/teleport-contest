@@ -1486,7 +1486,13 @@ export async function digactualhole(
                     return;
                 } else get_level(toLevel, depth(state.u.uz, state) + 1, state);
                 if (monster.isshk) note_unported('shk.c make_angry_shk');
-                migrate_to_level(monster, ledger_no(toLevel, state), MIGR_RANDOM, null, env);
+                await migrate_to_level(
+                    monster,
+                    ledger_no(toLevel, state),
+                    MIGR_RANDOM,
+                    null,
+                    env,
+                );
             }
         }
     }

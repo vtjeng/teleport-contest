@@ -34,6 +34,7 @@ import {
     grapple_range,
     grapple_target_menu_items,
     leashable,
+    m_unleash,
     number_leashed,
     o_unleash,
     touchstone_ok,
@@ -210,6 +211,36 @@ test('apply.c o_unleash clears the matching monster before refreshing inventory'
     leash.leashmon = 41; // No monster has this id: object-side attachment still clears.
     o_unleash(leash, { state, hooks: { updateInventory() {} } });
     assert.equal(leash.leashmon, 0);
+});
+
+test('apply.c m_unleash clears the object before refreshing inventory and flag', () => {
+    const start = APPLY_C.indexOf(
+        'm_unleash(struct monst *mtmp, boolean feedback)',
+    );
+    const end = APPLY_C.indexOf('\n}\n', start) + 2;
+    assert.ok(start >= 0 && end > start);
+    const cBody = APPLY_C.slice(start, end);
+    assert.match(cBody, /if \(feedback\)[\s\S]*get_mleash\(mtmp\)[\s\S]*otmp->leashmon = 0;\s*update_inventory\(\);\s*\}\s*mtmp->mleashed = 0;/u);
+
+    const monster = { m_id: 27, mleashed: 1, nmon: null };
+    const leash = { otyp: LEASH, leashmon: 27, nobj: null };
+    const state = {
+        invent: leash,
+        level: { monlist: monster },
+        program_state: { in_moveloop: true },
+        iflags: { perm_invent: true },
+    };
+    const refresh = [];
+    m_unleash(monster, false, {
+        state,
+        hooks: { updateInventory() {
+            refresh.push([leash.leashmon, monster.mleashed]);
+        } },
+    });
+
+    assert.deepEqual(refresh, [[0, 1]],
+        'update_inventory runs after the object clears and before mleashed clears');
+    assert.equal(monster.mleashed, 0);
 });
 
 test('leashable follows apply.c species and anatomy checks', () => {

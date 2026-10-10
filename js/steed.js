@@ -75,6 +75,7 @@ import {
 import { isok } from './cmd_isok.js';
 import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
 import { newsym } from './display.js';
+import { m_unleash } from './apply.js';
 import { heal_legs, legs_in_no_shape, set_wounded_legs } from './do.js';
 import { finish_meating } from './dogmove.js';
 import {
@@ -565,10 +566,7 @@ export async function mount_steed(mtmp, force, state = game) {
             + `${mtmp.mleashed ? ' and its leash comes off' : ''}!`,
             state,
         );
-        if (mtmp.mleashed) {
-            // apply.c:m_unleash is void; its leash-pair cleanup remains unported.
-            note_unported('apply.c m_unleash');
-        }
+        if (mtmp.mleashed) m_unleash(mtmp, false, { state });
         return false;
     }
     if (!force && state.u.uinwater && !is_swimmer(ptr)) {
@@ -728,7 +726,7 @@ export async function kick_steed(state = game) {
     }
     if (steed.mtame) --steed.mtame;
     if (!steed.mtame && steed.mleashed)
-        note_unported('apply.c m_unleash');
+        await m_unleash(steed, true, { state });
     if (!steed.mtame || u.ulevel + steed.mtame < rnd(MAXULEV / 2 + 5)) {
         newsym(steed.mx, steed.my, state);
         // The discarded thrown-dismount caller remains outside this port;
