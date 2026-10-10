@@ -248159,6 +248159,275 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "divergence-v39-sink-levitation-boots-pickup-20261010",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Restore sink-fall levitation gear removal callbacks",
+      "cFile": "hack.c",
+      "sessions": [],
+      "selectionReason": "The current admitted v39 sink case has five unmatched screens after hack.c:dosinkfall omits the worn levitation gear removal callbacks.",
+      "detail": "Invoke the existing Ring_off, Boots_off, and off_msg implementations in the source order used by hack.c:dosinkfall.",
+      "openedAt": "90bdbe571749e054b7c80e53bbc88f38df29206f",
+      "openStanding": {
+        "sha": "52c9514b68146f66836e5ff89d4d0be624a2d33d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "dosinkfall",
+      "session": "synthetic/v39/v39-sink-levitation-boots-pickup",
+      "step": 32,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-sink-levitation-boots-pickup": {
+          "session": "synthetic/v39/v39-sink-levitation-boots-pickup",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-sink-levitation-boots-pickup",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-sink-levitation-boots-pickup.session.json",
+          "recordingSha256": "b30989c0a8dbe8d05b38d669e572285e3363abea5d2fdebff79d98804f58f2e8",
+          "evaluationPath": "challenges/evaluations/accepted-52c9514b68146f66836e5ff89d4d0be624a2d33d-v39.json",
+          "evaluationCommit": "52c9514b68146f66836e5ff89d4d0be624a2d33d"
+        }
+      },
+      "activeStanding": {
+        "sha": "52c9514b68146f66836e5ff89d4d0be624a2d33d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-sink-levitation-boots-pickup",
+          "session": "synthetic/v39/v39-sink-levitation-boots-pickup",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-sink-levitation-boots-pickup.session.json",
+          "recordingPath": "challenges/cases/v39/v39-sink-levitation-boots-pickup.session.json",
+          "recordingSha256": "b30989c0a8dbe8d05b38d669e572285e3363abea5d2fdebff79d98804f58f2e8",
+          "recipe": "challenges/cases/v39/v39-sink-levitation-boots-pickup.recipe.session.json",
+          "recipeSha256": "14d86ab18b49cd4181f644f115ee7420bd6cb56ebee99007f4fea3e50f07793e",
+          "replayInputSha256": "95e36fdeb037cd9f4054be767f799cff740f5ce131dceb03447471bbfd53e38e",
+          "evaluationPath": "challenges/evaluations/accepted-52c9514b68146f66836e5ff89d4d0be624a2d33d-v39.json",
+          "evaluationCommit": "52c9514b68146f66836e5ff89d4d0be624a2d33d",
+          "evaluationArtifact": "challenges/evaluations/accepted-52c9514b68146f66836e5ff89d4d0be624a2d33d-v39.json",
+          "evaluationUtc": "2026-10-10T07:56:11.147Z",
+          "remainingScreens": 5,
+          "recordedSteps": 37,
+          "previousScreensMatched": 32,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 37
+            },
+            "rng": {
+              "matched": 2586,
+              "total": 2586
+            },
+            "cursors": {
+              "matched": 36,
+              "total": 37
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 27,
+              "cCell": {
+                "ch": "w",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "s",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": " "
+              },
+              "cCursor": [
+                78,
+                0,
+                1
+              ],
+              "jsCursor": [
+                29,
+                15,
+                1
+              ]
+            }
+          },
+          "step": 32,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-sink-levitation-boots-pickup.json",
+            "result": {
+              "session": "synthetic/v39/v39-sink-levitation-boots-pickup",
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-sink-levitation-boots-pickup",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recordingSha256": "b30989c0a8dbe8d05b38d669e572285e3363abea5d2fdebff79d98804f58f2e8",
+              "evaluationPath": "challenges/evaluations/accepted-52c9514b68146f66836e5ff89d4d0be624a2d33d-v39.json",
+              "evaluationCommit": "52c9514b68146f66836e5ff89d4d0be624a2d33d",
+              "remainingScreens": 5,
+              "recordedSteps": 37,
+              "status": "complete",
+              "commit": "a32daf664bb995a1405c33407f5a339a017004cc",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v39",
+                "caseId": "v39-sink-levitation-boots-pickup",
+                "session": "synthetic/v39/v39-sink-levitation-boots-pickup",
+                "manifestPath": "challenges/manifests/v39.json",
+                "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+                "recording": "challenges/cases/v39/v39-sink-levitation-boots-pickup.session.json",
+                "recordingPath": "challenges/cases/v39/v39-sink-levitation-boots-pickup.session.json",
+                "recordingSha256": "b30989c0a8dbe8d05b38d669e572285e3363abea5d2fdebff79d98804f58f2e8",
+                "recipe": "challenges/cases/v39/v39-sink-levitation-boots-pickup.recipe.session.json",
+                "recipeSha256": "14d86ab18b49cd4181f644f115ee7420bd6cb56ebee99007f4fea3e50f07793e",
+                "replayInputSha256": "9c849123a3d6d04f02b60b84dadcf1b460de318a7ca2ce052b1ffa6dbb7ce224",
+                "evaluationPath": "challenges/evaluations/accepted-bc442e36ad933de77a8051a6ae641fac42ab6780-v39.json",
+                "evaluationCommit": "bc442e36ad933de77a8051a6ae641fac42ab6780",
+                "evaluationArtifact": "challenges/evaluations/accepted-bc442e36ad933de77a8051a6ae641fac42ab6780-v39.json",
+                "evaluationUtc": "2026-10-10T06:34:43.125Z",
+                "remainingScreens": 5,
+                "recordedSteps": 37,
+                "previousScreensMatched": 32,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 32,
+                    "total": 37
+                  },
+                  "rng": {
+                    "matched": 2586,
+                    "total": 2586
+                  },
+                  "cursors": {
+                    "matched": 36,
+                    "total": 37
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 27,
+                    "cCell": {
+                      "ch": "w",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "s",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      78,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      29,
+                      15,
+                      1
+                    ]
+                  }
+                },
+                "step": 32,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch is the missing “You were wearing a +0 pair of levitation boots.” message after the sink fall death refusal. C reaches dosinkfall from Boots_on → spoteffects; dosinkfall removes the levitation boots and calls off_msg. JS dosinkfall skips Boots_off and off_msg even though Boots_off is implemented and off_msg exists as a private helper in do_wear.js.",
+              "source": {
+                "file": "hack.c",
+                "branch": "spoteffects runs on an IS_SINK square while levitation is active; when levitation comes only from worn boots and the hero is not innately levitating, blocked, or flying, dosinkfall takes the fall branch, then removes worn levitation items and reports each removal.",
+                "functions": [
+                  "dosinkfall"
+                ],
+                "callers": [
+                  "hack.c:spoteffects() calls dosinkfall() for IS_SINK && Levitation.",
+                  "do_wear.c:Boots_on() calls spoteffects(FALSE) after float_up() when levitation boots newly activate."
+                ],
+                "dependencies": [
+                  "do_wear.c:Boots_off",
+                  "do_wear.c:off_msg",
+                  "do_wear.c:Ring_off",
+                  "polyself.c:selftouch"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "nethack-c/upstream/src/do_wear.c:186-259: Boots_on() activates levitation boots, calls float_up(), then spoteffects(FALSE) when Levitation is true.",
+                "nethack-c/upstream/src/hack.c:3320-3354: spoteffects() calls dosinkfall() when the current terrain is a sink and Levitation is active.",
+                "nethack-c/upstream/src/hack.c:836-919: dosinkfall() crashes when levitation is only extrinsic from boots, restores the saved levitation fields after damage, then calls Boots_off() followed by off_msg(obj).",
+                "nethack-c/upstream/src/do_wear.c:67-72,262-323: off_msg() prints the removal message and Boots_off() clears the footwear slot and recalculates levitation in source order.",
+                "js/hack.js:2062-2129: dosinkfall() currently records note_unported(\"do_wear.c Boots_off/off_msg\") instead of invoking the implemented Boots_off() and off_msg() helpers.",
+                ".cache/A2-v39-sink-diff-fresh.log: fresh C differential has matching PRNG values (2586/2586) and first screen/cursor mismatch at boundary 33, segment 1, step 33, input space; C displays the boots removal message while JS skips it.",
+                "challenges/cases/v39/v39-sink-levitation-boots-pickup.recipe.session.json: independently designed wizard recipe wishes for a sink and levitation boots, picks up the boots, and starts wearing them over the sink; the C recording proves the sink fall branch is reached."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
