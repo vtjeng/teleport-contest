@@ -10,12 +10,13 @@
 //        dosacrifice() (1854-1896), eval_offering() (1898-1957),
 //        offer_corpse() (1959-2122),
 //        blocked_boulder() (2677-2719), can_pray() (2124-2173),
+//        pray_revive() (2177-2195),
 //        dopray() (2199-2273), prayer_done() (2276-2346),
 //        maybe_turn_mon_iter() (2347-2405), doturn() (2407-2489),
 //        u_gname() (2524), and align_gname() (2530).
 //
-// prayer_done() handles delayed prayer resolution; pray_revive() remains a
-// source gap. pleased() is ported below;
+// prayer_done() handles delayed prayer resolution; pray_revive() scans the
+// hero-square floor pile for a saved tame pet to restore. pleased() is ported below;
 // its calls to helpers without a running-game owner use note_unported().
 
 import { you_unwere } from './were.js';
@@ -32,6 +33,7 @@ import {
     A_CON,
     A_STR,
     A_WIS,
+    ANIMATE_SPELL,
     ALTAR,
     AM_CHAOTIC,
     ANTIMAGIC,
@@ -228,6 +230,7 @@ import {
     RIN_LEVITATION,
     RIN_SUSTAIN_ABILITY,
     SADDLE,
+    STATUE,
     WEAPON_CLASS,
     SPE_TURN_UNDEAD,
 } from './objects.js';
@@ -250,6 +253,7 @@ import { d, rn1, rn2, rnl, rnd, rne, rnz } from './rng.js';
 import { aggravate } from './wizard.js';
 import { Punished } from './steed.js';
 import {
+    animate_statue,
     Flying,
     Levitation,
     reset_utrap,
@@ -271,7 +275,7 @@ import { set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
 import { dlord, summon_minion } from './minion.js';
 import { cmap_to_type } from './mkroom.js';
-import { resist } from './zap.js';
+import { resist, revive } from './zap.js';
 import { ureflects } from './muse.js';
 import { known_spell, spelleffects } from './spell.js';
 import { welded } from './wield.js';
@@ -1581,6 +1585,27 @@ export async function can_pray(praying, state = game) {
         : true;
 }
 
+// C ref: pray.c pray_revive() (2177-2195). C walks the hero's floor pile
+// in order and tries to restore only a saved tame pet that is not a minion.
+async function pray_revive(state = game) {
+    const { ux, uy } = state.u;
+    let otmp = state.level.objects[ux][uy];
+    for (; otmp; otmp = otmp.nexthere) {
+        const saved = otmp.oextra?.omonst;
+        if ((otmp.otyp === CORPSE || otmp.otyp === STATUE)
+            && saved?.mtame && !saved.isminion) {
+            break;
+        }
+    }
+    if (!otmp) return false;
+
+    if (otmp.otyp === CORPSE)
+        return Boolean(await revive(otmp, true, { state }));
+    return Boolean(await animate_statue(
+        otmp, ux, uy, ANIMATE_SPELL, { state },
+    ));
+}
+
 // C ref: pray.c dopray() (2199-2273), the '#pray' command.
 export async function dopray(state = game) {
     /*
@@ -1753,7 +1778,7 @@ export async function prayer_done(state = game) {
     } else {
         // C discards pray_revive()'s result, then calls water_prayer(TRUE).
         if (on_altar(state)) {
-            note_unported('pray.c pray_revive');
+            await pray_revive(state);
             await water_prayer(true, state);
         }
         await pleased(alignment, state);
