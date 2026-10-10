@@ -330,7 +330,6 @@ import {
     RIN_TELEPORTATION,
     RIN_TELEPORT_CONTROL,
     RING_CLASS,
-    SCROLL_CLASS,
     RIN_WARNING,
     RIN_FIRE_RESISTANCE,
 } from './objects.js';
@@ -1920,12 +1919,11 @@ export function preflight_dropx(obj, env = {}) {
     if (!u || u.uswallow)
         throw new UnsupportedDropError('a swallowed hero');
     // Direct dropx()/dropz() callers, including confused reverse_loot(), do
-    // not test can_reach_floor(). That test belongs to drop() before its
-    // hitfloor() branch; dropz maps Blind && Levitation after stacking.
-    if (u.uinwater || on_level(u.uz, state.air_level)
-        || on_level(u.uz, state.water_level)) {
-        throw new UnsupportedDropError('underwater or special-level display');
-    }
+    // not test can_reach_floor(). Underwater drops still reach flooreffects;
+    // its pool arm suppresses splash messages while Underwater is true. Keep
+    // special-level display paths outside this ordinary drop admission.
+    if (on_level(u.uz, state.air_level) || on_level(u.uz, state.water_level))
+        throw new UnsupportedDropError('special-level display');
     // dig.c:341 drops uwep directly; do.c:810 clears it in dropz after
     // extraction, shipping and altar handling. Admit only that primary mask.
     const primaryWeapon = state.uwep === obj && obj.owornmask === W_WEP;
@@ -1967,12 +1965,13 @@ export function preflight_dropx(obj, env = {}) {
         || uescaped_shaft(trap, state))) {
         throw new UnsupportedDropError('shipping or floor effects at a trap');
     }
-    // do.c:flooreffects consumes trap.c:water_damage's return. Its plain
-    // scroll arm preserves the detached object, whether Luck protects it or
-    // it becomes blank paper. Other liquid-damage branches remain bounded.
-    const poolScroll = is_pool(x, y, state) && obj.oclass === SCROLL_CLASS
-        && !obj.greased && !obj.lamplit && !obj.timed && !obj.globby;
-    if (is_lava(x, y, state) || (is_pool(x, y, state) && !poolScroll))
+    // do.c:flooreffects routes ordinary objects through trap.c:lava_damage or
+    // water_damage before floor placement. Boulder/pool has its separate
+    // boulder_hits_pool branch and stays outside this ordinary admission.
+    const pool = is_pool(x, y, state);
+    const lava = is_lava(x, y, state);
+    const ordinaryLiquid = lava || (pool && obj.otyp !== BOULDER);
+    if ((pool || lava) && !ordinaryLiquid)
         throw new UnsupportedDropError('liquid terrain');
     // do.c:flooreffects leaves a boulder intact on dry terrain without a
     // pit or hole. The trap and liquid guards above bound this floor path.
@@ -1981,7 +1980,7 @@ export function preflight_dropx(obj, env = {}) {
     if (location.typ !== ROOM && location.typ !== CORR
         && location.typ !== DOOR && location.typ !== SINK
         && location.typ !== THRONE && !IS_ALTAR(location.typ) && !stway
-        && !poolScroll) {
+        && !ordinaryLiquid) {
         throw new UnsupportedDropError('non-ordinary terrain');
     }
     // do.c:dropx/dropz/flooreffects adds no effect for an engraving on dry
