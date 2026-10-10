@@ -248441,7 +248441,7 @@
     {
       "id": "fix-wizard-create-particular-object-generation-v39-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Supply object construction hooks during wizard monster creation",
       "cFile": "read.c",
       "sessions": [],
@@ -248453,8 +248453,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "create_particular_creation",
       "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
       "step": 94,
@@ -248632,7 +248635,81 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-counted-wizgenesis-mimic-population",
+          "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+          "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
+          "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
+          "replayInputSha256": "c86a0d605f084496ae3af63ae52300dbd10684bfdf84624fd116f72a75c1be4d",
+          "evaluationPath": "challenges/evaluations/accepted-7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e-v39.json",
+          "evaluationCommit": "7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e",
+          "evaluationArtifact": "challenges/evaluations/accepted-7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e-v39.json",
+          "evaluationUtc": "2026-10-10T08:24:49.074Z",
+          "remainingScreens": 0,
+          "recordedSteps": 114,
+          "previousScreensMatched": 94,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 114,
+              "total": 114
+            },
+            "rng": {
+              "matched": 6543,
+              "total": 6551
+            },
+            "cursors": {
+              "matched": 114,
+              "total": 114
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 6508,
+              "cEntry": "rn2(100)=19",
+              "cCaller": "obj_resists(zap.c:1469)",
+              "jsEntry": "rn2(5)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 113,
+                "key": "h"
+              },
+              "stepIndex": 113
+            },
+            "cursor": null
+          },
+          "step": 113,
+          "kind": "rng",
+          "sourceFile": "zap.c",
+          "function": "obj_resists",
+          "message": null,
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 1469,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v39/v39-counted-wizgenesis-mimic-population.json",
+            "previousRemainingScreens": 20
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

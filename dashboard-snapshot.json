@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T08:17:35.804Z",
+  "capturedAt": "2026-10-10T08:29:29.719Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -79899,22 +79899,85 @@
         "type": "accepted",
         "at": "2026-10-10T08:16:58.145Z",
         "task": "A2-investigation-v39-sink-levitation-boots-pickup-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v39-sink-levitation-boots-pickup-20261010-44e88614b466c1dee61ababe644c2244f8ed5080",
+        "type": "published",
+        "at": "2026-10-10T08:17:43.706Z",
+        "task": "A2-investigation-v39-sink-levitation-boots-pickup-20261010",
+        "commit": "44e88614b466c1dee61ababe644c2244f8ed5080"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-sink-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T08:18:56.706Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Merged accepted sink Main and checked the refreshed queue. Remaining cases are owned by B or C, or the mounted-polymorph follow-up depends on A2 knockoff acceptance releasing its dismount scope; A2 is idle and connected."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-wizgenesis-7a75dbe7-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T08:21:38.921Z",
+        "task": "C-v39-counted-wizgenesis-followup-20261010",
+        "integration": "7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B213-finalize-20261010",
+        "type": "turn",
+        "at": "2026-10-10T08:24:43.305Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B213 retouch port has matching source and runtime evidence; finalizing its scoped delivery after the accepted Main sync."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-866131f2ddbaa1555be7682b35e1cb909e2d67d2",
+        "type": "ready",
+        "at": "2026-10-10T08:24:46.868Z",
+        "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete",
+        "delivery": "866131f2ddbaa1555be7682b35e1cb909e2d67d2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-B213-866131f2-20261010",
+        "type": "received",
+        "at": "2026-10-10T08:26:01.095Z",
+        "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete",
+        "delivery": "866131f2ddbaa1555be7682b35e1cb909e2d67d2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-wizgenesis-38037615066-20261010",
+        "type": "validated",
+        "at": "2026-10-10T08:27:36.635Z",
+        "task": "C-v39-counted-wizgenesis-followup-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-no-independent-v39-20261010",
+        "type": "turn",
+        "at": "2026-10-10T08:27:58.520Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B213 is submitted. No independent v39 candidate is currently available: the sole unreserved session is diagnosed to A2-owned steed.c behavior, while other candidates are reserved or submitted. Waiting for a refreshed queue or source release."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v39-counted-wizgenesis-followup-20261010-7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T08:28:39.325Z",
+        "task": "C-v39-counted-wizgenesis-followup-20261010"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C-v39-counted-wizgenesis-followup-20261010",
-        "worker": "C",
-        "goal": "fix-wizard-create-particular-object-generation-v39-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "c849eb955ab487a30f2edd282ba9c3adf9cbf5a1",
-        "since": "2026-10-10T07:06:52.843Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "C-v39-wield-cockatrice-instapetrify-investigation-20261010",
         "worker": "C",
@@ -79923,10 +79986,8 @@
         "status": "ready",
         "delivery": "3467477aae88da2f03c96ba496737be02bc7c124",
         "since": "2026-10-10T07:22:05.094Z",
-        "blockedBy": [
-          "C-v39-counted-wizgenesis-followup-20261010"
-        ],
-        "unblocks": 0
+        "blockedBy": [],
+        "unblocks": 1
       },
       {
         "task": "B214-investigation-v39-magic-trap-explosion",
@@ -79937,7 +79998,7 @@
         "delivery": "1d2b4383d02ec9259df1470e605ebeaaac8d4a17",
         "since": "2026-10-10T07:34:25.747Z",
         "blockedBy": [],
-        "unblocks": 0
+        "unblocks": 1
       },
       {
         "task": "A2-v39-mounted-steed-knockoff-investigation-20261010",
@@ -79959,8 +80020,20 @@
         "delivery": "eec51067322c1ecce023196d7e29f916c00ded71",
         "since": "2026-10-10T07:47:41.562Z",
         "blockedBy": [
-          "C-v39-counted-wizgenesis-followup-20261010",
           "C-v39-wield-cockatrice-instapetrify-investigation-20261010"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete",
+        "worker": "B",
+        "goal": "port-artifact-retouch-equipment-v39-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "866131f2ddbaa1555be7682b35e1cb909e2d67d2",
+        "since": "2026-10-10T08:24:46.868Z",
+        "blockedBy": [
+          "B214-investigation-v39-magic-trap-explosion"
         ],
         "unblocks": 0
       }
@@ -80267,8 +80340,8 @@
     ]
   },
   "development": {
-    "executionCommit": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37",
-    "measuredAt": "2026-10-10T08:15:34.854Z",
+    "executionCommit": "7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e",
+    "measuredAt": "2026-10-10T08:26:03.580Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
