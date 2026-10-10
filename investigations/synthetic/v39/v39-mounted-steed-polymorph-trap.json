@@ -63,7 +63,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The first mismatch is a JavaScript ReferenceError in mon.c:newcham’s tame old-form naming: js/mon.js:shapeOldNames uses ARTICLE_YOUR but js/mon.js does not import it from js/const.js. C passes ARTICLE_YOUR to do_name.c:x_monnam for a tame monster, and the existing JS x_monnam already supports that article. Importing the existing constant fixes the general source path; this is a divergence fix, not missing C behavior.",
+  "summary": "The original stop was a JavaScript binding defect: mon.c:newcham’s tame old-name path uses ARTICLE_YOUR, but js/mon.js did not import it. That import fix is committed and clears all 29 recorded screens and cursors. The new first mismatch is a separate missing steed effect: C reaches steed.c:landing_spot through newcham’s poly_steed call, while JS still records note_unported(\"steed.c poly_steed\"), leaving two RNG calls missing. That source gap is outside this bounded naming fix.",
   "source": {
     "file": "mon.c",
     "branch": "When NC_SHOW_MSG is set, newcham captures the old tame monster name before changing form by calling x_monnam(mtmp, ARTICLE_YOUR, NULL, SUPPRESS_SADDLE, FALSE); this branch is reached when a mounted tame steed is polymorphed by a trap and is sighted or sensed.",
@@ -76,7 +76,8 @@
     ],
     "dependencies": [
       "do_name.c:x_monnam",
-      "const.h:ARTICLE_YOUR"
+      "const.h:ARTICLE_YOUR",
+      "steed.c:poly_steed -> steed.c:dismount_steed -> steed.c:landing_spot (separate follow-up gap; outside this delivery)"
     ]
   },
   "goalKind": "divergence-fix",
@@ -86,6 +87,8 @@
     "Upstream nethack-c/upstream/src/trap.c:steedintrap (around 3154-3156) calls newcham(steed, NULL, NC_SHOW_MSG) for a mounted steed hit by a polymorph trap; trap.c:trapeffect_poly_trap also calls newcham for a non-hero trapped tame monster. Upstream mon.c:newcham (5278-5534; old-name construction around 5308-5315) passes ARTICLE_YOUR for mtmp->mtame and suppresses the saddle. The later call to poly_steed is at mon.c:5518.",
     "The naming callee is defined in do_name.c:x_monnam at 827. It retains ARTICLE_YOUR only for tame monsters and formats it as “your ”; the JS counterpart js/do_name.js imports ARTICLE_YOUR and has the corresponding article branch. The v39 manifest labels this pointer objnam.c, but the actual C definition is in do_name.c.",
     "js/mon.js:shapeOldNames at 2758 references ARTICLE_YOUR without importing it. js/const.js exports ARTICLE_YOUR, while js/mon.js imports ARTICLE_A, ARTICLE_NONE, and ARTICLE_THE only. Fresh-process replay `node frozen/ps_test_runner.mjs --worker-session=challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json` stopped at moves 28 with error `ARTICLE_YOUR is not defined`; its JSON result is saved in .cache/a2-v39-mounted-steed.before.log (0/29 screens, 0/2642 RNG calls, 0/29 cursors because replay aborts).",
-    "Actionable fix: add ARTICLE_YOUR to js/mon.js’s existing const.js import and add a focused source-pinned test in scripts/mon.test.mjs that invokes newcham with NC_SHOW_MSG on a tame monster and verifies its old-name message. The existing x_monnam implementation handles the name; do not change trap behavior, steed logic, naming logic, or session data."
+    "Source-scoped implementation: add ARTICLE_YOUR to js/mon.js’s existing const.js import and test newcham with NC_SHOW_MSG on a tame monster. The existing x_monnam implementation handles the article; trap behavior, steed behavior, naming logic, and session data are outside this bounded fix.",
+    "Implemented in commit bf1569ae1ef20b1ea98df7b8964afe45b1877e06: js/mon.js imports the existing ARTICLE_YOUR constant; scripts/mon.test.mjs pins the mon.c:newcham tame old-name call and message, and asserts the complete mocked draw sequence. The focused bounded test passes 53/53 and npm run lint passes.",
+    "Post-fix fresh differential and fresh-process replay: .cache/A2-v39-mounted-steed-diff.log reports all 29/29 screens and cursors matching, but 2640/2642 RNG calls; the first missing call is C rn2(3)=2 at segment 1 step 29 in steed.c:landing_spot. .cache/A2-v39-mounted-steed-after.log confirms the same 29/29 screens/cursors, 2640/2642 RNG calls, with no error. This is the separate unported poly_steed/dismount path described above."
   ]
 }
