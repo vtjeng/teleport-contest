@@ -1271,14 +1271,17 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !randomCoordinates
         && isok(x, y)
         && mmflags === NO_MM_FLAGS;
-    // mkroom.c mkundead() uses the same explicit-coordinate placement with
-    // NO_MINVENT. C suppresses inventory without adding a species or terrain
-    // admission rule; occupied squares still return null below.
+    // mkroom.c mkundead() uses explicit-coordinate placement with
+    // NO_MINVENT. pickup.c observe_quantum_cat() adds MM_ADJACENTOK and
+    // MM_NOMSG for its housecat. Both C call shapes suppress inventory;
+    // the latter also permits an adjacent placement when the box square is
+    // occupied and suppresses the appearance message.
     const explicitCoordinateNoMinventRuntimeCall = !state.in_mklev
         && Boolean(ptr)
         && !randomCoordinates
         && isok(x, y)
-        && mmflags === NO_MINVENT;
+        && (mmflags === NO_MINVENT
+            || mmflags === (NO_MINVENT | MM_ADJACENTOK | MM_NOMSG));
     // C makemon() accepts explicit, inventoryless creation at the hero's
     // square on every runtime level. Its source-owned placement path first
     // relocates to enexto_core(); admission is based only on those arguments
