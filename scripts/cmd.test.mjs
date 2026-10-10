@@ -5218,3 +5218,15 @@ test('queued doextlist follows its source pointer without an extended-command re
     assert.equal(state.nhDisplay.inputQueueLength, 0);
     assert.equal(cmdq_peek(CQ_CANNED, state), null);
 });
+
+test('#timeout extcmd dispatch resolves to the source-owned diagnostic', () => {
+    const source = readFileSync('nethack-c/upstream/src/cmd.c', 'utf8');
+    const js = readFileSync('js/cmd.js', 'utf8');
+    const doextcmd = source.slice(
+        source.indexOf('doextcmd(void)'),
+        source.indexOf('\n}', source.indexOf('doextcmd(void)')) + 2,
+    );
+    assert.match(doextcmd, /func = extcmdlist\[idx\]\.ef_funct;[\s\S]*retval = \(\*func\)\(\);/u);
+    assert.equal(extcmdRow('timeout').ef_funct, 'wiz_timeout_queue');
+    assert.match(js, /case 'wiz_timeout_queue':[\s\S]*?await import\('\.\/timeout\.js'\)[\s\S]*?await wiz_timeout_queue\(state\)/u);
+});

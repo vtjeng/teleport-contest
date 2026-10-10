@@ -6,7 +6,7 @@
 import { NO_COLOR } from './terminal.js';
 import { engr_stats } from './engrave.js';
 import { light_stats } from './light.js';
-import { timer_stats } from './timeout.js';
+import { property_by_index, timer_stats } from './timeout.js';
 import { region_stats } from './region.js';
 import { size_wseg } from './worm.js';
 import { FIRST_OBJECT, NUM_OBJECTS, MAXOCLASSES, OBJ_NAME } from './objects.js';
@@ -17,90 +17,39 @@ import { fill_glyphid_cache, free_glyphid_cache, glyphid_cache_status, wizcustom
 import { mstrength } from './mondata.js';
 import { memoryLayout } from './wizcmds_data.js';
 import {
-    ACID_RES,
     ARTICLE_A, ARTICLE_THE, ARTICLE_YOUR,
     ARM,
-    ADORNED,
-    AGGRAVATE_MONSTER,
-    ANTIMAGIC,
     BLINDED,
-    BLND_RES,
-    CLAIRVOYANT,
-    COLD_RES,
     COLNO, ROWNO, COULD_SEE, IN_SIGHT, TEMP_LIT, BUFSZ, NEUTRAL,
     CORR, SDOOR, WM_MASK, IS_WALL, IS_ROOM, IS_DOOR,
     CONFUSION,
-    CONFLICT,
     DEAF,
-    DETECT_MONSTERS,
     DIED,
-    DISINT_RES,
-    DISPLACED,
-    DRAIN_RES,
     ECMD_OK,
     ECMD_CANCEL,
-    ENERGY_REGENERATION,
-    FAST,
     FIRE_RES,
-    FIXED_ABIL,
     FLYING,
-    FREE_ACTION,
-    FUMBLING,
     GLIB,
     HALLUC,
     HALLUC_RES,
-    HALF_PHDAM,
-    HALF_SPDAM,
-    HUNGER,
-    INFRAVISION,
-    INVIS,
-    INVULNERABLE,
-    JUMPING,
     KILLED_BY,
     LEVITATION,
-    LIFESAVED,
-    MAGICAL_BREATHING,
     MAXULEV,
     NHL_SB_SAFE, NHL_SB_DEBUGGING,
-    PASSES_WALLS,
     PICK_ANY, PICK_NONE, PRIMARYSET,
     POLY_CONTROLLED,
-    POLYMORPH,
-    POLYMORPH_CONTROL,
-    POISON_RES,
-    PROTECTION,
     PROT_FROM_SHAPE_CHANGERS,
-    REGENERATION,
-    REFLECTING,
-    SEARCHING,
-    SEE_INVIS,
     SICK,
-    SICK_RES,
     SICK_NONVOMITABLE,
     SICK_VOMITABLE,
-    SHOCK_RES,
-    SLEEP_RES,
-    SLEEPY,
     SLIMED,
-    SLOW_DIGESTION,
     STONED,
     STONE,
-    STONE_RES,
-    STEALTH,
-    STRANGLED,
     STUNNED,
     SUPPRESS_IT, SUPPRESS_HALLUCINATION, SUPPRESS_SADDLE,
-    SWIMMING,
-    TELEPAT,
-    TELEPORT,
-    TELEPORT_CONTROL,
     TIMEOUT,
-    UNCHANGING,
     VOMITING,
     WARN_OF_MON,
-    WARN_UNDEAD,
-    WARNING,
-    WOUNDED_LEGS,
     WWALKING,
     XKILL_NOMSG,
     has_mgivenname, MGIVENNAME, MM_NOMSG, MIGR_RANDOM, MIGR_EXACT_XY,
@@ -489,80 +438,6 @@ export async function wiz_genesis(state = game) {
     return ECMD_OK;
 }
 
-// timeout.c propertynames[] (30-114), kept in source order because the TTY
-// menu assigns selectors by position and wizcmds.c uses the same index to
-// recover the property after selection.
-const WIZ_INTRINSIC_PROPERTIES = Object.freeze([
-    [INVULNERABLE, 'invulnerable'],
-    [STONED, 'petrifying'],
-    [SLIMED, 'becoming slime'],
-    [STRANGLED, 'strangling'],
-    [SICK, 'fatally sick'],
-    [STUNNED, 'stunned'],
-    [CONFUSION, 'confused'],
-    [HALLUC, 'hallucinating'],
-    [BLINDED, 'blinded'],
-    [DEAF, 'deafness'],
-    [VOMITING, 'vomiting'],
-    [GLIB, 'slippery fingers'],
-    [WOUNDED_LEGS, 'wounded legs'],
-    [SLEEPY, 'sleepy'],
-    [TELEPORT, 'teleporting'],
-    [POLYMORPH, 'polymorphing'],
-    [LEVITATION, 'levitating'],
-    [FAST, 'very fast'],
-    [CLAIRVOYANT, 'clairvoyant'],
-    [DETECT_MONSTERS, 'monster detection'],
-    [SEE_INVIS, 'see invisible'],
-    [INVIS, 'invisible'],
-    [ACID_RES, 'acid resistance'],
-    [STONE_RES, 'stoning resistance'],
-    [DISPLACED, 'displaced'],
-    [PASSES_WALLS, 'pass thru walls'],
-    [MAGICAL_BREATHING, 'magical breathing'],
-    [WWALKING, 'water walking'],
-    [FIRE_RES, 'fire resistance'],
-    [COLD_RES, 'cold resistance'],
-    [SLEEP_RES, 'sleep resistance'],
-    [DISINT_RES, 'disintegration resistance'],
-    [SHOCK_RES, 'shock resistance'],
-    [POISON_RES, 'poison resistance'],
-    [DRAIN_RES, 'drain resistance'],
-    [SICK_RES, 'sickness resistance'],
-    [ANTIMAGIC, 'magic resistance'],
-    [HALLUC_RES, 'hallucination resistance'],
-    [BLND_RES, 'light-induced blindness resistance'],
-    [FUMBLING, 'fumbling'],
-    [HUNGER, 'voracious hunger'],
-    [TELEPAT, 'telepathic'],
-    [WARNING, 'warning'],
-    [WARN_OF_MON, 'warn: monster type or class'],
-    [WARN_UNDEAD, 'warn: undead'],
-    [SEARCHING, 'searching'],
-    [INFRAVISION, 'infravision'],
-    [ADORNED, 'adorned (+/- Cha)'],
-    [STEALTH, 'stealthy'],
-    [AGGRAVATE_MONSTER, 'monster aggravation'],
-    [CONFLICT, 'conflict'],
-    [JUMPING, 'jumping'],
-    [TELEPORT_CONTROL, 'teleport control'],
-    [FLYING, 'flying'],
-    [SWIMMING, 'swimming'],
-    [SLOW_DIGESTION, 'slow digestion'],
-    [HALF_SPDAM, 'half spell damage'],
-    [HALF_PHDAM, 'half physical damage'],
-    [REGENERATION, 'HP regeneration'],
-    [ENERGY_REGENERATION, 'energy regeneration'],
-    [PROTECTION, 'extra protection'],
-    [PROT_FROM_SHAPE_CHANGERS, 'protection from shape changers'],
-    [POLYMORPH_CONTROL, 'polymorph control'],
-    [UNCHANGING, 'unchanging'],
-    [REFLECTING, 'reflecting'],
-    [FREE_ACTION, 'free action'],
-    [FIXED_ABIL, 'fixed abilities'],
-    [LIFESAVED, 'life will be saved'],
-]);
-
 function wizardIntrinsicMenuSpec(state) {
     const items = [];
     if (state.iflags?.cmdassist) {
@@ -571,8 +446,11 @@ function wizardIntrinsicMenuSpec(state) {
                 + 'than 30.]',
         });
     }
-    for (const [index, [property, name]]
-        of WIZ_INTRINSIC_PROPERTIES.entries()) {
+    for (let index = 0; ; ++index) {
+        const propertynum = { value: 0 };
+        const name = property_by_index(index, propertynum);
+        if (name === null) break;
+        const property = propertynum.value;
         if (property === HALLUC_RES) continue;
         if (property === FIRE_RES) items.push({ text: '--' });
         const prop = state.u.uprops[property] ??= {
@@ -610,9 +488,10 @@ export async function wiz_intrinsic(state = game, rawEnv = {}) {
 
     const selected = await select_menu(state, wizardIntrinsicMenuSpec(state));
     for (const entry of selected ?? []) {
-        const propertyEntry = WIZ_INTRINSIC_PROPERTIES[entry.value - 1];
-        if (!propertyEntry) continue;
-        const [property, name] = propertyEntry;
+        const propertynum = { value: 0 };
+        const name = property_by_index(entry.value - 1, propertynum);
+        if (name === null) continue;
+        const property = propertynum.value;
         const prop = state.u.uprops[property] ??= {
             intrinsic: 0,
             extrinsic: 0,

@@ -22,12 +22,14 @@ import {
     UnsupportedRegionCallbackError,
     UnsupportedRegionOperationError,
     add_region,
+    any_visible_region,
     create_gas_cloud,
     create_gas_cloud_selection,
     create_region,
     in_out_region,
     inside_rect,
     inside_region,
+    visible_region_summary,
     inside_gas_cloud,
     m_in_out_region,
     region_danger,
@@ -886,4 +888,43 @@ test('region_danger counts only a gas cloud the hero cannot shrug off', () => {
         inside_f: 0, hero_inside: true,
     }));
     assert.equal(region_danger(state), true);
+});
+
+
+test('any_visible_region and visible_region_summary follow the timeout source traversal', () => {
+    const source = REGION_SOURCE.slice(
+        REGION_SOURCE.indexOf('any_visible_region(void)'),
+        REGION_SOURCE.indexOf('/* Check if a spot is under a visible region',
+            REGION_SOURCE.indexOf('any_visible_region(void)')));
+    assert.ok(source.includes('if (!gr.regions[i]->visible || gr.regions[i]->ttl == -2L)'));
+    assert.ok(source.includes('if (!reg->visible || reg->ttl == -2L)'));
+    assert.ok(source.includes('reg->ttl + 1L'));
+    assert.ok(source.includes('poison gas (%d)'));
+    assert.ok(source.includes('iflags.menu_tab_sep'));
+
+    const state = regionState();
+    const hidden = pointRegion(1, 1, { visible: false, ttl: 5, arg: 0 });
+    const expired = pointRegion(2, 2, { visible: true, ttl: -2, arg: 3 });
+    state.level.regions = [hidden, expired];
+    assert.equal(any_visible_region(state), false);
+    const vapor = pointRegion(3, 3, { visible: true, ttl: 0, arg: 0 });
+    const gas = pointRegion(4, 4, { visible: true, ttl: 4, arg: 7 });
+    state.level.regions.push(vapor, gas);
+    assert.equal(any_visible_region(state), true);
+    const lines = [];
+    visible_region_summary(lines, state);
+    assert.deepEqual(lines.map(line => line.text), [
+        '', 'Visible regions',
+        `    1  ${'vapor'.padEnd(16)}  @[3,3..3,3]`,
+        `    5  ${'poison gas (7)'.padEnd(16)}  @[4,4..4,4]`,
+    ]);
+
+    state.iflags.menu_tab_sep = true;
+    const separated = [];
+    visible_region_summary(separated, state);
+    assert.deepEqual(separated.map(line => line.text), [
+        '', 'Visible regions',
+        `    1\t${'vapor'.padEnd(16)}\t@[3,3..3,3]`,
+        `    5\t${'poison gas (7)'.padEnd(16)}\t@[4,4..4,4]`,
+    ]);
 });
