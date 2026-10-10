@@ -255891,7 +255891,7 @@
     {
       "id": "port-hack-moverock-core-cannot-push-v41-boulder-pit-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete hack.c cannot_push through moverock_core so boulder push failures preserve their return values and destination traps apply their source effects.",
       "cFile": "hack.c",
       "sessions": [
@@ -255913,7 +255913,7 @@
           "line": 262,
           "endLine": 314,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "rock_disappear_msg",
@@ -255941,7 +255941,7 @@
           "line": 348,
           "endLine": 646,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -256120,7 +256120,120 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "moverock_core",
+            "implementation": "js/hack.js",
+            "symbol": "moverock_core",
+            "sourceReview": "Read and ported the complete hack.c:moverock_core definition (348-638) in C definition order. The while loop preserves boulder pile naming, visibility, nomul, the m-prefix movement result, levitation/air and tiny-hero refusals, destination checks, early m_at/costly evaluation, Sokoban diagonal refusal, revive_nasty before the corporeal-monster test, closed-door handling, buried-zombie disturbance, every destination trap arm, boulder_hits_pool boolean continuation, object-chain relinking, and dopush order. PIT/SPIKED_PIT detaches the object, marks the destination IN_SIGHT, consumes flooreffects(...,\"fall\"), restores an unconsumed object, redraws a visible monster, and returns according to remaining boulders at the source square. HOLE/TRAPDOOR, landmine, level/teleport, and rolling-trap branches preserve their source return decisions. Return-valued helpers flooreffects, boulder_hits_pool, revive_nasty, random_teleport_level, and cannot_push are consumed at their C sites. For discarded void callees, mounted cannot_push_msg is skipped with note_unported; Sokoban guilt and maybe_finish_sokoban are explicit note_unported gaps; trap.c:launch_obj is skipped with note_unported in the rolling-boulder branch. trap.c:fill_pit is called through its existing implementation, which records its do.c:flooreffects gap. No placeholder refusal remains inside moverock_core.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "moverock",
+                "source": "hack.c:moverock():336-345 calls moverock_core(sx,sy), then moverock_done() to reset next_boulder names and returns the same result."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "test_move",
+                "source": "hack.c:test_move():1223-1230 calls moverock() only for mode DO_MOVE; a negative result rejects the attempted step, while zero allows hero arrival."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "domove_core",
+                "source": "hack.c:domove_core():2843 calls test_move(...,DO_MOVE) after command direction setup and before changing the hero position."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:rhack dispatches the selected movement command to domove(), which reaches domove_core and test_move."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hack.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/hero-magic-trap-invisibility.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-boulder-fills-pit-from-hero-action",
+                "segment": 0,
+                "fromStep": 51,
+                "throughStep": 51,
+                "source": "cmd.c:rhack -> hack.c:domove_core -> hack.c:test_move(DO_MOVE) -> hack.c:moverock -> hack.c:moverock_core PIT branch -> do.c:flooreffects(...,\"fall\")"
+              }
+            ],
+            "checkedAt": "74c1c3969bad5b5c7ce7f19150a347466b056d24"
+          },
+          {
+            "name": "cannot_push",
+            "implementation": "js/hack.js",
+            "symbol": "cannot_push",
+            "sourceReview": "Read and ported the whole hack.c:cannot_push definition (262-312). Giant pickup eligibility uses the non-Sokoban, inventory-slot and carried-boulder checks; autopick_testobj determines whether the message says it is picked up, while insufficient riding skill selects the mounted feedback. Otherwise the giant maneuvers over the boulder and the helper calls note_unported(\"trap.c sokoban_guilt\") for C’s discarded void call. A non-giant whose could_move_onto_boulder test passes receives the squeeze message, the same explicit guilt gap, and return 0; the fallback returns -1 without output. The async message return is awaited at all five moverock_core call sites, and each caller forwards it unchanged. autopick_testobj is the existing source-matched pickup.c implementation.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "moverock_core",
+                "source": "hack.c:moverock_core returns cannot_push unchanged at lines 430, 447, 482, 487, and 634 for a too-small hero, Sokoban diagonal refusal, blocking corporeal monster, closed destination door, and invalid destination."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hack.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/hero-magic-trap-invisibility.session.json"
+            ],
+            "checkedAt": "74c1c3969bad5b5c7ce7f19150a347466b056d24"
+          }
+        ],
+        "entryPointReview": "A direct C call search finds one active caller of moverock_core: hack.c:moverock():342. The production hero route is cmd.c:rhack -> hack.c:domove/domove_core -> hack.c:test_move(DO_MOVE) -> hack.c:moverock -> hack.c:moverock_core. test_move calls moverock only in DO_MOVE mode; its TEST_MOVE, TEST_TRAV, and TEST_TRAP callers do not activate moverock. A direct search finds cannot_push only inside moverock_core, at its five return-valued failure sites. The accepted v41 case executes the ordinary command entry through the PIT branch at zero-based step 51. The existing independent trap recipe executes the blocked destination route and reaches cannot_push at segment 0 steps 65-68. The rolling-boulder launch, Sokoban guilt/prize, and mounted failure-feedback callees remain explicit note_unported gaps as described in sourceReview; no entry point is claimed for those unported callees.",
+        "entryPoints": [
+          {
+            "name": "hack.c:moverock_core ordinary hero push into a pit",
+            "functions": [
+              "moverock_core"
+            ],
+            "recordings": [
+              "recordings/trap.c/hero-magic-trap-invisibility.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-boulder-fills-pit-from-hero-action",
+                "segment": 0,
+                "fromStep": 51,
+                "throughStep": 51,
+                "source": "hero movement command -> hack.c:test_move(DO_MOVE) -> moverock -> moverock_core -> do.c:flooreffects"
+              }
+            ]
+          },
+          {
+            "name": "hack.c:cannot_push blocked boulder movement",
+            "functions": [
+              "cannot_push"
+            ],
+            "recordings": [
+              "recordings/trap.c/hero-magic-trap-invisibility.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "74c1c3969bad5b5c7ce7f19150a347466b056d24",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The complete cannot_push and moverock_core implementations, their production caller chain, the v41 pit-push entry, and the independent blocked-push route are verified. The selected C-order range also contains rock_disappear_msg, moverock_done, and moverock. Their existing implementations were not included in the delivery completion evidence, and rock_disappear_msg still lacks matching runtime evidence for a boulder entering a teleport trap. Resume after an independent teleport-trap boulder recipe covers that message, then source-review and record completion evidence for all three remaining units."
     }
   ]
 }
