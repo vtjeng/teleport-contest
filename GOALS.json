@@ -253814,7 +253814,7 @@
     {
       "id": "port-mhitu-mayberem-v41-incubus-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port seduction armor removal",
       "cFile": "mhitu.c",
       "sessions": [
@@ -253828,15 +253828,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9b38c7216cfd3143b81177c48bfb6b718806f17f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mayberem",
           "line": 2309,
           "endLine": 2354,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -254130,7 +254133,119 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "doseduce",
+            "implementation": "js/mhitu.js",
+            "symbol": "doseduce",
+            "sourceReview": "Read complete upstream mhitu.c:doseduce (1985-2305). It retains the source guards, ring inventory traversal, source-ordered replacement/removal calls, armor slots, transport and adjacency returns, verbalization, outcome draws, attribute and health effects, payment, monster tiredness, relocation and return value. Every mayberem caller now passes its source arguments and awaits the helper's effects; the default encumber_msg callback reaches adjattrib in source order. The existing note_unported('pline.c impossible') represents the void C impossible(\"ring replacement\") call in the final ring-slot else; the prior guard exits when both worn rings are adornment and the remaining arms select a non-adornment slot, making that branch unreachable under the source invariants. No other doseduce callee is skipped.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_ssex",
+                "source": "uhitm.c:mhitm_ad_ssex calls doseduce for an eligible AD_SSEX attack against the hero."
+              },
+              {
+                "path": "js/sounds.js",
+                "symbol": "domonnoise",
+                "source": "sounds.c:domonnoise calls doseduce from the nonnymph MS_SEDUCE arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu-doseduce.test.mjs",
+              "scripts/sounds-doseduce.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sounds.c/doseduce-succubus-male-wizard-c87-no-worn-armor.session.json"
+            ],
+            "sourceFile": "mhitu.c",
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-incubus-seduction-removes-worn-armor",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 45,
+                "source": "uhitm.c:mhitm_ad_ssex -> mhitu.c:doseduce -> mhitu.c:mayberem(uarmc)"
+              }
+            ],
+            "checkedAt": "9b38c7216cfd3143b81177c48bfb6b718806f17f"
+          },
+          {
+            "name": "mayberem",
+            "implementation": "js/mhitu.js",
+            "symbol": "mayberem",
+            "sourceReview": "Read complete upstream mhitu.c:mayberem (2308-2352): absent/unworn and transport/adjacency returns; Deaf message; charisma rn2(20) prompt with short-circuited rn2(2) endearment selection and decline return; otherwise SetVoice, object-specific verbalization, then remove_worn_item. Wired every doseduce call in its ring and armor order and await the void helper's effects. The existing js/steal.js:remove_worn_item is reused to perform the C callee's effects; this delivery does not claim whole steal.c completion, which remains with the parked theft task.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "doseduce",
+                "source": "mhitu.c:doseduce calls mayberem for worn gloves during ring handling and then for cloak, suit, boots, gloves, shield, helm and shirt in source order. The JavaScript caller awaits each void helper for its effects."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu-doseduce.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sounds.c/doseduce-succubus-male-wizard-c87-no-worn-armor.session.json"
+            ],
+            "sourceFile": "mhitu.c",
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-incubus-seduction-removes-worn-armor",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 45,
+                "source": "uhitm.c:mhitm_ad_ssex -> mhitu.c:doseduce -> mhitu.c:mayberem(uarmc) -> steal.c:remove_worn_item"
+              }
+            ],
+            "checkedAt": "9b38c7216cfd3143b81177c48bfb6b718806f17f"
+          }
+        ],
+        "entryPointReview": "The selected source range contains doseduce's call wiring and the whole private mhitu.c:mayberem helper. The admitted v41 hostile-incubus recording exercises the monster AD_SSEX attack path through mhitm_ad_ssex, doseduce and the cloak-removal branch, and matches its complete 46-step replay. The existing sounds.c:domonnoise MS_SEDUCE route is separately exercised by recordings/sounds.c/doseduce-succubus-male-wizard-c87-no-worn-armor.session.json, which matches all 47 boundaries through the no-worn-item return. This delivery reuses js/steal.js:remove_worn_item for effects but leaves whole steal.c completion with the parked theft task.",
+        "entryPoints": [
+          {
+            "name": "hostile monster AD_SSEX seduction removes the hero's worn cloak",
+            "functions": [
+              "doseduce",
+              "mayberem"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-incubus-seduction-removes-worn-armor",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 45,
+                "source": "uhitm.c:mhitm_ad_ssex -> mhitu.c:doseduce -> mhitu.c:mayberem(uarmc) -> steal.c:remove_worn_item"
+              }
+            ]
+          },
+          {
+            "name": "MS_SEDUCE chat reaches doseduce and the no-worn-item return",
+            "functions": [
+              "doseduce",
+              "mayberem"
+            ],
+            "recordings": [
+              "recordings/sounds.c/doseduce-succubus-male-wizard-c87-no-worn-armor.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9b38c7216cfd3143b81177c48bfb6b718806f17f",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
