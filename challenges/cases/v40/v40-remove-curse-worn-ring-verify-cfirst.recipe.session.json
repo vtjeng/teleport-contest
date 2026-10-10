@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved initial post-effect selector attempt. The preceding ring-finger response included an extra invalid space; after leaving the scroll unnamed, this probe uses `r` instead of the actual ring inventory letter to test removal.",
+  "segments": [
+    {
+      "seed": 40100624,
+      "datetime": "20450304050607",
+      "nethackrc": "OPTIONS=name:V40RemoveCurseRing,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017cursed ring of protection\n\u0017uncursed scroll of remove curse\nPe rf  \nRr"
+    }
+  ]
+}

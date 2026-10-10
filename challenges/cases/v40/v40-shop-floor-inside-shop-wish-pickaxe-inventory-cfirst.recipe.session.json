@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first shop-floor digging setup probe. Preserve the original no-extra-wish map generation, step onto the C-confirmed for-sale tile inside the level-4 shop first, then wish a pick-axe and inspect its inventory letter. This ordering avoids changing the generated shop and entrance placement before confirming shop membership.",
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopDebtAlt,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\nl\u0017uncursed pick-axe\ni"
+    }
+  ]
+}

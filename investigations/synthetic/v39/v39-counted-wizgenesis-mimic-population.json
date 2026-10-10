@@ -9,13 +9,13 @@
   "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
   "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
   "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
-  "replayInputSha256": "47593086a1baa7723744c3a7331b13272c438f1e0c7426f5a9c944273e35682e",
-  "evaluationPath": "challenges/evaluations/accepted-6d9d5654bcd5444ec53ec2dbd558780ffe15ae37-v39.json",
-  "evaluationCommit": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37",
-  "remainingScreens": 20,
+  "replayInputSha256": "6a4226e10463ee73afbad07abe87c9b5e1d59823c141828ecb0802728f772ed5",
+  "evaluationPath": "challenges/evaluations/accepted-9576b4f8da10054320739b6775b11284c33b01ed-v39.json",
+  "evaluationCommit": "9576b4f8da10054320739b6775b11284c33b01ed",
+  "remainingScreens": 0,
   "recordedSteps": 114,
   "status": "complete",
-  "commit": "161dbdcdd9b497dc526bb79ee7d62761c01c91ec",
+  "commit": "ee5d855583536d87bb3110218b5d5bcf66fa421d",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v39",
@@ -28,72 +28,77 @@
     "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
     "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
     "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
-    "replayInputSha256": "47593086a1baa7723744c3a7331b13272c438f1e0c7426f5a9c944273e35682e",
-    "evaluationPath": "challenges/evaluations/accepted-aed26ac9ec69a4441421005e4110971d52d5eb53-v39.json",
-    "evaluationCommit": "aed26ac9ec69a4441421005e4110971d52d5eb53",
-    "evaluationArtifact": "challenges/evaluations/accepted-aed26ac9ec69a4441421005e4110971d52d5eb53-v39.json",
-    "evaluationUtc": "2026-10-10T06:48:19.323Z",
-    "remainingScreens": 20,
+    "replayInputSha256": "6a4226e10463ee73afbad07abe87c9b5e1d59823c141828ecb0802728f772ed5",
+    "evaluationPath": "challenges/evaluations/accepted-9576b4f8da10054320739b6775b11284c33b01ed-v39.json",
+    "evaluationCommit": "9576b4f8da10054320739b6775b11284c33b01ed",
+    "evaluationArtifact": "challenges/evaluations/accepted-9576b4f8da10054320739b6775b11284c33b01ed-v39.json",
+    "evaluationUtc": "2026-10-10T08:53:19.829Z",
+    "remainingScreens": 0,
     "recordedSteps": 114,
-    "previousScreensMatched": 94,
+    "previousScreensMatched": 114,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 94,
+        "matched": 114,
         "total": 114
       },
       "rng": {
-        "matched": 6232,
+        "matched": 6543,
         "total": 6551
       },
       "cursors": {
-        "matched": 94,
+        "matched": 114,
         "total": 114
       }
     },
     "firstMismatch": {
-      "kind": "stop",
-      "message": "unsupported hero command: an unported branch of this command: monsterObject is not available",
-      "step": 94
+      "screen": null,
+      "rng": {
+        "index": 6508,
+        "cEntry": "rn2(100)=19",
+        "cCaller": "obj_resists(zap.c:1469)",
+        "jsEntry": "rn2(5)=4",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 113,
+          "key": "h"
+        },
+        "stepIndex": 113
+      },
+      "cursor": null
     },
-    "step": 94,
-    "kind": "stop",
-    "sourceFile": null,
-    "function": null,
-    "message": "unsupported hero command: an unported branch of this command: monsterObject is not available",
-    "cFile": null,
+    "step": 113,
+    "kind": "rng",
+    "sourceFile": "zap.c",
+    "function": "obj_resists",
+    "message": null,
+    "cFile": "zap.c",
     "luaFile": null,
-    "line": null
+    "line": 1469
   },
-  "summary": "When a wizard creates a mimic through Genesis or the wizard-mode create-monster prompt, makemon.c:makemon() calls set_mimic_sym(), which can create a temporary disguise object with mkobj(). JavaScript passes create_particular_creation() a bare monster-creation environment, so a statue or figurine disguise reaches obj.js without the existing monsterObject lifecycle hook and stops before the next turn. The source-matched fix is to supply the standard objectGenerationEnv at that production makemon call.",
+  "summary": "When a hero applies a lock pick toward a closed-door mimic, lock.c:pick_lock reveals it and then calls steal.c:maybe_absorb_item(mon, pick, 50, 10). That helper queries zap.c:obj_resists before deciding whether to absorb the tool. JavaScript lock.js currently skips the helper with note_unported, so it misses C’s rn2(100) draw and leaves a one-call RNG offset while all 114 screens and cursors still match. Port the helper to steal.js and wire this existing lock.js branch in source order.",
   "source": {
-    "file": "read.c",
-    "branch": "create_particular_creation() creates a named S_MIMIC; makemon() enters its S_MIMIC arm, and set_mimic_sym() selects a random object class for an ordinary-room disguise. When mkobj() produces a STATUE or FIGURINE, JavaScript must run the residual monster-object initialize/finalize behavior just as C mksobj() does before set_mimic_sym() reads the temporary object type and frees it.",
+    "file": "steal.c",
+    "branch": "After lock.c:pick_lock finds a monster mimicking a door, it first calls stumble_onto_mimic(), then maybe_absorb_item(mon, pick, 50, 10). For a non-ball, non-chain, non-rock object, maybe_absorb_item calls obj_resists(obj, 50, 90); if that returns true, it returns before touch_artifact() and object transfer. The v39 lock pick is ordinary and C rn2(100)=19, so the resistance branch returns true.",
     "functions": [
-      "create_particular_creation"
+      "maybe_absorb_item"
     ],
     "callers": [
-      "read.c:create_particular() (3372-3405) calls create_particular_creation(); wizcmds.c:wiz_genesis() (203-210) calls create_particular() for the direct Ctrl-G/#wizgenesis entry.",
-      "makemon.c:create_critters() (1556-1574) calls create_particular() when wizard mode and !neverask; active production callers include read.c:seffect_create_monster() (1607-1619) and zap.c:weffects() for WAN_CREATE_MONSTER (2569-2573). JS wiring is makemon.js:create_critters() and read.js:seffect_create_monster().",
-      "makemon.c:makemon() (1303-1306) calls set_mimic_sym() for S_MIMIC; makemon.c:set_mimic_sym() (2393-2509) calls mkobj(), consumes otmp->otyp, and obfree()s the temporary object. JS equivalents are makemon_create.js:makemon() and set_mimic_sym().",
-      "mkobj.c:mkobj()/mksobj_init() build the temporary object. JavaScript obj.js routes statue/figurine initialization through initializeResidualMonsterObject(); object_generation.js:objectGenerationEnv() already supplies the monsterObject implementation."
+      "lock.c:pick_lock() at the is_door_mappear() branch (571-576); production dispatch is apply.c:doapply() -> pick_lock()."
     ],
     "dependencies": [
-      "makemon.c:makemon() is already ported for this explicit runtime species call and returns the monster consumed by create_particular_creation().",
-      "makemon.c:set_mimic_sym() is already ported as a whole function; its mkobj()/obfree() return and cleanup order match C.",
-      "mkobj.c:mkobj() and mksobj_init() are already ported; their statue/figurine lifecycle requires the monsterObject hook.",
-      "objectGenerationEnv() is the existing JS composition point for object-construction hooks, including monsterObject."
+      "zap.c:obj_resists() is already implemented in js/bury.js; it draws rn2(100) for an ordinary object and uses the ordinary/artifact threshold.",
+      "artifact.c:touch_artifact(), steal.c:remove_worn_item()/mpickobj(), invent.c:freeinv(), shk.c:shop_keeper()/subfrombill(), pickup.c:encumber_msg(), vision.c:cansee(), display.c:canspotmon(), and the existing naming/body-part helpers are already implemented."
     ]
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    "Saved combined queue SHA-256 e153a1e0869be21cb7a70ad69de92d64fced50b7a39196a9515a6760416d7d0d selects synthetic/v39/v39-counted-wizgenesis-mimic-population; after the accepted B209 counted-dispatch fix, the immutable recipe matches 94/114 screens and first stops at step 94 with “monsterObject is not available”.",
-    "Focused fresh C differential `node scripts/diff-fresh.mjs challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json` (run-ANLf80) records C=114 screens/6551 RNG and JavaScript=94 screens/6232 RNG; the next missing source draw is C rn2(3)=0 at rndmonst_adj(makemon.c:1716), step 95, after the JS boundary.",
-    "Direct JavaScript runSegment() replay of the same independent recipe stops with UnsupportedHeroCommandBoundaryError from cmd.js:failClosedCommand(), message “an unported branch of this command: monsterObject is not available”, after 94 screens and 6232 RNG calls.",
-    "C source trace: read.c:create_particular_creation() calls makemon(whichpm, u.ux, u.uy, mmflags) at read.c:3315; makemon.c:makemon() calls set_mimic_sym() at 1303-1306; set_mimic_sym() calls mkobj() and reads otmp->otyp at 2505-2508. In an ordinary room the source symbol table at makemon.c:2388-2391 includes ROCK_CLASS, whose selected object may be a statue or figurine.",
-    "JavaScript source trace: read.js:create_particular_creation() passes only `{ state, _createParticular: true }` to makemon_runtime() at 3570-3573. makemon_create.js:creationEnv() preserves hooks but does not add object-generation hooks; set_mimic_sym() passes that bare normalized environment to mkobj() at 1029-1031; obj.js:initializeResidualMonsterObject() requires env.hooks.monsterObject at 2020-2021. object_generation.js:objectGenerationEnv() already composes the exact adapter at lines 20-64.",
-    "The common create_particular() caller is reachable both directly from wizcmds.c:wiz_genesis() and through makemon.c:create_critters() from the wizard create-monster scroll/spell and WAN_CREATE_MONSTER paths. Applying objectGenerationEnv at create_particular_creation() preserves source branch order while fixing the shared object constructor dependency."
+    "The refreshed combined queue SHA-256 is b5fc8af455f088103a8a4b2dbda24754969c97cec080c93d9ea601f8aab53169. Its v39 evaluation is accepted-9576b4f8da10054320739b6775b11284c33b01ed-v39.json; the case has 0 remaining screen mismatches, 114/114 screens, 114/114 cursors, and 6543/6551 RNG calls.",
+    "Fresh C/JavaScript differential `.cache/B215-diff-counted.log` reproduces the first RNG divergence at segment 1, step 114, key h: C calls rn2(100)=19 from obj_resists(zap.c:1469); JavaScript has rn2(5)=4 from distfleeck(monmove.c:538). C has one additional RNG call, and the later shifted values account for the remaining unmatched RNG entries.",
+    "Upstream lock.c:571-576 executes stumble_onto_mimic(mtmp) followed by maybe_absorb_item(mtmp, pick, 50, 10) when the selected square contains a door-mimicking monster. This is the only maybe_absorb_item call site found in upstream C.",
+    "Upstream steal.c:772-810 first excludes uball, uchain, and ROCK_CLASS, then calls obj_resists(obj, 100 - ochance, 100 - achance), then touch_artifact(). If the object resists, the function returns before inventory removal, messages, or mpickobj(). For this recipe the lock pick has ordinary 50% resistance and C’s 19 result returns early.",
+    "JavaScript lock.js:845-848 follows the same mimic branch and reveal order but calls note_unported(\"steal.c maybe_absorb_item\") instead of the C helper. The existing obj_resists implementation in js/bury.js already has the source-matched rn2(100) behavior; this task wires it through the missing steal.c caller."
   ]
 }

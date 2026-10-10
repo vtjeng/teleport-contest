@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Continued C-first Magicbane artifact probe after the corrected direction reached the adjacent stone giant but the initial attack missed. Repeat the source-confirmed southward attack with C --More-- boundaries dismissed so the first actual hit can resolve the MB_INDEX_PROBE effect.",
+  "segments": [
+    {
+      "seed": 42080003,
+      "datetime": "20461012131415",
+      "nethackrc": "OPTIONS=name:V40MagicbaneGiant2,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017Magicbane\n.\u0007hostile stone giant\nwoj j j j j j j j j j j"
+    }
+  ]
+}

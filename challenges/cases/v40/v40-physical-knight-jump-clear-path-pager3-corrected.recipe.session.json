@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Third C-only correction after independent traces exposed both the jump-result page and first-use farlook help page. It dismisses each of those two confirmed boundaries before steering the getpos cursor and selecting the legal Knight landing square. No JavaScript comparison is performed.",
+  "segments": [
+    {
+      "seed": 40100021,
+      "datetime": "20430621110000",
+      "nethackrc": "OPTIONS=name:V40KnightJump,role:Knight,race:human,gender=male,align=lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#jump\n  ljj.",
+      "recorderIsDst": true
+    }
+  ]
+}

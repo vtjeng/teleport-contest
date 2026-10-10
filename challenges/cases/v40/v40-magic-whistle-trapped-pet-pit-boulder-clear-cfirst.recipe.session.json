@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Uses the C-confirmed magic-whistle slot p after the swap-and-pit setup. C output and the revealed pit/boulder tile will determine whether the source's trapped-pet fill_pit arm was reached before JS comparison.",
+  "segments": [
+    {
+      "seed": 40100731,
+      "datetime": "20450607080910",
+      "nethackrc": "OPTIONS=name:V40TrapPetWhistle,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "k\u0017boulder\n\u0017pit trap\nk\u0017magic whistle\nap"
+    }
+  ]
+}

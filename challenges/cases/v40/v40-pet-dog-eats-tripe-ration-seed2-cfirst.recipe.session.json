@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent-seed setup variant after C showed an adjacent kobold diverted the Ranger dog from food. The same source-supported pet and tripe setup is retained; inspect the new map before choosing the hero’s step away from the ration.",
+  "segments": [
+    {
+      "seed": 41104106,
+      "datetime": "20441012101112",
+      "nethackrc": "OPTIONS=name:V40PetTripe4,role:Ranger,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017tripe ration\ndgk"
+    }
+  ]
+}

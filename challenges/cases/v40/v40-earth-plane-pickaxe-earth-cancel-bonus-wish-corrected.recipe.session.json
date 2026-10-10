@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "The prior ESC dismissed the Amulet bonus-wish pager rather than canceling wish input; send a second ESC to cancel the wish prompt, then inspect inventory.",
+  "segments": [
+    {
+      "seed": 42060006,
+      "datetime": "20441017101112",
+      "nethackrc": "OPTIONS=name:V40EarthPage2,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?\n  N      \u001b\u001bi"
+    }
+  ]
+}

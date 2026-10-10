@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "The previous C record confirms the intrinsic menu selection but Ctrl-T was consumed by the first timed-intrinsic --More-- page. Dismiss one observed pager and stop so the next timeout message is visible before choosing teleport.",
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopDebtAlt,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\nl, ni #wizintrinsic\n150o>>150j\n "
+    }
+  ]
+}

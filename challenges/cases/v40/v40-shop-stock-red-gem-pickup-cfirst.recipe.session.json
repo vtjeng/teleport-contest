@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Select the C-observed unpaid stock entry `n - a red gem (unpaid, 500 zorkmids)` after dismissing the shopkeeper price pager. Keep recording through the post-pickup screen to confirm ownership and bill state before routing out of the shop.",
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopDebtAlt,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\nl, n"
+    }
+  ]
+}

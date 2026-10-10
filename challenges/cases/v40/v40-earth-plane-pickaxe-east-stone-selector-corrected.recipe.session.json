@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "The prior source probe reached the apply selector but the recorded `l` chose a spellbook; use the C-confirmed pick-axe slot n, then the C-confirmed east direction l into code-0 STONE, and wait through the dig occupation.",
+  "segments": [
+    {
+      "seed": 42060006,
+      "datetime": "20441017101112",
+      "nethackrc": "OPTIONS=name:V40EarthPage2,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?\n  N       uncursed potion of healing\n #wizkill\n  y. \u001bwnanl........"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 40101004,
+      "datetime": "20460422124031",
+      "nethackrc": "OPTIONS=name:V40WandExpel,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017wand of opening\n\u0007hostile purple worm\nm.",
+      "comment": "C-first alternate engulfing setup: switch from a non-digesting air elemental to a hostile purple worm, then force one source-justified no-op turn while it is adjacent."
+    }
+  ]
+}

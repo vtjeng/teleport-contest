@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "The C selector confirms slot e as a ring and slot f as the wished remove-curse scroll; right finger was accepted after the ring prompt. This attempt dismisses the recorded scroll-consumption page to capture the effect result.",
+  "segments": [
+    {
+      "seed": 40100624,
+      "datetime": "20450304050607",
+      "nethackrc": "OPTIONS=name:V40RemoveCurseRing,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017cursed ring of protection\n\u0017uncursed scroll of remove curse\nPe rf "
+    }
+  ]
+}

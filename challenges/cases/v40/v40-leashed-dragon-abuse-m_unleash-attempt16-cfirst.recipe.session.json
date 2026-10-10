@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only continuation after two no-conflict kicks. The C screen after the second turn shows the dragon north of the hero again; target north for the third kick, dismiss its More, and inspect its next position.",
+  "segments": [
+    {
+      "seed": 48230567,
+      "datetime": "20590506151617",
+      "nethackrc": "OPTIONS=name:V40LeashProbe,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0007tame baby gray dragon\n\u0017leash\naok\u0004ky \u0004ly \u0004ky "
+    }
+  ]
+}

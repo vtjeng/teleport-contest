@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-only direction correction for the soldier wake route. The prior C screen showed the soldier immediately right of the hero (`.@@` against initial `.@.`); the sleep wand therefore uses direction `l`, not the wall-blocked diagonal `y`. No JavaScript comparison is performed.",
+  "segments": [
+    {
+      "seed": 40100401,
+      "datetime": "20430701101500",
+      "nethackrc": "OPTIONS=name:V40BugleSleep,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017bugle\n\u0017wand of sleep\n\u0007soldier\nzolany ",
+      "recorderIsDst": true
+    }
+  ]
+}

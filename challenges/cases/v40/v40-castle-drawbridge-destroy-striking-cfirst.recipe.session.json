@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Castle drawbridge probe. Wish a charged wand of striking, use the wizard level-port text route to enter dat/castle.lua, and map the reached square/bridge before selecting an observed direction. Keep the drawbridge destruction target C-only until the recording proves the strike reaches dbridge.c:destroy_drawbridge.",
+  "segments": [
+    {
+      "seed": 71104331,
+      "datetime": "20591211140319",
+      "nethackrc": "OPTIONS=name:V40CastleBreak,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017uncursed wand of striking\n#wizlevelport\ncastle\n #wizmap\n"
+    }
+  ]
+}

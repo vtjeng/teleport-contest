@@ -249428,7 +249428,7 @@
     {
       "id": "fix-pickup-fatal-corpse-instapetrify-v39-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Finish fatal corpse handling for pickup and container routes",
       "cFile": "pickup.c",
       "sessions": [
@@ -249442,8 +249442,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "60c8754be3b41237ce63db1b0bf71203c99b32bb",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "fatal_corpse_mistake",
       "session": "synthetic/v39/v39-pickup-cockatrice-barehanded-final",
       "step": 52,
@@ -249708,7 +249711,767 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "60c8754be3b41237ce63db1b0bf71203c99b32bb",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-artifact-retouch-equipment-v39-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Port artifact equipment retouch after form and alignment changes",
+      "cFile": "artifact.c",
+      "sessions": [
+        "synthetic/v39/v39-polyself-retouch-silver-vampire-complete"
+      ],
+      "selectionReason": "Oldest dependency-ready v39 mismatch after pickup acceptance; source review covers artifact.c:retouch_object, untouchable, and retouch_equipment with all live callers.",
+      "detail": "Source routes polyself.c form changes, eat.c cpostfx, attrib.c uchangealign, and uhitm.c were infection through artifact.c:retouch_equipment -> untouchable -> retouch_object.",
+      "openedAt": "ca5a4c8a065524db2affbba8272d2aa1ca3d0e20",
+      "openStanding": {
+        "sha": "60c8754be3b41237ce63db1b0bf71203c99b32bb",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "23d07ff38df570228278bc8af9679db5ae6fdab7",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "retouch_equipment",
+      "session": "synthetic/v39/v39-polyself-retouch-silver-vampire-complete",
+      "step": 36,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-polyself-retouch-silver-vampire-complete": {
+          "session": "synthetic/v39/v39-polyself-retouch-silver-vampire-complete",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-polyself-retouch-silver-vampire-complete",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-polyself-retouch-silver-vampire-complete.session.json",
+          "recordingSha256": "11a999889dda2afd48b78b1df9d61442e8330da737e1587625c0d0747c1fa227",
+          "evaluationPath": "challenges/evaluations/accepted-60c8754be3b41237ce63db1b0bf71203c99b32bb-v39.json",
+          "evaluationCommit": "60c8754be3b41237ce63db1b0bf71203c99b32bb"
+        }
+      },
+      "activeStanding": {
+        "sha": "60c8754be3b41237ce63db1b0bf71203c99b32bb",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-polyself-retouch-silver-vampire-complete",
+          "session": "synthetic/v39/v39-polyself-retouch-silver-vampire-complete",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-polyself-retouch-silver-vampire-complete.session.json",
+          "recordingPath": "challenges/cases/v39/v39-polyself-retouch-silver-vampire-complete.session.json",
+          "recordingSha256": "11a999889dda2afd48b78b1df9d61442e8330da737e1587625c0d0747c1fa227",
+          "recipe": "challenges/cases/v39/v39-polyself-retouch-silver-vampire-complete.recipe.session.json",
+          "recipeSha256": "7159cff10252bd52d1ea017dbf5ab637574b3f36fdf7d557c5c5b46e59e7401b",
+          "replayInputSha256": "d9845dd3e9ce1594f8c3f2d06ef7cfaaf324136996fd0d736e85a95efc85cc59",
+          "evaluationPath": "challenges/evaluations/accepted-60c8754be3b41237ce63db1b0bf71203c99b32bb-v39.json",
+          "evaluationCommit": "60c8754be3b41237ce63db1b0bf71203c99b32bb",
+          "evaluationArtifact": "challenges/evaluations/accepted-60c8754be3b41237ce63db1b0bf71203c99b32bb-v39.json",
+          "evaluationUtc": "2026-10-10T09:25:01.117Z",
+          "remainingScreens": 3,
+          "recordedSteps": 39,
+          "previousScreensMatched": 36,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 36,
+              "total": 39
+            },
+            "rng": {
+              "matched": 2872,
+              "total": 2873
+            },
+            "cursors": {
+              "matched": 37,
+              "total": 39
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 36,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 36,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 26,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "U",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2872,
+              "cEntry": "rnd(10)=6",
+              "cCaller": "retouch_object(artifact.c:2552)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 36,
+                "key": "\n"
+              },
+              "stepIndex": 36
+            },
+            "cursor": {
+              "index": 36,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 36,
+                "key": "\n"
+              },
+              "cCursor": [
+                78,
+                0,
+                1
+              ],
+              "jsCursor": [
+                5,
+                5,
+                1
+              ]
+            }
+          },
+          "step": 36,
+          "kind": "rng",
+          "sourceFile": "artifact.c",
+          "function": "retouch_object",
+          "message": null,
+          "cFile": "artifact.c",
+          "luaFile": null,
+          "line": 2552,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-polyself-retouch-silver-vampire-complete.json",
+            "result": {
+              "session": "synthetic/v39/v39-polyself-retouch-silver-vampire-complete",
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-polyself-retouch-silver-vampire-complete",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recordingSha256": "11a999889dda2afd48b78b1df9d61442e8330da737e1587625c0d0747c1fa227",
+              "evaluationPath": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+              "evaluationCommit": "998c20cf771d23d6f5faed181eee05f270b73b58",
+              "remainingScreens": 3,
+              "recordedSteps": 39,
+              "status": "complete",
+              "commit": "ce4f118d4fa97edb7c6d239103d6d137dcd2286c",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v39",
+                "caseId": "v39-polyself-retouch-silver-vampire-complete",
+                "session": "synthetic/v39/v39-polyself-retouch-silver-vampire-complete",
+                "manifestPath": "challenges/manifests/v39.json",
+                "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+                "recording": "challenges/cases/v39/v39-polyself-retouch-silver-vampire-complete.session.json",
+                "recordingPath": "challenges/cases/v39/v39-polyself-retouch-silver-vampire-complete.session.json",
+                "recordingSha256": "11a999889dda2afd48b78b1df9d61442e8330da737e1587625c0d0747c1fa227",
+                "recipe": "challenges/cases/v39/v39-polyself-retouch-silver-vampire-complete.recipe.session.json",
+                "recipeSha256": "7159cff10252bd52d1ea017dbf5ab637574b3f36fdf7d557c5c5b46e59e7401b",
+                "replayInputSha256": "0829ceb24a4dbcbea8c6089aa8de856c51982d20a277e4f3a173eccf4a339ac1",
+                "evaluationPath": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+                "evaluationCommit": "998c20cf771d23d6f5faed181eee05f270b73b58",
+                "evaluationArtifact": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+                "evaluationUtc": "2026-10-10T07:03:42.993Z",
+                "remainingScreens": 3,
+                "recordedSteps": 39,
+                "previousScreensMatched": 36,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 36,
+                    "total": 39
+                  },
+                  "rng": {
+                    "matched": 2872,
+                    "total": 2873
+                  },
+                  "cursors": {
+                    "matched": 37,
+                    "total": 39
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 36,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 36,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 26,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "U",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2872,
+                    "cEntry": "rnd(10)=6",
+                    "cCaller": "retouch_object(artifact.c:2552)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 36,
+                      "key": "\n"
+                    },
+                    "stepIndex": 36
+                  },
+                  "cursor": {
+                    "index": 36,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 36,
+                      "key": "\n"
+                    },
+                    "cCursor": [
+                      78,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      5,
+                      5,
+                      1
+                    ]
+                  }
+                },
+                "step": 36,
+                "kind": "rng",
+                "sourceFile": "artifact.c",
+                "function": "retouch_object",
+                "message": null,
+                "cFile": "artifact.c",
+                "luaFile": null,
+                "line": 2552
+              },
+              "summary": "After polymorphing into a vampire, the C path retouches the wielded silver dagger, rolls silver damage, and drops it to the stairs. JavaScript polymon still records artifact.c retouch_equipment as unported, so it never reaches the already-portable retouch_object branch.",
+              "source": {
+                "file": "artifact.c",
+                "branch": "retouch_equipment(dropflag) processes the secondary weapon, primary weapon, saddle, then each unbypassed inventory item. For the polymon caller's dropflag 2, weapon slots are checked with dropping enabled but the general inventory traversal does not drop items; a silver-hating form reaches untouchable() and retouch_object(), which applies the silver damage and removes the item.",
+                "functions": [
+                  "retouch_equipment"
+                ],
+                "callers": [
+                  "polyself.c:polymon (1021), reached by #polyself vampire; this is the session's missing runtime path",
+                  "polyself.c:newman (463)",
+                  "polyself.c:rehumanize (1415)",
+                  "eat.c:cpostfx (1325)",
+                  "attrib.c:uchangealign (1360)",
+                  "uhitm.c:mhitm_ad_were (4285)"
+                ],
+                "dependencies": [
+                  "artifact.c:untouchable",
+                  "artifact.c:retouch_object",
+                  "worn.c:clear_bypasses",
+                  "worn.c:bypass_obj",
+                  "worn.c:nxt_unbypassed_obj",
+                  "worn.c:which_armor",
+                  "steed.c:dismount_steed",
+                  "do_wear.c:uncurse",
+                  "trap.c:selftouch"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved v39 evaluation at challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json compares 39 screens and records the first divergence at segment 0 step 36: C calls rnd(10)=6 from retouch_object(artifact.c:2552), while JavaScript has no corresponding draw; the status row and cursor differ at that same step.",
+                "Upstream polyself.c:polymon calls retouch_equipment(2) at line 1021 after changing the hero form and recalculating status. js/polyself.js:polymon currently calls note_unported('artifact.c retouch_equipment') at line 1340, so JavaScript skips all equipment retouching.",
+                "Upstream artifact.c:retouch_equipment at lines 2637-2705 checks primary/secondary weapons through untouchable(), then traverses unbypassed inventory. With dropflag 2, the wielded dagger reaches artifact.c:untouchable and retouch_object with drop enabled. The existing js/artifacts.js:retouch_object contains the silver-hatred branch and rnd(10), so the defect is the missing caller traversal rather than its damage branch.",
+                "The complete source port also needs to replace retouch_equipment gap markers at js/polyself.js (polymon, newman, rehumanize), js/eat.js (cpostfx), js/attrib.js (uchangealign), and js/uhitm.js (mhitm_ad_were), matching their C call sites. B211 is accepted, so polyself.c:newman and trap.c:selftouch are available to wire in this task. artifact.c:retouch_equipment also calls steed.c:dismount_steed(DISMOUNT_THROWN) only when a rejected saddle belongs to the steed; A2 currently reserves that source unit. C discards this void call's result, so this task will preserve the source boundary with note_unported('steed.c dismount_steed DISMOUNT_THROWN') and leave that callee to its owner."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "23d07ff38df570228278bc8af9679db5ae6fdab7",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-mimic-absorb-item-lockpick-rng-v39-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Port mimic item absorption after lock-pick reveal",
+      "cFile": "steal.c",
+      "sessions": [
+        "synthetic/v39/v39-counted-wizgenesis-mimic-population"
+      ],
+      "selectionReason": "Oldest ready v39 mismatch after artifact retouch acceptance; the source trace reaches steal.c:maybe_absorb_item through the door-mimic lock-pick branch.",
+      "detail": "Source routes cmd.c:rhack through apply.c:doapply and lock.c:pick_lock, which reveals the door mimic before calling steal.c:maybe_absorb_item(mtmp, pick, 50, 10).",
+      "openedAt": "6ecb44e29a25963f78a42318403b75f669c0c741",
+      "openStanding": {
+        "sha": "23d07ff38df570228278bc8af9679db5ae6fdab7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "d385af23ff14452feaff464fb82ad499ba63ccb3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "maybe_absorb_item",
+      "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+      "step": 113,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-counted-wizgenesis-mimic-population": {
+          "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-counted-wizgenesis-mimic-population",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+          "evaluationPath": "challenges/evaluations/accepted-23d07ff38df570228278bc8af9679db5ae6fdab7-v39.json",
+          "evaluationCommit": "23d07ff38df570228278bc8af9679db5ae6fdab7"
+        }
+      },
+      "activeStanding": {
+        "sha": "23d07ff38df570228278bc8af9679db5ae6fdab7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-counted-wizgenesis-mimic-population",
+          "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+          "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
+          "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
+          "replayInputSha256": "e4a178b31f4e0d1c6751d2a12987ae5cb2f3781fa2b8419943d4d939631412d2",
+          "evaluationPath": "challenges/evaluations/accepted-23d07ff38df570228278bc8af9679db5ae6fdab7-v39.json",
+          "evaluationCommit": "23d07ff38df570228278bc8af9679db5ae6fdab7",
+          "evaluationArtifact": "challenges/evaluations/accepted-23d07ff38df570228278bc8af9679db5ae6fdab7-v39.json",
+          "evaluationUtc": "2026-10-10T09:42:09.124Z",
+          "remainingScreens": 0,
+          "recordedSteps": 114,
+          "previousScreensMatched": 114,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 114,
+              "total": 114
+            },
+            "rng": {
+              "matched": 6543,
+              "total": 6551
+            },
+            "cursors": {
+              "matched": 114,
+              "total": 114
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 6508,
+              "cEntry": "rn2(100)=19",
+              "cCaller": "obj_resists(zap.c:1469)",
+              "jsEntry": "rn2(5)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 113,
+                "key": "h"
+              },
+              "stepIndex": 113
+            },
+            "cursor": null
+          },
+          "step": 113,
+          "kind": "rng",
+          "sourceFile": "zap.c",
+          "function": "obj_resists",
+          "message": null,
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 1469,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-counted-wizgenesis-mimic-population.json",
+            "result": {
+              "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-counted-wizgenesis-mimic-population",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+              "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+              "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
+              "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
+              "replayInputSha256": "6a4226e10463ee73afbad07abe87c9b5e1d59823c141828ecb0802728f772ed5",
+              "evaluationPath": "challenges/evaluations/accepted-9576b4f8da10054320739b6775b11284c33b01ed-v39.json",
+              "evaluationCommit": "9576b4f8da10054320739b6775b11284c33b01ed",
+              "remainingScreens": 0,
+              "recordedSteps": 114,
+              "status": "complete",
+              "commit": "ee5d855583536d87bb3110218b5d5bcf66fa421d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v39",
+                "caseId": "v39-counted-wizgenesis-mimic-population",
+                "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+                "manifestPath": "challenges/manifests/v39.json",
+                "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+                "recording": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+                "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+                "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+                "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
+                "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
+                "replayInputSha256": "6a4226e10463ee73afbad07abe87c9b5e1d59823c141828ecb0802728f772ed5",
+                "evaluationPath": "challenges/evaluations/accepted-9576b4f8da10054320739b6775b11284c33b01ed-v39.json",
+                "evaluationCommit": "9576b4f8da10054320739b6775b11284c33b01ed",
+                "evaluationArtifact": "challenges/evaluations/accepted-9576b4f8da10054320739b6775b11284c33b01ed-v39.json",
+                "evaluationUtc": "2026-10-10T08:53:19.829Z",
+                "remainingScreens": 0,
+                "recordedSteps": 114,
+                "previousScreensMatched": 114,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 114,
+                    "total": 114
+                  },
+                  "rng": {
+                    "matched": 6543,
+                    "total": 6551
+                  },
+                  "cursors": {
+                    "matched": 114,
+                    "total": 114
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 6508,
+                    "cEntry": "rn2(100)=19",
+                    "cCaller": "obj_resists(zap.c:1469)",
+                    "jsEntry": "rn2(5)=4",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 113,
+                      "key": "h"
+                    },
+                    "stepIndex": 113
+                  },
+                  "cursor": null
+                },
+                "step": 113,
+                "kind": "rng",
+                "sourceFile": "zap.c",
+                "function": "obj_resists",
+                "message": null,
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": 1469
+              },
+              "summary": "When a hero applies a lock pick toward a closed-door mimic, lock.c:pick_lock reveals it and then calls steal.c:maybe_absorb_item(mon, pick, 50, 10). That helper queries zap.c:obj_resists before deciding whether to absorb the tool. JavaScript lock.js currently skips the helper with note_unported, so it misses C’s rn2(100) draw and leaves a one-call RNG offset while all 114 screens and cursors still match. Port the helper to steal.js and wire this existing lock.js branch in source order.",
+              "source": {
+                "file": "steal.c",
+                "branch": "After lock.c:pick_lock finds a monster mimicking a door, it first calls stumble_onto_mimic(), then maybe_absorb_item(mon, pick, 50, 10). For a non-ball, non-chain, non-rock object, maybe_absorb_item calls obj_resists(obj, 50, 90); if that returns true, it returns before touch_artifact() and object transfer. The v39 lock pick is ordinary and C rn2(100)=19, so the resistance branch returns true.",
+                "functions": [
+                  "maybe_absorb_item"
+                ],
+                "callers": [
+                  "lock.c:pick_lock() at the is_door_mappear() branch (571-576); production dispatch is apply.c:doapply() -> pick_lock()."
+                ],
+                "dependencies": [
+                  "zap.c:obj_resists() is already implemented in js/bury.js; it draws rn2(100) for an ordinary object and uses the ordinary/artifact threshold.",
+                  "artifact.c:touch_artifact(), steal.c:remove_worn_item()/mpickobj(), invent.c:freeinv(), shk.c:shop_keeper()/subfrombill(), pickup.c:encumber_msg(), vision.c:cansee(), display.c:canspotmon(), and the existing naming/body-part helpers are already implemented."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The refreshed combined queue SHA-256 is b5fc8af455f088103a8a4b2dbda24754969c97cec080c93d9ea601f8aab53169. Its v39 evaluation is accepted-9576b4f8da10054320739b6775b11284c33b01ed-v39.json; the case has 0 remaining screen mismatches, 114/114 screens, 114/114 cursors, and 6543/6551 RNG calls.",
+                "Fresh C/JavaScript differential `.cache/B215-diff-counted.log` reproduces the first RNG divergence at segment 1, step 114, key h: C calls rn2(100)=19 from obj_resists(zap.c:1469); JavaScript has rn2(5)=4 from distfleeck(monmove.c:538). C has one additional RNG call, and the later shifted values account for the remaining unmatched RNG entries.",
+                "Upstream lock.c:571-576 executes stumble_onto_mimic(mtmp) followed by maybe_absorb_item(mtmp, pick, 50, 10) when the selected square contains a door-mimicking monster. This is the only maybe_absorb_item call site found in upstream C.",
+                "Upstream steal.c:772-810 first excludes uball, uchain, and ROCK_CLASS, then calls obj_resists(obj, 100 - ochance, 100 - achance), then touch_artifact(). If the object resists, the function returns before inventory removal, messages, or mpickobj(). For this recipe the lock pick has ordinary 50% resistance and C’s 19 result returns early.",
+                "JavaScript lock.js:845-848 follows the same mimic branch and reveal order but calls note_unported(\"steal.c maybe_absorb_item\") instead of the C helper. The existing obj_resists implementation in js/bury.js already has the source-matched rn2(100) behavior; this task wires it through the missing steal.c caller."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "d385af23ff14452feaff464fb82ad499ba63ccb3",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "A2-v39-mounted-steed-poly-steed-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Implement mounted fall dismount after saddle loss",
+      "cFile": "steed.c",
+      "sessions": [],
+      "selectionReason": "The admitted v39 mounted pony polymorph case matches screens and cursors but misses two RNG calls when the new form loses its saddle; the traced path reaches steed.c dismount_steed with DISMOUNT_FELL through worn.c update_mon_extrinsics.",
+      "detail": "",
+      "openedAt": "32bf1c608c83ca195f5b06539752ded64898ac6f",
+      "openStanding": {
+        "sha": "d385af23ff14452feaff464fb82ad499ba63ccb3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "97b84cc6b58a15fd2a536c0d8caaa2e86be47335",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "dismount_steed",
+      "session": "synthetic/v39/v39-mounted-steed-polymorph-trap",
+      "step": 28,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-mounted-steed-polymorph-trap": {
+          "session": "synthetic/v39/v39-mounted-steed-polymorph-trap",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-mounted-steed-polymorph-trap",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json",
+          "recordingSha256": "1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997",
+          "evaluationPath": "challenges/evaluations/accepted-d385af23ff14452feaff464fb82ad499ba63ccb3-v39.json",
+          "evaluationCommit": "d385af23ff14452feaff464fb82ad499ba63ccb3"
+        }
+      },
+      "activeStanding": {
+        "sha": "d385af23ff14452feaff464fb82ad499ba63ccb3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-mounted-steed-polymorph-trap",
+          "session": "synthetic/v39/v39-mounted-steed-polymorph-trap",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json",
+          "recordingPath": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json",
+          "recordingSha256": "1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997",
+          "recipe": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.recipe.session.json",
+          "recipeSha256": "e2f5f7d33e071f8e837389af982cdfe8fb6754549295fac5ff069e3fea8df5d8",
+          "replayInputSha256": "a15e8b69cb6584b1fcd3f8ec8d12ca9f21a525e94b71a45917114ba945388973",
+          "evaluationPath": "challenges/evaluations/accepted-d385af23ff14452feaff464fb82ad499ba63ccb3-v39.json",
+          "evaluationCommit": "d385af23ff14452feaff464fb82ad499ba63ccb3",
+          "evaluationArtifact": "challenges/evaluations/accepted-d385af23ff14452feaff464fb82ad499ba63ccb3-v39.json",
+          "evaluationUtc": "2026-10-10T09:57:55.603Z",
+          "remainingScreens": 0,
+          "recordedSteps": 29,
+          "previousScreensMatched": 29,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 29,
+              "total": 29
+            },
+            "rng": {
+              "matched": 2640,
+              "total": 2642
+            },
+            "cursors": {
+              "matched": 29,
+              "total": 29
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2640,
+              "cEntry": "rn2(3)=2",
+              "cCaller": "landing_spot(steed.c:543)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 28,
+                "key": " "
+              },
+              "stepIndex": 28
+            },
+            "cursor": null
+          },
+          "step": 28,
+          "kind": "rng",
+          "sourceFile": "steed.c",
+          "function": "landing_spot",
+          "message": null,
+          "cFile": "steed.c",
+          "luaFile": null,
+          "line": 543,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-mounted-steed-polymorph-trap.json",
+            "result": {
+              "session": "synthetic/v39/v39-mounted-steed-polymorph-trap",
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-mounted-steed-polymorph-trap",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recordingSha256": "1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997",
+              "evaluationPath": "challenges/evaluations/accepted-2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba-v39.json",
+              "evaluationCommit": "2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba",
+              "remainingScreens": 0,
+              "recordedSteps": 29,
+              "status": "complete",
+              "commit": "12243fba8c4684bdec098e2358b04d76d0efd8f2",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v39",
+                "caseId": "v39-mounted-steed-polymorph-trap",
+                "session": "synthetic/v39/v39-mounted-steed-polymorph-trap",
+                "manifestPath": "challenges/manifests/v39.json",
+                "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+                "recording": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json",
+                "recordingPath": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json",
+                "recordingSha256": "1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997",
+                "recipe": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.recipe.session.json",
+                "recipeSha256": "e2f5f7d33e071f8e837389af982cdfe8fb6754549295fac5ff069e3fea8df5d8",
+                "replayInputSha256": "2bf4dc7e0729004df85af9effb24878853df0d379fb0ee975dc1655e941f8566",
+                "evaluationPath": "challenges/evaluations/accepted-2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba-v39.json",
+                "evaluationCommit": "2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba",
+                "evaluationArtifact": "challenges/evaluations/accepted-2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba-v39.json",
+                "evaluationUtc": "2026-10-10T09:08:35.094Z",
+                "remainingScreens": 0,
+                "recordedSteps": 29,
+                "previousScreensMatched": 29,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 29,
+                    "total": 29
+                  },
+                  "rng": {
+                    "matched": 2640,
+                    "total": 2642
+                  },
+                  "cursors": {
+                    "matched": 29,
+                    "total": 29
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "rng",
+                  "rng": {
+                    "index": 2640,
+                    "cEntry": "rn2(3)=2",
+                    "cCaller": "landing_spot(steed.c:543)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 28,
+                      "key": " "
+                    },
+                    "stepIndex": 28
+                  },
+                  "screen": null,
+                  "cursor": null
+                },
+                "step": 28,
+                "kind": "rng",
+                "sourceFile": "steed.c",
+                "function": "landing_spot",
+                "message": null,
+                "cFile": "steed.c",
+                "luaFile": null,
+                "line": 543
+              },
+              "summary": "All screens and cursors match after the accepted naming fix, but C records two additional RNG calls when the polymorph trap removes the pony’s saddle. mon.c:newcham reaches worn.c:mon_break_armor, which drops the saddle through m_lose_armor; worn.c:update_mon_extrinsics then calls steed.c:dismount_steed(DISMOUNT_FELL). JS currently records a note_unported gap at the equivalent worn.js call sites, so it skips landing_spot, leaving the mount attached and later reaches a JS-only poly_steed gap. The mounted polymorph needs the FELL dismount and both of its worn.c caller sites wired.",
+              "source": {
+                "file": "steed.c",
+                "branch": "A mounted pony polymorphs to a form that cannot be saddled. mon.c:newcham calls worn.c:mon_break_armor after changing its form; mon_break_armor drops the saddle with m_lose_armor, which removes its monster extrinsics. worn.c:update_mon_extrinsics then sees the mount losing its saddle and calls dismount_steed(DISMOUNT_FELL). The C dismount initializes have_spot with landing_spot before the reason switch, scans adjacent positions and uses rn2(viable) to break equal-distance ties. The successful dismount clears u.usteed, so mon.c:newcham skips its later poly_steed call.",
+                "functions": [
+                  "dismount_steed"
+                ],
+                "callers": [
+                  "worn.c:update_mon_extrinsics",
+                  "worn.c:mon_break_armor",
+                  "mon.c:newcham",
+                  "trap.c:steedintrap"
+                ],
+                "dependencies": [
+                  "steed.c:landing_spot",
+                  "hack.c:losehp",
+                  "attrib.c:set_wounded_legs",
+                  "worn.c:update_mon_extrinsics",
+                  "worn.c:mon_break_armor"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved accepted evaluation challenges/evaluations/accepted-2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba-v39.json at 2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba; v39 manifest SHA-256 02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0, recording SHA-256 1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997; 29/29 screens, 2640/2642 RNG calls, 29/29 cursors.",
+                "Fresh focused differential `node scripts/diff-fresh.mjs challenges/cases/v39/v39-mounted-steed-polymorph-trap.recipe.session.json` reproduces the same failure: screen and cursor streams match; C has 2642 RNG calls and JS has 2640; first missing call is rn2(3)=2 from steed.c:landing_spot at segment 0 step 28 (CLI prints segment 1 step 29). Bounded receipt: /tmp/teleport-validation-1000/run-BHW5cy/receipt.json.",
+                "Source path: trap.c:steedintrap calls newcham(steed, NULL, NC_SHOW_MSG). In mon.c:newcham (5278-5545), the changed form reaches mon_break_armor(mtmp, polyspot) before the later `if (mtmp == u.usteed) poly_steed(mtmp, olddata)` check.",
+                "Source path: worn.c:mon_break_armor (1177-1338) identifies the mount as unable to keep its saddle and calls m_lose_armor. m_lose_armor removes the saddle and calls update_mon_extrinsics with on=FALSE. worn.c:update_mon_extrinsics at 707-708 calls dismount_steed(DISMOUNT_FELL) when the removed saddle belonged to u.usteed. This earlier dismount clears u.usteed, so the later poly_steed call in mon.c:newcham is skipped; the JS poly_steed note is secondary to the skipped FELL call.",
+                "Source path: steed.c:dismount_steed (576-826) evaluates landing_spot(&cc, reason, 0) in its initializer before the reason switch. DISMOUNT_FELL shares the fall branch: print the fall message, request the forced landing fallback if needed, apply riding-accident damage and wounded legs when not flying or levitating, release and place the steed, move the hero, and run the shared float-down/status tail. landing_spot at line 543 breaks equal-distance ties with rn2(viable), consistent with the first missing call.",
+                "Likely JS gaps: js/worn.js:update_mon_extrinsics and js/worn.js:mon_break_armor_effects both currently record note_unported(\"steed.c dismount_steed DISMOUNT_FELL\") instead of calling dismount_steed; js/steed.js:dismount_steed still refuses DISMOUNT_FELL. The later js/mon.js poly_steed note is not on the C path after the dismount succeeds.",
+                "The earlier ARTICLE_YOUR binding defect in mon.c:newcham was corrected and independently accepted. It accounts for the prior 0/29 replay stop; this report supersedes that old count and earlier poly_steed source attribution.",
+                "An independent unmounted pet-polymorph recording remains in recipes/mon.c/tame-pet-polymorph-trap.session.json and recordings/mon.c/tame-pet-polymorph-trap.session.json; it matches 25/25 screens, 2850/2850 RNG calls, and 25/25 cursors, proving the separate mon.c:newcham tame-naming path."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "97b84cc6b58a15fd2a536c0d8caaa2e86be47335",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

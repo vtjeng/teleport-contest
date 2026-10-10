@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Continues the preserved selector probe with the source-confirmed potion menu key i followed by Enter, to establish whether NetHack's identify_pack multi-selection menu accepts the chosen object and completes read.c:seffect_identify.",
+  "segments": [
+    {
+      "seed": 40100520,
+      "datetime": "20450102030405",
+      "nethackrc": "OPTIONS=name:V40IdentifyPotion,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017potion of see invisible\n\u0017scroll of identify\n rj i\n"
+    }
+  ]
+}

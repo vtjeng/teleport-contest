@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first shop-stock correction after the selector reported no object on the hero tile. Move east from the C-confirmed hero square onto the adjacent visible stock glyph, then stop to inspect its C name/pickup state.",
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopDebtAlt,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\nl"
+    }
+  ]
+}

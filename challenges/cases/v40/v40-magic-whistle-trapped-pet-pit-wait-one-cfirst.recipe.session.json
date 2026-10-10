@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Continues from the C-observed corrected map: after moving east off the pit, the tame kitten takes one step toward the hero but has not entered the pit yet. Wait one turn and check whether its source-selected move reaches the boulder/pit tile.",
+  "segments": [
+    {
+      "seed": 40100731,
+      "datetime": "20450607080910",
+      "nethackrc": "OPTIONS=name:V40TrapPetWhistle,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "l\u0017boulder\n\u0017pit trap\nl."
+    }
+  ]
+}

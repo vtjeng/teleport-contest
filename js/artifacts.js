@@ -81,6 +81,7 @@ import {
     W_ARMU,
     W_RINGL,
     W_RINGR,
+    W_SADDLE,
     W_SWAPWEP,
     W_TOOL,
     W_WEP,
@@ -106,7 +107,13 @@ import {
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { game } from './gstate.js';
-import { recalc_telepat_range } from './worn.js';
+import {
+    bypass_obj,
+    clear_bypasses,
+    nxt_unbypassed_obj,
+    recalc_telepat_range,
+    which_armor,
+} from './worn.js';
 import { use_crystal_ball } from './detect.js';
 import { inside_shop } from './shk.js';
 import { getrumor } from './random_text.js';
@@ -231,10 +238,24 @@ import { next_to_u } from './apply_next_to_u.js';
 import { do_blinding_ray } from './apply.js';
 import { glyph_at, glyph_is_trap, newsym, shieldeff, see_monsters } from './display.js';
 import { invocation_pos, losehp, nomul, spoteffects } from './hack.js';
-import { float_down, float_up, t_at, untrap } from './trap.js';
+import {
+    float_down,
+    float_up,
+    selftouch,
+    t_at,
+    untrap,
+} from './trap.js';
 import { level_tele, u_teleport_mon } from './teleport.js';
 import { align_str, enlightenment } from './insight.js';
-import { carried, Is_dragon_armor, Is_dragon_mail, mksobj, objectType, weight } from './obj.js';
+import {
+    carried,
+    Is_dragon_armor,
+    Is_dragon_mail,
+    mksobj,
+    objectType,
+    uncurse,
+    weight,
+} from './obj.js';
 import { obj_shuffle_range, observe_object } from './o_init.js';
 import {
     capitalizedMonsterName,
@@ -3061,7 +3082,7 @@ export function isPermanentlyPoisoned(obj) {
 // test whether the hero can still handle `obj`. Returns 1 if the hero can
 // keep the object, 0 if not (item is unworn and possibly dropped). `loseit`
 // controls whether the object is dropped when the hero can no longer touch it.
-export async function retouch_object(objp, loseit, state = game) {
+export async function retouch_object(objp, loseit, state = game, rawEnv = {}) {
     let obj = objp.obj;
 
     /* allow hero in silver-hating form to try to perform invocation ritual */
@@ -3144,7 +3165,7 @@ export async function retouch_object(objp, loseit, state = game) {
                 await ttyPline(
                     `${Tobjnam(obj, 'fall', state)} to the ${surface(state.u.ux, state.u.uy, state)}.`,
                     state);
-            await dropx(obj, { state });
+            await dropx(obj, dropCommandEnv(state, rawEnv));
         }
         objp.obj = obj = null; /* no longer in inventory */
     }
@@ -3159,7 +3180,7 @@ function Is_container(obj) {
 // C ref: artifact.c untouchable() (2598-2637). Test one worn/wielded item or
 // artifact for touchability after a form or alignment change. Returns true if
 // the item failed the touch test.
-async function untouchable(obj, drop_untouchable, state = game) {
+async function untouchable(obj, drop_untouchable, state = game, rawEnv = {}) {
     const wearmask = ~(W_QUIVER | (state.u.twoweap ? 0 : W_SWAPWEP) | W_BALL);
 
     const beingworn = obj
@@ -3183,7 +3204,9 @@ async function untouchable(obj, drop_untouchable, state = game) {
 
     if (beingworn || carryeffect || invoked) {
         const objp = { obj };
-        if (!await retouch_object(objp, drop_untouchable, state)) {
+        if (!await retouch_object(
+            objp, drop_untouchable, state, rawEnv,
+        )) {
             /* "<artifact> is beyond your control" or "you can't handle
                <object>" has been given and it is now unworn/unwielded
                and possibly dropped (depending upon caller); if dropped,
@@ -3195,6 +3218,62 @@ async function untouchable(obj, drop_untouchable, state = game) {
         }
     }
     return false;
+}
+
+// C ref: artifact.c retouch_equipment() (2640-2705). Recheck worn, wielded,
+// and carried objects after a form or alignment change. The per-game field
+// represents C's static recursion counter; nested calls share it across awaits.
+export async function retouch_equipment(dropflag, state = game, rawEnv = {}) {
+    const had_gloves = Boolean(state.uarmg);
+    const had_rings = Number(Boolean(state.uleft)) + Number(Boolean(state.uright));
+    const retouchEnv = { ...rawEnv, state };
+    let nesting = state.artifactRetouchNesting ?? 0;
+
+    if (!nesting++)
+        clear_bypasses(state); /* init upon initial entry */
+    state.artifactRetouchNesting = nesting;
+
+    let dropit = (dropflag > 0); /* drop all or drop weapon */
+    /* check secondary weapon first, before possibly unwielding primary */
+    if (state.u.twoweap) {
+        bypass_obj(state.uswapwep, state);
+        await untouchable(state.uswapwep, dropit, state, retouchEnv);
+    }
+    /* check primary weapon next so that they're handled together */
+    if (state.uwep) {
+        bypass_obj(state.uwep, state);
+        await untouchable(state.uwep, dropit, state, retouchEnv);
+    }
+
+    /* in case someone is daft enough to add artifact or silver saddle */
+    let obj;
+    if (state.u.usteed
+        && (obj = which_armor(state.u.usteed, W_SADDLE, state)) !== null) {
+        /* untouchable() expects inventory, but removal is harmless for a
+           saddle and dropping is suppressed as in the C source. */
+        if (await untouchable(obj, false, state, retouchEnv))
+            // artifact.c discards dismount_steed()'s void result here.
+            note_unported('steed.c dismount_steed DISMOUNT_THROWN');
+    }
+
+    /* TODO? Force off gloves before rings and cloak [suit] before suit [shirt].
+       The torso case is hypothetical; silver rings can really unwear gloves. */
+    dropit = (dropflag === 1); /* all untouchable items */
+    /* Rescan the live inventory chain because an earlier item can drop or
+       destroy later objects. Bypass flags keep each object to one pass. */
+    while ((obj = nxt_unbypassed_obj(state.invent, state)) !== null)
+        await untouchable(obj, dropit, state, retouchEnv);
+
+    if (had_rings
+        !== Number(Boolean(state.uleft)) + Number(Boolean(state.uright))
+        && state.uarmg && state.uarmg.cursed)
+        await uncurse(state.uarmg, state); /* temporary ring-removal hack */
+    if (had_gloves && !state.uarmg)
+        await selftouch('After losing your gloves, you', state, retouchEnv);
+
+    if (!--nesting)
+        clear_bypasses(state); /* reset upon final exit */
+    state.artifactRetouchNesting = nesting;
 }
 
 // C ref: artifact.c count_surround_traps() (2708-2750). Count hidden traps
