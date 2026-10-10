@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42043820,
+      "datetime": "20520321120000",
+      "nethackrc": "OPTIONS=name:V42UnturnProbe,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": " #wizwish\ncorpse of lichen\n#wizwish\nwand of undead turning (0:3)\n#wizgenesis\nhostile gnome wizard\n#wizmap\n"
+    }
+  ],
+  "comment": "C-first corrected setup: give the hero an open-inventory lichen corpse and explicitly charged undead-turning wand, create an intelligent hostile gnome wizard rather than a mindless zombie, and map the initial position before selecting a lure route. No JS comparison."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42044331,
+      "datetime": "20520321120000",
+      "nethackrc": "OPTIONS=name:V42UnturnProbe,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": " #wizwish\ncorpse of lichen\n#wizwish\nwand of undead turning (0:3)\n#wizidentify\n\t\n#wizgenesis\nhostile dwarf\n#wizmap\ndfhm.m."
+    }
+  ],
+  "comment": "C-first source-path attempt: the shared seed/setup makes a hostile dwarf pick up the charged wand while the hero carries a lichen corpse. After the recorder confirms C’s adjacent-hostile wait warning, use m. to force a no-op wait and let the monster take its next action. Retain only the C-reached wand use, otherwise keep as a setup probe."
+}

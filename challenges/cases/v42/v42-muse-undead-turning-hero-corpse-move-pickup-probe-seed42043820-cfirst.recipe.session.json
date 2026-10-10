@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42043820,
+      "datetime": "20520321120000",
+      "nethackrc": "OPTIONS=name:V42UnturnProbe,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": " #wizwish\ncorpse of lichen\n#wizwish\nwand of undead turning\n#wizgenesis\nhostile zombie\n#wizmap\njdflm."
+    }
+  ],
+  "comment": "C-first monster wand pickup/use probe: move south, drop the charged wand on that tile, step east so the zombie moves onto it, then use the C-confirmed m. no-op to grant the monster a turn. Preserve if it misses; no JS comparison before the intended effect."
+}

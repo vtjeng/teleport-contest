@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42043823,
+      "datetime": "20520321120000",
+      "nethackrc": "OPTIONS=name:V42UnturnProbe,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": " #wizwish\ncorpse of lichen\n#wizwish\nwand of undead turning (0:3)\n#wizidentify\n\t\n#wizgenesis\nhostile gnome lord\n#wizmap\ndflm."
+    }
+  ],
+  "comment": "C-first monster-loot attempt for muse.c:m_use_undead_turning. Preserve the hero-carried corpse and explicit 3-charge wand, but use an intelligent hostile gnome lord so C m_search_items can pursue the dropped wand without spellcaster range preference; move east and inspect the exact wand-hit branch."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42043820,
+      "datetime": "20520321120000",
+      "nethackrc": "OPTIONS=name:V42UnturnProbe,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": " #wizwish\ncorpse of lichen\n#wizwish\nwand of undead turning\n#wizgenesis\nhostile zombie\n#wizmap\ni\u001b"
+    }
+  ],
+  "comment": "C-first route probe for monster pickup and use of an undead-turning wand; preserves the validated corpse, wand, hostile zombie, and map setup, then checks the hero inventory."
+}

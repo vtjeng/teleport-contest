@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate source: nethack-c/upstream/dat/bigrm-13.lua. Pillar-layout big room: One of eight source pattern predicates determines which pillar fragments are stamped into the map before population. Reachability must be established in patched C before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 42042212,
+      "datetime": "20511213131415",
+      "nethackrc": "OPTIONS=name:V42bigrm13specialprogram,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nbigrm-13.lua\n#wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source candidate: orcus_levels.js orcus; dat/orcus.lua. C executes the Orcus level program, including its tower map, boss placement, and post-processing, and exposes its topology.",
+  "segments": [
+    {
+      "seed": 42042305,
+      "datetime": "20511214151617",
+      "nethackrc": "OPTIONS=name:V42C5,role:Wizard,race:human,gender=female,align=lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\norcus.lua\n#wizmap\n"
+    }
+  ]
+}

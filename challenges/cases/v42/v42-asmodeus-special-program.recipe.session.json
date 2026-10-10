@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source candidate: asmodeus_levels.js asmodeus; dat/asmodeus.lua. C executes the lair’s whole source program and post-processing; map output confirms its placement and terrain operations.",
+  "segments": [
+    {
+      "seed": 42042308,
+      "datetime": "20511214151617",
+      "nethackrc": "OPTIONS=name:V42C8,role:Wizard,race:human,gender=male,align=lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nasmodeus.lua\n#wizmap\n"
+    }
+  ]
+}

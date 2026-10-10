@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate source: nethack-c/upstream/dat/bigrm-12.lua. Two-hexagon terrain maze: Independent percent checks replace pool and wall classes and can unify both halves as lava or water. Reachability must be established in patched C before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 42042211,
+      "datetime": "20511213131415",
+      "nethackrc": "OPTIONS=name:V42bigrm12specialprogram,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nbigrm-12.lua\n#wizmap\n"
+    }
+  ]
+}

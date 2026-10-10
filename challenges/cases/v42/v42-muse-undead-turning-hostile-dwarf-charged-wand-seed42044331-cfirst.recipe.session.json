@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42044331,
+      "datetime": "20520321120000",
+      "nethackrc": "OPTIONS=name:V42UnturnProbe,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": " #wizwish\ncorpse of lichen\n#wizwish\nwand of undead turning (0:3)\n#wizidentify\n\t\n#wizgenesis\nhostile dwarf\n#wizmap\ndfhm."
+    }
+  ],
+  "comment": "C-first intelligent-wand-user probe for muse.c:m_use_undead_turning. The hero carries a lichen corpse and wishes an explicitly charged wand of undead turning (0:3); create a hostile dwarf, map its location, drop the wand, and use the recorded direction away from the spawn to test pickup and offensive use. Preserve as a source-relevant probe unless C reaches the wand-carrying m_use_undead_turning branch."
+}

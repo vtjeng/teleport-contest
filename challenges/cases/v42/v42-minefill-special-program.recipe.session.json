@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate source: nethack-c/upstream/dat/minefill.lua. Mines filler program: Two ordered level_init calls switch from a blank solidfill to a smoothed, joined, walled mines style; randomized gems, boulders, gnomes, dwarves, traps, and stairs follow. Reachability must be established in patched C before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 42042204,
+      "datetime": "20511213131415",
+      "nethackrc": "OPTIONS=name:V42minefillspecialprogram,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminefill.lua\n#wizmap\n"
+    }
+  ]
+}

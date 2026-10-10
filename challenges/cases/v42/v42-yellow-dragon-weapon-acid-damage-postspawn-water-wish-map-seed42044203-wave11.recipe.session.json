@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42044203,
+      "datetime": "20520323150619",
+      "nethackrc": "OPTIONS=name:V42AcidBreath3,role:Samurai,race=human,gender=male,align=lawful,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": "#levelchange\n10\n         #wizgenesis\nhostile yellow dragon\n#wizwish\nuncursed potion of water\n#wizmap\n"
+    }
+  ],
+  "comment": "Preserved C-only map observation after the post-spawn potion wish. This probe checks the yellow dragon’s new position before correcting movement; no JS comparison unless the weapon corrosion gate is reached."
+}

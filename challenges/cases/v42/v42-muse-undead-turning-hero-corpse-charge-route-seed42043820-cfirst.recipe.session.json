@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42043820,
+      "datetime": "20520321120000",
+      "nethackrc": "OPTIONS=name:V42UnturnProbe,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": " #wizwish\ncorpse of lichen\n#wizwish\nwand of undead turning (0:3)\n#wizgenesis\nhostile gnome wizard\n#wizmap\ndfhm."
+    }
+  ],
+  "comment": "C-first route to muse.c:m_use_undead_turning. With a hostile intelligent gnome wizard and a hero-carried lichen corpse, drop the explicitly 3-charge wand on the player tile, move west to draw the monster onto it, then grant it a turn with m.; retain only if C confirms monster wand use against hero."
+}

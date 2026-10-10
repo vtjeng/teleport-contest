@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42043821,
+      "datetime": "20520315181800",
+      "nethackrc": "OPTIONS=name:QBoxReach,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\n\u0007peaceful quantum mechanic\n#wizwish\nuncursed wand of death\nzny y #tip\ny"
+    }
+  ],
+  "comment": "C-first source route reaches the m_initinv special box, kills its carrier with a wand, enters the dropped-item square, and attempts #tip to resolve the cat."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrects the rejected wand selector in the preserved adjacent-route attempt: C prompt offered c/o, with o being the wished striking wand. At the observed west-adjacent drawbridge tile, zap o east.",
+  "segments": [
+    {
+      "seed": 42043914,
+      "datetime": "20520315190300",
+      "nethackrc": "OPTIONS=name:V42CastleStrike,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017uncursed wand of striking\n#wizlevelport\ncastle\n#wizmap\nkllllzol"
+    }
+  ]
+}

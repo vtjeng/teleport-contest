@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42044001,
+      "datetime": "20520315191500",
+      "nethackrc": "OPTIONS=name:V42BellBridge,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017blessed Bell of Opening\n#wizlevelport\ncastle\n#wizmap\na"
+    }
+  ],
+  "comment": "C-first drawbridge opening through the blessed Bell of Opening: detect.c:openit scans with openone and can call dbridge.c:open_drawbridge; this selector probe preserves the C map and apply prompt before choosing the Bell."
+}

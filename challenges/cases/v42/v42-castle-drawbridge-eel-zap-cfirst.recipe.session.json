@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only source setup using two wished wands to clear the observed giant-eel blocker and then strike the Castle drawbridge from the observed approach; this attempt ends immediately after the death-ray target branch.",
+  "segments": [
+    {
+      "seed": 42043916,
+      "datetime": "20520315190500",
+      "nethackrc": "OPTIONS=name:V42CastleStrike,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017uncursed wand of death\n\u0017uncursed wand of striking\n#wizlevelport\ncastle\n#wizmap\nkllllzol"
+    }
+  ]
+}
