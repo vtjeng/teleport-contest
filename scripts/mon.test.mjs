@@ -17,6 +17,7 @@ import {
     MON_FLOOR,
     MON_MIGRATING,
     MSLOW,
+    NC_SHOW_MSG,
     NON_PM,
     NORMAL_SPEED,
     OBJ_FLOOR,
@@ -898,6 +899,87 @@ test('mon.c newcham uses apply.c leashable after changing a pet form', async () 
         'the C-discarded m_unleash return remains a named state gap');
     assert.ok(game.unported.has('apply.c m_unleash'));
 });
+
+test('mon.c newcham names a tame monster with ARTICLE_YOUR before changing form',
+    async () => {
+        const cNewchamStart = MON_C.indexOf(
+            'newcham(\n    struct monst *mtmp,',
+        );
+        const cNewchamEnd = MON_C.indexOf(
+            '\n/* sometimes an egg will be special */', cNewchamStart,
+        );
+        assert.ok(cNewchamStart >= 0 && cNewchamEnd > cNewchamStart);
+        const cNewcham = MON_C.slice(cNewchamStart, cNewchamEnd);
+        assert.match(cNewcham,
+            /x_monnam\(mtmp,\s*mtmp->mtame \? ARTICLE_YOUR : ARTICLE_THE,\s*\(char \*\) 0, SUPPRESS_SADDLE, FALSE\)/);
+
+        const state = {
+            level: new GameMap(),
+            u: {
+                ux: 5,
+                uy: 5,
+                uz: { dnum: 0, dlevel: 1 },
+                uprops: [],
+            },
+            dungeons: [{
+                depth_start: 1,
+                ledger_start: 0,
+                num_dunlevs: 29,
+                entry_lev: 0,
+                flags: { hellish: false },
+            }],
+            in_mklev: true,
+        };
+        monst_globals_init(state);
+        reset_mvitals(state);
+        state.youmonst = { data: state.mons[PM_HUMAN] };
+        const pet = newMonster({
+            data: state.mons[PM_SEWER_RAT],
+            mnum: PM_SEWER_RAT,
+            mtame: 10,
+            mpeaceful: true,
+            mhp: 4,
+            mhpmax: 4,
+            mcanmove: true,
+            mx: 4,
+            my: 4,
+        });
+        const messages = [];
+        const randomCalls = [];
+        const changed = await newcham(pet, state.mons[PM_LONG_WORM], {
+            state,
+            ncflags: NC_SHOW_MSG,
+            random: {
+                rn2: (bound) => {
+                    randomCalls.push(['rn2', bound]);
+                    return 0;
+                },
+                rnd: (bound) => {
+                    randomCalls.push(['rnd', bound]);
+                    return 1;
+                },
+                rn1: () => assert.fail('newcham called unexpected rn1'),
+                rne: () => assert.fail('newcham called unexpected rne'),
+                d: (number, sides) => {
+                    randomCalls.push(['d', number, sides]);
+                    assert.equal(sides, 8);
+                    return number;
+                },
+            },
+            canSpotMonster: () => true,
+            message: (message) => messages.push(message),
+            redrawSquare: () => {},
+        });
+
+        assert.equal(changed, true);
+        assert.equal(pet.mnum, PM_LONG_WORM);
+        assert.deepEqual(randomCalls, [
+            ['rn2', 10], // mon.c:mgender_from_permonst() keeps the gender.
+            ['d', pet.m_lev, 8], // makemon.c:newmonhp() resets hit points.
+            ['rn2', 5], // mon.c:newcham() chooses the worm-tail length.
+        ]);
+        assert.equal(messages[0], 'Your sewer rat turns into a long worm!');
+    });
 
 test('newcham clears wormno before the worm tail redraws and releases its slot',
     async () => {
