@@ -7,6 +7,7 @@ import {
     DIR_E,
     DIR_ERR,
     DIR_NE,
+    DIR_SE,
     DIR_NW,
     DIR_W,
     DISMOUNT_BONES,
@@ -36,6 +37,7 @@ import {
     HOLE,
     STONE,
     STUNNED,
+    TIMEOUT,
     TEST_MOVE,
     TT_BEARTRAP,
     TT_BURIEDBALL,
@@ -304,17 +306,13 @@ test('a hero with nowhere to stand refuses the dismount', async () => {
     assert.ok(state.u.usteed);
 });
 
-test('every dismount reason but DISMOUNT_BYCHOICE refuses', async () => {
+test('every unowned dismount reason but BYCHOICE and KNOCKED refuses', async () => {
     // hack.h:347-356. doride() supplies DISMOUNT_BYCHOICE alone; the rest need
     // owners this port does not have, and each names them at its site.
     const reasons = [
         [DISMOUNT_GENERIC, /DISMOUNT_GENERIC/u],
         [DISMOUNT_FELL, /reason 1, a fall from the saddle/u],
         [DISMOUNT_THROWN, /reason 2, a fall from the saddle/u],
-        // landing_spot() refuses a knockback before dismount_steed()'s switch
-        // reaches its arm, because that reason is the only one that reads
-        // u.dx/u.dy to prefer a direction.
-        [DISMOUNT_KNOCKED, /landing_spot\(\) for a knockback dismount/u],
         [DISMOUNT_POLY, /DISMOUNT_POLY/u],
         [DISMOUNT_ENGULFED, /DISMOUNT_ENGULFED/u],
         [DISMOUNT_BONES, /DISMOUNT_BONES/u],
@@ -977,27 +975,61 @@ test('landing_spot skips a square another monster stands on', async () => {
     }
 });
 
-test('landing_spot refuses the two arms this port has no owner for',
+test('landing_spot orders knockback candidates from the impact direction',
     async () => {
-    // DISMOUNT_KNOCKED reads u.dx/u.dy to prefer the knockback direction, and
-    // `forceit` falls back to enexto(); neither has an owner here.
     const state = await mounted();
-    state.u.dx = 1;
-    state.u.dy = 0;
-    await assert.rejects(
-        _steedInternals.landing_spot(DISMOUNT_KNOCKED, 0, state),
-        (error) => error instanceof UnsupportedSteedError
-            && /knockback dismount/u.test(error.message),
+    state.u.dx = xdir[DIR_E];
+    state.u.dy = ydir[DIR_E];
+    isolate(state, [DIR_SE, DIR_NE]);
+
+    const before = getRngLog().length;
+    const spot = await _steedInternals.landing_spot(
+        DISMOUNT_KNOCKED, 0, state,
     );
+    const drawn = getRngLog().slice(before);
+    assert.equal(drawn.length, 1, JSON.stringify(drawn));
+    const side = /^rn2\(2\)=([01])$/u.exec(drawn[0]);
+    assert.ok(side, `knockback orders sides with rn2(2), not ${drawn[0]}`);
+    assert.deepEqual(spot, at(state, side[1] === '0' ? DIR_SE : DIR_NE));
+});
+
+test('landing_spot uses enexto when forced and adjacent spots fail',
+    async () => {
+    const state = await mounted();
     isolate(state, []); // no candidate at all, so `found` stays FALSE
     assert.equal(
         await _steedInternals.landing_spot(DISMOUNT_BYCHOICE, 0, state), null,
     );
-    await assert.rejects(
-        _steedInternals.landing_spot(DISMOUNT_BYCHOICE, 1, state),
-        (error) => error instanceof UnsupportedSteedError
-            && /forced through enexto/u.test(error.message),
+    const spot = await _steedInternals.landing_spot(
+        DISMOUNT_BYCHOICE, 1, state,
     );
+    assert.ok(spot, 'the source fallback finds a farther landing square');
+    assert.notDeepEqual(spot, { x: state.u.ux, y: state.u.uy });
+});
+
+test('DISMOUNT_KNOCKED releases the steed and moves the hero off it',
+    async () => {
+    const state = await mounted();
+    const steed = state.u.usteed;
+    const oldx = state.u.ux;
+    const oldy = state.u.uy;
+    state.u.dx = xdir[DIR_E];
+    state.u.dy = ydir[DIR_E];
+    isolate(state, [DIR_E]);
+    // The direct helper call has no recipe loop to acknowledge --More--.
+    for (let i = 0; i < 12; ++i)
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+    quiet(state);
+
+    const before = getRngLog().length;
+    await dismount_steed(DISMOUNT_KNOCKED, state);
+    const drawn = getRngLog().slice(before);
+
+    assert.equal(state.u.usteed, null);
+    assert.deepEqual([state.u.ux, state.u.uy], [oldx + 1, oldy]);
+    assert.equal(m_at(oldx, oldy, state), steed);
+    assert.match(drawn[0], /^rn2\(2\)=\d+$/u);
+    assert.ok(state.u.uprops[WOUNDED_LEGS].intrinsic & TIMEOUT);
 });
 
 test('maybewakesteed halves a frozen steed and ends its meal', async () => {

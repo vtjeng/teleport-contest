@@ -248714,7 +248714,7 @@
     {
       "id": "fix-wield-corpse-instapetrify-v39-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Call instapetrify when a bare-handed hero wields a petrifying corpse",
       "cFile": "wield.c",
       "sessions": [
@@ -248728,8 +248728,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "cant_wield_corpse",
       "session": "synthetic/v39/v39-wield-cockatrice-instapetrify",
       "step": 48,
@@ -248898,6 +248901,809 @@
                 "wield.c:cant_wield_corpse() (137-153) checks gloves, CORPSE type, touch_petrifies(), and Stone_resistance in C short-circuit order; it prints the bare-hand wield message, calls instapetrify(kbuf), then returns TRUE.",
                 "The production route is cmd.c wield dispatch -> wield.c:dowield() -> ready_weapon() -> cant_wield_corpse(). The JS helper exists at js/wield.js:cant_wield_corpse() and currently reaches note_unported('trap.c instapetrify') instead of awaiting the existing js/trap.js:instapetrify() call.",
                 "The only other direct C caller is the unreachable can_twoweapon() corpse branch; source line 794 explicitly says TWOWEAPOK() prevents it from being reached for corpses."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-trap-seen-magic-trap-preflight-v39-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Complete the seen magic trap escape and explosion path",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v39/v39-magic-trap-explosion"
+      ],
+      "selectionReason": "Oldest dependency-clearing admitted v39 mismatch, traced to trap.c:dotrap and trapeffect_magic_trap at step 24.",
+      "detail": "v39/v39-magic-trap-explosion segment 0 stops at step 24 because preflight rejects an already-seen MAGIC_TRAP. C dotrap consumes the seen-trap escape roll, then trapeffect_magic_trap takes the 1-in-30 explosion arm: delete and redraw the trap, damage the hero, and restore maximum energy.",
+      "openedAt": "eb7bc814e442092076e6566bfd3cb61ea1a3906a",
+      "openStanding": {
+        "sha": "0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "9576b4f8da10054320739b6775b11284c33b01ed",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "trapeffect_magic_trap",
+      "session": "synthetic/v39/v39-magic-trap-explosion",
+      "step": 24,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-magic-trap-explosion": {
+          "session": "synthetic/v39/v39-magic-trap-explosion",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-magic-trap-explosion",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-magic-trap-explosion.session.json",
+          "recordingSha256": "b5702f57168e0054738cfa70a31d76dfdf2a43d0297c3f67b231b97e2b001142",
+          "evaluationPath": "challenges/evaluations/accepted-0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b-v39.json",
+          "evaluationCommit": "0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b"
+        }
+      },
+      "activeStanding": {
+        "sha": "0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-magic-trap-explosion",
+          "session": "synthetic/v39/v39-magic-trap-explosion",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-magic-trap-explosion.session.json",
+          "recordingPath": "challenges/cases/v39/v39-magic-trap-explosion.session.json",
+          "recordingSha256": "b5702f57168e0054738cfa70a31d76dfdf2a43d0297c3f67b231b97e2b001142",
+          "recipe": "challenges/cases/v39/v39-magic-trap-explosion.recipe.session.json",
+          "recipeSha256": "f8510b7221b3feb6dbdec3d52efc556ea308cb524f655b10df7406997d5ee046",
+          "replayInputSha256": "af4a14bbcf2249cb73834dd511429aa7ab71dc337d9cb7cbd7d14e2cb025ff42",
+          "evaluationPath": "challenges/evaluations/accepted-0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b-v39.json",
+          "evaluationCommit": "0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b",
+          "evaluationArtifact": "challenges/evaluations/accepted-0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b-v39.json",
+          "evaluationUtc": "2026-10-10T08:40:29.787Z",
+          "remainingScreens": 1,
+          "recordedSteps": 25,
+          "previousScreensMatched": 24,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 24,
+              "total": 25
+            },
+            "rng": {
+              "matched": 2743,
+              "total": 2746
+            },
+            "cursors": {
+              "matched": 24,
+              "total": 25
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: a trap the hero has already seen",
+            "step": 24
+          },
+          "step": 24,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero move: a trap the hero has already seen",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-magic-trap-explosion.json",
+            "result": {
+              "session": "synthetic/v39/v39-magic-trap-explosion",
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-magic-trap-explosion",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recordingSha256": "b5702f57168e0054738cfa70a31d76dfdf2a43d0297c3f67b231b97e2b001142",
+              "evaluationPath": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+              "evaluationCommit": "998c20cf771d23d6f5faed181eee05f270b73b58",
+              "remainingScreens": 1,
+              "recordedSteps": 25,
+              "status": "complete",
+              "commit": "505a2094f7a36fa0df072b39b4d76e3efe978041",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v39",
+                "caseId": "v39-magic-trap-explosion",
+                "session": "synthetic/v39/v39-magic-trap-explosion",
+                "manifestPath": "challenges/manifests/v39.json",
+                "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+                "recording": "challenges/cases/v39/v39-magic-trap-explosion.session.json",
+                "recordingPath": "challenges/cases/v39/v39-magic-trap-explosion.session.json",
+                "recordingSha256": "b5702f57168e0054738cfa70a31d76dfdf2a43d0297c3f67b231b97e2b001142",
+                "recipe": "challenges/cases/v39/v39-magic-trap-explosion.recipe.session.json",
+                "recipeSha256": "f8510b7221b3feb6dbdec3d52efc556ea308cb524f655b10df7406997d5ee046",
+                "replayInputSha256": "0829ceb24a4dbcbea8c6089aa8de856c51982d20a277e4f3a173eccf4a339ac1",
+                "evaluationPath": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+                "evaluationCommit": "998c20cf771d23d6f5faed181eee05f270b73b58",
+                "evaluationArtifact": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+                "evaluationUtc": "2026-10-10T07:03:42.993Z",
+                "remainingScreens": 1,
+                "recordedSteps": 25,
+                "previousScreensMatched": 24,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 24,
+                    "total": 25
+                  },
+                  "rng": {
+                    "matched": 2743,
+                    "total": 2746
+                  },
+                  "cursors": {
+                    "matched": 24,
+                    "total": 25
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: a trap the hero has already seen",
+                  "step": 24
+                },
+                "step": 24,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero move: a trap the hero has already seen",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The saved replay stops on the second #sit because JavaScript preflight rejects a seen MAGIC_TRAP before dotrap runs. C permits the seen-trap escape roll; this recording rolls 3 on rn2(5), continues into trapeffect_magic_trap, and triggers the explosion.",
+              "source": {
+                "file": "trap.c",
+                "branch": "For an already-seen trap, dotrap performs the escape roll only when the hero is not fumbling, the trap is destroyable, the trap is not ANTI_MAGIC, no force-bungle/plunge/conjoined-pit/adjacent-pit condition applies, and the call is not forced. MAGIC_TRAP satisfies those conditions. If rn2(5) is nonzero, dotrap proceeds to trapeffect_selector and the magic-trap effect.",
+                "functions": [
+                  "dotrap"
+                ],
+                "callers": [
+                  "sit.c:dosit (400-568) calls dotrap(trap, VIASITTING) when a trap is under the hero and the hero is not already trapped; js/sit.js:dosit already dispatches this call from cmd.js #sit."
+                ],
+                "dependencies": [
+                  "trap.c:trapeffect_selector",
+                  "trap.c:trapeffect_magic_trap"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved queue SHA-256 8159324bc02a3fa2724e8603cae7a6809fbbbaff1883c62684a0478b91a06f03 records v39-magic-trap-explosion with 1 remaining screen, 25 recorded steps, and a stop at segment 0 step 24: unsupported hero move: a trap the hero has already seen. Its admitted recipe creates a magic trap with wizard debug input, then runs #sit twice.",
+                "The C caller path is sit.c:dosit at lines 400-568: when a trap is under the hero and the hero is not already trapped, it prints the landing/sitting message and calls dotrap(trap, VIASITTING). The JavaScript caller already does the same at js/sit.js:898-902.",
+                "Upstream trap.c:dotrap lines 3035-3043 does not blanket-refuse seen traps. MAGIC_TRAP is not undestroyable and is not ANTI_MAGIC, so C rolls rn2(5); the saved second #sit records rn2(5)=3 at dotrap(trap.c:3038), proceeds to trapeffect_selector, then records rn2(30)=0 and rnd(10)=5 in trapeffect_magic_trap(trap.c:2300-2304).",
+                "js/trap_effects.js:preflight_dotrap rejects a seen trap at lines 3918-3927 because MAGIC_TRAP is absent from its allowlist. That guard runs before the already-ported dotrap seen-trap roll and trapeffect_magic_trap branch, producing the saved unsupported-move stop. scripts/hero-magic-trap.test.mjs:134-142 currently pins this incorrect refusal.",
+                "The narrowly actionable fix is to admit already-seen MAGIC_TRAP through preflight while preserving all other unsupported seen-trap refusals. The existing dotrap implementation then performs C-order rn2(5) and reaches the existing magic-trap effect. No sit caller change or new recipe is needed; the admitted v39 range covers segment 0 step 24.",
+                "Fresh C/JavaScript differential `node scripts/diff-fresh.mjs challenges/cases/v39/v39-magic-trap-explosion.recipe.session.json` reproduced the same refusal at segment 1 step 25 (bounded run-4DTJbH, .cache/B214-investigation-fresh-diff.log): C records rn2(5)=3 at dotrap(trap.c:3038), then has the screen and cursor boundary that JavaScript omits after the seen-MAGIC_TRAP preflight error."
+              ],
+              "savedQueueSha256": "8159324bc02a3fa2724e8603cae7a6809fbbbaff1883c62684a0478b91a06f03"
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9576b4f8da10054320739b6775b11284c33b01ed",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "divergence-v39-mounted-steed-knockoff-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Port mounted knockback dismount and landing selection",
+      "cFile": "steed.c",
+      "sessions": [
+        "synthetic/v39/v39-mounted-steed-knockoff"
+      ],
+      "selectionReason": "Oldest dependency-ready synthetic v39 mismatch, with steed.c source scope isolated by investigation.",
+      "detail": "Source route uhitm.c:mhitm_knockback -> steed.c:dismount_steed(DISMOUNT_KNOCKED) -> landing_spot.",
+      "openedAt": "287add6726b8fa30314cc4b2059c37e659460bc3",
+      "openStanding": {
+        "sha": "9576b4f8da10054320739b6775b11284c33b01ed",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "landing_spot",
+      "session": "synthetic/v39/v39-mounted-steed-knockoff",
+      "step": 87,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-mounted-steed-knockoff": {
+          "session": "synthetic/v39/v39-mounted-steed-knockoff",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-mounted-steed-knockoff",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-mounted-steed-knockoff.session.json",
+          "recordingSha256": "5ee5f9ca6524671540995d4361175b0a74e109b59897ff89df3efaeac7eec484",
+          "evaluationPath": "challenges/evaluations/accepted-9576b4f8da10054320739b6775b11284c33b01ed-v39.json",
+          "evaluationCommit": "9576b4f8da10054320739b6775b11284c33b01ed"
+        }
+      },
+      "activeStanding": {
+        "sha": "9576b4f8da10054320739b6775b11284c33b01ed",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-mounted-steed-knockoff",
+          "session": "synthetic/v39/v39-mounted-steed-knockoff",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-mounted-steed-knockoff.session.json",
+          "recordingPath": "challenges/cases/v39/v39-mounted-steed-knockoff.session.json",
+          "recordingSha256": "5ee5f9ca6524671540995d4361175b0a74e109b59897ff89df3efaeac7eec484",
+          "recipe": "challenges/cases/v39/v39-mounted-steed-knockoff.recipe.session.json",
+          "recipeSha256": "790bf8e88979b4e30d4fb7813de313c8de6b87f250aba1a2f2f9d808efab68f8",
+          "replayInputSha256": "6a4226e10463ee73afbad07abe87c9b5e1d59823c141828ecb0802728f772ed5",
+          "evaluationPath": "challenges/evaluations/accepted-9576b4f8da10054320739b6775b11284c33b01ed-v39.json",
+          "evaluationCommit": "9576b4f8da10054320739b6775b11284c33b01ed",
+          "evaluationArtifact": "challenges/evaluations/accepted-9576b4f8da10054320739b6775b11284c33b01ed-v39.json",
+          "evaluationUtc": "2026-10-10T08:53:19.829Z",
+          "remainingScreens": 1,
+          "recordedSteps": 90,
+          "previousScreensMatched": 89,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 89,
+              "total": 90
+            },
+            "rng": {
+              "matched": 2873,
+              "total": 2890
+            },
+            "cursors": {
+              "matched": 89,
+              "total": 90
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 89,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 89,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 4,
+              "cCell": {
+                "ch": "f",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "w",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2873,
+              "cEntry": "rn2(2)=0",
+              "cCaller": "landing_spot(steed.c:480)",
+              "jsEntry": "rn2(4)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 87,
+                "key": " "
+              },
+              "stepIndex": 87
+            },
+            "cursor": {
+              "index": 89,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 89,
+                "key": " "
+              },
+              "cCursor": [
+                78,
+                0,
+                1
+              ],
+              "jsCursor": [
+                69,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 87,
+          "kind": "rng",
+          "sourceFile": "steed.c",
+          "function": "landing_spot",
+          "message": null,
+          "cFile": "steed.c",
+          "luaFile": null,
+          "line": 480,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-mounted-steed-knockoff.json",
+            "result": {
+              "session": "synthetic/v39/v39-mounted-steed-knockoff",
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-mounted-steed-knockoff",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recording": "challenges/cases/v39/v39-mounted-steed-knockoff.session.json",
+              "recordingPath": "challenges/cases/v39/v39-mounted-steed-knockoff.session.json",
+              "recordingSha256": "5ee5f9ca6524671540995d4361175b0a74e109b59897ff89df3efaeac7eec484",
+              "recipe": "challenges/cases/v39/v39-mounted-steed-knockoff.recipe.session.json",
+              "recipeSha256": "790bf8e88979b4e30d4fb7813de313c8de6b87f250aba1a2f2f9d808efab68f8",
+              "replayInputSha256": "47593086a1baa7723744c3a7331b13272c438f1e0c7426f5a9c944273e35682e",
+              "evaluationPath": "challenges/evaluations/accepted-aed26ac9ec69a4441421005e4110971d52d5eb53-v39.json",
+              "evaluationCommit": "aed26ac9ec69a4441421005e4110971d52d5eb53",
+              "evaluationUtc": "2026-10-10T06:48:19.323Z",
+              "remainingScreens": 1,
+              "recordedSteps": 90,
+              "status": "complete",
+              "commit": "f2c5e45014e972580219998b20749aa9db9a421b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v39",
+                "caseId": "v39-mounted-steed-knockoff",
+                "session": "synthetic/v39/v39-mounted-steed-knockoff",
+                "manifestPath": "challenges/manifests/v39.json",
+                "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+                "recording": "challenges/cases/v39/v39-mounted-steed-knockoff.session.json",
+                "recordingPath": "challenges/cases/v39/v39-mounted-steed-knockoff.session.json",
+                "recordingSha256": "5ee5f9ca6524671540995d4361175b0a74e109b59897ff89df3efaeac7eec484",
+                "recipe": "challenges/cases/v39/v39-mounted-steed-knockoff.recipe.session.json",
+                "recipeSha256": "790bf8e88979b4e30d4fb7813de313c8de6b87f250aba1a2f2f9d808efab68f8",
+                "replayInputSha256": "47593086a1baa7723744c3a7331b13272c438f1e0c7426f5a9c944273e35682e",
+                "evaluationPath": "challenges/evaluations/accepted-aed26ac9ec69a4441421005e4110971d52d5eb53-v39.json",
+                "evaluationCommit": "aed26ac9ec69a4441421005e4110971d52d5eb53",
+                "evaluationArtifact": "challenges/evaluations/accepted-aed26ac9ec69a4441421005e4110971d52d5eb53-v39.json",
+                "evaluationUtc": "2026-10-10T06:48:19.323Z",
+                "remainingScreens": 1,
+                "recordedSteps": 90,
+                "previousScreensMatched": 89,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 89,
+                    "total": 90
+                  },
+                  "rng": {
+                    "matched": 2873,
+                    "total": 2890
+                  },
+                  "cursors": {
+                    "matched": 89,
+                    "total": 90
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 89,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 89,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 4,
+                    "cCell": {
+                      "ch": "f",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "w",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2873,
+                    "cEntry": "rn2(2)=0",
+                    "cCaller": "landing_spot(steed.c:480)",
+                    "jsEntry": "rn2(4)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 87,
+                      "key": " "
+                    },
+                    "stepIndex": 87
+                  },
+                  "cursor": {
+                    "index": 89,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 89,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      78,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      69,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 87,
+                "kind": "rng",
+                "sourceFile": "steed.c",
+                "function": "landing_spot",
+                "message": null,
+                "cFile": "steed.c",
+                "luaFile": null,
+                "line": 480
+              },
+              "summary": "C reaches steed.c:landing_spot when a monster knocks the hero from the saddle. The existing JS uhitm.c:mhitm_knockback caller skips dismount_steed(DISMOUNT_KNOCKED), omitting the preferred landing-square RNG draw and dismount effects.",
+              "source": {
+                "file": "steed.c",
+                "branch": "During a monster knockback against a mounted hero, uhitm.c:mhitm_knockback stores the knockback direction in u.dx/u.dy and calls dismount_steed(DISMOUNT_KNOCKED). dismount_steed first calls landing_spot(reason, 0), which orders the preferred square and its two adjacent candidates with rn2(2), then checks viable squares; if a spot is found, it emits the fall message, applies riding-accident damage and wounded legs when unprotected, releases the steed, moves the hero, and restores normal footing.",
+                "functions": [
+                  "landing_spot",
+                  "dismount_steed"
+                ],
+                "callers": [
+                  "uhitm.c:mhitm_knockback"
+                ],
+                "dependencies": [
+                  "uhitm.c:mhitm_knockback",
+                  "steed.c:landing_spot",
+                  "steed.c:dismount_steed",
+                  "steed.c:float_down",
+                  "trap.c:float_down",
+                  "teleport.c:teleds",
+                  "worn.c:set_wounded_legs",
+                  "hack.c:losehp"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved queue /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json records its v39 evaluation at aed26ac9ec69a4441421005e4110971d52d5eb53, which is an ancestor of accepted Main 85ebf1b2716b3a0f4e0d868d213d9b22f6a30e57. The case had 1/90 screens unmatched, 2873/2890 RNG calls matching, and 89/90 cursors matching. Its RNG mismatch identifies steed.c:landing_spot at line 480.",
+                "Upstream nethack-c/upstream/src/uhitm.c:5388-5391 (mhitm_knockback) stores the preferred direction in u.dx/u.dy and calls dismount_steed(DISMOUNT_KNOCKED) for a mounted hero defender.",
+                "Upstream nethack-c/upstream/src/steed.c:460-566 (landing_spot) creates the preferred adjacent candidate order with rn2(2), then checks movement, known traps, boulders, and distance-based tie breaks. The DISMOUNT_KNOCKED pass starts at i=1 and may fall back to enexto when forceit is set.",
+                "Upstream nethack-c/upstream/src/steed.c:576-822 (dismount_steed) initializes the first landing spot before clearing u.usteed. DISMOUNT_KNOCKED shares the thrown/fell branch, reports the fall, may apply rn1(10,10) damage and rn1(5,5) wounded-leg duration, then releases the steed and moves the hero before float_down.",
+                "The current JS caller js/uhitm.js:7478-7482 records note_unported(\"steed.c dismount_steed DISMOUNT_KNOCKED\") rather than invoking the source callee. The JS helper js/steed.js:752-769 also refuses the DISMOUNT_KNOCKED candidate-order branch; js/steed.js:873-881 refuses the shared dismount reason branch.",
+                "Fresh differential .cache/A2-v39-steed-knockoff-diff.log, run from examined commit f2c5e45014e972580219998b20749aa9db9a421b: C made 2,890 RNG calls and JS made 2,882; the first mismatch is call 2,874 at segment 1, step 88, space. C called rn2(2)=0 from landing_spot(steed.c:480), while JS called rn2(4)=0 after skipping the dismount. Both emitted 90 screens; the final boundary differs at row 1, column 5 (C 'f', JS 'w'), and cursors first differ at boundary 90.",
+                "The admitted C-first recipe challenges/cases/v39/v39-mounted-steed-knockoff.recipe.session.json (SHA-256 790bf8e88979b4e30d4fb7813de313c8de6b87f250aba1a2f2f9d808efab68f8) wishes a saddled pony, mounts it, then has a hostile Titan attack. C's recorded path reaches the DISMOUNT_KNOCKED branch and retains challenges/cases/v39/v39-mounted-steed-knockoff.session.json (SHA-256 5ee5f9ca6524671540995d4361175b0a74e109b59897ff89df3efaeac7eec484).",
+                "The earlier A2 investigation investigations/synthetic/v39/v39-mounted-steed-polymorph-trap.json independently found the same landing_spot helper after mon.c:newcham changes a tame mount. The knockoff case reaches the separate DISMOUNT_KNOCKED entry path and shares the unresolved steed.c implementation family."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-pickup-fatal-corpse-instapetrify-v39-20261010",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Finish fatal corpse handling for pickup and container routes",
+      "cFile": "pickup.c",
+      "sessions": [
+        "synthetic/v39/v39-pickup-cockatrice-barehanded-final"
+      ],
+      "selectionReason": "Oldest dependency-ready synthetic v39 mismatch after mounted knockback acceptance; investigation isolates pickup.c:fatal_corpse_mistake and all live callers.",
+      "detail": "Source routes pickup_object, in_container, and out_container call pickup.c:fatal_corpse_mistake, whose fatal branch awaits trap.c:instapetrify.",
+      "openedAt": "a59c695df4f6fd5426a1f44269d7ce27eb9b12a7",
+      "openStanding": {
+        "sha": "2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "fatal_corpse_mistake",
+      "session": "synthetic/v39/v39-pickup-cockatrice-barehanded-final",
+      "step": 52,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-pickup-cockatrice-barehanded-final": {
+          "session": "synthetic/v39/v39-pickup-cockatrice-barehanded-final",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-pickup-cockatrice-barehanded-final",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-pickup-cockatrice-barehanded-final.session.json",
+          "recordingSha256": "a2f2f75aa2c78f8e87f98a34888f5709c4a605a1142d6ebdc159d0475dfd9b75",
+          "evaluationPath": "challenges/evaluations/accepted-2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba-v39.json",
+          "evaluationCommit": "2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba"
+        }
+      },
+      "activeStanding": {
+        "sha": "2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-pickup-cockatrice-barehanded-final",
+          "session": "synthetic/v39/v39-pickup-cockatrice-barehanded-final",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-pickup-cockatrice-barehanded-final.session.json",
+          "recordingPath": "challenges/cases/v39/v39-pickup-cockatrice-barehanded-final.session.json",
+          "recordingSha256": "a2f2f75aa2c78f8e87f98a34888f5709c4a605a1142d6ebdc159d0475dfd9b75",
+          "recipe": "challenges/cases/v39/v39-pickup-cockatrice-barehanded-final.recipe.session.json",
+          "recipeSha256": "f39897f6084f6dc58d516315ea180197f409156f09ec351efd58d5a4273773a5",
+          "replayInputSha256": "2bf4dc7e0729004df85af9effb24878853df0d379fb0ee975dc1655e941f8566",
+          "evaluationPath": "challenges/evaluations/accepted-2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba-v39.json",
+          "evaluationCommit": "2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba",
+          "evaluationArtifact": "challenges/evaluations/accepted-2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba-v39.json",
+          "evaluationUtc": "2026-10-10T09:08:35.094Z",
+          "remainingScreens": 3,
+          "recordedSteps": 55,
+          "previousScreensMatched": 52,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 52,
+              "total": 55
+            },
+            "rng": {
+              "matched": 3462,
+              "total": 3462
+            },
+            "cursors": {
+              "matched": 52,
+              "total": 55
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 52,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 52,
+                "key": ","
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 50,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3462,
+              "cCaller": null,
+              "jsEntry": "rn2(5)=2",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 52,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 52,
+                "key": ","
+              },
+              "cCursor": [
+                78,
+                0,
+                1
+              ],
+              "jsCursor": [
+                69,
+                15,
+                1
+              ]
+            }
+          },
+          "step": 52,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-pickup-cockatrice-barehanded-final.json",
+            "result": {
+              "session": "synthetic/v39/v39-pickup-cockatrice-barehanded-final",
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-pickup-cockatrice-barehanded-final",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recordingPath": "challenges/cases/v39/v39-pickup-cockatrice-barehanded-final.session.json",
+              "recordingSha256": "a2f2f75aa2c78f8e87f98a34888f5709c4a605a1142d6ebdc159d0475dfd9b75",
+              "evaluationPath": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+              "evaluationCommit": "998c20cf771d23d6f5faed181eee05f270b73b58",
+              "remainingScreens": 3,
+              "recordedSteps": 55,
+              "status": "complete",
+              "commit": "3467477aae88da2f03c96ba496737be02bc7c124",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v39",
+                "caseId": "v39-pickup-cockatrice-barehanded-final",
+                "session": "synthetic/v39/v39-pickup-cockatrice-barehanded-final",
+                "manifestPath": "challenges/manifests/v39.json",
+                "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+                "recording": "challenges/cases/v39/v39-pickup-cockatrice-barehanded-final.session.json",
+                "recordingPath": "challenges/cases/v39/v39-pickup-cockatrice-barehanded-final.session.json",
+                "recordingSha256": "a2f2f75aa2c78f8e87f98a34888f5709c4a605a1142d6ebdc159d0475dfd9b75",
+                "recipe": "challenges/cases/v39/v39-pickup-cockatrice-barehanded-final.recipe.session.json",
+                "recipeSha256": "f39897f6084f6dc58d516315ea180197f409156f09ec351efd58d5a4273773a5",
+                "replayInputSha256": "0829ceb24a4dbcbea8c6089aa8de856c51982d20a277e4f3a173eccf4a339ac1",
+                "evaluationPath": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+                "evaluationCommit": "998c20cf771d23d6f5faed181eee05f270b73b58",
+                "evaluationArtifact": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+                "evaluationUtc": "2026-10-10T07:03:42.993Z",
+                "remainingScreens": 3,
+                "recordedSteps": 55,
+                "previousScreensMatched": 52,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 52,
+                    "total": 55
+                  },
+                  "rng": {
+                    "matched": 3462,
+                    "total": 3462
+                  },
+                  "cursors": {
+                    "matched": 52,
+                    "total": 55
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 52,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 52,
+                      "key": ","
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 50,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3462,
+                    "cCaller": null,
+                    "jsEntry": "rn2(5)=2",
+                    "stepIndex": null
+                  },
+                  "cursor": {
+                    "index": 52,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 52,
+                      "key": ","
+                    },
+                    "cCursor": [
+                      78,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      69,
+                      15,
+                      1
+                    ]
+                  }
+                },
+                "step": 52,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The step-52 comma pickup reaches pickup.c:fatal_corpse_mistake(). The JavaScript path now preserves the helper’s guard order, passes killer_xname(obj) to the existing trap.js:instapetrify() implementation, awaits it, and returns TRUE. Fresh C/JavaScript evidence matches the selected 55-step replay and independent pickup, grapple, container-stash, and container-retrieval recordings. The three direct pickup.c callers are covered; apply.c:use_grapple() is an additional active pickup_object() entry that also reaches the fatal branch. apply.c:use_whip() passes remotely=TRUE and exits at the helper’s existing remote guard. windows.c:display_nhwindow() remains the documented note_unported gap only on successful stone-golem recovery.",
+              "source": {
+                "file": "pickup.c",
+                "branch": "When u_safe_from_fatal_corpse(obj, st_all) is false and remotely is false, an already-stone-golem-capable form first attempts polymon(PM_STONE_GOLEM), displays a message wait and returns FALSE if successful; otherwise print the fatal-touch message, pass killer_xname(obj) to instapetrify(), and return TRUE.",
+                "functions": [
+                  "fatal_corpse_mistake"
+                ],
+                "callers": [
+                  "pickup.c:pickup_object() calls fatal_corpse_mistake(obj, telekinesis) before lift_object() at line 1829; the selected comma command reaches it through cmd.c command table -> hack.c:dopickup() -> pickup.c:pickup().",
+                  "pickup.c:in_container() calls fatal_corpse_mistake(obj, FALSE) before removing an inventory object at line 2612; #loot reaches it through pickup.c:doloot() -> use_container().",
+                  "pickup.c:out_container() calls fatal_corpse_mistake(obj, FALSE) before lifting an object out of a container at line 2744; #loot reaches it through pickup.c:doloot() -> use_container().",
+                  "apply.c:use_grapple() calls pickup_object(otmp, 1L, FALSE) at line 3820; a fresh grappling-hook recording reaches pickup_object() -> fatal_corpse_mistake() and completes stoning/life-saving.",
+                  "apply.c:use_whip() calls pickup_object(otmp, 1L, TRUE) at line 3052; fatal_corpse_mistake() is reached only for a corpse and exits through its remotely guard before the fatal-touch branch."
+                ],
+                "dependencies": [
+                  "trap.c:instapetrify() is already implemented at js/trap.js:instapetrify(); this task must call it and preserve its side effects.",
+                  "windows.c:display_nhwindow() remains a named gap on the stone-golem recovery branch; the existing JS records note_unported because C discards its void result."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved queue SHA-256 8159324bc02a3fa2724e8603cae7a6809fbbbaff1883c62684a0478b91a06f03 identifies this admitted v39 case at evaluation commit 998c20cf771d23d6f5faed181eee05f270b73b58: 52/55 screens and cursors match; RNG matches 3462/3462; first screen/cursor mismatch is step 52, key comma.",
+                "Upstream pickup.c:fatal_corpse_mistake() (284-299) contains the full guard order, optional stone-golem recovery, fatal-touch message, killer_xname() argument, instapetrify() call, and TRUE return. Its existing JS port currently drops the killer string and calls note_unported('trap.c instapetrify').",
+                "The selected case enters through cmd.c comma binding to dopickup -> hack.c:dopickup -> pickup.c:pickup -> pickup_object -> fatal_corpse_mistake. JavaScript mirrors this as cmd.js pickup dispatch -> hack.js:dopickup -> pickup.js:pickup -> pickup_object -> fatal_corpse_mistake.",
+                "The complete source function also has two separate valid container callers: pickup.c:in_container (called by use_container) and pickup.c:out_container (called by use_container); each calls the helper with remotely FALSE and can reach the fatal branch when a life-saved hero still holds a bare-handed cockatrice corpse.",
+                "Fresh recipe pickup.c/fatal-cockatrice-corpse-terminal-blocked-b61 matches all 31 screens/cursors and 6451 RNG calls through comma pickup_object -> fatal_corpse_mistake -> instapetrify.",
+                "Fresh recipe pickup.c/fatal-cockatrice-grapple-v39-c matches all 131 screens/cursors and 2679 RNG calls; apply.c:doapply -> use_grapple -> pickup_object(FALSE) reaches fatal_corpse_mistake, instapetrify, and life-saving.",
+                "Fresh recipe pickup.c/fatal-cockatrice-in-container-lifesave-v39-c matches all 135 screens/cursors and 2597 RNG calls; #loot -> use_container -> in_container reaches fatal_corpse_mistake with gloves worn and exercises its st_gloves safe-return guard.",
+                "Fresh recipe pickup.c/fatal-cockatrice-out-container-lifesave-v39-c matches all 148 screens/cursors and 2588 RNG calls; #loot -> use_container -> out_container reaches bare-handed fatal_corpse_mistake and completes life-saving.",
+                "Fresh replay of the admitted v39-pickup-cockatrice-barehanded-final recipe matches all 55 steps, screens, cursors, and 3462 RNG calls, including the final life-saving sequence through step 54."
               ]
             }
           }
