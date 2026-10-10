@@ -244,14 +244,14 @@ test('makewish() retries a munged no-match line and appends cmdassist help',
 test('makewish() retries help without counting it, then accepts a wish',
     async () => {
     const segment = segmentFor(`${WIZWISH_KEY}mud boo`);
-    const moves = `.${WIZWISH_KEY}help\nmagic lamp\n.`;
+    const moves = `.${WIZWISH_KEY}help\n magic lamp\n.`;
     await runSegment({ ...segment, moves });
 
-    // The production command reached help, retried, then completed a real
-    // object wish. The helper's unported void result did not count as a failed
-    // wish or consume the next line.
+    // The production command reached and dismissed the source-shaped help
+    // window, retried, then completed a real object wish. The helper does not
+    // count as a failed wish or consume the next line after its dismissal key.
     assert.equal(game.u.uconduct.wishes, 1);
-    assert.ok(game.unported.has('zap.c wishcmdassist'));
+    assert.equal(game.unported.has('zap.c wishcmdassist'), false);
 });
 
 test('makewish() turns an unlabeled scroll wish into blank paper', async () => {
