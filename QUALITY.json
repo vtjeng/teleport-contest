@@ -412,6 +412,7 @@
         "js/sfbase.js",
         "js/strutil.js",
         "js/timeout.js",
+        "js/timeout_property_data.js",
         "js/unported.js",
         "js/version.js"
       ]
