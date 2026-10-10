@@ -1,0 +1,126 @@
+{
+  "session": "synthetic/v41/v41-polymorphed-hider-under-remaining-floor-object",
+  "remainingScreens": 1,
+  "recordedSteps": 60,
+  "corpus": "synthetic",
+  "batch": "v41",
+  "caseId": "v41-polymorphed-hider-under-remaining-floor-object",
+  "manifestPath": "challenges/manifests/v41.json",
+  "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+  "recordingSha256": "ce4f14368b0a3fb3090960d66c766a851af9ce10c9066f93660aaf3d31a664fe",
+  "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+  "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+  "status": "complete",
+  "commit": "6818fe9b759b2ef8ae3d470f38c30808a0734640",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v41",
+    "caseId": "v41-polymorphed-hider-under-remaining-floor-object",
+    "session": "synthetic/v41/v41-polymorphed-hider-under-remaining-floor-object",
+    "manifestPath": "challenges/manifests/v41.json",
+    "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+    "recording": "challenges/cases/v41/v41-hideunder-remaining-cloak-pickup-cfirst.session.json",
+    "recordingPath": "challenges/cases/v41/v41-hideunder-remaining-cloak-pickup-cfirst.session.json",
+    "recordingSha256": "ce4f14368b0a3fb3090960d66c766a851af9ce10c9066f93660aaf3d31a664fe",
+    "recipe": "challenges/cases/v41/v41-hideunder-remaining-cloak-pickup-cfirst.recipe.session.json",
+    "recipeSha256": "78e87a23c760a7be3a880737fe5f1b557f2bd7e5ad37ed6b19e8c84c239871cb",
+    "replayInputSha256": "a6dcd789e15a13fb210cfc99141576f8eb53a394de6422c724147c15682e49fd",
+    "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+    "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+    "evaluationArtifact": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+    "evaluationUtc": "2026-10-10T17:31:28.509Z",
+    "remainingScreens": 1,
+    "recordedSteps": 60,
+    "previousScreensMatched": 59,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 59,
+        "total": 60
+      },
+      "rng": {
+        "matched": 3101,
+        "total": 3108
+      },
+      "cursors": {
+        "matched": 60,
+        "total": 60
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 59,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 59,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 13,
+        "column": 38,
+        "cCell": {
+          "ch": "[",
+          "color": 15,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "s",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 3100,
+        "cEntry": "rn2(1)=0",
+        "cCaller": "m_move(monmove.c:1978)",
+        "jsEntry": "rn2(8)=1",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 59,
+          "key": "\n"
+        },
+        "stepIndex": 59
+      },
+      "cursor": null
+    },
+    "step": 59,
+    "kind": "rng",
+    "sourceFile": "monmove.c",
+    "function": "m_move",
+    "message": null,
+    "cFile": "monmove.c",
+    "luaFile": null,
+    "line": 1978
+  },
+  "summary": "The accepted v41 replay leaves the cave-spider hero visible after the hero selects the apples, although the remaining cloak covers the hero. pickup.c:pickup() calls mon.c:hideunder(&youmonst) after processing the floor pile; that source branch sets u.uundetected when a non-trapped M1_CONCEAL hero stands on a coverable floor object. js/pickup.js records this call as unported, and js/mon.js:hideunder() rejects the hero. The missing flag changes the later monster m_move() approach branch and its random calls.",
+  "source": {
+    "file": "mon.c",
+    "branch": "After the floor-item loop, pickup.c:pickup() calls hideunder(&youmonst) when the hero is not swallowed and the current form hides under objects. For a cave spider on an untrapped square with a coverable floor object, mon.c:hideunder() sets u.uundetected; it clears the flag when the hero cannot hide. A remaining cloak is a valid cover, so the source redraws the hero square with the cloak glyph. The later monmove.c:m_move() sees u.uundetected and sets appr to 0, which changes its position-selection RNG.",
+    "functions": [
+      "hideunder"
+    ],
+    "callers": [
+      "Admitted route: pickup.c:pickup() (672-909) finishes selecting floor objects, then calls hideunder(&gy.youmonst) at 894-896; the v41 recording selects only the apples and leaves the cloak under the cave-spider hero.",
+      "Downstream effect: monmove.c:m_move() (1861-1872) forces appr to 0 when u.uundetected is set; the accepted evaluation first differs at step 59 during this monster move."
+    ],
+    "dependencies": [
+      "monmove.c:can_hide_under_obj() checks whether the floor pile can cover a hider and rejects non-pit traps.",
+      "mondata.c:hides_under() identifies the cave-spider concealment trait.",
+      "mondata.c:Resists_Elem() supplies the hero stone-resistance result when the top of the pile is a petrifying corpse.",
+      "dbridge.c:is_pool_or_lava() excludes hiding under floor objects in pools or lava.",
+      "display.c:newsym() redraws the square when u.uundetected changes."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved queue /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json has SHA-256 7505fb24cd01792c8cb781d651dd66ffaa451361e46f7c456fd2705afde0a43a. Its v41 entry reports 1 remaining screen across 60 steps: 59/60 screens, 3101/3108 RNG calls, and 60/60 cursors matched. At segment 0, step 59, key Enter, C displays '[' at row 13, column 38 while JavaScript displays 's'; the same step first diverges at RNG index 3100, C rn2(1)=0 and JavaScript rn2(8)=1, attributed to m_move(monmove.c:1978).",
+    "The recorded setup is challenges/cases/v41/v41-hideunder-remaining-cloak-pickup-cfirst.session.json. It polymorphs the hero into a cave spider, wishes and drops two apples on the hero square, opens floor pickup, and selects the apples while leaving the cloak. The recipe comment identifies this as pickup.c:pickup’s post-loop hideunder call.",
+    "Upstream nethack-c/upstream/src/pickup.c:894-900 calls hideunder(&gy.youmonst) after the selection loop whenever the hero is not swallowed and hides_under(youmonst.data) is true. Upstream mon.c:4726-4801 contains the complete helper: its hero arm uses u.ux/u.uy and u.utrap, tests the floor pile and terrain, writes u.uundetected at 4775-4780, and redraws at 4799-4800 when the flag changes.",
+    "At the examined accepted source commit 6818fe9b759b2ef8ae3d470f38c30808a0734640, js/pickup.js:1686-1695 replaces the source call with note_unported(\"mon.c hideunder\"), and js/mon.js:6540-6544 throws UnsupportedHideError for state.youmonst. This leaves u.uundetected false and renders the hero glyph instead of the cloak glyph. js/monmove.js:3957-3971 then consumes that incorrect flag in m_move’s approach branch, explaining the later RNG divergence.",
+    "The same hero-helper gap appears at js/dig.js:2110-2112, js/invent.js:3446-3447, js/polyself.js:1176-1180, js/zap.js:3082-3085 and 6422-6425, and js/mon.js:6677-6680. A complete helper port must wire these supported callers. js/teleport.js:teleds() still refuses the larger hero-as-mimic relocation path before its C hideunder call and remains outside this mismatch’s supported route."
+  ]
+}
