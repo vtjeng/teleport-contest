@@ -1048,17 +1048,14 @@ export async function Ring_on(obj, state = game, rawEnv = {}) {
 // (gone=false, setworn) and Ring_gone() (gone=true, setnotworn). The switch
 // mirrors Ring_on() with the inverse operation for each ring type.
 //
-// Arms ported: the sixteen no-op types, protection from shape changers,
-// gain strength/constitution/adornment (adjust_attrib with negative spe),
-// increase accuracy/damage (uhitinc/udaminc), and protection (learnring +
-// find_ac). The levitation arm awaits float_down(); other unported effect
-// arms still throw.
+// The switch preserves each ring's inverse effect. C's discarded impossible()
+// diagnostic and set_mimic_blocking() call remain explicit gaps.
 async function Ring_off_or_gone(obj, gone, state = game, rawEnv = {}) {
     const env = wearOperationEnv(rawEnv);
     const mask = obj.owornmask & W_RING;
     takeoffContext(state).mask &= ~mask;
     if (!(state.u.uprops[objectType(obj, state).oc_oprop]?.extrinsic & mask)) {
-        // impossible("Strange... I didn't know you had that ring.");
+        note_unported('pline.c impossible');
     }
     if (gone)
         await setnotworn(obj, setwornEnv(state, env));
@@ -1113,10 +1110,27 @@ async function Ring_off_or_gone(obj, gone, state = game, rawEnv = {}) {
         }
         break;
     }
-    case RIN_INVISIBILITY:
-        throw new UnsupportedTakeOffError(
-            `invisibility newsym for Ring_off otyp ${obj.otyp}`,
-        );
+    case RIN_INVISIBILITY: {
+        const invisibility = state.u.uprops[INVIS];
+        // C's Invis and BInvis macros read these fields after the setter clears
+        // this ring's extrinsic; Blind applies its own blocked check.
+        const invisible = Boolean((invisibility?.intrinsic
+            || invisibility?.extrinsic) && !invisibility?.blocked);
+        const blockedInvisibility = Boolean(invisibility?.blocked);
+        if (!invisible && !blockedInvisibility && !heroIsBlind(state)) {
+            const seeInvisible = state.u.uprops[SEE_INVIS];
+            const canSeeInvisible = Boolean(seeInvisible?.intrinsic
+                || seeInvisible?.extrinsic);
+            env.redraw(state.u.ux, state.u.uy, state);
+            await env.message(
+                `Your body seems to unfade${canSeeInvisible
+                    ? ' completely.' : '...'}`,
+                state,
+            );
+            learnring(obj, true, state);
+        }
+        break;
+    }
     case RIN_LEVITATION:
         if (!(state.u.uprops[LEVITATION].blocked & FROMOUTSIDE)) {
             await float_down(0, 0, state);

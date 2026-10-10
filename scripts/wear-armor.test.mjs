@@ -3378,6 +3378,37 @@ function syntheticRing(otyp, spe = 0) {
     };
 }
 
+// Run the C Ring_off_or_gone() RIN_INVISIBILITY arm after removing a ring.
+// Zero property masks leave the matching hero property inactive; the ring's
+// W_RINGL extrinsic is the only invisibility source unless a test adds one.
+async function invisibilityRingOffEvents({
+    ringExtrinsic = W_RINGL,
+    remainingInvisibility = 0,
+    blockedInvisibility = 0,
+    seeInvisible = 0,
+    blindness = 0,
+} = {}) {
+    const debug = debugRingSegment('ring of invisibility', WAIT);
+    await setup(debug, debug.moves);
+
+    const ring = syntheticRing(RIN_INVISIBILITY);
+    ring.owornmask = W_RINGL;
+    game.uleft = ring;
+    game.u.uprops[INVIS].intrinsic = remainingInvisibility;
+    game.u.uprops[INVIS].extrinsic = ringExtrinsic;
+    game.u.uprops[INVIS].blocked = blockedInvisibility;
+    game.u.uprops[SEE_INVIS].intrinsic = seeInvisible;
+    game.u.uprops[SEE_INVIS].extrinsic = 0;
+    game.u.uprops[BLINDED].intrinsic = blindness;
+
+    const events = [];
+    await Ring_off(ring, game, {
+        redraw: (x, y) => events.push(['redraw', x, y]),
+        message: async (line) => events.push(['message', line]),
+    });
+    return events;
+}
+
 test('the puton command is admitted and shares its row with doputon', () => {
     // cmd.js ADMITTED_COMMANDS includes 'puton'; the extcmdlist row has P (0x50)
     // as its key and 'doputon' as its function name. The row has no flags, so
@@ -3532,6 +3563,76 @@ test('Ring_on invisibility branch learns, redraws, then uses self message',
         ['message', "Gee!  All of a sudden, you can't see yourself."],
     ]);
 });
+
+test('Ring_off of invisibility redraws before the unfade message', async () => {
+    // C do_wear.c:1398-1405 selects the ellipsis wording when See_invisible
+    // is inactive and no other property keeps the hero invisible.
+    const events = await invisibilityRingOffEvents();
+
+    assert.deepEqual(events, [
+        ['redraw', game.u.ux, game.u.uy],
+        ['message', 'Your body seems to unfade...'],
+    ]);
+    assert.equal(game.uleft, null,
+        'setworn() clears the left ring slot before Ring_off reports unfading');
+});
+
+test('Ring_off of invisibility says completely when See_invisible is active',
+    async () => {
+        // FROMOUTSIDE supplies the C HSee_invisible property for the alternate
+        // suffix in do_wear.c:1401.
+        const events = await invisibilityRingOffEvents({
+            seeInvisible: FROMOUTSIDE,
+        });
+
+        assert.deepEqual(events, [
+            ['redraw', game.u.ux, game.u.uy],
+            ['message', 'Your body seems to unfade completely.'],
+        ]);
+    });
+
+test('Ring_off of invisibility stays quiet when another source remains',
+    async () => {
+        // FROMOUTSIDE leaves HInvis active after setworn() removes W_RINGL, so
+        // C's !Invis condition at do_wear.c:1399 does not enter the arm.
+        const events = await invisibilityRingOffEvents({
+            remainingInvisibility: FROMOUTSIDE,
+        });
+
+        assert.deepEqual(events, []);
+    });
+
+test('Ring_off of invisibility stays quiet while BInvis blocks it', async () => {
+    // FROMOUTSIDE in blocked models the C BInvis mask at do_wear.c:1399; the
+    // ring is removed, but the source branch requires !BInvis.
+    const events = await invisibilityRingOffEvents({
+        blockedInvisibility: FROMOUTSIDE,
+    });
+
+    assert.deepEqual(events, []);
+});
+
+test('Ring_off of invisibility stays quiet while the hero is blind', async () => {
+    // FROMOUTSIDE supplies HBlinded, making C's !Blind condition false.
+    const events = await invisibilityRingOffEvents({
+        blindness: FROMOUTSIDE,
+    });
+
+    assert.deepEqual(events, []);
+});
+
+test('Ring_off records the discarded impossible call for a missing extrinsic',
+    async () => {
+        // Zero removes the expected W_RINGL property bit while leaving the
+        // ring in the worn slot, reaching C's impossible() invariant branch.
+        const events = await invisibilityRingOffEvents({ ringExtrinsic: 0 });
+
+        assert.ok(game.unported.has('pline.c impossible'));
+        assert.deepEqual(events, [
+            ['redraw', game.u.ux, game.u.uy],
+            ['message', 'Your body seems to unfade...'],
+        ]);
+    });
 
 test('Ring_on clears a matching weapon slot before applying the ring arm',
     async () => {
