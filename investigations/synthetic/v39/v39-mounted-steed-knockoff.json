@@ -1,0 +1,155 @@
+{
+  "session": "synthetic/v39/v39-mounted-steed-knockoff",
+  "corpus": "synthetic",
+  "batch": "v39",
+  "caseId": "v39-mounted-steed-knockoff",
+  "manifestPath": "challenges/manifests/v39.json",
+  "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+  "recording": "challenges/cases/v39/v39-mounted-steed-knockoff.session.json",
+  "recordingPath": "challenges/cases/v39/v39-mounted-steed-knockoff.session.json",
+  "recordingSha256": "5ee5f9ca6524671540995d4361175b0a74e109b59897ff89df3efaeac7eec484",
+  "recipe": "challenges/cases/v39/v39-mounted-steed-knockoff.recipe.session.json",
+  "recipeSha256": "790bf8e88979b4e30d4fb7813de313c8de6b87f250aba1a2f2f9d808efab68f8",
+  "replayInputSha256": "47593086a1baa7723744c3a7331b13272c438f1e0c7426f5a9c944273e35682e",
+  "evaluationPath": "challenges/evaluations/accepted-aed26ac9ec69a4441421005e4110971d52d5eb53-v39.json",
+  "evaluationCommit": "aed26ac9ec69a4441421005e4110971d52d5eb53",
+  "evaluationUtc": "2026-10-10T06:48:19.323Z",
+  "remainingScreens": 1,
+  "recordedSteps": 90,
+  "status": "complete",
+  "commit": "f2c5e45014e972580219998b20749aa9db9a421b",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v39",
+    "caseId": "v39-mounted-steed-knockoff",
+    "session": "synthetic/v39/v39-mounted-steed-knockoff",
+    "manifestPath": "challenges/manifests/v39.json",
+    "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+    "recording": "challenges/cases/v39/v39-mounted-steed-knockoff.session.json",
+    "recordingPath": "challenges/cases/v39/v39-mounted-steed-knockoff.session.json",
+    "recordingSha256": "5ee5f9ca6524671540995d4361175b0a74e109b59897ff89df3efaeac7eec484",
+    "recipe": "challenges/cases/v39/v39-mounted-steed-knockoff.recipe.session.json",
+    "recipeSha256": "790bf8e88979b4e30d4fb7813de313c8de6b87f250aba1a2f2f9d808efab68f8",
+    "replayInputSha256": "47593086a1baa7723744c3a7331b13272c438f1e0c7426f5a9c944273e35682e",
+    "evaluationPath": "challenges/evaluations/accepted-aed26ac9ec69a4441421005e4110971d52d5eb53-v39.json",
+    "evaluationCommit": "aed26ac9ec69a4441421005e4110971d52d5eb53",
+    "evaluationArtifact": "challenges/evaluations/accepted-aed26ac9ec69a4441421005e4110971d52d5eb53-v39.json",
+    "evaluationUtc": "2026-10-10T06:48:19.323Z",
+    "remainingScreens": 1,
+    "recordedSteps": 90,
+    "previousScreensMatched": 89,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 89,
+        "total": 90
+      },
+      "rng": {
+        "matched": 2873,
+        "total": 2890
+      },
+      "cursors": {
+        "matched": 89,
+        "total": 90
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 89,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 89,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 4,
+        "cCell": {
+          "ch": "f",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "w",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2873,
+        "cEntry": "rn2(2)=0",
+        "cCaller": "landing_spot(steed.c:480)",
+        "jsEntry": "rn2(4)=0",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 87,
+          "key": " "
+        },
+        "stepIndex": 87
+      },
+      "cursor": {
+        "index": 89,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 89,
+          "key": " "
+        },
+        "cCursor": [
+          78,
+          0,
+          1
+        ],
+        "jsCursor": [
+          69,
+          0,
+          1
+        ]
+      }
+    },
+    "step": 87,
+    "kind": "rng",
+    "sourceFile": "steed.c",
+    "function": "landing_spot",
+    "message": null,
+    "cFile": "steed.c",
+    "luaFile": null,
+    "line": 480
+  },
+  "summary": "C reaches steed.c:landing_spot when a monster knocks the hero from the saddle. The existing JS uhitm.c:mhitm_knockback caller skips dismount_steed(DISMOUNT_KNOCKED), omitting the preferred landing-square RNG draw and dismount effects.",
+  "source": {
+    "file": "steed.c",
+    "branch": "During a monster knockback against a mounted hero, uhitm.c:mhitm_knockback stores the knockback direction in u.dx/u.dy and calls dismount_steed(DISMOUNT_KNOCKED). dismount_steed first calls landing_spot(reason, 0), which orders the preferred square and its two adjacent candidates with rn2(2), then checks viable squares; if a spot is found, it emits the fall message, applies riding-accident damage and wounded legs when unprotected, releases the steed, moves the hero, and restores normal footing.",
+    "functions": [
+      "landing_spot",
+      "dismount_steed"
+    ],
+    "callers": [
+      "uhitm.c:mhitm_knockback"
+    ],
+    "dependencies": [
+      "uhitm.c:mhitm_knockback",
+      "steed.c:landing_spot",
+      "steed.c:dismount_steed",
+      "steed.c:float_down",
+      "trap.c:float_down",
+      "teleport.c:teleds",
+      "worn.c:set_wounded_legs",
+      "hack.c:losehp"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Saved queue /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json records its v39 evaluation at aed26ac9ec69a4441421005e4110971d52d5eb53, which is an ancestor of accepted Main 85ebf1b2716b3a0f4e0d868d213d9b22f6a30e57. The case had 1/90 screens unmatched, 2873/2890 RNG calls matching, and 89/90 cursors matching. Its RNG mismatch identifies steed.c:landing_spot at line 480.",
+    "Upstream nethack-c/upstream/src/uhitm.c:5388-5391 (mhitm_knockback) stores the preferred direction in u.dx/u.dy and calls dismount_steed(DISMOUNT_KNOCKED) for a mounted hero defender.",
+    "Upstream nethack-c/upstream/src/steed.c:460-566 (landing_spot) creates the preferred adjacent candidate order with rn2(2), then checks movement, known traps, boulders, and distance-based tie breaks. The DISMOUNT_KNOCKED pass starts at i=1 and may fall back to enexto when forceit is set.",
+    "Upstream nethack-c/upstream/src/steed.c:576-822 (dismount_steed) initializes the first landing spot before clearing u.usteed. DISMOUNT_KNOCKED shares the thrown/fell branch, reports the fall, may apply rn1(10,10) damage and rn1(5,5) wounded-leg duration, then releases the steed and moves the hero before float_down.",
+    "The current JS caller js/uhitm.js:7478-7482 records note_unported(\"steed.c dismount_steed DISMOUNT_KNOCKED\") rather than invoking the source callee. The JS helper js/steed.js:752-769 also refuses the DISMOUNT_KNOCKED candidate-order branch; js/steed.js:873-881 refuses the shared dismount reason branch.",
+    "Fresh differential .cache/A2-v39-steed-knockoff-diff.log, run from examined commit f2c5e45014e972580219998b20749aa9db9a421b: C made 2,890 RNG calls and JS made 2,882; the first mismatch is call 2,874 at segment 1, step 88, space. C called rn2(2)=0 from landing_spot(steed.c:480), while JS called rn2(4)=0 after skipping the dismount. Both emitted 90 screens; the final boundary differs at row 1, column 5 (C 'f', JS 'w'), and cursors first differ at boundary 90.",
+    "The admitted C-first recipe challenges/cases/v39/v39-mounted-steed-knockoff.recipe.session.json (SHA-256 790bf8e88979b4e30d4fb7813de313c8de6b87f250aba1a2f2f9d808efab68f8) wishes a saddled pony, mounts it, then has a hostile Titan attack. C's recorded path reaches the DISMOUNT_KNOCKED branch and retains challenges/cases/v39/v39-mounted-steed-knockoff.session.json (SHA-256 5ee5f9ca6524671540995d4361175b0a74e109b59897ff89df3efaeac7eec484).",
+    "The earlier A2 investigation investigations/synthetic/v39/v39-mounted-steed-polymorph-trap.json independently found the same landing_spot helper after mon.c:newcham changes a tame mount. The knockoff case reaches the separate DISMOUNT_KNOCKED entry path and shares the unresolved steed.c implementation family."
+  ]
+}
