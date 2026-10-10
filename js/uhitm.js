@@ -23,6 +23,7 @@ import {
 import { isok } from './cmd_isok.js';
 import { adjalign, adjattrib, exercise } from './attrib.js';
 import { some_armor, setwornEnv } from './do_wear.js';
+import { snuff_lit } from './apply_splash_lit.js';
 import {
     A_INT,
     A_CON,
@@ -1513,7 +1514,7 @@ export async function gulpum(mdef, mattk, state = game, env = {}) {
     if (!(uDigest && state.u.uhunger >= 1500) && !state.u.uswallow) {
         if (!flaming(state.youmonst.data)) {
             for (let obj = mdef.minvent; obj; obj = obj.nobj)
-                note_unported('apply.c snuff_lit');
+                await snuff_lit(obj, { ...env, state, message });
         }
 
         if (is_vampshifter(mdef)

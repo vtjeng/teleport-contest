@@ -98,6 +98,7 @@ import {
 import { acurr, adjalign, adjattrib, exercise, minuhpmax } from './attrib.js';
 import { encumber_msg } from './pickup.js';
 import { number_leashed } from './apply.js';
+import { snuff_lit } from './apply_splash_lit.js';
 import { placebc, unplacebc } from './ball.js';
 // js/unported_monster_actions.js already imports allmain.js across the same
 // cycle and records why it is safe: `stop_occupation` is a hoisted function
@@ -2288,8 +2289,8 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         if (!flaming(mtmp.data)) {
             for (let object = state.invent; object;) {
                 const next = object.nobj;
-                // light.c snuff_lit() is void and its result is discarded.
-                note_unported('light.c snuff_lit');
+                // apply.c snuff_lit() is void and its result is discarded.
+                await snuff_lit(object, { ...rawEnv, state, message });
                 object = next;
             }
         }
