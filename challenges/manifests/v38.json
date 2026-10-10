@@ -1,0 +1,3239 @@
+{
+  "version": 1,
+  "batch": "v38",
+  "status": "prepared-awaiting-coordinator-validation",
+  "comparisonBase": "807ced81d89403573452af6737c2c5bf68496ef",
+  "priorBatch": "v37",
+  "priorBatchManifestEvidence": {
+    "path": "challenges/manifests/v37.json",
+    "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+    "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+  },
+  "priorBatchCaseIds": [
+    "v37-wizmap-after-monster-reset",
+    "v37-terrain-internal-codes",
+    "v37-medusa"
+  ],
+  "currentUnresolvedQueueEvidence": {
+    "path": ".cache/latest-saved-combined-queue.json",
+    "absolutePath": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+    "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+    "sessionCount": 3
+  },
+  "unresolvedOlderCaseIds": [
+    "v35-gehennom-juiblex",
+    "v32-version-build-options",
+    "v35-version-feature-report"
+  ],
+  "candidatePlan": ".cache/v38/plans/candidate-plan.json",
+  "cases": [
+    {
+      "id": "v38-wiz-seenv",
+      "title": "Display the current level seen-vector field",
+      "mission": "Display the current level seen-vector field",
+      "selectionRationale": "v37 terrain codes render levl[].typ in base 36; v37 map rebuild reconstructs the level. This case reads levl[].seenv without changing the level. Compared with the immediate v37 batch and all current unresolved older cases; no substantive overlap found.",
+      "sourcePointers": [
+        "wizcmds.c:wiz_show_seenv"
+      ],
+      "sourceTrace": "Reached C source behavior wizcmds.c:wiz_show_seenv; C observation: C printed hexadecimal per-cell seenv values around the hero in its text window.",
+      "cOutcome": "C printed hexadecimal per-cell seenv values around the hero in its text window.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38100001,
+        "datetime": "20391009101112",
+        "role": "Barbarian",
+        "race": "human",
+        "playmode": "debug",
+        "keyCount": 11,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-seenv.recipe.session.json",
+      "recipeSha256": "06079f315a703b5e9fd6405fe3c9ab7280695c04be9bb058d0c5a2a517a85f22",
+      "recording": "challenges/cases/v38/v38-wiz-seenv.session.json",
+      "recordingSha256": "d3cf5d60ff67a522bd47ddadf9e05367d4aca71813d933bb2f2baecb05e5cf67",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v38-wiz-seenv",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v38/v38-seenv.recipe.session.json",
+          ".cache/v38/c-replays/v38-seenv.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-wiz-seenv.independent-c-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/c-replays/v38-seenv.session.json",
+        "byteIdentical": true,
+        "outputSha256": "d3cf5d60ff67a522bd47ddadf9e05367d4aca71813d933bb2f2baecb05e5cf67"
+      },
+      "localComparison": {
+        "caseId": "v38-wiz-seenv",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-seenv.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-a195-recheck-wiz-seenv.log"
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v37-terrain-internal-codes",
+          "distinction": "v37 terrain codes render levl[].typ in base 36; v37 map rebuild reconstructs the level. This case reads levl[].seenv without changing the level."
+        },
+        {
+          "id": "v37-wizmap-after-monster-reset",
+          "distinction": "v37 terrain codes render levl[].typ in base 36; v37 map rebuild reconstructs the level. This case reads levl[].seenv without changing the level."
+        }
+      ],
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      },
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      }
+    },
+    {
+      "id": "v38-wiz-vision",
+      "title": "Display the current vision flags and array",
+      "mission": "Display the current vision flags and array",
+      "selectionRationale": "The earlier cases display terrain types or rebuild the level; this reads the vision state array. Compared with the immediate v37 batch and all current unresolved older cases; no substantive overlap found.",
+      "sourcePointers": [
+        "wizcmds.c:wiz_show_vision"
+      ],
+      "sourceTrace": "Reached C source behavior wizcmds.c:wiz_show_vision; C observation: C printed the COULD_SEE, IN_SIGHT, and TEMP_LIT bit flags and the current vision array.",
+      "cOutcome": "C printed the COULD_SEE, IN_SIGHT, and TEMP_LIT bit flags and the current vision array.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38100002,
+        "datetime": "20391009101112",
+        "role": "Barbarian",
+        "race": "human",
+        "playmode": "debug",
+        "keyCount": 25,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-vision-report.recipe.session.json",
+      "recipeSha256": "fa29d45e94de7dc828e48a8928b5f9ed33a78e2de8eb6f8a7e9c616967208134",
+      "recording": "challenges/cases/v38/v38-wiz-vision.session.json",
+      "recordingSha256": "cfc67df6ccb2eec514c79500d64fc130fa936fd0f02557ca39119bf367cbf5da",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v38-wiz-vision",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v38/v38-vision-report.recipe.session.json",
+          ".cache/v38/c-replays/v38-vision-report.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-wiz-vision.independent-c-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/c-replays/v38-vision-report.session.json",
+        "byteIdentical": true,
+        "outputSha256": "cfc67df6ccb2eec514c79500d64fc130fa936fd0f02557ca39119bf367cbf5da"
+      },
+      "localComparison": {
+        "caseId": "v38-wiz-vision",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-vision-report.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-wiz-vision.a195-recheck.log"
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v37-terrain-internal-codes",
+          "distinction": "The earlier cases display terrain types or rebuild the level; this reads the vision state array."
+        },
+        {
+          "id": "v37-wizmap-after-monster-reset",
+          "distinction": "The earlier cases display terrain types or rebuild the level; this reads the vision state array."
+        }
+      ],
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      },
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      }
+    },
+    {
+      "id": "v38-wiz-wmode",
+      "title": "Display wall-mode codes for the current level",
+      "mission": "Display wall-mode codes for the current level",
+      "selectionRationale": "This reads wall-mode flags; the earlier map diagnostics read terrain codes or rebuild the map. Compared with the immediate v37 batch and all current unresolved older cases; no substantive overlap found.",
+      "sourcePointers": [
+        "wizcmds.c:wiz_show_wmodes"
+      ],
+      "sourceTrace": "Reached C source behavior wizcmds.c:wiz_show_wmodes; C observation: C displayed the per-cell wall-mode map, including coded room and corridor boundaries.",
+      "cOutcome": "C displayed the per-cell wall-mode map, including coded room and corridor boundaries.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38100003,
+        "datetime": "20391009101112",
+        "role": "Barbarian",
+        "race": "human",
+        "playmode": "debug",
+        "keyCount": 24,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-wmode-report.recipe.session.json",
+      "recipeSha256": "7cef536fb87e373cbb1c7052441bb4abdbed345b8bf9c90568e5e04ea1ea8c1d",
+      "recording": "challenges/cases/v38/v38-wiz-wmode.session.json",
+      "recordingSha256": "109bf92d2f2e2602eb8a2127db3db0b16f3ca00ff98d28e2a701fb62e1c874ed",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v38-wiz-wmode",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v38/v38-wmode-report.recipe.session.json",
+          ".cache/v38/c-replays/v38-wmode-report.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-wiz-wmode.independent-c-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/c-replays/v38-wmode-report.session.json",
+        "byteIdentical": true,
+        "outputSha256": "109bf92d2f2e2602eb8a2127db3db0b16f3ca00ff98d28e2a701fb62e1c874ed"
+      },
+      "localComparison": {
+        "caseId": "v38-wiz-wmode",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-wmode-report.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-wiz-wmode.a195-recheck.log"
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v37-terrain-internal-codes",
+          "distinction": "This reads wall-mode flags; the earlier map diagnostics read terrain codes or rebuild the map."
+        },
+        {
+          "id": "v37-wizmap-after-monster-reset",
+          "distinction": "This reads wall-mode flags; the earlier map diagnostics read terrain codes or rebuild the map."
+        }
+      ],
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      },
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      }
+    },
+    {
+      "id": "v38-wiz-stats",
+      "title": "Display current level object and monster memory statistics",
+      "mission": "Display current level object and monster memory statistics",
+      "selectionRationale": "These older reports calculate monster combat difficulty or migration state; this totals memory allocation chains. Compared with the immediate v37 batch and all current unresolved older cases; no substantive overlap found.",
+      "sourcePointers": [
+        "wizcmds.c:wiz_show_stats"
+      ],
+      "sourceTrace": "Reached C source behavior wizcmds.c:wiz_show_stats; C observation: C displayed object/monster and aggregate memory totals in the #stats window.",
+      "cOutcome": "C displayed object/monster and aggregate memory totals in the #stats window.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38100004,
+        "datetime": "20391009101112",
+        "role": "Barbarian",
+        "race": "human",
+        "playmode": "debug",
+        "keyCount": 24,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-stats-report.recipe.session.json",
+      "recipeSha256": "e47b0e8b37c6f47ee243adf4da57da70ab9087cfcf2798cb9191017599d7ec90",
+      "recording": "challenges/cases/v38/v38-wiz-stats.session.json",
+      "recordingSha256": "31b955cecc87779ab7a8ed1a9c7f73ebf86bdb848068602bb523cd32b6dd404c",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v38-wiz-stats",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v38/v38-stats-report.recipe.session.json",
+          ".cache/v38/c-replays/v38-stats-report.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-wiz-stats.independent-c-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/c-replays/v38-stats-report.session.json",
+        "byteIdentical": true,
+        "outputSha256": "31b955cecc87779ab7a8ed1a9c7f73ebf86bdb848068602bb523cd32b6dd404c"
+      },
+      "localComparison": {
+        "caseId": "v38-wiz-stats",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-stats-report.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-wiz-stats.a195-recheck.log"
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v36-monster-difficulty",
+          "distinction": "These older reports calculate monster combat difficulty or migration state; this totals memory allocation chains."
+        },
+        {
+          "id": "v36-migration-report",
+          "distinction": "These older reports calculate monster combat difficulty or migration state; this totals memory allocation chains."
+        }
+      ],
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      },
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      }
+    },
+    {
+      "id": "v38-wiz-object-probabilities",
+      "title": "Display object generation probabilities",
+      "mission": "Display object generation probabilities",
+      "selectionRationale": "Monster difficulty and terrain codes use different data and do not enumerate objects[].oc_prob. Compared with the immediate v37 batch and all current unresolved older cases; no substantive overlap found.",
+      "sourcePointers": [
+        "wizcmds.c:wiz_objprobs"
+      ],
+      "sourceTrace": "Reached C source behavior wizcmds.c:wiz_objprobs; C observation: C displayed object probabilities by class, including the arrow and weapon rows.",
+      "cOutcome": "C displayed object probabilities by class, including the arrow and weapon rows.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38100005,
+        "datetime": "20391009101112",
+        "role": "Barbarian",
+        "race": "human",
+        "playmode": "debug",
+        "keyCount": 30,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-object-probabilities.recipe.session.json",
+      "recipeSha256": "beeb1115ea339965138b1363eb155d6848eae1f3af8d5bb460ad70a8163b83cf",
+      "recording": "challenges/cases/v38/v38-wiz-object-probabilities.session.json",
+      "recordingSha256": "48697958a5e9f28b7305bf115240fb16beb9ce5e097ef898aedde927564bb87e",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v38-wiz-object-probabilities",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v38/v38-object-probabilities.recipe.session.json",
+          ".cache/v38/c-replays/v38-object-probabilities.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-wiz-object-probabilities.independent-c-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/c-replays/v38-object-probabilities.session.json",
+        "byteIdentical": true,
+        "outputSha256": "48697958a5e9f28b7305bf115240fb16beb9ce5e097ef898aedde927564bb87e"
+      },
+      "localComparison": {
+        "caseId": "v38-wiz-object-probabilities",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-object-probabilities.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-wiz-object-probabilities.a195-recheck.log"
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v36-monster-difficulty",
+          "distinction": "Monster difficulty and terrain codes use different data and do not enumerate objects[].oc_prob."
+        },
+        {
+          "id": "v37-terrain-internal-codes",
+          "distinction": "Monster difficulty and terrain codes use different data and do not enumerate objects[].oc_prob."
+        }
+      ],
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      },
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      }
+    },
+    {
+      "id": "v38-wiz-rumor-check",
+      "title": "Check rumor boundaries and bogus monster names",
+      "mission": "Check rumor boundaries and bogus monster names",
+      "selectionRationale": "Headstone reading selects an in-game rumor; the feature report lists build flags. This diagnostic validates rumor boundaries and monster-name references. Compared with the immediate v37 batch and all current unresolved older cases; no substantive overlap found.",
+      "sourcePointers": [
+        "wizcmds.c:wiz_rumor_check"
+      ],
+      "sourceTrace": "Reached C source behavior wizcmds.c:wiz_rumor_check; C observation: C printed rumor samples and its bogus-monster validation heading.",
+      "cOutcome": "C printed rumor samples and its bogus-monster validation heading.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38100006,
+        "datetime": "20391009101112",
+        "role": "Barbarian",
+        "race": "human",
+        "playmode": "debug",
+        "keyCount": 32,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-rumor-check.recipe.session.json",
+      "recipeSha256": "b67b185b9c1b4f6763a2e98867d8f23f2ea334dc70f61bdeb9c96cd3aa1ca5c3",
+      "recording": "challenges/cases/v38/v38-wiz-rumor-check.session.json",
+      "recordingSha256": "88eded1acbdd40cc4f24b578e601300fe081221c054ffaed12e53d458d834df7",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v38-wiz-rumor-check",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v38/v38-rumor-check.recipe.session.json",
+          ".cache/v38/c-replays/v38-rumor-check.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-wiz-rumor-check.independent-c-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/c-replays/v38-rumor-check.session.json",
+        "byteIdentical": true,
+        "outputSha256": "88eded1acbdd40cc4f24b578e601300fe081221c054ffaed12e53d458d834df7"
+      },
+      "localComparison": {
+        "caseId": "v38-wiz-rumor-check",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-rumor-check.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-wiz-rumor-check.a195-recheck.log"
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v35-headstone-read",
+          "distinction": "Headstone reading selects an in-game rumor; the feature report lists build flags. This diagnostic validates rumor boundaries and monster-name references."
+        },
+        {
+          "id": "v35-version-feature-report",
+          "distinction": "Headstone reading selects an in-game rumor; the feature report lists build flags. This diagnostic validates rumor boundaries and monster-name references."
+        }
+      ],
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      },
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      }
+    },
+    {
+      "id": "v38-wiz-display-macros",
+      "title": "Display macro validation results",
+      "mission": "Display macro validation results",
+      "selectionRationale": "The UUID diagnostic reports saved game identity, and the help case lists controls. This checks the configured display-macro table. Compared with the immediate v37 batch and all current unresolved older cases; no substantive overlap found.",
+      "sourcePointers": [
+        "wizcmds.c:wiz_display_macros"
+      ],
+      "sourceTrace": "Reached C source behavior wizcmds.c:wiz_display_macros; C observation: C reported “No display macro issues detected.” in the diagnostic window.",
+      "cOutcome": "C reported “No display macro issues detected.” in the diagnostic window.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38100008,
+        "datetime": "20391009101112",
+        "role": "Valkyrie",
+        "race": "dwarf",
+        "playmode": "debug",
+        "keyCount": 32,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-wiz-macros-window.recipe.session.json",
+      "recipeSha256": "3c2e13f91ed754984c450382204a16379422364cb492f966d5d1e329c28a4f97",
+      "recording": "challenges/cases/v38/v38-wiz-display-macros.session.json",
+      "recordingSha256": "f2a2fd5d613445b8c94006ca13fe7b448354ed166dcfc2af36b86331d733c9d6",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v38-wiz-display-macros",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v38/v38-wiz-macros-window.recipe.session.json",
+          ".cache/v38/c-replays/v38-wiz-macros-window.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-wiz-display-macros.independent-c-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/c-replays/v38-wiz-macros-window.session.json",
+        "byteIdentical": true,
+        "outputSha256": "f2a2fd5d613445b8c94006ca13fe7b448354ed166dcfc2af36b86331d733c9d6"
+      },
+      "localComparison": {
+        "caseId": "v38-wiz-display-macros",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-wiz-macros-window.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-wiz-display-macros.a195-recheck.log"
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v34-game-uuid",
+          "distinction": "The UUID diagnostic reports saved game identity, and the help case lists controls. This checks the configured display-macro table."
+        },
+        {
+          "id": "v35-help-menu-controls",
+          "distinction": "The UUID diagnostic reports saved game identity, and the help case lists controls. This checks the configured display-macro table."
+        }
+      ],
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      },
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      }
+    },
+    {
+      "id": "v38-wiz-intrinsic-menu",
+      "title": "Open the wizard intrinsic adjustment menu",
+      "mission": "Open the wizard intrinsic adjustment menu",
+      "selectionRationale": "Those cases change intrinsic state via equipment or potion effects; this opens the debug adjustment menu and cancels. Compared with the immediate v37 batch and all current unresolved older cases; no substantive overlap found.",
+      "sourcePointers": [
+        "wizcmds.c:wiz_intrinsic"
+      ],
+      "sourceTrace": "Reached C source behavior wizcmds.c:wiz_intrinsic; C observation: C displayed the “Which intrinsics?” menu with selectable intrinsic categories; the recipe cancels without changing an intrinsic.",
+      "cOutcome": "C displayed the “Which intrinsics?” menu with selectable intrinsic categories; the recipe cancels without changing an intrinsic.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38100009,
+        "datetime": "20391009101112",
+        "role": "Valkyrie",
+        "race": "dwarf",
+        "playmode": "debug",
+        "keyCount": 17,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-wiz-intrinsic-select.recipe.session.json",
+      "recipeSha256": "8035bec9d49df4ce0acf96fa8b8ef5b983de4f0e86cc367fdc8309fdd53adff3",
+      "recording": "challenges/cases/v38/v38-wiz-intrinsic-menu.session.json",
+      "recordingSha256": "7b302748644ef7a2d01e2d1e59e82298fa340d5687a52366f022a8bb94d59bc1",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v38-wiz-intrinsic-menu",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v38/v38-wiz-intrinsic-select.recipe.session.json",
+          ".cache/v38/c-replays/v38-wiz-intrinsic-select.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-wiz-intrinsic-menu.independent-c-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/c-replays/v38-wiz-intrinsic-select.session.json",
+        "byteIdentical": true,
+        "outputSha256": "7b302748644ef7a2d01e2d1e59e82298fa340d5687a52366f022a8bb94d59bc1"
+      },
+      "localComparison": {
+        "caseId": "v38-wiz-intrinsic-menu",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-wiz-intrinsic-select.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-wiz-intrinsic-menu.a195-recheck.log"
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v36-free-action-paralysis",
+          "distinction": "Those cases change intrinsic state via equipment or potion effects; this opens the debug adjustment menu and cancels."
+        },
+        {
+          "id": "v36-potion-invisibility-cursed",
+          "distinction": "Those cases change intrinsic state via equipment or potion effects; this opens the debug adjustment menu and cancels."
+        }
+      ],
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      },
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      }
+    },
+    {
+      "id": "v38-monster-birth-counts",
+      "title": "Display monster birth and death counts",
+      "mission": "Display monster birth and death counts",
+      "selectionRationale": "Migration reports show monsters in transit and difficulty reports rate monsters; this reports species birth and death counters. Compared with the immediate v37 batch and all current unresolved older cases; no substantive overlap found.",
+      "sourcePointers": [
+        "insight.c:doborn"
+      ],
+      "sourceTrace": "Reached C source behavior insight.c:doborn; C observation: C displayed the born/dead counts table, including the grid bug row.",
+      "cOutcome": "C displayed the born/dead counts table, including the grid bug row.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38100010,
+        "datetime": "20391009101112",
+        "role": "Valkyrie",
+        "race": "dwarf",
+        "playmode": "debug",
+        "keyCount": 10,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-wiz-born-counts.recipe.session.json",
+      "recipeSha256": "5e3e5df3fe8c7972fdd0b8c4744351b3fa27b6b6471b33b7b6427fb5413e0f81",
+      "recording": "challenges/cases/v38/v38-monster-birth-counts.session.json",
+      "recordingSha256": "1f02bc26db28d17dfa6e8cb5569968af44234a9f8e6b600d6667bdb0e2bdaf54",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v38-monster-birth-counts",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v38/v38-wiz-born-counts.recipe.session.json",
+          ".cache/v38/c-replays/v38-wiz-born-counts.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-monster-birth-counts.independent-c-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/c-replays/v38-wiz-born-counts.session.json",
+        "byteIdentical": true,
+        "outputSha256": "1f02bc26db28d17dfa6e8cb5569968af44234a9f8e6b600d6667bdb0e2bdaf54"
+      },
+      "localComparison": {
+        "caseId": "v38-monster-birth-counts",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-wiz-born-counts.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-monster-birth-counts.a195-recheck.log"
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v36-migration-report",
+          "distinction": "Migration reports show monsters in transit and difficulty reports rate monsters; this reports species birth and death counters."
+        },
+        {
+          "id": "v36-monster-difficulty",
+          "distinction": "Migration reports show monsters in transit and difficulty reports rate monsters; this reports species birth and death counters."
+        }
+      ],
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      },
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      }
+    },
+    {
+      "id": "v38-wiz-detect-empty",
+      "title": "Run wizard detection with no reachable secret target",
+      "mission": "Run wizard detection with no reachable secret target",
+      "selectionRationale": "The prior detection scrolls find hidden food/gold; this runs wizard findit for secret doors, traps, and hidden monsters. No target was present. Compared with the immediate v37 batch and all current unresolved older cases; no substantive overlap found.",
+      "sourcePointers": [
+        "wizcmds.c:wiz_detect -> detect.c:findit"
+      ],
+      "sourceTrace": "Reached C source behavior wizcmds.c:wiz_detect -> detect.c:findit; C observation: C ran findit and reported “You don’t find anything.” in the fresh level.",
+      "cOutcome": "C ran findit and reported “You don’t find anything.” in the fresh level.",
+      "actualTargetMiss": "No secret door, trap, or hidden monster was present; this is a valid target miss, retained as a C recording.",
+      "outcome": "missed-target",
+      "inputs": {
+        "seed": 38100011,
+        "datetime": "20391009101112",
+        "role": "Valkyrie",
+        "race": "dwarf",
+        "playmode": "debug",
+        "keyCount": 28,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-wiz-detect-report.recipe.session.json",
+      "recipeSha256": "26a8230349195ce68f73c593f5374f7a40d2155269d9867624ade99d03420e95",
+      "recording": "challenges/cases/v38/v38-wiz-detect-empty.session.json",
+      "recordingSha256": "ed5d9c0736e3a58b3c2bc76807bfffb107956fad4f3ba40246345a4836189f2e",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v38-wiz-detect-empty",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v38/v38-wiz-detect-report.recipe.session.json",
+          ".cache/v38/c-replays/v38-wiz-detect-report.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-wiz-detect-empty.independent-c-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/c-replays/v38-wiz-detect-report.session.json",
+        "byteIdentical": true,
+        "outputSha256": "ed5d9c0736e3a58b3c2bc76807bfffb107956fad4f3ba40246345a4836189f2e"
+      },
+      "localComparison": {
+        "caseId": "v38-wiz-detect-empty",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-wiz-detect-report.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-wiz-detect-empty.a195-recheck.log"
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v36-food-detection-scroll",
+          "distinction": "The prior detection scrolls find hidden food/gold; this runs wizard findit for secret doors, traps, and hidden monsters. No target was present."
+        },
+        {
+          "id": "v36-gold-detection-scroll",
+          "distinction": "The prior detection scrolls find hidden food/gold; this runs wizard findit for secret doors, traps, and hidden monsters. No target was present."
+        },
+        {
+          "id": "v37-terrain-internal-codes",
+          "distinction": "The prior detection scrolls find hidden food/gold; this runs wizard findit for secret doors, traps, and hidden monsters. No target was present."
+        }
+      ],
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      },
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      }
+    },
+    {
+      "id": "v38-wiz-identify-already-known",
+      "title": "Run debug identify when the inventory is already known",
+      "mission": "Run debug identify when the inventory is already known",
+      "selectionRationale": "The v5 scroll identifies an inventory through seffect_identify; this is the debug wiz_identify command and its already-identified branch. Compared with the immediate v37 batch and all current unresolved older cases; no substantive overlap found.",
+      "sourcePointers": [
+        "wizcmds.c:wiz_identify"
+      ],
+      "sourceTrace": "Reached C source behavior wizcmds.c:wiz_identify; C observation: C displayed the debug-identify screen and “all items are permanently identified already.”",
+      "cOutcome": "C displayed the debug-identify screen and “all items are permanently identified already.”",
+      "actualTargetMiss": "The initial inventory was already identified, so no new object type was identified; the wizard command behavior was reached.",
+      "outcome": "missed-target",
+      "inputs": {
+        "seed": 38100012,
+        "datetime": "20391009101112",
+        "role": "Valkyrie",
+        "race": "dwarf",
+        "playmode": "debug",
+        "keyCount": 30,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-wiz-identify-current.recipe.session.json",
+      "recipeSha256": "bf02947c9566b64a3f94b7328d3708931a466ec5804490bf2946b70548f20a63",
+      "recording": "challenges/cases/v38/v38-wiz-identify-already-known.session.json",
+      "recordingSha256": "25e29a9fa8cccfbd7d846ac8a89314c2d32047921df40f5e96a36f00e66c3a52",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v38-wiz-identify-already-known",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v38/v38-wiz-identify-current.recipe.session.json",
+          ".cache/v38/c-replays/v38-wiz-identify-current.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-wiz-identify-already-known.independent-c-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/c-replays/v38-wiz-identify-current.session.json",
+        "byteIdentical": true,
+        "outputSha256": "25e29a9fa8cccfbd7d846ac8a89314c2d32047921df40f5e96a36f00e66c3a52"
+      },
+      "localComparison": {
+        "caseId": "v38-wiz-identify-already-known",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-wiz-identify-current.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-wiz-identify-already-known.a195-recheck.log"
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v5-wizard-scroll-identify-inventory",
+          "distinction": "The v5 scroll identifies an inventory through seffect_identify; this is the debug wiz_identify command and its already-identified branch."
+        },
+        {
+          "id": "v37-wizmap-after-monster-reset",
+          "distinction": "The v5 scroll identifies an inventory through seffect_identify; this is the debug wiz_identify command and its already-identified branch."
+        }
+      ],
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      },
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      }
+    },
+    {
+      "id": "v38-fire-wand-monster",
+      "title": "Zap a newly created adjacent newt with a wished fire wand",
+      "mission": "Zap a newly created adjacent newt with a wished fire wand",
+      "selectionRationale": "The older wand cases probe the hero or strike a grid bug; this directs a fire wand at a newly created monster and reaches the fire-hit branch. Compared with the immediate v37 batch and all current unresolved older cases; no substantive overlap found.",
+      "sourcePointers": [
+        "zap.c:bhitm"
+      ],
+      "sourceTrace": "Reached C source behavior zap.c:bhitm; C observation: C created a newt, selected the wished fire wand, and reported killing the newt as the fire bolt bounced.",
+      "cOutcome": "C created a newt, selected the wished fire wand, and reported killing the newt as the fire bolt bounced.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38100013,
+        "datetime": "20391009101112",
+        "role": "Wizard",
+        "race": "human",
+        "playmode": "debug",
+        "keyCount": 44,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-fire-wand-monster.recipe.session.json",
+      "recipeSha256": "022f1437ff768bf4c539d3ecea6e890241e7318140a587e4cbbd9fa8546925ab",
+      "recording": "challenges/cases/v38/v38-fire-wand-monster.session.json",
+      "recordingSha256": "81b94d4009ad288955f88c6a0fab2b4a7dd7e9be3fb9b287832fda6a05659eed",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v38-fire-wand-monster",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v38/v38-fire-wand-monster.recipe.session.json",
+          ".cache/v38/c-replays/v38-fire-wand-monster.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-fire-wand-monster.independent-c-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/c-replays/v38-fire-wand-monster.session.json",
+        "byteIdentical": true,
+        "outputSha256": "81b94d4009ad288955f88c6a0fab2b4a7dd7e9be3fb9b287832fda6a05659eed"
+      },
+      "localComparison": {
+        "caseId": "v38-fire-wand-monster",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-fire-wand-monster.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-fire-wand-monster.a195-recheck.log"
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v36-wand-probing-self",
+          "distinction": "The older wand cases probe the hero or strike a grid bug; this directs a fire wand at a newly created monster and reaches the fire-hit branch."
+        },
+        {
+          "id": "v5-healer-wand-striking-grid-bug",
+          "distinction": "The older wand cases probe the hero or strike a grid bug; this directs a fire wand at a newly created monster and reaches the fire-hit branch."
+        }
+      ],
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      },
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      }
+    },
+    {
+      "id": "v38-fire-wand-engraving",
+      "title": "Use a fire wand in the engraving command",
+      "mission": "Use a fire wand in the engraving command",
+      "selectionRationale": "The earlier cases engrave with fingertips or a marker; this exercises the immediate wand-specific burn branch. Compared with the immediate v37 batch and all current unresolved older cases; no substantive overlap found.",
+      "sourcePointers": [
+        "engrave.c:doengrave / doengrave_sfx_item_WAN"
+      ],
+      "sourceTrace": "Reached C source behavior engrave.c:doengrave / doengrave_sfx_item_WAN; C observation: C selected a wished wand of fire through the write-with prompt and reported that the wand was a wand of fire before the More prompt.",
+      "cOutcome": "C selected a wished wand of fire through the write-with prompt and reported that the wand was a wand of fire before the More prompt.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38100014,
+        "datetime": "20391009101112",
+        "role": "Wizard",
+        "race": "human",
+        "playmode": "debug",
+        "keyCount": 25,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-fire-wand-engraving.recipe.session.json",
+      "recipeSha256": "2475052cc19a308260ff63149f6393d251e7a92367a201b7ecf7a8165b8be770",
+      "recording": "challenges/cases/v38/v38-fire-wand-engraving.session.json",
+      "recordingSha256": "dad792189d84dfa099195c88aefb16a263f95c8ad1637151abd244a9d1352de6",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v38-fire-wand-engraving",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v38/v38-fire-wand-engraving.recipe.session.json",
+          ".cache/v38/c-replays/v38-fire-wand-engraving.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-fire-wand-engraving.independent-c-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/c-replays/v38-fire-wand-engraving.session.json",
+        "byteIdentical": true,
+        "outputSha256": "dad792189d84dfa099195c88aefb16a263f95c8ad1637151abd244a9d1352de6"
+      },
+      "localComparison": {
+        "caseId": "v38-fire-wand-engraving",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-fire-wand-engraving.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-fire-wand-engraving.a195-recheck.log"
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v3-fingertip-engraving-return",
+          "distinction": "The earlier cases engrave with fingertips or a marker; this exercises the immediate wand-specific burn branch."
+        },
+        {
+          "id": "v35-marker-scroll",
+          "distinction": "The earlier cases engrave with fingertips or a marker; this exercises the immediate wand-specific burn branch."
+        }
+      ],
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      },
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      }
+    },
+    {
+      "id": "v38-wizard-spell-teleport-energy-refusal",
+      "title": "Select wizard teleport by temporary spell and reach the energy refusal",
+      "mission": "Use the wizard m+Ctrl-T menu to select the via-spell mode without an intrinsic teleport, then reach the insufficient-energy refusal.",
+      "selectionRationale": "The v38 level-ascent case invokes plain Ctrl-T after changing dungeon level; this case prefixes Ctrl-T with m, selects the spellcast mode, temporarily inserts SPE_TELEPORT_AWAY, and reaches the spell-energy guard. No admitted recipe uses the combined m+Ctrl-T mode menu, and no current unresolved case exercises dotelecmd or tport_spell.",
+      "sourcePointers": [
+        "teleport.c:dotelecmd",
+        "spell.c:tport_spell",
+        "teleport.c:dotele"
+      ],
+      "sourceTrace": "Reached C source path teleport.c:dotelecmd (wizard and menu_requested branch) -> option s -> spell.c:tport_spell(ADD_SPELL) -> teleport.c:dotele energy check -> tport_spell(REMOVESPELL). C displayed “Which way do you want to teleport?” with n/s/t/w; selecting s yielded “You lack the energy for a teleport spell.” Starting Barbarian energy is Pw:2(2), below the 30-point spell cost. JS does not render the mode menu; the first mismatch is the m-prefix mode-menu dispatch at the Ctrl-T boundary.",
+      "cOutcome": "At the Ctrl-T input after m, C displayed the four-option teleport-mode menu. Selecting s produced “You lack the energy for a teleport spell.” without a teleport destination prompt; the hero remained at the same square and had Pw:2(2).",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38149002,
+        "datetime": "20420320141516",
+        "role": "Barbarian",
+        "race": "human",
+        "gender": "male",
+        "playmode": "debug",
+        "keyCount": 4,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-wizard-spell-teleport-energy-refusal.recipe.session.json",
+      "recipeSha256": "331d3c92223b36aae66685a8566205b440026831964aa6eb4daa0791e01db66f",
+      "recording": "challenges/cases/v38/v38-wizard-spell-teleport-energy-refusal.session.json",
+      "recordingSha256": "432023c55d5b9b0d4032f1035f521489563cd5ec9be41cfa7b028974f34d5c50",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v38-wizard-spell-teleport-energy-refusal",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          ".cache/v38/attempt-11/recipes-c147/v38-wizard-spell-teleport-energy-refusal-c147.recipe.session.json",
+          ".cache/v38/attempt-11/replays-c147/v38-wizard-spell-teleport-energy-refusal-c147-independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-11/logs-c147/v38-wizard-spell-teleport-energy-refusal-c147-independent-c.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-11/replays-c147/v38-wizard-spell-teleport-energy-refusal-c147-independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "432023c55d5b9b0d4032f1035f521489563cd5ec9be41cfa7b028974f34d5c50"
+      },
+      "localComparison": {
+        "caseId": "v38-wizard-spell-teleport-energy-refusal",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          ".cache/v38/attempt-11/recipes-c147/v38-wizard-spell-teleport-energy-refusal-c147.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "firstMismatch": {
+          "reportedBoundary": 4,
+          "reportedSegment": 1,
+          "reportedStep": 4,
+          "key": "Ctrl-T",
+          "sourceBehavior": "teleport.c:dotelecmd wizard m-prefix mode-menu dispatch omitted in JavaScript",
+          "owner": "js/cmd.js command=teleport",
+          "details": "C cursor [32,6,1] at the menu differs from JS cursor [5,17,1]; screen row 1 column 1 is a blank in C and “Y” in JS. PRNG lengths C=3170 and JS=3174; animation frames match (0)."
+        },
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-11/logs-c147/v38-wizard-spell-teleport-energy-refusal-c147-js-diff.log"
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v38-doup-level-ascent",
+          "distinction": "Uses unprefixed Ctrl-T after level ascent, dispatching wizard dotelecmd with menu_requested false and direct teleport; c147 uses m+Ctrl-T, selects spellcast mode, adds a temporary spell, and reaches the insufficient-energy guard without teleporting."
+        },
+        {
+          "id": "v36/v37 wizard level-teleport and direct-Ctrl-T cases",
+          "distinction": "Those select a dungeon level or use direct debug teleport; none opens the m+Ctrl-T four-mode menu or temporarily inserts SPE_TELEPORT_AWAY."
+        },
+        {
+          "id": "v11/v8 teleport trap; v5/v7/v9/v15 scroll, ring, and wand cases",
+          "distinction": "Those reach object- or trap-driven teleportation; c147 exercises the wizard mode selector and temporary spell energy refusal."
+        }
+      ],
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      },
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      }
+    },
+    {
+      "id": "v38-levitating-whip-over-lava",
+      "title": "Apply a wielded whip over lava while levitating",
+      "mission": "Apply a wielded bullwhip with neutral direction while levitating over a lava tile, reaching fire_damage on the whip.",
+      "selectionRationale": "This uses the self-direction lava arm in apply.c:use_whip, which invokes trap.c:fire_damage on uwep. It differs from v10’s hostile-monster lash, v23’s pickup-over-lava refusal, v25/v30’s sit.c lava effects, and c142’s water-damage potion branch.",
+      "sourcePointers": [
+        "apply.c:use_whip",
+        "trap.c:fire_damage"
+      ],
+      "sourceTrace": "Reached C source path apply.c:use_whip neutral-direction branch with levitation and lava under u. The final “You cause a small splash.” step consumed rn2(20)=2 @ fire_damage(trap.c:4507); bullwhip remained wielded, hero remained Lev and untrapped. JS use_whip reaches note_unported(\"trap.c fire_damage\") here.",
+      "cOutcome": "After drinking the wished levitation potion and wishing lava under the hero, C accepted apply bullwhip with neutral direction, printed “You cause a small splash.”, and consumed rn2(20)=2 in trap.c:fire_damage. The hero stayed at the same tile at HP 12/12 and Lev.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38149001,
+        "datetime": "20420321141516",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "playmode": "debug",
+        "keyCount": 47,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-levitating-whip-over-lava.recipe.session.json",
+      "recipeSha256": "26c70b4e5f1b5a69c4397559665d9b57e1fa4549213551c5272c3555af4ff6f6",
+      "recording": "challenges/cases/v38/v38-levitating-whip-over-lava.session.json",
+      "recordingSha256": "1dc269ad559690e3696ccff94a2b9846fd6f4e99ed181a52a224c791425597a3",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v38-levitating-whip-over-lava",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          ".cache/v38/attempt-11/recipes-c152/v38-levitating-whip-over-lava-c152.recipe.session.json",
+          ".cache/v38/attempt-11/replays-c152/v38-levitating-whip-over-lava-c152-independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-11/logs-c152/v38-levitating-whip-over-lava-c152-independent-c.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-11/replays-c152/v38-levitating-whip-over-lava-c152-independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "1dc269ad559690e3696ccff94a2b9846fd6f4e99ed181a52a224c791425597a3"
+      },
+      "localComparison": {
+        "caseId": "v38-levitating-whip-over-lava",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          ".cache/v38/attempt-11/recipes-c152/v38-levitating-whip-over-lava-c152.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 48,
+          "key": ".",
+          "sourceBehavior": "apply.c:use_whip -> trap.c:fire_damage",
+          "owner": "js/apply.js use_whip",
+          "details": "C consumes rn2(20)=2 @ fire_damage(trap.c:4507); JS next consumes rn2(5)=2. C PRNG length 3097, JS 3096; all 48 screens/cursors and animation frames match."
+        },
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-11/logs-c152/v38-levitating-whip-over-lava-c152-js-diff.log"
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v10/bullwhip hostile-monster lash",
+          "distinction": "That uses the whip on a hostile monster with a directional lash; this applies it neutrally over lava and invokes fire_damage on the wielded whip."
+        },
+        {
+          "id": "v23/v23-pickup-over-lava",
+          "distinction": "That reaches pickup.c:pickup_checks and refuses a pickup; c152 reaches apply.c:use_whip and trap.c:fire_damage."
+        },
+        {
+          "id": "v25/v25-sit-lava; v30/v30-lava-sit",
+          "distinction": "Those invoke sit.c:dosit and lava_effects; c152 invokes fire_damage through the whip apply path while the hero levitates."
+        },
+        {
+          "id": "v38-water-dip-destroys-acid-potion",
+          "distinction": "c142 reaches pot_acid_damage and its obj_resists draw; c152 reaches fire_damage(trap.c:4507) from the use_whip self-direction branch."
+        }
+      ],
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      },
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      }
+    },
+    {
+      "id": "v38-quick-glance-lootabc",
+      "title": "Quick-glance cursor selection for lootabc",
+      "mission": "Issue semicolon quick-glance and preserve the cursor-picker output for lootabc.",
+      "selectionRationale": "This reaches pager.c:doquickwhatis -> do_look(1), a direct quick-glance branch rather than the regular look/menu path. It was independently compared with v37 and the current unresolved queue.",
+      "sourcePointers": [
+        "pager.c:doquickwhatis",
+        "pager.c:do_look(1)"
+      ],
+      "sourceTrace": "At segment 1 step 2 on `;`, C emits the quick-glance cursor-picker screen and cursor; JavaScript has no screen or cursor at that boundary. PRNG traces match.",
+      "cOutcome": "C displayed the quick-glance cursor-picker screen for lootabc; the cursor was [43,0,1].",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38114001,
+        "datetime": "20391013101112",
+        "role": "Valkyrie",
+        "race": "dwarf",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 1,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-quick-glance-lootabc.recipe.session.json",
+      "recipeSha256": "eb7229944c0ed87207cccb587c278ae34e8e3eff1189769dea4025e9dbf0f903",
+      "recording": "challenges/cases/v38/v38-quick-glance-lootabc.session.json",
+      "recordingSha256": "5fa09ecc680a087bb1ecebb01290a0e5c9f33fa00fa6861cc51de95c98e754b7",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v38/v38-quick-glance-lootabc.recipe.session.json",
+          ".cache/v38/final-evidence/replays/v38-quick-glance-lootabc.independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/final-evidence/logs/v38-quick-glance-lootabc-independent-c.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/final-evidence/replays/v38-quick-glance-lootabc.independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "5fa09ecc680a087bb1ecebb01290a0e5c9f33fa00fa6861cc51de95c98e754b7",
+        "sourceRecordingSha256": "5fa09ecc680a087bb1ecebb01290a0e5c9f33fa00fa6861cc51de95c98e754b7"
+      },
+      "localComparison": {
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-quick-glance-lootabc.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-quick-glance-lootabc.diff-fresh.log",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 2,
+          "key": ";",
+          "sourceBehavior": "pager.c:doquickwhatis -> do_look(1) quick-glance cursor selection",
+          "owner": "js/pager.js quick-glance path",
+          "details": "C emits the cursor-picker screen/cursor; JavaScript has no screen or cursor. PRNG calls match."
+        }
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v37-terrain-internal-codes",
+          "distinction": "That case displays level terrain codes; this invokes the semicolon quick-glance cursor-selection path."
+        },
+        {
+          "id": "v37-wizmap-after-monster-reset",
+          "distinction": "That case rebuilds the level map; this opens do_look(1) directly."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      }
+    },
+    {
+      "id": "v38-dodown-levitation",
+      "title": "Try to descend while levitating",
+      "mission": "Press > while levitating and compare the source-defined blocked descent response.",
+      "selectionRationale": "This reaches the levitation guard arm in do.c:dodown, independently of the ceiling-hider cases that use later arms in the same function.",
+      "sourcePointers": [
+        "do.c:dodown"
+      ],
+      "sourceTrace": "At segment 1 step 51 on `>`, C emits a new screen/cursor boundary; JavaScript emits no boundary. PRNG calls match.",
+      "cOutcome": "C handled the descent attempt through its levitation guard and emitted a response screen.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38115001,
+        "datetime": "20391014101112",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 50,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-dodown-levitation.recipe.session.json",
+      "recipeSha256": "19c18e742899d937c283f807ed52b9e1f316761994e4c482d8fd1453e23135b0",
+      "recording": "challenges/cases/v38/v38-dodown-levitation.session.json",
+      "recordingSha256": "d08c84da8429793c9bd64f78215403d157ab741d83685e3bbb759b0fd628cee1",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v38/v38-dodown-levitation.recipe.session.json",
+          ".cache/v38/final-evidence/replays/v38-dodown-levitation.independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/final-evidence/logs/v38-dodown-levitation-independent-c.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/final-evidence/replays/v38-dodown-levitation.independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "d08c84da8429793c9bd64f78215403d157ab741d83685e3bbb759b0fd628cee1",
+        "sourceRecordingSha256": "d08c84da8429793c9bd64f78215403d157ab741d83685e3bbb759b0fd628cee1"
+      },
+      "localComparison": {
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-dodown-levitation.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-dodown-levitation.diff-fresh.log",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 51,
+          "key": ">",
+          "sourceBehavior": "do.c:dodown levitation guard arm",
+          "owner": "js/do.js dodown",
+          "details": "C adds screen and cursor boundary 51; JavaScript has no corresponding boundary. PRNG calls match."
+        }
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v37-medusa",
+          "distinction": "The admitted Medusa case exercises monster gaze and stone resistance; this is the hero’s levitation-blocked descent command."
+        },
+        {
+          "id": "v38-dodown-lurker-ceiling-hider",
+          "distinction": "Both enter do.c:dodown, but that case sets Upolyd and reaches the ceiling-hider arm; this case reaches the levitation guard."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      }
+    },
+    {
+      "id": "v38-dodown-lurker-ceiling-hider",
+      "title": "Descend while a lurker is hidden above the hero",
+      "mission": "Use a polymorphed hero with u.uundetected to exercise the ceiling-hider branch of >.",
+      "selectionRationale": "This reaches a different state arm in do.c:dodown from v38-dodown-levitation and the piercer case.",
+      "sourcePointers": [
+        "do.c:dodown",
+        "monmove.c:distfleeck"
+      ],
+      "sourceTrace": "At segment 1 step 200 on `>`, C takes the Upolyd ceiling-hider branch and calls distfleeck(monmove.c:538), consuming rn2(5)=2; JavaScript lacks that step and call.",
+      "cOutcome": "C handled descent with the lurker hidden above the polymorphed hero and performed its source-defined ceiling-hider turn.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38116004,
+        "datetime": "20391016121112",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 199,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-dodown-lurker-ceiling-hider.recipe.session.json",
+      "recipeSha256": "72fd5d7b60bd22d50acda27f5ada87769febce99da7576769fc70db723120816",
+      "recording": "challenges/cases/v38/v38-dodown-lurker-ceiling-hider.session.json",
+      "recordingSha256": "ea5a88256ccbde383249580b8f259c5a575cbf703ca5c249ee2d8be953ae403d",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v38/v38-dodown-lurker-ceiling-hider.recipe.session.json",
+          ".cache/v38/c-replays/v38-dodown-lurker-ceiling-hider.independent-c-replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-dodown-lurker-ceiling-hider.independent-c-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/c-replays/v38-dodown-lurker-ceiling-hider.independent-c-replay.session.json",
+        "byteIdentical": true,
+        "outputSha256": "ea5a88256ccbde383249580b8f259c5a575cbf703ca5c249ee2d8be953ae403d",
+        "sourceRecordingSha256": "ea5a88256ccbde383249580b8f259c5a575cbf703ca5c249ee2d8be953ae403d"
+      },
+      "localComparison": {
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-dodown-lurker-ceiling-hider.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-dodown-lurker-ceiling-hider.diff-fresh.log",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 200,
+          "key": ">",
+          "sourceBehavior": "do.c:dodown Upolyd ceiling-hider arm -> monmove.c:distfleeck",
+          "owner": "js/do.js dodown",
+          "details": "C consumes rn2(5)=2 @ distfleeck(monmove.c:538) and emits the step-200 screen; JavaScript has no step 200."
+        }
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v38-dodown-levitation",
+          "distinction": "That case is the preceding levitation guard in dodown; this one is polymorphed with u.uundetected and reaches the ceiling-hider arm."
+        },
+        {
+          "id": "v37-terrain-internal-codes",
+          "distinction": "The admitted case reads terrain types; this descends with a hidden lurker above the hero."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      }
+    },
+    {
+      "id": "v38-dodown-piercer-hider",
+      "title": "Descend under a ceiling-hiding piercer",
+      "mission": "Exercise the flying/piercer ceiling-hider branch, including its pickup step.",
+      "selectionRationale": "The C state reaches the piercer hider arm of do.c:dodown and its pickup path; the lurker case is a different hider condition.",
+      "sourcePointers": [
+        "do.c:dodown",
+        "pickup.c:pickup"
+      ],
+      "sourceTrace": "At segment 1 step 200 on `>`, C emits a screen boundary before JavaScript; this path selects the non-flying ceiling-hider arm and continues into pickup.",
+      "cOutcome": "C reached the piercer ceiling-hider descent path and its subsequent pickup handling.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38117001,
+        "datetime": "20391016121112",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 200,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-dodown-piercer-hider.recipe.session.json",
+      "recipeSha256": "21c1d2ded2b72bfec6f315e0e459466deb3498103301772fc0d8ea6f9366f182",
+      "recording": "challenges/cases/v38/v38-dodown-piercer-hider.session.json",
+      "recordingSha256": "3df1ec7c273e824c9d207f180f49e68595e388b3e815a73d096b3211c17770e6",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v38/v38-dodown-piercer-hider.recipe.session.json",
+          ".cache/v38/c-replays/v38-dodown-piercer-hider.independent-c-replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-dodown-piercer-hider.independent-c-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/c-replays/v38-dodown-piercer-hider.independent-c-replay.session.json",
+        "byteIdentical": true,
+        "outputSha256": "3df1ec7c273e824c9d207f180f49e68595e388b3e815a73d096b3211c17770e6",
+        "sourceRecordingSha256": "3df1ec7c273e824c9d207f180f49e68595e388b3e815a73d096b3211c17770e6"
+      },
+      "localComparison": {
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-dodown-piercer-hider.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/logs/v38-dodown-piercer-hider.diff-fresh.log",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 200,
+          "key": ">",
+          "sourceBehavior": "do.c:dodown non-flying ceiling-hider arm -> pickup",
+          "owner": "js/do.js dodown",
+          "details": "C emits a screen and cursor boundary at step 200; JavaScript has no screen/cursor for that boundary. PRNG calls match."
+        }
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v38-dodown-lurker-ceiling-hider",
+          "distinction": "Both are ceiling-hider descent paths; this reaches the non-flying piercer branch and pickup, while the other is an Upolyd lurker path."
+        },
+        {
+          "id": "v38-dodown-levitation",
+          "distinction": "That case exits at the levitation guard before ceiling-hider selection."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      }
+    },
+    {
+      "id": "v38-cursed-bear-trap-bungle",
+      "title": "Set a cursed bear trap and trigger its bungle result",
+      "mission": "Set the cursed beartrap after the independently selected two-wait wizard kill route.",
+      "selectionRationale": "C confirms the cursed beartrap reaches apply.c:doapply -> trap.c:set_trap and then the hero trap effect; this differs from the false-side guard and matching controls.",
+      "sourcePointers": [
+        "apply.c:doapply",
+        "trap.c:set_trap",
+        "trap.c:trapeffect_bear_trap"
+      ],
+      "sourceTrace": "C reaches the cursed-beartrap set_trap branch. At segment 1 step 44 on `n`, its first mismatch is d(2,4)=7 @ trapeffect_bear_trap(trap.c:1490); JavaScript consumes rn2(12)=7. The trap closes on the hero’s foot and lowers HP to 5/12.",
+      "cOutcome": "C printed “Your bear trap closes on your foot!” after arming the cursed trap; the hero stayed on the square at HP 5/12.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 93065117,
+        "datetime": "20401015215407",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 44,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-cursed-bear-trap-bungle.recipe.session.json",
+      "recipeSha256": "f9bec2a03a4b4e1dff29e2d4fa4829ea015e585ffb314f5ebbb8c33444c84832",
+      "recording": "challenges/cases/v38/v38-cursed-bear-trap-bungle.session.json",
+      "recordingSha256": "aa5453a90e0b0924452ccf80dbbdffc1fd6ba8cc04ff7d55f4d3e3daf784f9c1",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          ".cache/v38/attempt-5/recipes-c132/v38-cursed-bear-trap-bungle-probe-c132.recipe.session.json",
+          ".cache/v38/attempt-5/replays-c132/v38-cursed-bear-trap-bungle-probe-c132-replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-5/logs-c132/v38-cursed-bear-trap-bungle-probe-c132-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-5/replays-c132/v38-cursed-bear-trap-bungle-probe-c132-replay.session.json",
+        "byteIdentical": true,
+        "outputSha256": "aa5453a90e0b0924452ccf80dbbdffc1fd6ba8cc04ff7d55f4d3e3daf784f9c1",
+        "sourceRecordingSha256": "aa5453a90e0b0924452ccf80dbbdffc1fd6ba8cc04ff7d55f4d3e3daf784f9c1"
+      },
+      "localComparison": {
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-cursed-bear-trap-bungle.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-5/logs-c132/v38-cursed-bear-trap-bungle-probe-c132-diff-fresh.log",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 44,
+          "key": "n",
+          "sourceBehavior": "trap.c:set_trap -> trapeffect_bear_trap",
+          "owner": "js/trap.js set_trap/trapeffect_bear_trap",
+          "details": "First PRNG mismatch at call 2876: C d(2,4)=7 @ trapeffect_bear_trap(trap.c:1490), JS rn2(12)=7; first screen/cursor mismatch is boundary 44."
+        }
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v14-cursed-beartrap",
+          "distinction": "The v14 case tests an earlier cursed trap route; c132 reaches the newly selected two-wait set_trap branch and the bear-trap bungle effect."
+        },
+        {
+          "id": "v28-beartrap",
+          "distinction": "The cited v28 beartrap behavior is a different action/setup path; c132 reaches trapeffect_bear_trap from a cursed set-trap action."
+        },
+        {
+          "id": "v38-cursed-bear-trap-bungle-control",
+          "distinction": "The retained control matches JavaScript; c132’s true-side trigger reaches the distinct bungle effect."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      }
+    },
+    {
+      "id": "v38-single-boulder-pickup-refusal",
+      "title": "Attempt to lift a single boulder",
+      "mission": "Wish one boulder onto ordinary floor and attempt to pick it up.",
+      "selectionRationale": "This reaches pickup.c:pickup_object -> lift_object -> carry_count on a singleton boulder. The refusal is independent of the admitted v30 burden case and the v38 kick-boulder action.",
+      "sourcePointers": [
+        "pickup.c:pickup_object",
+        "pickup.c:lift_object",
+        "pickup.c:carry_count"
+      ],
+      "sourceTrace": "C confirms the singleton lift refusal at the comma command; JavaScript drops the resulting turn boundary. Its first reported PRNG mismatch is rn2(70)=22 @ maybe_generate_rnd_mon(allmain.c:166) at segment 1 step 20. Main completed the v30 burden and v38 boulder-action overlap checks.",
+      "cOutcome": "C reached the single-boulder pickup refusal with the boulder still on the floor.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38146001,
+        "datetime": "20391010090000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 20,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-single-boulder-pickup-refusal.recipe.session.json",
+      "recipeSha256": "16790bbdea1940fc829397dd16d6dffb99395072f28fce7df45218500b23403c",
+      "recording": "challenges/cases/v38/v38-single-boulder-pickup-refusal.session.json",
+      "recordingSha256": "0958de31510bbf25456ee12eb6d9f3693b89dc5472d48a2b393be5af773feec0",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          ".cache/v38/attempt-8/recipes-c140/v38-single-boulder-pickup-refusal-c140.recipe.session.json",
+          ".cache/v38/attempt-8/replays-c140/v38-single-boulder-pickup-refusal-c140-independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-8/logs-c140/v38-single-boulder-pickup-refusal-c140-independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-8/replays-c140/v38-single-boulder-pickup-refusal-c140-independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "0958de31510bbf25456ee12eb6d9f3693b89dc5472d48a2b393be5af773feec0",
+        "sourceRecordingSha256": "0958de31510bbf25456ee12eb6d9f3693b89dc5472d48a2b393be5af773feec0"
+      },
+      "localComparison": {
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-single-boulder-pickup-refusal.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-8/logs-c140/v38-single-boulder-pickup-refusal-c140-diff-fresh.log",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 20,
+          "key": ",",
+          "sourceBehavior": "pickup.c:pickup_object -> lift_object single-boulder refusal and resulting turn boundary",
+          "owner": "js/pickup.js pickup_object",
+          "details": "C refuses the singleton boulder pickup; the first reported next-turn call is rn2(70)=22 @ maybe_generate_rnd_mon(allmain.c:166). JavaScript omits the step-20 boundary. Coordinator overlap review confirmed this source/action path is distinct."
+        }
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v30-lava-sit / burden branch",
+          "distinction": "The admitted v30 case tests lava sitting and burden from carried weight; c140 tests lifting a singleton boulder through lift_object."
+        },
+        {
+          "id": "v38-kick-boulder",
+          "distinction": "That case invokes dokick on a boulder; c140 attempts inventory pickup and reaches carry_count’s singleton refusal."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      }
+    },
+    {
+      "id": "v38-water-dip-destroys-acid-potion",
+      "title": "Dip an acid potion into water",
+      "mission": "Select the acid potion from the observed inventory slot and dip it into water.",
+      "selectionRationale": "This reaches potion.c:H2Opotion_dip -> trap.c:water_damage -> pot_acid_damage; the earlier c141 selector miss did not choose the acid potion.",
+      "sourcePointers": [
+        "potion.c:H2Opotion_dip",
+        "trap.c:water_damage",
+        "potion.c:pot_acid_damage"
+      ],
+      "sourceTrace": "C reaches pot_acid_damage and the potion explosion. At segment 1 step 60 on `p`, C consumes rn2(100)=41 @ obj_resists(zap.c:1469); JavaScript has no corresponding call, and the first screen differs at the same boundary.",
+      "cOutcome": "C selected the acid potion and water, printed “A pink potion explodes!”, and consumed the potion.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38147001,
+        "datetime": "20410120123456",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 59,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-water-dip-destroys-acid-potion.recipe.session.json",
+      "recipeSha256": "38c1c0a3d2f865ca397e60d27e47de0eabee63bda43713772fc009203bdfd404",
+      "recording": "challenges/cases/v38/v38-water-dip-destroys-acid-potion.session.json",
+      "recordingSha256": "cb1c22abb09953930eecef0aa50149ab6050977047dee509b99b4db463a01c00",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          ".cache/v38/attempt-9/recipes-c142/v38-water-dip-destroys-acid-potion-c142.recipe.session.json",
+          ".cache/v38/attempt-9/replays-c142/v38-water-dip-destroys-acid-potion-c142-independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-9/logs-c142/v38-water-dip-destroys-acid-potion-c142-independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-9/replays-c142/v38-water-dip-destroys-acid-potion-c142-independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "cb1c22abb09953930eecef0aa50149ab6050977047dee509b99b4db463a01c00",
+        "sourceRecordingSha256": "cb1c22abb09953930eecef0aa50149ab6050977047dee509b99b4db463a01c00"
+      },
+      "localComparison": {
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-water-dip-destroys-acid-potion.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-9/logs-c142/v38-water-dip-destroys-acid-potion-c142-diff-fresh.log",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 60,
+          "key": "p",
+          "sourceBehavior": "potion.c:H2Opotion_dip -> trap.c:water_damage -> pot_acid_damage",
+          "owner": "js/potion.js H2Opotion_dip",
+          "details": "First PRNG mismatch at call 2388: C rn2(100)=41 @ obj_resists(zap.c:1469), JS has no draw; screen and cursor differ at boundary 60."
+        }
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v14-potion explosion",
+          "distinction": "The admitted v14 potion case is a different reading or explosion route; c142 reaches the acid-on-water dip caller chain."
+        },
+        {
+          "id": "v38-acid-potion-target-selection-miss",
+          "distinction": "c141’s C selector rejected the attempted letter; c142 selects slot o and reaches the acid potion damage chain."
+        },
+        {
+          "id": "v38-levitating-whip-over-lava",
+          "distinction": "That reaches fire_damage via apply.c:use_whip; c142 reaches pot_acid_damage through water_damage."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      }
+    },
+    {
+      "id": "v38-broken-undead-wand-revives-floor-newt",
+      "title": "Break an undead-turning wand over a floor corpse",
+      "mission": "Use a broken wand of undead turning on the floor corpse and reach bhito’s revival path.",
+      "selectionRationale": "The corpse-object path is distinct from v12’s bhitm monster target and the v31 tin probe.",
+      "sourcePointers": [
+        "apply.c:do_break_wand",
+        "zap.c:bhito",
+        "zap.c:revive"
+      ],
+      "sourceTrace": "C reaches do_break_wand -> bhito(WAN_UNDEAD_TURNING, CORPSE) -> revive for the floor newt. At the post-revival boundary, the first differential is segment 1 step 54 on space: C rn2(8)=4 @ collect_coords(teleport.c:700), while JS consumes rn2(19)=1.",
+      "cOutcome": "C revived the floor newt through the broken undead-turning wand object loop.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38148001,
+        "datetime": "20420215131415",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "playmode": "debug",
+        "keyCount": 54,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.recipe.session.json",
+      "recipeSha256": "9b6847608d1caeb40ef7473fb0628c44e8f6e2cfd56490aa78332bd016d93d97",
+      "recording": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.session.json",
+      "recordingSha256": "db67a7d6f541d39d59d06d1120ac8a87ab0d5a061f3afd7d62d28f69814a40cd",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          ".cache/v38/attempt-10/recipes-c145/v38-broken-undead-wand-revives-floor-newt-c145.recipe.session.json",
+          ".cache/v38/attempt-10/replays-c145/v38-broken-undead-wand-revives-floor-newt-c145-independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-10/logs-c145/v38-broken-undead-wand-revives-floor-newt-c145-independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-10/replays-c145/v38-broken-undead-wand-revives-floor-newt-c145-independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "db67a7d6f541d39d59d06d1120ac8a87ab0d5a061f3afd7d62d28f69814a40cd",
+        "sourceRecordingSha256": "db67a7d6f541d39d59d06d1120ac8a87ab0d5a061f3afd7d62d28f69814a40cd"
+      },
+      "localComparison": {
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-10/logs-c145/v38-broken-undead-wand-revives-floor-newt-c145-diff-fresh.log",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 54,
+          "key": " ",
+          "sourceBehavior": "apply.c:do_break_wand -> zap.c:bhito(WAN_UNDEAD_TURNING, CORPSE) -> revive; post-revival first draw at collect_coords",
+          "owner": "js/apply.js do_break_wand / js/zap.js bhito",
+          "details": "C’s first differing post-revival draw is rn2(8)=4 @ collect_coords(teleport.c:700), compared with JS rn2(19)=1; screens differ at boundary 54. Main confirmed source distinction from v12 bhitm and v31 tin behavior."
+        }
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v12-undead-turning-monster-target",
+          "distinction": "v12 uses bhitm against a monster; this case iterates the floor-object list through bhito with a CORPSE."
+        },
+        {
+          "id": "v31-tinning-kit",
+          "distinction": "v31 exercises tin food processing; c145 revives a floor corpse through an undead-turning wand."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      }
+    },
+    {
+      "id": "v38-arrow-trap-return-projectile",
+      "title": "Return onto an arrow trap after its projectile has fired",
+      "mission": "Re-enter the arrow-trap square, let its arrow hit and disappear, then issue #sit without moving.",
+      "selectionRationale": "The counted first mismatch is the hero-only arrow-trap projectile arm, before the later VIASITTING call. It differs from the v11 dart-trap poison/hit arm, v10 monster-triggered arrow, and v38 bear trap.",
+      "sourcePointers": [
+        "trap.c:dotrap",
+        "trap.c:trapeffect_arrow_trap",
+        "dothrow.c:t_missile",
+        "sit.c:dosit"
+      ],
+      "sourceTrace": "C reaches the arrow-trap return-step effect and later also reaches sit.c:dosit -> trap.c:dotrap(VIASITTING). The first mismatch is on the return step: the hero-only trapeffect_arrow_trap -> t_missile(ARROW) path creates/throws the projectile; the first reported C RNG caller is next_ident(mkobj.c:521). The later VIASITTING reach is secondary evidence.",
+      "cOutcome": "C showed “You escape an arrow trap.” on the return-step path; after the arrow vanished and u.utrap remained zero, #sit reached VIASITTING.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38149231,
+        "datetime": "20411012112233",
+        "role": "Rogue",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 21,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-arrow-trap-return-projectile.recipe.session.json",
+      "recipeSha256": "f98fce8148ef6d5520b0e33b47053f2ec8a49afd320031f9a473e4382b9e9924",
+      "recording": "challenges/cases/v38/v38-arrow-trap-return-projectile.session.json",
+      "recordingSha256": "4da1395ef578601a402a13cb470a5f9126b5bbce7b6e83fba16b1684d4b7c8b6",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          ".cache/v38/attempt-11/recipes-c153/v38-sit-on-triggered-projectile-trap-c155.recipe.session.json",
+          ".cache/v38/attempt-11/replays-c153/v38-sit-on-triggered-projectile-trap-c155-independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-11/logs-c153/v38-sit-on-triggered-projectile-trap-c155-independent-c.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-11/replays-c153/v38-sit-on-triggered-projectile-trap-c155-independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "4da1395ef578601a402a13cb470a5f9126b5bbce7b6e83fba16b1684d4b7c8b6",
+        "sourceRecordingSha256": "4da1395ef578601a402a13cb470a5f9126b5bbce7b6e83fba16b1684d4b7c8b6"
+      },
+      "localComparison": {
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-arrow-trap-return-projectile.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-11/logs-c153/v38-sit-on-triggered-projectile-trap-c155-js-diff.log",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 17,
+          "key": "h",
+          "sourceBehavior": "trap.c:dotrap -> trapeffect_arrow_trap -> t_missile(ARROW)",
+          "owner": "js/trap.js dotrap/trapeffect_arrow_trap",
+          "details": "The hero return-step arrow path is the first divergent behavior; C’s first reported draw is rnd(2)=1 @ next_ident(mkobj.c:521), and C emits boundary 17 while JS has no boundary. The later VIASITTING branch is retained as secondary source evidence."
+        }
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v11-hero-dart-trap",
+          "distinction": "That case reaches the hero dart-trap poison/hit arm; c155 reaches the hero arrow-trap t_missile(ARROW) arm."
+        },
+        {
+          "id": "v10-monster-arrow-trap",
+          "distinction": "That case is monster-triggered; c155 is hero-triggered."
+        },
+        {
+          "id": "v38-cursed-bear-trap-bungle",
+          "distinction": "That case reaches trapeffect_bear_trap; c155 reaches the arrow projectile effect."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      }
+    },
+    {
+      "id": "v38-lava-wish-burns-floor-scroll",
+      "title": "Wish lava onto a floor scroll while levitating",
+      "mission": "Drop a blank paper scroll on the hero square, remain levitating, then wish lava on that square.",
+      "selectionRationale": "This reaches the terrain-wish floor-object fire chain, distinct from c142’s acid potion and c152’s whip splash.",
+      "sourcePointers": [
+        "objnam.c:wizterrainwish",
+        "trap.c:fire_damage_chain",
+        "trap.c:fire_damage"
+      ],
+      "sourceTrace": "C reaches objnam.c:wizterrainwish -> trap.c:fire_damage_chain -> fire_damage(force=true) for the floor scroll. C’s final screen says the unlabeled scroll catches fire and burns; JavaScript stops at note_unported(\"trap.c fire_damage_chain\"). The trace is one RNG call longer in C, but this attribution does not identify that draw as an obj_resists call.",
+      "cOutcome": "After the lava wish, C printed “The unlabeled scroll catches fire and burns.” while the hero remained levitating over the pool.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38149232,
+        "datetime": "20410715123456",
+        "role": "Barbarian",
+        "race": "human",
+        "gender": "male",
+        "playmode": "debug",
+        "keyCount": 57,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-lava-wish-burns-floor-scroll.recipe.session.json",
+      "recipeSha256": "6c73bae1f91a82f9c34071435eafc2340044ea6df6460e1302040560bae41d61",
+      "recording": "challenges/cases/v38/v38-lava-wish-burns-floor-scroll.session.json",
+      "recordingSha256": "af4bf58c19a89ea17fee8ee75b9d4c51fde3077198dd10b343f965c6820ca4f8",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          ".cache/v38/attempt-11/recipes-c156/v38-lava-wish-burns-floor-scroll-c156.recipe.session.json",
+          ".cache/v38/attempt-11/replays-c156/v38-lava-wish-burns-floor-scroll-c156-independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-11/logs-c156/v38-lava-wish-burns-floor-scroll-c156-independent-c.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-11/replays-c156/v38-lava-wish-burns-floor-scroll-c156-independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "af4bf58c19a89ea17fee8ee75b9d4c51fde3077198dd10b343f965c6820ca4f8",
+        "sourceRecordingSha256": "af4bf58c19a89ea17fee8ee75b9d4c51fde3077198dd10b343f965c6820ca4f8"
+      },
+      "localComparison": {
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-lava-wish-burns-floor-scroll.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-11/logs-c156/v38-lava-wish-burns-floor-scroll-c156-js-diff.log",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 57,
+          "key": " ",
+          "sourceBehavior": "objnam.c:wizterrainwish -> trap.c:fire_damage_chain -> fire_damage(force=true)",
+          "owner": "js/objnam_readobjnam.js wizterrainwish",
+          "details": "At the final newline boundary, C adds “The unlabeled scroll catches fire and burns.”; JS shows only the lava tile and stops at note_unported(\"trap.c fire_damage_chain\"). The RNG trace is one call longer in C; no obj_resists call-site attribution is inferred."
+        }
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v23-pickup-over-lava",
+          "distinction": "v23 refuses a pickup over lava without a floor scroll damage chain; c156 wishes terrain lava over a floor scroll."
+        },
+        {
+          "id": "v30-lava-sit",
+          "distinction": "v30 reaches sit/lava effects and boot damage; c156 reaches terrain-wish fire damage on a floor object."
+        },
+        {
+          "id": "v38-water-dip-destroys-acid-potion",
+          "distinction": "c142 calls pot_acid_damage through water_damage; c156 calls fire_damage_chain through wizterrainwish."
+        },
+        {
+          "id": "v38-levitating-whip-over-lava",
+          "distinction": "c152 calls fire_damage on uwep from use_whip; c156 destroys a floor object through the terrain-wish chain."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      }
+    },
+    {
+      "id": "v38-pickaxe-door",
+      "title": "Use a pick-axe on an ordinary door",
+      "mission": "Exercise the tool-driven pick-axe door interaction and compare the complete matching trace.",
+      "selectionRationale": "This is a distinct matching tool-door route with an independent C recording/replay; setup misses c94/c95 and direction miss c97 remain in the attempt archive.",
+      "sourcePointers": [
+        "apply.c:doapply",
+        "dig.c:use_pick_axe"
+      ],
+      "sourceTrace": "C reached the pick-axe door interaction; its PRNG, all 30 screens/cursors, and animation frames matched JavaScript.",
+      "cOutcome": "C completed the pick-axe door interaction with a full local JavaScript match.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 38141020,
+        "datetime": "20401201121112",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 29,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-pickaxe-door.recipe.session.json",
+      "recipeSha256": "3fa545d08f0b3f5809032cc96e22774565da404b3895ab38b19f43a5716b974f",
+      "recording": "challenges/cases/v38/v38-pickaxe-door.session.json",
+      "recordingSha256": "f7f509442c247dabaac1f4d31bd35f8dd3bced9f7754b8a0c33d78259183ae83",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          ".cache/v38/attempt-2/recipes-c98/v38-pickaxe-door-c98.recipe.session.json",
+          ".cache/v38/attempt-2/c-replays-c98/v38-pickaxe-door-c98.independent-c-replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-2/logs-c98/v38-pickaxe-door-c98.independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-2/c-replays-c98/v38-pickaxe-door-c98.independent-c-replay.session.json",
+        "byteIdentical": true,
+        "outputSha256": "f7f509442c247dabaac1f4d31bd35f8dd3bced9f7754b8a0c33d78259183ae83",
+        "sourceRecordingSha256": "f7f509442c247dabaac1f4d31bd35f8dd3bced9f7754b8a0c33d78259183ae83"
+      },
+      "localComparison": {
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-pickaxe-door.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-2/logs-c98/v38-pickaxe-door-c98.diff-fresh.log",
+        "firstMismatch": null
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v21-pickaxe/door interaction",
+          "distinction": "The exact c98 input was independently checked against the saved older case crosswalk; its reached door/tool behavior and action history do not duplicate an admitted case."
+        },
+        {
+          "id": "v38-kick-boulder",
+          "distinction": "That case uses dokick on a boulder; c98 uses the pick-axe against a door."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      }
+    },
+    {
+      "id": "v38-touchstone-glass",
+      "title": "Rub a touchstone on glass",
+      "mission": "Reach apply.c touchstone handling on a glass item.",
+      "selectionRationale": "A corrected item selector reaches the touchstone/glass path; c99 was kept as a selector probe and c100 is the matching reached case.",
+      "sourcePointers": [
+        "apply.c:doapply",
+        "apply.c:use_stone"
+      ],
+      "sourceTrace": "C reached the touchstone-on-glass result and full PRNG, 65 screens/cursors, and frames match JavaScript.",
+      "cOutcome": "C processed the glass touchstone action and matched JavaScript byte-for-byte across outputs.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 39091017,
+        "datetime": "20420410090000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 64,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-touchstone-glass.recipe.session.json",
+      "recipeSha256": "af6a0e741659963361db2b47a8b643cc6afa9d45a9224f6165a58efe5a6124dd",
+      "recording": "challenges/cases/v38/v38-touchstone-glass.session.json",
+      "recordingSha256": "954edb96ea6a0ed4447700f8bb810399a919ac498c29caeeb712494c9f67269d",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          ".cache/v38/attempt-2/recipes-c100/v38-touchstone-glass-c100.recipe.session.json",
+          ".cache/v38/attempt-2/c-replays-c100/v38-touchstone-glass-c100.independent-c-replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-2/logs-c100/v38-touchstone-glass-c100.independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-2/c-replays-c100/v38-touchstone-glass-c100.independent-c-replay.session.json",
+        "byteIdentical": true,
+        "outputSha256": "954edb96ea6a0ed4447700f8bb810399a919ac498c29caeeb712494c9f67269d",
+        "sourceRecordingSha256": "954edb96ea6a0ed4447700f8bb810399a919ac498c29caeeb712494c9f67269d"
+      },
+      "localComparison": {
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-touchstone-glass.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-2/logs-c100/v38-touchstone-glass-c100.diff-fresh.log",
+        "firstMismatch": null
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v15-touchstone identification",
+          "distinction": "That admitted behavior uses a different touchstone/object outcome; c100 specifically applies the touchstone to glass and fully matches JavaScript."
+        },
+        {
+          "id": "v38-enchant-armor-no-worn-armor",
+          "distinction": "A separate read.c no-armor action; c100 is an apply.c touchstone action."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      }
+    },
+    {
+      "id": "v38-throw-dagger-hostile-newt",
+      "title": "Throw a dagger at a hostile newt",
+      "mission": "Use the throw command against the visible hostile newt and retain the matching trace.",
+      "selectionRationale": "The reached hostile-monster throw path is independently replayed; c101/c102 were target-selector probes and c103 corrects the observed target letter.",
+      "sourcePointers": [
+        "dothrow.c:dothrow",
+        "dothrow.c:thitmonst"
+      ],
+      "sourceTrace": "C reached the hostile newt throw/impact path; its PRNG, all 47 screens/cursors, and frames match JavaScript.",
+      "cOutcome": "C threw the dagger at the hostile newt and the complete comparison matched.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 39091022,
+        "datetime": "20420411091010",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 46,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-throw-dagger-hostile-newt.recipe.session.json",
+      "recipeSha256": "a9da565ddf72947efeb6fe8b93b2eec9aa687b6fb1063959f47e89cfede1a909",
+      "recording": "challenges/cases/v38/v38-throw-dagger-hostile-newt.session.json",
+      "recordingSha256": "58bfcc0394865019649deda21e9df36d439d03661b95ee3959446c85ead91b3a",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          ".cache/v38/attempt-2/recipes-c103/v38-throw-dagger-hostile-newt-c103.recipe.session.json",
+          ".cache/v38/attempt-2/c-replays-c103/v38-throw-dagger-hostile-newt-c103.independent-c-replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-2/logs-c103/v38-throw-dagger-hostile-newt-c103.independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-2/c-replays-c103/v38-throw-dagger-hostile-newt-c103.independent-c-replay.session.json",
+        "byteIdentical": true,
+        "outputSha256": "58bfcc0394865019649deda21e9df36d439d03661b95ee3959446c85ead91b3a",
+        "sourceRecordingSha256": "58bfcc0394865019649deda21e9df36d439d03661b95ee3959446c85ead91b3a"
+      },
+      "localComparison": {
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-throw-dagger-hostile-newt.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-2/logs-c103/v38-throw-dagger-hostile-newt-c103.diff-fresh.log",
+        "firstMismatch": null
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v11-throw-paralysis-potion",
+          "distinction": "That case throws a potion with potion effects; c103 throws a dagger at a hostile newt."
+        },
+        {
+          "id": "v21-throw-rock-newt",
+          "distinction": "The projectile class and hit path differ: c103 uses a dagger."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      }
+    },
+    {
+      "id": "v38-sacrifice-stale-newt",
+      "title": "Offer a newt corpse with stale age zero",
+      "mission": "Reach the altar-offering path with a floor newt corpse whose recorded stale age is zero.",
+      "selectionRationale": "This source-based sacrifice check is distinct from other sacrifice cases by the floor corpse and stale-age-zero state; later valid replay c107 is byte-identical to c106.",
+      "sourcePointers": [
+        "pray.c:dosacrifice",
+        "pray.c:offer_corpse"
+      ],
+      "sourceTrace": "C’s offering path printed “Nothing happens.” with the corpse stale-age trace at zero; the independent c107 replay is byte-identical and the full JavaScript comparison passed.",
+      "cOutcome": "The floor newt corpse had stale age zero; C processed the offering and printed “Nothing happens.”",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 39091044,
+        "datetime": "20420412091530",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 90,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-sacrifice-stale-newt.recipe.session.json",
+      "recipeSha256": "0c1b54282937212dcc6b9e4e0dde0e998bd980936ad7921a228ec532ac433cdc",
+      "recording": "challenges/cases/v38/v38-sacrifice-stale-newt.session.json",
+      "recordingSha256": "5ecd2359e12337eb085b88d019b16d8d6c1df4fabf0e3999f24325564620dcda",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          ".cache/v38/attempt-2/recipes-c106/v38-stale-corpse-offer-probe-c106.recipe.session.json",
+          ".cache/v38/attempt-2/c-replays-c107/v38-stale-corpse-offer-probe-c107.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-2/logs-c106/v38-stale-corpse-offer-probe-c107.replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-2/c-replays-c107/v38-stale-corpse-offer-probe-c107.session.json",
+        "byteIdentical": true,
+        "outputSha256": "5ecd2359e12337eb085b88d019b16d8d6c1df4fabf0e3999f24325564620dcda",
+        "sourceRecordingSha256": "5ecd2359e12337eb085b88d019b16d8d6c1df4fabf0e3999f24325564620dcda"
+      },
+      "localComparison": {
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-sacrifice-stale-newt.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-2/logs-c106/v38-stale-corpse-offer-probe-c106.diff-fresh.log",
+        "firstMismatch": null
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v16-sacrifice corpse",
+          "distinction": "That case uses another sacrifice target/state; c106 reaches a floor newt with stale age zero."
+        },
+        {
+          "id": "v38-broken-undead-wand-revives-floor-newt",
+          "distinction": "The latter revives a corpse through bhito; c106 offers the corpse at an altar."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      }
+    },
+    {
+      "id": "v38-enchant-armor-no-worn-armor",
+      "title": "Read enchant armor with no armor worn",
+      "mission": "Reach the no-armor branch of the enchant armor scroll effect.",
+      "selectionRationale": "This is the no-armor branch of read.c:seffects; the high-positive worn-helmet probes are separate branches and setup misses remain preserved.",
+      "sourcePointers": [
+        "read.c:seffects"
+      ],
+      "sourceTrace": "C reached the enchant-armor no-worn-armor branch; independent c113 replay was byte-identical and PRNG, screens/cursors, and frames matched JavaScript.",
+      "cOutcome": "C printed the no-armor enchant result with no armor worn; the full comparison matched.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 39095021,
+        "datetime": "20420708091537",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 52,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-enchant-armor-no-worn-armor.recipe.session.json",
+      "recipeSha256": "c3669445ea490ed62eb81914a510e51ae38e2d00b479463af30ff243388e4ad8",
+      "recording": "challenges/cases/v38/v38-enchant-armor-no-worn-armor.session.json",
+      "recordingSha256": "9512f34459642f04ed9c89a2e13abe6dfd4c3e0507b77e3b6ee4f86e46cc5a47",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          ".cache/v38/attempt-3/recipes-c112/v38-enchant-armor-no-worn-armor-probe-c112.recipe.session.json",
+          ".cache/v38/attempt-3/c-replays-c113/v38-enchant-armor-no-worn-armor-probe-c113.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-3/logs-c112/v38-enchant-armor-no-worn-armor-probe-c113.replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-3/c-replays-c113/v38-enchant-armor-no-worn-armor-probe-c113.session.json",
+        "byteIdentical": true,
+        "outputSha256": "9512f34459642f04ed9c89a2e13abe6dfd4c3e0507b77e3b6ee4f86e46cc5a47",
+        "sourceRecordingSha256": "9512f34459642f04ed9c89a2e13abe6dfd4c3e0507b77e3b6ee4f86e46cc5a47"
+      },
+      "localComparison": {
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-enchant-armor-no-worn-armor.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-3/logs-c112/v38-enchant-armor-no-worn-armor-probe-c112.diff-fresh.log",
+        "firstMismatch": null
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v38-enchant-armor-high-positive-armor-enchants",
+          "distinction": "That matched case wears +5 armor; c112 exercises the no-worn-armor arm."
+        },
+        {
+          "id": "v38-enchant-armor-high-positive-armor-evaporates",
+          "distinction": "That case uses worn highly enchanted armor and reaches the evaporation limit branch."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      }
+    },
+    {
+      "id": "v38-cursed-bear-trap-bungle-control",
+      "title": "Match the cursed bear-trap setup control",
+      "mission": "Retain the reached cursed-beartrap control that locally matches before the distinct true-side bungle case.",
+      "selectionRationale": "The independent control shows the setup/false-side selection behavior that matches; it is retained separately from c132’s reached bungle mismatch.",
+      "sourcePointers": [
+        "apply.c:doapply",
+        "trap.c:set_trap"
+      ],
+      "sourceTrace": "The C case independently replays and matches JavaScript. It is a control for the cursed-beartrap route, not one of the counted first-mismatch sessions.",
+      "cOutcome": "C selected the cursed-beartrap setup branch; the complete PRNG and output comparison matched JavaScript.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 93065117,
+        "datetime": "20401015215407",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 41,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-cursed-bear-trap-bungle-control.recipe.session.json",
+      "recipeSha256": "32ecc19d8ad23c2ff593e0748b05eff0c94fb35ade62d59f97648946f5a86b5b",
+      "recording": "challenges/cases/v38/v38-cursed-bear-trap-bungle-control.session.json",
+      "recordingSha256": "ba4a0770f8f0398615e9c171fc36a89481b775f2881b888209829b9818b84c5b",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          ".cache/v38/attempt-5/recipes-c129/v38-cursed-bear-trap-bungle-probe-c129.recipe.session.json",
+          ".cache/v38/attempt-5/replays-c129/v38-cursed-bear-trap-bungle-probe-c129-replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-5/logs-c129/v38-cursed-bear-trap-bungle-probe-c129-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-5/replays-c129/v38-cursed-bear-trap-bungle-probe-c129-replay.session.json",
+        "byteIdentical": true,
+        "outputSha256": "ba4a0770f8f0398615e9c171fc36a89481b775f2881b888209829b9818b84c5b",
+        "sourceRecordingSha256": "ba4a0770f8f0398615e9c171fc36a89481b775f2881b888209829b9818b84c5b"
+      },
+      "localComparison": {
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-cursed-bear-trap-bungle-control.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-5/logs-c129/v38-cursed-bear-trap-bungle-probe-c129.diff-fresh.log",
+        "firstMismatch": null
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v14/v28 bear-trap cases",
+          "distinction": "The admitted cases have different action history/inner branch; this control is the C-matching cursed-beartrap selection setup."
+        },
+        {
+          "id": "v38-cursed-bear-trap-bungle",
+          "distinction": "c129 is the C-matching control; c132 reaches the distinct trap effect and first mismatch."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      }
+    },
+    {
+      "id": "v38-fire-resistant-red-dragon-wand-zap",
+      "title": "Zap a fire-resistant red dragon with a fire wand",
+      "mission": "Use a fire wand on the C-confirmed red dragon and retain the matching Nothing happens result.",
+      "selectionRationale": "This is a fire-resistance-sensitive ray result; c133/c134 were selector/encoding probes and c135 reaches the confirmed wand zap branch.",
+      "sourcePointers": [
+        "zap.c:dozap",
+        "zap.c:bhitm"
+      ],
+      "sourceTrace": "C reports “Nothing happens.” for the fire-resistant red dragon; independent replay is byte-identical and the complete JS comparison matches.",
+      "cOutcome": "C zapped the fire-resistant red dragon with a fire wand and displayed “Nothing happens.”",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 66100113,
+        "datetime": "20571010100900",
+        "role": "Valkyrie",
+        "race": "dwarf",
+        "gender": "male",
+        "playmode": "debug",
+        "keyCount": 49,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-fire-resistant-red-dragon-wand-zap.recipe.session.json",
+      "recipeSha256": "d002abf513928b9e03120d36bcf67b72c7221b54bf4a1cbe78315da2652fd9da",
+      "recording": "challenges/cases/v38/v38-fire-resistant-red-dragon-wand-zap.session.json",
+      "recordingSha256": "facf1477306b0fbc8af8e9c1700131c10304a4ae85c97956cb494f73f0027c86",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          ".cache/v38/attempt-6/recipes-c135/v38-fire-resistant-red-dragon-wand-zap-c135.recipe.session.json",
+          ".cache/v38/attempt-6/replays-c135/v38-fire-resistant-red-dragon-wand-zap-c135-replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-6/logs-c135/v38-fire-resistant-red-dragon-wand-zap-c135-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-6/replays-c135/v38-fire-resistant-red-dragon-wand-zap-c135-replay.session.json",
+        "byteIdentical": true,
+        "outputSha256": "facf1477306b0fbc8af8e9c1700131c10304a4ae85c97956cb494f73f0027c86",
+        "sourceRecordingSha256": "facf1477306b0fbc8af8e9c1700131c10304a4ae85c97956cb494f73f0027c86"
+      },
+      "localComparison": {
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-fire-resistant-red-dragon-wand-zap.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-6/logs-c135/v38-fire-resistant-red-dragon-wand-zap-c135-diff-fresh.log",
+        "firstMismatch": null
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v10 fire wand monster",
+          "distinction": "That case is a different hostile target/effect; c135 specifically uses a fire-resistant red dragon and matches the resistance branch."
+        },
+        {
+          "id": "v38-fire-wand-monster",
+          "distinction": "The earlier v38 matching case uses a different monster state and does not pin this resistance branch."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      }
+    },
+    {
+      "id": "v38-fire-wand-burn-engraving",
+      "title": "Use a fire wand on an ordinary-floor engraving",
+      "mission": "Reach WAN_FIRE engraving on ordinary floor with a fire wand, then compare its burn result.",
+      "selectionRationale": "C confirmed the wand fire engraving branch on ordinary floor; setup attempts were preserved separately and the clean c139 run is a full match.",
+      "sourcePointers": [
+        "engrave.c:doengrave",
+        "engrave.c:engrave"
+      ],
+      "sourceTrace": "C reached the ordinary-floor WAN_FIRE engraving branch, independently replayed byte-identically, and matched JavaScript across 2,657 RNG calls and 32 screens/cursors.",
+      "cOutcome": "C completed the fire-wand ordinary-floor engraving interaction with a full JavaScript match.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 71420206,
+        "datetime": "20571010200000",
+        "role": "Rogue",
+        "race": "human",
+        "gender": "male",
+        "playmode": "debug",
+        "keyCount": 31,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-fire-wand-burn-engraving.recipe.session.json",
+      "recipeSha256": "030f2acd1793f987a28d03619cbe016b49e8d616f682fbb8d49218ff00a50e5d",
+      "recording": "challenges/cases/v38/v38-fire-wand-burn-engraving.session.json",
+      "recordingSha256": "ae46f3f705fda710a2383de8786a434079ad717e66debf3f71b2d4a513a39513",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          ".cache/v38/attempt-7/recipes-c139/v38-fire-wand-burn-engraving-c139.recipe.session.json",
+          ".cache/v38/attempt-7/replays-c139/v38-fire-wand-burn-engraving-c139-replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-7/logs-c139/v38-fire-wand-burn-engraving-c139-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-7/replays-c139/v38-fire-wand-burn-engraving-c139-replay.session.json",
+        "byteIdentical": true,
+        "outputSha256": "ae46f3f705fda710a2383de8786a434079ad717e66debf3f71b2d4a513a39513",
+        "sourceRecordingSha256": "ae46f3f705fda710a2383de8786a434079ad717e66debf3f71b2d4a513a39513"
+      },
+      "localComparison": {
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-fire-wand-burn-engraving.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/attempt-7/logs-c139/v38-fire-wand-burn-engraving-c139-diff-fresh.log",
+        "firstMismatch": null
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v38-fire-wand-engraving",
+          "distinction": "That case’s source path is the earlier engraving probe; c139 confirms the ordinary-floor WAN_FIRE behavior."
+        },
+        {
+          "id": "v38-levitating-whip-over-lava",
+          "distinction": "That case calls fire_damage through use_whip; c139 is the engraving command and fully matches."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      }
+    },
+    {
+      "id": "v38-acid-potion-target-selection-miss",
+      "title": "Preserve the failed acid-potion target selection",
+      "mission": "Record the selector miss before correcting the acid potion slot in c142.",
+      "selectionRationale": "The C inventory showed the desired acid potion at slot o, but this recipe submitted another letter at the clear-potion selector. This is a valid reached target-selection miss, independent from the corrected c142 damage chain.",
+      "sourcePointers": [
+        "potion.c:H2Opotion_dip",
+        "invent.c:getobj"
+      ],
+      "sourceTrace": "C reached “What do you want to dip a clear potion into?” then rejected the chosen target with “You don’t have that object.” The independent replay is byte-identical and all 2,387 PRNG calls, 60 screens/cursors, and frames match JavaScript.",
+      "cOutcome": "C preserved the wrong target selection and printed “You don’t have that object.”; no potion-damage branch was reached.",
+      "actualTargetMiss": "The recipe did not select the acid potion shown in inventory; retained as a valid selector miss, not counted as a mismatch.",
+      "outcome": "missed-target",
+      "inputs": {
+        "seed": 38147001,
+        "datetime": "20410120123456",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 59,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v38/v38-acid-potion-target-selection-miss.recipe.session.json",
+      "recipeSha256": "3ad7aef66c8ebe9452cdb7dcd0300927b1e10e5dad95810771fc884be621fbea",
+      "recording": "challenges/cases/v38/v38-acid-potion-target-selection-miss.session.json",
+      "recordingSha256": "3497ff4d60b8436c6869dbab1f7c3bdd227a08362770bde77ff512fca7d6abb1",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v38/v38-acid-potion-target-selection-miss.recipe.session.json",
+          ".cache/v38/final-evidence/replays/v38-acid-potion-target-selection-miss.independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/final-evidence/logs/v38-acid-potion-target-selection-miss-independent-c.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/final-evidence/replays/v38-acid-potion-target-selection-miss.independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "3497ff4d60b8436c6869dbab1f7c3bdd227a08362770bde77ff512fca7d6abb1",
+        "sourceRecordingSha256": "3497ff4d60b8436c6869dbab1f7c3bdd227a08362770bde77ff512fca7d6abb1"
+      },
+      "localComparison": {
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v38/v38-acid-potion-target-selection-miss.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v38/final-evidence/logs/v38-acid-potion-target-selection-miss-js-diff.log",
+        "firstMismatch": null
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v14 potion target selection",
+          "distinction": "The admitted case reached another potion interaction; c141 records the rejected acid-potion selector letter before the corrected c142 dip."
+        },
+        {
+          "id": "v38-water-dip-destroys-acid-potion",
+          "distinction": "c141 has no target selected and matches JS; c142 corrects to slot o and reaches pot_acid_damage."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v37",
+        "caseIds": [
+          "v37-wizmap-after-monster-reset",
+          "v37-terrain-internal-codes",
+          "v37-medusa"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v37.json",
+          "sha256": "2bbdfcc31fe759df000571061ae0d476cca6eda19e60ef5e56d153377231c665",
+          "corpusDigest": "542d98d0ff6c4cb9d39998e3bed3dc75e041c01249730bcafab11aa5e9e1d202"
+        },
+        "result": "Compared against each of the three cases; no substantive overlap unless explicitly named below."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "5f2f47b7280fafedc6a0c35352093aa381bd3f3eaa8ddf97acc5da445b310f7e",
+        "sessionCount": 3,
+        "result": "No substantive overlap with these three unresolved cases."
+      }
+    }
+  ],
+  "excludedOverlaps": [
+    {
+      "id": "v38-wiz-custom-glyphs",
+      "excludedFromManifest": true,
+      "priorCaseId": "v34-glyph-customization",
+      "sourcePointers": [
+        "wizcmds.c:wiz_custom"
+      ],
+      "cOutcome": "The default glyph customization list displayed colorcount=256 and no custom glyph rows.",
+      "reason": "Substantively duplicates the admitted v34 default glyph customization probe; kept under .cache/v38/probes with its C recording and replay evidence."
+    },
+    {
+      "id": "v38-levitating-whip-over-lava-c151-probe",
+      "duplicates": "v38-levitating-whip-over-lava",
+      "sourcePointers": [
+        "apply.c:use_whip -> trap.c:fire_damage"
+      ],
+      "reason": "C reached the same small-splash and fire_damage branch as the retained clean c152 case, but its guessed space after the terrain wish produced Unknown command. Kept as source-reaching probe evidence; c152 removes the unnecessary key.",
+      "recipe": ".cache/v38/attempt-11/recipes-c151/v38-levitating-whip-over-lava-c151.recipe.session.json",
+      "recording": ".cache/v38/attempt-11/c-recordings-c151/v38-levitating-whip-over-lava-c151.session.json",
+      "recordingSha256": "6fd707b30863ff1a2b5d2238056675b53bd03922db159d6ec7fb4d8ca76e2934",
+      "observation": "Final neutral-direction whip input printed “You cause a small splash.” and consumed rn2(20)=2 @ fire_damage(trap.c:4507)."
+    },
+    {
+      "id": "v38-slow-wand-hostile-c91",
+      "excludedFromManifest": true,
+      "priorCaseId": "v21-slow-wand-hostile",
+      "sourcePointers": [
+        "zap.c:bhitm"
+      ],
+      "reason": "C and JavaScript matched, but the exact reached slow-wand hostile-target behavior duplicates the cited v21 case; recording/replay and comparison remain in .cache/v38/attempt-2."
+    }
+  ],
+  "excludedSetupMisses": [
+    {
+      "id": "v38-tin-opener",
+      "sourcePointers": [
+        "apply.c:doapply -> eat.c:use_tin_opener"
+      ],
+      "attempts": 2,
+      "reason": "C reported no carried tin and did not reach start_tin; the second setup varied starting position/pickup but C still had no tin. Preserved in .cache/v38/probes, deferred for corrected setup."
+    },
+    {
+      "id": "v38-levitating-whip-over-lava-c146",
+      "sourcePointers": [
+        "apply.c:use_whip -> trap.c:fire_damage"
+      ],
+      "attempts": 1,
+      "reason": "C remained at the initial welcome --More-- pager through period, Ctrl-W, and wish text; newline finally entered gameplay, after which the remaining recipe reached the wield prompt with no bullwhip or potion selected. The planned lava/whip branch was not reached; preserved C recording and log in .cache/v38/attempt-11. Corrected startup is planned as c148."
+    },
+    {
+      "id": "v38-levitating-whip-over-lava-c148-c150",
+      "sourcePointers": [
+        "apply.c:use_whip -> trap.c:fire_damage"
+      ],
+      "attempts": 3,
+      "reason": "c148-c150 are preserved source-based setup probes: C confirmed the initial newline clears the welcome pager, bullwhip is slot o and wielded, levitation potion is slot h, and the post-wish comparison pager requires one space before drink. They stop before the lava/whip branch; complete target route is retained as c152."
+    },
+    {
+      "id": "v38-cursed-bear-trap-c124-c125",
+      "sourcePointers": [
+        "apply.c:doapply",
+        "trap.c:set_trap"
+      ],
+      "attempts": 2,
+      "reason": "C interrupted the occupation path because a nearby monster acted; both attempts and logs remain under .cache/v38/attempt-5. The corrected independently selected two-wait route is c129/c132."
+    },
+    {
+      "id": "v38-cursed-bear-trap-c126-c128",
+      "sourcePointers": [
+        "apply.c:doapply",
+        "trap.c:set_trap"
+      ],
+      "attempts": 3,
+      "reason": "Preserved C-only route/selector probes; they did not reach the counted true-side trigger branch, which c132 reaches."
+    },
+    {
+      "id": "v38-fire-resistant-red-dragon-c133-c134",
+      "sourcePointers": [
+        "zap.c:dozap",
+        "zap.c:bhitm"
+      ],
+      "attempts": 2,
+      "reason": "C setup/input-shape probes before the confirmed wand branch; corrected contiguous selector is c135."
+    },
+    {
+      "id": "v38-fire-wand-engraving-c136-c138",
+      "sourcePointers": [
+        "engrave.c:doengrave"
+      ],
+      "attempts": 3,
+      "reason": "C setup misses for wand slot and location/direction; corrected ordinary-floor WAN_FIRE route is c139."
+    },
+    {
+      "id": "v38-broken-undead-wand-c143-c144",
+      "sourcePointers": [
+        "apply.c:do_break_wand",
+        "zap.c:bhito"
+      ],
+      "attempts": 2,
+      "reason": "Pager setup probes stopped before the floor-corpse object loop; c145 is the corrected reached and replayed route."
+    },
+    {
+      "id": "v38-lava-floor-scroll-c156-malformed-inventory-probe",
+      "sourcePointers": [
+        "objnam.c:wizterrainwish",
+        "trap.c:fire_damage_chain"
+      ],
+      "attempts": 1,
+      "reason": "Malformed top-level recorder recipe was rejected before C started. The valid v5 corrected recipe and recording are preserved; this recorder failure is not a case."
+    }
+  ],
+  "searchSummary": {
+    "plannedCandidates": 12,
+    "candidatePlanIterations": 117,
+    "distinctCaseCandidatesRetained": 34,
+    "casesRetained": 34,
+    "caseComparisonsPassed": 22,
+    "qualifyingFirstMismatchCases": 12,
+    "qualifyingFirstMismatchTotal": 12,
+    "sourceFirstMismatchCases": [
+      {
+        "id": "v38-wizard-spell-teleport-energy-refusal",
+        "step": 4,
+        "sourceBehavior": "teleport.c:dotelecmd wizard m-prefix mode-menu dispatch omitted in JavaScript",
+        "owner": "js/cmd.js command=teleport"
+      },
+      {
+        "id": "v38-levitating-whip-over-lava",
+        "step": 48,
+        "sourceBehavior": "apply.c:use_whip -> trap.c:fire_damage",
+        "owner": "js/apply.js use_whip"
+      },
+      {
+        "id": "v38-quick-glance-lootabc",
+        "step": 2,
+        "sourceBehavior": "pager.c:doquickwhatis -> do_look(1) quick-glance cursor selection",
+        "owner": "js/pager.js quick-glance path"
+      },
+      {
+        "id": "v38-dodown-levitation",
+        "step": 51,
+        "sourceBehavior": "do.c:dodown levitation guard arm",
+        "owner": "js/do.js dodown"
+      },
+      {
+        "id": "v38-dodown-lurker-ceiling-hider",
+        "step": 200,
+        "sourceBehavior": "do.c:dodown Upolyd ceiling-hider arm -> monmove.c:distfleeck",
+        "owner": "js/do.js dodown"
+      },
+      {
+        "id": "v38-dodown-piercer-hider",
+        "step": 200,
+        "sourceBehavior": "do.c:dodown non-flying ceiling-hider arm -> pickup",
+        "owner": "js/do.js dodown"
+      },
+      {
+        "id": "v38-cursed-bear-trap-bungle",
+        "step": 44,
+        "sourceBehavior": "trap.c:set_trap -> trapeffect_bear_trap",
+        "owner": "js/trap.js set_trap/trapeffect_bear_trap"
+      },
+      {
+        "id": "v38-single-boulder-pickup-refusal",
+        "step": 20,
+        "sourceBehavior": "pickup.c:pickup_object -> lift_object single-boulder refusal and resulting turn boundary",
+        "owner": "js/pickup.js pickup_object"
+      },
+      {
+        "id": "v38-water-dip-destroys-acid-potion",
+        "step": 60,
+        "sourceBehavior": "potion.c:H2Opotion_dip -> trap.c:water_damage -> pot_acid_damage",
+        "owner": "js/potion.js H2Opotion_dip"
+      },
+      {
+        "id": "v38-broken-undead-wand-revives-floor-newt",
+        "step": 54,
+        "sourceBehavior": "apply.c:do_break_wand -> zap.c:bhito(WAN_UNDEAD_TURNING, CORPSE) -> revive; post-revival first draw at collect_coords",
+        "owner": "js/apply.js do_break_wand / js/zap.js bhito"
+      },
+      {
+        "id": "v38-arrow-trap-return-projectile",
+        "step": 17,
+        "sourceBehavior": "trap.c:dotrap -> trapeffect_arrow_trap -> t_missile(ARROW)",
+        "owner": "js/trap.js dotrap/trapeffect_arrow_trap"
+      },
+      {
+        "id": "v38-lava-wish-burns-floor-scroll",
+        "step": 57,
+        "sourceBehavior": "objnam.c:wizterrainwish -> trap.c:fire_damage_chain -> fire_damage(force=true)",
+        "owner": "js/objnam_readobjnam.js wizterrainwish"
+      }
+    ],
+    "remainingCandidateSearch": [],
+    "resolvedAt": "The v38 target of twelve independently recorded, replayable, C-first mismatches with distinct source behavior has been reached. The coordinator decides admission; this packet does not admit or score v38."
+  },
+  "decision": "Prep2 completed the reserved v38 preparation on the A195 comparison base. Preserve all 34 distinct valid cases: 12 qualifying mismatches, 21 exact matching cases, and one additional target-selection miss that matches. Every prior recipe, recording, plan, and manifest draft remains preserved. Await coordinator verification; do not admit or score in this worker.",
+  "preservedProbeEvidencePath": ".cache/v38/probes and .cache/v38/attempt-*",
+  "acceptedImplementationCommit": "d28db9282c38ddf0cf2cc77330e258a9b66ebfad",
+  "publishedMainReportCommit": "a759cd6f0fbb7e5dfa8f79102a918fc9d2c645c0",
+  "candidatePlanSha256": "5e35b7595ecf6e7ea31d2093993a696c6258c613a2636e73176f08b537f2e04b"
+}
