@@ -114,7 +114,7 @@
     "line": 1490
   },
   "goalKind": "file-port",
-  "summary": "The v38 mismatch is caused by the existing apply.c:set_trap caller skipping the C trap trigger. After a cursed bear trap is armed and rnl(10) exceeds 5, C calls dotrap(ttmp, 0); JS still records note_unported(\"trap.c dotrap\") and skips the side effect. The trap effect itself is already implemented. B204 currently owns the complete dotrap implementation, so caller closure must wait for that delivery to be accepted.",
+  "summary": "The v38 mismatch first exposes a skipped apply.c:set_trap call to trap.c:dotrap. After that caller is connected, the accepted JavaScript dotrap preflight still rejects the freshly seen BEAR_TRAP before the source rn2(5) escape check and bear-trap effect; B206 now claims both exact behaviors.",
   "source": {
     "file": "apply.c",
     "functions": [
@@ -127,8 +127,8 @@
       "apply.c:set_trap calls trap.c:dotrap after maketrap and arming messages; trap.c:dotrap dispatches the hero BEAR_TRAP to trapeffect_bear_trap."
     ],
     "dependencies": [
-      "B204 delivery b163add4e236bfc3597f6ae5e596d194629fe5c5 owns source:trap.c:dotrap and its implementation in js/trap_effects.js; this caller cannot reach the completed callee until B204 is accepted.",
-      "A2 broken-wand delivery d3cd4eb4bbda75918fc8b46a92e62a319ef4d4e7 also edits js/apply.js in a different function; keep the function-level scope separate and recheck integration ordering."
+      "B204 is accepted at f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21 and supplies bounded arrow-trap behavior. Its accepted preflight still fails closed for an ordinary seen BEAR_TRAP; B206 claims source:trap.c:dotrap and contract:hero-trap-preflight-admission to admit the source-implemented seen-bear branch without changing the arrow path.",
+      "A2 delivery d3cd4eb4bbda75918fc8b46a92e62a319ef4d4e7 edits js/apply.js only inside do_break_wand; B206 set_trap changes a separate function and uses a separate test path."
     ]
   },
   "evidence": [
@@ -136,6 +136,7 @@
     "The recorded step 43 C trace is rnl(10)=6 @ set_trap(apply.c:2941), rn2(5)=3 @ dotrap(trap.c:3038), d(2,4)=7 and rn2(4)=3 @ trapeffect_bear_trap. At step 44, C records the trap-close result and the recovery/exercise calls.",
     "Upstream nethack-c/upstream/src/apply.c:2916-2952 shows set_trap creating and arming the trap, then calling dotrap(ttmp, force_bungle ? FORCEBUNGLE : 0) when the cursed/Fumbling roll succeeds or force_bungle is set. The function discards dotrap’s return value.",
     "Current js/apply.js:1917-1958 mirrors the occupation and arming logic but substitutes note_unported(\"trap.c dotrap\") at the trigger call. Current js/trap_effects.js:3952 onward owns dotrap; its hero bear-trap path dispatches to the existing trapeffect_bear_trap implementation at :1183.",
-    "The task scope is source:apply.c:set_trap plus its trigger caller wiring after B204 acceptance; do not reimplement or edit B204’s dotrap or bear-trap effect owners."
+    "The task scope is source:apply.c:set_trap plus its trigger caller wiring after B204 acceptance; do not reimplement or edit B204’s dotrap or bear-trap effect owners.",
+    "After wiring set_trap to dotrap, JS stops at preflight_dotrap with “a trap the hero has already seen”. C trap.c:3035-3043 permits this BEAR_TRAP branch to evaluate rn2(5) and then dispatch the effect; the task scope includes that preflight admission and preserves B204’s arrow behavior."
   ]
 }
