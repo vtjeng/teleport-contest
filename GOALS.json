@@ -260051,7 +260051,7 @@
           "line": 3954,
           "endLine": 4058,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -260065,7 +260065,7 @@
           "endLine": 2902,
           "declared": true,
           "sourceFile": "pickup.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -260346,7 +260346,106 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "tipcontainer_checks",
+            "implementation": "js/pickup.js",
+            "symbol": "tipcontainer_checks",
+            "sourceReview": "Read the complete pickup.c:3954-4055 definition and compared branch and call order with js/pickup.js:3866-3984. Preserved target bag-of-tricks handling before source-container checks; lknown and carried inventory refresh; locked and trapped exits; bag/horn special handling and repeat loop; the Schrödinger box observation before remaining-content check; and the empty-container exit. Replaced the observer note_unported gap with the awaitable observer call, then preserves C hasContents/allowempty result and cknown mutation. The only remaining note_unported in this function represents shk.c:check_unpaid_usage, whose C return is void and discarded; the existing guard records the gap and skips its effects. Other unrelated source branches remain as before.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "tipcontainer",
+                "source": "C pickup.c:dotip calls tipcontainer for a selected floor or inventory container; tipcontainer calls tipcontainer_checks before the spill loop. JS cmd.js dispatches #tip to pickup.js:dotip, then pickup.js:tipcontainer calls tipcontainer_checks."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "The #tip extended command is queued/dispatched to pickup.c:dotip; JavaScript command dispatch calls pickup.js:dotip."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup-tip.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-observe-quantum-cat-box-tip-floor",
+                "segment": 0,
+                "fromStep": 73,
+                "throughStep": 73,
+                "source": "pickup.c:dotip -> tipcontainer -> tipcontainer_checks -> observe_quantum_cat -> makemon( PM_HOUSECAT, NO_MINVENT|MM_ADJACENTOK|MM_NOMSG )"
+              }
+            ],
+            "checkedAt": "6668b1c9650c4e6050659727bf1328de0e282945"
+          },
+          {
+            "name": "observe_quantum_cat",
+            "implementation": "js/pickup.js",
+            "symbol": "observe_quantum_cat",
+            "sourceReview": "Read the complete pickup.c:2826-2897 function and preserved coin-flip-before-location order; makecat/givemsg gates; live-cat creation and peaceful/malign/message/name transitions; corpse extraction/freeing; box weight/spe updates; dead-cat message, corpse age, set_corpsenm and naming order; and both experience/newexplevel paths outside monster movement. JS now supplies the complete random interface required by set_corpsenm and the tty message owner required by newexplevel. The live C call consumes makemon’s returned pointer, so the task uses makemon_runtime and extends existing js/makemon_create.js preflight only for the exact explicit NO_MINVENT|MM_ADJACENTOK|MM_NOMSG call shape from this source site. Focused source-pinned coverage verifies this call shape; the whole makemon.c:makemon function is not claimed complete. Existing end.js disclosure wiring remains unchanged.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "tipcontainer_checks",
+                "source": "C pickup.c:4038 calls observe_quantum_cat(box, TRUE, TRUE) before testing the resolved box contents; JavaScript pickup.js:tipcontainer_checks now awaits the same call."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "use_container",
+                "source": "C pickup.c:3023 calls observe_quantum_cat(gc.current_container, TRUE, TRUE); JavaScript pickup.js:use_container now awaits the same call before its action prompt. scripts/pickup-tip.test.mjs exercises the caller and cleanup."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "identifyInventoryForDisclosure",
+                "source": "C end.c:really_done:1268-1271 loops over unresolved inventory quantum boxes and calls observe_quantum_cat(obj, FALSE, FALSE); JavaScript end.js:identifyInventoryForDisclosure owns and awaits this existing observer call."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup-tip.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-observe-quantum-cat-box-tip-floor",
+                "segment": 0,
+                "fromStep": 73,
+                "throughStep": 73,
+                "source": "pickup.c:dotip -> tipcontainer -> tipcontainer_checks -> observe_quantum_cat -> makemon( PM_HOUSECAT, NO_MINVENT|MM_ADJACENTOK|MM_NOMSG )"
+              }
+            ],
+            "checkedAt": "6668b1c9650c4e6050659727bf1328de0e282945"
+          }
+        ],
+        "entryPointReview": "This task ports the complete pickup.c:tipcontainer_checks source unit and validates its existing pickup.c:observe_quantum_cat dependency. The selected active entry point is #tip on a LARGE_BOX with spe==1: pickup.c:dotip -> tipcontainer -> tipcontainer_checks -> observe_quantum_cat. The admitted v42 case v42-observe-quantum-cat-box-tip-floor matches segment 0 through step 73, including the formerly divergent live observation, corpse consumption, and #tip caller result. The same observer is now wired at pickup.c:use_container and remains wired at end.c:disclose_to_monlist; the secondary pickup caller is exercised by a focused JS test, while no separate end-disclosure source change or completion claim is made. The makemon.c:makemon correction is limited to the exact source call shape used by observe_quantum_cat and is not a whole-function completion claim. Pure function coverage is not applicable because both selected pickup functions consume RNG and mutate or print game state.",
+        "entryPoints": [
+          {
+            "name": "#tip resolves a floor quantum box before spill checks",
+            "functions": [
+              "tipcontainer_checks",
+              "observe_quantum_cat"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-observe-quantum-cat-box-tip-floor",
+                "segment": 0,
+                "fromStep": 73,
+                "throughStep": 73,
+                "source": "pickup.c:dotip -> tipcontainer -> tipcontainer_checks -> observe_quantum_cat -> makemon( PM_HOUSECAT, NO_MINVENT|MM_ADJACENTOK|MM_NOMSG )"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
