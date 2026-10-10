@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked runtime evidence for bones.c:savebones -> apply.c:unleash_all. An independently seeded debug Wizard leashes its starting dog, changes to D:4, then dies to a wished wand of death and answers yes to Save bones. The C recording reaches D:4 and the savebones leash release, but JavaScript diverges during do.c:goto_level -> mklev.c:mklev/getbones at the missing rn2(3) in bones.c:getbones before reaching D:4; keep this as a blocked recipe, not a matching recording.",
+  "segments": [
+    {
+      "seed": 58143027,
+      "datetime": "20480517131100",
+      "nethackrc": "OPTIONS=name:B224BonesProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017leash\naph\u00164\n\u0017wand of death\nzq.  yy  y    y"
+    }
+  ]
+}
