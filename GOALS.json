@@ -242777,7 +242777,7 @@
     {
       "id": "port-spell-tport-spell-wizard-teleport-v38-20261010",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port wizard teleport spell-slot toggling and wire dotelecmd menu modes",
       "cFile": "spell.c",
       "sessions": [
@@ -242785,8 +242785,12 @@
       ],
       "selectionReason": "The admitted v38 wizard teleport energy-refusal case reaches teleport.c dotelecmd mode s, whose temporary Teleport Away spell requires spell.c tport_spell.",
       "detail": "Port whole spell.c tport_spell lines 1707-1756 and wire teleport.c dotelecmd wizard menu modes n, s, t, and w through the existing command dispatcher. Preserve temporary intrinsic and spell-slot restoration and the existing teleport refusal behavior.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "f6815be6405fe8337eba05403dd4c30d916d74ba",
+      "openStanding": {
+        "sha": "f1a081f4f39b9b572ca485d241c1acadca456bb6",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -242815,7 +242819,248 @@
           "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
           "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "f1a081f4f39b9b572ca485d241c1acadca456bb6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-wizard-spell-teleport-energy-refusal",
+          "session": "synthetic/v38/v38-wizard-spell-teleport-energy-refusal",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recording": "challenges/cases/v38/v38-wizard-spell-teleport-energy-refusal.session.json",
+          "recordingPath": "challenges/cases/v38/v38-wizard-spell-teleport-energy-refusal.session.json",
+          "recordingSha256": "432023c55d5b9b0d4032f1035f521489563cd5ec9be41cfa7b028974f34d5c50",
+          "recipe": "challenges/cases/v38/v38-wizard-spell-teleport-energy-refusal.recipe.session.json",
+          "recipeSha256": "331d3c92223b36aae66685a8566205b440026831964aa6eb4daa0791e01db66f",
+          "replayInputSha256": "b71bf3fbcb07fcfb0eb0ae1f4a4851cee6588d354239d49084516f65d1ad7577",
+          "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+          "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+          "evaluationArtifact": "challenges/evaluations/20261010014622-v38.json",
+          "evaluationUtc": "2026-10-10T01:46:34.186Z",
+          "remainingScreens": 2,
+          "recordedSteps": 5,
+          "previousScreensMatched": null,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 3,
+              "total": 5
+            },
+            "rng": {
+              "matched": 3170,
+              "total": 3170
+            },
+            "cursors": {
+              "matched": 4,
+              "total": 5
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 3,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 3,
+                "key": "\u0014"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3170,
+              "cCaller": null,
+              "jsEntry": "rnl(7)=6",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 3,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 3,
+                "key": "\u0014"
+              },
+              "cCursor": [
+                32,
+                6,
+                1
+              ],
+              "jsCursor": [
+                5,
+                17,
+                1
+              ]
+            }
+          },
+          "step": 3,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v38/v38-wizard-spell-teleport-energy-refusal.json",
+            "result": {
+              "session": "synthetic/v38/v38-wizard-spell-teleport-energy-refusal",
+              "corpus": "synthetic",
+              "batch": "v38",
+              "caseId": "v38-wizard-spell-teleport-energy-refusal",
+              "manifestPath": "challenges/manifests/v38.json",
+              "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+              "recordingPath": "challenges/cases/v38/v38-wizard-spell-teleport-energy-refusal.session.json",
+              "recordingSha256": "432023c55d5b9b0d4032f1035f521489563cd5ec9be41cfa7b028974f34d5c50",
+              "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+              "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+              "remainingScreens": 2,
+              "recordedSteps": 5,
+              "status": "complete",
+              "commit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v38",
+                "caseId": "v38-wizard-spell-teleport-energy-refusal",
+                "session": "synthetic/v38/v38-wizard-spell-teleport-energy-refusal",
+                "manifestPath": "challenges/manifests/v38.json",
+                "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+                "recording": "challenges/cases/v38/v38-wizard-spell-teleport-energy-refusal.session.json",
+                "recordingPath": "challenges/cases/v38/v38-wizard-spell-teleport-energy-refusal.session.json",
+                "recordingSha256": "432023c55d5b9b0d4032f1035f521489563cd5ec9be41cfa7b028974f34d5c50",
+                "recipe": "challenges/cases/v38/v38-wizard-spell-teleport-energy-refusal.recipe.session.json",
+                "recipeSha256": "331d3c92223b36aae66685a8566205b440026831964aa6eb4daa0791e01db66f",
+                "replayInputSha256": "b71bf3fbcb07fcfb0eb0ae1f4a4851cee6588d354239d49084516f65d1ad7577",
+                "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+                "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+                "evaluationArtifact": "challenges/evaluations/20261010014622-v38.json",
+                "evaluationUtc": "2026-10-10T01:46:34.186Z",
+                "remainingScreens": 2,
+                "recordedSteps": 5,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 3,
+                    "total": 5
+                  },
+                  "rng": {
+                    "matched": 3170,
+                    "total": 3170
+                  },
+                  "cursors": {
+                    "matched": 4,
+                    "total": 5
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 3,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 3,
+                      "key": "\u0014"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3170,
+                    "cCaller": null,
+                    "jsEntry": "rnl(7)=6",
+                    "stepIndex": null
+                  },
+                  "cursor": {
+                    "index": 3,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 3,
+                      "key": "\u0014"
+                    },
+                    "cCursor": [
+                      32,
+                      6,
+                      1
+                    ],
+                    "jsCursor": [
+                      5,
+                      17,
+                      1
+                    ]
+                  }
+                },
+                "step": 3,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch is the missing wizard m-prefix Ctrl-T teleport-mode menu. Choosing the spellcast option must temporarily install Teleport Away in the first empty spell slot, expose it as freshly known to the existing energy refusal path, and restore the exact previous slot afterward. The responsible helper is the whole spell.c:tport_spell() function; its production caller is teleport.c:dotelecmd() and the JavaScript caller is the teleport command branch in js/cmd.js.",
+              "source": {
+                "file": "spell.c",
+                "branch": "In wizard mode with iflags.menu_requested, selecting dotelecmd mode s temporarily adds SPE_TELEPORT_AWAY when an empty spell slot exists; the selected v38 low-energy Barbarian then takes the normal dotele spell energy refusal and cleanup removes the temporary spell.",
+                "functions": [
+                  "tport_spell"
+                ],
+                "callers": [
+                  "teleport.c:dotelecmd() mode s calls tport_spell(ADD_SPELL), then tport_spell(REMOVESPELL) after dotele().",
+                  "js/cmd.js command === teleport dispatch reproduces the dotelecmd wizard mode-selection path and queries known_spell() after the temporary insertion."
+                ],
+                "dependencies": [
+                  "spell.h spell structure / svs.spl_book[]",
+                  "objects[SPE_TELEPORT_AWAY].oc_level",
+                  "MAXSPELL and NO_SPELL"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "nethack-c/upstream/src/teleport.c:919-1027: dotelecmd() presents the four wizard modes when iflags.menu_requested is true; mode s suppresses teleport intrinsics, calls tport_spell(ADD_SPELL), invokes dotele(), and reverses the returned operation after restoring intrinsic fields.",
+                "nethack-c/upstream/src/spell.c:1704-1755: tport_spell() scans in slot order for Teleport Away or the first NO_SPELL entry, stores/restores the complete prior struct spell, changes only sp_id when hiding, fills id/level/KEEN when adding, and returns the inverse action.",
+                "The v38 recipe challenges/cases/v38/v38-wizard-spell-teleport-energy-refusal.recipe.session.json uses a level-1 debug Barbarian with no teleport spell or intrinsic and input .m<Ctrl-T>s. Its C result reaches the menu and the energy refusal; the saved evaluation first diverges at segment 0 step 3, where C draws the menu and JS instead starts an ordinary known-spell refusal.",
+                "js/cmd.js:6385-6500 handles direct wizard Ctrl-T only when menu_requested is false, then falls through to normal intrinsic/known-spell checks; js/spell.js has no tport_spell implementation. scripts/cmd.test.mjs:5181 covers direct Ctrl-T, not this prefixed menu path."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
