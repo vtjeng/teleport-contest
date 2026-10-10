@@ -255150,6 +255150,39 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-worm-move-tail-tracking-v40-20261010",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Port whole worm_move and wire every production relocation caller so long-worm tail placement, growth timing, healing, and shrink behavior follow C.",
+      "cFile": "worm.c",
+      "sessions": [
+        "synthetic/v40/v40-hostile-long-worm-head-move-updates-tail"
+      ],
+      "selectionReason": "The refreshed v40 queue has one remaining screen at step 32; C enters worm.c:worm_move and draws rnd(5), while JavaScript leaves the former head square empty and advances to a later rn2(5).",
+      "detail": "Port worm.c:worm_move lines 196-278 and replace the six source-positioned gaps in monmove.c:m_move, mhitu.c:mattacku, and muse.c use_defensive/use_misc/muse_unslime. Existing count_wsegs, shrink_worm, mcalcmove, redraw, and RNG helpers provide the required closure. Admitted v40 covers ordinary movement; an independent recording covers mattacku. Source guards prove the four MUSE paths inactive for a valid long worm, with blocked recipes retained.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "worm_move",
+      "session": "synthetic/v40/v40-hostile-long-worm-head-move-updates-tail",
+      "step": 32,
+      "syntheticProvenance": {
+        "synthetic/v40/v40-hostile-long-worm-head-move-updates-tail": {
+          "session": "synthetic/v40/v40-hostile-long-worm-head-move-updates-tail",
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-hostile-long-worm-head-move-updates-tail",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recordingPath": "challenges/cases/v40/v40-worm-head-move-tail-shift-two-turns-cfirst.session.json",
+          "recordingSha256": "9b87f92c0b07205f5ec0d16b4e6245232cdc13d280d984838e4d70bff21d141c",
+          "evaluationPath": "challenges/evaluations/accepted-ab8908874e1e9d75514e41091f87203999314ce0-v40.json",
+          "evaluationCommit": "ab8908874e1e9d75514e41091f87203999314ce0"
+        }
+      }
     }
   ]
 }
