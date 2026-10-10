@@ -68,6 +68,7 @@ import {
     M_AP_FURNITURE,
     MON_FLOOR,
     NORMAL_SPEED,
+    NO_SPELL,
     OBJ_FLOOR,
     OBJ_INVENT,
     PARANOID_TRAP,
@@ -84,6 +85,7 @@ import {
     STONED,
     TDWALL,
     TEST_MOVE,
+    TELEPORT,
     THRONE,
     TLCORNER,
     TLWALL,
@@ -5202,6 +5204,35 @@ test('wizard and intrinsic teleport crossing hunger status supply canonical oper
         assert.equal(game.u.uhs, HUNGRY);
         assert.equal(game.context.move, 1, 'source successful dotelecmd consumes a turn');
     }
+});
+
+test('wizard m-prefix teleport uses and restores a temporary spell slot', async () => {
+    const replay = await runSegment({
+        seed: 38149177,
+        datetime: '20440514103025',
+        recorderIsDst: true,
+        nethackrc: 'OPTIONS=name:TeleportSpellMenu,role:Barbarian,'
+            + 'race:human,gender:male,align:neutral,playmode:debug,'
+            + 'pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,'
+            + '!debug_mongen,!acoustics\n',
+        moves: '',
+    });
+    clearTtyMessageWindow(game);
+    resetCommandVars(game);
+    game.nhDisplay.pushKey(commandKeyCode('m'));
+    game.nhDisplay.pushKey(20); // C('t') invokes dotelecmd after the prefix.
+    game.nhDisplay.pushKey(commandKeyCode('s'));
+    await rhack(0, game);
+
+    assert.ok(replay.getScreens().some((screen) => (
+        screen.includes('Which way do you want to teleport?')
+    )));
+    assert.equal(game._pending_message,
+        'You lack the energy for a teleport spell.');
+    assert.equal(game.svs.spl_book[0].sp_id, NO_SPELL);
+    assert.equal(game.u.uprops[TELEPORT].intrinsic, 0);
+    assert.equal(game.u.uprops[TELEPORT].extrinsic, 0);
+    assert.equal(game.context.move, 0);
 });
 
 test('queued doextlist follows its source pointer without an extended-command retry', async () => {

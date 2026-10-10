@@ -1,0 +1,92 @@
+{
+  "session": "synthetic/v38/v38-dodown-lurker-ceiling-hider",
+  "corpus": "synthetic",
+  "batch": "v38",
+  "caseId": "v38-dodown-lurker-ceiling-hider",
+  "manifestPath": "challenges/manifests/v38.json",
+  "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+  "recordingSha256": "ea5a88256ccbde383249580b8f259c5a575cbf703ca5c249ee2d8be953ae403d",
+  "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+  "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+  "remainingScreens": 1,
+  "recordedSteps": 200,
+  "status": "complete",
+  "commit": "4b07810de31b89ea5c8c602c7437e453d9c8a4d3",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v38",
+    "caseId": "v38-dodown-lurker-ceiling-hider",
+    "session": "synthetic/v38/v38-dodown-lurker-ceiling-hider",
+    "manifestPath": "challenges/manifests/v38.json",
+    "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+    "recording": "challenges/cases/v38/v38-dodown-lurker-ceiling-hider.session.json",
+    "recordingPath": "challenges/cases/v38/v38-dodown-lurker-ceiling-hider.session.json",
+    "recordingSha256": "ea5a88256ccbde383249580b8f259c5a575cbf703ca5c249ee2d8be953ae403d",
+    "recipe": "challenges/cases/v38/v38-dodown-lurker-ceiling-hider.recipe.session.json",
+    "recipeSha256": "72fd5d7b60bd22d50acda27f5ada87769febce99da7576769fc70db723120816",
+    "replayInputSha256": "b71bf3fbcb07fcfb0eb0ae1f4a4851cee6588d354239d49084516f65d1ad7577",
+    "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+    "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+    "evaluationArtifact": "challenges/evaluations/20261010014622-v38.json",
+    "evaluationUtc": "2026-10-10T01:46:34.186Z",
+    "remainingScreens": 1,
+    "recordedSteps": 200,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 199,
+        "total": 200
+      },
+      "rng": {
+        "matched": 3209,
+        "total": 3330
+      },
+      "cursors": {
+        "matched": 199,
+        "total": 200
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: unsupported level change: dodown() with a polymorphed hero",
+      "step": 199
+    },
+    "step": 199,
+    "kind": "stop",
+    "sourceFile": "do.c",
+    "function": "dodown",
+    "message": "unsupported hero command: an unported branch of this command: unsupported level change: dodown() with a polymorphed hero",
+    "cFile": "do.c",
+    "luaFile": null,
+    "line": null,
+    "investigation": {
+      "status": "missing",
+      "path": "investigations/synthetic/v38/v38-dodown-lurker-ceiling-hider.json"
+    }
+  },
+  "goalKind": "file-port",
+  "summary": "Flying lurker-above form exits ceiling hiding before descending. The admitted C recording produces “You fly out of hiding.”; js/do.js:dodown still throws for the corresponding unsupported branch at its preflight guard. This is one arm of the same whole do.c:dodown source unit selected by B205.",
+  "source": {
+    "file": "do.c",
+    "functions": [
+      "dodown"
+    ],
+    "branch": "do.c:dodown(1204-1219), the polymorphed ceiling-hider arm. After the common Upolyd, ceiling_hider(), and u.uundetected tests, C clears u.uundetected. Flying() selects the lurker-above arm, which prints “You fly out of hiding.” and returns ECMD_TIME without descending; this case reaches that exact message at step 199.",
+    "callers": [
+      "cmd.c maps the > key and #down to dodown(); js/cmd.js:runDownCommand calls js/do.js:dodown and returns its ECMD_* result.",
+      "The immutable synthetic/v38/v38-dodown-lurker-ceiling-hider recording reaches this arm with key > at step 199; C screen text is “You fly out of hiding.”."
+    ],
+    "dependencies": [
+      "The owning source range is the complete do.c:dodown function (1131-1292); preserve the source order among rooted/steed guards, stair and levitation checks, ceiling hider, trap fall, gate confirmation, pet blocking, and level transition.",
+      "The task reuses existing JS implementations of float_down, surface, floating_above, ceiling_hider, pickup, pooleffects, dotrap, goto_level and next_level. Any call whose C result is discarded and has no JS owner is recorded with note_unported and skipped, per the port rule."
+    ]
+  },
+  "evidence": [
+    "Saved combined queue SHA 019311686e951c969402a82d519dcb00db6b3434d0c13e5123df0a1ba1ebe5e3 reports 1 remaining screens at step 199, with 3209/3330 RNG calls matched.",
+    "The source recording challenges/cases/v38/v38-dodown-lurker-ceiling-hider.session.json has 200 steps; step 199 key \">\" produces “You fly out of hiding.”.",
+    "Read upstream do.c:dodown(1131-1292), including this arm at 1204-1219, and existing js/do.js:dodown. C completes this branch while JS still refuses before it."
+  ]
+}

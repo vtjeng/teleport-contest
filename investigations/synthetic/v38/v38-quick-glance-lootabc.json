@@ -1,0 +1,86 @@
+{
+  "session": "synthetic/v38/v38-quick-glance-lootabc",
+  "corpus": "synthetic",
+  "batch": "v38",
+  "caseId": "v38-quick-glance-lootabc",
+  "manifestPath": "challenges/manifests/v38.json",
+  "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+  "recordingSha256": "5fa09ecc680a087bb1ecebb01290a0e5c9f33fa00fa6861cc51de95c98e754b7",
+  "evaluationPath": "challenges/evaluations/accepted-5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0-v38.json",
+  "evaluationCommit": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0",
+  "remainingScreens": 1,
+  "recordedSteps": 2,
+  "status": "complete",
+  "commit": "8696c092cbefce321cb42f9a78385d6e488f7b9b",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v38",
+    "caseId": "v38-quick-glance-lootabc",
+    "session": "synthetic/v38/v38-quick-glance-lootabc",
+    "manifestPath": "challenges/manifests/v38.json",
+    "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+    "recording": "challenges/cases/v38/v38-quick-glance-lootabc.session.json",
+    "recordingPath": "challenges/cases/v38/v38-quick-glance-lootabc.session.json",
+    "recordingSha256": "5fa09ecc680a087bb1ecebb01290a0e5c9f33fa00fa6861cc51de95c98e754b7",
+    "recipe": "challenges/cases/v38/v38-quick-glance-lootabc.recipe.session.json",
+    "recipeSha256": "eb7229944c0ed87207cccb587c278ae34e8e3eff1189769dea4025e9dbf0f903",
+    "replayInputSha256": "99b9ea18042feeef02df123c8f0e7d05f3fe0ed35e990ecdb577c1153d0a92aa",
+    "evaluationPath": "challenges/evaluations/accepted-5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0-v38.json",
+    "evaluationCommit": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0",
+    "evaluationArtifact": "challenges/evaluations/accepted-5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0-v38.json",
+    "evaluationUtc": "2026-10-10T02:16:24.381Z",
+    "remainingScreens": 1,
+    "recordedSteps": 2,
+    "previousScreensMatched": 1,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 1,
+        "total": 2
+      },
+      "rng": {
+        "matched": 2252,
+        "total": 2252
+      },
+      "cursors": {
+        "matched": 1,
+        "total": 2
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: unsupported whatis: the lootabc menu",
+      "step": 1
+    },
+    "step": 1,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: unsupported whatis: the lootabc menu",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "goalKind": "divergence-fix",
+  "summary": "The v38 `;` quick-look command calls pager.c:doquickwhatis(), which enters do_look(mode=1) and skips the selection menu even when lootabc is set. JS applies its lootabc menu refusal before checking quick mode, so it stops before the cursor prompt. Restrict the menu-state guard to the menu path; the independent quick cursor path must bypass it.",
+  "source": {
+    "file": "pager.c",
+    "functions": [
+      "do_look"
+    ],
+    "branch": "For mode == 1 and no click target or queued key, quick is true; do_look sets i to y and enters the screen-coordinate lookup path without creating or selecting the whatis menu. flags.lootabc only changes selectors while constructing that menu.",
+    "callers": [
+      "pager.c:doquickwhatis calls do_look(1, NULL).",
+      "cmd.c binds the semicolon quick-look command to doquickwhatis; JS cmd.js:runGlanceCommand calls pager.js:doquickwhatis, which calls do_look(1, null)."
+    ],
+    "dependencies": []
+  },
+  "evidence": [
+    "The current v38 queue reports one remaining screen at segment 0 step 1, key `;`, where JS stops with `UnsupportedWhatisError: the lootabc menu`; 2252 RNG values matched and the first screen/cursor matched.",
+    "The admitted recipe `challenges/cases/v38/v38-quick-glance-lootabc.recipe.session.json` enables `lootabc` and supplies only `;`. The C recording step 1 shows the cursor prompt `Pick a monster, object or location.`; it does not construct the selection menu.",
+    "Upstream `nethack-c/upstream/src/pager.c:1673-1810` computes `quick = (mode == 1)` and, in the `!clicklook` branch, sets `i = 'y'` when quick before the `else` that creates the selection menu. `pager.c:2329-2334` implements `doquickwhatis()` as `do_look(1, NULL)`.",
+    "Current `js/pager.js:1903-1914` calls `assertWhatisMenuState(state)` unconditionally before `quick ? '/' : select_menu(...)`; that assertion rejects lootabc even when the quick path never constructs a menu. The later `whatisMenuItems()` guard is menu-local and remains needed for the currently unsupported ordinary lootabc menu."
+  ]
+}

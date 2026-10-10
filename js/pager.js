@@ -1904,7 +1904,9 @@ export async function do_look(mode, clickCc = null, state = game) {
     const quick = mode === 1;
     if ((mode !== 0 && !quick) || clickCc)
         throw new UnsupportedWhatisError('click or queued look mode');
-    assertWhatisMenuState(state);
+    // pager.c do_look(mode == 1) selects its map path directly and never
+    // builds the whatis menu, so menu-only option limits do not apply.
+    if (!quick) assertWhatisMenuState(state);
 
     // C ref: pager.c do_look() sets i='y' for quick mode, bypassing the
     // #whatis selection menu and entering the screen-coordinate path.
