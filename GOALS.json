@@ -255887,6 +255887,77 @@
         "rng": 792838
       },
       "parkedReason": "The apply.c:unleash_all implementation and its engulfment and drowning entries are verified. The active bones.c:savebones entry remains without matching runtime evidence because JavaScript diverges earlier in do.c:goto_level -> mklev.c:mklev/getbones at the missing bones.c:getbones rn2(3) call. Resume after that blocker is implemented and the independent D:4 leashed-pet recipe reaches savebones in a matching replay."
+    },
+    {
+      "id": "port-hack-moverock-core-cannot-push-v41-boulder-pit-20261010",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete hack.c cannot_push through moverock_core so boulder push failures preserve their return values and destination traps apply their source effects.",
+      "cFile": "hack.c",
+      "sessions": [
+        "synthetic/v41/v41-boulder-fills-pit-from-hero-action"
+      ],
+      "selectionReason": "Selected synthetic/v41/v41-boulder-fills-pit-from-hero-action from saved queue 7505fb24cd01792c8cb781d651dd66ffaa451361e46f7c456fd2705afde0a43a. The committed investigation traces the first refusal to hack.c:moverock_core and establishes its return-valued dependency on hack.c:cannot_push.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "cannot_push",
+          "line": 262,
+          "endLine": 314,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "rock_disappear_msg",
+          "line": 315,
+          "endLine": 326,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "moverock_done",
+          "line": 327,
+          "endLine": 335,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "moverock",
+          "line": 336,
+          "endLine": 347,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "moverock_core",
+          "line": 348,
+          "endLine": 646,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 262,
+        "to": 646
+      },
+      "syntheticProvenance": {
+        "synthetic/v41/v41-boulder-fills-pit-from-hero-action": {
+          "session": "synthetic/v41/v41-boulder-fills-pit-from-hero-action",
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-boulder-fills-pit-from-hero-action",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recordingPath": "challenges/cases/v41/v41-boulder-push-into-pit-cfirst.session.json",
+          "recordingSha256": "2ba8ae8e20ef339fe14198ce24ec4d728e714a2cb581da4085b21cf62039efa9",
+          "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+          "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8"
+        }
+      }
     }
   ]
 }
