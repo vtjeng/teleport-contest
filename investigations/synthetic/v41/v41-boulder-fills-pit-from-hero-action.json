@@ -82,7 +82,7 @@
     "dependencies": [
       "The natural trap route depends on do.c:flooreffects(otmp, rx, ry, \"fall\") and its existing pit behavior, which consumes the boulder and prints the pit-fill message.",
       "The source-complete moverock_core port must preserve existing dependencies and return use, including trap-effect helpers, boulder_hits_pool(), dopush(), cannot_push_msg(), and its active caller test_move(..., DO_MOVE). Do not replace a consumed return with a guessed value.",
-      "cannot_push is impure: the giant branch may invoke autopick_testobj and sokoban_guilt, its branches print messages, and its return value controls whether the hero steps into the boulder square. A recorded failure-path recipe is required in addition to the selected successful pit-fill route."
+      "cannot_push is impure: the giant branch may invoke autopick_testobj and sokoban_guilt, its branches print messages, and its return value controls whether the hero steps into the boulder square. Existing recording recordings/trap.c/hero-magic-trap-invisibility.session.json executes the ordinary blocked-push branch through moverock_core and cannot_push, so no duplicate recipe is needed."
     ]
   },
   "goalKind": "file-port",
@@ -91,6 +91,7 @@
     "The immutable v41 recipe and recording are challenges/cases/v41/v41-boulder-push-into-pit-cfirst.recipe.session.json and challenges/cases/v41/v41-boulder-push-into-pit-cfirst.session.json. The route’s final action pushes the boulder into a pit.",
     "Upstream hack.c:moverock_core at lines 348-638 handles the trap before normal dopush. In its PIT/SPIKED_PIT arm it detaches the boulder, temporarily sets IN_SIGHT, invokes flooreffects(..., \"fall\"), restores an unconsumed boulder, redraws a visible monster, then returns -1 only when another boulder remains at the hero’s source square.",
     "Upstream hack.c:cannot_push at lines 262-312 has return-valued giant and squeeze branches, including pickup eligibility, riding-skill feedback, Sokoban guilt, and distinct messages. All five active call sites are in moverock_core and return its result without transformation.",
-    "The JavaScript caller chain is cmd.js:rhack -> hack.js:domove/domove_core -> test_move -> moverock -> moverock_core. Current js/hack.js still refuses the selected trap branch; cannot_push also refuses its giant and squeeze result branches."
+    "The JavaScript caller chain is cmd.js:rhack -> hack.js:domove/domove_core -> test_move -> moverock -> moverock_core. Current js/hack.js still refuses the selected trap branch; cannot_push also refuses its giant and squeeze result branches.",
+    "The existing independent recipe recipes/trap.c/hero-magic-trap-invisibility.session.json reaches the blocked-push response at zero-based segment 0, steps 65-68; source hack.c:moverock_core calls cannot_push_msg() and then returns cannot_push() from the blocked destination path. A fresh differential run PzocmJ matched all 122 screens, 3438 RNG values, and 122 cursor positions after implementing the selected code."
   ]
 }
