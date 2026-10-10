@@ -252151,6 +252151,63 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-pray-god-zaps-you-v41-20261010",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port divine lightning and disintegration retaliation from pray.c",
+      "cFile": "pray.c",
+      "sessions": [
+        "synthetic/v41/v41-anger-prayer-god-zaps-hero"
+      ],
+      "selectionReason": "The current v41 replay first diverges when angrygods selects its default arm and JavaScript records god_zaps_you as unported.",
+      "detail": "Port whole pray.c god_zaps_you, fry_by_god, and angrygods in source order. Wire the existing prayer callers; retain desecrate_altar as a separate absent JavaScript route.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "god_zaps_you",
+          "line": 610,
+          "endLine": 693,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "fry_by_god",
+          "line": 694,
+          "endLine": 703,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "angrygods",
+          "line": 704,
+          "endLine": 787,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 610,
+        "to": 787
+      },
+      "syntheticProvenance": {
+        "synthetic/v41/v41-anger-prayer-god-zaps-hero": {
+          "session": "synthetic/v41/v41-anger-prayer-god-zaps-hero",
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-anger-prayer-god-zaps-hero",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recordingPath": "challenges/cases/v41/v41-prayer-too-soon-angrygod-zap-cfirst-precise.session.json",
+          "recordingSha256": "4a19c08212339e1e84343d3d7a94fd1c93379f9314964e2f5ca1d30fced3ff6b",
+          "evaluationPath": "challenges/evaluations/accepted-80ea59cc5def2fbf4019977110084cad10dd5518-v41.json",
+          "evaluationCommit": "80ea59cc5def2fbf4019977110084cad10dd5518"
+        }
+      }
     }
   ]
 }
