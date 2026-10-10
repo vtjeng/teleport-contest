@@ -7,13 +7,13 @@
   "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
   "recordingPath": "challenges/cases/v40/v40-leashed-dragon-abuse-m_unleash-five-hits-cfirst.session.json",
   "recordingSha256": "12e9f5d99d9ab3435957801bcd9b378679ecf6b29d2a9c73c9c7186d91d15ada",
-  "replayInputSha256": "6cb64d6043c89be8f4a240ec976ad46e616623502892884afe204eef3cbb722a",
-  "evaluationPath": "challenges/evaluations/accepted-5bb7bbae79d5d14f8de04d0ebbd933e7a241a699-v40.json",
-  "evaluationCommit": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699",
+  "replayInputSha256": "a711391a7d2ec0ee1498a65e5df13d8ec9352584a3bd45c28d4d95d6d7cf66a5",
+  "evaluationPath": "challenges/evaluations/accepted-6e5dacedc7638246a629e7fe6295014ecbb0083d-v40.json",
+  "evaluationCommit": "6e5dacedc7638246a629e7fe6295014ecbb0083d",
   "remainingScreens": 2,
   "recordedSteps": 55,
   "status": "complete",
-  "commit": "07a1245f5de828d5bd3a34bb837184414be0cde9",
+  "commit": "6e5dacedc7638246a629e7fe6295014ecbb0083d",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v40",
@@ -26,11 +26,11 @@
     "recordingSha256": "12e9f5d99d9ab3435957801bcd9b378679ecf6b29d2a9c73c9c7186d91d15ada",
     "recipe": "challenges/cases/v40/v40-leashed-dragon-abuse-m_unleash-five-hits-cfirst.recipe.session.json",
     "recipeSha256": "b85b27cf5bde6dec5e25253bb31bf97d189cb5bcf0a81cc38dc3f72b52ce37b0",
-    "replayInputSha256": "6cb64d6043c89be8f4a240ec976ad46e616623502892884afe204eef3cbb722a",
-    "evaluationPath": "challenges/evaluations/accepted-5bb7bbae79d5d14f8de04d0ebbd933e7a241a699-v40.json",
-    "evaluationCommit": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699",
-    "evaluationArtifact": "challenges/evaluations/accepted-5bb7bbae79d5d14f8de04d0ebbd933e7a241a699-v40.json",
-    "evaluationUtc": "2026-10-10T12:45:53.165Z",
+    "replayInputSha256": "a711391a7d2ec0ee1498a65e5df13d8ec9352584a3bd45c28d4d95d6d7cf66a5",
+    "evaluationPath": "challenges/evaluations/accepted-6e5dacedc7638246a629e7fe6295014ecbb0083d-v40.json",
+    "evaluationCommit": "6e5dacedc7638246a629e7fe6295014ecbb0083d",
+    "evaluationArtifact": "challenges/evaluations/accepted-6e5dacedc7638246a629e7fe6295014ecbb0083d-v40.json",
+    "evaluationUtc": "2026-10-10T14:35:17.689Z",
     "remainingScreens": 2,
     "recordedSteps": 55,
     "previousScreensMatched": 53,
@@ -63,7 +63,11 @@
     "message": "unsupported hero move: abuse_dog() unleashing a pet that stopped being tame",
     "cFile": "dog.c",
     "luaFile": null,
-    "line": null
+    "line": null,
+    "investigation": {
+      "status": "missing",
+      "path": "investigations/synthetic/v40/v40-leashed-dragon-abuse-m-unleash.json"
+    }
   },
   "summary": "The v40 replay stops in dog.c:abuse_dog when abuse reduces a leashed pet’s tame value to zero. The C path calls apply.c:m_unleash(mtmp, TRUE), which emits visible or unseen feedback, clears the inventory leash and mleashed state, then lets abuse_dog continue to growl and redraw. The complete helper has 11 existing JavaScript direct-caller branches; three C-only branches remain documented. Banishment also forwards through mon.c:migrate_mon to dog.c:migrate_to_level, so its stale leashed-migration refusal is removed.",
   "source": {
@@ -120,7 +124,7 @@
   },
   "goalKind": "file-port",
   "evidence": [
-    "Saved v40 queue entry and accepted evaluation challenges/evaluations/accepted-5bb7bbae79d5d14f8de04d0ebbd933e7a241a699-v40.json: 53/55 screens and cursors, 6531/6531 RNG calls, first stop at step 53. Queue case, manifest corpus digest, recipe/recording hashes, and evaluation provenance were rechecked after accepted Main 2742030c1e6b68c098598aef3789567aed93b5a1 was merged.",
+    "Saved v40 queue entry (SHA-256 82668c1acaa9af757aba3b94e9829675df7e6a8241f515b0d539f21501e1c5fe) and accepted evaluation challenges/evaluations/accepted-6e5dacedc7638246a629e7fe6295014ecbb0083d-v40.json: 53/55 screens and cursors, 6531/6531 RNG calls, first stop at step 53. Queue case, manifest corpus digest, recipe/recording hashes, and evaluation provenance were rechecked at accepted game commit 6e5dacedc7638246a629e7fe6295014ecbb0083d.",
     "Upstream nethack-c/upstream/src/apply.c:726-745 defines the complete m_unleash helper: conditional feedback via canseemon/pline_mon or Your, matching leash lookup, leashmon clear and inventory update before the final mleashed clear.",
     "Upstream nethack-c/upstream/src/pline.c:138-152 defines pline_mon; js/muse.js had a private messageAt-based helper that will move to the canonical js/pline.js owner.",
     "The triggering source is dog.c:abuse_dog:1362-1396, called from dokick.c:dokick on the admitted v40 kick sequence. It must finish leash cleanup before growl and newsym.",
