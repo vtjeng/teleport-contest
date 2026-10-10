@@ -247194,7 +247194,7 @@
     {
       "id": "fix-trap-float-down-lava-effects-order-v39-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix immediate lava effects after levitation ends",
       "cFile": "trap.c",
       "sessions": [
@@ -247208,8 +247208,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "809afb4bf62208f778b639a4abb658400c11fd5a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "float_down",
       "session": "synthetic/v39/v39-lava-after-ring-removal",
       "step": 32,
@@ -247423,7 +247426,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "809afb4bf62208f778b639a4abb658400c11fd5a",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
