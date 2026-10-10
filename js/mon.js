@@ -180,7 +180,7 @@ import {
     is_pool_or_lava,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
-import { get_mleash, leashable, m_unleash } from './apply.js';
+import { get_mleash, leashable, m_unleash, um_dist } from './apply.js';
 import { artifact_exists, artifactTouchable } from './artifacts.js';
 import { night } from './calendar.js';
 import {
@@ -3684,12 +3684,6 @@ export async function m_respond(monster, rawEnv = {}) {
         && !monster.mpeaceful && m_canseeu(monster, state)) {
         aggravate(state, rawEnv.random ?? { rn2 });
     }
-}
-
-// C ref: apply.c um_dist(). The hero is outside the square's Chebyshev radius
-// when either axis exceeds n.
-function um_dist(x, y, n, state) {
-    return Math.abs(state.u.ux - x) > n || Math.abs(state.u.uy - y) > n;
 }
 
 // C ref: mon.c qst_guardians_respond(). The role's guardian species is the

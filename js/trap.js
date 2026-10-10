@@ -350,7 +350,7 @@ import { bimanual } from './worn.js';
 import { newsym, bot, shieldeff } from './display.js';
 import { m_next2u } from './mhitu.js';
 import { destroy_items } from './zap_destroy_items.js';
-import { costly_spot, shop_keeper, shk_your } from './shk.js';
+import { costly_spot, shop_keeper, shk_your, shopdig } from './shk.js';
 import { quest_info } from './questpgr.js';
 import { mon_has_amulet } from './wizard.js';
 import { canspotmon } from './display.js';
@@ -716,7 +716,7 @@ export async function fall_through(td, ftflags, state = game) {
         );
     }
 
-    if (u.ushops) note_unported('shk.c shopdig');
+    if (u.ushops[0]) await shopdig(1, state);
 
     const destination = { dnum: u.uz.dnum, dlevel: nextLevel };
     if (state.stronghold_level

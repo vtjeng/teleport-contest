@@ -47,6 +47,7 @@ import {
     M_AP_NOTHING,
     M_AP_TYPE,
     MS_ANIMAL,
+    MS_HUMANOID,
     OBJ_BURIED,
     OBJ_CONTAINED,
     OBJ_FLOOR,
@@ -60,9 +61,11 @@ import {
     PL_NSIZ,
     PRONOUN_HALLU,
     PRONOUN_NO_IT,
+    RLOC_MSG,
     RLOC_NOMSG,
     ROOMOFFSET,
     SHOPBASE,
+    TT_PIT,
     FIRE_RES,
     POISON_RES,
     SHOCK_RES,
@@ -72,6 +75,8 @@ import {
     TELEPORT,
     TELEPORT_CONTROL,
     Upolyd,
+    W_QUIVER,
+    W_SWAPWEP,
     plur,
     u_at,
 } from './const.js';
@@ -81,6 +86,7 @@ import { arti_cost } from './artifacts.js';
 import { yn_function } from './cmd.js';
 import { bot, map_invisible } from './display.js';
 import { assign_level, depth, on_level } from './dungeon.js';
+import { um_dist } from './apply.js';
 import { game } from './gstate.js';
 import { getpos } from './getpos.js';
 import { intrinsic_possible } from './eat.js';
@@ -108,7 +114,7 @@ import {
 } from './invent.js';
 import { record_achievement } from './insight.js';
 import { get_obj_location } from './light.js';
-import { angry_guards, mnearto, mongone, wake_nearto } from './mon.js';
+import { angry_guards, mnearto, mnexto, mongone, wake_nearto } from './mon.js';
 import { search_special } from './mkroom.js';
 import {
     carried,
@@ -167,6 +173,7 @@ import {
     WAND_CLASS,
     WEAPON_CLASS,
     AQUAMARINE,
+    LEASH,
 } from './objects.js';
 import {
     PM_KEYSTONE_KOP,
@@ -174,6 +181,7 @@ import {
     PM_KOP_KAPTAIN,
     PM_KOP_LIEUTENANT,
     PM_KOP_SERGEANT,
+    PM_KNIGHT,
     PM_ROGUE,
     PM_SHOPKEEPER,
     PM_TOURIST,
@@ -183,7 +191,9 @@ import {
     is_demon,
     is_elf,
     is_human,
+    is_silent,
     is_vampire,
+    locomotion,
     nolimbs,
     mhim,
     pronoun_gender,
@@ -196,6 +206,7 @@ import { genders } from './roles.js';
 import { in_rooms } from './rooms.js';
 import { move_special } from './priest.js';
 import { SHTYPES } from './shtypes_data.js';
+import { makeplural } from './fruit.js';
 import { m_at } from './monst.js';
 import { makemon_runtime } from './makemon_create.js';
 import { enexto } from './teleport.js';
@@ -203,7 +214,7 @@ import { m_next2u } from './mhitu.js';
 import { mbodypart, poly_gender } from './polyself.js';
 import { livelog_printf, verbalize } from './pline.js';
 import { heroIsBlind } from './startup_a11y.js';
-import { set_voice } from './sounds.js';
+import { growl, set_voice } from './sounds.js';
 import { saleable, shkname, Shknam } from './shknam.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
@@ -219,6 +230,7 @@ import { cansee } from './vision.js';
 import { add_menu_heading, select_menu } from './windows.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import { choose_stairs } from './wizard.js';
+import { setnotworn } from './worn.js';
 
 // C ref: shk.c:u_entered_shop()'s static `empty_shops[5]`. It survives calls
 // in one C process but is not saved; each recorder segment starts a new
@@ -512,6 +524,100 @@ export function shop_keeper(roomno, state = game) {
             rile_shk(resident);
     }
     return resident ?? null;
+}
+
+// C ref: shk.c shopdig() (5019-5110). Starting downward digging warns a
+// speaking keeper; falling through a shop floor lets an indebted nearby keeper
+// relocate next to the hero and take inventory that is not worn, leashed, or
+// the wand currently being used.
+export async function shopdig(fall, state = game, rawEnv = {}) {
+    const message = rawEnv.message ?? ttyPline;
+    const random = { rn2, ...(rawEnv.random ?? {}) };
+    const env = { ...rawEnv, state, message, random };
+    const shkp = shop_keeper(state.u?.ushops?.[0] ?? 0, state);
+    if (!shkp) return;
+    if (!inhishop(shkp, state)) {
+        if (state.urole?.mnum === PM_KNIGHT) {
+            await message('You feel like a common thief.', state, env);
+            adjalign(-sgn(state.u.ualign.type), state);
+        }
+        return;
+    }
+
+    // 0 cannot speak, 1 makes animal noises, and 2 speaks.
+    let lang = 0;
+    if (!helpless(shkp) && !is_silent(shkp.data)) {
+        if (shkp.data.msound <= MS_ANIMAL) lang = 1;
+        else if (shkp.data.msound >= MS_HUMANOID) lang = 2;
+    }
+
+    if (!fall) {
+        if (lang === 2 && !heroIsDeaf(state) && !muteshk(shkp)) {
+            set_voice(shkp, 0, 80, 0, state);
+            if (state.u.utraptype === TT_PIT) {
+                await verbalize(
+                    `Be careful, ${state.flags?.female ? 'madam' : 'sir'}, or you might fall through the floor.`,
+                    state,
+                    env,
+                );
+            } else {
+                await verbalize(
+                    `${state.flags?.female ? 'Madam' : 'Sir'}, do not damage the floor here!`,
+                    state,
+                    env,
+                );
+            }
+        }
+        if (state.urole?.mnum === PM_KNIGHT) {
+            await message('You feel like a common thief.', state, env);
+            adjalign(-sgn(state.u.ualign.type), state);
+        }
+    } else if (!um_dist(shkp.mx, shkp.my, 5, state)
+        && !helpless(shkp)
+        && (shkp.mextra.eshk.billct || shkp.mextra.eshk.debit)) {
+        let grabs = 'grabs';
+        if (nolimbs(shkp.data)) grabs = 'knocks off';
+
+        if (!m_next2u(shkp, state)) {
+            await mnexto(shkp, RLOC_MSG, env);
+            if (!m_next2u(shkp, state)) {
+                if (lang === 2) {
+                    await message(
+                        `${Shknam(shkp, state)} curses you in anger and frustration!`,
+                        state,
+                        env,
+                    );
+                } else if (lang === 1) {
+                    await growl(shkp, state, random);
+                }
+                rile_shk(shkp);
+                return;
+            }
+            await message(
+                `${Shknam(shkp, state)} ${makeplural(locomotion(shkp.data, 'leap'))}, and ${grabs} your backpack!`,
+                state,
+                env,
+            );
+        } else {
+            await message(`${Shknam(shkp, state)} ${grabs} your backpack!`, state, env);
+        }
+
+        for (let obj = state.invent; obj;) {
+            const next = obj.nobj;
+            if (((obj.owornmask ?? 0) & ~(W_SWAPWEP | W_QUIVER)) !== 0
+                || (obj === state.uswapwep && state.u.twoweap)
+                || (obj.otyp === LEASH && obj.leashmon)
+                || obj === state.current_wand) {
+                obj = next;
+                continue;
+            }
+            await setnotworn(obj, env);
+            await freeinv(obj, env);
+            subfrombill(obj, shkp, state, env);
+            add_to_minv(shkp, obj, env);
+            obj = next;
+        }
+    }
 }
 
 // C ref: shk.c shkcatch() (4362-4401).  A thrown pick can be intercepted

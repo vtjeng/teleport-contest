@@ -1112,9 +1112,13 @@ export async function use_pole(obj, autohit, state = game) {
     return freehit ? ECMD_OK : ECMD_TIME;
 }
 
-// C ref: apply.c get_mleash() (880-887). The leash belongs to the hero's
-// inventory, and its leashmon id names the monster; the monster's minvent is
-// not searched here.
+// C ref: apply.c um_dist() (692-695). Return whether either coordinate differs
+// from the hero by strictly more than `n`; this is the Chebyshev radius test
+// used by shop digging, vault guards, and monster callers.
+export function um_dist(x, y, n, state = game) {
+    return Math.abs(state.u.ux - x) > n || Math.abs(state.u.uy - y) > n;
+}
+
 // C ref: apply.c number_leashed() (698-708). The count is based on active
 // inventory leash objects, not on monsters' mleashed bits.
 export function number_leashed(state = game) {
@@ -1303,6 +1307,9 @@ async function use_leash_core(obj, monster, cc, spotmon, state, env = {}) {
     }
 }
 
+// C ref: apply.c get_mleash() (880-887). The leash belongs to the hero's
+// inventory, and its leashmon id names the monster; the monster's minvent is
+// not searched here.
 export function get_mleash(monster, state = game) {
     for (let object = state.invent; object; object = object.nobj) {
         if (object.otyp === LEASH && object.leashmon === monster.m_id)

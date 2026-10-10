@@ -69,6 +69,7 @@ import { carried, g_at, hasContents } from './obj.js';
 import { BOULDER, ROCK } from './objects.js';
 import { in_rooms } from './rooms.js';
 import { contained_gold } from './shk.js';
+import { um_dist } from './apply.js';
 import { rloc } from './teleport.js';
 import { spot_stop_timers } from './timeout.js';
 import { t_at, deltrap } from './trap.js';
@@ -159,12 +160,6 @@ function in_fcorridor(grd, x, y) {
             return true;
     }
     return false;
-}
-
-// C ref: apply.c um_dist() (691-695). Returns true when the hero is strictly
-// more than `n` squares away from (x,y) in either axis (Chebyshev metric > n).
-function um_dist(x, y, n, state) {
-    return Math.abs(state.u.ux - x) > n || Math.abs(state.u.uy - y) > n;
 }
 
 // C ref: vault.c blackout() (122-141). As the temporary corridor is removed,
