@@ -1797,24 +1797,36 @@ test('zap_dig mutates normal and maze walls after the source beam walk',
 });
 
 test('weffects offers a downward zap to the steed before the ray', async () => {
-    // zap.c weffects():3437-3439. The steed takes the zap only when the hero
-    // aimed straight down, which is `!u.dx && !u.dy && u.dz > 0`. A zap with
-    // no direction at all reaches this function only from a caller other than
-    // dozap(), and it must not be handed to the steed.
-    // A polymorph wand is one of zap_steed()'s source-supported immediate
-    // arms; the old assertion expected the removed placeholder refusal.
+    // zap.c weffects():3437-3439 gives a downward zap to zap_steed() only when
+    // the hero aimed down, which is `!u.dx && !u.dy && u.dz > 0`. A polymorph
+    // wand then reaches bhitm() on the steed. When that changes the mount so
+    // it cannot keep its saddle, worn.c calls dismount_steed(DISMOUNT_FELL),
+    // whose source message may pause at the TTY pager.
     let wand = await aimedWand(0, 0, 1, WAN_POLYMORPH);
-    game.u.usteed = game.level.monlist;
+    const steed = game.level.monlist;
+    assert.ok(steed, 'the test setup supplies a steed to zap');
+    game.u.usteed = steed;
+    for (let page = 0; page < 10; ++page)
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
     await assert.doesNotReject(
         () => weffects(wand, game, straightThrough()),
     );
+    assert.equal(game.u.usteed, null,
+        'the downward polymorph completes the FELL dismount');
+
+    // With no direction, weffects() does not call zap_steed(); this direct
+    // invocation is not dozap() input, so the existing mount must remain.
     wand = await aimedWand(0, 0, 0);
-    game.u.usteed = game.level.monlist;
+    const noDirectionSteed = game.level.monlist;
+    assert.ok(noDirectionSteed, 'the test setup supplies a steed to preserve');
+    game.u.usteed = noDirectionSteed;
     await assert.doesNotReject(() => weffects(
         wand, game, {
             ...straightThrough(), message: async () => {},
         },
     ));
+    assert.equal(game.u.usteed, noDirectionSteed,
+        'a zap with no direction is not handed to the steed');
 });
 
 test('a bounce off stone rolls against a different chance than a wall',
