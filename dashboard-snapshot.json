@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T02:50:17.718Z",
+  "capturedAt": "2026-10-10T03:01:21.426Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -78103,22 +78103,77 @@
         "type": "accepted",
         "at": "2026-10-10T02:49:36.205Z",
         "task": "A2-v38-broken-undead-wand-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-v38-broken-undead-wand-investigation-20261010-e1f8f3c861f0313e34d4057afde4579e0213241b",
+        "type": "published",
+        "at": "2026-10-10T02:50:25.776Z",
+        "task": "A2-v38-broken-undead-wand-investigation-20261010",
+        "commit": "e1f8f3c861f0313e34d4057afde4579e0213241b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-4ea-queue-cd929374-20261010",
+        "type": "turn",
+        "at": "2026-10-10T02:51:58.940Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "No independent source mismatch is free in the refreshed queue; waiting for Main to integrate the A2 water-dip delivery and publish the next queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-main-C182-553ca4538-20261010",
+        "type": "received",
+        "at": "2026-10-10T02:52:06.607Z",
+        "task": "C182",
+        "delivery": "553ca453878cd07da2d13138597e984396a0206e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-v39-20261010T0252Z",
+        "type": "turn",
+        "at": "2026-10-10T02:52:40.005Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Starting v39 preparation after the combined queue reached 12 unmatched sessions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep3-v39-20261010T0252Z",
+        "type": "assign",
+        "at": "2026-10-10T02:52:49.646Z",
+        "task": "Prep3",
+        "worker": "Prep",
+        "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-C182-4da7886eb-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T02:53:41.017Z",
+        "task": "C182",
+        "integration": "4da7886ebee2489278141ddd7eba55370ed35601"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-main-C182-4da7886eb-hosted-38018662922",
+        "type": "validated",
+        "at": "2026-10-10T02:59:35.513Z",
+        "task": "C182",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C182-4da7886ebee2489278141ddd7eba55370ed35601-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T03:00:41.322Z",
+        "task": "C182"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C182",
-        "worker": "C",
-        "goal": "fix-pickup-zero-capacity-carry-count-v38-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "553ca453878cd07da2d13138597e984396a0206e",
-        "since": "2026-10-10T02:08:14.355Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "B205",
         "worker": "B",
@@ -78162,9 +78217,7 @@
         "status": "ready",
         "delivery": "d7d86ee902e0b6cca2d5be15e3d98b0ba4a95609",
         "since": "2026-10-10T02:38:07.101Z",
-        "blockedBy": [
-          "C182"
-        ],
+        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -78484,8 +78537,8 @@
     ]
   },
   "development": {
-    "executionCommit": "4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99",
-    "measuredAt": "2026-10-10T02:47:53.779Z",
+    "executionCommit": "4da7886ebee2489278141ddd7eba55370ed35601",
+    "measuredAt": "2026-10-10T02:58:54.982Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

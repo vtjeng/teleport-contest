@@ -243703,7 +243703,7 @@
     {
       "id": "fix-pickup-zero-capacity-carry-count-v38-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Port pickup carry-count refusal at maximum capacity",
       "cFile": "pickup.c",
       "sessions": [
@@ -243717,8 +243717,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4da7886ebee2489278141ddd7eba55370ed35601",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "carry_count",
       "session": "synthetic/v38/v38-single-boulder-pickup-refusal",
       "step": 19,
@@ -243898,7 +243901,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4da7886ebee2489278141ddd7eba55370ed35601",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
