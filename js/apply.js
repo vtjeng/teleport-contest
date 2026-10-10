@@ -1112,9 +1112,13 @@ export async function use_pole(obj, autohit, state = game) {
     return freehit ? ECMD_OK : ECMD_TIME;
 }
 
-// C ref: apply.c get_mleash() (880-887). The leash belongs to the hero's
-// inventory, and its leashmon id names the monster; the monster's minvent is
-// not searched here.
+// C ref: apply.c um_dist() (692-695). Return whether either coordinate differs
+// from the hero by strictly more than `n`; this is the Chebyshev radius test
+// used by shop digging, vault guards, and monster callers.
+export function um_dist(x, y, n, state = game) {
+    return Math.abs(state.u.ux - x) > n || Math.abs(state.u.uy - y) > n;
+}
+
 // C ref: apply.c number_leashed() (698-708). The count is based on active
 // inventory leash objects, not on monsters' mleashed bits.
 export function number_leashed(state = game) {
@@ -1303,6 +1307,9 @@ async function use_leash_core(obj, monster, cc, spotmon, state, env = {}) {
     }
 }
 
+// C ref: apply.c get_mleash() (880-887). The leash belongs to the hero's
+// inventory, and its leashmon id names the monster; the monster's minvent is
+// not searched here.
 export function get_mleash(monster, state = game) {
     for (let object = state.invent; object; object = object.nobj) {
         if (object.otyp === LEASH && object.leashmon === monster.m_id)
@@ -5136,9 +5143,7 @@ export async function doapply(state = game, env = {}) {
 }
 
 // C ref: apply.c flip_coin() (4526-4556). splitobj()'s returned coin is used
-// for stacked drops. Every lost coin calls do.c:dropx(), including under
-// Hallucination; only the separate underwater floor-effects path remains a
-// named gap.
+// for stacked drops. Every lost coin calls do.c:dropx(), including underwater.
 export async function flip_coin(obj, state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const random = env.random ?? {};
@@ -5167,27 +5172,21 @@ export async function flip_coin(obj, state = game, env = {}) {
     if (loseCoin) {
         if (coin.quan > 1)
             coin = splitobj(coin, 1, { ...env, state });
-        if (state.u?.uinwater) {
-            // C discards dropx()'s result. Its underwater drop/floor effects
-            // are still unported, so retain that source-named gap.
-            note_unported('do.c dropx underwater');
-        } else {
-            await dropx(coin, {
-                ...env,
-                state,
-                hooks: {
-                    ...(env.hooks ?? {}),
-                    encumberMessage: env.hooks?.encumberMessage
-                        ?? ((targetState) => encumber_msg(targetState, {
-                            message: env.planning ? async () => {} : ttyPline,
-                        })),
-                    extractExternalObject:
-                        env.hooks?.extractExternalObject ?? remove_object,
-                    newsym: env.hooks?.newsym
-                        ?? (env.planning ? () => {} : (x, y) => newsym(x, y)),
-                },
-            });
-        }
+        await dropx(coin, {
+            ...env,
+            state,
+            hooks: {
+                ...(env.hooks ?? {}),
+                encumberMessage: env.hooks?.encumberMessage
+                    ?? ((targetState) => encumber_msg(targetState, {
+                        message: env.planning ? async () => {} : ttyPline,
+                    })),
+                extractExternalObject:
+                    env.hooks?.extractExternalObject ?? remove_object,
+                newsym: env.hooks?.newsym
+                    ?? (env.planning ? () => {} : (x, y) => newsym(x, y)),
+            },
+        });
         return ECMD_TIME;
     }
 

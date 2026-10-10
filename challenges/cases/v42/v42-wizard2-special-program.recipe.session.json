@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42043613,
+      "datetime": "20520314154300",
+      "nethackrc": "OPTIONS=name:V42Wiz2,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nwizard2.lua\n#wizmap\n"
+    }
+  ],
+  "comment": "Fresh debug Wizard directly loads wizard2.lua, then displays #wizmap. C-first recipe; normalized from preserved attempt v42-wizard2-special-program.recipe.session.json."
+}

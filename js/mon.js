@@ -180,7 +180,7 @@ import {
     is_pool_or_lava,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
-import { get_mleash, leashable, m_unleash } from './apply.js';
+import { get_mleash, leashable, m_unleash, um_dist } from './apply.js';
 import { artifact_exists, artifactTouchable } from './artifacts.js';
 import { night } from './calendar.js';
 import {
@@ -3686,12 +3686,6 @@ export async function m_respond(monster, rawEnv = {}) {
     }
 }
 
-// C ref: apply.c um_dist(). The hero is outside the square's Chebyshev radius
-// when either axis exceeds n.
-function um_dist(x, y, n, state) {
-    return Math.abs(state.u.ux - x) > n || Math.abs(state.u.uy - y) > n;
-}
-
 // C ref: mon.c qst_guardians_respond(). The role's guardian species is the
 // JavaScript equivalent of quest_info(MS_GUARDIAN), even after a shape change.
 export async function qst_guardians_respond(rawEnv = {}) {
@@ -4730,11 +4724,12 @@ export function mnearto(
 //   2741-2742  m_unleash(), for a leashed pet.
 //   2761-2762  wizdeadorgone(), for the Wizard of Yendor.
 //   2768-2776  nemdead(), nemesis_stinks() and leaddead(), the quest arms.
-//   2800-2801  dismount_steed(), when the hero was riding what just died.
+//   2800-2801  asynchronous DISMOUNT_GENERIC release when the departing
+//              monster was the hero's steed.
 // thiefdead(), shkgone(), wormgone(), MON_ENDGAME_FREE, and the detach flag
-// update are implemented in C order. Only the due_to_death branch awaits the
-// inventory drop; mongone()'s false path remains synchronous and surfaces a
-// thrown dependency error to its caller.
+// update are implemented in C order. The due_to_death branch awaits its
+// inventory drop; either death or departure can then await the generic steed
+// release so its caller observes the completed source-order effects.
 //
 // C's impossible() at 2791-2793 becomes a throw. A monster detached twice
 // would be counted twice against iflags.purge_monsters, and dmonsfree() checks
@@ -4788,8 +4783,30 @@ export function m_detach(
         state.iflags.purge_monsters = (state.iflags.purge_monsters ?? 0) + 1;
 
         /* "hero is thrown from his steed when it dies or gets genocided" */
-        if (mtmp === state.u.usteed)
-            unsupported("the death of the hero's steed");
+        if (mtmp === state.u.usteed) {
+            // A planned monster turn must replay the whole source-synchronous
+            // detach and dismount live. The tail reaches float_down()/drown(),
+            // whose water messages and hero inventory effects are not part of
+            // the clone-only monster scan. Stop before dismounting the clone
+            // rather than painting a planned fall or spending live RNG.
+            if (env.planning) {
+                if (typeof env.requestPlanningInput !== 'function') {
+                    throw new TypeError(
+                        'planned steed detach requires a replay boundary',
+                    );
+                }
+                env.requestPlanningInput('steed.c dismount_steed');
+            }
+            // C's void call is synchronous. Return its promise here so mondead()
+            // preserves the same order across JavaScript's async boundary.
+            // Keep the monster pass's random source attached to the helper's
+            // landing_spot() tie-breaks.
+            return import('./steed.js').then(({ dismount_steed }) =>
+                import('./const.js').then(({ DISMOUNT_GENERIC }) =>
+                    dismount_steed(DISMOUNT_GENERIC, state, {
+                        random: env.random,
+                    })));
+        }
     };
 
     const finishAfterLeaving = () => {
@@ -4860,8 +4877,6 @@ export function mongone(monster, env = {}) {
                 note_unported('quest.c nemdead');
             else if (branch === 'the quest leader\'s death')
                 note_unported('questpgr.c leaddead');
-            else if (branch === "the death of the hero's steed")
-                note_unported('steed.c dismount_steed');
             else
                 note_unported(`mon.c m_detach ${branch}`);
         };

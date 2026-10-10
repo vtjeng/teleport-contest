@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42043607,
+      "datetime": "20520314153600",
+      "nethackrc": "OPTIONS=name:V42Map7,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\noracle.lua\n#wizmap\n"
+    }
+  ],
+  "comment": "Fresh debug Wizard directly loads oracle.lua, then displays #wizmap. C-first recipe; normalized from preserved attempt v42-oracle-special-program-cfirst.recipe.session.json."
+}

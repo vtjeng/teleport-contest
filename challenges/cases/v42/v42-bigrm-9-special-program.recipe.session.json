@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42043603,
+      "datetime": "20520314153200",
+      "nethackrc": "OPTIONS=name:V42Map3,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nbigrm-9.lua\n#wizmap\n"
+    }
+  ],
+  "comment": "Fresh debug Wizard directly loads bigrm-9.lua, then displays #wizmap. C-first recipe; normalized from preserved attempt v42-bigrm-9-special-program-cfirst.recipe.session.json."
+}

@@ -162,7 +162,7 @@ import { currency, delobj, obfree, obj_extract_self, sobj_at, stackobj, update_i
 import { bury_an_obj } from './bury.js';
 import { punish } from './read.js';
 import { stop_timer, obj_stop_timers } from './timeout.js';
-import { costly_spot, shop_keeper, stolen_value } from './shk.js';
+import { costly_spot, shop_keeper, shopdig, stolen_value } from './shk.js';
 import { shkname } from './shknam.js';
 import { grounded, hides_under, is_flyer, is_floater, is_watch } from './mondata.js';
 import {
@@ -1144,8 +1144,8 @@ export async function use_pick_axe2(obj, state = game, env = {}) {
             digging.level = { ...u.uz };
             digging.effort = 0;
             await message(`You start ${verbing} downward.`, state);
-            if (state.u?.ushops) {
-                note_unported('shk.c shopdig');
+            if (state.u?.ushops?.[0]) {
+                await shopdig(0, state, { ...env, random, message });
                 note_unported('shk.c add_damage');
             }
         } else {
@@ -1462,7 +1462,8 @@ export async function digactualhole(
             }
             if (shopdoor && herosFault) note_unported('shk.c pay_for_damage');
         } else {
-            if (state.u.ushops && herosFault) note_unported('shk.c shopdig');
+            if (state.u.ushops[0] && herosFault)
+                await shopdig(1, state, env);
             else note_unported('shk.c pay_for_damage');
             await message('You fall through...', state, rawEnv);
             const newLevel = { dnum: state.u.uz.dnum, dlevel: state.u.uz.dlevel + 1 };

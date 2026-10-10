@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42043608,
+      "datetime": "20520314153700",
+      "nethackrc": "OPTIONS=name:V42Map8,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nfakewiz1.lua\n#wizmap\n"
+    }
+  ],
+  "comment": "Fresh debug Wizard directly loads fakewiz1.lua, then displays #wizmap. C-first recipe; normalized from preserved attempt v42-fakewiz1-special-program-cfirst.recipe.session.json."
+}

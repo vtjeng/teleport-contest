@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42043817,
+      "datetime": "20520315152700",
+      "nethackrc": "OPTIONS=name:QProbe17,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\n\u0007peaceful quantum mechanic\n"
+    }
+  ],
+  "comment": "C-only corrected initial pager dismissal probe for the rare quantum-mechanic box roll."
+}

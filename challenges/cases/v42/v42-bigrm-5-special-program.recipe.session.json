@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source candidate: bigrm.js bigrm5; dat/bigrm-5.lua. C executes the top-level random big-room layout and its terrain/object/trap/monster placements; #wizmap exposes the generated room.",
+  "segments": [
+    {
+      "seed": 42042302,
+      "datetime": "20511214151617",
+      "nethackrc": "OPTIONS=name:V42C2,role:Archeologist,race:human,gender=male,align=lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nbigrm-5.lua\n#wizmap\n"
+    }
+  ]
+}

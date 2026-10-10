@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42044203,
+      "datetime": "20520323150619",
+      "nethackrc": "OPTIONS=name:V42AcidBreath3,role:Samurai,race=human,gender=male,align=lawful,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": "#levelchange\n10\n         #wizgenesis\nhostile yellow dragon\nFkhh m.m.m.m."
+    }
+  ],
+  "comment": "C-first extension of the observed yellow-dragon acid-breath branch. Remove the prior unknown-space probe inputs, keep the confirmed reached blast, dismiss its pager, then grant up to four source-defined m. wait turns to see whether a later acid_damage(uwep) gate corrodes the carried Samurai weapon. No JS comparison until C reaches the exact effect."
+}

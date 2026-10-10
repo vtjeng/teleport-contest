@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42043820,
+      "datetime": "20520321120000",
+      "nethackrc": "OPTIONS=name:V42UnturnProbe,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": " #wizwish\ncorpse of lichen\n#wizwish\nwand of undead turning\n#wizgenesis\nhostile zombie\n#wizmap\njdfl.."
+    }
+  ],
+  "comment": "C-first zombie pickup route: after the mapped hostile zombie appears adjacent, step south, drop the charged undead-turning wand on the vacated pursuit square, then move east and wait twice to observe pickup/use. No JS comparison unless C reaches the targeted monster wand branch."
+}

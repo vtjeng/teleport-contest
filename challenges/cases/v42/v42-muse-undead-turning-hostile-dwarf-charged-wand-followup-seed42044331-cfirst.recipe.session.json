@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42044331,
+      "datetime": "20520321120000",
+      "nethackrc": "OPTIONS=name:V42UnturnProbe,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": " #wizwish\ncorpse of lichen\n#wizwish\nwand of undead turning (0:3)\n#wizidentify\n\t\n#wizgenesis\nhostile dwarf\n#wizmap\ndfhm.."
+    }
+  ],
+  "comment": "C-first follow-up using the exact seed and successful pickup prefix from the prior probe, then one additional wait to reach the dwarf’s next action with the lichen corpse in hero inventory and charged wand in monster inventory. Keep separate from the successful pickup-only recording."
+}

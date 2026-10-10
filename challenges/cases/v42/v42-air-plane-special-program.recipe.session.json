@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source candidate: air_levels.js air; dat/air.lua. C executes the Air-plane source map and its elementals/terrain setup, finalizes it, and displays the generated topology.",
+  "segments": [
+    {
+      "seed": 42042303,
+      "datetime": "20511214151617",
+      "nethackrc": "OPTIONS=name:V42C3,role:Wizard,race:human,gender=female,align=chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nair.lua\n#wizmap\n"
+    }
+  ]
+}

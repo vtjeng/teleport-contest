@@ -5,14 +5,18 @@ import test from 'node:test';
 import {
     BUFSZ,
     HUNGRY,
+    MS_HUMANOID,
     MS_SELL,
     OBJ_CONTAINED,
     OBJ_FLOOR,
     OBJ_INVENT,
     OBJ_MINVENT,
     OBJ_ONBILL,
+    PLINE_SPEECH,
+    PLINE_VERBALIZE,
     ROOMOFFSET,
     SHOPBASE,
+    TT_PIT,
 } from '../js/const.js';
 import { init_objects } from '../js/o_init.js';
 import {
@@ -28,9 +32,12 @@ import {
     TALLOW_CANDLE,
     WAN_SLEEP,
     SACK,
+    LEASH,
     WEAPON_CLASS,
 } from '../js/objects.js';
 import { newObject } from '../js/obj.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
 import {
     append_price_quote,
     addupbill,
@@ -51,6 +58,7 @@ import {
     same_price,
     shop_debt,
     shop_keeper,
+    shopdig,
     Shk_Your,
     shk_your,
 } from '../js/shk.js';
@@ -66,6 +74,10 @@ import {
 
 const C_SHK = readFileSync('nethack-c/upstream/src/shk.c', 'utf8');
 const JS_SHK = readFileSync('js/shk.js', 'utf8');
+const C_DIG = readFileSync('nethack-c/upstream/src/dig.c', 'utf8');
+const JS_DIG = readFileSync('js/dig.js', 'utf8');
+const C_TRAP = readFileSync('nethack-c/upstream/src/trap.c', 'utf8');
+const JS_TRAP = readFileSync('js/trap.js', 'utf8');
 
 function sourceBody(source, signature) {
     const start = source.indexOf(signature);
@@ -673,6 +685,100 @@ function shopState({ has_shop = true } = {}) {
     };
     return state;
 }
+
+test('shopdig warns in source order and all active callers use the owner', async () => {
+    const cBody = sourceBody(C_SHK, '\nshopdig(int fall)');
+    assert.match(cBody,
+        /if \(!fall\)[\s\S]*?if \(lang == 2\)[\s\S]*?if \(!Deaf && !muteshk\(shkp\)\)[\s\S]*?SetVoice\(shkp, 0, 80, 0\);[\s\S]*?verbalize\("%s, do not damage the floor here!"/u);
+    assert.match(cBody,
+        /else if \(!um_dist\(shkp->mx, shkp->my, 5\)[\s\S]*?ESHK\(shkp\)->billct \|\| ESHK\(shkp\)->debit/u);
+    assert.match(C_DIG,
+        /shopdig\(0\);\s*add_damage\(u\.ux, u\.uy, SHOP_PIT_COST\);/u);
+    assert.match(JS_DIG,
+        /await shopdig\(0, state, \{ \.\.\.env, random, message \}\);\s*note_unported\('shk\.c add_damage'\);/u);
+    assert.match(C_DIG,
+        /if \(\*u\.ushops && heros_fault\)\s*shopdig\(1\);/u);
+    assert.match(JS_DIG,
+        /if \(state\.u\.ushops\[0\] && herosFault\)\s*await shopdig\(1, state, env\);/u);
+    assert.match(C_TRAP,
+        /if \(\*u\.ushops\)\s*shopdig\(1\);/u);
+    assert.match(JS_TRAP, /if \(u\.ushops\[0\]\) await shopdig\(1, state\);/u);
+    assert.doesNotMatch(JS_DIG, /note_unported\('shk\.c shopdig'\)/u);
+    assert.doesNotMatch(JS_TRAP, /note_unported\('shk\.c shopdig'\)/u);
+
+    const state = shopState();
+    state.u.ushops = [SHOP_ROOMNO, 0, 0, 0, 0];
+    state.flags.female = true;
+    state.level.rooms[0].resident.data = {
+        ...state.level.rooms[0].resident.data,
+        msound: MS_HUMANOID,
+    };
+    const messages = [];
+    await shopdig(0, state, { message: async (text) => messages.push(text) });
+    assert.deepEqual(messages, ['"Madam, do not damage the floor here!"']);
+    assert.equal(state.gv.voice.volume, 80);
+    assert.equal(state.gp.pline_flags & PLINE_VERBALIZE, 0);
+    // set_voice() owns this flag; the mocked message sink does not perform
+    // tty_message()'s normal cleanup of PLINE_SPEECH.
+    assert.equal(state.gp.pline_flags, PLINE_SPEECH);
+
+    state.u.utraptype = TT_PIT;
+    messages.length = 0;
+    await shopdig(0, state, { message: async (text) => messages.push(text) });
+    assert.deepEqual(messages, [
+        '"Be careful, madam, or you might fall through the floor."',
+    ]);
+});
+
+test('shopdig takes only inventory the source leaves eligible', async () => {
+    await runSegment({
+        seed: 226001,
+        datetime: '20780113140500',
+        nethackrc: [
+            'OPTIONS=name:B226Test,role:Wizard,race:human,gender:male,align:neutral',
+            'OPTIONS=!legacy,!tutorial,!splash_screen',
+            'OPTIONS=pettype:none,!acoustics,!autopickup,time,showexp',
+            '',
+        ].join('\n'),
+        moves: '.',
+    });
+    const state = game;
+    const fixture = shopState();
+    state.level = fixture.level;
+    state.u.ux = fixture.u.ux;
+    state.u.uy = fixture.u.uy;
+    state.u.uz = fixture.u.uz;
+    state.u.ushops = [SHOP_ROOMNO, 0, 0, 0, 0];
+    state.flags.female = false;
+    state.u.twoweap = false;
+    const keeper = state.level.rooms[0].resident;
+    keeper.mx = 5;
+    keeper.my = 5;
+    keeper.mextra.eshk.billct = 0;
+    keeper.mextra.eshk.debit = 1;
+
+    const eligible = newObject({ otyp: DART, quan: 1, where: OBJ_INVENT });
+    const leash = newObject({ otyp: LEASH, quan: 1, where: OBJ_INVENT });
+    leash.leashmon = 44;
+    const wand = newObject({ otyp: WAN_SLEEP, quan: 1, where: OBJ_INVENT });
+    const worn = newObject({ otyp: CHAIN_MAIL, quan: 1, where: OBJ_INVENT });
+    worn.owornmask = 1;
+    state.current_wand = wand;
+    eligible.nobj = leash;
+    leash.nobj = wand;
+    wand.nobj = worn;
+    state.invent = eligible;
+
+    const messages = [];
+    await shopdig(1, state, { message: async (text) => messages.push(text) });
+    assert.ok(messages.some((text) => text.includes('grabs your backpack')));
+    assert.equal(keeper.minvent, eligible);
+    assert.equal(eligible.where, OBJ_MINVENT);
+    assert.equal(state.invent, leash);
+    assert.equal(leash.nobj, wand);
+    assert.equal(wand.nobj, worn);
+    assert.equal(worn.where, OBJ_INVENT);
+});
 
 test('inhishop checks the keeper level before the current room', () => {
     const cBody = sourceBody(C_SHK, '\ninhishop(');

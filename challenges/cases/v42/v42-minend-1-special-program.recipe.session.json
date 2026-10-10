@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate source: nethack-c/upstream/dat/minend-1.lua. Mimic of the Mines fixed-map program: A shuffled seven-place list positions objects disguised by monsters, with a source-ordered assortment of gems and a maze of secret doors. Reachability must be established in patched C before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 42042201,
+      "datetime": "20511213131415",
+      "nethackrc": "OPTIONS=name:V42minend1specialprogram,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminend-1.lua\n#wizmap\n"
+    }
+  ]
+}
