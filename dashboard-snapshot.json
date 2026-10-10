@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T00:46:00.136Z",
+  "capturedAt": "2026-10-10T01:52:49.692Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -77349,6 +77349,246 @@
         "worker": "C",
         "state": "blocked",
         "reason": "No independent game-source task remains: Juiblex is recorder-defect evidence, and the two version cases are machine-local provenance differences. Waiting for the next queue after v38 preparation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-prep2-spell-survey-20261010",
+        "type": "turn",
+        "at": "2026-10-10T00:48:35.316Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Surveying one distinct, cheap wizard-mode spell recipe candidate for Prep2."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-20261010-prep2-sit-support-active",
+        "type": "turn",
+        "at": "2026-10-10T00:48:46.103Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B is tracing one read-only sitting candidate for Prep2 and will return the precise source path and overlap check."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-blocked-after-prep2-spell-survey-20261010",
+        "type": "turn",
+        "at": "2026-10-10T00:52:56.952Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "Read-only Prep2 survey complete; one distinct wizard teleport-mode candidate reported, with no source task claimed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep2-active-20261010-0056",
+        "type": "turn",
+        "at": "2026-10-10T00:53:46.139Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-20261010-prep2-sit-support-blocked-v2",
+        "type": "turn",
+        "at": "2026-10-10T00:54:08.172Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Read-only support found a Wizard sit-on-sprung-projectile-trap candidate for trap.c:dotrap; coordinator should verify c140/c142 overlap before recording it."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep2-active-c153-20261010",
+        "type": "turn",
+        "at": "2026-10-10T01:03:42.200Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep2-active-c156-20261010",
+        "type": "turn",
+        "at": "2026-10-10T01:09:39.866Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep2-active-finalize-v38-20261010T0110Z",
+        "type": "turn",
+        "at": "2026-10-10T01:16:51.809Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-bd0142d226e372dac37c8b531a9ec57aa8e8ee64",
+        "type": "ready",
+        "at": "2026-10-10T01:25:34.171Z",
+        "task": "Prep2",
+        "delivery": "bd0142d226e372dac37c8b531a9ec57aa8e8ee64"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep2-idle-v38-20261010T0126Z",
+        "type": "turn",
+        "at": "2026-10-10T01:26:15.301Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep2 v38 packet submitted; waiting for coordinator review and admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-Prep2-bd0142d2-20261010",
+        "type": "received",
+        "at": "2026-10-10T01:26:56.717Z",
+        "task": "Prep2",
+        "delivery": "bd0142d226e372dac37c8b531a9ec57aa8e8ee64"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-review-Prep2-bd0142d2-20261010",
+        "type": "activity",
+        "at": "2026-10-10T01:30:54.642Z",
+        "task": "Prep2",
+        "phase": "review",
+        "reason": "Verifying the v38 mission plan, immutable hashes, and independent C replay evidence before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-Prep2-d9dc93c8-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T01:33:05.875Z",
+        "task": "Prep2",
+        "integration": "d9dc93c830c9dd77615a8f3f760901aec391762f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-Prep2-6b12f38b-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T01:37:38.551Z",
+        "task": "Prep2",
+        "integration": "6b12f38baac14afc1c8c0674b270d272898d343b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-Prep2-6b12f38b-20261010",
+        "type": "validated",
+        "at": "2026-10-10T01:44:48.965Z",
+        "task": "Prep2",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep2-6b12f38baac14afc1c8c0674b270d272898d343b-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T01:45:05.154Z",
+        "task": "Prep2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-admission-v38-6b12f38b-20261010",
+        "type": "activity",
+        "at": "2026-10-10T01:45:24.734Z",
+        "task": "Prep2",
+        "phase": "admission",
+        "reason": "Admitting accepted v38 at the passing checkpoint boundary because implementation workers have no eligible source tasks."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep2-idle-wait-v38-admission-20261010T0145Z",
+        "type": "turn",
+        "at": "2026-10-10T01:46:07.029Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Waiting on Main-owned v38 admission and baseline before choosing another Prep task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-baseline-v38-e2a08814-20261010",
+        "type": "activity",
+        "at": "2026-10-10T01:46:18.628Z",
+        "task": "Prep2",
+        "phase": "baseline",
+        "reason": "Saving the first v38 JavaScript evaluation before implementation workers select its mismatches."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-20261010-v38-next-active",
+        "type": "turn",
+        "at": "2026-10-10T01:49:00.900Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B is selecting an independent implementation task from the admitted v38 queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B204-v38-arrow-trap-investigation",
+        "type": "assign",
+        "at": "2026-10-10T01:49:25.975Z",
+        "task": "B204",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep-v39-trigger-review-active-20261010T0150Z",
+        "type": "turn",
+        "at": "2026-10-10T01:50:20.791Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Rechecking the preparation threshold after v38 admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep-v39-trigger-review-idle-20261010T0150Z",
+        "type": "turn",
+        "at": "2026-10-10T01:50:27.701Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Waiting for Main’s next accepted evaluation/handoff before rechecking Prep selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-v38-wizard-teleport-20261010",
+        "type": "turn",
+        "at": "2026-10-10T01:50:59.395Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating and implementing the wizard teleport spell-mode mismatch from admitted v38."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v38-wizard-teleport-energy-refusal-20261010",
+        "type": "assign",
+        "at": "2026-10-10T01:51:00.880Z",
+        "task": "A2-v38-wizard-teleport-energy-refusal-20261010",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C182-choose-v38-pickup-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T01:51:58.569Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the next independent v38 source case after A2 and B claimed their sessions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C182-v38-single-boulder-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T01:52:00.119Z",
+        "task": "C182",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B204-arrow-trap-preflight-20261010",
+        "type": "implement",
+        "at": "2026-10-10T01:52:21.626Z",
+        "task": "B204",
+        "goal": "fix-arrow-trap-preflight-v38-20261010"
       }
     ]
   },
@@ -77645,8 +77885,8 @@
     ]
   },
   "development": {
-    "executionCommit": "f1a081f4f39b9b572ca485d241c1acadca456bb6",
-    "measuredAt": "2026-10-10T00:38:01.512Z",
+    "executionCommit": "6b12f38baac14afc1c8c0674b270d272898d343b",
+    "measuredAt": "2026-10-10T01:44:11.950Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
