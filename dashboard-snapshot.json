@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T05:45:33.783Z",
+  "capturedAt": "2026-10-10T06:12:10.825Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -78790,6 +78790,170 @@
         "worker": "Prep",
         "state": "active",
         "reason": "v39 has twelve approved distinct C-first mismatches; packaging the manifest and validation evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ab117a6c5e6b5a337822915d4281dddbc6122d46",
+        "type": "ready",
+        "at": "2026-10-10T05:58:26.656Z",
+        "task": "Prep3",
+        "delivery": "ab117a6c5e6b5a337822915d4281dddbc6122d46"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep3-ready-waiting-main-20261010",
+        "type": "turn",
+        "at": "2026-10-10T05:58:43.458Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep3 v39 delivery is ready; waiting for Main to merge, validate, admit it, and save its baseline."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-Prep3-ab117a6c5-20261010",
+        "type": "received",
+        "at": "2026-10-10T05:59:19.208Z",
+        "task": "Prep3",
+        "delivery": "ab117a6c5e6b5a337822915d4281dddbc6122d46"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep3-review-20261010",
+        "type": "activity",
+        "at": "2026-10-10T05:59:20.418Z",
+        "task": "Prep3",
+        "phase": "review",
+        "reason": "Reviewing the v39 recipes, recordings, manifest crosswalk, hashes, and replay receipts before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-Prep3-3eecb3596-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T05:59:40.954Z",
+        "task": "Prep3",
+        "integration": "3eecb35969ddbbd8e2b5278d49fb748de8442d5b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep3-3eecb35969ddbbd8e2b5278d49fb748de8442d5b-validated",
+        "type": "validated",
+        "at": "2026-10-10T06:05:37.319Z",
+        "task": "Prep3",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep3-3eecb35969ddbbd8e2b5278d49fb748de8442d5b-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T06:05:38.883Z",
+        "task": "Prep3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-prep3-admission-v39",
+        "type": "activity",
+        "at": "2026-10-10T06:06:09.609Z",
+        "task": "Prep3",
+        "phase": "admission",
+        "reason": "Admitting the independently replayed, overlap-checked v39 packet at passing tested HEAD 3eecb3596."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep3-main-accepted-merge-20261010",
+        "type": "turn",
+        "at": "2026-10-10T06:06:56.058Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Merged accepted Main; waiting for Main-owned v39 admission and baseline before rechecking preparation trigger."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-prep3-baseline-v39",
+        "type": "activity",
+        "at": "2026-10-10T06:06:57.686Z",
+        "task": "Prep3",
+        "phase": "baseline",
+        "reason": "Recording the first complete v39 JavaScript evaluation at committed admission 30d1b7936."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-v39-baseline-20261010",
+        "type": "turn",
+        "at": "2026-10-10T06:09:47.466Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Syncing the admitted v39 baseline and checking current session reservations."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep4-v40-20261010T0611Z",
+        "type": "assign",
+        "at": "2026-10-10T06:10:34.406Z",
+        "task": "Prep4",
+        "worker": "Prep",
+        "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep4-v40-active-20261010T0611Z",
+        "type": "turn",
+        "at": "2026-10-10T06:10:35.877Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 preparation started at the at-most-12 trigger; planning independent C-source behaviors before JS comparison."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-select-v39-after-admission-20261010",
+        "type": "turn",
+        "at": "2026-10-10T06:10:46.122Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Selecting an independent v39 session and checking B/C ownership before claiming it."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-prep3-baseline-done-v39",
+        "type": "activity",
+        "at": "2026-10-10T06:10:47.690Z",
+        "task": "Prep3",
+        "phase": "done",
+        "reason": "v39 admitted and first complete baseline recorded at 07e02089b; workers resumed from the 12-case queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-active-v39-first-investigation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T06:10:55.336Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Starting an independent source investigation from the admitted v39 queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-assign-v39-cursed-jelly-nosafewait-20261010",
+        "type": "assign",
+        "at": "2026-10-10T06:11:09.038Z",
+        "task": "C-v39-cursed-jelly-nosafewait-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v39-selection-20261010",
+        "type": "turn",
+        "at": "2026-10-10T06:11:17.639Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B209-v39-counted-wizgenesis",
+        "type": "assign",
+        "at": "2026-10-10T06:11:43.121Z",
+        "task": "B209-investigation-v39-counted-wizgenesis",
+        "worker": "B",
+        "kind": "investigation"
       }
     ]
   },
@@ -79097,8 +79261,8 @@
     ]
   },
   "development": {
-    "executionCommit": "2ed3aaf3696d0c9e6d324562479153cc300b743f",
-    "measuredAt": "2026-10-10T05:12:03.283Z",
+    "executionCommit": "3eecb35969ddbbd8e2b5278d49fb748de8442d5b",
+    "measuredAt": "2026-10-10T06:04:25.793Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
