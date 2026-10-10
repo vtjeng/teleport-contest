@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T00:42:02.940Z",
+  "capturedAt": "2026-10-10T00:46:00.136Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -77278,6 +77278,77 @@
         "worker": "B",
         "state": "active",
         "reason": "B is checking the current queue and reservations for the next independent implementation task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B187-e2c0807e1e4e84331ba0f3bc935e9455bc01bbd4",
+        "type": "published",
+        "at": "2026-10-10T00:42:11.397Z",
+        "task": "B187",
+        "commit": "e2c0807e1e4e84331ba0f3bc935e9455bc01bbd4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-20261010-b187-stale-queue-blocked",
+        "type": "turn",
+        "at": "2026-10-10T00:42:53.434Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Waiting for the coordinator to refresh synthetic evaluations and the saved queue at accepted Main f1a081f; no current source task can be selected."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-20261010-e2c-queue-check-active",
+        "type": "turn",
+        "at": "2026-10-10T00:43:21.464Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B is rechecking the published queue and seed continuation after the latest accepted evaluations."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-20261010-e2c-no-source-task",
+        "type": "turn",
+        "at": "2026-10-10T00:44:42.679Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "No source task is eligible: remaining cases are Juiblex recorder-corruption evidence and two Linux/Darwin version-provenance cases; B is available while Prep2 finishes v38."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-resume-B187-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T00:45:12.322Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Resuming after B187 acceptance to check the refreshed queue and source ownership."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-post-e2c-refresh-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T00:45:27.428Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Checking the published queue for an independent source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-blocked-post-e2c-no-game-source-20261010",
+        "type": "turn",
+        "at": "2026-10-10T00:45:41.931Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "No independent game-source task remains. Juiblex needs Main’s recorder-history decision; both version cases need Main’s Linux/Darwin build-provenance decision. Prep2 owns v38 preparation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-post-e2c-no-source-task-20261010",
+        "type": "turn",
+        "at": "2026-10-10T00:45:43.840Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "No independent game-source task remains: Juiblex is recorder-defect evidence, and the two version cases are machine-local provenance differences. Waiting for the next queue after v38 preparation."
       }
     ]
   },
