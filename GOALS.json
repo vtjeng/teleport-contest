@@ -253814,7 +253814,7 @@
     {
       "id": "port-mhitu-mayberem-v41-incubus-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port seduction armor removal",
       "cFile": "mhitu.c",
       "sessions": [
@@ -253828,15 +253828,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9b38c7216cfd3143b81177c48bfb6b718806f17f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mayberem",
           "line": 2309,
           "endLine": 2354,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -254130,7 +254133,1295 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "doseduce",
+            "implementation": "js/mhitu.js",
+            "symbol": "doseduce",
+            "sourceReview": "Read complete upstream mhitu.c:doseduce (1985-2305). It retains the source guards, ring inventory traversal, source-ordered replacement/removal calls, armor slots, transport and adjacency returns, verbalization, outcome draws, attribute and health effects, payment, monster tiredness, relocation and return value. Every mayberem caller now passes its source arguments and awaits the helper's effects; the default encumber_msg callback reaches adjattrib in source order. The existing note_unported('pline.c impossible') represents the void C impossible(\"ring replacement\") call in the final ring-slot else; the prior guard exits when both worn rings are adornment and the remaining arms select a non-adornment slot, making that branch unreachable under the source invariants. No other doseduce callee is skipped.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_ssex",
+                "source": "uhitm.c:mhitm_ad_ssex calls doseduce for an eligible AD_SSEX attack against the hero."
+              },
+              {
+                "path": "js/sounds.js",
+                "symbol": "domonnoise",
+                "source": "sounds.c:domonnoise calls doseduce from the nonnymph MS_SEDUCE arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu-doseduce.test.mjs",
+              "scripts/sounds-doseduce.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sounds.c/doseduce-succubus-male-wizard-c87-no-worn-armor.session.json"
+            ],
+            "sourceFile": "mhitu.c",
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-incubus-seduction-removes-worn-armor",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 45,
+                "source": "uhitm.c:mhitm_ad_ssex -> mhitu.c:doseduce -> mhitu.c:mayberem(uarmc)"
+              }
+            ],
+            "checkedAt": "9b38c7216cfd3143b81177c48bfb6b718806f17f"
+          },
+          {
+            "name": "mayberem",
+            "implementation": "js/mhitu.js",
+            "symbol": "mayberem",
+            "sourceReview": "Read complete upstream mhitu.c:mayberem (2308-2352): absent/unworn and transport/adjacency returns; Deaf message; charisma rn2(20) prompt with short-circuited rn2(2) endearment selection and decline return; otherwise SetVoice, object-specific verbalization, then remove_worn_item. Wired every doseduce call in its ring and armor order and await the void helper's effects. The existing js/steal.js:remove_worn_item is reused to perform the C callee's effects; this delivery does not claim whole steal.c completion, which remains with the parked theft task.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "doseduce",
+                "source": "mhitu.c:doseduce calls mayberem for worn gloves during ring handling and then for cloak, suit, boots, gloves, shield, helm and shirt in source order. The JavaScript caller awaits each void helper for its effects."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu-doseduce.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sounds.c/doseduce-succubus-male-wizard-c87-no-worn-armor.session.json"
+            ],
+            "sourceFile": "mhitu.c",
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-incubus-seduction-removes-worn-armor",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 45,
+                "source": "uhitm.c:mhitm_ad_ssex -> mhitu.c:doseduce -> mhitu.c:mayberem(uarmc) -> steal.c:remove_worn_item"
+              }
+            ],
+            "checkedAt": "9b38c7216cfd3143b81177c48bfb6b718806f17f"
+          }
+        ],
+        "entryPointReview": "The selected source range contains doseduce's call wiring and the whole private mhitu.c:mayberem helper. The admitted v41 hostile-incubus recording exercises the monster AD_SSEX attack path through mhitm_ad_ssex, doseduce and the cloak-removal branch, and matches its complete 46-step replay. The existing sounds.c:domonnoise MS_SEDUCE route is separately exercised by recordings/sounds.c/doseduce-succubus-male-wizard-c87-no-worn-armor.session.json, which matches all 47 boundaries through the no-worn-item return. This delivery reuses js/steal.js:remove_worn_item for effects but leaves whole steal.c completion with the parked theft task.",
+        "entryPoints": [
+          {
+            "name": "hostile monster AD_SSEX seduction removes the hero's worn cloak",
+            "functions": [
+              "doseduce",
+              "mayberem"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-incubus-seduction-removes-worn-armor",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 45,
+                "source": "uhitm.c:mhitm_ad_ssex -> mhitu.c:doseduce -> mhitu.c:mayberem(uarmc) -> steal.c:remove_worn_item"
+              }
+            ]
+          },
+          {
+            "name": "MS_SEDUCE chat reaches doseduce and the no-worn-item return",
+            "functions": [
+              "doseduce",
+              "mayberem"
+            ],
+            "recordings": [
+              "recordings/sounds.c/doseduce-succubus-male-wizard-c87-no-worn-armor.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9b38c7216cfd3143b81177c48bfb6b718806f17f",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-do-wear-ring-off-or-gone-v41-invisibility-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port invisibility ring removal feedback",
+      "cFile": "do_wear.c",
+      "sessions": [
+        "synthetic/v41/v41-ring-of-invisibility-removed"
+      ],
+      "selectionReason": "The accepted v41 ring-removal replay stops at step 37 when do_wear.c Ring_off_or_gone removes an invisibility ring, redraws the newly visible hero, reports unfading, and learns the ring while JavaScript throws.",
+      "detail": "Complete do_wear.c Ring_off_or_gone across its existing partial implementation by replacing the RIN_INVISIBILITY refusal with the source visibility guards, redraw, exact message, and learning order; preserve discarded void diagnostics and already wired Ring_off and Ring_gone callers.",
+      "openedAt": "8e1de30829cd162cc2c0ae10e0e647a7656932c2",
+      "openStanding": {
+        "sha": "9b38c7216cfd3143b81177c48bfb6b718806f17f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "ffd2d10394fbb3c06612668aeaa38762cdfb84c1",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "Ring_off_or_gone",
+          "line": 1347,
+          "endLine": 1448,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1347,
+        "to": 1448
+      },
+      "syntheticProvenance": {
+        "synthetic/v41/v41-ring-of-invisibility-removed": {
+          "session": "synthetic/v41/v41-ring-of-invisibility-removed",
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-ring-of-invisibility-removed",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recordingPath": "challenges/cases/v41/v41-ring-invisibility-removal-reached.session.json",
+          "recordingSha256": "54728a7f830ba59d5e63b95d301511ab03511ffbebd49a99ebdf75a04f56d7ae",
+          "evaluationPath": "challenges/evaluations/accepted-9b38c7216cfd3143b81177c48bfb6b718806f17f-v41.json",
+          "evaluationCommit": "9b38c7216cfd3143b81177c48bfb6b718806f17f"
+        }
+      },
+      "activeStanding": {
+        "sha": "9b38c7216cfd3143b81177c48bfb6b718806f17f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-ring-of-invisibility-removed",
+          "session": "synthetic/v41/v41-ring-of-invisibility-removed",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recording": "challenges/cases/v41/v41-ring-invisibility-removal-reached.session.json",
+          "recordingPath": "challenges/cases/v41/v41-ring-invisibility-removal-reached.session.json",
+          "recordingSha256": "54728a7f830ba59d5e63b95d301511ab03511ffbebd49a99ebdf75a04f56d7ae",
+          "recipe": "challenges/cases/v41/v41-ring-invisibility-removal-reached.recipe.session.json",
+          "recipeSha256": "109e6a98ab4ff39f11901c782d364070e23c0b7c13ca2d93069dbaafa4176dcc",
+          "replayInputSha256": "51b392fa7ca6d5e49003192e05e2542ca72a7b905e436f98a63b33f01a186f51",
+          "evaluationPath": "challenges/evaluations/accepted-9b38c7216cfd3143b81177c48bfb6b718806f17f-v41.json",
+          "evaluationCommit": "9b38c7216cfd3143b81177c48bfb6b718806f17f",
+          "evaluationArtifact": "challenges/evaluations/accepted-9b38c7216cfd3143b81177c48bfb6b718806f17f-v41.json",
+          "evaluationUtc": "2026-10-10T15:51:42.722Z",
+          "remainingScreens": 2,
+          "recordedSteps": 39,
+          "previousScreensMatched": 37,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 37,
+              "total": 39
+            },
+            "rng": {
+              "matched": 2386,
+              "total": 2386
+            },
+            "cursors": {
+              "matched": 37,
+              "total": 39
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: take off reached an unported branch: invisibility newsym for Ring_off otyp 198",
+            "step": 37
+          },
+          "step": 37,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: take off reached an unported branch: invisibility newsym for Ring_off otyp 198",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v41/v41-ring-of-invisibility-removed.json",
+            "result": {
+              "session": "synthetic/v41/v41-ring-of-invisibility-removed",
+              "remainingScreens": 2,
+              "recordedSteps": 39,
+              "corpus": "synthetic",
+              "batch": "v41",
+              "caseId": "v41-ring-of-invisibility-removed",
+              "manifestPath": "challenges/manifests/v41.json",
+              "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+              "recordingSha256": "54728a7f830ba59d5e63b95d301511ab03511ffbebd49a99ebdf75a04f56d7ae",
+              "evaluationPath": "challenges/evaluations/accepted-6e5dacedc7638246a629e7fe6295014ecbb0083d-v41.json",
+              "evaluationCommit": "6e5dacedc7638246a629e7fe6295014ecbb0083d",
+              "status": "complete",
+              "commit": "f2169861c4a504eab3fe59a31cbc29804ca731c4",
+              "mismatch": {
+                "session": "synthetic/v41/v41-ring-of-invisibility-removed",
+                "corpus": "synthetic",
+                "batch": "v41",
+                "caseId": "v41-ring-of-invisibility-removed",
+                "manifestPath": "challenges/manifests/v41.json",
+                "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+                "recording": "challenges/cases/v41/v41-ring-invisibility-removal-reached.session.json",
+                "recordingPath": "challenges/cases/v41/v41-ring-invisibility-removal-reached.session.json",
+                "recordingSha256": "54728a7f830ba59d5e63b95d301511ab03511ffbebd49a99ebdf75a04f56d7ae",
+                "recipe": "challenges/cases/v41/v41-ring-invisibility-removal-reached.recipe.session.json",
+                "recipeSha256": "109e6a98ab4ff39f11901c782d364070e23c0b7c13ca2d93069dbaafa4176dcc",
+                "replayInputSha256": "b5d4f5d9517b817887bfd908b9d385e1d42f27792f66896496c90e4bb4521081",
+                "evaluationPath": "challenges/evaluations/accepted-6e5dacedc7638246a629e7fe6295014ecbb0083d-v41.json",
+                "evaluationCommit": "6e5dacedc7638246a629e7fe6295014ecbb0083d",
+                "remainingScreens": 2,
+                "recordedSteps": 39,
+                "previousScreensMatched": 37,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 37,
+                    "total": 39
+                  },
+                  "rng": {
+                    "matched": 2386,
+                    "total": 2386
+                  },
+                  "cursors": {
+                    "matched": 37,
+                    "total": 39
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: take off reached an unported branch: invisibility newsym for Ring_off otyp 198",
+                  "step": 37
+                },
+                "step": 37,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: take off reached an unported branch: invisibility newsym for Ring_off otyp 198",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v41 ring-removal replay stops when the uncursed ring of invisibility is removed from the right hand. The missing source behavior is do_wear.c:Ring_off_or_gone()'s RIN_INVISIBILITY arm, reached by Ring_off(): after the ring extrinsic is cleared, a visible hero with no remaining invisibility must be redrawn, told that their body seems to unfade, and have the ring type learned. The JavaScript branch currently throws instead.",
+              "source": {
+                "file": "do_wear.c",
+                "branch": "doremring() removes an uncursed worn invisibility ring. Ring_off_or_gone() clears its W_RING extrinsic through setworn(), then its RIN_INVISIBILITY arm runs when Invis, BInvis, and Blind are all false: newsym() redraws the hero, Your() prints the source-selected unfade text based on See_invisible, and learnring() records the type.",
+                "functions": [
+                  "Ring_off_or_gone"
+                ],
+                "callers": [
+                  "do_wear.c:Ring_off() (1449-1452) calls Ring_off_or_gone(obj, FALSE); the admitted route reaches it through cmd.c:'R' -> do_wear.c:doremring() (1874-1891) -> armor_or_accessory_off() -> Ring_off(). JavaScript dispatch is cmd.js:doremring() -> do_wear.js:doremring() -> remove_worn_item() -> Ring_off().",
+                  "do_wear.c:Ring_gone() (1455-1458) calls Ring_off_or_gone(obj, TRUE); existing production callers are eat.c:2274, mhitu.c:2092/2102, read.c:811, zap.c:5921, and steal.c:267. Their existing JavaScript routes call do_wear.js:Ring_gone() from eat.js, mhitu.js, read.js, zap_destroy_items.js, and steal.js.",
+                  "Other Ring_off() callers are do_wear.c:1817/2556/2562/2882/2886, hack.c:902/907, and read.c:824; JavaScript routes already call do_wear.js:Ring_off() from do_wear.js, hack.js, and read.js."
+                ],
+                "dependencies": [
+                  "do_wear.c:learnring() is already implemented in js/do_wear.js and is called after the unfade message.",
+                  "display.c:newsym() is already wired through js/do_wear.js:wearOperationEnv().redraw.",
+                  "invent.c:setworn()/setnotworn() are already implemented and used by the Ring_off()/Ring_gone() wrappers.",
+                  "The separate RIN_SEE_INVISIBLE arm still records note_unported('display.c set_mimic_blocking'); C discards that void result, so that gap is outside the selected invisibility-ring branch."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Queue provenance was refreshed after accepted B222 at game commit 9b38c7216cfd3143b81177c48bfb6b718806f17f: v41/v41-ring-of-invisibility-removed remains in .cache/latest-saved-combined-queue.json at SHA-256 4dd0e006fcd51a146825dbde1eb530367ac4b46db47920f6e007c6e8cd6656bf with 2 remaining screens and earliest mismatch step 37. The accepted evaluation records 37/39 screens, 2386/2386 RNG calls, and 37/39 cursors; its first mismatch is the step-37 unsupported Ring_off invisibility branch.",
+                "The C recording is challenges/cases/v41/v41-ring-invisibility-removal-reached.session.json (SHA-256 54728a7f830ba59d5e63b95d301511ab03511ffbebd49a99ebdf75a04f56d7ae); its recipe is challenges/cases/v41/v41-ring-invisibility-removal-reached.recipe.session.json (SHA-256 109e6a98ab4ff39f11901c782d364070e23c0b7c13ca2d93069dbaafa4176dcc). The trace begins with an uncursed right-hand ring of invisibility and uses the R remove command at zero-based step 37.",
+                "Upstream nethack-c/upstream/src/do_wear.c:1347-1446 defines the complete Ring_off_or_gone() helper. Its RIN_INVISIBILITY arm at lines 1398-1405 runs only after setworn()/setnotworn() changes the property extrinsic; it checks !Invis && !BInvis && !Blind, redraws with newsym(), selects the exact unfade wording from See_invisible, and calls learnring(). Ring_off() and Ring_gone() wrappers are lines 1449-1458.",
+                "At the examined commit f2169861c4a504eab3fe59a31cbc29804ca731c4, js/do_wear.js:1116-1119 throws UnsupportedTakeOffError for RIN_INVISIBILITY after its existing Ring_off_or_gone() setup. Both wrappers and every enumerated C caller already route through the canonical JavaScript helper; no caller adapter is missing."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Ring_off_or_gone",
+            "implementation": "js/do_wear.js",
+            "symbol": "Ring_off_or_gone",
+            "sourceReview": "Read the complete do_wear.c:Ring_off_or_gone() body at lines 1347-1446. Preserved takeoff-mask clearing, the ring-extrinsic invariant check, the gone/setnotworn versus ordinary-off/setworn order, and every source switch arm. The unsupported impossible() diagnostic is recorded with note_unported('pline.c impossible') because C discards its void result; the same applies to set_mimic_blocking() in the RIN_SEE_INVISIBLE arm. Kept the existing source-ordered float_down(), float_vs_flight(), learnring(), attribute, and monster-visibility effects. The RIN_INVISIBILITY arm models Invis, BInvis, Blind, and See_invisible from their property state; when the first three permit the C branch, it redraws, selects the source suffix, prints the unfade message, then calls learnring(). Removed the UnsupportedTakeOffError refusal.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Ring_off",
+                "source": "do_wear.c:Ring_off() at lines 1449-1452 calls Ring_off_or_gone(obj, FALSE). The selected route is cmd.c key 'R' -> do_wear.c:doremring() -> Ring_off()."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Ring_gone",
+                "source": "do_wear.c:Ring_gone() at lines 1455-1458 calls Ring_off_or_gone(obj, TRUE). Existing JavaScript routes call this wrapper from steal.js:steal() (steal.c:steal), eat.js:eataccessory() (eat.c:eataccessory), read.js:recharge() (read.c:recharge), zap_destroy_items.js:destroy_items() (zap.c:destroy_items), and mhitu.js:doseduce() ring handling (mhitu.c:doseduce)."
+              },
+              {
+                "path": "js/steal.js",
+                "symbol": "steal",
+                "source": "steal.c:steal() calls Ring_gone(obj) when a worn ring leaves the hero's inventory; js/steal.js routes that case through do_wear.js:Ring_gone()."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "eataccessory",
+                "source": "eat.c:eataccessory() calls Ring_gone(otmp) before consuming a worn ring; js/eat.js calls do_wear.js:Ring_gone()."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "recharge",
+                "source": "read.c:recharge() calls Ring_gone(obj) when a worn charged ring explodes; js/read.js calls do_wear.js:Ring_gone()."
+              },
+              {
+                "path": "js/zap_destroy_items.js",
+                "symbol": "destroy_items",
+                "source": "zap.c:destroy_items() calls Ring_gone(obj) when it destroys a worn ring; js/zap_destroy_items.js calls do_wear.js:Ring_gone()."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "doremring",
+                "source": "do_wear.c:doremring() selects the accessory and calls armor_or_accessory_off(), which reaches Ring_off(). The command table in cmd.c binds 'R' to doremring()."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runRemoveCommand",
+                "source": "cmd.c binds key 'R' to doremring(); js/cmd.js:runRemoveCommand() forwards the admitted command to js/do_wear.js:doremring()."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-ring-of-invisibility-removed",
+                "segment": 0,
+                "fromStep": 37,
+                "throughStep": 38,
+                "source": "cmd.c key 'R' -> do_wear.c:doremring -> Ring_off -> do_wear.c:Ring_off_or_gone"
+              }
+            ],
+            "checkedAt": "ffd2d10394fbb3c06612668aeaa38762cdfb84c1"
+          }
+        ],
+        "entryPointReview": "Ring_off_or_gone() is a private helper, so entryPoints is empty and this review names its production routes. Its direct wrappers Ring_off() and Ring_gone() retain the source FALSE/setworn and TRUE/setnotworn paths. The selected capital-R command reaches it through cmd.c -> doremring() -> Ring_off(), and the admitted v41 replay exercises the new invisibility arm through that route. Existing Ring_gone() routes from theft, ring consumption, charged-ring explosion, item destruction, and the now-ported mhitu.c:doseduce ring-handling path remain wired. The admitted range establishes the complete helper through the ordinary ring-removal entry; the other production callers share the same canonical wrapper.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ffd2d10394fbb3c06612668aeaa38762cdfb84c1",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-earth-plane-lua-synthetic-v40-20261010",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the Plane of Earth level program",
+      "luaFile": "earth.lua",
+      "sessions": [
+        "synthetic/v40/v40-earth-plane-levelport-generation"
+      ],
+      "selectionReason": "The accepted v40 Earth-plane replay stops at step 23 because the special-level registry has no loader for dat/earth.lua; the complete Lua program owns the remaining level generation.",
+      "detail": "Port every top-level dat/earth.lua statement in source order, generate its fixed map and monster descriptors deterministically from upstream, and register the production loader in js/mklev.js.",
+      "openedAt": "176f1e6dffd5103dfcd0182ca02d16b6d1e8c1b5",
+      "openStanding": {
+        "sha": "ffd2d10394fbb3c06612668aeaa38762cdfb84c1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "07a45f0d02529c0ca8796e4a38578d49c418d1c3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "earth.lua",
+          "line": 1,
+          "endLine": 130,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v40/v40-earth-plane-levelport-generation": {
+          "session": "synthetic/v40/v40-earth-plane-levelport-generation",
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-earth-plane-levelport-generation",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recordingPath": "challenges/cases/v40/v40-earth-plane-pickaxe-earth-arrival-probe.session.json",
+          "recordingSha256": "af27f4b0efd9bf8c21e05169ec8cf907bc43948eaa5c0559f918b2dbbb29a0e5",
+          "evaluationPath": "challenges/evaluations/accepted-ffd2d10394fbb3c06612668aeaa38762cdfb84c1-v40.json",
+          "evaluationCommit": "ffd2d10394fbb3c06612668aeaa38762cdfb84c1"
+        }
+      },
+      "activeStanding": {
+        "sha": "ffd2d10394fbb3c06612668aeaa38762cdfb84c1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-earth-plane-levelport-generation",
+          "session": "synthetic/v40/v40-earth-plane-levelport-generation",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recording": "challenges/cases/v40/v40-earth-plane-pickaxe-earth-arrival-probe.session.json",
+          "recordingPath": "challenges/cases/v40/v40-earth-plane-pickaxe-earth-arrival-probe.session.json",
+          "recordingSha256": "af27f4b0efd9bf8c21e05169ec8cf907bc43948eaa5c0559f918b2dbbb29a0e5",
+          "recipe": "challenges/cases/v40/v40-earth-plane-pickaxe-earth-arrival-probe.recipe.session.json",
+          "recipeSha256": "8c3d7d360adfa2747265f935eb4098f39c36d5a5cc923da7f77d4ea4bcca6a30",
+          "replayInputSha256": "d56d3d58f50d66406e9c70bf637e2f3f7c89b817d1398def65845b8591284c0e",
+          "evaluationPath": "challenges/evaluations/accepted-ffd2d10394fbb3c06612668aeaa38762cdfb84c1-v40.json",
+          "evaluationCommit": "ffd2d10394fbb3c06612668aeaa38762cdfb84c1",
+          "evaluationArtifact": "challenges/evaluations/accepted-ffd2d10394fbb3c06612668aeaa38762cdfb84c1-v40.json",
+          "evaluationUtc": "2026-10-10T16:10:42.956Z",
+          "remainingScreens": 2,
+          "recordedSteps": 25,
+          "previousScreensMatched": 23,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 23,
+              "total": 25
+            },
+            "rng": {
+              "matched": 2678,
+              "total": 4897
+            },
+            "cursors": {
+              "matched": 23,
+              "total": 25
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"earth\"",
+            "step": 23
+          },
+          "step": 23,
+          "kind": "stop",
+          "sourceFile": "earth.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"earth\"",
+          "cFile": null,
+          "luaFile": "earth.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v40/v40-earth-plane-levelport-generation.json",
+            "result": {
+              "session": "synthetic/v40/v40-earth-plane-levelport-generation",
+              "remainingScreens": 2,
+              "recordedSteps": 25,
+              "corpus": "synthetic",
+              "batch": "v40",
+              "caseId": "v40-earth-plane-levelport-generation",
+              "manifestPath": "challenges/manifests/v40.json",
+              "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+              "recordingSha256": "af27f4b0efd9bf8c21e05169ec8cf907bc43948eaa5c0559f918b2dbbb29a0e5",
+              "evaluationPath": "challenges/evaluations/accepted-6e5dacedc7638246a629e7fe6295014ecbb0083d-v40.json",
+              "evaluationCommit": "6e5dacedc7638246a629e7fe6295014ecbb0083d",
+              "status": "complete",
+              "commit": "1c04793d36e33df7aef6186d38a0ddf1d86b62f8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v40",
+                "caseId": "v40-earth-plane-levelport-generation",
+                "session": "synthetic/v40/v40-earth-plane-levelport-generation",
+                "manifestPath": "challenges/manifests/v40.json",
+                "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+                "recording": "challenges/cases/v40/v40-earth-plane-pickaxe-earth-arrival-probe.session.json",
+                "recordingPath": "challenges/cases/v40/v40-earth-plane-pickaxe-earth-arrival-probe.session.json",
+                "recordingSha256": "af27f4b0efd9bf8c21e05169ec8cf907bc43948eaa5c0559f918b2dbbb29a0e5",
+                "recipe": "challenges/cases/v40/v40-earth-plane-pickaxe-earth-arrival-probe.recipe.session.json",
+                "recipeSha256": "8c3d7d360adfa2747265f935eb4098f39c36d5a5cc923da7f77d4ea4bcca6a30",
+                "replayInputSha256": "a711391a7d2ec0ee1498a65e5df13d8ec9352584a3bd45c28d4d95d6d7cf66a5",
+                "evaluationPath": "challenges/evaluations/accepted-6e5dacedc7638246a629e7fe6295014ecbb0083d-v40.json",
+                "evaluationCommit": "6e5dacedc7638246a629e7fe6295014ecbb0083d",
+                "evaluationArtifact": "challenges/evaluations/accepted-6e5dacedc7638246a629e7fe6295014ecbb0083d-v40.json",
+                "evaluationUtc": "2026-10-10T14:35:17.689Z",
+                "remainingScreens": 2,
+                "recordedSteps": 25,
+                "previousScreensMatched": 23,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 23,
+                    "total": 25
+                  },
+                  "rng": {
+                    "matched": 2678,
+                    "total": 4897
+                  },
+                  "cursors": {
+                    "matched": 23,
+                    "total": 25
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"earth\"",
+                  "step": 23
+                },
+                "step": 23,
+                "kind": "stop",
+                "sourceFile": "earth.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"earth\"",
+                "cFile": null,
+                "luaFile": "earth.lua",
+                "line": null
+              },
+              "summary": "The C replay enters the Plane of Earth, but JavaScript stops at makelevel because the special-level registry has no earth loader. The actionable scope is the whole dat/earth.lua program plus its registry entry; the remaining level-description calls already have JavaScript adapters. Earth is an endgame level, so current level-generation species admission skips the main-dungeon allowlist; no Makemon change is indicated by this diagnosis.",
+              "source": {
+                "file": "dat/earth.lua",
+                "branch": "When a wizard uses #wizlevelport to choose Earth, the destination takes mklev.c:makelevel through the special-level branch and loads earth.lua. The program initializes the endgame map, flags, messages, terrain, arrival and portal regions, monsters, and boulder.",
+                "functions": [
+                  "earth.lua"
+                ],
+                "callers": [
+                  "C entry: wizcmds.c:wiz_level_tele() calls teleport.c:level_tele(); its accepted destination schedules do.c:goto_level(), which reaches mklev.c:makelevel() and the special-level branch. JavaScript: js/wizcmds.js:wiz_level_tele() calls js/teleport.js:level_tele(), then js/do.js:goto_level() reaches js/mklev.js:makelevel().",
+                  "C loader: mklev.c:makelevel() calls mkmaze.c:makemaz(), which calls sp_lev.c:load_special(\"earth.lua\") and runs the complete dat/earth.lua top-level program. JavaScript: js/mklev.js:makelevel() calls makemaz()/load_special(); ensureSpecialLevelLoaders() must register the imported js/earth_levels.js:earth() loader.",
+                  "Earth Lua API calls are dispatched by sp_lev.c:lspo_level_init(), lspo_level_flags(), lspo_message(), lspo_map(), lspo_replace_terrain(), lspo_teleport_region(), lspo_levregion(), lspo_monster(), and lspo_object(); JavaScript dispatches through createSpecialLevelApi() in js/mklev.js."
+                ],
+                "dependencies": []
+              },
+              "goalKind": "lua-port",
+              "evidence": [
+                "Queue provenance was refreshed after accepted ring removal at game commit ffd2d10394fbb3c06612668aeaa38762cdfb84c1: .cache/latest-saved-combined-queue.json at SHA-256 476cfed81c5d0a21a6ea2664cecd3404b45eb6b765ee7d9ccfc94436edb0bc2 still has 2 remaining screens, earliest mismatch step 23, and 25 recorded boundaries for synthetic/v40/v40-earth-plane-levelport-generation. The v40 manifest is 32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b and the recording is af27f4b0efd9bf8c21e05169ec8cf907bc43948eaa5c0559f918b2dbbb29a0e5.",
+                "The accepted v40 evaluation reports 23/25 screens and cursors, 2678/4897 RNG calls, and the first stop at zero-based step 23 with `unsupported level change: makelevel: load_special() has no loader for special level \"earth\"`.",
+                "The complete upstream program `nethack-c/upstream/dat/earth.lua` defines `des.level_init`, four level flags, three messages, the 76-by-20 map, a 5-percent rock-to-room replacement over the level, a fixed arrival tile, an air portal, the ordered monster list, and a boulder. Existing level-description dispatch covers these APIs in `js/mklev.js`.",
+                "In `js/mklev.js`, `makelevel()` throws the observed refusal at line 705 when `SPECIAL_LEVEL_LOADERS` has no base loader; `ensureSpecialLevelLoaders()` imports the Fire, Air, and Water modules but registers no Earth module. The source-backed fix is the whole Earth Lua program in `js/earth_levels.js`, generated map data from the upstream map literal, and one registry entry under `contract:special-level-loader-registry`.",
+                "The Earth level is in the Endgame. `js/makemon_create.js:preflightCreation()` applies its explicit species allowlist only outside level creation or for main-dungeon level generation; the Earth generation path is `in_mklev` on a non-main dungeon. The existing Makemon path is therefore not an identified prerequisite for this loader task; the admitted differential will verify its descriptors."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "earth.lua",
+            "implementation": "js/earth_levels.js",
+            "symbol": "earth",
+            "sourceReview": "Read and compared all 130 lines of nethack-c/upstream/dat/earth.lua, including every top-level statement. The loader preserves source order for level_init, all four level flags, three messages, map creation, the 5-percent terrain replacement, fixed player arrival, air portal creation, 62 monster descriptors in their original positional/table forms, and the final boulder. The fixed 20-by-76 map and ordered monster descriptors are generated from the upstream file by scripts/generate-earth-level.mjs. Checked each des.* call against the existing sp_lev.c adapter in js/mklev.js; this program has no other Lua helper calls or unported callees. The production registry now dispatches earth to this loader, removing the observed no-loader stop for Earth.",
+            "callers": [
+              {
+                "path": "js/earth_levels.js",
+                "symbol": "earth",
+                "source": "C dat/earth.lua runs as the whole program passed to sp_lev.c:load_special(\"earth.lua\"). The JavaScript loader receives the corresponding special-level descriptor API and makes every source call in order."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "ensureSpecialLevelLoaders",
+                "source": "C mklev.c:makelevel() selects the endgame special level; mkmaze.c:makemaz() calls sp_lev.c:load_special(\"earth.lua\"). JavaScript ensureSpecialLevelLoaders() imports EARTH_LEVEL_LOADERS and registers earth, which load_special()/makemaz()/makelevel() dispatch through createSpecialLevelApi()."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_level_tele",
+                "source": "C wizcmds.c:wiz_level_tele() invokes teleport.c:level_tele(); the accepted destination schedules do.c:goto_level(), which generates the destination through mklev.c:makelevel(). The v40 recording reaches the program through this command and the wizard endgame level menu."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/earth-level-loader.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-earth-plane-levelport-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 24,
+                "source": "wizcmds.c:wiz_level_tele -> teleport.c:level_tele -> do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/earth.lua; JavaScript: js/wizcmds.js:wiz_level_tele -> js/teleport.js:level_tele -> js/do.js:goto_level -> js/mklev.js:makelevel/load_special -> js/earth_levels.js:earth"
+              }
+            ],
+            "checkedAt": "07a45f0d02529c0ca8796e4a38578d49c418d1c3"
+          }
+        ],
+        "entryPointReview": "The active entry point is special loading of the Earth endgame program after a wizard level-port. C reaches wizcmds.c:wiz_level_tele -> teleport.c:level_tele -> do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special. JavaScript follows js/wizcmds.js -> js/teleport.js -> js/do.js -> js/mklev.js and dispatches through the special-level loader registry. The whole top-level dat/earth.lua program is impure, and the admitted v40 range reaches the complete loader through the production dispatcher. There are no alternate active entry points in the selected Lua program.",
+        "entryPoints": [
+          {
+            "name": "Wizard level-port arrival on the Plane of Earth",
+            "functions": [
+              "earth.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-earth-plane-levelport-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 24,
+                "source": "wizcmds.c:wiz_level_tele -> teleport.c:level_tele -> do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/earth.lua; JavaScript: js/wizcmds.js:wiz_level_tele -> js/teleport.js:level_tele -> js/do.js:goto_level -> js/mklev.js:makelevel/load_special -> js/earth_levels.js:earth"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "07a45f0d02529c0ca8796e4a38578d49c418d1c3",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-pray-revive-tame-pet-v40-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port prayer revival of saved tame pets",
+      "cFile": "pray.c",
+      "sessions": [
+        "synthetic/v40/v40-coaligned-prayer-revives-tame-pet-corpse"
+      ],
+      "selectionReason": "The current v40 mismatch first diverges after coaligned prayer because prayer_done skips pray_revive, leaving the saved tame pet corpse on the floor and shifting later placement RNG.",
+      "detail": "Port complete pray.c:pray_revive lines 2177-2195 and wire its prayer_done p_type-3 coaligned-altar caller before water_prayer. Reuse the existing revive and animate_statue return-valued implementations and preserve floor-pile scan order, saved-trait filters, boolean returns, and caller ordering.",
+      "openedAt": "cde866c1b6f10842e4fa1d902e6196833a56f6c0",
+      "openStanding": {
+        "sha": "07a45f0d02529c0ca8796e4a38578d49c418d1c3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "ab8908874e1e9d75514e41091f87203999314ce0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "pray_revive",
+          "line": 2177,
+          "endLine": 2198,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2177,
+        "to": 2198
+      },
+      "syntheticProvenance": {
+        "synthetic/v40/v40-coaligned-prayer-revives-tame-pet-corpse": {
+          "session": "synthetic/v40/v40-coaligned-prayer-revives-tame-pet-corpse",
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-coaligned-prayer-revives-tame-pet-corpse",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recordingPath": "challenges/cases/v40/v40-coaligned-prayer-revives-tame-pet-corpse.session.json",
+          "recordingSha256": "c00c965e693b24d7b5fdf90398f24830c3c3bb0a0bfff0801cd37ad53510f674",
+          "evaluationPath": "challenges/evaluations/accepted-07a45f0d02529c0ca8796e4a38578d49c418d1c3-v40.json",
+          "evaluationCommit": "07a45f0d02529c0ca8796e4a38578d49c418d1c3"
+        }
+      },
+      "activeStanding": {
+        "sha": "07a45f0d02529c0ca8796e4a38578d49c418d1c3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-coaligned-prayer-revives-tame-pet-corpse",
+          "session": "synthetic/v40/v40-coaligned-prayer-revives-tame-pet-corpse",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recording": "challenges/cases/v40/v40-coaligned-prayer-revives-tame-pet-corpse.session.json",
+          "recordingPath": "challenges/cases/v40/v40-coaligned-prayer-revives-tame-pet-corpse.session.json",
+          "recordingSha256": "c00c965e693b24d7b5fdf90398f24830c3c3bb0a0bfff0801cd37ad53510f674",
+          "recipe": "challenges/cases/v40/v40-coaligned-prayer-revives-tame-pet-corpse.recipe.session.json",
+          "recipeSha256": "d6bd6f34b273998fbab6e4d36860c7df960125e0b19f4f76b4a333c4afb1278d",
+          "replayInputSha256": "771c4f6cf84c6a1e25d2775fccb150232527f4a5f2fe05f0ba87b0ba9c0284e9",
+          "evaluationPath": "challenges/evaluations/accepted-07a45f0d02529c0ca8796e4a38578d49c418d1c3-v40.json",
+          "evaluationCommit": "07a45f0d02529c0ca8796e4a38578d49c418d1c3",
+          "evaluationArtifact": "challenges/evaluations/accepted-07a45f0d02529c0ca8796e4a38578d49c418d1c3-v40.json",
+          "evaluationUtc": "2026-10-10T16:32:53.471Z",
+          "remainingScreens": 2,
+          "recordedSteps": 43,
+          "previousScreensMatched": 41,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 41,
+              "total": 43
+            },
+            "rng": {
+              "matched": 2605,
+              "total": 2655
+            },
+            "cursors": {
+              "matched": 42,
+              "total": 43
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 41,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 41,
+                "key": "y"
+              },
+              "kind": "ch",
+              "row": 8,
+              "column": 53,
+              "cCell": {
+                "ch": "d",
+                "color": 15,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": ".",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2605,
+              "cEntry": "rn2(8)=3",
+              "cCaller": "collect_coords(teleport.c:700)",
+              "jsEntry": "rn2(3)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 41,
+                "key": "y"
+              },
+              "stepIndex": 41
+            },
+            "cursor": {
+              "index": 42,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 42,
+                "key": " "
+              },
+              "cCursor": [
+                49,
+                0,
+                1
+              ],
+              "jsCursor": [
+                54,
+                8,
+                1
+              ]
+            }
+          },
+          "step": 41,
+          "kind": "rng",
+          "sourceFile": "teleport.c",
+          "function": "collect_coords",
+          "message": null,
+          "cFile": "teleport.c",
+          "luaFile": null,
+          "line": 700,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v40/v40-coaligned-prayer-revives-tame-pet-corpse.json",
+            "result": {
+              "session": "synthetic/v40/v40-coaligned-prayer-revives-tame-pet-corpse",
+              "corpus": "synthetic",
+              "batch": "v40",
+              "caseId": "v40-coaligned-prayer-revives-tame-pet-corpse",
+              "manifestPath": "challenges/manifests/v40.json",
+              "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+              "recordingSha256": "c00c965e693b24d7b5fdf90398f24830c3c3bb0a0bfff0801cd37ad53510f674",
+              "evaluationPath": "challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v40.json",
+              "evaluationCommit": "2e5a22fcb59f677d8f21f487546440d26850930c",
+              "remainingScreens": 2,
+              "recordedSteps": 43,
+              "status": "complete",
+              "commit": "6e94e579a70f690ef900b60df41decc274b9a67e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v40",
+                "caseId": "v40-coaligned-prayer-revives-tame-pet-corpse",
+                "session": "synthetic/v40/v40-coaligned-prayer-revives-tame-pet-corpse",
+                "manifestPath": "challenges/manifests/v40.json",
+                "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+                "recording": "challenges/cases/v40/v40-coaligned-prayer-revives-tame-pet-corpse.session.json",
+                "recordingPath": "challenges/cases/v40/v40-coaligned-prayer-revives-tame-pet-corpse.session.json",
+                "recordingSha256": "c00c965e693b24d7b5fdf90398f24830c3c3bb0a0bfff0801cd37ad53510f674",
+                "recipe": "challenges/cases/v40/v40-coaligned-prayer-revives-tame-pet-corpse.recipe.session.json",
+                "recipeSha256": "d6bd6f34b273998fbab6e4d36860c7df960125e0b19f4f76b4a333c4afb1278d",
+                "replayInputSha256": "7f7d0d6ed7ecd3895a4d297125152bfc9f29c01872c501ac97dc9f807a1adf88",
+                "evaluationPath": "challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v40.json",
+                "evaluationCommit": "2e5a22fcb59f677d8f21f487546440d26850930c",
+                "evaluationArtifact": "challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v40.json",
+                "evaluationUtc": "2026-10-10T14:51:09.023Z",
+                "remainingScreens": 2,
+                "recordedSteps": 43,
+                "previousScreensMatched": 41,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 41,
+                    "total": 43
+                  },
+                  "rng": {
+                    "matched": 2605,
+                    "total": 2655
+                  },
+                  "cursors": {
+                    "matched": 42,
+                    "total": 43
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 41,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 41,
+                      "key": "y"
+                    },
+                    "kind": "ch",
+                    "row": 8,
+                    "column": 53,
+                    "cCell": {
+                      "ch": "d",
+                      "color": 15,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": ".",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2605,
+                    "cEntry": "rn2(8)=3",
+                    "cCaller": "collect_coords(teleport.c:700)",
+                    "jsEntry": "rn2(3)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 41,
+                      "key": "y"
+                    },
+                    "stepIndex": 41
+                  },
+                  "cursor": {
+                    "index": 42,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 42,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      49,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      54,
+                      8,
+                      1
+                    ]
+                  }
+                },
+                "step": 41,
+                "kind": "rng",
+                "sourceFile": "teleport.c",
+                "function": "collect_coords",
+                "message": null,
+                "cFile": "teleport.c",
+                "luaFile": null,
+                "line": 700
+              },
+              "summary": "The first mismatch is attributed to teleport.c:collect_coords, but C reaches that RNG only after the coaligned altar prayer invokes pray_revive() and restores the tame pet from its corpse. JS prayer_done still skips this source branch with note_unported, so later prayer RNG is consumed where C revives the dog. The actionable owner is the whole pray.c:pray_revive helper and its prayer_done caller wiring.",
+              "source": {
+                "file": "pray.c",
+                "branch": "In prayer_done() p_type == 3 on a coaligned altar, the floor pile at the hero coordinates contains a corpse or statue with saved monster traits marked tame and not a minion.",
+                "functions": [
+                  "pray_revive"
+                ],
+                "callers": [
+                  "pray.c:prayer_done() p_type-3 altar arm calls (void) pray_revive() before (void) water_prayer(TRUE) at 2336-2338.",
+                  "pray.c:dopray() installs prayer_done as the delayed prayer callback; the #pray command reaches it through the negative-multi countdown and hack.c:unmul()."
+                ],
+                "dependencies": [
+                  "zap.c:revive() returns a monster pointer consumed by pray_revive() to produce its boolean result; the existing JS owner is zap.js:revive().",
+                  "zap.c:montraits() restores saved corpse traits and returns the revived monster; JS zap.js:montraits() delegates creation through makemon_create.js:makemon_revival().",
+                  "trap.c:animate_statue() is the other consumed-return callee for the statue arm; the existing JS owner is trap.js:animate_statue().",
+                  "makemon.c:makemon() is reached beneath saved-trait restoration and its result is consumed by montraits(); worker B currently owns that whole-function reservation, so C scope remains pray.c:pray_revive unless source verification demonstrates that dependency needs expansion."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Queue provenance was refreshed after accepted B223 at game commit 07a45f0d02529c0ca8796e4a38578d49c418d1c3: v40/v40-coaligned-prayer-revives-tame-pet-corpse remains in .cache/latest-saved-combined-queue.json at SHA-256 d73bb8439f9c009e8a418bd7b866c843af46c9687faf20a01c71599e3362ba03 with 2 remaining screens and earliest mismatch step 41. The accepted evaluation records 41/43 screens, 2605/2655 RNG calls, and 42/43 cursors; it still reports C rn2(8)=3 from collect_coords(teleport.c:700), JS rn2(3)=0, and a C dog glyph where JS shows the floor.",
+                "C pray.c:pray_revive() (2177-2196) scans svl.level.objects[u.ux][u.uy] in linked-list order and accepts only CORPSE or STATUE objects with saved OMONST traits whose monster is tame and not a minion. The corpse arm returns revive(otmp, TRUE) != NULL; the statue arm returns animate_statue(otmp, u.ux, u.uy, ANIMATE_SPELL, NULL) != NULL.",
+                "C pray.c:prayer_done() (2336-2338) reaches pray_revive only in the p_type-3 coaligned arm when on_altar() is true, discards its boolean result, then calls water_prayer(TRUE). JS pray.js:prayer_done() currently records note_unported('pray.c pray_revive') at the same position before water_prayer(true), identifying the missing behavior and safe caller replacement.",
+                "The C step-41 random log continues after collect_coords with next_ident(mkobj.c:521), newmonhp(makemon.c:1042), makemon(makemon.c:1279), montraits(zap.c:750), and wary_dog(dog.c:1313). This is the source path for restoring the saved pet; collect_coords is reached inside revival placement rather than being the defective selection algorithm. The JS branch skips revival, then consumes rn2(3) in later prayer handling.",
+                "The independent JS implementations already present for the selected helper callees are zap.js:revive(), zap.js:montraits(), makemon_create.js:makemon_revival(), and trap.js:animate_statue(). B currently reserves source:makemon.c:makemon; the C task can remain bounded to pray.c:pray_revive and js/pray.js while declaring that existing caller dependency, unless focused source/runtime validation proves the makemon owner must change."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "pray_revive",
+            "implementation": "js/pray.js",
+            "symbol": "pray_revive",
+            "sourceReview": "Read the complete pray.c:pray_revive() definition (2177-2195) and prayer_done() caller (2336-2340). Preserve linked floor-pile order at the hero coordinates; accept only CORPSE or STATUE with OMONST whose mtame is true and isminion is false; return false when none qualifies; for a corpse return the result of revive(otmp, TRUE) != NULL; otherwise return animate_statue(otmp, u.ux, u.uy, ANIMATE_SPELL, NULL) != NULL. prayer_done() discards this boolean and calls water_prayer(TRUE) next. Reuse the existing returned-result owners zap.c:revive and trap.c:animate_statue; the corpse path's saved-trait branch continues through zap.c:montraits and makemon.c:makemon. The JavaScript helper awaits the corresponding asynchronous return values and keeps the original ordering. The helper is impure because its callees create or restore monsters, mutate the floor/object state and print output; it makes no random draw itself.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "prayer_done",
+                "source": "pray.c:prayer_done() calls (void) pray_revive() in its p_type-3 coaligned altar arm at 2336-2338; the result is discarded before water_prayer(TRUE)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-coaligned-prayer-revives-tame-pet-corpse",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 42,
+                "source": "cmd.c #pray -> pray.c:dopray installs prayer_done -> prayer_done p_type-3 altar arm -> pray_revive -> zap.c:revive -> zap.c:montraits -> makemon.c:makemon, then water_prayer(TRUE) and pleased()"
+              }
+            ],
+            "checkedAt": "ab8908874e1e9d75514e41091f87203999314ce0"
+          }
+        ],
+        "entryPointReview": "pray_revive has one active production entry point: the coaligned p_type-3 altar arm in pray.c:prayer_done() (2336-2338). The #pray command reaches prayer_done after dopray installs the callback and allmain.c completes the negative-multi wait through hack.c:unmul(). The helper is called only at pray.c:2337; its corpse and statue arms share this caller. The v40 saved-pet corpse case exercises the corpse arm through the complete command and callback path.",
+        "entryPoints": [
+          {
+            "name": "coaligned altar prayer restores a saved tame pet",
+            "functions": [
+              "pray_revive"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-coaligned-prayer-revives-tame-pet-corpse",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 42,
+                "source": "cmd.c #pray -> pray.c:dopray -> prayer_done -> pray_revive; the corpse branch calls revive -> montraits -> makemon and then prayer_done continues to water_prayer(TRUE) and pleased()"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ab8908874e1e9d75514e41091f87203999314ce0",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-worm-move-tail-tracking-v40-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Port whole worm_move and wire every production relocation caller so long-worm tail placement, growth timing, healing, and shrink behavior follow C.",
+      "cFile": "worm.c",
+      "sessions": [
+        "synthetic/v40/v40-hostile-long-worm-head-move-updates-tail"
+      ],
+      "selectionReason": "The refreshed v40 queue has one remaining screen at step 32; C enters worm.c:worm_move and draws rnd(5), while JavaScript leaves the former head square empty and advances to a later rn2(5).",
+      "detail": "Port worm.c:worm_move lines 196-278 and replace the six source-positioned gaps in monmove.c:m_move, mhitu.c:mattacku, and muse.c use_defensive/use_misc/muse_unslime. Existing count_wsegs, shrink_worm, mcalcmove, redraw, and RNG helpers provide the required closure. Admitted v40 covers ordinary movement; an independent recording covers mattacku. Source guards prove the four MUSE paths inactive for a valid long worm, with blocked recipes retained.",
+      "openedAt": "79d9b823f8b360e1425016f97cab031cc8329ee7",
+      "openStanding": {
+        "sha": "ab8908874e1e9d75514e41091f87203999314ce0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "9970268482520fbfdae76892e79aa050c4ef5c4c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "worm_move",
+      "session": "synthetic/v40/v40-hostile-long-worm-head-move-updates-tail",
+      "step": 32,
+      "syntheticProvenance": {
+        "synthetic/v40/v40-hostile-long-worm-head-move-updates-tail": {
+          "session": "synthetic/v40/v40-hostile-long-worm-head-move-updates-tail",
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-hostile-long-worm-head-move-updates-tail",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recordingPath": "challenges/cases/v40/v40-worm-head-move-tail-shift-two-turns-cfirst.session.json",
+          "recordingSha256": "9b87f92c0b07205f5ec0d16b4e6245232cdc13d280d984838e4d70bff21d141c",
+          "evaluationPath": "challenges/evaluations/accepted-ab8908874e1e9d75514e41091f87203999314ce0-v40.json",
+          "evaluationCommit": "ab8908874e1e9d75514e41091f87203999314ce0"
+        }
+      },
+      "activeStanding": {
+        "sha": "ab8908874e1e9d75514e41091f87203999314ce0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-hostile-long-worm-head-move-updates-tail",
+          "session": "synthetic/v40/v40-hostile-long-worm-head-move-updates-tail",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recording": "challenges/cases/v40/v40-worm-head-move-tail-shift-two-turns-cfirst.session.json",
+          "recordingPath": "challenges/cases/v40/v40-worm-head-move-tail-shift-two-turns-cfirst.session.json",
+          "recordingSha256": "9b87f92c0b07205f5ec0d16b4e6245232cdc13d280d984838e4d70bff21d141c",
+          "recipe": "challenges/cases/v40/v40-worm-head-move-tail-shift-two-turns-cfirst.recipe.session.json",
+          "recipeSha256": "04f552d272b4dea030f7594b8c6a5b4d0f8daa23c7fc6db744e33821eac09737",
+          "replayInputSha256": "fb15edb69f933bedd245b41a3575aea5a2f979ec44a33f6bebfc57a5640f5fd8",
+          "evaluationPath": "challenges/evaluations/accepted-ab8908874e1e9d75514e41091f87203999314ce0-v40.json",
+          "evaluationCommit": "ab8908874e1e9d75514e41091f87203999314ce0",
+          "evaluationArtifact": "challenges/evaluations/accepted-ab8908874e1e9d75514e41091f87203999314ce0-v40.json",
+          "evaluationUtc": "2026-10-10T16:52:38.630Z",
+          "remainingScreens": 1,
+          "recordedSteps": 33,
+          "previousScreensMatched": 32,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 33
+            },
+            "rng": {
+              "matched": 2656,
+              "total": 2671
+            },
+            "cursors": {
+              "matched": 33,
+              "total": 33
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 4,
+              "column": 18,
+              "cCell": {
+                "ch": "~",
+                "color": 3,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": ".",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2655,
+              "cEntry": "rnd(5)=1",
+              "cCaller": "worm_move(worm.c:224)",
+              "jsEntry": "rn2(5)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "l"
+              },
+              "stepIndex": 32
+            },
+            "cursor": null
+          },
+          "step": 32,
+          "kind": "rng",
+          "sourceFile": "worm.c",
+          "function": "worm_move",
+          "message": null,
+          "cFile": "worm.c",
+          "luaFile": null,
+          "line": 224,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v40/v40-hostile-long-worm-head-move-updates-tail.json",
+            "result": {
+              "session": "synthetic/v40/v40-hostile-long-worm-head-move-updates-tail",
+              "remainingScreens": 1,
+              "recordedSteps": 33,
+              "corpus": "synthetic",
+              "batch": "v40",
+              "caseId": "v40-hostile-long-worm-head-move-updates-tail",
+              "manifestPath": "challenges/manifests/v40.json",
+              "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+              "recordingSha256": "9b87f92c0b07205f5ec0d16b4e6245232cdc13d280d984838e4d70bff21d141c",
+              "evaluationPath": "challenges/evaluations/accepted-38d270ae4309c9d36dccf097fb299afadb180f0a-v40.json",
+              "evaluationCommit": "38d270ae4309c9d36dccf097fb299afadb180f0a",
+              "status": "complete",
+              "commit": "c7d54e26678cf40ee190cfe19a5e0248e153672a",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v40",
+                "caseId": "v40-hostile-long-worm-head-move-updates-tail",
+                "session": "synthetic/v40/v40-hostile-long-worm-head-move-updates-tail",
+                "manifestPath": "challenges/manifests/v40.json",
+                "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+                "recording": "challenges/cases/v40/v40-worm-head-move-tail-shift-two-turns-cfirst.session.json",
+                "recordingPath": "challenges/cases/v40/v40-worm-head-move-tail-shift-two-turns-cfirst.session.json",
+                "recordingSha256": "9b87f92c0b07205f5ec0d16b4e6245232cdc13d280d984838e4d70bff21d141c",
+                "recipe": "challenges/cases/v40/v40-worm-head-move-tail-shift-two-turns-cfirst.recipe.session.json",
+                "recipeSha256": "04f552d272b4dea030f7594b8c6a5b4d0f8daa23c7fc6db744e33821eac09737",
+                "replayInputSha256": "03a87ef34ec6d141de5a25d5a0e6ed24708f687cafa5cb82f8d1d41c90b88325",
+                "evaluationPath": "challenges/evaluations/accepted-38d270ae4309c9d36dccf097fb299afadb180f0a-v40.json",
+                "evaluationCommit": "38d270ae4309c9d36dccf097fb299afadb180f0a",
+                "evaluationArtifact": "challenges/evaluations/accepted-38d270ae4309c9d36dccf097fb299afadb180f0a-v40.json",
+                "evaluationUtc": "2026-10-10T15:21:55.315Z",
+                "remainingScreens": 1,
+                "recordedSteps": 33,
+                "previousScreensMatched": 32,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 32,
+                    "total": 33
+                  },
+                  "rng": {
+                    "matched": 2656,
+                    "total": 2671
+                  },
+                  "cursors": {
+                    "matched": 33,
+                    "total": 33
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "l"
+                    },
+                    "kind": "ch",
+                    "row": 4,
+                    "column": 18,
+                    "cCell": {
+                      "ch": "~",
+                      "color": 3,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": ".",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2655,
+                    "cEntry": "rnd(5)=1",
+                    "cCaller": "worm_move(worm.c:224)",
+                    "jsEntry": "rn2(5)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "l"
+                    },
+                    "stepIndex": 32
+                  },
+                  "cursor": null
+                },
+                "step": 32,
+                "kind": "rng",
+                "sourceFile": "worm.c",
+                "function": "worm_move",
+                "message": null,
+                "cFile": "worm.c",
+                "luaFile": null,
+                "line": 224
+              },
+              "summary": "The v40 mismatch is the missing whole worm.c:worm_move behavior after a long-worm head has moved. C inserts a visible segment at the previous head square, appends the new hidden head, updates the growth clock, and either grows/heals or drops the oldest tail segment. JS monmove.js:m_move currently records note_unported after moving the head, so it leaves the old tail coordinates and skips worm_move’s rnd/rn1/d calls. The same C function is called by mattacku, use_defensive, use_misc, and munslime; their existing JS adapters also record this same missing helper.",
+              "source": {
+                "file": "worm.c",
+                "branch": "A monster with nonzero wormno has had its head moved; worm_move inserts the old-head segment, appends the new hidden head, and updates growth time and HP when wgrowtime[wormno] <= svm.moves, otherwise removing the oldest visible tail segment.",
+                "functions": [
+                  "worm_move"
+                ],
+                "callers": [
+                  "monmove.c:m_move() calls worm_move(mtmp) after remove_monster/place_monster and msg_mon_movement at 2051-2058; js/monmove.js:m_move currently records note_unported at 4221-4222.",
+                  "mhitu.c:mattacku() calls worm_move(mtmp) after moving a ceiling-hiding long worm onto the hero square and before retrying enexto when the tail occupies the candidate square at 584-590; js/mhitu.js:mattacku currently records note_unported at 1642-1645.",
+                  "muse.c:use_defensive() calls worm_move after moving a worm onto a trapdoor at 1054-1059 and a teleport trap at 1150-1155; js/muse.js:use_defensive has matching note_unported sites at 1004-1005 and 1106-1107.",
+                  "muse.c:use_misc() calls worm_move after moving a worm onto a polymorph trap at 2534-2540; js/muse.js:use_misc records note_unported at 1627-1628.",
+                  "muse.c:munslime() retains a guarded worm_move after forced relocation to a trap at 3128-3132 (commented as normally unreachable for worms); js/muse.js:munslime retains the corresponding guarded note_unported at 3261-3263."
+                ],
+                "dependencies": [
+                  "worm.c:count_wsegs() supplies the current hidden-head-inclusive segment count; js/worm.js:count_wsegs() already implements the count.",
+                  "worm.c:shrink_worm() is the non-growing branch callee; js/worm.js:shrink_worm() already removes the oldest tail node and redraws it.",
+                  "mon.c:mcalcmove(worm, FALSE) supplies the existing-speed divisor when a nonzero growth clock is reset; js/mon.js:mcalcmove() already implements this source function.",
+                  "rm.h:place_worm_seg is the source macro that writes the worm into level.monsters[x][y]; js/worm.js owns the same level-local monster grid and ordered segment array.",
+                  "display.c:newsym redraws the newly placed tail segment; js/display.js:newsym() is already used by worm.js redraw helpers.",
+                  "rng.c:rnd(), rn1(), and d() supply the growth-clock and HP draws; js/rng.js already exposes all three operations."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Queue provenance was refreshed after accepted prayer revival at game commit ab8908874e1e9d75514e41091f87203999314ce0: v40/v40-hostile-long-worm-head-move-updates-tail remains in .cache/latest-saved-combined-queue.json at SHA-256 18de1c6a12f9efefe0537a4b0f8c6de1425ad2f5674e62d4b772877570bc2caf with 1 remaining screen and earliest mismatch step 32. The accepted evaluation records 32/33 screens, 2656/2671 RNG calls, and 33/33 cursors; it still reports C rnd(5)=1 from worm_move(worm.c:224) while JavaScript next draws rn2(5)=0.",
+                "The saved v40 evaluation first diverges at segment 0, step 32, key l: C draws rnd(5)=1 from worm_move(worm.c:224), while JavaScript next draws rn2(5)=0; the same frame has C tail glyph ~ and JavaScript floor glyph . at row 4, column 18. The prior 32 screens and all 33 cursor positions match.",
+                "Upstream worm.c:worm_move() at lines 196-278 first places a segment at the previous head coordinate and redraws it (204-206), appends a hidden node at the current head coordinate (211-216), then checks wgrowtime <= svm.moves (218). For a newly initialized worm it sets wgrowtime to svm.moves + rnd(5) (222-224); for later growth it uses mcalcmove(worm,FALSE), rn1(10,2), integer division by max(mmove,1), and svm.moves (225-238). It then computes the segment-based HP limit, draws d(2,2), and applies the previous-max/limit cap branches (240-270); otherwise it calls shrink_worm (271-276).",
+                "The selected recording is challenges/cases/v40/v40-worm-head-move-tail-shift-two-turns-cfirst.session.json. It creates a hostile long worm with #wizgenesis, then moves it twice east. At the second move, the C worm_move redraw and RNG entries are missing from JS because js/monmove.js:m_move only records note_unported after moving the head.",
+                "The direct C call inventory is six sites across monmove.c:m_move, mhitu.c:mattacku, muse.c:use_defensive (two trap types), muse.c:use_misc, and muse.c:munslime. Each corresponding current JS site has a note_unported(\"worm.c worm_move\") placeholder; full-function completion must wire the shared helper at each source-ordered site. The munslime caller remains guarded and carries the source comment that worms normally do not reach it.",
+                "The existing worm state uses level.worms[wormno] = {segments, growtime}; initworm initializes growtime to zero, count_wsegs and shrink_worm are already present, and source-positioned JS helper calls can own the same movement and HP changes without expanding into worm_nomove or unrelated worm functions."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9970268482520fbfdae76892e79aa050c4ef5c4c",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

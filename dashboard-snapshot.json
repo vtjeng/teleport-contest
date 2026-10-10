@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T15:43:17.572Z",
+  "capturedAt": "2026-10-10T17:18:16.638Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -82154,60 +82154,446 @@
         "type": "accepted",
         "at": "2026-10-10T15:41:51.360Z",
         "task": "C-v41-tower2-special-program-generation-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v41-tower2-special-program-generation-investigation-20261010-c55634db09f335857850c556e79a4e0ea3304cc7",
+        "type": "published",
+        "at": "2026-10-10T15:43:25.551Z",
+        "task": "C-v41-tower2-special-program-generation-investigation-20261010",
+        "commit": "c55634db09f335857850c556e79a4e0ea3304cc7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B222-b843ad9e2743",
+        "type": "received",
+        "at": "2026-10-10T15:45:38.970Z",
+        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010",
+        "delivery": "b843ad9e2743aa3e6d895fe45e243db421a80329"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B224-turn-blocked-wait-B222-mhitu-release-20261010",
+        "type": "turn",
+        "at": "2026-10-10T15:46:17.506Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "B224 traced the v40 leash page to gulp-time unleash_all. Waiting for B222 to release js/mhitu.js before implementing the corrected scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B222-9b38c7216cfd",
+        "type": "integrating",
+        "at": "2026-10-10T15:48:12.914Z",
+        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010",
+        "integration": "9b38c7216cfd3143b81177c48bfb6b718806f17f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B222-9b38c7216cfd",
+        "type": "validated",
+        "at": "2026-10-10T15:53:55.265Z",
+        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B222-investigation-v41-incubus-mayberem-seduction-20261010-9b38c7216cfd3143b81177c48bfb6b718806f17f-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T15:55:14.311Z",
+        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B224-turn-active-unleash-all-after-B222-20261010",
+        "type": "turn",
+        "at": "2026-10-10T15:56:43.376Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing the recorded gulp-time leash release through unleash_all and its active JavaScript callers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-resume-worm-after-B222-acceptance-20261010",
+        "type": "turn",
+        "at": "2026-10-10T15:56:49.380Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "B222 acceptance cleared the shared-module dependency. C is syncing accepted Main before claiming worm_move and its caller paths."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B222-investigation-v41-incubus-mayberem-seduction-20261010-01a6ae28ca1427498af51ff27264fbd55f81288a",
+        "type": "published",
+        "at": "2026-10-10T15:57:40.625Z",
+        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010",
+        "commit": "01a6ae28ca1427498af51ff27264fbd55f81288a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-assign-20261010",
+        "type": "assign",
+        "at": "2026-10-10T15:58:28.388Z",
+        "task": "Prep6",
+        "worker": "Prep",
+        "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T15:58:30.117Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "The 12-session preparation trigger fired; v42 is claimed and C-first candidate planning is underway."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-ring-invisibility-20261010",
+        "type": "received",
+        "at": "2026-10-10T15:59:37.377Z",
+        "task": "C-v41-ring-invisibility-removed-investigation-20261010",
+        "delivery": "caccbf4858d3dbc47ee6195f4641ab9d24c587c0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-ring-invisibility-ffd2d10394",
+        "type": "integrating",
+        "at": "2026-10-10T16:04:50.118Z",
+        "task": "C-v41-ring-invisibility-removed-investigation-20261010",
+        "integration": "ffd2d10394fbb3c06612668aeaa38762cdfb84c1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-worm-move-tail-v40-20261010",
+        "type": "implement",
+        "at": "2026-10-10T16:05:05.794Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "goal": "port-worm-move-tail-tracking-v40-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-c-first-complete-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:05:09.460Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v42’s first C-first slate has one mismatch and eleven matches; source review and new candidate work continue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-ring-invisibility-38066391423",
+        "type": "validated",
+        "at": "2026-10-10T16:12:26.450Z",
+        "task": "C-v41-ring-invisibility-removed-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2196247cfc60aa4c18ea634f74a17bf7d6de05f1",
+        "type": "ready",
+        "at": "2026-10-10T16:13:41.084Z",
+        "task": "B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010",
+        "delivery": "2196247cfc60aa4c18ea634f74a17bf7d6de05f1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v41-ring-invisibility-removed-investigation-20261010-ffd2d10394fbb3c06612668aeaa38762cdfb84c1-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T16:13:49.096Z",
+        "task": "C-v41-ring-invisibility-removed-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B224-turn-idle-after-submit-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:14:55.656Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B224 is ready to merge; waiting for a current queue before selecting the next independent task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v41-ring-invisibility-removed-investigation-20261010-d63e36a0e020d069049eef1a0f9d6c830ae08dd0",
+        "type": "published",
+        "at": "2026-10-10T16:15:41.496Z",
+        "task": "C-v41-ring-invisibility-removed-investigation-20261010",
+        "commit": "d63e36a0e020d069049eef1a0f9d6c830ae08dd0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B223-earth-plane-20261010",
+        "type": "received",
+        "at": "2026-10-10T16:17:44.507Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010",
+        "delivery": "9886401eb6cff2cf12e0f705b6056ffa9915369d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-post-d63-sync-20261010-01",
+        "type": "turn",
+        "at": "2026-10-10T16:17:56.486Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Reviewing the refreshed synthetic queue for an independent source task after B224 submission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v41-steed-pool-investigation-20261010-01",
+        "type": "assign",
+        "at": "2026-10-10T16:18:22.695Z",
+        "task": "B225-investigation-v41-forced-steed-dismount-at-pool-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B225-steed-dismount-blocked-by-B224-20261010-01",
+        "type": "park",
+        "at": "2026-10-10T16:18:56.434Z",
+        "task": "B225-investigation-v41-forced-steed-dismount-at-pool-20261010",
+        "reason": "The admitted C trace is steed.c:kick_steed -> trap.c:drown -> steed.c:dismount_steed(DISMOUNT_GENERIC). The required production caller is trap.c:drown / js/trap.js, still reserved by pending B224 apply.c:unleash_all wiring; dismount_steed cannot be delivered without that caller path. Resume after B224 is accepted and releases source:trap.c:drown."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-wave2-complete-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:19:03.720Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v42 currently has two distinct mismatches; 23 source-program controls match and C-first exploration continues."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B223-earth-fec4a610a",
+        "type": "integrating",
+        "at": "2026-10-10T16:22:32.990Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010",
+        "integration": "fec4a610aef94961dbb1188547f1ff229a85a381"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B226-shopdig-investigation-20261010-01",
+        "type": "assign",
+        "at": "2026-10-10T16:22:40.609Z",
+        "task": "B226-investigation-v40-shop-floor-digdown-warning-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-wave3-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:22:46.956Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v42 has one confirmed distinct C-first mismatch; 23 controls match, and minetn-6 is retained as a provisional reset/finalization overlap while the search continues."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B223-earth-07a45f0d0",
+        "type": "integrating",
+        "at": "2026-10-10T16:27:03.001Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010",
+        "integration": "07a45f0d02529c0ca8796e4a38578d49c418d1c3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B226-um-dist-dependency-20261010",
+        "type": "park",
+        "at": "2026-10-10T16:29:03.529Z",
+        "task": "B226-investigation-v40-shop-floor-digdown-warning-20261010",
+        "reason": "B226 investigation is committed at 0d94df979 and source-traced to shk.c:shopdig. Implementation requires canonical apply.c:um_dist because shopdig consumes its Boolean result; B224 still owns source:apply.c:um_dist and js/apply.js allowed path through pending delivery 2196247cfc60aa4c18ea634f74a17bf7d6de05f1. Preserve the report and resume after B224 acceptance releases this scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-blocked-B224-apply-um-dist-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:29:46.287Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "B226 shopdig investigation is preserved and parked on B224’s apply.c:um_dist scope; no other current queue candidate is free of pending ownership. Waiting for B224 acceptance to resume."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-wave3-adjudicated-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:32:46.918Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v42 has two approved distinct C-first mismatches and 32 matching controls; three valid probes are preserved as overlaps while source-based exploration continues."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-b223-earth-hosted-38067875710",
+        "type": "validated",
+        "at": "2026-10-10T16:34:26.095Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B223-investigation-v40-earth-plane-levelport-20261010-07a45f0d02529c0ca8796e4a38578d49c418d1c3-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T16:35:37.676Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-blocked-after-B223-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:36:26.521Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "B223 Earth is merged; the saved queue is pre-B223. Remaining current candidates overlap B224 or C ownership, so B is waiting for an accepted scope release and fresh queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B223-investigation-v40-earth-plane-levelport-20261010-9f48c699271a7cea2697a739142c949ee119be3d",
+        "type": "published",
+        "at": "2026-10-10T16:37:09.658Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010",
+        "commit": "9f48c699271a7cea2697a739142c949ee119be3d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-wave3-approved-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:40:14.112Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v42 has two approved distinct C-first mismatches and 32 matching controls; three valid overlap probes are preserved while source-based exploration continues."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-c-prayer-c7d54e26678cf40ee190cfe19a5e0248e153672a",
+        "type": "received",
+        "at": "2026-10-10T16:42:19.612Z",
+        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010",
+        "delivery": "c7d54e26678cf40ee190cfe19a5e0248e153672a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-worm-move-active-after-source-guards-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:43:21.652Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C continues the accepted-base worm tail fix. Ordinary movement and the ceiling-hiding attack have matching runtime evidence; source guards block the four MUSE branches for valid long worms."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-c-prayer-ab8908874",
+        "type": "integrating",
+        "at": "2026-10-10T16:46:50.952Z",
+        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010",
+        "integration": "ab8908874e1e9d75514e41091f87203999314ce0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-c-prayer-hosted-38069190355",
+        "type": "validated",
+        "at": "2026-10-10T16:53:52.845Z",
+        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010-ab8908874e1e9d75514e41091f87203999314ce0-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T16:55:05.164Z",
+        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-426dd3ff80ebd553d529ea20613fbd31c28ce474",
+        "type": "ready",
+        "at": "2026-10-10T16:55:13.442Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "delivery": "426dd3ff80ebd553d529ea20613fbd31c28ce474"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-b224-bones-runtime-evidence-20261010",
+        "type": "feedback",
+        "at": "2026-10-10T16:55:30.890Z",
+        "task": "B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010",
+        "delivery": "2196247cfc60aa4c18ea634f74a17bf7d6de05f1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B224-bones-correction-20261010",
+        "type": "resume",
+        "at": "2026-10-10T16:56:10.971Z",
+        "task": "B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B224-bones-correction-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:56:12.768Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010-89d3d49a17ff032310ee20cf8b3105e2cca9f109",
+        "type": "published",
+        "at": "2026-10-10T16:57:25.461Z",
+        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010",
+        "commit": "89d3d49a17ff032310ee20cf8b3105e2cca9f109"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-c-worm-426dd3ff-20261010",
+        "type": "received",
+        "at": "2026-10-10T16:59:41.634Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "delivery": "426dd3ff80ebd553d529ea20613fbd31c28ce474"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-c-worm-28534382af4e-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T17:04:33.080Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "integration": "28534382af4e7637472e05c36442f78652ed1ac7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-c-worm-997026848252-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T17:09:19.289Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "integration": "9970268482520fbfdae76892e79aa050c4ef5c4c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B224-correction-blocked-bones-evidence-20261010",
+        "type": "turn",
+        "at": "2026-10-10T17:16:05.064Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-c-worm-997026848-38070711297",
+        "type": "validated",
+        "at": "2026-10-10T17:16:07.340Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v40-hostile-long-worm-head-tail-investigation-20261010-9970268482520fbfdae76892e79aa050c4ef5c4c-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T17:17:02.988Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010",
-        "worker": "B",
-        "goal": "port-mhitu-mayberem-v41-incubus-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "b843ad9e2743aa3e6d895fe45e243db421a80329",
-        "since": "2026-10-10T14:29:55.912Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
-      {
-        "task": "B223-investigation-v40-earth-plane-levelport-20261010",
-        "worker": "B",
-        "goal": "port-earth-plane-lua-synthetic-v40-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "9886401eb6cff2cf12e0f705b6056ffa9915369d",
-        "since": "2026-10-10T14:57:17.431Z",
-        "blockedBy": [
-          "B222-investigation-v41-incubus-mayberem-seduction-20261010"
-        ],
-        "unblocks": 0
-      },
-      {
-        "task": "C-v41-ring-invisibility-removed-investigation-20261010",
-        "worker": "C",
-        "goal": "port-do-wear-ring-off-or-gone-v41-invisibility-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "caccbf4858d3dbc47ee6195f4641ab9d24c587c0",
-        "since": "2026-10-10T15:05:31.054Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
-      {
-        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010",
-        "worker": "C",
-        "goal": "port-pray-revive-tame-pet-v40-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "c7d54e26678cf40ee190cfe19a5e0248e153672a",
-        "since": "2026-10-10T15:26:36.041Z",
-        "blockedBy": [
-          "C-v41-ring-invisibility-removed-investigation-20261010"
-        ],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -82528,12 +82914,34 @@
         "since": "2026-10-10T14:46:29.538Z",
         "blockedBy": [],
         "reason": "Parked after source trace showed the step-76 object-resistance RNG divergence follows the step-75 leash-snap dog movement. The obj_resists helper already performs the source-matched unconditional rn2(100); the active cause lies in dogmove.c:dog_move and js/dogmove.js, reserved by B220 until its delivery is accepted."
+      },
+      {
+        "task": "B225-investigation-v41-forced-steed-dismount-at-pool-20261010",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-10T16:18:56.434Z",
+        "blockedBy": [],
+        "reason": "The admitted C trace is steed.c:kick_steed -> trap.c:drown -> steed.c:dismount_steed(DISMOUNT_GENERIC). The required production caller is trap.c:drown / js/trap.js, still reserved by pending B224 apply.c:unleash_all wiring; dismount_steed cannot be delivered without that caller path. Resume after B224 is accepted and releases source:trap.c:drown."
+      },
+      {
+        "task": "B226-investigation-v40-shop-floor-digdown-warning-20261010",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-10T16:29:03.529Z",
+        "blockedBy": [],
+        "reason": "B226 investigation is committed at 0d94df979 and source-traced to shk.c:shopdig. Implementation requires canonical apply.c:um_dist because shopdig consumes its Boolean result; B224 still owns source:apply.c:um_dist and js/apply.js allowed path through pending delivery 2196247cfc60aa4c18ea634f74a17bf7d6de05f1. Preserve the report and resume after B224 acceptance releases this scope."
       }
     ]
   },
   "development": {
-    "executionCommit": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d",
-    "measuredAt": "2026-10-10T15:39:45.655Z",
+    "executionCommit": "9970268482520fbfdae76892e79aa050c4ef5c4c",
+    "measuredAt": "2026-10-10T17:15:42.159Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
