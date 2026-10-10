@@ -190,6 +190,7 @@ import { place_worm_tail_randomly, remove_worm } from './worm.js';
 import { newsym, flush_screen, shieldeff } from './display.js';
 import { mon_explodes } from './explode.js';
 import { drain_item, resist } from './zap.js';
+import { snuff_lit } from './apply_splash_lit.js';
 import { ttyPline } from './tty_message.js';
 import { canseemon, canspotmon } from './display.js';
 import { mon_reflects } from './muse.js';
@@ -1126,7 +1127,7 @@ export async function gulpmm(magr, mdef, mattk, rawEnv = {}) {
     }
     if (!flaming(magr.data)) {
         for (let obj = mdef.minvent; obj; obj = obj.nobj)
-            note_unported('apply.c snuff_lit');
+            await snuff_lit(obj, { ...env, state, message });
     }
     if (is_vampshifter(mdef)
         && await newcham(mdef, state.mons[mdef.cham], {

@@ -285,13 +285,12 @@ import { mpickobj } from './steal.js';
 import { ohitmon, thitu } from './mthrowu.js';
 import { sleep_monst } from './mhitm.js';
 import {
-    snuff_candle,
+    snuff_lit,
     splash_monster_light,
 } from './apply_splash_lit.js';
 import {
     dealloc_obj,
     carried,
-    isCandle,
     mksobj,
     newObject,
     objectType,
@@ -307,16 +306,12 @@ import {
     AMULET_OF_LIFE_SAVING,
     BOULDER,
     BRASS_LANTERN,
-    CANDELABRUM_OF_INVOCATION,
     CORPSE,
     DART,
     ARROW,
     IRON_SHOES,
     KICKING_BOOTS,
     IRON,
-    MAGIC_LAMP,
-    OIL_LAMP,
-    POT_OIL,
     ROCK,
     SADDLE,
     WAND_CLASS,
@@ -330,7 +325,6 @@ import {
     gloves_simple_name,
     helm_simple_name,
     just_an,
-    otense,
     suit_simple_name,
     the,
     Yname2,
@@ -365,7 +359,7 @@ import { burnarmor } from './trap_erode_obj.js';
 import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 
-import { burn_away_slime, end_burn, fall_asleep } from './timeout.js';
+import { burn_away_slime, fall_asleep } from './timeout.js';
 import {
     incr_itimeout,
     make_blinded,
@@ -3267,25 +3261,8 @@ function rustTrapMonsterLifesaver(monster, state) {
 // trap path cannot do. The remaining lit-object cases mirror snuff_lit() and
 // snuff_candle(), including their source messages.
 async function splash_hero_light(obj, env) {
-    const { state } = env;
     if (!obj?.lamplit || obj.otyp === BRASS_LANTERN) return false;
-    if (obj.otyp === OIL_LAMP
-        || obj.otyp === MAGIC_LAMP
-        || obj.otyp === POT_OIL) {
-        if (!heroIsBlind(state)) {
-            await requireTrapOperation(env, 'message')(
-                `${Yname2(obj, state)} ${otense(obj, 'go', state)} out!`,
-                state,
-                env,
-            );
-        }
-        end_burn(obj, true, objectGenerationEnv(env));
-        return true;
-    }
-    const candle = isCandle(obj);
-    if (candle || obj.otyp === CANDELABRUM_OF_INVOCATION)
-        return snuff_candle(obj, env);
-    return false;
+    return snuff_lit(obj, env);
 }
 
 // C ref: trap.c trapeffect_rust_trap() (1594-1727), both hero and monster

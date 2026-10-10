@@ -207,6 +207,7 @@ import {
 } from './obj.js';
 
 import { get_obj_location, obj_is_burning } from './light.js';
+import { snuff_lit } from './apply_splash_lit.js';
 import { bagotricks, set_malign } from './makemon.js';
 import { makemon, makemon_runtime } from './makemon_create.js';
 import { courtmon } from './mkroom.js';
@@ -2988,9 +2989,7 @@ async function in_container(obj, state) {
 
     await freeinv(obj, { state });
     if (obj_is_burning(obj)) {
-        // C discards snuff_lit()'s result; preserve the call boundary without
-        // inventing its light/timer effects.
-        note_unported('light.c snuff_lit');
+        await snuff_lit(obj, { state });
     }
 
     let wasUnpaid = false;
