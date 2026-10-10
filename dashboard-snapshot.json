@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T21:47:53.834Z",
+  "capturedAt": "2026-10-10T22:00:26.804Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -84230,22 +84230,76 @@
         "type": "accepted",
         "at": "2026-10-10T21:47:19.028Z",
         "task": "B-v42-cursed-book-case0-teleport-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-v42-cursed-book-case0-teleport-investigation-20261010-bbafd6c69bbcb529a6ee9abeacbd2abc98a57255",
+        "type": "published",
+        "at": "2026-10-10T21:48:02.546Z",
+        "task": "B-v42-cursed-book-case0-teleport-investigation-20261010",
+        "commit": "bbafd6c69bbcb529a6ee9abeacbd2abc98a57255"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-after-cursed-acceptance-idle-20261010",
+        "type": "turn",
+        "at": "2026-10-10T21:48:20.548Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B’s cursed_book fix is accepted and B’s rust-monster delivery remains queued. The only free v42 mismatch needs js/uhitm.js while C’s silver_searing task owns that file; waiting for the next queue refresh."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v42-lichen-mbhitm-unturn-you-20261010",
+        "type": "implement",
+        "at": "2026-10-10T21:50:21.768Z",
+        "task": "C-v42-monster-undead-turning-lichen-corpse-investigation-20261010",
+        "goal": "port-muse-mbhitm-undead-turning-v42-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-v42-bigrm-correction-4622757d",
+        "type": "received",
+        "at": "2026-10-10T21:50:54.323Z",
+        "task": "A2-investigation-v42-bigrm-11-special-program-20261010",
+        "delivery": "4622757dc009cb30a8d9a6513971d7f8545dfe05"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-v42-bigrm-37044eda52fe",
+        "type": "integrating",
+        "at": "2026-10-10T21:53:17.552Z",
+        "task": "A2-investigation-v42-bigrm-11-special-program-20261010",
+        "integration": "37044eda52fe8b08877c9f10c3aa300bee7c5291"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-cfirst-update-20261010b",
+        "type": "turn",
+        "at": "2026-10-10T21:58:20.834Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep7/v43 is active: C has reached leprechaun gold theft, monster healing, and monster blindness cure. Continuing C-first source candidates; no JS comparisons yet."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validate-a2-bigrm-37044eda",
+        "type": "validated",
+        "at": "2026-10-10T21:58:50.938Z",
+        "task": "A2-investigation-v42-bigrm-11-special-program-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v42-bigrm-11-special-program-20261010-37044eda52fe8b08877c9f10c3aa300bee7c5291-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T21:59:51.132Z",
+        "task": "A2-investigation-v42-bigrm-11-special-program-20261010"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "A2-investigation-v42-bigrm-11-special-program-20261010",
-        "worker": "A2",
-        "goal": "port-bigrm-11-special-level-v42-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "4622757dc009cb30a8d9a6513971d7f8545dfe05",
-        "since": "2026-10-10T21:19:18.729Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "C-v42-silver-sears-monk-polymorph-claw-ring-investigation-20261010",
         "worker": "C",
@@ -84615,8 +84669,8 @@
     ]
   },
   "development": {
-    "executionCommit": "8a92dbad299eaf18f0d8f3e18e58f45bb5cc0e7a",
-    "measuredAt": "2026-10-10T21:45:41.726Z",
+    "executionCommit": "37044eda52fe8b08877c9f10c3aa300bee7c5291",
+    "measuredAt": "2026-10-10T21:57:52.918Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
