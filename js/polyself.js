@@ -1211,18 +1211,12 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
                     state, env);
                 expulsionMessage = false;
             }
-            if (expulsionMessage) {
-                // mhitu.c expels()'s named-message arm is not implemented.
-                // The void result is discarded; record the exact source gap.
-                note_unported('mhitu.c expels named-message arm');
-            } else {
-                const { expels } = await import('./mhitu.js');
-                await expels(engulfer, {
-                    ...env,
-                    state,
-                    expulsionMessage: false,
-                });
-            }
+            const { expels } = await import('./mhitu.js');
+            await expels(engulfer, {
+                ...env,
+                state,
+                expulsionMessage,
+            });
             wasExpelled = true;
         }
     } else if (u.ustuck && !sticking
@@ -2297,8 +2291,8 @@ export async function doremove(state = game) {
 // trapped; inside an engulfer the fluid is expelled, swept away or
 // dissolved; over an existing trap the web covers, muffles, thickens,
 // vanishes or triggers it; on stairs it fails; otherwise a WEB trap is made.
-// mhitu.c expels() with a message, dig.c bury_objs() and shk.c add_damage()
-// are unported and C discards their results, so those calls record gaps.
+// dig.c bury_objs() and shk.c add_damage() remain unported discarded-result
+// calls; this function now delegates swallowed release to mhitu.c:expels().
 export async function dospinweb(state = game) {
     const u = state.u;
     const x = u.ux;
@@ -2326,8 +2320,8 @@ export async function dospinweb(state = game) {
             state,
         );
         if (is_animal(u.ustuck.data)) {
-            // expels(u.ustuck, u.ustuck->data, TRUE)
-            note_unported('mhitu.c expels');
+            const { expels } = await import('./mhitu.js');
+            await expels(u.ustuck, { state, expulsionMessage: true });
             return ECMD_OK;
         }
         if (is_whirly(u.ustuck.data)) {

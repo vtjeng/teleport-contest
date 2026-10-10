@@ -98,9 +98,9 @@ import { create_critters, monhp_per_lvl, newmcorpsenm } from './makemon.js';
 import {
     makemon_revival, makemon_runtime, newcham_revival, neweshk, } from './makemon_create.js';
 import {
-    can_be_hatched, completelyburns, attacktype_fordmg, defended, dead_species, dmgtype, dmgtype_fromattack, is_demon, perceives, hides_under, is_whirly, mindless, is_mplayer, is_rider, is_reviver, is_vampshifter, resists_drli, is_swimmer, amphibious, breathless, Resists_Elem, resists_magm, resists_blnd, resists_blnd_by_arti, monstseesu, monstunseesu, nonliving, is_golem, carnivorous, nohands, is_undead, sticks, type_is_pname, unique_corpstat, } from './mondata.js';
+    can_be_hatched, completelyburns, defended, dead_species, dmgtype, dmgtype_fromattack, is_demon, perceives, hides_under, is_whirly, mindless, is_mplayer, is_rider, is_reviver, is_vampshifter, resists_drli, is_swimmer, amphibious, breathless, Resists_Elem, resists_magm, resists_blnd, resists_blnd_by_arti, monstseesu, monstunseesu, nonliving, is_golem, carnivorous, nohands, is_undead, sticks, type_is_pname, unique_corpstat, } from './mondata.js';
 import {
-    AD_ACID, AD_ANY, AD_COLD, AD_DGST, AD_DISN, AD_DRLI, AD_ELEC, AD_FIRE, AD_DRST, AD_MAGM, AD_RBRE, AD_SEDU, AD_SPEL, AD_SSEX, AD_WRAP, AT_ENGL, PM_CLAY_GOLEM, PM_CROCODILE, PM_FLESH_GOLEM, PM_GLASS_GOLEM, PM_GOLD_GOLEM, PM_IRON_GOLEM, PM_LEATHER_GOLEM, PM_PAPER_GOLEM, PM_ROPE_GOLEM, PM_SKELETON, PM_STONE_GOLEM, PM_STRAW_GOLEM, PM_WOOD_GOLEM, PM_DEATH, PM_DOPPELGANGER, PM_MONK, PM_KNIGHT, PM_HEALER, PM_GHOST, PM_PESTILENCE, PM_GREMLIN, PM_LONG_WORM, PM_ARCHEOLOGIST, G_NOCORPSE, G_UNIQ, NUMMONS, S_EEL, S_GOLEM, S_MIMIC, S_ZOMBIE, MZ_MEDIUM, } from './monsters.js';
+    AD_ACID, AD_COLD, AD_DGST, AD_DISN, AD_DRLI, AD_ELEC, AD_FIRE, AD_DRST, AD_MAGM, AD_RBRE, AD_SEDU, AD_SPEL, AD_SSEX, AT_ENGL, PM_CLAY_GOLEM, PM_CROCODILE, PM_FLESH_GOLEM, PM_GLASS_GOLEM, PM_GOLD_GOLEM, PM_IRON_GOLEM, PM_LEATHER_GOLEM, PM_PAPER_GOLEM, PM_ROPE_GOLEM, PM_SKELETON, PM_STONE_GOLEM, PM_STRAW_GOLEM, PM_WOOD_GOLEM, PM_DEATH, PM_DOPPELGANGER, PM_MONK, PM_KNIGHT, PM_HEALER, PM_GHOST, PM_PESTILENCE, PM_GREMLIN, PM_LONG_WORM, PM_ARCHEOLOGIST, G_NOCORPSE, G_UNIQ, NUMMONS, S_EEL, S_GOLEM, S_MIMIC, S_ZOMBIE, MZ_MEDIUM, } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
 import { obj_resists } from './bury.js';
 import { del_engr_at, engr_at, make_engr_at, rloc_engr } from './engrave.js';
@@ -969,9 +969,8 @@ async function boxlock_invent(obj, state = game) {
     void obj;
 }
 
-// C ref: zap.c release_hold() (578-606).  The swallowed expels(TRUE) arm is
-// still outside the port; keep that void call as a named source gap rather
-// than invoking expels() with its different FALSE-message contract.
+// C ref: zap.c release_hold() (578-606). Its swallowed arm calls expels(TRUE)
+// after the digestive mouth cue, preserving source message and relocation order.
 export async function release_hold(state = game) {
     const holder = state.u?.ustuck;
     if (!holder) {
@@ -988,10 +987,7 @@ export async function release_hold(state = game) {
             else
                 await ttyPline('You feel a sudden rush of air!', state);
         }
-        // C passes `TRUE` here (zap.c:598), while the current expels owner
-        // implements only its FALSE-message contract.  The return is void,
-        // so preserve the source boundary until that arm is ported.
-        note_unported('mhitu.c expels TRUE');
+        await expels(holder, { state, expulsionMessage: true });
     } else if (sticks(state.youmonst?.data)) {
         set_ustuck(null, state);
         await ttyPline(`You release ${mon_nam(holder, state)}.`, state);
@@ -3607,10 +3603,11 @@ export async function bhitm(monster, wand, state = game,
                     rawEnv,
                 );
                 await ttyPline('A huge hole opens up...', state, rawEnv);
-                // zap.c ignores expels()'s return. Its TRUE expulsion-message
-                // arm is not yet ported, so preserve the source boundary and
-                // continue through bhitm()'s common tail.
-                note_unported('mhitu.c expels TRUE');
+                await expels(monster, {
+                    ...rawEnv,
+                    state,
+                    expulsionMessage: true,
+                });
             }
         }
     } else if (otyp === WAN_OPENING || otyp === SPE_KNOCK) {
@@ -6032,10 +6029,9 @@ export async function zapnodir(obj, state = game,
     }
 }
 
-// C ref: dig.c zap_dig() (1548-1754). The swallowed branch still stops at
-// digests()/expels() because their message and relocation chain is not yet
-// owned here; vertical down-dig calls the ported dighole() but later hole
-// descent remains incomplete. The horizontal adjacent-pit arm runs
+// C ref: dig.c zap_dig() (1548-1754). The swallowed branch uses the canonical
+// expels() message and relocation path; vertical down-dig calls the ported
+// dighole() but later hole descent remains incomplete. The horizontal adjacent-pit arm runs
 // pit_flow()/liquid_flow() in source order. The
 // normal horizontal and maze arms are complete through their beam animation,
 // source terrain order, vision updates, and discarded shop/watch hooks.
@@ -6073,26 +6069,10 @@ export async function zap_dig(
                 mtmp.mhp = Math.trunc((mtmp.mhp + 1) / 2);
             else
                 mtmp.mhp = 1;
-            if (!digestive) {
-                const enfolding = Boolean(
-                    attacktype_fordmg(mtmp.data, AT_ENGL, AD_WRAP),
-                );
-                if (enfolding) {
-                    await ttyPline(
-                        `${Monnam(mtmp, state)} unfolds and you are released!`,
-                        state,
-                    );
-                } else if (attacktype_fordmg(mtmp.data, AT_ENGL, AD_ANY)) {
-                    await ttyPline(
-                        `You get expelled from ${mon_nam(mtmp, state)} `
-                        + 'with a squelch!',
-                        state,
-                    );
-                } else {
-                    note_unported('pline.c impossible');
-                }
-            }
-            await expels(mtmp, { state });
+            await expels(mtmp, {
+                state,
+                expulsionMessage: !digestive,
+            });
         }
         return;
     }

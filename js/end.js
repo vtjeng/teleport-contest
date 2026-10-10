@@ -13,7 +13,7 @@
 //
 // savelife() (end.c:704-756) restores the hero to a viable state after the
 // death is declined in wizard or explore mode or after the amulet fires. The
-// engulfed-hero expels() call is an explicit discarded-result gap. The debug-fuzzer
+// engulfed-hero expels() call uses the shared mhitu.c transition. The debug-fuzzer
 // helper fuzzer_savelife() (end.c:945-1016) is also source-ordered here; its
 // discarded potion effects and wizard map rebuild remain named gaps.
 // endmultishot(FALSE) is now ported.
@@ -277,7 +277,7 @@ function ParanoidDie(state) {
 // after being killed, when wizard or explore mode lets the player decline
 // death or when the amulet of life saving fires.
 //
-// expels() remains an explicit discarded-result gap when the hero is engulfed.
+// expels() performs the swallowed release when the hero is engulfed.
 // endmultishot(FALSE) is now ported: it stops a multi-shot volley in progress
 // when the hero dies on their own turn (context.mon_moving is false).
 //
@@ -335,10 +335,8 @@ async function savelife(how, state = game) {
         await endmultishot(false, state);
     }
     if (u.uswallow) {
-        // C discards expels()'s result. The TRUE message arm depends on the
-        // unported digestive callers, so retain this source boundary without
-        // inventing its relocation or redraw effects.
-        note_unported('mhitu.c expels');
+        const { expels } = await import('./mhitu.js');
+        await expels(u.ustuck, { state, expulsionMessage: true });
     } else if (u.ustuck) {
         // C prints before unstuck() clears u.ustuck. Keep the holder in a
         // local so the source call receives the same monster after output.

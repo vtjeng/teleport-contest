@@ -694,8 +694,10 @@ export async function tactics(monster, rawEnv = {}) {
     case STRAT_HEAL:
         mx = monster.mx;
         my = monster.my;
-        if (state.u?.uswallow && state.u.ustuck === monster)
-            note_unported('mhitu.c expels');
+        if (state.u?.uswallow && state.u.ustuck === monster) {
+            const { expels } = await import('./mhitu.js');
+            await expels(monster, { ...rawEnv, state, expulsionMessage: true });
+        }
         ({ x: sx, y: sy } = choose_stairs(
             (monster.m_id ?? 0) % 2,
             state,
