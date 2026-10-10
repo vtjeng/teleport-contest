@@ -697,9 +697,10 @@ test('a petrifying touch records its unported void callee without a mount refusa
     assert.ok(game.unported.has('trap.c instapetrify'));
 });
 
-test('untaming a leashed steed records the skipped void cleanup', async () => {
+test('untaming a leashed steed clears its leash after the refusal message', async () => {
+    let pony;
     const { result, error } = await mountAfter(knightSlipSegment(), state => {
-        const pony = m_at(state.u.ux, state.u.uy + 1);
+        pony = m_at(state.u.ux, state.u.uy + 1);
         // Non-Knights decrement tameness; one point reaches the untaming arm.
         state.urole.mnum = PM_VALKYRIE;
         pony.mtame = 1;
@@ -709,7 +710,7 @@ test('untaming a leashed steed records the skipped void cleanup', async () => {
     assert.equal(error, null);
     assert.equal(result, false);
     assert.equal(toplines(), 'The saddled pony resists and its leash comes off!');
-    assert.ok(game.unported.has('apply.c m_unleash'));
+    assert.equal(pony.mleashed, 0);
 });
 
 // --- the helpers the slip path calls ---

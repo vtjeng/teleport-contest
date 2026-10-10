@@ -895,9 +895,8 @@ test('mon.c newcham uses apply.c leashable after changing a pet form', async () 
 
     assert.equal(changed, true);
     assert.equal(pet.mnum, PM_LONG_WORM);
-    assert.equal(pet.mleashed, 1,
-        'the C-discarded m_unleash return remains a named state gap');
-    assert.ok(game.unported.has('apply.c m_unleash'));
+    assert.equal(pet.mleashed, 0,
+        'mon.c newcham runs the matching m_unleash cleanup after changing form');
 });
 
 test('mon.c newcham names a tame monster with ARTICLE_YOUR before changing form',

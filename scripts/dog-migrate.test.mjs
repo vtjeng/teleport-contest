@@ -19,6 +19,7 @@ import {
 } from '../js/monsters.js';
 import {
     COIN_CLASS,
+    LEASH,
     WEAPON_CLASS,
     objects_globals_init,
 } from '../js/objects.js';
@@ -168,9 +169,35 @@ test('exact upward migration stores coordinates and the upward flag', () => {
     ]);
 });
 
-test('migration rejects future lifecycle owners before item mutation', () => {
+test('migration releases a leashed monster before moving it', async () => {
+    const state = migrationState();
+    const { follower, monster } = onMapMonster(state);
+    monster.mleashed = true;
+    monster.mtame = 1;
+    const leash = { otyp: LEASH, leashmon: monster.m_id, nobj: null };
+    state.invent = leash;
+    const messages = [];
+
+    await migrate_to_level(
+        monster,
+        ledger_no(CROSS_DUNGEON_DESTINATION, state),
+        MIGR_RANDOM,
+        null,
+        { message: async (line) => messages.push(line), state },
+    );
+
+    assert.deepEqual(messages, ['Your leash falls slack.']);
+    assert.equal(leash.leashmon, 0);
+    assert.equal(monster.mleashed, 0);
+    assert.equal(monster.mtame, 0);
+    assert.equal(state.level.monlist, follower);
+    assert.equal(state.gm.migrating_mons, monster);
+    assert.equal(monster.mstate & MON_MIGRATING, MON_MIGRATING);
+    assert.deepEqual([monster.mx, monster.my], [0, 0]);
+});
+
+test('migration rejects other future lifecycle owners before item mutation', () => {
     for (const [property, value, message] of [
-        ['mleashed', true, /leashed monster migration/u],
         ['isshk', true, /shopkeeper migration/u],
         ['wormno', 1, /long-worm migration/u],
         ['m_ap_type', 1, /disguised monster migration/u],
@@ -239,12 +266,12 @@ function heroAdjacentMonster(state, pmidx = PM_KITTEN, overrides = {}) {
     return monster;
 }
 
-test('keepdogs takes an adjacent pet off the level onto gm.mydogs', () => {
+test('keepdogs takes an adjacent pet off the level onto gm.mydogs', async () => {
     const state = migrationState();
     state.gm.mydogs = null;
     const pet = heroAdjacentMonster(state, PM_KITTEN, { mtame: 10 });
 
-    keepdogs(false, { newsym: () => {}, state });
+    await keepdogs(false, { newsym: () => {}, state });
 
     assert.equal(state.gm.mydogs, pet);
     assert.equal(state.level.monlist, null);
@@ -254,21 +281,21 @@ test('keepdogs takes an adjacent pet off the level onto gm.mydogs', () => {
     assert.equal(pet.mlstmv, MIGRATION_TURN);
 });
 
-test('keepdogs leaves an ordinary monster on the level', () => {
+test('keepdogs leaves an ordinary monster on the level', async () => {
     const state = migrationState();
     state.gm.mydogs = null;
     // A sewer rat carries no M2_STALK, is not tame, and stands two squares
     // away, so neither the follow arm nor keep_mon_accessible() takes it.
     const { monster } = onMapMonster(state, PM_SEWER_RAT);
 
-    keepdogs(false, { newsym: () => {}, state });
+    await keepdogs(false, { newsym: () => {}, state });
 
     assert.equal(state.gm.mydogs, null);
     assert.equal(state.level.monlist, monster);
     assert.deepEqual([monster.mx, monster.my], [MONSTER_X, MONSTER_Y]);
 });
 
-test('keepdogs migrates a shopkeeper who is away from her shop', () => {
+test('keepdogs migrates a shopkeeper who is away from her shop', async () => {
     const state = migrationState();
     state.gm.mydogs = null;
     // dog.c keep_mon_accessible():772-778. The shop is on another level, so
@@ -278,13 +305,13 @@ test('keepdogs migrates a shopkeeper who is away from her shop', () => {
     monster.isshk = true;
     monster.mextra = { eshk: { shoplevel: { ...UPWARD_DESTINATION } } };
 
-    assert.throws(
-        () => keepdogs(false, { newsym: () => {}, state }),
+    await assert.rejects(
+        keepdogs(false, { newsym: () => {}, state }),
         /shopkeeper migration is future work/u,
     );
 });
 
-test('keepdogs leaves a shopkeeper standing in her own shop', () => {
+test('keepdogs leaves a shopkeeper standing in her own shop', async () => {
     const state = migrationState();
     state.gm.mydogs = null;
     // The other side of keep_mon_accessible()'s on_level() test: a resident
@@ -293,40 +320,58 @@ test('keepdogs leaves a shopkeeper standing in her own shop', () => {
     monster.isshk = true;
     monster.mextra = { eshk: { shoplevel: { ...CURRENT_LEVEL } } };
 
-    keepdogs(false, { newsym: () => {}, state });
+    await keepdogs(false, { newsym: () => {}, state });
 
     assert.equal(state.level.monlist, monster);
 });
 
-test('keepdogs refuses the branches it cannot reproduce', () => {
+test('keepdogs refuses unsupported branches and releases a stray leash', async () => {
     // Each of these leaves the follower behind in C with a message, or needs a
     // subsystem that is not ported. dog.c:815-834.
     const cases = [
         [{ mtame: 10, mtrapped: true }, /trapped follower/u],
         [{ mtame: 10, meating: 3 }, /still eating/u],
-        // A leashed monster that is not tame and stands beside the hero is
-        // not a follower, so it falls through to dog.c:878.
         // A kitten carries no M2_STALK and is not tame here, so it is not a
         // follower and falls through to dog.c:878.
-        [{ mtame: 0, mleashed: true }, /leashed monster/u],
     ];
     for (const [overrides, message] of cases) {
         const state = migrationState();
         state.gm.mydogs = null;
         heroAdjacentMonster(state, PM_KITTEN, overrides);
-        assert.throws(
-            () => keepdogs(false, { newsym: () => {}, state }),
+        await assert.rejects(
+            keepdogs(false, { newsym: () => {}, state }),
             message,
             `${JSON.stringify(overrides)} stops`,
         );
     }
+
+    // dog.c:878-881 releases a non-following leashed monster and leaves it on
+    // the map. The kitten is not a follower because it is not tame.
+    const state = migrationState();
+    state.gm.mydogs = null;
+    const leash = { otyp: LEASH, leashmon: 41, nobj: null };
+    state.invent = leash;
+    const monster = heroAdjacentMonster(state, PM_KITTEN,
+        { mtame: 0, mleashed: true, m_id: 41 });
+    const messages = [];
+    await keepdogs(false, {
+        message: async (line) => messages.push(line),
+        newsym: () => {},
+        state,
+    });
+    // This fixture has no hero-monster naming context, so Monnam falls back
+    // to the generic neuter possessive on C's suffix branch.
+    assert.deepEqual(messages, ['Its leash goes slack.']);
+    assert.equal(monster.mleashed, 0);
+    assert.equal(leash.leashmon, 0);
+    assert.equal(state.level.monlist, monster);
 });
 
-test('keepdogs refuses the ascension arm', () => {
+test('keepdogs refuses the ascension arm', async () => {
     // dog.c:797-805, which end.c drives. Nothing in this port ascends.
     const state = migrationState();
-    assert.throws(
-        () => keepdogs(true, { state }),
+    await assert.rejects(
+        keepdogs(true, { state }),
         /escape or ascension/u,
     );
 });
@@ -346,7 +391,7 @@ test('migration clears the trapped and undetected flags', () => {
     assert.equal(monster.mundetected, false);
 });
 
-test('keepdogs reads both halves of helpless()', () => {
+test('keepdogs reads both halves of helpless()', async () => {
     // monst.h:251, `msleeping || !mcanmove`. A monster failing either half
     // stays behind, so both must be read.
     for (const [overrides, follows] of [
@@ -357,24 +402,24 @@ test('keepdogs reads both halves of helpless()', () => {
         const state = migrationState();
         state.gm.mydogs = null;
         heroAdjacentMonster(state, PM_KITTEN, { mtame: 10, ...overrides });
-        keepdogs(false, { newsym: () => {}, state });
+        await keepdogs(false, { newsym: () => {}, state });
         assert.equal(Boolean(state.gm.mydogs), follows,
             `${JSON.stringify(overrides)} decides whether the pet follows`);
     }
 });
 
-test('keepdogs still takes a follower down to its last hit point', () => {
+test('keepdogs still takes a follower down to its last hit point', async () => {
     // dog.c:794, DEADMONSTER() is `mhp < 1`. A pet on one hit point is alive.
     const state = migrationState();
     state.gm.mydogs = null;
     const pet = heroAdjacentMonster(state, PM_KITTEN, { mtame: 10, mhp: 1 });
 
-    keepdogs(false, { newsym: () => {}, state });
+    await keepdogs(false, { newsym: () => {}, state });
 
     assert.equal(state.gm.mydogs, pet);
 });
 
-test('keepdogs migrates a distant Wizard instead of following him', () => {
+test('keepdogs migrates a distant Wizard instead of following him', async () => {
     // dog.c:811-812 and keep_mon_accessible():770-771. Without the Amulet the
     // hero does not drag the Wizard along, but he stays reachable so that his
     // next harassment finds the same instance.
@@ -387,14 +432,14 @@ test('keepdogs migrates a distant Wizard instead of following him', () => {
     // term answered, which is the state that hides dog.c:812's conjunction.
     monster.mcanmove = true;
 
-    keepdogs(false, { newsym: () => {}, state });
+    await keepdogs(false, { newsym: () => {}, state });
 
     assert.equal(state.gm.mydogs, null);
     assert.equal(state.gm.migrating_mons, monster);
     assert.equal(monster.mstate & MON_MIGRATING, MON_MIGRATING);
 });
 
-test('keepdogs migrates a vault guard who is away from his vault', () => {
+test('keepdogs migrates a vault guard who is away from his vault', async () => {
     // keep_mon_accessible():772-778, the isgd disjunct. Each of the three
     // mextra owners is a separate reason to stay reachable.
     const state = migrationState();
@@ -403,7 +448,7 @@ test('keepdogs migrates a vault guard who is away from his vault', () => {
     monster.isgd = true;
     monster.mextra = { egd: { gdlevel: { ...UPWARD_DESTINATION } } };
 
-    keepdogs(false, { newsym: () => {}, state });
+    await keepdogs(false, { newsym: () => {}, state });
 
     assert.equal(state.gm.migrating_mons, monster);
 });

@@ -2808,7 +2808,7 @@ export async function goto_level(
     await set_uinwater(false, state);
     u.uundetected = false;
     if (!state.iflags?.nofollowers) {
-        keepdogs(false, {
+        await keepdogs(false, {
             state,
             inWizardTower: (x, y, level, callbackState) =>
                 In_W_tower(x, y, level, callbackState),

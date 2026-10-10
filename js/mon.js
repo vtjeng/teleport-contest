@@ -180,7 +180,7 @@ import {
     is_pool_or_lava,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
-import { get_mleash, leashable } from './apply.js';
+import { get_mleash, leashable, m_unleash } from './apply.js';
 import { artifact_exists, artifactTouchable } from './artifacts.js';
 import { night } from './calendar.js';
 import {
@@ -2879,11 +2879,7 @@ function* apply_newcham_steps(
 
     if (monster.mleashed) {
         if (!leashable(monster)) {
-            // m_unleash() returns void in C; preserve the source boundary while
-            // clearing the leash only through the caller supplied owner.
-            if (typeof normalized.unleash === 'function')
-                normalized.unleash(monster, true, normalized);
-            else note_unported('apply.c m_unleash');
+            yield m_unleash(monster, true, { ...normalized, state });
         } else {
             update_inventory(normalized);
         }
@@ -4754,7 +4750,7 @@ export function m_detach(
     const unsupported = requiredKillOperation(env, 'unsupported');
     const mx = mtmp.mx;
 
-    if (mtmp.mleashed) unsupported('detaching a leashed pet');
+    if (mtmp.mleashed) m_unleash(mtmp, false, { ...env, state });
 
     if (mx > 0 && emits_light(mptr))
         del_light_source(LS_MONSTER, mtmp, state);
@@ -4856,9 +4852,7 @@ export function mongone(monster, env = {}) {
         discard_minvent(monster, false, { ...env, state });
 
         const unsupported = (branch) => {
-            if (branch === 'detaching a leashed pet')
-                note_unported('apply.c m_unleash');
-            else if (branch === 'unhiding a mimic')
+            if (branch === 'unhiding a mimic')
                 note_unported('mon.c seemimic');
             else if (branch === "the Wizard of Yendor's death")
                 note_unported('end.c wizdeadorgone');

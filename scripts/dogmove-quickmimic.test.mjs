@@ -62,6 +62,7 @@ import {
     FOOD_CLASS,
     HEAVY_IRON_BALL,
     IRON_CHAIN,
+    LEASH,
     objects_globals_init,
     TOOL_CLASS,
     TRIPE_RATION,
@@ -796,6 +797,40 @@ test('quickmimic retries five misses and falls back to tripe', async () => {
     assert.equal(monster.m_ap_type, M_AP_OBJECT);
     assert.equal(monster.mappearance, TRIPE_RATION);
 });
+
+test('quickmimic releases a leashed pet when its new form cannot wear a leash',
+    async () => {
+        const { monster, state } = quickState(true);
+        // The id pairs the C m_id lookup with this hero-inventory leash.
+        monster.m_id = 41;
+        monster.mleashed = true;
+        const leash = { otyp: LEASH, leashmon: 41, nobj: null };
+        state.invent = leash;
+        const messages = [];
+        const oldGlyph = state.level.at(5, 5).disp_glyph.glyph;
+
+        await quickmimic(monster, {
+            state,
+            // qm[8] is the tripe-ration object disguise, which is not leashable.
+            random: { rn2: () => 8 },
+            redraw() {
+                // A distinct logical glyph takes C's "appear" message arm.
+                state.level.at(5, 5).disp_glyph = transientGlyph(
+                    oldGlyph + 1,
+                    '?',
+                );
+            },
+            message: async (message) => messages.push(message),
+            waitMap: async () => {},
+        });
+
+        assert.equal(leash.leashmon, 0);
+        assert.equal(monster.mleashed, 0);
+        assert.deepEqual(messages, [
+            'Your leash goes slack.',
+            'You see a tripe ration appear where your little dog was!',
+        ]);
+    });
 
 test('quickmimic rejects a dog-only furniture choice for a kitten',
     async () => {

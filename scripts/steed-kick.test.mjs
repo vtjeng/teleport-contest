@@ -17,7 +17,7 @@ const body=js.slice(js.indexOf('export async function kick_steed'),js.indexOf('/
 test('kick_steed follows C helpless, tameness, resistance and gallop order',()=>{
     assert.match(source,/helpless\(u\.usteed\)[\s\S]*mcanmove \|\| u\.usteed->mfrozen\) && !rn2\(2\)/u);
     assert.match(source,/mtame--[\s\S]*m_unleash[\s\S]*rnd\(MAXULEV \/ 2 \+ 5\)[\s\S]*newsym[\s\S]*dismount_steed\(DISMOUNT_THROWN\)[\s\S]*ugallop \+= rn1\(20, 30\)/u);
-    assert.match(body,/--steed\.mtame[\s\S]*note_unported\('apply.c m_unleash'\)[\s\S]*rnd\(MAXULEV \/ 2 \+ 5\)[\s\S]*newsym[\s\S]*note_unported\('steed.c dismount_steed'\)[\s\S]*ugallop \+= rn1\(20, 30\)/u);
+    assert.match(body,/--steed\.mtame[\s\S]*await m_unleash\(steed, true[\s\S]*rnd\(MAXULEV \/ 2 \+ 5\)[\s\S]*newsym[\s\S]*note_unported\('steed.c dismount_steed'\)[\s\S]*ugallop \+= rn1\(20, 30\)/u);
     const apply=readFileSync(new URL('../js/apply.js',import.meta.url),'utf8');
     assert.match(apply,/You whip \$\{mon_nam\(u\.usteed, state\)\}![\s\S]*await kick_steed\(state\);/u);
     assert.doesNotMatch(apply,/note_unported\('steed.c kick_steed'\)/u);
@@ -68,13 +68,13 @@ test('helpless random refusal preserves state; permanent immobility skips RNG',a
         assert.match(game._ttyToplines,/does not respond\.$/u);
     }
 });
-test('tameness zero skips resistance RNG and preserves named discarded gaps',async()=>{
+test('tameness zero skips resistance RNG, releases the leash, and keeps the dismount gap',async()=>{
     const steed=await steedState({mtame:1,mleashed:1});
     game.unported=new Set();
     await kick_steed(game);
     assert.equal(steed.mtame,0);
+    assert.equal(steed.mleashed,0);
     assert.deepEqual(getRngLog(),[]);
-    assert.ok(game.unported.has('apply.c m_unleash'));
     assert.ok(game.unported.has('steed.c dismount_steed'));
 });
 test('level20 guarantees galloping but still consumes resistance then range RNG',async()=>{

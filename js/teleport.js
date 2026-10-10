@@ -605,16 +605,15 @@ export async function tele_restrict(mon, state = game, rawEnv = {}) {
 }
 
 // C ref: teleport.c teleport_pet() (786-810). The Boolean controls whether
-// its caller continues the monster teleport. Releasing the leash itself is
-// still the void apply.c:m_unleash() operation, so keep that exact gap while
-// preserving teleport_pet's source return value.
+// its caller continues the monster teleport; apply.c:m_unleash() owns the
+// matching object and monster attachment cleanup.
 export async function teleport_pet(monster, forceIt, rawEnv = {}) {
     const env = teleportEnv(rawEnv);
     const { random, state } = env;
     if (monster === state.u?.usteed) return false;
     if (!monster.mleashed) return true;
 
-    const { get_mleash } = await import('./apply.js');
+    const { get_mleash, m_unleash } = await import('./apply.js');
     const leash = get_mleash(monster, state);
     if (!leash) {
         // C emits an impossible() diagnostic without changing game output.
@@ -626,13 +625,12 @@ export async function teleport_pet(monster, forceIt, rawEnv = {}) {
         await (env.message ?? ttyPline)('Your leash goes slack.', state, env);
     }
 
-    note_unported('apply.c m_unleash');
+    m_unleash(monster, false, { ...env, state });
     return true;
 }
 
 // C ref: teleport.c mtele_trap(), bounded to ordinary fixed or random D:1
-// destinations. teleport_pet() owns its leash decision; the void m_unleash()
-// call remains an explicit source gap, as does one-shot vault teleportation.
+// destinations. One-shot vault teleportation remains an explicit gap.
 export async function mtele_trap(
     monster,
     trap,
