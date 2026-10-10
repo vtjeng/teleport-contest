@@ -131,6 +131,7 @@ import {
     PM_ALIGNED_CLERIC,
     PM_AMOROUS_DEMON,
     PM_AIR_ELEMENTAL,
+    PM_TRAPPER,
     PM_ENERGY_VORTEX,
     PM_BARROW_WIGHT,
     PM_BLACK_PUDDING,
@@ -181,6 +182,7 @@ import {
     SPECIAL_PM,
     PM_WERERAT,
 } from '../js/monsters.js';
+import { parseCFunctions } from './c-functions.mjs';
 import { mksobj } from '../js/obj.js';
 import { ART_STORMBRINGER, init_artifacts } from '../js/artifacts.js';
 import {
@@ -2631,6 +2633,97 @@ test('planned expulsion keeps terrain transition output off the live stream',
     assert.equal(state.u.uprops[FLYING].blocked, FROMOUTSIDE);
     assert.deepEqual(planned.lines, []);
     assert.equal(state.nhDisplay.topMessage, liveMessage);
+});
+
+test('expels TRUE formats the C message arm before its shared release transition',
+    async () => {
+    const cases = [
+        [PM_AIR_ELEMENTAL, 'You get expelled from the air elemental!'],
+        [PM_ICE_VORTEX, 'You get expelled from the ice vortex in a blast of frost!'],
+        [PM_ENERGY_VORTEX, 'You get expelled from the energy vortex in a shower of sparks!'],
+        [PM_PURPLE_WORM, 'You get regurgitated!'],
+        [PM_TRAPPER, /unfolds and you are released!/u],
+        [PM_UMBER_HULK, /with a squelch!/u, 'ordinary'],
+    ];
+
+    for (const [pmidx, expected, ordinaryEngulfer] of cases) {
+        const state = await meleeHero();
+        const overrides = ordinaryEngulfer ? {
+            data: {
+                ...state.mons[pmidx],
+                mlet: 'X',
+                mattk: [
+                    { aatyp: AT_ENGL, adtyp: AD_PHYS },
+                    ...state.mons[pmidx].mattk.slice(1),
+                ],
+            },
+        } : {};
+        const monster = meleeAttacker(state, pmidx, 1, 0, overrides);
+        state.u.uswallow = 1;
+        state.u.ustuck = monster;
+        state.u.uswldtim = 2;
+        const output = meleeEnv(state, []);
+
+        await expels(monster, {
+            ...output.env,
+            expulsionMessage: true,
+            planning: true,
+        });
+
+        if (expected instanceof RegExp)
+            assert.match(output.lines[0], expected, `PM ${pmidx}`);
+        else
+            assert.equal(output.lines[0], expected, `PM ${pmidx}`);
+        assert.equal(state.u.uswallow, 0, `PM ${pmidx} released the hero`);
+        assert.equal(state.u.ustuck, null, `PM ${pmidx} cleared the holder`);
+    }
+});
+
+test('all active TRUE-capable C expels callers use the shared JavaScript owner',
+    () => {
+    const callers = [
+        ['zap.c', 'bhitm', 'js/zap.js', 'export async function bhitm(',
+            /await expels\(monster,[\s\S]*?expulsionMessage:\s*true/u],
+        ['zap.c', 'release_hold', 'js/zap.js', 'export async function release_hold(',
+            /await expels\(holder,[\s\S]*?expulsionMessage:\s*true/u],
+        ['dog.c', 'tamedog', 'js/dog.js', 'export async function tamedog(',
+            /await expel\(monster,[\s\S]*?expulsionMessage:\s*true/u],
+        ['monmove.c', 'release_hero', 'js/monmove.js', 'async function release_hero(',
+            /await expels\(mon,[\s\S]*?expulsionMessage:\s*true/u],
+        ['end.c', 'savelife', 'js/end.js', 'async function savelife(',
+            /await expels\(u\.ustuck,[\s\S]*?expulsionMessage:\s*true/u],
+        ['polyself.c', 'polymon', 'js/polyself.js', 'export async function polymon(',
+            /await expels\(engulfer,[\s\S]*?expulsionMessage,/u],
+        ['polyself.c', 'dospinweb', 'js/polyself.js', 'export async function dospinweb(',
+            /await expels\(u\.ustuck,[\s\S]*?expulsionMessage:\s*true/u],
+        ['wizard.c', 'tactics', 'js/wizard.js', 'export async function tactics(',
+            /await expels\(monster,[\s\S]*?expulsionMessage:\s*true/u],
+        ['dig.c', 'zap_dig', 'js/zap.js', 'export async function zap_dig(',
+            /await expels\(mtmp,[\s\S]*?expulsionMessage:\s*!digestive/u],
+        ['detect.c', 'openit', 'js/detect.js', 'export async function openit(',
+            /await expels\(state\.u\.ustuck,[\s\S]*?expulsionMessage:\s*true/u],
+    ];
+    for (const [cFile, cFunction, jsFile, jsStart, jsCall] of callers) {
+        const cSource = readFileSync(
+            new URL(`../nethack-c/upstream/src/${cFile}`, import.meta.url), 'utf8',
+        );
+        const jsSource = readFileSync(new URL(`../${jsFile}`, import.meta.url), 'utf8');
+        const cDefinition = parseCFunctions(cSource).find(entry => entry.name === cFunction);
+        assert.ok(cDefinition, `${cFile}:${cFunction} is present`);
+        const cBody = cSource.split('\n')
+            .slice(cDefinition.line - 1, cDefinition.endLine).join('\n');
+        assert.match(cBody, /\bexpels\s*\(/u, `${cFile}:${cFunction} calls expels`);
+        const jsPosition = jsSource.indexOf(jsStart);
+        assert.notEqual(jsPosition, -1, `${jsFile}:${cFunction} is present`);
+        const jsBody = jsSource.slice(jsPosition, jsSource.indexOf('\n}\n', jsPosition) + 2);
+        assert.match(jsBody, jsCall, `${jsFile}:${cFunction} forwards the C message flag`);
+    }
+    for (const jsFile of ['zap.js', 'dog.js', 'monmove.js', 'end.js',
+        'polyself.js', 'wizard.js', 'detect.js']) {
+        const jsSource = readFileSync(new URL(`../js/${jsFile}`, import.meta.url), 'utf8');
+        assert.doesNotMatch(jsSource, /note_unported\(['"]mhitu\.c expels/u,
+            `${jsFile} has no obsolete expels caller gap`);
+    }
 });
 
 // ---- mhitu.c hitmsg(), hitmu(), mdamageu() and passiveum() ----
