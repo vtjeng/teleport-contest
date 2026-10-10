@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T11:32:12.922Z",
+  "capturedAt": "2026-10-10T12:08:02.063Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -80797,11 +80797,131 @@
         "at": "2026-10-10T11:29:49.049Z",
         "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
         "goal": "port-fort-ludios-knox-level-v40-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep4-b56c57e7ad94675d95d3b4434b555ffdb2fbd4f7",
+        "type": "published",
+        "at": "2026-10-10T11:33:03.879Z",
+        "task": "Prep4",
+        "commit": "b56c57e7ad94675d95d3b4434b555ffdb2fbd4f7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-active-v41-candidates-20261010",
+        "type": "turn",
+        "at": "2026-10-10T11:34:16.713Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has 12 unmatched sessions; v41 is claimed and C-first candidate recording is underway."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B216-implement-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T11:38:18.871Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing the v40 unpaid shop robbery divergence in shk.c:rob_shop, with a regression through the real level-exit caller."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B216-rob-shop-20261010",
+        "type": "implement",
+        "at": "2026-10-10T11:38:26.258Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "goal": "fix-shk-rob-shop-livelog-flag-v40-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-18aa859a27d02c2cc13316ac4547c5a687bd9e0f",
+        "type": "ready",
+        "at": "2026-10-10T11:45:31.215Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "delivery": "18aa859a27d02c2cc13316ac4547c5a687bd9e0f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B216-18aa859a",
+        "type": "received",
+        "at": "2026-10-10T11:46:55.516Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "delivery": "18aa859a27d02c2cc13316ac4547c5a687bd9e0f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B216-4c7e8745",
+        "type": "integrating",
+        "at": "2026-10-10T11:49:05.023Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "integration": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-active-v41-resume-20261010",
+        "type": "turn",
+        "at": "2026-10-10T11:51:05.460Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v41 C-first recording continues; the leashed-pet and underwater routes are reached, and tower2/tower3 generation is recorded."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B216-4c7e8745",
+        "type": "validated",
+        "at": "2026-10-10T11:56:04.532Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v40-knox-implementation-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T11:59:56.031Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Implementing the v40 Fort Ludios loader and its complete special-room fill path; focused tests, lint, and all three C replays pass."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8a5901cb85f4fbdad784ca0643fe992c1890477c",
+        "type": "ready",
+        "at": "2026-10-10T12:02:50.989Z",
+        "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
+        "delivery": "8a5901cb85f4fbdad784ca0643fe992c1890477c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v40-wizard-wish-assistance-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T12:06:11.541Z",
+        "task": "C-v40-wizard-wish-assistance-investigation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T12:07:08.360Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [],
+    "deliveries": [
+      {
+        "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
+        "worker": "C",
+        "goal": "port-fort-ludios-knox-level-v40-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "8a5901cb85f4fbdad784ca0643fe992c1890477c",
+        "since": "2026-10-10T12:02:50.989Z",
+        "blockedBy": [],
+        "unblocks": 0
+      }
+    ],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -81104,8 +81224,8 @@
     ]
   },
   "development": {
-    "executionCommit": "3a00c41ea88d22f37e1f0c24dea0099311717659",
-    "measuredAt": "2026-10-10T11:30:40.735Z",
+    "executionCommit": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+    "measuredAt": "2026-10-10T11:55:28.553Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
