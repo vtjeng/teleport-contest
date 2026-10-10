@@ -254246,6 +254246,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-do-wear-ring-off-or-gone-v41-invisibility-20261010",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port invisibility ring removal feedback",
+      "cFile": "do_wear.c",
+      "sessions": [
+        "synthetic/v41/v41-ring-of-invisibility-removed"
+      ],
+      "selectionReason": "The accepted v41 ring-removal replay stops at step 37 when do_wear.c Ring_off_or_gone removes an invisibility ring, redraws the newly visible hero, reports unfading, and learns the ring while JavaScript throws.",
+      "detail": "Complete do_wear.c Ring_off_or_gone across its existing partial implementation by replacing the RIN_INVISIBILITY refusal with the source visibility guards, redraw, exact message, and learning order; preserve discarded void diagnostics and already wired Ring_off and Ring_gone callers.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Ring_off_or_gone",
+          "line": 1347,
+          "endLine": 1448,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1347,
+        "to": 1448
+      },
+      "syntheticProvenance": {
+        "synthetic/v41/v41-ring-of-invisibility-removed": {
+          "session": "synthetic/v41/v41-ring-of-invisibility-removed",
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-ring-of-invisibility-removed",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recordingPath": "challenges/cases/v41/v41-ring-invisibility-removal-reached.session.json",
+          "recordingSha256": "54728a7f830ba59d5e63b95d301511ab03511ffbebd49a99ebdf75a04f56d7ae",
+          "evaluationPath": "challenges/evaluations/accepted-9b38c7216cfd3143b81177c48bfb6b718806f17f-v41.json",
+          "evaluationCommit": "9b38c7216cfd3143b81177c48bfb6b718806f17f"
+        }
+      }
     }
   ]
 }
