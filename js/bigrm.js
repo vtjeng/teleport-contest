@@ -3,7 +3,6 @@
 // translates one Lua file into the same sequence of des.* API calls, using
 // the same nhlib.lua shims (percent, math.random = 1 + rn2, shuffle).
 
-import { UnsupportedLevelChangeError } from './do.js';
 import { rn2 } from './rng.js';
 import { l_selection_or } from './nhlsel.js';
 import { selection_area, ThemeroomSelection } from './themerooms.js';
@@ -638,16 +637,62 @@ async function bigrm10(des, state) {
     await des.stair('down');
 }
 
+// C ref: dat/bigrm-11.lua. Its helper applies the Lua nhlib.percent()
+// threshold while des.level_init() evaluates the table fields in source order.
+function tOrF() {
+    return percent(50) ? true : false;
+}
+
+// C ref: dat/bigrm-11.lua replace_wall_boulder(). The selection callback is
+// synchronous in Lua; special-level object creation may be async in JS, so
+// its caller snapshots the y-major selection and awaits each same ordered pair.
+async function replace_wall_boulder(des, x, y) {
+    await des.terrain(x, y, '.');
+    await des.object('boulder', x, y);
+}
+
+async function replaceWallBoulders(des, selection, state) {
+    const points = [];
+    // C's l_selection_iterate() converts absolute selection points to
+    // map-relative callback coordinates before Lua calls des.terrain/object.
+    selection.iterate((x, y) => points.push([x, y]), {
+        x: state.xstart,
+        y: state.ystart,
+    });
+    for (const [x, y] of points)
+        await replace_wall_boulder(des, x, y);
+}
+
 // C ref: dat/bigrm-11.lua. Boulder "maze" with wide corridors, generated
 // by level_init({style:"maze"}) then replacing inner walls with boulders.
 async function bigrm11(des, state) {
-    // bigrm-11 uses level_init({style:"maze"}) which is not yet ported.
-    // The maze init produces the same result as mazegrid + walkfrom. For
-    // this variant we throw until the maze init is ported, since it is not
-    // hit by any development session.
-    throw new UnsupportedLevelChangeError(
-        'bigrm-11: level_init({style:"maze"}) not yet ported',
+    await des.level_flags('mazelevel', 'noflip');
+    await des.level_init({
+        style: 'maze',
+        corrwid: 3 + rn2(3),
+        wallthick: 1,
+        deadends: tOrF(),
+    });
+
+    await des.region(selection_area(0, 0, 75, 18), 'lit');
+    await des.non_diggable();
+
+    const replaceableWalls = l_selection_or(
+        selection_match('.w.', state),
+        selection_match('.\nw\n.', state),
     );
+    await replaceWallBoulders(des, replaceableWalls, state);
+
+    // C's second pass picks up the remaining horizontal corner walls after
+    // the first pass has changed its selected terrain to ROOM.
+    await replaceWallBoulders(des, selection_match('.w.', state), state);
+
+    await des.stair('up');
+    await des.stair('down');
+
+    for (let i = 1; i <= 15; ++i) await des.object();
+    for (let i = 1; i <= 6; ++i) await des.trap('rolling boulder');
+    for (let i = 1; i <= 28; ++i) await des.monster();
 }
 
 // C ref: dat/bigrm-12.lua. Two hexagons with lava/water pools. Heavy
