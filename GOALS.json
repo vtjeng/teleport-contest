@@ -259701,6 +259701,251 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-hack-still-chewing-v42-20261010",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port hack.c still_chewing and its active movement and eat-command callers",
+      "cFile": "hack.c",
+      "sessions": [
+        "synthetic/v42/v42-rust-monster-still-chewing-bars"
+      ],
+      "selectionReason": "The admitted v42 rust-monster case diverges in the complete hack.c still_chewing iron-bars path, and an independent eat-command recording covers its second active entry point.",
+      "detail": "The investigation traces test_move and doeat to still_chewing, including source-ordered hunger, dissolve_bars, messages, vision cleanup, and explicit discarded-result shopkeeper gaps.",
+      "openedAt": "660106be814a482edebb0edac126892a14b92d28",
+      "openStanding": {
+        "sha": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "still_chewing",
+          "line": 647,
+          "endLine": 824,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 647,
+        "to": 824
+      },
+      "syntheticProvenance": {
+        "synthetic/v42/v42-rust-monster-still-chewing-bars": {
+          "session": "synthetic/v42/v42-rust-monster-still-chewing-bars",
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-rust-monster-still-chewing-bars",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recordingPath": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+          "recordingSha256": "98420bc4f2f166ec2b04fd8b821ec5f61a058c2d4b74a1a3f7b76bf2158e8c8d",
+          "evaluationPath": "challenges/evaluations/accepted-652e8fdd055a766d10f1bb0f6cc3e60a89f42185-v42.json",
+          "evaluationCommit": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185"
+        }
+      },
+      "activeStanding": {
+        "sha": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-rust-monster-still-chewing-bars",
+          "session": "synthetic/v42/v42-rust-monster-still-chewing-bars",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recording": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+          "recordingPath": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+          "recordingSha256": "98420bc4f2f166ec2b04fd8b821ec5f61a058c2d4b74a1a3f7b76bf2158e8c8d",
+          "recipe": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.recipe.session.json",
+          "recipeSha256": "d1e5d18da934784573199c9a45e3f4e27f8e0f9dae60128c0f1e7105c921736c",
+          "replayInputSha256": "a0ebdffc55cfd79ac3cba91bbd812210a8fe9adbc2ee01e3fdd911fae59dfdad",
+          "evaluationPath": "challenges/evaluations/accepted-652e8fdd055a766d10f1bb0f6cc3e60a89f42185-v42.json",
+          "evaluationCommit": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185",
+          "evaluationArtifact": "challenges/evaluations/accepted-652e8fdd055a766d10f1bb0f6cc3e60a89f42185-v42.json",
+          "evaluationUtc": "2026-10-10T22:10:51.681Z",
+          "remainingScreens": 1,
+          "recordedSteps": 53,
+          "previousScreensMatched": 52,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 52,
+              "total": 53
+            },
+            "rng": {
+              "matched": 2849,
+              "total": 2849
+            },
+            "cursors": {
+              "matched": 53,
+              "total": 53
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 52,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 52,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 23,
+              "column": 39,
+              "cCell": {
+                "ch": "S",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 52,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v42/v42-rust-monster-still-chewing-bars.json",
+            "result": {
+              "session": "synthetic/v42/v42-rust-monster-still-chewing-bars",
+              "corpus": "synthetic",
+              "batch": "v42",
+              "caseId": "v42-rust-monster-still-chewing-bars",
+              "manifestPath": "challenges/manifests/v42.json",
+              "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+              "recordingPath": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+              "recordingSha256": "98420bc4f2f166ec2b04fd8b821ec5f61a058c2d4b74a1a3f7b76bf2158e8c8d",
+              "evaluationPath": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+              "evaluationCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+              "remainingScreens": 1,
+              "recordedSteps": 53,
+              "status": "complete",
+              "commit": "9b53af69f281954a8b21636768fbe759a7d888ce",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v42",
+                "caseId": "v42-rust-monster-still-chewing-bars",
+                "session": "synthetic/v42/v42-rust-monster-still-chewing-bars",
+                "manifestPath": "challenges/manifests/v42.json",
+                "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+                "recording": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+                "recordingPath": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+                "recordingSha256": "98420bc4f2f166ec2b04fd8b821ec5f61a058c2d4b74a1a3f7b76bf2158e8c8d",
+                "recipe": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.recipe.session.json",
+                "recipeSha256": "d1e5d18da934784573199c9a45e3f4e27f8e0f9dae60128c0f1e7105c921736c",
+                "replayInputSha256": "a2722a4583f3fb4253c59de8d17926e6d6909913e67d4d98a882594af946eb4a",
+                "evaluationPath": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+                "evaluationCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+                "evaluationArtifact": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+                "evaluationUtc": "2026-10-10T21:08:15.151Z",
+                "remainingScreens": 1,
+                "recordedSteps": 53,
+                "previousScreensMatched": 52,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 52,
+                    "total": 53
+                  },
+                  "rng": {
+                    "matched": 2849,
+                    "total": 2849
+                  },
+                  "cursors": {
+                    "matched": 53,
+                    "total": 53
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 52,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 52,
+                      "key": "l"
+                    },
+                    "kind": "ch",
+                    "row": 23,
+                    "column": 39,
+                    "cCell": {
+                      "ch": "S",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 52,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The final completed iron-bars chew by a wizard polymorphed into a rust monster leaves all RNG, cursors, and earlier screens matched, but C changes the hunger status to Satiated while JavaScript omits that status. hack.c:still_chewing calls eat.c:morehungry(-nut) for metallivorous iron-bar eating and monmove.c:dissolve_bars after chewing; js/hack.js still_chewing currently has note_unported placeholders at both call sites. The missing morehungry side effect explains the exact final status mismatch; both existing canonical helpers must be wired to port this source path fully.",
+              "source": {
+                "file": "hack.c",
+                "branch": "test_move(DO_MOVE) targets IRONBARS and the current monster is metallivorous; after the chew effort exceeds 100, still_chewing awards rnd(20), then the IRONBARS branch grants iron nutrition with morehungry(-nut) and removes the bars with dissolve_bars.",
+                "functions": [
+                  "still_chewing"
+                ],
+                "callers": [
+                  "test_move (hack.c:991-1265)",
+                  "doeat (eat.c:2852)"
+                ],
+                "dependencies": [
+                  "eat.c:morehungry",
+                  "monmove.c:dissolve_bars"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v42 baseline 2634fa9f632f0bd97556887204d19f3fdb2645f2: 52/53 screens, 2849/2849 RNG calls, and 53/53 cursors; the only mismatch is final step 52, key \"l\", at screen row 23 column 39 where C prints 'S' and JS prints a blank.",
+                "The independently decoded final C/JS status rows are respectively `Dlvl:1 $:0 HP:26(26) Pw:6(6) AC:2 HD:5 Satiated` and `Dlvl:1 $:0 HP:26(26) Pw:6(6) AC:2 HD:5`; all 8 changed cells form the missing `Satiated` status text.",
+                "upstream/src/hack.c:647-822 implements the entire still_chewing function; lines 769-784 award metallivorous iron-bar nutrition with morehungry(-nut), select the completion text, and call dissolve_bars before final vision/redraw cleanup. Its production call sites are all in upstream/src/hack.c:test_move at lines 1029, 1040, 1090, and 1227.",
+                "js/hack.js:1978-2082 has the corresponding still_chewing port. Its IRONBARS branch at lines 2078-2081 calls note_unported('eat.c morehungry') and note_unported('trap.c dissolve_bars') instead of existing canonical JS implementations.",
+                "The required helpers are already implemented: upstream/src/eat.c:3281-3285 / js/eat.js:1902-1917 implement morehungry and newuhs; upstream/src/monmove.c:2170-2180 / js/monmove.js:4322-4334 implement dissolve_bars. Wire these existing owners from hack.js without duplicating their state logic.",
+                "A second direct C caller is upstream/src/eat.c:doeat (the `&hands_obj` arm at line 2852), which calls still_chewing on the hero’s current square and then prints “You pause to swallow.” while IRONBARS remain. js/eat.js:doeat at lines 4238-4244 already wires this caller to the canonical hack.js still_chewing implementation. No matching `recordings/` entry covers this `e`-command branch, so it needs its own matching recipe/recording as an entry point in addition to the admitted movement case."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
