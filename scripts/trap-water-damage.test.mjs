@@ -6,9 +6,11 @@ import {
     EF_NONE,
     ERODE_RUST,
     ER_DAMAGED,
+    ER_DESTROYED,
     ER_GREASED,
     ER_NOTHING,
     OBJ_CONTAINED,
+    OBJ_DELETED,
     OBJ_FLOOR,
     OBJ_INVENT,
     OBJ_MINVENT,
@@ -20,6 +22,7 @@ import {
     CHEST,
     OILSKIN_SACK,
     OIL_LAMP,
+    POT_ACID,
     POT_FRUIT_JUICE,
     POT_WATER,
     POTION_CLASS,
@@ -285,6 +288,53 @@ test('water_damage follows trap.c source branches for potion dilution',
         assert.equal(obj.odiluted, 1);
         assert.deepEqual(messages, ['Your fruit juice dilutes.']);
         assert.equal(refreshes, 1);
+    });
+
+test('water_damage deletes an acid potion through pot_acid_damage and delobj',
+    async () => {
+        const source = await readFile(
+            new URL('../nethack-c/upstream/src/trap.c', import.meta.url),
+            'utf8',
+        );
+        assert.match(
+            source,
+            /pot_acid_damage\([\s\S]*?setnotworn\(obj\);[\s\S]*?delobj\(obj\);/u,
+        );
+        await runSegment(STARTUP_INPUT);
+        const state = game;
+        const originalInventory = state.invent;
+        const obj = mksobj(POT_ACID, false, false, { state });
+        obj.dknown = 1;
+        obj.invlet = 'z';
+        obj.where = OBJ_INVENT;
+        obj.nobj = state.invent;
+        state.invent = obj;
+        state.ga.acid_ctx = {
+            dkn_boom: 0,
+            unk_boom: 0,
+            ctx_valid: true,
+        };
+        const messages = [];
+        const draws = [];
+
+        assert.equal(await water_damage(obj, 0, true, {
+            state,
+            message: (line) => messages.push(line),
+            random: {
+                rn2: (bound) => {
+                    draws.push(bound);
+                    return 0;
+                },
+            },
+        }), ER_DESTROYED);
+
+        assert.equal(obj.where, OBJ_DELETED);
+        assert.equal(state.invent, originalInventory);
+        assert.equal(state.ga.acid_ctx.dkn_boom, 1);
+        assert.equal(state.ga.acid_ctx.unk_boom, 0);
+        assert.equal(messages.length, 1);
+        assert.match(messages[0], /^A .* explodes!$/u);
+        assert.deepEqual(draws, [100]);
     });
 
 test('a previously diluted potion becomes uncursed water', async () => {

@@ -26,6 +26,7 @@ import {
     LEVITATION,
     OBJ_INVENT,
     OBJ_MINVENT,
+    plur,
     WWALKING,
     W_ARMOR,
     W_WEP,
@@ -44,6 +45,8 @@ import {
     donameFresh,
     is_plural,
     otense,
+    simpleonames,
+    The,
     the,
     vtense,
     xnameFresh,
@@ -229,12 +232,47 @@ async function wetTowel(obj, random, env) {
     await wet_a_towel(obj, amount, true, env.state ?? game, env);
 }
 
-async function acidDamage(obj, inInvent, described, env) {
-    if (typeof env.potAcidDamage === 'function') {
-        await env.potAcidDamage(obj, inInvent, described, env);
-    } else {
-        note_unported('trap.c pot_acid_damage');
+// C ref: trap.c pot_acid_damage() (4656-4707). Water-damaged acid potions
+// share the chain's known/unknown explosion counts, are unworn, and are
+// deleted through invent.c:delobj(), which owns the ordinary obj_resists draw.
+export async function pot_acid_damage(obj, inInvent, described, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const message = rawEnv.message ?? ttyPline;
+    const one = obj.quan === 1;
+    let exploded = false;
+    const acidContext = state.ga?.acid_ctx;
+
+    if (heroIsBlind(state) && !inInvent) obj.dknown = 0;
+    if (acidContext?.ctx_valid) {
+        exploded = Boolean(
+            obj.dknown ? acidContext.dkn_boom : acidContext.unk_boom,
+        );
     }
+
+    if (described) {
+        await message(
+            The(`potion${plur(obj.quan)} ${otense(obj, 'explode', state)}!`, state),
+            state,
+        );
+    } else {
+        const name = simpleonames(obj, state);
+        const prefix = !exploded
+            ? (one ? 'A ' : 'Some ')
+            : (one ? 'Another ' : 'More ');
+        await message(`${prefix}${name} ${vtense(name, 'explode')}!`, state);
+    }
+
+    if (acidContext?.ctx_valid) {
+        if (obj.dknown)
+            acidContext.dkn_boom++;
+        else
+            acidContext.unk_boom++;
+    }
+
+    const { setnotworn } = await import('./worn.js');
+    await setnotworn(obj, { ...rawEnv, state });
+    delobj(obj, { ...rawEnv, state });
+    if (inInvent) await updateInventory({ ...rawEnv, state });
 }
 
 async function damageContents(obj, env) {
@@ -569,7 +607,7 @@ export async function water_damage(obj, description, force, env = {}) {
             }
             // C ref: trap.c:4744-4748. Ungreased potion of acid is destroyed.
             if (obj.otyp === objects.POT_ACID)
-                await acidDamage(obj, in_invent, true, env);
+                await pot_acid_damage(obj, in_invent, true, env);
         }
         return ER_GREASED;
     }
@@ -677,7 +715,7 @@ export async function water_damage(obj, description, force, env = {}) {
     // C ref: trap.c:4824-4847. Potion dilution / acid destruction.
     if (obj.oclass === POTION_CLASS) {
         if (obj.otyp === objects.POT_ACID) {
-            await acidDamage(obj, in_invent, false, env);
+            await pot_acid_damage(obj, in_invent, false, env);
             return ER_DESTROYED;
         }
         if (obj.odiluted) {
