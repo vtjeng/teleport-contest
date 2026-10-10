@@ -164,7 +164,7 @@ import {
 import {
     d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl, rnz, } from './rng.js';
 import {
-    killed, shieldeff_mon, monkilled, normal_shape, replmon, restore_cham, seemimic, healmon, maybe_unhide_at, m_respond, m_in_air, newcham, wake_nearto, wakeup, xkilled, check_gear_next_turn, set_ustuck, unstuck, mimic_hit_msg, } from './mon.js';
+    killed, shieldeff_mon, monkilled, normal_shape, replmon, restore_cham, seemimic, healmon, hideunder, maybe_unhide_at, m_respond, m_in_air, newcham, wake_nearto, wakeup, xkilled, check_gear_next_turn, set_ustuck, unstuck, mimic_hit_msg, } from './mon.js';
 import { dmgval } from './weapon.js';
 import { expels, u_slow_down } from './mhitu.js';
 import { sleep_monst, slept_monst } from './mhitm.js';
@@ -3082,7 +3082,7 @@ export async function bhito(obj, wand, state = game,
                     && hides_under(state.youmonst?.data);
                 learn_it = cansee(obj.ox, obj.oy, state);
                 await do_osshock(obj, state, random, rawEnv);
-                if (cover) note_unported('mon.c hideunder');
+                if (cover) hideunder(state.youmonst, { ...rawEnv, state });
             } else {
                 const replacement = await poly_obj(
                     obj, STRANGE_OBJECT, state, random, rawEnv,
@@ -6419,10 +6419,7 @@ export async function zap_updown(obj, state = game,
                && hides_under(state.youmonst?.data)) {
         const top = state.level?.objects?.[x]?.[y];
         if (top && await bhito(top, obj, state, random, rawEnv)) {
-            // C discards hideunder()'s return.  Hero concealment is an
-            // explicit gap in the canonical monster owner, so record it
-            // without running the throwing adapter.
-            note_unported('mon.c hideunder');
+            hideunder(state.youmonst, { ...rawEnv, state });
             disclose = true;
         }
     }
