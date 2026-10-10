@@ -192,7 +192,7 @@ test('Tou-goal selection and natural quest-level caller trace matches upstream d
         /function fill_special_room|export function stock_room/u);
 });
 
-test('the diagnostic wiz_load_splua caller is separate and retains its exact shopkeeper gate', () => {
+test('the diagnostic wiz_load_splua caller is separate and retains its shopkeeper gate', () => {
     assert.match(wizardCommandsC,
         /wiz_load_splua\(void\)[\s\S]*?\(void\) load_special\(buf\);\s*lspo_finalize_level\(NULL\)/u);
     assert.match(wizardCommandsJs,
