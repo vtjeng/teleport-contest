@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T09:28:03.016Z",
+  "capturedAt": "2026-10-10T09:45:33.577Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -80327,22 +80327,94 @@
         "type": "accepted",
         "at": "2026-10-10T09:27:29.574Z",
         "task": "C-v39-pickup-cockatrice-barehanded-final-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-after-pickup-acceptance-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T09:28:03.411Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C merged the accepted pickup fix and is refreshing the challenge queue before choosing its next independent task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v39-pickup-cockatrice-barehanded-final-investigation-20261010-fc77d97d60813d8b19bee57639c05a63b0422038",
+        "type": "published",
+        "at": "2026-10-10T09:28:11.038Z",
+        "task": "C-v39-pickup-cockatrice-barehanded-final-investigation-20261010",
+        "commit": "fc77d97d60813d8b19bee57639c05a63b0422038"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-after-pickup-queue-refresh-idle-20261010",
+        "type": "turn",
+        "at": "2026-10-10T09:31:49.749Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C merged accepted Main and completed a private queue refresh. The private result was stale, so the current actionable shared queue was preserved; its remaining cases are reserved or resolved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-review-B213-20261010T",
+        "type": "activity",
+        "at": "2026-10-10T09:32:28.246Z",
+        "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete",
+        "phase": "review",
+        "reason": "Integrating the oldest dependency-ready equipment retouch delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-67b0d0d7533a2aa8ad99bd0e22d68468e5ccd44d",
+        "type": "ready",
+        "at": "2026-10-10T09:32:47.358Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "delivery": "67b0d0d7533a2aa8ad99bd0e22d68468e5ccd44d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-poly-fell-67b0d0d-20261010",
+        "type": "received",
+        "at": "2026-10-10T09:33:31.344Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "delivery": "67b0d0d7533a2aa8ad99bd0e22d68468e5ccd44d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-post-poly-fell-20261010",
+        "type": "turn",
+        "at": "2026-10-10T09:34:12.038Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 delivery is queued behind B213 integration. Current saved candidates are reserved by B213, B215, or this submitted delivery; available for independent work after publication and queue refresh."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B213-23d07ff38df5-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T09:36:41.107Z",
+        "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete",
+        "integration": "23d07ff38df570228278bc8af9679db5ae6fdab7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B213-38042129723-20261010",
+        "type": "validated",
+        "at": "2026-10-10T09:43:44.176Z",
+        "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B213-investigation-v39-polyself-retouch-silver-vampire-complete-23d07ff38df570228278bc8af9679db5ae6fdab7-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T09:44:39.447Z",
+        "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete",
-        "worker": "B",
-        "goal": "port-artifact-retouch-equipment-v39-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "866131f2ddbaa1555be7682b35e1cb909e2d67d2",
-        "since": "2026-10-10T08:24:46.868Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010",
         "worker": "B",
@@ -80351,9 +80423,18 @@
         "status": "ready",
         "delivery": "1db0d3868797b102a94297f7d688960ab62c58cc",
         "since": "2026-10-10T09:14:40.465Z",
-        "blockedBy": [
-          "B213-investigation-v39-polyself-retouch-silver-vampire-complete"
-        ],
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "worker": "A2",
+        "goal": "A2-v39-mounted-steed-poly-steed-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "67b0d0d7533a2aa8ad99bd0e22d68468e5ccd44d",
+        "since": "2026-10-10T09:32:47.358Z",
+        "blockedBy": [],
         "unblocks": 0
       }
     ],
@@ -80659,8 +80740,8 @@
     ]
   },
   "development": {
-    "executionCommit": "60c8754be3b41237ce63db1b0bf71203c99b32bb",
-    "measuredAt": "2026-10-10T09:26:19.484Z",
+    "executionCommit": "23d07ff38df570228278bc8af9679db5ae6fdab7",
+    "measuredAt": "2026-10-10T09:43:11.124Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

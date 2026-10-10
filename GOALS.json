@@ -249722,7 +249722,7 @@
     {
       "id": "port-artifact-retouch-equipment-v39-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Port artifact equipment retouch after form and alignment changes",
       "cFile": "artifact.c",
       "sessions": [
@@ -249736,8 +249736,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "23d07ff38df570228278bc8af9679db5ae6fdab7",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "retouch_equipment",
       "session": "synthetic/v39/v39-polyself-retouch-silver-vampire-complete",
       "step": 36,
@@ -250014,7 +250017,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "23d07ff38df570228278bc8af9679db5ae6fdab7",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
