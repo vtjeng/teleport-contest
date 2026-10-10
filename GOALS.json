@@ -242167,7 +242167,7 @@
     {
       "id": "port-timeout-diagnostic-family-v35-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port timeout diagnostic queue",
       "cFile": "timeout.c",
       "sessions": [
@@ -242181,8 +242181,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f1a081f4f39b9b572ca485d241c1acadca456bb6",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "kind_name",
@@ -242763,6 +242766,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "f1a081f4f39b9b572ca485d241c1acadca456bb6",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

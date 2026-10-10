@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T00:05:45.875Z",
+  "capturedAt": "2026-10-10T00:42:02.940Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -77205,6 +77205,79 @@
         "worker": "B",
         "state": "active",
         "reason": "B187 is implementing the timeout diagnostic family and its shared region/property callers from the accepted boundary."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e2e0ea72f76d2a8536c7a1922104c06a516eab2c",
+        "type": "ready",
+        "at": "2026-10-10T00:16:40.176Z",
+        "task": "B187",
+        "delivery": "e2e0ea72f76d2a8536c7a1922104c06a516eab2c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep2-active-resumed-search-20261010T0011Z",
+        "type": "turn",
+        "at": "2026-10-10T00:17:27.394Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-main-B187-e2e0ea72f-20261010",
+        "type": "received",
+        "at": "2026-10-10T00:17:48.133Z",
+        "task": "B187",
+        "delivery": "e2e0ea72f76d2a8536c7a1922104c06a516eab2c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-blocked-platform-version-contract-20261010",
+        "type": "turn",
+        "at": "2026-10-10T00:19:37.858Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "No independent source task remains in the saved queue; the two surviving version reports share a Main-owned platform build-provenance decision."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-B187-a00150897-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T00:27:06.742Z",
+        "task": "B187",
+        "integration": "a00150897e43d04e61eeb2ee98e1661e73ce68c8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-B187-f1a081f4f-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T00:31:15.821Z",
+        "task": "B187",
+        "integration": "f1a081f4f39b9b572ca485d241c1acadca456bb6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-main-B187-f1a081f4-hosted-38009591019",
+        "type": "validated",
+        "at": "2026-10-10T00:39:07.689Z",
+        "task": "B187",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B187-f1a081f4f39b9b572ca485d241c1acadca456bb6-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T00:39:50.518Z",
+        "task": "B187"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-20261010-b187-resume-active-v2",
+        "type": "turn",
+        "at": "2026-10-10T00:41:21.847Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B is checking the current queue and reservations for the next independent implementation task."
       }
     ]
   },
@@ -77501,8 +77574,8 @@
     ]
   },
   "development": {
-    "executionCommit": "fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8",
-    "measuredAt": "2026-10-09T23:55:44.107Z",
+    "executionCommit": "f1a081f4f39b9b572ca485d241c1acadca456bb6",
+    "measuredAt": "2026-10-10T00:38:01.512Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
