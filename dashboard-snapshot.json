@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T20:29:49.012Z",
+  "capturedAt": "2026-10-10T20:51:16.138Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -83613,22 +83613,87 @@
         "worker": "B",
         "state": "active",
         "reason": "B227 is accepted; syncing Main and checking for an independent saved-queue candidate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B227-investigation-v40-opening-wand-expels-swallowed-hero-20261010-111bb702604fe8c05ea8ec8cd4a5c49dbd9e60ca",
+        "type": "published",
+        "at": "2026-10-10T20:29:57.714Z",
+        "task": "B227-investigation-v40-opening-wand-expels-swallowed-hero-20261010",
+        "commit": "111bb702604fe8c05ea8ec8cd4a5c49dbd9e60ca"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-after-B227-idle-C-vision-reservation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T20:30:26.760Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "The only remaining queue candidate is C’s v41 underwater session, reserved by its submitted vision_recalc task. B has no independent source task until C releases it or the queue refreshes."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-integrating-Prep6-9ae5dc54-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T20:36:05.300Z",
+        "task": "Prep6",
+        "integration": "9ae5dc54e9612042ec2e3c39db36e20050cb8972"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-Prep6-9ae5dc54-38084524538",
+        "type": "validated",
+        "at": "2026-10-10T20:43:09.722Z",
+        "task": "Prep6",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep6-review-20261010",
+        "type": "activity",
+        "at": "2026-10-10T20:43:13.866Z",
+        "task": "Prep6",
+        "phase": "review",
+        "reason": "Reviewing Prep6 mission plan, case replay evidence, overlap analysis, and immutable manifest after its passing checkpoint."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep6-9ae5dc54e9612042ec2e3c39db36e20050cb8972-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T20:43:27.702Z",
+        "task": "Prep6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep6-admission-v42",
+        "type": "activity",
+        "at": "2026-10-10T20:43:34.465Z",
+        "task": "Prep6",
+        "phase": "admission",
+        "reason": "Admitting the accepted v42 batch at the tested commit before creating its first saved evaluation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep6-baseline-v42-3bbc354f",
+        "type": "activity",
+        "at": "2026-10-10T20:44:01.352Z",
+        "task": "Prep6",
+        "phase": "baseline",
+        "reason": "Measuring and recording v42 at its committed manifest before opening its mismatches for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-idle-wait-baseline-20261010",
+        "type": "turn",
+        "at": "2026-10-10T20:44:36.241Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep6 is synced and idle while Main admits v42 and records its first baseline."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "Prep6",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "bc6577ba13f0b0e5a008fa00d862efade1e2157b",
-        "since": "2026-10-10T18:56:53.770Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "C-v41-underwater-monmove-set-apparxy-investigation-20261010",
         "worker": "C",
@@ -83976,8 +84041,8 @@
     ]
   },
   "development": {
-    "executionCommit": "cb6349b9dc1000ec9d12a1f2854867715249b552",
-    "measuredAt": "2026-10-10T20:26:37.656Z",
+    "executionCommit": "14c63da6500123635019e13e47541578340806ba",
+    "measuredAt": "2026-10-10T20:50:50.381Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
