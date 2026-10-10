@@ -22,6 +22,7 @@ import {
     OBJ_INVENT,
     PIT,
     HOLE,
+    LAVAPOOL,
     WEB,
     POOL,
     ROOM,
@@ -988,22 +989,51 @@ test('plain pool scrolls use water damage before placing the same object', async
     }
 });
 
-test('pool-scroll admission retains unsupported water-damage branches', async () => {
+test('ordinary objects use liquid floor effects independently of class', async () => {
     const state = await startedGame();
     const { ux, uy } = state.u;
     state.level.at(ux, uy).typ = POOL;
-    for (const fields of [
-        { greased: true }, // Grease adds a different rn2(2) branch.
-        { lamplit: true }, // splash_lit has its own light lifecycle.
-        { timed: 1 }, // Generic timer merges remain outside this admission.
-        { globby: true }, // flooreffects glob handling belongs to another family.
-    ]) {
-        const obj = addinv(mksobj(SCR_ENCHANT_WEAPON, false, false, { state }), { state });
-        Object.assign(obj, fields);
-        assert.throws(() => preflight_dropx(obj, dropCommandEnv(state)),
-            error => error instanceof UnsupportedDropError && /liquid terrain/u.test(error.message));
-        assert.equal(obj.where, OBJ_INVENT);
-    }
+    state.u.uinwater = true;
+    const obj = addinv(mksobj(RUBY, false, false, { state }), { state });
+    const draws = [];
+    const env = { ...dropCommandEnv(state), random: {
+        rn2: bound => {
+            draws.push(bound);
+            return 0; // The source Luck check protects a non-scroll object too.
+        },
+        rnd: () => 1,
+    } };
+
+    assert.doesNotThrow(() => preflight_dropx(obj, env));
+    await dropx(obj, env);
+
+    assert.deepEqual(draws, [20]);
+    assert.equal(obj.where, OBJ_FLOOR);
+    assert.ok(pileAt(state, ux, uy).includes(obj));
+    assert.ok(!letters(state).includes(obj.invlet));
+
+    const lavaState = await startedGame();
+    const { ux: lx, uy: ly } = lavaState.u;
+    lavaState.level.at(lx, ly).typ = LAVAPOOL;
+    const lavaObject = addinv(mksobj(RUBY, false, false, { state: lavaState }),
+        { state: lavaState });
+    const lavaDraws = [];
+    await dropx(lavaObject, {
+        ...dropCommandEnv(lavaState),
+        message: async () => {},
+        random: {
+            rn2: bound => {
+                lavaDraws.push(bound);
+                return 99; // obj_resists(0, 0) remains a source-required draw.
+            },
+            rnd: () => 1,
+        },
+    });
+    assert.deepEqual(lavaDraws, [100]);
+    assert.equal(lavaObject.where, OBJ_FLOOR);
+    assert.ok(pileAt(lavaState, lx, ly).includes(lavaObject),
+        'the generic gem survives lava damage and reaches the floor');
+    assert.ok(!letters(lavaState).includes(lavaObject.invlet));
 });
 
 test('independent pool-scroll command variations preserve the floor survivor', async () => {
@@ -1013,24 +1043,37 @@ test('independent pool-scroll command variations preserve the floor survivor', a
         await verifyPoolScrollSegment(loadPoolScrollRecipe(entry.name).segments[0]);
 });
 
-test('engraving admission retains the liquid and trap frontiers', async () => {
-    for (const hazard of ['pool', 'pit']) {
-        const state = await startedGame();
-        const { ux, uy } = state.u;
-        state.level.at(ux, uy).typ = ROOM;
-        make_engr_at(ux, uy, 'camp', null, state.moves, DUST, { state });
-        const obj = addinv(mksobj(RUBY, false, false, { state }), { state });
-        // The liquid and pit effects are separate do.c:flooreffects branches.
-        if (hazard === 'pool') state.level.at(ux, uy).typ = POOL;
-        else state.level.traps.push({ tx: ux, ty: uy, ttyp: PIT, tseen: true });
-        const rngBefore = getRngLog().length;
-        assert.throws(() => preflight_dropx(obj, dropCommandEnv(state)),
-            error => error instanceof UnsupportedDropError
-                && /liquid terrain|floor effects at a trap/u.test(error.message));
-        assert.equal(obj.where, OBJ_INVENT);
-        assert.equal(getRngLog().length, rngBefore);
-        assert.ok(engr_at(ux, uy, state));
-    }
+test('ordinary pool effects preserve an engraving while pit effects remain bounded', async () => {
+    const poolState = await startedGame();
+    const { ux, uy } = poolState.u;
+    poolState.level.at(ux, uy).typ = POOL;
+    const engraving = make_engr_at(ux, uy, 'camp', null,
+        poolState.moves, DUST, { state: poolState });
+    engraving.eread = true;
+    engraving.erevealed = true;
+    const poolObject = addinv(mksobj(RUBY, false, false, { state: poolState }),
+        { state: poolState });
+    await dropx(poolObject, dropCommandEnv(poolState));
+    assert.equal(poolObject.where, OBJ_FLOOR);
+    assert.strictEqual(engr_at(ux, uy, poolState), engraving);
+
+    const pitState = await startedGame();
+    const { ux: px, uy: py } = pitState.u;
+    pitState.level.at(px, py).typ = ROOM;
+    const pitEngraving = make_engr_at(px, py, 'camp', null,
+        pitState.moves, DUST, { state: pitState });
+    pitEngraving.eread = true;
+    pitEngraving.erevealed = true;
+    const pitObject = addinv(mksobj(RUBY, false, false, { state: pitState }),
+        { state: pitState });
+    pitState.level.traps.push({ tx: px, ty: py, ttyp: PIT, tseen: true });
+    const rngBefore = getRngLog().length;
+    assert.throws(() => preflight_dropx(pitObject, dropCommandEnv(pitState)),
+        error => error instanceof UnsupportedDropError
+            && /floor effects at a trap/u.test(error.message));
+    assert.equal(pitObject.where, OBJ_INVENT);
+    assert.equal(getRngLog().length, rngBefore);
+    assert.strictEqual(engr_at(px, py, pitState), pitEngraving);
 });
 
 test('engraving drop recipes reach the live command with preserved text and time', async () => {

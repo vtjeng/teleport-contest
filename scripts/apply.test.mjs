@@ -17,6 +17,7 @@ import {
     IN_SIGHT,
     HALLUC,
     OBJ_FLOOR,
+    POOL,
     P_BASIC,
     P_EXPERT,
     P_FLAIL,
@@ -35,6 +36,7 @@ import {
     grapple_target_menu_items,
     leashable,
     m_unleash,
+    flip_coin,
     number_leashed,
     o_unleash,
     touchstone_ok,
@@ -177,6 +179,48 @@ test('apply.c flip_coin drops a lost coin under Hallucination', async () => {
         floorGold = floorGold.nexthere;
     assert.ok(floorGold, 'the lost coin remains on the hero floor square');
     assert.equal(floorGold.quan, 1); // flip_coin() splits one coin before dropx().
+    assert.equal(floorGold.where, OBJ_FLOOR);
+});
+
+test('apply.c flip_coin sends an underwater lost coin through dropx', async () => {
+    const start = APPLY_C.indexOf('\nflip_coin(struct obj *obj)');
+    const end = APPLY_C.indexOf('\n}\n', start) + 2;
+    const cFlipCoin = APPLY_C.slice(start, end);
+    assert.match(cFlipCoin,
+        /if \(Underwater\)[\s\S]*?dropx\(otmp\);\s*return ECMD_TIME;/u);
+
+    const jsStart = APPLY_JS.indexOf('export async function flip_coin(');
+    const jsEnd = APPLY_JS.indexOf('\n}\n', jsStart) + 2;
+    const jsFlipCoin = APPLY_JS.slice(jsStart, jsEnd);
+    assert.doesNotMatch(jsFlipCoin, /note_unported\(['"]do\.c dropx underwater/u);
+    assert.match(jsFlipCoin, /if \(state\.u\?\.uinwater\)[\s\S]*?await dropx\(coin,/u);
+
+    const recipe = JSON.parse(readFileSync(
+        new URL('../recipes/apply.c/flip-coin-hallucination-blind-glib-drop-c55-pager-correction.session.json',
+            import.meta.url),
+        'utf8',
+    ));
+    await runSegment(recipe.segments[0]);
+
+    const { ux, uy } = game.u;
+    game.level.at(ux, uy).typ = POOL;
+    game.u.uinwater = true;
+    for (let i = 0; i < 8; i += 1) game.nhDisplay.pushKey(32);
+    let carriedGold = game.invent;
+    while (carriedGold && carriedGold.otyp !== GOLD_PIECE)
+        carriedGold = carriedGold.nobj;
+    assert.ok(carriedGold);
+    assert.equal(carriedGold.quan, 36);
+
+    await flip_coin(carriedGold, game);
+
+    assert.equal(carriedGold.quan, 35);
+    let floorGold = game.level.objects[ux][uy];
+    while (floorGold && floorGold.otyp !== GOLD_PIECE)
+        floorGold = floorGold.nexthere;
+    assert.ok(floorGold, 'the underwater lost coin reaches flooreffects and the floor');
+    assert.equal(floorGold.quan, 2,
+        'the new coin stacks with the earlier ordinary floor drop');
     assert.equal(floorGold.where, OBJ_FLOOR);
 });
 

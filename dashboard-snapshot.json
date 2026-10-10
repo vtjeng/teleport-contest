@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T19:14:12.782Z",
+  "capturedAt": "2026-10-10T19:59:34.957Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -83367,33 +83367,165 @@
         "worker": "B",
         "state": "active",
         "reason": "B225 is accepted; syncing its published Main boundary and checking for a free independent candidate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B225-investigation-v41-forced-steed-dismount-at-pool-20261010-09ed5da82131b6d64f585a9606eab1e4f050431e",
+        "type": "published",
+        "at": "2026-10-10T19:14:21.560Z",
+        "task": "B225-investigation-v41-forced-steed-dismount-at-pool-20261010",
+        "commit": "09ed5da82131b6d64f585a9606eab1e4f050431e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-after-B225-idle-no-free-candidate-20261010",
+        "type": "turn",
+        "at": "2026-10-10T19:15:02.890Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B has two deliveries queued for integration: B226 shopdig and B227 expels. The refreshed queue has no free independent candidate; its remaining cases are reserved by those deliveries or C."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-integrating-b226-cfc1d11b5",
+        "type": "integrating",
+        "at": "2026-10-10T19:21:51.493Z",
+        "task": "B226-investigation-v40-shop-floor-digdown-warning-20261010",
+        "integration": "cfc1d11b531810c2645a6318fe1a63f8eb37970d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-validated-B226-cfc1d11b-20261010",
+        "type": "validated",
+        "at": "2026-10-10T19:27:06.248Z",
+        "task": "B226-investigation-v40-shop-floor-digdown-warning-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B226-investigation-v40-shop-floor-digdown-warning-20261010-cfc1d11b531810c2645a6318fe1a63f8eb37970d-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T19:28:35.530Z",
+        "task": "B226-investigation-v40-shop-floor-digdown-warning-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-resume-after-B226-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T19:29:08.044Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B226 is accepted; syncing its published Main/report descendant and checking for a free independent task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-after-B226-idle-no-free-candidate-20261010",
+        "type": "turn",
+        "at": "2026-10-10T19:30:28.593Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B227 expels is queued for integration. B226 is accepted with shopdig(1) runtime evidence still parked; the saved queue has only B227 and C underwater cases, both reserved, so no independent task is free."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B226-investigation-v40-shop-floor-digdown-warning-20261010-ca8eb665d3bac595a4310b6ff86fa8fdf78414f7",
+        "type": "published",
+        "at": "2026-10-10T19:30:32.780Z",
+        "task": "B226-investigation-v40-shop-floor-digdown-warning-20261010",
+        "commit": "ca8eb665d3bac595a4310b6ff86fa8fdf78414f7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-integrating-C-underwater-17dbf47a-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T19:38:18.810Z",
+        "task": "C-v41-underwater-coin-flip-drops-coin-investigation-20261010",
+        "integration": "17dbf47ac93b6f4590d31bd24ab7dc0e089e4669"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-validated-C-underwater-17dbf47a-failed-20261010",
+        "type": "validated",
+        "at": "2026-10-10T19:44:42.440Z",
+        "task": "C-v41-underwater-coin-flip-drops-coin-investigation-20261010",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-feedback-C-underwater-stale-inventory-tests-20261010",
+        "type": "feedback",
+        "at": "2026-10-10T19:44:49.621Z",
+        "task": "C-v41-underwater-coin-flip-drops-coin-investigation-20261010",
+        "delivery": "b7eae258dca9d76e4337b72205162218eb1fbb4f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-v41-underwater-correction-38080664555",
+        "type": "resume",
+        "at": "2026-10-10T19:45:52.281Z",
+        "task": "C-v41-underwater-coin-flip-drops-coin-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-underwater-correction-active-38080664555",
+        "type": "turn",
+        "at": "2026-10-10T19:47:01.712Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is correcting two stale inventory preflight test expectations for underwater and liquid-floor admission; game implementation is unchanged."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-fc15824f344fcb1636f5e8bbe51182ca721e291a",
+        "type": "ready",
+        "at": "2026-10-10T19:47:31.149Z",
+        "task": "C-v41-underwater-coin-flip-drops-coin-investigation-20261010",
+        "delivery": "fc15824f344fcb1636f5e8bbe51182ca721e291a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-underwater-correction-ready-idle-20261010",
+        "type": "turn",
+        "at": "2026-10-10T19:48:00.007Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C submitted the underwater-coin test correction; 122 focused tests and lint pass. Coordinator preflight should compare it with the prior failed checkpoint."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-received-C-underwater-fc15824f-20261010",
+        "type": "received",
+        "at": "2026-10-10T19:48:57.847Z",
+        "task": "C-v41-underwater-coin-flip-drops-coin-investigation-20261010",
+        "delivery": "fc15824f344fcb1636f5e8bbe51182ca721e291a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-integrating-C-underwater-9c5253b9-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T19:51:03.729Z",
+        "task": "C-v41-underwater-coin-flip-drops-coin-investigation-20261010",
+        "integration": "9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-validated-C-underwater-9c5253b9-20261010",
+        "type": "validated",
+        "at": "2026-10-10T19:57:51.504Z",
+        "task": "C-v41-underwater-coin-flip-drops-coin-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v41-underwater-coin-flip-drops-coin-investigation-20261010-9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T19:58:56.484Z",
+        "task": "C-v41-underwater-coin-flip-drops-coin-investigation-20261010"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C-v41-underwater-coin-flip-drops-coin-investigation-20261010",
-        "worker": "C",
-        "goal": "fix-underwater-coin-drop-v41-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "b7eae258dca9d76e4337b72205162218eb1fbb4f",
-        "since": "2026-10-10T18:21:31.169Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B226-investigation-v40-shop-floor-digdown-warning-20261010",
-        "worker": "B",
-        "goal": "port-shk-shopdig-v40-shop-floor-digdown-warning-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "3d3d82265f4fd38d330c5a3931692876d99c9dfb",
-        "since": "2026-10-10T18:32:29.797Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "B227-investigation-v40-opening-wand-expels-swallowed-hero-20261010",
         "worker": "B",
@@ -83402,9 +83534,7 @@
         "status": "ready",
         "delivery": "a78b8838709b5d78358edd3d1cc2920a8e8fb738",
         "since": "2026-10-10T18:53:25.453Z",
-        "blockedBy": [
-          "B226-investigation-v40-shop-floor-digdown-warning-20261010"
-        ],
+        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -83754,8 +83884,8 @@
     ]
   },
   "development": {
-    "executionCommit": "d84b56ca399bd6cf8b3a529a46d3d5c96fcd2c43",
-    "measuredAt": "2026-10-10T19:12:02.486Z",
+    "executionCommit": "9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b",
+    "measuredAt": "2026-10-10T19:57:28.478Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

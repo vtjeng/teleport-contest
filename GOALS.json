@@ -27387,7 +27387,16 @@
         "sha": "03b708445b18577db539b3765d6ef73d2bbd4a3c",
         "screens": 6900,
         "rng": 506362
-      }
+      },
+      "invalidatedFunctions": [
+        {
+          "name": "expels",
+          "sourceFile": "mhitu.c",
+          "reason": "The historical evidence covered only the FALSE ice-vortex path and two callers; the current source trace finds the unported TRUE message path and all fourteen direct calls across thirteen caller functions.",
+          "followupGoal": "port-mhitu-expels-v40-20261010",
+          "at": "7edfb0f85505e43fc1903141aff0a0d1a9e5e872"
+        }
+      ]
     },
     {
       "id": "port-trap-anti-magic-monster-arm",
@@ -257224,6 +257233,579 @@
         "rng": 792838
       },
       "parkedReason": "shopdig(1) remains without matching runtime evidence through dig.c:digactualhole and trap.c:fall_through; shopdig(0) and pure apply.c:um_dist are validated."
+    },
+    {
+      "id": "fix-underwater-coin-drop-v41-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Route underwater lost coins through ordinary liquid floor effects.",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v41/v41-underwater-coin-flip-drops-coin"
+      ],
+      "selectionReason": "The dependency-ready C delivery is next in the shared integration ledger and addresses the selected v41 underwater coin mismatch.",
+      "detail": "Port the underwater lose_coin path through dropx and admit ordinary non-boulder objects to the existing pool/lava flooreffects path while preserving the pool-boulder exception.",
+      "openedAt": "13ba70d836be74eabef1df9509beb7df33727a65",
+      "openStanding": {
+        "sha": "cfc1d11b531810c2645a6318fe1a63f8eb37970d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "flip_coin",
+      "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+      "step": 81,
+      "syntheticProvenance": {
+        "synthetic/v41/v41-underwater-coin-flip-drops-coin": {
+          "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-underwater-coin-flip-drops-coin",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recordingPath": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+          "recordingSha256": "eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79",
+          "evaluationPath": "challenges/evaluations/accepted-cfc1d11b531810c2645a6318fe1a63f8eb37970d-v41.json",
+          "evaluationCommit": "cfc1d11b531810c2645a6318fe1a63f8eb37970d"
+        }
+      },
+      "activeStanding": {
+        "sha": "cfc1d11b531810c2645a6318fe1a63f8eb37970d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-underwater-coin-flip-drops-coin",
+          "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recording": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+          "recordingPath": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+          "recordingSha256": "eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79",
+          "recipe": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.recipe.session.json",
+          "recipeSha256": "9907e98a55cca2e37dae5d4db1d6c3e0c2810bf2ba841149534a3d7d4538af33",
+          "replayInputSha256": "39b4e56c94bc079712b1c73be2ff64dacdd6fdc9a4693138b36b44c0c0c7d92e",
+          "evaluationPath": "challenges/evaluations/accepted-cfc1d11b531810c2645a6318fe1a63f8eb37970d-v41.json",
+          "evaluationCommit": "cfc1d11b531810c2645a6318fe1a63f8eb37970d",
+          "evaluationArtifact": "challenges/evaluations/accepted-cfc1d11b531810c2645a6318fe1a63f8eb37970d-v41.json",
+          "evaluationUtc": "2026-10-10T19:25:29.613Z",
+          "remainingScreens": 1,
+          "recordedSteps": 82,
+          "previousScreensMatched": 81,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 81,
+              "total": 82
+            },
+            "rng": {
+              "matched": 2664,
+              "total": 2720
+            },
+            "cursors": {
+              "matched": 82,
+              "total": 82
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 81,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 81,
+                "key": "$"
+              },
+              "kind": "ch",
+              "row": 23,
+              "column": 9,
+              "cCell": {
+                "ch": "0",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "1",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2661,
+              "cEntry": "rn2(20)=5",
+              "cCaller": "water_damage(trap.c:4771)",
+              "jsEntry": "rn2(3)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 81,
+                "key": "$"
+              },
+              "stepIndex": 81
+            },
+            "cursor": null
+          },
+          "step": 81,
+          "kind": "rng",
+          "sourceFile": "trap.c",
+          "function": "water_damage",
+          "message": null,
+          "cFile": "trap.c",
+          "luaFile": null,
+          "line": 4771,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v41/v41-underwater-coin-flip-drops-coin.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v41",
+              "caseId": "v41-underwater-coin-flip-drops-coin",
+              "remainingScreens": 1,
+              "status": "complete",
+              "commit": "5d1a4c1e745982ef54feccfb7ecd83bd3aa6a6f6",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v41",
+                "caseId": "v41-underwater-coin-flip-drops-coin",
+                "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+                "manifestPath": "challenges/manifests/v41.json",
+                "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+                "recording": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+                "recordingPath": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+                "recordingSha256": "eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79",
+                "recipe": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.recipe.session.json",
+                "recipeSha256": "9907e98a55cca2e37dae5d4db1d6c3e0c2810bf2ba841149534a3d7d4538af33",
+                "replayInputSha256": "a6dcd789e15a13fb210cfc99141576f8eb53a394de6422c724147c15682e49fd",
+                "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+                "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+                "evaluationArtifact": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+                "evaluationUtc": "2026-10-10T17:31:28.509Z",
+                "remainingScreens": 1,
+                "recordedSteps": 82,
+                "previousScreensMatched": 81,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 81,
+                    "total": 82
+                  },
+                  "rng": {
+                    "matched": 2664,
+                    "total": 2720
+                  },
+                  "cursors": {
+                    "matched": 82,
+                    "total": 82
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 81,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 81,
+                      "key": "$"
+                    },
+                    "kind": "ch",
+                    "row": 23,
+                    "column": 9,
+                    "cCell": {
+                      "ch": "0",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "1",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2661,
+                    "cEntry": "rn2(20)=5",
+                    "cCaller": "water_damage(trap.c:4771)",
+                    "jsEntry": "rn2(3)=2",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 81,
+                      "key": "$"
+                    },
+                    "stepIndex": 81
+                  },
+                  "cursor": null
+                },
+                "step": 81,
+                "kind": "rng",
+                "sourceFile": "trap.c",
+                "function": "water_damage",
+                "message": null,
+                "cFile": "trap.c",
+                "luaFile": null,
+                "line": 4771
+              },
+              "summary": "Flipping a gold piece underwater enters apply.c:flip_coin’s lose_coin arm. C calls do.c:dropx, whose pool floor-effects path calls trap.c:water_damage and consumes one Luck check; JavaScript still records note_unported(\"do.c dropx underwater\") and leaves the coin in inventory. The selected C route is the whole flip_coin function and its existing coin dispatch, with a narrowly admitted ordinary-pool coin landing through the existing drop/flooreffects path.",
+              "source": {
+                "file": "apply.c",
+                "branch": "When Underwater is true, flip_coin reports that the coin tumbles away, splits one coin if the stack has more than one, calls dropx, and returns ECMD_TIME without the ordinary coin-face RNG.",
+                "functions": [
+                  "flip_coin"
+                ],
+                "callers": [
+                  "apply.c:doapply() dispatches a COIN_CLASS object to flip_coin() at upstream src/apply.c:4241.",
+                  "apply.c:flip_coin() at upstream src/apply.c:4527-4556 calls do.c:dropx() at src/apply.c:4544; C discards dropx()’s return because it is void.",
+                  "do.c:dropx() -> dropy() -> dropz() -> flooreffects(); the source flooreffects() pool arm calls water_damage(obj, NULL, FALSE) at upstream src/do.c:315-327 and consumes its ER_DESTROYED result.",
+                  "JS apply.js:doapply() dispatches to flip_coin(); its underwater arm currently calls note_unported(\"do.c dropx underwater\") at js/apply.js:5171-5174. Existing js/do.js:dropx(), dropz(), and flooreffects() implement the downstream path, but preflight_dropx() currently refuses underwater state and pool landing."
+                ],
+                "dependencies": [
+                  "The existing do.c dropx/dropz/flooreffects JavaScript port and trap.c water_damage implementation are downstream behavior dependencies; this investigation found no competing active reservation for js/apply.js or js/do.js."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved queue entry at .cache/latest-saved-combined-queue.json (SHA-256 7505fb24cd01792c8cb781d651dd66ffaa451361e46f7c456fd2705afde0a43a) identifies batch v41, case v41-underwater-coin-flip-drops-coin, recording challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json (SHA-256 eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79), manifest challenges/manifests/v41.json (SHA-256 7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69), and evaluation challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json at 0acc8a59f86065f8ff2d90ca1decab45701746e8.",
+                "At step 81 (key \"$\"), the C recording calls rn2(20)=5 from trap.c:water_damage line 4771 before the monster action. The original evaluation has 81/82 screens and 2664/2720 RNG matches with 82/82 cursors; the first screen mismatch is the gold total, C 0 versus JavaScript 1.",
+                "Fresh run run-zsLkLx of node scripts/diff-fresh.mjs challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.recipe.session.json reproduces the same step-81 boundary: C has 2720 RNG calls and JavaScript has 2675; C’s first call is rn2(20)=5 from trap.c:water_damage:4771 while JavaScript’s next call is rn2(3)=2. Screens are 81/82 with the differing gold count, and cursors are 82/82.",
+                "Upstream src/apply.c:4527-4556 establishes that Underwater selects lose_coin, prints “It tumbles away.”, calls dropx(otmp), and returns before the ordinary face-flip draw. Upstream src/do.c:789-797 passes an ordinary non-swallowed drop through dropy/dropz; src/do.c:161-357 handles a pool landing by calling water_damage(obj, NULL, FALSE) and returns whether it was destroyed.",
+                "The missing call is explicit in js/apply.js:5171-5174: the underwater lose_coin branch records note_unported(\"do.c dropx underwater\") instead of invoking dropx. The ordinary downstream implementations already exist in js/do.js, but preflight_dropx rejects underwater state at line 1925 and pool terrain at lines 1973-1975. This source trace identifies the needed implementation as removing the underwater coin-flip refusal and admitting that specific ordinary pool landing through the existing drop/flooreffects route."
+              ],
+              "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+              "manifestPath": "challenges/manifests/v41.json",
+              "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+              "recordingSha256": "eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79",
+              "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+              "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+              "recordedSteps": 82
+            }
+          }
+        }
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-underwater-coin-flip-drops-coin",
+          "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recording": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+          "recordingPath": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+          "recordingSha256": "eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79",
+          "recipe": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.recipe.session.json",
+          "recipeSha256": "9907e98a55cca2e37dae5d4db1d6c3e0c2810bf2ba841149534a3d7d4538af33",
+          "replayInputSha256": "4fc3c05fb685b03b2475453e1a4f65d463eb24d470153562570e139e76657c2e",
+          "evaluationPath": "challenges/evaluations/accepted-9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b-v41.json",
+          "evaluationCommit": "9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b",
+          "evaluationArtifact": "challenges/evaluations/accepted-9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b-v41.json",
+          "evaluationUtc": "2026-10-10T19:56:17.874Z",
+          "remainingScreens": 0,
+          "recordedSteps": 82,
+          "previousScreensMatched": 81,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 82,
+              "total": 82
+            },
+            "rng": {
+              "matched": 2668,
+              "total": 2720
+            },
+            "cursors": {
+              "matched": 82,
+              "total": 82
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2664,
+              "cEntry": "rn2(3)=2",
+              "cCaller": "set_apparxy(monmove.c:2258)",
+              "jsEntry": "rn2(5)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 81,
+                "key": "$"
+              },
+              "stepIndex": 81
+            },
+            "cursor": null
+          },
+          "step": 81,
+          "kind": "rng",
+          "sourceFile": "monmove.c",
+          "function": "set_apparxy",
+          "message": null,
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 2258,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v41/v41-underwater-coin-flip-drops-coin.json",
+            "previousRemainingScreens": 1
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-mhitu-expels-v40-20261010",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port complete swallowed expulsion messages, relocation, and direct callers.",
+      "cFile": "mhitu.c",
+      "sessions": [
+        "synthetic/v40/v40-opening-wand-expels-swallowed-hero"
+      ],
+      "selectionReason": "The only unmatched v40 screen stops at zap.c:release_hold where mhitu.c:expels(TRUE) is omitted; the whole helper and all direct callers form the source-complete unit.",
+      "detail": "Port mhitu.c:expels lines 264-309 and wire all fourteen direct calls across thirteen caller functions. The admitted v40 opening-wand case covers the TRUE release_hold path through step 50; the existing ice-vortex recording covers the FALSE gulpmu path.",
+      "openedAt": "d7730417a5df2c4a5fdb2120da6b6ef3919e210c",
+      "openStanding": {
+        "sha": "9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "expels",
+          "line": 264,
+          "endLine": 309,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 264,
+        "to": 309
+      },
+      "syntheticProvenance": {
+        "synthetic/v40/v40-opening-wand-expels-swallowed-hero": {
+          "session": "synthetic/v40/v40-opening-wand-expels-swallowed-hero",
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-opening-wand-expels-swallowed-hero",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recordingPath": "challenges/cases/v40/v40-opening-wand-air-elemental-expulsion-barbarian-south-kick-actual-selfzap-cfirst.session.json",
+          "recordingSha256": "252399200ed78399512db60e6d28f88009f5fd722375b19d5db1f848d84aa35a",
+          "evaluationPath": "challenges/evaluations/accepted-9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b-v40.json",
+          "evaluationCommit": "9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b"
+        }
+      },
+      "activeStanding": {
+        "sha": "9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-opening-wand-expels-swallowed-hero",
+          "session": "synthetic/v40/v40-opening-wand-expels-swallowed-hero",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recording": "challenges/cases/v40/v40-opening-wand-air-elemental-expulsion-barbarian-south-kick-actual-selfzap-cfirst.session.json",
+          "recordingPath": "challenges/cases/v40/v40-opening-wand-air-elemental-expulsion-barbarian-south-kick-actual-selfzap-cfirst.session.json",
+          "recordingSha256": "252399200ed78399512db60e6d28f88009f5fd722375b19d5db1f848d84aa35a",
+          "recipe": "challenges/cases/v40/v40-opening-wand-air-elemental-expulsion-barbarian-south-kick-actual-selfzap-cfirst.recipe.session.json",
+          "recipeSha256": "671ba931709046264a19892f8c0d278d6306b963bdcf3cae972644fa77ce9d27",
+          "replayInputSha256": "84163379277f3715178af848564abeddd781da9acac2af5bade54801b5e651c9",
+          "evaluationPath": "challenges/evaluations/accepted-9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b-v40.json",
+          "evaluationCommit": "9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b",
+          "evaluationArtifact": "challenges/evaluations/accepted-9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b-v40.json",
+          "evaluationUtc": "2026-10-10T19:56:17.874Z",
+          "remainingScreens": 1,
+          "recordedSteps": 51,
+          "previousScreensMatched": 50,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 50,
+              "total": 51
+            },
+            "rng": {
+              "matched": 2158,
+              "total": 2158
+            },
+            "cursors": {
+              "matched": 50,
+              "total": 51
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 50,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 50,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 4,
+              "cCell": {
+                "ch": "g",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "a",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2158,
+              "cCaller": null,
+              "jsEntry": "rn2(19)=5",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 50,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 50,
+                "key": "."
+              },
+              "cCursor": [
+                48,
+                0,
+                1
+              ],
+              "jsCursor": [
+                68,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 50,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v40/v40-opening-wand-expels-swallowed-hero.json",
+            "result": {
+              "session": "synthetic/v40/v40-opening-wand-expels-swallowed-hero",
+              "remainingScreens": 1,
+              "recordedSteps": 51,
+              "corpus": "synthetic",
+              "batch": "v40",
+              "caseId": "v40-opening-wand-expels-swallowed-hero",
+              "manifestPath": "challenges/manifests/v40.json",
+              "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+              "recordingSha256": "252399200ed78399512db60e6d28f88009f5fd722375b19d5db1f848d84aa35a",
+              "evaluationPath": "challenges/evaluations/accepted-9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b-v40.json",
+              "evaluationCommit": "9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b",
+              "status": "complete",
+              "commit": "1751433d6bccc7f1e1bc8792784dd43be2b4abc7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v40",
+                "caseId": "v40-opening-wand-expels-swallowed-hero",
+                "session": "synthetic/v40/v40-opening-wand-expels-swallowed-hero",
+                "manifestPath": "challenges/manifests/v40.json",
+                "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+                "recording": "challenges/cases/v40/v40-opening-wand-air-elemental-expulsion-barbarian-south-kick-actual-selfzap-cfirst.session.json",
+                "recordingPath": "challenges/cases/v40/v40-opening-wand-air-elemental-expulsion-barbarian-south-kick-actual-selfzap-cfirst.session.json",
+                "recordingSha256": "252399200ed78399512db60e6d28f88009f5fd722375b19d5db1f848d84aa35a",
+                "recipe": "challenges/cases/v40/v40-opening-wand-air-elemental-expulsion-barbarian-south-kick-actual-selfzap-cfirst.recipe.session.json",
+                "recipePath": "challenges/cases/v40/v40-opening-wand-air-elemental-expulsion-barbarian-south-kick-actual-selfzap-cfirst.recipe.session.json",
+                "remainingScreens": 1,
+                "recordedSteps": 51,
+                "step": 50,
+                "sourceFile": "zap.c",
+                "function": "release_hold",
+                "line": 592,
+                "metrics": {
+                  "screens": {
+                    "matched": 50,
+                    "total": 51
+                  },
+                  "rng": {
+                    "matched": 2158,
+                    "total": 2158
+                  },
+                  "cursors": {
+                    "matched": 50,
+                    "total": 51
+                  }
+                }
+              },
+              "summary": "At step 50, self-zapping a wished wand of opening while engulfed by an air elemental reaches zap.c:zapyourself -> zap.c:release_hold -> mhitu.c:expels(TRUE). C emits ‘You get expelled from the air elemental!’ before unsticking and relocating the monster. JavaScript reaches js/zap.js:release_hold, records note_unported('mhitu.c expels TRUE'), and skips the shared transition; js/mhitu.js:expels also explicitly refuses its message=true arm. The recorded RNG matches through the whole session, while the final screen and cursor differ. The source correction is the full mhitu.c:expels function plus wiring every active JavaScript caller whose corresponding C call may pass TRUE.",
+              "source": {
+                "file": "mhitu.c",
+                "branch": "expels(mtmp, mdat, message): when message is TRUE choose regurgitation for digests(), an unfold-and-release line for enfolds(), or the engulf-attack-specific expulsion suffix; then always unstuck, mnexto(RLOC_NOMSG), redraw the hero square, emit the distant-landing line when um_dist exceeds one, and call spoteffects(TRUE).",
+                "functions": [
+                  "expels"
+                ],
+                "callers": [
+                  "zap.c:bhitm (whirly engulfer hit by WAN_SLOW_MONSTER/SPE_SLOW_MONSTER)",
+                  "zap.c:release_hold (swallowed hero hit by WAN_OPENING/SPE_KNOCK or self-zap)",
+                  "dog.c:tamedog (taming a monster currently engulfing the hero)",
+                  "monmove.c:release_hero (swallowing monster releases the hero)",
+                  "end.c:savelife (life-saving while swallowed)",
+                  "polyself.c:polymon (new player form cannot remain engulfed; message flag may be FALSE for unsolid form)",
+                  "polyself.c:dospinweb (hero spins a web while swallowed by an animal)",
+                  "wizard.c:tactics (covetous monster switches to STRAT_HEAL while swallowing the hero)",
+                  "dig.c:zap_dig (swallowed hero; message flag is !digests(mtmp->data))",
+                  "detect.c:openit (swallowed hero hit by opening magic)"
+                ],
+                "dependencies": [
+                  "digests",
+                  "enfolds",
+                  "attacktype_fordmg",
+                  "is_whirly",
+                  "unstuck",
+                  "mon.c:mnexto",
+                  "newsym",
+                  "um_dist",
+                  "hack.c:spoteffects"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The accepted v40 recording has 51 steps; the first mismatch is segment 0, step 50, on the final screen and cursor. Its last C message is ‘You get expelled from the air elemental!’; RNG is complete at 2158/2158.",
+                "The C route is cmd.c:rhack -> zap.c:dozap -> zap.c:zapyourself (WAN_OPENING) -> zap.c:release_hold -> mhitu.c:expels(TRUE). See upstream zap.c:2705-3013 and 578-611; mhitu.c:264-309.",
+                "js/zap.js:release_hold currently replaces the swallowed call with note_unported('mhitu.c expels TRUE'); js/mhitu.js:expels explicitly refuses rawEnv.expulsionMessage. The caller misses both the C message and the following shared relocation/redraw/spoteffects work.",
+                "The full direct C caller inventory has ten active TRUE-capable functions: zap.c:bhitm, zap.c:release_hold, dog.c:tamedog, monmove.c:release_hero, end.c:savelife, polyself.c:polymon, polyself.c:dospinweb, wizard.c:tactics, dig.c:zap_dig, and detect.c:openit. Existing JavaScript paths exist for all ten; each must invoke the canonical helper with its source message argument rather than retain the placeholder or duplicate message.",
+                "FALSE-only callers mhitu.c:gulpmu, mon.c:vamprises, mon.c:vamp_stone, and mon.c:newcham are already wired to js/mhitu.js:expels and will retain the false-message behavior. mon.c:xkilled uses spoteffects directly as a poor-man’s expels and is not a direct caller."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C recipe for the underwater apply.c:flip_coin production route through do.c:dropx and liquid flooreffects.",
+  "segments": [
+    {
+      "seed": 41040138,
+      "datetime": "20510410153000",
+      "nethackrc": "OPTIONS=name:CoinRoute,role:Wizard,race=human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017amulet of magical breathing\nPo\u0017gold piece\n\u0017pool\nlha$"
+    }
+  ]
+}

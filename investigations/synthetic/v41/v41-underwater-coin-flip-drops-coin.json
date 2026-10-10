@@ -1,0 +1,127 @@
+{
+  "corpus": "synthetic",
+  "batch": "v41",
+  "caseId": "v41-underwater-coin-flip-drops-coin",
+  "remainingScreens": 1,
+  "status": "complete",
+  "commit": "5d1a4c1e745982ef54feccfb7ecd83bd3aa6a6f6",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v41",
+    "caseId": "v41-underwater-coin-flip-drops-coin",
+    "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+    "manifestPath": "challenges/manifests/v41.json",
+    "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+    "recording": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+    "recordingPath": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+    "recordingSha256": "eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79",
+    "recipe": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.recipe.session.json",
+    "recipeSha256": "9907e98a55cca2e37dae5d4db1d6c3e0c2810bf2ba841149534a3d7d4538af33",
+    "replayInputSha256": "a6dcd789e15a13fb210cfc99141576f8eb53a394de6422c724147c15682e49fd",
+    "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+    "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+    "evaluationArtifact": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+    "evaluationUtc": "2026-10-10T17:31:28.509Z",
+    "remainingScreens": 1,
+    "recordedSteps": 82,
+    "previousScreensMatched": 81,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 81,
+        "total": 82
+      },
+      "rng": {
+        "matched": 2664,
+        "total": 2720
+      },
+      "cursors": {
+        "matched": 82,
+        "total": 82
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 81,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 81,
+          "key": "$"
+        },
+        "kind": "ch",
+        "row": 23,
+        "column": 9,
+        "cCell": {
+          "ch": "0",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "1",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2661,
+        "cEntry": "rn2(20)=5",
+        "cCaller": "water_damage(trap.c:4771)",
+        "jsEntry": "rn2(3)=2",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 81,
+          "key": "$"
+        },
+        "stepIndex": 81
+      },
+      "cursor": null
+    },
+    "step": 81,
+    "kind": "rng",
+    "sourceFile": "trap.c",
+    "function": "water_damage",
+    "message": null,
+    "cFile": "trap.c",
+    "luaFile": null,
+    "line": 4771
+  },
+  "summary": "The source-derived fix sends underwater coin loss through the same generic dropx/flooreffects route as other lost coins and admits ordinary non-boulder objects on pool or lava terrain. The selected v41 replay now matches all 82 screens and cursors; its first RNG mismatch has moved past apply.c:flip_coin to a later monmove.c:set_apparxy draw during the monster phase after the action. The independent production recipe and recording fully match C across 2541 RNG calls, 55 screens, and 55 cursors.",
+  "source": {
+    "file": "apply.c",
+    "branch": "When Underwater is true, flip_coin reports that the coin tumbles away, splits one coin if the stack has more than one, calls dropx, and returns ECMD_TIME without the ordinary coin-face RNG.",
+    "functions": [
+      "flip_coin"
+    ],
+    "callers": [
+      "apply.c:doapply() dispatches a COIN_CLASS object to flip_coin() at upstream src/apply.c:4241.",
+      "apply.c:flip_coin() at upstream src/apply.c:4527-4556 calls do.c:dropx() at src/apply.c:4544; C discards dropx()’s return because it is void.",
+      "do.c:dropx() -> dropy() -> dropz() -> flooreffects(); the source flooreffects() pool arm calls water_damage(obj, NULL, FALSE) at upstream src/do.c:315-327 and consumes its ER_DESTROYED result.",
+      "JS apply.js:doapply() dispatches to flip_coin(); its underwater arm currently calls note_unported(\"do.c dropx underwater\") at js/apply.js:5171-5174. Existing js/do.js:dropx(), dropz(), and flooreffects() implement the downstream path, but preflight_dropx() currently refuses underwater state and pool landing.",
+      "The independent C recipe uses doapply COIN_CLASS dispatch -> flip_coin -> dropx -> dropz -> flooreffects -> water_damage; JavaScript follows js/apply.js:doapply -> flip_coin -> js/do.js:dropx -> dropz -> flooreffects -> js/trap_water_damage.js:water_damage."
+    ],
+    "dependencies": [
+      "The existing do.c dropx/dropz/flooreffects JavaScript port and trap.c water_damage implementation are downstream behavior dependencies; this investigation found no competing active reservation for js/apply.js or js/do.js."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved queue entry at .cache/latest-saved-combined-queue.json (SHA-256 7505fb24cd01792c8cb781d651dd66ffaa451361e46f7c456fd2705afde0a43a) identifies batch v41, case v41-underwater-coin-flip-drops-coin, recording challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json (SHA-256 eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79), manifest challenges/manifests/v41.json (SHA-256 7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69), and evaluation challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json at 0acc8a59f86065f8ff2d90ca1decab45701746e8.",
+    "At step 81 (key \"$\"), the C recording calls rn2(20)=5 from trap.c:water_damage line 4771 before the monster action. The original evaluation has 81/82 screens and 2664/2720 RNG matches with 82/82 cursors; the first screen mismatch is the gold total, C 0 versus JavaScript 1.",
+    "Fresh run run-zsLkLx of node scripts/diff-fresh.mjs challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.recipe.session.json reproduces the same step-81 boundary: C has 2720 RNG calls and JavaScript has 2675; C’s first call is rn2(20)=5 from trap.c:water_damage:4771 while JavaScript’s next call is rn2(3)=2. Screens are 81/82 with the differing gold count, and cursors are 82/82.",
+    "Upstream src/apply.c:4527-4556 establishes that Underwater selects lose_coin, prints “It tumbles away.”, calls dropx(otmp), and returns before the ordinary face-flip draw. Upstream src/do.c:789-797 passes an ordinary non-swallowed drop through dropy/dropz; src/do.c:161-357 handles a pool landing by calling water_damage(obj, NULL, FALSE) and returns whether it was destroyed.",
+    "The missing call is explicit in js/apply.js:5171-5174: the underwater lose_coin branch records note_unported(\"do.c dropx underwater\") instead of invoking dropx. The ordinary downstream implementations already exist in js/do.js, but preflight_dropx rejects underwater state at line 1925 and pool terrain at lines 1973-1975. This source trace identifies the needed implementation as removing the underwater coin-flip refusal and admitting ordinary non-boulder objects through the existing pool/lava drop/flooreffects routes without conditioning on coin class or a session coordinate.",
+    "After the implementation, fresh run run-IQFe1s on the selected v41 recipe reports 82/82 screens and cursors matching. The first RNG mismatch is call 2665 at monmove.c:set_apparxy:2258 during the subsequent monster phase, after apply.c:flip_coin and trap.c:water_damage have returned. Thus the named flip_coin divergence has moved past the function, while this recording still has a later RNG mismatch.",
+    "Independent runtime evidence: recipes/apply.c/flip-coin-underwater-pool-independent.session.json uses seed 41040138, a new date, and a distinct character identity. Its committed C recording matches a fresh differential in run-fXhEQh: 2541/2541 PRNG values, 55/55 screens, 55/55 cursors, and no animation frames. The production input reaches doapply COIN_CLASS dispatch, flip_coin underwater loss, dropx, pool flooreffects, and water_damage."
+  ],
+  "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+  "manifestPath": "challenges/manifests/v41.json",
+  "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+  "recordingSha256": "eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79",
+  "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+  "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+  "recordedSteps": 82
+}
