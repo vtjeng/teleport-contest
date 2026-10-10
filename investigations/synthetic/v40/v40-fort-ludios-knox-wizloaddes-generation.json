@@ -1,0 +1,112 @@
+{
+  "session": "synthetic/v40/v40-fort-ludios-knox-wizloaddes-generation",
+  "remainingScreens": 31,
+  "recordedSteps": 31,
+  "corpus": "synthetic",
+  "batch": "v40",
+  "caseId": "v40-fort-ludios-knox-wizloaddes-generation",
+  "manifestPath": "challenges/manifests/v40.json",
+  "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+  "recordingSha256": "49252e7aeff2d0f0bce9f3f0d7a611f97412f6085a6f92fc3a26ba40d19fbbe2",
+  "evaluationPath": "challenges/evaluations/20261010112700-v40.json",
+  "evaluationCommit": "3d09fdb7cb4fbe53122ed64fc9ed20378dfd745e",
+  "status": "complete",
+  "commit": "4e00efd2205d1410e6913d5c9ba4c8b537084940",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v40",
+    "caseId": "v40-fort-ludios-knox-wizloaddes-generation",
+    "session": "synthetic/v40/v40-fort-ludios-knox-wizloaddes-generation",
+    "manifestPath": "challenges/manifests/v40.json",
+    "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+    "recording": "challenges/cases/v40/v40-knox-wizloaddes-map-cfirst.session.json",
+    "recordingPath": "challenges/cases/v40/v40-knox-wizloaddes-map-cfirst.session.json",
+    "recordingSha256": "49252e7aeff2d0f0bce9f3f0d7a611f97412f6085a6f92fc3a26ba40d19fbbe2",
+    "recipe": "challenges/cases/v40/v40-knox-wizloaddes-map-cfirst.recipe.session.json",
+    "recipeSha256": "41ab419c8ceabaa27826377748eff513c8e0694785047ef48f2ccd149d93cd07",
+    "replayInputSha256": "3c878a6c119990bab8d19e77d89e2e92944e49a55a76b9241e73e1e1681e78c6",
+    "evaluationPath": "challenges/evaluations/20261010112700-v40.json",
+    "evaluationCommit": "3d09fdb7cb4fbe53122ed64fc9ed20378dfd745e",
+    "evaluationArtifact": "challenges/evaluations/20261010112700-v40.json",
+    "evaluationUtc": "2026-10-10T11:22:52.326Z",
+    "remainingScreens": 31,
+    "recordedSteps": 31,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": "Couldn't place lregion type 3!",
+    "metrics": {
+      "screens": {
+        "matched": 0,
+        "total": 31
+      },
+      "rng": {
+        "matched": 0,
+        "total": 8788
+      },
+      "cursors": {
+        "matched": 0,
+        "total": 31
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "Replay error: Couldn't place lregion type 3!",
+      "step": null
+    },
+    "step": null,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "Replay error: Couldn't place lregion type 3!",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The saved #wizloaddes replay stops while placing a Fort Ludios branch region. C executes the complete dat/knox.lua program through the wizard special-level loader; the same knox program is also the normal special-level prototype for Fort Ludios. JavaScript has generic levregion/place_lregion behavior but no knox.lua loader registered in SPECIAL_LEVEL_LOADERS, so the program-specific map and region setup is absent. Port the complete Lua program and register it for both direct wizard loading and normal special-level generation.",
+  "source": {
+    "file": "dat/knox.lua",
+    "branch": "Execute the whole Fort Ludios program after #wizloaddes loads knox.lua, and when normal makelevel dispatches the special prototype named knox. The top-level level_init/map setup establishes the room geometry before the type=branch lregion at dat/knox.lua:37 is resolved; subsequent operations generate teleport regions, randomized treasury, traps, rooms, doors, monsters and gems.",
+    "functions": [
+      "knox.lua"
+    ],
+    "callers": [
+      "Direct wizard entry: cmd.c registers #wizloaddes to wizcmds.c:wiz_load_splua; that function resets the coder, calls load_special(buf), then finalizes. JavaScript dispatch is cmd.js:5274-5276 -> wizcmds.js:wiz_load_splua -> mklev.js:load_special.",
+      "Natural level entry: dat/dungeon.lua defines Fort Ludios level name knox; dungeon.c:init_level stores the level name as s_level.proto (579-582), mklev.c:makelevel calls makemaz(slev->proto) for a special level (1267-1270), and mkmaze.c:makemaz loads that prototype through load_special (1127-1194). JavaScript dispatch is mklev.js:makelevel -> makemaz -> load_special.",
+      "Natural ordinary room entry: mklev.c:makelevel creates an eligible special room at 1344-1375 and calls sp_lev.c:fill_special_room for all rooms at 1414-1418; JavaScript makelevel calls mklev.js:fill_special_room (including the newly matching LEPREHALL route).",
+      "Special-level entry: sp_lev.c:lspo_finalize_level calls fill_special_room for every room at 6055-6059; JavaScript mklev.js:lspo_finalize_level does the same at 4363-4367. It is reached by natural makemaz/load_special and by wizcmds.c:wiz_load_splua -> load_special -> lspo_finalize_level."
+    ],
+    "dependencies": [
+      "The source program uses sp_lev.c des handlers for level_init, level_flags, map, non_diggable, levregion, teleport_region, region, monster, terrain, gold, trap, door and object, plus nhlsel.c selection.area/iterate; these are existing JS special-level API operations. The branch lregion is stored by sp_lev.c:levregion_add and resolved by mkmaze.c:fixup_special/place_lregion; JS has corresponding operations in mklev.js and mkmaze.js. No unported return-value dependency is required by the Lua program itself.",
+      "The complete room fill path is also required for Knox: sp_lev.c:fill_special_room (2731-2804) recurses through subrooms, skips OROOM/THEMEROOM/FILL_NONE, fills normal shops/vaults and dispatches the listed special room families to mkroom.c:fill_zoo (276-452); the old JavaScript refusal covered ANTHOLE, COCKNEST and LEPREHALL. Both whole functions were claimed after checking active reservations and are now implemented through js/mklev.js:fill_special_room and js/mkroom.js:fill_zoo."
+    ],
+    "requiredFunctions": [
+      {
+        "sourceFile": "sp_lev.c",
+        "name": "fill_special_room",
+        "line": 2731,
+        "endLine": 2804,
+        "implementation": "js/mklev.js:fill_special_room",
+        "reason": "Whole caller required because the natural special-level finalizer and ordinary level generator both dispatch room population through it; its source switch calls fill_zoo for COURT, ZOO, BEEHIVE, ANTHOLE, COCKNEST, LEPREHALL, MORGUE and BARRACKS."
+      },
+      {
+        "sourceFile": "mkroom.c",
+        "name": "fill_zoo",
+        "line": 276,
+        "endLine": 452,
+        "implementation": "js/mkroom.js:fill_zoo",
+        "reason": "Whole population function required by fill_special_room; it owns court, beehive, zoo, leprechaun hall, cockatrice nest, anthole, morgue, barracks, and final level-flag effects."
+      }
+    ]
+  },
+  "goalKind": "lua-port",
+  "evidence": [
+    "The authoritative saved queue entry at SHA-256 7f80ab63c352c92456b75ab0acd7a8a52b7bcd74ae955c0d143744bb49d8ff9d identifies synthetic/v40/v40-fort-ludios-knox-wizloaddes-generation; its recording and recipe hashes are 49252e7aeff2d0f0bce9f3f0d7a611f97412f6085a6f92fc3a26ba40d19fbbe2 and 41ab419c8ceabaa27826377748eff513c8e0694785047ef48f2ccd149d93cd07. The v40 evaluation reports 0/31 screens, 0/8788 matching RNG calls, 0/31 cursors, and error \"Couldn't place lregion type 3!\".",
+    "The admitted recipe challenges/cases/v40/v40-knox-wizloaddes-map-cfirst.recipe.session.json enters #wizloaddes and names knox.lua; its matching C recording is byte-identical to the independent C replay according to the v40 manifest/evaluation evidence.",
+    "Upstream wizcmds.c:376-395 defines the direct command path: wizard gating, prompt/extension handling, lspo_reset_level(NULL), load_special(buf), and lspo_finalize_level(NULL).",
+    "Upstream dat/knox.lua:7-167 is one complete top-level program. It creates the Fort map and room geometry, registers the branch lregion at line 37, adds arrival teleport regions, and then creates the throne room, random Croesus/doors, treasury iteration with random gold/traps, barracks, guards, dragons, eels, and corner gems.",
+    "Upstream dat/dungeon.lua:248-259 defines the Fort Ludios branch with level name knox. dungeon.c:579-582 copies each prototype level name to s_level.proto; mklev.c:1267-1270 and mkmaze.c:1127-1194 route that natural level generation through makemaz/load_special.",
+    "At the examined implementation commit, mklev.js:1749-1788 builds SPECIAL_LEVEL_LOADERS without a knox program. mklev.js:1801-1816 normalizes the .lua suffix, records nhlua.c:nhl_loadlua as unported, and returns false when no program loader exists. Existing generic branch-region support remains in mklev.js:lspo_levregion and mkmaze.js:place_lregion/fixup_special; the source-scoped change is the complete Lua program plus registry wiring unless fresh matched play exposes another independent gap.",
+    "Source-scope expansion traced the complete mkroom.c:fill_zoo() function (276-452) and sp_lev.c:fill_special_room() (2731-2804). The C caller recurses into subrooms before its own room, preserves the SHOP early return, dispatches all source-listed special room types, then applies room flags; the JavaScript caller now uses fill_zoo for ANTHOLE, COCKNEST and LEPREHALL and removes the obsolete UnsupportedSpecialRoomError class after its last throw site was deleted."
+  ]
+}
