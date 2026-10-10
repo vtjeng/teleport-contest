@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42180243,
+      "datetime": "20530416111700",
+      "nethackrc": "OPTIONS=name:BSpellFollowup,role:Barbarian,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\ncursed spellbook of finger of death\nrf\nRune\n"
+    }
+  ],
+  "comment": "Independent case-6 cursed spellbook recipe with a page acknowledgement and a follow-on object name. Reaches spell.c:cursed_book() and spell.c:study_book()'s negative study-delay boundary; no session-specific logic is used."
+}

@@ -1,5 +1,6 @@
 // Runtime spell-memory upkeep, the known-spell display, and spell casting.
-// C ref: spell.c age_spells(), dovspell(), dospellmenu(), percent_success(),
+// C ref: spell.c cursed_book(), age_spells(), dovspell(), dospellmenu(),
+// percent_success(),
 // spell_cmp(), sortspells(), spellsortmenu(), show_spells(),
 // spellretention(), spelltypemnemonic(), study_book(), docast(), getspell(),
 // spell_backfire(), spelleffects_check(), spelleffects(), rejectcasting(), spell_let_to_idx(),
@@ -31,6 +32,7 @@ import {
     ECMD_OK,
     ECMD_TIME,
     HALF_PHDAM,
+    KILLED_BY_AN,
     LL_CONDUCT,
     MAX_SPELL_STUDY,
     NO_KILLER_PREFIX,
@@ -59,10 +61,11 @@ import {
     TIMEOUT,
     uhim,
 } from './const.js';
-import { acurr, exercise } from './attrib.js';
+import { acurr, exercise, poison_strdmg } from './attrib.js';
 import { jump } from './apply.js';
 import { cmdq_pop, getdir, set_occupation } from './cmd.js';
 import { morehungry } from './eat.js';
+import { trycall } from './do.js';
 import { more_experienced, newexplevel } from './exper.js';
 import { read_tribute } from './files.js';
 import { makeplural } from './fruit.js';
@@ -70,6 +73,7 @@ import { freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { shieldeff, cmap_to_glyph, map_glyphinfo, tmp_at, canspotmon, zapdir_to_glyph, map_invisible } from './display.js';
 import { check_capacity, invocation_pos, losehp, nomul, nh_delay_output } from './hack.js';
+import { encumber_msg } from './pickup.js';
 import { dist2, distmin, isqrt, sgn, strncmpi } from './hacklib.js';
 import { obfree, update_inventory, useup } from './invent.js';
 import {
@@ -95,6 +99,7 @@ import {
 } from './obj.js';
 import { Tobjnam, an } from './objnam.js';
 import { check_unpaid } from './shk.js';
+import { tele } from './teleport.js';
 import {
     MAXSPELL,
     NODIR,
@@ -394,18 +399,16 @@ function randomSource(env = {}) {
     return random;
 }
 
-// C ref: spell.c cursed_book() (130-183). Calls whose C return value is
-// discarded but whose source owner is outside this span remain explicit gaps.
+// C ref: spell.c cursed_book() (130-183).
 export async function cursed_book(book, state = game, env = {}) {
     const random = randomSource(env);
     const message = env.message ?? ttyPline;
     const level = objectType(book, state).oc_level;
     const timeout = state.u?.uprops ?? {};
-    let damage;
     switch (random.rn2(level)) {
     case 0:
         await message('You feel a wrenching sensation.', state);
-        if (state === game) note_unported('teleport.c tele');
+        await tele(state, { ...env, random, message });
         break;
     case 1:
         await message('You feel threatened.', state);
@@ -419,9 +422,11 @@ export async function cursed_book(book, state = game, env = {}) {
         );
         break;
     }
-    case 3:
-        if (state === game) note_unported('steal.c take_gold');
+    case 3: {
+        const { take_gold } = await import('./sit.js');
+        await take_gold(state, { ...env, random, message });
         break;
+    }
     case 4: {
         await message('These runes were just too much to comprehend.', state);
         const prior = timeout[CONFUSION]?.intrinsic ?? 0;
@@ -447,14 +452,32 @@ export async function cursed_book(book, state = game, env = {}) {
             const strengthDamage = resistant
                 ? random.rn1(2, 1) : random.rn1(4, 3);
             const poisonDamage = random.rnd(resistant ? 6 : 10);
-            if (state === game)
-                note_unported('attrib.c poison_strdmg');
-            void strengthDamage;
-            void poisonDamage;
+            await poison_strdmg(
+                strengthDamage,
+                poisonDamage,
+                'contact-poisoned spellbook',
+                KILLED_BY_AN,
+                state,
+                {
+                    ...env,
+                    random,
+                    message,
+                    losehp: (amount, killerName, killerFormat) =>
+                        losehp(
+                            amount,
+                            killerName,
+                            killerFormat,
+                            state,
+                            { ...env, random, message },
+                        ),
+                    encumberMessage: (target) =>
+                        encumber_msg(target, { message }),
+                },
+            );
             book.in_use = wasInUse;
             break;
         }
-    case 6:
+    case 6: {
         if (spellPropertyActive(ANTIMAGIC, state)) {
             await shieldeff(state.u.ux, state.u.uy, state);
             await message(
@@ -466,11 +489,17 @@ export async function cursed_book(book, state = game, env = {}) {
                 `As you read the book, it radiates explosive energy in your ${body_part(FACE, state.youmonst)}!`,
                 state,
             );
-            damage = 2 * random.rnd(10) + 5;
-            void damage;
-            if (state === game) note_unported('hack.c losehp');
+            const damage = 2 * random.rnd(10) + 5;
+            await losehp(
+                Maybe_Half_Phys(damage, state),
+                'exploding rune',
+                KILLED_BY_AN,
+                state,
+                { ...env, random, message },
+            );
         }
         return true;
+    }
     default:
         {
             const { rndcurse } = await import('./sit.js');
@@ -963,7 +992,7 @@ export async function study_book(spellbook, state = game, env = {}) {
                 if (gone || !random.rn2(3)) {
                     if (!gone)
                         await message('The spellbook crumbles to dust!', state);
-                    if (state === game) note_unported('do.c trycall');
+                    await trycall(spellbook, state, { ...env, random, message });
                     await useup(spellbook, { state, hooks: {} });
                 } else {
                     spellbook.in_use = false;
