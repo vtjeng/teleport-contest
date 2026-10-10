@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T07:42:13.231Z",
+  "capturedAt": "2026-10-10T08:01:44.062Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -79746,6 +79746,94 @@
         "type": "accepted",
         "at": "2026-10-10T07:41:41.723Z",
         "task": "B211-investigation-v39-selftouch-cockatrice-human-final"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B211-investigation-v39-selftouch-cockatrice-human-final-036a2130fafd2a352bdccce99a254a69d0f379b3",
+        "type": "published",
+        "at": "2026-10-10T07:42:21.645Z",
+        "task": "B211-investigation-v39-selftouch-cockatrice-human-final",
+        "commit": "036a2130fafd2a352bdccce99a254a69d0f379b3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0e6a476a5f71a2247e1b4c93094d7dfcaa868030",
+        "type": "ready",
+        "at": "2026-10-10T07:42:38.106Z",
+        "task": "A2-v39-mounted-steed-knockoff-investigation-20261010",
+        "delivery": "0e6a476a5f71a2247e1b4c93094d7dfcaa868030"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-B213-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T07:42:58.793Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B213-retouch-20261010",
+        "type": "resume",
+        "at": "2026-10-10T07:43:00.328Z",
+        "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B213-artifact-retouch-v39-20261010",
+        "type": "implement",
+        "at": "2026-10-10T07:44:47.904Z",
+        "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete",
+        "goal": "port-artifact-retouch-equipment-v39-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-v39-knockoff-delivery-20261010",
+        "type": "turn",
+        "at": "2026-10-10T07:45:50.259Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 submitted mounted-steed knockoff. The saved queue is stale and its remaining cases are reserved by B, C, or A2 pending acceptance; awaiting a refreshed queue or released scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-eec51067322c1ecce023196d7e29f916c00ded71",
+        "type": "ready",
+        "at": "2026-10-10T07:47:41.562Z",
+        "task": "C-v39-pickup-cockatrice-barehanded-final-investigation-20261010",
+        "delivery": "eec51067322c1ecce023196d7e29f916c00ded71"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-pickup-submitted-idle-20261010",
+        "type": "turn",
+        "at": "2026-10-10T07:53:52.114Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C submitted the pickup corpse handling fix with matching pickup, container, and grapple recordings; available when an independent queue item is released."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B212-52c9514b-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T07:59:48.843Z",
+        "task": "B212-investigation-v39-cancellation-clay-golem-reached",
+        "integration": "52c9514b68146f66836e5ff89d4d0be624a2d33d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B212-38035932195-20261010",
+        "type": "validated",
+        "at": "2026-10-10T07:59:57.691Z",
+        "task": "B212-investigation-v39-cancellation-clay-golem-reached",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B212-investigation-v39-cancellation-clay-golem-reached-52c9514b68146f66836e5ff89d4d0be624a2d33d-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T08:01:02.593Z",
+        "task": "B212-investigation-v39-cancellation-clay-golem-reached"
       }
     ]
   },
@@ -79759,17 +79847,6 @@
         "status": "ready",
         "delivery": "aa2163952f9494c9f479695084307515af9770af",
         "since": "2026-10-10T06:48:16.957Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B212-investigation-v39-cancellation-clay-golem-reached",
-        "worker": "B",
-        "goal": "port-zap-cancel-monst-clay-golem-kill-v39-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "f007dae3536f50dc911c1480eb7ed1e963232fd5",
-        "since": "2026-10-10T07:05:44.158Z",
         "blockedBy": [],
         "unblocks": 1
       },
@@ -79805,8 +79882,33 @@
         "status": "ready",
         "delivery": "1d2b4383d02ec9259df1470e605ebeaaac8d4a17",
         "since": "2026-10-10T07:34:25.747Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-v39-mounted-steed-knockoff-investigation-20261010",
+        "worker": "A2",
+        "goal": "divergence-v39-mounted-steed-knockoff-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "0e6a476a5f71a2247e1b4c93094d7dfcaa868030",
+        "since": "2026-10-10T07:42:38.106Z",
         "blockedBy": [
-          "B212-investigation-v39-cancellation-clay-golem-reached"
+          "A2-investigation-v39-sink-levitation-boots-pickup-20261010"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "C-v39-pickup-cockatrice-barehanded-final-investigation-20261010",
+        "worker": "C",
+        "goal": "fix-pickup-fatal-corpse-instapetrify-v39-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "eec51067322c1ecce023196d7e29f916c00ded71",
+        "since": "2026-10-10T07:47:41.562Z",
+        "blockedBy": [
+          "C-v39-counted-wizgenesis-followup-20261010",
+          "C-v39-wield-cockatrice-instapetrify-investigation-20261010"
         ],
         "unblocks": 0
       }
@@ -80109,23 +80211,12 @@
         "since": "2026-10-10T02:16:25.792Z",
         "blockedBy": [],
         "reason": "The v38 bear-trap case reaches apply.c:set_trap then trap.c:dotrap after feeltrap reveals the new bear trap; source passes flags 0. The accepted-base preflight rejects this seen BEAR_TRAP path, and B204 owns contract:hero-trap-preflight-admission. B204 change only admits arrow traps. The source trace is recorded in investigations/synthetic/v38/v38-cursed-bear-trap-bungle.json. The reserved contract was left untouched; moving to the next independent case."
-      },
-      {
-        "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-10T07:11:41.307Z",
-        "blockedBy": [],
-        "reason": "Diagnosis is complete and committed at 505a2094f4cbb53bfa26bd4a1e6db7745e297b89. The whole artifact.c:retouch_equipment port must wire polyself.c:newman, which remains reserved by ready B211; coordinator directed parking until B211 releases that scope."
       }
     ]
   },
   "development": {
-    "executionCommit": "7a54ede871b0a32bf11496495532a9bbde5c46f3",
-    "measuredAt": "2026-10-10T07:40:13.422Z",
+    "executionCommit": "52c9514b68146f66836e5ff89d4d0be624a2d33d",
+    "measuredAt": "2026-10-10T07:56:54.193Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

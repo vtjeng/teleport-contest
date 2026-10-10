@@ -14,6 +14,7 @@ import {
     TELEP_TRAP,
     TELEPAT,
     REFLECTING,
+    NON_PM,
     W_ARMG,
     W_ARMS,
     W_WEP,
@@ -43,6 +44,7 @@ import {
     mon_likes_objpile_at,
     use_offensive,
     use_defensive,
+    mbhitm,
     use_misc,
     munslime,
     mcould_eat_tin,
@@ -66,6 +68,7 @@ import {
     M1_MINDLESS,
     M1_NOHEAD,
     PM_COCKATRICE,
+    PM_CLAY_GOLEM,
     PM_FIRE_ELEMENTAL,
     PM_FLOATING_EYE,
     PM_GHOST,
@@ -119,6 +122,7 @@ import {
     TIN_OPENER,
     UNICORN_HORN,
     WAN_COLD,
+    WAN_CANCELLATION,
     WAN_DEATH,
     WAN_DIGGING,
     WAN_FIRE,
@@ -1565,6 +1569,52 @@ test('use_offensive keeps wand beam draws on the caller random stream',
         ['rnd', 20],
         ['d', 2, 12],
     ]);
+});
+
+test('mbhitm forwards discarded cancellation result through its C caller',
+    async () => {
+    const cAt = MUSE_C.indexOf('\nmbhitm(');
+    const cEnd = MUSE_C.indexOf('\n/* hit all objects at x,y', cAt);
+    const cSource = MUSE_C.slice(cAt, cEnd);
+    assert.match(cSource,
+        /case WAN_CANCELLATION:\s*case SPE_CANCELLATION:\s*\(void\)\s*cancel_monst\(mtmp,\s*otmp,\s*FALSE,\s*TRUE,\s*FALSE\)/u);
+
+    const state = await offensiveHero();
+    const golem = offensiveMonster(state, PM_CLAY_GOLEM, null, {
+        mnum: PM_CLAY_GOLEM,
+        cham: NON_PM,
+        mx: state.u.ux + 2,
+        my: state.u.uy,
+        mhp: 10,
+        mhpmax: 10,
+    });
+    place_monster(golem, golem.mx, golem.my, state);
+    const wand = makeObject(state, WAN_CANCELLATION);
+    const messages = [];
+    const oldUnported = state.unported.has('zap.c cancel_monst');
+    const core = createCoreRandom(cloneIsaacContext(state.coreCtx), state);
+    let draws = 0;
+    const random = {
+        ...core,
+        rn2: (bound) => {
+            // The first draw is cancel_monst()'s MR check. Guarantee the
+            // cancellation reaches its caller-owned clay-golem branch, then
+            // let the ordinary kill path use the same seeded stream.
+            if (++draws === 1) return bound - 1;
+            return core.rn2(bound);
+        },
+    };
+
+    // muse.c:mbhitm() discards cancel_monst()'s result, but still applies
+    // cancellation and the clay-golem kill for this target item.
+    assert.equal(await mbhitm(golem, wand, state, {
+        random,
+        message: async (line) => { messages.push(line); },
+        unsupported: (reason) => { throw new Error(reason); },
+    }), 0);
+    assert.ok(golem.mhp < 1);
+    assert.ok(messages.some((line) => line.includes('writing vanishes')));
+    assert.equal(state.unported.has('zap.c cancel_monst'), oldUnported);
 });
 
 test('find_offensive declines for a nurse beside an unarmed, unarmored hero',

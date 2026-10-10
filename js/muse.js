@@ -235,7 +235,9 @@ import {
 } from './worn.js';
 import { mwelded, welded } from './wield.js';
 import { mon_has_amulet, mon_has_special } from './wizard.js';
-import { dobuzz, exclam, hit, miss, resist, zhitm } from './zap.js';
+import {
+    cancel_monst, dobuzz, exclam, hit, miss, resist, zhitm,
+} from './zap.js';
 import { which_armor } from './worn.js';
 import { hard_helmet } from './do_wear.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
@@ -2184,8 +2186,9 @@ export function mon_likes_objpile_at(mtmp, x, y, rawEnv = {}) {
 // C ref: muse.c mbhitm() (1597-1704). Monster beam/projectile hit effect on
 // another monster (or the hero). Called by mbhit() for each monster in the
 // beam's path. Returns 0 in all cases; the return value tells mbhit whether
-// to stop, but C always returns 0 here.
-async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
+// to stop, but C always returns 0 here. Exported for focused coverage of its
+// static C callback branches.
+export async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
     // mattacku() can be dry-run against a cloned PRNG.  Keep every draw made
     // by this callback on that stream; direct callers retain the live RNG.
     const random = {
@@ -2289,7 +2292,8 @@ async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
         break;
     case O.WAN_CANCELLATION:
     case O.SPE_CANCELLATION:
-        note_unported('zap.c cancel_monst');
+        // C explicitly discards cancel_monst()'s Boolean result here.
+        await cancel_monst(mtmp, otmp, false, true, false, state, rawEnv);
         break;
     case O.WAN_UNDEAD_TURNING:
         if (hits_you) {
