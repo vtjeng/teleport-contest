@@ -24,3 +24,9 @@ test('apply.c do_break_wand reaches WAN_LIGHT explosion and litroom', async () =
         '../recordings/apply.c/broken-light-wand-independent-b45.session.json',
     );
 });
+
+test('apply.c do_break_wand sends undead-turning floor objects through bhito', async () => {
+    await assertSessionMatches(
+        '../challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.session.json',
+    );
+});

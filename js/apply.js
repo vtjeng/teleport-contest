@@ -4784,20 +4784,12 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
                 }
             }
             if (affectsObjects && state.level.objects[x]?.[y]) {
-                if (obj.otyp === WAN_STRIKING || obj.otyp === WAN_POLYMORPH) {
-                    await bhitpile(obj, x, y, state, random, env);
-                } else {
-                    note_unported('zap.c bhito');
-                }
+                await bhitpile(obj, x, y, state, random, env);
                 if (state.disp?.botl) await bot();
             }
         } else {
             if (affectsObjects && state.level.objects[x]?.[y]) {
-                if (obj.otyp === WAN_STRIKING || obj.otyp === WAN_POLYMORPH) {
-                    await bhitpile(obj, x, y, state, random, env);
-                } else {
-                    note_unported('zap.c bhito');
-                }
+                await bhitpile(obj, x, y, state, random, env);
                 if (state.disp?.botl) await bot();
             }
             const dealt = await zapyourself(obj, false, state);
