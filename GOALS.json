@@ -250903,6 +250903,59 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-shk-call-kops-makekops-v40-20261010",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the shop alarm's Keystone Kops response and its rank-ordered Kops spawning helper.",
+      "cFile": "shk.c",
+      "sessions": [
+        "synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport"
+      ],
+      "selectionReason": "Continue the accepted B216 replay at its next source boundary: unpaid shop departure reaches shk.c call_kops and makekops, while choose_stairs and enexto are already ported.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "call_kops",
+          "line": 510,
+          "endLine": 567,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 510,
+        "to": 567
+      },
+      "requiredFunctions": [
+        {
+          "name": "makekops",
+          "line": 5113,
+          "endLine": 5137,
+          "declared": false,
+          "sourceFile": "shk.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport": {
+          "session": "synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recordingPath": "challenges/cases/v40/v40-shop-hotpursuit-unpaid-gem-wizlevelport-continued-cfirst.session.json",
+          "recordingSha256": "97f003174dd691f5176ea333f32c4765c06742a6395293348b778653148afb76",
+          "evaluationPath": "challenges/evaluations/accepted-fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7-v40.json",
+          "evaluationCommit": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7"
+        }
+      }
     }
   ]
 }

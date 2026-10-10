@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v40.json",
   "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
   "recordingSha256": "97f003174dd691f5176ea333f32c4765c06742a6395293348b778653148afb76",
-  "evaluationPath": "challenges/evaluations/20261010112700-v40.json",
-  "evaluationCommit": "3d09fdb7cb4fbe53122ed64fc9ed20378dfd745e",
-  "remainingScreens": 48,
+  "evaluationPath": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
+  "evaluationCommit": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+  "remainingScreens": 0,
   "recordedSteps": 48,
   "status": "complete",
-  "commit": "a52839d0ad405128a40cec23aed935e653760a6c",
+  "commit": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v40",
@@ -24,46 +24,57 @@
     "recordingSha256": "97f003174dd691f5176ea333f32c4765c06742a6395293348b778653148afb76",
     "recipe": "challenges/cases/v40/v40-shop-hotpursuit-unpaid-gem-wizlevelport-continued-cfirst.recipe.session.json",
     "recipeSha256": "a77f4fad5a58ed12331321f247c5778822ec1695d63521bee2c90adffecc06f1",
-    "replayInputSha256": "3c878a6c119990bab8d19e77d89e2e92944e49a55a76b9241e73e1e1681e78c6",
-    "evaluationPath": "challenges/evaluations/20261010112700-v40.json",
-    "evaluationCommit": "3d09fdb7cb4fbe53122ed64fc9ed20378dfd745e",
-    "evaluationArtifact": "challenges/evaluations/20261010112700-v40.json",
-    "evaluationUtc": "2026-10-10T11:22:52.326Z",
-    "remainingScreens": 48,
+    "replayInputSha256": "90a11c9d5aa3d0cce35b253c77a7117b1dae9dbb4ba50d6867b169fd0e9ed900",
+    "evaluationPath": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
+    "evaluationCommit": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+    "evaluationArtifact": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
+    "evaluationUtc": "2026-10-10T11:54:25.145Z",
+    "remainingScreens": 0,
     "recordedSteps": 48,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 0,
     "regression": false,
     "passed": false,
-    "error": "LL_ACHIEVE is not defined",
+    "error": null,
     "metrics": {
       "screens": {
-        "matched": 0,
+        "matched": 48,
         "total": 48
       },
       "rng": {
-        "matched": 0,
+        "matched": 5390,
         "total": 9230
       },
       "cursors": {
-        "matched": 0,
+        "matched": 48,
         "total": 48
       }
     },
     "firstMismatch": {
-      "kind": "stop",
-      "message": "Replay error: LL_ACHIEVE is not defined",
-      "step": null
+      "screen": null,
+      "rng": {
+        "index": 5384,
+        "cEntry": "rnd(5)=4",
+        "cCaller": "makekops(shk.c:5119)",
+        "jsEntry": "rn2(3)=0",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 47,
+          "key": " "
+        },
+        "stepIndex": 47
+      },
+      "cursor": null
     },
-    "step": null,
-    "kind": "stop",
-    "sourceFile": null,
-    "function": null,
-    "message": "Replay error: LL_ACHIEVE is not defined",
-    "cFile": null,
+    "step": 47,
+    "kind": "rng",
+    "sourceFile": "shk.c",
+    "function": "makekops",
+    "message": null,
+    "cFile": "shk.c",
     "luaFile": null,
-    "line": null
+    "line": 5119
   },
-  "summary": "B216's missing LL_ACHIEVE import is accepted. B217 ports shk.c:call_kops and makekops; the admitted v40 replay now matches all 48 screens, 9,230 RNG calls, and 48 cursors. The prior RNG boundary was call 5385 in makekops. The separate shk.c:hot_pursuit void gap remains explicit in rob_shop.",
+  "summary": "Accepted B216 reaches shk.c:call_kops and makekops after unpaid shop departure. B217 ports both functions, and the admitted replay now matches all 48 screens, 9,230 RNG calls, and 48 cursors. The separate hot_pursuit void gap remains explicit.",
   "followup": {
     "task": "B217-investigation-v40-shop-exit-kops-residual-20261010",
     "goalKind": "file-port",
@@ -83,8 +94,16 @@
         "shk.c:call_kops calls choose_stairs, then makekops at the hero, selected stairs, and shopkeeper coordinates (510-567)."
       ],
       "sourceUnits": [
-        { "file": "shk.c", "function": "call_kops", "lines": "510-567" },
-        { "file": "shk.c", "function": "makekops", "lines": "5113-5137" }
+        {
+          "file": "shk.c",
+          "function": "call_kops",
+          "lines": "510-567"
+        },
+        {
+          "file": "shk.c",
+          "function": "makekops",
+          "lines": "5113-5137"
+        }
       ],
       "existingCallees": [
         "wizard.c:choose_stairs has an existing JavaScript implementation in js/wizard.js:644 and a focused source-pinned test; js/shk.js currently records note_unported instead of wiring it.",
@@ -120,29 +139,32 @@
   },
   "source": {
     "file": "shk.c",
-    "branch": "When u_left_shop finds a live in-shop keeper and a bill or debit, rob_shop settles credit and the bill. If total remains nonzero, C adds it to robbed, emits the theft message and LL_ACHIEVE livelog, adjusts non-Rogue alignment, then calls hot_pursuit and returns TRUE. The selected recipe reaches this unpaid robbery branch during a wizard level-port from the shop.",
+    "branch": "After rob_shop reports unpaid theft, u_left_shop calls call_kops. call_kops chooses a staircase and spawns rank-ordered Keystone Kops around the hero or around the stairs and shopkeeper through makekops.",
     "functions": [
-      "rob_shop"
+      "call_kops",
+      "makekops"
     ],
     "callers": [
-      "Selected path: teleport.c:level_tele negative-levelport branch calls u_left_shop(u.ushops0, TRUE) at 1329; shk.c:u_left_shop calls rob_shop at 622. JavaScript: js/teleport.js:level_tele calls u_left_shop at 2080; js/shk.js:u_left_shop calls rob_shop at 625.",
-      "Other direct caller: shk.c:remote_burglary calls rob_shop at 678; JavaScript js/shk.js:remote_burglary calls it at 855. This is outside the selected recipe path."
+      "teleport.c:level_tele -> shk.c:u_left_shop -> shk.c:call_kops reaches the selected negative wizard level-port path.",
+      "shk.c:remote_burglary also calls call_kops(FALSE) after remote theft; both callers use the same helper.",
+      "shk.c:call_kops is the only caller of shk.c:makekops and invokes it for the near-shop hero position or the selected stairs and shopkeeper positions."
     ],
     "dependencies": [
-      "pline.c:livelog_printf receives LL_ACHIEVE at shk.c:710; JavaScript js/shk.js:890 passes the same flag to pline.js:livelog_printf.",
-      "const.h:LL_ACHIEVE is exported by js/const.js as value 0x0002 but is absent from js/shk.js imports, causing the ReferenceError.",
-      "shk.c:hot_pursuit is still explicitly skipped with note_unported in js/shk.js:899. Its void result is discarded by rob_shop; it remains separate from the post-fix RNG divergence.",
-      "After the LL_ACHIEVE import, the fresh differential matches all 48 screens and cursors. Its first RNG mismatch is step 48: C rnd(5) in shk.c:makekops (5113-5132), called from shk.c:call_kops (510-565) after choose_stairs; JS call_kops (416-458) still records explicit wizard.c:choose_stairs and shk.c:makekops gaps. This separate family is outside the B216 rob_shop fix."
+      "wizard.c:choose_stairs is implemented in js/wizard.js and is now called from js/shk.js:call_kops before either placement branch.",
+      "teleport.c:enexto is implemented in js/teleport.js and js/shk.js:makekops uses each returned coordinate as the next mutable origin.",
+      "makemon.c:makemon is invoked with MM_NOMSG and its discarded result is mirrored by awaiting the existing makemon_runtime adapter, including the Kops inventory path.",
+      "shk.c:hot_pursuit remains a distinct void-return gap called by rob_shop; it is outside this residual Kops RNG divergence."
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
-    "Saved combined queue SHA-256 7f80ab63c352c92456b75ab0acd7a8a52b7bcd74ae955c0d143744bb49d8ff9d identifies synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport; its v40 evaluation at 3d09fdb7cb4fbe53122ed64fc9ed20378dfd745e reports 48 recorded steps, zero JavaScript screens/RNG/cursors, and the runtime error “LL_ACHIEVE is not defined”.",
-    "Fresh differential .cache/B216-before-diff.log (bounded run-PTXWwi) reproduced the JavaScript ReferenceError while patched C produced one segment, 9,230 RNG calls, 48 screens, and 48 cursors.",
-    "Upstream shk.c:rob_shop (687-719) calls livelog_printf(LL_ACHIEVE, ...) only after credit settlement leaves a nonzero robbery total. JavaScript js/shk.js:861-899 follows the corresponding branch but references LL_ACHIEVE at 890 without importing it; the ReferenceError occurs before livelog_printf receives its flag.",
-    "The constant exists as export LL_ACHIEVE = 0x0002 in js/const.js:812. Other modules import it from const.js; the error is a missing module binding, not a C behavior or recorder discrepancy.",
-    "The selected production route is teleport.c:level_tele -> u_left_shop -> rob_shop, mirrored by js/teleport.js:level_tele -> js/shk.js:u_left_shop -> rob_shop. The other direct caller, remote_burglary, shares rob_shop but is not exercised by this case.",
-    "Fresh post-fix differential in bounded run-6KmZRv (.cache/B216-after-diff.log): screen/cursor streams match 48/48, while RNG is C=9230 vs JS=7525; first mismatch is call 5385, segment 1 step 48, C rnd(5)=4 at makekops(shk.c:5119), versus JS rn2(3)=0. This is the explicit call_kops/makekops gap, not the LL_ACHIEVE failure."
-  ],
-  "savedQueueSha256": "7f80ab63c352c92456b75ab0acd7a8a52b7bcd74ae955c0d143744bb49d8ff9d"
+    "Fresh pre-fix replay run-MjOBz8 on accepted B216 matches 48/48 screens and cursors; RNG first differs at call 5385, segment 1 step 48: C rnd(5)=4 at shk.c:makekops:5119 versus JavaScript rn2(3)=0.",
+    "Upstream shk.c:call_kops lines 510-567 chooses stairs and dispatches Kops placement for both near-shop and level-exit paths.",
+    "Upstream shk.c:makekops lines 5113-5137 computes rank counts, skips extinct ranks, advances the mutable coordinate with enexto, and calls makemon with MM_NOMSG.",
+    "Fresh post-fix replay run-TX1wA8 matches all 9,230 RNG calls, all 48 screens, and all 48 cursors; synthetic range evidence matches v40 segment 0 through step 47.",
+    "wizard.c:choose_stairs is implemented in js/wizard.js and is now called from js/shk.js:call_kops before either placement branch.",
+    "teleport.c:enexto is implemented in js/teleport.js and js/shk.js:makekops uses each returned coordinate as the next mutable origin.",
+    "makemon.c:makemon is invoked with MM_NOMSG and its discarded result is mirrored by awaiting the existing makemon_runtime adapter, including the Kops inventory path.",
+    "shk.c:hot_pursuit remains a distinct void-return gap called by rob_shop; it is outside this residual Kops RNG divergence."
+  ]
 }
