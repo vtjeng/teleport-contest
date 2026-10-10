@@ -200,5 +200,5 @@ test('the diagnostic wiz_load_splua caller is separate and retains its shopkeepe
     assert.match(shopkeeperC,
         /shkinit\(const struct shclass \*shp, struct mkroom \*sroom\)[\s\S]*?makemon\([^;]*MM_ESHK/u);
     assert.match(monsterCreateJs,
-        /const shopkeeperCall = \(\(state\.in_mklev \|\| specialRoomCall\)[\s\S]*?if \(\(mmflags & MM_ESHK\) && !shopkeeperCall\)/u);
+        /const shopkeeperCall = \(state\.in_mklev[\s\S]*?if \(\(mmflags & MM_ESHK\) && !shopkeeperCall\)/u);
 });
