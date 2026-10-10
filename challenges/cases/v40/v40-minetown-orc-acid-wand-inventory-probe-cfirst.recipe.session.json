@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 82733193,
+      "datetime": "20590617112233",
+      "nethackrc": "OPTIONS=name:V40AcidProbe,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-1.lua\n#wizmap\n\u0017wand of acid\n#wizidentify\n ",
+      "comment": "C-first setup probe for wand of acid against an armed Minetown orc; identify the wished wand slot before targeting."
+    }
+  ]
+}

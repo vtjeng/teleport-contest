@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected action: select the queried C-confirmed iridium wand in slot o, then aim east at the adjacent hostile newt shown in the recorder map.",
+  "segments": [
+    {
+      "seed": 41410103,
+      "datetime": "20461013141516",
+      "nethackrc": "OPTIONS=name:V40WandSlow,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017wand of slow monster\n\u0007hostile newt\nz?ol"
+    }
+  ]
+}

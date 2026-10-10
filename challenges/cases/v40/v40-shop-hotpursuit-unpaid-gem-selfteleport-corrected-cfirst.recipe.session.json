@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopChase,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\nl, \u0017uncursed wand of teleportation\nzo.",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Corrected C-first shopkeeper-pursuit probe. Preserve the prior selector-spacing miss; after C confirmed inventory letter o for the wished long wand and an unpaid carried red gem, enter z/o/self-direction contiguously so the intended self-teleport actually runs."
+}

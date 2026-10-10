@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source-verified case for dog.c:abuse_dog -> apply.c:m_unleash(TRUE). A neutral Wizard creates a tame baby gray dragon (C initedog minimum tame 5), wishes a leash, attaches it to the pet north, then kicks the thick-skinned pet five times with the C-observed adjacent-square pattern. The fifth abuse sets mtame to zero; C displays that the dragon pulls free of its leash and clears the attachment.",
+  "segments": [
+    {
+      "seed": 48230567,
+      "datetime": "20590506151617",
+      "nethackrc": "OPTIONS=name:V40LeashProbe,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0007tame baby gray dragon\n\u0017leash\naok\u0004ky \u0004ly \u0004ky \u0004ly \u0004ky "
+    }
+  ]
+}

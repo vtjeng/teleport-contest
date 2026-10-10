@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Corrected C-only bugle route: the debug welcome page has no blocking More, so the prior leading space was an invalid key. This version wishes both bugle and soldier, applies the observed instrument slot n, and accepts improvisation. No JavaScript comparison is performed.",
+  "segments": [
+    {
+      "seed": 40100401,
+      "datetime": "20430701101500",
+      "nethackrc": "OPTIONS=name:V40Bugle,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017bugle\n\u0017soldier\na n y",
+      "recorderIsDst": true
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only correction after attempt 1 established that NetHack has no elephant species. Create a tame baby gray dragon as a high-HP, thick-skinned leash candidate before testing dog.c:abuse_dog -> apply.c:m_unleash.",
+  "segments": [
+    {
+      "seed": 48230562,
+      "datetime": "20581111141516",
+      "nethackrc": "OPTIONS=name:V40LeashProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0007tame baby gray dragon\n"
+    }
+  ]
+}

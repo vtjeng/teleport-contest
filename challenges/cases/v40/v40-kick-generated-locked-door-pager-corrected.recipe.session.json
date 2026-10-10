@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected initial-page boundary: the standard-start C recording showed the welcome message occupies a pager, so dismiss it before Ctrl-D and the scan-confirmed northwest locked-door direction.",
+  "segments": [
+    {
+      "seed": 42005015,
+      "datetime": "20441015101112",
+      "nethackrc": "OPTIONS=name:V40LockedDoorKick,role:Valkyrie,race:human,gender=female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0004y"
+    }
+  ]
+}

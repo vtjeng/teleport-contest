@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Follows the independently recorded C inventory prompt from the corrected route: the identify scroll occupies slot j. This attempt stops after issuing the confirmed read selection so the next C target menu remains observable.",
+  "segments": [
+    {
+      "seed": 40100520,
+      "datetime": "20450102030405",
+      "nethackrc": "OPTIONS=name:V40IdentifyPotion,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017potion of see invisible\n\u0017scroll of identify\n rj"
+    }
+  ]
+}

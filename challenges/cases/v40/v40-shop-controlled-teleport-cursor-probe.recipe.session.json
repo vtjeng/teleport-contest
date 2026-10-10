@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "At the C controlled-teleport prompt, move the destination cursor one tile west and stop to confirm that the selection prompt is active and the cursor is changing rather than the hero moving.",
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopDebtAlt,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\nl, ni #wizintrinsic\n150o>>150j\n  \u0014h"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Continues from the C-confirmed worn-item selector: the wished jade ring is slot e and the remove-curse scroll is slot f. The first run is preserved with its opening-pager setup miss.",
+  "segments": [
+    {
+      "seed": 40100624,
+      "datetime": "20450304050607",
+      "nethackrc": "OPTIONS=name:V40RemoveCurseRing,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017cursed ring of protection\n\u0017uncursed scroll of remove curse\nPe rf"
+    }
+  ]
+}

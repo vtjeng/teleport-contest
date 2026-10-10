@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Final C-first leash/pool recipe for trap.c:drown -> apply.c:unleash_all. Wish and attach a leash to the starting kitten, wish a pool, step off, then force the safe return into the known pool. Dismiss only the C-observed pagers through leash slip and crawl-out; no post-rescue no-op inputs.",
+  "segments": [
+    {
+      "seed": 40762113,
+      "datetime": "20590512093700",
+      "nethackrc": "OPTIONS=name:V40DrownLeash,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017leash\naol\u0017pool\njk mk      "
+    }
+  ]
+}

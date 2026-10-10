@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopChase,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\nl, #wizlevelport\n5\n  ",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Continue the C-only shop robbery through both observed More pages so the live `rob_shop -> hot_pursuit` calls and level-transition output can complete. Keep the earlier page-boundary probes unchanged."
+}

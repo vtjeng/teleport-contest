@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first stock-pickup correction: the east step confirms an on-floor red gem priced for sale at 500 zorkmids. Invoke pickup on that exact C-observed square to learn the object selector before leaving the shop.",
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopDebtAlt,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\nl,"
+    }
+  ]
+}

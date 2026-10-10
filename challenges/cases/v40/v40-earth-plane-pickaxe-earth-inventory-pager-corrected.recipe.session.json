@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "The prior probe dismissed only the Amulet prerequisite and landed on a second arrival pager. Dismiss both pager boundaries, then inspect the live C inventory.",
+  "segments": [
+    {
+      "seed": 42060006,
+      "datetime": "20441017101112",
+      "nethackrc": "OPTIONS=name:V40EarthPage2,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?\n  N  i"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected inventory pager boundary: the previous intrinsic-menu attempt fed `#wizintrinsic` into the still-open inventory listing, causing unrelated command dispatch. Dismiss the inventory text window once with space, then open the intrinsic menu to observe teleport control.",
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopDebtAlt,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\nl, ni #wizintrinsic\n"
+    }
+  ]
+}

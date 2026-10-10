@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Corrected apply selection after the C trace showed spaces were literal movement commands: `a` opens apply, `n` selects the wished bugle, and `y` answers the improvisation prompt. The adjacent soldier is created with ^G. No JavaScript comparison is performed.",
+  "segments": [
+    {
+      "seed": 40100401,
+      "datetime": "20430701101500",
+      "nethackrc": "OPTIONS=name:V40Bugle,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017bugle\n\u0007soldier\nany",
+      "recorderIsDst": true
+    }
+  ]
+}

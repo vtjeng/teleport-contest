@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 91340527,
+      "datetime": "20591022110947",
+      "nethackrc": "OPTIONS=name:V40ShopChase,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "C-first source setup probe for leaving a D4 shop with unpaid merchandise through a self-targeted teleport wand, aiming to reach shk.c:u_left_shop -> rob_shop -> hot_pursuit. Keep the probe C-only until it confirms a live shop, keeper, unpaid object, and teleport placement outside the shop; use a new seed and action history distinct from the prior shopdig case and the v19 controlled-teleport selector route."
+}

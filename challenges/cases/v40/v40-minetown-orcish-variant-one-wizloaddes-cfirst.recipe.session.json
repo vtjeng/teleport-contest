@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source probe for the complete Orcish Minetown variant level program. Load minetn-1.lua directly with the wizard special-level loader and map the result to establish its branch execution.",
+  "segments": [
+    {
+      "seed": 82733191,
+      "datetime": "20580615103000",
+      "nethackrc": "OPTIONS=name:V40Minetown,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminetn-1.lua\n#wizmap\n"
+    }
+  ]
+}

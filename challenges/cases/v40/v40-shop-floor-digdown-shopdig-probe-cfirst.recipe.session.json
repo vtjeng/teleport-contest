@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first shop-floor digging probe for dig.c:dig -> shk.c:shopdig(0). Wish an uncursed pick-axe, enter the same observed Dungeon level 4 shop, step onto its for-sale gem tile, then inspect inventory before confirming the pick-axe letter and attempting downward digging. Keep all setup and unreachable results.",
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopDebtAlt,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017uncursed pick-axe\n#wizlevelport\n4\n #wizmap\nli"
+    }
+  ]
+}

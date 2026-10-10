@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Corrected monster setup after C reported that `^W soldier` is an object wish and returned “Nothing fitting that description exists”. This route uses the source-supported debug monster generator `^G` for the soldier, then applies the observed bugle slot. No JavaScript comparison is performed.",
+  "segments": [
+    {
+      "seed": 40100401,
+      "datetime": "20430701101500",
+      "nethackrc": "OPTIONS=name:V40Bugle,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017bugle\n\u0007soldier\na n y",
+      "recorderIsDst": true
+    }
+  ]
+}

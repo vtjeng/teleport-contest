@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "First C-first trapped-pet setup attempt: the C chat probe confirms a tame kitten north of the hero, and the boulder wish leaves a boulder on the hero square. Wish a pit trap under that tile, then move south so the kitten can enter the target square.",
+  "segments": [
+    {
+      "seed": 40100731,
+      "datetime": "20450607080910",
+      "nethackrc": "OPTIONS=name:V40TrapPetWhistle,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017boulder\n\u0017pit trap\nj"
+    }
+  ]
+}

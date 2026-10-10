@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Continue the reached drown branch through its remaining water-damage pages and capture the leash-slack/unleash and crawl-out result. Extra spaces are only page dismissals; stop analysis at the first completed post-drown state.",
+  "segments": [
+    {
+      "seed": 40762113,
+      "datetime": "20590512093700",
+      "nethackrc": "OPTIONS=name:V40DrownLeash,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017leash\naol\u0017pool\njk mk          "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first mapping probe: enter the Sanctum, dismiss its arrival page, and invoke #wizdetect to expose the source level’s hidden route without spending repeated search turns beside its master lich.",
+  "segments": [
+    {
+      "seed": 40404042,
+      "datetime": "20461012131415",
+      "nethackrc": "OPTIONS=name:V40SanctumMap,role:Monk,race:human,gender=female,align=lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0016?\n v #wizdetect\n"
+    }
+  ]
+}

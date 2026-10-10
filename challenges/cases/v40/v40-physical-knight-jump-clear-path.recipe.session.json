@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Initial C-only reachability probe for apply.c:dojump. It chooses the Knight’s one-square-right/two-squares-down legal jump from a fresh seed; no JavaScript comparison is performed.",
+  "segments": [
+    {
+      "seed": 40100021,
+      "datetime": "20430621110000",
+      "nethackrc": "OPTIONS=name:V40KnightJump,role:Knight,race:human,gender=male,align=lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#jump\nljj.",
+      "recorderIsDst": true
+    }
+  ]
+}
