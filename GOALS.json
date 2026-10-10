@@ -252155,7 +252155,7 @@
     {
       "id": "port-pray-god-zaps-you-v41-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port divine lightning and disintegration retaliation from pray.c",
       "cFile": "pray.c",
       "sessions": [
@@ -252169,22 +252169,25 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "6e5dacedc7638246a629e7fe6295014ecbb0083d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "god_zaps_you",
           "line": 610,
           "endLine": 693,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "fry_by_god",
           "line": 694,
           "endLine": 703,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "angrygods",
@@ -252470,7 +252473,166 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "god_zaps_you",
+            "implementation": "js/pray.js",
+            "symbol": "god_zaps_you",
+            "sourceReview": "Read pray.c:610-693 in full. Preserved the swallowed-monster lightning branch and its Resists_Elem result, then the unswallowed reflection -> shock-resistance -> fry order and M_SEEN updates. The second effect rechecks u.uswallow, resolves the wide-angle beam, and visits shield, cloak, suit-without-cloak, and shirt-without-suit-or-cloak in source order using the ported disintegrate_arm effects (its C return is discarded). It then applies hero disintegration resistance or fry_by_god and the three high-altar minion attempts. The source direct angry gods call at pray.c:775-776 is wired. A second C caller at pray.c:1522 is desecrate_altar(); its JavaScript function and caller path are absent at this base and remain a separately named source gap, so no route was invented.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "angrygods",
+                "source": "pray.c:775-776 default arm calls gods_angry(resp_god), then god_zaps_you(resp_god); the existing prayer dispatch reaches this function through pray.c:prayer_done -> gods_upset -> angrygods."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-anger-prayer-god-zaps-hero",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 47,
+                "source": "pray.c:dopray -> allmain.c:unmul -> prayer_done(p_type 0) -> gods_upset -> angrygods default -> god_zaps_you -> fry_by_god; the matching tail includes the second disintegration fry and prayer timer."
+              }
+            ],
+            "checkedAt": "6e5dacedc7638246a629e7fe6295014ecbb0083d"
+          },
+          {
+            "name": "fry_by_god",
+            "implementation": "js/pray.js",
+            "symbol": "fry_by_god",
+            "sourceReview": "Read pray.c:694-703 in full. The helper chooses the source phrase from via_disintegration, then sets svk.killer.format to KILLED_BY, writes \"the wrath of <aligned god>\", and calls done(DIED). god_zaps_you reaches it after lethal lightning and after nonresisted disintegration. In JavaScript done() may return after a lifesaving or wizard/discover survival; god_zaps_you() continues in that source-return case and returns after the terminal gameover path.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "god_zaps_you",
+                "source": "pray.c:610-693 calls fry_by_god(resp_god,FALSE) for unresisted lightning and fry_by_god(resp_god,TRUE) after unresisted disintegration."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-anger-prayer-god-zaps-hero",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 47,
+                "source": "pray.c:dopray -> allmain.c:unmul -> prayer_done(p_type 0) -> gods_upset -> angrygods default -> god_zaps_you -> fry_by_god; the matching tail includes the second disintegration fry and prayer timer."
+              }
+            ],
+            "checkedAt": "6e5dacedc7638246a629e7fe6295014ecbb0083d"
+          },
+          {
+            "name": "angrygods",
+            "implementation": "js/pray.js",
+            "symbol": "angrygods",
+            "sourceReview": "Read pray.c:704-787 in full. Kept the Inhell alignment override, divine-protection clear, C integer truncation and maxanger clamp, rn2(maxanger) arms, source-order effects, and the shared upward-only rnz(300) prayer timer. The default source arm now calls gods_angry then the complete god_zaps_you helper before the timer. Existing non-default branches and their callers remain unchanged.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "gods_upset",
+                "source": "pray.c:1442; gods_upset is reached by prayer_done p_type 0/2 and offer_too_soon/offering cases, including the selected p_type 0 callback."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "offer_different_alignment_altar",
+                "source": "pray.c:1656 rejected-alignment offering arm calls angrygods after its source alignment/luck/Wisdom effects."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "sacrifice_your_race",
+                "source": "pray.c:1770 calls angrygods before the source change_luck(-5); #offer reaches this function."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "prayer_done",
+                "source": "pray.c:2312/2325 calls angry gods for p_type 0 in Gehennom or p_type 1; p_type 0 outside Gehennom uses gods_upset at 2321."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-anger-prayer-god-zaps-hero",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 47,
+                "source": "pray.c:dopray -> allmain.c:unmul -> prayer_done(p_type 0) -> gods_upset -> angrygods default -> god_zaps_you -> fry_by_god; the matching tail includes the second disintegration fry and prayer timer."
+              },
+              {
+                "batch": "v29",
+                "caseId": "v29-sacrifice-human-race",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 53,
+                "source": "cmd.c doextcmd #offer -> pray.c dosacrifice/offer_corpse -> sacrifice_your_race -> angrygods case 8 -> summon_minion; the admitted tail fully matches."
+              }
+            ],
+            "checkedAt": "6e5dacedc7638246a629e7fe6295014ecbb0083d"
+          }
+        ],
+        "entryPointReview": "The selected active entry point is the delayed #pray response: dopray installs prayer_done, allmain.c:unmul resumes it, p_type 0 uses gods_upset, and the source-selected angry gods default enters god_zaps_you/fry_by_god; v41 covers all three units through step 47. The existing admitted v29 own-race #offer range separately exercises sacrifice_your_race -> angrygods through its minion branch. Other JS angry gods callers are wired in gods_upset, prayer_done, offer_different_alignment_altar, and sacrifice_your_race. C pray.c:desecrate_altar at 1501-1528 is a second active direct god_zaps_you caller, but no JS desecrate_altar function or caller adapter exists; current JS wrappers preserve that separate gap with note_unported(\"pray.c desecrate_altar\"). It is not claimed as covered or synthesized in this task.",
+        "entryPoints": [
+          {
+            "name": "delayed #pray too-soon default divine retaliation",
+            "functions": [
+              "angrygods",
+              "god_zaps_you",
+              "fry_by_god"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-anger-prayer-god-zaps-hero",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 47,
+                "source": "pray.c:dopray -> allmain.c:unmul -> prayer_done(p_type 0) -> gods_upset -> angrygods default -> god_zaps_you -> fry_by_god; the matching tail includes the second disintegration fry and prayer timer."
+              }
+            ]
+          },
+          {
+            "name": "#offer own-race sacrifice anger response",
+            "functions": [
+              "angrygods"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-sacrifice-human-race",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 53,
+                "source": "cmd.c doextcmd #offer -> pray.c dosacrifice/offer_corpse -> sacrifice_your_race -> angrygods case 8 -> summon_minion; the admitted tail fully matches."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6e5dacedc7638246a629e7fe6295014ecbb0083d",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

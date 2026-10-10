@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T14:22:44.642Z",
+  "capturedAt": "2026-10-10T14:38:33.234Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -81725,6 +81725,54 @@
         "at": "2026-10-10T14:22:31.747Z",
         "task": "C-v41-tower2-special-program-generation-investigation-20261010",
         "delivery": "da7e40e4280310e3eca2c66daeb84624f9b542e8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v40-wizard-wish-assistance-investigation-20261010-65ef885cfff7c7387dce3bd26a64bb48b6ecd396",
+        "type": "published",
+        "at": "2026-10-10T14:22:53.378Z",
+        "task": "C-v40-wizard-wish-assistance-investigation-20261010",
+        "commit": "65ef885cfff7c7387dce3bd26a64bb48b6ecd396"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C-prayer-review-20261010",
+        "type": "activity",
+        "at": "2026-10-10T14:25:50.276Z",
+        "task": "C-v41-anger-prayer-god-zaps-hero-investigation-20261010",
+        "phase": "review",
+        "reason": "Verify the prayer source delivery and current queue evidence before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C-prayer-integrating-6e5daced",
+        "type": "integrating",
+        "at": "2026-10-10T14:29:50.040Z",
+        "task": "C-v41-anger-prayer-god-zaps-hero-investigation-20261010",
+        "integration": "6e5dacedc7638246a629e7fe6295014ecbb0083d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b843ad9e2743aa3e6d895fe45e243db421a80329",
+        "type": "ready",
+        "at": "2026-10-10T14:29:55.912Z",
+        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010",
+        "delivery": "b843ad9e2743aa3e6d895fe45e243db421a80329"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v41-anger-prayer-god-zaps-hero-investigation-20261010-6e5dacedc7638246a629e7fe6295014ecbb0083d-validated",
+        "type": "validated",
+        "at": "2026-10-10T14:37:11.392Z",
+        "task": "C-v41-anger-prayer-god-zaps-hero-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v41-anger-prayer-god-zaps-hero-investigation-20261010-6e5dacedc7638246a629e7fe6295014ecbb0083d-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T14:38:17.461Z",
+        "task": "C-v41-anger-prayer-god-zaps-hero-investigation-20261010"
       }
     ]
   },
@@ -81740,17 +81788,6 @@
         "since": "2026-10-10T13:33:37.011Z",
         "blockedBy": [],
         "unblocks": 0
-      },
-      {
-        "task": "C-v41-anger-prayer-god-zaps-hero-investigation-20261010",
-        "worker": "C",
-        "goal": "port-pray-god-zaps-you-v41-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "5567a2a32b06b1d121b54af55cb63bf627398de2",
-        "since": "2026-10-10T13:42:49.161Z",
-        "blockedBy": [],
-        "unblocks": 1
       },
       {
         "task": "B221-investigation-v41-minetown3-special-program-generation-20261010",
@@ -81771,9 +81808,18 @@
         "status": "ready",
         "delivery": "da7e40e4280310e3eca2c66daeb84624f9b542e8",
         "since": "2026-10-10T14:22:31.747Z",
-        "blockedBy": [
-          "C-v41-anger-prayer-god-zaps-hero-investigation-20261010"
-        ],
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010",
+        "worker": "B",
+        "goal": "port-mhitu-mayberem-v41-incubus-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "b843ad9e2743aa3e6d895fe45e243db421a80329",
+        "since": "2026-10-10T14:29:55.912Z",
+        "blockedBy": [],
         "unblocks": 0
       }
     ],
@@ -82090,8 +82136,8 @@
     ]
   },
   "development": {
-    "executionCommit": "80ea59cc5def2fbf4019977110084cad10dd5518",
-    "measuredAt": "2026-10-10T14:20:22.971Z",
+    "executionCommit": "6e5dacedc7638246a629e7fe6295014ecbb0083d",
+    "measuredAt": "2026-10-10T14:36:19.953Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
