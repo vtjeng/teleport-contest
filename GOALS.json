@@ -243330,6 +243330,306 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-apply-do-break-wand-floor-callback-v38-20261010",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port apply.c do_break_wand floor-object callbacks",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v38/v38-broken-undead-wand-revives-floor-newt"
+      ],
+      "selectionReason": "The admitted v38 broken undead-turning wand case reaches apply.c do_break_wand and stops because the floor-object bhitpile callback is skipped.",
+      "detail": "Port the whole do_break_wand function scope, preserve neighbor and hero-square callback order, and wire the existing bhitpile and bhito path.",
+      "openedAt": "2fa6235f53b3a30bb3deefeafe2c92c93bdc0b5d",
+      "openStanding": {
+        "sha": "f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "do_break_wand",
+          "line": 3909,
+          "endLine": 4150,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3909,
+        "to": 4150
+      },
+      "syntheticProvenance": {
+        "synthetic/v38/v38-broken-undead-wand-revives-floor-newt": {
+          "session": "synthetic/v38/v38-broken-undead-wand-revives-floor-newt",
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-broken-undead-wand-revives-floor-newt",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recordingPath": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.session.json",
+          "recordingSha256": "db67a7d6f541d39d59d06d1120ac8a87ab0d5a061f3afd7d62d28f69814a40cd",
+          "evaluationPath": "challenges/evaluations/accepted-f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21-v38.json",
+          "evaluationCommit": "f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21"
+        }
+      },
+      "activeStanding": {
+        "sha": "f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-broken-undead-wand-revives-floor-newt",
+          "session": "synthetic/v38/v38-broken-undead-wand-revives-floor-newt",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recording": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.session.json",
+          "recordingPath": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.session.json",
+          "recordingSha256": "db67a7d6f541d39d59d06d1120ac8a87ab0d5a061f3afd7d62d28f69814a40cd",
+          "recipe": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.recipe.session.json",
+          "recipeSha256": "9b6847608d1caeb40ef7473fb0628c44e8f6e2cfd56490aa78332bd016d93d97",
+          "replayInputSha256": "f0a6c537d1e74b9fec2e15af122def60ea6220a64e4e0eadb181d30fc3d3bdda",
+          "evaluationPath": "challenges/evaluations/accepted-f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21-v38.json",
+          "evaluationCommit": "f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21",
+          "evaluationArtifact": "challenges/evaluations/accepted-f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21-v38.json",
+          "evaluationUtc": "2026-10-10T02:29:40.455Z",
+          "remainingScreens": 2,
+          "recordedSteps": 55,
+          "previousScreensMatched": 53,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 53,
+              "total": 55
+            },
+            "rng": {
+              "matched": 2551,
+              "total": 2593
+            },
+            "cursors": {
+              "matched": 53,
+              "total": 55
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 53,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 53,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 43,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2551,
+              "cEntry": "rn2(8)=4",
+              "cCaller": "collect_coords(teleport.c:700)",
+              "jsEntry": "rn2(19)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 53,
+                "key": " "
+              },
+              "stepIndex": 53
+            },
+            "cursor": {
+              "index": 53,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 53,
+                "key": " "
+              },
+              "cCursor": [
+                51,
+                0,
+                1
+              ],
+              "jsCursor": [
+                57,
+                19,
+                1
+              ]
+            }
+          },
+          "step": 53,
+          "kind": "rng",
+          "sourceFile": "teleport.c",
+          "function": "collect_coords",
+          "message": null,
+          "cFile": "teleport.c",
+          "luaFile": null,
+          "line": 700,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v38/v38-broken-undead-wand-revives-floor-newt.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v38",
+              "caseId": "v38-broken-undead-wand-revives-floor-newt",
+              "session": "synthetic/v38/v38-broken-undead-wand-revives-floor-newt",
+              "manifestPath": "challenges/manifests/v38.json",
+              "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+              "recordingSha256": "db67a7d6f541d39d59d06d1120ac8a87ab0d5a061f3afd7d62d28f69814a40cd",
+              "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+              "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+              "remainingScreens": 2,
+              "recordedSteps": 55,
+              "status": "complete",
+              "commit": "5a34f603217bbea524f333779a6ea310840ed3b7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v38",
+                "caseId": "v38-broken-undead-wand-revives-floor-newt",
+                "session": "synthetic/v38/v38-broken-undead-wand-revives-floor-newt",
+                "manifestPath": "challenges/manifests/v38.json",
+                "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+                "recording": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.session.json",
+                "recordingPath": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.session.json",
+                "recordingSha256": "db67a7d6f541d39d59d06d1120ac8a87ab0d5a061f3afd7d62d28f69814a40cd",
+                "recipe": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.recipe.session.json",
+                "recipeSha256": "9b6847608d1caeb40ef7473fb0628c44e8f6e2cfd56490aa78332bd016d93d97",
+                "replayInputSha256": "b71bf3fbcb07fcfb0eb0ae1f4a4851cee6588d354239d49084516f65d1ad7577",
+                "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+                "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+                "evaluationArtifact": "challenges/evaluations/20261010014622-v38.json",
+                "evaluationUtc": "2026-10-10T01:46:34.186Z",
+                "remainingScreens": 2,
+                "recordedSteps": 55,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 53,
+                    "total": 55
+                  },
+                  "rng": {
+                    "matched": 2551,
+                    "total": 2593
+                  },
+                  "cursors": {
+                    "matched": 53,
+                    "total": 55
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 53,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 53,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 43,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2551,
+                    "cEntry": "rn2(8)=4",
+                    "cCaller": "collect_coords(teleport.c:700)",
+                    "jsEntry": "rn2(19)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 53,
+                      "key": " "
+                    },
+                    "stepIndex": 53
+                  },
+                  "cursor": {
+                    "index": 53,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 53,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      51,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      57,
+                      19,
+                      1
+                    ]
+                  }
+                },
+                "step": 53,
+                "kind": "rng",
+                "sourceFile": "teleport.c",
+                "function": "collect_coords",
+                "message": null,
+                "cFile": "teleport.c",
+                "luaFile": null,
+                "line": 700
+              },
+              "summary": "Breaking an undead-turning wand skips its source floor-object callback for a dropped corpse. C do_break_wand() sets affects_objects for WAN_UNDEAD_TURNING and calls bhitpile(..., bhito, ...) on the floor pile, so the already-ported bhito() revives the corpse. JavaScript do_break_wand() currently records zap.c bhito as unported for this effect. The later collect_coords() RNG-bound mismatch is downstream of the missing revival, not a collect_coords defect.",
+              "source": {
+                "file": "apply.c",
+                "branch": "After the wand passes the break gates and its magical explosion, WAN_UNDEAD_TURNING sets affects_objects. During the eight-neighbor-plus-hero pass, a floor pile at the target square reaches bhitpile(obj, bhito, ...); for the claimed recipe, the hero-square pile contains the dropped newt corpse and the callback revives it.",
+                "functions": [
+                  "do_break_wand"
+                ],
+                "callers": [
+                  "apply.c:doapply() dispatches an applied WAND_CLASS object to do_break_wand(); js/apply.js:doapply() has the corresponding dispatch.",
+                  "apply.c:do_break_wand() calls bhitpile(obj,bhito,x,y,0) in both the adjacent-square and hero-square object branches; js/apply.js:do_break_wand() currently gates bhitpile() to striking/polymorph and substitutes note_unported for other effects."
+                ],
+                "dependencies": [
+                  "zap.c:bhitpile() is already implemented in js/zap.js and iterates the floor-object pile with its callback.",
+                  "zap.c:bhito() is already implemented in js/zap.js, including WAN_UNDEAD_TURNING corpse -> revive().",
+                  "The later revive placement reaches teleport.c:collect_coords(); that existing helper is the downstream RNG observation, not the missing source owner."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/a2-v38-broken-undead-wand.scan.log reproduces 55 recorded steps and the first divergence at segment 0, step 53: C consumes rn2(8)=4 in collect_coords(teleport.c:700), JavaScript consumes rn2(19)=1, and the diagnostic reports unported zap.c bhito.",
+                "The admitted recipe challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.recipe.session.json wishes an undead-turning wand and newt corpse, drops the corpse, and breaks the wand. Its recording is unchanged and has the v38 manifest/recording hashes retained above.",
+                "apply.c:4015-4020 marks WAN_UNDEAD_TURNING as affecting objects; apply.c:4037-4146 processes neighbors and then the hero square, calling bhitpile(obj,bhito,x,y,0) at 4099-4103 and 4117-4121. apply.c:doapply() dispatches WAND_CLASS to do_break_wand() at 4234-4235.",
+                "js/apply.js:4786-4800 contains the missing behavior: despite affectsObjects, it calls bhitpile() only for WAN_STRIKING or WAN_POLYMORPH, otherwise note_unported('zap.c bhito'). js/zap.js bhito() has the C undead-turning corpse branch and calls revive(); js/teleport.js collect_coords() is reached downstream during revived-monster placement.",
+                "GOALS.json has older do_break_wand evidence for WAN_NOTHING and WAN_LIGHT recordings, but that evidence does not cover this undead-turning floor-object callback and its sourceReview omitted the current zap.c:bhito caller gap."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
