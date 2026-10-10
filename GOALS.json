@@ -250472,6 +250472,193 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-shk-rob-shop-livelog-flag-v40-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Fix the missing LL_ACHIEVE binding in shk.c rob_shop so unpaid shop departure reaches source-ordered livelog behavior.",
+      "cFile": "shk.c",
+      "sessions": [
+        "synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport"
+      ],
+      "selectionReason": "The admitted v40 case stops in the already wired rob_shop path because LL_ACHIEVE is defined in const.js but not imported by shk.js; the source branch and both production callers are documented in the committed investigation.",
+      "detail": "",
+      "openedAt": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+      "openStanding": {
+        "sha": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "rob_shop",
+      "session": "synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport",
+      "syntheticProvenance": {
+        "synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport": {
+          "session": "synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recordingPath": "challenges/cases/v40/v40-shop-hotpursuit-unpaid-gem-wizlevelport-continued-cfirst.session.json",
+          "recordingSha256": "97f003174dd691f5176ea333f32c4765c06742a6395293348b778653148afb76",
+          "evaluationPath": "challenges/evaluations/20261010112700-v40.json",
+          "evaluationCommit": "3d09fdb7cb4fbe53122ed64fc9ed20378dfd745e"
+        }
+      },
+      "activeStanding": {
+        "sha": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "session": "synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recording": "challenges/cases/v40/v40-shop-hotpursuit-unpaid-gem-wizlevelport-continued-cfirst.session.json",
+          "recordingPath": "challenges/cases/v40/v40-shop-hotpursuit-unpaid-gem-wizlevelport-continued-cfirst.session.json",
+          "recordingSha256": "97f003174dd691f5176ea333f32c4765c06742a6395293348b778653148afb76",
+          "recipe": "challenges/cases/v40/v40-shop-hotpursuit-unpaid-gem-wizlevelport-continued-cfirst.recipe.session.json",
+          "recipeSha256": "a77f4fad5a58ed12331321f247c5778822ec1695d63521bee2c90adffecc06f1",
+          "replayInputSha256": "90a11c9d5aa3d0cce35b253c77a7117b1dae9dbb4ba50d6867b169fd0e9ed900",
+          "evaluationPath": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
+          "evaluationCommit": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+          "evaluationArtifact": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
+          "evaluationUtc": "2026-10-10T11:54:25.145Z",
+          "remainingScreens": 0,
+          "recordedSteps": 48,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 48,
+              "total": 48
+            },
+            "rng": {
+              "matched": 5390,
+              "total": 9230
+            },
+            "cursors": {
+              "matched": 48,
+              "total": 48
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 5384,
+              "cEntry": "rnd(5)=4",
+              "cCaller": "makekops(shk.c:5119)",
+              "jsEntry": "rn2(3)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 47,
+                "key": " "
+              },
+              "stepIndex": 47
+            },
+            "cursor": null
+          },
+          "step": 47,
+          "kind": "rng",
+          "sourceFile": "shk.c",
+          "function": "makekops",
+          "message": null,
+          "cFile": "shk.c",
+          "luaFile": null,
+          "line": 5119,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport.json",
+            "previousRemainingScreens": 48
+          }
+        }
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "session": "synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recording": "challenges/cases/v40/v40-shop-hotpursuit-unpaid-gem-wizlevelport-continued-cfirst.session.json",
+          "recordingPath": "challenges/cases/v40/v40-shop-hotpursuit-unpaid-gem-wizlevelport-continued-cfirst.session.json",
+          "recordingSha256": "97f003174dd691f5176ea333f32c4765c06742a6395293348b778653148afb76",
+          "recipe": "challenges/cases/v40/v40-shop-hotpursuit-unpaid-gem-wizlevelport-continued-cfirst.recipe.session.json",
+          "recipeSha256": "a77f4fad5a58ed12331321f247c5778822ec1695d63521bee2c90adffecc06f1",
+          "replayInputSha256": "90a11c9d5aa3d0cce35b253c77a7117b1dae9dbb4ba50d6867b169fd0e9ed900",
+          "evaluationPath": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
+          "evaluationCommit": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+          "evaluationArtifact": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
+          "evaluationUtc": "2026-10-10T11:54:25.145Z",
+          "remainingScreens": 0,
+          "recordedSteps": 48,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 48,
+              "total": 48
+            },
+            "rng": {
+              "matched": 5390,
+              "total": 9230
+            },
+            "cursors": {
+              "matched": 48,
+              "total": 48
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 5384,
+              "cEntry": "rnd(5)=4",
+              "cCaller": "makekops(shk.c:5119)",
+              "jsEntry": "rn2(3)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 47,
+                "key": " "
+              },
+              "stepIndex": 47
+            },
+            "cursor": null
+          },
+          "step": 47,
+          "kind": "rng",
+          "sourceFile": "shk.c",
+          "function": "makekops",
+          "message": null,
+          "cFile": "shk.c",
+          "luaFile": null,
+          "line": 5119,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport.json",
+            "previousRemainingScreens": 48
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

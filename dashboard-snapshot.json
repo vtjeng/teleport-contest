@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T10:28:33.989Z",
+  "capturedAt": "2026-10-10T12:08:02.063Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -80625,11 +80625,303 @@
         "type": "accepted",
         "at": "2026-10-10T10:27:58.890Z",
         "task": "A2-v39-mounted-steed-poly-fell-followup-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-v39-mounted-steed-poly-fell-followup-20261010-fdde1ae0b42abd6054db33ebfc2f06fc381a3aa1",
+        "type": "published",
+        "at": "2026-10-10T10:28:42.159Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "commit": "fdde1ae0b42abd6054db33ebfc2f06fc381a3aa1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-post-accepted-empty-queue-20261010",
+        "type": "turn",
+        "at": "2026-10-10T10:29:49.618Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 task accepted; fresh saved queue has no unresolved candidates. Available for independent work after new admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep4-v40-pool11-active-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T10:47:31.858Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has eleven approved distinct C-first mismatches; one remains. The reached pool case exposes missing apply.c:unleash_all state clearing after drowning."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep4-v40-twelve-packaging-active-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T11:00:24.783Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has twelve approved distinct C-first mismatches; packaging the manifest and validation evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-bd909b789b15d5d489eb86a65f34a3b4a83f6038",
+        "type": "ready",
+        "at": "2026-10-10T11:10:35.364Z",
+        "task": "Prep4",
+        "delivery": "bd909b789b15d5d489eb86a65f34a3b4a83f6038"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep4-v40-submitted-idle-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T11:11:25.849Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "v40 is prepared and submitted with twelve distinct C-first mismatches and sixteen matching controls; awaiting Main validation and admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-Prep4-v40-bd909b78",
+        "type": "received",
+        "at": "2026-10-10T11:13:16.488Z",
+        "task": "Prep4",
+        "delivery": "bd909b789b15d5d489eb86a65f34a3b4a83f6038"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-Prep4-v40-f1d7fe1d",
+        "type": "integrating",
+        "at": "2026-10-10T11:15:01.822Z",
+        "task": "Prep4",
+        "integration": "f1d7fe1d045209dad738129df41648679da89fcf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-Prep4-v40-f1d7fe1d",
+        "type": "validated",
+        "at": "2026-10-10T11:21:39.425Z",
+        "task": "Prep4",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep4-f1d7fe1d045209dad738129df41648679da89fcf-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T11:21:59.631Z",
+        "task": "Prep4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep4-v40-accepted-main-synced-idle-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T11:23:00.549Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Accepted Main is synced. v40 is accepted as preparation but not admitted; waiting for the coordinator before any next batch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-active-after-v40-admission-20261010",
+        "type": "turn",
+        "at": "2026-10-10T11:24:23.882Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Rechecking Prep after v40 admission; verify the latest complete combined queue before choosing v41."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-v40-shop-exit-20261010",
+        "type": "turn",
+        "at": "2026-10-10T11:25:25.370Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Resuming the v40 shop-exit investigation; syncing accepted Main and confirming the session reservation before diagnosis."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep5-assign-v41-20261010",
+        "type": "assign",
+        "at": "2026-10-10T11:25:39.048Z",
+        "task": "Prep5",
+        "worker": "Prep",
+        "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep4-v40-admitted-20261010",
+        "type": "activity",
+        "at": "2026-10-10T11:26:00.314Z",
+        "task": "Prep4",
+        "phase": "admission",
+        "reason": "Admitted v40 with 28 independently recorded cases after the accepted preparation checkpoint passed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep4-v40-baseline-20261010",
+        "type": "activity",
+        "at": "2026-10-10T11:26:01.964Z",
+        "task": "Prep4",
+        "phase": "baseline",
+        "reason": "Recorded the v40 baseline: 16 of 28 sessions and 858 of 961 screens match; 12 mismatches are available to implementation workers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v40-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T11:26:17.185Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is investigating the admitted Fort Ludios Knox map-generation mismatch from its saved queue entry."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T11:26:21.946Z",
+        "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v40-shop-exit-rob-shop-20261010",
+        "type": "assign",
+        "at": "2026-10-10T11:26:54.374Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v40-knox-port-20261010",
+        "type": "implement",
+        "at": "2026-10-10T11:29:49.049Z",
+        "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
+        "goal": "port-fort-ludios-knox-level-v40-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep4-b56c57e7ad94675d95d3b4434b555ffdb2fbd4f7",
+        "type": "published",
+        "at": "2026-10-10T11:33:03.879Z",
+        "task": "Prep4",
+        "commit": "b56c57e7ad94675d95d3b4434b555ffdb2fbd4f7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-active-v41-candidates-20261010",
+        "type": "turn",
+        "at": "2026-10-10T11:34:16.713Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has 12 unmatched sessions; v41 is claimed and C-first candidate recording is underway."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B216-implement-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T11:38:18.871Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing the v40 unpaid shop robbery divergence in shk.c:rob_shop, with a regression through the real level-exit caller."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B216-rob-shop-20261010",
+        "type": "implement",
+        "at": "2026-10-10T11:38:26.258Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "goal": "fix-shk-rob-shop-livelog-flag-v40-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-18aa859a27d02c2cc13316ac4547c5a687bd9e0f",
+        "type": "ready",
+        "at": "2026-10-10T11:45:31.215Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "delivery": "18aa859a27d02c2cc13316ac4547c5a687bd9e0f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B216-18aa859a",
+        "type": "received",
+        "at": "2026-10-10T11:46:55.516Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "delivery": "18aa859a27d02c2cc13316ac4547c5a687bd9e0f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B216-4c7e8745",
+        "type": "integrating",
+        "at": "2026-10-10T11:49:05.023Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "integration": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-active-v41-resume-20261010",
+        "type": "turn",
+        "at": "2026-10-10T11:51:05.460Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v41 C-first recording continues; the leashed-pet and underwater routes are reached, and tower2/tower3 generation is recorded."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B216-4c7e8745",
+        "type": "validated",
+        "at": "2026-10-10T11:56:04.532Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v40-knox-implementation-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T11:59:56.031Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Implementing the v40 Fort Ludios loader and its complete special-room fill path; focused tests, lint, and all three C replays pass."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8a5901cb85f4fbdad784ca0643fe992c1890477c",
+        "type": "ready",
+        "at": "2026-10-10T12:02:50.989Z",
+        "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
+        "delivery": "8a5901cb85f4fbdad784ca0643fe992c1890477c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v40-wizard-wish-assistance-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T12:06:11.541Z",
+        "task": "C-v40-wizard-wish-assistance-investigation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T12:07:08.360Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [],
+    "deliveries": [
+      {
+        "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
+        "worker": "C",
+        "goal": "port-fort-ludios-knox-level-v40-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "8a5901cb85f4fbdad784ca0643fe992c1890477c",
+        "since": "2026-10-10T12:02:50.989Z",
+        "blockedBy": [],
+        "unblocks": 0
+      }
+    ],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -80932,8 +81224,8 @@
     ]
   },
   "development": {
-    "executionCommit": "97b84cc6b58a15fd2a536c0d8caaa2e86be47335",
-    "measuredAt": "2026-10-10T10:26:54.266Z",
+    "executionCommit": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+    "measuredAt": "2026-10-10T11:55:28.553Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
