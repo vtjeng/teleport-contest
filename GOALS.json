@@ -248163,7 +248163,7 @@
     {
       "id": "divergence-v39-sink-levitation-boots-pickup-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore sink-fall levitation gear removal callbacks",
       "cFile": "hack.c",
       "sessions": [],
@@ -248175,8 +248175,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "dosinkfall",
       "session": "synthetic/v39/v39-sink-levitation-boots-pickup",
       "step": 32,
@@ -248427,7 +248430,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

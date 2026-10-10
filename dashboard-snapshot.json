@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T08:01:44.062Z",
+  "capturedAt": "2026-10-10T08:17:35.804Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -79834,22 +79834,76 @@
         "type": "accepted",
         "at": "2026-10-10T08:01:02.593Z",
         "task": "B212-investigation-v39-cancellation-clay-golem-reached"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B212-investigation-v39-cancellation-clay-golem-reached-605e0d4ad28d406e64b31e6cfca47edc374736f2",
+        "type": "published",
+        "at": "2026-10-10T08:01:52.739Z",
+        "task": "B212-investigation-v39-cancellation-clay-golem-reached",
+        "commit": "605e0d4ad28d406e64b31e6cfca47edc374736f2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep4-v40-secret-door-control-active-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T08:03:07.070Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has two approved C-first mismatches and thirteen matching C-first recordings; the Sanctum high-altar route is being verified."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-A2-knockoff-0e6a476-20261010",
+        "type": "received",
+        "at": "2026-10-10T08:03:52.342Z",
+        "task": "A2-v39-mounted-steed-knockoff-investigation-20261010",
+        "delivery": "0e6a476a5f71a2247e1b4c93094d7dfcaa868030"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-C-pickup-eec5106-20261010",
+        "type": "received",
+        "at": "2026-10-10T08:04:01.768Z",
+        "task": "C-v39-pickup-cockatrice-barehanded-final-investigation-20261010",
+        "delivery": "eec51067322c1ecce023196d7e29f916c00ded71"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep4-v40-sanctum-resume-active-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T08:07:49.909Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has two approved distinct C-first mismatches and thirteen matching recordings; the Sanctum high-altar route is still being verified."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-sink-6d9d5654-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T08:11:14.843Z",
+        "task": "A2-investigation-v39-sink-levitation-boots-pickup-20261010",
+        "integration": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A2-sink-38037018690-20261010",
+        "type": "validated",
+        "at": "2026-10-10T08:15:59.451Z",
+        "task": "A2-investigation-v39-sink-levitation-boots-pickup-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v39-sink-levitation-boots-pickup-20261010-6d9d5654bcd5444ec53ec2dbd558780ffe15ae37-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T08:16:58.145Z",
+        "task": "A2-investigation-v39-sink-levitation-boots-pickup-20261010"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "A2-investigation-v39-sink-levitation-boots-pickup-20261010",
-        "worker": "A2",
-        "goal": "divergence-v39-sink-levitation-boots-pickup-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "aa2163952f9494c9f479695084307515af9770af",
-        "since": "2026-10-10T06:48:16.957Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "C-v39-counted-wizgenesis-followup-20261010",
         "worker": "C",
@@ -79893,9 +79947,7 @@
         "status": "ready",
         "delivery": "0e6a476a5f71a2247e1b4c93094d7dfcaa868030",
         "since": "2026-10-10T07:42:38.106Z",
-        "blockedBy": [
-          "A2-investigation-v39-sink-levitation-boots-pickup-20261010"
-        ],
+        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -80215,8 +80267,8 @@
     ]
   },
   "development": {
-    "executionCommit": "52c9514b68146f66836e5ff89d4d0be624a2d33d",
-    "measuredAt": "2026-10-10T07:56:54.193Z",
+    "executionCommit": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37",
+    "measuredAt": "2026-10-10T08:15:34.854Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
