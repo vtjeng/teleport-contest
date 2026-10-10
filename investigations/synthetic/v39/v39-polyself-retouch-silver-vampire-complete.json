@@ -1,0 +1,149 @@
+{
+  "session": "synthetic/v39/v39-polyself-retouch-silver-vampire-complete",
+  "corpus": "synthetic",
+  "batch": "v39",
+  "caseId": "v39-polyself-retouch-silver-vampire-complete",
+  "manifestPath": "challenges/manifests/v39.json",
+  "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+  "recordingSha256": "11a999889dda2afd48b78b1df9d61442e8330da737e1587625c0d0747c1fa227",
+  "evaluationPath": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+  "evaluationCommit": "998c20cf771d23d6f5faed181eee05f270b73b58",
+  "remainingScreens": 3,
+  "recordedSteps": 39,
+  "status": "complete",
+  "commit": "ce4f118d4fa97edb7c6d239103d6d137dcd2286c",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v39",
+    "caseId": "v39-polyself-retouch-silver-vampire-complete",
+    "session": "synthetic/v39/v39-polyself-retouch-silver-vampire-complete",
+    "manifestPath": "challenges/manifests/v39.json",
+    "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+    "recording": "challenges/cases/v39/v39-polyself-retouch-silver-vampire-complete.session.json",
+    "recordingPath": "challenges/cases/v39/v39-polyself-retouch-silver-vampire-complete.session.json",
+    "recordingSha256": "11a999889dda2afd48b78b1df9d61442e8330da737e1587625c0d0747c1fa227",
+    "recipe": "challenges/cases/v39/v39-polyself-retouch-silver-vampire-complete.recipe.session.json",
+    "recipeSha256": "7159cff10252bd52d1ea017dbf5ab637574b3f36fdf7d557c5c5b46e59e7401b",
+    "replayInputSha256": "0829ceb24a4dbcbea8c6089aa8de856c51982d20a277e4f3a173eccf4a339ac1",
+    "evaluationPath": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+    "evaluationCommit": "998c20cf771d23d6f5faed181eee05f270b73b58",
+    "evaluationArtifact": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+    "evaluationUtc": "2026-10-10T07:03:42.993Z",
+    "remainingScreens": 3,
+    "recordedSteps": 39,
+    "previousScreensMatched": 36,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 36,
+        "total": 39
+      },
+      "rng": {
+        "matched": 2872,
+        "total": 2873
+      },
+      "cursors": {
+        "matched": 37,
+        "total": 39
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 36,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 36,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 26,
+        "cCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "U",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2872,
+        "cEntry": "rnd(10)=6",
+        "cCaller": "retouch_object(artifact.c:2552)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 36,
+          "key": "\n"
+        },
+        "stepIndex": 36
+      },
+      "cursor": {
+        "index": 36,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 36,
+          "key": "\n"
+        },
+        "cCursor": [
+          78,
+          0,
+          1
+        ],
+        "jsCursor": [
+          5,
+          5,
+          1
+        ]
+      }
+    },
+    "step": 36,
+    "kind": "rng",
+    "sourceFile": "artifact.c",
+    "function": "retouch_object",
+    "message": null,
+    "cFile": "artifact.c",
+    "luaFile": null,
+    "line": 2552
+  },
+  "summary": "After polymorphing into a vampire, the C path retouches the wielded silver dagger, rolls silver damage, and drops it to the stairs. JavaScript polymon still records artifact.c retouch_equipment as unported, so it never reaches the already-portable retouch_object branch.",
+  "source": {
+    "file": "artifact.c",
+    "branch": "retouch_equipment(dropflag) processes the secondary weapon, primary weapon, saddle, then each unbypassed inventory item. For the polymon caller's dropflag 2, weapon slots are checked with dropping enabled but the general inventory traversal does not drop items; a silver-hating form reaches untouchable() and retouch_object(), which applies the silver damage and removes the item.",
+    "functions": [
+      "retouch_equipment"
+    ],
+    "callers": [
+      "polyself.c:polymon (1021), reached by #polyself vampire; this is the session's missing runtime path",
+      "polyself.c:newman (463)",
+      "polyself.c:rehumanize (1415)",
+      "eat.c:cpostfx (1325)",
+      "attrib.c:uchangealign (1360)",
+      "uhitm.c:mhitm_ad_were (4285)"
+    ],
+    "dependencies": [
+      "artifact.c:untouchable",
+      "artifact.c:retouch_object",
+      "worn.c:clear_bypasses",
+      "worn.c:bypass_obj",
+      "worn.c:nxt_unbypassed_obj",
+      "worn.c:which_armor",
+      "steed.c:dismount_steed",
+      "do_wear.c:uncurse",
+      "trap.c:selftouch"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved v39 evaluation at challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json compares 39 screens and records the first divergence at segment 0 step 36: C calls rnd(10)=6 from retouch_object(artifact.c:2552), while JavaScript has no corresponding draw; the status row and cursor differ at that same step.",
+    "Upstream polyself.c:polymon calls retouch_equipment(2) at line 1021 after changing the hero form and recalculating status. js/polyself.js:polymon currently calls note_unported('artifact.c retouch_equipment') at line 1340, so JavaScript skips all equipment retouching.",
+    "Upstream artifact.c:retouch_equipment at lines 2637-2705 checks primary/secondary weapons through untouchable(), then traverses unbypassed inventory. With dropflag 2, the wielded dagger reaches artifact.c:untouchable and retouch_object with drop enabled. The existing js/artifacts.js:retouch_object contains the silver-hatred branch and rnd(10), so the defect is the missing caller traversal rather than its damage branch.",
+    "The complete source port also needs to replace retouch_equipment gap markers at js/polyself.js (polymon, newman, rehumanize), js/eat.js (cpostfx), js/attrib.js (uchangealign), and js/uhitm.js (mhitm_ad_were), matching their C call sites. The pending B211 delivery reserves polyself.c:newman and trap.c:selftouch; do not edit those reserved units until their reservations are released or scope is explicitly coordinated."
+  ]
+}
