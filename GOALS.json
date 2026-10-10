@@ -252637,7 +252637,7 @@
     {
       "id": "port-apply-m-unleash-v40-leashed-dog-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port leash release and canonical monster-located message handling",
       "cFile": "apply.c",
       "sessions": [
@@ -252651,15 +252651,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2e5a22fcb59f677d8f21f487546440d26850930c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "m_unleash",
           "line": 726,
           "endLine": 745,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -252673,7 +252676,7 @@
           "endLine": 152,
           "declared": true,
           "sourceFile": "pline.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -252912,7 +252915,152 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "m_unleash",
+            "implementation": "js/apply.js",
+            "symbol": "m_unleash",
+            "sourceReview": "Read all of upstream apply.c:m_unleash (726-745). The helper conditionally emits visible feedback with canseemon, Monnam, mhis, and pline_mon, or unseen feedback with Your. It then finds the matching inventory leash, clears leashmon, refreshes inventory while the monster still has mleashed set, and finally clears mleashed. The JS preserves that state order and waits for feedback before cleanup. Existing get_mleash, canseemon, Monnam, mhis, update_inventory, and message owners supply the C callees. All 11 existing JavaScript direct caller branches are wired. The three C-only direct calls remain explicit gaps: apply.c:check_leash:973 has no JS implementation; dog.c:mon_catchup_elapsed_time:715 lies in an omitted JS tail; dog.c:keepdogs:849 is the omitted stay-behind branch. worm.c:redraw_worm remains an existing discarded-result gap.",
+            "callers": [
+              {
+                "path": "js/dog.js",
+                "symbol": "abuse_dog",
+                "source": "dog.c:abuse_dog calls m_unleash(mtmp, TRUE) after abuse drops tameness to zero; reached by cmd.c:rhack -> dokick.c:dokick. This is the admitted v40 runtime path."
+              },
+              {
+                "path": "js/dog.js",
+                "symbol": "wary_dog",
+                "source": "dog.c:wary_dog calls m_unleash(mtmp, TRUE) after the pet is no longer tame."
+              },
+              {
+                "path": "js/dog.js",
+                "symbol": "keepdogs",
+                "source": "dog.c:keepdogs calls m_unleash(mtmp, FALSE) in the slack-leash branch after its own message."
+              },
+              {
+                "path": "js/dog.js",
+                "symbol": "migrate_to_level",
+                "source": "dog.c:migrate_to_level decrements tame value, calls m_unleash(mtmp, TRUE), then continues migration."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "m_detach",
+                "source": "mon.c:m_detach releases a leashed monster with m_unleash(mtmp, FALSE) before detaching it."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "newcham",
+                "source": "mon.c:newcham checks leashable() after changing appearance and calls m_unleash(mtmp, TRUE) when the new form cannot wear a leash."
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "teleport_pet",
+                "source": "teleport.c:teleport_pet emits any slack-leash feedback, calls m_unleash(mtmp, FALSE), and returns its source Boolean."
+              },
+              {
+                "path": "js/dogmove.js",
+                "symbol": "dog_move",
+                "source": "dogmove.c:dog_move reports a pet breaking free, calls m_unleash(mtmp, FALSE), then continues the attack action."
+              },
+              {
+                "path": "js/dogmove.js",
+                "symbol": "quickmimic",
+                "source": "dogmove.c:quickmimic calls m_unleash(mtmp, FALSE) after a leashed monster changes to an un-leashable appearance."
+              },
+              {
+                "path": "js/steed.js",
+                "symbol": "mount_steed",
+                "source": "steed.c:mount_steed reports the leash coming off and calls m_unleash(mtmp, FALSE) on the failed mount path."
+              },
+              {
+                "path": "js/steed.js",
+                "symbol": "kick_steed",
+                "source": "steed.c:kick_steed calls m_unleash(usteed, TRUE) when the kick reduces tameness to zero."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "invoke_banish",
+                "source": "artifact.c:invoke_banish -> mon.c:migrate_mon -> dog.c:migrate_to_level -> apply.c:m_unleash; the existing banishment path now awaits migration of leashed monsters."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "migrate_mon",
+                "source": "mon.c:migrate_mon forwards to dog.c:migrate_to_level; the existing artifact banishment caller awaits this migration path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply.test.mjs",
+              "scripts/dog-migrate.test.mjs",
+              "scripts/dog-wary.test.mjs",
+              "scripts/dogmove.test.mjs",
+              "scripts/dogmove-quickmimic.test.mjs",
+              "scripts/mon.test.mjs",
+              "scripts/mount-steed.test.mjs",
+              "scripts/steed-kick.test.mjs",
+              "scripts/teleport-monster-traps.test.mjs",
+              "scripts/artifact-banish.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-leashed-dragon-abuse-m-unleash",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 54,
+                "source": "cmd.c:rhack -> dokick.c:dokick -> dog.c:abuse_dog -> apply.c:m_unleash -> pline.c:pline_mon"
+              }
+            ],
+            "checkedAt": "2e5a22fcb59f677d8f21f487546440d26850930c"
+          },
+          {
+            "name": "pline_mon",
+            "implementation": "js/pline.js",
+            "symbol": "pline_mon",
+            "sourceReview": "Read all of upstream pline.c:pline_mon (138-152). It sets the message location to (0,0) for gy.youmonst or to the monster coordinates otherwise, then formats and emits through vpline. The JS canonical helper carries the same coordinates through messageAt and awaits the existing message owner. This helper writes output and has no RNG calls, so it is impure for evidence purposes.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "m_unleash",
+                "source": "apply.c:m_unleash calls pline_mon for visible leash-release feedback; the admitted v40 abuse_dog replay follows this path."
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "use_defensive",
+                "source": "Existing muse.c monster-action branches call pline_mon; the prior private JS helper was moved to the canonical pline.c owner and these existing callers now import it."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pline.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "pline.c",
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-leashed-dragon-abuse-m-unleash",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 54,
+                "source": "cmd.c:rhack -> dokick.c:dokick -> dog.c:abuse_dog -> apply.c:m_unleash -> pline.c:pline_mon"
+              }
+            ],
+            "checkedAt": "2e5a22fcb59f677d8f21f487546440d26850930c"
+          }
+        ],
+        "entryPointReview": "This task ports helper source units (apply.c:m_unleash and pline.c:pline_mon), not a new command or level feature. Production callers are enumerated above; the direct abuse_dog path is exercised from the ordinary kick command in the admitted v40 case. Existing other m_unleash caller branches are source-wired and covered by focused caller tests. Three C-only call sites are explicitly documented in m_unleash sourceReview rather than modeled as active JS entry points.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2e5a22fcb59f677d8f21f487546440d26850930c",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
