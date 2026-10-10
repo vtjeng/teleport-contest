@@ -108,11 +108,12 @@
     "The accepted v41 queue result has 82/82 screens and 82/82 cursors matching, with 2668/2720 RNG calls matched. At segment 0, step 81, key \"$\", the first remaining mismatch is call 2664: C rn2(3)=2 from monmove.c:set_apparxy:2258 while JavaScript calls rn2(5)=0 in distfleeck.",
     "Source trace of monmove.c:set_apparxy (2198 onward) and js/monmove.js:set_apparxy (2252 onward) shows the same underwater radius-one x/y draws, accessibility checks, and final couldsee rejection. The first chosen coordinate is (11,2) for hero position (11,3).",
     "A temporary runtime trace on the accepted JavaScript implementation confirms couldsee(11,2) returns true with terrain type 25 (not a pool) and COULD_SEE|IN_SIGHT bits set. C vision.c:589-610 instead enters its Underwater branch and assigns visibility only when is_pool(col,row) is true, so C rejects this candidate and consumes the retry draw.",
-    "JS vision.js:727-789 contains a source comment identifying underwater vision as unported; vision_recalc computes underwaterOutsideWaterLevel but then still calls view_from. Its later night-vision guard already suppresses night vision underwater. C vision.c:512-622 establishes branch precedence: swallowed/control 2, Blind, Rogue level, underwater, then ordinary view_from."
+    "JS vision.js:727-789 contains a source comment identifying underwater vision as unported; vision_recalc computes underwaterOutsideWaterLevel but then still calls view_from. Its later night-vision guard already suppresses night vision underwater. C vision.c:512-622 establishes branch precedence: swallowed/control 2, Blind, Rogue level, underwater, then ordinary view_from.",
+    "After the fix, a fresh C/JavaScript differential matches all 82 screens, 82 cursor positions, and 2720 RNG calls. The refreshed admitted-case scan emits all 82 recorded steps, has no divergence or command refusal, and confirms the recording and input boundary match. The divergence is resolved through vision.c:vision_recalc; this does not claim whole-function vision.c completion."
   ],
   "followup": {
     "task": "C-v41-underwater-monmove-set-apparxy-investigation-20261010",
-    "status": "implementation scope claimed",
+    "status": "resolved",
     "source": "vision.c:vision_recalc",
     "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
     "remainingMismatch": {
@@ -122,6 +123,15 @@
       "c": "rn2(3)=2 @ monmove.c:set_apparxy:2258",
       "js": "rn2(5)=0 @ monmove.js:distfleeck"
     },
-    "nextAction": "Port the upstream underwater visibility branch in vision_recalc and verify the selected recording."
+    "nextAction": "The underwater branch now matches the selected replay through its final step; the first mismatch no longer remains.",
+    "resolution": {
+      "replay": "synthetic/v41/v41-underwater-coin-flip-drops-coin, segment 0, steps 0-81",
+      "source": "vision.c:vision_recalc underwater branch, lines 589-606",
+      "screens": "82/82",
+      "cursors": "82/82",
+      "rng": "2720/2720",
+      "firstMismatch": null,
+      "unrelatedGap": "The matching scan still records the pre-existing trap.c:selftouch gap; this task does not change it."
+    }
   }
 }
