@@ -1247,12 +1247,12 @@ export async function liquid_flow(
         );
     }
 
-    // Handle exposed floor objects before the occupant, as dig.c does. The
-    // lava chain is still unported; water_damage_chain is the existing owner.
+    // Handle exposed floor objects before the occupant, as dig.c does.
     const objects = state.level.objects[x][y];
     if (objects) {
         if (typ === LAVAPOOL) {
-            note_unported('trap.c fire_damage_chain');
+            const { fire_damage_chain } = await import('./trap.js');
+            await fire_damage_chain(objects, true, true, x, y, env);
         } else {
             const { water_damage_chain } = await import(
                 './trap_water_damage.js'
