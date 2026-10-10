@@ -259204,6 +259204,164 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-bigrm-11-special-level-v42-20261010",
+      "kind": "lua-port",
+      "status": "open",
+      "summary": "Port the complete BigRM-11 special-level program and its source-defined level-generation sequence.",
+      "luaFile": "bigrm-11.lua",
+      "sessions": [
+        "synthetic/v42/v42-bigrm-11-special-program"
+      ],
+      "selectionReason": "The completed v42 investigation traces the first mismatch to the registered bigrm-11 loader refusing level_init style maze; the whole Lua program and its source-ordered level generation are the responsible source unit.",
+      "detail": "",
+      "openedAt": "feb8f45926aca8abdbe1a22a91640a17dc8193ac",
+      "openStanding": {
+        "sha": "8a92dbad299eaf18f0d8f3e18e58f45bb5cc0e7a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "bigrm-11.lua",
+          "line": 1,
+          "endLine": 39,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v42/v42-bigrm-11-special-program": {
+          "session": "synthetic/v42/v42-bigrm-11-special-program",
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-bigrm-11-special-program",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recordingPath": "challenges/cases/v42/v42-bigrm-11-special-program.session.json",
+          "recordingSha256": "a6e85ad50b4c44962572e9a7b8504baf7711c43e0af3eaae53e0a5f3b1217378",
+          "evaluationPath": "challenges/evaluations/accepted-8a92dbad299eaf18f0d8f3e18e58f45bb5cc0e7a-v42.json",
+          "evaluationCommit": "8a92dbad299eaf18f0d8f3e18e58f45bb5cc0e7a"
+        }
+      },
+      "activeStanding": {
+        "sha": "8a92dbad299eaf18f0d8f3e18e58f45bb5cc0e7a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-bigrm-11-special-program",
+          "session": "synthetic/v42/v42-bigrm-11-special-program",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recording": "challenges/cases/v42/v42-bigrm-11-special-program.session.json",
+          "recordingPath": "challenges/cases/v42/v42-bigrm-11-special-program.session.json",
+          "recordingSha256": "a6e85ad50b4c44962572e9a7b8504baf7711c43e0af3eaae53e0a5f3b1217378",
+          "recipe": "challenges/cases/v42/v42-bigrm-11-special-program.recipe.session.json",
+          "recipeSha256": "9b5b6a798126e59da7a825ae0787de021fef35a170b1d2bf8654daeecff599d6",
+          "replayInputSha256": "4f44621ce8717a3ad3272a5bbb2e96086fcb012df4b96f0f4acc1d3f83088afa",
+          "evaluationPath": "challenges/evaluations/accepted-8a92dbad299eaf18f0d8f3e18e58f45bb5cc0e7a-v42.json",
+          "evaluationCommit": "8a92dbad299eaf18f0d8f3e18e58f45bb5cc0e7a",
+          "evaluationArtifact": "challenges/evaluations/accepted-8a92dbad299eaf18f0d8f3e18e58f45bb5cc0e7a-v42.json",
+          "evaluationUtc": "2026-10-10T21:44:52.189Z",
+          "remainingScreens": 9,
+          "recordedSteps": 35,
+          "previousScreensMatched": 26,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 26,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2137,
+              "total": 3449
+            },
+            "cursors": {
+              "matched": 26,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported level change: bigrm-11: level_init({style:\"maze\"}) not yet ported",
+            "step": 26
+          },
+          "step": 26,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported level change: bigrm-11: level_init({style:\"maze\"}) not yet ported",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v42/v42-bigrm-11-special-program.json",
+            "result": {
+              "session": "synthetic/v42/v42-bigrm-11-special-program",
+              "remainingScreens": 9,
+              "recordedSteps": 35,
+              "corpus": "synthetic",
+              "batch": "v42",
+              "caseId": "v42-bigrm-11-special-program",
+              "manifestPath": "challenges/manifests/v42.json",
+              "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+              "recordingSha256": "a6e85ad50b4c44962572e9a7b8504baf7711c43e0af3eaae53e0a5f3b1217378",
+              "evaluationPath": "challenges/evaluations/v42-baseline-3bbc354f.json",
+              "evaluationCommit": "3bbc354f045f514a4f99c36ada7c39fdd58ed236",
+              "status": "complete",
+              "commit": "e052795a65af27c8ed652cee31e54ee98f6250c2",
+              "mismatch": {
+                "kind": "synthetic",
+                "corpus": "synthetic",
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "sessions": [
+                  "synthetic/v42/v42-bigrm-11-special-program"
+                ],
+                "remainingScreens": 9,
+                "remainingScreensUpperBound": null,
+                "earliestStep": 26,
+                "caseId": "v42-bigrm-11-special-program",
+                "batch": "v42",
+                "recordingPath": "challenges/cases/v42/v42-bigrm-11-special-program.session.json",
+                "session": "synthetic/v42/v42-bigrm-11-special-program"
+              },
+              "summary": "Loading bigrm-11.lua through #wizloaddes reaches a registered JavaScript loader that throws before building the level. The C Lua program is the missing source unit; its maze initializer and level API calls already have JavaScript implementations.",
+              "source": {
+                "file": "dat/bigrm-11.lua",
+                "branch": "Runs when #wizloaddes names bigrm-11.lua or mkmaze.c:makemaz selects bigroom variant 11. The program sets mazelevel and noflip, chooses corridor width 3 + rn2(3), fixes wall thickness at 1, randomly enables dead-end removal, then places boulders, stairs, objects, rolling-boulder traps, and monsters.",
+                "functions": [
+                  "bigrm-11"
+                ],
+                "callers": [
+                  "wizcmds.c:wiz_load_splua -> sp_lev.c:load_special -> dat/bigrm-11.lua; JavaScript: cmd.js dispatch -> wizcmds.js:wiz_load_splua -> mklev.js:load_special -> BIGRM_LOADERS[\"bigrm-11\"].",
+                  "mkmaze.c:makemaz selects the bigrm-11 protofile and calls sp_lev.c:load_special; JavaScript: mklev.js:makemaz calls load_special with the selected protofile."
+                ],
+                "dependencies": []
+              },
+              "goalKind": "lua-port",
+              "evidence": [
+                "The saved v42 queue SHA-256 is ec8f819f1f56c99be47f89359d3b71599a2b7025a292b0a39578cec4dd9f15e1. Its original entry ranks v42-bigrm-11-special-program with 9 unmatched screens at step 26; the entry cites recording challenges/cases/v42/v42-bigrm-11-special-program.session.json.",
+                "The saved baseline evaluation challenges/evaluations/v42-baseline-3bbc354f.json records 26/35 screens, 26/35 cursors, and 2137/3449 RNG calls for this case. The C recording has 35 steps; step 26 follows filename entry and records 1,313 RNG calls with the generated maze visible, showing the program runs in the reference.",
+                "Upstream dat/bigrm-11.lua:7-38 defines t_or_f(), sets mazelevel/noflip and level_init(style=\"maze\", corrwid=3+nh.rn2(3), wallthick=1, deadends=t_or_f()), marks the map lit and non-diggable, replaces horizontal and vertical interior walls with floor plus boulders, adds stairs, and generates 15 objects, 6 rolling-boulder traps, and 28 monsters.",
+                "At the examined commit, js/bigrm.js:643-650 maps the registered bigrm-11 loader to an UnsupportedLevelChangeError before issuing any level API calls. js/mklev.js:1754-1815 imports BIGRM_LOADERS and implements load_special; js/wizcmds.js:wiz_load_splua awaits that loader and finalizes the level.",
+                "The initialization dependency is already wired: sp_lev.c:lspo_level_init and splev_initlev dispatch LVLINIT_MAZE to mkmaze.c:create_maze; JavaScript js/mklev.js:lspo_level_init dispatches the same style to js/mkmaze.js:create_maze. The diagnosis therefore scopes the implementation to the whole dat/bigrm-11.lua program in js/bigrm.js, its existing BIGRM_LOADERS registration, and focused bigroom level-generation coverage."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
