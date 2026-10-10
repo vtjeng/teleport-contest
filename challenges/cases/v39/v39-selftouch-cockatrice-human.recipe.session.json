@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "v39 C-first selftouch mission: stone golem safely carries a cockatrice corpse (observed slot o); wield it, then #polyself to human to lose stone resistance and reach polyself.c:selftouch after retouch_equipment.",
+  "segments": [
+    {
+      "seed": 39139014,
+      "datetime": "20420315101200",
+      "nethackrc": "OPTIONS=name:V39Selftouch,role=Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#polyself\nstone golem\n\u0017cockatrice corpse\nwo#polyself\nhuman\n",
+      "recorderIsDst": true
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Final C-first direct wield case. The Wizard wears gloves to pick up the corpse, removes them after confirming the source safety prompt, chooses the corpse through the all-inventory wield selector, dismisses C’s wielding and petrification pages, then declines the death prompt. The first mismatch is checked only after an independent C replay.",
+  "segments": [
+    {
+      "seed": 39139023,
+      "datetime": "20420315115000",
+      "nethackrc": "OPTIONS=name:V39WieldGloves,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017leather gloves\nPn\u0017cockatrice corpse\n,Tnyes\nw*o  n",
+      "recorderIsDst": true
+    }
+  ]
+}

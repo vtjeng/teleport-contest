@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "v39 C-first lockpick-mimic setup probe: wish lock pick, create a mimic, and inspect its actual C map appearance before selecting a direction or claiming the disguise branch.",
+  "segments": [
+    {
+      "seed": 39139011,
+      "datetime": "20420315100900",
+      "nethackrc": "OPTIONS=name:V39LockMimic,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed lock pick\n\u0007mimic\n",
+      "recorderIsDst": true
+    }
+  ]
+}

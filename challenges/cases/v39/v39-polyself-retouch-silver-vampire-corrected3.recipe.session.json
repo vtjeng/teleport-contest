@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "The previous C trace showed the silver dagger in slot o; use the observed letter and preserve the earlier marker selection as a setup miss.",
+  "segments": [
+    {
+      "seed": 39139017,
+      "datetime": "20420315101800",
+      "nethackrc": "OPTIONS=name:V39SilverTouch,role=Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017silver dagger\nwo#polyself\nvampire\n ",
+      "recorderIsDst": true
+    }
+  ]
+}

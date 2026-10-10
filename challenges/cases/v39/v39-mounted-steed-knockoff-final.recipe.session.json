@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Final reached knockoff route: after increasing HP to 36/36, mount the C-confirmed south pony (j then y), summon a hostile huge titan, and take two turns. C must confirm mhitm_knockback and DISMOUNT_KNOCKED before retaining this case.",
+  "segments": [
+    {
+      "seed": 39139026,
+      "datetime": "20420315122000",
+      "nethackrc": "OPTIONS=name:V39RideHP,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".\u00173 blessed potions of full healing\nqoqoqo\u0007tame saddled pony\n#ride\njy\u0007hostile titan\n..",
+      "recorderIsDst": true
+    }
+  ]
+}

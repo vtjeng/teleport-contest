@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first cursed ordinary tin whistle candidate. The preserved level-map scan found a gold-room marker on depth 5 under this seed; enter its mapped room, ring the cursed whistle, then retrace the route out to expose vault_summon_gd if the room is an actual vault.",
+  "segments": [
+    {
+      "seed": 39139033,
+      "datetime": "20420315110000",
+      "nethackrc": "OPTIONS=name:V39VaultGuard,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed tin whistle\n#wizlevelport\n2\n#wizmap\n#wizlevelport\n3\n#wizmap\n#wizlevelport\n4\n#wizmap\n#wizlevelport\n5\n#wizmap\nyhaoln",
+      "recorderIsDst": true
+    }
+  ]
+}

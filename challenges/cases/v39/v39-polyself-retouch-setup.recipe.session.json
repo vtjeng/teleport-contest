@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "v39 C-first polyself equipment-retouch setup: wish long sword, enter wield prompt, and inspect exact selector so next recipe can show polyself dropping incompatible weapon when it becomes a floating eye.",
+  "segments": [
+    {
+      "seed": 39139012,
+      "datetime": "20420315101000",
+      "nethackrc": "OPTIONS=name:V39Retouch,role=Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed long sword\nw",
+      "recorderIsDst": true
+    }
+  ]
+}

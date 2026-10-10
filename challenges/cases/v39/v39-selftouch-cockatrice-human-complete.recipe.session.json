@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "v39 C-first selftouch: append three C-confirmed pager/default-response spaces after rehumanization to capture the selftouch message, stoning page, and wizard no-die response. The one-space attempt already reached polyself.c:selftouch.",
+  "segments": [
+    {
+      "seed": 39139014,
+      "datetime": "20420315101200",
+      "nethackrc": "OPTIONS=name:V39Selftouch,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#polyself\nstone golem\n\u0017cockatrice corpse\nwo#polyself\nhuman\n   ",
+      "recorderIsDst": true
+    }
+  ]
+}

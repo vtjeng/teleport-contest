@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Corrected cursed-bell item selector from v39-cursed-bell-nymph-seed2 C inventory output: bell is o (n selects an unrelated marker/write command).",
+  "segments": [
+    {
+      "seed": 39139009,
+      "datetime": "20420315100700",
+      "nethackrc": "OPTIONS=name:V39BellSeed2,role=Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed bell\nao",
+      "recorderIsDst": true
+    }
+  ]
+}
