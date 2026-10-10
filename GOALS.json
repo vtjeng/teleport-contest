@@ -254787,6 +254787,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-pray-revive-tame-pet-v40-20261010",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port prayer revival of saved tame pets",
+      "cFile": "pray.c",
+      "sessions": [
+        "synthetic/v40/v40-coaligned-prayer-revives-tame-pet-corpse"
+      ],
+      "selectionReason": "The current v40 mismatch first diverges after coaligned prayer because prayer_done skips pray_revive, leaving the saved tame pet corpse on the floor and shifting later placement RNG.",
+      "detail": "Port complete pray.c:pray_revive lines 2177-2195 and wire its prayer_done p_type-3 coaligned-altar caller before water_prayer. Reuse the existing revive and animate_statue return-valued implementations and preserve floor-pile scan order, saved-trait filters, boolean returns, and caller ordering.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "pray_revive",
+          "line": 2177,
+          "endLine": 2198,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2177,
+        "to": 2198
+      },
+      "syntheticProvenance": {
+        "synthetic/v40/v40-coaligned-prayer-revives-tame-pet-corpse": {
+          "session": "synthetic/v40/v40-coaligned-prayer-revives-tame-pet-corpse",
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-coaligned-prayer-revives-tame-pet-corpse",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recordingPath": "challenges/cases/v40/v40-coaligned-prayer-revives-tame-pet-corpse.session.json",
+          "recordingSha256": "c00c965e693b24d7b5fdf90398f24830c3c3bb0a0bfff0801cd37ad53510f674",
+          "evaluationPath": "challenges/evaluations/accepted-07a45f0d02529c0ca8796e4a38578d49c418d1c3-v40.json",
+          "evaluationCommit": "07a45f0d02529c0ca8796e4a38578d49c418d1c3"
+        }
+      }
     }
   ]
 }
