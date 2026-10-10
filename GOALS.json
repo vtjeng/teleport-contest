@@ -243912,7 +243912,7 @@
     {
       "id": "port-do-dodown-v38-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete do.c:dodown command",
       "cFile": "do.c",
       "sessions": [
@@ -243928,15 +243928,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "36aedf0efa51725346d44932c0e5cff80a38bb01",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dodown",
           "line": 1131,
           "endLine": 1297,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -244464,7 +244467,98 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dodown",
+            "implementation": "js/do.js",
+            "symbol": "dodown",
+            "sourceReview": "Read all of upstream do.c:dodown() at lines 1131-1294. Ported its command setup, rooted and steed guards, stair and ladder recognition, complete levitation masks and controlled-source float_down path (including artifact aging with rnz(100) before float_down), blind glyph filtering, air/water/floor feedback, polymorphed ceiling-hider branches, stuck guard, seen-pit and escaped-shaft TOOKPLUNGE calls, autodig and refusal branches, Valley confirmation, pet guard, huge-form squeeze and damage order, assigned hole destination clamp, and ordinary stair/hole transition order. The only unported callee is dungeon.c:goto_hell on the Stronghold path: C declares it void, so the result is discarded and JS records note_unported('dungeon.c goto_hell') without inventing a transition. The pierced ceiling-hider and seen-trap paths reuse the existing B204 trap.c:dotrap owner; this task does not edit that source owner.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runDownCommand",
+                "source": "cmd.c extcmdlist registers '>' as the down command at lines 1703-1707; cmd.c:rhack invokes the selected function at line 3748 and handles its ECMD result at lines 3810-3818. js/cmd.js dispatches dodown through runDownCommand in the command switch and handles its result in the down command arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dodown.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v38",
+                "caseId": "v38-dodown-piercer-hider",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 200,
+                "source": "cmd.c:extcmdlist '>' down row -> rhack -> do.c:dodown ceiling-hider nonflying branch at lines 1204-1218"
+              },
+              {
+                "batch": "v38",
+                "caseId": "v38-dodown-lurker-ceiling-hider",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 199,
+                "source": "cmd.c:extcmdlist '>' down row -> rhack -> do.c:dodown ceiling-hider flying branch at lines 1204-1218"
+              },
+              {
+                "batch": "v38",
+                "caseId": "v38-dodown-levitation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 50,
+                "source": "cmd.c:extcmdlist '>' down row -> rhack -> do.c:dodown levitation arm at lines 1154-1201"
+              }
+            ],
+            "checkedAt": "36aedf0efa51725346d44932c0e5cff80a38bb01"
+          }
+        ],
+        "entryPointReview": "The active entry point is the down command: cmd.c's extcmdlist maps '>'/down to dodown, and rhack invokes it as the selected command; the v38 cases reach it through the same production dispatcher in js/cmd.js. The admitted recordings exercise the levitation arm and both ceiling-hider branches through step 50 or 199. Other branches remain in the same whole command function and are source-mapped in js/do.js; source-pinned tests cover the controlled levitation and direct seen-pit/shaft effects. The Stronghold branch calls the void dungeon.c:goto_hell whose transition is not ported; the discarded call is recorded with note_unported and omitted as required.",
+        "entryPoints": [
+          {
+            "name": "down command (>)",
+            "functions": [
+              "dodown"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v38",
+                "caseId": "v38-dodown-piercer-hider",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 200,
+                "source": "cmd.c:extcmdlist '>' down row -> rhack -> do.c:dodown ceiling-hider nonflying branch"
+              },
+              {
+                "batch": "v38",
+                "caseId": "v38-dodown-lurker-ceiling-hider",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 199,
+                "source": "cmd.c:extcmdlist '>' down row -> rhack -> do.c:dodown ceiling-hider flying branch"
+              },
+              {
+                "batch": "v38",
+                "caseId": "v38-dodown-levitation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 50,
+                "source": "cmd.c:extcmdlist '>' down row -> rhack -> do.c:dodown levitation arm"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "36aedf0efa51725346d44932c0e5cff80a38bb01",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T03:01:21.426Z",
+  "capturedAt": "2026-10-10T03:13:27.644Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -78169,22 +78169,59 @@
         "type": "accepted",
         "at": "2026-10-10T03:00:41.322Z",
         "task": "C182"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C182-91aa540391e774c0f3e632949cef585d562c9c0f",
+        "type": "published",
+        "at": "2026-10-10T03:01:29.259Z",
+        "task": "C182",
+        "commit": "91aa540391e774c0f3e632949cef585d562c9c0f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-main-B205-0cfb5d4ca-20261010",
+        "type": "received",
+        "at": "2026-10-10T03:04:02.006Z",
+        "task": "B205",
+        "delivery": "0cfb5d4ca92f9c1a96cd0ea8fa50c377be281ea3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-C182-publication-f5552e69-20261010",
+        "type": "turn",
+        "at": "2026-10-10T03:04:36.517Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "No independent source task is eligible in the refreshed queue; waiting for Main to integrate the A2 water-dip delivery and refresh selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-B205-36aedf0ef-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T03:06:02.396Z",
+        "task": "B205",
+        "integration": "36aedf0efa51725346d44932c0e5cff80a38bb01"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-main-B205-36aedf0ef-hosted-38019422969",
+        "type": "validated",
+        "at": "2026-10-10T03:11:42.647Z",
+        "task": "B205",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B205-36aedf0efa51725346d44932c0e5cff80a38bb01-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T03:12:55.031Z",
+        "task": "B205"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B205",
-        "worker": "B",
-        "goal": "port-do-dodown-v38-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "0cfb5d4ca92f9c1a96cd0ea8fa50c377be281ea3",
-        "since": "2026-10-10T02:21:48.961Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "A2-v38-water-dip-acid-potion-investigation-20261010",
         "worker": "A2",
@@ -78204,10 +78241,8 @@
         "status": "ready",
         "delivery": "b944bbeac6a0e895cc123954e02157b986cf6b1e",
         "since": "2026-10-10T02:32:09.780Z",
-        "blockedBy": [
-          "B205"
-        ],
-        "unblocks": 0
+        "blockedBy": [],
+        "unblocks": 1
       },
       {
         "task": "C184",
@@ -78229,7 +78264,6 @@
         "delivery": "31d65b94e42037fc58309647e19957a9af0b096c",
         "since": "2026-10-10T02:41:41.587Z",
         "blockedBy": [
-          "B205",
           "B207-investigation-v38-quick-glance-lootabc"
         ],
         "unblocks": 0
@@ -78537,8 +78571,8 @@
     ]
   },
   "development": {
-    "executionCommit": "4da7886ebee2489278141ddd7eba55370ed35601",
-    "measuredAt": "2026-10-10T02:58:54.982Z",
+    "executionCommit": "36aedf0efa51725346d44932c0e5cff80a38bb01",
+    "measuredAt": "2026-10-10T03:11:16.544Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
