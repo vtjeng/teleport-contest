@@ -13,6 +13,7 @@
   "status": "complete",
   "commit": "1493efa2d7c3728ef8123ffeceaf243e9dc56159",
   "mismatch": {
+    "session": "synthetic/v40/v40-shop-floor-digdown-warning-live-shopkeeper",
     "kind": "synthetic",
     "corpus": "synthetic",
     "sourceFile": null,

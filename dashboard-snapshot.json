@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T18:58:31.085Z",
+  "capturedAt": "2026-10-10T19:14:12.782Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -83310,22 +83310,68 @@
         "type": "accepted",
         "at": "2026-10-10T18:57:41.485Z",
         "task": "A2-investigation-v41-polymorphed-hider-remaining-floor-object-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-hideunder-queue-44d655fd-20261010",
+        "type": "turn",
+        "at": "2026-10-10T18:58:31.883Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 is available, but the four current queue candidates are reserved by B225, B226, B227, and C underwater coin. Waiting for a newly admitted batch or a released independent candidate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v41-polymorphed-hider-remaining-floor-object-20261010-8caa5c914ea369d9cdfc064570bb89ca6af68daf",
+        "type": "published",
+        "at": "2026-10-10T18:58:39.721Z",
+        "task": "A2-investigation-v41-polymorphed-hider-remaining-floor-object-20261010",
+        "commit": "8caa5c914ea369d9cdfc064570bb89ca6af68daf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-Prep6-bc6577ba-20261010",
+        "type": "received",
+        "at": "2026-10-10T19:02:53.735Z",
+        "task": "Prep6",
+        "delivery": "bc6577ba13f0b0e5a008fa00d862efade1e2157b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-integrating-b225-d84b56ca3",
+        "type": "integrating",
+        "at": "2026-10-10T19:06:50.384Z",
+        "task": "B225-investigation-v41-forced-steed-dismount-at-pool-20261010",
+        "integration": "d84b56ca399bd6cf8b3a529a46d3d5c96fcd2c43"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-validated-b225-38078562591",
+        "type": "validated",
+        "at": "2026-10-10T19:12:31.778Z",
+        "task": "B225-investigation-v41-forced-steed-dismount-at-pool-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B225-investigation-v41-forced-steed-dismount-at-pool-20261010-d84b56ca399bd6cf8b3a529a46d3d5c96fcd2c43-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T19:13:24.803Z",
+        "task": "B225-investigation-v41-forced-steed-dismount-at-pool-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-resume-after-B225-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T19:13:43.742Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B225 is accepted; syncing its published Main boundary and checking for a free independent candidate."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B225-investigation-v41-forced-steed-dismount-at-pool-20261010",
-        "worker": "B",
-        "goal": "div-v41-steed-death-dismount-pool-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "a003590d5f2764e9b5fea1443567c719a13c8ede",
-        "since": "2026-10-10T18:08:37.339Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "C-v41-underwater-coin-flip-drops-coin-investigation-20261010",
         "worker": "C",
@@ -83345,10 +83391,8 @@
         "status": "ready",
         "delivery": "3d3d82265f4fd38d330c5a3931692876d99c9dfb",
         "since": "2026-10-10T18:32:29.797Z",
-        "blockedBy": [
-          "B225-investigation-v41-forced-steed-dismount-at-pool-20261010"
-        ],
-        "unblocks": 0
+        "blockedBy": [],
+        "unblocks": 1
       },
       {
         "task": "B227-investigation-v40-opening-wand-expels-swallowed-hero-20261010",
@@ -83359,7 +83403,6 @@
         "delivery": "a78b8838709b5d78358edd3d1cc2920a8e8fb738",
         "since": "2026-10-10T18:53:25.453Z",
         "blockedBy": [
-          "B225-investigation-v41-forced-steed-dismount-at-pool-20261010",
           "B226-investigation-v40-shop-floor-digdown-warning-20261010"
         ],
         "unblocks": 0
@@ -83711,8 +83754,8 @@
     ]
   },
   "development": {
-    "executionCommit": "d9907b003bab45aa255af21cd2fe9cedb7abfa9c",
-    "measuredAt": "2026-10-10T18:55:40.589Z",
+    "executionCommit": "d84b56ca399bd6cf8b3a529a46d3d5c96fcd2c43",
+    "measuredAt": "2026-10-10T19:12:02.486Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
