@@ -95,6 +95,7 @@ import {
 } from '../js/pickup.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import {
+    BOULDER,
     COIN_CLASS,
     CORPSE,
     ELVEN_ARROW,
@@ -1198,29 +1199,55 @@ test('pickup admits its exact burden limit and uses inclusive prefix thresholds'
         }
     });
 
-test('pickup refuses exact maximum-capacity equality before floor mutation',
+test('pickup reports the C carry_count refusal at maximum-capacity equality',
     async () => {
         const state = await heroOnAnEmptySquare();
-        state.flags.pickup = true;
-        const object = objectUnderHero(state);
+        const object = typedObjectUnderHero(state, BOULDER);
         object.dknown = false;
         object.owt = 2 * weight_cap(state) - inv_weight(state);
         const links = { nobj: object.nobj, nexthere: object.nexthere };
-        const beforeLootReset = state.loot_reset_justpicked;
 
         assert.equal(
             inv_weight(state) + object.owt,
             2 * weight_cap(state),
         );
-        await assert.rejects(
-            () => pickup(1, state),
-            (error) => error instanceof UnsupportedPickupError
-                && /partial or failed lift/u.test(error.message),
-        );
+        assert.equal(await pickup(0, state), 1);
         assertStillOnBothFloorChains(state, object, links);
-        assert.equal(object.dknown, false);
-        assert.equal(state.loot_reset_justpicked, beforeLootReset);
+        assert.equal(object.dknown, true);
+        assert.match(
+            state._ttyToplines ?? '',
+            /There is a boulder here, but (?:you cannot lift any more|it is too heavy for you to lift)\./u,
+        );
     });
+
+test('carry_count prints its C partial-lift and zero-lift branches', async () => {
+    const cSource = await readFile(
+        new URL('../nethack-c/upstream/src/pickup.c', import.meta.url),
+        'utf8',
+    );
+    const jsSource = await readFile(
+        new URL('../js/pickup.js', import.meta.url), 'utf8',
+    );
+    const cStart = cSource.indexOf('\ncarry_count(struct obj *obj');
+    const cEnd = cSource.indexOf('\n}\n', cStart) + 2;
+    const jsStart = jsSource.indexOf('async function carry_count(');
+    const jsEnd = jsSource.indexOf('\n}\n', jsStart) + 2;
+    const cBody = cSource.slice(cStart, cEnd);
+    const jsBody = jsSource.slice(jsStart, jsEnd);
+
+    assert.ok(cStart >= 0 && cEnd > cStart,
+        'pickup.c defines the complete carry_count function');
+    assert.ok(jsStart >= 0 && jsEnd > jsStart,
+        'pickup.js defines the complete carry_count function');
+    assert.match(cBody,
+        /You\("can only %s %s of the %s %s\."/u);
+    assert.match(cBody,
+        /There\("%s %s %s, but %s%s%s%s\."/u);
+    assert.match(jsBody,
+        /You can only \$\{verb\} \$\{qq === 1 \? 'one' : 'some'\} of the/u);
+    assert.match(jsBody,
+        /There \$\{otense\(obj, 'are', state\)\} \$\{obj_nambuf\} \$\{where2\}/u);
+});
 
 test('pickup admits one weight unit below the maximum-capacity refusal',
     async () => {
