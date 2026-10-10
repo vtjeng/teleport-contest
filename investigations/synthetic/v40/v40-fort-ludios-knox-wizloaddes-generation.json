@@ -108,5 +108,49 @@
     "Upstream dat/dungeon.lua:248-259 defines the Fort Ludios branch with level name knox. dungeon.c:579-582 copies each prototype level name to s_level.proto; mklev.c:1267-1270 and mkmaze.c:1127-1194 route that natural level generation through makemaz/load_special.",
     "At the examined implementation commit, mklev.js:1749-1788 builds SPECIAL_LEVEL_LOADERS without a knox program. mklev.js:1801-1816 normalizes the .lua suffix, records nhlua.c:nhl_loadlua as unported, and returns false when no program loader exists. Existing generic branch-region support remains in mklev.js:lspo_levregion and mkmaze.js:place_lregion/fixup_special; the source-scoped change is the complete Lua program plus registry wiring unless fresh matched play exposes another independent gap.",
     "Source-scope expansion traced the complete mkroom.c:fill_zoo() function (276-452) and sp_lev.c:fill_special_room() (2731-2804). The C caller recurses into subrooms before its own room, preserves the SHOP early return, dispatches all source-listed special room types, then applies room flags; the JavaScript caller now uses fill_zoo for ANTHOLE, COCKNEST and LEPREHALL and removes the obsolete UnsupportedSpecialRoomError class after its last throw site was deleted."
-  ]
+  ],
+  "implementationValidation": {
+    "naturalKnox": {
+      "recipe": "recipes/knox.lua/v40-knox-natural-generation.recipe.session.json",
+      "recording": "recordings/knox.lua/v40-knox-natural-generation.session.json",
+      "route": "wizard level travel -> Fort Ludios branch portal -> normal makelevel/makemaz/load_special -> knox.lua -> lspo_finalize_level -> fill_special_room/fill_zoo",
+      "freshCommand": "node scripts/diff-fresh.mjs recipes/knox.lua/v40-knox-natural-generation.recipe.session.json",
+      "result": "PASS: 17233 PRNG calls, 37 screens and cursors matched C."
+    },
+    "directWizloaddes": {
+      "recipe": "challenges/cases/v40/v40-knox-wizloaddes-map-cfirst.recipe.session.json",
+      "recording": "challenges/cases/v40/v40-knox-wizloaddes-map-cfirst.session.json",
+      "route": "wizcmds.c:wiz_load_splua -> load_special(knox.lua) -> lspo_finalize_level -> fill_special_room/fill_zoo",
+      "freshCommand": "node scripts/diff-fresh.mjs challenges/cases/v40/v40-knox-wizloaddes-map-cfirst.recipe.session.json",
+      "result": "PASS: 8788 PRNG calls, 31 screens and cursors matched C.",
+      "sourceRange": {
+        "batch": "v40",
+        "caseId": "v40-fort-ludios-knox-wizloaddes-generation",
+        "segment": 0,
+        "fromStep": 0,
+        "throughStep": 30
+      }
+    },
+    "naturalLeprehall": {
+      "recipe": "recipes/mkroom.c/leprehall-debug-level-teleport-c176.recipe.session.json",
+      "recording": "recordings/mkroom.c/leprehall-debug-level-teleport-c176.session.json",
+      "route": "mklev.c:makelevel -> sp_lev.c:fill_special_room -> mkroom.c:fill_zoo(LEPREHALL)",
+      "seedSelection": "7646015 was the first generated D:6 LEPREHALL among seeds 7646011-7646020 probed with Wizard debug level teleport; the final recipe uses this selected case.",
+      "freshCommand": "node scripts/diff-fresh.mjs recipes/mkroom.c/leprehall-debug-level-teleport-c176.recipe.session.json",
+      "result": "PASS: 5842 PRNG calls, six screens and cursors matched C; the trailing command executes after room generation."
+    },
+    "focused": {
+      "command": "node scripts/run-bounded.mjs focused -- node --test scripts/mkroom.test.mjs scripts/knox-level-generation.test.mjs scripts/level-teleport-arrival.test.mjs",
+      "result": "PASS: 39 tests."
+    },
+    "lint": {
+      "command": "node scripts/run-bounded.mjs focused -- npm run lint",
+      "result": "PASS."
+    },
+    "generatedMap": {
+      "command": "node scripts/generate-knox-level.mjs --check",
+      "result": "PASS."
+    },
+    "baseCommit": "4e00efd2205d1410e6913d5c9ba4c8b537084940"
+  }
 }

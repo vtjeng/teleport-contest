@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 214202610,
+      "datetime": "20350717092400",
+      "nethackrc": "OPTIONS=name:KnoxNat,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "comment": "Independently selected natural entry recipe: wizard level travel reaches D:12, its generated vault places the Fort Ludios portal, and the wizard level menu enters the now-connected knox branch through normal level initialization. It reaches mklev.c:makelevel -> mkmaze.c:makemaz -> load_special, not wiz_load_splua.",
+      "moves": ".#wizlevelport\n12\n#wizlevelport\n?\n G"
+    }
+  ]
+}

@@ -27,7 +27,6 @@ import {
 } from './dungeon.js';
 import { UnsupportedLevelChangeError } from './do.js';
 import {
-    UnsupportedSpecialRoomError,
     antholemon,
     do_mkroom,
     fill_zoo,
@@ -574,10 +573,12 @@ export function fill_special_room(croom, env = {}) {
             }
             case ANTHOLE:
             case COCKNEST:
-            case LEPREHALL:
-                throw new UnsupportedSpecialRoomError(
-                    `fill_special_room(${croom.rtype}) beyond the Morgue boundary`,
-                );
+            case LEPREHALL: {
+                const maybeFill = fill_zoo(croom, normalized);
+                if (maybeFill && typeof maybeFill.then === 'function')
+                    return maybeFill.then(() => finishFlags());
+                break;
+            }
             default:
                 break;
             }
@@ -1766,6 +1767,7 @@ async function ensureSpecialLevelLoaders() {
     const { WIZARD1_LEVEL_LOADERS } = await import('./wizard1_levels.js');
     const { WIZARD2_LEVEL_LOADERS } = await import('./wizard2_levels.js');
     const { WIZARD3_LEVEL_LOADERS } = await import('./wizard3_levels.js');
+    const { KNOX_LEVEL_LOADERS } = await import('./knox_levels.js');
     SPECIAL_LEVEL_LOADERS = {
         ...BIGRM_LOADERS,
         ...QUEST_LEVEL_LOADERS,
@@ -1785,6 +1787,7 @@ async function ensureSpecialLevelLoaders() {
         ...WIZARD1_LEVEL_LOADERS,
         ...WIZARD2_LEVEL_LOADERS,
         ...WIZARD3_LEVEL_LOADERS,
+        ...KNOX_LEVEL_LOADERS,
     };
     // Val-strt is the first translated level to use the Lua selection global.
     // Keep the established loader signature for every other level, including
