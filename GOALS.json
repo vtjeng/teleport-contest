@@ -260481,7 +260481,7 @@
           "line": 1597,
           "endLine": 1706,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -260495,7 +260495,7 @@
           "endLine": 1238,
           "declared": true,
           "sourceFile": "zap.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -260678,7 +260678,77 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mbhitm",
+            "implementation": "js/muse.js",
+            "symbol": "mbhitm",
+            "sourceReview": "Read the complete muse.c:mbhitm() definition at lines 1596-1703. The callback preserves its wakeup-before-resistance order, hero versus monster target split, undead/vampshifter resistance branch, discovery timing, and invisible-map update. Its WAN_UNDEAD_TURNING hero arm now calls zap.c:unturn_you(); its monster arm uses zap.c:unturn_dead()'s result to gate wakeup. The JS callback passes its invocation random stream and message operation through both helpers. The remaining calls used by this function are implemented; no return-bearing unported callee remains. The separate bhito callback is outside mbhitm and remains the existing source gap at its callers.",
+            "callers": [
+              {
+                "path": "js/muse.js",
+                "symbol": "mbhitm",
+                "source": "muse.c:use_defensive() calls mbhit() with mbhitm for WAN_UNDEAD_TURNING at line 978; muse.c:use_offensive() calls mbhit() with the same callback for WAN_UNDEAD_TURNING at line 1884. JS use_defensive() and use_offensive() pass this callback to mbhit(). The selected recording reaches the offensive call through mhitu.c:mattacku() -> muse.c:use_offensive() -> mbhit() -> mbhitm(); JavaScript reaches it through unported_monster_actions.js:useOffensiveItem() -> muse.js:use_offensive() -> mbhit() -> mbhitm()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/muse.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-monster-undead-turning-lichen-corpse",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 128,
+                "source": "mhitu.c:mattacku -> muse.c:use_offensive -> muse.c:mbhitm -> zap.c:unturn_you -> zap.c:unturn_dead -> zap.c:revive -> makemon.c:makemon"
+              }
+            ],
+            "checkedAt": "25f382235d2b137fe23ae3de5b3ea7fb791a214f"
+          },
+          {
+            "name": "unturn_you",
+            "implementation": "js/zap.js",
+            "symbol": "unturn_you",
+            "sourceReview": "Read the complete zap.c:unturn_you() definition at lines 1224-1235. It first calls unturn_dead() and discards the result; then undead heroes receive the frightened/stunned message and rnd(30) is added to the existing stun timeout before make_stunned(), while other heroes shudder in dread. The JS helper keeps direct self-zaps on the live RNG by default and accepts the caller's action RNG when invoked by muse.c:mbhitm.",
+            "callers": [
+              {
+                "path": "js/muse.js",
+                "symbol": "mbhitm",
+                "source": "muse.c:mbhitm() calls unturn_you() when the wand hits the hero at line 1671; js/muse.js:mbhitm now awaits the existing helper with its callback random stream and message operation."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zapyourself",
+                "source": "zap.c:zapyourself() calls unturn_you() for WAN_UNDEAD_TURNING and SPE_TURN_UNDEAD; js/zap.js:zapyourself retains that direct call and uses the helper's live-RNG default."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/muse.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "zap.c",
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-monster-undead-turning-lichen-corpse",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 128,
+                "source": "mhitu.c:mattacku -> muse.c:use_offensive -> muse.c:mbhitm -> zap.c:unturn_you"
+              }
+            ],
+            "checkedAt": "25f382235d2b137fe23ae3de5b3ea7fb791a214f"
+          }
+        ],
+        "entryPointReview": "This task ports helper functions called during monster beam hits. The active monster-item entry sites are muse.c:use_defensive() line 978 and use_offensive() line 1884; both pass mbhitm to mbhit for a wand of undead turning. zap.c:zapyourself() is the existing direct caller of unturn_you(). The selected admitted v42 recording exercises the offensive caller with a hostile dwarf's wand hitting a hero carrying a lichen corpse. The defensive caller remains wired to the same callback, and the whole mbhitm source body is compared branch by branch.",
+        "entryPoints": []
+      }
     }
   ]
 }
