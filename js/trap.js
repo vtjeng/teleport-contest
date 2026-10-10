@@ -1653,14 +1653,14 @@ export async function lava_effects(state = game) {
                     // C removes every doomed worn item. The message is
                     // conditional on lifesaving, but remove_worn_item() is
                     // unconditional before useupall().
-                    // remove_worn_item() is still partial: C discards its
-                    // return, so call it only for the source arms that have
-                    // an implemented owner.  The other C branches are
-                    // recorded as discarded gaps at this call site rather
-                    // than entering a helper that throws a refusal.
+                    // Keep unsupported worn-item arms as explicit gaps while
+                    // routing a worn cloak through the existing helper path.
                     const mask = obj.owornmask;
+                    const supportedCloak = obj === state.uarmc
+                        && Boolean(mask & W_ARMOR);
                     const unsupportedMask = Boolean(mask
-                        & (W_ARMOR | W_AMUL | W_TOOL | W_BALL | W_CHAIN));
+                        & (W_AMUL | W_TOOL | W_BALL | W_CHAIN))
+                        || (Boolean(mask & W_ARMOR) && !supportedCloak);
                     const unsupportedQuiver = Boolean(mask & W_WEAPONS)
                         && obj === state.uquiver;
                     if (unsupportedMask || unsupportedQuiver) {
@@ -2055,9 +2055,10 @@ export async function float_down(hmask, emask, state = game) {
             noMsg = await drown(state);
         }
         if (is_lava(u.ux, u.uy, state) && !state.iflags?.in_lava_effects) {
-            // C discards lava_effects()'s result; skip its unported side
-            // effects while retaining float_down()'s source-owned suppression.
-            note_unported('trap.c lava_effects');
+            // trap.c:float_down() runs lava_effects() here even though it
+            // discards the return value; its messages and inventory changes
+            // must precede the rest of float_down() and the end-of-turn path.
+            await lava_effects(state);
             noMsg = true;
         }
     }
