@@ -12,7 +12,7 @@
   "remainingScreens": 1,
   "recordedSteps": 53,
   "status": "complete",
-  "commit": "f16c0db428f07c40fc95aed94193f2455e904728",
+  "commit": "9b53af69f281954a8b21636768fbe759a7d888ce",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v42",
@@ -94,7 +94,8 @@
       "still_chewing"
     ],
     "callers": [
-      "test_move (hack.c:991-1265)"
+      "test_move (hack.c:991-1265)",
+      "doeat (eat.c:2852)"
     ],
     "dependencies": [
       "eat.c:morehungry",
@@ -107,6 +108,7 @@
     "The independently decoded final C/JS status rows are respectively `Dlvl:1 $:0 HP:26(26) Pw:6(6) AC:2 HD:5 Satiated` and `Dlvl:1 $:0 HP:26(26) Pw:6(6) AC:2 HD:5`; all 8 changed cells form the missing `Satiated` status text.",
     "upstream/src/hack.c:647-822 implements the entire still_chewing function; lines 769-784 award metallivorous iron-bar nutrition with morehungry(-nut), select the completion text, and call dissolve_bars before final vision/redraw cleanup. Its production call sites are all in upstream/src/hack.c:test_move at lines 1029, 1040, 1090, and 1227.",
     "js/hack.js:1978-2082 has the corresponding still_chewing port. Its IRONBARS branch at lines 2078-2081 calls note_unported('eat.c morehungry') and note_unported('trap.c dissolve_bars') instead of existing canonical JS implementations.",
-    "The required helpers are already implemented: upstream/src/eat.c:3281-3285 / js/eat.js:1902-1917 implement morehungry and newuhs; upstream/src/monmove.c:2170-2180 / js/monmove.js:4322-4334 implement dissolve_bars. Wire these existing owners from hack.js without duplicating their state logic."
+    "The required helpers are already implemented: upstream/src/eat.c:3281-3285 / js/eat.js:1902-1917 implement morehungry and newuhs; upstream/src/monmove.c:2170-2180 / js/monmove.js:4322-4334 implement dissolve_bars. Wire these existing owners from hack.js without duplicating their state logic.",
+    "A second direct C caller is upstream/src/eat.c:doeat (the `&hands_obj` arm at line 2852), which calls still_chewing on the hero’s current square and then prints “You pause to swallow.” while IRONBARS remain. js/eat.js:doeat at lines 4238-4244 already wires this caller to the canonical hack.js still_chewing implementation. No matching `recordings/` entry covers this `e`-command branch, so it needs its own matching recipe/recording as an entry point in addition to the admitted movement case."
   ]
 }
