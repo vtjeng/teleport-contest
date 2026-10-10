@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first setup probe: let the adjacent Sanctum master lich produce its arrival and first attack pages, then use the no-turn wizard removal command on the north-adjacent lich before routing toward the high altar.",
+  "segments": [
+    {
+      "seed": 40404042,
+      "datetime": "20461012131415",
+      "nethackrc": "OPTIONS=name:V40SanctumMap,role:Monk,race:human,gender=female,align=lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0016?\n v jj  #wizkill\nk.\u001b"
+    }
+  ]
+}

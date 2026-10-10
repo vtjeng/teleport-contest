@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first mapping probe: repeatedly invoke wizard findit without taking turns, then inspect the revealed terrain and secret-door route from the Sanctum landing.",
+  "segments": [
+    {
+      "seed": 40404042,
+      "datetime": "20461012131415",
+      "nethackrc": "OPTIONS=name:V40SanctumMap,role:Monk,race:human,gender=female,align=lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0016?\n v #wizdetect\n#wizdetect\n#wizdetect\n#wizmap\n"
+    }
+  ]
+}

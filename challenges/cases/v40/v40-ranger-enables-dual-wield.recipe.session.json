@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first positive dual-wield candidate. A Ranger receives independently wished short sword and mace, wields the two one-handed weapons with pushweapon, then invokes #twoweapon without a shield, cursed weapon, or slippery hands. Verify C reaches the successful can_twoweapon branch and toggles u.twoweap before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 40404101,
+      "datetime": "20461014151617",
+      "nethackrc": "OPTIONS=name:V40RangerTwin,role=Ranger,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,pushweapon\n",
+      "moves": "\u0016?\n #wizwish\nshort sword\n#wizwish\nmace\n w-\nwo\nwp\n#twoweapon\n"
+    }
+  ]
+}

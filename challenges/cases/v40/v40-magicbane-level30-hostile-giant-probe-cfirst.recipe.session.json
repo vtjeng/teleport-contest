@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first setup correction after Magicbane missed an adjacent stone giant. Raise the Wizard’s experience level with the wizard-only #levelchange command so the source attack rolls more often reach artifact_hit, while keeping Magicbane at its default enchantment; C must confirm the target and the MB_INDEX_PROBE effect before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 42080004,
+      "datetime": "20461013141516",
+      "nethackrc": "OPTIONS=name:V40MagicbaneLevel30,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017Magicbane\n#levelchange\n30\n\u0007hostile stone giant\nwoj"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source probe for the complete upper Vlad tower program. Invoke the C special-level Lua loader with tower1.lua, then map the resulting level to establish that this independent program ran.",
+  "segments": [
+    {
+      "seed": 82733190,
+      "datetime": "20580615103000",
+      "nethackrc": "OPTIONS=name:V40TowerOne,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\ntower1.lua\n#wizmap\n"
+    }
+  ]
+}

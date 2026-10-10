@@ -306,12 +306,11 @@ test('a hero with nowhere to stand refuses the dismount', async () => {
     assert.ok(state.u.usteed);
 });
 
-test('every unowned dismount reason but BYCHOICE and KNOCKED refuses', async () => {
-    // hack.h:347-356. doride() supplies DISMOUNT_BYCHOICE alone; the rest need
-    // owners this port does not have, and each names them at its site.
+test('unported dismount reasons keep their explicit source boundary', async () => {
+    // These reasons still have separate callers and behavior outside this
+    // DISMOUNT_FELL branch.
     const reasons = [
         [DISMOUNT_GENERIC, /DISMOUNT_GENERIC/u],
-        [DISMOUNT_FELL, /reason 1, a fall from the saddle/u],
         [DISMOUNT_THROWN, /reason 2, a fall from the saddle/u],
         [DISMOUNT_POLY, /DISMOUNT_POLY/u],
         [DISMOUNT_ENGULFED, /DISMOUNT_ENGULFED/u],
@@ -326,6 +325,32 @@ test('every unowned dismount reason but BYCHOICE and KNOCKED refuses', async () 
             String(pattern),
         );
     }
+});
+
+test('DISMOUNT_FELL releases the steed and lands the hero', async () => {
+    const state = await mounted();
+    const steed = state.u.usteed;
+    const oldx = state.u.ux;
+    const oldy = state.u.uy;
+    state.u.uprops[FLYING].intrinsic = FROMOUTSIDE;
+    isolate(state, [DIR_E, DIR_W]);
+    quiet(state);
+    for (let i = 0; i < 12; ++i)
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    const before = getRngLog().length;
+    await dismount_steed(DISMOUNT_FELL, state);
+    const drawn = getRngLog().slice(before);
+
+    assert.equal(state.u.usteed, null);
+    assert.equal(state.u.uy, oldy);
+    assert.equal(Math.abs(state.u.ux - oldx), 1);
+    assert.equal(m_at(oldx, oldy, state), steed);
+    assert.match(toplines(), /off of/u);
+    assert.ok(drawn.some((call) => /^rn2\(2\)=/u.test(call)),
+        JSON.stringify(drawn));
+    assert.equal(state.u.uprops[WOUNDED_LEGS].intrinsic, 0,
+        'Flying avoids the source riding-accident injury');
 });
 
 test('dismount_steed returns silently when the hero has no steed', async () => {

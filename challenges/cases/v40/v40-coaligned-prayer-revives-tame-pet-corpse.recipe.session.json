@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first reproduction of pray.c:dopray -> pray_revive. A lawful Valkyrie creates a lawful altar on the starting square, swaps with the adjacent starting dog, uses wizard kill targeting to leave its corpse on the altar (seed makes corpse_chance true), then accepts the pleased-prayer override. C revives the tame dog through pray_revive before water_prayer.",
+  "segments": [
+    {
+      "seed": 40101045,
+      "datetime": "20461012141518",
+      "nethackrc": "OPTIONS=name:V40PetRevival,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017lawful altar\nl#wizkill\n  h.\u001b h #pray\ny y "
+    }
+  ]
+}

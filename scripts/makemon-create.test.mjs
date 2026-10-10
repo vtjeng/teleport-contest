@@ -62,6 +62,8 @@ import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { add_to_minv } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
+import { clearTtyMessageWindow } from '../js/tty_message.js';
+import { RIDE_COMMAND, loadRideDismountRecipe } from './run-ride-dismount.mjs';
 import { light_globals_init } from '../js/light.js';
 import {
     dmonsfree,
@@ -1731,29 +1733,27 @@ test('update_mon_extrinsics forwards the runtime silence flag', async () => {
     assert.ok(messages[0].includes('suddenly moving'));
 });
 
-test('saddle removal records the discarded steed dismount boundary', async () => {
-    // worn.c:708-709 calls dismount_steed(DISMOUNT_FELL) for a steed's
-    // saddle. Its fall-specific callee remains unported, so this state path
-    // records the named discarded-call gap and completes the worn update.
-    const state = initialLevelState();
+test('saddle removal calls the steed FELL dismount', async () => {
+    const segment = loadRideDismountRecipe().segments[0];
+    await runSegment({ ...segment, moves: '.' + RIDE_COMMAND + 'j' });
+    clearTtyMessageWindow(game);
+    game._ttyToplines = '';
+    const state = game;
+    const steed = state.u.usteed;
+    assert.ok(steed, 'the setup segment leaves the hero on the pony');
+    let saddle = steed.minvent;
+    while (saddle && saddle.otyp !== SADDLE) saddle = saddle.nobj;
+    assert.ok(saddle, 'the mounted pony has its source saddle');
     game.unported = new Set();
-    const steed = newMonster({
-        data: state.mons[PM_PONY],
-        mnum: PM_PONY,
-        m_id: 9013,
-    });
-    const saddle = mksobj(SADDLE, false, false, {
-        state,
-        random: FIXED_OBJECT_ID_RANDOM,
-    });
-    saddle.owornmask = W_SADDLE;
-    steed.minvent = saddle;
-    steed.misc_worn_check = W_SADDLE;
-    state.u.usteed = steed;
+    saddle.owornmask = 0;
+    steed.misc_worn_check &= ~W_SADDLE;
+    for (let i = 0; i < 12; ++i)
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
 
     await update_mon_extrinsics(steed, saddle, false, { state, silent: true });
 
-    assert.ok(game.unported.has('steed.c dismount_steed DISMOUNT_FELL'));
+    assert.equal(state.u.usteed, null);
+    assert.equal(game.unported.size, 0);
 });
 
 test('m_dowear starts a worn gold scale mail light in source order', () => {

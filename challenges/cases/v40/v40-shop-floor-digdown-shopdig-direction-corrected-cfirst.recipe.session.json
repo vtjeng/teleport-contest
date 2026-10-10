@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first direction-corrected shop floor-digging probe. Selecting the observed `a` action auto-wields the pick-axe and emits a paged message; dismiss that page, then use `>` for the down direction. Preserve the earlier missing-page attempt.",
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopDebtAlt,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017uncursed pick-axe\n#wizlevelport\n4\n #wizmap\nliwna >"
+    }
+  ]
+}

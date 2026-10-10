@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected BUC setup: the previous default wish reached the cursed uneasiness arm. Explicitly wish an uncursed potion so C can reach potion.c:peffect_enlightenment -> do_enlightenment_effect and show the report selector.",
+  "segments": [
+    {
+      "seed": 40101062,
+      "datetime": "20461203121115",
+      "nethackrc": "OPTIONS=name:V40Enlightenment,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017uncursed potion of enlightenment\nq?"
+    }
+  ]
+}

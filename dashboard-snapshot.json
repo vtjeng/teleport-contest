@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T09:45:33.577Z",
+  "capturedAt": "2026-10-10T10:28:33.989Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -80410,34 +80410,226 @@
         "type": "accepted",
         "at": "2026-10-10T09:44:39.447Z",
         "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B213-investigation-v39-polyself-retouch-silver-vampire-complete-fcee2124409bf1a287b11a21f253470ed26317bc",
+        "type": "published",
+        "at": "2026-10-10T09:45:41.794Z",
+        "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete",
+        "commit": "fcee2124409bf1a287b11a21f253470ed26317bc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-after-B213-accept-20261010",
+        "type": "turn",
+        "at": "2026-10-10T09:45:46.461Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B213 is accepted. Syncing accepted Main while preserving submitted B215, then checking the queue for independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-B213-sync-20261010",
+        "type": "turn",
+        "at": "2026-10-10T09:47:22.547Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Accepted Main is synced. The current queue has only A2’s mounted-steed case and B215’s counted-wizgenesis case; both are reserved, so no independent task is free."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-v40-shopdig-approved-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T09:47:25.709Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has eight approved distinct C-first mismatches; continuing source-based preparation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B215-1db0d386-20261010",
+        "type": "received",
+        "at": "2026-10-10T09:48:29.484Z",
+        "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010",
+        "delivery": "1db0d3868797b102a94297f7d688960ab62c58cc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-review-B215-20261010T0949",
+        "type": "activity",
+        "at": "2026-10-10T09:48:38.755Z",
+        "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010",
+        "phase": "review",
+        "reason": "Integrating the oldest ready mimic item absorption delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B215-d385af23ff14-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T09:52:34.380Z",
+        "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010",
+        "integration": "d385af23ff14452feaff464fb82ad499ba63ccb3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-v40-knox-approved-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T09:52:50.258Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has nine approved distinct C-first mismatches; three remain, and the direct Fort Ludios knox.lua case is recorded."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B215-38043049695-20261010",
+        "type": "validated",
+        "at": "2026-10-10T09:59:14.380Z",
+        "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B215-investigation-v39-counted-wizgenesis-obj-resists-20261010-d385af23ff14452feaff464fb82ad499ba63ccb3-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T10:00:07.181Z",
+        "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-after-B215-accept-20261010",
+        "type": "turn",
+        "at": "2026-10-10T10:01:41.503Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B215 is accepted. Syncing the accepted Main boundary and checking the queue for independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-v40-shop-robshop-approved-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T10:01:53.292Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has ten approved distinct C-first mismatches; two remain, and the unpaid-shop level-exit case is recorded."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B215-investigation-v39-counted-wizgenesis-obj-resists-20261010-6ea3cb1a885b183629f5b321143b41cb55319528",
+        "type": "published",
+        "at": "2026-10-10T10:02:13.599Z",
+        "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010",
+        "commit": "6ea3cb1a885b183629f5b321143b41cb55319528"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-B215-sync-20261010",
+        "type": "turn",
+        "at": "2026-10-10T10:02:36.368Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Accepted Main is synced. The only current queue candidate is the mounted-steed case reserved by A2, so B has no independent task available."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-v39-fell-72c22815-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T10:09:06.731Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "integration": "72c22815f96107860b1f573159dc8af4a135594c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A2-v39-fell-72c22815-failed-38043915633",
+        "type": "validated",
+        "at": "2026-10-10T10:15:05.648Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A2-v39-fell-test-shard4-38043915633",
+        "type": "feedback",
+        "at": "2026-10-10T10:15:12.223Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "delivery": "67b0d0d7533a2aa8ad99bd0e22d68468e5ccd44d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-v39-poly-fell-correction-20261010",
+        "type": "resume",
+        "at": "2026-10-10T10:15:38.292Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-poly-fell-correction-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T10:15:41.836Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Fixing missing test pager input and source assertions for the downward steed polymorph zap; delivery remains tied to the original A2 source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-bd651da841da57ab0f2f411ed61c7fc9383e7b84",
+        "type": "ready",
+        "at": "2026-10-10T10:19:13.985Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "delivery": "bd651da841da57ab0f2f411ed61c7fc9383e7b84"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-poly-fell-correction-ready-20261010",
+        "type": "turn",
+        "at": "2026-10-10T10:19:24.626Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Correction adds pager input and asserts completed downward FELL dismount plus directionless mount preservation. No production changes were needed; awaiting integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-v39-fell-correction-bd651da8",
+        "type": "received",
+        "at": "2026-10-10T10:21:10.754Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "delivery": "bd651da841da57ab0f2f411ed61c7fc9383e7b84"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-v39-fell-97b84cc6-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T10:22:27.755Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "integration": "97b84cc6b58a15fd2a536c0d8caaa2e86be47335"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep4-v40-resume-active-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T10:22:41.095Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A2-v39-fell-97b84cc6-pass-38044682406",
+        "type": "validated",
+        "at": "2026-10-10T10:27:12.642Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-v39-mounted-steed-poly-fell-followup-20261010-97b84cc6b58a15fd2a536c0d8caaa2e86be47335-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T10:27:58.890Z",
+        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010",
-        "worker": "B",
-        "goal": "fix-mimic-absorb-item-lockpick-rng-v39-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "1db0d3868797b102a94297f7d688960ab62c58cc",
-        "since": "2026-10-10T09:14:40.465Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-v39-mounted-steed-poly-fell-followup-20261010",
-        "worker": "A2",
-        "goal": "A2-v39-mounted-steed-poly-steed-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "67b0d0d7533a2aa8ad99bd0e22d68468e5ccd44d",
-        "since": "2026-10-10T09:32:47.358Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -80740,8 +80932,8 @@
     ]
   },
   "development": {
-    "executionCommit": "23d07ff38df570228278bc8af9679db5ae6fdab7",
-    "measuredAt": "2026-10-10T09:43:11.124Z",
+    "executionCommit": "97b84cc6b58a15fd2a536c0d8caaa2e86be47335",
+    "measuredAt": "2026-10-10T10:26:54.266Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

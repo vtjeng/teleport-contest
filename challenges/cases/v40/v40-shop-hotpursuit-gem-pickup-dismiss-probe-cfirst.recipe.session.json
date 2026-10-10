@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopChase,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\nl, ",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Corrected C-first shop pickup probe: dismiss the recorded price-quote page after requesting the for-sale red gem. Preserve the original no-dismiss probe; do not compare JS until C confirms whether the item is billed/carried or remains in the shop."
+}

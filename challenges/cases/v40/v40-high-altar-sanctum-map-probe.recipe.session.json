@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first setup probe: enter the Sanctum via page-two `v - sanctum:49`, dismiss the arrival message once, and request the wizard level map to locate the high altar before routing the wished same-race corpse.",
+  "segments": [
+    {
+      "seed": 40404042,
+      "datetime": "20461012131415",
+      "nethackrc": "OPTIONS=name:V40SanctumMap,role:Monk,race:human,gender=female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0016?\n v #wizmap\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C pager correction: the pickup command first triggers the shopkeeper\u2019s observed quoted red-gem price line and leaves a --More-- page. Dismiss it once to reach the actual object-selection boundary before choosing the stock.",
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopDebtAlt,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\nl, "
+    }
+  ]
+}

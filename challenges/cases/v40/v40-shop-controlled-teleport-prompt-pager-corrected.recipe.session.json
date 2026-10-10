@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C prompt correction: Ctrl-T prints `Where do you want to be teleported?--More--`; dismiss this observed prompt page once and stop before moving the destination cursor.",
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopDebtAlt,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\nl, ni #wizintrinsic\n150o>>150j\n  \u0014 "
+    }
+  ]
+}

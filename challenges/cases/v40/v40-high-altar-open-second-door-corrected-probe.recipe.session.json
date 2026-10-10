@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first route correction: preserve the earlier path-probe inputs, then from the C-confirmed stopping point at (45,13) move east to the explicit closed door at (46,12), issue open north, and inspect its response with #wizmap before continuing west.",
+  "segments": [
+    {
+      "seed": 40404042,
+      "datetime": "20461012131415",
+      "nethackrc": "OPTIONS=name:V40SanctumMap,role=Monk,race=human,gender=female,align=lawful,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0016?\n v #wizdetect\njj  #wizkill\n  k.   \n m.\u001b\u001b ojj#wizintrinsic\n150a\n #wizintrinsic\n150q\n #wizdetect\njhhhojjjhhhjjhhhhhkkokkkkkkhhhhkkhohhhhhhh#wizdetect\nojjjhhhhhhhhhhhhjjjjhh#wizdetect\nokkkhhhkklokk#wizmap\n"
+    }
+  ]
+}

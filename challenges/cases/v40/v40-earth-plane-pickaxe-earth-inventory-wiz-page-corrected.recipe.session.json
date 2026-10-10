@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C confirms the Wizard of Yendor pager still blocks commands after the four earlier plane-entry pages; dismiss that fifth page, then inspect inventory.",
+  "segments": [
+    {
+      "seed": 42060006,
+      "datetime": "20441017101112",
+      "nethackrc": "OPTIONS=name:V40EarthPage2,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed pick-axe\n\u0016?\n  N     i"
+    }
+  ]
+}

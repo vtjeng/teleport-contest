@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first pet-food candidate. This independent seed sets a tame dog through pettype and wishes a floor ration; later steps will be chosen only from the C trace to establish whether dogmove.c:dog_eat is reached.",
+  "segments": [
+    {
+      "seed": 41104101,
+      "datetime": "20441012101112",
+      "nethackrc": "OPTIONS=name:V40PetRation,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017food ration\n"
+    }
+  ]
+}

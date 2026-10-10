@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first distinct inventory-effect candidate for mhitu.c:gulpmu -> apply.c:snuff_lit -> timeout.c:end_burn. Keep the verified level-10 route and add a wished lit oil lamp to the carried inventory before creating the adjacent hostile purple worm; C must show it extinguished at engulf before any JS comparison. This differs from the matching no-lit-object v21/v40 engulf controls.",
+  "segments": [
+    {
+      "seed": 30917106,
+      "datetime": "20590512094100",
+      "nethackrc": "OPTIONS=name:V40EngulfLeash,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #levelchange\n10\n        \u0017leash\naok\u0017lit oil lamp\n\u0007hostile purple worm\nm.m.m.m.m.m.m.m."
+    }
+  ]
+}

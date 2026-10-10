@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Uses C's actual post-read menu to select slot i, the wished potion of see invisible. This reaches the intended target effect only after the selector confirms the item and no earlier behavior diverges.",
+  "segments": [
+    {
+      "seed": 40100520,
+      "datetime": "20450102030405",
+      "nethackrc": "OPTIONS=name:V40IdentifyPotion,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017potion of see invisible\n\u0017scroll of identify\n rj i"
+    }
+  ]
+}

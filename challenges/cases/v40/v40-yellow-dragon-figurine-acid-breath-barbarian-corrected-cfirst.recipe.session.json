@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 82733196,
+      "datetime": "20620421130617",
+      "nethackrc": "OPTIONS=name:V40AcidBarbarian,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017cursed figurine of a yellow dragon\naeh j j",
+      "comment": "Corrected slot e from C's observed Barbarian inventory; dismiss the transformation and bite pages before each southward move."
+    }
+  ]
+}

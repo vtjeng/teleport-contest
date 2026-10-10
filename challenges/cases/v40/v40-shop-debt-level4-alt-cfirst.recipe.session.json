@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first alternate shop-generation search after the corrected D:3 levelport generated no shop. Use a new source-relevant seed and D:4, dismiss the actual startup and arrival pagers, then inspect for a live shop before acting.",
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopDebtAlt,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n4\n #wizmap\n"
+    }
+  ]
+}

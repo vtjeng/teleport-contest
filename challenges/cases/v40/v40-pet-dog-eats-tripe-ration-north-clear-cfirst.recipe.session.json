@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected reachability route: Ranger starts with C-confirmed dog in slot/glyph d. Drop the preferred tripe ration from observed slot g, then move north so the pet can enter the hero’s former tile and eat the floor object.",
+  "segments": [
+    {
+      "seed": 41104105,
+      "datetime": "20441012101112",
+      "nethackrc": "OPTIONS=name:V40PetTripe3,role:Ranger,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017tripe ration\ndgk"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only follow-up to the unconflicted leashed-dragon hit: dismiss exactly one observed More prompt after the first kick, then record the resulting C screen before adding another kick.",
+  "segments": [
+    {
+      "seed": 48230567,
+      "datetime": "20590506151617",
+      "nethackrc": "OPTIONS=name:V40LeashProbe,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0007tame baby gray dragon\n\u0017leash\naok\u0004ky "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first reachability probe for mhitu.c:gulpum -> apply.c:unleash_all. Attach a wished leash to the Wizard’s starting pet, create an exact hostile purple worm through Ctrl-G so wiz_genesis does not use the random/class selector, then wait for its adjacent engulf attack.",
+  "segments": [
+    {
+      "seed": 30917106,
+      "datetime": "20590512094100",
+      "nethackrc": "OPTIONS=name:V40EngulfLeash,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017leash\naol\u0007hostile purple worm\n."
+    }
+  ]
+}

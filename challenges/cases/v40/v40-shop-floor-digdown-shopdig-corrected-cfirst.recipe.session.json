@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first probe: choose the observed menu option `a` to dig with the C-confirmed slot-n pick-axe, then select `>` downward; preserve the earlier Ctrl-D/menu misselection.",
+  "segments": [
+    {
+      "seed": 73144719,
+      "datetime": "20580402121537",
+      "nethackrc": "OPTIONS=name:V40ShopDebtAlt,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017uncursed pick-axe\n#wizlevelport\n4\n #wizmap\nliwna>"
+    }
+  ]
+}
