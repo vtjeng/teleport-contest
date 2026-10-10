@@ -5143,9 +5143,7 @@ export async function doapply(state = game, env = {}) {
 }
 
 // C ref: apply.c flip_coin() (4526-4556). splitobj()'s returned coin is used
-// for stacked drops. Every lost coin calls do.c:dropx(), including under
-// Hallucination; only the separate underwater floor-effects path remains a
-// named gap.
+// for stacked drops. Every lost coin calls do.c:dropx(), including underwater.
 export async function flip_coin(obj, state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const random = env.random ?? {};
@@ -5174,27 +5172,21 @@ export async function flip_coin(obj, state = game, env = {}) {
     if (loseCoin) {
         if (coin.quan > 1)
             coin = splitobj(coin, 1, { ...env, state });
-        if (state.u?.uinwater) {
-            // C discards dropx()'s result. Its underwater drop/floor effects
-            // are still unported, so retain that source-named gap.
-            note_unported('do.c dropx underwater');
-        } else {
-            await dropx(coin, {
-                ...env,
-                state,
-                hooks: {
-                    ...(env.hooks ?? {}),
-                    encumberMessage: env.hooks?.encumberMessage
-                        ?? ((targetState) => encumber_msg(targetState, {
-                            message: env.planning ? async () => {} : ttyPline,
-                        })),
-                    extractExternalObject:
-                        env.hooks?.extractExternalObject ?? remove_object,
-                    newsym: env.hooks?.newsym
-                        ?? (env.planning ? () => {} : (x, y) => newsym(x, y)),
-                },
-            });
-        }
+        await dropx(coin, {
+            ...env,
+            state,
+            hooks: {
+                ...(env.hooks ?? {}),
+                encumberMessage: env.hooks?.encumberMessage
+                    ?? ((targetState) => encumber_msg(targetState, {
+                        message: env.planning ? async () => {} : ttyPline,
+                    })),
+                extractExternalObject:
+                    env.hooks?.extractExternalObject ?? remove_object,
+                newsym: env.hooks?.newsym
+                    ?? (env.planning ? () => {} : (x, y) => newsym(x, y)),
+            },
+        });
         return ECMD_TIME;
     }
 

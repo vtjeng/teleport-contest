@@ -12,11 +12,11 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
-    UnsupportedHeroCommandBoundaryError, failClosedCommandRefusals, rhack,
+    failClosedCommandRefusals, rhack,
 } from '../js/cmd.js';
 import { init_artifacts } from '../js/artifacts.js';
 import {
-    A_CON, A_STR, FIG_TRANSFORM, MOD_ENCUMBER, POOL, UNENCUMBERED,
+    A_CON, A_STR, FIG_TRANSFORM, MOD_ENCUMBER, OBJ_FLOOR, POOL, UNENCUMBERED,
 } from '../js/const.js';
 import { UnsupportedDropError } from '../js/do.js';
 import { WIZMODECMD, extcmdlist } from '../js/extcmdlist_data.js';
@@ -404,7 +404,7 @@ test('a heavy wished boulder lands after hold and wish source writes', async () 
     assert.ok(pile.some(obj => obj.otyp === BOULDER));
 });
 
-test('a pool drop stops a heavy wish only after hold and wish state changes',
+test('a heavy wish completes after its ordinary pool drop',
     async () => {
         const recorded = loadWizardWishRecipe().segments[0];
         await runSegment({ ...recorded, moves: '.' });
@@ -414,31 +414,29 @@ test('a pool drop stops a heavy wish only after hold and wish state changes',
         game.u.acurr.a[A_CON] = 3;
         // do.c:flooreffects consumes water_damage() when this ball lands in
         // a pool. Unlike a seen pit edge, water terrain does not divert the
-        // hold caller through can_reach_floor(TRUE) -> hitfloor(). The hero
-        // has not entered the water; dropx retains the liquid-effect boundary.
+        // hold caller through can_reach_floor(TRUE) -> hitfloor().
         const { ux, uy } = game.u;
         assert.ok(!game.u.uinwater);
         game.level.at(ux, uy).typ = POOL;
         const before = {
             blesscnt: game.u.ublesscnt,
             conduct: game.u.uconduct.wishes,
-            floor: game.level.objects[ux][uy],
         };
         for (const ch of 'heavy iron ball\n')
             game.nhDisplay.pushKey(ch.charCodeAt(0));
+        for (let i = 0; i < 8; i += 1) game.nhDisplay.pushKey(32);
 
-        await assert.rejects(
-            () => rhack(WIZWISH_KEY.charCodeAt(0), game),
-            (error) => error instanceof UnsupportedHeroCommandBoundaryError
-                && /liquid terrain/u.test(error.message),
-        );
+        await rhack(WIZWISH_KEY.charCodeAt(0), game);
 
         assert.equal(game.u.uconduct.wishes, before.conduct + 1);
-        assert.equal(inventoryHas(HEAVY_IRON_BALL), true);
-        assert.equal(game.level.objects[ux][uy], before.floor);
-        assert.equal(game.u.ublesscnt, before.blesscnt);
-        // makewish's final rn1(100, 50) blessing timeout is after hold/drop;
-        // it is therefore not reached when dropx refuses this active pool effect.
+        assert.equal(inventoryHas(HEAVY_IRON_BALL), false);
+        let floorBall = game.level.objects[ux][uy];
+        while (floorBall && floorBall.otyp !== HEAVY_IRON_BALL)
+            floorBall = floorBall.nexthere;
+        assert.ok(floorBall, 'the held wish reaches the pool floor effect');
+        assert.equal(floorBall.where, OBJ_FLOOR);
+        assert.notEqual(game.u.ublesscnt, before.blesscnt,
+            'makewish continues through its final blessing-timeout update');
     });
 
 // invent.c:1261-1264 raises the hold limit to flags.pickup_burden, exactly as
