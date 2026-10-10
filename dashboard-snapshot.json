@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T13:40:16.035Z",
+  "capturedAt": "2026-10-10T14:07:13.802Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -81450,6 +81450,183 @@
         "worker": "B",
         "state": "active",
         "reason": "B220 is ready for integration; B is synced to accepted Main and selecting the next independent queue task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010-609eeee9a7150ee05bfaaa9e7e2c9d63e4242173",
+        "type": "published",
+        "at": "2026-10-10T13:40:24.021Z",
+        "task": "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010",
+        "commit": "609eeee9a7150ee05bfaaa9e7e2c9d63e4242173"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B221-assign-v41-minetown3-special-program-generation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T13:41:07.704Z",
+        "task": "B221-investigation-v41-minetown3-special-program-generation-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B221-turn-active-minetown3-investigation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:41:16.195Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B220 is ready for integration; B is investigating the unreserved v41 Minetown 3 generation mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5567a2a32b06b1d121b54af55cb63bf627398de2",
+        "type": "ready",
+        "at": "2026-10-10T13:42:49.161Z",
+        "task": "C-v41-anger-prayer-god-zaps-hero-investigation-20261010",
+        "delivery": "5567a2a32b06b1d121b54af55cb63bf627398de2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-after-prayer-ready-accepted-main-sync-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:44:42.440Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C submitted a source fix and is investigating the next unreserved synthetic mismatch from the saved queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v41-astral-special-program-generation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T13:44:48.511Z",
+        "task": "C-v41-astral-special-program-generation-investigation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B221-implement-makemon-special-room-shopkeeper-20261010",
+        "type": "implement",
+        "at": "2026-10-10T13:47:24.433Z",
+        "task": "B221-investigation-v41-minetown3-special-program-generation-20261010",
+        "goal": "divergence-minetown-special-room-shopkeeper-makemon-v41-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B221-turn-active-shopkeeper-divergence-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:48:13.761Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing the source-traced makemon shopkeeper admission fix for v41 Minetown3; B219’s loader reservation is unaffected."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B221-turn-blocked-shared-makemon-boundary-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:48:50.993Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Waiting for the coordinator to reconcile two v41 mismatches in makemon.c:makemon; B221 has claimed the shopkeeper branch and has not edited game code."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B221-turn-blocked-wait-C-astral-park-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:49:14.435Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Waiting for C to park the Astral session, then B221 will cover both v41 shopkeeper and High Cleric admission branches."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C-v41-astral-special-program-generation-investigation-20261010-b221-owner",
+        "type": "park",
+        "at": "2026-10-10T13:49:28.557Z",
+        "task": "C-v41-astral-special-program-generation-investigation-20261010",
+        "reason": "Parked after source trace showed the shared explicit-monster admission defect belongs to B221, which owns the canonical makemon.c:makemon fix; resume only if B221 leaves entry-point coverage incomplete."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B219-5a43ab283-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T13:51:45.513Z",
+        "task": "B219-investigation-v40-water-plane-levelport-generation-20261010",
+        "integration": "5a43ab28378f5adb9fbf4d8355547b09588d0e15"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B221-active-astral-scope-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:52:22.441Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing one source-backed monster admission design for v41 Minetown shopkeeper and Astral High Cleric generation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v41-tower2-special-program-generation-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T13:53:26.005Z",
+        "task": "C-v41-tower2-special-program-generation-investigation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-active-tower2-investigation-after-astral-park-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:53:31.811Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is investigating the next independent v41 Tower2 mismatch after parking Astral for B221’s shared admission fix."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B219-10b2dc61d-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T13:55:18.459Z",
+        "task": "B219-investigation-v40-water-plane-levelport-generation-20261010",
+        "integration": "10b2dc61ddff793aef1185581dff8f3c576097e0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-received-B220-20261010T1403Z",
+        "type": "received",
+        "at": "2026-10-10T14:00:24.055Z",
+        "task": "B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010",
+        "delivery": "40dafcefebb93644d94e3282e6c2ff297c81df0c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-received-C-prayer-20261010T1403Z",
+        "type": "received",
+        "at": "2026-10-10T14:00:25.496Z",
+        "task": "C-v41-anger-prayer-god-zaps-hero-investigation-20261010",
+        "delivery": "5567a2a32b06b1d121b54af55cb63bf627398de2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v41-tower2-wizcmds-20261010",
+        "type": "implement",
+        "at": "2026-10-10T14:00:47.461Z",
+        "task": "C-v41-tower2-special-program-generation-investigation-20261010",
+        "goal": "fix-wizcmds-makemap-remove-mons-v41-tower2-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-validated-B219-10b2dc61-20261010T1408Z",
+        "type": "validated",
+        "at": "2026-10-10T14:04:40.637Z",
+        "task": "B219-investigation-v40-water-plane-levelport-generation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B219-investigation-v40-water-plane-levelport-generation-20261010-10b2dc61ddff793aef1185581dff8f3c576097e0-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T14:06:31.106Z",
+        "task": "B219-investigation-v40-water-plane-levelport-generation-20261010"
       }
     ]
   },
@@ -81464,17 +81641,6 @@
         "delivery": "84825b279932627cb54c181fe75622060c38070f",
         "since": "2026-10-10T13:01:09.203Z",
         "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B219-investigation-v40-water-plane-levelport-generation-20261010",
-        "worker": "B",
-        "goal": "port-water-plane-lua-v40-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "e4ae2349acbc7654db226caf6ae0004f22cb61e9",
-        "since": "2026-10-10T13:01:12.289Z",
-        "blockedBy": [],
         "unblocks": 1
       },
       {
@@ -81485,8 +81651,19 @@
         "status": "ready",
         "delivery": "40dafcefebb93644d94e3282e6c2ff297c81df0c",
         "since": "2026-10-10T13:33:37.011Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-v41-anger-prayer-god-zaps-hero-investigation-20261010",
+        "worker": "C",
+        "goal": "port-pray-god-zaps-you-v41-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "5567a2a32b06b1d121b54af55cb63bf627398de2",
+        "since": "2026-10-10T13:42:49.161Z",
         "blockedBy": [
-          "B219-investigation-v40-water-plane-levelport-generation-20261010"
+          "C-v40-wizard-wish-assistance-investigation-20261010"
         ],
         "unblocks": 0
       }
@@ -81789,12 +81966,23 @@
         "since": "2026-10-10T02:16:25.792Z",
         "blockedBy": [],
         "reason": "The v38 bear-trap case reaches apply.c:set_trap then trap.c:dotrap after feeltrap reveals the new bear trap; source passes flags 0. The accepted-base preflight rejects this seen BEAR_TRAP path, and B204 owns contract:hero-trap-preflight-admission. B204 change only admits arrow traps. The source trace is recorded in investigations/synthetic/v38/v38-cursed-bear-trap-bungle.json. The reserved contract was left untouched; moving to the next independent case."
+      },
+      {
+        "task": "C-v41-astral-special-program-generation-investigation-20261010",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-10T13:49:28.557Z",
+        "blockedBy": [],
+        "reason": "Parked after source trace showed the shared explicit-monster admission defect belongs to B221, which owns the canonical makemon.c:makemon fix; resume only if B221 leaves entry-point coverage incomplete."
       }
     ]
   },
   "development": {
-    "executionCommit": "5c157f8e4976371080be6ac735788f14f6c6e136",
-    "measuredAt": "2026-10-10T13:30:38.146Z",
+    "executionCommit": "10b2dc61ddff793aef1185581dff8f3c576097e0",
+    "measuredAt": "2026-10-10T14:03:55.672Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

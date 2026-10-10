@@ -251561,7 +251561,7 @@
     {
       "id": "port-water-plane-lua-v40-20261010",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Plane of Water special-level program.",
       "luaFile": "water.lua",
       "sessions": [
@@ -251575,15 +251575,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "10b2dc61ddff793aef1185581dff8f3c576097e0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "water.lua",
           "line": 1,
           "endLine": 102,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -251806,7 +251809,66 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "water.lua",
+            "implementation": "js/water_levels.js",
+            "symbol": "water",
+            "sourceReview": "Read the complete upstream dat/water.lua program (1-102): solid-fill level initialization; mazelevel, noteleport, hardfloor, and shortsighted flags; the arrival message; the 20-row Water map; the teleport and Astral portal regions; and all 60 monsters in source order. The monster descriptors and des.* calls preserve the source's order; their existing implementations own placement and construction RNG. Routed the map through the current row-array special-level adapter. The existing special-level loader registry now dispatches proto name water to this complete program.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "The loader registry imports WATER_LEVEL_LOADERS and dispatches the water proto to water(). This is reached from mkmaze.c:makemaz through load_special(slev->proto) while makelevel constructs the wizard-selected Plane of Water."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/water-level-loader.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-water-plane-levelport-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 8,
+                "source": "cmd.c:rhack -> wizcmds.c:wiz_level_tele -> teleport.c:level_tele -> do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz/load_special -> dat/water.lua"
+              }
+            ],
+            "checkedAt": "10b2dc61ddff793aef1185581dff8f3c576097e0"
+          }
+        ],
+        "entryPointReview": "The whole dat/water.lua program is reached when the special-level loader dispatches proto name water. The admitted C-first case uses the Wizard level-teleport command to select the Plane of Water, then matches through the final recorded step. The Lua program makes no direct RNG calls; all random map and monster placement is performed by existing des.* handlers in source order.",
+        "entryPoints": [
+          {
+            "name": "Wizard direct level teleport to the Plane of Water",
+            "functions": [
+              "water.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-water-plane-levelport-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 8,
+                "source": "cmd.c:rhack -> wizcmds.c:wiz_level_tele -> teleport.c:level_tele -> do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz/load_special -> dat/water.lua"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "10b2dc61ddff793aef1185581dff8f3c576097e0",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
