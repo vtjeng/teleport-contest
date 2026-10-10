@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T05:24:07.585Z",
+  "capturedAt": "2026-10-10T05:30:28.173Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -78763,6 +78763,15 @@
         "worker": "Prep",
         "state": "active",
         "reason": "v39 has eleven approved distinct C-first mismatches; one remains."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-v39-twelve-approved-packaging-20261010T0534Z",
+        "type": "turn",
+        "at": "2026-10-10T05:30:16.068Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has twelve approved distinct C-first mismatches; packaging the manifest and validation evidence."
       }
     ]
   },
