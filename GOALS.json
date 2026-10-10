@@ -260761,6 +260761,200 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "div-v42-baalz-wizloaddes-topology-finalization-20261010",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Correct themed-room postprocessing order for direct Baalz special-level finalization.",
+      "cFile": "mklev.c",
+      "sessions": [
+        "synthetic/v42/v42-baalz-special-program"
+      ],
+      "selectionReason": "Open the selected Baalz wizloaddes topology-order correction after validating its complete source investigation and current one-screen mismatch.",
+      "detail": "Move the C-equivalent themed post-level hook to makelevel after special-room fills and keep level_finalize_topology limited to its C source operations.",
+      "openedAt": "cb857c87456cc40f39e0173309f4dca4821cb868",
+      "openStanding": {
+        "sha": "19f6a43d2e0643e804a1fc100a7fccb76e5d2577",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "level_finalize_topology",
+      "session": "synthetic/v42/v42-baalz-special-program",
+      "step": 23,
+      "syntheticProvenance": {
+        "synthetic/v42/v42-baalz-special-program": {
+          "session": "synthetic/v42/v42-baalz-special-program",
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-baalz-special-program",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recordingPath": "challenges/cases/v42/v42-baalz-special-program.session.json",
+          "recordingSha256": "e9c61eb7ccd3bb01d963a220f7792ba4e5533458ffb93027f52315a5d9d6cf2e",
+          "evaluationPath": "challenges/evaluations/accepted-19f6a43d2e0643e804a1fc100a7fccb76e5d2577-v42.json",
+          "evaluationCommit": "19f6a43d2e0643e804a1fc100a7fccb76e5d2577"
+        }
+      },
+      "activeStanding": {
+        "sha": "19f6a43d2e0643e804a1fc100a7fccb76e5d2577",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-baalz-special-program",
+          "session": "synthetic/v42/v42-baalz-special-program",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recording": "challenges/cases/v42/v42-baalz-special-program.session.json",
+          "recordingPath": "challenges/cases/v42/v42-baalz-special-program.session.json",
+          "recordingSha256": "e9c61eb7ccd3bb01d963a220f7792ba4e5533458ffb93027f52315a5d9d6cf2e",
+          "recipe": "challenges/cases/v42/v42-baalz-special-program.recipe.session.json",
+          "recipeSha256": "534bcaeafa66701701776fd3598e5fa4ad10eca0170e06a97fe8f902c78ab652",
+          "replayInputSha256": "9ad472a9a9b2b4b6b8f6b3aa8324ccd6b9348900668df4e924826785310541cb",
+          "evaluationPath": "challenges/evaluations/accepted-19f6a43d2e0643e804a1fc100a7fccb76e5d2577-v42.json",
+          "evaluationCommit": "19f6a43d2e0643e804a1fc100a7fccb76e5d2577",
+          "evaluationArtifact": "challenges/evaluations/accepted-19f6a43d2e0643e804a1fc100a7fccb76e5d2577-v42.json",
+          "evaluationUtc": "2026-10-10T23:29:54.523Z",
+          "remainingScreens": 1,
+          "recordedSteps": 32,
+          "previousScreensMatched": 31,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 31,
+              "total": 32
+            },
+            "rng": {
+              "matched": 4202,
+              "total": 4218
+            },
+            "cursors": {
+              "matched": 32,
+              "total": 32
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 31,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 31,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 6,
+              "column": 28,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 4199,
+              "cEntry": "rn2(15)=3",
+              "cCaller": "place_lregion(mkmaze.c:396)",
+              "jsEntry": "rn2(1000)=403",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 23,
+                "key": "\n"
+              },
+              "stepIndex": 23
+            },
+            "cursor": null
+          },
+          "step": 23,
+          "kind": "rng",
+          "sourceFile": "mkmaze.c",
+          "function": "place_lregion",
+          "message": null,
+          "cFile": "mkmaze.c",
+          "luaFile": null,
+          "line": 396,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v42/v42-baalz-special-program.json",
+            "result": {
+              "session": "synthetic/v42/v42-baalz-special-program",
+              "remainingScreens": 1,
+              "recordedSteps": 32,
+              "corpus": "synthetic",
+              "batch": "v42",
+              "caseId": "v42-baalz-special-program",
+              "manifestPath": "challenges/manifests/v42.json",
+              "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+              "recordingSha256": "e9c61eb7ccd3bb01d963a220f7792ba4e5533458ffb93027f52315a5d9d6cf2e",
+              "evaluationPath": "challenges/evaluations/accepted-37044eda52fe8b08877c9f10c3aa300bee7c5291-v42.json",
+              "evaluationCommit": "37044eda52fe8b08877c9f10c3aa300bee7c5291",
+              "status": "complete",
+              "commit": "14a37e2c12bf5955315486bf68f1f77ce826feed",
+              "mismatch": {
+                "kind": "rng",
+                "corpus": "synthetic",
+                "sourceFile": "mkmaze.c",
+                "cFile": "mkmaze.c",
+                "luaFile": null,
+                "sessions": [
+                  "synthetic/v42/v42-baalz-special-program"
+                ],
+                "remainingScreens": 1,
+                "remainingScreensUpperBound": null,
+                "earliestStep": 23,
+                "caseId": "v42-baalz-special-program",
+                "batch": "v42",
+                "recordingPath": "challenges/cases/v42/v42-baalz-special-program.session.json",
+                "session": "synthetic/v42/v42-baalz-special-program"
+              },
+              "summary": "The fresh Baalz replay first diverges when JavaScript mineralizes extra STONE cells after #wizloaddes. The C path loads the des-file through wiz_load_splua -> lspo_finalize_level -> level_finalize_topology; it does not rerun themed-room postprocessing there. JavaScript level_finalize_topology instead runs the retained themed-room postprocess and wallification whenever the current dungeon's theme state is loaded. This re-wallifies the newly loaded Baalz map and exposes 16 extra mineralize RNG calls before place_lregion. The source-matched correction is to run the theme hook after makelevel's special-room fill, matching C, and leave topology finalization without that hook.",
+              "source": {
+                "file": "mklev.c",
+                "branch": "C mklev.c:makelevel calls themerooms_post_level_generate after filling every special room; mklev.c:mklev then calls level_finalize_topology. In contrast, wizard wizcmds.c:wiz_load_splua resets, loads, and directly calls sp_lev.c:lspo_finalize_level, whose topology pass does not call the theme hook. The JS finalizer incorrectly makes that call conditional on the persistent _luathemes_loaded[dnum] flag, so a later wizard des-file load re-wallifies its map.",
+                "functions": [
+                  "themerooms_post_level_generate",
+                  "makelevel",
+                  "level_finalize_topology"
+                ],
+                "callers": [
+                  "C: mklev.c:makelevel fills special rooms at lines 1414-1418 and calls themerooms_post_level_generate at line 1420; mklev.c:mklev calls level_finalize_topology after makelevel at lines 1586-1589.",
+                  "C: wizcmds.c:wiz_load_splua calls lspo_reset_level(NULL), load_special(), and lspo_finalize_level(NULL) at lines 388-390; sp_lev.c:lspo_finalize_level calls level_finalize_topology at line 6055 without themed postprocessing.",
+                  "JavaScript: cmd.js dispatches wiz_load_splua to js/wizcmds.js:wiz_load_splua, which calls lspo_reset_level, load_special, then lspo_finalize_level; js/mklev.js:lspo_finalize_level calls level_finalize_topology.",
+                  "JavaScript: js/mklev.js:makelevel finishes the room fills at line 898 but defers the theme hook to level_finalize_topology at lines 900-901; level_finalize_topology runs it and full-map wallification at lines 8026-8033."
+                ],
+                "dependencies": [
+                  "C mklev.c:themerooms_post_level_generate is the source for the JS themed postprocess and subsequent wallification. It is called from makelevel after room filling, not from level_finalize_topology or sp_lev.c:lspo_finalize_level.",
+                  "The wizard command's branch condition is wizard mode. The offending JS branch additionally requires game._luathemes_loaded[game.u.uz.dnum] to remain true from earlier level generation; the recorded #wizloaddes input follows an initialized game and loads baalz.lua into that same game state."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved combined queue SHA-256 6b7666c76d93a7d42c763e7af49cb8c65b352e513ad5548b37e6a177e8b1359e identifies this admitted case at 31/32 screens, 4202/4218 RNG calls, and 32/32 cursors. Its zero-based first mismatch is step 23, RNG index 4199: C rn2(15)=3 from mkmaze.c:place_lregion, while JS makes rn2(1000)=403; the first screen mismatch is step 31, row 6 column 28, C '-' versus JS space.",
+                "The admitted recipe challenges/cases/v42/v42-baalz-special-program.recipe.session.json independently contains one segment with input ' #wizloaddes\\nbaalz.lua\\n#wizmap\\n'. Its input-only recording SHA-256 is 534bcaeafa66701701776fd3598e5fa4ad10eca0170e06a97fe8f902c78ab652; the evaluated recording SHA-256 is e9c61eb7ccd3bb01d963a220f7792ba4e5533458ffb93027f52315a5d9d6cf2e.",
+                "Fresh-process confirmation: node scripts/diff-fresh.mjs challenges/cases/v42/v42-baalz-special-program.recipe.session.json, run-lMDiR0, reproduced the mismatch (exit 1). It reports the first RNG mismatch at call 4200 (its one-based display) in segment 1 step 24, C rn2(15)=3 from place_lregion(mkmaze.c:396) versus JS rn2(1000)=403; screen boundary 32 differs at displayed row 7 column 29, C '-' versus JS space. The C and JS totals both contain 4218 RNG calls, and all cursors match.",
+                "Upstream nethack-c/upstream/src/mklev.c:1174-1193 shows the themed hook runs its post_level_generate callback and wallifies the full map. mklev.c:1414-1420 calls it after the common special-room fill loop. mklev.c:1544-1574 contains bound_digging, mineralize, topology updates, and no themed-room call; mklev.c:1586-1589 calls that function after makelevel.",
+                "Upstream nethack-c/upstream/src/wizcmds.c:376-391 routes #wizloaddes through reset, load, and lspo_finalize_level(NULL). Upstream sp_lev.c:6055-6059 calls level_finalize_topology before filling special rooms and contains no themerooms_post_level_generate call.",
+                "The JS condition is js/mklev.js:8026-8035: if _luathemes_loaded[dnum] it runs run_themeroom_postprocess and wallification before mineralize. js/mklev.js:898-902 fills special rooms but defers the hook to the shared topology finalizer. Because the wizard special-level command enters the same finalizer while the theme-loaded flag persists, the ordinary makelevel hook is repeated against the just-loaded Baalz map.",
+                "An isolated replay trace shows the repeated full-map wallification exposes 13 additional eligible STONE cells at x=77, y=5..17 to mineralize. The extra mineralization draws occur before C's next place_lregion call and account for the first RNG divergence; the remaining changed wall glyph accounts for the first screen divergence."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
