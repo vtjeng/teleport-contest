@@ -1,0 +1,70 @@
+{
+  "session": "synthetic/v39/v39-lava-after-ring-removal",
+  "corpus": "synthetic",
+  "batch": "v39",
+  "caseId": "v39-lava-after-ring-removal",
+  "manifestPath": "challenges/manifests/v39.json",
+  "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+  "recordingPath": "challenges/cases/v39/v39-lava-after-ring-removal.session.json",
+  "recordingSha256": "11a86c22a75e3d0ee9351dd5192a33685035d4ec1236b2b82571d11c61661923",
+  "evaluationPath": "challenges/evaluations/20261009230658-v39.json",
+  "evaluationCommit": "30d1b7936740e5f611781c85242eb860218d9e5d",
+  "remainingScreens": 12,
+  "recordedSteps": 44,
+  "status": "complete",
+  "commit": "42af7e0dffb44fbb43703f17cefc43929bfc93f0",
+  "mismatch": {
+    "step": 32,
+    "kind": "rng",
+    "sourceFile": "trap.c",
+    "function": "lava_effects",
+    "line": 6800,
+    "metrics": {
+      "screens": { "matched": 32, "total": 44 },
+      "rng": { "matched": 2343, "total": 2355 },
+      "cursors": { "matched": 34, "total": 44 }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 32,
+        "location": { "segmentIndex": 0, "stepIndex": 32, "key": "R" },
+        "kind": "ch",
+        "row": 14,
+        "column": 13,
+        "cCell": { "ch": ".", "color": 8, "attr": 0, "decgfx": 0 },
+        "jsCell": { "ch": "Z", "color": 3, "attr": 0, "decgfx": 0 }
+      },
+      "rng": {
+        "index": 2341,
+        "cEntry": "d(6,6)=22",
+        "cCaller": "lava_effects(trap.c:6800)",
+        "jsEntry": "rn2(5)=2",
+        "location": { "segmentIndex": 0, "stepIndex": 32, "key": "R" },
+        "stepIndex": 32
+      },
+      "cursor": null
+    }
+  },
+  "summary": "Removing the worn levitation ring while standing on lava has two source-traced JS defects. C do_wear.c:doremring -> Ring_off -> Ring_off_or_gone calls trap.c:float_down, which immediately invokes lava_effects when the hero has landed on lava and is not already inside lava_effects; JS float_down instead records note_unported('trap.c lava_effects') and defers those effects to hack.js:pooleffects, so the first RNG call at step 32 differs. Once invoked at the C call site, JS lava_effects must also remove an inventory cloak marked in_use before useupall; its conservative W_ARMOR guard skips the existing supported cloak-removal path, leaving stale worn state. The implementation scope is a divergence fix in trap.c:float_down/lava_effects behavior, limited to immediate source-order execution and the existing W_ARMC removal path.",
+  "source": {
+    "file": "trap.c",
+    "branch": "After float_down clears the last levitation source, when no blocked-levitation or flight/swallow early return applies, the hero is on lava and iflags.in_lava_effects is zero, C calls lava_effects immediately and sets no_msg true. In lava_effects, for a vulnerable hero whose worn cloak was flagged in_use, C invokes remove_worn_item before useupall so cloak slot and worn mask state are cleared before destruction.",
+    "functions": [ "float_down", "lava_effects" ],
+    "callers": [
+      "do_wear.c:doremring -> Ring_off -> Ring_off_or_gone -> trap.c:float_down",
+      "hack.c:pooleffects -> trap.c:lava_effects"
+    ],
+    "dependencies": [
+      "steal.c:remove_worn_item; existing js/steal.js W_ARMOR branch dispatches the worn cloak to Cloak_off",
+      "hack.c:pooleffects remains the independent end-of-turn lava-effects caller"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Saved combined queue entry at .cache/latest-saved-combined-queue.json (SHA-256 781129791f95cd10ec8578dd170fd5298182a9b4ad578f5c008d93d68d5bc37b) identifies the admitted v39 case, 12 remaining screens, and the first mismatch at segment 0 step 32, key R: C d(6,6)=22 from lava_effects(trap.c:6800), versus JS rn2(5)=2.",
+    "Fresh differential at /tmp/teleport-validation-1000/run-iUYxqm reproduces the call-order mismatch at key R: C enters lava_effects during ring removal, while JS skips it in trap.js:float_down and later enters via hack.js:pooleffects. C trap.c:float_down lines 4107-4109 makes the discarded-return lava_effects call before its no_msg landing suppression; JS trap.js:2057-2061 currently records the gap instead.",
+    "C do_wear.c:doremring at lines 1874-1892 selects the ring and do_wear.c:Ring_off_or_gone at lines 1347-1447 clears its worn property before calling float_down(0L, 0L) for RIN_LEVITATION. This is the admitted recording's direct Ctrl-R removal route.",
+    "C trap.c:lava_effects marks vulnerable organic inventory with in_use before the fatal branch; its source calls remove_worn_item(obj, TRUE) before useupall. JS trap.js:1657-1678 currently rejects all W_ARMOR from the helper call, although js/steal.js:308-350 supports the cloak slot by calling Cloak_off. Replaying the current JS reaches a later stale-worn-state failure for the worn cloak (otyp 148) after the earlier RNG divergence.",
+    "No C source or do_wear/steal caller changes are needed: the root defect is in existing trap.js float_down call timing and the existing lava_effects W_ARMC dispatch guard. Focused source-pinned tests and a fresh v39 differential will validate the correction."
+  ]
+}
