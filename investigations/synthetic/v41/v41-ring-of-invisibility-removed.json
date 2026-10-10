@@ -1,0 +1,81 @@
+{
+  "session": "synthetic/v41/v41-ring-of-invisibility-removed",
+  "remainingScreens": 2,
+  "recordedSteps": 39,
+  "corpus": "synthetic",
+  "batch": "v41",
+  "caseId": "v41-ring-of-invisibility-removed",
+  "manifestPath": "challenges/manifests/v41.json",
+  "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+  "recordingSha256": "54728a7f830ba59d5e63b95d301511ab03511ffbebd49a99ebdf75a04f56d7ae",
+  "evaluationPath": "challenges/evaluations/accepted-6e5dacedc7638246a629e7fe6295014ecbb0083d-v41.json",
+  "evaluationCommit": "6e5dacedc7638246a629e7fe6295014ecbb0083d",
+  "status": "complete",
+  "commit": "f2169861c4a504eab3fe59a31cbc29804ca731c4",
+  "mismatch": {
+    "session": "synthetic/v41/v41-ring-of-invisibility-removed",
+    "corpus": "synthetic",
+    "batch": "v41",
+    "caseId": "v41-ring-of-invisibility-removed",
+    "manifestPath": "challenges/manifests/v41.json",
+    "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+    "recording": "challenges/cases/v41/v41-ring-invisibility-removal-reached.session.json",
+    "recordingPath": "challenges/cases/v41/v41-ring-invisibility-removal-reached.session.json",
+    "recordingSha256": "54728a7f830ba59d5e63b95d301511ab03511ffbebd49a99ebdf75a04f56d7ae",
+    "recipe": "challenges/cases/v41/v41-ring-invisibility-removal-reached.recipe.session.json",
+    "recipeSha256": "109e6a98ab4ff39f11901c782d364070e23c0b7c13ca2d93069dbaafa4176dcc",
+    "replayInputSha256": "b5d4f5d9517b817887bfd908b9d385e1d42f27792f66896496c90e4bb4521081",
+    "evaluationPath": "challenges/evaluations/accepted-6e5dacedc7638246a629e7fe6295014ecbb0083d-v41.json",
+    "evaluationCommit": "6e5dacedc7638246a629e7fe6295014ecbb0083d",
+    "remainingScreens": 2,
+    "recordedSteps": 39,
+    "previousScreensMatched": 37,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": { "matched": 37, "total": 39 },
+      "rng": { "matched": 2386, "total": 2386 },
+      "cursors": { "matched": 37, "total": 39 }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: take off reached an unported branch: invisibility newsym for Ring_off otyp 198",
+      "step": 37
+    },
+    "step": 37,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: take off reached an unported branch: invisibility newsym for Ring_off otyp 198",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The v41 ring-removal replay stops when the uncursed ring of invisibility is removed from the right hand. The missing source behavior is do_wear.c:Ring_off_or_gone()'s RIN_INVISIBILITY arm, reached by Ring_off(): after the ring extrinsic is cleared, a visible hero with no remaining invisibility must be redrawn, told that their body seems to unfade, and have the ring type learned. The JavaScript branch currently throws instead.",
+  "source": {
+    "file": "do_wear.c",
+    "branch": "doremring() removes an uncursed worn invisibility ring. Ring_off_or_gone() clears its W_RING extrinsic through setworn(), then its RIN_INVISIBILITY arm runs when Invis, BInvis, and Blind are all false: newsym() redraws the hero, Your() prints the source-selected unfade text based on See_invisible, and learnring() records the type.",
+    "functions": [
+      "Ring_off_or_gone"
+    ],
+    "callers": [
+      "do_wear.c:Ring_off() (1449-1452) calls Ring_off_or_gone(obj, FALSE); the admitted route reaches it through cmd.c:'R' -> do_wear.c:doremring() (1874-1891) -> armor_or_accessory_off() -> Ring_off(). JavaScript dispatch is cmd.js:doremring() -> do_wear.js:doremring() -> remove_worn_item() -> Ring_off().",
+      "do_wear.c:Ring_gone() (1455-1458) calls Ring_off_or_gone(obj, TRUE); existing production callers are eat.c:2274, mhitu.c:2092/2102, read.c:811, zap.c:5921, and steal.c:267. Their existing JavaScript routes call do_wear.js:Ring_gone() from eat.js, mhitu.js, read.js, zap_destroy_items.js, and steal.js.",
+      "Other Ring_off() callers are do_wear.c:1817/2556/2562/2882/2886, hack.c:902/907, and read.c:824; JavaScript routes already call do_wear.js:Ring_off() from do_wear.js, hack.js, and read.js."
+    ],
+    "dependencies": [
+      "do_wear.c:learnring() is already implemented in js/do_wear.js and is called after the unfade message.",
+      "display.c:newsym() is already wired through js/do_wear.js:wearOperationEnv().redraw.",
+      "invent.c:setworn()/setnotworn() are already implemented and used by the Ring_off()/Ring_gone() wrappers.",
+      "The separate RIN_SEE_INVISIBLE arm still records note_unported('display.c set_mimic_blocking'); C discards that void result, so that gap is outside the selected invisibility-ring branch."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Queue provenance is v41/v41-ring-of-invisibility-removed in .cache/latest-saved-combined-queue.json at SHA-256 82668c1acaa9af757aba3b94e9829675df7e6a8241f515b0d539f21501e1c5fe. The accepted evaluation records 37/39 screens, 2386/2386 RNG calls, and 37/39 cursors; its first mismatch is the step-37 unsupported Ring_off invisibility branch.",
+    "The C recording is challenges/cases/v41/v41-ring-invisibility-removal-reached.session.json (SHA-256 54728a7f830ba59d5e63b95d301511ab03511ffbebd49a99ebdf75a04f56d7ae); its recipe is challenges/cases/v41/v41-ring-invisibility-removal-reached.recipe.session.json (SHA-256 109e6a98ab4ff39f11901c782d364070e23c0b7c13ca2d93069dbaafa4176dcc). The trace begins with an uncursed right-hand ring of invisibility and uses the R remove command at zero-based step 37.",
+    "Upstream nethack-c/upstream/src/do_wear.c:1347-1446 defines the complete Ring_off_or_gone() helper. Its RIN_INVISIBILITY arm at lines 1398-1405 runs only after setworn()/setnotworn() changes the property extrinsic; it checks !Invis && !BInvis && !Blind, redraws with newsym(), selects the exact unfade wording from See_invisible, and calls learnring(). Ring_off() and Ring_gone() wrappers are lines 1449-1458.",
+    "At the examined commit f2169861c4a504eab3fe59a31cbc29804ca731c4, js/do_wear.js:1116-1119 throws UnsupportedTakeOffError for RIN_INVISIBILITY after its existing Ring_off_or_gone() setup. Both wrappers and every enumerated C caller already route through the canonical JavaScript helper; no caller adapter is missing."
+  ]
+}
