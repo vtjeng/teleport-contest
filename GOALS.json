@@ -257228,7 +257228,7 @@
     {
       "id": "fix-underwater-coin-drop-v41-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Route underwater lost coins through ordinary liquid floor effects.",
       "cFile": "apply.c",
       "sessions": [
@@ -257242,8 +257242,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "flip_coin",
       "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
       "step": 81,
@@ -257479,7 +257482,81 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-underwater-coin-flip-drops-coin",
+          "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recording": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+          "recordingPath": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+          "recordingSha256": "eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79",
+          "recipe": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.recipe.session.json",
+          "recipeSha256": "9907e98a55cca2e37dae5d4db1d6c3e0c2810bf2ba841149534a3d7d4538af33",
+          "replayInputSha256": "4fc3c05fb685b03b2475453e1a4f65d463eb24d470153562570e139e76657c2e",
+          "evaluationPath": "challenges/evaluations/accepted-9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b-v41.json",
+          "evaluationCommit": "9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b",
+          "evaluationArtifact": "challenges/evaluations/accepted-9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b-v41.json",
+          "evaluationUtc": "2026-10-10T19:56:17.874Z",
+          "remainingScreens": 0,
+          "recordedSteps": 82,
+          "previousScreensMatched": 81,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 82,
+              "total": 82
+            },
+            "rng": {
+              "matched": 2668,
+              "total": 2720
+            },
+            "cursors": {
+              "matched": 82,
+              "total": 82
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2664,
+              "cEntry": "rn2(3)=2",
+              "cCaller": "set_apparxy(monmove.c:2258)",
+              "jsEntry": "rn2(5)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 81,
+                "key": "$"
+              },
+              "stepIndex": 81
+            },
+            "cursor": null
+          },
+          "step": 81,
+          "kind": "rng",
+          "sourceFile": "monmove.c",
+          "function": "set_apparxy",
+          "message": null,
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 2258,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v41/v41-underwater-coin-flip-drops-coin.json",
+            "previousRemainingScreens": 1
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
