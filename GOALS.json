@@ -247458,8 +247458,8 @@
           "name": "selftouch",
           "line": 3883,
           "endLine": 3912,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -247709,7 +247709,68 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "selftouch",
+            "implementation": "js/trap.js",
+            "symbol": "selftouch",
+            "sourceReview": "Read the complete C definition trap.c:selftouch at lines 3883-3910. It checks the primary wielded corpse first, then the source's guarded secondary-weapon branch; each branch tests CORPSE, touch_petrifies, and Stone_resistance in order, prints the caller-provided phrase before calling instapetrify with the source-built killer text, and unwields only after stoning returns while gloves and resistance are still absent. The body makes no RNG calls. JavaScript now implements both branches and removes the selected polyself.c:newman note_unported call. Existing artifact.c:retouch_equipment remains an explicit gap immediately before the selected caller; it is outside this source scope.",
+            "callers": [
+              {
+                "path": "js/polyself.js",
+                "symbol": "newman",
+                "source": "polyself.c:newman lines 460-465 calls selftouch(no_longer_petrify_resistant) after polyman, livelog, monster redraw, and encumbrance handling when the hero has no gloves."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "polyself",
+                "source": "polyself.c:polyself lines 709-714 calls newman when controlled selection of PM_HUMAN fails polyok; the admitted session follows this branch."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runPolyselfCommand",
+                "source": "cmd.c command table lines 1801-1802 routes #polyself to wiz_polyself; wizcmds.c:wiz_polyself lines 566-570 calls polyself(POLY_CONTROLLED); the JavaScript extended-command dispatch reaches runPolyselfCommand, wiz_polyself, polyself, and newman."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v39",
+                "caseId": "v39-selftouch-cockatrice-human-final",
+                "segment": 0,
+                "fromStep": 59,
+                "throughStep": 63,
+                "source": "#polyself command dispatch -> wizcmds.c:wiz_polyself -> polyself.c:polyself -> polyself.c:newman -> trap.c:selftouch -> trap.c:instapetrify"
+              }
+            ],
+            "checkedAt": "d8d8a7ff9f1460c6792be078ab2168b531235e12"
+          }
+        ],
+        "entryPointReview": "The selected active entry point is wizard #polyself with a human choice while the hero has no gloves and still wields a cockatrice corpse. C dispatches through cmd.c's polyself extended-command row to wizcmds.c:wiz_polyself, then polyself.c:polyself selects newman, which calls selftouch. JavaScript follows the corresponding extcmdlist_data/cmd.js dispatcher through wiz_polyself and polyself.js:newman. The v39 recording reaches the corpse-contact message, instapetrify, wizard death prompt, and lifesaving return. Other C selftouch callers are outside this selected caller scope and retain their explicit gaps where their caller code is not ported.",
+        "entryPoints": [
+          {
+            "name": "Controlled #polyself rehumanization while wielding a cockatrice corpse without gloves",
+            "functions": [
+              "selftouch"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v39",
+                "caseId": "v39-selftouch-cockatrice-human-final",
+                "segment": 0,
+                "fromStep": 59,
+                "throughStep": 63,
+                "source": "cmd.c -> wizcmds.c:wiz_polyself -> polyself.c:polyself -> polyself.c:newman -> trap.c:selftouch -> trap.c:instapetrify"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
