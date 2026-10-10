@@ -63,24 +63,26 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The arrow trap is implemented, but preflight_dotrap first refuses ARROW_TRAP before the hero can trigger it. After that gate is opened, a focused replay reaches the arrow hit and fails because trapeffect_arrow_trap omits encumber_msg from the exercise callback that mthrowu.c:thitu reaches after damage. The later #sit path also needs the seen-arrow exception so trap.c:dotrap can run its ordinary escape check.",
+  "summary": "The selected arrow-trap path has three gaps. preflight_dotrap refuses ARROW_TRAP; once admitted, the arrow-hit exercise callback omits encumber_msg; and the later #sit branch still records note_unported for trap.c:dotrap although sit.c:dosit calls dotrap(trap, VIASITTING). The task will admit source-supported arrow cases, pass the encumbrance callback through the hit path, and wire the existing dotrap implementation into the sitting caller.",
   "source": {
     "file": "trap.c",
-    "branch": "A hero enters an unseen ARROW_TRAP on ordinary floor, causing hack.c movement preflight and then trap.c:dotrap to reach trapeffect_arrow_trap; after that trap becomes seen and the hero uses #sit without moving, causing sit.c:dosit to call dotrap and exercise the source seen-trap escape check.",
+    "branch": "A hero enters an unseen ARROW_TRAP on ordinary floor, causing hack.c movement preflight and then trap.c:dotrap to dispatch trapeffect_arrow_trap; the trap hits the hero and reaches thitu’s Strength-exercise tail. After that trap becomes seen, the hero uses #sit without moving, causing sit.c:dosit to call dotrap(trap, VIASITTING) and exercise the source seen-trap escape check.",
     "functions": [
       "dotrap",
       "trapeffect_arrow_trap"
     ],
     "callers": [
       "hack.c:domove_core and hack.c:spoteffects call the hero movement admission and trap-arrival path; trap.c:dotrap dispatches ARROW_TRAP through trapeffect_selector to trapeffect_arrow_trap.",
+      "mthrowu.c:thitu is called by trap.c:trapeffect_arrow_trap after missile damage; its nonlethal hit path calls attrib.c:exercise(A_STR, FALSE), whose after-play wrapper can call pickup.c:encumber_msg.",
       "sit.c:dosit calls trap.c:dotrap(trap, VIASITTING) for a trap under the hero; the current recording reaches this with the previously triggered, now-seen arrow trap."
     ],
     "dependencies": [
       "hack.c:requireSimpleHeroDestination corresponds to js/hack.js:requireSimpleHeroDestination and calls preflight_dotrap before the hero position changes.",
       "trap.c:dotrap common gates and selector dispatch are already implemented by js/trap_effects.js:dotrap and trapeffect_selector.",
-      "trap.c:trapeffect_arrow_trap is implemented by js/trap_effects.js:trapeffect_arrow_trap; its hero hit path delegates to mthrowu.c:thitu, which calls attrib.c:exercise(A_STR, FALSE) after nonlethal damage.",
+      "trap.c:trapeffect_arrow_trap is implemented by js/trap_effects.js:trapeffect_arrow_trap; the hit path delegates to mthrowu.c:thitu, which calls attrib.c:exercise(A_STR, FALSE) after nonlethal damage.",
       "js/attrib.js:exerciseAttribute requires an encumberMessage callback for Strength exercise after moves begin; the adjacent JS dart-trap arm already supplies pickup.c:encumber_msg, but the arrow-trap arm does not.",
-      "sit.c:dosit corresponds to js/sit.js:dosit; both use the shared dotrap call for the trap under the hero."
+      "C sit.c:dosit is fully mirrored by js/sit.js:dosit except its no-utrap trap branch, which records note_unported instead of calling dotrap. C discards dotrap’s return value, so the JS caller must await its effects and ignore the return.",
+      "sit.c:dosit’s branch corresponds to js/sit.js:dosit and uses the shared trap.c:dotrap path for the trap under the hero."
     ]
   },
   "goalKind": "divergence-fix",
@@ -89,7 +91,8 @@
     "The immutable recording challenges/cases/v38/v38-arrow-trap-return-projectile.session.json follows a wish-created unseen arrow trap with hero movement. Upstream trap.c:dotrap (2996-3060) reaches trapeffect_selector after the common force, air, seen-trap, learning, and reveal checks; trap.c:trapeffect_selector routes ARROW_TRAP to trapeffect_arrow_trap (1190-1249).",
     "JavaScript js/hack.js:requireSimpleHeroDestination invokes preflight_dotrap before committing a move, and js/trap_effects.js:dotrap invokes it again before nomul(0). js/trap_effects.js already ports dotrap, trapeffect_selector, and the hero arm of trapeffect_arrow_trap. The early preflight type allowlist omits ARROW_TRAP, causing the step-16 stop before the existing source behavior.",
     "After adding ARROW_TRAP to the type gate in the working tree, a targeted scan of the same case reached the arrow hit and stopped with “exercise requires encumber_msg”; the stack traces trapeffect_arrow_trap -> mthrowu.js:thitu -> attrib.js:exerciseAttribute. Upstream trap.c:trapeffect_arrow_trap calls thitu; mthrowu.c:thitu calls exercise(A_STR, FALSE) after nonlethal damage, and attrib.c:exercise may run pickup.c:encumber_msg after Strength or Constitution changes.",
-    "The later #sit action remains source-valid: sit.c:dosit calls dotrap(trap, VIASITTING) while the hero remains on the now-seen arrow trap. trap.c:dotrap may take its already-seen rn2(5) escape branch, so preflight_dotrap must add ARROW_TRAP to its seen-trap exception list. The same function also supports a mounted arrow activation through steedintrap(), so the mounted preflight guard must admit ARROW_TRAP.",
-    "The selected scope is a divergence fix in js/trap_effects.js:preflight_dotrap and the exercise adapter inside trapeffect_arrow_trap. It adds ARROW_TRAP to the type, seen-trap, and mounted-steed admissions, and passes pickup.c:encumber_msg through attrib.c:exercise for the hit path. Production callers are hack.c:domove_core/spoteffects and sit.c:dosit; JavaScript callers are js/hack.js:requireSimpleHeroDestination/spoteffects and js/sit.js:dosit."
+    "The later #sit action is source-valid: sit.c:dosit (400-565) calls dotrap(trap, VIASITTING) after its sitting message when the hero has no u.utrap value and t_at() returns a trap. JavaScript js/sit.js:dosit currently records note_unported('trap.c dotrap') at line 898 instead of invoking the already-ported JS dotrap; this omits the source seen-trap rn2(5) escape check and effect. The selected recording diverges at this #sit step after all 22 screens are emitted.",
+    "Upstream trap.c:dotrap (2996-3060) admits the ordinary seen-arrow escape check and then dispatches through trap.c:trapeffect_selector to trapeffect_arrow_trap (1190-1248). The existing JS arrow effect needs to pass pickup.c:encumber_msg through attrib.c:exercise for mthrowu.c:thitu’s post-damage Strength exercise, and preflight_dotrap must admit arrow traps in its type, seen-trap, and mounted-steed gates because those C branches are implemented.",
+    "The selected scope is a source-traced divergence fix in js/trap_effects.js:preflight_dotrap and trapeffect_arrow_trap, plus the missing C caller handoff in js/sit.js:dosit. The production routes are hack.c:domove_core/spoteffects and sit.c:dosit; no C recorder, game source, recipe, or recording changes are needed."
   ]
 }
