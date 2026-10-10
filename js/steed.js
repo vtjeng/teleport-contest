@@ -746,7 +746,7 @@ export async function kick_steed(state = game) {
 // `rn2(2)` orders the two secondary directions for DISMOUNT_KNOCKED;
 // `rn2(viable)` breaks ties between equally distant candidates; and enexto()
 // behind `forceit` searches farther away if the adjacent squares fail.
-async function landing_spot(reason, forceit, state = game) {
+async function landing_spot(reason, forceit, state = game, random = { rn2 }) {
     const u = state.u;
     const spot = { x: 0, y: 0 };
     const tries = [];
@@ -761,7 +761,7 @@ async function landing_spot(reason, forceit, state = game) {
         // knockback dismount supplies. uhitm.c is its only caller.
         best_j = j;
         tries[0] = { x: u.dx, y: u.dy };
-        const i = rn2(2);
+        const i = random.rn2(2);
         clockwise_j = (j + 1) % N_DIRS;
         tries[1 + i] = dirtocoord(clockwise_j);
         counterclk_j = (j + N_DIRS - 1) % N_DIRS;
@@ -815,7 +815,7 @@ async function landing_spot(reason, forceit, state = game) {
                        distance 1 and diagonal ones distance 2) */
                     || ((best_j === -1) ? (distance < min_distance) : (j < 3))
                     /* or equally good, maybe substitute this one */
-                    || (distance === min_distance && !rn2(viable))) {
+                    || (distance === min_distance && !random.rn2(viable))) {
                     /* traps avoided on pass 0; boulders avoided on 0 and 1 */
                     const trap = i === 0 ? t_at(x, y, state) : null;
                     const kn_trap = i === 0 && Boolean(trap) && trap.tseen
@@ -837,7 +837,10 @@ async function landing_spot(reason, forceit, state = game) {
 
     if (forceit && !found) {
         // enexto() is the last resort for a dismount the hero did not choose.
-        const fallback = enexto(u.ux, u.uy, state.youmonst.data, { state });
+        const fallback = enexto(u.ux, u.uy, state.youmonst.data, {
+            state,
+            random,
+        });
         if (fallback) {
             spot.x = fallback.x;
             spot.y = fallback.y;
@@ -848,15 +851,18 @@ async function landing_spot(reason, forceit, state = game) {
 }
 
 // C ref: steed.c dismount_steed() (575-826). This port covers the
-// DISMOUNT_BYCHOICE, DISMOUNT_KNOCKED, and DISMOUNT_FELL paths; other reasons
-// still identify their unported callers in the switch below.
-export async function dismount_steed(reason, state = game) {
+// DISMOUNT_BYCHOICE, DISMOUNT_KNOCKED, DISMOUNT_FELL, and dead-steed
+// DISMOUNT_GENERIC paths; other reasons still identify their unported callers.
+export async function dismount_steed(reason, state = game, rawEnv = {}) {
     const u = state.u;
+    const random = rawEnv.random ?? { rn2 };
+    if (typeof random.rn2 !== 'function')
+        throw new TypeError('dismount_steed random injection requires rn2');
     const save_utrap = u.utrap;
     let repair_leg_damage = propertyActive(state, WOUNDED_LEGS);
     // The initializers run before the `!u.usteed` sanity check, so
     // landing_spot() reads a hero who is still mounted.
-    let have_spot = await landing_spot(reason, 0, state);
+    let have_spot = await landing_spot(reason, 0, state, random);
 
     const mtmp = u.usteed; /* make a copy of steed pointer */
     /* Sanity check */
@@ -885,7 +891,7 @@ export async function dismount_steed(reason, state = game) {
             `You ${verb} off of ${mon_nam(mtmp, state)}!`, state,
         );
         if (!have_spot)
-            have_spot = await landing_spot(reason, 1, state);
+            have_spot = await landing_spot(reason, 1, state, random);
         if (!ulev && !ufly) {
             await losehp(
                 Maybe_Half_Phys(rn1(10, 10), state),
@@ -916,7 +922,7 @@ export async function dismount_steed(reason, state = game) {
     case DISMOUNT_GENERIC:
         // dog.c, mon.c and trap.c use it to end the ride without a message,
         // each after the steed has left the level or died.
-        throw new UnsupportedSteedError('dismount_steed(DISMOUNT_GENERIC)');
+        break;
     case DISMOUNT_BYCHOICE:
     default:
         if (otmp && otmp.cursed) {
