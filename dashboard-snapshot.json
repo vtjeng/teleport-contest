@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T15:25:07.512Z",
+  "capturedAt": "2026-10-10T15:43:17.572Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -82080,22 +82080,85 @@
         "type": "accepted",
         "at": "2026-10-10T15:24:24.665Z",
         "task": "B221-investigation-v41-minetown3-special-program-generation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B221-investigation-v41-minetown3-special-program-generation-20261010-5354fa6915b5e39dec5e479753f17c2c85b4266e",
+        "type": "published",
+        "at": "2026-10-10T15:25:16.172Z",
+        "task": "B221-investigation-v41-minetown3-special-program-generation-20261010",
+        "commit": "5354fa6915b5e39dec5e479753f17c2c85b4266e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c7d54e26678cf40ee190cfe19a5e0248e153672a",
+        "type": "ready",
+        "at": "2026-10-10T15:26:36.041Z",
+        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010",
+        "delivery": "c7d54e26678cf40ee190cfe19a5e0248e153672a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-Tower2-da7e40e4280310e3eca2c66daeb84624f9b542e8",
+        "type": "received",
+        "at": "2026-10-10T15:27:03.900Z",
+        "task": "C-v41-tower2-special-program-generation-investigation-20261010",
+        "delivery": "da7e40e4280310e3eca2c66daeb84624f9b542e8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-pray-submitted-next-worm-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T15:27:31.715Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "The prayer-revival fix is submitted. C is tracing the v40 long-worm head movement case through worm_move; Tower2 and ring deliveries remain preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T15:27:33.362Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-worm-investigation-wait-B222-acceptance-20261010",
+        "type": "turn",
+        "at": "2026-10-10T15:31:00.075Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "C’s v40 long-worm diagnosis is committed. Implementation is waiting for B222 acceptance so all six worm_move callers can be wired together."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-v41-tower2-8cc0a33bda69",
+        "type": "integrating",
+        "at": "2026-10-10T15:32:58.704Z",
+        "task": "C-v41-tower2-special-program-generation-investigation-20261010",
+        "integration": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-v41-tower2-8cc0a33bda69",
+        "type": "validated",
+        "at": "2026-10-10T15:40:28.597Z",
+        "task": "C-v41-tower2-special-program-generation-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v41-tower2-special-program-generation-investigation-20261010-8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T15:41:51.360Z",
+        "task": "C-v41-tower2-special-program-generation-investigation-20261010"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C-v41-tower2-special-program-generation-investigation-20261010",
-        "worker": "C",
-        "goal": "fix-wizcmds-makemap-remove-mons-v41-tower2-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "da7e40e4280310e3eca2c66daeb84624f9b542e8",
-        "since": "2026-10-10T14:22:31.747Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010",
         "worker": "B",
@@ -82128,8 +82191,19 @@
         "status": "ready",
         "delivery": "caccbf4858d3dbc47ee6195f4641ab9d24c587c0",
         "since": "2026-10-10T15:05:31.054Z",
+        "blockedBy": [],
+        "unblocks": 1
+      },
+      {
+        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010",
+        "worker": "C",
+        "goal": "port-pray-revive-tame-pet-v40-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "c7d54e26678cf40ee190cfe19a5e0248e153672a",
+        "since": "2026-10-10T15:26:36.041Z",
         "blockedBy": [
-          "C-v41-tower2-special-program-generation-investigation-20261010"
+          "C-v41-ring-invisibility-removed-investigation-20261010"
         ],
         "unblocks": 0
       }
@@ -82458,8 +82532,8 @@
     ]
   },
   "development": {
-    "executionCommit": "38d270ae4309c9d36dccf097fb299afadb180f0a",
-    "measuredAt": "2026-10-10T15:22:48.760Z",
+    "executionCommit": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d",
+    "measuredAt": "2026-10-10T15:39:45.655Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
