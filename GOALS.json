@@ -249115,7 +249115,7 @@
     {
       "id": "divergence-v39-mounted-steed-knockoff-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Port mounted knockback dismount and landing selection",
       "cFile": "steed.c",
       "sessions": [
@@ -249129,8 +249129,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "landing_spot",
       "session": "synthetic/v39/v39-mounted-steed-knockoff",
       "step": 87,
@@ -249414,7 +249417,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

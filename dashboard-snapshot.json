@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T08:56:10.284Z",
+  "capturedAt": "2026-10-10T09:12:00.749Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -80116,22 +80116,121 @@
         "type": "accepted",
         "at": "2026-10-10T08:55:40.109Z",
         "task": "B214-investigation-v39-magic-trap-explosion"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B214-investigation-v39-magic-trap-explosion-c0be5708e9d39fbfb3e9232064ac8a0aa32865d9",
+        "type": "published",
+        "at": "2026-10-10T08:56:18.603Z",
+        "task": "B214-investigation-v39-magic-trap-explosion",
+        "commit": "c0be5708e9d39fbfb3e9232064ac8a0aa32865d9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-after-B214-accept-20261010",
+        "type": "turn",
+        "at": "2026-10-10T08:56:34.423Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Resuming after B214 acceptance. Syncing accepted Main at the clean B213 delivery boundary, then checking whether independent work is available."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "review-A2-knockoff-0e6a476-20261010",
+        "type": "activity",
+        "at": "2026-10-10T08:57:54.507Z",
+        "task": "A2-v39-mounted-steed-knockoff-investigation-20261010",
+        "phase": "review",
+        "reason": "Reviewing the oldest ready mounted knockback delivery for integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B215-v39-counted-obj-resists-20261010",
+        "type": "assign",
+        "at": "2026-10-10T09:00:06.006Z",
+        "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B215-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T09:00:23.559Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the remaining v39 counted-wizgenesis RNG mismatch at zap.c:obj_resists. The screens and cursors already match; implementation scope is not yet claimed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-v40-opening-wand-reached-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T09:00:50.680Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has three approved distinct C-first mismatches; the opening-wand expulsion route is C-reached and under first-gap review."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-v40-expulsion-approved-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T09:01:14.602Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has four approved distinct C-first mismatches; continuing source-based preparation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-knockoff-2b9c8c0-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T09:03:09.573Z",
+        "task": "A2-v39-mounted-steed-knockoff-investigation-20261010",
+        "integration": "2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B215-steal-maybe-absorb-mimic-20261010",
+        "type": "implement",
+        "at": "2026-10-10T09:06:48.600Z",
+        "task": "B215-investigation-v39-counted-wizgenesis-obj-resists-20261010",
+        "goal": "fix-mimic-absorb-item-lockpick-rng-v39-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-v40-water-approved-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T09:07:33.820Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has five approved distinct C-first mismatches; continuing source-based preparation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B215-active-implementation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T09:08:36.191Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A2-knockoff-38040161620-20261010",
+        "type": "validated",
+        "at": "2026-10-10T09:10:21.461Z",
+        "task": "A2-v39-mounted-steed-knockoff-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-v39-mounted-steed-knockoff-investigation-20261010-2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T09:11:20.068Z",
+        "task": "A2-v39-mounted-steed-knockoff-investigation-20261010"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "A2-v39-mounted-steed-knockoff-investigation-20261010",
-        "worker": "A2",
-        "goal": "divergence-v39-mounted-steed-knockoff-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "0e6a476a5f71a2247e1b4c93094d7dfcaa868030",
-        "since": "2026-10-10T07:42:38.106Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "C-v39-pickup-cockatrice-barehanded-final-investigation-20261010",
         "worker": "C",
@@ -80457,8 +80556,8 @@
     ]
   },
   "development": {
-    "executionCommit": "9576b4f8da10054320739b6775b11284c33b01ed",
-    "measuredAt": "2026-10-10T08:54:31.536Z",
+    "executionCommit": "2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba",
+    "measuredAt": "2026-10-10T09:09:43.966Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
