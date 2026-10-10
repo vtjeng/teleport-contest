@@ -3,13 +3,10 @@
 // cmd.c set_move_cmd(), and trap.c uteetering_at_seen_pit() /
 // uescaped_shaft().
 //
-// The recorded evidence is two matrices, both of which compare complete
-// screens, cursors and random-number calls against fresh C recordings:
-// scripts/run-descend-refusal.mjs for the arm that prints "You can't go down
-// here.", and scripts/run-leave-level.mjs for a hero who walks to the down
-// staircase and presses '>'. These tests cover the guards that neither
-// recording can reach, each of which stops rather than descending, and the
-// state goto_level() leaves behind when it stops.
+// The recorded evidence includes scripts/run-descend-refusal.mjs and
+// scripts/run-leave-level.mjs, which compare complete screens, cursors and
+// random-number calls against C. These tests pin the remaining source branches
+// of dodown() and the state goto_level() leaves behind when it stops.
 
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -21,21 +18,26 @@ import {
     DIR_W,
     ECMD_OK,
     ECMD_TIME,
+    FLYING,
     FOUNTAIN,
     HOLE,
+    I_SPECIAL,
     LEVITATION,
     LFILE_EXISTS,
     MIN_QUEST_ALIGN,
     PIT,
     STRAT_WAITFORU,
+    TIMEOUT,
     TT_BURIEDBALL,
     TT_PIT,
+    UTOTYPE_DEFERRED,
+    UTOTYPE_FALLING,
     VIBRATING_SQUARE,
     OBJ_FREE,
 } from '../js/const.js';
 import { set_move_cmd } from '../js/cmd.js';
 import { is_digging } from '../js/dig.js';
-import { UnsupportedLevelChangeError, dodown, goto_level } from '../js/do.js';
+import { dodown, goto_level } from '../js/do.js';
 import { find_mapseen, ledger_no, level_info } from '../js/dungeon.js';
 import { u_rooted } from '../js/hack.js';
 import { game } from '../js/gstate.js';
@@ -43,6 +45,7 @@ import { runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
 import { mksobj, place_object } from '../js/obj.js';
 import { BOULDER, BULLWHIP, PICK_AXE } from '../js/objects.js';
+import { PM_LURKER_ABOVE, PM_ROCK_PIERCER } from '../js/monsters.js';
 import { getRngLog } from '../js/rng.js';
 import { normalizeSession } from '../frozen/session_loader.mjs';
 import { stairway_add, stairway_at } from '../js/stairs.js';
@@ -553,31 +556,55 @@ test('vision_recalc(2) leaves the hero seeing nothing', async () => {
     assert.ok(state.viz_array.every((row) => row.every((cell) => !cell)));
 });
 
-test('a levitating hero stops before the levitation arm', async () => {
-    // do.c:1154. Either half of `HLevitation || ELevitation` reaches it.
+test('a levitating hero sees what lies below', async () => {
+    // do.c:1154-1201. A plain property bit reaches floating_above() without
+    // the controlled-source masks, once for each C property field.
     for (const field of ['intrinsic', 'extrinsic']) {
         const state = await descendTo('h');
         quiet(state);
-        state.u.uprops[LEVITATION][field] = 1;
-        await assert.rejects(
-            dodown(state),
-            (error) => error instanceof UnsupportedLevelChangeError
-                && /levitating hero/u.test(error.message),
-        );
+        state.u.uprops[LEVITATION][field] = 1; // Active but not a controlled levitation source.
+        assert.equal(await dodown(state), ECMD_OK);
+        assert.match(toplines(state), /^You are floating high above the /u);
     }
 });
 
-test('a polymorphed hero stops before the ceiling-hider arm', async () => {
-    // do.c:1204. Upolyd is (u.umonnum != u.umonster); js/u_init.js is the
-    // port's only writer and sets them equal, so this state is fabricated.
+test('controlled levitation clears its intrinsic source before descending',
+    async () => {
+    // do.c:1157-1171. I_SPECIAL|TIMEOUT is the potion source float_down clears;
+    // this checks the exact masks and the turn cost after landing.
     const state = await descendTo('h');
     quiet(state);
-    state.u.umonnum = state.u.umonster + 1;
-    await assert.rejects(
-        dodown(state),
-        (error) => error instanceof UnsupportedLevelChangeError
-            && /polymorphed hero/u.test(error.message),
-    );
+    state.u.uprops[LEVITATION].intrinsic = I_SPECIAL | TIMEOUT;
+    assert.equal(await dodown(state), ECMD_TIME);
+    assert.equal(state.u.uprops[LEVITATION].intrinsic, 0,
+        'float_down clears the controlled intrinsic bits');
+});
+
+test('a piercer drops out of hiding before descending', async () => {
+    // do.c:1204-1218. PM_ROCK_PIERCER is a real nonflying ceiling hider; its
+    // form and undetected flag make the drop-to-floor arm reachable.
+    const state = await descendTo('h');
+    quiet(state);
+    state.u.umonnum = PM_ROCK_PIERCER;
+    state.youmonst.data = state.mons[PM_ROCK_PIERCER];
+    state.u.uundetected = 1; // Hidden at the ceiling before the down command.
+    assert.equal(await dodown(state), ECMD_TIME);
+    assert.equal(state.u.uundetected, 0);
+    assert.equal(toplines(state), 'You drop to the floor.');
+});
+
+test('a lurker above flies out of hiding before descending', async () => {
+    // do.c:1206-1208. PM_LURKER_ABOVE reaches the flying ceiling-hider arm;
+    // polyself.c normally grants FLYING to this form.
+    const state = await descendTo('h');
+    quiet(state);
+    state.u.umonnum = PM_LURKER_ABOVE;
+    state.youmonst.data = state.mons[PM_LURKER_ABOVE];
+    state.u.uprops[FLYING].intrinsic = 1; // The form's C FLYING intrinsic.
+    state.u.uundetected = 1; // Hidden at the ceiling before the down command.
+    assert.equal(await dodown(state), ECMD_TIME);
+    assert.equal(state.u.uundetected, 0);
+    assert.equal(toplines(state), 'You fly out of hiding.');
 });
 
 test('a held hero stops at u_stuck_cannot_go()', async () => {
@@ -587,6 +614,23 @@ test('a held hero stops at u_stuck_cannot_go()', async () => {
     state.u.ustuck = { data: state.youmonst.data };
     assert.equal(await dodown(state), ECMD_TIME);
     assert.equal(toplines(state), 'You are being held, and cannot go down.');
+});
+
+test('the Valley gate returns without descending when confirmation is declined',
+    async () => {
+    // do.c:1242-1249. A down staircase and matching valley_level reach the
+    // confirmation arm; the queued 'n' exercises y_n()'s negative result.
+    const state = await descendTo('h');
+    quiet(state);
+    downStairsUnderHero(state);
+    state.valley_level = { ...state.u.uz };
+    state.nhDisplay.onEmptyQueue = () => ' '.charCodeAt(0);
+    state.readchar_queue = ['n'.charCodeAt(0)];
+    // Space dismisses the warning; readchar() consumes n for y_n().
+
+    assert.equal(await dodown(state), ECMD_OK);
+    assert.match(toplines(state), /Are you sure you want to enter\?/u);
+    assert.notEqual(state.u.uevent?.gehennom_entered, 1);
 });
 
 test('a steed that cannot move stops at stucksteed()', async () => {
@@ -682,21 +726,26 @@ test('a vibrating square adds "yet" to the refusal', async () => {
     assert.equal(toplines(state), "You can't go down here yet.");
 });
 
-test('a known pit or hole under the hero stops before dotrap()', async () => {
+test('a known pit or hole under the hero plunges through dotrap()', async () => {
     // do.c:1226-1228, reached through trap.c uteetering_at_seen_pit() and
-    // uescaped_shaft().
+    // uescaped_shaft(). TOOKPLUNGE bypasses the ordinary escape check.
     for (const ttyp of [PIT, HOLE]) {
         const state = await descendTo('h');
         quiet(state);
-        state.level.traps.push({
+        const trap = {
             tx: state.u.ux, ty: state.u.uy, ttyp, tseen: 1,
-        });
-        await assert.rejects(
-            dodown(state),
-            (error) => error instanceof UnsupportedLevelChangeError
-                && /plunging into a pit, hole or trap door/u
-                    .test(error.message),
-        );
+        };
+        if (ttyp === HOLE) {
+            // A known hole carries C's next-level destination in trap.dst.
+            trap.dst = { ...state.u.uz, dlevel: state.u.uz.dlevel + 1 };
+        }
+        state.level.traps.push(trap);
+        assert.equal(await dodown(state), ECMD_TIME);
+        if (ttyp === PIT)
+            assert.equal(state.u.utraptype, TT_PIT);
+        else
+            assert.equal(state.u.utotype, UTOTYPE_FALLING | UTOTYPE_DEFERRED,
+                'fall_through schedules a deferred falling transition');
     }
 });
 

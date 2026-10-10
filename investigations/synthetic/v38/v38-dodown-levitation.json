@@ -1,0 +1,92 @@
+{
+  "session": "synthetic/v38/v38-dodown-levitation",
+  "corpus": "synthetic",
+  "batch": "v38",
+  "caseId": "v38-dodown-levitation",
+  "manifestPath": "challenges/manifests/v38.json",
+  "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+  "recordingSha256": "d08c84da8429793c9bd64f78215403d157ab741d83685e3bbb759b0fd628cee1",
+  "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+  "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+  "remainingScreens": 1,
+  "recordedSteps": 51,
+  "status": "complete",
+  "commit": "4b07810de31b89ea5c8c602c7437e453d9c8a4d3",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v38",
+    "caseId": "v38-dodown-levitation",
+    "session": "synthetic/v38/v38-dodown-levitation",
+    "manifestPath": "challenges/manifests/v38.json",
+    "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+    "recording": "challenges/cases/v38/v38-dodown-levitation.session.json",
+    "recordingPath": "challenges/cases/v38/v38-dodown-levitation.session.json",
+    "recordingSha256": "d08c84da8429793c9bd64f78215403d157ab741d83685e3bbb759b0fd628cee1",
+    "recipe": "challenges/cases/v38/v38-dodown-levitation.recipe.session.json",
+    "recipeSha256": "19c18e742899d937c283f807ed52b9e1f316761994e4c482d8fd1453e23135b0",
+    "replayInputSha256": "b71bf3fbcb07fcfb0eb0ae1f4a4851cee6588d354239d49084516f65d1ad7577",
+    "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+    "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+    "evaluationArtifact": "challenges/evaluations/20261010014622-v38.json",
+    "evaluationUtc": "2026-10-10T01:46:34.186Z",
+    "remainingScreens": 1,
+    "recordedSteps": 51,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 50,
+        "total": 51
+      },
+      "rng": {
+        "matched": 4767,
+        "total": 4767
+      },
+      "cursors": {
+        "matched": 50,
+        "total": 51
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: unsupported level change: dodown() with a levitating hero",
+      "step": 50
+    },
+    "step": 50,
+    "kind": "stop",
+    "sourceFile": "do.c",
+    "function": "dodown",
+    "message": "unsupported hero command: an unported branch of this command: unsupported level change: dodown() with a levitating hero",
+    "cFile": "do.c",
+    "luaFile": null,
+    "line": null,
+    "investigation": {
+      "status": "missing",
+      "path": "investigations/synthetic/v38/v38-dodown-levitation.json"
+    }
+  },
+  "goalKind": "file-port",
+  "summary": "Extrinsic ring levitation prevents descending and names the surface. The admitted C recording produces “You are floating high above the floor.”; js/do.js:dodown still throws for the corresponding unsupported branch at its preflight guard. This is one arm of the same whole do.c:dodown source unit selected by B205.",
+  "source": {
+    "file": "do.c",
+    "functions": [
+      "dodown"
+    ],
+    "branch": "do.c:dodown(1154-1201), the HLevitation/ELevitation arm. A ring supplies ELevitation without the W_ARTI controlled-levitation flag, so C does not call float_down; BLevitation is clear and the hero is not blind, so stairs_down/ladder_down remain unchanged and floating_above(surface(ux,uy)) prints “You are floating high above the floor.” at step 50, returning ECMD_OK without moving.",
+    "callers": [
+      "cmd.c maps the > key and #down to dodown(); js/cmd.js:runDownCommand calls js/do.js:dodown and returns its ECMD_* result.",
+      "The immutable synthetic/v38/v38-dodown-levitation recording reaches this arm with key > at step 50; C screen text is “You are floating high above the floor.”."
+    ],
+    "dependencies": [
+      "The owning source range is the complete do.c:dodown function (1131-1292); preserve the source order among rooted/steed guards, stair and levitation checks, ceiling hider, trap fall, gate confirmation, pet blocking, and level transition.",
+      "The task reuses existing JS implementations of float_down, surface, floating_above, ceiling_hider, pickup, pooleffects, dotrap, goto_level and next_level. Any call whose C result is discarded and has no JS owner is recorded with note_unported and skipped, per the port rule."
+    ]
+  },
+  "evidence": [
+    "Saved combined queue SHA 019311686e951c969402a82d519dcb00db6b3434d0c13e5123df0a1ba1ebe5e3 reports 1 remaining screens at step 50, with 4767/4767 RNG calls matched.",
+    "The source recording challenges/cases/v38/v38-dodown-levitation.session.json has 51 steps; step 50 key \">\" produces “You are floating high above the floor.”.",
+    "Read upstream do.c:dodown(1131-1292), including this arm at 1154-1201, and existing js/do.js:dodown. C completes this branch while JS still refuses before it."
+  ]
+}
