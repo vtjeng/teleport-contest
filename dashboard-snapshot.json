@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T04:29:41.334Z",
+  "capturedAt": "2026-10-10T04:59:55.543Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -78546,6 +78546,87 @@
         "worker": "Prep",
         "state": "active",
         "reason": "v39 has nine approved distinct C-first mismatches; three remain."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-bell-search-20261010T0436Z",
+        "type": "turn",
+        "at": "2026-10-10T04:33:00.932Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has nine approved distinct C-first mismatches; three remain."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-bell-overlap-20261010T0442Z",
+        "type": "turn",
+        "at": "2026-10-10T04:35:12.484Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has nine approved distinct C-first mismatches; three remain."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-v38-whip-investigation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:54:09.501Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating a remaining v38 lava-whip RNG divergence from the published Main boundary."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B208-v38-whip-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T04:54:33.942Z",
+        "task": "B208-investigation-v38-levitating-whip-over-lava",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-boots-differential-20261010T0455Z",
+        "type": "turn",
+        "at": "2026-10-10T04:56:11.584Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has nine approved distinct C-first mismatches; the sink levitation-boots candidate is at replay/differential verification."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-after-main-95a9-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:58:03.300Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 is available for the first independent v39 source task after Prep3 admission; B owns the remaining v38 RNG investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-available-for-v39-after-admission-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:58:04.771Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 is available for the first independent v39 source task after Prep3 admission; B owns the remaining v38 RNG investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-idle-after-main-95a9-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:58:11.160Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C is available for the first independent v39 source task after Prep3 admits and evaluates the batch. B owns the remaining v38 RNG investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-sink-boots-approved-20261010T0500Z",
+        "type": "turn",
+        "at": "2026-10-10T04:59:19.253Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has ten approved distinct C-first mismatches; two remain."
       }
     ]
   },
