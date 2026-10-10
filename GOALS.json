@@ -256634,7 +256634,7 @@
     {
       "id": "div-v41-steed-death-dismount-pool-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete generic dead-steed dismount and pool fall behavior.",
       "cFile": "steed.c",
       "sessions": [],
@@ -256646,8 +256646,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "d84b56ca399bd6cf8b3a529a46d3d5c96fcd2c43",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "dismount_steed",
       "session": "synthetic/v41/v41-forced-steed-dismount-at-pool",
       "step": 41,
@@ -256834,7 +256837,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "d84b56ca399bd6cf8b3a529a46d3d5c96fcd2c43",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
