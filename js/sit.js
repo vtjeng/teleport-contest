@@ -59,6 +59,7 @@ import {
     TT_PIT,
     TT_WEB,
     TIMEOUT,
+    VIASITTING,
     TELEPAT,
     TELEPORT,
     STEALTH,
@@ -895,7 +896,10 @@ export async function dosit(state = game, rawEnv = {}) {
             }
         } else {
             await message(`${Flying(state) ? 'You land' : 'You sit down'}.`, state);
-            note_unported('trap.c dotrap');
+            // C sit.c:dosit discards dotrap()'s return value after the
+            // sitting message; preserve that call's state, output, and RNG.
+            const { dotrap } = await import('./trap_effects.js');
+            await dotrap(trap, VIASITTING, state, rawEnv);
         }
     } else if ((Underwater(state) || Is_waterlevel(state))
                 && !eggs_in_water(species)) {
