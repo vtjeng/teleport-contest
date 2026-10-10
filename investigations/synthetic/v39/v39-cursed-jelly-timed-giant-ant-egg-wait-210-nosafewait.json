@@ -83,15 +83,7 @@
     "Production dispatch is traced in source.callers. The saved ledger has no active reservation on source:timeout.c:kill_egg, source:apply.c:use_royal_jelly, source:mon.c:kill_eggs, or source:zap.c:poly_obj.",
     "Implementation replaces the three former note_unported timeout.c:kill_egg calls in js/apply.js:use_royal_jelly, js/mon.js:kill_eggs, and js/zap.js:poly_obj with the shared js/timeout.js:kill_egg timer cancellation.",
     "Independent recordings/timeout.c/kill-egg-genocide-wished-egg.session.json covers a timed wished egg followed by genocide; its recipe and recording are both retained under recipes/timeout.c and recordings/timeout.c.",
-    "Existing recordings/zap.c/immediate-polymorph-pile-variation.session.json is a strict matched production path through dozap -> bhitpile -> bhito -> poly_obj. Source-pinned tests cover the hero-laid egg replacement-egg branch order; this recipe does not claim that rare replacement type branch was selected."
-  ],
-  "implementation": {
-    "commit": "pending",
-    "behavior": "Added timeout.c:kill_egg as a thin owner of stop_timer(HATCH_EGG, egg), retaining C’s discarded return. Updated all three active direct callers.",
-    "validations": {
-      "synthetic": "Fresh selected v39 recipe differential matched all recorded boundaries.",
-      "genocide": "Independent wished timed-egg genocide recording matches C and JavaScript.",
-      "polymorph": "Existing independent immediate polymorph pile recording matches C and JavaScript."
-    }
-  }
+    "Existing recordings/zap.c/immediate-polymorph-pile-variation.session.json is a strict matched production path through dozap -> bhitpile -> bhito -> poly_obj. Source-pinned tests cover the hero-laid egg replacement-egg branch order; this recipe does not claim that rare replacement type branch was selected.",
+    "A female-Wizard variation independently reaches the same timed-egg genocide sweep: recipes/timeout.c/kill-egg-genocide-wished-egg-variation.session.json and recordings/timeout.c/kill-egg-genocide-wished-egg-variation.session.json match completely."
+  ]
 }
