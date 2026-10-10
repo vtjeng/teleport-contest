@@ -246430,7 +246430,7 @@
     {
       "id": "port-kill-egg-timer-cancellation-v39-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port timeout.c kill_egg and wire active egg timer cancellation callers",
       "cFile": "timeout.c",
       "sessions": [
@@ -246444,15 +246444,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "aed26ac9ec69a4441421005e4110971d52d5eb53",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "kill_egg",
           "line": 1009,
           "endLine": 1016,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -246474,7 +246477,7 @@
           "endLine": 5638,
           "declared": true,
           "sourceFile": "mon.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "poly_obj",
@@ -246704,6 +246707,1928 @@
                   "polymorph": "Existing independent immediate polymorph pile recording matches C and JavaScript."
                 }
               }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "kill_egg",
+            "implementation": "js/timeout.js",
+            "symbol": "kill_egg",
+            "sourceReview": "Read the complete timeout.c:kill_egg body (1009–1013): it casts away stop_timer(HATCH_EGG, obj_to_any(egg))'s result, consuming no RNG and producing no message. The only effect is removing that egg's existing HATCH_EGG timer. JavaScript calls the existing stop_timer owner with the same timer kind and object, preserving its timer count and unrelated timers, and returns undefined. No substitute state or gap marker remains.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_royal_jelly",
+                "source": "apply.c:use_royal_jelly line 3657 calls kill_egg(eobj) in the cursed-jelly branch."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "kill_eggs",
+                "source": "mon.c:kill_eggs line 5622 calls kill_egg(otmp) for an egg of a dead species."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "poly_obj",
+                "source": "zap.c:poly_obj line 1762 calls kill_egg(otmp) when the polymorphed hero-laid egg's replacement is itself an egg."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout.test.mjs",
+              "scripts/apply-royal-jelly.test.mjs",
+              "scripts/mon-span.test.mjs",
+              "scripts/zap-poly-obj.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/kill-egg-genocide-wished-egg.session.json",
+              "recordings/timeout.c/kill-egg-genocide-wished-egg-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v39",
+                "caseId": "v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 298,
+                "source": "#rub -> cmd.c:doextcmd -> apply.c:dorub -> apply.c:use_royal_jelly -> timeout.c:kill_egg. The complete assigned cursed-jelly replay matches through its final zero-based step."
+              }
+            ],
+            "checkedAt": "aed26ac9ec69a4441421005e4110971d52d5eb53"
+          },
+          {
+            "name": "use_royal_jelly",
+            "implementation": "js/apply.js",
+            "symbol": "use_royal_jelly",
+            "sourceReview": "Read the whole apply.c:use_royal_jelly body (3616–3683) and its JS implementation. Preserved split/free-inventory, cancellation reassembly, target prompt/filter, killer-bee species change, cursed versus blessed/uncursed branches, timer attachment, feedback predicates, object destruction and ECMD result ordering. The cursed branch now invokes kill_egg at the C call site and discards its result. No other caller behavior was expanded.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply line 1800 dispatches LUMP_OF_ROYAL_JELLY to use_royal_jelly; the JS apply command reaches doapply."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "dorub",
+                "source": "apply.c:dorub line 4263 dispatches the #rub command to use_royal_jelly; cmd.c registers #rub at line 1836."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-royal-jelly.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "apply.c",
+            "synthetic": [
+              {
+                "batch": "v39",
+                "caseId": "v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 298,
+                "source": "cmd.c #rub -> apply.c:dorub -> apply.c:use_royal_jelly -> timeout.c:kill_egg."
+              }
+            ],
+            "checkedAt": "aed26ac9ec69a4441421005e4110971d52d5eb53"
+          },
+          {
+            "name": "kill_eggs",
+            "implementation": "js/mon.js",
+            "symbol": "kill_eggs",
+            "sourceReview": "Read the whole mon.c:kill_eggs body (5609–5635). Its active path walks object siblings, calls dead_species with egg semantics, stops the egg timer only for a genocided species, and recursively scans containers; the TIN/CORPSE arms are excluded by #if 0. JavaScript preserves this order and now invokes the shared kill_egg implementation. The discarded kill_egg result has no caller use.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "kill_genocided_monsters",
+                "source": "mon.c:kill_genocided_monsters calls kill_eggs for monster inventories plus hero, floor, migrating, and buried object lists."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "do_class_genocide",
+                "source": "read.c:2749 class genocide invokes kill_genocided_monsters; JS do_class_genocide reaches the shared sweep at read.js:2799."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "do_genocide",
+                "source": "read.c:2993 genocide scroll invokes kill_genocided_monsters; JS do_genocide reaches the sweep at read.js:3024."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "makemap_prepost",
+                "source": "cmd.c:1048 is the post-processing arm of makemap_prepost(false); wizcmds.c:166 and sp_lev.c:6061 are active post-map callers. JS makemap_prepost reaches the sweep at cmd.js:2633."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "goto_level",
+                "source": "do.c:1817 catches genocided eggs on level arrival after migrating objects are delivered; JS goto_level invokes the sweep at do.js:3060."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-genocide.test.mjs",
+              "scripts/mon-span.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/kill-egg-genocide-wished-egg.session.json",
+              "recordings/timeout.c/kill-egg-genocide-wished-egg-variation.session.json"
+            ],
+            "sourceFile": "mon.c",
+            "synthetic": [],
+            "checkedAt": "aed26ac9ec69a4441421005e4110971d52d5eb53"
+          },
+          {
+            "name": "poly_obj",
+            "implementation": "js/zap.js",
+            "symbol": "poly_obj",
+            "sourceReview": "Read the whole zap.c:poly_obj body (1702–1989) and the corresponding JS implementation in source order. The hero-laid EGG branch cancels the replacement egg's HATCH_EGG timer before clearing corpsenm and spe; the else branch retains C's conversion/weight order. Other type/field preservation, inventory/floor replacement, class-specific degradation and billing ordering remain unchanged. Existing discarded void calls remain explicit note_unported gaps: sokoban.c:sokoban_guilt, steal.c:remove_worn_item, do_wear.c:set_wear, and shk.c:make_angry_shk/hot_pursuit. No result from those calls is used as data.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhito",
+                "source": "zap.c:bhito line 2219 calls poly_obj(obj, STRANGE_OBJECT) on the object hit by polymorph; bhito is passed to bhitpile from dozap."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "dozap",
+                "source": "cmd.c:2005 dispatches the z command to dozap; JS cmd.js dispatches to zap.js:dozap, which reaches bhitpile/bhito for floor objects."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-poly-obj.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/immediate-polymorph-pile-variation.session.json"
+            ],
+            "sourceFile": "zap.c",
+            "synthetic": [],
+            "checkedAt": "aed26ac9ec69a4441421005e4110971d52d5eb53"
+          }
+        ],
+        "entryPointReview": "The selected v39 recipe exercises #rub -> dorub -> use_royal_jelly and reaches the cursed-egg kill_egg call; it matches the full recording. The independent genocide recordings exercise the read-scroll -> kill_genocided_monsters -> kill_eggs path on a timed egg in hero inventory, with a female-Wizard variation. The existing immediate polymorph-pile recording exercises z -> dozap -> bhitpile -> bhito -> poly_obj on a floor-object pile. The rare poly_obj branch where a hero-laid egg's random replacement remains EGG is source-pinned by scripts/zap-poly-obj.test.mjs but is not asserted as reached by that ordinary pile recording. The separate active doapply route to use_royal_jelly is traced and covered by the same shared helper source evidence; no separate C recording is claimed for the doapply route. The cmd.c:1048 call is the post-map branch of makemap_prepost(false), reached by wizard map and special-level loading; do.c:1817 is level arrival. The four pre-existing discarded void-owner gaps in poly_obj remain explicit and outside this timer-cancellation change.",
+        "entryPoints": [
+          {
+            "name": "Cursed royal jelly cancels a timed egg via #rub",
+            "functions": [
+              {
+                "sourceFile": "apply.c",
+                "name": "use_royal_jelly"
+              },
+              "kill_egg"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v39",
+                "caseId": "v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 298,
+                "source": "cmd.c #rub -> apply.c:dorub -> use_royal_jelly -> kill_egg"
+              }
+            ]
+          },
+          {
+            "name": "Genocide scroll sweeps a timed egg in the hero inventory",
+            "functions": [
+              {
+                "sourceFile": "mon.c",
+                "name": "kill_eggs"
+              },
+              "kill_egg"
+            ],
+            "recordings": [
+              "recordings/timeout.c/kill-egg-genocide-wished-egg.session.json",
+              "recordings/timeout.c/kill-egg-genocide-wished-egg-variation.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Polymorph wand hits a floor-object pile and enters poly_obj",
+            "functions": [
+              {
+                "sourceFile": "zap.c",
+                "name": "poly_obj"
+              }
+            ],
+            "recordings": [
+              "recordings/zap.c/immediate-polymorph-pile-variation.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "aed26ac9ec69a4441421005e4110971d52d5eb53",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "divergence-v39-mounted-steed-polymorph-trap-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Fix tame monster polymorph naming in mon.c newcham",
+      "cFile": "mon.c",
+      "sessions": [],
+      "selectionReason": "The admitted v39 mounted-steed case reaches the unbound ARTICLE_YOUR name branch in mon.c:newcham.",
+      "detail": "Import the existing ARTICLE_YOUR constant and verify the NC_SHOW_MSG tame-name branch through an independent unmounted pet polymorph-trap recording.",
+      "openedAt": "d008ec1866c149c318d2a5d48daa4a27c857b51f",
+      "openStanding": {
+        "sha": "aed26ac9ec69a4441421005e4110971d52d5eb53",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "998c20cf771d23d6f5faed181eee05f270b73b58",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "newcham",
+      "session": "synthetic/v39/v39-mounted-steed-polymorph-trap",
+      "step": 28,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-mounted-steed-polymorph-trap": {
+          "session": "synthetic/v39/v39-mounted-steed-polymorph-trap",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-mounted-steed-polymorph-trap",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json",
+          "recordingSha256": "1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997",
+          "evaluationPath": "challenges/evaluations/accepted-aed26ac9ec69a4441421005e4110971d52d5eb53-v39.json",
+          "evaluationCommit": "aed26ac9ec69a4441421005e4110971d52d5eb53"
+        }
+      },
+      "activeStanding": {
+        "sha": "aed26ac9ec69a4441421005e4110971d52d5eb53",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-mounted-steed-polymorph-trap",
+          "session": "synthetic/v39/v39-mounted-steed-polymorph-trap",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json",
+          "recordingPath": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json",
+          "recordingSha256": "1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997",
+          "recipe": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.recipe.session.json",
+          "recipeSha256": "e2f5f7d33e071f8e837389af982cdfe8fb6754549295fac5ff069e3fea8df5d8",
+          "replayInputSha256": "47593086a1baa7723744c3a7331b13272c438f1e0c7426f5a9c944273e35682e",
+          "evaluationPath": "challenges/evaluations/accepted-aed26ac9ec69a4441421005e4110971d52d5eb53-v39.json",
+          "evaluationCommit": "aed26ac9ec69a4441421005e4110971d52d5eb53",
+          "evaluationArtifact": "challenges/evaluations/accepted-aed26ac9ec69a4441421005e4110971d52d5eb53-v39.json",
+          "evaluationUtc": "2026-10-10T06:48:19.323Z",
+          "remainingScreens": 29,
+          "recordedSteps": 29,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": "ARTICLE_YOUR is not defined",
+          "metrics": {
+            "screens": {
+              "matched": 0,
+              "total": 29
+            },
+            "rng": {
+              "matched": 0,
+              "total": 2642
+            },
+            "cursors": {
+              "matched": 0,
+              "total": 29
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "Replay error: ARTICLE_YOUR is not defined",
+            "step": null
+          },
+          "step": null,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "Replay error: ARTICLE_YOUR is not defined",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-mounted-steed-polymorph-trap.json",
+            "result": {
+              "session": "synthetic/v39/v39-mounted-steed-polymorph-trap",
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-mounted-steed-polymorph-trap",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recordingSha256": "1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997",
+              "evaluationPath": "challenges/evaluations/20261009230658-v39.json",
+              "evaluationCommit": "30d1b7936740e5f611781c85242eb860218d9e5d",
+              "remainingScreens": 29,
+              "recordedSteps": 29,
+              "status": "complete",
+              "commit": "f2313efbd87a4d3eb2d49d95f0468c22d2703a0a",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v39",
+                "caseId": "v39-mounted-steed-polymorph-trap",
+                "session": "synthetic/v39/v39-mounted-steed-polymorph-trap",
+                "manifestPath": "challenges/manifests/v39.json",
+                "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+                "recording": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json",
+                "recordingPath": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json",
+                "recordingSha256": "1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997",
+                "recipe": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.recipe.session.json",
+                "recipeSha256": "e2f5f7d33e071f8e837389af982cdfe8fb6754549295fac5ff069e3fea8df5d8",
+                "replayInputSha256": "938dd44564a49459a54ba4ef8fe7d579c3f64eafbfef8f1e25fd9ef82dde4e3c",
+                "evaluationPath": "challenges/evaluations/20261009230658-v39.json",
+                "evaluationCommit": "30d1b7936740e5f611781c85242eb860218d9e5d",
+                "evaluationArtifact": "challenges/evaluations/20261009230658-v39.json",
+                "evaluationUtc": "2026-10-10T06:07:16.397Z",
+                "remainingScreens": 29,
+                "recordedSteps": 29,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": "ARTICLE_YOUR is not defined",
+                "metrics": {
+                  "screens": {
+                    "matched": 0,
+                    "total": 29
+                  },
+                  "rng": {
+                    "matched": 0,
+                    "total": 2642
+                  },
+                  "cursors": {
+                    "matched": 0,
+                    "total": 29
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "Replay error: ARTICLE_YOUR is not defined",
+                  "step": null
+                },
+                "step": null,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "Replay error: ARTICLE_YOUR is not defined",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch is a JavaScript ReferenceError in mon.c:newcham’s tame old-form naming: js/mon.js:shapeOldNames uses ARTICLE_YOUR but js/mon.js does not import it from js/const.js. C passes ARTICLE_YOUR to do_name.c:x_monnam for a tame monster, and the existing JS x_monnam already supports that article. Importing the existing constant fixes the general source path; this is a divergence fix, not missing C behavior.",
+              "source": {
+                "file": "mon.c",
+                "branch": "When NC_SHOW_MSG is set, newcham captures the old tame monster name before changing form by calling x_monnam(mtmp, ARTICLE_YOUR, NULL, SUPPRESS_SADDLE, FALSE); this branch is reached when a mounted tame steed is polymorphed by a trap and is sighted or sensed.",
+                "functions": [
+                  "newcham"
+                ],
+                "callers": [
+                  "trap.c:trapeffect_poly_trap",
+                  "trap.c:steedintrap"
+                ],
+                "dependencies": [
+                  "do_name.c:x_monnam",
+                  "const.h:ARTICLE_YOUR"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved queue provenance: v39 manifest SHA-256 02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0; recording SHA-256 1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997; evaluation challenges/evaluations/20261009230658-v39.json from 30d1b7936740e5f611781c85242eb860218d9e5d. The selected case is the highest remaining independent mount/polymorph candidate after C claimed the first case and B claimed the second.",
+                "The admitted recipe is independently C-replay byte-identical (manifest v39 sourceTrace cReplay outputSha256 equals the recording hash). Its C result names the tame mount as “Your pony” when a polymorph trap changes the mount; the manifest identifies reported segment 1 step 28 (one-based) as the first JS failure, before steed.c:poly_steed.",
+                "Upstream nethack-c/upstream/src/trap.c:steedintrap (around 3154-3156) calls newcham(steed, NULL, NC_SHOW_MSG) for a mounted steed hit by a polymorph trap; trap.c:trapeffect_poly_trap also calls newcham for a non-hero trapped tame monster. Upstream mon.c:newcham (5278-5534; old-name construction around 5308-5315) passes ARTICLE_YOUR for mtmp->mtame and suppresses the saddle. The later call to poly_steed is at mon.c:5518.",
+                "The naming callee is defined in do_name.c:x_monnam at 827. It retains ARTICLE_YOUR only for tame monsters and formats it as “your ”; the JS counterpart js/do_name.js imports ARTICLE_YOUR and has the corresponding article branch. The v39 manifest labels this pointer objnam.c, but the actual C definition is in do_name.c.",
+                "js/mon.js:shapeOldNames at 2758 references ARTICLE_YOUR without importing it. js/const.js exports ARTICLE_YOUR, while js/mon.js imports ARTICLE_A, ARTICLE_NONE, and ARTICLE_THE only. Fresh-process replay `node frozen/ps_test_runner.mjs --worker-session=challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json` stopped at moves 28 with error `ARTICLE_YOUR is not defined`; its JSON result is saved in .cache/a2-v39-mounted-steed.before.log (0/29 screens, 0/2642 RNG calls, 0/29 cursors because replay aborts).",
+                "Actionable fix: add ARTICLE_YOUR to js/mon.js’s existing const.js import and add a focused source-pinned test in scripts/mon.test.mjs that invokes newcham with NC_SHOW_MSG on a tame monster and verifies its old-name message. The existing x_monnam implementation handles the name; do not change trap behavior, steed logic, naming logic, or session data."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-mounted-steed-polymorph-trap",
+          "session": "synthetic/v39/v39-mounted-steed-polymorph-trap",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json",
+          "recordingPath": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json",
+          "recordingSha256": "1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997",
+          "recipe": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.recipe.session.json",
+          "recipeSha256": "e2f5f7d33e071f8e837389af982cdfe8fb6754549295fac5ff069e3fea8df5d8",
+          "replayInputSha256": "0829ceb24a4dbcbea8c6089aa8de856c51982d20a277e4f3a173eccf4a339ac1",
+          "evaluationPath": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+          "evaluationCommit": "998c20cf771d23d6f5faed181eee05f270b73b58",
+          "evaluationArtifact": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+          "evaluationUtc": "2026-10-10T07:03:42.993Z",
+          "remainingScreens": 0,
+          "recordedSteps": 29,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 29,
+              "total": 29
+            },
+            "rng": {
+              "matched": 2640,
+              "total": 2642
+            },
+            "cursors": {
+              "matched": 29,
+              "total": 29
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2640,
+              "cEntry": "rn2(3)=2",
+              "cCaller": "landing_spot(steed.c:543)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 28,
+                "key": " "
+              },
+              "stepIndex": 28
+            },
+            "cursor": null
+          },
+          "step": 28,
+          "kind": "rng",
+          "sourceFile": "steed.c",
+          "function": "landing_spot",
+          "message": null,
+          "cFile": "steed.c",
+          "luaFile": null,
+          "line": 543,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v39/v39-mounted-steed-polymorph-trap.json",
+            "previousRemainingScreens": 29
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "998c20cf771d23d6f5faed181eee05f270b73b58",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-trap-float-down-lava-effects-order-v39-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Fix immediate lava effects after levitation ends",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v39/v39-lava-after-ring-removal"
+      ],
+      "selectionReason": "The admitted v39 lava ring removal case reaches trap.c:float_down and diverges when JavaScript defers lava_effects.",
+      "detail": "Run trap.c:lava_effects immediately from float_down in source order and clear the supported worn cloak before destruction.",
+      "openedAt": "f72e7e70c8f98aec3e7de9de8fe7ec7fc310e575",
+      "openStanding": {
+        "sha": "998c20cf771d23d6f5faed181eee05f270b73b58",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "809afb4bf62208f778b639a4abb658400c11fd5a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "float_down",
+      "session": "synthetic/v39/v39-lava-after-ring-removal",
+      "step": 32,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-lava-after-ring-removal": {
+          "session": "synthetic/v39/v39-lava-after-ring-removal",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-lava-after-ring-removal",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-lava-after-ring-removal.session.json",
+          "recordingSha256": "11a86c22a75e3d0ee9351dd5192a33685035d4ec1236b2b82571d11c61661923",
+          "evaluationPath": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+          "evaluationCommit": "998c20cf771d23d6f5faed181eee05f270b73b58"
+        }
+      },
+      "activeStanding": {
+        "sha": "998c20cf771d23d6f5faed181eee05f270b73b58",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-lava-after-ring-removal",
+          "session": "synthetic/v39/v39-lava-after-ring-removal",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-lava-after-ring-removal.session.json",
+          "recordingPath": "challenges/cases/v39/v39-lava-after-ring-removal.session.json",
+          "recordingSha256": "11a86c22a75e3d0ee9351dd5192a33685035d4ec1236b2b82571d11c61661923",
+          "recipe": "challenges/cases/v39/v39-lava-after-ring-removal.recipe.session.json",
+          "recipeSha256": "544fccdc44a1aad1367c2cbec334ecd11d9a4e9f436ca64e37977d0f751b0ef6",
+          "replayInputSha256": "0829ceb24a4dbcbea8c6089aa8de856c51982d20a277e4f3a173eccf4a339ac1",
+          "evaluationPath": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+          "evaluationCommit": "998c20cf771d23d6f5faed181eee05f270b73b58",
+          "evaluationArtifact": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+          "evaluationUtc": "2026-10-10T07:03:42.993Z",
+          "remainingScreens": 12,
+          "recordedSteps": 44,
+          "previousScreensMatched": 32,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 44
+            },
+            "rng": {
+              "matched": 2343,
+              "total": 2355
+            },
+            "cursors": {
+              "matched": 34,
+              "total": 44
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "R"
+              },
+              "kind": "ch",
+              "row": 14,
+              "column": 13,
+              "cCell": {
+                "ch": ".",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "Z",
+                "color": 3,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2341,
+              "cEntry": "d(6,6)=22",
+              "cCaller": "lava_effects(trap.c:6800)",
+              "jsEntry": "rn2(5)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "R"
+              },
+              "stepIndex": 32
+            },
+            "cursor": null
+          },
+          "step": 32,
+          "kind": "rng",
+          "sourceFile": "trap.c",
+          "function": "lava_effects",
+          "message": null,
+          "cFile": "trap.c",
+          "luaFile": null,
+          "line": 6800,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-lava-after-ring-removal.json",
+            "result": {
+              "session": "synthetic/v39/v39-lava-after-ring-removal",
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-lava-after-ring-removal",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recordingPath": "challenges/cases/v39/v39-lava-after-ring-removal.session.json",
+              "recordingSha256": "11a86c22a75e3d0ee9351dd5192a33685035d4ec1236b2b82571d11c61661923",
+              "evaluationPath": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+              "evaluationCommit": "998c20cf771d23d6f5faed181eee05f270b73b58",
+              "remainingScreens": 12,
+              "recordedSteps": 44,
+              "status": "complete",
+              "commit": "42af7e0dffb44fbb43703f17cefc43929bfc93f0",
+              "mismatch": {
+                "session": "synthetic/v39/v39-lava-after-ring-removal",
+                "remainingScreens": 12,
+                "step": 32,
+                "kind": "rng",
+                "sourceFile": "trap.c",
+                "function": "lava_effects",
+                "line": 6800,
+                "metrics": {
+                  "screens": {
+                    "matched": 32,
+                    "total": 44
+                  },
+                  "rng": {
+                    "matched": 2343,
+                    "total": 2355
+                  },
+                  "cursors": {
+                    "matched": 34,
+                    "total": 44
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "R"
+                    },
+                    "kind": "ch",
+                    "row": 14,
+                    "column": 13,
+                    "cCell": {
+                      "ch": ".",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "Z",
+                      "color": 3,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2341,
+                    "cEntry": "d(6,6)=22",
+                    "cCaller": "lava_effects(trap.c:6800)",
+                    "jsEntry": "rn2(5)=2",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "R"
+                    },
+                    "stepIndex": 32
+                  },
+                  "cursor": null
+                }
+              },
+              "summary": "Removing the worn levitation ring while standing on lava has two source-traced JS defects. C do_wear.c:doremring -> Ring_off -> Ring_off_or_gone calls trap.c:float_down, which immediately invokes lava_effects when the hero has landed on lava and is not already inside lava_effects; JS float_down instead records note_unported('trap.c lava_effects') and defers those effects to hack.js:pooleffects, so the first RNG call at step 32 differs. Once invoked at the C call site, JS lava_effects must also remove an inventory cloak marked in_use before useupall; its conservative W_ARMOR guard skips the existing supported cloak-removal path, leaving stale worn state. The implementation scope is a divergence fix in trap.c:float_down/lava_effects behavior, limited to immediate source-order execution and the existing W_ARMC removal path.",
+              "source": {
+                "file": "trap.c",
+                "branch": "After float_down clears the last levitation source, when no blocked-levitation or flight/swallow early return applies, the hero is on lava and iflags.in_lava_effects is zero, C calls lava_effects immediately and sets no_msg true. In lava_effects, for a vulnerable hero whose worn cloak was flagged in_use, C invokes remove_worn_item before useupall so cloak slot and worn mask state are cleared before destruction.",
+                "functions": [
+                  "float_down",
+                  "lava_effects"
+                ],
+                "callers": [
+                  "do_wear.c:doremring -> Ring_off -> Ring_off_or_gone -> trap.c:float_down",
+                  "hack.c:pooleffects -> trap.c:lava_effects"
+                ],
+                "dependencies": [
+                  "steal.c:remove_worn_item; existing js/steal.js W_ARMOR branch dispatches the worn cloak to Cloak_off",
+                  "hack.c:pooleffects remains the independent end-of-turn lava-effects caller"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved combined queue entry at .cache/latest-saved-combined-queue.json (SHA-256 781129791f95cd10ec8578dd170fd5298182a9b4ad578f5c008d93d68d5bc37b) identifies the admitted v39 case, 12 remaining screens, and the first mismatch at segment 0 step 32, key R: C d(6,6)=22 from lava_effects(trap.c:6800), versus JS rn2(5)=2.",
+                "Fresh differential at /tmp/teleport-validation-1000/run-iUYxqm reproduces the call-order mismatch at key R: C enters lava_effects during ring removal, while JS skips it in trap.js:float_down and later enters via hack.js:pooleffects. C trap.c:float_down lines 4107-4109 makes the discarded-return lava_effects call before its no_msg landing suppression; JS trap.js:2057-2061 currently records the gap instead.",
+                "C do_wear.c:doremring at lines 1874-1892 selects the ring and do_wear.c:Ring_off_or_gone at lines 1347-1447 clears its worn property before calling float_down(0L, 0L) for RIN_LEVITATION. This is the admitted recording's direct Ctrl-R removal route.",
+                "C trap.c:lava_effects marks vulnerable organic inventory with in_use before the fatal branch; its source calls remove_worn_item(obj, TRUE) before useupall. JS trap.js:1657-1678 currently rejects all W_ARMOR from the helper call, although js/steal.js:308-350 supports the cloak slot by calling Cloak_off. Replaying the current JS reaches a later stale-worn-state failure for the worn cloak (otyp 148) after the earlier RNG divergence.",
+                "No C source or do_wear/steal caller changes are needed: the root defect is in existing trap.js float_down call timing and the existing lava_effects W_ARMC dispatch guard. Focused source-pinned tests and a fresh v39 differential will validate the correction."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "809afb4bf62208f778b639a4abb658400c11fd5a",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-trap-selftouch-wielded-corpse-v39-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port trap.c selftouch for wielded petrifying corpses",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v39/v39-selftouch-cockatrice-human-final"
+      ],
+      "selectionReason": "The admitted v39 controlled rehumanization case reaches trap.c:selftouch while the bare handed hero wields a cockatrice corpse.",
+      "detail": "Port the complete selftouch function and wire polyself.c:newman to the existing instapetrify path.",
+      "openedAt": "e80218ea600a25704d37d78ff5b0292b2a4503ad",
+      "openStanding": {
+        "sha": "809afb4bf62208f778b639a4abb658400c11fd5a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "7a54ede871b0a32bf11496495532a9bbde5c46f3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "selftouch",
+          "line": 3883,
+          "endLine": 3912,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3883,
+        "to": 3912
+      },
+      "syntheticProvenance": {
+        "synthetic/v39/v39-selftouch-cockatrice-human-final": {
+          "session": "synthetic/v39/v39-selftouch-cockatrice-human-final",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-selftouch-cockatrice-human-final",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-selftouch-cockatrice-human-final.session.json",
+          "recordingSha256": "75b35b3d9bae7b8c0b5c4a3ba07be1b9896fcc942f8115aa9795cbb5e1d2ce39",
+          "evaluationPath": "challenges/evaluations/accepted-809afb4bf62208f778b639a4abb658400c11fd5a-v39.json",
+          "evaluationCommit": "809afb4bf62208f778b639a4abb658400c11fd5a"
+        }
+      },
+      "activeStanding": {
+        "sha": "809afb4bf62208f778b639a4abb658400c11fd5a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-selftouch-cockatrice-human-final",
+          "session": "synthetic/v39/v39-selftouch-cockatrice-human-final",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-selftouch-cockatrice-human-final.session.json",
+          "recordingPath": "challenges/cases/v39/v39-selftouch-cockatrice-human-final.session.json",
+          "recordingSha256": "75b35b3d9bae7b8c0b5c4a3ba07be1b9896fcc942f8115aa9795cbb5e1d2ce39",
+          "recipe": "challenges/cases/v39/v39-selftouch-cockatrice-human-final.recipe.session.json",
+          "recipeSha256": "50af5809709e91d559993f804d05f94d3e7548e7d6a31d17171f3fe5d9317c86",
+          "replayInputSha256": "ed926f4758cde1991459033c919a8ff0b52a3ee3261080b1ad536cdca2b06e90",
+          "evaluationPath": "challenges/evaluations/accepted-809afb4bf62208f778b639a4abb658400c11fd5a-v39.json",
+          "evaluationCommit": "809afb4bf62208f778b639a4abb658400c11fd5a",
+          "evaluationArtifact": "challenges/evaluations/accepted-809afb4bf62208f778b639a4abb658400c11fd5a-v39.json",
+          "evaluationUtc": "2026-10-10T07:23:07.230Z",
+          "remainingScreens": 5,
+          "recordedSteps": 64,
+          "previousScreensMatched": 59,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 59,
+              "total": 64
+            },
+            "rng": {
+              "matched": 2306,
+              "total": 2306
+            },
+            "cursors": {
+              "matched": 60,
+              "total": 64
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 59,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 59,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 24,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 59,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 59,
+                "key": "\n"
+              },
+              "cCursor": [
+                32,
+                0,
+                1
+              ],
+              "jsCursor": [
+                3,
+                10,
+                1
+              ]
+            }
+          },
+          "step": 59,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-selftouch-cockatrice-human-final.json",
+            "result": {
+              "session": "synthetic/v39/v39-selftouch-cockatrice-human-final",
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-selftouch-cockatrice-human-final",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recordingSha256": "75b35b3d9bae7b8c0b5c4a3ba07be1b9896fcc942f8115aa9795cbb5e1d2ce39",
+              "evaluationPath": "challenges/evaluations/accepted-bc442e36ad933de77a8051a6ae641fac42ab6780-v39.json",
+              "evaluationCommit": "bc442e36ad933de77a8051a6ae641fac42ab6780",
+              "remainingScreens": 5,
+              "recordedSteps": 64,
+              "status": "complete",
+              "commit": "730b2417130fc0c0bf5193cf26ce0028156a7e55",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v39",
+                "caseId": "v39-selftouch-cockatrice-human-final",
+                "session": "synthetic/v39/v39-selftouch-cockatrice-human-final",
+                "manifestPath": "challenges/manifests/v39.json",
+                "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+                "recording": "challenges/cases/v39/v39-selftouch-cockatrice-human-final.session.json",
+                "recordingPath": "challenges/cases/v39/v39-selftouch-cockatrice-human-final.session.json",
+                "recordingSha256": "75b35b3d9bae7b8c0b5c4a3ba07be1b9896fcc942f8115aa9795cbb5e1d2ce39",
+                "recipe": "challenges/cases/v39/v39-selftouch-cockatrice-human-final.recipe.session.json",
+                "recipeSha256": "50af5809709e91d559993f804d05f94d3e7548e7d6a31d17171f3fe5d9317c86",
+                "replayInputSha256": "9c849123a3d6d04f02b60b84dadcf1b460de318a7ca2ce052b1ffa6dbb7ce224",
+                "evaluationPath": "challenges/evaluations/accepted-bc442e36ad933de77a8051a6ae641fac42ab6780-v39.json",
+                "evaluationCommit": "bc442e36ad933de77a8051a6ae641fac42ab6780",
+                "evaluationArtifact": "challenges/evaluations/accepted-bc442e36ad933de77a8051a6ae641fac42ab6780-v39.json",
+                "evaluationUtc": "2026-10-10T06:34:43.125Z",
+                "remainingScreens": 5,
+                "recordedSteps": 64,
+                "previousScreensMatched": 59,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 59,
+                    "total": 64
+                  },
+                  "rng": {
+                    "matched": 2306,
+                    "total": 2306
+                  },
+                  "cursors": {
+                    "matched": 60,
+                    "total": 64
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 59,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 59,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 24,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 59,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 59,
+                      "key": "\n"
+                    },
+                    "cCursor": [
+                      32,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      3,
+                      10,
+                      1
+                    ]
+                  }
+                },
+                "step": 59,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At step 59, the controlled rehumanization path reaches trap.c:selftouch because the hero has no gloves and still wields a cockatrice corpse. JavaScript currently records that call as unported in polyself.c:newman, so it skips the long corpse-contact message and the following instapetrify path; C pauses on the previous “You feel like a new man!” line before drawing that message, causing the first screen and cursor mismatch. Port whole trap.c:selftouch and wire the selected polyself.c:newman caller.",
+              "source": {
+                "file": "trap.c",
+                "branch": "When the primary weapon (or, under the source two-weapon condition, secondary weapon) is a CORPSE whose monster touch_petrifies and the hero lacks Stone_resistance, selftouch prints the caller-supplied phrase plus corpse name, builds the killer phrase, and invokes instapetrify. If stoning is survived, it unwields the corpse when gloves and stone resistance are still absent.",
+                "functions": [
+                  "selftouch"
+                ],
+                "callers": [
+                  "polyself.c:newman:463-465 calls selftouch(no_longer_petrify_resistant) after polyman() and the post-rehumanization refreshes; this is the admitted session path and the only caller wired by this task."
+                ],
+                "dependencies": [
+                  "trap.c:instapetrify is already implemented in js/trap.js and supports wielding-corpse protection-loss callers; it issues the stoning message and enters done(STONING).",
+                  "mondata.c:touch_petrifies, do_name.c:obj_pmname, objnam.c:an, and wield.c:uwepgone/uswapwepgone already have JavaScript implementations used by other callers.",
+                  "artifact.c:retouch_equipment remains an explicit gap in newman and is outside this source scope; the recorded branch reaches selftouch after that call."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The authoritative saved queue at /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json (SHA-256 781129791f95cd10ec8578dd170fd5298182a9b4ad578f5c008d93d68d5bc37b) identifies this admitted v39 session with 5 remaining screens, 64 steps, 59/64 screens and 60/64 cursors matched, and all 2306/2306 RNG calls matched. The first mismatch is segment 0, step 59, newline: C cursor [32,0,1] and “You feel like a new man!--More--”; JavaScript cursor [3,10,1] and no More marker.",
+                "Direct JavaScript replay on examined commit 730b2417130fc0c0bf5193cf26ce0028156a7e55 reproduces the boundary: JS step 59 shows “You feel like a new man!” with cursor [3,10,1], then treats each of the four following spaces as an unknown command; C uses those spaces to dismiss the selftouch, instapetrify, and wizard death prompts.",
+                "The admitted recording’s actions first use #polyself to become a stone golem, wield a cockatrice corpse, then use #polyself to request human. At polyself.c:463-465, newman calls selftouch(no_longer_petrify_resistant) when !uarmg. The matching JS caller in polyself.js:newman at line 1698 instead records note_unported(\"trap.c selftouch\").",
+                "C trap.c:selftouch at lines 3883-3910 checks wielded CORPSE objects with touch_petrifies and !Stone_resistance, prints \"%s touch the %s corpse.\", builds the killer phrase, calls instapetrify, and after lifesaving calls uwepgone when the hero still lacks gloves/resistance. The source-order message call makes topl.c:update_topl show --More-- on the prior newman message when the longer contact line cannot share it.",
+                "The continuation is already owned by existing code: trap.c:instapetrify (js/trap.js:356-375) handles stone-golem transformation or the urgent “You turn to stone...” and done(STONING) path; touch_petrifies, obj_pmname, an, uwepgone, and uswapwepgone are already imported implementations. No RNG call is involved in the first divergence."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "selftouch",
+            "implementation": "js/trap.js",
+            "symbol": "selftouch",
+            "sourceReview": "Read the complete C definition trap.c:selftouch at lines 3883-3910. It checks the primary wielded corpse first, then the source's guarded secondary-weapon branch; each branch tests CORPSE, touch_petrifies, and Stone_resistance in order, prints the caller-provided phrase before calling instapetrify with the source-built killer text, and unwields only after stoning returns while gloves and resistance are still absent. The body makes no RNG calls. JavaScript now implements both branches and removes the selected polyself.c:newman note_unported call. Existing artifact.c:retouch_equipment remains an explicit gap immediately before the selected caller; it is outside this source scope.",
+            "callers": [
+              {
+                "path": "js/polyself.js",
+                "symbol": "newman",
+                "source": "polyself.c:newman lines 460-465 calls selftouch(no_longer_petrify_resistant) after polyman, livelog, monster redraw, and encumbrance handling when the hero has no gloves."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "polyself",
+                "source": "polyself.c:polyself lines 709-714 calls newman when controlled selection of PM_HUMAN fails polyok; the admitted session follows this branch."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runPolyselfCommand",
+                "source": "cmd.c command table lines 1801-1802 routes #polyself to wiz_polyself; wizcmds.c:wiz_polyself lines 566-570 calls polyself(POLY_CONTROLLED); the JavaScript extended-command dispatch reaches runPolyselfCommand, wiz_polyself, polyself, and newman."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v39",
+                "caseId": "v39-selftouch-cockatrice-human-final",
+                "segment": 0,
+                "fromStep": 59,
+                "throughStep": 63,
+                "source": "#polyself command dispatch -> wizcmds.c:wiz_polyself -> polyself.c:polyself -> polyself.c:newman -> trap.c:selftouch -> trap.c:instapetrify"
+              }
+            ],
+            "checkedAt": "d8d8a7ff9f1460c6792be078ab2168b531235e12"
+          }
+        ],
+        "entryPointReview": "The selected active entry point is wizard #polyself with a human choice while the hero has no gloves and still wields a cockatrice corpse. C dispatches through cmd.c's polyself extended-command row to wizcmds.c:wiz_polyself, then polyself.c:polyself selects newman, which calls selftouch. JavaScript follows the corresponding extcmdlist_data/cmd.js dispatcher through wiz_polyself and polyself.js:newman. The v39 recording reaches the corpse-contact message, instapetrify, wizard death prompt, and lifesaving return. Other C selftouch callers are outside this selected caller scope and retain their explicit gaps where their caller code is not ported.",
+        "entryPoints": [
+          {
+            "name": "Controlled #polyself rehumanization while wielding a cockatrice corpse without gloves",
+            "functions": [
+              "selftouch"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v39",
+                "caseId": "v39-selftouch-cockatrice-human-final",
+                "segment": 0,
+                "fromStep": 59,
+                "throughStep": 63,
+                "source": "cmd.c -> wizcmds.c:wiz_polyself -> polyself.c:polyself -> polyself.c:newman -> trap.c:selftouch -> trap.c:instapetrify"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7a54ede871b0a32bf11496495532a9bbde5c46f3",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-zap-cancel-monst-clay-golem-kill-v39-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port monster cancellation and its clay-golem kill path",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v39/v39-cancellation-clay-golem-reached"
+      ],
+      "selectionReason": "The current admitted v39 cancellation case has two unmatched screens at zap.c:cancel_monst and reaches the clay-golem allow_cancel_kill branch.",
+      "detail": "Port the complete zap.c:cancel_monst function and wire its existing production callers, including the result-discarding muse.c:mbhitm cancellation branch.",
+      "openedAt": "b9165c3a9af82fabd1b947fe8b23b79cd96906b9",
+      "openStanding": {
+        "sha": "7a54ede871b0a32bf11496495532a9bbde5c46f3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "52c9514b68146f66836e5ff89d4d0be624a2d33d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "cancel_monst",
+          "line": 3150,
+          "endLine": 3218,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3150,
+        "to": 3218
+      },
+      "syntheticProvenance": {
+        "synthetic/v39/v39-cancellation-clay-golem-reached": {
+          "session": "synthetic/v39/v39-cancellation-clay-golem-reached",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-cancellation-clay-golem-reached",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-cancellation-clay-golem-reached.session.json",
+          "recordingSha256": "1fd70e2ae94287633942e820222c28c160eb531c5cd300aabecdd299771e45c1",
+          "evaluationPath": "challenges/evaluations/accepted-7a54ede871b0a32bf11496495532a9bbde5c46f3-v39.json",
+          "evaluationCommit": "7a54ede871b0a32bf11496495532a9bbde5c46f3"
+        }
+      },
+      "activeStanding": {
+        "sha": "7a54ede871b0a32bf11496495532a9bbde5c46f3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-cancellation-clay-golem-reached",
+          "session": "synthetic/v39/v39-cancellation-clay-golem-reached",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-cancellation-clay-golem-reached.session.json",
+          "recordingPath": "challenges/cases/v39/v39-cancellation-clay-golem-reached.session.json",
+          "recordingSha256": "1fd70e2ae94287633942e820222c28c160eb531c5cd300aabecdd299771e45c1",
+          "recipe": "challenges/cases/v39/v39-cancellation-clay-golem-reached.recipe.session.json",
+          "recipeSha256": "c8e729b435568a277050cec71405a891ddf0fc4444320a52f3fec92542ef8b08",
+          "replayInputSha256": "39326f5709f0a83e7ef430814cd20890a6012f2f479a7593070c217e41b52957",
+          "evaluationPath": "challenges/evaluations/accepted-7a54ede871b0a32bf11496495532a9bbde5c46f3-v39.json",
+          "evaluationCommit": "7a54ede871b0a32bf11496495532a9bbde5c46f3",
+          "evaluationArtifact": "challenges/evaluations/accepted-7a54ede871b0a32bf11496495532a9bbde5c46f3-v39.json",
+          "evaluationUtc": "2026-10-10T07:39:05.102Z",
+          "remainingScreens": 2,
+          "recordedSteps": 49,
+          "previousScreensMatched": 47,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 47,
+              "total": 49
+            },
+            "rng": {
+              "matched": 2227,
+              "total": 2242
+            },
+            "cursors": {
+              "matched": 48,
+              "total": 49
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 47,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 47,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 49,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2227,
+              "cEntry": "rn2(6)=0",
+              "cCaller": "xkilled(mon.c:3587)",
+              "jsEntry": "rn2(5)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 48,
+                "key": " "
+              },
+              "stepIndex": 48
+            },
+            "cursor": {
+              "index": 47,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 47,
+                "key": "l"
+              },
+              "cCursor": [
+                57,
+                0,
+                1
+              ],
+              "jsCursor": [
+                38,
+                16,
+                1
+              ]
+            }
+          },
+          "step": 47,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-cancellation-clay-golem-reached.json",
+            "result": {
+              "session": "synthetic/v39/v39-cancellation-clay-golem-reached",
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-cancellation-clay-golem-reached",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recordingSha256": "1fd70e2ae94287633942e820222c28c160eb531c5cd300aabecdd299771e45c1",
+              "evaluationPath": "challenges/evaluations/accepted-7a54ede871b0a32bf11496495532a9bbde5c46f3-v39.json",
+              "evaluationCommit": "7a54ede871b0a32bf11496495532a9bbde5c46f3",
+              "remainingScreens": 2,
+              "recordedSteps": 49,
+              "status": "complete",
+              "commit": "48e67da6816db6267bf1739fa6116f8336fd39a6",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v39",
+                "caseId": "v39-cancellation-clay-golem-reached",
+                "session": "synthetic/v39/v39-cancellation-clay-golem-reached",
+                "manifestPath": "challenges/manifests/v39.json",
+                "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+                "recording": "challenges/cases/v39/v39-cancellation-clay-golem-reached.session.json",
+                "recordingPath": "challenges/cases/v39/v39-cancellation-clay-golem-reached.session.json",
+                "recordingSha256": "1fd70e2ae94287633942e820222c28c160eb531c5cd300aabecdd299771e45c1",
+                "recipe": "challenges/cases/v39/v39-cancellation-clay-golem-reached.recipe.session.json",
+                "recipeSha256": "c8e729b435568a277050cec71405a891ddf0fc4444320a52f3fec92542ef8b08",
+                "evaluationPath": "challenges/evaluations/accepted-bc442e36ad933de77a8051a6ae641fac42ab6780-v39.json",
+                "evaluationCommit": "bc442e36ad933de77a8051a6ae641fac42ab6780",
+                "evaluationUtc": "2026-10-10T06:34:43.125Z",
+                "remainingScreens": 2,
+                "recordedSteps": 49,
+                "previousScreensMatched": 47,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 47,
+                    "total": 49
+                  },
+                  "rng": {
+                    "matched": 2227,
+                    "total": 2242
+                  },
+                  "cursors": {
+                    "matched": 48,
+                    "total": 49
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 47,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 47,
+                      "key": "l"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 49,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2227,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 48,
+                      "key": " "
+                    },
+                    "cEntry": "rn2(6)=0",
+                    "cCaller": "xkilled(mon.c:3587)",
+                    "jsEntry": "rn2(5)=4"
+                  },
+                  "cursor": {
+                    "index": 47,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 47,
+                      "key": "l"
+                    },
+                    "cCursor": [
+                      57,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      38,
+                      16,
+                      1
+                    ]
+                  }
+                },
+                "kind": "rng",
+                "sourceFile": "zap.c",
+                "function": "cancel_monst",
+                "summary": "At C zap.c:cancel_monst step 47, cancellation of the targeted clay golem enters its allow_cancel_kill branch. C calls killed(mdef), which reaches mon.c:xkilled and its treasure-drop rn2(6) at PRNG call 2228. JavaScript instead records note_unported(\"zap.c cancel_monst kill path\") and skips the death path; by step 48 it draws rn2(5)=4 at a later site. This omission accounts for the two unmatched screens and one cursor."
+              },
+              "summary": "The visible cancellation-wand path reaches zap.c:cancel_monst with a clay golem and allow_cancel_kill enabled. C chooses killed(mdef) for a hero attack, which runs the existing mon.c:killed/xkilled path. JavaScript leaves that branch as note_unported and skips the kill; the first C-only RNG event is xkilled’s rn2(6) treasure-drop draw.",
+              "source": {
+                "file": "zap.c",
+                "branch": "When cancellation is not resisted and the target remains PM_CLAY_GOLEM after normal_shape(), the function displays the writing-vanishes message if visible. If allow_cancel_kill is true, a hero attack calls killed(mdef); a non-hero attack calls monkilled(mdef, \"\", AD_SPEL). Magicbane passes allow_cancel_kill false and must keep skipping this kill path.",
+                "functions": [
+                  "cancel_monst"
+                ],
+                "callers": [
+                  "zap.c:bhitm lines 335-340 calls cancel_monst(mtmp, otmp, TRUE, TRUE, FALSE) for WAN_CANCELLATION and SPE_CANCELLATION after revealing a disguised mimic.",
+                  "js/zap.js:bhitm lines 3326-3327 calls cancel_monst for cancellation wands/spells; js/zap.js:cancel_monst contains the matching clay-golem branch.",
+                  "The admitted v39 wizard recording dispatches the zap command through the normal command path, hits a wished clay golem, and reaches the cancellation branch."
+                ],
+                "dependencies": [
+                  "mon.c:killed and mon.c:xkilled are already ported in js/mon.js; zap.js already imports killed, monkilled, and AD_SPEL will be imported from monsters.js for the non-hero branch.",
+                  "mon.c:monkilled is already ported in js/mon.js; its AD_SPEL path is the C non-hero cancellation call."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The authoritative saved queue /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json has SHA-256 e153a1e0869be21cb7a70ad69de92d64fced50b7a39196a9515a6760416d7d0d; its v39 candidate has 2 remaining screens and first mismatch at step 47. The evaluation’s admitted case-membership digest is 02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0 and the evaluation is keyed to bc442e36ad933de77a8051a6ae641fac42ab6780.",
+                "The v39 manifest names zap.c:cancel_monst -> mon.c:xkilled. Its saved comparison locates the C-only rn2(6)=0 in xkilled(mon.c:3587), call 2228; JavaScript instead consumes rn2(5)=4 after the cancellation branch records the kill path as unported.",
+                "Direct replay of the admitted C recording through runJsSession reproduces the screen/cursor mismatch at segment 0 step 47 (key l), then the RNG mismatch at step 48 (space). C cursor is [57,0,1], JavaScript is [38,16,1].",
+                "Upstream zap.c:cancel_monst lines 3150-3215 makes the player-killed versus monster-killed call explicit. Its production zap.c:bhitm caller is already ported in js/zap.js and dispatches cancellation into cancel_monst.",
+                "JS js/zap.js currently mirrors resistance, inventory cancellation, normal_shape, message, and allow_cancel_kill gates, but marks the selected kill branch note_unported. The existing killed, monkilled, and xkilled implementations are imported from js/mon.js; this task only wires those C callees from the owning cancel_monst source function."
+              ],
+              "queueSnapshot": {
+                "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+                "sha256": "e153a1e0869be21cb7a70ad69de92d64fced50b7a39196a9515a6760416d7d0d"
+              }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "cancel_monst",
+            "implementation": "js/zap.js",
+            "symbol": "cancel_monst",
+            "sourceReview": "Read the complete C definition zap.c:cancel_monst at lines 3150-3215. It checks hero Antimagic or monster resist first and returns FALSE on resistance; optionally walks the selected inventory chain through cancel_item and updates hero AC; for the hero it handles polymorph cancellation, clay-golem writing/death state, Unchanging, and rehumanize; for monsters it sets mcan, calls normal_shape, and handles visible clay-golem writing. When allow_cancel_kill is true, C calls killed(mdef) for youattack or monkilled(mdef, \"\", AD_SPEL) otherwise. JavaScript now calls those existing functions and returns true afterward. The C kill functions return void, so no returned data is consumed. zap.c:bhitm is the selected cancellation-wand caller. The existing muse.c:mbhitm callsite explicitly discards cancel_monst's Boolean result; JavaScript now awaits the call and preserves its result-discarding behavior. This wires only that branch of the already-partial mbhitm callback; it does not claim the rest of mbhitm complete.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhitm",
+                "source": "zap.c:bhitm lines 335-339 calls cancel_monst(mtmp, otmp, TRUE, TRUE, FALSE) for a cancellation wand or spell after revealing disguised mimics."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zapyourself",
+                "source": "zap.c:zapyourself lines 2812-2815 calls cancel_monst(&gy.youmonst, obj, TRUE, TRUE, TRUE) for a hero self-zap."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "Mb_hit",
+                "source": "artifact.c:Mb_hit line 1321 calls cancel_monst with allow_cancel_kill FALSE and consumes its Boolean resistance result."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "dozap",
+                "source": "cmd.c extended command entry dispatches to zap.c:dozap; the JavaScript command table dispatches to js/zap.js:dozap before the recorded wand ray."
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "mbhitm",
+                "source": "muse.c:mbhitm lines 1665-1668 dispatch WAN_CANCELLATION and SPE_CANCELLATION to cancel_monst(mtmp, otmp, FALSE, TRUE, FALSE) and explicitly discard its Boolean return. A focused test invokes the callback branch directly; this additional branch does not replace the admitted hero-zap runtime evidence."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/muse.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v39",
+                "caseId": "v39-cancellation-clay-golem-reached",
+                "segment": 0,
+                "fromStep": 47,
+                "throughStep": 48,
+                "source": "cmd.c:dozap -> zap.c:dozap -> zap.c:weffects -> zap.c:bhit -> zap.c:bhitm -> zap.c:cancel_monst -> mon.c:killed -> mon.c:xkilled"
+              }
+            ],
+            "checkedAt": "84312ccb8315efd63349f4d9ec0e63d2783b2601"
+          }
+        ],
+        "entryPointReview": "The selected runtime entrypoint is the hero zapping a cancellation wand at a wished clay golem. C dispatches the z command through zap.c:dozap -> weffects -> bhit -> bhitm -> cancel_monst; the admitted v39 recording reaches allow_cancel_kill and killed -> xkilled. JavaScript dispatches through cmd.js to dozap, weffects passes bhitm as the ray callback, and bhitm calls cancel_monst. Other already wired C callsites include hero self-zap and artifact.c:Mb_hit. The additional muse.c:mbhitm cancellation branch is wired and tested directly in scripts/muse.test.mjs; C currently does not select cancellation items through find_offensive(), so this callback branch is not a separate naturally selected runtime entry point. No muse.c:use_defensive cancellation call exists in the upstream source range.",
+        "entryPoints": [
+          {
+            "name": "Hero zaps a cancellation wand at a clay golem",
+            "functions": [
+              "cancel_monst"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v39",
+                "caseId": "v39-cancellation-clay-golem-reached",
+                "segment": 0,
+                "fromStep": 47,
+                "throughStep": 48,
+                "source": "cmd.c:dozap -> zap.c:dozap -> zap.c:weffects -> zap.c:bhit -> zap.c:bhitm -> zap.c:cancel_monst -> mon.c:killed -> mon.c:xkilled"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "52c9514b68146f66836e5ff89d4d0be624a2d33d",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "divergence-v39-sink-levitation-boots-pickup-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Restore sink-fall levitation gear removal callbacks",
+      "cFile": "hack.c",
+      "sessions": [],
+      "selectionReason": "The current admitted v39 sink case has five unmatched screens after hack.c:dosinkfall omits the worn levitation gear removal callbacks.",
+      "detail": "Invoke the existing Ring_off, Boots_off, and off_msg implementations in the source order used by hack.c:dosinkfall.",
+      "openedAt": "90bdbe571749e054b7c80e53bbc88f38df29206f",
+      "openStanding": {
+        "sha": "52c9514b68146f66836e5ff89d4d0be624a2d33d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "dosinkfall",
+      "session": "synthetic/v39/v39-sink-levitation-boots-pickup",
+      "step": 32,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-sink-levitation-boots-pickup": {
+          "session": "synthetic/v39/v39-sink-levitation-boots-pickup",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-sink-levitation-boots-pickup",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-sink-levitation-boots-pickup.session.json",
+          "recordingSha256": "b30989c0a8dbe8d05b38d669e572285e3363abea5d2fdebff79d98804f58f2e8",
+          "evaluationPath": "challenges/evaluations/accepted-52c9514b68146f66836e5ff89d4d0be624a2d33d-v39.json",
+          "evaluationCommit": "52c9514b68146f66836e5ff89d4d0be624a2d33d"
+        }
+      },
+      "activeStanding": {
+        "sha": "52c9514b68146f66836e5ff89d4d0be624a2d33d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-sink-levitation-boots-pickup",
+          "session": "synthetic/v39/v39-sink-levitation-boots-pickup",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-sink-levitation-boots-pickup.session.json",
+          "recordingPath": "challenges/cases/v39/v39-sink-levitation-boots-pickup.session.json",
+          "recordingSha256": "b30989c0a8dbe8d05b38d669e572285e3363abea5d2fdebff79d98804f58f2e8",
+          "recipe": "challenges/cases/v39/v39-sink-levitation-boots-pickup.recipe.session.json",
+          "recipeSha256": "14d86ab18b49cd4181f644f115ee7420bd6cb56ebee99007f4fea3e50f07793e",
+          "replayInputSha256": "95e36fdeb037cd9f4054be767f799cff740f5ce131dceb03447471bbfd53e38e",
+          "evaluationPath": "challenges/evaluations/accepted-52c9514b68146f66836e5ff89d4d0be624a2d33d-v39.json",
+          "evaluationCommit": "52c9514b68146f66836e5ff89d4d0be624a2d33d",
+          "evaluationArtifact": "challenges/evaluations/accepted-52c9514b68146f66836e5ff89d4d0be624a2d33d-v39.json",
+          "evaluationUtc": "2026-10-10T07:56:11.147Z",
+          "remainingScreens": 5,
+          "recordedSteps": 37,
+          "previousScreensMatched": 32,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 37
+            },
+            "rng": {
+              "matched": 2586,
+              "total": 2586
+            },
+            "cursors": {
+              "matched": 36,
+              "total": 37
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 27,
+              "cCell": {
+                "ch": "w",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "s",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": " "
+              },
+              "cCursor": [
+                78,
+                0,
+                1
+              ],
+              "jsCursor": [
+                29,
+                15,
+                1
+              ]
+            }
+          },
+          "step": 32,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-sink-levitation-boots-pickup.json",
+            "result": {
+              "session": "synthetic/v39/v39-sink-levitation-boots-pickup",
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-sink-levitation-boots-pickup",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recordingSha256": "b30989c0a8dbe8d05b38d669e572285e3363abea5d2fdebff79d98804f58f2e8",
+              "evaluationPath": "challenges/evaluations/accepted-52c9514b68146f66836e5ff89d4d0be624a2d33d-v39.json",
+              "evaluationCommit": "52c9514b68146f66836e5ff89d4d0be624a2d33d",
+              "remainingScreens": 5,
+              "recordedSteps": 37,
+              "status": "complete",
+              "commit": "a32daf664bb995a1405c33407f5a339a017004cc",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v39",
+                "caseId": "v39-sink-levitation-boots-pickup",
+                "session": "synthetic/v39/v39-sink-levitation-boots-pickup",
+                "manifestPath": "challenges/manifests/v39.json",
+                "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+                "recording": "challenges/cases/v39/v39-sink-levitation-boots-pickup.session.json",
+                "recordingPath": "challenges/cases/v39/v39-sink-levitation-boots-pickup.session.json",
+                "recordingSha256": "b30989c0a8dbe8d05b38d669e572285e3363abea5d2fdebff79d98804f58f2e8",
+                "recipe": "challenges/cases/v39/v39-sink-levitation-boots-pickup.recipe.session.json",
+                "recipeSha256": "14d86ab18b49cd4181f644f115ee7420bd6cb56ebee99007f4fea3e50f07793e",
+                "replayInputSha256": "9c849123a3d6d04f02b60b84dadcf1b460de318a7ca2ce052b1ffa6dbb7ce224",
+                "evaluationPath": "challenges/evaluations/accepted-bc442e36ad933de77a8051a6ae641fac42ab6780-v39.json",
+                "evaluationCommit": "bc442e36ad933de77a8051a6ae641fac42ab6780",
+                "evaluationArtifact": "challenges/evaluations/accepted-bc442e36ad933de77a8051a6ae641fac42ab6780-v39.json",
+                "evaluationUtc": "2026-10-10T06:34:43.125Z",
+                "remainingScreens": 5,
+                "recordedSteps": 37,
+                "previousScreensMatched": 32,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 32,
+                    "total": 37
+                  },
+                  "rng": {
+                    "matched": 2586,
+                    "total": 2586
+                  },
+                  "cursors": {
+                    "matched": 36,
+                    "total": 37
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 27,
+                    "cCell": {
+                      "ch": "w",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "s",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      78,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      29,
+                      15,
+                      1
+                    ]
+                  }
+                },
+                "step": 32,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch is the missing “You were wearing a +0 pair of levitation boots.” message after the sink fall death refusal. C reaches dosinkfall from Boots_on → spoteffects; dosinkfall removes the levitation boots and calls off_msg. JS dosinkfall skips Boots_off and off_msg even though Boots_off is implemented and off_msg exists as a private helper in do_wear.js.",
+              "source": {
+                "file": "hack.c",
+                "branch": "spoteffects runs on an IS_SINK square while levitation is active; when levitation comes only from worn boots and the hero is not innately levitating, blocked, or flying, dosinkfall takes the fall branch, then removes worn levitation items and reports each removal.",
+                "functions": [
+                  "dosinkfall"
+                ],
+                "callers": [
+                  "hack.c:spoteffects() calls dosinkfall() for IS_SINK && Levitation.",
+                  "do_wear.c:Boots_on() calls spoteffects(FALSE) after float_up() when levitation boots newly activate."
+                ],
+                "dependencies": [
+                  "do_wear.c:Boots_off",
+                  "do_wear.c:off_msg",
+                  "do_wear.c:Ring_off",
+                  "polyself.c:selftouch"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "nethack-c/upstream/src/do_wear.c:186-259: Boots_on() activates levitation boots, calls float_up(), then spoteffects(FALSE) when Levitation is true.",
+                "nethack-c/upstream/src/hack.c:3320-3354: spoteffects() calls dosinkfall() when the current terrain is a sink and Levitation is active.",
+                "nethack-c/upstream/src/hack.c:836-919: dosinkfall() crashes when levitation is only extrinsic from boots, restores the saved levitation fields after damage, then calls Boots_off() followed by off_msg(obj).",
+                "nethack-c/upstream/src/do_wear.c:67-72,262-323: off_msg() prints the removal message and Boots_off() clears the footwear slot and recalculates levitation in source order.",
+                "js/hack.js:2062-2129: dosinkfall() currently records note_unported(\"do_wear.c Boots_off/off_msg\") instead of invoking the implemented Boots_off() and off_msg() helpers.",
+                ".cache/A2-v39-sink-diff-fresh.log: fresh C differential has matching PRNG values (2586/2586) and first screen/cursor mismatch at boundary 33, segment 1, step 33, input space; C displays the boots removal message while JS skips it.",
+                "challenges/cases/v39/v39-sink-levitation-boots-pickup.recipe.session.json: independently designed wizard recipe wishes for a sink and levitation boots, picks up the boots, and starts wearing them over the sink; the C recording proves the sink fall branch is reached."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-wizard-create-particular-object-generation-v39-20261010",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Supply object construction hooks during wizard monster creation",
+      "cFile": "read.c",
+      "sessions": [],
+      "selectionReason": "The current admitted v39 wizard genesis case has 20 unmatched screens and stops in read.c:create_particular_creation when mimic disguise construction lacks the existing monsterObject hook.",
+      "detail": "Pass the canonical objectGenerationEnv into the production makemon call and cover the direct wizard command plus scroll and wand prompt callers with independent recordings.",
+      "openedAt": "58a3a7c2818e8338986f5af3002ce1719a840af7",
+      "openStanding": {
+        "sha": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "create_particular_creation",
+      "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+      "step": 94,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-counted-wizgenesis-mimic-population": {
+          "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-counted-wizgenesis-mimic-population",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+          "evaluationPath": "challenges/evaluations/accepted-6d9d5654bcd5444ec53ec2dbd558780ffe15ae37-v39.json",
+          "evaluationCommit": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37"
+        }
+      },
+      "activeStanding": {
+        "sha": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-counted-wizgenesis-mimic-population",
+          "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+          "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
+          "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
+          "replayInputSha256": "6c5eebb8ac589d2138034213c7b9c1eeab0007a593767809178d3a4cc278cf93",
+          "evaluationPath": "challenges/evaluations/accepted-6d9d5654bcd5444ec53ec2dbd558780ffe15ae37-v39.json",
+          "evaluationCommit": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37",
+          "evaluationArtifact": "challenges/evaluations/accepted-6d9d5654bcd5444ec53ec2dbd558780ffe15ae37-v39.json",
+          "evaluationUtc": "2026-10-10T08:14:26.793Z",
+          "remainingScreens": 20,
+          "recordedSteps": 114,
+          "previousScreensMatched": 94,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 94,
+              "total": 114
+            },
+            "rng": {
+              "matched": 6232,
+              "total": 6551
+            },
+            "cursors": {
+              "matched": 94,
+              "total": 114
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: monsterObject is not available",
+            "step": 94
+          },
+          "step": 94,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: monsterObject is not available",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-counted-wizgenesis-mimic-population.json",
+            "result": {
+              "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-counted-wizgenesis-mimic-population",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+              "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+              "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
+              "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
+              "replayInputSha256": "47593086a1baa7723744c3a7331b13272c438f1e0c7426f5a9c944273e35682e",
+              "evaluationPath": "challenges/evaluations/accepted-6d9d5654bcd5444ec53ec2dbd558780ffe15ae37-v39.json",
+              "evaluationCommit": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37",
+              "remainingScreens": 20,
+              "recordedSteps": 114,
+              "status": "complete",
+              "commit": "161dbdcdd9b497dc526bb79ee7d62761c01c91ec",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v39",
+                "caseId": "v39-counted-wizgenesis-mimic-population",
+                "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+                "manifestPath": "challenges/manifests/v39.json",
+                "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+                "recording": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+                "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+                "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+                "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
+                "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
+                "replayInputSha256": "47593086a1baa7723744c3a7331b13272c438f1e0c7426f5a9c944273e35682e",
+                "evaluationPath": "challenges/evaluations/accepted-aed26ac9ec69a4441421005e4110971d52d5eb53-v39.json",
+                "evaluationCommit": "aed26ac9ec69a4441421005e4110971d52d5eb53",
+                "evaluationArtifact": "challenges/evaluations/accepted-aed26ac9ec69a4441421005e4110971d52d5eb53-v39.json",
+                "evaluationUtc": "2026-10-10T06:48:19.323Z",
+                "remainingScreens": 20,
+                "recordedSteps": 114,
+                "previousScreensMatched": 94,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 94,
+                    "total": 114
+                  },
+                  "rng": {
+                    "matched": 6232,
+                    "total": 6551
+                  },
+                  "cursors": {
+                    "matched": 94,
+                    "total": 114
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: monsterObject is not available",
+                  "step": 94
+                },
+                "step": 94,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: monsterObject is not available",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "When a wizard creates a mimic through Genesis or the wizard-mode create-monster prompt, makemon.c:makemon() calls set_mimic_sym(), which can create a temporary disguise object with mkobj(). JavaScript passes create_particular_creation() a bare monster-creation environment, so a statue or figurine disguise reaches obj.js without the existing monsterObject lifecycle hook and stops before the next turn. The source-matched fix is to supply the standard objectGenerationEnv at that production makemon call.",
+              "source": {
+                "file": "read.c",
+                "branch": "create_particular_creation() creates a named S_MIMIC; makemon() enters its S_MIMIC arm, and set_mimic_sym() selects a random object class for an ordinary-room disguise. When mkobj() produces a STATUE or FIGURINE, JavaScript must run the residual monster-object initialize/finalize behavior just as C mksobj() does before set_mimic_sym() reads the temporary object type and frees it.",
+                "functions": [
+                  "create_particular_creation"
+                ],
+                "callers": [
+                  "read.c:create_particular() (3372-3405) calls create_particular_creation(); wizcmds.c:wiz_genesis() (203-210) calls create_particular() for the direct Ctrl-G/#wizgenesis entry.",
+                  "makemon.c:create_critters() (1556-1574) calls create_particular() when wizard mode and !neverask; active production callers include read.c:seffect_create_monster() (1607-1619) and zap.c:weffects() for WAN_CREATE_MONSTER (2569-2573). JS wiring is makemon.js:create_critters() and read.js:seffect_create_monster().",
+                  "makemon.c:makemon() (1303-1306) calls set_mimic_sym() for S_MIMIC; makemon.c:set_mimic_sym() (2393-2509) calls mkobj(), consumes otmp->otyp, and obfree()s the temporary object. JS equivalents are makemon_create.js:makemon() and set_mimic_sym().",
+                  "mkobj.c:mkobj()/mksobj_init() build the temporary object. JavaScript obj.js routes statue/figurine initialization through initializeResidualMonsterObject(); object_generation.js:objectGenerationEnv() already supplies the monsterObject implementation."
+                ],
+                "dependencies": [
+                  "makemon.c:makemon() is already ported for this explicit runtime species call and returns the monster consumed by create_particular_creation().",
+                  "makemon.c:set_mimic_sym() is already ported as a whole function; its mkobj()/obfree() return and cleanup order match C.",
+                  "mkobj.c:mkobj() and mksobj_init() are already ported; their statue/figurine lifecycle requires the monsterObject hook.",
+                  "objectGenerationEnv() is the existing JS composition point for object-construction hooks, including monsterObject."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved combined queue SHA-256 e153a1e0869be21cb7a70ad69de92d64fced50b7a39196a9515a6760416d7d0d selects synthetic/v39/v39-counted-wizgenesis-mimic-population; after the accepted B209 counted-dispatch fix, the immutable recipe matches 94/114 screens and first stops at step 94 with “monsterObject is not available”.",
+                "Focused fresh C differential `node scripts/diff-fresh.mjs challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json` (run-ANLf80) records C=114 screens/6551 RNG and JavaScript=94 screens/6232 RNG; the next missing source draw is C rn2(3)=0 at rndmonst_adj(makemon.c:1716), step 95, after the JS boundary.",
+                "Direct JavaScript runSegment() replay of the same independent recipe stops with UnsupportedHeroCommandBoundaryError from cmd.js:failClosedCommand(), message “an unported branch of this command: monsterObject is not available”, after 94 screens and 6232 RNG calls.",
+                "C source trace: read.c:create_particular_creation() calls makemon(whichpm, u.ux, u.uy, mmflags) at read.c:3315; makemon.c:makemon() calls set_mimic_sym() at 1303-1306; set_mimic_sym() calls mkobj() and reads otmp->otyp at 2505-2508. In an ordinary room the source symbol table at makemon.c:2388-2391 includes ROCK_CLASS, whose selected object may be a statue or figurine.",
+                "JavaScript source trace: read.js:create_particular_creation() passes only `{ state, _createParticular: true }` to makemon_runtime() at 3570-3573. makemon_create.js:creationEnv() preserves hooks but does not add object-generation hooks; set_mimic_sym() passes that bare normalized environment to mkobj() at 1029-1031; obj.js:initializeResidualMonsterObject() requires env.hooks.monsterObject at 2020-2021. object_generation.js:objectGenerationEnv() already composes the exact adapter at lines 20-64.",
+                "The common create_particular() caller is reachable both directly from wizcmds.c:wiz_genesis() and through makemon.c:create_critters() from the wizard create-monster scroll/spell and WAN_CREATE_MONSTER paths. Applying objectGenerationEnv at create_particular_creation() preserves source branch order while fixing the shared object constructor dependency."
+              ]
             }
           }
         }

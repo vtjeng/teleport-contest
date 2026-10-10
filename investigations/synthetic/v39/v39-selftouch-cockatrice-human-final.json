@@ -1,0 +1,129 @@
+{
+  "session": "synthetic/v39/v39-selftouch-cockatrice-human-final",
+  "corpus": "synthetic",
+  "batch": "v39",
+  "caseId": "v39-selftouch-cockatrice-human-final",
+  "manifestPath": "challenges/manifests/v39.json",
+  "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+  "recordingSha256": "75b35b3d9bae7b8c0b5c4a3ba07be1b9896fcc942f8115aa9795cbb5e1d2ce39",
+  "evaluationPath": "challenges/evaluations/accepted-bc442e36ad933de77a8051a6ae641fac42ab6780-v39.json",
+  "evaluationCommit": "bc442e36ad933de77a8051a6ae641fac42ab6780",
+  "remainingScreens": 5,
+  "recordedSteps": 64,
+  "status": "complete",
+  "commit": "730b2417130fc0c0bf5193cf26ce0028156a7e55",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v39",
+    "caseId": "v39-selftouch-cockatrice-human-final",
+    "session": "synthetic/v39/v39-selftouch-cockatrice-human-final",
+    "manifestPath": "challenges/manifests/v39.json",
+    "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+    "recording": "challenges/cases/v39/v39-selftouch-cockatrice-human-final.session.json",
+    "recordingPath": "challenges/cases/v39/v39-selftouch-cockatrice-human-final.session.json",
+    "recordingSha256": "75b35b3d9bae7b8c0b5c4a3ba07be1b9896fcc942f8115aa9795cbb5e1d2ce39",
+    "recipe": "challenges/cases/v39/v39-selftouch-cockatrice-human-final.recipe.session.json",
+    "recipeSha256": "50af5809709e91d559993f804d05f94d3e7548e7d6a31d17171f3fe5d9317c86",
+    "replayInputSha256": "9c849123a3d6d04f02b60b84dadcf1b460de318a7ca2ce052b1ffa6dbb7ce224",
+    "evaluationPath": "challenges/evaluations/accepted-bc442e36ad933de77a8051a6ae641fac42ab6780-v39.json",
+    "evaluationCommit": "bc442e36ad933de77a8051a6ae641fac42ab6780",
+    "evaluationArtifact": "challenges/evaluations/accepted-bc442e36ad933de77a8051a6ae641fac42ab6780-v39.json",
+    "evaluationUtc": "2026-10-10T06:34:43.125Z",
+    "remainingScreens": 5,
+    "recordedSteps": 64,
+    "previousScreensMatched": 59,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 59,
+        "total": 64
+      },
+      "rng": {
+        "matched": 2306,
+        "total": 2306
+      },
+      "cursors": {
+        "matched": 60,
+        "total": 64
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 59,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 59,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 24,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 59,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 59,
+          "key": "\n"
+        },
+        "cCursor": [
+          32,
+          0,
+          1
+        ],
+        "jsCursor": [
+          3,
+          10,
+          1
+        ]
+      }
+    },
+    "step": 59,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "At step 59, the controlled rehumanization path reaches trap.c:selftouch because the hero has no gloves and still wields a cockatrice corpse. JavaScript currently records that call as unported in polyself.c:newman, so it skips the long corpse-contact message and the following instapetrify path; C pauses on the previous “You feel like a new man!” line before drawing that message, causing the first screen and cursor mismatch. Port whole trap.c:selftouch and wire the selected polyself.c:newman caller.",
+  "source": {
+    "file": "trap.c",
+    "branch": "When the primary weapon (or, under the source two-weapon condition, secondary weapon) is a CORPSE whose monster touch_petrifies and the hero lacks Stone_resistance, selftouch prints the caller-supplied phrase plus corpse name, builds the killer phrase, and invokes instapetrify. If stoning is survived, it unwields the corpse when gloves and stone resistance are still absent.",
+    "functions": [
+      "selftouch"
+    ],
+    "callers": [
+      "polyself.c:newman:463-465 calls selftouch(no_longer_petrify_resistant) after polyman() and the post-rehumanization refreshes; this is the admitted session path and the only caller wired by this task."
+    ],
+    "dependencies": [
+      "trap.c:instapetrify is already implemented in js/trap.js and supports wielding-corpse protection-loss callers; it issues the stoning message and enters done(STONING).",
+      "mondata.c:touch_petrifies, do_name.c:obj_pmname, objnam.c:an, and wield.c:uwepgone/uswapwepgone already have JavaScript implementations used by other callers.",
+      "artifact.c:retouch_equipment remains an explicit gap in newman and is outside this source scope; the recorded branch reaches selftouch after that call."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The authoritative saved queue at /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json (SHA-256 781129791f95cd10ec8578dd170fd5298182a9b4ad578f5c008d93d68d5bc37b) identifies this admitted v39 session with 5 remaining screens, 64 steps, 59/64 screens and 60/64 cursors matched, and all 2306/2306 RNG calls matched. The first mismatch is segment 0, step 59, newline: C cursor [32,0,1] and “You feel like a new man!--More--”; JavaScript cursor [3,10,1] and no More marker.",
+    "Direct JavaScript replay on examined commit 730b2417130fc0c0bf5193cf26ce0028156a7e55 reproduces the boundary: JS step 59 shows “You feel like a new man!” with cursor [3,10,1], then treats each of the four following spaces as an unknown command; C uses those spaces to dismiss the selftouch, instapetrify, and wizard death prompts.",
+    "The admitted recording’s actions first use #polyself to become a stone golem, wield a cockatrice corpse, then use #polyself to request human. At polyself.c:463-465, newman calls selftouch(no_longer_petrify_resistant) when !uarmg. The matching JS caller in polyself.js:newman at line 1698 instead records note_unported(\"trap.c selftouch\").",
+    "C trap.c:selftouch at lines 3883-3910 checks wielded CORPSE objects with touch_petrifies and !Stone_resistance, prints \"%s touch the %s corpse.\", builds the killer phrase, calls instapetrify, and after lifesaving calls uwepgone when the hero still lacks gloves/resistance. The source-order message call makes topl.c:update_topl show --More-- on the prior newman message when the longer contact line cannot share it.",
+    "The continuation is already owned by existing code: trap.c:instapetrify (js/trap.js:356-375) handles stone-golem transformation or the urgent “You turn to stone...” and done(STONING) path; touch_petrifies, obj_pmname, an, uwepgone, and uswapwepgone are already imported implementations. No RNG call is involved in the first divergence."
+  ]
+}
