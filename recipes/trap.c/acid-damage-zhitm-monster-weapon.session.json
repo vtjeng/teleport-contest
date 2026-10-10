@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent wizard-controlled ray mission for zap.c:zhitm to reach trap.c:acid_damage on the target's wielded weapon. Seed 8712610 was selected before recording as a fresh RNG stream. The corrected input aims northeast after the C screen places the newly created sergeant one square northeast of the dragon.",
+  "segments": [
+    {
+      "seed": 8712610,
+      "datetime": "20391029101500",
+      "nethackrc": "OPTIONS=name:AcidWielder,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,rest_on_space\n",
+      "moves": " w- #levelchange\n30\n                             #polyself\nyellow dragon\n  \u0007hostile sergeant\n#monster\nu"
+    }
+  ]
+}

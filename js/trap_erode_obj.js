@@ -1,5 +1,6 @@
 // Item erosion, and the fire that burns the armor a victim wears.
-// C refs: trap.c burnarmor(), erode_obj() and grease_protect().
+// C refs: trap.c acid_damage(), burnarmor(), erode_obj(), and
+// grease_protect().
 //
 // These are trap.c functions and belong beside js/trap.js's maketrap() group
 // by file name; js/trap_effects.js records why that file's display, naming and
@@ -45,6 +46,7 @@ import {
 import { monsterPossessive } from './do_name.js';
 import { delobj, update_inventory } from './invent.js';
 import { AD_ACID, AD_FIRE } from './monsters.js';
+import { SCR_BLANK_PAPER, SCR_MAIL, SCROLL_CLASS } from './objects.js';
 import {
     carried,
     costly_alteration,
@@ -57,11 +59,13 @@ import {
     objectType,
 } from './obj.js';
 import {
+    aobjnam,
     cloak_simple_name,
     cxname,
     erosion_matters,
     helm_simple_name,
     vtense,
+    Yobjnam2,
     xnameFresh,
 } from './objnam.js';
 import { heroIsBlind } from './startup_a11y.js';
@@ -230,10 +234,9 @@ export async function erode_obj(obj, description, type, flags, env) {
     const verbose = state.flags?.verbose !== false;
     const print = Boolean(flags & EF_VERBOSE);
 
-    // C ref: trap.c grease_protect() (358-385), inlined at its one reachable
-    // call site. Its `ostr == NULL` arm is unreachable, because erode_obj()
-    // fills ostr in from cxname() above. erode_obj() answers ER_GREASED
-    // whether or not the grease wore off.
+    // C ref: trap.c:246-250. The canonical grease_protect() helper is also
+    // called directly by acid_damage(), before erode_obj()'s distinct
+    // inventory-resistance check.
     //
     // C's guard at trap.c:246 is `check_grease && otmp->greased`, and
     // check_grease is not the caller's flag alone: the switch above clears it
@@ -242,20 +245,12 @@ export async function erode_obj(obj, description, type, flags, env) {
     // decay. `details.checkGrease` carries that third switch output, beside
     // the vulnerability test and the resistance damage type.
     if (details.checkGrease && (flags & EF_GREASE) && obj.greased) {
-        if (uvictim || vismon) {
-            await message(
-                `${possessive} ${name} ${vtense(name, 'are')} `
-                + 'protected by the layer of grease!',
-                state,
-            );
-        }
-        if (!random.rn2(2)) {
-            obj.greased = false;
-            if (uvictim) {
-                await message('The grease dissolves.', state);
-                update_inventory({ state });
-            }
-        }
+        await grease_protect(
+            obj,
+            name,
+            uvictim ? state.youmonst : monsterVictim,
+            { ...env, state, random, message },
+        );
         return ER_GREASED;
     }
     if (!erosion_matters(obj, state)) return ER_NOTHING;
@@ -372,6 +367,91 @@ export async function erode_obj(obj, description, type, flags, env) {
         }
     }
     return ER_NOTHING;
+}
+
+// C ref: trap.c grease_protect() (358-385). acid_damage() passes a null
+// description, while erode_obj() passes the resolved object name. Keep this
+// helper shared so each caller preserves its own source order.
+export async function grease_protect(obj, description, victim, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? { rn2 };
+    const message = erosionOperation(env, 'message', ttyPline);
+    const heroVictim = victim === state.youmonst;
+    const vismon = victim && !heroVictim && canseemon(victim, state);
+
+    if (description) {
+        if (heroVictim) {
+            await message(
+                `Your ${description} ${vtense(description, 'are')} `
+                + 'protected by the layer of grease!',
+                state,
+            );
+        } else if (vismon) {
+            await message(
+                `${monsterPossessive(victim, state, true)} ${description} `
+                + `${vtense(description, 'are')} protected by the layer of `
+                + 'grease!',
+                state,
+            );
+        }
+    } else if (heroVictim || vismon) {
+        await message(
+            `${Yobjnam2(obj, 'are', state)} protected by the layer of grease!`,
+            state,
+        );
+    }
+
+    if (random.rn2(2)) return false;
+    obj.greased = false;
+    if (carried(obj)) {
+        await message('The grease dissolves.', state);
+        update_inventory({ state });
+    }
+    return true;
+}
+
+// C ref: trap.c acid_damage() (4618-4653). Acid resistance is checked before
+// grease, scroll blanking, or the canonical erode_obj() path. In particular,
+// the direct grease_protect() call must stay before erode_obj()'s own pack
+// resistance check.
+export async function acid_damage(obj, env = {}) {
+    if (!obj) return;
+    const state = env.state ?? game;
+    const random = env.random ?? { rn2 };
+    const heroVictim = carried(obj);
+    const monsterVictim = !heroVictim && obj.where === OBJ_MINVENT
+        ? obj.ocarry : null;
+    const victim = heroVictim ? state.youmonst : monsterVictim;
+    const vismon = victim && !heroVictim && canseemon(victim, state);
+
+    if (heroVictim
+        && inventory_resistance_check(AD_ACID, state, random)) return;
+
+    const effectEnv = { ...env, state, random };
+    if (obj.greased) {
+        await grease_protect(obj, null, victim, effectEnv);
+    } else if (obj.oclass === SCROLL_CLASS
+        && obj.otyp !== SCR_BLANK_PAPER) {
+        if (obj.otyp !== SCR_BLANK_PAPER && obj.otyp !== SCR_MAIL
+            && !heroIsBlind(state)) {
+            const msg = aobjnam(obj, 'fade', state);
+            if (heroVictim) {
+                await erosionOperation(env, 'message', ttyPline)(
+                    `Your ${msg}.`, state,
+                );
+            } else if (vismon) {
+                await erosionOperation(env, 'message', ttyPline)(
+                `${monsterPossessive(victim, state, true)} ${msg}.`, state,
+                );
+            }
+        }
+        obj.otyp = SCR_BLANK_PAPER;
+        obj.spe = 0;
+        obj.dknown = false;
+    } else {
+        await erode_obj(obj, null, ERODE_CORRODE, EF_GREASE | EF_VERBOSE,
+            effectEnv);
+    }
 }
 
 // C ref: trap.c burn_dmg() (111), the macro burnarmor() wraps every slot in.

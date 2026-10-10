@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first runtime recipe for mhitu.c:passiveum’s AD_ACID branch and its trap.c:acid_damage call. Wizard drops all non-worn inventory using the tty menu select-all key, polymorphs into an acid blob, creates a hostile dwarf, and lets the dwarf’s weapon strike trigger the hero’s passive response.",
+  "segments": [
+    {
+      "seed": 9600526,
+      "datetime": "20341222133400",
+      "nethackrc": "OPTIONS=name:AcidPassive,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\nDa\n.             #polyself\nacid blob\n#wizgenesis\nhostile dwarf\n."
+    }
+  ]
+}
