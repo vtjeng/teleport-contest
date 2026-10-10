@@ -255426,7 +255426,7 @@
     {
       "id": "port-apply-unleash-all-v40-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete apply.c unleash_all and wire the engulfment, drowning, and bones-save callers so every attached leash and monster leash flag is cleared in source order.",
       "cFile": "apply.c",
       "sessions": [
@@ -255447,8 +255447,8 @@
           "name": "unleash_all",
           "line": 746,
           "endLine": 760,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -255777,7 +255777,116 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "unleash_all",
+            "implementation": "js/apply.js",
+            "symbol": "unleash_all",
+            "sourceReview": "Read complete upstream apply.c:unleash_all at lines 746-755. C walks gi.invent by nobj, clears leashmon only on LEASH objects, then walks fmon by nmon and clears each mleashed flag. The function has no RNG, messages, screen writes, or callees. js/apply.js maps those lists to state.invent and state.level.monlist and preserves their order. It is wired in js/mhitu.js:gulpmu after the leash message, js/trap.js:drown after its leash message, and js/bones.js:savebones before unpunish. shk.c:finish_paybill is a fourth C caller; js/shk.js has no matching function, so that caller remains explicitly unported.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "gulpmu",
+                "source": "mhitu.c:gulpmu counts attached inventory leashes after engulfment, prints the leash-snap message, then calls unleash_all()."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "drown",
+                "source": "trap.c:drown counts inventory leashes after water damage, prints the leash-slip message, then calls unleash_all()."
+              },
+              {
+                "path": "js/bones.js",
+                "symbol": "savebones",
+                "source": "bones.c:savebones calls unleash_all() at make_bones before unpunish()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply.test.mjs",
+              "scripts/mhitu.test.mjs",
+              "scripts/trap-water-damage.test.mjs",
+              "scripts/bones.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-snuffed-lit-lamp-on-engulfing-worm",
+                "segment": 0,
+                "fromStep": 74,
+                "throughStep": 75,
+                "source": "mattacku -> mhitu.c:gulpmu -> apply.c:unleash_all"
+              },
+              {
+                "batch": "v40",
+                "caseId": "v40-pool-drowning-unleash-all-pet-state",
+                "segment": 0,
+                "fromStep": 27,
+                "throughStep": 27,
+                "source": "water_damage -> trap.c:drown -> apply.c:unleash_all"
+              }
+            ],
+            "checkedAt": "0acc8a59f86065f8ff2d90ca1decab45701746e8"
+          }
+        ],
+        "entryPointReview": "The full C caller list is mhitu.c:gulpmu, trap.c:drown, bones.c:savebones, and shk.c:finish_paybill. The first three have JavaScript implementations and are wired to the canonical apply.js helper; shk.c:finish_paybill has no corresponding JavaScript implementation and remains unported. Runtime evidence covers the admitted v40 engulf call at segment 0, steps 74-75, and the admitted v40 drowning call at segment 0, step 27; both execute their caller into apply.c:unleash_all. The v40 drowning case diverges later at step 28, after the cited drowning call. js/bones.js:savebones is active and calls unleash_all before unpunish, but its production entry is not yet runtime-evidenced. The independent recipe recipes/bones.c/savebones-d4-leashed-pet-blocked.session.json reaches the D:4 Save bones path in C with a leashed pet; JavaScript diverges earlier at do.c:goto_level -> mklev.c:mklev/getbones because C consumes rn2(3) in bones.c:getbones while JS does not. This prevents the matching replay from reaching bones.c:savebones, so that entry point remains incomplete and the source goal must stay parked. Focused tests pin the helper loops and caller message/unpunish order for the wired callsites.",
+        "entryPoints": [
+          {
+            "name": "Engulfment releases the attached pet leash",
+            "functions": [
+              "unleash_all"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-snuffed-lit-lamp-on-engulfing-worm",
+                "segment": 0,
+                "fromStep": 74,
+                "throughStep": 75,
+                "source": "mattacku -> mhitu.c:gulpmu -> apply.c:unleash_all"
+              }
+            ]
+          },
+          {
+            "name": "Drowning releases the attached pet leash",
+            "functions": [
+              "unleash_all"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-pool-drowning-unleash-all-pet-state",
+                "segment": 0,
+                "fromStep": 27,
+                "throughStep": 27,
+                "source": "water_damage -> trap.c:drown -> apply.c:unleash_all"
+              }
+            ]
+          },
+          {
+            "name": "Saving eligible bones releases the attached pet leash",
+            "functions": [
+              "unleash_all"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The apply.c:unleash_all implementation and its engulfment and drowning entries are verified. The active bones.c:savebones entry remains without matching runtime evidence because JavaScript diverges earlier in do.c:goto_level -> mklev.c:mklev/getbones at the missing bones.c:getbones rn2(3) call. Resume after that blocker is implemented and the independent D:4 leashed-pet recipe reaches savebones in a matching replay."
     }
   ]
 }
