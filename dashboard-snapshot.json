@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T05:20:07.758Z",
+  "capturedAt": "2026-10-10T05:24:07.585Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -78754,6 +78754,15 @@
         "worker": "A2",
         "state": "idle",
         "reason": "The combined queue is empty after B208 acceptance. Prep3 owns v39 preparation; A2 is available for the first independent v39 task after admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-v39-eleven-approved-20261010T0520Z",
+        "type": "turn",
+        "at": "2026-10-10T05:23:54.435Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has eleven approved distinct C-first mismatches; one remains."
       }
     ]
   },
