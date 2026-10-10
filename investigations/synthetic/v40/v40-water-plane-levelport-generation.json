@@ -74,6 +74,27 @@
       "water.lua"
     ],
     "callers": [
+      "js/wizcmds.js:wiz_level_tele — cmd.c:1970 registers C('v') as wiz_level_tele; wizcmds.c:397-406 calls level_tele() in wizard mode. JavaScript dispatches the admitted command through cmd.js to wizcmds.js:wiz_level_tele.",
+      "js/do.js:goto_level — teleport.c:level_tele() resolves the Water destination and invokes do.c:goto_level(). goto_level() calls mklev() when the destination level does not yet exist; JS do.js:goto_level() calls makelevel() on the same branch.",
+      "js/mklev.js:makelevel — mklev.c:1251-1272 dispatches a special non-Rogue level with makemaz(slev->proto). JS mklev.js:makelevel() recognizes the Water special level and dispatches makemaz(), but currently stops because the water proto has no registered loader.",
+      "js/mklev.js:makemaz — mkmaze.c:1127-1194 resolves the protofile water.lua, calls load_special(), frees dead monsters, and returns without maze generation when the program loads. JS mklev.js:makemaz() already has this path for registered programs.",
+      "js/mklev.js:load_special — sp_lev.c:load_special() creates the special-level coder and invokes the Lua program. nhlua.c:nhl_init() first loads dat/nhlib.lua, whose alignment shuffle consumes two rn2 calls; JS mklev.js:load_special() already performs that shuffle and the existing des handlers before invoking a registered loader.",
+      "js/mkmaze.js:fixup_special — sp_lev.c:fixup_special() detects Is_waterlevel(), calls setup_waterlevel() before placing lregions, then resolves the portal and arrival regions. JS mklev.js:lspo_finalize_level() reaches mkmaze.js:fixup_special(), which already has the Water branch and invokes setup_waterlevel() before place_lregion().",
+      "js/do.js:goto_level — do.c:1829-1832 calls movebubbles() on Water or Air immediately before the first redraw. JS do.js:goto_level() already calls mkmaze.js:movebubbles() for the same level predicates before vision_reset() and docrt()."
+    ],
+    "dependencies": [
+      "The Lua program uses des.level_init, des.level_flags, des.message, des.map, des.teleport_region, des.levregion, and des.monster, followed by special-level finalization. Their sp_lev.c lspo_* operations are already implemented in js/mklev.js; they cover the source argument forms used here, including class ';', explicit monster ids, absent coordinates, and boolean peaceful=0.",
+      "The loader already models nhlua.c:nhl_init()/dat/nhlib.lua alignment initialization; mkmaze.js:fixup_special/setup_waterlevel/place_lregion; and mkmaze.js:movebubbles are present. No unported return-valued callee is introduced by water.lua. The missing source behavior is the entire dat/water.lua top-level program plus registration of its loader."
+    ],
+    "goalKind": "lua-port",
+    "implementationScope": {
+      "sourceReservation": "source:water.lua",
+      "sharedReservation": "contract:special-level-loader-registry",
+      "javascriptModule": "js/water_levels.js",
+      "registryPath": "js/mklev.js",
+      "sessionEvidence": "synthetic/v40/v40-water-plane-levelport-generation"
+    },
+    "callerDetails": [
       {
         "path": "js/wizcmds.js",
         "symbol": "wiz_level_tele",
@@ -109,19 +130,7 @@
         "symbol": "goto_level",
         "source": "do.c:1829-1832 calls movebubbles() on Water or Air immediately before the first redraw. JS do.js:goto_level() already calls mkmaze.js:movebubbles() for the same level predicates before vision_reset() and docrt()."
       }
-    ],
-    "dependencies": [
-      "The Lua program uses des.level_init, des.level_flags, des.message, des.map, des.teleport_region, des.levregion, and des.monster, followed by special-level finalization. Their sp_lev.c lspo_* operations are already implemented in js/mklev.js; they cover the source argument forms used here, including class ';', explicit monster ids, absent coordinates, and boolean peaceful=0.",
-      "The loader already models nhlua.c:nhl_init()/dat/nhlib.lua alignment initialization; mkmaze.js:fixup_special/setup_waterlevel/place_lregion; and mkmaze.js:movebubbles are present. No unported return-valued callee is introduced by water.lua. The missing source behavior is the entire dat/water.lua top-level program plus registration of its loader."
-    ],
-    "goalKind": "lua-port",
-    "implementationScope": {
-      "sourceReservation": "source:water.lua",
-      "sharedReservation": "contract:special-level-loader-registry",
-      "javascriptModule": "js/water_levels.js",
-      "registryPath": "js/mklev.js",
-      "sessionEvidence": "synthetic/v40/v40-water-plane-levelport-generation"
-    }
+    ]
   },
   "evidence": [
     "The authoritative combined queue SHA-256 08ae55da31ec32a2d37e780be36d84163330605cfea728cbb189708dcf8b5b37 selects synthetic/v40/v40-water-plane-levelport-generation. The current v40 evaluation is challenges/evaluations/accepted-5bb7bbae79d5d14f8de04d0ebbd933e7a241a699-v40.json at 5bb7bbae79d5d14f8de04d0ebbd933e7a241a699; it reports 7/9 screens, 2604/4062 RNG calls, and 7/9 cursors. The C recording and recipe hashes are 24faa07ee35f0db92a9010b35c336a232af410245798c46dd9f8223fb8356805 and f6428d96062cf4ce4e35c0840dfdb8ba20419742b835d8333b917d454523a6a1.",
