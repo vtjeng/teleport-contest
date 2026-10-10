@@ -252633,6 +252633,59 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-apply-m-unleash-v40-leashed-dog-20261010",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port leash release and canonical monster-located message handling",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v40/v40-leashed-dragon-abuse-m-unleash"
+      ],
+      "selectionReason": "The current v40 replay stops when dog.c abuse_dog reaches the missing apply.c m_unleash helper after a leashed pet loses tameness.",
+      "detail": "Port whole apply.c m_unleash and required pline.c pline_mon, then wire every existing JavaScript caller branch while preserving the documented absent caller routes.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "m_unleash",
+          "line": 726,
+          "endLine": 745,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 726,
+        "to": 745
+      },
+      "requiredFunctions": [
+        {
+          "name": "pline_mon",
+          "line": 138,
+          "endLine": 152,
+          "declared": true,
+          "sourceFile": "pline.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v40/v40-leashed-dragon-abuse-m-unleash": {
+          "session": "synthetic/v40/v40-leashed-dragon-abuse-m-unleash",
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-leashed-dragon-abuse-m-unleash",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recordingPath": "challenges/cases/v40/v40-leashed-dragon-abuse-m_unleash-five-hits-cfirst.session.json",
+          "recordingSha256": "12e9f5d99d9ab3435957801bcd9b378679ecf6b29d2a9c73c9c7186d91d15ada",
+          "evaluationPath": "challenges/evaluations/accepted-6e5dacedc7638246a629e7fe6295014ecbb0083d-v40.json",
+          "evaluationCommit": "6e5dacedc7638246a629e7fe6295014ecbb0083d"
+        }
+      }
     }
   ]
 }
