@@ -16,6 +16,7 @@ import {
     MAX_NUM_WORMS,
     MM_ANGRY,
     MM_ASLEEP,
+    MM_ADJACENTOK,
     MM_FEMALE,
     MM_ESHK,
     MM_EPRI,
@@ -131,6 +132,7 @@ import {
     PM_GARTER_SNAKE,
     PM_GHOST,
     PM_GHOUL,
+    PM_HOUSECAT,
     PM_GIANT_RAT,
     PM_GIANT_MUMMY,
     PM_GIANT_EEL,
@@ -311,6 +313,9 @@ const MAKEMON_C_SOURCE = readFileSync(
 );
 const ENGRAVE_C_SOURCE = readFileSync(
     'nethack-c/upstream/src/engrave.c', 'utf8',
+);
+const PICKUP_C_SOURCE = readFileSync(
+    'nethack-c/upstream/src/pickup.c', 'utf8',
 );
 const DOKICK_C_SOURCE = readFileSync(
     'nethack-c/upstream/src/dokick.c', 'utf8',
@@ -7927,6 +7932,49 @@ test('explicit NO_MINVENT runtime coordinates follow C placement without invento
         assert.deepEqual(outside.calls, []);
     }
 });
+
+test('makemon admits the source quantum-cat silent adjacent call shape',
+    async () => {
+        assert.match(
+            PICKUP_C_SOURCE,
+            /makemon\(&mons\[PM_HOUSECAT\],\s*box->ox,\s*box->oy,\s*NO_MINVENT\s*\|\s*MM_ADJACENTOK\s*\|\s*MM_NOMSG\)/u,
+        );
+        assert.match(
+            MAKEMON_JS_SOURCE,
+            /const explicitCoordinateNoMinventRuntimeCall = !state\.in_mklev[\s\S]*?Boolean\(ptr\)[\s\S]*?!randomCoordinates[\s\S]*?isok\(x, y\)[\s\S]*?\(mmflags === NO_MINVENT\s*\|\| mmflags === \(NO_MINVENT \| MM_ADJACENTOK \| MM_NOMSG\)\)/u,
+        );
+
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.u.ux = MON_X;
+        state.u.uy = MON_Y;
+        const x = MON_X;
+        const y = MON_Y;
+        for (let dx = -1; dx <= 1; ++dx)
+            for (let dy = -1; dy <= 1; ++dy)
+                if (dx || dy) state.level.at(x + dx, y + dy).typ = ROOM;
+
+        const random = recordingRandom();
+        const messages = [];
+        const cat = await makemon_runtime(
+            state.mons[PM_HOUSECAT], x, y,
+            NO_MINVENT | MM_ADJACENTOK | MM_NOMSG,
+            {
+                state,
+                random: random.random,
+                message: async (text) => messages.push(text),
+                norepMessage: async (text) => messages.push(text),
+            },
+        );
+
+        assert.equal(cat.mnum, PM_HOUSECAT);
+        assert.notDeepEqual([cat.mx, cat.my], [x, y]);
+        assert.ok(Math.abs(cat.mx - x) <= 1 && Math.abs(cat.my - y) <= 1);
+        assert.equal(state.level.monsters[cat.mx][cat.my], cat);
+        assert.equal(cat.minvent, null);
+        assert.equal(state.mvitals[PM_HOUSECAT].born, 1);
+        assert.deepEqual(messages, [], 'MM_NOMSG suppresses appearance text');
+    });
 
 test('explicit runtime creation accepts kick-terrain anger and gender flags', async () => {
     // dokick.c:1180 uses MM_ANGRY|MM_NOMSG for bees; :1230 adds one gender
