@@ -134,11 +134,11 @@
       "acceptedImplementation": "2e5a22fcb59f677d8f21f487546440d26850930c",
       "queue": {
         "path": ".cache/latest-saved-combined-queue.json",
-        "sha256": "bfaeeff70f6ec230b5a26c1b99df918a8391aaa0f54a280b71c0c2dcb00a165e",
+        "sha256": "fd6e560a040d75a8e45207b55202f380f32423699f7fb540091b7491c777f4c3",
         "selectionReason": "The session is the highest-ranked saved-queue case after the first five candidates were reserved. C parked its follow-up at B220 dog-movement ownership; B220 is now accepted, and the session reservation is released."
       },
       "currentAcceptedEvaluation": {
-        "path": "challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v40.json",
+        "path": "challenges/evaluations/accepted-9970268482520fbfdae76892e79aa050c4ef5c4c-v40.json",
         "metrics": {
           "screens": "76/79",
           "rng": "2812/2825",

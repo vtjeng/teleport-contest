@@ -42,6 +42,7 @@ import {
     KILLED_BY_AN,
     MMOVE_DONE,
     MMOVE_NOTHING,
+    MAX_NUM_WORMS,
     MOAT,
     NATTK,
     NEED_HTH_WEAPON,
@@ -83,6 +84,7 @@ import { losehp } from '../js/hack.js';
 import { tamedog } from '../js/dog.js';
 import { new_light_source } from '../js/light.js';
 import { runSegment } from '../js/jsmain.js';
+import { initworm } from '../js/worm.js';
 import {
     AD_PHYS,
     AT_GAZE,
@@ -5584,9 +5586,9 @@ test('sleeping out-of-sight long worm takes the disturb no-op', async () => {
 });
 
 // C ref: monmove.c dochug():726-731 and m_move():1769. An awake or visible
-// long worm reaches m_move()'s ordinary not_special path. The discarded
-// worm.c worm_move/worm_nomove calls remain named gaps, but m_move itself must
-// not refuse the source branch before it can make that decision.
+// long worm reaches m_move()'s ordinary not_special path. worm_move() updates
+// its tail after relocation; the independent worm_nomove() branch remains a
+// named gap, but m_move itself must not refuse this source path.
 test('awake or visible long worms use the ordinary movement path', async () => {
     for (const testCase of [
         // Awake removes dochug()'s early disturb() return.
@@ -5598,6 +5600,8 @@ test('awake or visible long worms use the ordinary movement path', async () => {
         target.monster.msleeping = testCase.sleeping;
         // A positive worm number identifies the long-worm movement state in C.
         target.monster.wormno = 1;
+        game.level.worms = Array(MAX_NUM_WORMS).fill(null);
+        initworm(target.monster, 0, { state: game });
         if (testCase.visible)
             game.viz_array[target.heroY][target.monsterX] |= COULD_SEE;
         else

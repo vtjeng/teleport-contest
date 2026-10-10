@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked source probe for use_defensive(MUSE_TELEPORT_TRAP) -> worm.c:worm_move. find_defensive() returns before its trap scan when the monster is an animal (muse.c:453-455); PM_LONG_WORM is M1_ANIMAL (monsters.h:1134-1137). The input attempts: Use teleportation trap.",
+  "segments": [
+    {
+      "seed": 472601725,
+      "datetime": "21051117102000",
+      "nethackrc": "OPTIONS=name:WormTrap472601725,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#wizgenesis\nhostile long worm\nh#wizwish\nteleportation trap\nh..."
+    }
+  ]
+}

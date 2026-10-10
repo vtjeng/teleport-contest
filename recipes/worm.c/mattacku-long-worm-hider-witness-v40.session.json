@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent caller probe for mhitu.c:mattacku's hidden-hider relocation with a long-worm attacker. The Valkyrie polymorphs into a rock piercer, creates a hostile long worm, and waits for the encounter; inspect the C trace for the worm_move call before treating this as completion evidence.",
+  "segments": [
+    {
+      "seed": 401030101,
+      "datetime": "21051117100000",
+      "nethackrc": "OPTIONS=name:WormHider,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!verbose,!acoustics,!autopickup,!debug_mongen,pettype:none\n",
+      "moves": ".#polyself\nrock piercer\n       #monster\n#wizgenesis\nhostile long worm\n. . . . . . . . . . . . . . . ."
+    }
+  ]
+}

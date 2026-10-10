@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T16:37:01.328Z",
+  "capturedAt": "2026-10-10T17:18:16.638Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -82446,34 +82446,154 @@
         "worker": "B",
         "state": "blocked",
         "reason": "B223 Earth is merged; the saved queue is pre-B223. Remaining current candidates overlap B224 or C ownership, so B is waiting for an accepted scope release and fresh queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B223-investigation-v40-earth-plane-levelport-20261010-9f48c699271a7cea2697a739142c949ee119be3d",
+        "type": "published",
+        "at": "2026-10-10T16:37:09.658Z",
+        "task": "B223-investigation-v40-earth-plane-levelport-20261010",
+        "commit": "9f48c699271a7cea2697a739142c949ee119be3d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-wave3-approved-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:40:14.112Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v42 has two approved distinct C-first mismatches and 32 matching controls; three valid overlap probes are preserved while source-based exploration continues."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-c-prayer-c7d54e26678cf40ee190cfe19a5e0248e153672a",
+        "type": "received",
+        "at": "2026-10-10T16:42:19.612Z",
+        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010",
+        "delivery": "c7d54e26678cf40ee190cfe19a5e0248e153672a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-worm-move-active-after-source-guards-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:43:21.652Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C continues the accepted-base worm tail fix. Ordinary movement and the ceiling-hiding attack have matching runtime evidence; source guards block the four MUSE branches for valid long worms."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-c-prayer-ab8908874",
+        "type": "integrating",
+        "at": "2026-10-10T16:46:50.952Z",
+        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010",
+        "integration": "ab8908874e1e9d75514e41091f87203999314ce0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-c-prayer-hosted-38069190355",
+        "type": "validated",
+        "at": "2026-10-10T16:53:52.845Z",
+        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010-ab8908874e1e9d75514e41091f87203999314ce0-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T16:55:05.164Z",
+        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-426dd3ff80ebd553d529ea20613fbd31c28ce474",
+        "type": "ready",
+        "at": "2026-10-10T16:55:13.442Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "delivery": "426dd3ff80ebd553d529ea20613fbd31c28ce474"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-b224-bones-runtime-evidence-20261010",
+        "type": "feedback",
+        "at": "2026-10-10T16:55:30.890Z",
+        "task": "B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010",
+        "delivery": "2196247cfc60aa4c18ea634f74a17bf7d6de05f1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B224-bones-correction-20261010",
+        "type": "resume",
+        "at": "2026-10-10T16:56:10.971Z",
+        "task": "B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B224-bones-correction-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:56:12.768Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010-89d3d49a17ff032310ee20cf8b3105e2cca9f109",
+        "type": "published",
+        "at": "2026-10-10T16:57:25.461Z",
+        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010",
+        "commit": "89d3d49a17ff032310ee20cf8b3105e2cca9f109"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-c-worm-426dd3ff-20261010",
+        "type": "received",
+        "at": "2026-10-10T16:59:41.634Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "delivery": "426dd3ff80ebd553d529ea20613fbd31c28ce474"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-c-worm-28534382af4e-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T17:04:33.080Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "integration": "28534382af4e7637472e05c36442f78652ed1ac7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-c-worm-997026848252-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T17:09:19.289Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "integration": "9970268482520fbfdae76892e79aa050c4ef5c4c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B224-correction-blocked-bones-evidence-20261010",
+        "type": "turn",
+        "at": "2026-10-10T17:16:05.064Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-c-worm-997026848-38070711297",
+        "type": "validated",
+        "at": "2026-10-10T17:16:07.340Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v40-hostile-long-worm-head-tail-investigation-20261010-9970268482520fbfdae76892e79aa050c4ef5c4c-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T17:17:02.988Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010",
-        "worker": "C",
-        "goal": "port-pray-revive-tame-pet-v40-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "c7d54e26678cf40ee190cfe19a5e0248e153672a",
-        "since": "2026-10-10T15:26:36.041Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010",
-        "worker": "B",
-        "goal": "divergence-apply-check-leash-v40-snuffed-lit-lamp-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "2196247cfc60aa4c18ea634f74a17bf7d6de05f1",
-        "since": "2026-10-10T16:13:41.084Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -82820,8 +82940,8 @@
     ]
   },
   "development": {
-    "executionCommit": "07a45f0d02529c0ca8796e4a38578d49c418d1c3",
-    "measuredAt": "2026-10-10T16:33:51.845Z",
+    "executionCommit": "9970268482520fbfdae76892e79aa050c4ef5c4c",
+    "measuredAt": "2026-10-10T17:15:42.159Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -1,0 +1,133 @@
+{
+  "session": "synthetic/v40/v40-hostile-long-worm-head-move-updates-tail",
+  "remainingScreens": 1,
+  "recordedSteps": 33,
+  "corpus": "synthetic",
+  "batch": "v40",
+  "caseId": "v40-hostile-long-worm-head-move-updates-tail",
+  "manifestPath": "challenges/manifests/v40.json",
+  "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+  "recordingSha256": "9b87f92c0b07205f5ec0d16b4e6245232cdc13d280d984838e4d70bff21d141c",
+  "evaluationPath": "challenges/evaluations/accepted-38d270ae4309c9d36dccf097fb299afadb180f0a-v40.json",
+  "evaluationCommit": "38d270ae4309c9d36dccf097fb299afadb180f0a",
+  "status": "complete",
+  "commit": "c7d54e26678cf40ee190cfe19a5e0248e153672a",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v40",
+    "caseId": "v40-hostile-long-worm-head-move-updates-tail",
+    "session": "synthetic/v40/v40-hostile-long-worm-head-move-updates-tail",
+    "manifestPath": "challenges/manifests/v40.json",
+    "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+    "recording": "challenges/cases/v40/v40-worm-head-move-tail-shift-two-turns-cfirst.session.json",
+    "recordingPath": "challenges/cases/v40/v40-worm-head-move-tail-shift-two-turns-cfirst.session.json",
+    "recordingSha256": "9b87f92c0b07205f5ec0d16b4e6245232cdc13d280d984838e4d70bff21d141c",
+    "recipe": "challenges/cases/v40/v40-worm-head-move-tail-shift-two-turns-cfirst.recipe.session.json",
+    "recipeSha256": "04f552d272b4dea030f7594b8c6a5b4d0f8daa23c7fc6db744e33821eac09737",
+    "replayInputSha256": "03a87ef34ec6d141de5a25d5a0e6ed24708f687cafa5cb82f8d1d41c90b88325",
+    "evaluationPath": "challenges/evaluations/accepted-38d270ae4309c9d36dccf097fb299afadb180f0a-v40.json",
+    "evaluationCommit": "38d270ae4309c9d36dccf097fb299afadb180f0a",
+    "evaluationArtifact": "challenges/evaluations/accepted-38d270ae4309c9d36dccf097fb299afadb180f0a-v40.json",
+    "evaluationUtc": "2026-10-10T15:21:55.315Z",
+    "remainingScreens": 1,
+    "recordedSteps": 33,
+    "previousScreensMatched": 32,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 32,
+        "total": 33
+      },
+      "rng": {
+        "matched": 2656,
+        "total": 2671
+      },
+      "cursors": {
+        "matched": 33,
+        "total": 33
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 32,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 32,
+          "key": "l"
+        },
+        "kind": "ch",
+        "row": 4,
+        "column": 18,
+        "cCell": {
+          "ch": "~",
+          "color": 3,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": ".",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2655,
+        "cEntry": "rnd(5)=1",
+        "cCaller": "worm_move(worm.c:224)",
+        "jsEntry": "rn2(5)=0",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 32,
+          "key": "l"
+        },
+        "stepIndex": 32
+      },
+      "cursor": null
+    },
+    "step": 32,
+    "kind": "rng",
+    "sourceFile": "worm.c",
+    "function": "worm_move",
+    "message": null,
+    "cFile": "worm.c",
+    "luaFile": null,
+    "line": 224
+  },
+  "summary": "The v40 mismatch is the missing whole worm.c:worm_move behavior after a long-worm head has moved. C inserts a visible segment at the previous head square, appends the new hidden head, updates the growth clock, and either grows/heals or drops the oldest tail segment. The implementation now replaces the ordinary m_move and ceiling-hider mattacku gaps and wires every source callsite. The four MUSE callsites are not reachable for a valid long worm: find_defensive and find_misc reject animals before scanning traps, long worms are animals and difficulty 10, and munslime only searches traps inside its non-animal branch; muse_unslime calls the guarded branch “won’t happen.”",
+  "source": {
+    "file": "worm.c",
+    "branch": "A monster with nonzero wormno has had its head moved; worm_move inserts the old-head segment, appends the new hidden head, and updates growth time and HP when wgrowtime[wormno] <= svm.moves, otherwise removing the oldest visible tail segment.",
+    "functions": [
+      "worm_move"
+    ],
+    "callers": [
+      "monmove.c:m_move() calls worm_move(mtmp) after the movement message at 2051-2058; js/monmove.js:m_move now uses the shared helper at the same source position. The v40 admitted case reaches this path.",
+      "mhitu.c:mattacku() calls worm_move(mtmp) after a ceiling-hiding long worm moves onto the hero square and before retrying enexto when the moved tail occupies the candidate square at 584-590; js/mhitu.js:mattacku now uses the helper before the retry. The independent C recording reaches this path.",
+      "muse.c:use_defensive() calls worm_move after relocation to MUSE_TRAPDOOR (1054-1059) and MUSE_TELEPORT_TRAP (1150-1155); js/muse.js:use_defensive wires both calls. Valid long worms cannot select these actions because find_defensive returns for is_animal before its trap scan at 453-455; monsters.h declares PM_LONG_WORM M1_ANIMAL at 1134-1137.",
+      "muse.c:use_misc() calls worm_move after relocation to MUSE_POLY_TRAP at 2534-2540; js/muse.js:use_misc wires the call. Valid long worms cannot select this action because find_misc returns for animals at 2108-2109 and its trap scan also requires difficulty <6 at 2120-2121; PM_LONG_WORM has difficulty 10.",
+      "muse.c:muse_unslime(), reached from munslime(), retains the guarded worm_move after forced relocation to a fire trap at 3128-3132; js/muse.js:muse_unslime wires the call. The MUSE trap-selection block is inside !is_animal at 3060-3097, and muse_unslime itself labels worm relocation “won’t happen” at 3131."
+    ],
+    "dependencies": [
+      "worm.c:count_wsegs() supplies the current hidden-head-inclusive segment count; js/worm.js:count_wsegs() already implements the count.",
+      "worm.c:shrink_worm() is the non-growing branch callee; js/worm.js:shrink_worm() already removes the oldest tail node and redraws it.",
+      "mon.c:mcalcmove(worm, FALSE) supplies the existing-speed divisor when a nonzero growth clock is reset; js/mon.js:mcalcmove() already implements this source function.",
+      "rm.h:place_worm_seg is the source macro that writes the worm into level.monsters[x][y]; js/worm.js owns the same level-local monster grid and ordered segment array.",
+      "display.c:newsym redraws the newly placed tail segment; js/display.js:newsym() is already used by worm.js redraw helpers.",
+      "rng.c:rnd(), rn1(), and d() supply the growth-clock and HP draws; js/rng.js already exposes all three operations."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Queue provenance was refreshed after accepted prayer revival at game commit ab8908874e1e9d75514e41091f87203999314ce0: v40/v40-hostile-long-worm-head-move-updates-tail remains in .cache/latest-saved-combined-queue.json at SHA-256 18de1c6a12f9efefe0537a4b0f8c6de1425ad2f5674e62d4b772877570bc2caf with 1 remaining screen and earliest mismatch step 32. The accepted evaluation records 32/33 screens, 2656/2671 RNG calls, and 33/33 cursors; it still reports C rnd(5)=1 from worm_move(worm.c:224) while JavaScript next draws rn2(5)=0.",
+    "The original v40 evaluation first diverged at segment 0, step 32, key l: C draws rnd(5)=1 from worm_move(worm.c:224), while JavaScript next draws rn2(5)=0; C shows a tail glyph where JavaScript shows floor. The prior 32 screens and all 33 cursor positions matched.",
+    "Upstream worm.c:worm_move() at lines 196-278 places and redraws a segment at the former head coordinate, appends a hidden node at the current head coordinate, then checks wgrowtime <= svm.moves. A zero clock schedules moves + rnd(5); a nonzero due clock calls mcalcmove(worm,FALSE), rn1(10,2), integer scales the interval, and adds it to moves. It computes the segment-based HP limit with 11/22/33 piecewise adjustments and the MHPMAX cap, draws d(2,2), applies both prior-max/limit branches, or calls shrink_worm when growth is not due.",
+    "The selected recording is challenges/cases/v40/v40-worm-head-move-tail-shift-two-turns-cfirst.session.json. It creates a hostile long worm with #wizgenesis, then moves it twice east. The second move reaches monmove.c:m_move -> worm.c:worm_move.",
+    "A complete upstream call search finds six executable worm_move sites: monmove.c:m_move:2058; mhitu.c:mattacku:586; muse.c:use_defensive:1059 and :1155; muse.c:use_misc:2540; muse.c:muse_unslime:3132. All six matching JS callsites now use the shared helper. The four MUSE branches are source-inactive for a valid tailed long worm: find_defensive and find_misc reject animals, polytrap selection also requires difficulty <6, and munslime limits trap selection to non-animals; C comments that the muse_unslime worm branch will not happen.",
+    "The existing JS worm state is level.worms[wormno] = {segments, growtime}; initworm initializes growtime to zero, count_wsegs and shrink_worm are already ported. The new source-ordered helper keeps tail coordinates, level.monsters, redraws, growth time, and HP updates in one state owner without expanding into worm_nomove or unrelated worm functions.",
+    "Post-implementation validation: the admitted v40 case matches C through segment 0, step 32, including m_move -> worm_move RNG and tail update. The independent C-first mattacku recipe and recording match all 102 screens/cursors and 2,588 RNG calls; the C log includes worm_move RNG at step 73.",
+    "Blocked recipes record the exact unreachability boundary without claiming completion: recipes/worm.c/use-defensive-long-worm-trapdoor-v40.session.json and recipes/worm.c/use-defensive-long-worm-teleport-trap-blocked-v40.session.json target find_defensive; recipes/worm.c/use-misc-long-worm-polytrap-blocked-v40.session.json targets find_misc; recipes/worm.c/munslime-long-worm-fire-trap-blocked-v40.session.json targets the !is_animal MUSE gate. None is a passing recording."
+  ]
+}
