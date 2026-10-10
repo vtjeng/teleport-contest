@@ -259727,7 +259727,7 @@
           "line": 647,
           "endLine": 824,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -259945,7 +259945,77 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "still_chewing",
+            "implementation": "js/hack.js",
+            "symbol": "still_chewing",
+            "sourceReview": "Read the complete upstream hack.c:still_chewing() definition (647-822), including every early refusal, initial and continued effort threshold, conduct/hunger update, boulder blocking return, and each terrain completion arm (wall, tree, iron bars, secret door, door, rock). Checked expression/RNG and side-effect order through the final recalc_block_point/newsym/messages/reset sequence. The IRONBARS branch reads objects[HEAVY_IRON_BALL].oc_weight, calls morehungry(-nut) only for metallivorous forms, chooses the hero-sensitive completion text, then calls dissolve_bars before common vision/redraw cleanup. The JavaScript branch now calls canonical eat.js:morehungry and monmove.js:dissolve_bars in that order and removes both stale note_unported placeholders. The remaining note_unported calls are only for discarded-result shopkeeper helpers shk.c:add_damage and shk.c:pay_for_damage; their side effects are not fabricated.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "test_move",
+                "source": "hack.c:test_move() (991-1265) reaches still_chewing() from its four DO_MOVE obstacle arms at 1029, 1040, 1090 and 1227 (iron bars, tunnels, doors, and boulders); JavaScript's production chew callback resolves to still_chewing() and consumes the same Boolean to refuse movement while chewing continues."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "doeat",
+                "source": "eat.c:doeat() (2852) calls still_chewing(u.ux,u.uy) when floorfood('eat') returns &hands_obj on iron bars, then pauses to swallow while the bars remain; JavaScript preserves this production call and message order."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hack.test.mjs"
+            ],
+            "recordings": [
+              "recordings/hack.c/rust-monster-eat-bars-command.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-rust-monster-still-chewing-bars",
+                "segment": 0,
+                "fromStep": 50,
+                "throughStep": 52,
+                "source": "hack.c:domove_core -> hack.c:test_move(DO_MOVE, iron bars) -> hack.c:still_chewing(IRONBARS) -> eat.c:morehungry -> monmove.c:dissolve_bars"
+              }
+            ],
+            "checkedAt": "f43ad434ac6a39c975ef8acdf621b03ae91bb1fa"
+          }
+        ],
+        "entryPointReview": "The complete still_chewing source range has two active production entry paths. Movement calls still_chewing from four hack.c:test_move DO_MOVE obstacle arms (iron bars, tunnelable wall/rock, closed door, and boulder); JS test_move's shared chew callback is the corresponding caller. The admitted v42 rust-monster case executes the iron-bars movement entry through step 52, including morehungry and dissolve_bars. The independent C-first recording executes the eat command through eat.c:doeat's &hands_obj branch while the hero stands on iron bars, reaches still_chewing three times, pauses after the first two calls, then awards iron nutrition and dissolves the bars. A source search found no other direct C callers of still_chewing. Other callees in the selected function are implemented or explicitly skipped only where C discards their void result: the remaining shopkeeper add_damage/pay_for_damage gaps are outside this task's iron-bars path.",
+        "entryPoints": [
+          {
+            "name": "Move into iron bars while metallivorous",
+            "functions": [
+              "still_chewing"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-rust-monster-still-chewing-bars",
+                "segment": 0,
+                "fromStep": 50,
+                "throughStep": 52,
+                "source": "hack.c:domove_core -> hack.c:test_move(DO_MOVE) -> hack.c:still_chewing"
+              }
+            ]
+          },
+          {
+            "name": "Eat iron bars with the eat command while metallivorous",
+            "functions": [
+              "still_chewing"
+            ],
+            "recordings": [
+              "recordings/hack.c/rust-monster-eat-bars-command.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
