@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42044203,
+      "datetime": "20520323150619",
+      "nethackrc": "OPTIONS=name:V42AcidBreath3,role:Samurai,race=human,gender=male,align=lawful,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": "#levelchange\n10\n         #twoweapon\n         #wizgenesis\nhostile yellow dragon\nFhll"
+    }
+  ],
+  "comment": "C-first corrected route: the recorder map shows the spawned dragon immediately west of @, so fight west, then move east twice. Keep as setup evidence unless C reaches zhitu acid_damage(uwep)."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate source: nethack-c/upstream/dat/minend-2.lua. Gnome Kings wine cellar program: Four nested percent branches rewrite selected terrain, followed by a central teleport region and cellar object population. Reachability must be established in patched C before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 42042202,
+      "datetime": "20511213131415",
+      "nethackrc": "OPTIONS=name:V42minend2specialprogram,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nminend-2.lua\n#wizmap\n"
+    }
+  ]
+}

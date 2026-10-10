@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source candidate: nethack-c/upstream/dat/tut-2.lua; special-level program through wizcmds.c:wiz_load_splua. C accepts and executes the second tutorial source program; the recording exposes its distinct tutorial screens and generated source operations.",
+  "segments": [
+    {
+      "seed": 42042311,
+      "datetime": "20511214151617",
+      "nethackrc": "OPTIONS=name:V42C11,role:Wizard,race:human,gender=female,align=lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\ntut-2.lua\n#wizmap\n"
+    }
+  ]
+}

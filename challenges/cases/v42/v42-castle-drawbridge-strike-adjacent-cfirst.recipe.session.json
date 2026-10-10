@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected Castle approach: dismiss startup pager, wish wand of striking, enter castle, inspect C map, move one square north and four east to the adjacent approach lane, then zap east at raised drawbridge. Earlier pager and moat route probes are preserved.",
+  "segments": [
+    {
+      "seed": 42043914,
+      "datetime": "20520315190300",
+      "nethackrc": "OPTIONS=name:V42CastleStrike,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017uncursed wand of striking\n#wizlevelport\ncastle\n#wizmap\nkllllzal"
+    }
+  ]
+}

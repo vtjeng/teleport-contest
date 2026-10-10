@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source candidate: bigrm.js bigrm6; nethack-c/upstream/dat/bigrm-6.lua. C executes the source program’s maze and pillar-selection operations, finalizes its layout, and exposes the generated map.",
+  "segments": [
+    {
+      "seed": 42042312,
+      "datetime": "20511214151617",
+      "nethackrc": "OPTIONS=name:V42C12,role:Wizard,race:human,gender=male,align=lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nbigrm-6.lua\n#wizmap\n"
+    }
+  ]
+}

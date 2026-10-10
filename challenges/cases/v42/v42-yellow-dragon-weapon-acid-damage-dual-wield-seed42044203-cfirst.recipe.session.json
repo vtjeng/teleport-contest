@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42044203,
+      "datetime": "20520323150619",
+      "nethackrc": "OPTIONS=name:V42AcidBreath3,role:Samurai,race=human,gender=male,align=lawful,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": "#levelchange\n10\n         #twoweapon\n         #wizgenesis\nhostile yellow dragon\nFk h h "
+    }
+  ],
+  "comment": "C-first candidate variation: dual-wield the Samurai starting weapons before the level-10 yellow dragon encounter so zhitu uses its two-weapon acid_damage(uwep) gate. Preserve as setup evidence unless C reaches the source call."
+}

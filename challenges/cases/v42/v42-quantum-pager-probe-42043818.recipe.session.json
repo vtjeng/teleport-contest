@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42043818,
+      "datetime": "20520315181800",
+      "nethackrc": "OPTIONS=name:QPager1,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\n\u0007peaceful quantum mechanic\n"
+    }
+  ],
+  "comment": "C-only corrected-pager probe for m_initinv quantum mechanic inventory; retain branch misses."
+}

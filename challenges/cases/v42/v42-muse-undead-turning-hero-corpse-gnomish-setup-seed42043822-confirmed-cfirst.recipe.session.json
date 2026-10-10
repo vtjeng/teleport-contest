@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42043822,
+      "datetime": "20520321120000",
+      "nethackrc": "OPTIONS=name:V42UnturnProbe,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": " #wizwish\ncorpse of lichen\n#wizwish\nwand of undead turning (0:3)\n#wizidentify\n\t\n#wizgenesis\nhostile gnomish wizard\n#wizmap\n"
+    }
+  ],
+  "comment": "C-first setup with the source-named hostile gnomish wizard and 3-charge wand. Select all in the debug inventory with ^I and confirm the menu with Enter before proceeding to monster creation."
+}
