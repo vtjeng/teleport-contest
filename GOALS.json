@@ -254791,7 +254791,7 @@
     {
       "id": "port-pray-revive-tame-pet-v40-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port prayer revival of saved tame pets",
       "cFile": "pray.c",
       "sessions": [
@@ -254805,15 +254805,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ab8908874e1e9d75514e41091f87203999314ce0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "pray_revive",
           "line": 2177,
           "endLine": 2198,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -255087,7 +255090,66 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "pray_revive",
+            "implementation": "js/pray.js",
+            "symbol": "pray_revive",
+            "sourceReview": "Read the complete pray.c:pray_revive() definition (2177-2195) and prayer_done() caller (2336-2340). Preserve linked floor-pile order at the hero coordinates; accept only CORPSE or STATUE with OMONST whose mtame is true and isminion is false; return false when none qualifies; for a corpse return the result of revive(otmp, TRUE) != NULL; otherwise return animate_statue(otmp, u.ux, u.uy, ANIMATE_SPELL, NULL) != NULL. prayer_done() discards this boolean and calls water_prayer(TRUE) next. Reuse the existing returned-result owners zap.c:revive and trap.c:animate_statue; the corpse path's saved-trait branch continues through zap.c:montraits and makemon.c:makemon. The JavaScript helper awaits the corresponding asynchronous return values and keeps the original ordering. The helper is impure because its callees create or restore monsters, mutate the floor/object state and print output; it makes no random draw itself.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "prayer_done",
+                "source": "pray.c:prayer_done() calls (void) pray_revive() in its p_type-3 coaligned altar arm at 2336-2338; the result is discarded before water_prayer(TRUE)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-coaligned-prayer-revives-tame-pet-corpse",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 42,
+                "source": "cmd.c #pray -> pray.c:dopray installs prayer_done -> prayer_done p_type-3 altar arm -> pray_revive -> zap.c:revive -> zap.c:montraits -> makemon.c:makemon, then water_prayer(TRUE) and pleased()"
+              }
+            ],
+            "checkedAt": "ab8908874e1e9d75514e41091f87203999314ce0"
+          }
+        ],
+        "entryPointReview": "pray_revive has one active production entry point: the coaligned p_type-3 altar arm in pray.c:prayer_done() (2336-2338). The #pray command reaches prayer_done after dopray installs the callback and allmain.c completes the negative-multi wait through hack.c:unmul(). The helper is called only at pray.c:2337; its corpse and statue arms share this caller. The v40 saved-pet corpse case exercises the corpse arm through the complete command and callback path.",
+        "entryPoints": [
+          {
+            "name": "coaligned altar prayer restores a saved tame pet",
+            "functions": [
+              "pray_revive"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-coaligned-prayer-revives-tame-pet-corpse",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 42,
+                "source": "cmd.c #pray -> pray.c:dopray -> prayer_done -> pray_revive; the corpse branch calls revive -> montraits -> makemon and then prayer_done continues to water_prayer(TRUE) and pleased()"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ab8908874e1e9d75514e41091f87203999314ce0",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
