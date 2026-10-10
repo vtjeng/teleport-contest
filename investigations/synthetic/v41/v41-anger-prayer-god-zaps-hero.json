@@ -8,10 +8,10 @@
   "manifestPath": "challenges/manifests/v41.json",
   "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
   "recordingSha256": "4a19c08212339e1e84343d3d7a94fd1c93379f9314964e2f5ca1d30fced3ff6b",
-  "evaluationPath": "challenges/evaluations/baseline-ad544d1f5-v41.json",
-  "evaluationCommit": "ad544d1f50e3c6a630f6a7839ceefb1668a3306d",
+  "evaluationPath": "challenges/evaluations/accepted-80ea59cc5def2fbf4019977110084cad10dd5518-v41.json",
+  "evaluationCommit": "80ea59cc5def2fbf4019977110084cad10dd5518",
   "status": "complete",
-  "commit": "8023e90d5827e79075ffa7ac77b082eff4d006c2",
+  "commit": "80ea59cc5def2fbf4019977110084cad10dd5518",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v41",
@@ -24,14 +24,14 @@
     "recordingSha256": "4a19c08212339e1e84343d3d7a94fd1c93379f9314964e2f5ca1d30fced3ff6b",
     "recipe": "challenges/cases/v41/v41-prayer-too-soon-angrygod-zap-cfirst-precise.recipe.session.json",
     "recipeSha256": "c398eb9c1ae4343f9995872f28937c99389ab86e912291311809ea79585064fe",
-    "replayInputSha256": "17bfcea5f60ff897fdaa924927c8e24e28fb3092bd2ffbfcc208bb4a26d07bf0",
-    "evaluationPath": "challenges/evaluations/baseline-ad544d1f5-v41.json",
-    "evaluationCommit": "ad544d1f50e3c6a630f6a7839ceefb1668a3306d",
-    "evaluationArtifact": "challenges/evaluations/baseline-ad544d1f5-v41.json",
-    "evaluationUtc": "2026-10-10T13:07:38.087Z",
+    "replayInputSha256": "5c75316e170748b82cd1d24eb6b686958479e7df7eecceac795dcb71776adadc",
+    "evaluationPath": "challenges/evaluations/accepted-80ea59cc5def2fbf4019977110084cad10dd5518-v41.json",
+    "evaluationCommit": "80ea59cc5def2fbf4019977110084cad10dd5518",
+    "evaluationArtifact": "challenges/evaluations/accepted-80ea59cc5def2fbf4019977110084cad10dd5518-v41.json",
+    "evaluationUtc": "2026-10-10T14:19:29.362Z",
     "remainingScreens": 13,
     "recordedSteps": 48,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 35,
     "regression": false,
     "passed": false,
     "error": null,
@@ -111,7 +111,11 @@
     "message": null,
     "cFile": null,
     "luaFile": null,
-    "line": null
+    "line": null,
+    "investigation": {
+      "status": "missing",
+      "path": "investigations/synthetic/v41/v41-anger-prayer-god-zaps-hero.json"
+    }
   },
   "summary": "The accepted replay stops at the missing pray.c:god_zaps_you source function: pray.c:angrygods() already selects and voices the default retaliation, but js/pray.js records the helper as unported. Port the whole lightning/disintegration helper, its same-file fry_by_god helper, and the full angrygods caller unit. The separate C-only desecrate_altar caller has no JavaScript implementation or caller path and remains outside this task.",
   "source": {
@@ -135,9 +139,9 @@
   },
   "goalKind": "file-port",
   "evidence": [
-    "The authoritative saved queue (SHA-256 b862fac251967d96e4bff7773c93cfbc0eeabdc19d15a43374e735d057c33376) identifies synthetic/v41/v41-anger-prayer-god-zaps-hero at 13 remaining screens of 48; C/JS currently match 35 screens, 2994 RNG calls, and 36 cursors. The first mismatch is segment 0, step 35, key space: C cursor [60,0,1] after the quoted divine anger voice; JS cursor [5,8,1] because the helper is absent.",
+    "The authoritative saved queue (SHA-256 a422c91ed2b2adcfc2671f352702f5ae9f52986af4e8cae87c017f69f5b73b64) identifies synthetic/v41/v41-anger-prayer-god-zaps-hero at 13 remaining screens of 48; C/JS currently match 35 screens, 2994 RNG calls, and 36 cursors. The first mismatch is segment 0, step 35, key space: C cursor [60,0,1] after the quoted divine anger voice; JS cursor [5,8,1] because the helper is absent.",
     "The admitted recipe is challenges/cases/v41/v41-prayer-too-soon-angrygod-zap-cfirst-precise.recipe.session.json and the C recording is challenges/cases/v41/v41-prayer-too-soon-angrygod-zap-cfirst-precise.session.json. Three too-soon prayers reach prayer_done() p_type 0; the third C selector is rn2(15)=10. C then records lightning, the Wizard survival query, a disintegration beam, cloak destruction, a second survival query, and continued play through step 47.",
     "Upstream nethack-c/upstream/src/pray.c:610-694 is the complete god_zaps_you() body and lines 696-702 are its static fry_by_god() helper. Lines 775-776 call it only from angrygods() default; pray.c:1522 also calls it from desecrate_altar(), whose caller path is not implemented in JS. Lines 2276-2335 trace the selected prayer route through prayer_done().",
-    "At base 8023e90d5827e79075ffa7ac77b082eff4d006c2, js/pray.js:2410 has note_unported(\"pray.c god_zaps_you\") immediately after the source-matched angrygods() anger voice. js/mondata.js:645 implements Resists_Elem(), js/do_wear.js:4122 implements disintegrate_arm(), and the remaining listed dependencies are existing source ports."
+    "At accepted game commit 80ea59cc5def2fbf4019977110084cad10dd5518, js/pray.js:2410 has note_unported(\"pray.c god_zaps_you\") immediately after the source-matched angrygods() anger voice. js/mondata.js:645 implements Resists_Elem(), js/do_wear.js:4122 implements disintegrate_arm(), and the remaining listed dependencies are existing source ports."
   ]
 }
