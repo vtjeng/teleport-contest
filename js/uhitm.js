@@ -13,6 +13,7 @@ import {
     defends,
     is_art,
     permapoisoned,
+    retouch_equipment,
     shade_glare,
 } from './artifacts.js';
 import {
@@ -5476,8 +5477,7 @@ async function mhitm_ad_were(magr, mattk, mdef, mhm, state = game, env = {}) {
                 encumberMessage,
             });
             set_ulycn(monsndx(attackerData), state);
-            // uhitm.c discards retouch_equipment()'s void result here.
-            note_unported('artifact.c retouch_equipment');
+            await retouch_equipment(2, state, env); // uhitm.c:mhitm_ad_were
         }
     } else {
         await mhitm_ad_phys(magr, mattk, mdef, mhm, state, env);

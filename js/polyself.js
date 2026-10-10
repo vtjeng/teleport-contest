@@ -193,7 +193,7 @@ import {
     Is_dragon_armor, WrappingAllowed, is_sword, maybe_adjust_light, mksobj,
     remove_object,
 } from './obj.js';
-import { artifact_light } from './artifacts.js';
+import { artifact_light, retouch_equipment } from './artifacts.js';
 import { makeplural } from './fruit.js';
 import { weapon_descr } from './weapon.js';
 import {
@@ -1337,7 +1337,7 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
     await see_monsters(state, { ...rawEnv, redraw });
     await encumber_msg(state, { message });
 
-    note_unported('artifact.c retouch_equipment');
+    await retouch_equipment(2, state, env); // polyself.c:polymon
     if (!state.uarmg)
         note_unported('trap.c selftouch');
 
@@ -1695,7 +1695,7 @@ export async function newman(state = game, env = {}) {
     await see_monsters(state);
     await encumber_msg(state);
 
-    note_unported('artifact.c retouch_equipment');
+    await retouch_equipment(2, state, env); // polyself.c:newman
     if (!state.uarmg)
         await selftouch('No longer petrify-resistant, you', state, env);
 }
@@ -2195,7 +2195,7 @@ export async function rehumanize(state = game, rawEnv = {}) {
             `You and ${monsterCommonName(u.usteed, state, 0, env)} return gently `
             + `to the ${surface(u.ux, u.uy, state)}.`, state, env,
         );
-    note_unported('artifact.c retouch_equipment');
+    await retouch_equipment(2, state, env); // polyself.c:rehumanize
     if (!state.uarmg)
         note_unported('trap.c selftouch');
 }

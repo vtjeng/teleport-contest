@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent runtime evidence for the incoming AD_WERE infection path. A debug Barbarian creates a hostile werejackal without a lycanthropy-defending artifact or ring, then waits for a bite. The C recording must show the feverish infection transition; uhitm.c:mhitm_ad_were calls artifact.c:retouch_equipment(2) immediately after set_ulycn.",
+  "segments": [
+    {
+      "seed": 47509123,
+      "datetime": "20430714101500",
+      "nethackrc": "OPTIONS=name:RetouchBite,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile werejackal\n..."
+    }
+  ]
+}
