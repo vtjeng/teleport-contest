@@ -253061,6 +253061,37 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "divergence-minetown-special-room-shopkeeper-makemon-v41-20261010",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Admit source-defined special-level shopkeepers and High Clerics",
+      "cFile": "makemon.c",
+      "sessions": [],
+      "selectionReason": "The fresh queue stops Minetown at the explicit MM_ESHK shopkeeper call after topology finalization; C makemon admits that source call.",
+      "detail": "Implement the exact makemon admission and preserve the synchronous pointer-consuming caller chain through priestini, shkinit, stock_room, and fill_special_room. The implementation also carries independent Astral High Cleric prefix evidence.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "makemon",
+      "session": "synthetic/v41/v41-minetown3-special-program-generation",
+      "step": 26,
+      "syntheticProvenance": {
+        "synthetic/v41/v41-minetown3-special-program-generation": {
+          "session": "synthetic/v41/v41-minetown3-special-program-generation",
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-minetown3-special-program-generation",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recordingPath": "challenges/cases/v41/v41-shop-sellobj-minetown3-map.session.json",
+          "recordingSha256": "dc249560ba2c73c04834f24418965d8d18b1318af88353ec54a50ecbec35e846",
+          "evaluationPath": "challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v41.json",
+          "evaluationCommit": "2e5a22fcb59f677d8f21f487546440d26850930c"
+        }
+      }
     }
   ]
 }
