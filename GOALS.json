@@ -255154,7 +255154,7 @@
     {
       "id": "port-worm-move-tail-tracking-v40-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Port whole worm_move and wire every production relocation caller so long-worm tail placement, growth timing, healing, and shrink behavior follow C.",
       "cFile": "worm.c",
       "sessions": [
@@ -255168,8 +255168,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9970268482520fbfdae76892e79aa050c4ef5c4c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "worm_move",
       "session": "synthetic/v40/v40-hostile-long-worm-head-move-updates-tail",
       "step": 32,
@@ -255412,7 +255415,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9970268482520fbfdae76892e79aa050c4ef5c4c",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
