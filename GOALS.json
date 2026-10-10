@@ -244751,6 +244751,303 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-trap-pot-acid-damage-v38-20261010",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port trap.c pot_acid_damage",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v38/v38-water-dip-destroys-acid-potion"
+      ],
+      "selectionReason": "The admitted v38 water-dip case reaches trap.c:pot_acid_damage through #dip -> H2Opotion_dip -> water_damage; the helper is partial in JavaScript and the whole function is selected.",
+      "detail": "",
+      "openedAt": "b2a6d61b0342c083a9d299c2ca15467cd3fd8be1",
+      "openStanding": {
+        "sha": "c863f395deb587c11a1121b76cb0ab9093392a15",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "pot_acid_damage",
+          "line": 4657,
+          "endLine": 4711,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4657,
+        "to": 4711
+      },
+      "syntheticProvenance": {
+        "synthetic/v38/v38-water-dip-destroys-acid-potion": {
+          "session": "synthetic/v38/v38-water-dip-destroys-acid-potion",
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-water-dip-destroys-acid-potion",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recordingPath": "challenges/cases/v38/v38-water-dip-destroys-acid-potion.session.json",
+          "recordingSha256": "cb1c22abb09953930eecef0aa50149ab6050977047dee509b99b4db463a01c00",
+          "evaluationPath": "challenges/evaluations/accepted-c863f395deb587c11a1121b76cb0ab9093392a15-v38.json",
+          "evaluationCommit": "c863f395deb587c11a1121b76cb0ab9093392a15"
+        }
+      },
+      "activeStanding": {
+        "sha": "c863f395deb587c11a1121b76cb0ab9093392a15",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-water-dip-destroys-acid-potion",
+          "session": "synthetic/v38/v38-water-dip-destroys-acid-potion",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recording": "challenges/cases/v38/v38-water-dip-destroys-acid-potion.session.json",
+          "recordingPath": "challenges/cases/v38/v38-water-dip-destroys-acid-potion.session.json",
+          "recordingSha256": "cb1c22abb09953930eecef0aa50149ab6050977047dee509b99b4db463a01c00",
+          "recipe": "challenges/cases/v38/v38-water-dip-destroys-acid-potion.recipe.session.json",
+          "recipeSha256": "38c1c0a3d2f865ca397e60d27e47de0eabee63bda43713772fc009203bdfd404",
+          "replayInputSha256": "a4c2345d885026c1883cf6df731c508118802052334453cb8606fd861d5ce989",
+          "evaluationPath": "challenges/evaluations/accepted-c863f395deb587c11a1121b76cb0ab9093392a15-v38.json",
+          "evaluationCommit": "c863f395deb587c11a1121b76cb0ab9093392a15",
+          "evaluationArtifact": "challenges/evaluations/accepted-c863f395deb587c11a1121b76cb0ab9093392a15-v38.json",
+          "evaluationUtc": "2026-10-10T03:24:47.122Z",
+          "remainingScreens": 1,
+          "recordedSteps": 60,
+          "previousScreensMatched": 59,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 59,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2387,
+              "total": 2388
+            },
+            "cursors": {
+              "matched": 59,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 59,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 59,
+                "key": "p"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "A",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "C",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2387,
+              "cEntry": "rn2(100)=41",
+              "cCaller": "obj_resists(zap.c:1469)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 59,
+                "key": "p"
+              },
+              "stepIndex": 59
+            },
+            "cursor": {
+              "index": 59,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 59,
+                "key": "p"
+              },
+              "cCursor": [
+                31,
+                0,
+                1
+              ],
+              "jsCursor": [
+                21,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 59,
+          "kind": "rng",
+          "sourceFile": "zap.c",
+          "function": "obj_resists",
+          "message": null,
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 1469,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v38/v38-water-dip-destroys-acid-potion.json",
+            "result": {
+              "session": "synthetic/v38/v38-water-dip-destroys-acid-potion",
+              "corpus": "synthetic",
+              "batch": "v38",
+              "caseId": "v38-water-dip-destroys-acid-potion",
+              "manifestPath": "challenges/manifests/v38.json",
+              "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+              "recordingSha256": "cb1c22abb09953930eecef0aa50149ab6050977047dee509b99b4db463a01c00",
+              "evaluationPath": "challenges/evaluations/accepted-5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0-v38.json",
+              "evaluationCommit": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0",
+              "remainingScreens": 1,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "b35c98e6368f33341f0f469061f78e9fe3e865b4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v38",
+                "caseId": "v38-water-dip-destroys-acid-potion",
+                "session": "synthetic/v38/v38-water-dip-destroys-acid-potion",
+                "manifestPath": "challenges/manifests/v38.json",
+                "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+                "recording": "challenges/cases/v38/v38-water-dip-destroys-acid-potion.session.json",
+                "recordingPath": "challenges/cases/v38/v38-water-dip-destroys-acid-potion.session.json",
+                "recordingSha256": "cb1c22abb09953930eecef0aa50149ab6050977047dee509b99b4db463a01c00",
+                "recipe": "challenges/cases/v38/v38-water-dip-destroys-acid-potion.recipe.session.json",
+                "recipeSha256": "38c1c0a3d2f865ca397e60d27e47de0eabee63bda43713772fc009203bdfd404",
+                "replayInputSha256": "99b9ea18042feeef02df123c8f0e7d05f3fe0ed35e990ecdb577c1153d0a92aa",
+                "evaluationPath": "challenges/evaluations/accepted-5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0-v38.json",
+                "evaluationCommit": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0",
+                "evaluationArtifact": "challenges/evaluations/accepted-5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0-v38.json",
+                "evaluationUtc": "2026-10-10T02:16:24.381Z",
+                "remainingScreens": 1,
+                "recordedSteps": 60,
+                "previousScreensMatched": 59,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 59,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2387,
+                    "total": 2388
+                  },
+                  "cursors": {
+                    "matched": 59,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 59,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 59,
+                      "key": "p"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "A",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "C",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2387,
+                    "cEntry": "rn2(100)=41",
+                    "cCaller": "obj_resists(zap.c:1469)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 59,
+                      "key": "p"
+                    },
+                    "stepIndex": 59
+                  },
+                  "cursor": {
+                    "index": 59,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 59,
+                      "key": "p"
+                    },
+                    "cCursor": [
+                      31,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      21,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 59,
+                "kind": "rng",
+                "sourceFile": "zap.c",
+                "function": "obj_resists",
+                "message": null,
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": 1469
+              },
+              "summary": "Dipping an acid potion into water skips C pot_acid_damage(): trap.c:water_damage() describes the potion explosion, calls setnotworn() and delobj(), and updates inventory. JavaScript water_damage() reaches an injected callback or records pot_acid_damage as unported, so it leaves the potion in place and misses delobj()’s obj_resists() RNG call. The source owner is trap.c:pot_acid_damage, not the queue’s zap.c:obj_resists annotation.",
+              "source": {
+                "file": "trap.c",
+                "branch": "When water_damage() is called on a carried acid potion by dipping it in uncursed water, or after water washes grease from an acid potion; the ungreased potion-class branch also reaches it after luck protection.",
+                "functions": [
+                  "pot_acid_damage"
+                ],
+                "callers": [
+                  "trap.c:water_damage() calls pot_acid_damage() in its grease-wash acid branch (4744-4748) and potion-class acid branch (4824-4827).",
+                  "potion.c:H2Opotion_dip() calls water_damage(targobj, 0, TRUE) for a carried target (1538-1545); dodip() invokes H2Opotion_dip() after #dip object/potion selection (2460-2464).",
+                  "js/potion.js:H2Opotion_dip() calls water_damage(target, 0, true, env); js/trap_water_damage.js:water_damage() calls its acidDamage() placeholder in both corresponding branches."
+                ],
+                "dependencies": [
+                  "invent.c:delobj() is already ported in js/invent.js; it calls the existing obj_resists() port before extraction, matching the C rn2(100) observed at zap.c:1469.",
+                  "The admitted recording selects an uncursed potion of acid and an uncursed potion of water, runs #dip, then selects the acid target; the C explosion and deletion occur at segment 0, step 59."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved v38 queue evaluation at 5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0 matches 59/60 screens and cursors, then diverges at segment 0, step 59: C displays “A…” and JS displays “C…”, while C consumes rn2(100)=41 in obj_resists(zap.c:1469). The diagnostic lists unported trap.c pot_acid_damage.",
+                "The independent C recipe challenges/cases/v38/v38-water-dip-destroys-acid-potion.recipe.session.json gives a Wizard uncursed acid and water potions, issues #dip, and selects the acid potion; its recording and manifest hashes are retained in this report.",
+                "trap.c:4657-4707 defines pot_acid_damage(): blind floor objects lose dknown, the helper selects singular/plural and first/subsequent explosion wording from ga.acid_ctx, updates dkn_boom/unk_boom, then calls setnotworn(), delobj(), and update_inventory() for inventory objects.",
+                "potion.c:1538-1545 reaches water_damage() from H2Opotion_dip(); potion.c:2460-2464 calls that helper from dodip(). js/trap_water_damage.js:232-238 currently only runs env.potAcidDamage or note_unported(), which explains both the missing explosion/deletion and the absent RNG draw."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
