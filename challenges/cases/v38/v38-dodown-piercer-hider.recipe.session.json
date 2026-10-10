@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first distinct do.c:dodown ceiling-hider non-flying arm; the trailing space dismisses the drop-to-stairs message and records the pickup result.",
+  "segments": [
+    {
+      "seed": 38117001,
+      "datetime": "20391016121112",
+      "nethackrc": "OPTIONS=name:V38LurkerDown,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,menustyle:full,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ". #wizwish\nring of polymorph control\nPnlDaA                                                                                                    .#wizwish\nwand of polymorph\nzo.rock piercer\n #monster\n > "
+    }
+  ]
+}

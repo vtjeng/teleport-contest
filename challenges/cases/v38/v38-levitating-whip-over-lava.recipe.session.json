@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Clean C-first completion of c146. c151 established all required state and reached apply.c:use_whip -> trap.c:fire_damage, while revealing that wizterrainwish leaves “A pool of molten lava.” without a pager. Remove c151’s unnecessary space/unknown-command key; apply the wielded whip directly after the terrain-wish newline.",
+  "segments": [
+    {
+      "seed": 38149001,
+      "datetime": "20420321141516",
+      "nethackrc": "OPTIONS=name:V38LavaWhip,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\n\u0017bullwhip\nwo\u0017potion of levitation\n qh\u0017lava\nao.",
+      "recorderIsDst": true
+    }
+  ]
+}

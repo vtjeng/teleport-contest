@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only continuation after c128 showed the startup More key was not handled before targeting. Source wizcmds.c:wiz_kill consumes no game time; dismiss its prompt and getpos tip, choose the nearby dog with hhhh., dismiss the follow-up getpos prompt, move east off the upstairs, wish the cursed beartrap, and apply inventory slot n.",
+  "segments": [
+    {
+      "seed": 93065117,
+      "datetime": "20401015215407",
+      "nethackrc": "OPTIONS=name:V38CursedTrap,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizkill\n  hhhh.  \u001b l\u0017cursed beartrap\nan"
+    }
+  ]
+}

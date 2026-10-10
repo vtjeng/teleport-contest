@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source behavior for do.c:dodown levitation arm. On ordinary dungeon level 2, wear the C-listed ring of levitation and press > from floor. C checks Levitation before stair validation and reports the floating surface.",
+  "segments": [
+    {
+      "seed": 38115001,
+      "datetime": "20391014101112",
+      "nethackrc": "OPTIONS=name:V38DownLevitation,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizlevelport\n2\n#wizwish\nring of levitation\nPol >"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first c156: leave the starting stair, wish and quaff levitation from observed slot e, wish a blank paper scroll and drop the observed unlabeled scroll from slot f on the hero tile, then wish lava over that square. C must show floor-scroll destruction while Levitation skips pooleffects.",
+  "segments": [
+    {
+      "seed": 38149232,
+      "datetime": "20410715123456",
+      "nethackrc": "OPTIONS=name:V38LavaScroll,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\nh\u0017potion of levitation\nqe\u0017scroll of blank paper\ndf\u0017lava\n",
+      "recorderIsDst": true
+    }
+  ]
+}

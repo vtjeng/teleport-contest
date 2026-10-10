@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first v38 candidate for wizard teleport-mode selection: prefix Ctrl-T with m, choose s (spellcast without intrinsic teleport), then reach the source energy refusal while a level-1 Barbarian has less than the 30 energy cost. This should exercise teleport.c:dotelecmd -> spell.c:tport_spell ADD/REMOVE.",
+  "segments": [
+    {
+      "seed": 38149002,
+      "datetime": "20420320141516",
+      "nethackrc": "OPTIONS=name:V38SpellMenu,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".m\u0014s",
+      "recorderIsDst": true
+    }
+  ]
+}

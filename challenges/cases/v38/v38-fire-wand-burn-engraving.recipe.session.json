@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 71420206,
+      "datetime": "20571010200000",
+      "nethackrc": "OPTIONS=name:V38BurnText,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".h#wizwish\nwand of fire\nEg  V\n.",
+      "recorderIsDst": true
+    }
+  ]
+}

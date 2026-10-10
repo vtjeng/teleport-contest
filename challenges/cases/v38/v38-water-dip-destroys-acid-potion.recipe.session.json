@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first v38 c142 route for potion.c:H2Opotion_dip -> trap.c:water_damage -> pot_acid_damage. c141 confirmed acid at inventory letter o and water at p; this input chooses the acid potion as target, then dips it into water. Require C to show the acid potion explosion and consumption before replay or comparison.",
+  "segments": [
+    {
+      "seed": 38147001,
+      "datetime": "20410120123456",
+      "nethackrc": "OPTIONS=name:V38AcidWaterDip,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed potion of acid\n\u0017uncursed potion of water\n#dip\nop",
+      "recorderIsDst": true
+    }
+  ]
+}

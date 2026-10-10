@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source completion: dismiss the polymorph transformation More page before issuing #monster to hide as lurker above, then dismiss and press >.",
+  "segments": [
+    {
+      "seed": 38116004,
+      "datetime": "20391016121112",
+      "nethackrc": "OPTIONS=name:V38LurkerDown,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,menustyle:full,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ". #wizwish\nring of polymorph control\nPnlDaA                                                                                                    .#wizwish\nwand of polymorph\nzo.lurker above\n #monster\n >"
+    }
+  ]
+}

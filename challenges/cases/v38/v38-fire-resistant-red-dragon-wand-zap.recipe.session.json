@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 66100113,
+      "datetime": "20571010100900",
+      "nethackrc": "OPTIONS=name:V38FlameWard,role:Valkyrie,race:dwarf,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizwish\nwand of fire\n#wizgenesis\nred dragon\nzej",
+      "recorderIsDst": true
+    }
+  ]
+}

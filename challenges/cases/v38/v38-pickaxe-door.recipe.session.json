@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first pickaxe direction after c97: C offered `[hyb>]` and the map places the closed door southwest of the hero, so dismiss the auto-wield More with space, then use b to select southwest before continuing the occupation.",
+  "segments": [
+    {
+      "seed": 38141020,
+      "datetime": "20401201121112",
+      "nethackrc": "OPTIONS=name:V38PickDoor,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizwish\npick-axe\nao b......"
+    }
+  ]
+}

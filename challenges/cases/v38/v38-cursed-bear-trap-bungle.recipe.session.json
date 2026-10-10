@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only capture continuation for c131’s verified true-side cursed-beartrap bungle. Keep the exact two-wait #wizkill route and append one space after applying slot n to dismiss the More prompt so the hero bear-trap result and post-trigger state are visible.",
+  "segments": [
+    {
+      "seed": 93065117,
+      "datetime": "20401015215407",
+      "nethackrc": "OPTIONS=name:V38CursedTrapWait2,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizkill\n  hhhh.  \u001b l..\u0017cursed beartrap\nan "
+    }
+  ]
+}

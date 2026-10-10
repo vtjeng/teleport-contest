@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Final C-first stale-corpse offering candidate: after 52 rest turns, #offer at the wished altar and select the observed floor corpse p.",
+  "segments": [
+    {
+      "seed": 39091044,
+      "datetime": "20420412091530",
+      "nethackrc": "OPTIONS=name:V38StaleOffering,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017neutral altar\n\u0017newt corpse\n....................................................#offer\np\n"
+    }
+  ]
+}
