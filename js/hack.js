@@ -408,7 +408,13 @@ import { Cold_resistance } from './zap.js';
 import { enexto, goodpos, rloc, rloc_to } from './teleport.js';
 import { inside_room } from './room_coordinates.js';
 import { check_special_room, in_rooms } from './rooms.js';
-import { Boots_on, hard_helmet } from './do_wear.js';
+import {
+    Boots_off,
+    Boots_on,
+    Ring_off,
+    hard_helmet,
+    off_msg,
+} from './do_wear.js';
 import { helm_simple_name } from './objnam.js';
 
 import {
@@ -2059,10 +2065,9 @@ function maybe_half_phys(damage, state) {
         ? Math.trunc((damage + 1) / 2) : damage;
 }
 
-// C ref: hack.c dosinkfall() (836-922). Equipment callbacks that remove
-// levitation rings or boots are still owned by unported do_wear.c arms; those
-// discarded calls are recorded while this function preserves hack.c's own
-// property-mask and fall-damage updates.
+// C ref: hack.c dosinkfall() (836-922). This function preserves hack.c's
+// property-mask and fall-damage updates, then calls do_wear.c's equipment
+// callbacks to remove levitation rings and boots in source order.
 export async function dosinkfall(state = game) {
     const u = state.u;
     const levitation = u.uprops[LEVITATION];
@@ -2114,16 +2119,19 @@ export async function dosinkfall(state = game) {
     levitation.intrinsic &= ~(I_SPECIAL | TIMEOUT);
     levitation.intrinsic++;
     if (state.uleft?.otyp === RIN_LEVITATION) {
-        note_unported('do_wear.c Ring_off');
-        note_unported('do_wear.c off_msg');
+        const ring = state.uleft;
+        await Ring_off(ring, state);
+        await off_msg(ring, state);
     }
     if (state.uright?.otyp === RIN_LEVITATION) {
-        note_unported('do_wear.c Ring_off');
-        note_unported('do_wear.c off_msg');
+        const ring = state.uright;
+        await Ring_off(ring, state);
+        await off_msg(ring, state);
     }
     if (levBoots) {
-        note_unported('do_wear.c Boots_off');
-        note_unported('do_wear.c off_msg');
+        const boots = state.uarmf;
+        await Boots_off(state);
+        await off_msg(boots, state);
     }
     levitation.intrinsic--;
     float_vs_flight(state);

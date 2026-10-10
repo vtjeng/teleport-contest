@@ -248159,6 +248159,949 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "divergence-v39-sink-levitation-boots-pickup-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Restore sink-fall levitation gear removal callbacks",
+      "cFile": "hack.c",
+      "sessions": [],
+      "selectionReason": "The current admitted v39 sink case has five unmatched screens after hack.c:dosinkfall omits the worn levitation gear removal callbacks.",
+      "detail": "Invoke the existing Ring_off, Boots_off, and off_msg implementations in the source order used by hack.c:dosinkfall.",
+      "openedAt": "90bdbe571749e054b7c80e53bbc88f38df29206f",
+      "openStanding": {
+        "sha": "52c9514b68146f66836e5ff89d4d0be624a2d33d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "dosinkfall",
+      "session": "synthetic/v39/v39-sink-levitation-boots-pickup",
+      "step": 32,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-sink-levitation-boots-pickup": {
+          "session": "synthetic/v39/v39-sink-levitation-boots-pickup",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-sink-levitation-boots-pickup",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-sink-levitation-boots-pickup.session.json",
+          "recordingSha256": "b30989c0a8dbe8d05b38d669e572285e3363abea5d2fdebff79d98804f58f2e8",
+          "evaluationPath": "challenges/evaluations/accepted-52c9514b68146f66836e5ff89d4d0be624a2d33d-v39.json",
+          "evaluationCommit": "52c9514b68146f66836e5ff89d4d0be624a2d33d"
+        }
+      },
+      "activeStanding": {
+        "sha": "52c9514b68146f66836e5ff89d4d0be624a2d33d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-sink-levitation-boots-pickup",
+          "session": "synthetic/v39/v39-sink-levitation-boots-pickup",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-sink-levitation-boots-pickup.session.json",
+          "recordingPath": "challenges/cases/v39/v39-sink-levitation-boots-pickup.session.json",
+          "recordingSha256": "b30989c0a8dbe8d05b38d669e572285e3363abea5d2fdebff79d98804f58f2e8",
+          "recipe": "challenges/cases/v39/v39-sink-levitation-boots-pickup.recipe.session.json",
+          "recipeSha256": "14d86ab18b49cd4181f644f115ee7420bd6cb56ebee99007f4fea3e50f07793e",
+          "replayInputSha256": "95e36fdeb037cd9f4054be767f799cff740f5ce131dceb03447471bbfd53e38e",
+          "evaluationPath": "challenges/evaluations/accepted-52c9514b68146f66836e5ff89d4d0be624a2d33d-v39.json",
+          "evaluationCommit": "52c9514b68146f66836e5ff89d4d0be624a2d33d",
+          "evaluationArtifact": "challenges/evaluations/accepted-52c9514b68146f66836e5ff89d4d0be624a2d33d-v39.json",
+          "evaluationUtc": "2026-10-10T07:56:11.147Z",
+          "remainingScreens": 5,
+          "recordedSteps": 37,
+          "previousScreensMatched": 32,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 37
+            },
+            "rng": {
+              "matched": 2586,
+              "total": 2586
+            },
+            "cursors": {
+              "matched": 36,
+              "total": 37
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 27,
+              "cCell": {
+                "ch": "w",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "s",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": " "
+              },
+              "cCursor": [
+                78,
+                0,
+                1
+              ],
+              "jsCursor": [
+                29,
+                15,
+                1
+              ]
+            }
+          },
+          "step": 32,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-sink-levitation-boots-pickup.json",
+            "result": {
+              "session": "synthetic/v39/v39-sink-levitation-boots-pickup",
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-sink-levitation-boots-pickup",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recordingSha256": "b30989c0a8dbe8d05b38d669e572285e3363abea5d2fdebff79d98804f58f2e8",
+              "evaluationPath": "challenges/evaluations/accepted-52c9514b68146f66836e5ff89d4d0be624a2d33d-v39.json",
+              "evaluationCommit": "52c9514b68146f66836e5ff89d4d0be624a2d33d",
+              "remainingScreens": 5,
+              "recordedSteps": 37,
+              "status": "complete",
+              "commit": "a32daf664bb995a1405c33407f5a339a017004cc",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v39",
+                "caseId": "v39-sink-levitation-boots-pickup",
+                "session": "synthetic/v39/v39-sink-levitation-boots-pickup",
+                "manifestPath": "challenges/manifests/v39.json",
+                "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+                "recording": "challenges/cases/v39/v39-sink-levitation-boots-pickup.session.json",
+                "recordingPath": "challenges/cases/v39/v39-sink-levitation-boots-pickup.session.json",
+                "recordingSha256": "b30989c0a8dbe8d05b38d669e572285e3363abea5d2fdebff79d98804f58f2e8",
+                "recipe": "challenges/cases/v39/v39-sink-levitation-boots-pickup.recipe.session.json",
+                "recipeSha256": "14d86ab18b49cd4181f644f115ee7420bd6cb56ebee99007f4fea3e50f07793e",
+                "replayInputSha256": "9c849123a3d6d04f02b60b84dadcf1b460de318a7ca2ce052b1ffa6dbb7ce224",
+                "evaluationPath": "challenges/evaluations/accepted-bc442e36ad933de77a8051a6ae641fac42ab6780-v39.json",
+                "evaluationCommit": "bc442e36ad933de77a8051a6ae641fac42ab6780",
+                "evaluationArtifact": "challenges/evaluations/accepted-bc442e36ad933de77a8051a6ae641fac42ab6780-v39.json",
+                "evaluationUtc": "2026-10-10T06:34:43.125Z",
+                "remainingScreens": 5,
+                "recordedSteps": 37,
+                "previousScreensMatched": 32,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 32,
+                    "total": 37
+                  },
+                  "rng": {
+                    "matched": 2586,
+                    "total": 2586
+                  },
+                  "cursors": {
+                    "matched": 36,
+                    "total": 37
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 27,
+                    "cCell": {
+                      "ch": "w",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "s",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      78,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      29,
+                      15,
+                      1
+                    ]
+                  }
+                },
+                "step": 32,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch is the missing “You were wearing a +0 pair of levitation boots.” message after the sink fall death refusal. C reaches dosinkfall from Boots_on → spoteffects; dosinkfall removes the levitation boots and calls off_msg. JS dosinkfall skips Boots_off and off_msg even though Boots_off is implemented and off_msg exists as a private helper in do_wear.js.",
+              "source": {
+                "file": "hack.c",
+                "branch": "spoteffects runs on an IS_SINK square while levitation is active; when levitation comes only from worn boots and the hero is not innately levitating, blocked, or flying, dosinkfall takes the fall branch, then removes worn levitation items and reports each removal.",
+                "functions": [
+                  "dosinkfall"
+                ],
+                "callers": [
+                  "hack.c:spoteffects() calls dosinkfall() for IS_SINK && Levitation.",
+                  "do_wear.c:Boots_on() calls spoteffects(FALSE) after float_up() when levitation boots newly activate."
+                ],
+                "dependencies": [
+                  "do_wear.c:Boots_off",
+                  "do_wear.c:off_msg",
+                  "do_wear.c:Ring_off",
+                  "polyself.c:selftouch"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "nethack-c/upstream/src/do_wear.c:186-259: Boots_on() activates levitation boots, calls float_up(), then spoteffects(FALSE) when Levitation is true.",
+                "nethack-c/upstream/src/hack.c:3320-3354: spoteffects() calls dosinkfall() when the current terrain is a sink and Levitation is active.",
+                "nethack-c/upstream/src/hack.c:836-919: dosinkfall() crashes when levitation is only extrinsic from boots, restores the saved levitation fields after damage, then calls Boots_off() followed by off_msg(obj).",
+                "nethack-c/upstream/src/do_wear.c:67-72,262-323: off_msg() prints the removal message and Boots_off() clears the footwear slot and recalculates levitation in source order.",
+                "js/hack.js:2062-2129: dosinkfall() currently records note_unported(\"do_wear.c Boots_off/off_msg\") instead of invoking the implemented Boots_off() and off_msg() helpers.",
+                ".cache/A2-v39-sink-diff-fresh.log: fresh C differential has matching PRNG values (2586/2586) and first screen/cursor mismatch at boundary 33, segment 1, step 33, input space; C displays the boots removal message while JS skips it.",
+                "challenges/cases/v39/v39-sink-levitation-boots-pickup.recipe.session.json: independently designed wizard recipe wishes for a sink and levitation boots, picks up the boots, and starts wearing them over the sink; the C recording proves the sink fall branch is reached."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-wizard-create-particular-object-generation-v39-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Supply object construction hooks during wizard monster creation",
+      "cFile": "read.c",
+      "sessions": [],
+      "selectionReason": "The current admitted v39 wizard genesis case has 20 unmatched screens and stops in read.c:create_particular_creation when mimic disguise construction lacks the existing monsterObject hook.",
+      "detail": "Pass the canonical objectGenerationEnv into the production makemon call and cover the direct wizard command plus scroll and wand prompt callers with independent recordings.",
+      "openedAt": "58a3a7c2818e8338986f5af3002ce1719a840af7",
+      "openStanding": {
+        "sha": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "create_particular_creation",
+      "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+      "step": 94,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-counted-wizgenesis-mimic-population": {
+          "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-counted-wizgenesis-mimic-population",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+          "evaluationPath": "challenges/evaluations/accepted-6d9d5654bcd5444ec53ec2dbd558780ffe15ae37-v39.json",
+          "evaluationCommit": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37"
+        }
+      },
+      "activeStanding": {
+        "sha": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-counted-wizgenesis-mimic-population",
+          "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+          "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
+          "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
+          "replayInputSha256": "6c5eebb8ac589d2138034213c7b9c1eeab0007a593767809178d3a4cc278cf93",
+          "evaluationPath": "challenges/evaluations/accepted-6d9d5654bcd5444ec53ec2dbd558780ffe15ae37-v39.json",
+          "evaluationCommit": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37",
+          "evaluationArtifact": "challenges/evaluations/accepted-6d9d5654bcd5444ec53ec2dbd558780ffe15ae37-v39.json",
+          "evaluationUtc": "2026-10-10T08:14:26.793Z",
+          "remainingScreens": 20,
+          "recordedSteps": 114,
+          "previousScreensMatched": 94,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 94,
+              "total": 114
+            },
+            "rng": {
+              "matched": 6232,
+              "total": 6551
+            },
+            "cursors": {
+              "matched": 94,
+              "total": 114
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: monsterObject is not available",
+            "step": 94
+          },
+          "step": 94,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: monsterObject is not available",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-counted-wizgenesis-mimic-population.json",
+            "result": {
+              "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-counted-wizgenesis-mimic-population",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+              "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+              "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
+              "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
+              "replayInputSha256": "47593086a1baa7723744c3a7331b13272c438f1e0c7426f5a9c944273e35682e",
+              "evaluationPath": "challenges/evaluations/accepted-6d9d5654bcd5444ec53ec2dbd558780ffe15ae37-v39.json",
+              "evaluationCommit": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37",
+              "remainingScreens": 20,
+              "recordedSteps": 114,
+              "status": "complete",
+              "commit": "161dbdcdd9b497dc526bb79ee7d62761c01c91ec",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v39",
+                "caseId": "v39-counted-wizgenesis-mimic-population",
+                "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+                "manifestPath": "challenges/manifests/v39.json",
+                "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+                "recording": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+                "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+                "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+                "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
+                "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
+                "replayInputSha256": "47593086a1baa7723744c3a7331b13272c438f1e0c7426f5a9c944273e35682e",
+                "evaluationPath": "challenges/evaluations/accepted-aed26ac9ec69a4441421005e4110971d52d5eb53-v39.json",
+                "evaluationCommit": "aed26ac9ec69a4441421005e4110971d52d5eb53",
+                "evaluationArtifact": "challenges/evaluations/accepted-aed26ac9ec69a4441421005e4110971d52d5eb53-v39.json",
+                "evaluationUtc": "2026-10-10T06:48:19.323Z",
+                "remainingScreens": 20,
+                "recordedSteps": 114,
+                "previousScreensMatched": 94,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 94,
+                    "total": 114
+                  },
+                  "rng": {
+                    "matched": 6232,
+                    "total": 6551
+                  },
+                  "cursors": {
+                    "matched": 94,
+                    "total": 114
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: monsterObject is not available",
+                  "step": 94
+                },
+                "step": 94,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: monsterObject is not available",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "When a wizard creates a mimic through Genesis or the wizard-mode create-monster prompt, makemon.c:makemon() calls set_mimic_sym(), which can create a temporary disguise object with mkobj(). JavaScript passes create_particular_creation() a bare monster-creation environment, so a statue or figurine disguise reaches obj.js without the existing monsterObject lifecycle hook and stops before the next turn. The source-matched fix is to supply the standard objectGenerationEnv at that production makemon call.",
+              "source": {
+                "file": "read.c",
+                "branch": "create_particular_creation() creates a named S_MIMIC; makemon() enters its S_MIMIC arm, and set_mimic_sym() selects a random object class for an ordinary-room disguise. When mkobj() produces a STATUE or FIGURINE, JavaScript must run the residual monster-object initialize/finalize behavior just as C mksobj() does before set_mimic_sym() reads the temporary object type and frees it.",
+                "functions": [
+                  "create_particular_creation"
+                ],
+                "callers": [
+                  "read.c:create_particular() (3372-3405) calls create_particular_creation(); wizcmds.c:wiz_genesis() (203-210) calls create_particular() for the direct Ctrl-G/#wizgenesis entry.",
+                  "makemon.c:create_critters() (1556-1574) calls create_particular() when wizard mode and !neverask; active production callers include read.c:seffect_create_monster() (1607-1619) and zap.c:weffects() for WAN_CREATE_MONSTER (2569-2573). JS wiring is makemon.js:create_critters() and read.js:seffect_create_monster().",
+                  "makemon.c:makemon() (1303-1306) calls set_mimic_sym() for S_MIMIC; makemon.c:set_mimic_sym() (2393-2509) calls mkobj(), consumes otmp->otyp, and obfree()s the temporary object. JS equivalents are makemon_create.js:makemon() and set_mimic_sym().",
+                  "mkobj.c:mkobj()/mksobj_init() build the temporary object. JavaScript obj.js routes statue/figurine initialization through initializeResidualMonsterObject(); object_generation.js:objectGenerationEnv() already supplies the monsterObject implementation."
+                ],
+                "dependencies": [
+                  "makemon.c:makemon() is already ported for this explicit runtime species call and returns the monster consumed by create_particular_creation().",
+                  "makemon.c:set_mimic_sym() is already ported as a whole function; its mkobj()/obfree() return and cleanup order match C.",
+                  "mkobj.c:mkobj() and mksobj_init() are already ported; their statue/figurine lifecycle requires the monsterObject hook.",
+                  "objectGenerationEnv() is the existing JS composition point for object-construction hooks, including monsterObject."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved combined queue SHA-256 e153a1e0869be21cb7a70ad69de92d64fced50b7a39196a9515a6760416d7d0d selects synthetic/v39/v39-counted-wizgenesis-mimic-population; after the accepted B209 counted-dispatch fix, the immutable recipe matches 94/114 screens and first stops at step 94 with “monsterObject is not available”.",
+                "Focused fresh C differential `node scripts/diff-fresh.mjs challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json` (run-ANLf80) records C=114 screens/6551 RNG and JavaScript=94 screens/6232 RNG; the next missing source draw is C rn2(3)=0 at rndmonst_adj(makemon.c:1716), step 95, after the JS boundary.",
+                "Direct JavaScript runSegment() replay of the same independent recipe stops with UnsupportedHeroCommandBoundaryError from cmd.js:failClosedCommand(), message “an unported branch of this command: monsterObject is not available”, after 94 screens and 6232 RNG calls.",
+                "C source trace: read.c:create_particular_creation() calls makemon(whichpm, u.ux, u.uy, mmflags) at read.c:3315; makemon.c:makemon() calls set_mimic_sym() at 1303-1306; set_mimic_sym() calls mkobj() and reads otmp->otyp at 2505-2508. In an ordinary room the source symbol table at makemon.c:2388-2391 includes ROCK_CLASS, whose selected object may be a statue or figurine.",
+                "JavaScript source trace: read.js:create_particular_creation() passes only `{ state, _createParticular: true }` to makemon_runtime() at 3570-3573. makemon_create.js:creationEnv() preserves hooks but does not add object-generation hooks; set_mimic_sym() passes that bare normalized environment to mkobj() at 1029-1031; obj.js:initializeResidualMonsterObject() requires env.hooks.monsterObject at 2020-2021. object_generation.js:objectGenerationEnv() already composes the exact adapter at lines 20-64.",
+                "The common create_particular() caller is reachable both directly from wizcmds.c:wiz_genesis() and through makemon.c:create_critters() from the wizard create-monster scroll/spell and WAN_CREATE_MONSTER paths. Applying objectGenerationEnv at create_particular_creation() preserves source branch order while fixing the shared object constructor dependency."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-counted-wizgenesis-mimic-population",
+          "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+          "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
+          "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
+          "replayInputSha256": "c86a0d605f084496ae3af63ae52300dbd10684bfdf84624fd116f72a75c1be4d",
+          "evaluationPath": "challenges/evaluations/accepted-7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e-v39.json",
+          "evaluationCommit": "7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e",
+          "evaluationArtifact": "challenges/evaluations/accepted-7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e-v39.json",
+          "evaluationUtc": "2026-10-10T08:24:49.074Z",
+          "remainingScreens": 0,
+          "recordedSteps": 114,
+          "previousScreensMatched": 94,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 114,
+              "total": 114
+            },
+            "rng": {
+              "matched": 6543,
+              "total": 6551
+            },
+            "cursors": {
+              "matched": 114,
+              "total": 114
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 6508,
+              "cEntry": "rn2(100)=19",
+              "cCaller": "obj_resists(zap.c:1469)",
+              "jsEntry": "rn2(5)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 113,
+                "key": "h"
+              },
+              "stepIndex": 113
+            },
+            "cursor": null
+          },
+          "step": 113,
+          "kind": "rng",
+          "sourceFile": "zap.c",
+          "function": "obj_resists",
+          "message": null,
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 1469,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v39/v39-counted-wizgenesis-mimic-population.json",
+            "previousRemainingScreens": 20
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-wield-corpse-instapetrify-v39-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Call instapetrify when a bare-handed hero wields a petrifying corpse",
+      "cFile": "wield.c",
+      "sessions": [
+        "synthetic/v39/v39-wield-cockatrice-instapetrify"
+      ],
+      "selectionReason": "Dependency-ready admitted v39 mismatch traced to wield.c:cant_wield_corpse at step 48.",
+      "detail": "v39/v39-wield-cockatrice-instapetrify segment 0 first differs at step 48: C prints the bare-handed wield message and calls trap.c:instapetrify; js/wield.js records that void call as unported. Port the source call through the existing js/trap.js implementation.",
+      "openedAt": "ae31aef04e743fc7cffed85eaa1cde017ed37f2e",
+      "openStanding": {
+        "sha": "7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "cant_wield_corpse",
+      "session": "synthetic/v39/v39-wield-cockatrice-instapetrify",
+      "step": 48,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-wield-cockatrice-instapetrify": {
+          "session": "synthetic/v39/v39-wield-cockatrice-instapetrify",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-wield-cockatrice-instapetrify",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-wield-cockatrice-instapetrify.session.json",
+          "recordingSha256": "d19262fe01979f62e392993d6347eecf9e28d060418aeb921b4a9d6a4fc980ac",
+          "evaluationPath": "challenges/evaluations/accepted-7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e-v39.json",
+          "evaluationCommit": "7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e"
+        }
+      },
+      "activeStanding": {
+        "sha": "7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-wield-cockatrice-instapetrify",
+          "session": "synthetic/v39/v39-wield-cockatrice-instapetrify",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-wield-cockatrice-instapetrify.session.json",
+          "recordingPath": "challenges/cases/v39/v39-wield-cockatrice-instapetrify.session.json",
+          "recordingSha256": "d19262fe01979f62e392993d6347eecf9e28d060418aeb921b4a9d6a4fc980ac",
+          "recipe": "challenges/cases/v39/v39-wield-cockatrice-instapetrify.recipe.session.json",
+          "recipeSha256": "a9eb48ed8a69bde52233529e99447e4139542c45927dd0018c3fbf88b3f2cc4f",
+          "replayInputSha256": "c86a0d605f084496ae3af63ae52300dbd10684bfdf84624fd116f72a75c1be4d",
+          "evaluationPath": "challenges/evaluations/accepted-7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e-v39.json",
+          "evaluationCommit": "7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e",
+          "evaluationArtifact": "challenges/evaluations/accepted-7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e-v39.json",
+          "evaluationUtc": "2026-10-10T08:24:49.074Z",
+          "remainingScreens": 4,
+          "recordedSteps": 52,
+          "previousScreensMatched": 48,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 48,
+              "total": 52
+            },
+            "rng": {
+              "matched": 2227,
+              "total": 2227
+            },
+            "cursors": {
+              "matched": 49,
+              "total": 52
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 48,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 48,
+                "key": "o"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 51,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 48,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 48,
+                "key": "o"
+              },
+              "cCursor": [
+                59,
+                0,
+                1
+              ],
+              "jsCursor": [
+                39,
+                19,
+                1
+              ]
+            }
+          },
+          "step": 48,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-wield-cockatrice-instapetrify.json",
+            "result": {
+              "session": "synthetic/v39/v39-wield-cockatrice-instapetrify",
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-wield-cockatrice-instapetrify",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recordingPath": "challenges/cases/v39/v39-wield-cockatrice-instapetrify.session.json",
+              "recordingSha256": "d19262fe01979f62e392993d6347eecf9e28d060418aeb921b4a9d6a4fc980ac",
+              "evaluationPath": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+              "evaluationCommit": "998c20cf771d23d6f5faed181eee05f270b73b58",
+              "remainingScreens": 4,
+              "recordedSteps": 52,
+              "status": "complete",
+              "commit": "c849eb955ab487a30f2edd282ba9c3adf9cbf5a1",
+              "mismatch": {
+                "kind": "synthetic",
+                "corpus": "synthetic",
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "sessions": [
+                  "synthetic/v39/v39-wield-cockatrice-instapetrify"
+                ],
+                "remainingScreens": 4,
+                "remainingScreensUpperBound": null,
+                "earliestStep": 48,
+                "caseId": "v39-wield-cockatrice-instapetrify",
+                "batch": "v39",
+                "recordingPath": "challenges/cases/v39/v39-wield-cockatrice-instapetrify.session.json",
+                "session": "synthetic/v39/v39-wield-cockatrice-instapetrify"
+              },
+              "summary": "When a hero with no gloves wields a cockatrice corpse, the C path reports “You wield the cockatrice corpse in your bare hands.” and calls instapetrify(); the JavaScript helper reports the wield message but records note_unported instead of calling the existing instapetrify implementation. This is the first mismatch at step 48. The actionable source owner is wield.c:cant_wield_corpse().",
+              "source": {
+                "file": "wield.c",
+                "branch": "If the hero lacks gloves, the object is a corpse, its species touch-petrifies, and Stone_resistance is false, print the bare-handed wield message, name the cause, call instapetrify(), then return TRUE.",
+                "functions": [
+                  "cant_wield_corpse"
+                ],
+                "callers": [
+                  "wield.c:ready_weapon() calls cant_wield_corpse(wep) for a corpse before wielding it (line 183).",
+                  "wield.c:can_twoweapon() contains a secondary-corpse call at line 794, but the preceding !TWOWEAPOK(uswapwep) guard makes that branch unreachable for corpses, as its source comment states."
+                ],
+                "dependencies": [
+                  "trap.c:instapetrify() (existing JavaScript implementation in js/trap.js)"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Fresh replay at examined commit c849eb955ab487a30f2edd282ba9c3adf9cbf5a1: C/JS RNG calls match 2227/2227 and screens count 52/52; first screen and cursor mismatch is zero-based step 48, key “o”: C displays “--More--” after “You wield the cockatrice corpse in your bare hands.” while JS has no pager, with cursor C [59,0,1] and JS [39,19,1].",
+                "wield.c:cant_wield_corpse() (137-153) checks gloves, CORPSE type, touch_petrifies(), and Stone_resistance in C short-circuit order; it prints the bare-hand wield message, calls instapetrify(kbuf), then returns TRUE.",
+                "The production route is cmd.c wield dispatch -> wield.c:dowield() -> ready_weapon() -> cant_wield_corpse(). The JS helper exists at js/wield.js:cant_wield_corpse() and currently reaches note_unported('trap.c instapetrify') instead of awaiting the existing js/trap.js:instapetrify() call.",
+                "The only other direct C caller is the unreachable can_twoweapon() corpse branch; source line 794 explicitly says TWOWEAPOK() prevents it from being reached for corpses."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-trap-seen-magic-trap-preflight-v39-20261010",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Complete the seen magic trap escape and explosion path",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v39/v39-magic-trap-explosion"
+      ],
+      "selectionReason": "Oldest dependency-clearing admitted v39 mismatch, traced to trap.c:dotrap and trapeffect_magic_trap at step 24.",
+      "detail": "v39/v39-magic-trap-explosion segment 0 stops at step 24 because preflight rejects an already-seen MAGIC_TRAP. C dotrap consumes the seen-trap escape roll, then trapeffect_magic_trap takes the 1-in-30 explosion arm: delete and redraw the trap, damage the hero, and restore maximum energy.",
+      "openedAt": "eb7bc814e442092076e6566bfd3cb61ea1a3906a",
+      "openStanding": {
+        "sha": "0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "trapeffect_magic_trap",
+      "session": "synthetic/v39/v39-magic-trap-explosion",
+      "step": 24,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-magic-trap-explosion": {
+          "session": "synthetic/v39/v39-magic-trap-explosion",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-magic-trap-explosion",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-magic-trap-explosion.session.json",
+          "recordingSha256": "b5702f57168e0054738cfa70a31d76dfdf2a43d0297c3f67b231b97e2b001142",
+          "evaluationPath": "challenges/evaluations/accepted-0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b-v39.json",
+          "evaluationCommit": "0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b"
+        }
+      },
+      "activeStanding": {
+        "sha": "0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-magic-trap-explosion",
+          "session": "synthetic/v39/v39-magic-trap-explosion",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-magic-trap-explosion.session.json",
+          "recordingPath": "challenges/cases/v39/v39-magic-trap-explosion.session.json",
+          "recordingSha256": "b5702f57168e0054738cfa70a31d76dfdf2a43d0297c3f67b231b97e2b001142",
+          "recipe": "challenges/cases/v39/v39-magic-trap-explosion.recipe.session.json",
+          "recipeSha256": "f8510b7221b3feb6dbdec3d52efc556ea308cb524f655b10df7406997d5ee046",
+          "replayInputSha256": "af4a14bbcf2249cb73834dd511429aa7ab71dc337d9cb7cbd7d14e2cb025ff42",
+          "evaluationPath": "challenges/evaluations/accepted-0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b-v39.json",
+          "evaluationCommit": "0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b",
+          "evaluationArtifact": "challenges/evaluations/accepted-0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b-v39.json",
+          "evaluationUtc": "2026-10-10T08:40:29.787Z",
+          "remainingScreens": 1,
+          "recordedSteps": 25,
+          "previousScreensMatched": 24,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 24,
+              "total": 25
+            },
+            "rng": {
+              "matched": 2743,
+              "total": 2746
+            },
+            "cursors": {
+              "matched": 24,
+              "total": 25
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: a trap the hero has already seen",
+            "step": 24
+          },
+          "step": 24,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero move: a trap the hero has already seen",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-magic-trap-explosion.json",
+            "result": {
+              "session": "synthetic/v39/v39-magic-trap-explosion",
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-magic-trap-explosion",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recordingSha256": "b5702f57168e0054738cfa70a31d76dfdf2a43d0297c3f67b231b97e2b001142",
+              "evaluationPath": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+              "evaluationCommit": "998c20cf771d23d6f5faed181eee05f270b73b58",
+              "remainingScreens": 1,
+              "recordedSteps": 25,
+              "status": "complete",
+              "commit": "505a2094f7a36fa0df072b39b4d76e3efe978041",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v39",
+                "caseId": "v39-magic-trap-explosion",
+                "session": "synthetic/v39/v39-magic-trap-explosion",
+                "manifestPath": "challenges/manifests/v39.json",
+                "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+                "recording": "challenges/cases/v39/v39-magic-trap-explosion.session.json",
+                "recordingPath": "challenges/cases/v39/v39-magic-trap-explosion.session.json",
+                "recordingSha256": "b5702f57168e0054738cfa70a31d76dfdf2a43d0297c3f67b231b97e2b001142",
+                "recipe": "challenges/cases/v39/v39-magic-trap-explosion.recipe.session.json",
+                "recipeSha256": "f8510b7221b3feb6dbdec3d52efc556ea308cb524f655b10df7406997d5ee046",
+                "replayInputSha256": "0829ceb24a4dbcbea8c6089aa8de856c51982d20a277e4f3a173eccf4a339ac1",
+                "evaluationPath": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+                "evaluationCommit": "998c20cf771d23d6f5faed181eee05f270b73b58",
+                "evaluationArtifact": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+                "evaluationUtc": "2026-10-10T07:03:42.993Z",
+                "remainingScreens": 1,
+                "recordedSteps": 25,
+                "previousScreensMatched": 24,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 24,
+                    "total": 25
+                  },
+                  "rng": {
+                    "matched": 2743,
+                    "total": 2746
+                  },
+                  "cursors": {
+                    "matched": 24,
+                    "total": 25
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: a trap the hero has already seen",
+                  "step": 24
+                },
+                "step": 24,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero move: a trap the hero has already seen",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The saved replay stops on the second #sit because JavaScript preflight rejects a seen MAGIC_TRAP before dotrap runs. C permits the seen-trap escape roll; this recording rolls 3 on rn2(5), continues into trapeffect_magic_trap, and triggers the explosion.",
+              "source": {
+                "file": "trap.c",
+                "branch": "For an already-seen trap, dotrap performs the escape roll only when the hero is not fumbling, the trap is destroyable, the trap is not ANTI_MAGIC, no force-bungle/plunge/conjoined-pit/adjacent-pit condition applies, and the call is not forced. MAGIC_TRAP satisfies those conditions. If rn2(5) is nonzero, dotrap proceeds to trapeffect_selector and the magic-trap effect.",
+                "functions": [
+                  "dotrap"
+                ],
+                "callers": [
+                  "sit.c:dosit (400-568) calls dotrap(trap, VIASITTING) when a trap is under the hero and the hero is not already trapped; js/sit.js:dosit already dispatches this call from cmd.js #sit."
+                ],
+                "dependencies": [
+                  "trap.c:trapeffect_selector",
+                  "trap.c:trapeffect_magic_trap"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved queue SHA-256 8159324bc02a3fa2724e8603cae7a6809fbbbaff1883c62684a0478b91a06f03 records v39-magic-trap-explosion with 1 remaining screen, 25 recorded steps, and a stop at segment 0 step 24: unsupported hero move: a trap the hero has already seen. Its admitted recipe creates a magic trap with wizard debug input, then runs #sit twice.",
+                "The C caller path is sit.c:dosit at lines 400-568: when a trap is under the hero and the hero is not already trapped, it prints the landing/sitting message and calls dotrap(trap, VIASITTING). The JavaScript caller already does the same at js/sit.js:898-902.",
+                "Upstream trap.c:dotrap lines 3035-3043 does not blanket-refuse seen traps. MAGIC_TRAP is not undestroyable and is not ANTI_MAGIC, so C rolls rn2(5); the saved second #sit records rn2(5)=3 at dotrap(trap.c:3038), proceeds to trapeffect_selector, then records rn2(30)=0 and rnd(10)=5 in trapeffect_magic_trap(trap.c:2300-2304).",
+                "js/trap_effects.js:preflight_dotrap rejects a seen trap at lines 3918-3927 because MAGIC_TRAP is absent from its allowlist. That guard runs before the already-ported dotrap seen-trap roll and trapeffect_magic_trap branch, producing the saved unsupported-move stop. scripts/hero-magic-trap.test.mjs:134-142 currently pins this incorrect refusal.",
+                "The narrowly actionable fix is to admit already-seen MAGIC_TRAP through preflight while preserving all other unsupported seen-trap refusals. The existing dotrap implementation then performs C-order rn2(5) and reaches the existing magic-trap effect. No sit caller change or new recipe is needed; the admitted v39 range covers segment 0 step 24.",
+                "Fresh C/JavaScript differential `node scripts/diff-fresh.mjs challenges/cases/v39/v39-magic-trap-explosion.recipe.session.json` reproduced the same refusal at segment 1 step 25 (bounded run-4DTJbH, .cache/B214-investigation-fresh-diff.log): C records rn2(5)=3 at dotrap(trap.c:3038), then has the screen and cursor boundary that JavaScript omits after the seen-MAGIC_TRAP preflight error."
+              ],
+              "savedQueueSha256": "8159324bc02a3fa2724e8603cae7a6809fbbbaff1883c62684a0478b91a06f03"
+            }
+          }
+        }
+      ]
     }
   ]
 }

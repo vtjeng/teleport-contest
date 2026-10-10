@@ -1,21 +1,21 @@
 {
+  "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
   "corpus": "synthetic",
   "batch": "v39",
   "caseId": "v39-counted-wizgenesis-mimic-population",
-  "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
   "manifestPath": "challenges/manifests/v39.json",
   "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
   "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
   "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
   "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
   "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
-  "replayInputSha256": "938dd44564a49459a54ba4ef8fe7d579c3f64eafbfef8f1e25fd9ef82dde4e3c",
-  "evaluationPath": "challenges/evaluations/20261009230658-v39.json",
-  "evaluationCommit": "30d1b7936740e5f611781c85242eb860218d9e5d",
-  "remainingScreens": 29,
+  "replayInputSha256": "47593086a1baa7723744c3a7331b13272c438f1e0c7426f5a9c944273e35682e",
+  "evaluationPath": "challenges/evaluations/accepted-6d9d5654bcd5444ec53ec2dbd558780ffe15ae37-v39.json",
+  "evaluationCommit": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37",
+  "remainingScreens": 20,
   "recordedSteps": 114,
   "status": "complete",
-  "commit": "ccbfb0379575353de8168956e30255ecef25f47d",
+  "commit": "161dbdcdd9b497dc526bb79ee7d62761c01c91ec",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v39",
@@ -28,65 +28,72 @@
     "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
     "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
     "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
-    "replayInputSha256": "938dd44564a49459a54ba4ef8fe7d579c3f64eafbfef8f1e25fd9ef82dde4e3c",
-    "evaluationPath": "challenges/evaluations/20261009230658-v39.json",
-    "evaluationCommit": "30d1b7936740e5f611781c85242eb860218d9e5d",
-    "evaluationArtifact": "challenges/evaluations/20261009230658-v39.json",
-    "evaluationUtc": "2026-10-10T06:07:16.397Z",
-    "remainingScreens": 29,
+    "replayInputSha256": "47593086a1baa7723744c3a7331b13272c438f1e0c7426f5a9c944273e35682e",
+    "evaluationPath": "challenges/evaluations/accepted-aed26ac9ec69a4441421005e4110971d52d5eb53-v39.json",
+    "evaluationCommit": "aed26ac9ec69a4441421005e4110971d52d5eb53",
+    "evaluationArtifact": "challenges/evaluations/accepted-aed26ac9ec69a4441421005e4110971d52d5eb53-v39.json",
+    "evaluationUtc": "2026-10-10T06:48:19.323Z",
+    "remainingScreens": 20,
     "recordedSteps": 114,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 94,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 85,
+        "matched": 94,
         "total": 114
       },
       "rng": {
-        "matched": 5761,
+        "matched": 6232,
         "total": 6551
       },
       "cursors": {
-        "matched": 85,
+        "matched": 94,
         "total": 114
       }
     },
     "firstMismatch": {
       "kind": "stop",
-      "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a nonmovement row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that nonmovement command path remains unsupported",
-      "step": 85
+      "message": "unsupported hero command: an unported branch of this command: monsterObject is not available",
+      "step": 94
     },
-    "step": 85,
+    "step": 94,
     "kind": "stop",
-    "sourceFile": "cmd.c",
-    "function": "parse",
-    "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a nonmovement row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that nonmovement command path remains unsupported",
-    "cFile": "cmd.c",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: monsterObject is not available",
+    "cFile": null,
     "luaFile": null,
     "line": null
   },
-  "summary": "The v39 recording prefixes the wizard Genesis command with a count. C carries that count into read.c:create_particular_parse(), which uses 1 + gm.multi as the requested mimic population; cmd.c:rhack() dispatches wiz_genesis once and clears the count after ECMD_OK. JavaScript rejects the selected wizgenesis row at rhack’s generic counted nonmovement-command boundary before the prompt. Allow this already-ported counted handler through that guard so Genesis consumes the count and clears it in source order.",
+  "summary": "When a wizard creates a mimic through Genesis or the wizard-mode create-monster prompt, makemon.c:makemon() calls set_mimic_sym(), which can create a temporary disguise object with mkobj(). JavaScript passes create_particular_creation() a bare monster-creation environment, so a statue or figurine disguise reaches obj.js without the existing monsterObject lifecycle hook and stops before the next turn. The source-matched fix is to supply the standard objectGenerationEnv at that production makemon call.",
   "source": {
-    "file": "cmd.c",
-    "branch": "For the input count before C-g, parse() stores the count in gm.multi and spends the initial dispatch by decrementing it once (cmd.c:5142-5144). The C-g binding selects wiz_genesis (cmd.c:1961-1962); rhack() executes that handler while the positive remainder is intact, and its successful ECMD_OK result calls reset_cmd_vars(), clearing gm.multi before allmain.c:moveloop_core() can repeat the command (cmd.c:3810-3816). wiz_genesis() calls create_particular(); read.c:create_particular_parse() initializes d.quan to 1 + gm.multi (read.c:3144-3150), so the count is consumed as population size. The missing behavior is JavaScript cmd.js:rhack()’s fail-closed preflight for counted nonmovement commands, which does not exempt the already-ported wizgenesis row.",
+    "file": "read.c",
+    "branch": "create_particular_creation() creates a named S_MIMIC; makemon() enters its S_MIMIC arm, and set_mimic_sym() selects a random object class for an ordinary-room disguise. When mkobj() produces a STATUE or FIGURINE, JavaScript must run the residual monster-object initialize/finalize behavior just as C mksobj() does before set_mimic_sym() reads the temporary object type and frees it.",
     "functions": [
-      "rhack"
+      "create_particular_creation"
     ],
     "callers": [
-      "cmd.c:parse() at 5142-5146 supplies the counted C-g command key; cmd.c:1961-1962 maps C-g to wiz_genesis().",
-      "wizcmds.c:wiz_genesis() at 203-215 calls read.c:create_particular(); read.c:create_particular_parse() at 3144-3150 turns the remaining gm.multi into a monster quantity before create_particular_creation() selects each monster with mkclass()."
+      "read.c:create_particular() (3372-3405) calls create_particular_creation(); wizcmds.c:wiz_genesis() (203-210) calls create_particular() for the direct Ctrl-G/#wizgenesis entry.",
+      "makemon.c:create_critters() (1556-1574) calls create_particular() when wizard mode and !neverask; active production callers include read.c:seffect_create_monster() (1607-1619) and zap.c:weffects() for WAN_CREATE_MONSTER (2569-2573). JS wiring is makemon.js:create_critters() and read.js:seffect_create_monster().",
+      "makemon.c:makemon() (1303-1306) calls set_mimic_sym() for S_MIMIC; makemon.c:set_mimic_sym() (2393-2509) calls mkobj(), consumes otmp->otyp, and obfree()s the temporary object. JS equivalents are makemon_create.js:makemon() and set_mimic_sym().",
+      "mkobj.c:mkobj()/mksobj_init() build the temporary object. JavaScript obj.js routes statue/figurine initialization through initializeResidualMonsterObject(); object_generation.js:objectGenerationEnv() already supplies the monsterObject implementation."
     ],
     "dependencies": [
-      "The existing JavaScript wiz_genesis() and read.js:create_particular_parse()/create_particular_creation() are wired and retain the count quantity; only cmd.js:rhack() rejects this counted dispatch."
+      "makemon.c:makemon() is already ported for this explicit runtime species call and returns the monster consumed by create_particular_creation().",
+      "makemon.c:set_mimic_sym() is already ported as a whole function; its mkobj()/obfree() return and cleanup order match C.",
+      "mkobj.c:mkobj() and mksobj_init() are already ported; their statue/figurine lifecycle requires the monsterObject hook.",
+      "objectGenerationEnv() is the existing JS composition point for object-construction hooks, including monsterObject."
     ]
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    "Fresh C differential on examined commit ccbfb0379575353de8168956e30255ecef25f47d: /tmp/teleport-validation-1000/run-DhW2H8/stdout.log reports C=114 screens, 6551 RNG calls; JavaScript stops at boundary 86 after 85 screens and 5761 RNG calls. The first downstream absent draw is C rn2(9)=0 at mkclass_aligned(makemon.c:1934), after the missing command dispatch.",
-    "Fresh JavaScript replay of the immutable v39 recipe with runSegment on the same commit captures UnsupportedHeroCommandBoundaryError at js/cmd.js:5616: counted nonmovement dispatch is rejected while state.multi is positive; no screen follows the Ctrl-G key at input step 85.",
-    "Source trace: upstream cmd.c:parse() sets gm.multi then decrements once (5142-5144); cmd.c rhack() dispatches the selected function before the successful ECMD_OK reset (3810-3816); the C-g row selects wiz_genesis (1961-1962); wizcmds.c:wiz_genesis() calls create_particular() (203-215); read.c:create_particular_parse() sets d.quan=1+gm.multi (3144-3150).",
-    "After B209 commit f9ac89460, the focused command and wizard-genesis suites pass 139/139 and npm run lint passes. The admitted v39 prefix matches through step 93, including the count-prefixed Ctrl-G dispatch and its creation prompts. The full fresh differential advances beyond the former step-85 stop, then reaches a separate JavaScript boundary at step 94 (input space): `monsterObject is not available` during the mimic-population flow; this bounded rhack task leaves that later hook gap unchanged."
+    "Saved combined queue SHA-256 e153a1e0869be21cb7a70ad69de92d64fced50b7a39196a9515a6760416d7d0d selects synthetic/v39/v39-counted-wizgenesis-mimic-population; after the accepted B209 counted-dispatch fix, the immutable recipe matches 94/114 screens and first stops at step 94 with “monsterObject is not available”.",
+    "Focused fresh C differential `node scripts/diff-fresh.mjs challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json` (run-ANLf80) records C=114 screens/6551 RNG and JavaScript=94 screens/6232 RNG; the next missing source draw is C rn2(3)=0 at rndmonst_adj(makemon.c:1716), step 95, after the JS boundary.",
+    "Direct JavaScript runSegment() replay of the same independent recipe stops with UnsupportedHeroCommandBoundaryError from cmd.js:failClosedCommand(), message “an unported branch of this command: monsterObject is not available”, after 94 screens and 6232 RNG calls.",
+    "C source trace: read.c:create_particular_creation() calls makemon(whichpm, u.ux, u.uy, mmflags) at read.c:3315; makemon.c:makemon() calls set_mimic_sym() at 1303-1306; set_mimic_sym() calls mkobj() and reads otmp->otyp at 2505-2508. In an ordinary room the source symbol table at makemon.c:2388-2391 includes ROCK_CLASS, whose selected object may be a statue or figurine.",
+    "JavaScript source trace: read.js:create_particular_creation() passes only `{ state, _createParticular: true }` to makemon_runtime() at 3570-3573. makemon_create.js:creationEnv() preserves hooks but does not add object-generation hooks; set_mimic_sym() passes that bare normalized environment to mkobj() at 1029-1031; obj.js:initializeResidualMonsterObject() requires env.hooks.monsterObject at 2020-2021. object_generation.js:objectGenerationEnv() already composes the exact adapter at lines 20-64.",
+    "The common create_particular() caller is reachable both directly from wizcmds.c:wiz_genesis() and through makemon.c:create_critters() from the wizard create-monster scroll/spell and WAN_CREATE_MONSTER paths. Applying objectGenerationEnv at create_particular_creation() preserves source branch order while fixing the shared object constructor dependency."
   ]
 }

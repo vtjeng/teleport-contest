@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T08:01:44.062Z",
+  "capturedAt": "2026-10-10T08:43:15.136Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -79834,46 +79834,226 @@
         "type": "accepted",
         "at": "2026-10-10T08:01:02.593Z",
         "task": "B212-investigation-v39-cancellation-clay-golem-reached"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B212-investigation-v39-cancellation-clay-golem-reached-605e0d4ad28d406e64b31e6cfca47edc374736f2",
+        "type": "published",
+        "at": "2026-10-10T08:01:52.739Z",
+        "task": "B212-investigation-v39-cancellation-clay-golem-reached",
+        "commit": "605e0d4ad28d406e64b31e6cfca47edc374736f2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep4-v40-secret-door-control-active-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T08:03:07.070Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has two approved C-first mismatches and thirteen matching C-first recordings; the Sanctum high-altar route is being verified."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-A2-knockoff-0e6a476-20261010",
+        "type": "received",
+        "at": "2026-10-10T08:03:52.342Z",
+        "task": "A2-v39-mounted-steed-knockoff-investigation-20261010",
+        "delivery": "0e6a476a5f71a2247e1b4c93094d7dfcaa868030"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-C-pickup-eec5106-20261010",
+        "type": "received",
+        "at": "2026-10-10T08:04:01.768Z",
+        "task": "C-v39-pickup-cockatrice-barehanded-final-investigation-20261010",
+        "delivery": "eec51067322c1ecce023196d7e29f916c00ded71"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep4-v40-sanctum-resume-active-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T08:07:49.909Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has two approved distinct C-first mismatches and thirteen matching recordings; the Sanctum high-altar route is still being verified."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A2-sink-6d9d5654-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T08:11:14.843Z",
+        "task": "A2-investigation-v39-sink-levitation-boots-pickup-20261010",
+        "integration": "6d9d5654bcd5444ec53ec2dbd558780ffe15ae37"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A2-sink-38037018690-20261010",
+        "type": "validated",
+        "at": "2026-10-10T08:15:59.451Z",
+        "task": "A2-investigation-v39-sink-levitation-boots-pickup-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v39-sink-levitation-boots-pickup-20261010-6d9d5654bcd5444ec53ec2dbd558780ffe15ae37-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T08:16:58.145Z",
+        "task": "A2-investigation-v39-sink-levitation-boots-pickup-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v39-sink-levitation-boots-pickup-20261010-44e88614b466c1dee61ababe644c2244f8ed5080",
+        "type": "published",
+        "at": "2026-10-10T08:17:43.706Z",
+        "task": "A2-investigation-v39-sink-levitation-boots-pickup-20261010",
+        "commit": "44e88614b466c1dee61ababe644c2244f8ed5080"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-sink-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T08:18:56.706Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Merged accepted sink Main and checked the refreshed queue. Remaining cases are owned by B or C, or the mounted-polymorph follow-up depends on A2 knockoff acceptance releasing its dismount scope; A2 is idle and connected."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-wizgenesis-7a75dbe7-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T08:21:38.921Z",
+        "task": "C-v39-counted-wizgenesis-followup-20261010",
+        "integration": "7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B213-finalize-20261010",
+        "type": "turn",
+        "at": "2026-10-10T08:24:43.305Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B213 retouch port has matching source and runtime evidence; finalizing its scoped delivery after the accepted Main sync."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-866131f2ddbaa1555be7682b35e1cb909e2d67d2",
+        "type": "ready",
+        "at": "2026-10-10T08:24:46.868Z",
+        "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete",
+        "delivery": "866131f2ddbaa1555be7682b35e1cb909e2d67d2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-B213-866131f2-20261010",
+        "type": "received",
+        "at": "2026-10-10T08:26:01.095Z",
+        "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete",
+        "delivery": "866131f2ddbaa1555be7682b35e1cb909e2d67d2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-wizgenesis-38037615066-20261010",
+        "type": "validated",
+        "at": "2026-10-10T08:27:36.635Z",
+        "task": "C-v39-counted-wizgenesis-followup-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-no-independent-v39-20261010",
+        "type": "turn",
+        "at": "2026-10-10T08:27:58.520Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B213 is submitted. No independent v39 candidate is currently available: the sole unreserved session is diagnosed to A2-owned steed.c behavior, while other candidates are reserved or submitted. Waiting for a refreshed queue or source release."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v39-counted-wizgenesis-followup-20261010-7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T08:28:39.325Z",
+        "task": "C-v39-counted-wizgenesis-followup-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v39-counted-wizgenesis-followup-20261010-0b7b9ebf4f8cff620921c690e58f3a29b300188a",
+        "type": "published",
+        "at": "2026-10-10T08:29:37.878Z",
+        "task": "C-v39-counted-wizgenesis-followup-20261010",
+        "commit": "0b7b9ebf4f8cff620921c690e58f3a29b300188a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep4-v40-high-altar-deferred-active-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T08:31:33.819Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has two approved distinct C-first mismatches and thirteen matching recordings; the Sanctum high-altar route is deferred with attempts preserved while another source behavior is explored."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "review-C-wield-3467477-20261010",
+        "type": "activity",
+        "at": "2026-10-10T08:31:39.591Z",
+        "task": "C-v39-wield-cockatrice-instapetrify-investigation-20261010",
+        "phase": "review",
+        "reason": "Reviewing the dependency-clearing wielded-corpse delivery for integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-after-wizgenesis-acceptance-idle-20261010",
+        "type": "turn",
+        "at": "2026-10-10T08:32:00.192Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C merged accepted Main. Its wield and pickup deliveries remain under review; current queue has no independent eligible case for C."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-wield-0d8ddc976-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T08:35:10.632Z",
+        "task": "C-v39-wield-cockatrice-instapetrify-investigation-20261010",
+        "integration": "0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-v40-ranger-magic-whistle-active-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T08:35:16.785Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has two approved distinct C-first mismatches and thirteen matching controls; preserving setup misses and continuing with trapped-pet whistle behavior."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-wield-38038505684-20261010",
+        "type": "validated",
+        "at": "2026-10-10T08:41:46.207Z",
+        "task": "C-v39-wield-cockatrice-instapetrify-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-v40-magicbane-cfirst-active-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T08:41:56.821Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has two approved distinct C-first mismatches and thirteen matching controls; testing Magicbane’s monster-probe caller path."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v39-wield-cockatrice-instapetrify-investigation-20261010-0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T08:42:45.243Z",
+        "task": "C-v39-wield-cockatrice-instapetrify-investigation-20261010"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "A2-investigation-v39-sink-levitation-boots-pickup-20261010",
-        "worker": "A2",
-        "goal": "divergence-v39-sink-levitation-boots-pickup-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "aa2163952f9494c9f479695084307515af9770af",
-        "since": "2026-10-10T06:48:16.957Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
-      {
-        "task": "C-v39-counted-wizgenesis-followup-20261010",
-        "worker": "C",
-        "goal": "fix-wizard-create-particular-object-generation-v39-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "c849eb955ab487a30f2edd282ba9c3adf9cbf5a1",
-        "since": "2026-10-10T07:06:52.843Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
-      {
-        "task": "C-v39-wield-cockatrice-instapetrify-investigation-20261010",
-        "worker": "C",
-        "goal": "fix-wield-corpse-instapetrify-v39-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "3467477aae88da2f03c96ba496737be02bc7c124",
-        "since": "2026-10-10T07:22:05.094Z",
-        "blockedBy": [
-          "C-v39-counted-wizgenesis-followup-20261010"
-        ],
-        "unblocks": 0
-      },
       {
         "task": "B214-investigation-v39-magic-trap-explosion",
         "worker": "B",
@@ -79883,7 +80063,7 @@
         "delivery": "1d2b4383d02ec9259df1470e605ebeaaac8d4a17",
         "since": "2026-10-10T07:34:25.747Z",
         "blockedBy": [],
-        "unblocks": 0
+        "unblocks": 1
       },
       {
         "task": "A2-v39-mounted-steed-knockoff-investigation-20261010",
@@ -79893,9 +80073,7 @@
         "status": "ready",
         "delivery": "0e6a476a5f71a2247e1b4c93094d7dfcaa868030",
         "since": "2026-10-10T07:42:38.106Z",
-        "blockedBy": [
-          "A2-investigation-v39-sink-levitation-boots-pickup-20261010"
-        ],
+        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -79906,9 +80084,19 @@
         "status": "ready",
         "delivery": "eec51067322c1ecce023196d7e29f916c00ded71",
         "since": "2026-10-10T07:47:41.562Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B213-investigation-v39-polyself-retouch-silver-vampire-complete",
+        "worker": "B",
+        "goal": "port-artifact-retouch-equipment-v39-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "866131f2ddbaa1555be7682b35e1cb909e2d67d2",
+        "since": "2026-10-10T08:24:46.868Z",
         "blockedBy": [
-          "C-v39-counted-wizgenesis-followup-20261010",
-          "C-v39-wield-cockatrice-instapetrify-investigation-20261010"
+          "B214-investigation-v39-magic-trap-explosion"
         ],
         "unblocks": 0
       }
@@ -80215,8 +80403,8 @@
     ]
   },
   "development": {
-    "executionCommit": "52c9514b68146f66836e5ff89d4d0be624a2d33d",
-    "measuredAt": "2026-10-10T07:56:54.193Z",
+    "executionCommit": "0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b",
+    "measuredAt": "2026-10-10T08:41:27.939Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
