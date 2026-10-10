@@ -256869,7 +256869,7 @@
           "name": "shopdig",
           "line": 5019,
           "endLine": 5112,
-          "declared": false,
+          "declared": true,
           "complete": false
         }
       ],
@@ -256884,7 +256884,7 @@
           "endLine": 697,
           "declared": true,
           "sourceFile": "apply.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -257176,7 +257176,44 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "um_dist",
+            "implementation": "js/apply.js",
+            "symbol": "um_dist",
+            "sourceReview": "Read the complete apply.c:um_dist() definition (692-695). It performs no RNG, output, or state mutation and returns TRUE exactly when abs(u.ux-x)>n or abs(u.uy-y)>n. The canonical helper now resides in js/apply.js and replaces the private copies in js/mon.js and js/vault.js; shk.c:shopdig consumes the same return value.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "shopdig",
+                "source": "shk.c:shopdig checks !um_dist(shkp->mx, shkp->my, 5) before the fall-time shopkeeper relocation and inventory transfer branch."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "m_respond",
+                "source": "mon.c:m_respond uses um_dist for shrieker proximity; the caller imports the canonical apply.c helper."
+              },
+              {
+                "path": "js/vault.js",
+                "symbol": "gd_move",
+                "source": "vault.c:gd_move uses um_dist in the hero-distance conditions; the caller imports the canonical apply.c helper."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/apply.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "apply.c",
+            "synthetic": [],
+            "checkedAt": "cfc1d11b531810c2645a6318fe1a63f8eb37970d"
+          }
+        ],
+        "entryPointReview": "This helper-only completion range covers the pure apply.c:um_dist function. Its production callers are shk.c:shopdig via js/shk.js:shopdig, mon.c:m_respond via js/mon.js:m_respond, and vault.c:gd_move via js/vault.js:gd_move. The whole shk.c:shopdig function is excluded because its two active shopdig(1) fall-time entry points through dig.c:digactualhole and trap.c:fall_through do not yet have matching runtime evidence.",
+        "entryPoints": []
+      }
     }
   ]
 }
