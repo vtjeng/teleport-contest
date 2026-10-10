@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T23:37:39.581Z",
+  "capturedAt": "2026-10-10T00:01:08.601Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -77082,6 +77082,104 @@
         "task": "B187",
         "phase": "done",
         "reason": "Added source context to patch 007, verified clean application with a regression test, rebuilt the recorder, recorded a live <ptr> diagnostic, and passed the complete hosted checkpoint."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B168-active-patched-recorder-evidence-20261009",
+        "type": "turn",
+        "at": "2026-10-09T23:40:39.621Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B168’s repaired C recording now matches; completing source evidence, focused checks, and immutable submission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e84881494367c1c521efb8ca6c4d6f93a406e434",
+        "type": "ready",
+        "at": "2026-10-09T23:44:30.903Z",
+        "task": "B168",
+        "delivery": "e84881494367c1c521efb8ca6c4d6f93a406e434"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B168-e84881494367c1c521efb8ca6c4d6f93a406e434",
+        "type": "received",
+        "at": "2026-10-09T23:45:18.053Z",
+        "task": "B168",
+        "delivery": "e84881494367c1c521efb8ca6c4d6f93a406e434"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B187-after-B168-delivered-20261009",
+        "type": "resume",
+        "at": "2026-10-09T23:45:55.645Z",
+        "task": "B187"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B187-active-after-B168-ready-20261009",
+        "type": "turn",
+        "at": "2026-10-09T23:45:59.300Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B168 is queued for integration; B is refreshing the parked v35 timeout-queue source report."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-main-b168-review-20261009",
+        "type": "activity",
+        "at": "2026-10-09T23:46:37.742Z",
+        "task": "B168",
+        "phase": "review",
+        "reason": "Reviewing the light-source command, shared pointer formatter, source evidence, and delivery commits before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep2-active-high-helm-c116-20261009T2349Z",
+        "type": "turn",
+        "at": "2026-10-09T23:47:23.214Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B187-blocked-pending-B168-accept-20261009",
+        "type": "turn",
+        "at": "2026-10-09T23:48:51.830Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "B187’s timeout report is refreshed; implementation waits for B168 acceptance to release shared allocator ownership."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-b168-fbdf8d8de-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T23:53:32.709Z",
+        "task": "B168",
+        "integration": "fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-main-b168-fbdf8d8de-20261009",
+        "type": "validated",
+        "at": "2026-10-09T23:58:54.749Z",
+        "task": "B168",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B168-fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T23:59:46.912Z",
+        "task": "B168"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep2-active-cursed-beartrap-20261010T0002Z",
+        "type": "turn",
+        "at": "2026-10-10T00:01:03.367Z",
+        "worker": "Prep",
+        "state": "active"
       }
     ]
   },
@@ -77299,17 +77397,6 @@
         "reason": "Stale initial saved queue: accepted C160 evaluation at f091b997 proves v33-invoke-healing-blindness exact99/99screens/cursors1854RNG. Already in accepted B181 main4c02dfca and workerHEADd84b3350. No report or source edits needed."
       },
       {
-        "task": "B187",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T08:29:42.686Z",
-        "blockedBy": [],
-        "reason": "Whole timeout queue family consumes alloc.c:fmt_ptr native addresses for populated rows; matching IDs are not equivalent. Canonical property table relocation also awaits B185 wizcmds owner. No partial timeout source credit."
-      },
-      {
         "task": "B188",
         "worker": "B",
         "goal": null,
@@ -77389,8 +77476,8 @@
     ]
   },
   "development": {
-    "executionCommit": "d399398f872cf682ce5ed796bbd6c66704dde739",
-    "measuredAt": "2026-10-09T23:37:01.495Z",
+    "executionCommit": "fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8",
+    "measuredAt": "2026-10-09T23:55:44.107Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

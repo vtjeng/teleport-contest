@@ -241790,7 +241790,7 @@
     {
       "id": "port-light-wiz-light-sources-v31-20261009",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port wizard mobile light-source diagnostics",
       "cFile": "light.c",
       "sessions": [
@@ -241804,8 +241804,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_light_sources",
@@ -242153,6 +242156,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
