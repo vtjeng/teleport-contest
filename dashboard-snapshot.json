@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T04:58:19.880Z",
+  "capturedAt": "2026-10-10T04:59:55.543Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -78618,6 +78618,15 @@
         "worker": "C",
         "state": "idle",
         "reason": "C is available for the first independent v39 source task after Prep3 admits and evaluates the batch. B owns the remaining v38 RNG investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-sink-boots-approved-20261010T0500Z",
+        "type": "turn",
+        "at": "2026-10-10T04:59:19.253Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has ten approved distinct C-first mismatches; two remain."
       }
     ]
   },
