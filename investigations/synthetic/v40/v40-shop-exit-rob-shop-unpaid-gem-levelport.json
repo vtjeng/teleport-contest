@@ -1,0 +1,92 @@
+{
+  "session": "synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport",
+  "corpus": "synthetic",
+  "batch": "v40",
+  "caseId": "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+  "manifestPath": "challenges/manifests/v40.json",
+  "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+  "recordingSha256": "97f003174dd691f5176ea333f32c4765c06742a6395293348b778653148afb76",
+  "evaluationPath": "challenges/evaluations/20261010112700-v40.json",
+  "evaluationCommit": "3d09fdb7cb4fbe53122ed64fc9ed20378dfd745e",
+  "remainingScreens": 48,
+  "recordedSteps": 48,
+  "status": "complete",
+  "commit": "a52839d0ad405128a40cec23aed935e653760a6c",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v40",
+    "caseId": "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+    "session": "synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport",
+    "manifestPath": "challenges/manifests/v40.json",
+    "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+    "recording": "challenges/cases/v40/v40-shop-hotpursuit-unpaid-gem-wizlevelport-continued-cfirst.session.json",
+    "recordingPath": "challenges/cases/v40/v40-shop-hotpursuit-unpaid-gem-wizlevelport-continued-cfirst.session.json",
+    "recordingSha256": "97f003174dd691f5176ea333f32c4765c06742a6395293348b778653148afb76",
+    "recipe": "challenges/cases/v40/v40-shop-hotpursuit-unpaid-gem-wizlevelport-continued-cfirst.recipe.session.json",
+    "recipeSha256": "a77f4fad5a58ed12331321f247c5778822ec1695d63521bee2c90adffecc06f1",
+    "replayInputSha256": "3c878a6c119990bab8d19e77d89e2e92944e49a55a76b9241e73e1e1681e78c6",
+    "evaluationPath": "challenges/evaluations/20261010112700-v40.json",
+    "evaluationCommit": "3d09fdb7cb4fbe53122ed64fc9ed20378dfd745e",
+    "evaluationArtifact": "challenges/evaluations/20261010112700-v40.json",
+    "evaluationUtc": "2026-10-10T11:22:52.326Z",
+    "remainingScreens": 48,
+    "recordedSteps": 48,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": "LL_ACHIEVE is not defined",
+    "metrics": {
+      "screens": {
+        "matched": 0,
+        "total": 48
+      },
+      "rng": {
+        "matched": 0,
+        "total": 9230
+      },
+      "cursors": {
+        "matched": 0,
+        "total": 48
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "Replay error: LL_ACHIEVE is not defined",
+      "step": null
+    },
+    "step": null,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "Replay error: LL_ACHIEVE is not defined",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The admitted shop-exit recipe reaches shk.c:rob_shop with unpaid merchandise, but JavaScript throws while evaluating the LL_ACHIEVE argument to its livelog call. LL_ACHIEVE is exported by const.js but is not imported by shk.js. This missing module binding is the actionable divergence; rob_shop otherwise follows the C billing and robbery-message order up to the livelog expression. The later hot_pursuit call remains an explicit unported void dependency and must be checked for a subsequent mismatch after the import is fixed.",
+  "source": {
+    "file": "shk.c",
+    "branch": "When u_left_shop finds a live in-shop keeper and a bill or debit, rob_shop settles credit and the bill. If total remains nonzero, C adds it to robbed, emits the theft message and LL_ACHIEVE livelog, adjusts non-Rogue alignment, then calls hot_pursuit and returns TRUE. The selected recipe reaches this unpaid robbery branch during a wizard level-port from the shop.",
+    "functions": [
+      "rob_shop"
+    ],
+    "callers": [
+      "Selected path: teleport.c:level_tele negative-levelport branch calls u_left_shop(u.ushops0, TRUE) at 1329; shk.c:u_left_shop calls rob_shop at 622. JavaScript: js/teleport.js:level_tele calls u_left_shop at 2080; js/shk.js:u_left_shop calls rob_shop at 625.",
+      "Other direct caller: shk.c:remote_burglary calls rob_shop at 678; JavaScript js/shk.js:remote_burglary calls it at 855. This is outside the selected recipe path."
+    ],
+    "dependencies": [
+      "pline.c:livelog_printf receives LL_ACHIEVE at shk.c:710; JavaScript js/shk.js:890 passes the same flag to pline.js:livelog_printf.",
+      "const.h:LL_ACHIEVE is exported by js/const.js as value 0x0002 but is absent from js/shk.js imports, causing the ReferenceError.",
+      "shk.c:hot_pursuit is still explicitly skipped with note_unported in js/shk.js:898. Its void result is discarded by rob_shop; after removing the earlier ReferenceError, replay must determine whether this existing gap creates a later mismatch."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Saved combined queue SHA-256 7f80ab63c352c92456b75ab0acd7a8a52b7bcd74ae955c0d143744bb49d8ff9d identifies synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport; its v40 evaluation at 3d09fdb7cb4fbe53122ed64fc9ed20378dfd745e reports 48 recorded steps, zero JavaScript screens/RNG/cursors, and the runtime error “LL_ACHIEVE is not defined”.",
+    "Fresh differential .cache/B216-before-diff.log (bounded run-PTXWwi) reproduced the JavaScript ReferenceError while patched C produced one segment, 9,230 RNG calls, 48 screens, and 48 cursors.",
+    "Upstream shk.c:rob_shop (687-719) calls livelog_printf(LL_ACHIEVE, ...) only after credit settlement leaves a nonzero robbery total. JavaScript js/shk.js:861-899 follows the corresponding branch but references LL_ACHIEVE at 890 without importing it; the ReferenceError occurs before livelog_printf receives its flag.",
+    "The constant exists as export LL_ACHIEVE = 0x0002 in js/const.js:812. Other modules import it from const.js; the error is a missing module binding, not a C behavior or recorder discrepancy.",
+    "The selected production route is teleport.c:level_tele -> u_left_shop -> rob_shop, mirrored by js/teleport.js:level_tele -> js/shk.js:u_left_shop -> rob_shop. The other direct caller, remote_burglary, shares rob_shop but is not exercised by this case."
+  ],
+  "savedQueueSha256": "7f80ab63c352c92456b75ab0acd7a8a52b7bcd74ae955c0d143744bb49d8ff9d"
+}
