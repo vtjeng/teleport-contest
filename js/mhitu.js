@@ -98,7 +98,7 @@ import {
 } from './dbridge.js';
 import { acurr, adjalign, adjattrib, exercise, minuhpmax } from './attrib.js';
 import { encumber_msg } from './pickup.js';
-import { number_leashed } from './apply.js';
+import { number_leashed, unleash_all } from './apply.js';
 import { snuff_lit } from './apply_splash_lit.js';
 import { placebc, unplacebc } from './ball.js';
 // js/unported_monster_actions.js already imports allmain.js across the same
@@ -2317,8 +2317,7 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         if (leashed > 0) {
             const noun = leashed > 1 ? 'leashes' : 'leash';
             await message(`The ${noun} ${vtense(noun, 'snap')} loose.`, state, rawEnv);
-            // apply.c unleash_all() is a discarded void call without a port.
-            note_unported('apply.c unleash_all');
+            unleash_all(state);
         }
 
         if (touch_petrifies(state.youmonst.data)
