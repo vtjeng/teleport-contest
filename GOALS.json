@@ -242773,6 +242773,932 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-spell-tport-spell-wizard-teleport-v38-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port wizard teleport spell-slot toggling and wire dotelecmd menu modes",
+      "cFile": "spell.c",
+      "sessions": [
+        "synthetic/v38/v38-wizard-spell-teleport-energy-refusal"
+      ],
+      "selectionReason": "The admitted v38 wizard teleport energy-refusal case reaches teleport.c dotelecmd mode s, whose temporary Teleport Away spell requires spell.c tport_spell.",
+      "detail": "Port whole spell.c tport_spell lines 1707-1756 and wire teleport.c dotelecmd wizard menu modes n, s, t, and w through the existing command dispatcher. Preserve temporary intrinsic and spell-slot restoration and the existing teleport refusal behavior.",
+      "openedAt": "f6815be6405fe8337eba05403dd4c30d916d74ba",
+      "openStanding": {
+        "sha": "f1a081f4f39b9b572ca485d241c1acadca456bb6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "tport_spell",
+          "line": 1707,
+          "endLine": 1762,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1707,
+        "to": 1762
+      },
+      "syntheticProvenance": {
+        "synthetic/v38/v38-wizard-spell-teleport-energy-refusal": {
+          "session": "synthetic/v38/v38-wizard-spell-teleport-energy-refusal",
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-wizard-spell-teleport-energy-refusal",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recordingPath": "challenges/cases/v38/v38-wizard-spell-teleport-energy-refusal.session.json",
+          "recordingSha256": "432023c55d5b9b0d4032f1035f521489563cd5ec9be41cfa7b028974f34d5c50",
+          "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+          "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8"
+        }
+      },
+      "activeStanding": {
+        "sha": "f1a081f4f39b9b572ca485d241c1acadca456bb6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-wizard-spell-teleport-energy-refusal",
+          "session": "synthetic/v38/v38-wizard-spell-teleport-energy-refusal",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recording": "challenges/cases/v38/v38-wizard-spell-teleport-energy-refusal.session.json",
+          "recordingPath": "challenges/cases/v38/v38-wizard-spell-teleport-energy-refusal.session.json",
+          "recordingSha256": "432023c55d5b9b0d4032f1035f521489563cd5ec9be41cfa7b028974f34d5c50",
+          "recipe": "challenges/cases/v38/v38-wizard-spell-teleport-energy-refusal.recipe.session.json",
+          "recipeSha256": "331d3c92223b36aae66685a8566205b440026831964aa6eb4daa0791e01db66f",
+          "replayInputSha256": "b71bf3fbcb07fcfb0eb0ae1f4a4851cee6588d354239d49084516f65d1ad7577",
+          "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+          "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+          "evaluationArtifact": "challenges/evaluations/20261010014622-v38.json",
+          "evaluationUtc": "2026-10-10T01:46:34.186Z",
+          "remainingScreens": 2,
+          "recordedSteps": 5,
+          "previousScreensMatched": null,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 3,
+              "total": 5
+            },
+            "rng": {
+              "matched": 3170,
+              "total": 3170
+            },
+            "cursors": {
+              "matched": 4,
+              "total": 5
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 3,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 3,
+                "key": "\u0014"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3170,
+              "cCaller": null,
+              "jsEntry": "rnl(7)=6",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 3,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 3,
+                "key": "\u0014"
+              },
+              "cCursor": [
+                32,
+                6,
+                1
+              ],
+              "jsCursor": [
+                5,
+                17,
+                1
+              ]
+            }
+          },
+          "step": 3,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v38/v38-wizard-spell-teleport-energy-refusal.json",
+            "result": {
+              "session": "synthetic/v38/v38-wizard-spell-teleport-energy-refusal",
+              "corpus": "synthetic",
+              "batch": "v38",
+              "caseId": "v38-wizard-spell-teleport-energy-refusal",
+              "manifestPath": "challenges/manifests/v38.json",
+              "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+              "recordingPath": "challenges/cases/v38/v38-wizard-spell-teleport-energy-refusal.session.json",
+              "recordingSha256": "432023c55d5b9b0d4032f1035f521489563cd5ec9be41cfa7b028974f34d5c50",
+              "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+              "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+              "remainingScreens": 2,
+              "recordedSteps": 5,
+              "status": "complete",
+              "commit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v38",
+                "caseId": "v38-wizard-spell-teleport-energy-refusal",
+                "session": "synthetic/v38/v38-wizard-spell-teleport-energy-refusal",
+                "manifestPath": "challenges/manifests/v38.json",
+                "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+                "recording": "challenges/cases/v38/v38-wizard-spell-teleport-energy-refusal.session.json",
+                "recordingPath": "challenges/cases/v38/v38-wizard-spell-teleport-energy-refusal.session.json",
+                "recordingSha256": "432023c55d5b9b0d4032f1035f521489563cd5ec9be41cfa7b028974f34d5c50",
+                "recipe": "challenges/cases/v38/v38-wizard-spell-teleport-energy-refusal.recipe.session.json",
+                "recipeSha256": "331d3c92223b36aae66685a8566205b440026831964aa6eb4daa0791e01db66f",
+                "replayInputSha256": "b71bf3fbcb07fcfb0eb0ae1f4a4851cee6588d354239d49084516f65d1ad7577",
+                "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+                "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+                "evaluationArtifact": "challenges/evaluations/20261010014622-v38.json",
+                "evaluationUtc": "2026-10-10T01:46:34.186Z",
+                "remainingScreens": 2,
+                "recordedSteps": 5,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 3,
+                    "total": 5
+                  },
+                  "rng": {
+                    "matched": 3170,
+                    "total": 3170
+                  },
+                  "cursors": {
+                    "matched": 4,
+                    "total": 5
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 3,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 3,
+                      "key": "\u0014"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3170,
+                    "cCaller": null,
+                    "jsEntry": "rnl(7)=6",
+                    "stepIndex": null
+                  },
+                  "cursor": {
+                    "index": 3,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 3,
+                      "key": "\u0014"
+                    },
+                    "cCursor": [
+                      32,
+                      6,
+                      1
+                    ],
+                    "jsCursor": [
+                      5,
+                      17,
+                      1
+                    ]
+                  }
+                },
+                "step": 3,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch is the missing wizard m-prefix Ctrl-T teleport-mode menu. Choosing the spellcast option must temporarily install Teleport Away in the first empty spell slot, expose it as freshly known to the existing energy refusal path, and restore the exact previous slot afterward. The responsible helper is the whole spell.c:tport_spell() function; its production caller is teleport.c:dotelecmd() and the JavaScript caller is the teleport command branch in js/cmd.js.",
+              "source": {
+                "file": "spell.c",
+                "branch": "In wizard mode with iflags.menu_requested, selecting dotelecmd mode s temporarily adds SPE_TELEPORT_AWAY when an empty spell slot exists; the selected v38 low-energy Barbarian then takes the normal dotele spell energy refusal and cleanup removes the temporary spell.",
+                "functions": [
+                  "tport_spell"
+                ],
+                "callers": [
+                  "teleport.c:dotelecmd() mode s calls tport_spell(ADD_SPELL), then tport_spell(REMOVESPELL) after dotele().",
+                  "js/cmd.js command === teleport dispatch reproduces the dotelecmd wizard mode-selection path and queries known_spell() after the temporary insertion."
+                ],
+                "dependencies": [
+                  "spell.h spell structure / svs.spl_book[]",
+                  "objects[SPE_TELEPORT_AWAY].oc_level",
+                  "MAXSPELL and NO_SPELL"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "nethack-c/upstream/src/teleport.c:919-1027: dotelecmd() presents the four wizard modes when iflags.menu_requested is true; mode s suppresses teleport intrinsics, calls tport_spell(ADD_SPELL), invokes dotele(), and reverses the returned operation after restoring intrinsic fields.",
+                "nethack-c/upstream/src/spell.c:1704-1755: tport_spell() scans in slot order for Teleport Away or the first NO_SPELL entry, stores/restores the complete prior struct spell, changes only sp_id when hiding, fills id/level/KEEN when adding, and returns the inverse action.",
+                "The v38 recipe challenges/cases/v38/v38-wizard-spell-teleport-energy-refusal.recipe.session.json uses a level-1 debug Barbarian with no teleport spell or intrinsic and input .m<Ctrl-T>s. Its C result reaches the menu and the energy refusal; the saved evaluation first diverges at segment 0 step 3, where C draws the menu and JS instead starts an ordinary known-spell refusal.",
+                "js/cmd.js:6385-6500 handles direct wizard Ctrl-T only when menu_requested is false, then falls through to normal intrinsic/known-spell checks; js/spell.js has no tport_spell implementation. scripts/cmd.test.mjs:5181 covers direct Ctrl-T, not this prefixed menu path."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "tport_spell",
+            "implementation": "js/spell.js",
+            "symbol": "tport_spell",
+            "sourceReview": "Read the complete nethack-c/upstream/src/spell.c tport_spell() at lines 1707-1756 and matched its ordered spell-slot scan, MAXSPELL branch, empty-slot HIDE/REMOVE and UNHIDE cases, ADD's complete slot save and id/level/KEEN installation, existing Teleport Away ADD/UNHIDE invalidation, REMOVE restoration, and HIDE's save-and-id-only clear. Checked the function-local static save_tport initial state and inverse return values against teleport.c:dotelecmd(). The only diagnostic callee is impossible() when the spell list is full; its return is unused, so the JS path records note_unported('pline.c impossible') and makes no gameplay substitution. The function is impure because it mutates the spell book and static saved slot; it makes no RNG call. No prior refusal or stub existed in js/spell.js.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:1890-1891 maps wizard m-prefix Ctrl-T to dotelecmd(); teleport.c:919-1027 mode s calls tport_spell(ADD_SPELL), runs dotele(), then applies the inverse operation. js/cmd.js:5414 command dispatch resolves the teleport command in rhack(); its wizard menu mode s calls tport_spell(ADD), routes through the existing known_spell()/dotele refusal path, and the finally block applies REMOVE (or the inverse HIDE action) while restoring teleport properties."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/spell.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v38",
+                "caseId": "v38-wizard-spell-teleport-energy-refusal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 4,
+                "source": "cmd.c m-prefix Ctrl-T dispatch -> teleport.c:dotelecmd() mode s -> spell.c:tport_spell(ADD_SPELL) -> dotele() energy refusal -> tport_spell(REMOVESPELL); js/cmd.js:rhack executes the menu, refusal, and slot cleanup."
+              }
+            ],
+            "checkedAt": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0"
+          }
+        ],
+        "entryPointReview": "The selected function has one active game entry point in this scope: cmd.c:1890-1891 binds the wizard m-prefix Ctrl-T command to teleport.c:dotelecmd(). dotelecmd() presents its wizard mode menu, and mode s installs Teleport Away temporarily before invoking dotele(). The admitted v38 case reaches this path with a level-1 debug Barbarian, selects spellcast, receives the normal energy refusal, and restores the empty spell slot; the final candidate matches all five steps. The production JS entry is rhack() command dispatch in js/cmd.js, not a direct unit-test invocation. The impossible() diagnostic for a full spell list is not an alternate entry point and its return is discarded.",
+        "entryPoints": [
+          {
+            "name": "wizard m-prefix Ctrl-T teleport mode s",
+            "functions": [
+              "tport_spell"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v38",
+                "caseId": "v38-wizard-spell-teleport-energy-refusal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 4,
+                "source": "cmd.c m-prefix Ctrl-T dispatch -> teleport.c:dotelecmd() mode s -> spell.c:tport_spell(ADD_SPELL) -> dotele() energy refusal -> tport_spell(REMOVESPELL); js/cmd.js:rhack executes the menu, refusal, and slot cleanup."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-arrow-trap-preflight-v38-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Admit hero arrow trap activation and wire the sitting caller",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v38/v38-arrow-trap-return-projectile"
+      ],
+      "selectionReason": "The admitted v38 arrow-trap case first stops in movement preflight before trap.c dotrap, then reaches the existing arrow effect and the sit.c dosit caller.",
+      "detail": "Admit ARROW_TRAP through the existing hero trap preflight gates, preserve the source article and exercise callback behavior, and wire sit.c dosit to dotrap with VIASITTING. This is bounded divergence work without whole-function completion credit.",
+      "openedAt": "5c1a123e774f640b178773c89027a9aedcbd91cb",
+      "openStanding": {
+        "sha": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "dotrap",
+      "session": "synthetic/v38/v38-arrow-trap-return-projectile",
+      "step": 16,
+      "syntheticProvenance": {
+        "synthetic/v38/v38-arrow-trap-return-projectile": {
+          "session": "synthetic/v38/v38-arrow-trap-return-projectile",
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-arrow-trap-return-projectile",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recordingPath": "challenges/cases/v38/v38-arrow-trap-return-projectile.session.json",
+          "recordingSha256": "4da1395ef578601a402a13cb470a5f9126b5bbce7b6e83fba16b1684d4b7c8b6",
+          "evaluationPath": "challenges/evaluations/accepted-5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0-v38.json",
+          "evaluationCommit": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0"
+        }
+      },
+      "activeStanding": {
+        "sha": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-arrow-trap-return-projectile",
+          "session": "synthetic/v38/v38-arrow-trap-return-projectile",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recording": "challenges/cases/v38/v38-arrow-trap-return-projectile.session.json",
+          "recordingPath": "challenges/cases/v38/v38-arrow-trap-return-projectile.session.json",
+          "recordingSha256": "4da1395ef578601a402a13cb470a5f9126b5bbce7b6e83fba16b1684d4b7c8b6",
+          "recipe": "challenges/cases/v38/v38-arrow-trap-return-projectile.recipe.session.json",
+          "recipeSha256": "f98fce8148ef6d5520b0e33b47053f2ec8a49afd320031f9a473e4382b9e9924",
+          "replayInputSha256": "99b9ea18042feeef02df123c8f0e7d05f3fe0ed35e990ecdb577c1153d0a92aa",
+          "evaluationPath": "challenges/evaluations/accepted-5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0-v38.json",
+          "evaluationCommit": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0",
+          "evaluationArtifact": "challenges/evaluations/accepted-5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0-v38.json",
+          "evaluationUtc": "2026-10-10T02:16:24.381Z",
+          "remainingScreens": 6,
+          "recordedSteps": 22,
+          "previousScreensMatched": 16,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 16,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2985,
+              "total": 3024
+            },
+            "cursors": {
+              "matched": 16,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: trap activation",
+            "step": 16
+          },
+          "step": 16,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero move: trap activation",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v38/v38-arrow-trap-return-projectile.json",
+            "result": {
+              "session": "synthetic/v38/v38-arrow-trap-return-projectile",
+              "corpus": "synthetic",
+              "batch": "v38",
+              "caseId": "v38-arrow-trap-return-projectile",
+              "manifestPath": "challenges/manifests/v38.json",
+              "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+              "recordingSha256": "4da1395ef578601a402a13cb470a5f9126b5bbce7b6e83fba16b1684d4b7c8b6",
+              "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+              "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+              "remainingScreens": 6,
+              "recordedSteps": 22,
+              "status": "complete",
+              "commit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v38",
+                "caseId": "v38-arrow-trap-return-projectile",
+                "session": "synthetic/v38/v38-arrow-trap-return-projectile",
+                "manifestPath": "challenges/manifests/v38.json",
+                "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+                "recording": "challenges/cases/v38/v38-arrow-trap-return-projectile.session.json",
+                "recordingPath": "challenges/cases/v38/v38-arrow-trap-return-projectile.session.json",
+                "recordingSha256": "4da1395ef578601a402a13cb470a5f9126b5bbce7b6e83fba16b1684d4b7c8b6",
+                "recipe": "challenges/cases/v38/v38-arrow-trap-return-projectile.recipe.session.json",
+                "recipeSha256": "f98fce8148ef6d5520b0e33b47053f2ec8a49afd320031f9a473e4382b9e9924",
+                "replayInputSha256": "b71bf3fbcb07fcfb0eb0ae1f4a4851cee6588d354239d49084516f65d1ad7577",
+                "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+                "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+                "evaluationArtifact": "challenges/evaluations/20261010014622-v38.json",
+                "evaluationUtc": "2026-10-10T01:46:34.186Z",
+                "remainingScreens": 6,
+                "recordedSteps": 22,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 16,
+                    "total": 22
+                  },
+                  "rng": {
+                    "matched": 2985,
+                    "total": 3024
+                  },
+                  "cursors": {
+                    "matched": 16,
+                    "total": 22
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: trap activation",
+                  "step": 16
+                },
+                "step": 16,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero move: trap activation",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The selected arrow-trap path exposed four JS gaps. preflight_dotrap refused ARROW_TRAP; after admission, the arrow-hit exercise callback omitted encumber_msg; the later #sit branch recorded note_unported for trap.c:dotrap; and the seen-arrow escape message used “a arrow trap” instead of C’s “an arrow trap”. The task admits source-supported arrow cases, wires the exercise callback and sit caller, and preserves C’s article rule.",
+              "source": {
+                "file": "trap.c",
+                "branch": "A hero enters an unseen ARROW_TRAP on ordinary floor, causing hack.c movement preflight and then trap.c:dotrap to dispatch trapeffect_arrow_trap; the trap hits the hero and reaches thitu’s Strength-exercise tail. After that trap becomes seen, the hero uses #sit without moving, causing sit.c:dosit to call dotrap(trap, VIASITTING) and exercise trap.c:dotrap’s seen-arrow escape branch, which uses “an” for an unowned arrow trap.",
+                "functions": [
+                  "dotrap",
+                  "trapeffect_arrow_trap"
+                ],
+                "callers": [
+                  "hack.c:domove_core and hack.c:spoteffects call the hero movement admission and trap-arrival path; trap.c:dotrap dispatches ARROW_TRAP through trapeffect_selector to trapeffect_arrow_trap.",
+                  "mthrowu.c:thitu is called by trap.c:trapeffect_arrow_trap after missile damage; its nonlethal hit path calls attrib.c:exercise(A_STR, FALSE), whose after-play wrapper can call pickup.c:encumber_msg.",
+                  "sit.c:dosit calls trap.c:dotrap(trap, VIASITTING) for a trap under the hero; the current recording reaches this with the previously triggered, now-seen arrow trap."
+                ],
+                "dependencies": [
+                  "hack.c:requireSimpleHeroDestination corresponds to js/hack.js:requireSimpleHeroDestination and calls preflight_dotrap before the hero position changes.",
+                  "trap.c:dotrap common gates and selector dispatch are already implemented by js/trap_effects.js:dotrap and trapeffect_selector.",
+                  "trap.c:trapeffect_arrow_trap is implemented by js/trap_effects.js:trapeffect_arrow_trap; the hit path delegates to mthrowu.c:thitu, which calls attrib.c:exercise(A_STR, FALSE) after nonlethal damage.",
+                  "js/attrib.js:exerciseAttribute requires an encumberMessage callback for Strength exercise after moves begin; the adjacent JS dart-trap arm already supplies pickup.c:encumber_msg, but the arrow-trap arm does not.",
+                  "C sit.c:dosit is fully mirrored by js/sit.js:dosit except its no-utrap trap branch, which records note_unported instead of calling dotrap. C discards dotrap’s return value, so the JS caller must await its effects and ignore the return.",
+                  "sit.c:dosit’s branch corresponds to js/sit.js:dosit and uses the shared trap.c:dotrap path for the trap under the hero."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The accepted queue at /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json (SHA-256 019311686e951c969402a82d519dcb00db6b3434d0c13e5123df0a1ba1ebe5e3) reports the first mismatch at segment 0, step 16, key h: “unsupported hero move: trap activation”; the evaluation names e2a08814ab03e27c9cd538cbe79526e43c1232f8 and compares 16/22 screens, 2,985/3,024 RNG calls, and 16/22 cursors.",
+                "The immutable recording challenges/cases/v38/v38-arrow-trap-return-projectile.session.json follows a wish-created unseen arrow trap with hero movement. Upstream trap.c:dotrap (2996-3060) reaches trapeffect_selector after the common force, air, seen-trap, learning, and reveal checks; trap.c:trapeffect_selector routes ARROW_TRAP to trapeffect_arrow_trap (1190-1249).",
+                "JavaScript js/hack.js:requireSimpleHeroDestination invokes preflight_dotrap before committing a move, and js/trap_effects.js:dotrap invokes it again before nomul(0). js/trap_effects.js already ports dotrap, trapeffect_selector, and the hero arm of trapeffect_arrow_trap. The early preflight type allowlist omits ARROW_TRAP, causing the step-16 stop before the existing source behavior.",
+                "After adding ARROW_TRAP to the type gate in the working tree, a targeted scan of the same case reached the arrow hit and stopped with “exercise requires encumber_msg”; the stack traces trapeffect_arrow_trap -> mthrowu.js:thitu -> attrib.js:exerciseAttribute. Upstream trap.c:trapeffect_arrow_trap calls thitu; mthrowu.c:thitu calls exercise(A_STR, FALSE) after nonlethal damage, and attrib.c:exercise may run pickup.c:encumber_msg after Strength or Constitution changes.",
+                "The later #sit action is source-valid: sit.c:dosit (400-565) calls dotrap(trap, VIASITTING) after its sitting message when the hero has no u.utrap value and t_at() returns a trap. At inspected commit e2a08814ab03e27c9cd538cbe79526e43c1232f8, js/sit.js:dosit recorded note_unported('trap.c dotrap') at line 898 instead of invoking the already-ported JS dotrap; this omitted the source seen-trap rn2(5) escape check and effect.",
+                "After wiring the #sit caller and the arrow-hit encumber_msg callback, one focused scan still found a single character divergence at segment 0 step 21: C shows “You sit down.  You escape an arrow trap.  The sewer rat misses!”, while JS showed “You sit down.  You escape a arrow trap.  The sewer rat misses!”. The C and JS RNG logs matched and no unported calls remained. trap.c:dotrap (3028-3031, 3039-3042) uses “an” when ttype is ARROW_TRAP and trap->madeby_u is false; js/trap_effects.js:dotrap used the generic a_your[0] article in both seen-trap messages.",
+                "The selected scope is a source-traced divergence fix in js/trap_effects.js:preflight_dotrap and trapeffect_arrow_trap/dotrap, plus the missing C caller handoff in js/sit.js:dosit. It adds ARROW_TRAP to the type, seen-trap, and mounted-steed admissions; passes pickup.c:encumber_msg through attrib.c:exercise for the hit path; calls dotrap with VIASITTING after the sit message; and preserves C’s special article. Production routes are hack.c:domove_core/spoteffects and sit.c:dosit."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-apply-do-break-wand-floor-callback-v38-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port apply.c do_break_wand floor-object callbacks",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v38/v38-broken-undead-wand-revives-floor-newt"
+      ],
+      "selectionReason": "The admitted v38 broken undead-turning wand case reaches apply.c do_break_wand and stops because the floor-object bhitpile callback is skipped.",
+      "detail": "Port the whole do_break_wand function scope, preserve neighbor and hero-square callback order, and wire the existing bhitpile and bhito path.",
+      "openedAt": "2fa6235f53b3a30bb3deefeafe2c92c93bdc0b5d",
+      "openStanding": {
+        "sha": "f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "do_break_wand",
+          "line": 3909,
+          "endLine": 4150,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3909,
+        "to": 4150
+      },
+      "syntheticProvenance": {
+        "synthetic/v38/v38-broken-undead-wand-revives-floor-newt": {
+          "session": "synthetic/v38/v38-broken-undead-wand-revives-floor-newt",
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-broken-undead-wand-revives-floor-newt",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recordingPath": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.session.json",
+          "recordingSha256": "db67a7d6f541d39d59d06d1120ac8a87ab0d5a061f3afd7d62d28f69814a40cd",
+          "evaluationPath": "challenges/evaluations/accepted-f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21-v38.json",
+          "evaluationCommit": "f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21"
+        }
+      },
+      "activeStanding": {
+        "sha": "f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-broken-undead-wand-revives-floor-newt",
+          "session": "synthetic/v38/v38-broken-undead-wand-revives-floor-newt",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recording": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.session.json",
+          "recordingPath": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.session.json",
+          "recordingSha256": "db67a7d6f541d39d59d06d1120ac8a87ab0d5a061f3afd7d62d28f69814a40cd",
+          "recipe": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.recipe.session.json",
+          "recipeSha256": "9b6847608d1caeb40ef7473fb0628c44e8f6e2cfd56490aa78332bd016d93d97",
+          "replayInputSha256": "f0a6c537d1e74b9fec2e15af122def60ea6220a64e4e0eadb181d30fc3d3bdda",
+          "evaluationPath": "challenges/evaluations/accepted-f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21-v38.json",
+          "evaluationCommit": "f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21",
+          "evaluationArtifact": "challenges/evaluations/accepted-f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21-v38.json",
+          "evaluationUtc": "2026-10-10T02:29:40.455Z",
+          "remainingScreens": 2,
+          "recordedSteps": 55,
+          "previousScreensMatched": 53,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 53,
+              "total": 55
+            },
+            "rng": {
+              "matched": 2551,
+              "total": 2593
+            },
+            "cursors": {
+              "matched": 53,
+              "total": 55
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 53,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 53,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 43,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2551,
+              "cEntry": "rn2(8)=4",
+              "cCaller": "collect_coords(teleport.c:700)",
+              "jsEntry": "rn2(19)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 53,
+                "key": " "
+              },
+              "stepIndex": 53
+            },
+            "cursor": {
+              "index": 53,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 53,
+                "key": " "
+              },
+              "cCursor": [
+                51,
+                0,
+                1
+              ],
+              "jsCursor": [
+                57,
+                19,
+                1
+              ]
+            }
+          },
+          "step": 53,
+          "kind": "rng",
+          "sourceFile": "teleport.c",
+          "function": "collect_coords",
+          "message": null,
+          "cFile": "teleport.c",
+          "luaFile": null,
+          "line": 700,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v38/v38-broken-undead-wand-revives-floor-newt.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v38",
+              "caseId": "v38-broken-undead-wand-revives-floor-newt",
+              "session": "synthetic/v38/v38-broken-undead-wand-revives-floor-newt",
+              "manifestPath": "challenges/manifests/v38.json",
+              "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+              "recordingSha256": "db67a7d6f541d39d59d06d1120ac8a87ab0d5a061f3afd7d62d28f69814a40cd",
+              "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+              "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+              "remainingScreens": 2,
+              "recordedSteps": 55,
+              "status": "complete",
+              "commit": "5a34f603217bbea524f333779a6ea310840ed3b7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v38",
+                "caseId": "v38-broken-undead-wand-revives-floor-newt",
+                "session": "synthetic/v38/v38-broken-undead-wand-revives-floor-newt",
+                "manifestPath": "challenges/manifests/v38.json",
+                "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+                "recording": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.session.json",
+                "recordingPath": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.session.json",
+                "recordingSha256": "db67a7d6f541d39d59d06d1120ac8a87ab0d5a061f3afd7d62d28f69814a40cd",
+                "recipe": "challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.recipe.session.json",
+                "recipeSha256": "9b6847608d1caeb40ef7473fb0628c44e8f6e2cfd56490aa78332bd016d93d97",
+                "replayInputSha256": "b71bf3fbcb07fcfb0eb0ae1f4a4851cee6588d354239d49084516f65d1ad7577",
+                "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+                "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+                "evaluationArtifact": "challenges/evaluations/20261010014622-v38.json",
+                "evaluationUtc": "2026-10-10T01:46:34.186Z",
+                "remainingScreens": 2,
+                "recordedSteps": 55,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 53,
+                    "total": 55
+                  },
+                  "rng": {
+                    "matched": 2551,
+                    "total": 2593
+                  },
+                  "cursors": {
+                    "matched": 53,
+                    "total": 55
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 53,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 53,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 43,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2551,
+                    "cEntry": "rn2(8)=4",
+                    "cCaller": "collect_coords(teleport.c:700)",
+                    "jsEntry": "rn2(19)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 53,
+                      "key": " "
+                    },
+                    "stepIndex": 53
+                  },
+                  "cursor": {
+                    "index": 53,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 53,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      51,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      57,
+                      19,
+                      1
+                    ]
+                  }
+                },
+                "step": 53,
+                "kind": "rng",
+                "sourceFile": "teleport.c",
+                "function": "collect_coords",
+                "message": null,
+                "cFile": "teleport.c",
+                "luaFile": null,
+                "line": 700
+              },
+              "summary": "Breaking an undead-turning wand skips its source floor-object callback for a dropped corpse. C do_break_wand() sets affects_objects for WAN_UNDEAD_TURNING and calls bhitpile(..., bhito, ...) on the floor pile, so the already-ported bhito() revives the corpse. JavaScript do_break_wand() currently records zap.c bhito as unported for this effect. The later collect_coords() RNG-bound mismatch is downstream of the missing revival, not a collect_coords defect.",
+              "source": {
+                "file": "apply.c",
+                "branch": "After the wand passes the break gates and its magical explosion, WAN_UNDEAD_TURNING sets affects_objects. During the eight-neighbor-plus-hero pass, a floor pile at the target square reaches bhitpile(obj, bhito, ...); for the claimed recipe, the hero-square pile contains the dropped newt corpse and the callback revives it.",
+                "functions": [
+                  "do_break_wand"
+                ],
+                "callers": [
+                  "apply.c:doapply() dispatches an applied WAND_CLASS object to do_break_wand(); js/apply.js:doapply() has the corresponding dispatch.",
+                  "apply.c:do_break_wand() calls bhitpile(obj,bhito,x,y,0) in both the adjacent-square and hero-square object branches; js/apply.js:do_break_wand() currently gates bhitpile() to striking/polymorph and substitutes note_unported for other effects."
+                ],
+                "dependencies": [
+                  "zap.c:bhitpile() is already implemented in js/zap.js and iterates the floor-object pile with its callback.",
+                  "zap.c:bhito() is already implemented in js/zap.js, including WAN_UNDEAD_TURNING corpse -> revive().",
+                  "The later revive placement reaches teleport.c:collect_coords(); that existing helper is the downstream RNG observation, not the missing source owner."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/a2-v38-broken-undead-wand.scan.log reproduces 55 recorded steps and the first divergence at segment 0, step 53: C consumes rn2(8)=4 in collect_coords(teleport.c:700), JavaScript consumes rn2(19)=1, and the diagnostic reports unported zap.c bhito.",
+                "The admitted recipe challenges/cases/v38/v38-broken-undead-wand-revives-floor-newt.recipe.session.json wishes an undead-turning wand and newt corpse, drops the corpse, and breaks the wand. Its recording is unchanged and has the v38 manifest/recording hashes retained above.",
+                "apply.c:4015-4020 marks WAN_UNDEAD_TURNING as affecting objects; apply.c:4037-4146 processes neighbors and then the hero square, calling bhitpile(obj,bhito,x,y,0) at 4099-4103 and 4117-4121. apply.c:doapply() dispatches WAND_CLASS to do_break_wand() at 4234-4235.",
+                "js/apply.js:4786-4800 contains the missing behavior: despite affectsObjects, it calls bhitpile() only for WAN_STRIKING or WAN_POLYMORPH, otherwise note_unported('zap.c bhito'). js/zap.js bhito() has the C undead-turning corpse branch and calls revive(); js/teleport.js collect_coords() is reached downstream during revived-monster placement.",
+                "GOALS.json has older do_break_wand evidence for WAN_NOTHING and WAN_LIGHT recordings, but that evidence does not cover this undead-turning floor-object callback and its sourceReview omitted the current zap.c:bhito caller gap."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "do_break_wand",
+            "implementation": "js/apply.js",
+            "symbol": "do_break_wand",
+            "sourceReview": "Read the whole nethack-c/upstream/src/apply.c do_break_wand() definition at lines 3907-4146 and compared its guard order, wand removal and charge restoration, special-type switch fallthrough, explosion-before-effects order, eight-neighbor-plus-hero coordinate order, monster-before-object order on adjacent squares, and object-before-zapyourself order on the hero square. In C, WAN_STRIKING, WAN_CANCELLATION, WAN_POLYMORPH, WAN_TELEPORTATION, and WAN_UNDEAD_TURNING set affects_objects; both adjacent and hero floor-object branches then call bhitpile(obj,bhito,x,y,0). JavaScript now calls the existing bhitpile() for every affectsObjects branch and removes the old striking/polymorph-only guard and note_unported('zap.c bhito') placeholder. Existing note_unported('zap.c bhitm') skips monster callbacks only where the C-discarded bhitm() result is not implemented; note_unported('shk.c pay_for_damage') records the discarded void result in the dig-shop branch. Other callee result/order behavior remains as previously implemented. The new callback preserves C's ordering: neighboring monsters first, neighboring object piles second, and the hero square's object pile before zapyourself().",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c:1677 binds the 'a' command to doapply(); js/cmd.js:runApplyCommand() is reached by rhack() command dispatch and calls js/apply.js:doapply()."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:4213-4235 selects do_break_wand() for WAND_CLASS objects; js/apply.js:doapply() at lines 4818-4839 has the same dispatch to do_break_wand()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-break-wand.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/broken-light-wand-independent-b45.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v38",
+                "caseId": "v38-broken-undead-wand-revives-floor-newt",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 54,
+                "source": "cmd.c:'a' -> apply.c:doapply() -> do_break_wand() -> bhitpile(obj,bhito,x,y,0) -> bhito() -> revive(); JavaScript path is rhack() -> runApplyCommand() -> doapply() -> do_break_wand() -> bhitpile()."
+              }
+            ],
+            "checkedAt": "4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99"
+          }
+        ],
+        "entryPointReview": "The selected source unit has one active game entry point: cmd.c:1677 binds the 'a' apply command to apply.c:doapply(), whose WAND_CLASS branch at apply.c:4234-4235 calls do_break_wand(). In JavaScript, js/cmd.js:runApplyCommand() calls js/apply.js:doapply(), whose WAND_CLASS branch calls do_break_wand(). The v38 recording follows that production path and exercises the undead-turning floor-object callback. No compile-time excluded entry point is in this function scope.",
+        "entryPoints": [
+          {
+            "name": "apply command with an undead-turning wand",
+            "functions": [
+              "do_break_wand"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v38",
+                "caseId": "v38-broken-undead-wand-revives-floor-newt",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 54,
+                "source": "cmd.c:'a' apply command -> apply.c:doapply() WAND_CLASS branch -> apply.c:do_break_wand(); the neighbor-plus-hero pass processes the hero floor pile through bhitpile(obj,bhito,x,y,0), and bhito() revives the dropped newt corpse. js/cmd.js:runApplyCommand() -> js/apply.js:doapply() -> do_break_wand() -> bhitpile()."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

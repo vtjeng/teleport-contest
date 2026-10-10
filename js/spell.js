@@ -260,6 +260,76 @@ export function spellknow(spell, state = game) {
     return state.svs?.spl_book?.[spell]?.sp_know ?? 0;
 }
 
+// C ref: spell.c tport_spell() (1704-1756). The function-local static
+// save_tport keeps one temporarily hidden/added spell and its original slot
+// while teleport.c dotelecmd() runs dotele(). C's static storage starts with
+// a zeroed spell and index 0; the index is reset to MAXSPELL when the saved
+// slot is no longer available for a matching inverse operation.
+const save_tport = {
+    savespell: { sp_id: NO_SPELL, sp_lev: 0, sp_know: 0 },
+    tport_indx: 0,
+};
+
+// teleport.c and spell.c define these action macros independently with the
+// same values. Keep the source mapping beside this helper for its caller.
+export const TPORT_SPELL_ACTION = Object.freeze({
+    NOOP: 0,
+    HIDE: 1,
+    ADD: 2,
+    UNHIDE: 3,
+    REMOVE: 4,
+});
+
+export function tport_spell(what, state = game) {
+    const { NOOP, HIDE, ADD, UNHIDE, REMOVE } = TPORT_SPELL_ACTION;
+    state.svs ??= {};
+    const spells = state.svs.spl_book ??= [];
+    let index;
+
+    for (index = 0; index < MAXSPELL; index++) {
+        const id = spellid(index, state);
+        if (id === SPE_TELEPORT_AWAY || id === NO_SPELL) break;
+    }
+    if (index === MAXSPELL) {
+        // C's impossible() result is diagnostic only; it has no value or
+        // state effect for dotelecmd() to consume.
+        if (state === game) note_unported('pline.c impossible');
+    } else if (spellid(index, state) === NO_SPELL) {
+        if (what === HIDE || what === REMOVE) {
+            save_tport.tport_indx = MAXSPELL;
+        } else if (what === UNHIDE) {
+            spells[save_tport.tport_indx] = { ...save_tport.savespell };
+            save_tport.tport_indx = MAXSPELL; // burn bridge
+        } else if (what === ADD) {
+            const original = spells[index]
+                ?? { sp_id: NO_SPELL, sp_lev: 0, sp_know: 0 };
+            save_tport.savespell = { ...original };
+            save_tport.tport_indx = index;
+            spells[index] = {
+                ...original,
+                sp_id: SPE_TELEPORT_AWAY,
+                sp_lev: objectType(SPE_TELEPORT_AWAY, state).oc_level,
+                sp_know: SPELL_KNOWLEDGE_KEEN,
+            };
+            return REMOVE; // inverse operation requested by C caller
+        }
+    } else {
+        // The scan stopped on the one Teleport Away entry.
+        if (what === ADD || what === UNHIDE) {
+            save_tport.tport_indx = MAXSPELL;
+        } else if (what === REMOVE) {
+            spells[index] = { ...save_tport.savespell };
+            save_tport.tport_indx = MAXSPELL;
+        } else if (what === HIDE) {
+            save_tport.savespell = { ...spells[index] };
+            save_tport.tport_indx = index;
+            spells[index].sp_id = NO_SPELL;
+            return UNHIDE; // inverse operation requested by C caller
+        }
+    }
+    return NOOP;
+}
+
 // C ref: spell.c losespells(). The spell IDs stay in their original slots;
 // only retention is cleared, while an interrupted study context is discarded.
 export async function losespells(
