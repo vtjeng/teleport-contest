@@ -251082,16 +251082,23 @@
     {
       "id": "fix-mhitu-gulpmu-snuff-lit-v40-20261010",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement apply.c snuff_lit and wire every direct caller.",
       "cFile": "apply.c",
       "sessions": [],
       "selectionReason": "Continue the admitted v40 swallowed-hero lamp case at its first visible source boundary: mhitu.c gulpmu reaches apply.c snuff_lit before the separate obj_resists RNG residual.",
       "detail": "Port the whole helper and replace its caller gaps across splash_lit, gulpmu, gulpmm, gulpum, use_container, and litroom.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "b4a838e72c0f9bb13ae393278517c497b956b1f2",
+      "openStanding": {
+        "sha": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "5c157f8e4976371080be6ac735788f14f6c6e136",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "snuff_lit",
       "session": "synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm",
       "step": 77,
@@ -251108,6 +251115,447 @@
           "evaluationPath": "challenges/evaluations/accepted-5bb7bbae79d5d14f8de04d0ebbd933e7a241a699-v40.json",
           "evaluationCommit": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699"
         }
+      },
+      "activeStanding": {
+        "sha": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-snuffed-lit-lamp-on-engulfing-worm",
+          "session": "synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recording": "challenges/cases/v40/v40-engulf-snuff-lit-lamp-inventory-check-corrected-cfirst.session.json",
+          "recordingPath": "challenges/cases/v40/v40-engulf-snuff-lit-lamp-inventory-check-corrected-cfirst.session.json",
+          "recordingSha256": "7e55ad54b385d5102f3dcb242deabe6fb8a39a1a9d0f80f58579cb00ca59ecc3",
+          "recipe": "challenges/cases/v40/v40-engulf-snuff-lit-lamp-inventory-check-corrected-cfirst.recipe.session.json",
+          "recipeSha256": "c8046964d872d71287caed6ac19d6556bf2bcd85e4ecb7977fc657f2270b40c5",
+          "replayInputSha256": "6cb64d6043c89be8f4a240ec976ad46e616623502892884afe204eef3cbb722a",
+          "evaluationPath": "challenges/evaluations/accepted-5bb7bbae79d5d14f8de04d0ebbd933e7a241a699-v40.json",
+          "evaluationCommit": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699",
+          "evaluationArtifact": "challenges/evaluations/accepted-5bb7bbae79d5d14f8de04d0ebbd933e7a241a699-v40.json",
+          "evaluationUtc": "2026-10-10T12:45:53.165Z",
+          "remainingScreens": 3,
+          "recordedSteps": 79,
+          "previousScreensMatched": 76,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 76,
+              "total": 79
+            },
+            "rng": {
+              "matched": 2812,
+              "total": 2825
+            },
+            "cursors": {
+              "matched": 79,
+              "total": 79
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 76,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 76,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2812,
+              "cEntry": "rn2(100)=79",
+              "cCaller": "obj_resists(zap.c:1469)",
+              "jsEntry": "rn2(1)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 76,
+                "key": " "
+              },
+              "stepIndex": 76
+            },
+            "cursor": null
+          },
+          "step": 76,
+          "kind": "rng",
+          "sourceFile": "zap.c",
+          "function": "obj_resists",
+          "message": null,
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 1469,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm.json",
+            "result": {
+              "session": "synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm",
+              "remainingScreens": 3,
+              "recordedSteps": 79,
+              "corpus": "synthetic",
+              "batch": "v40",
+              "caseId": "v40-snuffed-lit-lamp-on-engulfing-worm",
+              "manifestPath": "challenges/manifests/v40.json",
+              "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+              "recordingSha256": "7e55ad54b385d5102f3dcb242deabe6fb8a39a1a9d0f80f58579cb00ca59ecc3",
+              "evaluationPath": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
+              "evaluationCommit": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+              "status": "complete",
+              "commit": "40d9c7a70d0b3d097e124782460d5054458a6ffd",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v40",
+                "caseId": "v40-snuffed-lit-lamp-on-engulfing-worm",
+                "session": "synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm",
+                "manifestPath": "challenges/manifests/v40.json",
+                "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+                "recording": "challenges/cases/v40/v40-engulf-snuff-lit-lamp-inventory-check-corrected-cfirst.session.json",
+                "recordingPath": "challenges/cases/v40/v40-engulf-snuff-lit-lamp-inventory-check-corrected-cfirst.session.json",
+                "recordingSha256": "7e55ad54b385d5102f3dcb242deabe6fb8a39a1a9d0f80f58579cb00ca59ecc3",
+                "recipe": "challenges/cases/v40/v40-engulf-snuff-lit-lamp-inventory-check-corrected-cfirst.recipe.session.json",
+                "recipeSha256": "c8046964d872d71287caed6ac19d6556bf2bcd85e4ecb7977fc657f2270b40c5",
+                "replayInputSha256": "90a11c9d5aa3d0cce35b253c77a7117b1dae9dbb4ba50d6867b169fd0e9ed900",
+                "evaluationPath": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
+                "evaluationCommit": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+                "evaluationArtifact": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
+                "evaluationUtc": "2026-10-10T11:54:25.145Z",
+                "remainingScreens": 3,
+                "recordedSteps": 79,
+                "previousScreensMatched": 76,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 76,
+                    "total": 79
+                  },
+                  "rng": {
+                    "matched": 2812,
+                    "total": 2825
+                  },
+                  "cursors": {
+                    "matched": 79,
+                    "total": 79
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 76,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 76,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2812,
+                    "cEntry": "rn2(100)=79",
+                    "cCaller": "obj_resists(zap.c:1469)",
+                    "jsEntry": "rn2(1)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 76,
+                      "key": " "
+                    },
+                    "stepIndex": 76
+                  },
+                  "cursor": null
+                },
+                "step": 76,
+                "kind": "rng",
+                "sourceFile": "zap.c",
+                "function": "obj_resists",
+                "message": null,
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": 1469
+              },
+              "summary": "The first screen mismatch is the swallowed-hero light transition in mhitu.c:gulpmu: after swallowed(1), its non-flaming branch walks hero inventory and calls apply.c:snuff_lit before digest messages. C turns a carried lit oil lamp off and prints “Your lamp goes out!”; JavaScript currently records note_unported and leaves it lit. The queue’s RNG attribution to zap.c:obj_resists is a separate unresolved event at the same input step; the accepted manifest cautions that it is secondary and does not establish the caller. Fix the source-ordered gulp light call and then re-evaluate the residual RNG path.",
+              "source": {
+                "file": "mhitu.c",
+                "branch": "On the first engulf transition, after swallowed(1), if the engulfer is not flaming, gulpmu iterates the hero inventory in linked-list order and calls apply.c:snuff_lit for each object. The call result is discarded. For a lit oil lamp in OBJ_INVENT, snuff_lit emits its visibility-gated message and calls timeout.c:end_burn before gulpmu continues into digestion handling.",
+                "functions": [
+                  "gulpmu"
+                ],
+                "callers": [
+                  "mattacku() dispatches a monster engulf attack to mhitu.c:gulpmu()."
+                ],
+                "dependencies": [
+                  "The relevant callee is apply.c:snuff_lit(); its lamp branch uses timeout.c:end_burn(). JavaScript already has end_burn() and snuff_candle(), but the existing snuff_monster_light() helper requires OBJ_MINVENT and cannot handle gulpmu’s OBJ_INVENT objects.",
+                  "The current queue’s obj_resists(zap.c:1469) RNG annotation identifies the source of the C draw, not its caller. The v40 manifest and replay establish the visible lamp miss; the RNG residual needs a separate source trace after this correction."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Queue provenance: .cache/latest-saved-combined-queue.json (SHA-256 5943c7589ed17bc79c79f8eb5ce26173498e1301ce17ea080e6f0b5563201262), session synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm. Its accepted 4c7e8745 v40 evaluation is 76/79 screens, 2812/2825 RNG calls, and 79/79 cursors; first screen mismatch boundary is 77, with C cell “Y” and JS “T”.",
+                "The case source trace in challenges/manifests/v40.json names mhitu.c:gulpmu -> apply.c:snuff_lit -> timeout.c:end_burn. Its C outcome records “Your lamp goes out!” before digestion and explicitly treats the obj_resists RNG difference as secondary without an established caller.",
+                "Upstream mhitu.c:1389-1400 sets uswallow, calls swallowed(1), then—under !flaming(mtmp->data)—walks gi.invent and discards snuff_lit(otmp2) before continuing digestion. Upstream apply.c:1497-1512 has the lamplit lamp/pot-oil branch; it checks visibility, prints with Yname2()/otense(), calls end_burn(), and returns TRUE.",
+                "In js/mhitu.js:2289-2293 the matching inventory loop calls note_unported(\"light.c snuff_lit\") instead. js/apply_splash_lit.js:121-143 has only a monster-inventory helper that throws unless OBJ_MINVENT; gulpmu’s state.invent entries are OBJ_INVENT. js/timeout.js:2099-2112 already ports end_burn().",
+                "A fresh differential of the admitted recipe at worker commit 40d9c7a70d0b3d097e124782460d5054458a6ffd reproduced the mismatch: C=2825 RNG, JS=2821; at segment 1 step 77 C logged rn2(100)=79 from obj_resists(zap.c:1469), JS logged rn2(1)=0; the screen at that boundary starts “Y” in C and “T” in JS. Log: /tmp/teleport-validation-1000/run-YMftrC/stdout.log."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-snuffed-lit-lamp-on-engulfing-worm",
+          "session": "synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recording": "challenges/cases/v40/v40-engulf-snuff-lit-lamp-inventory-check-corrected-cfirst.session.json",
+          "recordingPath": "challenges/cases/v40/v40-engulf-snuff-lit-lamp-inventory-check-corrected-cfirst.session.json",
+          "recordingSha256": "7e55ad54b385d5102f3dcb242deabe6fb8a39a1a9d0f80f58579cb00ca59ecc3",
+          "recipe": "challenges/cases/v40/v40-engulf-snuff-lit-lamp-inventory-check-corrected-cfirst.recipe.session.json",
+          "recipeSha256": "c8046964d872d71287caed6ac19d6556bf2bcd85e4ecb7977fc657f2270b40c5",
+          "replayInputSha256": "d0cfe584c150d97409c86b6c5f230d9b54a891696052d06a596ecb3cb2e52e4b",
+          "evaluationPath": "challenges/evaluations/accepted-5c157f8e4976371080be6ac735788f14f6c6e136-v40.json",
+          "evaluationCommit": "5c157f8e4976371080be6ac735788f14f6c6e136",
+          "evaluationArtifact": "challenges/evaluations/accepted-5c157f8e4976371080be6ac735788f14f6c6e136-v40.json",
+          "evaluationUtc": "2026-10-10T13:29:37.607Z",
+          "remainingScreens": 3,
+          "recordedSteps": 79,
+          "previousScreensMatched": 76,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 76,
+              "total": 79
+            },
+            "rng": {
+              "matched": 2812,
+              "total": 2825
+            },
+            "cursors": {
+              "matched": 79,
+              "total": 79
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 76,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 76,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 23,
+              "column": 15,
+              "cCell": {
+                "ch": "4",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "5",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2812,
+              "cEntry": "rn2(100)=79",
+              "cCaller": "obj_resists(zap.c:1469)",
+              "jsEntry": "rn2(1)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 76,
+                "key": " "
+              },
+              "stepIndex": 76
+            },
+            "cursor": null
+          },
+          "step": 76,
+          "kind": "rng",
+          "sourceFile": "zap.c",
+          "function": "obj_resists",
+          "message": null,
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 1469,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm.json",
+            "result": {
+              "session": "synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm",
+              "remainingScreens": 3,
+              "recordedSteps": 79,
+              "corpus": "synthetic",
+              "batch": "v40",
+              "caseId": "v40-snuffed-lit-lamp-on-engulfing-worm",
+              "manifestPath": "challenges/manifests/v40.json",
+              "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+              "recordingSha256": "7e55ad54b385d5102f3dcb242deabe6fb8a39a1a9d0f80f58579cb00ca59ecc3",
+              "evaluationPath": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
+              "evaluationCommit": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+              "status": "complete",
+              "commit": "40d9c7a70d0b3d097e124782460d5054458a6ffd",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v40",
+                "caseId": "v40-snuffed-lit-lamp-on-engulfing-worm",
+                "session": "synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm",
+                "manifestPath": "challenges/manifests/v40.json",
+                "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+                "recording": "challenges/cases/v40/v40-engulf-snuff-lit-lamp-inventory-check-corrected-cfirst.session.json",
+                "recordingPath": "challenges/cases/v40/v40-engulf-snuff-lit-lamp-inventory-check-corrected-cfirst.session.json",
+                "recordingSha256": "7e55ad54b385d5102f3dcb242deabe6fb8a39a1a9d0f80f58579cb00ca59ecc3",
+                "recipe": "challenges/cases/v40/v40-engulf-snuff-lit-lamp-inventory-check-corrected-cfirst.recipe.session.json",
+                "recipeSha256": "c8046964d872d71287caed6ac19d6556bf2bcd85e4ecb7977fc657f2270b40c5",
+                "replayInputSha256": "90a11c9d5aa3d0cce35b253c77a7117b1dae9dbb4ba50d6867b169fd0e9ed900",
+                "evaluationPath": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
+                "evaluationCommit": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+                "evaluationArtifact": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
+                "evaluationUtc": "2026-10-10T11:54:25.145Z",
+                "remainingScreens": 3,
+                "recordedSteps": 79,
+                "previousScreensMatched": 76,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 76,
+                    "total": 79
+                  },
+                  "rng": {
+                    "matched": 2812,
+                    "total": 2825
+                  },
+                  "cursors": {
+                    "matched": 79,
+                    "total": 79
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 76,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 76,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2812,
+                    "cEntry": "rn2(100)=79",
+                    "cCaller": "obj_resists(zap.c:1469)",
+                    "jsEntry": "rn2(1)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 76,
+                      "key": " "
+                    },
+                    "stepIndex": 76
+                  },
+                  "cursor": null
+                },
+                "step": 76,
+                "kind": "rng",
+                "sourceFile": "zap.c",
+                "function": "obj_resists",
+                "message": null,
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": 1469
+              },
+              "summary": "The v40 lamp mismatch came from the hero-swallow path in mhitu.c:gulpmu calling apply.c:snuff_lit while JavaScript left the carried lamp lit. JavaScript now implements the complete snuff_lit helper and wires all six direct C caller paths: splash_lit, gulpmu, gulpmm, gulpum, use_container, and litroom (with the splash helper used by both hero and monster water-damage branches). An independent C-first purple-worm recording reaches gulpmu with a lit oil lamp and matches through ‘Your lamp goes out!’ The admitted v40 replay now shows that lamp transition correctly; its later obj_resists(zap.c:1469) RNG and HP mismatch remains a separate source boundary.",
+              "source": {
+                "file": "apply.c",
+                "branch": "When obj->lamplit is false, snuff_lit returns FALSE. For a lit oil lamp, magic lamp, brass lantern, or potion of oil, it checks cansee at OBJ_MINVENT coordinates and otherwise checks !Blind, prints Yname2(obj) plus otense(obj, \"go\") when visible, calls end_burn(obj, TRUE), and returns TRUE. Other lit objects go through snuff_candle; its result is returned when it extinguishes a candle or candelabrum, otherwise snuff_lit returns FALSE.",
+                "functions": [
+                  "snuff_lit"
+                ],
+                "callers": [
+                  "apply.c:splash_lit calls snuff_lit(obj) at 1564; JavaScript routes the hero water-splash branch through trap_effects.js:splash_hero_light and the monster branch through apply_splash_lit.js:splash_monster_light.",
+                  "mhitu.c:gulpmu calls snuff_lit for each hero inventory object after the swallowed transition at 1400; JavaScript calls it from js/mhitu.js:gulpmu.",
+                  "mhitm.c:gulpmm calls snuff_lit for defender inventory objects at 870; JavaScript calls it from js/mhitm.js:gulpmm.",
+                  "uhitm.c:gulpum calls snuff_lit for monster inventory objects at 4986; JavaScript calls it from js/uhitm.js:gulpum.",
+                  "pickup.c:use_container calls snuff_lit after removing a burning object from inventory at 2627; JavaScript calls it from js/pickup.js:in_container.",
+                  "read.c:litroom calls snuff_lit for each carried non-artifact light while darkening the area at 2517; JavaScript calls it from js/read.js:litroom."
+                ],
+                "dependencies": [
+                  "apply.c:snuff_candle is already implemented in js/apply_splash_lit.js and is called for candle and candelabrum objects.",
+                  "timeout.c:end_burn is already implemented in js/timeout.js; snuff_lit discards its return value."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Queue provenance: .cache/latest-saved-combined-queue.json SHA-256 5943c7589ed17bc79c79f8eb5ce26173498e1301ce17ea080e6f0b5563201262; selected session synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm. The accepted v40 evaluation had 76/79 screens, 2812/2825 RNG calls, and 79/79 cursors; its first screen mismatch showed C “Y” and JS “T” at the gulp lamp transition.",
+                "Reviewed the complete upstream apply.c:snuff_lit definition at lines 1493-1514, including its visibility split, Yname2/otense message order, end_burn state update, candle delegation, and FALSE return. Read all seven direct call sites and their JavaScript paths listed under source.callers.",
+                "Before the fix, js/mhitu.js: gulpmu recorded note_unported(\"light.c snuff_lit\"); js/apply_splash_lit.js only had snuff_monster_light, which required OBJ_MINVENT and could not handle gulpmu’s OBJ_INVENT objects. The same placeholder existed at the gulpmm, gulpum, use_container, and litroom callsites.",
+                "js/apply_splash_lit.js now exports snuff_lit, which reproduces the whole apply.c helper and delegates the candle branch to snuff_candle. The gulp, container, light-scroll, and splash callers use that shared helper in C source order; trap_effects.js no longer duplicates a private lamp-snuff branch.",
+                "The independent recipe recipes/mhitu.c/b218-gulpmu-lit-oil-lamp-independent.session.json was freshly recorded and matched with node scripts/diff-fresh.mjs: 44/44 screens, 2776/2776 RNG calls, and 44/44 cursors. Its C recording records mattacku -> gulpmu at step 42, the gulp message, then gulpmu’s inventory loop and “Your lamp goes out!” at step 43. Recipe SHA-256: 2cdd16dbd3d8168eadcc1a147e91dfb920f6ebfc6335956310176c506b990730; recording SHA-256: 3768b21910e50313bd11302d032524ed3310016bb5d433d3d426582d577930c9. Recording: recordings/mhitu.c/b218-gulpmu-lit-oil-lamp-independent.session.json.",
+                "The post-fix differential for the admitted v40 case corrected the lamp screen transition. The remaining first divergence is at segment 0, zero-based step 76 (output boundary 77): C rn2(100)=79 from obj_resists(zap.c:1469), JS rn2(1)=0; the resulting HP cell differs (C 4, JS 5). This later RNG/HP boundary is not attributed to snuff_lit.",
+                "Focused checks passed: 324 tests across apply-splash-lit, mhitu, mhitm, uhitm-hmon, pickup, read, and trap-water-damage. npm run lint passed."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "5c157f8e4976371080be6ac735788f14f6c6e136",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
