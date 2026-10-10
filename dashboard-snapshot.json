@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T11:32:12.922Z",
+  "capturedAt": "2026-10-10T12:33:37.375Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -80797,11 +80797,274 @@
         "at": "2026-10-10T11:29:49.049Z",
         "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
         "goal": "port-fort-ludios-knox-level-v40-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep4-b56c57e7ad94675d95d3b4434b555ffdb2fbd4f7",
+        "type": "published",
+        "at": "2026-10-10T11:33:03.879Z",
+        "task": "Prep4",
+        "commit": "b56c57e7ad94675d95d3b4434b555ffdb2fbd4f7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-active-v41-candidates-20261010",
+        "type": "turn",
+        "at": "2026-10-10T11:34:16.713Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has 12 unmatched sessions; v41 is claimed and C-first candidate recording is underway."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B216-implement-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T11:38:18.871Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing the v40 unpaid shop robbery divergence in shk.c:rob_shop, with a regression through the real level-exit caller."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B216-rob-shop-20261010",
+        "type": "implement",
+        "at": "2026-10-10T11:38:26.258Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "goal": "fix-shk-rob-shop-livelog-flag-v40-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-18aa859a27d02c2cc13316ac4547c5a687bd9e0f",
+        "type": "ready",
+        "at": "2026-10-10T11:45:31.215Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "delivery": "18aa859a27d02c2cc13316ac4547c5a687bd9e0f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B216-18aa859a",
+        "type": "received",
+        "at": "2026-10-10T11:46:55.516Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "delivery": "18aa859a27d02c2cc13316ac4547c5a687bd9e0f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B216-4c7e8745",
+        "type": "integrating",
+        "at": "2026-10-10T11:49:05.023Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "integration": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-active-v41-resume-20261010",
+        "type": "turn",
+        "at": "2026-10-10T11:51:05.460Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v41 C-first recording continues; the leashed-pet and underwater routes are reached, and tower2/tower3 generation is recorded."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B216-4c7e8745",
+        "type": "validated",
+        "at": "2026-10-10T11:56:04.532Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v40-knox-implementation-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T11:59:56.031Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Implementing the v40 Fort Ludios loader and its complete special-room fill path; focused tests, lint, and all three C replays pass."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8a5901cb85f4fbdad784ca0643fe992c1890477c",
+        "type": "ready",
+        "at": "2026-10-10T12:02:50.989Z",
+        "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
+        "delivery": "8a5901cb85f4fbdad784ca0643fe992c1890477c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v40-wizard-wish-assistance-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T12:06:11.541Z",
+        "task": "C-v40-wizard-wish-assistance-investigation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T12:07:08.360Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010-8f7a009491843386af4cd64fc2ac96b21c96975d",
+        "type": "published",
+        "at": "2026-10-10T12:08:10.521Z",
+        "task": "B216-investigation-v40-shop-exit-rob-shop-unpaid-gem-levelport-20261010",
+        "commit": "8f7a009491843386af4cd64fc2ac96b21c96975d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B217-kops-residual-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T12:08:52.177Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Continuing the accepted v40 shop-exit seed to investigate the residual Kops RNG divergence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B217-v40-shop-exit-kops-residual-20261010",
+        "type": "assign",
+        "at": "2026-10-10T12:09:09.972Z",
+        "task": "B217-investigation-v40-shop-exit-kops-residual-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep5-turn-active-20261010-1216",
+        "type": "turn",
+        "at": "2026-10-10T12:12:40.262Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v41’s C-first slate is reached; independent C replays are in progress before JavaScript comparisons."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B217-kops-family-20261010-retry1",
+        "type": "implement",
+        "at": "2026-10-10T12:14:18.571Z",
+        "task": "B217-investigation-v40-shop-exit-kops-residual-20261010",
+        "goal": "port-shk-call-kops-makekops-v40-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-knox-8a5901cb",
+        "type": "received",
+        "at": "2026-10-10T12:14:57.027Z",
+        "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
+        "delivery": "8a5901cb85f4fbdad784ca0643fe992c1890477c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-knox-79f97904",
+        "type": "integrating",
+        "at": "2026-10-10T12:16:35.800Z",
+        "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
+        "integration": "79f979040a27a497adfee661a188aab8a94ee863"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-knox-fb78eff7",
+        "type": "integrating",
+        "at": "2026-10-10T12:20:27.164Z",
+        "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
+        "integration": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep5-turn-active-20261010-1255",
+        "type": "turn",
+        "at": "2026-10-10T12:20:46.952Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v41 has ten confirmed distinct mismatches; two source-program candidates and one mounted-pool case are under overlap review."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-40d9c7a70d0b3d097e124782460d5054458a6ffd",
+        "type": "ready",
+        "at": "2026-10-10T12:21:00.275Z",
+        "task": "B217-investigation-v40-shop-exit-kops-residual-20261010",
+        "delivery": "40d9c7a70d0b3d097e124782460d5054458a6ffd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-after-B216-sync-20261010",
+        "type": "turn",
+        "at": "2026-10-10T12:23:50.464Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B217 is queued for integration; investigating the next unreserved v40 mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B218-assign-snuffed-lit-lamp-20261010",
+        "type": "assign",
+        "at": "2026-10-10T12:23:51.994Z",
+        "task": "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-knox-fb78eff7",
+        "type": "validated",
+        "at": "2026-10-10T12:27:34.639Z",
+        "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep5-turn-active-20261010-1229",
+        "type": "turn",
+        "at": "2026-10-10T12:29:30.297Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v41 has eleven approved distinct mismatches; the Minetown-5 replacement is under first-gap overlap review."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B218-implement-snuff-lit-v40-20261010",
+        "type": "implement",
+        "at": "2026-10-10T12:31:13.069Z",
+        "task": "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010",
+        "goal": "fix-mhitu-gulpmu-snuff-lit-v40-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v40-fort-ludios-knox-wizloaddes-generation-20261010-fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T12:32:55.345Z",
+        "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep5-package-turn-20261010-12",
+        "type": "turn",
+        "at": "2026-10-10T12:33:04.462Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v41 has twelve approved distinct C-first mismatches; packaging the manifest and replay evidence."
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [],
+    "deliveries": [
+      {
+        "task": "B217-investigation-v40-shop-exit-kops-residual-20261010",
+        "worker": "B",
+        "goal": "port-shk-call-kops-makekops-v40-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "40d9c7a70d0b3d097e124782460d5054458a6ffd",
+        "since": "2026-10-10T12:21:00.275Z",
+        "blockedBy": [],
+        "unblocks": 0
+      }
+    ],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -81104,8 +81367,8 @@
     ]
   },
   "development": {
-    "executionCommit": "3a00c41ea88d22f37e1f0c24dea0099311717659",
-    "measuredAt": "2026-10-10T11:30:40.735Z",
+    "executionCommit": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7",
+    "measuredAt": "2026-10-10T12:27:01.179Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

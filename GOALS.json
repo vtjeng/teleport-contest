@@ -250472,6 +250472,437 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-shk-rob-shop-livelog-flag-v40-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Fix the missing LL_ACHIEVE binding in shk.c rob_shop so unpaid shop departure reaches source-ordered livelog behavior.",
+      "cFile": "shk.c",
+      "sessions": [
+        "synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport"
+      ],
+      "selectionReason": "The admitted v40 case stops in the already wired rob_shop path because LL_ACHIEVE is defined in const.js but not imported by shk.js; the source branch and both production callers are documented in the committed investigation.",
+      "detail": "",
+      "openedAt": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+      "openStanding": {
+        "sha": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "rob_shop",
+      "session": "synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport",
+      "syntheticProvenance": {
+        "synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport": {
+          "session": "synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recordingPath": "challenges/cases/v40/v40-shop-hotpursuit-unpaid-gem-wizlevelport-continued-cfirst.session.json",
+          "recordingSha256": "97f003174dd691f5176ea333f32c4765c06742a6395293348b778653148afb76",
+          "evaluationPath": "challenges/evaluations/20261010112700-v40.json",
+          "evaluationCommit": "3d09fdb7cb4fbe53122ed64fc9ed20378dfd745e"
+        }
+      },
+      "activeStanding": {
+        "sha": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "session": "synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recording": "challenges/cases/v40/v40-shop-hotpursuit-unpaid-gem-wizlevelport-continued-cfirst.session.json",
+          "recordingPath": "challenges/cases/v40/v40-shop-hotpursuit-unpaid-gem-wizlevelport-continued-cfirst.session.json",
+          "recordingSha256": "97f003174dd691f5176ea333f32c4765c06742a6395293348b778653148afb76",
+          "recipe": "challenges/cases/v40/v40-shop-hotpursuit-unpaid-gem-wizlevelport-continued-cfirst.recipe.session.json",
+          "recipeSha256": "a77f4fad5a58ed12331321f247c5778822ec1695d63521bee2c90adffecc06f1",
+          "replayInputSha256": "90a11c9d5aa3d0cce35b253c77a7117b1dae9dbb4ba50d6867b169fd0e9ed900",
+          "evaluationPath": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
+          "evaluationCommit": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+          "evaluationArtifact": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
+          "evaluationUtc": "2026-10-10T11:54:25.145Z",
+          "remainingScreens": 0,
+          "recordedSteps": 48,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 48,
+              "total": 48
+            },
+            "rng": {
+              "matched": 5390,
+              "total": 9230
+            },
+            "cursors": {
+              "matched": 48,
+              "total": 48
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 5384,
+              "cEntry": "rnd(5)=4",
+              "cCaller": "makekops(shk.c:5119)",
+              "jsEntry": "rn2(3)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 47,
+                "key": " "
+              },
+              "stepIndex": 47
+            },
+            "cursor": null
+          },
+          "step": 47,
+          "kind": "rng",
+          "sourceFile": "shk.c",
+          "function": "makekops",
+          "message": null,
+          "cFile": "shk.c",
+          "luaFile": null,
+          "line": 5119,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport.json",
+            "previousRemainingScreens": 48
+          }
+        }
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "session": "synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recording": "challenges/cases/v40/v40-shop-hotpursuit-unpaid-gem-wizlevelport-continued-cfirst.session.json",
+          "recordingPath": "challenges/cases/v40/v40-shop-hotpursuit-unpaid-gem-wizlevelport-continued-cfirst.session.json",
+          "recordingSha256": "97f003174dd691f5176ea333f32c4765c06742a6395293348b778653148afb76",
+          "recipe": "challenges/cases/v40/v40-shop-hotpursuit-unpaid-gem-wizlevelport-continued-cfirst.recipe.session.json",
+          "recipeSha256": "a77f4fad5a58ed12331321f247c5778822ec1695d63521bee2c90adffecc06f1",
+          "replayInputSha256": "90a11c9d5aa3d0cce35b253c77a7117b1dae9dbb4ba50d6867b169fd0e9ed900",
+          "evaluationPath": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
+          "evaluationCommit": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+          "evaluationArtifact": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
+          "evaluationUtc": "2026-10-10T11:54:25.145Z",
+          "remainingScreens": 0,
+          "recordedSteps": 48,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 48,
+              "total": 48
+            },
+            "rng": {
+              "matched": 5390,
+              "total": 9230
+            },
+            "cursors": {
+              "matched": 48,
+              "total": 48
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 5384,
+              "cEntry": "rnd(5)=4",
+              "cCaller": "makekops(shk.c:5119)",
+              "jsEntry": "rn2(3)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 47,
+                "key": " "
+              },
+              "stepIndex": 47
+            },
+            "cursor": null
+          },
+          "step": 47,
+          "kind": "rng",
+          "sourceFile": "shk.c",
+          "function": "makekops",
+          "message": null,
+          "cFile": "shk.c",
+          "luaFile": null,
+          "line": 5119,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v40/v40-shop-exit-rob-shop-unpaid-gem-levelport.json",
+            "previousRemainingScreens": 48
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-fort-ludios-knox-level-v40-20261010",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the complete Fort Ludios Knox level program and the special-room filling functions it requires.",
+      "luaFile": "knox.lua",
+      "sessions": [
+        "synthetic/v40/v40-fort-ludios-knox-wizloaddes-generation"
+      ],
+      "selectionReason": "Selected the admitted v40 Fort Ludios Knox wizloaddes mismatch; source tracing shows normal Fort Ludios generation uses the same prototype and requires mkroom.c fill_zoo plus sp_lev.c fill_special_room.",
+      "detail": "",
+      "openedAt": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7",
+      "openStanding": {
+        "sha": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "knox.lua",
+          "line": 1,
+          "endLine": 167,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "requiredFunctions": [
+        {
+          "name": "fill_zoo",
+          "line": 276,
+          "endLine": 455,
+          "declared": true,
+          "sourceFile": "mkroom.c",
+          "complete": true
+        },
+        {
+          "name": "fill_special_room",
+          "line": 2731,
+          "endLine": 2806,
+          "declared": true,
+          "sourceFile": "sp_lev.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v40/v40-fort-ludios-knox-wizloaddes-generation": {
+          "session": "synthetic/v40/v40-fort-ludios-knox-wizloaddes-generation",
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-fort-ludios-knox-wizloaddes-generation",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recordingPath": "challenges/cases/v40/v40-knox-wizloaddes-map-cfirst.session.json",
+          "recordingSha256": "49252e7aeff2d0f0bce9f3f0d7a611f97412f6085a6f92fc3a26ba40d19fbbe2",
+          "evaluationPath": "challenges/evaluations/accepted-4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5-v40.json",
+          "evaluationCommit": "4c7e8745269d067cfee0f5ff5dd21de3d5cc41a5"
+        }
+      },
+      "activeStanding": {
+        "sha": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "knox.lua",
+            "implementation": "js/knox_levels.js",
+            "symbol": "knox",
+            "sourceReview": "Compared all of dat/knox.lua (1-167), including the top-level initialization and every ordered des operation. The generated 20x76 map is derived from the exact upstream literal. Verified the two percent(50) branches, the source-ordered treasure iteration with nested math.random(0,2) draws and gold/trap effects, room/door/monster/object calls, and all registered regions. The randomInclusive helper uses one supplied rn2 draw with the inclusive upper bound; callers preserve source draw order. The listed des/selection APIs have active JavaScript implementations; no return-valued unported callee is used.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "Normal path: mklev.c:makelevel (1267-1270) -> mkmaze.c:makemaz (1127-1194) -> load_special for the prototype knox; JS registers KNOX_LEVEL_LOADERS and dispatches it from load_special."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "Direct path: wizcmds.c:wiz_load_splua (376-395) -> load_special -> lspo_finalize_level; JS wiz_load_splua loads the same registered knox program and finalizes it."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/knox.lua/v40-knox-natural-generation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-fort-ludios-knox-wizloaddes-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "wizcmds.c:wiz_load_splua -> sp_lev.c:load_special/lspo_finalize_level/fill_special_room -> mkroom.c:fill_zoo -> dat/knox.lua"
+              }
+            ],
+            "checkedAt": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7"
+          },
+          {
+            "name": "fill_zoo",
+            "implementation": "js/mkroom.js",
+            "symbol": "fill_zoo",
+            "sourceReview": "Compared the complete mkroom.c:fill_zoo() body (276-452) in source order: COURT maze-throne scan and fallback, BEEHIVE center relocation, ZOO/LEPREHALL gold budget, x-major/y-major cell iteration, irregular-room and door exclusion, explicit throne exclusion, source-ordered monster creation and item generation, and final room flags. Ported all current source branches without a refusal. No unported return-valued callee is substituted on the covered route.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "fill_special_room",
+                "source": "sp_lev.c:fill_special_room (2774) dispatches each supported special-room family to mkroom.c:fill_zoo after recursive subroom processing; js/mklev.js:fill_special_room calls js/mkroom.js:fill_zoo for the same source cases."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/knox.lua/v40-knox-natural-generation.session.json",
+              "recordings/mkroom.c/leprehall-debug-level-teleport-c176.session.json"
+            ],
+            "sourceFile": "mkroom.c",
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-fort-ludios-knox-wizloaddes-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "wizcmds.c:wiz_load_splua -> sp_lev.c:load_special/lspo_finalize_level/fill_special_room -> mkroom.c:fill_zoo -> dat/knox.lua"
+              }
+            ],
+            "checkedAt": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7"
+          },
+          {
+            "name": "fill_special_room",
+            "implementation": "js/mklev.js",
+            "symbol": "fill_special_room",
+            "sourceReview": "Compared all of sp_lev.c:fill_special_room() (2731-2804): null return; recursive subrooms before the outer room; OROOM/THEMEROOM/FILL_NONE early return; FILL_NORMAL shop stock and early return; vault gold iteration; source-listed special-room dispatch; and final room flags. The JavaScript now calls fill_zoo for ANTHOLE, COCKNEST and LEPREHALL and removes the obsolete UnsupportedSpecialRoomError class after its final throw site was removed. Async continuations finish the same room flag effects only after the fill operation resolves.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c:makelevel fills the generated rooms at 1414-1418; its Knox special prototype path begins at 1267-1270. JS makelevel calls fill_special_room for the same room list."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "lspo_finalize_level",
+                "source": "sp_lev.c:lspo_finalize_level (6014-6062) calls fill_special_room for each room at 6055-6059; JS lspo_finalize_level does so at 4363-4367 for natural special-level and wizard-load finalization."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/knox.lua/v40-knox-natural-generation.session.json",
+              "recordings/mkroom.c/leprehall-debug-level-teleport-c176.session.json"
+            ],
+            "sourceFile": "sp_lev.c",
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-fort-ludios-knox-wizloaddes-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "wizcmds.c:wiz_load_splua -> sp_lev.c:load_special/lspo_finalize_level/fill_special_room -> mkroom.c:fill_zoo -> dat/knox.lua"
+              }
+            ],
+            "checkedAt": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7"
+          }
+        ],
+        "entryPointReview": "Source enumeration: dat/knox.lua is entered by normal Fort Ludios generation through mklev.c:makelevel -> mkmaze.c:makemaz -> load_special, and by the recorder-active wizard #wizloaddes command through wizcmds.c:wiz_load_splua -> load_special -> sp_lev.c:lspo_finalize_level. Both active routes are wired to the same KNOX_LEVEL_LOADERS entry and have complete matching evidence. mkroom.c:fill_zoo has one active C caller in this range, sp_lev.c:fill_special_room. sp_lev.c:fill_special_room is reached both from mklev.c:makelevel (ordinary/special level population) and from sp_lev.c:lspo_finalize_level (special-level finalization); recursion into subrooms is included. The new LEPREHALL recording reaches the ordinary makelevel path and confirms that the removed refusal was replaced by the actual C behavior. The recording build has these callers enabled; no caller branch in this scope is excluded.",
+        "entryPoints": [
+          {
+            "name": "Normal Fort Ludios prototype generation",
+            "functions": [
+              "knox.lua",
+              {
+                "sourceFile": "sp_lev.c",
+                "name": "fill_special_room"
+              },
+              {
+                "sourceFile": "mkroom.c",
+                "name": "fill_zoo"
+              }
+            ],
+            "recordings": [
+              "recordings/knox.lua/v40-knox-natural-generation.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Wizard #wizloaddes special-level generation",
+            "functions": [
+              "knox.lua",
+              {
+                "sourceFile": "sp_lev.c",
+                "name": "fill_special_room"
+              },
+              {
+                "sourceFile": "mkroom.c",
+                "name": "fill_zoo"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-fort-ludios-knox-wizloaddes-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "wizcmds.c:wiz_load_splua -> sp_lev.c:load_special/lspo_finalize_level/fill_special_room -> mkroom.c:fill_zoo -> dat/knox.lua"
+              }
+            ]
+          },
+          {
+            "name": "Ordinary LEPREHALL special-room generation",
+            "functions": [
+              {
+                "sourceFile": "sp_lev.c",
+                "name": "fill_special_room"
+              },
+              {
+                "sourceFile": "mkroom.c",
+                "name": "fill_zoo"
+              }
+            ],
+            "recordings": [
+              "recordings/mkroom.c/leprehall-debug-level-teleport-c176.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
