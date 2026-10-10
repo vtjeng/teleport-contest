@@ -44,7 +44,6 @@ import { is_quest_artifact } from './questpgr.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import {
     Flying, Levitation, maketrap, reset_utrap, trapname } from './trap.js';
-import { note_unported } from './unported.js';
 import { begin_burn, start_timer } from './timeout.js';
 import { body_part } from './polyself.js';
 import { ttyPline } from './tty_message.js';
@@ -642,7 +641,13 @@ async function apply_wizterrainwish(d, rawEnv = {}) {
         } else {
             await dbterrainmesg('Lava', x, y, state, env);
         }
-        note_unported('trap.c fire_damage_chain');
+        const { fire_damage_chain } = await import('./trap.js');
+        await fire_damage_chain(state.level.objects[x][y], true, true, x, y, {
+            ...env,
+            state,
+            random,
+            message,
+        });
         return finishTerrainWish(true, false);
     } else if (endsWith('ice')) {
         if (!isDbridge) {

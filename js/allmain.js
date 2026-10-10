@@ -733,9 +733,13 @@ function elapsedTurnMinLiquid(monster, env) {
                 }),
             },
         ),
-        // C discards the inventory-chain results. Water damage is wired by
-        // mon.c:minliquid_core(); the unported fire chain stays explicit.
-        fireDamageChain: () => note_unported('trap.c fire_damage_chain'),
+        // mon.c:minliquid_core() discards this inventory-chain result.
+        fireDamageChain: async (
+            chain, force, here, x, y, effectEnv,
+        ) => {
+            const { fire_damage_chain } = await import('./trap.js');
+            await fire_damage_chain(chain, force, here, x, y, effectEnv);
+        },
         // C discards deal_with_overcrowding()'s result. Its remaining level
         // transition branches are outside this span, so name and skip that
         // discarded call after rloc() has returned false.
