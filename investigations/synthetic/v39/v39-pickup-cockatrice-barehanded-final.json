@@ -1,0 +1,142 @@
+{
+  "session": "synthetic/v39/v39-pickup-cockatrice-barehanded-final",
+  "corpus": "synthetic",
+  "batch": "v39",
+  "caseId": "v39-pickup-cockatrice-barehanded-final",
+  "manifestPath": "challenges/manifests/v39.json",
+  "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+  "recordingPath": "challenges/cases/v39/v39-pickup-cockatrice-barehanded-final.session.json",
+  "recordingSha256": "a2f2f75aa2c78f8e87f98a34888f5709c4a605a1142d6ebdc159d0475dfd9b75",
+  "evaluationPath": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+  "evaluationCommit": "998c20cf771d23d6f5faed181eee05f270b73b58",
+  "remainingScreens": 3,
+  "recordedSteps": 55,
+  "status": "complete",
+  "commit": "3467477aae88da2f03c96ba496737be02bc7c124",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v39",
+    "caseId": "v39-pickup-cockatrice-barehanded-final",
+    "session": "synthetic/v39/v39-pickup-cockatrice-barehanded-final",
+    "manifestPath": "challenges/manifests/v39.json",
+    "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+    "recording": "challenges/cases/v39/v39-pickup-cockatrice-barehanded-final.session.json",
+    "recordingPath": "challenges/cases/v39/v39-pickup-cockatrice-barehanded-final.session.json",
+    "recordingSha256": "a2f2f75aa2c78f8e87f98a34888f5709c4a605a1142d6ebdc159d0475dfd9b75",
+    "recipe": "challenges/cases/v39/v39-pickup-cockatrice-barehanded-final.recipe.session.json",
+    "recipeSha256": "f39897f6084f6dc58d516315ea180197f409156f09ec351efd58d5a4273773a5",
+    "replayInputSha256": "0829ceb24a4dbcbea8c6089aa8de856c51982d20a277e4f3a173eccf4a339ac1",
+    "evaluationPath": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+    "evaluationCommit": "998c20cf771d23d6f5faed181eee05f270b73b58",
+    "evaluationArtifact": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+    "evaluationUtc": "2026-10-10T07:03:42.993Z",
+    "remainingScreens": 3,
+    "recordedSteps": 55,
+    "previousScreensMatched": 52,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 52,
+        "total": 55
+      },
+      "rng": {
+        "matched": 3462,
+        "total": 3462
+      },
+      "cursors": {
+        "matched": 52,
+        "total": 55
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 52,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 52,
+          "key": ","
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 50,
+        "cCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 3462,
+        "cCaller": null,
+        "jsEntry": "rn2(5)=2",
+        "stepIndex": null
+      },
+      "cursor": {
+        "index": 52,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 52,
+          "key": ","
+        },
+        "cCursor": [
+          78,
+          0,
+          1
+        ],
+        "jsCursor": [
+          69,
+          15,
+          1
+        ]
+      }
+    },
+    "step": 52,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The step-52 comma pickup reaches pickup.c:fatal_corpse_mistake(). The JavaScript path now preserves the helper’s guard order, passes killer_xname(obj) to the existing trap.js:instapetrify() implementation, awaits it, and returns TRUE. Fresh C/JavaScript evidence matches the selected 55-step replay and independent pickup, grapple, container-stash, and container-retrieval recordings. The three direct pickup.c callers are covered; apply.c:use_grapple() is an additional active pickup_object() entry that also reaches the fatal branch. apply.c:use_whip() passes remotely=TRUE and exits at the helper’s existing remote guard. windows.c:display_nhwindow() remains the documented note_unported gap only on successful stone-golem recovery.",
+  "source": {
+    "file": "pickup.c",
+    "branch": "When u_safe_from_fatal_corpse(obj, st_all) is false and remotely is false, an already-stone-golem-capable form first attempts polymon(PM_STONE_GOLEM), displays a message wait and returns FALSE if successful; otherwise print the fatal-touch message, pass killer_xname(obj) to instapetrify(), and return TRUE.",
+    "functions": [
+      "fatal_corpse_mistake"
+    ],
+    "callers": [
+      "pickup.c:pickup_object() calls fatal_corpse_mistake(obj, telekinesis) before lift_object() at line 1829; the selected comma command reaches it through cmd.c command table -> hack.c:dopickup() -> pickup.c:pickup().",
+      "pickup.c:in_container() calls fatal_corpse_mistake(obj, FALSE) before removing an inventory object at line 2612; #loot reaches it through pickup.c:doloot() -> use_container().",
+      "pickup.c:out_container() calls fatal_corpse_mistake(obj, FALSE) before lifting an object out of a container at line 2744; #loot reaches it through pickup.c:doloot() -> use_container().",
+      "apply.c:use_grapple() calls pickup_object(otmp, 1L, FALSE) at line 3820; a fresh grappling-hook recording reaches pickup_object() -> fatal_corpse_mistake() and completes stoning/life-saving.",
+      "apply.c:use_whip() calls pickup_object(otmp, 1L, TRUE) at line 3052; fatal_corpse_mistake() is reached only for a corpse and exits through its remotely guard before the fatal-touch branch."
+    ],
+    "dependencies": [
+      "trap.c:instapetrify() is already implemented at js/trap.js:instapetrify(); this task must call it and preserve its side effects.",
+      "windows.c:display_nhwindow() remains a named gap on the stone-golem recovery branch; the existing JS records note_unported because C discards its void result."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Saved queue SHA-256 8159324bc02a3fa2724e8603cae7a6809fbbbaff1883c62684a0478b91a06f03 identifies this admitted v39 case at evaluation commit 998c20cf771d23d6f5faed181eee05f270b73b58: 52/55 screens and cursors match; RNG matches 3462/3462; first screen/cursor mismatch is step 52, key comma.",
+    "Upstream pickup.c:fatal_corpse_mistake() (284-299) contains the full guard order, optional stone-golem recovery, fatal-touch message, killer_xname() argument, instapetrify() call, and TRUE return. Its existing JS port currently drops the killer string and calls note_unported('trap.c instapetrify').",
+    "The selected case enters through cmd.c comma binding to dopickup -> hack.c:dopickup -> pickup.c:pickup -> pickup_object -> fatal_corpse_mistake. JavaScript mirrors this as cmd.js pickup dispatch -> hack.js:dopickup -> pickup.js:pickup -> pickup_object -> fatal_corpse_mistake.",
+    "The complete source function also has two separate valid container callers: pickup.c:in_container (called by use_container) and pickup.c:out_container (called by use_container); each calls the helper with remotely FALSE and can reach the fatal branch when a life-saved hero still holds a bare-handed cockatrice corpse.",
+    "Fresh recipe pickup.c/fatal-cockatrice-corpse-terminal-blocked-b61 matches all 31 screens/cursors and 6451 RNG calls through comma pickup_object -> fatal_corpse_mistake -> instapetrify.",
+    "Fresh recipe pickup.c/fatal-cockatrice-grapple-v39-c matches all 131 screens/cursors and 2679 RNG calls; apply.c:doapply -> use_grapple -> pickup_object(FALSE) reaches fatal_corpse_mistake, instapetrify, and life-saving.",
+    "Fresh recipe pickup.c/fatal-cockatrice-in-container-lifesave-v39-c matches all 135 screens/cursors and 2597 RNG calls; #loot -> use_container -> in_container reaches fatal_corpse_mistake with gloves worn and exercises its st_gloves safe-return guard.",
+    "Fresh recipe pickup.c/fatal-cockatrice-out-container-lifesave-v39-c matches all 148 screens/cursors and 2588 RNG calls; #loot -> use_container -> out_container reaches bare-handed fatal_corpse_mistake and completes life-saving.",
+    "Fresh replay of the admitted v39-pickup-cockatrice-barehanded-final recipe matches all 55 steps, screens, cursors, and 3462 RNG calls, including the final life-saving sequence through step 54."
+  ]
+}

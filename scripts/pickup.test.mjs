@@ -1573,24 +1573,23 @@ test('u_safe_from_fatal_corpse reads only the terms its mask names',
 
 test('pickup handles fatal and reviving Rider corpses',
     async () => {
-        // pickup.c fatal_corpse_mistake() prints before its discarded
-        // trap.c instapetrify() call; the call remains an explicit gap.
+        // pickup.c fatal_corpse_mistake() prints before trap.c instapetrify()
+        // applies stoning and finalizes the ordinary fatal-touch path.
         const petrifying = await heroOnAnEmptySquare();
         petrifying.uarmg = null;
         const cockatrice = typedObjectUnderHero(petrifying, CORPSE);
         cockatrice.corpsenm = PM_COCKATRICE;
         cockatrice.dknown = false;
         petrifying.invent.pickup_prev = true;
+        petrifying.nhDisplay.readKey = async () => 32;
         quiet(petrifying);
         assert.equal(await pickup(0, petrifying), 1);
         assert.equal(cockatrice.where, OBJ_FLOOR);
         assert.equal(petrifying.invent.pickup_prev, false);
         assert.equal(cockatrice.dknown, true);
-        assert.match(
-            petrifying._ttyToplines,
-            /^Touching a cockatrice corpse is a fatal mistake\.$/u,
-        );
-        assert.ok(petrifying.unported.has('trap.c instapetrify'));
+        assert.match(petrifying.killer.name, /cockatrice corpse/u);
+        assert.ok(petrifying.u.umortality > 0);
+        assert.equal(petrifying.unported.has('trap.c instapetrify'), false);
 
         // An iron golem can turn to stone instead of dying. C then waits in
         // display_nhwindow() and continues lifting; that wait remains a named
