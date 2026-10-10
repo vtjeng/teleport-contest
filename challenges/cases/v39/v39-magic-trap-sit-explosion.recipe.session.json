@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first source candidate: move to a floor tile, wish a magic trap underfoot, and sit to reach trap.c:dotrap(VIASITTING) -> trapeffect_magic_trap; the C trace will establish which source arm was reached.",
+  "segments": [
+    {
+      "seed": 39139039,
+      "datetime": "20420315131200",
+      "nethackrc": "OPTIONS=name:V39MagicTrapSit,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": "h.\u0017magic trap\n#sit",
+      "recorderIsDst": true
+    }
+  ]
+}

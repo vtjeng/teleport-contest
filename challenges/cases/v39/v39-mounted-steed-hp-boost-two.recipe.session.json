@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-source-proven HP increment: the first full-healing potion raised HP and maximum HP from 12 to 20. Drink a second from the observed remaining stack, retaining the side message about the unthreatening grid-bug/arrow interaction.",
+  "segments": [
+    {
+      "seed": 39139026,
+      "datetime": "20420315122000",
+      "nethackrc": "OPTIONS=name:V39RideHP,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".\u00173 blessed potions of full healing\nqoqo",
+      "recorderIsDst": true
+    }
+  ]
+}

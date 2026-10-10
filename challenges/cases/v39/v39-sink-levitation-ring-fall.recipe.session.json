@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Completed C-first sink levitation case. A levitation ring is wished and worn while the hero stands on a wizard-created sink; the left-finger Ring_on callback calls spoteffects(FALSE), which reaches hack.c:dosinkfall, crashes the hero, and runs the sink’s levitation-removal path. The final space dismisses the C crash page. Compare JavaScript only after an independent C replay.",
+  "segments": [
+    {
+      "seed": 39139019,
+      "datetime": "20420315110000",
+      "nethackrc": "OPTIONS=name:V39SinkRing,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017sink\n\u0017ring of levitation\nPpl ",
+      "recorderIsDst": true
+    }
+  ]
+}

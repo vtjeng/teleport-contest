@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first setup correction for wield.c:cant_wield_corpse: the cockatrice corpse materializes at the hero's feet and bare-handed pickup triggers an earlier selftouch, so wish and wear gloves before obtaining it. This probe preserves the earlier pickup-first failure.",
+  "segments": [
+    {
+      "seed": 39139023,
+      "datetime": "20420315115000",
+      "nethackrc": "OPTIONS=name:V39WieldGloves,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017leather gloves\nP",
+      "recorderIsDst": true
+    }
+  ]
+}

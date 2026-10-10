@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-confirmed correction: the seed made the wished gloves cursed, blocking removal after the corpse was dropped. Wish uncursed gloves explicitly, wear them, wish and drop the corpse, remove the uncursed gloves, then manually pick up the floor corpse.",
+  "segments": [
+    {
+      "seed": 39139240,
+      "datetime": "20420501111400",
+      "nethackrc": "OPTIONS=name:V39PickupCorpse,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed leather gloves\nPo\u0017cockatrice corpse\ndpTo,",
+      "recorderIsDst": true
+    }
+  ]
+}

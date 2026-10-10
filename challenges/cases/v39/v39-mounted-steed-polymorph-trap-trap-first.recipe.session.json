@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Second materially different C-first setup after maketrap failed under the mounted hero: create the polymorph trap on empty floor first, move away, create and mount a tame saddled pony, then return to the trap.",
+  "segments": [
+    {
+      "seed": 39139037,
+      "datetime": "20420315130600",
+      "nethackrc": "OPTIONS=name:V39SteedPolyTrapC,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".\u0017polymorph trap\nh\u0007tame saddled pony\n#ride\njyhl",
+      "recorderIsDst": true
+    }
+  ]
+}

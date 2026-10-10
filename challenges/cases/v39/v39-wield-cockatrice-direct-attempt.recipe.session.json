@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first corrected answer shape: select n, enter the full paranoid confirmation text yes followed by newline, then attempt to wield the corpse. Preserve the earlier one-character confirmation probe.",
+  "segments": [
+    {
+      "seed": 39139023,
+      "datetime": "20420315115000",
+      "nethackrc": "OPTIONS=name:V39WieldGloves,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017leather gloves\nPn\u0017cockatrice corpse\n,Tnyes\nw",
+      "recorderIsDst": true
+    }
+  ]
+}

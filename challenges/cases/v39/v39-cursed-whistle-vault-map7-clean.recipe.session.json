@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Pager-clean setup probe: wizard level-port directly to depth 7, dismiss the arrival page, then run #wizmap so C’s map is actually revealed. This validates the previously guessed level-7 gold-room route without taking any actions there.",
+  "segments": [
+    {
+      "seed": 39139034,
+      "datetime": "20420315110000",
+      "nethackrc": "OPTIONS=name:V39VaultMap7,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed tin whistle\n#wizlevelport\n7\n #wizmap\n",
+      "recorderIsDst": true
+    }
+  ]
+}

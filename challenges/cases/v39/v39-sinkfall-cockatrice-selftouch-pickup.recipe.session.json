@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Second setup correction: the prior recording confirmed that makewish materializes the corpse on the floor. Dismiss that page and pick up the corpse with `,` before wishing and wearing the levitation ring; the slot q remains the ring.",
+  "segments": [
+    {
+      "seed": 39139031,
+      "datetime": "20420315110000",
+      "nethackrc": "OPTIONS=name:V39SinkTouch,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017sink\n\u0017cockatrice corpse\n ,\u0017ring of levitation\nPql ",
+      "recorderIsDst": true
+    }
+  ]
+}

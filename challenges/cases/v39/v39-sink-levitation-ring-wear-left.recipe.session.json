@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first sink levitation probe, with the C-observed ring item p and left-finger choice. Confirm the source ring_on sink callback and dosinkfall messages/state before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 39139019,
+      "datetime": "20420315110000",
+      "nethackrc": "OPTIONS=name:V39SinkRing,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017sink\n\u0017ring of levitation\nPpl",
+      "recorderIsDst": true
+    }
+  ]
+}

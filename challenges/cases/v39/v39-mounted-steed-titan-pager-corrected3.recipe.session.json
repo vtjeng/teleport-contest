@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first pager/input correction: after the first harmless titan movement, a second dot reaches the first hit; the following space acknowledges its C More prompt; a third dot advances a separate mounted turn. Prior attempts with misplaced pager keys remain preserved.",
+  "segments": [
+    {
+      "seed": 39139025,
+      "datetime": "20420315121000",
+      "nethackrc": "OPTIONS=name:V39Knockoff,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".\u0007tame saddled pony\n#ride\nly\u0007hostile titan\n.. .",
+      "recorderIsDst": true
+    }
+  ]
+}

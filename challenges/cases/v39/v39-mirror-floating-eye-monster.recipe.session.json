@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "v39 C-first monster-target mirror behavior: based on setup screenshot, the floating eye is southwest of hero and mirror is in inventory slot o; apply mirror southwest (b).",
+  "segments": [
+    {
+      "seed": 39139005,
+      "datetime": "20420315100400",
+      "nethackrc": "OPTIONS=name:V39Mirror,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed mirror\n\u0007floating eye\naob",
+      "recorderIsDst": true
+    }
+  ]
+}

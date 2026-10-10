@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first cursed-whistle vault setup: carry an observed cursed tin whistle, wizard-teleport to D:10, then map the generated level to confirm an actual vault before using the whistle.",
+  "segments": [
+    {
+      "seed": 39139028,
+      "datetime": "20420315123100",
+      "nethackrc": "OPTIONS=name:V39VaultWhistle,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed tin whistle\n#wizlevelport\n10\n#wizmap\n",
+      "recorderIsDst": true
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first route using the observed camera slot o; apply to self with zero direction to reach apply.c:use_camera -> zap.c:zapyourself(camera, TRUE).",
+  "segments": [
+    {
+      "seed": 39139027,
+      "datetime": "20420315123000",
+      "nethackrc": "OPTIONS=name:V39CameraSelf,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed camera\nao.",
+      "recorderIsDst": true
+    }
+  ]
+}

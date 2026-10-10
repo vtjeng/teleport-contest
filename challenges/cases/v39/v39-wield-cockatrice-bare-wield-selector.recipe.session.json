@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first take-off correction: select the C-observed glove slot n, then inspect the wield selector while the cockatrice corpse is carried and the hands are bare.",
+  "segments": [
+    {
+      "seed": 39139023,
+      "datetime": "20420315115000",
+      "nethackrc": "OPTIONS=name:V39WieldGloves,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017leather gloves\nPn\u0017cockatrice corpse\n,Tnw",
+      "recorderIsDst": true
+    }
+  ]
+}

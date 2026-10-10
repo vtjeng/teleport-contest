@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first setup probe for hack.c:dosinkfall interrupting a multiturm levitation-boots donning occupation on a sink. Record the item selector before choosing its observed inventory letter.",
+  "segments": [
+    {
+      "seed": 39139037,
+      "datetime": "20420315110000",
+      "nethackrc": "OPTIONS=name:V39SinkBoots,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017sink\n\u0017levitation boots\nP",
+      "recorderIsDst": true
+    }
+  ]
+}

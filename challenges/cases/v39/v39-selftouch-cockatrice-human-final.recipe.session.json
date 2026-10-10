@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "v39 C-first selftouch complete route. Four trailing spaces dismiss the rehumanization and selftouch pages, then answer the wizard Die? prompt with its default no as demonstrated by prior C-only behavior.",
+  "segments": [
+    {
+      "seed": 39139014,
+      "datetime": "20420315101200",
+      "nethackrc": "OPTIONS=name:V39Selftouch,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#polyself\nstone golem\n\u0017cockatrice corpse\nwo#polyself\nhuman\n    ",
+      "recorderIsDst": true
+    }
+  ]
+}

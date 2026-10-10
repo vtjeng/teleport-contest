@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Final C-first recipe for pickup.c:fatal_corpse_mistake. C traces show gloves in slot o, corpse in p, explicit drop of p while protected, removal of uncursed gloves o, and manual pickup on the same floor square; the trailing space and n dismiss petrification and decline the debug death prompt.",
+  "segments": [
+    {
+      "seed": 39139240,
+      "datetime": "20420501111400",
+      "nethackrc": "OPTIONS=name:V39PickupCorpse,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed leather gloves\nPo\u0017cockatrice corpse\ndpTo, n",
+      "recorderIsDst": true
+    }
+  ]
+}

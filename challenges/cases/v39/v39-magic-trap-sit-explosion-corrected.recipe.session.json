@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first candidate after the prior attempt stopped at the incomplete #sit extended-command line: finish the command and reach trap.c:dotrap(VIASITTING) -> trapeffect_magic_trap.",
+  "segments": [
+    {
+      "seed": 39139039,
+      "datetime": "20420315131200",
+      "nethackrc": "OPTIONS=name:V39MagicTrapSit,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": "h.\u0017magic trap\n#sit\n",
+      "recorderIsDst": true
+    }
+  ]
+}

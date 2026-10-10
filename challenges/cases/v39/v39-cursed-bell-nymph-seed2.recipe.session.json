@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-only RNG attempt for the cursed ordinary bell summon arm with an independently selected seed/date; preserve all earlier rn2(4) non-summon observations.",
+  "segments": [
+    {
+      "seed": 39139009,
+      "datetime": "20420315100700",
+      "nethackrc": "OPTIONS=name:V39BellSeed2,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed bell\nan",
+      "recorderIsDst": true
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first tile probe after the mounted and starting-square wizard wishes failed: step west to ordinary floor, create a polymorph trap there, then move off to confirm that C accepts the target tile.",
+  "segments": [
+    {
+      "seed": 39139038,
+      "datetime": "20420315130600",
+      "nethackrc": "OPTIONS=name:V39SteedPolyTrapD,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": "h.\u0017polymorph trap\nl",
+      "recorderIsDst": true
+    }
+  ]
+}

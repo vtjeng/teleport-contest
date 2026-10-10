@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "First mounted hostile titan turn after the C-confirmed mount and adjacent spawn. C trace must establish the uhitm.c:mhitm_knockback physical-attack gate before extending the wait sequence.",
+  "segments": [
+    {
+      "seed": 39139025,
+      "datetime": "20420315121000",
+      "nethackrc": "OPTIONS=name:V39Knockoff,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0007tame saddled pony\n#ride\nly\u0007hostile titan\n.",
+      "recorderIsDst": true
+    }
+  ]
+}

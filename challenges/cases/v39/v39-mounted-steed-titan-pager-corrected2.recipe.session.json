@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first pager/input correction: after the first harmless titan movement, the second dot reaches a hit and C’s More page. Dismiss with a space and use a third dot for a separate mounted turn. Preserve the earlier pre-hit space misfire.",
+  "segments": [
+    {
+      "seed": 39139025,
+      "datetime": "20420315121000",
+      "nethackrc": "OPTIONS=name:V39Knockoff,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".\u0007tame saddled pony\n#ride\nly\u0007hostile titan\n. .",
+      "recorderIsDst": true
+    }
+  ]
+}

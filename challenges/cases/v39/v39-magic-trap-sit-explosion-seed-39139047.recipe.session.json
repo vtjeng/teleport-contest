@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Magic-trap rare-branch trial from the north floor square. The prior seed 39139046 placed the hero on the stairs after a blocked west move, so use a C-confirmed open direction before creating the trap and sitting.",
+  "segments": [
+    {
+      "seed": 39139047,
+      "datetime": "20420315131200",
+      "nethackrc": "OPTIONS=name:V39MagicTrapTrial39139047,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": "k.\u0017magic trap\n#sit\n",
+      "recorderIsDst": true
+    }
+  ]
+}

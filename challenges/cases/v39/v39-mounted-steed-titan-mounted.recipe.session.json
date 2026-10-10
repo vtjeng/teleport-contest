@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Corrected C direction from the screenshot: the tame saddled pony is east, so `l` mounts it. Then create a hostile titan, whose MZ_HUGE size and physical AT_WEAP arm satisfy uhitm.c:mhitm_knockback’s knockback gate; inspect its location before feeding turns.",
+  "segments": [
+    {
+      "seed": 39139025,
+      "datetime": "20420315121000",
+      "nethackrc": "OPTIONS=name:V39Knockoff,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0007tame saddled pony\n#ride\nl\u0007hostile titan\n",
+      "recorderIsDst": true
+    }
+  ]
+}

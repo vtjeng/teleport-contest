@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Corrected v39 throne effect 7 probe: preserve the first C run's evidence that the throne and rnd(6) effect gate are reached; dismiss the `You sit on the opulent throne` pager before answering the wizard's effect selector.",
+  "segments": [
+    {
+      "seed": 39139228,
+      "datetime": "20420401111400",
+      "nethackrc": "OPTIONS=name:V39ThroneCourt,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017throne\n#sit\n 7\n",
+      "recorderIsDst": true
+    }
+  ]
+}

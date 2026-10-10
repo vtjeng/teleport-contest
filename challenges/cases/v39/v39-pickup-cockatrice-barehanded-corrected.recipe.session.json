@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Corrected only from the C setup trace: this seed places riding gloves in slot o and the wished cockatrice corpse on the floor. Wear slot o, wish the corpse, remove slot o without wielding it, and manually pick it up bare-handed.",
+  "segments": [
+    {
+      "seed": 39139240,
+      "datetime": "20420501111400",
+      "nethackrc": "OPTIONS=name:V39PickupCorpse,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017leather gloves\nPo\u0017cockatrice corpse\nTo,",
+      "recorderIsDst": true
+    }
+  ]
+}

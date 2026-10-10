@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Pager-corrected C-first landmine branch after the source output confirmed an explosion pager: dismiss exactly one page and inspect the subsequent explosion/terrain result.",
+  "segments": [
+    {
+      "seed": 39139076,
+      "datetime": "20420315131800",
+      "nethackrc": "OPTIONS=name:V39LandmineSit,role:Barbarian,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": "h.\u0017land mine trap\n#sit\n ",
+      "recorderIsDst": true
+    }
+  ]
+}

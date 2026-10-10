@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-only continuation after v39-selftouch-cockatrice-human ended on the initial rehumanization pager; one space reveals whether polyself.c:selftouch runs once control continues.",
+  "segments": [
+    {
+      "seed": 39139014,
+      "datetime": "20420315101200",
+      "nethackrc": "OPTIONS=name:V39Selftouch,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#polyself\nstone golem\n\u0017cockatrice corpse\nwo#polyself\nhuman\n ",
+      "recorderIsDst": true
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Second C-first setup: use a source-generated tame saddled pony, mount it, wish a polymorph trap underfoot, move off and back while mounted, and observe steedintrap/newcham/steed.c poly_steed.",
+  "segments": [
+    {
+      "seed": 39139036,
+      "datetime": "20420315130600",
+      "nethackrc": "OPTIONS=name:V39SteedPolyTrapB,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": "\u0007tame saddled pony\n#ride\njy.\u0017polymorph trap\nhl",
+      "recorderIsDst": true
+    }
+  ]
+}

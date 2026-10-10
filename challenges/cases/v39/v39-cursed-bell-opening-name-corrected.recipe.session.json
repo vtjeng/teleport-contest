@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Corrected C-only Bell of Opening description: omit the unsupported literal adjective charged and inspect whether the wizard wish parser accepts the cursed named bell. Preserve the first description failure.",
+  "segments": [
+    {
+      "seed": 39139024,
+      "datetime": "20420315120000",
+      "nethackrc": "OPTIONS=name:V39BellUndead,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed Bell of Opening\na",
+      "recorderIsDst": true
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first sink levitation probe using the C-observed inventory letter p. Wear the wished ring on the sink and inspect the Ring_on -> spoteffects -> dosinkfall result; do not compare JavaScript before the intended branch is confirmed.",
+  "segments": [
+    {
+      "seed": 39139019,
+      "datetime": "20420315110000",
+      "nethackrc": "OPTIONS=name:V39SinkRing,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017sink\n\u0017ring of levitation\nPp",
+      "recorderIsDst": true
+    }
+  ]
+}

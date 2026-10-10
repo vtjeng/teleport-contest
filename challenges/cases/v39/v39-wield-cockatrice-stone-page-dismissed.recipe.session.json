@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first continuation after the visible petrification page; this second space reveals the final wizard-mode death question.",
+  "segments": [
+    {
+      "seed": 39139023,
+      "datetime": "20420315115000",
+      "nethackrc": "OPTIONS=name:V39WieldGloves,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017leather gloves\nPn\u0017cockatrice corpse\n,Tnyes\nw*o  ",
+      "recorderIsDst": true
+    }
+  ]
+}

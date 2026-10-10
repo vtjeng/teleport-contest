@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "v39 C-first camera probe: wish camera, inspect its assigned inventory letter, and verify the command route before adding the target action.",
+  "segments": [
+    {
+      "seed": 39139001,
+      "datetime": "20420315100000",
+      "nethackrc": "OPTIONS=name:V39Camera,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed camera\ni",
+      "recorderIsDst": true
+    }
+  ]
+}

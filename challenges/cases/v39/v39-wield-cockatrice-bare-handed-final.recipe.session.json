@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Completed direct bare-hand wield attempt: dismiss the source wielding message page, then inspect the instapetrify death refusal/result. This case is independent of rehumanization selftouch and the earlier pickup interruption.",
+  "segments": [
+    {
+      "seed": 39139023,
+      "datetime": "20420315115000",
+      "nethackrc": "OPTIONS=name:V39WieldGloves,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017leather gloves\nPn\u0017cockatrice corpse\n,Tnyes\nw*o ",
+      "recorderIsDst": true
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "v39 C-first mirror setup: wish mirror and create floating eye; inspect C placement and available inventory slot before applying the monster-target mirror branch. Distinct from v35 hero self-gaze recipe.",
+  "segments": [
+    {
+      "seed": 39139005,
+      "datetime": "20420315100400",
+      "nethackrc": "OPTIONS=name:V39Mirror,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed mirror\n\u0007floating eye\n",
+      "recorderIsDst": true
+    }
+  ]
+}

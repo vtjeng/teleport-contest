@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Exploratory v39 C-first source probe for sit.c throne_sit_effect case 7: wizard-wish a throne under the hero, use #sit, and answer 7 to force court summons after the source's random-effect gate.",
+  "segments": [
+    {
+      "seed": 39139228,
+      "datetime": "20420401111400",
+      "nethackrc": "OPTIONS=name:V39ThroneCourt,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017throne\n#sit\n7\n",
+      "recorderIsDst": true
+    }
+  ]
+}

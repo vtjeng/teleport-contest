@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first timed-egg test with safe_wait explicitly disabled because the prior long wait hit a JS-only get-hit prompt before the hatch deadline. After cursed jelly reaches kill_egg, the matched zero-turn level change protects the hero and 210 waits test timer cancellation.",
+  "segments": [
+    {
+      "seed": 39139018,
+      "datetime": "20420315102000",
+      "nethackrc": "OPTIONS=name:V39EggTimer,role=Wizard,race:human,gender=female,align:neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".\u0017giant ant egg\n\u0017cursed lump of royal jelly\naqp#levelchange\n20\n                         ..................................................................................................................................................................................................................",
+      "recorderIsDst": true
+    }
+  ]
+}

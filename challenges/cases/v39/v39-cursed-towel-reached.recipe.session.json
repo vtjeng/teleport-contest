@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Corrected v39 cursed towel item selector from C inventory prompt: towel is m (the prior o selection was a recorded setup miss). Apply cursed towel from m.",
+  "segments": [
+    {
+      "seed": 39139006,
+      "datetime": "20420315100500",
+      "nethackrc": "OPTIONS=name:V39Towel,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed towel\nam",
+      "recorderIsDst": true
+    }
+  ]
+}

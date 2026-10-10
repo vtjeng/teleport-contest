@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first cursed charged Bell of Opening route: the corrected wizard wish produces the silver-bell appearance (BELL_OF_OPENING, initialized with three charges by mkobj.c). Choose its C-observed slot p from the apply prompt to confirm the cursed charged use_bell -> mkundead branch.",
+  "segments": [
+    {
+      "seed": 39139024,
+      "datetime": "20420315120000",
+      "nethackrc": "OPTIONS=name:V39BellUndead,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed Bell of Opening\nap",
+      "recorderIsDst": true
+    }
+  ]
+}

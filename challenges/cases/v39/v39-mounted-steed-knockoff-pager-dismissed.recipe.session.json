@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Source-directed continuation: the final C route reaches a Titan hit pager while mounted; provide accepted pager-dismissal keys and additional turns to capture the knockback outcome.",
+  "segments": [
+    {
+      "seed": 39139026,
+      "datetime": "20420315122000",
+      "nethackrc": "OPTIONS=name:V39RideHP,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".\u00173 blessed potions of full healing\nqoqoqo\u0007tame saddled pony\n#ride\njy\u0007hostile titan\n.. . . . . . . . . . . . . . . . .",
+      "recorderIsDst": true
+    }
+  ]
+}

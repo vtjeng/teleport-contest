@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first setup with source-supported HP margin: three blessed full-healing potions leave HP 36/36. Create an adjacent tame saddled pony, then inspect the C ride direction before the hostile titan is generated.",
+  "segments": [
+    {
+      "seed": 39139026,
+      "datetime": "20420315122000",
+      "nethackrc": "OPTIONS=name:V39RideHP,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".\u00173 blessed potions of full healing\nqoqoqo\u0007tame saddled pony\n#ride\n",
+      "recorderIsDst": true
+    }
+  ]
+}

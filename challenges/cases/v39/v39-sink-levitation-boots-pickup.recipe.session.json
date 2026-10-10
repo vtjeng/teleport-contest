@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first setup correction: the wish result identified an on-floor combat-boot appearance; the put-on selector excluded slot o. Pick the boots up, then start wearing them on the sink and allow the multiturm callback to finish.",
+  "segments": [
+    {
+      "seed": 39139037,
+      "datetime": "20420315110000",
+      "nethackrc": "OPTIONS=name:V39SinkBoots,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017sink\n\u0017levitation boots\n,Po        ",
+      "recorderIsDst": true
+    }
+  ]
+}

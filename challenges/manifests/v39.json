@@ -1,0 +1,2473 @@
+{
+  "version": 1,
+  "batch": "v39",
+  "status": "prepared-awaiting-main",
+  "comparisonBase": "5acf12f54a56350363a6f29b94b45eecd3bef82f",
+  "priorBatch": "v38",
+  "priorBatchManifestEvidence": {
+    "path": "challenges/manifests/v38.json",
+    "sha256": "251ab3419a54f9d0c5affcb8fcdc324fe343f693982769445f41ed1773f19cf0",
+    "corpusDigest": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05"
+  },
+  "priorBatchCaseIds": [
+    "v38-wiz-seenv",
+    "v38-wiz-vision",
+    "v38-wiz-wmode",
+    "v38-wiz-stats",
+    "v38-wiz-object-probabilities",
+    "v38-wiz-rumor-check",
+    "v38-wiz-display-macros",
+    "v38-wiz-intrinsic-menu",
+    "v38-monster-birth-counts",
+    "v38-wiz-detect-empty",
+    "v38-wiz-identify-already-known",
+    "v38-fire-wand-monster",
+    "v38-fire-wand-engraving",
+    "v38-wizard-spell-teleport-energy-refusal",
+    "v38-levitating-whip-over-lava",
+    "v38-quick-glance-lootabc",
+    "v38-dodown-levitation",
+    "v38-dodown-lurker-ceiling-hider",
+    "v38-dodown-piercer-hider",
+    "v38-cursed-bear-trap-bungle",
+    "v38-single-boulder-pickup-refusal",
+    "v38-water-dip-destroys-acid-potion",
+    "v38-broken-undead-wand-revives-floor-newt",
+    "v38-arrow-trap-return-projectile",
+    "v38-lava-wish-burns-floor-scroll",
+    "v38-pickaxe-door",
+    "v38-touchstone-glass",
+    "v38-throw-dagger-hostile-newt",
+    "v38-sacrifice-stale-newt",
+    "v38-enchant-armor-no-worn-armor",
+    "v38-cursed-bear-trap-bungle-control",
+    "v38-fire-resistant-red-dragon-wand-zap",
+    "v38-fire-wand-burn-engraving",
+    "v38-acid-potion-target-selection-miss"
+  ],
+  "currentUnresolvedQueueEvidence": {
+    "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+    "sha256": "cd92937479a0b60603a778d3063267701a17937ec1e97c3f4f47bbd7233db533",
+    "sessionCount": 12,
+    "capturedAt": "2026-10-10T02:52Z",
+    "note": "Coordinator-reported queue snapshot at Prep3 assignment; the live latest-saved queue was refreshed afterward. The trigger digest is retained in the candidate plan and parent event."
+  },
+  "unresolvedOlderCaseIds": [
+    "v35-gehennom-juiblex",
+    "v32-version-build-options",
+    "v35-version-feature-report"
+  ],
+  "candidatePlan": {
+    "path": ".cache/v39-candidate-plan.json",
+    "sha256": "af977b718198c6a8c7e58b327920a5cc0cce2a6dfa9d344a85fff83059d99763",
+    "plannedBeforeJavaScriptComparison": true,
+    "candidateCount": 19,
+    "extensionPlan": {
+      "path": ".cache/v39-candidate-plan-extensions.json",
+      "sha256": "2ed0cc4db176c7d47fca04db6c761bc1a8add8d526245b1c0d61611a1c60e132",
+      "plannedBeforeDifferential": true,
+      "candidateCount": 6
+    },
+    "replacementAfterOverlap": {
+      "id": "v39-pickup-cockatrice-barehanded-final",
+      "source": "pickup.c:fatal_corpse_mistake -> trap.c:instapetrify",
+      "reason": "Replaced the duplicate throne effect-7 case after v17 overlap review."
+    }
+  },
+  "cases": [
+    {
+      "id": "v39-cancellation-clay-golem-reached",
+      "title": "Cancel a clay golem through the cancellation kill branch",
+      "mission": "Cancel a clay golem and reach the source kill path controlled by allow_cancel_kill.",
+      "selectionRationale": "The closest cancellation case is v19 cancellation against a large mimic, which reveals and changes mimic state. This reaches the clay-golem allow_cancel_kill branch and death handling.",
+      "sourcePointers": [
+        "zap.c:cancel_monst",
+        "mon.c:xkilled"
+      ],
+      "sourceTrace": "At segment 1 step 48 the C recording shows “Some writing vanishes from the clay golem’s head”; at step 49 the golem dies. C records rn2(6)=0 from mon.c:xkilled at PRNG call 2228, establishing the clay-golem cancellation kill branch.",
+      "cOutcome": "C cancels and kills the wished clay golem; xkilled executes its clay-golem death path.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 39139010,
+        "datetime": "20420315100800",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "playmode": "debug",
+        "keyCount": 48,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v39/v39-cancellation-clay-golem-reached.recipe.session.json",
+      "recipeSha256": "c8e729b435568a277050cec71405a891ddf0fc4444320a52f3fec92542ef8b08",
+      "recording": "challenges/cases/v39/v39-cancellation-clay-golem-reached.session.json",
+      "recordingSha256": "1fd70e2ae94287633942e820222c28c160eb531c5cd300aabecdd299771e45c1",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v39-cancellation-clay-golem-reached",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v39/v39-cancellation-clay-golem-reached.recipe.session.json",
+          ".cache/v39/package-replays/v39-cancellation-clay-golem-reached.independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-cancellation-clay-golem-reached.independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-replays/v39-cancellation-clay-golem-reached.independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "1fd70e2ae94287633942e820222c28c160eb531c5cd300aabecdd299771e45c1"
+      },
+      "localComparison": {
+        "caseId": "v39-cancellation-clay-golem-reached",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v39/v39-cancellation-clay-golem-reached.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-cancellation-clay-golem-reached.diff.log",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 49,
+          "key": " ",
+          "sourceBehavior": "zap.c:cancel_monst(clay golem) -> mon.c:xkilled",
+          "owner": "js/zap.js cancel_monst / js/mon.js xkilled",
+          "details": "C’s first missing cancellation-death draw is rn2(6)=0 at mon.c:xkilled (call 2228); JavaScript draws rn2(5)=4 instead. The source-specific clay-golem kill branch is distinct from the earlier mimic cancellation case."
+        }
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v19-cancellation-reveals-hostile-large-mimic-c62",
+          "distinction": "The earlier case cancels a large mimic and reveals its disguised state; this reaches clay-golem cancellation with allow_cancel_kill and xkilled."
+        },
+        {
+          "id": "v38-fire-resistant-red-dragon-wand-zap",
+          "distinction": "The v38 wand case tests resistance to a fire effect, not cancellation or the clay-golem kill branch."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v38",
+        "caseIds": [
+          "v38-wiz-seenv",
+          "v38-wiz-vision",
+          "v38-wiz-wmode",
+          "v38-wiz-stats",
+          "v38-wiz-object-probabilities",
+          "v38-wiz-rumor-check",
+          "v38-wiz-display-macros",
+          "v38-wiz-intrinsic-menu",
+          "v38-monster-birth-counts",
+          "v38-wiz-detect-empty",
+          "v38-wiz-identify-already-known",
+          "v38-fire-wand-monster",
+          "v38-fire-wand-engraving",
+          "v38-wizard-spell-teleport-energy-refusal",
+          "v38-levitating-whip-over-lava",
+          "v38-quick-glance-lootabc",
+          "v38-dodown-levitation",
+          "v38-dodown-lurker-ceiling-hider",
+          "v38-dodown-piercer-hider",
+          "v38-cursed-bear-trap-bungle",
+          "v38-single-boulder-pickup-refusal",
+          "v38-water-dip-destroys-acid-potion",
+          "v38-broken-undead-wand-revives-floor-newt",
+          "v38-arrow-trap-return-projectile",
+          "v38-lava-wish-burns-floor-scroll",
+          "v38-pickaxe-door",
+          "v38-touchstone-glass",
+          "v38-throw-dagger-hostile-newt",
+          "v38-sacrifice-stale-newt",
+          "v38-enchant-armor-no-worn-armor",
+          "v38-cursed-bear-trap-bungle-control",
+          "v38-fire-resistant-red-dragon-wand-zap",
+          "v38-fire-wand-burn-engraving",
+          "v38-acid-potion-target-selection-miss"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v38.json",
+          "sha256": "251ab3419a54f9d0c5affcb8fcdc324fe343f693982769445f41ed1773f19cf0",
+          "corpusDigest": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05"
+        },
+        "result": "Compared against every v38 case. Any close source overlap is named in closestEarlierCases; this case’s action/state path is distinct from the cited v38 cases."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "cd92937479a0b60603a778d3063267701a17937ec1e97c3f4f47bbd7233db533",
+        "sessionCount": 12,
+        "unresolvedOlderCaseIds": [
+          "v35-gehennom-juiblex",
+          "v32-version-build-options",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared against the 12-session queue snapshot at Prep3 assignment and the three older provenance/recorder blockers. No substantive overlap with the older blockers; the closest admitted behavior cases are listed above."
+      }
+    },
+    {
+      "id": "v39-selftouch-cockatrice-human-final",
+      "title": "Rehumanize without stone resistance while carrying a cockatrice corpse",
+      "mission": "Rehumanization removes stone resistance and immediately selftouches a carried cockatrice corpse.",
+      "selectionRationale": "The similar v27 glove-loss case enters selftouch through do_wear/retouch equipment. This case reaches the caller-specific polyself.c:rehumanize resistance-loss path with a different pre-touch form and action history.",
+      "sourcePointers": [
+        "polyself.c:rehumanize",
+        "artifact.c:retouch_equipment",
+        "trap.c:selftouch"
+      ],
+      "sourceTrace": "C polymorphs the hero into a stone golem, carries a cockatrice corpse, then rehumanizes as a human. At segment 1 step 60 C prints “No longer petrify-resistant, you touch the cockatrice corpse”; step 61 reports turning to stone.",
+      "cOutcome": "C rehumanizes, removes the stone-resistance protection, then enters selftouch on the carried corpse and presents the petrification result.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 39139014,
+        "datetime": "20420315101200",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "playmode": "debug",
+        "keyCount": 63,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v39/v39-selftouch-cockatrice-human-final.recipe.session.json",
+      "recipeSha256": "50af5809709e91d559993f804d05f94d3e7548e7d6a31d17171f3fe5d9317c86",
+      "recording": "challenges/cases/v39/v39-selftouch-cockatrice-human-final.session.json",
+      "recordingSha256": "75b35b3d9bae7b8c0b5c4a3ba07be1b9896fcc942f8115aa9795cbb5e1d2ce39",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v39-selftouch-cockatrice-human-final",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v39/v39-selftouch-cockatrice-human-final.recipe.session.json",
+          ".cache/v39/package-replays/v39-selftouch-cockatrice-human-final.independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-selftouch-cockatrice-human-final.independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-replays/v39-selftouch-cockatrice-human-final.independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "75b35b3d9bae7b8c0b5c4a3ba07be1b9896fcc942f8115aa9795cbb5e1d2ce39"
+      },
+      "localComparison": {
+        "caseId": "v39-selftouch-cockatrice-human-final",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v39/v39-selftouch-cockatrice-human-final.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-selftouch-cockatrice-human-final.diff.log",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 60,
+          "key": "\n",
+          "sourceBehavior": "polyself.c:rehumanize -> artifact.c:retouch_equipment -> trap.c:selftouch after stone-resistance loss",
+          "owner": "js/polyself.js rehumanize / js/trap.js selftouch",
+          "details": "C shows the resistance-loss and corpse-touch page at boundary 60; JavaScript does not produce the source page. The first gap is the rehumanize caller path, not the later generic trap effect."
+        }
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v27-cockatrice-gloves-off",
+          "distinction": "v27 loses gloves through the glove-loss caller; this loses intrinsic stone resistance during polyself.c:rehumanize before selftouch."
+        },
+        {
+          "id": "v39-wield-cockatrice-instapetrify",
+          "distinction": "The v39 wield case calls instapetrify directly before wielding; it does not use rehumanize or selftouch."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v38",
+        "caseIds": [
+          "v38-wiz-seenv",
+          "v38-wiz-vision",
+          "v38-wiz-wmode",
+          "v38-wiz-stats",
+          "v38-wiz-object-probabilities",
+          "v38-wiz-rumor-check",
+          "v38-wiz-display-macros",
+          "v38-wiz-intrinsic-menu",
+          "v38-monster-birth-counts",
+          "v38-wiz-detect-empty",
+          "v38-wiz-identify-already-known",
+          "v38-fire-wand-monster",
+          "v38-fire-wand-engraving",
+          "v38-wizard-spell-teleport-energy-refusal",
+          "v38-levitating-whip-over-lava",
+          "v38-quick-glance-lootabc",
+          "v38-dodown-levitation",
+          "v38-dodown-lurker-ceiling-hider",
+          "v38-dodown-piercer-hider",
+          "v38-cursed-bear-trap-bungle",
+          "v38-single-boulder-pickup-refusal",
+          "v38-water-dip-destroys-acid-potion",
+          "v38-broken-undead-wand-revives-floor-newt",
+          "v38-arrow-trap-return-projectile",
+          "v38-lava-wish-burns-floor-scroll",
+          "v38-pickaxe-door",
+          "v38-touchstone-glass",
+          "v38-throw-dagger-hostile-newt",
+          "v38-sacrifice-stale-newt",
+          "v38-enchant-armor-no-worn-armor",
+          "v38-cursed-bear-trap-bungle-control",
+          "v38-fire-resistant-red-dragon-wand-zap",
+          "v38-fire-wand-burn-engraving",
+          "v38-acid-potion-target-selection-miss"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v38.json",
+          "sha256": "251ab3419a54f9d0c5affcb8fcdc324fe343f693982769445f41ed1773f19cf0",
+          "corpusDigest": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05"
+        },
+        "result": "Compared against every v38 case. Any close source overlap is named in closestEarlierCases; this case’s action/state path is distinct from the cited v38 cases."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "cd92937479a0b60603a778d3063267701a17937ec1e97c3f4f47bbd7233db533",
+        "sessionCount": 12,
+        "unresolvedOlderCaseIds": [
+          "v35-gehennom-juiblex",
+          "v32-version-build-options",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared against the 12-session queue snapshot at Prep3 assignment and the three older provenance/recorder blockers. No substantive overlap with the older blockers; the closest admitted behavior cases are listed above."
+      }
+    },
+    {
+      "id": "v39-polyself-retouch-silver-vampire-complete",
+      "title": "Polymorph into a vampire while holding a silver dagger",
+      "mission": "Reach artifact.c:retouch_object from polyself.c:polymon when the vampire form cannot handle a silver weapon.",
+      "selectionRationale": "This reaches polyself.c:polymon -> artifact.c:retouch_object during a silver weapon retouch. It differs from v27 glove loss and this batch’s rehumanization selftouch case in caller, item interaction, and state transition.",
+      "sourcePointers": [
+        "polyself.c:polymon",
+        "artifact.c:retouch_equipment",
+        "artifact.c:retouch_object"
+      ],
+      "sourceTrace": "At segment 1 step 36 C turns the hero into a vampire and reports that the silver dagger cannot be handled. At step 37 the dagger falls; C records rnd(10)=6 from artifact.c:retouch_object at call 2873.",
+      "cOutcome": "C changes the hero to a vampire, runs silver-item retouch, and drops the silver dagger.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 39139017,
+        "datetime": "20420315101800",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "playmode": "debug",
+        "keyCount": 38,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v39/v39-polyself-retouch-silver-vampire-complete.recipe.session.json",
+      "recipeSha256": "7159cff10252bd52d1ea017dbf5ab637574b3f36fdf7d557c5c5b46e59e7401b",
+      "recording": "challenges/cases/v39/v39-polyself-retouch-silver-vampire-complete.session.json",
+      "recordingSha256": "11a999889dda2afd48b78b1df9d61442e8330da737e1587625c0d0747c1fa227",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v39-polyself-retouch-silver-vampire-complete",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v39/v39-polyself-retouch-silver-vampire-complete.recipe.session.json",
+          ".cache/v39/package-replays/v39-polyself-retouch-silver-vampire-complete.independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-polyself-retouch-silver-vampire-complete.independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-replays/v39-polyself-retouch-silver-vampire-complete.independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "11a999889dda2afd48b78b1df9d61442e8330da737e1587625c0d0747c1fa227"
+      },
+      "localComparison": {
+        "caseId": "v39-polyself-retouch-silver-vampire-complete",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v39/v39-polyself-retouch-silver-vampire-complete.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-polyself-retouch-silver-vampire-complete.diff.log",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 37,
+          "key": "\n",
+          "sourceBehavior": "polyself.c:polymon -> artifact.c:retouch_object for a silver weapon",
+          "owner": "js/polyself.js polymon / js/artifact.js retouch_object",
+          "details": "C draws rnd(10)=6 at artifact.c:retouch_object (call 2873); JavaScript omits that draw before the dagger-drop page."
+        }
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v27-cockatrice-gloves-off",
+          "distinction": "v27 invokes selftouch after losing gloves; this invokes silver-object retouch during polymon and drops a weapon."
+        },
+        {
+          "id": "v39-selftouch-cockatrice-human-final",
+          "distinction": "That case loses stone resistance in rehumanize and selftouches a corpse; this case changes form in polymon and retouches a silver weapon."
+        },
+        {
+          "id": "v35-mirror-floating-eye",
+          "distinction": "v35 polymorphs into a floating eye and attempts a self-directed mirror action; it does not retouch a silver object."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v38",
+        "caseIds": [
+          "v38-wiz-seenv",
+          "v38-wiz-vision",
+          "v38-wiz-wmode",
+          "v38-wiz-stats",
+          "v38-wiz-object-probabilities",
+          "v38-wiz-rumor-check",
+          "v38-wiz-display-macros",
+          "v38-wiz-intrinsic-menu",
+          "v38-monster-birth-counts",
+          "v38-wiz-detect-empty",
+          "v38-wiz-identify-already-known",
+          "v38-fire-wand-monster",
+          "v38-fire-wand-engraving",
+          "v38-wizard-spell-teleport-energy-refusal",
+          "v38-levitating-whip-over-lava",
+          "v38-quick-glance-lootabc",
+          "v38-dodown-levitation",
+          "v38-dodown-lurker-ceiling-hider",
+          "v38-dodown-piercer-hider",
+          "v38-cursed-bear-trap-bungle",
+          "v38-single-boulder-pickup-refusal",
+          "v38-water-dip-destroys-acid-potion",
+          "v38-broken-undead-wand-revives-floor-newt",
+          "v38-arrow-trap-return-projectile",
+          "v38-lava-wish-burns-floor-scroll",
+          "v38-pickaxe-door",
+          "v38-touchstone-glass",
+          "v38-throw-dagger-hostile-newt",
+          "v38-sacrifice-stale-newt",
+          "v38-enchant-armor-no-worn-armor",
+          "v38-cursed-bear-trap-bungle-control",
+          "v38-fire-resistant-red-dragon-wand-zap",
+          "v38-fire-wand-burn-engraving",
+          "v38-acid-potion-target-selection-miss"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v38.json",
+          "sha256": "251ab3419a54f9d0c5affcb8fcdc324fe343f693982769445f41ed1773f19cf0",
+          "corpusDigest": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05"
+        },
+        "result": "Compared against every v38 case. Any close source overlap is named in closestEarlierCases; this case’s action/state path is distinct from the cited v38 cases."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "cd92937479a0b60603a778d3063267701a17937ec1e97c3f4f47bbd7233db533",
+        "sessionCount": 12,
+        "unresolvedOlderCaseIds": [
+          "v35-gehennom-juiblex",
+          "v32-version-build-options",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared against the 12-session queue snapshot at Prep3 assignment and the three older provenance/recorder blockers. No substantive overlap with the older blockers; the closest admitted behavior cases are listed above."
+      }
+    },
+    {
+      "id": "v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait",
+      "title": "Apply cursed royal jelly to a timed giant-ant egg",
+      "mission": "Cancel an egg’s hatch timer through use_royal_jelly and kill_egg, then wait past the original hatch deadline.",
+      "selectionRationale": "The related v16 egg case changes blessed parent/attachment behavior. This reaches cursed jelly’s kill_egg timer-cancellation path for a timed egg.",
+      "sourcePointers": [
+        "apply.c:use_royal_jelly",
+        "timeout.c:kill_egg",
+        "timeout.c:stop_timer"
+      ],
+      "sourceTrace": "C records the cursed jelly applied to the carried giant-ant egg at segment 1 step 48 and the quivering-egg result. The recipe disables safe_wait, reaches a level change, and continues 210 waits to expose whether the original hatch timer was canceled.",
+      "cOutcome": "C processes the cursed-jelly egg interaction and cancels the egg timer; the later hatch timing remains governed by the cancellation.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 39139018,
+        "datetime": "20420315102000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 298,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v39/v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait.recipe.session.json",
+      "recipeSha256": "5a8da78890d57e39551b61242aa0211a42c78e9bfb049eb0664eb983522f891c",
+      "recording": "challenges/cases/v39/v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait.session.json",
+      "recordingSha256": "88929700e015925b02f79a3995fe62c8e8fe29390e08ae3de56b7b62533829d3",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v39/v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait.recipe.session.json",
+          ".cache/v39/package-replays/v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait.independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait.independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-replays/v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait.independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "88929700e015925b02f79a3995fe62c8e8fe29390e08ae3de56b7b62533829d3"
+      },
+      "localComparison": {
+        "caseId": "v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v39/v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-cursed-jelly-timed-giant-ant-egg-wait-210-nosafewait.diff.log",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 258,
+          "key": ".",
+          "sourceBehavior": "apply.c:use_royal_jelly -> timeout.c:kill_egg timer cancellation; later hatch timing changes",
+          "owner": "js/apply.js use_royal_jelly / js/timeout.js kill_egg",
+          "details": "The first downstream comparator divergence occurs at gethungry (C rn2(20)=1 versus JS rnd(1)=1) after the uncanceled JS egg timer changes later turns. The causal source gap is the omitted kill_egg cancellation, not gethungry itself. The recipe uses !safe_wait and a level change to prevent safe-wait occupation from obscuring the timer path."
+        }
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v16-wizard-rings-blessed-bell-of-opening",
+          "distinction": "The older Bell of Opening case does not touch egg timers; the closest egg comparison is the prior blessed parent/attachment case noted in the source review."
+        },
+        {
+          "id": "v39-cancellation-clay-golem-reached",
+          "distinction": "This case changes an egg timer through use_royal_jelly; the clay-golem case is cancellation-wand monster death."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v38",
+        "caseIds": [
+          "v38-wiz-seenv",
+          "v38-wiz-vision",
+          "v38-wiz-wmode",
+          "v38-wiz-stats",
+          "v38-wiz-object-probabilities",
+          "v38-wiz-rumor-check",
+          "v38-wiz-display-macros",
+          "v38-wiz-intrinsic-menu",
+          "v38-monster-birth-counts",
+          "v38-wiz-detect-empty",
+          "v38-wiz-identify-already-known",
+          "v38-fire-wand-monster",
+          "v38-fire-wand-engraving",
+          "v38-wizard-spell-teleport-energy-refusal",
+          "v38-levitating-whip-over-lava",
+          "v38-quick-glance-lootabc",
+          "v38-dodown-levitation",
+          "v38-dodown-lurker-ceiling-hider",
+          "v38-dodown-piercer-hider",
+          "v38-cursed-bear-trap-bungle",
+          "v38-single-boulder-pickup-refusal",
+          "v38-water-dip-destroys-acid-potion",
+          "v38-broken-undead-wand-revives-floor-newt",
+          "v38-arrow-trap-return-projectile",
+          "v38-lava-wish-burns-floor-scroll",
+          "v38-pickaxe-door",
+          "v38-touchstone-glass",
+          "v38-throw-dagger-hostile-newt",
+          "v38-sacrifice-stale-newt",
+          "v38-enchant-armor-no-worn-armor",
+          "v38-cursed-bear-trap-bungle-control",
+          "v38-fire-resistant-red-dragon-wand-zap",
+          "v38-fire-wand-burn-engraving",
+          "v38-acid-potion-target-selection-miss"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v38.json",
+          "sha256": "251ab3419a54f9d0c5affcb8fcdc324fe343f693982769445f41ed1773f19cf0",
+          "corpusDigest": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05"
+        },
+        "result": "Compared against every v38 case. Any close source overlap is named in closestEarlierCases; this case’s action/state path is distinct from the cited v38 cases."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "cd92937479a0b60603a778d3063267701a17937ec1e97c3f4f47bbd7233db533",
+        "sessionCount": 12,
+        "unresolvedOlderCaseIds": [
+          "v35-gehennom-juiblex",
+          "v32-version-build-options",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared against the 12-session queue snapshot at Prep3 assignment and the three older provenance/recorder blockers. No substantive overlap with the older blockers; the closest admitted behavior cases are listed above."
+      }
+    },
+    {
+      "id": "v39-mounted-steed-knockoff",
+      "title": "A hostile titan knocks a mounted rider off a tame steed",
+      "mission": "Reach mhitm_knockback and dismount_steed(DISMOUNT_KNOCKED), including landing_spot selection.",
+      "selectionRationale": "The earlier mount, saddle, and joust sessions do not reach this monster-attack knockoff caller or its forced dismount reason.",
+      "sourcePointers": [
+        "uhitm.c:mhitm_knockback",
+        "steed.c:dismount_steed",
+        "steed.c:landing_spot"
+      ],
+      "sourceTrace": "C mounts the confirmed tame saddled pony, creates a hostile titan, and records the titan’s knockback at segment 1 step 87. The follow-up landing selection reaches landing_spot at step 88.",
+      "cOutcome": "The titan knocks the hero out of the saddle; C executes DISMOUNT_KNOCKED and selects a landing square.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 39139026,
+        "datetime": "20420315122000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 89,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v39/v39-mounted-steed-knockoff.recipe.session.json",
+      "recipeSha256": "790bf8e88979b4e30d4fb7813de313c8de6b87f250aba1a2f2f9d808efab68f8",
+      "recording": "challenges/cases/v39/v39-mounted-steed-knockoff.session.json",
+      "recordingSha256": "5ee5f9ca6524671540995d4361175b0a74e109b59897ff89df3efaeac7eec484",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v39-mounted-steed-knockoff",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v39/v39-mounted-steed-knockoff.recipe.session.json",
+          ".cache/v39/package-replays/v39-mounted-steed-knockoff.independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-mounted-steed-knockoff.independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-replays/v39-mounted-steed-knockoff.independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "5ee5f9ca6524671540995d4361175b0a74e109b59897ff89df3efaeac7eec484"
+      },
+      "localComparison": {
+        "caseId": "v39-mounted-steed-knockoff",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v39/v39-mounted-steed-knockoff.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-mounted-steed-knockoff.diff.log",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 88,
+          "key": " ",
+          "sourceBehavior": "uhitm.c:mhitm_knockback -> steed.c:dismount_steed(DISMOUNT_KNOCKED) -> landing_spot",
+          "owner": "js/uhitm.js mhitm_knockback / js/steed.js dismount_steed",
+          "details": "C’s first differing landing draw is rn2(2)=0 in landing_spot (call 2874); JavaScript uses rn2(4)=0. The caller, state transition, and knockoff reason differ from earlier mount/joust cases."
+        }
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v13-knight-jousts-hostile-target-from-steed",
+          "distinction": "v13 attacks while mounted and reaches jousting, not a monster knockback against the rider."
+        },
+        {
+          "id": "v26-wounded-rider-mount",
+          "distinction": "v26 mounts a wounded rider but does not reach mhitm_knockback or DISMOUNT_KNOCKED."
+        },
+        {
+          "id": "v38-saddle-peaceful-horse",
+          "distinction": "v38 saddles a peaceful horse but does not mount or trigger a forced dismount."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v38",
+        "caseIds": [
+          "v38-wiz-seenv",
+          "v38-wiz-vision",
+          "v38-wiz-wmode",
+          "v38-wiz-stats",
+          "v38-wiz-object-probabilities",
+          "v38-wiz-rumor-check",
+          "v38-wiz-display-macros",
+          "v38-wiz-intrinsic-menu",
+          "v38-monster-birth-counts",
+          "v38-wiz-detect-empty",
+          "v38-wiz-identify-already-known",
+          "v38-fire-wand-monster",
+          "v38-fire-wand-engraving",
+          "v38-wizard-spell-teleport-energy-refusal",
+          "v38-levitating-whip-over-lava",
+          "v38-quick-glance-lootabc",
+          "v38-dodown-levitation",
+          "v38-dodown-lurker-ceiling-hider",
+          "v38-dodown-piercer-hider",
+          "v38-cursed-bear-trap-bungle",
+          "v38-single-boulder-pickup-refusal",
+          "v38-water-dip-destroys-acid-potion",
+          "v38-broken-undead-wand-revives-floor-newt",
+          "v38-arrow-trap-return-projectile",
+          "v38-lava-wish-burns-floor-scroll",
+          "v38-pickaxe-door",
+          "v38-touchstone-glass",
+          "v38-throw-dagger-hostile-newt",
+          "v38-sacrifice-stale-newt",
+          "v38-enchant-armor-no-worn-armor",
+          "v38-cursed-bear-trap-bungle-control",
+          "v38-fire-resistant-red-dragon-wand-zap",
+          "v38-fire-wand-burn-engraving",
+          "v38-acid-potion-target-selection-miss"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v38.json",
+          "sha256": "251ab3419a54f9d0c5affcb8fcdc324fe343f693982769445f41ed1773f19cf0",
+          "corpusDigest": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05"
+        },
+        "result": "Compared against every v38 case. Any close source overlap is named in closestEarlierCases; this case’s action/state path is distinct from the cited v38 cases."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "cd92937479a0b60603a778d3063267701a17937ec1e97c3f4f47bbd7233db533",
+        "sessionCount": 12,
+        "unresolvedOlderCaseIds": [
+          "v35-gehennom-juiblex",
+          "v32-version-build-options",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared against the 12-session queue snapshot at Prep3 assignment and the three older provenance/recorder blockers. No substantive overlap with the older blockers; the closest admitted behavior cases are listed above."
+      }
+    },
+    {
+      "id": "v39-counted-wizgenesis-mimic-population",
+      "title": "Generate the requested mimic population through wizard Genesis",
+      "mission": "Exercise wizard Genesis class selection before the later lockpick-door mimic interaction.",
+      "selectionRationale": "The manifest identity follows the first counted behavior, wiz_genesis -> mkclass_aligned. Earlier Genesis sessions create requested individual monsters or run other combat; this case’s first mismatch is the population/class-selection branch before lockpicking.",
+      "sourcePointers": [
+        "wizcmds.c:wiz_genesis",
+        "makemon.c:mkclass_aligned"
+      ],
+      "sourceTrace": "C reaches the wizard Genesis monster-creation path during the mimic/door recipe. The first missing behavior is mkclass_aligned at segment 1 step 92: C records rn2(9)=0 at makemon.c:1934 before the later lockpick and stumble_onto_mimic observations.",
+      "cOutcome": "C performs the Genesis population selection; the later recording also reaches a door mimic, but those lockpick/absorption observations are secondary.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 39139028,
+        "datetime": "20420315123100",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 113,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
+      "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
+      "recording": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+      "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v39-counted-wizgenesis-mimic-population",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
+          ".cache/v39/package-replays/v39-counted-wizgenesis-mimic-population.independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-counted-wizgenesis-mimic-population.independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-replays/v39-counted-wizgenesis-mimic-population.independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e"
+      },
+      "localComparison": {
+        "caseId": "v39-counted-wizgenesis-mimic-population",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-counted-wizgenesis-mimic-population.diff.log",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 92,
+          "key": "\n",
+          "sourceBehavior": "wizcmds.c:wiz_genesis -> makemon.c:mkclass_aligned",
+          "owner": "js/wizcmds.js wiz_genesis / js/makemon.js mkclass_aligned",
+          "details": "C records rn2(9)=0 in mkclass_aligned at call 5762; JavaScript has no corresponding draw. Later pick_lock, stumble_onto_mimic, and maybe_absorb_item evidence is secondary and does not define this case identity."
+        }
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v19-large-mimic-sticks-viking-c62",
+          "distinction": "The earlier session generates a large mimic to reach sticky combat. This mismatch occurs earlier in the Genesis population’s mkclass_aligned selection and is the counted behavior."
+        },
+        {
+          "id": "v37-wizmap-after-monster-reset",
+          "distinction": "v37 creates a monster and rebuilds the map; this case’s first mismatch is the earlier Genesis class-selection call."
+        },
+        {
+          "id": "v38-monster-birth-counts",
+          "distinction": "v38 reports monster birth counts without running wizard Genesis population selection."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v38",
+        "caseIds": [
+          "v38-wiz-seenv",
+          "v38-wiz-vision",
+          "v38-wiz-wmode",
+          "v38-wiz-stats",
+          "v38-wiz-object-probabilities",
+          "v38-wiz-rumor-check",
+          "v38-wiz-display-macros",
+          "v38-wiz-intrinsic-menu",
+          "v38-monster-birth-counts",
+          "v38-wiz-detect-empty",
+          "v38-wiz-identify-already-known",
+          "v38-fire-wand-monster",
+          "v38-fire-wand-engraving",
+          "v38-wizard-spell-teleport-energy-refusal",
+          "v38-levitating-whip-over-lava",
+          "v38-quick-glance-lootabc",
+          "v38-dodown-levitation",
+          "v38-dodown-lurker-ceiling-hider",
+          "v38-dodown-piercer-hider",
+          "v38-cursed-bear-trap-bungle",
+          "v38-single-boulder-pickup-refusal",
+          "v38-water-dip-destroys-acid-potion",
+          "v38-broken-undead-wand-revives-floor-newt",
+          "v38-arrow-trap-return-projectile",
+          "v38-lava-wish-burns-floor-scroll",
+          "v38-pickaxe-door",
+          "v38-touchstone-glass",
+          "v38-throw-dagger-hostile-newt",
+          "v38-sacrifice-stale-newt",
+          "v38-enchant-armor-no-worn-armor",
+          "v38-cursed-bear-trap-bungle-control",
+          "v38-fire-resistant-red-dragon-wand-zap",
+          "v38-fire-wand-burn-engraving",
+          "v38-acid-potion-target-selection-miss"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v38.json",
+          "sha256": "251ab3419a54f9d0c5affcb8fcdc324fe343f693982769445f41ed1773f19cf0",
+          "corpusDigest": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05"
+        },
+        "result": "Compared against every v38 case. Any close source overlap is named in closestEarlierCases; this case’s action/state path is distinct from the cited v38 cases."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "cd92937479a0b60603a778d3063267701a17937ec1e97c3f4f47bbd7233db533",
+        "sessionCount": 12,
+        "unresolvedOlderCaseIds": [
+          "v35-gehennom-juiblex",
+          "v32-version-build-options",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared against the 12-session queue snapshot at Prep3 assignment and the three older provenance/recorder blockers. No substantive overlap with the older blockers; the closest admitted behavior cases are listed above."
+      }
+    },
+    {
+      "id": "v39-wield-cockatrice-instapetrify",
+      "title": "Attempt to wield a cockatrice corpse barehanded",
+      "mission": "Reach wield.c:cant_wield_corpse and trap.c:instapetrify before a cockatrice corpse can be wielded.",
+      "selectionRationale": "This direct wield.c caller is distinct from v27’s glove-loss selftouch, v31’s tinning caller, v33’s thrown-corpse path, and this batch’s pickup caller.",
+      "sourcePointers": [
+        "wield.c:cant_wield_corpse",
+        "trap.c:instapetrify"
+      ],
+      "sourceTrace": "After C finishes removing the wished leather gloves, input `o` attempts the corpse-wield action. C reaches the fatal bare-hand message and petrification page at segment 1 step 49.",
+      "cOutcome": "C refuses the wield attempt because the hero has bare hands and calls instapetrify; wizard mode allows the fatality prompt to be declined.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 39139023,
+        "datetime": "20420315115000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "playmode": "debug",
+        "keyCount": 51,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v39/v39-wield-cockatrice-instapetrify.recipe.session.json",
+      "recipeSha256": "a9eb48ed8a69bde52233529e99447e4139542c45927dd0018c3fbf88b3f2cc4f",
+      "recording": "challenges/cases/v39/v39-wield-cockatrice-instapetrify.session.json",
+      "recordingSha256": "d19262fe01979f62e392993d6347eecf9e28d060418aeb921b4a9d6a4fc980ac",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v39-wield-cockatrice-instapetrify",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v39/v39-wield-cockatrice-instapetrify.recipe.session.json",
+          ".cache/v39/package-replays/v39-wield-cockatrice-instapetrify.independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-wield-cockatrice-instapetrify.independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-replays/v39-wield-cockatrice-instapetrify.independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "d19262fe01979f62e392993d6347eecf9e28d060418aeb921b4a9d6a4fc980ac"
+      },
+      "localComparison": {
+        "caseId": "v39-wield-cockatrice-instapetrify",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v39/v39-wield-cockatrice-instapetrify.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-wield-cockatrice-instapetrify.diff.log",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 49,
+          "key": "o",
+          "sourceBehavior": "wield.c:cant_wield_corpse -> trap.c:instapetrify",
+          "owner": "js/wield.js cant_wield_corpse / js/trap.js instapetrify",
+          "details": "C presents the petrification page at boundary 49; JavaScript omits it. This direct wield refusal differs from pickup, tinning, throwing, and glove-loss callers."
+        }
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v27-cockatrice-gloves-off",
+          "distinction": "v27 loses gloves and reaches selftouch; this reaches cant_wield_corpse through a direct wield attempt."
+        },
+        {
+          "id": "v31-tinning-petrifier",
+          "distinction": "v31 reaches instapetrify from apply.c:use_tinning_kit; this reaches it from wield.c:cant_wield_corpse."
+        },
+        {
+          "id": "v33-cockatrice-corpse-upward",
+          "distinction": "v33 throws the corpse upward through dothrow; this attempts to wield it."
+        },
+        {
+          "id": "v39-pickup-cockatrice-barehanded-final",
+          "distinction": "The pickup case calls pickup.c:fatal_corpse_mistake; this case calls wield.c:cant_wield_corpse."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v38",
+        "caseIds": [
+          "v38-wiz-seenv",
+          "v38-wiz-vision",
+          "v38-wiz-wmode",
+          "v38-wiz-stats",
+          "v38-wiz-object-probabilities",
+          "v38-wiz-rumor-check",
+          "v38-wiz-display-macros",
+          "v38-wiz-intrinsic-menu",
+          "v38-monster-birth-counts",
+          "v38-wiz-detect-empty",
+          "v38-wiz-identify-already-known",
+          "v38-fire-wand-monster",
+          "v38-fire-wand-engraving",
+          "v38-wizard-spell-teleport-energy-refusal",
+          "v38-levitating-whip-over-lava",
+          "v38-quick-glance-lootabc",
+          "v38-dodown-levitation",
+          "v38-dodown-lurker-ceiling-hider",
+          "v38-dodown-piercer-hider",
+          "v38-cursed-bear-trap-bungle",
+          "v38-single-boulder-pickup-refusal",
+          "v38-water-dip-destroys-acid-potion",
+          "v38-broken-undead-wand-revives-floor-newt",
+          "v38-arrow-trap-return-projectile",
+          "v38-lava-wish-burns-floor-scroll",
+          "v38-pickaxe-door",
+          "v38-touchstone-glass",
+          "v38-throw-dagger-hostile-newt",
+          "v38-sacrifice-stale-newt",
+          "v38-enchant-armor-no-worn-armor",
+          "v38-cursed-bear-trap-bungle-control",
+          "v38-fire-resistant-red-dragon-wand-zap",
+          "v38-fire-wand-burn-engraving",
+          "v38-acid-potion-target-selection-miss"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v38.json",
+          "sha256": "251ab3419a54f9d0c5affcb8fcdc324fe343f693982769445f41ed1773f19cf0",
+          "corpusDigest": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05"
+        },
+        "result": "Compared against every v38 case. Any close source overlap is named in closestEarlierCases; this case’s action/state path is distinct from the cited v38 cases."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "cd92937479a0b60603a778d3063267701a17937ec1e97c3f4f47bbd7233db533",
+        "sessionCount": 12,
+        "unresolvedOlderCaseIds": [
+          "v35-gehennom-juiblex",
+          "v32-version-build-options",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared against the 12-session queue snapshot at Prep3 assignment and the three older provenance/recorder blockers. No substantive overlap with the older blockers; the closest admitted behavior cases are listed above."
+      }
+    },
+    {
+      "id": "v39-lava-after-ring-removal",
+      "title": "Remove the only levitation ring above lava",
+      "mission": "Reach Ring_off -> float_down -> lava_effects after a terrain wish places lava beneath a levitating hero.",
+      "selectionRationale": "The v38 lava wish destroys a floor scroll through wizterrainwish/fire_damage_chain; the v38 whip case damages a levitating hero through use_whip/fire_damage. This enters hero-contact lava_effects only after Ring_off and float_down.",
+      "sourcePointers": [
+        "do_wear.c:Ring_off",
+        "trap.c:float_down",
+        "trap.c:lava_effects"
+      ],
+      "sourceTrace": "C wears the sole levitation ring, wishes lava onto the occupied tile, then removes the ring at segment 1 step 33. This reaches lava_effects and records d(6,6)=22 at call 2342.",
+      "cOutcome": "C removes the levitation ring, falls into lava, ignites inventory and equipment, and continues through the fatality prompt.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 39139078,
+        "datetime": "20420315132000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 43,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v39/v39-lava-after-ring-removal.recipe.session.json",
+      "recipeSha256": "544fccdc44a1aad1367c2cbec334ecd11d9a4e9f436ca64e37977d0f751b0ef6",
+      "recording": "challenges/cases/v39/v39-lava-after-ring-removal.session.json",
+      "recordingSha256": "11a86c22a75e3d0ee9351dd5192a33685035d4ec1236b2b82571d11c61661923",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v39-lava-after-ring-removal",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v39/v39-lava-after-ring-removal.recipe.session.json",
+          ".cache/v39/package-replays/v39-lava-after-ring-removal.independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-lava-after-ring-removal.independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-replays/v39-lava-after-ring-removal.independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "11a86c22a75e3d0ee9351dd5192a33685035d4ec1236b2b82571d11c61661923"
+      },
+      "localComparison": {
+        "caseId": "v39-lava-after-ring-removal",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v39/v39-lava-after-ring-removal.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-lava-after-ring-removal.diff.log",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 33,
+          "key": "R",
+          "sourceBehavior": "do_wear.c:Ring_off -> trap.c:float_down -> trap.c:lava_effects",
+          "owner": "js/do_wear.js Ring_off / js/trap.js float_down",
+          "details": "C records d(6,6)=22 at lava_effects (call 2342); JavaScript instead enters an unrelated rn2(5) path. The source call site and hero-contact state are distinct from the other v38 lava cases."
+        }
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v38-lava-wish-burns-floor-scroll",
+          "distinction": "The v38 case burns a floor scroll through wizterrainwish -> fire_damage_chain; this damages the hero after levitation ends."
+        },
+        {
+          "id": "v38-levitating-whip-over-lava",
+          "distinction": "The v38 case reaches use_whip -> fire_damage; this case reaches Ring_off -> float_down -> lava_effects."
+        },
+        {
+          "id": "v10-remove-levitation-ring-and-float-down",
+          "distinction": "v10 removes levitation on ordinary floor; this removes the sole ring over a wished lava square and enters lava_effects."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v38",
+        "caseIds": [
+          "v38-wiz-seenv",
+          "v38-wiz-vision",
+          "v38-wiz-wmode",
+          "v38-wiz-stats",
+          "v38-wiz-object-probabilities",
+          "v38-wiz-rumor-check",
+          "v38-wiz-display-macros",
+          "v38-wiz-intrinsic-menu",
+          "v38-monster-birth-counts",
+          "v38-wiz-detect-empty",
+          "v38-wiz-identify-already-known",
+          "v38-fire-wand-monster",
+          "v38-fire-wand-engraving",
+          "v38-wizard-spell-teleport-energy-refusal",
+          "v38-levitating-whip-over-lava",
+          "v38-quick-glance-lootabc",
+          "v38-dodown-levitation",
+          "v38-dodown-lurker-ceiling-hider",
+          "v38-dodown-piercer-hider",
+          "v38-cursed-bear-trap-bungle",
+          "v38-single-boulder-pickup-refusal",
+          "v38-water-dip-destroys-acid-potion",
+          "v38-broken-undead-wand-revives-floor-newt",
+          "v38-arrow-trap-return-projectile",
+          "v38-lava-wish-burns-floor-scroll",
+          "v38-pickaxe-door",
+          "v38-touchstone-glass",
+          "v38-throw-dagger-hostile-newt",
+          "v38-sacrifice-stale-newt",
+          "v38-enchant-armor-no-worn-armor",
+          "v38-cursed-bear-trap-bungle-control",
+          "v38-fire-resistant-red-dragon-wand-zap",
+          "v38-fire-wand-burn-engraving",
+          "v38-acid-potion-target-selection-miss"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v38.json",
+          "sha256": "251ab3419a54f9d0c5affcb8fcdc324fe343f693982769445f41ed1773f19cf0",
+          "corpusDigest": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05"
+        },
+        "result": "Compared against every v38 case. Any close source overlap is named in closestEarlierCases; this case’s action/state path is distinct from the cited v38 cases."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "cd92937479a0b60603a778d3063267701a17937ec1e97c3f4f47bbd7233db533",
+        "sessionCount": 12,
+        "unresolvedOlderCaseIds": [
+          "v35-gehennom-juiblex",
+          "v32-version-build-options",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared against the 12-session queue snapshot at Prep3 assignment and the three older provenance/recorder blockers. No substantive overlap with the older blockers; the closest admitted behavior cases are listed above."
+      }
+    },
+    {
+      "id": "v39-mounted-steed-polymorph-trap",
+      "title": "Trigger a polymorph trap while mounted on a tame pony",
+      "mission": "Reach the mounted dotrap branch and monster polymorph naming before the later steed polymorph handler.",
+      "selectionRationale": "The ordinary polymorph-trap control changes an unmounted grid bug; v11 changes the hero. This case reaches the mounted tame-monster old-name branch, which fails before poly_steed.",
+      "sourcePointers": [
+        "trap.c:dotrap",
+        "trap.c:trapeffect_poly_trap",
+        "mon.c:newcham",
+        "objnam.c:x_monnam"
+      ],
+      "sourceTrace": "C leads the pony onto a wished polymorph trap at segment 1 step 27; step 28 reports “Your pony turns into a saddled rock piercer”. The first JS failure occurs in newcham’s tame old-name construction through x_monnam(..., ARTICLE_YOUR, ...) before steed.c:poly_steed.",
+      "cOutcome": "C polymorphs the mounted tame pony and names its old form in the mounted/tame branch; the later poly_steed behavior is not the first counted point.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 39139081,
+        "datetime": "20420315141100",
+        "role": "Knight",
+        "race": "human",
+        "gender": "male",
+        "playmode": "debug",
+        "keyCount": 28,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.recipe.session.json",
+      "recipeSha256": "e2f5f7d33e071f8e837389af982cdfe8fb6754549295fac5ff069e3fea8df5d8",
+      "recording": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json",
+      "recordingSha256": "1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v39-mounted-steed-polymorph-trap",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v39/v39-mounted-steed-polymorph-trap.recipe.session.json",
+          ".cache/v39/package-replays/v39-mounted-steed-polymorph-trap.independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-mounted-steed-polymorph-trap.independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-replays/v39-mounted-steed-polymorph-trap.independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997"
+      },
+      "localComparison": {
+        "caseId": "v39-mounted-steed-polymorph-trap",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v39/v39-mounted-steed-polymorph-trap.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-mounted-steed-polymorph-trap.diff.log",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 28,
+          "key": " ",
+          "sourceBehavior": "trap.c:dotrap(mounted) -> mon.c:newcham -> objnam.c:x_monnam(..., ARTICLE_YOUR, ...) for the tame old name",
+          "owner": "js/trap.js dotrap / js/mon.js newcham / shapeOldNames",
+          "details": "JavaScript throws because shapeOldNames references ARTICLE_YOUR without a binding when C enters the tame/mounted old-name branch. This precedes steed.c:poly_steed and is the first source behavior to classify."
+        }
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v11-hero-polymorph-trap-transforms-form",
+          "distinction": "v11 polymorphs the hero through polyself; this polymorphs a tame mounted pony through newcham and the mounted old-name branch."
+        },
+        {
+          "id": "v39-polymorph-trap-monster-shapeshift",
+          "distinction": "The matching control changes an unmounted grid bug; this case reaches tame/mounted naming and ARTICLE_YOUR."
+        },
+        {
+          "id": "v26-wounded-rider-mount",
+          "distinction": "The earlier mount case creates a mount but does not polymorph it or run newcham."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v38",
+        "caseIds": [
+          "v38-wiz-seenv",
+          "v38-wiz-vision",
+          "v38-wiz-wmode",
+          "v38-wiz-stats",
+          "v38-wiz-object-probabilities",
+          "v38-wiz-rumor-check",
+          "v38-wiz-display-macros",
+          "v38-wiz-intrinsic-menu",
+          "v38-monster-birth-counts",
+          "v38-wiz-detect-empty",
+          "v38-wiz-identify-already-known",
+          "v38-fire-wand-monster",
+          "v38-fire-wand-engraving",
+          "v38-wizard-spell-teleport-energy-refusal",
+          "v38-levitating-whip-over-lava",
+          "v38-quick-glance-lootabc",
+          "v38-dodown-levitation",
+          "v38-dodown-lurker-ceiling-hider",
+          "v38-dodown-piercer-hider",
+          "v38-cursed-bear-trap-bungle",
+          "v38-single-boulder-pickup-refusal",
+          "v38-water-dip-destroys-acid-potion",
+          "v38-broken-undead-wand-revives-floor-newt",
+          "v38-arrow-trap-return-projectile",
+          "v38-lava-wish-burns-floor-scroll",
+          "v38-pickaxe-door",
+          "v38-touchstone-glass",
+          "v38-throw-dagger-hostile-newt",
+          "v38-sacrifice-stale-newt",
+          "v38-enchant-armor-no-worn-armor",
+          "v38-cursed-bear-trap-bungle-control",
+          "v38-fire-resistant-red-dragon-wand-zap",
+          "v38-fire-wand-burn-engraving",
+          "v38-acid-potion-target-selection-miss"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v38.json",
+          "sha256": "251ab3419a54f9d0c5affcb8fcdc324fe343f693982769445f41ed1773f19cf0",
+          "corpusDigest": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05"
+        },
+        "result": "Compared against every v38 case. Any close source overlap is named in closestEarlierCases; this case’s action/state path is distinct from the cited v38 cases."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "cd92937479a0b60603a778d3063267701a17937ec1e97c3f4f47bbd7233db533",
+        "sessionCount": 12,
+        "unresolvedOlderCaseIds": [
+          "v35-gehennom-juiblex",
+          "v32-version-build-options",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared against the 12-session queue snapshot at Prep3 assignment and the three older provenance/recorder blockers. No substantive overlap with the older blockers; the closest admitted behavior cases are listed above."
+      }
+    },
+    {
+      "id": "v39-sink-levitation-boots-pickup",
+      "title": "Sinkfall removes levitation boots and reaches Boots_off",
+      "mission": "Reach hack.c:dosinkfall and the levitation-boots Boots_off path.",
+      "selectionRationale": "This is the boots-specific sinkfall caller path; the earlier levitation-ring removal and other sink cases do not execute dosinkfall -> Boots_off for levitation boots.",
+      "sourcePointers": [
+        "hack.c:dosinkfall",
+        "do_wear.c:Boots_off"
+      ],
+      "sourceTrace": "C creates a sink and levitation boots. The sinkfall route reaches dosinkfall; C reports the hero crashing to the floor and confirms the worn levitation boots in the declined-death message at segment 1 step 33.",
+      "cOutcome": "C falls from the sink interaction, invokes the levitation-boots removal path, and presents the fatality refusal.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 39139037,
+        "datetime": "20420315110000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 36,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v39/v39-sink-levitation-boots-pickup.recipe.session.json",
+      "recipeSha256": "14d86ab18b49cd4181f644f115ee7420bd6cb56ebee99007f4fea3e50f07793e",
+      "recording": "challenges/cases/v39/v39-sink-levitation-boots-pickup.session.json",
+      "recordingSha256": "b30989c0a8dbe8d05b38d669e572285e3363abea5d2fdebff79d98804f58f2e8",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v39-sink-levitation-boots-pickup",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v39/v39-sink-levitation-boots-pickup.recipe.session.json",
+          ".cache/v39/package-replays/v39-sink-levitation-boots-pickup.independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-sink-levitation-boots-pickup.independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-replays/v39-sink-levitation-boots-pickup.independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "b30989c0a8dbe8d05b38d669e572285e3363abea5d2fdebff79d98804f58f2e8"
+      },
+      "localComparison": {
+        "caseId": "v39-sink-levitation-boots-pickup",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v39/v39-sink-levitation-boots-pickup.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-sink-levitation-boots-pickup.diff.log",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 33,
+          "key": " ",
+          "sourceBehavior": "hack.c:dosinkfall -> do_wear.c:Boots_off(LEVITATION_BOOTS)",
+          "owner": "js/hack.js dosinkfall / js/do_wear.js Boots_off",
+          "details": "C’s sinkfall branch removes levitation boots and reports the worn boots after the fatality refusal; JavaScript shows a different state at the same boundary. This is distinct from Ring_off -> float_down."
+        }
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v10-remove-levitation-ring-and-float-down",
+          "distinction": "v10 removes a levitation ring through Ring_off/float_down; this reaches sinkfall and Boots_off for levitation boots."
+        },
+        {
+          "id": "v13-levitation-boots-start-floating",
+          "distinction": "v13 wears levitation boots to begin floating; this enters dosinkfall from the sink and removes them."
+        },
+        {
+          "id": "v38-dodown-levitation",
+          "distinction": "v38 tests a refused descent while levitating and does not enter sinkfall."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v38",
+        "caseIds": [
+          "v38-wiz-seenv",
+          "v38-wiz-vision",
+          "v38-wiz-wmode",
+          "v38-wiz-stats",
+          "v38-wiz-object-probabilities",
+          "v38-wiz-rumor-check",
+          "v38-wiz-display-macros",
+          "v38-wiz-intrinsic-menu",
+          "v38-monster-birth-counts",
+          "v38-wiz-detect-empty",
+          "v38-wiz-identify-already-known",
+          "v38-fire-wand-monster",
+          "v38-fire-wand-engraving",
+          "v38-wizard-spell-teleport-energy-refusal",
+          "v38-levitating-whip-over-lava",
+          "v38-quick-glance-lootabc",
+          "v38-dodown-levitation",
+          "v38-dodown-lurker-ceiling-hider",
+          "v38-dodown-piercer-hider",
+          "v38-cursed-bear-trap-bungle",
+          "v38-single-boulder-pickup-refusal",
+          "v38-water-dip-destroys-acid-potion",
+          "v38-broken-undead-wand-revives-floor-newt",
+          "v38-arrow-trap-return-projectile",
+          "v38-lava-wish-burns-floor-scroll",
+          "v38-pickaxe-door",
+          "v38-touchstone-glass",
+          "v38-throw-dagger-hostile-newt",
+          "v38-sacrifice-stale-newt",
+          "v38-enchant-armor-no-worn-armor",
+          "v38-cursed-bear-trap-bungle-control",
+          "v38-fire-resistant-red-dragon-wand-zap",
+          "v38-fire-wand-burn-engraving",
+          "v38-acid-potion-target-selection-miss"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v38.json",
+          "sha256": "251ab3419a54f9d0c5affcb8fcdc324fe343f693982769445f41ed1773f19cf0",
+          "corpusDigest": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05"
+        },
+        "result": "Compared against every v38 case. Any close source overlap is named in closestEarlierCases; this case’s action/state path is distinct from the cited v38 cases."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "cd92937479a0b60603a778d3063267701a17937ec1e97c3f4f47bbd7233db533",
+        "sessionCount": 12,
+        "unresolvedOlderCaseIds": [
+          "v35-gehennom-juiblex",
+          "v32-version-build-options",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared against the 12-session queue snapshot at Prep3 assignment and the three older provenance/recorder blockers. No substantive overlap with the older blockers; the closest admitted behavior cases are listed above."
+      }
+    },
+    {
+      "id": "v39-magic-trap-explosion",
+      "title": "Sit on a seen magic trap through the VIASITTING escape check",
+      "mission": "Exercise sit.c:dosit -> trap.c:dotrap(VIASITTING) for an already-seen MAGIC_TRAP.",
+      "selectionRationale": "The v38 arrow-trap return case first triggers a projectile on trap entry and reaches sitting only secondarily; this candidate’s first gap is the seen MAGIC_TRAP sit-admission branch. The later explosion is not used to inflate distinctness.",
+      "sourcePointers": [
+        "sit.c:dosit",
+        "trap.c:dotrap"
+      ],
+      "sourceTrace": "C sits a second time on the already-seen magic trap at segment 1 step 25 and enters dotrap with VIASITTING. The source path permits the rn2(5) escape check; the explosion arm in the recording is secondary evidence.",
+      "cOutcome": "C admits the seen-trap sit through the VIASITTING path, consumes rn2(5) in dotrap, and later reaches a magical explosion.",
+      "actualTargetMiss": "The intended explosion is not the counted first behavior. The counted gap is C admitting the seen MAGIC_TRAP sit through dotrap(VIASITTING), which JavaScript preflight rejects before the rn2(5) escape check.",
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 39139135,
+        "datetime": "20420315131200",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 24,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v39/v39-magic-trap-explosion.recipe.session.json",
+      "recipeSha256": "f8510b7221b3feb6dbdec3d52efc556ea308cb524f655b10df7406997d5ee046",
+      "recording": "challenges/cases/v39/v39-magic-trap-explosion.session.json",
+      "recordingSha256": "b5702f57168e0054738cfa70a31d76dfdf2a43d0297c3f67b231b97e2b001142",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v39-magic-trap-explosion",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v39/v39-magic-trap-explosion.recipe.session.json",
+          ".cache/v39/package-replays/v39-magic-trap-explosion.independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-magic-trap-explosion.independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-replays/v39-magic-trap-explosion.independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "b5702f57168e0054738cfa70a31d76dfdf2a43d0297c3f67b231b97e2b001142"
+      },
+      "localComparison": {
+        "caseId": "v39-magic-trap-explosion",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v39/v39-magic-trap-explosion.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-magic-trap-explosion.diff.log",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 25,
+          "key": "\n",
+          "sourceBehavior": "sit.c:dosit -> trap.c:dotrap(VIASITTING) for an already-seen MAGIC_TRAP",
+          "owner": "js/sit.js dosit preflight / js/trap.js dotrap",
+          "details": "C records rn2(5)=3 in dotrap at call 2744; JavaScript rejects the sit path and has no corresponding draw. The later explosion is secondary."
+        }
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v38-arrow-trap-return-projectile",
+          "distinction": "v38 counts the hero-triggered return projectile on trap entry; this case first diverges at a seen MAGIC_TRAP sit admitted through VIASITTING."
+        },
+        {
+          "id": "v12-landmine-explodes-and-opens-floor",
+          "distinction": "v12 reaches a landmine through movement; this case enters dotrap from sit.c:dosit with a previously seen magic trap."
+        },
+        {
+          "id": "v39-landmine-sit-explosion",
+          "distinction": "The matching landmine control reaches a different trap effect after VIASITTING; this mismatch is the magic-trap-specific seen-trap preflight/escape check."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v38",
+        "caseIds": [
+          "v38-wiz-seenv",
+          "v38-wiz-vision",
+          "v38-wiz-wmode",
+          "v38-wiz-stats",
+          "v38-wiz-object-probabilities",
+          "v38-wiz-rumor-check",
+          "v38-wiz-display-macros",
+          "v38-wiz-intrinsic-menu",
+          "v38-monster-birth-counts",
+          "v38-wiz-detect-empty",
+          "v38-wiz-identify-already-known",
+          "v38-fire-wand-monster",
+          "v38-fire-wand-engraving",
+          "v38-wizard-spell-teleport-energy-refusal",
+          "v38-levitating-whip-over-lava",
+          "v38-quick-glance-lootabc",
+          "v38-dodown-levitation",
+          "v38-dodown-lurker-ceiling-hider",
+          "v38-dodown-piercer-hider",
+          "v38-cursed-bear-trap-bungle",
+          "v38-single-boulder-pickup-refusal",
+          "v38-water-dip-destroys-acid-potion",
+          "v38-broken-undead-wand-revives-floor-newt",
+          "v38-arrow-trap-return-projectile",
+          "v38-lava-wish-burns-floor-scroll",
+          "v38-pickaxe-door",
+          "v38-touchstone-glass",
+          "v38-throw-dagger-hostile-newt",
+          "v38-sacrifice-stale-newt",
+          "v38-enchant-armor-no-worn-armor",
+          "v38-cursed-bear-trap-bungle-control",
+          "v38-fire-resistant-red-dragon-wand-zap",
+          "v38-fire-wand-burn-engraving",
+          "v38-acid-potion-target-selection-miss"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v38.json",
+          "sha256": "251ab3419a54f9d0c5affcb8fcdc324fe343f693982769445f41ed1773f19cf0",
+          "corpusDigest": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05"
+        },
+        "result": "Compared against every v38 case. Any close source overlap is named in closestEarlierCases; this case’s action/state path is distinct from the cited v38 cases."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "cd92937479a0b60603a778d3063267701a17937ec1e97c3f4f47bbd7233db533",
+        "sessionCount": 12,
+        "unresolvedOlderCaseIds": [
+          "v35-gehennom-juiblex",
+          "v32-version-build-options",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared against the 12-session queue snapshot at Prep3 assignment and the three older provenance/recorder blockers. No substantive overlap with the older blockers; the closest admitted behavior cases are listed above."
+      }
+    },
+    {
+      "id": "v39-pickup-cockatrice-barehanded-final",
+      "title": "Pick up a cockatrice corpse after removing gloves",
+      "mission": "Reach pickup.c:fatal_corpse_mistake -> trap.c:instapetrify on a barehanded floor pickup.",
+      "selectionRationale": "The closest old cases reach instapetrify from tinning or throwing. This case uses pickup.c:fatal_corpse_mistake, a distinct floor-pickup caller and action history; v39’s wield case is a separate wield.c caller.",
+      "sourcePointers": [
+        "pickup.c:fatal_corpse_mistake",
+        "trap.c:instapetrify"
+      ],
+      "sourceTrace": "C wishes gloves and a cockatrice corpse, drops the corpse while gloved, removes the gloves, then picks it up. At segment 1 step 53 input comma, C prints “Touching a cockatrice corpse is a fatal mistake. You turn to stone” and presents the wizard-mode page.",
+      "cOutcome": "C reaches fatal_corpse_mistake from floor pickup and calls instapetrify; the fatality prompt is declined to preserve the completed recording.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 39139240,
+        "datetime": "20420501111400",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "playmode": "debug",
+        "keyCount": 54,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v39/v39-pickup-cockatrice-barehanded-final.recipe.session.json",
+      "recipeSha256": "f39897f6084f6dc58d516315ea180197f409156f09ec351efd58d5a4273773a5",
+      "recording": "challenges/cases/v39/v39-pickup-cockatrice-barehanded-final.session.json",
+      "recordingSha256": "a2f2f75aa2c78f8e87f98a34888f5709c4a605a1142d6ebdc159d0475dfd9b75",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v39-pickup-cockatrice-barehanded-final",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v39/v39-pickup-cockatrice-barehanded-final.recipe.session.json",
+          ".cache/v39/package-replays/v39-pickup-cockatrice-barehanded-final.independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-pickup-cockatrice-barehanded-final.independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-replays/v39-pickup-cockatrice-barehanded-final.independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "a2f2f75aa2c78f8e87f98a34888f5709c4a605a1142d6ebdc159d0475dfd9b75"
+      },
+      "localComparison": {
+        "caseId": "v39-pickup-cockatrice-barehanded-final",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v39/v39-pickup-cockatrice-barehanded-final.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-pickup-cockatrice-barehanded-final.diff.log",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 53,
+          "key": ",",
+          "sourceBehavior": "pickup.c:fatal_corpse_mistake -> trap.c:instapetrify",
+          "owner": "js/pickup.js fatal_corpse_mistake / js/trap.js instapetrify",
+          "details": "C presents the barehanded pickup petrification page. JavaScript records note_unported(trap.c instapetrify) and continues with an extra rn2(5); the caller is distinct from wielding, tinning, or throwing the corpse."
+        }
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v31-tinning-petrifier",
+          "distinction": "v31 calls instapetrify from apply.c:use_tinning_kit while tinning; this calls it from pickup.c:fatal_corpse_mistake on a floor pickup."
+        },
+        {
+          "id": "v33-cockatrice-corpse-upward",
+          "distinction": "v33 throws the corpse upward through dothrow; this performs a barehanded comma pickup."
+        },
+        {
+          "id": "v39-wield-cockatrice-instapetrify",
+          "distinction": "The v39 wield case reaches wield.c:cant_wield_corpse; this case reaches pickup.c:fatal_corpse_mistake."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v38",
+        "caseIds": [
+          "v38-wiz-seenv",
+          "v38-wiz-vision",
+          "v38-wiz-wmode",
+          "v38-wiz-stats",
+          "v38-wiz-object-probabilities",
+          "v38-wiz-rumor-check",
+          "v38-wiz-display-macros",
+          "v38-wiz-intrinsic-menu",
+          "v38-monster-birth-counts",
+          "v38-wiz-detect-empty",
+          "v38-wiz-identify-already-known",
+          "v38-fire-wand-monster",
+          "v38-fire-wand-engraving",
+          "v38-wizard-spell-teleport-energy-refusal",
+          "v38-levitating-whip-over-lava",
+          "v38-quick-glance-lootabc",
+          "v38-dodown-levitation",
+          "v38-dodown-lurker-ceiling-hider",
+          "v38-dodown-piercer-hider",
+          "v38-cursed-bear-trap-bungle",
+          "v38-single-boulder-pickup-refusal",
+          "v38-water-dip-destroys-acid-potion",
+          "v38-broken-undead-wand-revives-floor-newt",
+          "v38-arrow-trap-return-projectile",
+          "v38-lava-wish-burns-floor-scroll",
+          "v38-pickaxe-door",
+          "v38-touchstone-glass",
+          "v38-throw-dagger-hostile-newt",
+          "v38-sacrifice-stale-newt",
+          "v38-enchant-armor-no-worn-armor",
+          "v38-cursed-bear-trap-bungle-control",
+          "v38-fire-resistant-red-dragon-wand-zap",
+          "v38-fire-wand-burn-engraving",
+          "v38-acid-potion-target-selection-miss"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v38.json",
+          "sha256": "251ab3419a54f9d0c5affcb8fcdc324fe343f693982769445f41ed1773f19cf0",
+          "corpusDigest": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05"
+        },
+        "result": "Compared against every v38 case. Any close source overlap is named in closestEarlierCases; this case’s action/state path is distinct from the cited v38 cases."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "cd92937479a0b60603a778d3063267701a17937ec1e97c3f4f47bbd7233db533",
+        "sessionCount": 12,
+        "unresolvedOlderCaseIds": [
+          "v35-gehennom-juiblex",
+          "v32-version-build-options",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared against the 12-session queue snapshot at Prep3 assignment and the three older provenance/recorder blockers. No substantive overlap with the older blockers; the closest admitted behavior cases are listed above."
+      }
+    },
+    {
+      "id": "v39-mirror-floating-eye-monster",
+      "title": "Show a mirror to an adjacent floating eye",
+      "mission": "Reach apply.c:use_mirror’s monster-target gaze/reflection path for a floating eye.",
+      "selectionRationale": "v26’s mirror probes target a nymph theft branch or self-gaze; v35 polymorphs the hero into a floating eye and aims at self. This directs a mirror at an adjacent floating-eye monster.",
+      "sourcePointers": [
+        "apply.c:use_mirror"
+      ],
+      "sourceTrace": "C creates a floating eye southwest of the hero and applies the mirror southwest. At segment 1 step 35 C reports that the floating eye is frozen by its reflection.",
+      "cOutcome": "C reflects the floating eye’s gaze and freezes it; the complete C/JavaScript recording matches.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 39139005,
+        "datetime": "20420315100400",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "playmode": "debug",
+        "keyCount": 35,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v39/v39-mirror-floating-eye-monster.recipe.session.json",
+      "recipeSha256": "26bd08a343e427c681026c19da7ae971ba9b27b281a3b0b35d21ee7e363e5bd1",
+      "recording": "challenges/cases/v39/v39-mirror-floating-eye-monster.session.json",
+      "recordingSha256": "0f7452b171240e40fac93af8750434ce5a6d8a4a1d78e806a6029a058600557b",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v39-mirror-floating-eye-monster",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v39/v39-mirror-floating-eye-monster.recipe.session.json",
+          ".cache/v39/package-replays/v39-mirror-floating-eye-monster.independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-mirror-floating-eye-monster.independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-replays/v39-mirror-floating-eye-monster.independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "0f7452b171240e40fac93af8750434ce5a6d8a4a1d78e806a6029a058600557b"
+      },
+      "localComparison": {
+        "caseId": "v39-mirror-floating-eye-monster",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v39/v39-mirror-floating-eye-monster.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-mirror-floating-eye-monster.diff.log",
+        "firstMismatch": null
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v26-nymph-mirror",
+          "distinction": "v26’s nymph is too tired to look at its mirror; this reaches the floating eye reflection/paralysis outcome."
+        },
+        {
+          "id": "v26-mirror-umber-hulk",
+          "distinction": "v26 reflects the hero’s own umber-hulk gaze; this targets a separate adjacent floating-eye monster."
+        },
+        {
+          "id": "v35-mirror-floating-eye",
+          "distinction": "v35 polymorphs the hero into a floating eye and applies the mirror to self; this points the mirror at a distinct monster target."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v38",
+        "caseIds": [
+          "v38-wiz-seenv",
+          "v38-wiz-vision",
+          "v38-wiz-wmode",
+          "v38-wiz-stats",
+          "v38-wiz-object-probabilities",
+          "v38-wiz-rumor-check",
+          "v38-wiz-display-macros",
+          "v38-wiz-intrinsic-menu",
+          "v38-monster-birth-counts",
+          "v38-wiz-detect-empty",
+          "v38-wiz-identify-already-known",
+          "v38-fire-wand-monster",
+          "v38-fire-wand-engraving",
+          "v38-wizard-spell-teleport-energy-refusal",
+          "v38-levitating-whip-over-lava",
+          "v38-quick-glance-lootabc",
+          "v38-dodown-levitation",
+          "v38-dodown-lurker-ceiling-hider",
+          "v38-dodown-piercer-hider",
+          "v38-cursed-bear-trap-bungle",
+          "v38-single-boulder-pickup-refusal",
+          "v38-water-dip-destroys-acid-potion",
+          "v38-broken-undead-wand-revives-floor-newt",
+          "v38-arrow-trap-return-projectile",
+          "v38-lava-wish-burns-floor-scroll",
+          "v38-pickaxe-door",
+          "v38-touchstone-glass",
+          "v38-throw-dagger-hostile-newt",
+          "v38-sacrifice-stale-newt",
+          "v38-enchant-armor-no-worn-armor",
+          "v38-cursed-bear-trap-bungle-control",
+          "v38-fire-resistant-red-dragon-wand-zap",
+          "v38-fire-wand-burn-engraving",
+          "v38-acid-potion-target-selection-miss"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v38.json",
+          "sha256": "251ab3419a54f9d0c5affcb8fcdc324fe343f693982769445f41ed1773f19cf0",
+          "corpusDigest": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05"
+        },
+        "result": "Compared against every v38 case. Any close source overlap is named in closestEarlierCases; this case’s action/state path is distinct from the cited v38 cases."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "cd92937479a0b60603a778d3063267701a17937ec1e97c3f4f47bbd7233db533",
+        "sessionCount": 12,
+        "unresolvedOlderCaseIds": [
+          "v35-gehennom-juiblex",
+          "v32-version-build-options",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared against the 12-session queue snapshot at Prep3 assignment and the three older provenance/recorder blockers. No substantive overlap with the older blockers; the closest admitted behavior cases are listed above."
+      }
+    },
+    {
+      "id": "v39-landmine-sit-explosion",
+      "title": "Sit on an armed land mine",
+      "mission": "Reach the landmine effect through sit.c:dosit -> trap.c:dotrap(VIASITTING).",
+      "selectionRationale": "v12 triggers a land mine by moving onto it (VIA_TRAP); this exercises the separate VIASITTING caller from sit.c. It also provides a matching control for the seen-magic-trap sit path.",
+      "sourcePointers": [
+        "sit.c:dosit",
+        "trap.c:dotrap",
+        "trap.c:trapeffect_landmine",
+        "trap.c:blow_up_landmine"
+      ],
+      "sourceTrace": "C wishes a land mine under the hero on ordinary floor and enters #sit. At segment 1 step 23 the mine explodes through the VIASITTING route; step 24 reaches the resulting pit.",
+      "cOutcome": "C triggers the land mine by sitting, reports the explosion, and opens a pit; the complete C/JavaScript recording matches.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 39139076,
+        "datetime": "20420315131800",
+        "role": "Barbarian",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 24,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v39/v39-landmine-sit-explosion.recipe.session.json",
+      "recipeSha256": "7482c7378ad9da5e77744fff34bbde020003404d94662f0f76b1e0f83d3f59df",
+      "recording": "challenges/cases/v39/v39-landmine-sit-explosion.session.json",
+      "recordingSha256": "8b10b6571bffc7a59d95ce0b6b39000b4f1d906682fae346ba379104ce327004",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v39-landmine-sit-explosion",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v39/v39-landmine-sit-explosion.recipe.session.json",
+          ".cache/v39/package-replays/v39-landmine-sit-explosion.independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-landmine-sit-explosion.independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-replays/v39-landmine-sit-explosion.independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "8b10b6571bffc7a59d95ce0b6b39000b4f1d906682fae346ba379104ce327004"
+      },
+      "localComparison": {
+        "caseId": "v39-landmine-sit-explosion",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v39/v39-landmine-sit-explosion.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-landmine-sit-explosion.diff.log",
+        "firstMismatch": null
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v12-landmine-explodes-and-opens-floor",
+          "distinction": "v12 reaches trapeffect_landmine from movement onto the trap; this enters through dosit and dotrap(VIASITTING)."
+        },
+        {
+          "id": "v38-arrow-trap-return-projectile",
+          "distinction": "v38 triggers an arrow trap on entry; this is a landmine explosion initiated by sitting."
+        },
+        {
+          "id": "v39-magic-trap-explosion",
+          "distinction": "The v39 magic-trap case diverges at seen-trap sit preflight; this landmine case matches through the landmine explosion and pit result."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v38",
+        "caseIds": [
+          "v38-wiz-seenv",
+          "v38-wiz-vision",
+          "v38-wiz-wmode",
+          "v38-wiz-stats",
+          "v38-wiz-object-probabilities",
+          "v38-wiz-rumor-check",
+          "v38-wiz-display-macros",
+          "v38-wiz-intrinsic-menu",
+          "v38-monster-birth-counts",
+          "v38-wiz-detect-empty",
+          "v38-wiz-identify-already-known",
+          "v38-fire-wand-monster",
+          "v38-fire-wand-engraving",
+          "v38-wizard-spell-teleport-energy-refusal",
+          "v38-levitating-whip-over-lava",
+          "v38-quick-glance-lootabc",
+          "v38-dodown-levitation",
+          "v38-dodown-lurker-ceiling-hider",
+          "v38-dodown-piercer-hider",
+          "v38-cursed-bear-trap-bungle",
+          "v38-single-boulder-pickup-refusal",
+          "v38-water-dip-destroys-acid-potion",
+          "v38-broken-undead-wand-revives-floor-newt",
+          "v38-arrow-trap-return-projectile",
+          "v38-lava-wish-burns-floor-scroll",
+          "v38-pickaxe-door",
+          "v38-touchstone-glass",
+          "v38-throw-dagger-hostile-newt",
+          "v38-sacrifice-stale-newt",
+          "v38-enchant-armor-no-worn-armor",
+          "v38-cursed-bear-trap-bungle-control",
+          "v38-fire-resistant-red-dragon-wand-zap",
+          "v38-fire-wand-burn-engraving",
+          "v38-acid-potion-target-selection-miss"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v38.json",
+          "sha256": "251ab3419a54f9d0c5affcb8fcdc324fe343f693982769445f41ed1773f19cf0",
+          "corpusDigest": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05"
+        },
+        "result": "Compared against every v38 case. Any close source overlap is named in closestEarlierCases; this case’s action/state path is distinct from the cited v38 cases."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "cd92937479a0b60603a778d3063267701a17937ec1e97c3f4f47bbd7233db533",
+        "sessionCount": 12,
+        "unresolvedOlderCaseIds": [
+          "v35-gehennom-juiblex",
+          "v32-version-build-options",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared against the 12-session queue snapshot at Prep3 assignment and the three older provenance/recorder blockers. No substantive overlap with the older blockers; the closest admitted behavior cases are listed above."
+      }
+    },
+    {
+      "id": "v39-polymorph-trap-monster-shapeshift",
+      "title": "A grid bug enters a wished polymorph trap and changes form",
+      "mission": "Reach the monster-target polymorph trap arm and newcham form selection.",
+      "selectionRationale": "v11’s polymorph trap transforms the hero through polyself; the mounted v39 mismatch reaches tame-name construction. This control targets a nearby unmounted monster and reaches newcham.",
+      "sourcePointers": [
+        "trap.c:dotrap",
+        "trap.c:trapeffect_poly_trap",
+        "mon.c:newcham"
+      ],
+      "sourceTrace": "C creates a polymorph trap on ordinary floor; when the hero enters it at segment 1 step 19, the adjacent grid bug turns into a kobold.",
+      "cOutcome": "C polymorphs the nearby unmounted grid bug into a kobold; the complete C/JavaScript recording matches.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 39139038,
+        "datetime": "20420315130600",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 19,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v39/v39-polymorph-trap-monster-shapeshift.recipe.session.json",
+      "recipeSha256": "52c9f82891abdbdd90dd38681c71d34d6efbf039524592a5db91c69606910470",
+      "recording": "challenges/cases/v39/v39-polymorph-trap-monster-shapeshift.session.json",
+      "recordingSha256": "6c27b7eaab31a9550d77b919643584e7ae0ae8d9717065a1f689c742c1c86c3f",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v39-polymorph-trap-monster-shapeshift",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v39/v39-polymorph-trap-monster-shapeshift.recipe.session.json",
+          ".cache/v39/package-replays/v39-polymorph-trap-monster-shapeshift.independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-polymorph-trap-monster-shapeshift.independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-replays/v39-polymorph-trap-monster-shapeshift.independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "6c27b7eaab31a9550d77b919643584e7ae0ae8d9717065a1f689c742c1c86c3f"
+      },
+      "localComparison": {
+        "caseId": "v39-polymorph-trap-monster-shapeshift",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v39/v39-polymorph-trap-monster-shapeshift.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-polymorph-trap-monster-shapeshift.diff.log",
+        "firstMismatch": null
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v11-hero-polymorph-trap-transforms-form",
+          "distinction": "v11 polymorphs the hero; this uses a trap to change a nearby monster through newcham."
+        },
+        {
+          "id": "v39-mounted-steed-polymorph-trap",
+          "distinction": "That case reaches tame/mounted old-name construction and ARTICLE_YOUR; this changes an unmounted grid bug and fully matches."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v38",
+        "caseIds": [
+          "v38-wiz-seenv",
+          "v38-wiz-vision",
+          "v38-wiz-wmode",
+          "v38-wiz-stats",
+          "v38-wiz-object-probabilities",
+          "v38-wiz-rumor-check",
+          "v38-wiz-display-macros",
+          "v38-wiz-intrinsic-menu",
+          "v38-monster-birth-counts",
+          "v38-wiz-detect-empty",
+          "v38-wiz-identify-already-known",
+          "v38-fire-wand-monster",
+          "v38-fire-wand-engraving",
+          "v38-wizard-spell-teleport-energy-refusal",
+          "v38-levitating-whip-over-lava",
+          "v38-quick-glance-lootabc",
+          "v38-dodown-levitation",
+          "v38-dodown-lurker-ceiling-hider",
+          "v38-dodown-piercer-hider",
+          "v38-cursed-bear-trap-bungle",
+          "v38-single-boulder-pickup-refusal",
+          "v38-water-dip-destroys-acid-potion",
+          "v38-broken-undead-wand-revives-floor-newt",
+          "v38-arrow-trap-return-projectile",
+          "v38-lava-wish-burns-floor-scroll",
+          "v38-pickaxe-door",
+          "v38-touchstone-glass",
+          "v38-throw-dagger-hostile-newt",
+          "v38-sacrifice-stale-newt",
+          "v38-enchant-armor-no-worn-armor",
+          "v38-cursed-bear-trap-bungle-control",
+          "v38-fire-resistant-red-dragon-wand-zap",
+          "v38-fire-wand-burn-engraving",
+          "v38-acid-potion-target-selection-miss"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v38.json",
+          "sha256": "251ab3419a54f9d0c5affcb8fcdc324fe343f693982769445f41ed1773f19cf0",
+          "corpusDigest": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05"
+        },
+        "result": "Compared against every v38 case. Any close source overlap is named in closestEarlierCases; this case’s action/state path is distinct from the cited v38 cases."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "cd92937479a0b60603a778d3063267701a17937ec1e97c3f4f47bbd7233db533",
+        "sessionCount": 12,
+        "unresolvedOlderCaseIds": [
+          "v35-gehennom-juiblex",
+          "v32-version-build-options",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared against the 12-session queue snapshot at Prep3 assignment and the three older provenance/recorder blockers. No substantive overlap with the older blockers; the closest admitted behavior cases are listed above."
+      }
+    },
+    {
+      "id": "v39-sink-levitation-ring-fall",
+      "title": "Put on a levitation ring while standing on a sink",
+      "mission": "Reach hack.c:dosinkfall from the levitation Ring_on callback on a sink.",
+      "selectionRationale": "The older ring-fall case removes a levitation ring on ordinary floor; v26/v32 sink cases drop or transform rings. This exercises the Ring_on-to-dosinkfall path on a sink.",
+      "sourcePointers": [
+        "do_wear.c:Ring_on",
+        "hack.c:dosinkfall"
+      ],
+      "sourceTrace": "C stands on a wished sink, wishes a levitation ring, and wears it. The Ring_on side-effect path triggers sinkfall; at segment 1 step 30 C reports both starting to float and crashing to the floor.",
+      "cOutcome": "C enters the sinkfall path while activating a levitation ring on the sink; the complete C/JavaScript recording matches.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 39139019,
+        "datetime": "20420315110000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "playmode": "debug",
+        "keyCount": 31,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v39/v39-sink-levitation-ring-fall.recipe.session.json",
+      "recipeSha256": "231b60193d4bb29dd5f3ac0c80960b0e551df436cc343c4e4bfb26c2761996a1",
+      "recording": "challenges/cases/v39/v39-sink-levitation-ring-fall.session.json",
+      "recordingSha256": "db260303cb871949a6f56149179d2ff66324b805533a99229f874c3c6eaeaeab",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v39-sink-levitation-ring-fall",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v39/v39-sink-levitation-ring-fall.recipe.session.json",
+          ".cache/v39/package-replays/v39-sink-levitation-ring-fall.independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-sink-levitation-ring-fall.independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-replays/v39-sink-levitation-ring-fall.independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "db260303cb871949a6f56149179d2ff66324b805533a99229f874c3c6eaeaeab"
+      },
+      "localComparison": {
+        "caseId": "v39-sink-levitation-ring-fall",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v39/v39-sink-levitation-ring-fall.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-sink-levitation-ring-fall.diff.log",
+        "firstMismatch": null
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v10-remove-levitation-ring-and-float-down",
+          "distinction": "v10 removes a worn ring through Ring_off/float_down on ordinary floor; this puts on levitation through Ring_on while on a sink."
+        },
+        {
+          "id": "v26-v26-sink-ring",
+          "distinction": "v26 drops a ring into a sink; this wears a levitation ring on the sink and reaches dosinkfall."
+        },
+        {
+          "id": "v32-v32-sink-ring-drop",
+          "distinction": "v32 drops a sink ring; this uses the Ring_on levitation callback and falls."
+        },
+        {
+          "id": "v39-sink-levitation-boots-pickup",
+          "distinction": "The counted boots case reaches dosinkfall -> Boots_off after sinkfall; this is the matching Ring_on activation control."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v38",
+        "caseIds": [
+          "v38-wiz-seenv",
+          "v38-wiz-vision",
+          "v38-wiz-wmode",
+          "v38-wiz-stats",
+          "v38-wiz-object-probabilities",
+          "v38-wiz-rumor-check",
+          "v38-wiz-display-macros",
+          "v38-wiz-intrinsic-menu",
+          "v38-monster-birth-counts",
+          "v38-wiz-detect-empty",
+          "v38-wiz-identify-already-known",
+          "v38-fire-wand-monster",
+          "v38-fire-wand-engraving",
+          "v38-wizard-spell-teleport-energy-refusal",
+          "v38-levitating-whip-over-lava",
+          "v38-quick-glance-lootabc",
+          "v38-dodown-levitation",
+          "v38-dodown-lurker-ceiling-hider",
+          "v38-dodown-piercer-hider",
+          "v38-cursed-bear-trap-bungle",
+          "v38-single-boulder-pickup-refusal",
+          "v38-water-dip-destroys-acid-potion",
+          "v38-broken-undead-wand-revives-floor-newt",
+          "v38-arrow-trap-return-projectile",
+          "v38-lava-wish-burns-floor-scroll",
+          "v38-pickaxe-door",
+          "v38-touchstone-glass",
+          "v38-throw-dagger-hostile-newt",
+          "v38-sacrifice-stale-newt",
+          "v38-enchant-armor-no-worn-armor",
+          "v38-cursed-bear-trap-bungle-control",
+          "v38-fire-resistant-red-dragon-wand-zap",
+          "v38-fire-wand-burn-engraving",
+          "v38-acid-potion-target-selection-miss"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v38.json",
+          "sha256": "251ab3419a54f9d0c5affcb8fcdc324fe343f693982769445f41ed1773f19cf0",
+          "corpusDigest": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05"
+        },
+        "result": "Compared against every v38 case. Any close source overlap is named in closestEarlierCases; this case’s action/state path is distinct from the cited v38 cases."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "cd92937479a0b60603a778d3063267701a17937ec1e97c3f4f47bbd7233db533",
+        "sessionCount": 12,
+        "unresolvedOlderCaseIds": [
+          "v35-gehennom-juiblex",
+          "v32-version-build-options",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared against the 12-session queue snapshot at Prep3 assignment and the three older provenance/recorder blockers. No substantive overlap with the older blockers; the closest admitted behavior cases are listed above."
+      }
+    },
+    {
+      "id": "v39-throne-genocide-reached",
+      "title": "Select the genocide effect from a wished throne",
+      "mission": "Reach the throne_sit_effect wizard selection’s genocide case 8 and do_genocide.",
+      "selectionRationale": "The overlapping throne court case reaches effect 7 and duplicates v17. This case is a separate throne effect-8 genocide branch with a different selected effect, follow-up prompt, and do_genocide behavior.",
+      "sourcePointers": [
+        "sit.c:dosit",
+        "sit.c:throne_sit_effect",
+        "read.c:do_genocide"
+      ],
+      "sourceTrace": "C wishes a throne, invokes #sit, selects effect 8, dismisses the page, and enters the genocide target prompt. At segment 1 step 22 C reports “Wiped out all newts.”",
+      "cOutcome": "C reaches throne effect 8 and genocides newts; the complete C/JavaScript recording matches.",
+      "actualTargetMiss": null,
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 39139230,
+        "datetime": "20420403111400",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "playmode": "debug",
+        "keyCount": 22,
+        "boundaries": "One segment; no restored state."
+      },
+      "recipe": "challenges/cases/v39/v39-throne-genocide-reached.recipe.session.json",
+      "recipeSha256": "54a2fdfb0869751490d8857762f7e099612f8940431714aaa569a06b20d3ba0d",
+      "recording": "challenges/cases/v39/v39-throne-genocide-reached.session.json",
+      "recordingSha256": "597aa60310923aa8e8e6399831f6f441785007cc3bf76e30845142f2e776244f",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v39-throne-genocide-reached",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v39/v39-throne-genocide-reached.recipe.session.json",
+          ".cache/v39/package-replays/v39-throne-genocide-reached.independent.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-throne-genocide-reached.independent-replay.log",
+        "output": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-replays/v39-throne-genocide-reached.independent.session.json",
+        "byteIdentical": true,
+        "outputSha256": "597aa60310923aa8e8e6399831f6f441785007cc3bf76e30845142f2e776244f"
+      },
+      "localComparison": {
+        "caseId": "v39-throne-genocide-reached",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "challenges/cases/v39/v39-throne-genocide-reached.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "PASS",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/v39/package-logs/v39-throne-genocide-reached.diff.log",
+        "firstMismatch": null
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v17-wizard-sits-throne-court-summons",
+          "distinction": "v17 and the excluded v39 court probe both select throne effect 7 and summon a court. This case selects effect 8 and reaches the do_genocide target prompt."
+        },
+        {
+          "id": "v14-wizard-genocides-gnome-zombie-scroll",
+          "distinction": "v14 invokes read.c genocide from a scroll; this invokes do_genocide from throne_sit_effect case 8."
+        },
+        {
+          "id": "v16-wizard-reads-uncursed-scroll-of-genocide",
+          "distinction": "v16 uses a read-scroll caller; this reaches the throne’s separate wizard genocide branch."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v38",
+        "caseIds": [
+          "v38-wiz-seenv",
+          "v38-wiz-vision",
+          "v38-wiz-wmode",
+          "v38-wiz-stats",
+          "v38-wiz-object-probabilities",
+          "v38-wiz-rumor-check",
+          "v38-wiz-display-macros",
+          "v38-wiz-intrinsic-menu",
+          "v38-monster-birth-counts",
+          "v38-wiz-detect-empty",
+          "v38-wiz-identify-already-known",
+          "v38-fire-wand-monster",
+          "v38-fire-wand-engraving",
+          "v38-wizard-spell-teleport-energy-refusal",
+          "v38-levitating-whip-over-lava",
+          "v38-quick-glance-lootabc",
+          "v38-dodown-levitation",
+          "v38-dodown-lurker-ceiling-hider",
+          "v38-dodown-piercer-hider",
+          "v38-cursed-bear-trap-bungle",
+          "v38-single-boulder-pickup-refusal",
+          "v38-water-dip-destroys-acid-potion",
+          "v38-broken-undead-wand-revives-floor-newt",
+          "v38-arrow-trap-return-projectile",
+          "v38-lava-wish-burns-floor-scroll",
+          "v38-pickaxe-door",
+          "v38-touchstone-glass",
+          "v38-throw-dagger-hostile-newt",
+          "v38-sacrifice-stale-newt",
+          "v38-enchant-armor-no-worn-armor",
+          "v38-cursed-bear-trap-bungle-control",
+          "v38-fire-resistant-red-dragon-wand-zap",
+          "v38-fire-wand-burn-engraving",
+          "v38-acid-potion-target-selection-miss"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v38.json",
+          "sha256": "251ab3419a54f9d0c5affcb8fcdc324fe343f693982769445f41ed1773f19cf0",
+          "corpusDigest": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05"
+        },
+        "result": "Compared against every v38 case. Any close source overlap is named in closestEarlierCases; this case’s action/state path is distinct from the cited v38 cases."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "cd92937479a0b60603a778d3063267701a17937ec1e97c3f4f47bbd7233db533",
+        "sessionCount": 12,
+        "unresolvedOlderCaseIds": [
+          "v35-gehennom-juiblex",
+          "v32-version-build-options",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared against the 12-session queue snapshot at Prep3 assignment and the three older provenance/recorder blockers. No substantive overlap with the older blockers; the closest admitted behavior cases are listed above."
+      }
+    }
+  ],
+  "excludedOverlaps": [
+    {
+      "id": "v39-camera-blinds-newt-reached",
+      "excludedFromManifest": true,
+      "priorCaseId": "v31-camera-flash",
+      "sourcePointers": [
+        "apply.c:use_camera -> do_blinding_ray"
+      ],
+      "cOutcome": "The newt is blinded by the flash!  The newt turns to flee.",
+      "recipe": "challenges/cases/v39/v39-camera-blinds-newt-reached.recipe.session.json",
+      "recipeSha256": "26785e533c5cbb1a121fe7706a71d9cf9fc9ee8f509b2b2ca3846deb7ea2bd9d",
+      "recording": "challenges/cases/v39/v39-camera-blinds-newt-reached.session.json",
+      "recordingSha256": "607ed94dcaecba5725a795c3d7e2e4bfd262787b4d3f411f04c67a7ecf01060b",
+      "reason": "Same adjacent-newt camera flash and blindness outcome as v31.",
+      "preservedEvidence": "The v39 recipe/recording remain under challenges/cases/v39; the C recorder trace and differential/setup notes remain under .cache/v39."
+    },
+    {
+      "id": "v39-camera-self-zapyourself-corrected",
+      "excludedFromManifest": true,
+      "priorCaseId": "v35-camera-self-flash",
+      "sourcePointers": [
+        "apply.c:use_camera -> zapyourself"
+      ],
+      "cOutcome": "You are blinded by the flash!",
+      "recipe": "challenges/cases/v39/v39-camera-self-zapyourself-corrected.recipe.session.json",
+      "recipeSha256": "b89225da50a2c06efaf512373f18b96853c0323a737ceffae76e2a9db2ac041f",
+      "recording": "challenges/cases/v39/v39-camera-self-zapyourself-corrected.session.json",
+      "recordingSha256": "41da81fc08ee7fc374d9ed510120acb1e37a683547e5b841a4de9d6305773313",
+      "reason": "Same camera-self blinding action and state as v35.",
+      "preservedEvidence": "The v39 recipe/recording remain under challenges/cases/v39; the C recorder trace and differential/setup notes remain under .cache/v39."
+    },
+    {
+      "id": "v39-cursed-towel-reached",
+      "excludedFromManifest": true,
+      "priorCaseId": "v28-cursed-towel",
+      "sourcePointers": [
+        "apply.c:use_towel cursed face-gunk arm"
+      ],
+      "cOutcome": "Yecch!  Your face now has gunk on it!--More--",
+      "recipe": "challenges/cases/v39/v39-cursed-towel-reached.recipe.session.json",
+      "recipeSha256": "5a0d49a125dfc40d5b08517fe0822d36abfb4eb7d3da24a4d7c52b4c29ef6a3a",
+      "recording": "challenges/cases/v39/v39-cursed-towel-reached.session.json",
+      "recordingSha256": "6480ffad8de74c1b7cd5e3eb0b484992525f3585e64fc3e096d55378347c878d",
+      "reason": "C reaches the same “Your face now has gunk on it” cursed-towel arm as v28.",
+      "preservedEvidence": "The v39 recipe/recording remain under challenges/cases/v39; the C recorder trace and differential/setup notes remain under .cache/v39."
+    },
+    {
+      "id": "v39-cursed-bell-nymph",
+      "excludedFromManifest": true,
+      "priorCaseId": "v35-ordinary-cursed-bell",
+      "sourcePointers": [
+        "apply.c:use_bell ordinary cursed branch"
+      ],
+      "cOutcome": "You ring the bell.",
+      "recipe": "challenges/cases/v39/v39-cursed-bell-nymph.recipe.session.json",
+      "recipeSha256": "9ddef658824011747ca00122755eb8ea733fc58edc459b492baff11e5c35e729",
+      "recording": "challenges/cases/v39/v39-cursed-bell-nymph.session.json",
+      "recordingSha256": "34c5d5246b54586aaa6938c4564357f6257135d680b0a29ab6e379dca4addafb",
+      "reason": "Both ring an ordinary cursed bell and reach the same nymph summon branch.",
+      "preservedEvidence": "The v39 recipe/recording remain under challenges/cases/v39; the C recorder trace and differential/setup notes remain under .cache/v39."
+    },
+    {
+      "id": "v39-cursed-bell-opening-undead",
+      "excludedFromManifest": true,
+      "priorCaseId": "v24-cursed-bell-opening-undead / v34-cursed-bell-opening",
+      "sourcePointers": [
+        "apply.c:use_bell -> mkroom.c:mkundead"
+      ],
+      "cOutcome": "Stephan's ghost suddenly appears next to you!",
+      "recipe": "challenges/cases/v39/v39-cursed-bell-opening-undead.recipe.session.json",
+      "recipeSha256": "0efafda4bf45e8de8ba0d437d6b52bd04f828f6f85296b43eb0fde0ce3688dc9",
+      "recording": "challenges/cases/v39/v39-cursed-bell-opening-undead.session.json",
+      "recordingSha256": "41623e1510b42b493d38d81cc1e819a6443d186375e0b5fe57c656bc94cc2819",
+      "reason": "Same cursed Bell of Opening undead-summon branch already represented in v24 and v34.",
+      "preservedEvidence": "The v39 recipe/recording remain under challenges/cases/v39; the C recorder trace and differential/setup notes remain under .cache/v39."
+    },
+    {
+      "id": "v39-polyself-retouch-floating-eye-reached",
+      "excludedFromManifest": true,
+      "priorCaseId": "v35-mirror-floating-eye",
+      "sourcePointers": [
+        "polyself.c:polymon floating-eye equipment drop"
+      ],
+      "cOutcome": "You find you must drop your sword!",
+      "recipe": "challenges/cases/v39/v39-polyself-retouch-floating-eye-reached.recipe.session.json",
+      "recipeSha256": "6f0dbbd9c207e28ccc77af0d08d0f9b56b79482f11e25c4d37739953bae74d3b",
+      "recording": "challenges/cases/v39/v39-polyself-retouch-floating-eye-reached.session.json",
+      "recordingSha256": "e5f25a9730256e193fcc2ffdb1c9898f59f644a0daa2573202499825094918e2",
+      "reason": "The same floating-eye polymorph history drops the held ordinary sword; v35 already records the same equipment-drop behavior.",
+      "preservedEvidence": "The v39 recipe/recording remain under challenges/cases/v39; the C recorder trace and differential/setup notes remain under .cache/v39."
+    },
+    {
+      "id": "v39-scare-scroll-newt-pager-corrected",
+      "excludedFromManifest": true,
+      "priorCaseId": "v16-wizard-reads-uncursed-scare-scroll-at-hostile",
+      "sourcePointers": [
+        "read.c:seffects(SCR_SCARE_MONSTER)"
+      ],
+      "cOutcome": "Your cloak of magic resistance smoulders!--More--",
+      "recipe": "challenges/cases/v39/v39-scare-scroll-newt-pager-corrected.recipe.session.json",
+      "recipeSha256": "3b8eec8e78b713795cd16aede7531a4d30e1674c66246aa64102a9b0e3b0502f",
+      "recording": "challenges/cases/v39/v39-scare-scroll-newt-pager-corrected.session.json",
+      "recordingSha256": "ed76bededa0a38a3662a751fdd1310aa0bfebead73f2629a5232b856b7e9ce69",
+      "reason": "Same uncursed scare-scroll monster flee effect against a nearby hostile target.",
+      "preservedEvidence": "The v39 recipe/recording remain under challenges/cases/v39; the C recorder trace and differential/setup notes remain under .cache/v39."
+    },
+    {
+      "id": "v39-throne-court-summon-pager-corrected",
+      "excludedFromManifest": true,
+      "priorCaseId": "v17-wizard-sits-throne-court-summons",
+      "sourcePointers": [
+        "sit.c:throne_sit_effect case 7 -> courtmon -> makemon"
+      ],
+      "cOutcome": "A voice echoes:  \"Thine audience hath been summoned, Sire!\"--More--",
+      "recipe": "challenges/cases/v39/v39-throne-court-summon-pager-corrected.recipe.session.json",
+      "recipeSha256": "621980ee64a9314bcfab24698499d7cbf7e1b9e3da89231e1beb8d2cd4b715a6",
+      "recording": "challenges/cases/v39/v39-throne-court-summon-pager-corrected.session.json",
+      "recordingSha256": "851f7df9ef01c2fc8fd5c989e6b8782f8044cfae188a487cc037837b3b81660b",
+      "reason": "Both select throne effect 7 and summon the same court; preserve this overlap probe outside the manifest.",
+      "preservedEvidence": "The v39 recipe/recording remain under challenges/cases/v39; the C recorder trace and differential/setup notes remain under .cache/v39."
+    }
+  ],
+  "excludedSetupMisses": [
+    {
+      "id": "v39-lizard-cure-setup",
+      "sourcePointers": [
+        "eat.c:do_eat",
+        "eat.c:eatcorpse",
+        "eat.c:cprefx"
+      ],
+      "attempts": 1,
+      "recipe": "challenges/cases/v39/v39-lizard-cure-setup.recipe.session.json",
+      "recording": "challenges/cases/v39/v39-lizard-cure-setup.session.json",
+      "reason": "The C recording wishes cockatrice and lizard corpses but does not establish active stoning or reach the lizard-corpse cure branch; preserve as a setup-only probe."
+    },
+    {
+      "id": "v39-cursed-whistle-vault-guard",
+      "sourcePointers": [
+        "apply.c:use_whistle",
+        "vault.c:vault_summon_gd"
+      ],
+      "attempts": 7,
+      "recipe": "challenges/cases/v39/v39-cursed-whistle-vault-guard-depth7-pager-corrected.recipe.session.json",
+      "recording": "challenges/cases/v39/v39-cursed-whistle-vault-guard-depth7-pager-corrected.session.json",
+      "reason": "C wizard-level-port/map probes through D:7 identified a gold room but did not establish the actual vault state required by vault_summon_gd. The cursed-whistle summon branch was not reached; preserve all route and pager attempts under challenges/cases/v39."
+    }
+  ],
+  "searchSummary": {
+    "initialCandidatesPlanned": 19,
+    "additionalCandidatesPlannedBeforeDifferential": 6,
+    "replacementCandidatesAfterOverlapReview": 1,
+    "totalPlannedAcrossStages": 26,
+    "casesRetained": 17,
+    "casesCompared": 17,
+    "caseComparisonsPassed": 5,
+    "qualifyingFirstMismatchCases": 12,
+    "remainingCandidateSearch": [
+      "bugle improvisation through music.c:do_play_instrument -> do_improvisation (deferred after reaching the 12-mismatch target)",
+      "chameleon shape change through mon.c:newcham on a later monster turn (deferred after reaching the target)",
+      "lizard-corpse stoning cure: active-stoning setup was not reached; exact setup miss retained above",
+      "cursed whistle vault guard: no actual vault reached by the tested D:2-D:7 routes; source blocker retained above",
+      "fall-dismount occupation cancellation: sinkfall reached but this batch counted the independent Boots_off and Ring_on paths instead"
+    ]
+  },
+  "decision": "Prepared for Main review: twelve source-traced distinct C-first mismatches, five distinct matching controls, eight overlap probes excluded with cited prior cases, and setup misses preserved. Do not admit or score from the worker delivery.",
+  "preservedProbeEvidencePath": ".cache/v39"
+}

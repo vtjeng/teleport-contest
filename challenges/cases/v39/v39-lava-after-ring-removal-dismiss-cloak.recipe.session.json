@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Additional C-confirmed pager dismissal: the two-space attempt ended on “Your cloak of magic resistance bursts into flame!”, so this recipe adds exactly one more space and preserves the next lava-effects outcome.",
+  "segments": [
+    {
+      "seed": 39139078,
+      "datetime": "20420315132000",
+      "nethackrc": "OPTIONS=name:V39LavaRingDrop,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".\u0017ring of levitation\nPpl \u0017lava\nR   ",
+      "recorderIsDst": true
+    }
+  ]
+}

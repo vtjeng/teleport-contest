@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first third lockpick-mimic setup attempt: preserve the mapped D:10 layout, move from arrival beside the nearby west doorway, open that door, and create several adjacent mimics so C can confirm whether one receives the door appearance. Use the lockpick only after observing the result.",
+  "segments": [
+    {
+      "seed": 39139028,
+      "datetime": "20420315123100",
+      "nethackrc": "OPTIONS=name:V39VaultWhistle,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed tin whistle\n#wizlevelport\n10\n#wizmap\n \u0017uncursed lock pick\nbhoh8\u0007mimic\n",
+      "recorderIsDst": true
+    }
+  ]
+}

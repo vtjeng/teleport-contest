@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "v39 C-first source setup probe for a camera target: wish a camera, use wizard create-monster command for a newt, and inspect the C target placement prompt.",
+  "segments": [
+    {
+      "seed": 39139002,
+      "datetime": "20420315100100",
+      "nethackrc": "OPTIONS=name:V39CamTarget,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed camera\n\u0007newt\n",
+      "recorderIsDst": true
+    }
+  ]
+}

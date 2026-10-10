@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Second, materially different C-only lockpick-mimic setup: reveal the independent dungeon layout first so the mimic can be created at a real door tile rather than accepting the default random adjacent position. This is a setup probe only; retain it even if no door disguise is reached.",
+  "segments": [
+    {
+      "seed": 39139020,
+      "datetime": "20420315112000",
+      "nethackrc": "OPTIONS=name:V39LockMap,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizmap\n",
+      "recorderIsDst": true
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first gloves selector correction: use the C-observed inventory letter n and inspect completion of the gloves-on action before adding the corpse.",
+  "segments": [
+    {
+      "seed": 39139023,
+      "datetime": "20420315115000",
+      "nethackrc": "OPTIONS=name:V39WieldGloves,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017leather gloves\nPn",
+      "recorderIsDst": true
+    }
+  ]
+}

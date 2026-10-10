@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first corrected Knight skill consent: after the C-observed eastward pony target, answer y to the Force the mount to succeed? prompt before entering Ctrl+G for the hostile-titan setup. Preserve the missed confirmation attempt.",
+  "segments": [
+    {
+      "seed": 39139025,
+      "datetime": "20420315121000",
+      "nethackrc": "OPTIONS=name:V39Knockoff,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0007tame saddled pony\n#ride\nly\u0007hostile titan\n",
+      "recorderIsDst": true
+    }
+  ]
+}
