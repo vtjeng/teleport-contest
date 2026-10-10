@@ -9,7 +9,8 @@
 // disarm_holdingtrap(), disarm_landmine(), unsqueak_ok(),
 // disarm_squeaky_board(), disarm_shooting_trap(), try_lift(),
 // help_monster_out(), disarm_box(), untrap_box(), untrap(),
-// openholdingtrap(), closeholdingtrap(), openfallingtrap(), chest_trap().
+// openholdingtrap(), closeholdingtrap(), openfallingtrap(), chest_trap(),
+// instapetrify(), selftouch().
 
 import {
     A_CON,
@@ -208,7 +209,7 @@ import { getdir, xytodir } from './cmd.js';
 import {
     Monnam, capitalizedMonsterName, mon_nam, monsterCommonName, mon_pmname,
     noit_Monnam, y_monnam, YMonnam, rndcolor, hliquid, hcolor, rndmonnam,
-    a_monnam, christen_monst,
+    a_monnam, christen_monst, obj_pmname,
 } from './do_name.js';
 import { abuse_dog, wary_dog } from './dog.js';
 import {
@@ -311,7 +312,7 @@ import {
     donameFresh, Tobjnam,
 } from './objnam.js';
 import {
-    ARROW, BEARTRAP, BOULDER, CAN_OF_GREASE, DART, IRON, LAND_MINE,
+    ARROW, BEARTRAP, BOULDER, CAN_OF_GREASE, CORPSE, DART, IRON, LAND_MINE,
     LOADSTONE, POTION_CLASS, POT_OIL, SCROLL_CLASS, SCR_FIRE, SPBOOK_CLASS,
     SPE_BOOK_OF_THE_DEAD, SPE_FIREBALL, STATUE, WOOD,
 } from './objects.js';
@@ -343,7 +344,7 @@ import { unpunish } from './read.js';
 import {
     unblock_point, recalc_block_point, vision_recalc, cansee, couldsee,
 } from './vision.js';
-import { welded } from './wield.js';
+import { welded, uwepgone, uswapwepgone } from './wield.js';
 import { bimanual } from './worn.js';
 import { newsym, bot, shieldeff } from './display.js';
 import { m_next2u } from './mhitu.js';
@@ -374,6 +375,31 @@ export async function instapetrify(str, state = game, env = {}) {
         throw error;
     }
     await done(STONING, state, env);
+}
+
+// C ref: trap.c selftouch() (3883-3910). A wielded cockatrice corpse still
+// petrifies a hero who just lost stone resistance or glove protection; if
+// instapetrify() is survived, the corpse is unwielded when bare-handed.
+export async function selftouch(arg, state = game, env = {}) {
+    const u = state.u;
+    const touchCorpse = async (object, unwield) => {
+        if (object?.otyp !== CORPSE
+            || !touch_petrifies(state.mons?.[object.corpsenm])
+            || Stone_resistance(state)) return;
+
+        const corpsePmname = obj_pmname(object, state);
+        await ttyPline(`${arg} touch the ${corpsePmname} corpse.`, state);
+        await instapetrify(`${an(corpsePmname)} corpse`, state, env);
+        // C unwields only after instapetrify() returns from lifesaving. A
+        // resistant hero or one wearing gloves can keep the corpse equipped.
+        if (!state.uarmg && !Stone_resistance(state))
+            await unwield({ state, ...env });
+    };
+
+    await touchCorpse(state.uwep, uwepgone);
+    // C labels this branch hypothetical but retains the same state transition.
+    if (u?.twoweap)
+        await touchCorpse(state.uswapwep, uswapwepgone);
 }
 
 // Env object for poisoned() calls inside chest_trap and other trap functions.
