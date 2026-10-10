@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
     A_WIS,
+    BLINDED,
     ECMD_OK,
     NO_SPELL,
     OBJ_INVENT,
@@ -48,6 +49,7 @@ import { curse, newObject } from '../js/obj.js';
 import {
     age_spells,
     book_cursed,
+    cursed_book,
     dovspell,
     dowizcast,
     learn,
@@ -232,6 +234,84 @@ function spellState({
     });
     return state;
 }
+
+test('cursed_book case 0 calls controlled teleport after its opening message', async () => {
+    // spell.c:140-142 calls tele() after the wrenching message.  The wizard
+    // selector aborts before a destination can consume any further inputs.
+    const state = spellState();
+    state.moves = 1;
+    state.multi = 0;
+    state.wizard = true;
+    state.youmonst = { data: {} };
+    state.level = { flags: {} };
+    state.u.uz = { dnum: 0, dlevel: 1 };
+    state.u.uhave = {};
+    state.u.uprops = {
+        [BLINDED]: { intrinsic: 0, extrinsic: 0, blocked: 0 },
+    };
+    const events = [];
+    const random = {
+        rn1: () => assert.fail('case 0 must not draw rn1'),
+        rn2: (bound) => {
+            events.push(`rn2(${bound})`);
+            return 0;
+        },
+        rnd: () => assert.fail('case 0 must not draw rnd'),
+    };
+    const book = newObject({
+        oclass: state.objects[SPE_BOOK_OF_THE_DEAD].oc_class,
+        otyp: SPE_BOOK_OF_THE_DEAD,
+        quan: 1,
+    });
+
+    const shouldDestroy = await cursed_book(book, state, {
+        random,
+        message: async (text) => events.push(text),
+        getpos: async () => {
+            events.push('getpos');
+            return -1;
+        },
+    });
+
+    assert.equal(shouldDestroy, false);
+    assert.deepEqual(events, [
+        `rn2(${state.objects[SPE_BOOK_OF_THE_DEAD].oc_level})`,
+        'You feel a wrenching sensation.',
+        'Where do you want to be teleported?',
+        'getpos',
+    ]);
+});
+
+test('cursed_book case 3 runs take_gold and preserves the no-gold message', async () => {
+    // spell.c:148-150 calls sit.c:take_gold(); an empty inventory selects its
+    // source-defined strange-sensation message without any additional draws.
+    const state = spellState();
+    const book = newObject({
+        oclass: state.objects[SPE_BOOK_OF_THE_DEAD].oc_class,
+        otyp: SPE_BOOK_OF_THE_DEAD,
+        quan: 1,
+    });
+    const events = [];
+    const random = {
+        rn1: () => assert.fail('case 3 must not draw rn1'),
+        rn2: (bound) => {
+            events.push(`rn2(${bound})`);
+            return 3;
+        },
+        rnd: () => assert.fail('case 3 must not draw rnd'),
+    };
+
+    const shouldDestroy = await cursed_book(book, state, {
+        random,
+        message: async (text) => events.push(text),
+    });
+
+    assert.equal(shouldDestroy, false);
+    assert.deepEqual(events, [
+        `rn2(${state.objects[SPE_BOOK_OF_THE_DEAD].oc_level})`,
+        'You feel a strange sensation.',
+    ]);
+});
 
 test('spellet numbers the casting letters a..z then A..Z', () => {
     // spell.c spellet(): 'a' + spell below 26, 'A' + spell - 26 above it.
