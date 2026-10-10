@@ -248714,7 +248714,7 @@
     {
       "id": "fix-wield-corpse-instapetrify-v39-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Call instapetrify when a bare-handed hero wields a petrifying corpse",
       "cFile": "wield.c",
       "sessions": [
@@ -248728,8 +248728,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "cant_wield_corpse",
       "session": "synthetic/v39/v39-wield-cockatrice-instapetrify",
       "step": 48,
@@ -248902,7 +248905,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

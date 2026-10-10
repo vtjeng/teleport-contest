@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T08:29:29.719Z",
+  "capturedAt": "2026-10-10T08:43:15.136Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -79973,22 +79973,87 @@
         "type": "accepted",
         "at": "2026-10-10T08:28:39.325Z",
         "task": "C-v39-counted-wizgenesis-followup-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v39-counted-wizgenesis-followup-20261010-0b7b9ebf4f8cff620921c690e58f3a29b300188a",
+        "type": "published",
+        "at": "2026-10-10T08:29:37.878Z",
+        "task": "C-v39-counted-wizgenesis-followup-20261010",
+        "commit": "0b7b9ebf4f8cff620921c690e58f3a29b300188a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep4-v40-high-altar-deferred-active-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T08:31:33.819Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has two approved distinct C-first mismatches and thirteen matching recordings; the Sanctum high-altar route is deferred with attempts preserved while another source behavior is explored."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "review-C-wield-3467477-20261010",
+        "type": "activity",
+        "at": "2026-10-10T08:31:39.591Z",
+        "task": "C-v39-wield-cockatrice-instapetrify-investigation-20261010",
+        "phase": "review",
+        "reason": "Reviewing the dependency-clearing wielded-corpse delivery for integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-after-wizgenesis-acceptance-idle-20261010",
+        "type": "turn",
+        "at": "2026-10-10T08:32:00.192Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C merged accepted Main. Its wield and pickup deliveries remain under review; current queue has no independent eligible case for C."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-wield-0d8ddc976-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T08:35:10.632Z",
+        "task": "C-v39-wield-cockatrice-instapetrify-investigation-20261010",
+        "integration": "0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-v40-ranger-magic-whistle-active-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T08:35:16.785Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has two approved distinct C-first mismatches and thirteen matching controls; preserving setup misses and continuing with trapped-pet whistle behavior."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-wield-38038505684-20261010",
+        "type": "validated",
+        "at": "2026-10-10T08:41:46.207Z",
+        "task": "C-v39-wield-cockatrice-instapetrify-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep-turn-v40-magicbane-cfirst-active-20261010-1",
+        "type": "turn",
+        "at": "2026-10-10T08:41:56.821Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has two approved distinct C-first mismatches and thirteen matching controls; testing Magicbane’s monster-probe caller path."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v39-wield-cockatrice-instapetrify-investigation-20261010-0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T08:42:45.243Z",
+        "task": "C-v39-wield-cockatrice-instapetrify-investigation-20261010"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C-v39-wield-cockatrice-instapetrify-investigation-20261010",
-        "worker": "C",
-        "goal": "fix-wield-corpse-instapetrify-v39-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "3467477aae88da2f03c96ba496737be02bc7c124",
-        "since": "2026-10-10T07:22:05.094Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "B214-investigation-v39-magic-trap-explosion",
         "worker": "B",
@@ -80019,9 +80084,7 @@
         "status": "ready",
         "delivery": "eec51067322c1ecce023196d7e29f916c00ded71",
         "since": "2026-10-10T07:47:41.562Z",
-        "blockedBy": [
-          "C-v39-wield-cockatrice-instapetrify-investigation-20261010"
-        ],
+        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -80340,8 +80403,8 @@
     ]
   },
   "development": {
-    "executionCommit": "7a75dbe72095d7d9cc9b9dd5b6f552d19a9f022e",
-    "measuredAt": "2026-10-10T08:26:03.580Z",
+    "executionCommit": "0d8ddc97669cbe51be56cafcd4ad2cbe57468e6b",
+    "measuredAt": "2026-10-10T08:41:27.939Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
