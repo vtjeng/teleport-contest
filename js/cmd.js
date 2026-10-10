@@ -1888,7 +1888,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'rush', 'run', 'repeat',
     'options', 'autopickup',
     'wizwish', 'wizidentify', 'wizlevelport', 'wizgenesis', 'wizintrinsic', 'wizmap', 'wizwhere', 'wizcast', 'wizsmell', 'wizkill', 'fire', 'throw',
-    'swap', 'kick', 'panic', 'wizshownhuuid',
+    'swap', 'kick', 'panic', 'wizshownhuuid', 'lightsources',
     '?', 'save', 'wield', 'quiver', 'help', 'whatdoes', 'whatis', 'showtrap', '#', 'loot', 'force', 'tip',
     'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet',
     'seeall', 'seetools', 'teleport',
@@ -5019,6 +5019,10 @@ async function doextcmd(key, state) {
             // done(QUIT), while the cancellation path returns ECMD_OK after it
             // restores the command loop.
             return await done2(state);
+        case 'wiz_timeout_queue': {
+            const { wiz_timeout_queue } = await import('./timeout.js');
+            return await wiz_timeout_queue(state);
+        }
         case 'wiz_debug_cmd_bury': {
             const { wiz_debug_cmd_bury } = await import('./dig.js');
             return await wiz_debug_cmd_bury(state);
@@ -5292,6 +5296,10 @@ async function doextcmd(key, state) {
             return await wiz_show_nhuuid(state);
         case 'wiz_migrate_mons':
             return await wiz_migrate_mons(state);
+        case 'wiz_light_sources': {
+            const { wiz_light_sources } = await import('./light.js');
+            return await wiz_light_sources(state);
+        }
         case 'wiz_rumor_check':
             return await wiz_rumor_check(state);
         case 'doborn':

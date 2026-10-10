@@ -12,6 +12,8 @@ import {
     BLINDED,
     BURN_OBJECT,
     CONFUSION,
+    COLD_RES,
+    ECMD_OK,
     DEAF,
     DETECT_MONSTERS,
     DISPLACED,
@@ -59,6 +61,8 @@ import {
     SICK_NONVOMITABLE,
     SLIMED,
     TIMEOUT,
+    TIMER_GLOBAL,
+    TIMER_MONSTER,
     TIMER_NONE,
     TIMER_LEVEL,
     TIMER_OBJECT,
@@ -103,7 +107,9 @@ import {
     S_HUMAN,
 } from '../js/monsters.js';
 import { GameMap } from '../js/game.js';
+import { game } from '../js/gstate.js';
 import { light_globals_init, new_light_source } from '../js/light.js';
+import { TIMEOUT_PROPERTY_NAMES } from '../js/timeout_property_data.js';
 import { newObject, place_object } from '../js/obj.js';
 import {
     CORPSE,
@@ -133,6 +139,9 @@ import {
     spot_time_expires,
     spot_time_left,
     start_timer,
+    property_by_index,
+    kind_name,
+    wiz_timeout_queue,
     start_glob_timeout,
     start_corpse_timeout,
     slip_or_trip,
@@ -1918,15 +1927,15 @@ test('start_timer validates the numeric source enum ranges', () => {
     const state = timerState();
     assert.throws(
         () => start_timer(1, TIMER_NONE, ROT_CORPSE, {}, state),
-        /invalid timer kind/,
+        /start_timer \(none: /,
     );
     assert.throws(
         () => start_timer(1, NUM_TIMER_KINDS, ROT_CORPSE, {}, state),
-        /invalid timer kind/,
+        /start_timer \(unknown: /,
     );
     assert.throws(
         () => start_timer(1, TIMER_OBJECT, NUM_TIME_FUNCS, {}, state),
-        /invalid timer function/,
+        /start_timer \(object: /,
     );
 });
 
@@ -3364,4 +3373,106 @@ test('vomiting crossing HUNGRY retains callbacks and fills missing endRunning', 
     assert.deepEqual(messages, ['You feel hungry.', 'You vomit!']);
     assert.deepEqual(calls.bounds, [2], 'source CON exercise is the only draw');
     assert.ok(status.includes(HUNGRY), 'the supplied status callback is retained');
+});
+
+
+test('timeout property_by_index follows C order and writes the source out value', () => {
+    const sourceStart = C_TIMEOUT.indexOf('property_by_index(int idx, int *propertynum)');
+    const sourceEnd = C_TIMEOUT.indexOf('\n}', sourceStart) + 2;
+    const source = C_TIMEOUT.slice(sourceStart, sourceEnd);
+    assert.match(source, /if \(!IndexOkT\(idx, propertynames\)\)\s*idx = SIZE\(propertynames\) - 1;/u);
+    assert.match(source, /if \(propertynum\)\s*\*propertynum = propertynames\[idx\]\.prop_num;/u);
+    assert.match(source, /return propertynames\[idx\]\.prop_name;/u);
+
+    const first = { value: -1 };
+    assert.equal(property_by_index(0, first), 'invulnerable');
+    assert.equal(first.value, INVULNERABLE);
+    const timeoutStart = { value: -1 };
+    assert.equal(property_by_index(17, timeoutStart), 'very fast');
+    assert.equal(timeoutStart.value, FAST);
+    const coldIndex = TIMEOUT_PROPERTY_NAMES.findIndex(row => row.prop_num === COLD_RES);
+    assert.equal(property_by_index(coldIndex), 'cold resistance');
+    for (const invalid of [-1, TIMEOUT_PROPERTY_NAMES.length, 999]) {
+        const sentinel = { value: -1 };
+        assert.equal(property_by_index(invalid, sentinel), null);
+        assert.equal(sentinel.value, 0);
+    }
+});
+
+test('kind_name preserves C timer labels and records only the discarded impossible call', () => {
+    const sourceStart = C_TIMEOUT.indexOf('kind_name(short kind)');
+    const sourceEnd = C_TIMEOUT.indexOf('\n}', sourceStart) + 2;
+    const source = C_TIMEOUT.slice(sourceStart, sourceEnd);
+    assert.match(source, /case TIMER_NONE:\s*impossible\("no timer type"\);\s*return "none";/u);
+    assert.match(source, /case TIMER_LEVEL:\s*return "level";/u);
+    assert.match(source, /case TIMER_GLOBAL:\s*return "global";/u);
+    assert.match(source, /case TIMER_OBJECT:\s*return "object";/u);
+    assert.match(source, /case TIMER_MONSTER:\s*return "monster";/u);
+    assert.match(source, /return "unknown";/u);
+    assert.deepEqual([TIMER_LEVEL, TIMER_GLOBAL, TIMER_OBJECT, TIMER_MONSTER]
+        .map(kind_name), ['level', 'global', 'object', 'monster']);
+    assert.equal(kind_name(-1), 'unknown');
+    const prior = game.unported;
+    game.unported = new Set();
+    try {
+        assert.equal(kind_name(TIMER_NONE), 'none');
+        assert.deepEqual([...game.unported], ['pline.c impossible']);
+    } finally {
+        game.unported = prior;
+    }
+});
+
+test('wiz_timeout_queue formats timers, timed properties, region rows, counters, and stasis in C order', async () => {
+    const state = timerState(123);
+    state.u = {
+        uprops: Array.from({ length: LAST_PROP + 1 }, () => ({ intrinsic: 0 })),
+        uswldtim: 2,
+        uinvault: 1,
+    };
+    state.u.uprops[FAST].intrinsic = 12;
+    state.u.uprops[COLD_RES].intrinsic = 3;
+    state.level = {
+        flags: { stasis_until: 125 },
+        regions: [
+            { visible: true, ttl: 0, arg: 2,
+                bounding_box: { lx: 1, ly: 2, hx: 3, hy: 4 } },
+            { visible: false, ttl: 7, arg: 0,
+                bounding_box: { lx: 5, ly: 6, hx: 7, hy: 8 } },
+            { visible: true, ttl: -2, arg: 9,
+                bounding_box: { lx: 9, ly: 10, hx: 11, hy: 12 } },
+        ],
+    };
+    state.iflags = { menu_tab_sep: false };
+    state.gt.timer_base = {
+        timeout: 128, tid: 7, kind: TIMER_OBJECT, func_index: BURN_OBJECT,
+        arg: {}, next: null,
+    };
+    let lines;
+    let release;
+    const gate = new Promise(resolve => { release = resolve; });
+    let settled = false;
+    const pending = wiz_timeout_queue(state, {
+        async displayTextWindow(updatedState, windowLines) {
+            assert.equal(updatedState, state);
+            lines = windowLines.map(line => line.text);
+            await gate;
+        },
+    }).then(result => { settled = true; return result; });
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(settled, false, 'the command awaits the TTY diagnostic window');
+    assert.deepEqual(lines.slice(0, 6), [
+        'Current time = 123.', '', 'Active timeout queue:', '',
+        'timeout  id   kind   call', '  128      7  object burn_object(<ptr>)',
+    ]);
+    assert.ok(lines.indexOf('Timed properties:') < lines.indexOf(' -- settable via #wizintrinsic only --'));
+    assert.ok(lines.indexOf(' -- settable via #wizintrinsic only --') < lines.findIndex(line => line.includes('cold resistance')));
+    assert.ok(lines.some(line => line.startsWith(' very fast') && line.endsWith('12')));
+    assert.ok(lines.includes('Swallow countdown is 2.'));
+    assert.ok(lines.includes('Vault counter is 1.'));
+    assert.ok(lines.includes('Visible regions'));
+    assert.ok(lines.includes(`    1  ${'poison gas (2)'.padEnd(16)}  @[1,2..3,4]`));
+    assert.ok(lines.includes('Level is no-teleport for 3 turns.'));
+    release();
+    assert.equal(await pending, ECMD_OK);
+    assert.equal(settled, true);
 });

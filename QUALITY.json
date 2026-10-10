@@ -156,6 +156,8 @@
         "js/mkroom.js",
         "js/mon_goal_level_data.js",
         "js/mon_loca_level_data.js",
+        "js/mon_strt_level_data.js",
+        "js/nhlsel.js",
         "js/object_generation.js",
         "js/orcus_levels.js",
         "js/quest_levels.js",
@@ -183,10 +185,13 @@
         "js/themeroom_data.js",
         "js/themeroom_fill.js",
         "js/themerooms.js",
+        "js/tou_goal_level_data.js",
+        "js/tou_loca_level_data.js",
         "js/tou_strt_level_data.js",
         "js/tutorial_level.js",
         "js/val_goal_level_data.js",
         "js/val_loca_level_data.js",
+        "js/val_strt_level_data.js",
         "js/valley_levels.js",
         "js/wizard1_levels.js",
         "js/wizard3_levels.js"
@@ -206,6 +211,16 @@
           "path": "js/themeroom_data.js",
           "generator": "scripts/generate-themeroom-data.mjs",
           "check": "node scripts/generate-themeroom-data.mjs --check"
+        },
+        {
+          "path": "js/tou_goal_level_data.js",
+          "generator": "scripts/generate-tou-goal-level.mjs",
+          "check": "node scripts/generate-tou-goal-level.mjs --check"
+        },
+        {
+          "path": "js/val_strt_level_data.js",
+          "generator": "scripts/generate-val-strt-level.mjs",
+          "check": "node scripts/generate-val-strt-level.mjs --check"
         }
       ]
     },
@@ -381,6 +396,7 @@
       "id": "runtime",
       "label": "Core runtime",
       "paths": [
+        "js/alloc.js",
         "js/bones.js",
         "js/const.js",
         "js/end.js",
@@ -396,6 +412,7 @@
         "js/sfbase.js",
         "js/strutil.js",
         "js/timeout.js",
+        "js/timeout_property_data.js",
         "js/unported.js",
         "js/version.js"
       ]

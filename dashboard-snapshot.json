@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-09T20:24:39.163Z",
+  "capturedAt": "2026-10-10T00:46:00.136Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -76318,6 +76318,1037 @@
         "worker": "A2",
         "state": "active",
         "reason": "Checking saved work and the accepted-main boundary before claiming the next source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A195-a759cd6f0fbb7e5dfa8f79102a918fc9d2c645c0",
+        "type": "published",
+        "at": "2026-10-09T20:25:31.946Z",
+        "task": "A195",
+        "commit": "a759cd6f0fbb7e5dfa8f79102a918fc9d2c645c0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-blocked-no-independent-queue-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:26:10.670Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "No independent saved-queue task is available; remaining candidates have existing owners or shared source and recorder gates."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-Prep-resume-20261009T2030",
+        "type": "observe",
+        "at": "2026-10-09T20:29:03.942Z",
+        "worker": "Prep",
+        "live": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-B-resume-20261009T2031",
+        "type": "observe",
+        "at": "2026-10-09T20:29:15.497Z",
+        "worker": "B",
+        "live": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-C-resume-20261009T2031",
+        "type": "observe",
+        "at": "2026-10-09T20:29:16.797Z",
+        "worker": "C",
+        "live": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-A2-resume-20261009T2031",
+        "type": "observe",
+        "at": "2026-10-09T20:29:18.132Z",
+        "worker": "A2",
+        "live": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep2-active-resume-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:29:33.753Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-worker-c-resume-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:29:47.575Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C176 is implementing the Tou-loca loader and source-owned selection value operators."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-Prep2-distinct-search-20261009",
+        "type": "resume",
+        "at": "2026-10-09T20:29:51.929Z",
+        "task": "Prep2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-resume-active-root-worker-b-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:30:46.094Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing the complete Monk quest start program and collecting C evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5be1e1d541ecedbb11c18d39c94a97204815400b",
+        "type": "ready",
+        "at": "2026-10-09T20:32:48.445Z",
+        "task": "B197",
+        "delivery": "5be1e1d541ecedbb11c18d39c94a97204815400b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B197-5be1e1d541ecedbb11c18d39c94a97204815400b",
+        "type": "received",
+        "at": "2026-10-09T20:33:03.179Z",
+        "task": "B197",
+        "delivery": "5be1e1d541ecedbb11c18d39c94a97204815400b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B197-ac57ee3a638f5cf21d59768e3b0d1c469c236440",
+        "type": "integrating",
+        "at": "2026-10-09T20:36:03.202Z",
+        "task": "B197",
+        "integration": "ac57ee3a638f5cf21d59768e3b0d1c469c236440"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B197-9cf6135e96ef404438d1de92579e412f0fc024f7",
+        "type": "integrating",
+        "at": "2026-10-09T20:36:44.037Z",
+        "task": "B197",
+        "integration": "9cf6135e96ef404438d1de92579e412f0fc024f7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B197-9cf6135e",
+        "type": "validated",
+        "at": "2026-10-09T20:42:49.692Z",
+        "task": "B197",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B198-after-A195-20261009",
+        "type": "resume",
+        "at": "2026-10-09T20:43:45.363Z",
+        "task": "B198"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B198-active-after-A195-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:44:09.304Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Resuming the independent Bar-goal alignment RNG-order fix; B197 remains queued for integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B197-9cf6135e96ef404438d1de92579e412f0fc024f7-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T20:44:28.382Z",
+        "task": "B197"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B197-6310e19f5110052c6e6f41ee742547adc10faed9",
+        "type": "published",
+        "at": "2026-10-09T20:45:52.423Z",
+        "task": "B197",
+        "commit": "6310e19f5110052c6e6f41ee742547adc10faed9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B198-sp-amask-order-after-B197-20261009",
+        "type": "implement",
+        "at": "2026-10-09T20:47:25.634Z",
+        "task": "B198",
+        "goal": "fix-sp-lev-noncoaligned-macro-order-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-6b6d398857cd52e917bafc488aff7c349c46e27f",
+        "type": "ready",
+        "at": "2026-10-09T20:54:52.317Z",
+        "task": "B198",
+        "delivery": "6b6d398857cd52e917bafc488aff7c349c46e27f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B198-6b6d398857cd52e917bafc488aff7c349c46e27f",
+        "type": "received",
+        "at": "2026-10-09T20:55:07.340Z",
+        "task": "B198",
+        "delivery": "6b6d398857cd52e917bafc488aff7c349c46e27f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B203-active-castle-20261009",
+        "type": "turn",
+        "at": "2026-10-09T20:57:48.626Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B is correcting the Castle map row that places its throne one square east in the translated level."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B203-castle-map-v35-20261009",
+        "type": "assign",
+        "at": "2026-10-09T20:57:50.046Z",
+        "task": "B203",
+        "worker": "B",
+        "goal": "fix-castle-map-throne-cell-v35-20261009",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B198-00f11936d9f1c157e37a9c080de5e2009e9f09cf",
+        "type": "integrating",
+        "at": "2026-10-09T20:58:25.570Z",
+        "task": "B198",
+        "integration": "00f11936d9f1c157e37a9c080de5e2009e9f09cf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C176-schema-wait-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:00:13.703Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "C176 source work and runtime evidence are complete; waiting for the coordinator mixed Lua/C evidence-schema fix after B198 before ledger submission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1e77e1c67d7835f3ca850a40937fe5dc3477d053",
+        "type": "ready",
+        "at": "2026-10-09T21:04:10.993Z",
+        "task": "B203",
+        "delivery": "1e77e1c67d7835f3ca850a40937fe5dc3477d053"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B198-00f11936",
+        "type": "validated",
+        "at": "2026-10-09T21:04:24.082Z",
+        "task": "B198",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B203-queued-next-selection-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:04:48.106Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B203 is queued for integration while B checks the remaining unowned source mismatches."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B198-00f11936d9f1c157e37a9c080de5e2009e9f09cf-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T21:05:28.074Z",
+        "task": "B198"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B198-27f701c5353b5c5f7c79d18fad52c57b15a177e7",
+        "type": "published",
+        "at": "2026-10-09T21:06:53.838Z",
+        "task": "B198",
+        "commit": "27f701c5353b5c5f7c79d18fad52c57b15a177e7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B203-blocked-no-independent-work-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:08:26.580Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "B203 is queued. Remaining saved mismatches are owned or parked on C176 selection algebra, native-pointer formatting, Main recorder repair, or build provenance; waiting for a gate or updated queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C176-schema-fix-resumed-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:16:02.756Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C176 is merging the approved evidence-schema fix and resubmitting the saved packet."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-f7ade37399efd0dc38c1e0786064327e1ecb5d69",
+        "type": "ready",
+        "at": "2026-10-09T21:16:25.644Z",
+        "task": "C176",
+        "delivery": "f7ade37399efd0dc38c1e0786064327e1ecb5d69"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C176-submitted-wait-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:16:35.394Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C176 is submitted and awaiting coordinator integration and validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C176-f7ade373",
+        "type": "received",
+        "at": "2026-10-09T21:17:18.284Z",
+        "task": "C176",
+        "delivery": "f7ade37399efd0dc38c1e0786064327e1ecb5d69"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C176-c5d83598",
+        "type": "integrating",
+        "at": "2026-10-09T21:24:44.317Z",
+        "task": "C176",
+        "integration": "c5d83598dedf07a195a1418f69e1f1d506aeb034"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C176-7288ae883",
+        "type": "integrating",
+        "at": "2026-10-09T21:25:51.592Z",
+        "task": "C176",
+        "integration": "7288ae883c74f0469a62169bfd5eeb2e9ee69429"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C176-7288ae883",
+        "type": "validated",
+        "at": "2026-10-09T21:34:42.857Z",
+        "task": "C176",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C176-7288ae883c74f0469a62169bfd5eeb2e9ee69429-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T21:35:39.917Z",
+        "task": "C176"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C176-accepted-main-selection-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:37:02.557Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Selecting C’s next source-traced task after C176 acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C181-tou-goal-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T21:37:48.469Z",
+        "task": "C181",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C176-35162f9194bc8a959469d0c48716c29bf7af0bd7",
+        "type": "published",
+        "at": "2026-10-09T21:38:12.164Z",
+        "task": "C176",
+        "commit": "35162f9194bc8a959469d0c48716c29bf7af0bd7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B203-1e77e1c67",
+        "type": "received",
+        "at": "2026-10-09T21:42:06.067Z",
+        "task": "B203",
+        "delivery": "1e77e1c67d7835f3ca850a40937fe5dc3477d053"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C181-source-plan-complete-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:43:04.668Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C181 is expanding from the investigation reservation to the whole Tou-goal.lua source port."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C181-Tou-goal-whole-source-20261009",
+        "type": "implement",
+        "at": "2026-10-09T21:43:31.899Z",
+        "task": "C181",
+        "goal": "port-tou-goal-quest-level-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B203-181abf168",
+        "type": "integrating",
+        "at": "2026-10-09T21:44:03.010Z",
+        "task": "B203",
+        "integration": "181abf1682eb7370613252862afb7bece56983d7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-resume-after-C176-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:45:59.939Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Refreshing accepted queue evidence and selecting the next independent source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B203-181abf168",
+        "type": "validated",
+        "at": "2026-10-09T21:49:54.843Z",
+        "task": "B203",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B203-181abf1682eb7370613252862afb7bece56983d7-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T21:50:43.386Z",
+        "task": "B203"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B203-accepted-resume-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:50:56.497Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B203 is accepted. Syncing the published boundary and waiting for Main’s refreshed mismatch queue before choosing independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B203-f5fe477fbe340a4d4a7dcb034a02b65626dc69db",
+        "type": "published",
+        "at": "2026-10-09T21:52:22.303Z",
+        "task": "B203",
+        "commit": "f5fe477fbe340a4d4a7dcb034a02b65626dc69db"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-val-strt-select-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:52:43.208Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Claiming the independent Valkyrie quest-start port from the refreshed queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B204-blocked-no-independent-after-A2-valstrt-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:53:55.112Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "The refreshed queue has no independent candidate: C181 owns Tou-goal and A2 owns Val-strt; remaining mismatches await pointer, recorder, or build-provenance decisions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A200-Val-strt-investigation-20261009",
+        "type": "assign",
+        "at": "2026-10-09T21:55:34.164Z",
+        "task": "A200",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A200-Val-strt-C181-overlap-20261009",
+        "type": "park",
+        "at": "2026-10-09T21:56:52.122Z",
+        "task": "A200",
+        "reason": "Refreshed Val-strt report in 3e1923639d6580f79d3f8f77c0ce09d1f40eb90c. Keep this session-only: the whole program places two armed fire giants that execute makemon.c:m_initweap, actively reserved by C181 along with js/makemon_create.js; the standard quest loader registry path js/quest_levels.js is also in C181’s active write set. C176 selection algebra is accepted and no longer blocks it."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-blocked-C181-Val-strt-gate-20261009",
+        "type": "turn",
+        "at": "2026-10-09T21:56:57.039Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "Val-strt source trace is refreshed. Waiting for C181 to release the shared monster and quest-loader scope before implementing it."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b56a2bb1db200f4ff56478e719da3e307d14c1ae",
+        "type": "ready",
+        "at": "2026-10-09T21:59:30.119Z",
+        "task": "C181",
+        "delivery": "b56a2bb1db200f4ff56478e719da3e307d14c1ae"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C181-b56a2bb1d",
+        "type": "received",
+        "at": "2026-10-09T22:00:30.971Z",
+        "task": "C181",
+        "delivery": "b56a2bb1db200f4ff56478e719da3e307d14c1ae"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C181-queued-for-main-validation-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:00:55.269Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C181 is queued; waiting for Main to validate the exact delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C181-9be968256",
+        "type": "integrating",
+        "at": "2026-10-09T22:03:56.599Z",
+        "task": "C181",
+        "integration": "9be96825629f1ccd6a56586c2c69acf7c52d5b86"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C181-438d5d0cd",
+        "type": "integrating",
+        "at": "2026-10-09T22:10:27.291Z",
+        "task": "C181",
+        "integration": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C181-438d5d0cd",
+        "type": "validated",
+        "at": "2026-10-09T22:16:16.668Z",
+        "task": "C181",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C181-438d5d0cd3f837bbc821b6ff78ce82940470a5f8-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T22:17:49.133Z",
+        "task": "C181"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C181-3bd480470",
+        "type": "published",
+        "at": "2026-10-09T22:19:01.112Z",
+        "task": "C181",
+        "commit": "3bd48047086ab1745d2cbe0deb7b86f38dd7bd41"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A200-Val-strt-after-C181-20261009",
+        "type": "resume",
+        "at": "2026-10-09T22:19:38.101Z",
+        "task": "A200"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A200-Val-strt-source-scope-20261009",
+        "type": "implement",
+        "at": "2026-10-09T22:20:55.067Z",
+        "task": "A200",
+        "goal": "port-val-strt-quest-start-v36-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A200-Val-strt-implementation-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:20:58.946Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Implementing the complete Valkyrie quest-start loader and its random selection-point helper."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C181-accepted-next-select-active-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:21:00.667Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Selecting the next independent source task from the current accepted mismatch queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B204-resume-C181-accepted-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:21:22.341Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "C181 is published. Syncing accepted Main and checking the refreshed queue for independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B204-blocked-after-C181-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:22:03.166Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "The accepted-438 queue has no independent source task: A2 owns Val-strt; timeout and light await native-pointer resolution, Juiblex awaits recorder repair, and version cases await a provenance decision."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-after-C181-no-independent-queue-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:24:02.183Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "No independent source task is available: A2 owns Val-strt; remaining cases await native-pointer, Main-owned recorder, or platform-provenance gates."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-33ac5f3e799bcd593e3e00d747c46f24d8a47e7d",
+        "type": "ready",
+        "at": "2026-10-09T22:27:27.905Z",
+        "task": "A200",
+        "delivery": "33ac5f3e799bcd593e3e00d747c46f24d8a47e7d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A200-33ac5f3e7",
+        "type": "received",
+        "at": "2026-10-09T22:27:49.919Z",
+        "task": "A200",
+        "delivery": "33ac5f3e799bcd593e3e00d747c46f24d8a47e7d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A200-submitted-queue-blockers-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:28:34.267Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "A200 submitted with full Val-strt replay evidence. Remaining queued cases depend on Main’s native-pointer, recorder-cursor, or platform-provenance decisions; Prep2 owns v38."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A200-2598232e2",
+        "type": "integrating",
+        "at": "2026-10-09T22:30:05.910Z",
+        "task": "A200",
+        "integration": "2598232e244d938f05c6a82ed44004a429b4ea3a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A200-f5d95cf1e",
+        "type": "integrating",
+        "at": "2026-10-09T22:39:00.577Z",
+        "task": "A200",
+        "integration": "f5d95cf1e445b7dca8a75b6988625a52c03b2e52"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A200-f5d95cf1e445b7dca8a75b6988625a52c03b2e52-validated",
+        "type": "validated",
+        "at": "2026-10-09T22:44:13.440Z",
+        "task": "A200",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A200-f5d95cf1e445b7dca8a75b6988625a52c03b2e52-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T22:44:45.384Z",
+        "task": "A200"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A200-cb9293651b99c7158054bdbe7ee25dad16de479a",
+        "type": "published",
+        "at": "2026-10-09T22:46:30.097Z",
+        "task": "A200",
+        "commit": "cb9293651b99c7158054bdbe7ee25dad16de479a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-after-A200-acceptance-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:46:33.649Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Checking accepted queue evidence and ownership for the next independent source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-blocked-after-A200-no-independent-20261009",
+        "type": "turn",
+        "at": "2026-10-09T22:46:49.365Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "No independent source task remains in the fresh queue: queued cases await Main-owned pointer-formatting, recorder-cursor, or platform-provenance decisions; Prep2 owns v38 preparation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-main-b193-recorder-review-20261009",
+        "type": "activity",
+        "at": "2026-10-09T22:51:56.920Z",
+        "task": "B193",
+        "phase": "review",
+        "reason": "Reviewing the Juiblex capture overflow and a general recorder bounds repair before deciding how to retain its admitted historical evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-main-b193-recorder-done-20261009",
+        "type": "activity",
+        "at": "2026-10-09T23:00:45.506Z",
+        "task": "B193",
+        "phase": "done",
+        "reason": "Bounded recorder screen capture output, rejected future out-of-range cursors, preserved admitted v35 evidence as historical, and verified the fresh Juiblex replay plus hosted checkpoint."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-main-b187-pointer-contract-20261009",
+        "type": "activity",
+        "at": "2026-10-09T23:05:40.233Z",
+        "task": "B187",
+        "phase": "review",
+        "reason": "Normalizing recorder pointer diagnostics into deterministic null/non-null tokens so timeout and light-source source tasks can produce portable C evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-main-b187-pointer-contract-done-20261009",
+        "type": "activity",
+        "at": "2026-10-09T23:13:10.392Z",
+        "task": "B187",
+        "phase": "done",
+        "reason": "Published a deterministic recorder pointer contract using <ptr>/<null>, verified it with a live lamp diagnostic, and passed the complete hosted checkpoint."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B168-after-patch007-20261009",
+        "type": "resume",
+        "at": "2026-10-09T23:14:25.548Z",
+        "task": "B168"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B168-active-after-pointer-contract-20261009",
+        "type": "turn",
+        "at": "2026-10-09T23:14:29.214Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Resuming B168 after patch 007 established stable pointer text; claiming the complete light-source diagnostic and bounded callers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B168-light-and-canonical-pointer-20261009",
+        "type": "implement",
+        "at": "2026-10-09T23:18:13.070Z",
+        "task": "B168",
+        "goal": "port-light-wiz-light-sources-v31-20261009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-main-b187-patch-context-repair-20261009",
+        "type": "activity",
+        "at": "2026-10-09T23:30:26.239Z",
+        "task": "B187",
+        "phase": "review",
+        "reason": "Repairing patch 007 so a clean recorder worktree applies the stable pointer-format change before B168 records light-source evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B168-active-patch007-recorder-rebuild-20261009",
+        "type": "turn",
+        "at": "2026-10-09T23:31:54.016Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B168 light-source implementation is in progress; source-pinned tests pass while the repaired C recorder boundary is being published."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-main-b187-patch-context-done-20261009",
+        "type": "activity",
+        "at": "2026-10-09T23:37:38.665Z",
+        "task": "B187",
+        "phase": "done",
+        "reason": "Added source context to patch 007, verified clean application with a regression test, rebuilt the recorder, recorded a live <ptr> diagnostic, and passed the complete hosted checkpoint."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B168-active-patched-recorder-evidence-20261009",
+        "type": "turn",
+        "at": "2026-10-09T23:40:39.621Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B168’s repaired C recording now matches; completing source evidence, focused checks, and immutable submission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e84881494367c1c521efb8ca6c4d6f93a406e434",
+        "type": "ready",
+        "at": "2026-10-09T23:44:30.903Z",
+        "task": "B168",
+        "delivery": "e84881494367c1c521efb8ca6c4d6f93a406e434"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B168-e84881494367c1c521efb8ca6c4d6f93a406e434",
+        "type": "received",
+        "at": "2026-10-09T23:45:18.053Z",
+        "task": "B168",
+        "delivery": "e84881494367c1c521efb8ca6c4d6f93a406e434"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B187-after-B168-delivered-20261009",
+        "type": "resume",
+        "at": "2026-10-09T23:45:55.645Z",
+        "task": "B187"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B187-active-after-B168-ready-20261009",
+        "type": "turn",
+        "at": "2026-10-09T23:45:59.300Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B168 is queued for integration; B is refreshing the parked v35 timeout-queue source report."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-main-b168-review-20261009",
+        "type": "activity",
+        "at": "2026-10-09T23:46:37.742Z",
+        "task": "B168",
+        "phase": "review",
+        "reason": "Reviewing the light-source command, shared pointer formatter, source evidence, and delivery commits before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep2-active-high-helm-c116-20261009T2349Z",
+        "type": "turn",
+        "at": "2026-10-09T23:47:23.214Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B187-blocked-pending-B168-accept-20261009",
+        "type": "turn",
+        "at": "2026-10-09T23:48:51.830Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "B187’s timeout report is refreshed; implementation waits for B168 acceptance to release shared allocator ownership."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-b168-fbdf8d8de-20261009",
+        "type": "integrating",
+        "at": "2026-10-09T23:53:32.709Z",
+        "task": "B168",
+        "integration": "fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-main-b168-fbdf8d8de-20261009",
+        "type": "validated",
+        "at": "2026-10-09T23:58:54.749Z",
+        "task": "B168",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B168-fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8-accepted",
+        "type": "accepted",
+        "at": "2026-10-09T23:59:46.912Z",
+        "task": "B168"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep2-active-cursed-beartrap-20261010T0002Z",
+        "type": "turn",
+        "at": "2026-10-10T00:01:03.367Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B168-b57781e4c6deb583d00c76711cb372363d2c8962",
+        "type": "published",
+        "at": "2026-10-10T00:03:48.894Z",
+        "task": "B168",
+        "commit": "b57781e4c6deb583d00c76711cb372363d2c8962"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B187-timeout-diagnostic-family-20261010",
+        "type": "implement",
+        "at": "2026-10-10T00:05:07.826Z",
+        "task": "B187",
+        "goal": "port-timeout-diagnostic-family-v35-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B187-active-after-B168-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T00:05:11.927Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B187 is implementing the timeout diagnostic family and its shared region/property callers from the accepted boundary."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e2e0ea72f76d2a8536c7a1922104c06a516eab2c",
+        "type": "ready",
+        "at": "2026-10-10T00:16:40.176Z",
+        "task": "B187",
+        "delivery": "e2e0ea72f76d2a8536c7a1922104c06a516eab2c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep2-active-resumed-search-20261010T0011Z",
+        "type": "turn",
+        "at": "2026-10-10T00:17:27.394Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-main-B187-e2e0ea72f-20261010",
+        "type": "received",
+        "at": "2026-10-10T00:17:48.133Z",
+        "task": "B187",
+        "delivery": "e2e0ea72f76d2a8536c7a1922104c06a516eab2c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-blocked-platform-version-contract-20261010",
+        "type": "turn",
+        "at": "2026-10-10T00:19:37.858Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "No independent source task remains in the saved queue; the two surviving version reports share a Main-owned platform build-provenance decision."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-B187-a00150897-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T00:27:06.742Z",
+        "task": "B187",
+        "integration": "a00150897e43d04e61eeb2ee98e1661e73ce68c8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-B187-f1a081f4f-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T00:31:15.821Z",
+        "task": "B187",
+        "integration": "f1a081f4f39b9b572ca485d241c1acadca456bb6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-main-B187-f1a081f4-hosted-38009591019",
+        "type": "validated",
+        "at": "2026-10-10T00:39:07.689Z",
+        "task": "B187",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B187-f1a081f4f39b9b572ca485d241c1acadca456bb6-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T00:39:50.518Z",
+        "task": "B187"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-20261010-b187-resume-active-v2",
+        "type": "turn",
+        "at": "2026-10-10T00:41:21.847Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B is checking the current queue and reservations for the next independent implementation task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B187-e2c0807e1e4e84331ba0f3bc935e9455bc01bbd4",
+        "type": "published",
+        "at": "2026-10-10T00:42:11.397Z",
+        "task": "B187",
+        "commit": "e2c0807e1e4e84331ba0f3bc935e9455bc01bbd4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-20261010-b187-stale-queue-blocked",
+        "type": "turn",
+        "at": "2026-10-10T00:42:53.434Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Waiting for the coordinator to refresh synthetic evaluations and the saved queue at accepted Main f1a081f; no current source task can be selected."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-20261010-e2c-queue-check-active",
+        "type": "turn",
+        "at": "2026-10-10T00:43:21.464Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B is rechecking the published queue and seed continuation after the latest accepted evaluations."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-20261010-e2c-no-source-task",
+        "type": "turn",
+        "at": "2026-10-10T00:44:42.679Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "No source task is eligible: remaining cases are Juiblex recorder-corruption evidence and two Linux/Darwin version-provenance cases; B is available while Prep2 finishes v38."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-resume-B187-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T00:45:12.322Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Resuming after B187 acceptance to check the refreshed queue and source ownership."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-post-e2c-refresh-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T00:45:27.428Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Checking the published queue for an independent source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-blocked-post-e2c-no-game-source-20261010",
+        "type": "turn",
+        "at": "2026-10-10T00:45:41.931Z",
+        "worker": "A2",
+        "state": "blocked",
+        "reason": "No independent game-source task remains. Juiblex needs Main’s recorder-history decision; both version cases need Main’s Linux/Darwin build-provenance decision. Prep2 owns v38 preparation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-post-e2c-no-source-task-20261010",
+        "type": "turn",
+        "at": "2026-10-10T00:45:43.840Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "No independent game-source task remains: Juiblex is recorder-defect evidence, and the two version cases are machine-local provenance differences. Waiting for the next queue after v38 preparation."
       }
     ]
   },
@@ -76491,17 +77522,6 @@
         "reason": "contract:C-pointer-diagnostic-format owner unresolved: populated light.c:wiz_light_sources consumes alloc.c:fmt_ptr raw native %p addresses without an established source-faithful JS identity contract. Complete investigation saved; no partial owner implementation."
       },
       {
-        "task": "B168",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-08T21:08:45.647Z",
-        "blockedBy": [],
-        "reason": "Whole light.c:wiz_light_sources consumes alloc.c:fmt_ptr for active nonempty lists; native-pointer diagnostic formatting has no canonical JS owner and existing object-ID substitutions are incomplete. Source report is complete at 12 remaining screens; resume after coordinator resolves the shared pointer contract."
-      },
-      {
         "task": "B172",
         "worker": "B",
         "goal": null,
@@ -76546,17 +77566,6 @@
         "reason": "Stale initial saved queue: accepted C160 evaluation at f091b997 proves v33-invoke-healing-blindness exact99/99screens/cursors1854RNG. Already in accepted B181 main4c02dfca and workerHEADd84b3350. No report or source edits needed."
       },
       {
-        "task": "B187",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T08:29:42.686Z",
-        "blockedBy": [],
-        "reason": "Whole timeout queue family consumes alloc.c:fmt_ptr native addresses for populated rows; matching IDs are not equivalent. Canonical property table relocation also awaits B185 wizcmds owner. No partial timeout source credit."
-      },
-      {
         "task": "B188",
         "worker": "B",
         "goal": null,
@@ -76590,17 +77599,6 @@
         "reason": "Complete source report07845e90b: patch006 nomux_capture_screen overflows6144-byte buffer into raw cursor globals after dense Juiblex mapping. RNG/screens match; Main owns recorder repair and admitted-corpus provenance decision. No JavaScript source task is eligible for this cursor corruption."
       },
       {
-        "task": "B198",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T13:51:16.361Z",
-        "blockedBy": [],
-        "reason": "Complete report-only alignment macro diagnosis preserved; pending Main source gate and central context. Continue independent admitted quest investigation."
-      },
-      {
         "task": "B200",
         "worker": "B",
         "goal": null,
@@ -76621,17 +77619,6 @@
         "since": "2026-10-09T14:24:01.151Z",
         "blockedBy": [],
         "reason": "Complete Val-strt report is preserved at 2494462c6; implementation waits on central numeric-selection owner adjudication. Worker temporarily resumes B195 evidence correction."
-      },
-      {
-        "task": "Prep2",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T15:30:38.168Z",
-        "blockedBy": [],
-        "reason": "Thirteen distinct reproducible C cases replay byte-identically but all pass current JavaScript; zero qualify as first-mismatch runway after reviewing v37 and all 30 unresolved queue cases. Preserve commit 8c08f73d16cd2b8a1f3f85c120ad21a02df29279 and private manifest/crosswalk; do not admit or integrate."
       },
       {
         "task": "C180",
@@ -76658,8 +77645,8 @@
     ]
   },
   "development": {
-    "executionCommit": "d28db9282c38ddf0cf2cc77330e258a9b66ebfad",
-    "measuredAt": "2026-10-09T20:21:24.185Z",
+    "executionCommit": "f1a081f4f39b9b572ca485d241c1acadca456bb6",
+    "measuredAt": "2026-10-10T00:38:01.512Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

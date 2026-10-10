@@ -8,6 +8,7 @@ import {
     COLNO,
     COULD_SEE,
     CONTAINED_TOO,
+    ECMD_OK,
     LS_OBJECT,
     LS_MONSTER,
     MAX_RADIUS,
@@ -30,6 +31,8 @@ import { ignitable } from './apply_catch_lit.js';
 import { game } from './gstate.js';
 import { dist2 } from './hacklib.js';
 import { note_unported } from './unported.js';
+import { fmt_ptr } from './alloc.js';
+import { displayTtyMenuTextWindow } from './tty_menu.js';
 import {
     CANDELABRUM_OF_INVOCATION,
     GOLD_DRAGON_SCALE_MAIL,
@@ -478,4 +481,51 @@ export function light_stats(headerFormat, state = game) {
         size += memoryLayout.light_source;
     }
     return { header: headerFormat.replace('%ld', String(memoryLayout.light_source)), count, size };
+}
+
+// C ref: light.c wiz_light_sources() (935-974). The recorder's ptr format is
+// deliberately process-independent; all non-null C addresses render <ptr>.
+export async function wiz_light_sources(state = game) {
+    const lines = [
+        `Mobile light sources: hero @ (${String(state.u.ux).padStart(2)},${String(state.u.uy).padStart(2)})`,
+        '',
+    ];
+    const lightBase = state.gl?.light_base ?? null;
+    if (lightBase) {
+        lines.push(
+            'location range flags  type    id',
+            '-------- ----- ------ ----  -------',
+        );
+        for (let source = lightBase; source; source = source.next) {
+            let type;
+            if (source.type === LS_OBJECT) {
+                type = 'obj';
+            } else if (source.type === LS_MONSTER) {
+                // light.c's file-local mon_is_local macro is mx > 0. Preserve
+                // the source's local check before the youmonst identity test.
+                type = source.id?.mx > 0 ? 'mon'
+                    : source.id === state.youmonst ? 'you' : '<m>';
+            } else {
+                type = '???';
+            }
+            const flags = (Number(source.flags ?? 0) >>> 0)
+                .toString(16).padStart(4, '0');
+            // LS_OBJECT stores its pointer in a_obj; camera flashes use the
+            // same union with a_obj == NULL. Other sources hold the pointed
+            // object or monster directly in id.
+            const pointer = source.type === LS_OBJECT
+                && source.id?.a_obj === null ? null : source.id;
+            lines.push(
+                `  ${String(source.x).padStart(2)},${String(source.y).padStart(2)}`
+                + `   ${String(source.range).padStart(2)}   0x${flags}  ${type}  ${fmt_ptr(pointer)}`,
+            );
+        }
+    } else {
+        lines.push('<none>');
+    }
+
+    // displayTtyMenuTextWindow owns the NHW_MENU lifecycle and the blocking
+    // TTY dismissal corresponding to display_nhwindow(win, FALSE).
+    await displayTtyMenuTextWindow(state, lines);
+    return ECMD_OK;
 }

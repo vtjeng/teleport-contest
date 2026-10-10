@@ -87,6 +87,7 @@ import {
     set_levltyp_lit,
 } from './mkmaze.js';
 import { d, rn2, rnd, rn1, rne, rnz } from './rng.js';
+import { l_selection_setpoint } from './nhlsel.js';
 import { flip_level_rnd } from './sp_lev.js';
 import {
     init_rect,
@@ -1785,6 +1786,12 @@ async function ensureSpecialLevelLoaders() {
         ...WIZARD2_LEVEL_LOADERS,
         ...WIZARD3_LEVEL_LOADERS,
     };
+    // Val-strt is the first translated level to use the Lua selection global.
+    // Keep the established loader signature for every other level, including
+    // loaders whose third argument is an injected random function.
+    const valStrtLoader = QUEST_LEVEL_LOADERS['Val-strt'];
+    SPECIAL_LEVEL_LOADERS['Val-strt'] = (des, state) =>
+        valStrtLoader(des, state, des[SPECIAL_LEVEL_LUA_GLOBALS]);
 }
 
 // C ref: sp_lev.c load_special(). Initializes the level coder, runs the
@@ -4383,6 +4390,8 @@ async function finishFixupSpecial(state) {
     });
 }
 
+const SPECIAL_LEVEL_LUA_GLOBALS = Symbol('special-level Lua globals');
+
 function createSpecialLevelApi(state) {
     // C ref: sp_lev.c SpLev_Map[COLNO][ROWNO]. Tracks which cells were
     // placed by lspo_map, lspo_door, lspo_stair, or lspo_drawbridge.
@@ -4422,7 +4431,7 @@ function createSpecialLevelApi(state) {
         spObjectContext,
     };
 
-    return l_register_des({
+    const des = l_register_des({
         random: SOURCE_THEMEROOM_RANDOM,
         get frame() { return frame; },
 
@@ -4735,6 +4744,18 @@ function createSpecialLevelApi(state) {
             // after level_finalize_topology() has mineralized the map.
         },
     });
+    // selection is a Lua global library, separate from the C des.* table.
+    // Bind its setpoint helper to this load's coder and random source.
+    const luaGlobals = Object.freeze({
+        random: SOURCE_THEMEROOM_RANDOM,
+        selection: Object.freeze({
+            set(...args) { return l_selection_setpoint(args, env); },
+        }),
+    });
+    Object.defineProperty(des, SPECIAL_LEVEL_LUA_GLOBALS, {
+        value: luaGlobals,
+    });
+    return des;
 }
 
 // C ref: sp_lev.c lspo_map(), array form. Sets the map frame and paints

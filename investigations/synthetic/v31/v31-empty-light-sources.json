@@ -6,8 +6,8 @@
   "manifestPath": "challenges/manifests/v31.json",
   "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
   "recordingSha256": "8421bd1f71a617446262ad86bcd99f3e060ce8ebb2f5b97e5d97214434ea5f13",
-  "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
-  "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+  "evaluationPath": "challenges/evaluations/accepted-438d5d0cd3f837bbc821b6ff78ce82940470a5f8-v31.json",
+  "evaluationCommit": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8",
   "remainingScreens": 12,
   "recordedSteps": 28,
   "status": "complete",
@@ -54,7 +54,7 @@
     "line": 935,
     "message": "unsupported hero command: wiz_light_sources() for the extended command 'lightsources' is not ported"
   },
-  "summary": "Wizard #lightsources has no JavaScript command owner. Whole light.c wiz_light_sources935-974 prints hero coordinates, an empty-list marker or every source in list order, and a corner NHW_MENU window. The active nonempty branch consumes alloc.c fmt_ptr and exposes native C pointer addresses; JavaScript currently substitutes object IDs in an unrelated private diagnostic helper. Whole-function implementation is blocked on the canonical native-pointer diagnostic contract, even though the admitted empty-list entry never uses that helper.",
+  "summary": "Whole light.c:wiz_light_sources owns the remaining stop in both admitted v31-empty-light-sources and v35-light-diagnostics. Published patch 007 resolves its alloc.c:fmt_ptr dependency by recording <ptr> for non-null and <null> for null, so the complete light.c function, canonical alloc.js formatter, existing pointer-diagnostic callers, and bounded #lightsources dispatch can now be implemented together. The v37-lightsources-empty candidate is retained only as a non-admitted regression probe.",
   "goalKind": "file-port",
   "source": {
     "file": "light.c",
@@ -66,21 +66,22 @@
       "cmd.c:extcmdlist1756-1757 registers lightsources -> wiz_light_sources with IFBURIED|AUTOCOMPLETE|WIZMODECMD. Existing JS command lookup reaches the default unsupported entry.func_name branch because no wiz_light_sources dispatcher arm or light.js implementation exists. Interactive and queued command forms require one bounded awaited dispatcher arm, with no broader doextcmd completion credit."
     ],
     "dependencies": [
-      "alloc.c:fmt_ptr125-136 is consumed by light.c965 for every nonempty light entry. Read whole helper: four32-byte static buffers rotate ptrbufidx and Sprintf uses PTR_FMT/(PTR_TYP) raw address. No exported canonical JS alloc.js owner exists. js/obj.js3576 private fmt_ptr substitutes [obj#id]/[mon#id]/[?] and is not source-faithful native address output; js/do_name.js diagnosticPointer has the same limitation. Do not copy either substitution or invent addresses from IDs.",
-      "light.c:mon_is_local373 is its local macro monster->mx>0, distinct from timeout.c:mon_is_local list-membership semantics. Translate the source local/hero/migrating/unknown type order directly after resolving the pointer callee contract. Canonical gl.light_base linked list and id identity already exist in js/light.js; no broader mobile-light lifecycle port is required.",
-      "Canonical tty_menu.js:displayTtyMenuTextWindow427 represents this plain NHW_MENU corner text owner, including message flush, More dismissal and map repair. wintty.c1857 states tty windows are blocking even when display_nhwindow is called with FALSE. Source create WIN_ERR guard/ECMD_OK no-time return must be retained; ordinary headers/list padding are deterministic.",
-      "nethack-c/patches contains no fmt_ptr/native pointer normalization for this diagnostic. The consumed pointer return requires a shared diagnostic representation decision or source-faithful implementation before whole wiz_light_sources can close. Empty-list-only admission would leave the selected whole function incomplete and cannot establish that consumed helper."
+      "alloc.c:fmt_ptr125-136 is consumed by light.c965 for every nonempty entry. Its accepted recorder patch 007 replaces process-specific native addresses with the observable distinction `<ptr>` for non-null and `<null>` for null. Port that shared source function in canonical js/alloc.js; do not derive formatted pointers from object or monster IDs.",
+      "light.c:mon_is_local373 is the file-local macro `(mon)->mx > 0`, distinct from timeout.c:mon_is_local list-membership semantics. Preserve the source local/hero/migrating/unknown type order. Canonical gl.light_base linked-list entries and object identity already exist in js/light.js; no broader light lifecycle port is required.",
+      "Canonical tty_menu.js:displayTtyMenuTextWindow427 owns the blocking plain NHW_MENU text display, message flush, More dismissal, and map repair. Use it for the source header, optional rows, display(FALSE) boundary, and cleanup. C window exhaustion returns WIN_ERR/ECMD_OK before output; JavaScript has no separate allocated NHW_MENU IDs, so the existing renderer owner supplies the window lifecycle.",
+      "cmd.c:extcmdlist1756-1757 registers `lightsources` as IFBURIED|AUTOCOMPLETE|WIZMODECMD. The JS row exists, but doextcmd() still refuses it. Add only its named dispatch arm and command admission entry; preserve wizard gating and ECMD_OK no-time behavior.",
+      "do_name.c:minimal_monnam1254-1285 also calls alloc.c:fmt_ptr() in the invalid mon->data branches. Replace js/do_name.js:diagnosticPointer with the canonical import while preserving the remaining whole-function behavior and its source-pinned branch tests."
     ]
   },
   "evidence": [
-    "Assigned-base focused scan run-L1xUJk reproduces16emitted screens of28 and first stop16: wiz_light_sources() for extended command lightsources is not ported. Accepted0416 evaluation has16/28screens andcursors, all2588RNG matched; remaining12 is current for the same corpus digest and immutable recording.",
-    "Read admitted independent recipe before diagnosis: ordinary initial rest, then #lightsources without lighting the carried lamp. C recorded Mobile light sources: hero @ (38,16), blank line and <none>. These coordinates are evidence data, not implementation constants.",
-    "Read whole light.c935-974: NHW_MENU creation/failed-window return, source width-two hero/location/range and 0x%04x flags, list traversal, object/mon/you/<m>/??? classification, consumed fmt_ptr, display(FALSE), destroy and ECMD_OK. Source makes no RNG call, but output makes it impure.",
-    "Read whole alloc.c125-136 and existing JS private diagnostic helpers. Object IDs identify game objects but do not equal C address formatting. Stable ID substitution cannot satisfy the source return-value contract or the recorded nonempty output. The shared pointer blocker affects diagnostic owners beyond light.c, so no game edits or source reservations are selected here.",
-    "Smallest whole-source closure is light.c:wiz_light_sources plus alloc.c:fmt_ptr and the bounded cmd dispatch arm. Existing list/window owners and mon_is_local macro are sufficient; no vision, timer or light allocation owner expansion is required. Independent future evidence must include empty list, at least one burning object and monster/hero source variations once native formatting is resolved."
+    "Current accepted queue SHA-256 91c3b3a8266903081611bc65c8b09dd3c738949bd8cb59b9b4a63dea0d4bfe41 uses evaluation commit 438d5d0cd3f837bbc821b6ff78ce82940470a5f8. It still records the v31 first stop at step 16 (12/28 screens unmatched, 2588/2588 RNG calls matched) and the same wiz_light_sources stop in v35-light-diagnostics at step 15 (19/34 screens unmatched, 2624/2624 RNG calls matched).",
+    "The v31 admitted recipe enters #lightsources with an empty gl.light_base and C prints the hero line, blank row, and <none>. The v35 admitted recipe reaches the same command and is retained as a second empty-list range. Coordinates and recipe inputs are evidence, not constants.",
+    "Read complete light.c:wiz_light_sources935-974, alloc.c:fmt_ptr125-136, and the bounded cmd.c extcmdlist row. The formatter patch 007, published in Main df4b031bc0d080c7786086e56a3103e2f48f21e2 and accepted with hosted checkpoint 38002907116, resolves the previous native-address blocker. Complete implementation scope is light.c:wiz_light_sources, alloc.c:fmt_ptr, canonical pointer-diagnostic caller replacement, and the bounded JavaScript command dispatch.",
+    "The prepared, unadmitted v37-lightsources-empty case is a supplemental regression probe only; it is not goal evidence. A separately designed recording with a live nonempty light chain is required to exercise the `<ptr>` row output.",
+    "Read the complete do_name.c:minimal_monnam1254-1285 function: only its two invalid-species pointer messages consume fmt_ptr; null, long-worm-tail, tame/peaceful, coordinate, and chameleon branches remain unchanged. Its existing pure/source-pinned test can pin the patched pointer spellings without another game recording."
   ],
   "proposal": {
-    "goalId": "port-light-wiz-light-sources-v31-20261008",
+    "goalId": "port-light-wiz-light-sources-v31-20261009",
     "summary": "Display the mobile light-source diagnostic.",
     "sourceUnits": [
       {
@@ -94,27 +95,73 @@
         "name": "fmt_ptr",
         "start": 125,
         "end": 136
+      },
+      {
+        "file": "do_name.c",
+        "name": "minimal_monnam",
+        "start": 1254,
+        "end": 1285
       }
     ],
-    "dependencyReady": false,
-    "blocker": "Consumed alloc.c:fmt_ptr native-pointer output lacks a canonical JavaScript representation; existing ID substitutes are incomplete. Coordinator must resolve the shared contract before source implementation.",
+    "dependencyReady": true,
+    "blocker": "The former pointer-format blocker is resolved by published patch 007; implement canonical alloc.c:fmt_ptr alongside the whole light-source diagnostic.",
     "proposedReservations": [
       "session:synthetic/v31/v31-empty-light-sources",
+      "session:synthetic/v35/v35-light-diagnostics",
       "source:light.c:wiz_light_sources",
       "source:alloc.c:fmt_ptr",
+      "source:do_name.c:minimal_monnam",
       "contract:native-pointer-diagnostic-format",
       "contract:wizard-light-source-dispatch"
     ],
     "proposedPaths": [
+      "investigations/synthetic/v31/v31-empty-light-sources.json",
+      ".cache/",
       "js/light.js",
       "js/alloc.js",
+      "js/obj.js",
+      "js/do_name.js",
       "js/cmd.js",
-      "scripts/light*.test.mjs",
-      "scripts/cmd*.test.mjs",
+      "scripts/light-sources.test.mjs",
+      "scripts/alloc-pointer.test.mjs",
+      "scripts/do-name.test.mjs",
+      "scripts/extended-command-prompt.test.mjs",
+      "scripts/cmd.test.mjs",
+      "scripts/run-extended-command-prompt.mjs",
       "recipes/light.c/",
-      "recordings/light.c/",
-      "investigations/synthetic/v31/v31-empty-light-sources.json",
-      ".cache/"
+      "recordings/light.c/"
     ]
+  },
+  "relatedSessions": [
+    {
+      "session": "synthetic/v35/v35-light-diagnostics",
+      "batch": "v35",
+      "caseId": "v35-light-diagnostics",
+      "manifestPath": "challenges/manifests/v35.json",
+      "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+      "recordingPath": "challenges/cases/v35/v35-light-diagnostics.session.json",
+      "recordingSha256": "f3bdc060c3fcaf476cd8db423e9306558647d838983fddbbc83c7dee7cf89194",
+      "recipePath": "challenges/cases/v35/v35-light-diagnostics.recipe.session.json",
+      "recipeSha256": "55f018d40e002c46ee8e75adee73fb316453f2ce5059c562d6c3c61ddff7f53e",
+      "evaluationPath": "challenges/evaluations/accepted-438d5d0cd3f837bbc821b6ff78ce82940470a5f8-v35.json",
+      "evaluationCommit": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8",
+      "remainingScreens": 19,
+      "recordedSteps": 34,
+      "firstMismatchStep": 15
+    }
+  ],
+  "reassessment": {
+    "acceptedMain": "be68a3dc47a6fe9f8ce693c94cb11b91a85a3afe",
+    "queuePath": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/current-work-queue.json",
+    "queueSha256": "91c3b3a8266903081611bc65c8b09dd3c738949bd8cb59b9b4a63dea0d4bfe41",
+    "sourceGate": "clear",
+    "pointerContract": "patch007 maps non-null pointers to <ptr> and null pointers to <null>",
+    "supplementalProbe": {
+      "session": "synthetic/v37/v37-lightsources-empty",
+      "status": "prepared-corrected-unadmitted",
+      "use": "regression probe only; not completion evidence"
+    },
+    "sourceGateCommit": "d399398f872cf682ce5ed796bbd6c66704dde739",
+    "recorderRepair": "Published patch 007 built cleanly and the fresh nonempty B168 light-source differential passed; source gate is clear."
   }
 }

@@ -19,10 +19,12 @@ import {
     BLINDED,
     ARTICLE_THE,
     CONFUSION,
+    COLD_RES,
     CONTAINED_TOO,
     DEAF,
     DETECT_MONSTERS,
     DIED,
+    ECMD_OK,
     DISPLACED,
     FIG_TRANSFORM,
     FIRE_RES,
@@ -163,6 +165,9 @@ import { hideunder, maybe_unhide_at, restartcham, wake_nearby, zombie_form } fro
 import { objectGenerationEnv } from './object_generation.js';
 import { Shk_Your } from './shk.js';
 import { note_unported } from './unported.js';
+import { fmt_ptr } from './alloc.js';
+import { TIMEOUT_PROPERTY_NAMES } from './timeout_property_data.js';
+import { displayTtyMenuTextWindow } from './tty_menu.js';
 import {
     float_down, unconscious } from './trap.js';
 
@@ -1841,6 +1846,125 @@ function insert_timer(timer, state) {
     else state.gt.timer_base = timer;
 }
 
+// C ref: timeout.c propertynames[] and property_by_index() (30-125).
+// The final source row is the null sentinel; an invalid index selects it.
+export function property_by_index(index, propertynum = null) {
+    const sentinel = TIMEOUT_PROPERTY_NAMES.length - 1;
+    const selected = Number.isInteger(index) && index >= 0 && index < sentinel
+        ? index : sentinel;
+    const entry = TIMEOUT_PROPERTY_NAMES[selected];
+    if (propertynum) propertynum.value = entry.prop_num;
+    return entry.prop_name;
+}
+
+// C ref: timeout.c kind_name() (1994-2011). impossible()'s result is
+// discarded; retain the explicit gap and keep its returned label as data.
+export function kind_name(kind) {
+    switch (kind) {
+    case TIMER_NONE:
+        note_unported('pline.c impossible');
+        return 'none';
+    case TIMER_LEVEL:
+        return 'level';
+    case TIMER_GLOBAL:
+        return 'global';
+    case TIMER_OBJECT:
+        return 'object';
+    case TIMER_MONSTER:
+        return 'monster';
+    default:
+        return 'unknown';
+    }
+}
+
+function print_queue(lines, base) {
+    if (!base) {
+        lines.push({ text: ' <empty>' });
+        return;
+    }
+    lines.push({ text: 'timeout  id   kind   call' });
+    for (let curr = base; curr; curr = curr.next) {
+        const timerName = timeout_funcs[curr.func_index].name;
+        const row = ` ${String(Math.trunc(curr.timeout)).padStart(4)}   `
+            + `${String(Math.trunc(curr.tid)).padStart(4)}  `
+            + `${kind_name(curr.kind).padEnd(6)} ${timerName}(${fmt_ptr(curr.arg)})`;
+        lines.push({ text: row });
+    }
+}
+
+// C ref: timeout.c wiz_timeout_queue() (2041-2127). TTY window lines are
+// buffered here and displayed by the existing NHW_TEXT owner.
+export async function wiz_timeout_queue(state = game, rawEnv = {}) {
+    timerGlobals(state);
+    const lines = [];
+    const putstr = (text) => lines.push({ text });
+    putstr(`Current time = ${currentMove(state)}.`);
+    putstr('');
+    putstr('Active timeout queue:');
+    putstr('');
+    print_queue(lines, state.gt.timer_base);
+
+    let count = 0;
+    let longestlen = 0;
+    let specindx = 0;
+    for (let i = 0; ; ++i) {
+        const propertynum = { value: 0 };
+        const propname = property_by_index(i, propertynum);
+        if (propname === null) break;
+        const p = propertynum.value;
+        const intrinsic = state.u?.uprops?.[p]?.intrinsic ?? 0;
+        if (intrinsic & TIMEOUT) {
+            ++count;
+            if (propname.length > longestlen) longestlen = propname.length;
+        }
+        if (specindx === 0 && p === COLD_RES) specindx = i;
+    }
+    putstr('');
+    if (!count) {
+        putstr('No timed properties.');
+    } else {
+        putstr('Timed properties:');
+        putstr('');
+        for (let i = 0; ; ++i) {
+            const propertynum = { value: 0 };
+            const propname = property_by_index(i, propertynum);
+            if (propname === null) break;
+            const p = propertynum.value;
+            const intrinsic = state.u?.uprops?.[p]?.intrinsic ?? 0;
+            if (intrinsic & TIMEOUT) {
+                if (specindx > 0 && i >= specindx) {
+                    putstr(' -- settable via #wizintrinsic only --');
+                    specindx = 0;
+                }
+                putstr(` ${propname.padEnd(longestlen)} ${String(intrinsic & TIMEOUT).padStart(4)}`);
+            }
+        }
+    }
+    const u = state.u ?? {};
+    if (u.uswldtim) {
+        putstr('');
+        putstr(`Swallow countdown is ${u.uswldtim}.`);
+    }
+    if (u.uinvault) {
+        putstr('');
+        putstr(`Vault counter is ${u.uinvault}.`);
+    }
+
+    const { any_visible_region, visible_region_summary } = await import('./region.js');
+    if (any_visible_region(state)) visible_region_summary(lines, state);
+
+    const moves = currentMove(state);
+    const stasisUntil = state.level?.flags?.stasis_until ?? 0;
+    if (stasisUntil >= moves) {
+        putstr('');
+        const difference = stasisUntil - moves;
+        putstr(`Level is no-teleport for ${difference + 1} `
+            + (difference > 0 ? 'turns.' : 'more turn.'));
+    }
+    await (rawEnv.displayTextWindow ?? displayTtyMenuTextWindow)(state, lines);
+    return ECMD_OK;
+}
+
 export function start_timer(
     when,
     kind,
@@ -1849,7 +1973,13 @@ export function start_timer(
     state = game,
 ) {
     timerGlobals(state);
-    validateTimer(kind, funcIndex);
+    if (!Number.isInteger(kind) || kind <= TIMER_NONE
+        || kind >= NUM_TIMER_KINDS || !Number.isInteger(funcIndex)
+        || funcIndex < 0 || funcIndex >= NUM_TIME_FUNCS) {
+        throw new RangeError(
+            `start_timer (${kind_name(kind)}: ${Math.trunc(funcIndex)})`,
+        );
+    }
 
     for (let timer = state.gt.timer_base; timer; timer = timer.next) {
         if (timer.kind === kind

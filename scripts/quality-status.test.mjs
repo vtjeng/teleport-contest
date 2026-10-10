@@ -90,7 +90,9 @@ test('the checked-in quality ledger has a valid schema', async () => {
       'js/sound_effects_data.js',
       'js/symbol_data.js',
       'js/themeroom_data.js',
+      'js/tou_goal_level_data.js',
       'js/tribute_data.js',
+      'js/val_strt_level_data.js',
     ],
   );
 });

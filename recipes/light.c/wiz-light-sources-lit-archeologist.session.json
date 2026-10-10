@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent light.c:wiz_light_sources recording. The seed and clock were chosen directly rather than copied from another case; an Archeologist wishes and applies an oil lamp, then inspects the resulting live light source through the debug-only command.",
+  "segments": [
+    {
+      "seed": 9317042,
+      "datetime": "20471123091542",
+      "nethackrc": "OPTIONS=name:LanternTrace,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": ".\u0017uncursed oil lamp\nai#lightsources\n "
+    }
+  ]
+}

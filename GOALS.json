@@ -239889,6 +239889,2890 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-mon-strt-lua-v36-20261009",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the complete Monk quest start level program and loader",
+      "luaFile": "Mon-strt.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-mon-strt"
+      ],
+      "selectionReason": "The accepted A195 evaluation still stops v36-quest-mon-strt at step 19 because Mon-strt has no registered loader; C172 already supplies the spinach tin dependency.",
+      "detail": "Port all dat/Mon-strt.lua lines 1-108 in source order, register its production special-level loader, generate its fixed map deterministically, and validate the admitted route plus independent male and female recordings.",
+      "openedAt": "d38bf04f502e927ba54e87e21a392d759be75e85",
+      "openStanding": {
+        "sha": "d28db9282c38ddf0cf2cc77330e258a9b66ebfad",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "9cf6135e96ef404438d1de92579e412f0fc024f7",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "Mon-strt.lua",
+          "line": 1,
+          "endLine": 108,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-mon-strt": {
+          "session": "synthetic/v36/v36-quest-mon-strt",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-mon-strt",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-mon-strt.session.json",
+          "recordingSha256": "9ee4dfa848e9b6c50c6058f398378cf18912c62be39534bfa1b887df5f1c7d9e",
+          "evaluationPath": "challenges/evaluations/accepted-d28db9282c38ddf0cf2cc77330e258a9b66ebfad-v36.json",
+          "evaluationCommit": "d28db9282c38ddf0cf2cc77330e258a9b66ebfad"
+        }
+      },
+      "activeStanding": {
+        "sha": "d28db9282c38ddf0cf2cc77330e258a9b66ebfad",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-mon-strt",
+          "session": "synthetic/v36/v36-quest-mon-strt",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-mon-strt.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-mon-strt.session.json",
+          "recordingSha256": "9ee4dfa848e9b6c50c6058f398378cf18912c62be39534bfa1b887df5f1c7d9e",
+          "recipe": "challenges/cases/v36/v36-quest-mon-strt.recipe.session.json",
+          "recipeSha256": "84381349e41e458b1fdc65cb68e6ae3f612b2d59fc4b5a0114c6f9114fead597",
+          "replayInputSha256": "811803b003afbd23cc630cd621e4093723c3d5b8bbe382b2dc1d9c3610063513",
+          "evaluationPath": "challenges/evaluations/accepted-d28db9282c38ddf0cf2cc77330e258a9b66ebfad-v36.json",
+          "evaluationCommit": "d28db9282c38ddf0cf2cc77330e258a9b66ebfad",
+          "evaluationArtifact": "challenges/evaluations/accepted-d28db9282c38ddf0cf2cc77330e258a9b66ebfad-v36.json",
+          "evaluationUtc": "2026-10-09T20:19:38.203Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2772,
+              "total": 3613
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-strt\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Mon-strt.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-strt\"",
+          "cFile": null,
+          "luaFile": "Mon-strt.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-mon-strt.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-mon-strt",
+              "session": "synthetic/v36/v36-quest-mon-strt",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "9ee4dfa848e9b6c50c6058f398378cf18912c62be39534bfa1b887df5f1c7d9e",
+              "evaluationPath": "challenges/evaluations/accepted-d28db9282c38ddf0cf2cc77330e258a9b66ebfad-v36.json",
+              "evaluationCommit": "d28db9282c38ddf0cf2cc77330e258a9b66ebfad",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "a109ce8db86de592d6012721531022478e5de4c4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-mon-strt",
+                "session": "synthetic/v36/v36-quest-mon-strt",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-mon-strt.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-mon-strt.session.json",
+                "recordingSha256": "9ee4dfa848e9b6c50c6058f398378cf18912c62be39534bfa1b887df5f1c7d9e",
+                "recipe": "challenges/cases/v36/v36-quest-mon-strt.recipe.session.json",
+                "recipeSha256": "84381349e41e458b1fdc65cb68e6ae3f612b2d59fc4b5a0114c6f9114fead597",
+                "replayInputSha256": "811803b003afbd23cc630cd621e4093723c3d5b8bbe382b2dc1d9c3610063513",
+                "evaluationPath": "challenges/evaluations/accepted-d28db9282c38ddf0cf2cc77330e258a9b66ebfad-v36.json",
+                "evaluationCommit": "d28db9282c38ddf0cf2cc77330e258a9b66ebfad",
+                "evaluationArtifact": "challenges/evaluations/accepted-d28db9282c38ddf0cf2cc77330e258a9b66ebfad-v36.json",
+                "evaluationUtc": "2026-10-09T20:19:38.203Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2772,
+                    "total": 3613
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "step": 19,
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-strt\""
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Mon-strt.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Mon-strt\"",
+                "cFile": null,
+                "luaFile": "Mon-strt.lua",
+                "line": null
+              },
+              "summary": "The Monk quest start still has no registered special-level loader. The reference reaches top-level dat/Mon-strt.lua at segment 0 step 19; JavaScript stops before executing it. The complete 108-line program needs its loader/data entry. Its spinach tin is now supported by the accepted C172 lspo_object normalization, so that shared prerequisite is clear.",
+              "goalKind": "lua-port",
+              "source": {
+                "file": "Mon-strt.lua",
+                "branch": "First generation of the Monk quest start level after selecting the Mon-strt special destination; execute the whole top-level Lua program in source order.",
+                "functions": [
+                  "Mon-strt.lua (whole program, lines 1-108)"
+                ],
+                "callers": [
+                  "do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz:1188 -> sp_lev.c:load_special:6454 -> dat/Mon-strt.lua",
+                  "js/mklev.js:makelevel/makemaz/load_special -> SPECIAL_LEVEL_LOADERS -> QUEST_LEVEL_LOADERS[Mon-strt] -> Mon-strt implementation and canonical level finalization"
+                ],
+                "dependencies": [
+                  "Accepted C172 delivery 70a8ba91d1118cc26b721b43eb4aa267c7c7d685 provides the bounded sp_lev.c:lspo_object spinach TIN branch in js/sp_lev_object.js: normalize spinach case-insensitively, set NON_PM/spe=1, and preserve generated species/RNG order; no helper edit or whole-helper credit is selected here.",
+                  "Reuse the existing solidfill/map/region/terrain, selection floodfill/rndcoord, branch portal, stair, door, altar, object, monster, trap, and special-level finalization APIs; audit their reached branches before using them."
+                ]
+              },
+              "evidence": [
+                "Saved accepted evaluation challenges/evaluations/accepted-d28db9282c38ddf0cf2cc77330e258a9b66ebfad-v36.json at d28db9282c38ddf0cf2cc77330e258a9b66ebfad records 19/60 matching screens/cursors and 41 remaining; the unchanged manifest identifies the first refusal at segment 0 step 19.",
+                "Read complete nethack-c/upstream/dat/Mon-strt.lua lines 1-108 (SHA-256 3a61403d6d1888d918ea2a0bf67f1a1a2b45a5c5f043faa72960136e13993964): 20-by-76 map, tree replacement followed by floodfill and portal-arrival terrain clearing, doors and altar, leader callback, non-diggable region, ordered random traps/elementals/xorns, spinach tins, and vegetarian food.",
+                "C source route is mklev.c:makelevel -> mkmaze.c:makemaz:1188 -> sp_lev.c:load_special:6454; JS mklev.js:makelevel/makemaz/load_special routes through SPECIAL_LEVEL_LOADERS assembled at lines 1743-1770, while quest_levels.js:2657-2687 has no Mon-strt entry.",
+                "The blocker is the missing Mon-strt loader, not the tin helper: current js/sp_lev_object.js normalizes spinach/empty TIN to NON_PM and spe=1, and scripts/sp-lev-object.test.mjs:1636-1665 verifies case-insensitive tokens and unchanged generated species/RNG order. The C172 reservation is released after acceptance."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Mon-strt.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "monStrt",
+            "sourceReview": "Read all of dat/Mon-strt.lua lines 1-108 and preserved the top-level execution order. Checked the fixed map against its source table; both region calls and both chance-10 tree replacements precede selection.floodfill(5,4); portal terrain is cleared after the floodfill; stairs, all 18 doors, altar, Grand Master inventory callback, eight abbots, non-diggable area, two removing dart coordinates, four random traps, eight earth elementals, four xorns, spinach tins, and food ration follow in source order. Checked des.* descriptor and lspo dispatchers plus nhlsel.c selection_floodfill()/selection_rndcoord() behavior, including RNG consumption and removal. The loader has no pure source functions and adds no unported calls.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c makelevel() dispatches a registered special level through makemaz()."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makemaz",
+                "source": "mkmaze.c:1188-1193 makemaz() calls load_special(protofile) for the selected quest prototype."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "sp_lev.c:6454-6503 load_special() executes the named level program through SPECIAL_LEVEL_LOADERS."
+              },
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "dat/Mon-strt.lua whole top-level program, selected by the source prototype name Mon-strt."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-strt-level-generation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Mon-strt.lua/mon-strt-direct-male-independent.session.json",
+              "recordings/Mon-strt.lua/mon-strt-direct-female-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-mon-strt",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "dungeon.c:wiz_level_change selects the forced quest destination; mkmaze.c:1188-1193 makemaz -> sp_lev.c:6454-6503 load_special -> dat/Mon-strt.lua"
+              }
+            ],
+            "checkedAt": "9cf6135e96ef404438d1de92579e412f0fc024f7"
+          }
+        ],
+        "entryPointReview": "The active entry point is the Monk quest-start level. In the admitted v36 case, dungeon.c:wiz_level_change selects the forced Mon-strt destination; mklev.c makelevel() dispatches it through mkmaze.c:1188-1193 makemaz(), which reaches sp_lev.c:6454-6503 load_special() and the dat/Mon-strt.lua program. The direct C-first recipes also exercise the same registered program through the wizard des-file command. The complete source has no build-excluded entry branches.",
+        "entryPoints": [
+          {
+            "name": "Monk quest-start level generation",
+            "functions": [
+              "Mon-strt.lua"
+            ],
+            "recordings": [
+              "recordings/Mon-strt.lua/mon-strt-direct-male-independent.session.json",
+              "recordings/Mon-strt.lua/mon-strt-direct-female-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-mon-strt",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "dungeon.c:wiz_level_change selects the forced quest destination; mkmaze.c:1188-1193 makemaz -> sp_lev.c:6454-6503 load_special -> dat/Mon-strt.lua"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9cf6135e96ef404438d1de92579e412f0fc024f7",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-sp-lev-noncoaligned-macro-order-v36-20261009",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Preserve repeated alignment macro draws for noncoaligned special-level features",
+      "cFile": "sp_lev.c",
+      "sessions": [],
+      "selectionReason": "The accepted B197 evaluation retains the Bar-goal RNG divergence at step 19: C Align2amask reevaluates side-effecting noncoalignment while JavaScript evaluated it once.",
+      "detail": "Correct only the AM_SPLEV_NONCO evaluation order in sp_amask_to_amask, retaining the existing CO, RANDOM, and explicit-mask branches and bounded divergence credit.",
+      "openedAt": "ac3d28ced830c772adabfbf2bd55b27b99127bc4",
+      "openStanding": {
+        "sha": "9cf6135e96ef404438d1de92579e412f0fc024f7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "00f11936d9f1c157e37a9c080de5e2009e9f09cf",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "sp_amask_to_amask",
+      "session": "synthetic/v36/v36-quest-bar-goal",
+      "step": 19,
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-bar-goal": {
+          "session": "synthetic/v36/v36-quest-bar-goal",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-bar-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-bar-goal.session.json",
+          "recordingSha256": "628730723a830202637a44bc43b9eebc448c1b542b22450563a6f9e6de844996",
+          "evaluationPath": "challenges/evaluations/accepted-9cf6135e96ef404438d1de92579e412f0fc024f7-v36.json",
+          "evaluationCommit": "9cf6135e96ef404438d1de92579e412f0fc024f7"
+        }
+      },
+      "activeStanding": {
+        "sha": "9cf6135e96ef404438d1de92579e412f0fc024f7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-bar-goal",
+          "session": "synthetic/v36/v36-quest-bar-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-bar-goal.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-bar-goal.session.json",
+          "recordingSha256": "628730723a830202637a44bc43b9eebc448c1b542b22450563a6f9e6de844996",
+          "recipe": "challenges/cases/v36/v36-quest-bar-goal.recipe.session.json",
+          "recipeSha256": "8c6cc2e78c598c1e25e08cd08e61abfa95887d7c471d037f76aea6c9f53e3e8c",
+          "replayInputSha256": "b13bbae764e615f2a211a4e5e4fc9eae06b38a5422505058f1d8b5ead8392ff6",
+          "evaluationPath": "challenges/evaluations/accepted-9cf6135e96ef404438d1de92579e412f0fc024f7-v36.json",
+          "evaluationCommit": "9cf6135e96ef404438d1de92579e412f0fc024f7",
+          "evaluationArtifact": "challenges/evaluations/accepted-9cf6135e96ef404438d1de92579e412f0fc024f7-v36.json",
+          "evaluationUtc": "2026-10-09T20:40:41.316Z",
+          "remainingScreens": 17,
+          "recordedSteps": 60,
+          "previousScreensMatched": 43,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 43,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2303,
+              "total": 3365
+            },
+            "cursors": {
+              "matched": 60,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 43,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 43,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 5,
+              "column": 32,
+              "cCell": {
+                "ch": "^",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": ".",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2293,
+              "cEntry": "rn2(2)=0",
+              "cCaller": "noncoalignment(sp_lev.c:1856)",
+              "jsEntry": "rnd(2)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 19,
+                "key": "A"
+              },
+              "stepIndex": 19
+            },
+            "cursor": null
+          },
+          "step": 19,
+          "kind": "rng",
+          "sourceFile": "sp_lev.c",
+          "function": "noncoalignment",
+          "message": null,
+          "cFile": "sp_lev.c",
+          "luaFile": null,
+          "line": 1856,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-bar-goal.json",
+            "result": {
+              "session": "synthetic/v36/v36-quest-bar-goal",
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-bar-goal",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "628730723a830202637a44bc43b9eebc448c1b542b22450563a6f9e6de844996",
+              "evaluationPath": "challenges/evaluations/accepted-9cf6135e96ef404438d1de92579e412f0fc024f7-v36.json",
+              "evaluationCommit": "9cf6135e96ef404438d1de92579e412f0fc024f7",
+              "remainingScreens": 17,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "298934189b21c34a6eb5c7343d2984fecd19084e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-bar-goal",
+                "session": "synthetic/v36/v36-quest-bar-goal",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-bar-goal.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-bar-goal.session.json",
+                "recordingSha256": "628730723a830202637a44bc43b9eebc448c1b542b22450563a6f9e6de844996",
+                "recipe": "challenges/cases/v36/v36-quest-bar-goal.recipe.session.json",
+                "recipeSha256": "8c6cc2e78c598c1e25e08cd08e61abfa95887d7c471d037f76aea6c9f53e3e8c",
+                "replayInputSha256": "b13bbae764e615f2a211a4e5e4fc9eae06b38a5422505058f1d8b5ead8392ff6",
+                "evaluationPath": "challenges/evaluations/accepted-9cf6135e96ef404438d1de92579e412f0fc024f7-v36.json",
+                "evaluationCommit": "9cf6135e96ef404438d1de92579e412f0fc024f7",
+                "evaluationArtifact": "challenges/evaluations/accepted-9cf6135e96ef404438d1de92579e412f0fc024f7-v36.json",
+                "evaluationUtc": "2026-10-09T20:40:41.316Z",
+                "remainingScreens": 17,
+                "recordedSteps": 60,
+                "previousScreensMatched": 43,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 43,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2303,
+                    "total": 3365
+                  },
+                  "cursors": {
+                    "matched": 60,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 43,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 43,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 5,
+                    "column": 32,
+                    "cCell": {
+                      "ch": "^",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": ".",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2293,
+                    "cEntry": "rn2(2)=0",
+                    "cCaller": "noncoalignment(sp_lev.c:1856)",
+                    "jsEntry": "rnd(2)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 19,
+                      "key": "A"
+                    },
+                    "stepIndex": 19
+                  },
+                  "cursor": null
+                },
+                "step": 19,
+                "kind": "rng",
+                "sourceFile": "sp_lev.c",
+                "function": "noncoalignment",
+                "message": null,
+                "cFile": "sp_lev.c",
+                "luaFile": null,
+                "line": 1856,
+                "investigation": {
+                  "status": "missing",
+                  "path": "investigations/synthetic/v36/v36-quest-bar-goal.json"
+                }
+              },
+              "summary": "The Bar-goal divergence is a macro evaluation-order defect. In sp_lev.c:sp_amask_to_amask, the AM_SPLEV_NONCO branch passes noncoalignment(...) to Align2amask. The C macro references its argument in two comparisons and the fallback addition, so the random call can run once, twice, or three times according to short-circuit results. js/themeroom_fill.js currently invokes noncoalignment once and computes the mask from that single result.",
+              "source": {
+                "file": "sp_lev.c",
+                "branch": "sp_amask_to_amask when sp_amask == AM_SPLEV_NONCO for a special-level monster or altar. The original alignment u.ualignbase[A_ORIGINAL] is passed to noncoalignment; Align2amask then reevaluates that side-effecting expression at each macro reference.",
+                "functions": [
+                  "sp_amask_to_amask"
+                ],
+                "callers": [
+                  "sp_lev.c:create_monster:1943 passes m->sp_amask to sp_amask_to_amask before monster construction.",
+                  "sp_lev.c:lspo_altar:2469 passes a->sp_amask to sp_amask_to_amask after set_levltyp succeeds.",
+                  "js/themeroom_fill.js:createMonsterBody:557 resolves the monster descriptor alignment through sp_amask_to_amask.",
+                  "js/mklev.js:altar creation around 1402 resolves the altar descriptor through sp_amask_to_amask."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/include/align.h:50-53 defines Align2amask as a nested conditional macro whose x expression occurs up to three times; its short-circuit order is part of the observed behavior."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Accepted evaluation challenges/evaluations/accepted-9cf6135e96ef404438d1de92579e412f0fc024f7-v36.json at 9cf6135e96ef404438d1de92579e412f0fc024f7 retains the same recording identity and reports 43/60 screens, 2303/3365 RNG calls, and 60/60 cursors; the current queue still lists 17 remaining screens.",
+                "The saved focused comparison .cache/B198/admitted-comparison.json identifies the first RNG mismatch at segment 0, step 19, key A, index 2293: C rn2(2)=0 from noncoalignment(sp_lev.c:1856), while JavaScript has rnd(2)=1. At step 43 the first screen mismatch is row 5, column 32 (C '^' and JS '.').",
+                "Upstream sp_lev.c:1908-1921 contains the complete source function. Lines 1914-1915 select AM_SPLEV_NONCO and call Align2amask(noncoalignment(u.ualignbase[A_ORIGINAL])); noncoalignment at sp_lev.c:1852-1860 calls rn2(2) once per invocation.",
+                "Upstream include/align.h:50-53 expands x in the A_NONE comparison, then the A_LAWFUL comparison if needed, then the final x + 2 expression if neither matched. Its repeated evaluations explain the second C draw at index 2293.",
+                "The corresponding JavaScript function is js/themeroom_fill.js:836-853. Its AM_SPLEV_NONCO arm currently calls noncoalignment once before the alignment conversion. Production callers are js/themeroom_fill.js:createMonsterBody and js/mklev.js altar placement; the admitted Bar-goal recording exercises the altar path."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "00f11936d9f1c157e37a9c080de5e2009e9f09cf",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-tou-loca-quest-level-v36-20261009",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the whole Tourist quest locate program and its consumed selection and shop initialization functions",
+      "luaFile": "Tou-loca.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-tou-loca"
+      ],
+      "selectionReason": "The current v36 Tou-loca case stops at its absent loader with 41 screens remaining; source tracing requires the Lua program, numeric selection union and subtraction, and natural deferred shopkeeper placement.",
+      "detail": "Port Tou-loca.lua lines 1-153 in source order, whole nhlsel.c l_selection_or and l_selection_sub, and whole shknam.c shkinit. Preserve numeric selection values, shop-excluding trap placement, deferred special-room fill, and the natural makelevel entry through step 59.",
+      "openedAt": "221ccfe03cac61fd2a7e5cb19438016b63b3d57d",
+      "openStanding": {
+        "sha": "00f11936d9f1c157e37a9c080de5e2009e9f09cf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "7288ae883c74f0469a62169bfd5eeb2e9ee69429",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "Tou-loca.lua",
+          "line": 1,
+          "endLine": 153,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "requiredFunctions": [
+        {
+          "name": "l_selection_or",
+          "line": 306,
+          "endLine": 331,
+          "declared": true,
+          "sourceFile": "nhlsel.c",
+          "complete": true
+        },
+        {
+          "name": "l_selection_sub",
+          "line": 361,
+          "endLine": 388,
+          "declared": true,
+          "sourceFile": "nhlsel.c",
+          "complete": true
+        },
+        {
+          "name": "shkinit",
+          "line": 628,
+          "endLine": 694,
+          "declared": true,
+          "sourceFile": "shknam.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-tou-loca": {
+          "session": "synthetic/v36/v36-quest-tou-loca",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-tou-loca",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-tou-loca.session.json",
+          "recordingSha256": "82620864b147afeef63968c3285e30bc758b89ed8df48a51ecadcea08e679c3a",
+          "evaluationPath": "challenges/evaluations/accepted-00f11936d9f1c157e37a9c080de5e2009e9f09cf-v36.json",
+          "evaluationCommit": "00f11936d9f1c157e37a9c080de5e2009e9f09cf"
+        }
+      },
+      "activeStanding": {
+        "sha": "00f11936d9f1c157e37a9c080de5e2009e9f09cf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-tou-loca",
+          "session": "synthetic/v36/v36-quest-tou-loca",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-tou-loca.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-tou-loca.session.json",
+          "recordingSha256": "82620864b147afeef63968c3285e30bc758b89ed8df48a51ecadcea08e679c3a",
+          "recipe": "challenges/cases/v36/v36-quest-tou-loca.recipe.session.json",
+          "recipeSha256": "d1a4edd2b7f52fb1516ea00a6228e350a553b07601f2a1a2c6d0dff511b1b9ab",
+          "replayInputSha256": "eba7bedcfb88ac10b078d9846b92fa6c645d11374b7d75b3dcf7c8f4fd87ecab",
+          "evaluationPath": "challenges/evaluations/accepted-00f11936d9f1c157e37a9c080de5e2009e9f09cf-v36.json",
+          "evaluationCommit": "00f11936d9f1c157e37a9c080de5e2009e9f09cf",
+          "evaluationArtifact": "challenges/evaluations/accepted-00f11936d9f1c157e37a9c080de5e2009e9f09cf-v36.json",
+          "evaluationUtc": "2026-10-09T21:01:52.797Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2977,
+              "total": 9445
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-loca\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Tou-loca.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-loca\"",
+          "cFile": null,
+          "luaFile": "Tou-loca.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-tou-loca.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-tou-loca",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "82620864b147afeef63968c3285e30bc758b89ed8df48a51ecadcea08e679c3a",
+              "evaluationPath": "challenges/evaluations/accepted-00f11936d9f1c157e37a9c080de5e2009e9f09cf-v36.json",
+              "evaluationCommit": "00f11936d9f1c157e37a9c080de5e2009e9f09cf",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "status": "complete",
+              "session": "synthetic/v36/v36-quest-tou-loca",
+              "commit": "c73aa43b72a0800387497d5aac7de214841a325e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-tou-loca",
+                "session": "synthetic/v36/v36-quest-tou-loca",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-tou-loca.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-tou-loca.session.json",
+                "recordingSha256": "82620864b147afeef63968c3285e30bc758b89ed8df48a51ecadcea08e679c3a",
+                "recipe": "challenges/cases/v36/v36-quest-tou-loca.recipe.session.json",
+                "recipeSha256": "d1a4edd2b7f52fb1516ea00a6228e350a553b07601f2a1a2c6d0dff511b1b9ab",
+                "replayInputSha256": "3590f701293a0e2e2652271f00819b8360a712e54ca9e5714fb89c60e9992f99",
+                "evaluationPath": "challenges/evaluations/accepted-97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3-v36.json",
+                "evaluationCommit": "97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3",
+                "evaluationArtifact": "challenges/evaluations/accepted-97fe6973cd6559fd4f0f1958a920f7ac43a7d4d3-v36.json",
+                "evaluationUtc": "2026-10-09T20:02:27.149Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2977,
+                    "total": 9445
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-loca\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Tou-loca.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-loca\"",
+                "cFile": null,
+                "luaFile": "Tou-loca.lua",
+                "line": null
+              },
+              "goalKind": "lua-port",
+              "summary": "Tou-loca has no registered loader. Port its whole Tourist quest locate program and the source-required selection OR and subtraction functions, preserving selection values and shop-excluding trap placement.",
+              "source": {
+                "file": "Tou-loca.lua",
+                "branch": "Tourist quest locate arrival or registered wizard load of Tou-loca, including map-defined room types and nine random traps selected outside the two shops.",
+                "functions": [
+                  "Tou-loca.lua"
+                ],
+                "callers": [
+                  "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Tou-loca.lua",
+                  "wizcmds.c:wiz_load_splua -> load_special -> registered Tou-loca Lua program"
+                ],
+                "dependencies": [
+                  "Required pure nhlsel.c:l_selection_or (306–330) and l_selection_sub (361–386) are now assigned to this task as the complete source owner for the selection-algebra-values contract. Preserve signed-char encoded integer values, source bounds, and operation order; leave AND/XOR and other selection operators outside this scope.",
+                  "Existing selection_area/filter_mapchar/rndcoord, region/levregion/door/object/trap/monster owners and deferred stock_room/fill_zoo filling provide the remaining APIs. The Tou-loca temple does not use alignment conversion, and this program does not use the spinach descriptor."
+                ]
+              },
+              "evidence": [
+                "Accepted evaluation challenges/evaluations/accepted-00f11936d9f1c157e37a9c080de5e2009e9f09cf-v36.json at 00f11936d9f1c157e37a9c080de5e2009e9f09cf retains 19/60 matching screens and cursors, 2977/9445 RNG calls matched, and 41 screens remaining. The first mismatch is the absent Tou-loca loader at step 19. Recording digest 82620864b147afeef63968c3285e30bc758b89ed8df48a51ecadcea08e679c3a; manifest digest 58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c. The source implementation base is published boundary c73aa43b72a0800387497d5aac7de214841a325e.",
+                "Read all of dat/Tou-loca.lua lines 1–153 (SHA-256 595f7f6265dd3346624aa6de81e7093b05705e67f8c73ed39e75b54caf213d82). It defines solid stone, mazelevel/hardfloor, the 76×20 map, full-map lit/nondiggable regions, eight filled special regions (morgue, two shops, three barracks, zoo, temple), 24 ordinary regions, two local lighting selections, stairs at (10,4)/(73,5), 35 literal doors, 14 random objects and two blank-paper objects at (71,12). Preserve definition order; no explicit wallify call exists.",
+                "Tou-loca.lua lines 130–134 filters selection.area(0,0,75,19) to floor, subtracts the union of shop rectangles (15,3–20,5) and (62,3–71,4), then selects and removes nine trap coordinates. Preserve one coordinate frame throughout, with no added RNG draws. The random trap type remains owned by create_trap.",
+                "C nhlsel.c l_selection_or (306–330) and l_selection_sub (361–386) are pure: each checks its two selections, creates a fresh result, uses rect_bounds, loops x-major then y-major, stores integer point results with selection_setpoint and returns the new selection. OR uses bitwise | and assigns the union bounds; subtraction uses (a_pt ^ b_pt) & a_pt and recalculates bounds. The registered Lua callers are metatable __bor and __add for OR and __sub for subtraction (nhlsel.c 1005–1018).",
+                "C selvar.c selection_new initializes a COLNO×ROWNO map with byte 1; selection_getpoint decodes stored char minus 1; selection_setpoint stores (char)(value+1). The JS selection storage must retain the resulting signed numeric values for these operators while existing boolean get/set and selection users retain their behavior. Pin storage encoding, OR, subtraction, bounds, disjoint/empty inputs, and coordinate-frame preservation from those source functions.",
+                "sp_lev.c lspo_region creates special rooms with deferred fill; ordinary rectangles only light regions. At finalization, fill_special_room fills shops, morgue, barracks and zoo; temple only sets has_temple. Preserve region order and existing deferred behavior. No lspo_altar or alignment conversion is called by this temple.",
+                "Tou-loca.lua lines 136–153 creates 16 giant spiders and two class-s monsters after traps. Existing named/class monster and blank-paper object owners cover these descriptors; no other shared task contract was identified.",
+                "The coordinator approved C176 as complete owner of l_selection_or, l_selection_sub and contract:selection-algebra-values. This claim leaves B200/B202 session reservations untouched and excludes unrelated selection operators. Investigation did not edit game code or record/replay a session."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Tou-loca.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "touLoca",
+            "sourceReview": "Reviewed all 153 source lines in dat/Tou-loca.lua, including fixed map and 35 doors, descriptor ordering, room setup, terrain-to-selection mapping, numeric selection subtraction/addition, nine randomized trap coordinates, and monster placement. The program is registered as Tou-loca and runs through natural makelevel -> makemaz -> load_special dispatch. Its selected source has no unported callee. The targeted replay also reports the pre-existing unrelated timeout.c kill_egg gap from game startup.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "touLoca",
+                "source": "dat/Tou-loca.lua:1-153; nhlsel.c selection metamethods at lines 1013, 1016, and 1017 call the operators used at Tou-loca.lua:130-134."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makemaz",
+                "source": "mklev.c:makelevel selects the special level and calls makemaz; mkmaze.c:makemaz calls sp_lev.c:load_special, which executes Tou-loca.lua."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_level_tele",
+                "source": "wizcmds.c:wiz_level_tele dispatches #wizlevelport to level_tele; the resulting level transition enters mklev.c:makelevel and the natural special-level path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/tou-loca-level.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-loca",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "wizcmds.c:wiz_level_tele -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Tou-loca.lua:130-153"
+              }
+            ],
+            "checkedAt": "a73cb02db28cf85ddca87fad3e668a737afa7eba"
+          },
+          {
+            "name": "l_selection_or",
+            "implementation": "js/nhlsel.js",
+            "symbol": "l_selection_or",
+            "sourceReview": "Reviewed the complete nhlsel.c:l_selection_or body at lines 306-328: validate both userdata operands, allocate a result, union bounds, visit x-major then y-minor, bitwise-OR selection_getpoint values, set each result point, preserve the rectangle bounds, and return the new selection. Checked selvar.c initialization and get/set encoding: the map stores signed char(value+1), so the JavaScript Int8Array is required to preserve numeric values and overflow. The nhlsel.c metatable binds both __bor and __add. The current translated source callers are Tou-loca.lua, bigrm-1.lua, and bigrm-2.lua; their JavaScript loaders call l_selection_or. Additional source-only consumers include bigrm-11.lua, nhlib.lua, Val-strt.lua, and Tou-goal.lua; their enclosing loader paths are unported or not registered in this task. No random, output, or game-state effects occur.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "touLoca",
+                "source": "dat/Tou-loca.lua:131 uses selection-area addition, dispatched by nhlsel.c:l_selection_meta __add at line 1016."
+              },
+              {
+                "path": "js/bigrm.js",
+                "symbol": "bigrm1",
+                "source": "dat/bigrm-1.lua:40,44,49 uses selection | selection, dispatched by nhlsel.c:l_selection_meta __bor at line 1013."
+              },
+              {
+                "path": "js/bigrm.js",
+                "symbol": "bigrm2",
+                "source": "dat/bigrm-2.lua:36-44 unions selection areas with |, dispatched by nhlsel.c:l_selection_meta __bor at line 1013."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/nhlsel.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "nhlsel.c",
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-loca",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "dat/Tou-loca.lua:131 -> nhlsel.c:l_selection_meta __add -> l_selection_or -> js/nhlsel.js"
+              }
+            ],
+            "checkedAt": "a73cb02db28cf85ddca87fad3e668a737afa7eba"
+          },
+          {
+            "name": "l_selection_sub",
+            "implementation": "js/nhlsel.js",
+            "symbol": "l_selection_sub",
+            "sourceReview": "Reviewed the complete nhlsel.c:l_selection_sub body at lines 361-385: validate operands, allocate a result, union bounds, visit x-major then y-minor, evaluate (a_pt ^ b_pt) & a_pt, set every point, recalculate the output bounds, and return the new selection. The result preserves numeric signed-char point values under the selvar.c(value+1) representation. nhlsel.c binds __sub to this function. Tou-loca.lua is the only current translated JavaScript caller; Tou-goal.lua:112 is an additional source-only consumer whose loader is not registered in this task. No random, output, or game-state effects occur.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "touLoca",
+                "source": "dat/Tou-loca.lua:131 subtracts the shop union from validtraps, dispatched by nhlsel.c:l_selection_meta __sub at line 1017."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/nhlsel.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "nhlsel.c",
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-loca",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "dat/Tou-loca.lua:131 -> nhlsel.c:l_selection_meta __sub -> l_selection_sub -> js/nhlsel.js"
+              }
+            ],
+            "checkedAt": "a73cb02db28cf85ddca87fad3e668a737afa7eba"
+          },
+          {
+            "name": "shkinit",
+            "implementation": "js/shknam.js",
+            "symbol": "shkinit",
+            "sourceReview": "Reviewed complete shknam.c:shkinit at lines 628-692: failed good_shopdoor path, DEBUG-only diagnostics, occupied-square rloc(..., RLOC_NOMSG) with its discarded result, MM_ESHK creation failure, keeper/eshk initialization, trap learning, initial capital RNG, conditional touchstone/charging scroll RNG with source short-circuit order, naming, and returned door index. JavaScript calls the existing rloc path before makemon and retains the same field assignments and RNG order; its mtrapseen=-1 corresponds to mon_learns_traps(ALL_TRAPS). The reference build excludes the #ifdef DEBUG diagnostics. Natural callers are stock_room -> fill_special_room -> makelevel. The separate wiz_load_splua caller is deliberately not claimed as passing evidence: direct recipes remain blocked by makemon_create.js shopkeeperCall / C makemon(MM_ESHK) gate.",
+            "callers": [
+              {
+                "path": "js/shknam.js",
+                "symbol": "stock_room",
+                "source": "shknam.c:stock_room at lines 732-734 calls shkinit before stocking a shop."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c:makelevel lines 1414-1418 calls sp_lev.c:fill_special_room; fill_special_room calls shknam.c:stock_room, which calls shkinit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/tou-loca-level.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "shknam.c",
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-loca",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "mklev.c:makelevel -> sp_lev.c:fill_special_room -> shknam.c:stock_room -> shknam.c:shkinit; the recorded natural Tou-loca generation occupies the shopkeeper square and exercises relocation"
+              }
+            ],
+            "checkedAt": "a73cb02db28cf85ddca87fad3e668a737afa7eba"
+          }
+        ],
+        "entryPointReview": "The admitted Tourist replay uses #wizlevelport, which enters the natural level-transition path: wizcmds.c:wiz_level_tele -> level_tele -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> Tou-loca.lua. makelevel then fills the level's shops through fill_special_room -> stock_room -> shkinit. Tou-loca.lua:130-134 invokes both selection operators through the Lua metatable bindings. All active entry points in this task are covered by the matching v36 case through step 59. The independent #wizloaddes/wiz_load_splua path is a separate caller and remains a blocked direct recipe because its makemon_create.js shopkeeperCall / C makemon(MM_ESHK) gate is outside this natural-entry task. Other source-only Lua callers of l_selection_or/sub are documented in the function reviews; no enclosing JS loader for those programs is claimed here.",
+        "entryPoints": [
+          {
+            "name": "natural Tou-loca quest-level generation and deferred shop fill",
+            "functions": [
+              {
+                "sourceFile": "Tou-loca.lua",
+                "name": "Tou-loca.lua"
+              },
+              {
+                "sourceFile": "nhlsel.c",
+                "name": "l_selection_or"
+              },
+              {
+                "sourceFile": "nhlsel.c",
+                "name": "l_selection_sub"
+              },
+              {
+                "sourceFile": "shknam.c",
+                "name": "shkinit"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-loca",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "#wizlevelport -> mklev.c:makelevel -> Tou-loca.lua -> l_selection_or/l_selection_sub -> fill_special_room -> stock_room -> shkinit"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7288ae883c74f0469a62169bfd5eeb2e9ee69429",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-castle-map-throne-cell-v35-20261009",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Correct the Castle map row so the throne and adjacent floor match castle.lua",
+      "cFile": "sp_lev.c",
+      "sessions": [
+        "synthetic/v35/v35-arrival-castle"
+      ],
+      "selectionReason": "The current accepted v35 evaluation has eight unmatched Castle screens, and the complete investigation isolates a two-cell map transcription error in castle.lua with exact RNG and cursor parity.",
+      "detail": "dat/castle.lua row 8 places the throne at local x36 and floor at x37; js/castle_levels.js reverses those cells. The source-pinned whole-map test and the admitted 62-step replay cover the bounded correction.",
+      "openedAt": "35162f9194bc8a959469d0c48716c29bf7af0bd7",
+      "openStanding": {
+        "sha": "7288ae883c74f0469a62169bfd5eeb2e9ee69429",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "181abf1682eb7370613252862afb7bece56983d7",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "lspo_map",
+      "session": "synthetic/v35/v35-arrival-castle",
+      "step": 54,
+      "syntheticProvenance": {
+        "synthetic/v35/v35-arrival-castle": {
+          "session": "synthetic/v35/v35-arrival-castle",
+          "corpus": "synthetic",
+          "batch": "v35",
+          "caseId": "v35-arrival-castle",
+          "manifestPath": "challenges/manifests/v35.json",
+          "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+          "recordingPath": "challenges/cases/v35/v35-arrival-castle.session.json",
+          "recordingSha256": "891f077ee0f147d70c173b5790854090dbc6543e8177034f1fa07fff43f938d4",
+          "evaluationPath": "challenges/evaluations/accepted-7288ae883c74f0469a62169bfd5eeb2e9ee69429-v35.json",
+          "evaluationCommit": "7288ae883c74f0469a62169bfd5eeb2e9ee69429"
+        }
+      },
+      "activeStanding": {
+        "sha": "7288ae883c74f0469a62169bfd5eeb2e9ee69429",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v35",
+          "caseId": "v35-arrival-castle",
+          "session": "synthetic/v35/v35-arrival-castle",
+          "manifestPath": "challenges/manifests/v35.json",
+          "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+          "recording": "challenges/cases/v35/v35-arrival-castle.session.json",
+          "recordingPath": "challenges/cases/v35/v35-arrival-castle.session.json",
+          "recordingSha256": "891f077ee0f147d70c173b5790854090dbc6543e8177034f1fa07fff43f938d4",
+          "recipe": "challenges/cases/v35/v35-arrival-castle.recipe.session.json",
+          "recipeSha256": "4c84f21985f907bbe89bba45743f32ceca76709baba2391a156ef190f4c1963c",
+          "replayInputSha256": "26c5d44ebec68d0cdc6436a8f96d6b63c8c702e4c9a9e5e93eba74728c9c1909",
+          "evaluationPath": "challenges/evaluations/accepted-7288ae883c74f0469a62169bfd5eeb2e9ee69429-v35.json",
+          "evaluationCommit": "7288ae883c74f0469a62169bfd5eeb2e9ee69429",
+          "evaluationArtifact": "challenges/evaluations/accepted-7288ae883c74f0469a62169bfd5eeb2e9ee69429-v35.json",
+          "evaluationUtc": "2026-10-09T21:32:13.969Z",
+          "remainingScreens": 8,
+          "recordedSteps": 62,
+          "previousScreensMatched": 54,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 54,
+              "total": 62
+            },
+            "rng": {
+              "matched": 17174,
+              "total": 17174
+            },
+            "cursors": {
+              "matched": 62,
+              "total": 62
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 54,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 54,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 12,
+              "column": 44,
+              "cCell": {
+                "ch": "\\",
+                "color": 11,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": ".",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 54,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v35/v35-arrival-castle.json",
+            "result": {
+              "session": "synthetic/v35/v35-arrival-castle",
+              "corpus": "synthetic",
+              "batch": "v35",
+              "caseId": "v35-arrival-castle",
+              "manifestPath": "challenges/manifests/v35.json",
+              "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+              "recordingSha256": "891f077ee0f147d70c173b5790854090dbc6543e8177034f1fa07fff43f938d4",
+              "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+              "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+              "remainingScreens": 8,
+              "recordedSteps": 62,
+              "status": "complete",
+              "commit": "909d395c99dfaa88c3bd62b1cf29e06b1630c937",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v35",
+                "caseId": "v35-arrival-castle",
+                "session": "synthetic/v35/v35-arrival-castle",
+                "manifestPath": "challenges/manifests/v35.json",
+                "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+                "recording": "challenges/cases/v35/v35-arrival-castle.session.json",
+                "recordingPath": "challenges/cases/v35/v35-arrival-castle.session.json",
+                "recordingSha256": "891f077ee0f147d70c173b5790854090dbc6543e8177034f1fa07fff43f938d4",
+                "recipe": "challenges/cases/v35/v35-arrival-castle.recipe.session.json",
+                "recipeSha256": "4c84f21985f907bbe89bba45743f32ceca76709baba2391a156ef190f4c1963c",
+                "replayInputSha256": "9a345b9f1c2c4f64668854b1f41843898e09b9498646789c8c4a14892bfcd5a5",
+                "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+                "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+                "evaluationArtifact": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+                "evaluationUtc": "2026-10-09T08:22:23.377Z",
+                "remainingScreens": 8,
+                "recordedSteps": 62,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 54,
+                    "total": 62
+                  },
+                  "rng": {
+                    "matched": 17174,
+                    "total": 17174
+                  },
+                  "cursors": {
+                    "matched": 62,
+                    "total": 62
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 54,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 54,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 12,
+                    "column": 44,
+                    "cCell": {
+                      "ch": "\\",
+                      "color": 11,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": ".",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 54,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The Castle’s translated map swaps its throne and adjacent floor. Lua row8 puts the throne at local x36 and floor at x37; JavaScript reverses them, so wizard mapping displays the throne one square too far right. RNG and cursors match; this is a bounded map transcription divergence.",
+              "source": {
+                "file": "castle.lua",
+                "branch": "dat/castle.lua des.map long-string row8, local cells36/37; current JavaScript map literal in castle_levels.js40 swaps the backslash throne and period floor while preserving the63-column width.",
+                "functions": [
+                  "castle.lua"
+                ],
+                "callers": [
+                  "teleport.c:level_tele -> do.c:goto_level -> mklev.c:makelevel special-level loading selects dat/castle.lua. JavaScript mklev.js:ensureSpecialLevelLoaders1731–1767 imports CASTLE_LEVEL_LOADERS and selects its castle(des) owner; that owner passes its literal directly to des.map.",
+                  "sp_lev.c:lspo_map6280–6292 traverses the map fragment and applies its terrain types. JavaScript mklev.js:mapFromRows4690–4736 maps each supplied character through splev_chr2typ and writes the canonical terrain; no caller or parser correction is required.",
+                  "wizcmds.c:wiz_map -> detect.c:do_mapping1422–1444/show_map_spot1372–1419 -> display.c:magic_map_background233–258/back_to_glyph exposes the existing terrain after arrival. JS mapping/display reaches the same source path; it correctly renders the incorrect translated map data."
+                ],
+                "dependencies": [
+                  "Existing pure nhlua.c:splev_chr2typ379–391 returns THRONE for backslash and ROOM for period; canonical js/mklev.js:splev_chr2typ975–1005 has those exact cases. No terrain-parser expansion, native pointer helper or random draw is required.",
+                  "Map frame and table widths agree: all17 rows have63 characters. A source-derived comparison finds exactly two differences, local(36,8)/(37,8), and no other map cell mismatch. Correct only the translated row; retain all door, region, monster and object operations in their existing order.",
+                  "A188 owns wizard3.lua and C165 owns mkobj generation. This correction changes js/castle_levels.js only, plus Castle-focused tests/recipes/recordings; it does not touch either owner, shared mklev, commands, display or pending B185/B186/B187 files.",
+                  "Existing unrelated timeout.c:kill_egg gap appears in final replay state; it does not cause this terrain mismatch and remains outside the bounded map correction. No whole castle.lua/mklev/display/object-generator completion credit is proposed."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Authoritative accepted-672aef01 v35 metrics are54/62 screens,17174/17174 RNG and62/62 cursors,8 remaining. Current assigned-base single-case diagnostic run-ai7Mty at909d395c reproduces first screen difference segment0 step54 (Enter after #wizmap), row12 col44: C backslash color11, JS period color8. There is no refusal, RNG or cursor divergence. Artifact .cache/B188/current-scan.json.",
+                "Read complete upstream dat/castle.lua and its js/castle_levels.js owner. The Lua long string contains nine periods after the preceding door, then backslash, period, secret door. JS contains ten periods, then backslash, secret door. Both remain63 columns; cells36/37 are transposed, so downstream terrain operations consume identical dimensions and draw counts.",
+                "The source-derived .cache/B188/source-map-comparison.json decodes the JS string escape and compares all17 rows to the Lua long-string bytes. Only(36,8) and(37,8) differ. This removes the initial suspicion of an arrival/display/parser or object-generator problem.",
+                "The same replay inspected canonical final terrain without mutation: .cache/B188/state-snapshots.json has only throne at game(46,11), while game(45,11) is ROOM. The source map’s xstart9/ystart3 places its throne at game(45,11); display.js6015 renders game x at terminal x-1, matching the recorded first differing column44. A map data correction changes actual terrain and normal mapping output together.",
+                "Independent implementation evidence plan after central assignment: source-pin the entire decoded map matrix against dat/castle.lua using the existing loader with a read-only des-map capture, then add independent C-first Castle levelport/mapping recipes with different relevant role and seed, checking actual throne/floor and message/RNG/cursor ordering. Cite admitted steps54–61 after correction. Do not copy the admitted recipe or alter source owner functions beyond the row literal.",
+                "No new C games or aggregate scans were run during investigation. A188/C165 were notified of the disjoint Castle map boundary; source implementation remains centrally gated."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "181abf1682eb7370613252862afb7bece56983d7",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-tou-goal-quest-level-v36-20261009",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the complete Tourist quest-goal level and Keystone Kop initial equipment",
+      "luaFile": "Tou-goal.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-tou-goal"
+      ],
+      "selectionReason": "The current admitted v36 Tou-goal case stops at step 19 because load_special has no Tou-goal loader. The complete investigation traces the whole Lua program and its natural Kop creation path, which requires the complete makemon.c:m_initweap function because the missing S_KOP branch changes RNG before the first emitted goal-level screen.",
+      "detail": "Port dat/Tou-goal.lua lines 1-159 in source order, register its natural makelevel loader, and complete makemon.c:m_initweap lines 161-572 by adding the missing S_KOP branch while retaining all existing arms. The admitted v36 replay covers the natural quest-level path; preserve the separately blocked diagnostic wiz_load_splua recipe for the MM_ESHK shopkeeper gate.",
+      "openedAt": "d86dff01024071c8e754126da9f4b187bfddf98b",
+      "openStanding": {
+        "sha": "181abf1682eb7370613252862afb7bece56983d7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "Tou-goal.lua",
+          "line": 1,
+          "endLine": 159,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "requiredFunctions": [
+        {
+          "name": "m_initweap",
+          "line": 161,
+          "endLine": 575,
+          "declared": true,
+          "sourceFile": "makemon.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-tou-goal": {
+          "session": "synthetic/v36/v36-quest-tou-goal",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-tou-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-tou-goal.session.json",
+          "recordingSha256": "1f1f123cc3b022837762248ed5c6c34775d6c022c843fa69c2d0ef3354f74442",
+          "evaluationPath": "challenges/evaluations/accepted-181abf1682eb7370613252862afb7bece56983d7-v36.json",
+          "evaluationCommit": "181abf1682eb7370613252862afb7bece56983d7"
+        }
+      },
+      "activeStanding": {
+        "sha": "181abf1682eb7370613252862afb7bece56983d7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-tou-goal",
+          "session": "synthetic/v36/v36-quest-tou-goal",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-tou-goal.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-tou-goal.session.json",
+          "recordingSha256": "1f1f123cc3b022837762248ed5c6c34775d6c022c843fa69c2d0ef3354f74442",
+          "recipe": "challenges/cases/v36/v36-quest-tou-goal.recipe.session.json",
+          "recipeSha256": "72dbbb71ca155e4de0791c5ecf8e5a3455ce1defdb81666a817c76d40b90012d",
+          "replayInputSha256": "e09a2d210a07e32a3d115f345be71c6ca4ff17f8a0bd9a57a358babdd8f1f795",
+          "evaluationPath": "challenges/evaluations/accepted-181abf1682eb7370613252862afb7bece56983d7-v36.json",
+          "evaluationCommit": "181abf1682eb7370613252862afb7bece56983d7",
+          "evaluationArtifact": "challenges/evaluations/accepted-181abf1682eb7370613252862afb7bece56983d7-v36.json",
+          "evaluationUtc": "2026-10-09T21:47:44.425Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2144,
+              "total": 5854
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-goal\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Tou-goal.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-goal\"",
+          "cFile": null,
+          "luaFile": "Tou-goal.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-tou-goal.json",
+            "result": {
+              "session": "synthetic/v36/v36-quest-tou-goal",
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-tou-goal",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "1f1f123cc3b022837762248ed5c6c34775d6c022c843fa69c2d0ef3354f74442",
+              "evaluationPath": "challenges/evaluations/accepted-7288ae883c74f0469a62169bfd5eeb2e9ee69429-v36.json",
+              "evaluationCommit": "7288ae883c74f0469a62169bfd5eeb2e9ee69429",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "7288ae883c74f0469a62169bfd5eeb2e9ee69429",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-tou-goal",
+                "session": "synthetic/v36/v36-quest-tou-goal",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-tou-goal.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-tou-goal.session.json",
+                "recordingSha256": "1f1f123cc3b022837762248ed5c6c34775d6c022c843fa69c2d0ef3354f74442",
+                "recipe": "challenges/cases/v36/v36-quest-tou-goal.recipe.session.json",
+                "recipeSha256": "72dbbb71ca155e4de0791c5ecf8e5a3455ce1defdb81666a817c76d40b90012d",
+                "replayInputSha256": "146ad6cf62c96754ae613563881c2a916dd6e36db2955adfa724312f0a6697f0",
+                "evaluationPath": "challenges/evaluations/accepted-7288ae883c74f0469a62169bfd5eeb2e9ee69429-v36.json",
+                "evaluationCommit": "7288ae883c74f0469a62169bfd5eeb2e9ee69429",
+                "evaluationArtifact": "challenges/evaluations/accepted-7288ae883c74f0469a62169bfd5eeb2e9ee69429-v36.json",
+                "evaluationUtc": "2026-10-09T21:32:13.969Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2144,
+                    "total": 5854
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-goal\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Tou-goal.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Tou-goal\"",
+                "cFile": null,
+                "luaFile": "Tou-goal.lua",
+                "line": null
+              },
+              "summary": "C181 ports all of dat/Tou-goal.lua:1-159 and its natural Tourist quest-goal loader. After the loader reached its explicit Kops, the targeted replay exposed a second source gap: makemon.c:m_initweap omitted the S_KOP cream-pie and club/rubber-hose arm. The whole function is now included as a required C dependency and the complete 60-boundary natural replay matches. Numeric selection algebra and natural shopkeeper placement remain accepted C176 dependencies. The separate wizard direct-load caller remains blocked at its independent MM_ESHK/shopkeeperCall gate and earns no completion credit.",
+              "source": {
+                "file": "Tou-goal.lua",
+                "branch": "A wizard level teleport selects the Tourist quest goal prototype Tou-goal. C makelevel dispatches the special level through makemaz and load_special, which executes dat/Tou-goal.lua; the current JavaScript registry lacks that program and throws before its first descriptor runs.",
+                "functions": [
+                  "Tou-goal.lua",
+                  "makemon.c:m_initweap"
+                ],
+                "callers": [
+                  "nethack-c/upstream/src/wizcmds.c:wiz_level_tele (397-406) calls teleport.c:level_tele (1165); level_tele schedules the destination with do.c:schedule_goto (2057-2070). allmain.c:moveloop_core calls do.c:deferred_goto after rhack; deferred_goto calls do.c:goto_level (1479-1998), which calls mklev.c:mklev (1577), and mklev calls makelevel (1251-1446). makelevel calls mkmaze.c:makemaz (1127-1230) for this special prototype; makemaz calls sp_lev.c:load_special (6454-6503), which executes dat/Tou-goal.lua. After the loader returns, natural makelevel fills special rooms through sp_lev.c:fill_special_room -> shknam.c:stock_room -> shknam.c:shkinit.",
+                  "JavaScript mirrors the production dispatch: js/wizcmds.js:wiz_level_tele -> js/teleport.js:level_tele -> js/do.js:schedule_goto -> js/allmain.js:deferred_goto -> js/do.js:deferred_goto -> goto_level -> js/mklev.js:mklev -> makelevel -> makemaz -> load_special. mklev.js:ensureSpecialLevelLoaders merges QUEST_LEVEL_LOADERS from quest_levels.js; registering Tou-goal there wires the existing natural dispatcher.",
+                  "After natural load_special returns, mklev.c:makelevel fills its special rooms through sp_lev.c:fill_special_room -> shknam.c:stock_room -> shknam.c:shkinit. The matching JavaScript makelevel tail follows the same fill path. C176 accepted the complete shkinit implementation and its occupied-shopkeeper relocation evidence."
+                ],
+                "dependencies": [
+                  "dat/Tou-goal.lua:111-115 constructs valid trap cells with selection.area(...):filter_mapchar(\".\") and subtracts the two shop bounds with selection subtraction. The complete numeric l_selection_sub / selection-algebra-values port is accepted in C176 at tested commit 7288ae883c74f0469a62169bfd5eeb2e9ee69429; this task calls the existing operator without editing its contract.",
+                  "Three filled barracks, one morgue and two shop regions are finalized by the existing special-room fill path. Complete shknam.c:shkinit and contract:shopkeeper-placement were accepted in C176 at the same tested commit; C181 does not edit that owner.",
+                  "All descriptor names in Tou-goal.lua have existing handlers in js/mklev.js:createSpecialLevelApi, including map, region, non_diggable, stair, door, object, trap, monster and wallify. The only missing behavior on the queue path is the whole program body plus its registry entry.",
+                  "The separate wizard wiz_load_splua -> load_special -> lspo_finalize_level caller can load a named des file outside natural makelevel. It is not the selected entrypoint; retain any direct-load probe separately if it still reaches the known makemon_create.js shopkeeperCall / C makemon(MM_ESHK) gate.",
+                  "The first post-loader differential matched through segment 0 step 18, then diverged at step 19 when Tou-goal.lua:144-152 began creating Kops: C makemon.c:m_initweap:402-409 performs rn2(4) for a CREAM_PIE stack, then rn2(3) and rn2(2) for CLUB/RUBBER_HOSE; existing js/makemon_create.js:m_initweap omitted the S_KOP arm and entered the generic rnd(14) arm instead. The approved scope now includes the whole makemon.c:m_initweap function and js/makemon_create.js. Calls to m_initthrow and mongets discard their return values; the existing muse.c:rnd_offensive_item return-valued callee is already implemented in JS. After the S_KOP port, the natural v36/v36-quest-tou-goal replay matches all 60 recorded boundaries."
+                ],
+                "implementationPlan": {
+                  "completeSource": {
+                    "file": "nethack-c/upstream/dat/Tou-goal.lua",
+                    "lines": "1-159",
+                    "program": "Tou-goal.lua"
+                  },
+                  "behaviorOrder": [
+                    "solidfill level initialization and mazelevel flag",
+                    "20 by 76 map, full map lighting, eight additional lighting or filled-room regions, and remaining region descriptors in source order",
+                    "full-map nondiggable selection, up stair, and all fixed doors in source order",
+                    "blessed named credit card and fourteen independent random-object descriptors",
+                    "six traps selected destructively from map floor cells after subtracting the entire shop-exclusion rectangle",
+                    "all fixed and random monster descriptors in source order",
+                    "final wallify call"
+                  ],
+                  "javaScriptWiring": "Add touGoal to js/quest_levels.js and QUEST_LEVEL_LOADERS; js/mklev.js already merges that registry into the natural load_special dispatcher.",
+                  "generatedData": "Extract and check the large fixed map, fixed door table, and literal monster argument table from dat/Tou-goal.lua with scripts/generate-tou-goal-level.mjs into js/tou_goal_level_data.js.",
+                  "tests": "Source-pin the Lua map and descriptor behavior and both the C and JS S_KOP m_initweap branch; the test asserts all six combinations of pie/no-pie, weapon/no-weapon, and club/hose with draw order.",
+                  "acceptedDependencies": [
+                    "C176 accepted l_selection_or/l_selection_sub and selection-algebra-values at tested commit 7288ae883c74f0469a62169bfd5eeb2e9ee69429; C181 calls existing operations without editing them.",
+                    "C176 accepted shknam.c:shkinit and shopkeeper-placement at the same tested commit; the natural makelevel fill tail uses that implementation without editing it."
+                  ],
+                  "entryPoints": [
+                    {
+                      "name": "natural Tourist quest goal generation",
+                      "caller": "wiz_level_tele -> level_tele -> schedule_goto -> deferred_goto -> goto_level -> mklev -> makelevel -> makemaz -> load_special -> Tou-goal.lua",
+                      "evidence": "synthetic/v36/v36-quest-tou-goal through step 59; the recorded replay matches all 60 boundaries, and Tou-goal.lua lines 144-152 reach makemon.c:m_initweap for Kop Kaptain, Kop Lieutenants, and Keystone Kops."
+                    },
+                    {
+                      "name": "diagnostic direct special-level load",
+                      "caller": "wiz_load_splua -> load_special -> lspo_finalize_level -> special-room fill",
+                      "status": "probe separately; if blocked, keep a non-evidentiary recipe naming makemon_create.js shopkeeperCall / C makemon(MM_ESHK)"
+                    }
+                  ],
+                  "plannedPaths": [
+                    "js/quest_levels.js",
+                    "js/tou_goal_level_data.js",
+                    "scripts/generate-tou-goal-level.mjs",
+                    "scripts/tou-goal-level.test.mjs",
+                    "recipes/Tou-goal.lua/",
+                    "recordings/Tou-goal.lua/",
+                    "investigations/synthetic/v36/v36-quest-tou-goal.json",
+                    ".cache/",
+                    "js/makemon_create.js",
+                    "scripts/makemon-create.test.mjs"
+                  ],
+                  "requiredCUnits": [
+                    {
+                      "file": "nethack-c/upstream/src/makemon.c",
+                      "function": "m_initweap",
+                      "lines": "161-572",
+                      "javascript": "js/makemon_create.js",
+                      "runtimeCaller": "makemon.c:1441-1443 calls m_initweap under is_armed; Tou-goal.lua:144-152 creates Kops through sp_lev.c:create_monster and makemon"
+                    }
+                  ]
+                }
+              },
+              "goalKind": "lua-port",
+              "evidence": [
+                "The latest saved combined queue at accepted commit 7288ae883c74f0469a62169bfd5eeb2e9ee69429 records v36/v36-quest-tou-goal at 19/60 matched screens and 19/60 matched cursors before stopping at segment 0, step 19 with unsupported level change: makelevel has no loader for special level Tou-goal. RNG matches through the boundary. The queue preserves manifest, recording and evaluation digests in .cache/C181-queue-entry.json.",
+                "Read the complete upstream dat/Tou-goal.lua at lines 1-159. Its embedded map contains 20 rows of 76 characters; the program issues 25 region descriptors, 27 fixed door descriptors, one stair, 15 object descriptors, six randomized trap placements, 38 monster descriptor calls, and wallify. Descriptor order and each loop are part of the whole Lua port.",
+                "Lines 111-115 select floor map characters, subtract the shop rectangles, then destructively choose six trap coordinates. This is the same numeric selection contract validated by C176. The 25 region calls include three filled barracks, a filled morgue and two shops; natural level generation fills these after load_special, reaching the already accepted C176 shopkeeper implementation.",
+                "The current JS registry in js/quest_levels.js has no Tou-goal key, while js/mklev.js:ensureSpecialLevelLoaders consumes that registry and throws the exact queue refusal from makelevel. The source caller path runs through the natural #wizlevelport transition. The independent #wizloaddes command goes through wiz_load_splua and is a separate diagnostic caller, not evidence for the selected natural entry.",
+                "After the whole Tou-goal loader was wired, a targeted C/JS scan exposed a second source-traced dependency at segment 0 step 19: makemon.c:m_initweap S_KOP (402-409) was absent from js/makemon_create.js, so C drew rn2(4) while JS entered the generic rnd(14) branch. C181 expanded to the complete m_initweap function under an atomic source reservation. After adding the source-ordered pie and CLUB/RUBBER_HOSE gates, node scripts/scan-sessions.mjs --json --synthetic v36/v36-quest-tou-goal reported no divergence, all 60 screens, and a matched input boundary."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Tou-goal.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "touGoal",
+            "sourceReview": "Read and ported all 159 lines of nethack-c/upstream/dat/Tou-goal.lua. Preserved the solidfill and mazelevel setup; all 20x76 source map cells; 25 region descriptors in source order; the nondiggable boundary, stair, and 27 fixed doors; the blessed named credit card followed by fourteen random objects; the floor-only selection, subtraction of the full x60-71/y14-18 rectangle, and six destructive rndcoord(1) choices; all 38 monster calls in order; and final wallification. The numeric selection behavior comes from the already accepted C176 l_selection_sub/selection-algebra-values owner, which C181 calls without editing. Natural special-room fill uses the already accepted C176 shknam.c:shkinit/shopkeeper-placement dependency. No unported Lua callee is skipped.",
+            "callers": [
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "touGoal",
+                "source": "Whole source program dat/Tou-goal.lua:1-159. QUEST_LEVEL_LOADERS registers Tou-goal and invokes this function."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "C mklev.c:makelevel selects slev->proto and calls mkmaze.c:makemaz; mkmaze.c:makemaz calls sp_lev.c:load_special. JS makelevel -> makemaz -> load_special resolves the source name through QUEST_LEVEL_LOADERS."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_level_tele",
+                "source": "C wizcmds.c:wiz_level_tele calls teleport.c:level_tele, which schedules the transition with do.c:schedule_goto. allmain.c processes deferred_goto after rhack; do.c:deferred_goto calls goto_level -> mklev -> makelevel. JS follows wiz_level_tele -> level_tele -> schedule_goto -> deferred_goto -> goto_level -> mklev -> makelevel."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/tou-goal-level.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-goal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "#wizlevelport -> level_tele/schedule_goto -> deferred_goto/goto_level -> mklev/makelevel -> makemaz/load_special -> dat/Tou-goal.lua:1-159"
+              }
+            ],
+            "checkedAt": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8"
+          },
+          {
+            "name": "m_initweap",
+            "implementation": "js/makemon_create.js",
+            "symbol": "m_initweap",
+            "sourceReview": "Read and compared all of makemon.c:m_initweap (161-572) against js/makemon_create.js:m_initweap, including rogue-level early return, every monster-class arm, exact branch order and RNG bounds, and the final m_lev > rn2(75) offensive-item gate. Added the missing S_KOP arm from makemon.c:402-409: rn2(4) cream-pie gate and m_initthrow(mtmp, CREAM_PIE, 2), followed by rn2(3) gear gate and rn2(2) CLUB/RUBBER_HOSE selection. The S_KOP helper return values are discarded in C. The existing muse.c:rnd_offensive_item return-valued callee is implemented in JS and was source-compared; the m_initweap caller uses its result as mongets input. JS makemon invokes the helper only after the same is_armed predicate as C.",
+            "callers": [
+              {
+                "path": "js/makemon_create.js",
+                "symbol": "makemon",
+                "source": "C makemon.c:1441-1443 calls m_initweap(mtmp) only under is_armed(ptr); JS makemon follows the same guard at js/makemon_create.js:2922 before calling m_initweap."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "makemon.c",
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-goal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "#wizlevelport -> deferred_goto/goto_level -> makelevel/makemaz/load_special -> dat/Tou-goal.lua:144-152 creates Kops -> sp_lev.c:create_monster -> makemon.c:1441-1443 -> makemon.c:m_initweap"
+              }
+            ],
+            "checkedAt": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8"
+          }
+        ],
+        "entryPointReview": "The natural Tourist quest-goal entry point is exercised by the admitted v36/v36-quest-tou-goal replay. #wizlevelport calls level_tele/schedule_goto; deferred_goto/goto_level/mklev/makelevel/makemaz/load_special dispatches Tou-goal.lua, whose source lines 144-152 create Kop Kaptain, Kop Lieutenants, and Keystone Kops through sp_lev.c:create_monster -> makemon.c:makemon -> m_initweap. The complete replay matches all 60 recorded boundaries. The separate direct #wizloaddes diagnostic recipe remains blocked at the independent JS makemon_create.js:shopkeeperCall / C makemon(MM_ESHK) gate and contributes no runtime evidence.",
+        "entryPoints": [
+          {
+            "name": "natural Tourist quest-goal generation and initial Kop equipment",
+            "functions": [
+              {
+                "sourceFile": "Tou-goal.lua",
+                "name": "Tou-goal.lua"
+              },
+              {
+                "sourceFile": "makemon.c",
+                "name": "m_initweap"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-tou-goal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "#wizlevelport -> deferred_goto/goto_level -> mklev.c:makelevel -> dat/Tou-goal.lua:144-152 -> sp_lev.c:create_monster -> makemon.c:m_initweap"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-val-strt-quest-start-v36-20261009",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the complete Valkyrie quest-start level and random selection-point helper",
+      "luaFile": "Val-strt.lua",
+      "sessions": [
+        "synthetic/v36/v36-quest-val-strt"
+      ],
+      "selectionReason": "The accepted v36 Val-strt case stops at the missing special-level loader; accepted C176 selection algebra and C181 monster equipment support are prerequisites.",
+      "detail": "Port all of dat/Val-strt.lua, wire its production loader and coder-frame selection binding, and port complete nhlsel.c:l_selection_setpoint.",
+      "openedAt": "6dcaa1bdccd12cd228f54bfcf30c819fb4dd912b",
+      "openStanding": {
+        "sha": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "f5d95cf1e445b7dca8a75b6988625a52c03b2e52",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "Val-strt.lua",
+          "line": 1,
+          "endLine": 100,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "requiredFunctions": [
+        {
+          "name": "l_selection_setpoint",
+          "line": 159,
+          "endLine": 202,
+          "declared": true,
+          "sourceFile": "nhlsel.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v36/v36-quest-val-strt": {
+          "session": "synthetic/v36/v36-quest-val-strt",
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-val-strt",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recordingPath": "challenges/cases/v36/v36-quest-val-strt.session.json",
+          "recordingSha256": "bd018419e6b072d055d445683d58fddf50dd9a14c43ee1d19997ab1149a3f571",
+          "evaluationPath": "challenges/evaluations/accepted-438d5d0cd3f837bbc821b6ff78ce82940470a5f8-v36.json",
+          "evaluationCommit": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8"
+        }
+      },
+      "activeStanding": {
+        "sha": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v36",
+          "caseId": "v36-quest-val-strt",
+          "session": "synthetic/v36/v36-quest-val-strt",
+          "manifestPath": "challenges/manifests/v36.json",
+          "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+          "recording": "challenges/cases/v36/v36-quest-val-strt.session.json",
+          "recordingPath": "challenges/cases/v36/v36-quest-val-strt.session.json",
+          "recordingSha256": "bd018419e6b072d055d445683d58fddf50dd9a14c43ee1d19997ab1149a3f571",
+          "recipe": "challenges/cases/v36/v36-quest-val-strt.recipe.session.json",
+          "recipeSha256": "c95b86e0f842d5772b63621ec8a8c7b1a5f61e6ae4d6ffbabc7781ebfb75ff3b",
+          "replayInputSha256": "9299114292d48ed5d2ef8837dbf5d5a9fc51f0426ecbc4ada07cae91f32e62e1",
+          "evaluationPath": "challenges/evaluations/accepted-438d5d0cd3f837bbc821b6ff78ce82940470a5f8-v36.json",
+          "evaluationCommit": "438d5d0cd3f837bbc821b6ff78ce82940470a5f8",
+          "evaluationArtifact": "challenges/evaluations/accepted-438d5d0cd3f837bbc821b6ff78ce82940470a5f8-v36.json",
+          "evaluationUtc": "2026-10-09T22:13:29.907Z",
+          "remainingScreens": 41,
+          "recordedSteps": 60,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2205,
+              "total": 2942
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Val-strt\"",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "Val-strt.lua",
+          "function": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Val-strt\"",
+          "cFile": null,
+          "luaFile": "Val-strt.lua",
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v36/v36-quest-val-strt.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v36",
+              "caseId": "v36-quest-val-strt",
+              "session": "synthetic/v36/v36-quest-val-strt",
+              "manifestPath": "challenges/manifests/v36.json",
+              "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+              "recordingSha256": "bd018419e6b072d055d445683d58fddf50dd9a14c43ee1d19997ab1149a3f571",
+              "evaluationPath": "challenges/evaluations/accepted-181abf1682eb7370613252862afb7bece56983d7-v36.json",
+              "evaluationCommit": "181abf1682eb7370613252862afb7bece56983d7",
+              "remainingScreens": 41,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "181abf1682eb7370613252862afb7bece56983d7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v36",
+                "caseId": "v36-quest-val-strt",
+                "session": "synthetic/v36/v36-quest-val-strt",
+                "manifestPath": "challenges/manifests/v36.json",
+                "manifestSha256": "58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c",
+                "recording": "challenges/cases/v36/v36-quest-val-strt.session.json",
+                "recordingPath": "challenges/cases/v36/v36-quest-val-strt.session.json",
+                "recordingSha256": "bd018419e6b072d055d445683d58fddf50dd9a14c43ee1d19997ab1149a3f571",
+                "recipe": "challenges/cases/v36/v36-quest-val-strt.recipe.session.json",
+                "recipeSha256": "c95b86e0f842d5772b63621ec8a8c7b1a5f61e6ae4d6ffbabc7781ebfb75ff3b",
+                "replayInputSha256": "e09a2d210a07e32a3d115f345be71c6ca4ff17f8a0bd9a57a358babdd8f1f795",
+                "evaluationPath": "challenges/evaluations/accepted-181abf1682eb7370613252862afb7bece56983d7-v36.json",
+                "evaluationCommit": "181abf1682eb7370613252862afb7bece56983d7",
+                "evaluationArtifact": "challenges/evaluations/accepted-181abf1682eb7370613252862afb7bece56983d7-v36.json",
+                "evaluationUtc": "2026-10-09T21:47:44.425Z",
+                "remainingScreens": 41,
+                "recordedSteps": 60,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2205,
+                    "total": 2942
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Val-strt\"",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "Val-strt.lua",
+                "function": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Val-strt\"",
+                "cFile": null,
+                "luaFile": "Val-strt.lua",
+                "line": null
+              },
+              "summary": "The current v36 evaluation still stops at step 19 because Val-strt.lua has no loader; 41 of 60 screens remain. C176 has since accepted the numeric selection storage and OR/sub operations, clearing the old shared selection-algebra blocker. Completing the whole level also runs two fixed fire giants through makemon.c:m_initweap, which C181 currently owns, while the established quest loader registry is in C181-owned js/quest_levels.js. Keep this as session-only investigation until that owner finishes or Main sequences the overlapping scope.",
+              "goalKind": "lua-port",
+              "source": {
+                "file": "Val-strt.lua",
+                "branch": "Loading the whole Valkyrie quest-start program at makelevel() for the Val-strt special level; its initial random selection points are generated in the level coder frame before the overlay map is placed.",
+                "functions": [
+                  "Val-strt.lua (whole program, lines 1–100)",
+                  "nhlsel.c:l_selection_setpoint (whole function, lines 159–200)"
+                ],
+                "callers": [
+                  "C: do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Val-strt.lua.",
+                  "JS: mklev.js:ensureSpecialLevelLoaders/load_special -> QUEST_LEVEL_LOADERS[\"Val-strt\"] in js/quest_levels.js; C181 currently owns that shared registry file.",
+                  "C: nhlsel.c:l_selection_setpoint is registered as selection.set; Val-strt calls it for selection:set() and selection.set(selection.new()). The helper obtains its random or explicit coordinate with sp_lev.c:get_location_coord and current gc.coder->croom."
+                ],
+                "dependencies": [
+                  "Accepted C176 at 35162f9194bc8a959469d0c48716c29bf7af0bd7 now implements nhlsel.c:l_selection_or/l_selection_sub and numeric selection storage in js/nhlsel.js and js/themerooms.js. This clears the prior shared selection-algebra blocker; l_selection_setpoint remains unimplemented.",
+                  "C181 actively reserves source:makemon.c:m_initweap and js/makemon_create.js. Val-strt.lua creates two fixed fire giants (lines 98–99); upstream makemon.c:1443–1444 calls m_initweap for armed monsters before m_initinv. Do not edit or claim this source while C181 owns it.",
+                  "C181 actively owns js/quest_levels.js, the established QUEST_LEVEL_LOADERS registry used by mklev.js:ensureSpecialLevelLoaders. A separate module and mklev registry hook could avoid touching that file, but does not remove the active m_initweap dependency from the complete Val-strt runtime path.",
+                  "nhlsel.c:l_selection_setpoint uses existing sp_lev.c:get_location_coord; js/room_coordinates.js:get_location_coord already accepts ANY_LOC, the coder frame, current level state, and injected rn2. No room-coordinate implementation is presently required."
+                ]
+              },
+              "evidence": [
+                "Current saved queue challenges/evaluations/accepted-181abf1682eb7370613252862afb7bece56983d7-v36.json at 181abf1682eb7370613252862afb7bece56983d7 retains this case at 19/60 screens and cursors and 2205/2942 RNG, with 41 screens remaining over 60 steps. Its current first mismatch is the missing Val-strt loader at segment 0 step 19. Manifest SHA-256 58332ee9786ee7c91f282d2fe29ca64fc6ee5e23ca70f0261bbedd7ea88fd20c; recording SHA-256 bd018419e6b072d055d445683d58fddf50dd9a14c43ee1d19997ab1149a3f571; recipe SHA-256 c95b86e0f842d5772b63621ec8a8c7b1a5f61e6ae4d6ffbabc7781ebfb75ff3b; replay input SHA-256 e09a2d210a07e32a3d115f345be71c6ca4ff17f8a0bd9a57a358babdd8f1f795.",
+                "Read the complete upstream dat/Val-strt.lua (source SHA-256 33bc072378baf232f08fe3ca819ffdfe7e55d8c52fa0ac291a6d2512054b608e). It sets mazelevel, noteleport, hardfloor and icedpools before solidfill I; draws thirteen random setpoints and three additional selection points, then grows and unions those selections before painting P and L terrain and applying the 76-by-20 overlay map.",
+                "nhlsel.c:l_selection_setpoint lines 159–200 handles zero, one, two, and three-or-more Lua arguments, defaults point value to 1, calls get_location_coord with ANY_LOC and the active coder room/frame, mutates the chosen selection, and returns that selection. Its zero-argument form calls l_selection_new but then raises Selection setpoint error because sel is null. Implement the complete wrapper and preserve this error path.",
+                "For the recorded Val-strt sequence, the initial coder frame is xstart=1, ystart=0, xsize=79, ysize=21. Source setpoint calls consume thirteen plus three independent rn2(79), rn2(21) pairs; the second point has y=20, outside the later 20-row map. The subsequent random_wdir consumes rn2(4)=3, selecting west. These values diagnose the source sequence only; implementation must use the injected RNG and current frame.",
+                "C176 accepted the numeric selection storage, OR and subtraction operators at 35162f9194bc8a959469d0c48716c29bf7af0bd7. Current js/nhlsel.js contains l_selection_or and l_selection_sub; the remaining nhlsel.c wrapper l_selection_setpoint is absent.",
+                "The loader registry currently resides in js/quest_levels.js:2809 and is merged by mklev.js:ensureSpecialLevelLoaders. C181 has the live allowed path js/quest_levels.js. Val-strt.lua lines 98–99 place fire giants; upstream makemon.c:1443–1444 calls m_initweap before m_initinv when the species is armed. Ledger task C181 owns source:makemon.c:m_initweap and js/makemon_create.js.",
+                "The full source order after selections includes the mapped terrain, branch arrival, down stair, fountain, locked doors, Norn and her two custom inventory objects, chest, eight Valkyrie warriors, non-diggable hall, six fire traps, ten fire ants, and two hostile fire giants. Existing lspo_* callers handle these descriptor forms; investigate any newly reached refusal or mismatch without taking C181-owned source.",
+                "No C replay, new recipe, or game-code edit was made in this investigation update. The original C-first diagnosis and saved hashes remain in the prior B202 report commit 2494462c6277e2a43a7b1ae90f2f89128cdb9216; the current queue above refreshes its evaluation identity and unchanged first mismatch against accepted B203."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "l_selection_setpoint",
+            "implementation": "js/nhlsel.js",
+            "symbol": "l_selection_setpoint",
+            "sourceReview": "Read nethack-c/upstream/src/nhlsel.c:152-200 and its registration at 977-989. Ported argc 0 (new selection then source error), argc 1 (checked selection and random point), argc 2 (new selection and explicit point), and argc >=3 (checked selection, explicit point, optional integer value). Preserved SP_COORD_PACK_RANDOM(0) only when both coordinates are -1, ANY_LOC lookup through the current coder room/frame and injected random source, signed-char point storage through ThemeroomSelection.set, mutation and returned selection identity. The helper's random location lookup and selection mutation are impure. No unported callee remains on the exercised branch.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "createSpecialLevelApi",
+                "source": "nhlsel.c selection library registration maps 'set' to l_selection_setpoint; sp_lev.c load_special initializes the active coder before running the Lua level program."
+              },
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "valStrt",
+                "source": "dat/Val-strt.lua calls pools:set() thirteen times and selection.set(selection.new()) three times before growing the selections."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/nhlsel.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "nhlsel.c",
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-val-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Valkyrie quest-start load_special -> dat/Val-strt.lua selection.set -> nhlsel.c:l_selection_setpoint; the Lua program then exercises its terrain, map, feature, object, trap, and monster descriptors."
+              }
+            ],
+            "checkedAt": "87a4d535c9677c8043d49ec0c1d60dee6f0534e4"
+          },
+          {
+            "name": "Val-strt.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "valStrt",
+            "sourceReview": "Read the complete nethack-c/upstream/dat/Val-strt.lua:1-100. Preserved level_flags before solidfill initialization; thirteen random pool points; three fresh random points grown west, north, and random and ORed with the pool selection; grown P terrain before L terrain; source map, lit region, branch arrival, down stair, fountain, locked doors, Norn inventory callback, chest, eight warriors, non-diggable selection, six random fire traps, ten fixed fire ants, and two hostile fire giants in source order. The fixed map is generated from this Lua source by scripts/generate-val-strt-level.mjs. The loader's selection.set dependency is bound to the current coder and source random functions by js/mklev.js:load_special/createSpecialLevelApi. No unported callee remains on the exercised program.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special runs dat/Val-strt.lua for the Val-strt special-level prototype."
+              },
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "valStrt",
+                "source": "The established special-level loader registry dispatches the source name Val-strt to the whole program port valStrt."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-val-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Valkyrie quest-start arrival through do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Val-strt.lua."
+              }
+            ],
+            "checkedAt": "87a4d535c9677c8043d49ec0c1d60dee6f0534e4"
+          }
+        ],
+        "entryPointReview": "dat/Val-strt.lua has one active game entry point in the recorder build: the Valkyrie quest-start destination reached through do.c:goto_level -> mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special. Its global selection.set calls execute nhlsel.c:l_selection_setpoint through the special-level coder created by load_special. No compile-time-excluded caller branch applies to this whole Lua program or helper.",
+        "entryPoints": [
+          {
+            "name": "Valkyrie quest-start special-level generation",
+            "functions": [
+              "Val-strt.lua",
+              {
+                "sourceFile": "nhlsel.c",
+                "name": "l_selection_setpoint"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v36",
+                "caseId": "v36-quest-val-strt",
+                "segment": 0,
+                "fromStep": 19,
+                "throughStep": 59,
+                "source": "Valkyrie quest progression calls do.c:goto_level and loads the Val-strt prototype through mklev.c:makelevel, mkmaze.c:makemaz, and sp_lev.c:load_special."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "f5d95cf1e445b7dca8a75b6988625a52c03b2e52",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-light-wiz-light-sources-v31-20261009",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port wizard mobile light-source diagnostics",
+      "cFile": "light.c",
+      "sessions": [
+        "synthetic/v31/v31-empty-light-sources"
+      ],
+      "selectionReason": "Resume B168 after published patch 007 made alloc.c:fmt_ptr source-reproducible; the v31 light-source mismatch selects the whole diagnostic function and shared formatter.",
+      "detail": "Port light.c:wiz_light_sources with alloc.c:fmt_ptr and preserve do_name.c:minimal_monnam callers, using admitted v31/v35 execution evidence and an independent nonempty recording.",
+      "openedAt": "be68a3dc47a6fe9f8ce693c94cb11b91a85a3afe",
+      "openStanding": {
+        "sha": "d399398f872cf682ce5ed796bbd6c66704dde739",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "wiz_light_sources",
+          "line": 935,
+          "endLine": 986,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 935,
+        "to": 986
+      },
+      "requiredFunctions": [
+        {
+          "name": "fmt_ptr",
+          "line": 125,
+          "endLine": 141,
+          "declared": true,
+          "sourceFile": "alloc.c",
+          "complete": true
+        },
+        {
+          "name": "minimal_monnam",
+          "line": 1254,
+          "endLine": 1288,
+          "declared": true,
+          "sourceFile": "do_name.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v31/v31-empty-light-sources": {
+          "session": "synthetic/v31/v31-empty-light-sources",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-empty-light-sources",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-empty-light-sources.session.json",
+          "recordingSha256": "8421bd1f71a617446262ad86bcd99f3e060ce8ebb2f5b97e5d97214434ea5f13",
+          "evaluationPath": "challenges/evaluations/accepted-f5d95cf1e445b7dca8a75b6988625a52c03b2e52-v31.json",
+          "evaluationCommit": "f5d95cf1e445b7dca8a75b6988625a52c03b2e52"
+        }
+      },
+      "activeStanding": {
+        "sha": "d399398f872cf682ce5ed796bbd6c66704dde739",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-empty-light-sources",
+          "session": "synthetic/v31/v31-empty-light-sources",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recording": "challenges/cases/v31/v31-empty-light-sources.session.json",
+          "recordingPath": "challenges/cases/v31/v31-empty-light-sources.session.json",
+          "recordingSha256": "8421bd1f71a617446262ad86bcd99f3e060ce8ebb2f5b97e5d97214434ea5f13",
+          "recipe": "challenges/cases/v31/v31-empty-light-sources.recipe.session.json",
+          "recipeSha256": "2e464fe140eefd4e19bd3ed0b983e149483a0c6f6ec34ee7ae97dfe6f350cf98",
+          "replayInputSha256": "728f02b077ee348c3867bcf62db6fdd9dbc74037507e9f4da5b893c4cf962985",
+          "evaluationPath": "challenges/evaluations/accepted-f5d95cf1e445b7dca8a75b6988625a52c03b2e52-v31.json",
+          "evaluationCommit": "f5d95cf1e445b7dca8a75b6988625a52c03b2e52",
+          "evaluationArtifact": "challenges/evaluations/accepted-f5d95cf1e445b7dca8a75b6988625a52c03b2e52-v31.json",
+          "evaluationUtc": "2026-10-09T22:41:29.137Z",
+          "remainingScreens": 12,
+          "recordedSteps": 28,
+          "previousScreensMatched": 16,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 16,
+              "total": 28
+            },
+            "rng": {
+              "matched": 2588,
+              "total": 2588
+            },
+            "cursors": {
+              "matched": 16,
+              "total": 28
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_light_sources() for the extended command 'lightsources' is not ported",
+            "step": 16
+          },
+          "step": 16,
+          "kind": "stop",
+          "sourceFile": "light.c",
+          "function": "wiz_light_sources",
+          "message": "unsupported hero command: wiz_light_sources() for the extended command 'lightsources' is not ported",
+          "cFile": "light.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v31/v31-empty-light-sources.json",
+            "result": {
+              "session": "synthetic/v31/v31-empty-light-sources",
+              "corpus": "synthetic",
+              "batch": "v31",
+              "caseId": "v31-empty-light-sources",
+              "manifestPath": "challenges/manifests/v31.json",
+              "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+              "recordingSha256": "8421bd1f71a617446262ad86bcd99f3e060ce8ebb2f5b97e5d97214434ea5f13",
+              "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+              "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+              "remainingScreens": 12,
+              "recordedSteps": 28,
+              "status": "complete",
+              "commit": "2ec681b75626a7d08859aff17d3e9590c57a552b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v31",
+                "caseId": "v31-empty-light-sources",
+                "session": "synthetic/v31/v31-empty-light-sources",
+                "manifestPath": "challenges/manifests/v31.json",
+                "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+                "recording": "challenges/cases/v31/v31-empty-light-sources.session.json",
+                "recordingPath": "challenges/cases/v31/v31-empty-light-sources.session.json",
+                "recordingSha256": "8421bd1f71a617446262ad86bcd99f3e060ce8ebb2f5b97e5d97214434ea5f13",
+                "recipe": "challenges/cases/v31/v31-empty-light-sources.recipe.session.json",
+                "recipeSha256": "2e464fe140eefd4e19bd3ed0b983e149483a0c6f6ec34ee7ae97dfe6f350cf98",
+                "replayInputSha256": "902d1d6a0c5f8616760471bd0d1a5212fe9a7fda96d2646a0acb2cc0ebf2373b",
+                "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+                "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+                "evaluationUtc": "2026-10-08T20:27:01.083Z",
+                "remainingScreens": 12,
+                "recordedSteps": 28,
+                "previousScreensMatched": 16,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 16,
+                    "total": 28
+                  },
+                  "rng": {
+                    "matched": 2588,
+                    "total": 2588
+                  },
+                  "cursors": {
+                    "matched": 16,
+                    "total": 28
+                  }
+                },
+                "step": 16,
+                "kind": "stop",
+                "sourceFile": "light.c",
+                "function": "wiz_light_sources",
+                "line": 935,
+                "message": "unsupported hero command: wiz_light_sources() for the extended command 'lightsources' is not ported"
+              },
+              "summary": "Wizard #lightsources has no JavaScript command owner. Whole light.c wiz_light_sources935-974 prints hero coordinates, an empty-list marker or every source in list order, and a corner NHW_MENU window. The active nonempty branch consumes alloc.c fmt_ptr and exposes native C pointer addresses; JavaScript currently substitutes object IDs in an unrelated private diagnostic helper. Whole-function implementation is blocked on the canonical native-pointer diagnostic contract, even though the admitted empty-list entry never uses that helper.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "light.c",
+                "functions": [
+                  "wiz_light_sources"
+                ],
+                "branch": "Wizard extended command lightsources; admitted gl.light_base is null, so C writes header, blank line and <none>. Whole source also visits active object/monster light entries and formats native id.a_void pointers.",
+                "callers": [
+                  "cmd.c:extcmdlist1756-1757 registers lightsources -> wiz_light_sources with IFBURIED|AUTOCOMPLETE|WIZMODECMD. Existing JS command lookup reaches the default unsupported entry.func_name branch because no wiz_light_sources dispatcher arm or light.js implementation exists. Interactive and queued command forms require one bounded awaited dispatcher arm, with no broader doextcmd completion credit."
+                ],
+                "dependencies": [
+                  "alloc.c:fmt_ptr125-136 is consumed by light.c965 for every nonempty light entry. Read whole helper: four32-byte static buffers rotate ptrbufidx and Sprintf uses PTR_FMT/(PTR_TYP) raw address. No exported canonical JS alloc.js owner exists. js/obj.js3576 private fmt_ptr substitutes [obj#id]/[mon#id]/[?] and is not source-faithful native address output; js/do_name.js diagnosticPointer has the same limitation. Do not copy either substitution or invent addresses from IDs.",
+                  "light.c:mon_is_local373 is its local macro monster->mx>0, distinct from timeout.c:mon_is_local list-membership semantics. Translate the source local/hero/migrating/unknown type order directly after resolving the pointer callee contract. Canonical gl.light_base linked list and id identity already exist in js/light.js; no broader mobile-light lifecycle port is required.",
+                  "Canonical tty_menu.js:displayTtyMenuTextWindow427 represents this plain NHW_MENU corner text owner, including message flush, More dismissal and map repair. wintty.c1857 states tty windows are blocking even when display_nhwindow is called with FALSE. Source create WIN_ERR guard/ECMD_OK no-time return must be retained; ordinary headers/list padding are deterministic.",
+                  "nethack-c/patches contains no fmt_ptr/native pointer normalization for this diagnostic. The consumed pointer return requires a shared diagnostic representation decision or source-faithful implementation before whole wiz_light_sources can close. Empty-list-only admission would leave the selected whole function incomplete and cannot establish that consumed helper."
+                ]
+              },
+              "evidence": [
+                "Assigned-base focused scan run-L1xUJk reproduces16emitted screens of28 and first stop16: wiz_light_sources() for extended command lightsources is not ported. Accepted0416 evaluation has16/28screens andcursors, all2588RNG matched; remaining12 is current for the same corpus digest and immutable recording.",
+                "Read admitted independent recipe before diagnosis: ordinary initial rest, then #lightsources without lighting the carried lamp. C recorded Mobile light sources: hero @ (38,16), blank line and <none>. These coordinates are evidence data, not implementation constants.",
+                "Read whole light.c935-974: NHW_MENU creation/failed-window return, source width-two hero/location/range and 0x%04x flags, list traversal, object/mon/you/<m>/??? classification, consumed fmt_ptr, display(FALSE), destroy and ECMD_OK. Source makes no RNG call, but output makes it impure.",
+                "Read whole alloc.c125-136 and existing JS private diagnostic helpers. Object IDs identify game objects but do not equal C address formatting. Stable ID substitution cannot satisfy the source return-value contract or the recorded nonempty output. The shared pointer blocker affects diagnostic owners beyond light.c, so no game edits or source reservations are selected here.",
+                "Smallest whole-source closure is light.c:wiz_light_sources plus alloc.c:fmt_ptr and the bounded cmd dispatch arm. Existing list/window owners and mon_is_local macro are sufficient; no vision, timer or light allocation owner expansion is required. Independent future evidence must include empty list, at least one burning object and monster/hero source variations once native formatting is resolved."
+              ],
+              "proposal": {
+                "goalId": "port-light-wiz-light-sources-v31-20261008",
+                "summary": "Display the mobile light-source diagnostic.",
+                "sourceUnits": [
+                  {
+                    "file": "light.c",
+                    "name": "wiz_light_sources",
+                    "start": 935,
+                    "end": 974
+                  },
+                  {
+                    "file": "alloc.c",
+                    "name": "fmt_ptr",
+                    "start": 125,
+                    "end": 136
+                  }
+                ],
+                "dependencyReady": false,
+                "blocker": "Consumed alloc.c:fmt_ptr native-pointer output lacks a canonical JavaScript representation; existing ID substitutes are incomplete. Coordinator must resolve the shared contract before source implementation.",
+                "proposedReservations": [
+                  "session:synthetic/v31/v31-empty-light-sources",
+                  "source:light.c:wiz_light_sources",
+                  "source:alloc.c:fmt_ptr",
+                  "contract:native-pointer-diagnostic-format",
+                  "contract:wizard-light-source-dispatch"
+                ],
+                "proposedPaths": [
+                  "js/light.js",
+                  "js/alloc.js",
+                  "js/cmd.js",
+                  "scripts/light*.test.mjs",
+                  "scripts/cmd*.test.mjs",
+                  "recipes/light.c/",
+                  "recordings/light.c/",
+                  "investigations/synthetic/v31/v31-empty-light-sources.json",
+                  ".cache/"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_light_sources",
+            "implementation": "js/light.js",
+            "symbol": "wiz_light_sources",
+            "sourceReview": "Read the complete light.c:wiz_light_sources() definition (935-974), its LS_OBJECT/LS_MONSTER enum arms, the local mon_is_local macro (mx > 0), and the WIZMODECMD/IFBURIED command row in cmd.c. Preserved ECMD_OK on both normal and no-window paths; hero coordinates with %2d fields; the blank line; header/separator; linked-list next order; x/y/range; lowercase four-digit flags; object, local monster, hero, migrating monster, and unknown type labels; patched fmt_ptr(ls->id.a_void); <none> for an empty list; then display(FALSE), destroy, and ECMD_OK. JavaScript uses the existing TTY NHW_MENU text-window adapter for the create/putstr/display/destroy lifecycle and blocking dismissal. The TTY game path always supplies an initialized display; no game behavior callee is skipped or replaced by a diagnostic gap.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extcmdlist[] registers the lightsources spelling with wiz_light_sources and WIZMODECMD; cmd.c:doextcmd dispatches that row to the function. The existing generated command metadata retains the source flags, and bounded JS dispatch dynamically imports light.js."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/light-sources.test.mjs",
+              "scripts/extended-command-prompt.test.mjs"
+            ],
+            "recordings": [
+              "recordings/light.c/wiz-light-sources-lit-archeologist.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-empty-light-sources",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 16,
+                "source": "cmd.c:extcmdlist[lightsources] -> cmd.c:doextcmd -> light.c:wiz_light_sources"
+              },
+              {
+                "batch": "v35",
+                "caseId": "v35-light-diagnostics",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 15,
+                "source": "cmd.c:extcmdlist[lightsources] -> cmd.c:doextcmd -> light.c:wiz_light_sources"
+              }
+            ],
+            "checkedAt": "d7433a3f1f4bb12ae6982659eb2c5995f69438fe"
+          },
+          {
+            "name": "fmt_ptr",
+            "implementation": "js/alloc.js",
+            "symbol": "fmt_ptr",
+            "sourceReview": "Read alloc.c:fmt_ptr() (125-136) and the accepted patch 007. The C function rotates a private formatting buffer, then patch 007 writes only the reproducible pointer distinction: <ptr> for non-null and <null> for null. The ring buffer is scratch storage and does not change game state. js/alloc.js is the sole JavaScript owner; distinct non-null objects intentionally share the same spelling.",
+            "callers": [
+              {
+                "path": "js/light.js",
+                "symbol": "wiz_light_sources",
+                "source": "light.c:wiz_light_sources formats every listed source through fmt_ptr(ls->id.a_void)."
+              },
+              {
+                "path": "js/do_name.js",
+                "symbol": "minimal_monnam",
+                "source": "do_name.c:minimal_monnam formats both out-of-range mon->data branches through fmt_ptr and also formats the corresponding mons boundary address."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/alloc-pointer.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "alloc.c",
+            "synthetic": [],
+            "checkedAt": "d7433a3f1f4bb12ae6982659eb2c5995f69438fe"
+          },
+          {
+            "name": "minimal_monnam",
+            "implementation": "js/do_name.js",
+            "symbol": "minimal_monnam",
+            "sourceReview": "Read the complete do_name.c:minimal_monnam() definition (1254-1285), including null monster, null species, below-mons, one-past-or-beyond-NUMMONS, long-worm-tail location, tame/peaceful/ordinary name, coordinates, and shapechanger suffix branches. Replaced the private diagnosticPointer stand-in with alloc.c:fmt_ptr in both invalid-species diagnostics and preserved the remaining naming branches. The helper does not draw random numbers, display messages, write the screen, or mutate game state; nextmbuf is only scratch-result storage.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "list_migrating_mons",
+                "source": "wizcmds.c:list_migrating_mons formats each selected migrating monster with minimal_monnam(mtmp, FALSE); the JS caller remains wired through wizcmds.js:list_migrating_mons."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "do_name.c",
+            "synthetic": [],
+            "checkedAt": "d7433a3f1f4bb12ae6982659eb2c5995f69438fe"
+          }
+        ],
+        "entryPointReview": "The selected light.c range has one active entry point: the wizard-mode #lightsources extended command registered by cmd.c:extcmdlist[] and dispatched by cmd.c:doextcmd. The generated JS command metadata preserves WIZMODECMD and IFBURIED and js/cmd.js routes the bounded row to light.js:wiz_light_sources. The fresh independent Archeologist recording reaches the nonempty object-source and <ptr> branches; admitted v31 and v35 ranges cover the empty-list path through their matching source steps. alloc.c:fmt_ptr also has MONITOR_HEAP-only heap diagnostic callers, which are excluded by the normal recorder build; the same pure function is source-pinned in isolation. do_name.c:minimal_monnam is an existing helper called by wizcmds.c:list_migrating_mons, preserved as js/wizcmds.js:list_migrating_mons; its pure branch tests pin the invalid pointers and the existing ordinary naming branches. Other upstream minimal_monnam callers in steed.c and mon.c are outside this task because their caller functions are not yet ported.",
+        "entryPoints": [
+          {
+            "name": "wizard #lightsources extended command",
+            "functions": [
+              "wiz_light_sources"
+            ],
+            "recordings": [
+              "recordings/light.c/wiz-light-sources-lit-archeologist.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-empty-light-sources",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 16,
+                "source": "cmd.c:extcmdlist[lightsources] -> cmd.c:doextcmd -> light.c:wiz_light_sources"
+              },
+              {
+                "batch": "v35",
+                "caseId": "v35-light-diagnostics",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 15,
+                "source": "cmd.c:extcmdlist[lightsources] -> cmd.c:doextcmd -> light.c:wiz_light_sources"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-timeout-diagnostic-family-v35-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port timeout diagnostic queue",
+      "cFile": "timeout.c",
+      "sessions": [
+        "synthetic/v35/v35-timeout-queue"
+      ],
+      "selectionReason": "Selected synthetic/v35/v35-timeout-queue after accepted alloc.c:fmt_ptr removed its final source dependency. Port the whole timeout diagnostic family, its generated property table, visible-region helpers, and the bounded command callers.",
+      "detail": "Port timeout.c kind_name through wiz_timeout_queue in source order, generate the canonical propertynames table through required property_by_index, preserve start_timer kind validation, and wire region.c visibility summaries plus cmd.c and wizcmds.c callers. Matching evidence covers the admitted timeout queue, a lit object timer, a visible poison-cloud region, and the existing wizard intrinsic entry.",
+      "openedAt": "a835f98c89801adf0c1c44f6cabb63e7dcb0952f",
+      "openStanding": {
+        "sha": "fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "f1a081f4f39b9b572ca485d241c1acadca456bb6",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "kind_name",
+          "line": 1995,
+          "endLine": 2013,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "print_queue",
+          "line": 2014,
+          "endLine": 2040,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "wiz_timeout_queue",
+          "line": 2041,
+          "endLine": 2129,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1995,
+        "to": 2129
+      },
+      "requiredFunctions": [
+        {
+          "name": "property_by_index",
+          "line": 117,
+          "endLine": 136,
+          "declared": true,
+          "sourceFile": "timeout.c",
+          "complete": true
+        },
+        {
+          "name": "start_timer",
+          "line": 2247,
+          "endLine": 2298,
+          "declared": true,
+          "sourceFile": "timeout.c",
+          "complete": true
+        },
+        {
+          "name": "any_visible_region",
+          "line": 660,
+          "endLine": 673,
+          "declared": true,
+          "sourceFile": "region.c",
+          "complete": true
+        },
+        {
+          "name": "visible_region_summary",
+          "line": 674,
+          "endLine": 717,
+          "declared": true,
+          "sourceFile": "region.c",
+          "complete": true
+        },
+        {
+          "name": "doextcmd",
+          "line": 493,
+          "endLine": 523,
+          "declared": true,
+          "sourceFile": "cmd.c",
+          "complete": true
+        },
+        {
+          "name": "wiz_intrinsic",
+          "line": 949,
+          "endLine": 1101,
+          "declared": true,
+          "sourceFile": "wizcmds.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v35/v35-timeout-queue": {
+          "session": "synthetic/v35/v35-timeout-queue",
+          "corpus": "synthetic",
+          "batch": "v35",
+          "caseId": "v35-timeout-queue",
+          "manifestPath": "challenges/manifests/v35.json",
+          "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+          "recordingPath": "challenges/cases/v35/v35-timeout-queue.session.json",
+          "recordingSha256": "7856fe2b3f45ceb790bea0f03525626340cd0c563c3ba7382ba3b14e8410b132",
+          "evaluationPath": "challenges/evaluations/accepted-fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8-v35.json",
+          "evaluationCommit": "fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8"
+        }
+      },
+      "activeStanding": {
+        "sha": "fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v35",
+          "caseId": "v35-timeout-queue",
+          "session": "synthetic/v35/v35-timeout-queue",
+          "manifestPath": "challenges/manifests/v35.json",
+          "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+          "recording": "challenges/cases/v35/v35-timeout-queue.session.json",
+          "recordingPath": "challenges/cases/v35/v35-timeout-queue.session.json",
+          "recordingSha256": "7856fe2b3f45ceb790bea0f03525626340cd0c563c3ba7382ba3b14e8410b132",
+          "recipe": "challenges/cases/v35/v35-timeout-queue.recipe.session.json",
+          "recipeSha256": "02d0e070a6e07c8eadc20700afcfc6f0e44573cb246ab37d9cc309168698bcf2",
+          "replayInputSha256": "a16a6b5ae8c17b2e801372866183b23d223644f0bf7c64fb2f97694f7c8fad2a",
+          "evaluationPath": "challenges/evaluations/accepted-fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8-v35.json",
+          "evaluationCommit": "fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8",
+          "evaluationArtifact": "challenges/evaluations/accepted-fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8-v35.json",
+          "evaluationUtc": "2026-10-09T23:54:11.392Z",
+          "remainingScreens": 24,
+          "recordedSteps": 67,
+          "previousScreensMatched": 43,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 43,
+              "total": 67
+            },
+            "rng": {
+              "matched": 2347,
+              "total": 2347
+            },
+            "cursors": {
+              "matched": 43,
+              "total": 67
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_timeout_queue() for the extended command 'timeout' is not ported",
+            "step": 43
+          },
+          "step": 43,
+          "kind": "stop",
+          "sourceFile": "timeout.c",
+          "function": "wiz_timeout_queue",
+          "message": "unsupported hero command: wiz_timeout_queue() for the extended command 'timeout' is not ported",
+          "cFile": "timeout.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v35/v35-timeout-queue.json",
+            "result": {
+              "session": "synthetic/v35/v35-timeout-queue",
+              "corpus": "synthetic",
+              "batch": "v35",
+              "caseId": "v35-timeout-queue",
+              "manifestPath": "challenges/manifests/v35.json",
+              "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+              "recordingSha256": "7856fe2b3f45ceb790bea0f03525626340cd0c563c3ba7382ba3b14e8410b132",
+              "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+              "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+              "remainingScreens": 24,
+              "recordedSteps": 67,
+              "status": "complete",
+              "commit": "72f59958d0cd6ee12e1ea3a857c632dda4b53b44",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v35",
+                "caseId": "v35-timeout-queue",
+                "session": "synthetic/v35/v35-timeout-queue",
+                "manifestPath": "challenges/manifests/v35.json",
+                "manifestSha256": "a807aa340ed6ad47f984e00ab933bad5a020d33832f328ef02aa38c9932f856e",
+                "recording": "challenges/cases/v35/v35-timeout-queue.session.json",
+                "recordingPath": "challenges/cases/v35/v35-timeout-queue.session.json",
+                "recordingSha256": "7856fe2b3f45ceb790bea0f03525626340cd0c563c3ba7382ba3b14e8410b132",
+                "recipe": "challenges/cases/v35/v35-timeout-queue.recipe.session.json",
+                "recipeSha256": "02d0e070a6e07c8eadc20700afcfc6f0e44573cb246ab37d9cc309168698bcf2",
+                "replayInputSha256": "9a345b9f1c2c4f64668854b1f41843898e09b9498646789c8c4a14892bfcd5a5",
+                "evaluationPath": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+                "evaluationCommit": "672aef01d1f3f575387d05eaa9690ed396d64a25",
+                "evaluationArtifact": "challenges/evaluations/accepted-672aef01d1f3f575387d05eaa9690ed396d64a25-v35.json",
+                "evaluationUtc": "2026-10-09T08:22:23.377Z",
+                "remainingScreens": 24,
+                "recordedSteps": 67,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 43,
+                    "total": 67
+                  },
+                  "rng": {
+                    "matched": 2347,
+                    "total": 2347
+                  },
+                  "cursors": {
+                    "matched": 43,
+                    "total": 67
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: wiz_timeout_queue() for the extended command 'timeout' is not ported",
+                  "step": 43
+                },
+                "step": 43,
+                "kind": "stop",
+                "sourceFile": "timeout.c",
+                "function": "wiz_timeout_queue",
+                "message": "unsupported hero command: wiz_timeout_queue() for the extended command 'timeout' is not ported",
+                "cFile": "timeout.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The wizard timeout display is missing. Its empty queue and timed speed property are reproducible, but the whole queue helper consumes native pointer formatting in populated rows. The shared property table also needs source-owner reconciliation after the pending panic task. The source task is blocked; no partial timeout completion is established.",
+              "source": {
+                "file": "timeout.c",
+                "branch": "wiz_timeout_queue2040–2127 prints current time, timer queue, timed properties in source table order, swallow/vault counters, visible-region summary and level no-teleport duration before displaying a corner menu.",
+                "functions": [
+                  "wiz_timeout_queue",
+                  "print_queue",
+                  "kind_name",
+                  "property_by_index"
+                ],
+                "callers": [
+                  "cmd.c:doextcmd491–521 dispatches timeout row1903–1904 (IFBURIED|AUTOCOMPLETE|WIZMODECMD); generated js/extcmdlist_data.js138 retains this row but js/cmd.js lacks its owner arm.",
+                  "cmd.c:rhack3682–3825 invokes rebound/canned rows and clears counts after ECMD_OK; any future task needs only the distinct timeout import/admission/awaited owner/result-reset seams.",
+                  "wizcmds.c:wiz_intrinsic consumes timeout.c:property_by_index to build and resolve its intrinsic menu. js/wizcmds.js490–562 instead owns a private WIZ_INTRINSIC_PROPERTIES copy; move the source table to the timeout owner and reconcile those consumers together."
+                ],
+                "dependencies": [
+                  "Read whole alloc.c:fmt_ptr125–135: it formats the native C address through PTR_FMT/PTR_TYP and rotates its static result buffer. print_queue consumes this return for every populated timer. Existing js/obj.js3573–3581 uses object/monster IDs instead of C addresses and cannot establish this source contract. VERBOSE_TIMER is unconditionally defined in timeout.c1963, so timer callback names do not remove the address dependency. Same native-pointer frontier as parked light.c:wiz_light_sources; do not invent addresses or substitute IDs.",
+                  "kind_name1997–2012 returns source names for all five kinds/default, but TIMER_NONE also discards impossible(\"no timer type\"); that source gap must remain explicit if the helper is ported. Empty print_queue skips kind_name/fmt_ptr, but that branch alone does not establish whole print_queue completion.",
+                  "Required consumed region.c:any_visible_region660–671 is missing in JS and is pure: return true on first visible region whose ttl!=-2, false otherwise. Canonical region list already lives at state.level.regions. Port and source-pin this complete helper rather than infer visibility from a display cache.",
+                  "Discarded region.c:visible_region_summary674–714 is also missing: visible/nonexpired traversal, first header, ttl+1, damage-dependent vapor/poison label, menu_tab_sep and bounding-box formatting. A future complete diagnostic family should port it with independent gas-region evidence, or retain a named discarded-result gap without summary credit.",
+                  "timeout.c propertynames30–114 is a large fixed source table; generate one canonical table deterministically and port pure property_by_index118–125 with source-pinned invalid-index sentinel/output values. Reconcile existing wizintrinsic reads in js/wizcmds.js. That owner file overlaps immutable unaccepted B185; preserve this exact dependency until accepted.",
+                  "Existing window create/putstr/display/destroy primitives are the production owner for the corner NHW_MENU. Match output/input ordering without spending time or random draws. No timer creation, timer callback or general turn-loop source expansion is needed."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved accepted-672aef01 v35 entry has43/67 screens/cursors and2347/2347 RNG,24 remaining. Current single-case run-TgUOf9 at72f59958 confirms no earlier divergence and stops at segment0 step43 Enter with unsupported hero command: wiz_timeout_queue() for the extended command 'timeout' is not ported. Expected C first row is Current time = 3.",
+                "Independent admitted recipe drinks an uncursed speed potion then requests #timeout. This reaches the empty active timer queue and temporary FAST property. Its existence does not cover a populated queue or native-address formatting. Recipe/recording hashes verified against the exact saved queue entry.",
+                "Complete timeout.c selected helper/display source1997–2127, property table/index helper30–125, alloc.c native formatter125–135 and region.c helpers660–714 were read. The display loops twice through all properties: count/max width first, then emit TIMEOUT bits in source order and insert the special marker before the first timed property at or beyond COLD_RES. Swallow/vault and stasis_until branches follow regions in source order.",
+                "Required future evidence includes independent typed/bound/count/no-properties and multiple timed-property/COLD_RES threshold variations; swallow/vault/stasis/region branches need source-pinned state coverage and reproducible active entry evidence. A populated lit-lamp timer witness is outside matching portable evidence until native-pointer formatting is resolved. No new C game was recorded during this investigation.",
+                "Main directed parking the source task on this native fmt_ptr consumed-return blocker and B185-owned table relocation, with no partial timeout source credit. This record identifies the whole-source closure; it does not claim game implementation or runtime completion."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "property_by_index",
+            "implementation": "js/timeout.js",
+            "symbol": "property_by_index",
+            "sourceReview": "Read timeout.c propertynames[] and the complete property_by_index(int idx, int *propertynum) implementation at lines 30-125. Preserved source-order enumeration, the zero-valued sentinel, out-of-range fallback to that sentinel, and the optional output-parameter write. The fixed table is generated from the C initializer by scripts/generate-timeout-property-data.mjs and checked byte-for-byte by --check.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "wiz_timeout_queue",
+                "source": "timeout.c:wiz_timeout_queue propertynames traversal, lines 2058-2094"
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_intrinsic",
+                "source": "wizcmds.c:wiz_intrinsic menu traversal and selected-item lookup, lines 976-1022"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "390b9d828842483e0505d4316a6f4c82568b1adb"
+          },
+          {
+            "name": "kind_name",
+            "implementation": "js/timeout.js",
+            "symbol": "kind_name",
+            "sourceReview": "Read timeout.c kind_name(short kind) completely. Preserved all five defined labels and the unknown fallback. TIMER_NONE calls impossible() and then returns none; the JavaScript records the deliberately unported discarded diagnostic with note_unported('pline.c impossible') and returns the C value. The source has no RNG or ordinary game-state mutation, but this exceptional branch records the gap, so it is listed as impure.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "print_queue",
+                "source": "timeout.c:print_queue, lines 2013-2037"
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "start_timer",
+                "source": "timeout.c:start_timer validation and duplicate diagnostic, lines 2258-2272"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/wiz-timeout-lit-lamp-wizard.session.json",
+              "recordings/timeout.c/wiz-timeout-visible-region-valkyrie.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-timeout-queue",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 66,
+                "source": "cmd.c:extcmdlist #timeout row → doextcmd → timeout.c:wiz_timeout_queue → print_queue → kind_name"
+              }
+            ],
+            "checkedAt": "390b9d828842483e0505d4316a6f4c82568b1adb"
+          },
+          {
+            "name": "print_queue",
+            "implementation": "js/timeout.js",
+            "symbol": "print_queue",
+            "sourceReview": "Read the complete timeout.c print_queue(winid, timer_element *) at lines 2013-2037, including empty and nonempty queues, both VERBOSE_TIMER formatting branches, linked-list order, kind_name(), the timeout callback name/index, and fmt_ptr() of the timer argument. This build uses the non-VERBOSE_TIMER branch. The implementation uses accepted alloc.c:fmt_ptr and buffers the same ordered rows for the NHW_MENU display path.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "wiz_timeout_queue",
+                "source": "timeout.c:wiz_timeout_queue calls print_queue(win, gt.timer_base), lines 2055-2056"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/wiz-timeout-lit-lamp-wizard.session.json",
+              "recordings/timeout.c/wiz-timeout-visible-region-valkyrie.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-timeout-queue",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 66,
+                "source": "cmd.c:extcmdlist #timeout row → doextcmd → timeout.c:wiz_timeout_queue → print_queue"
+              }
+            ],
+            "checkedAt": "390b9d828842483e0505d4316a6f4c82568b1adb"
+          },
+          {
+            "name": "wiz_timeout_queue",
+            "implementation": "js/timeout.js",
+            "symbol": "wiz_timeout_queue",
+            "sourceReview": "Read the whole timeout.c wiz_timeout_queue() at lines 2039-2127. Preserved create-window failure return, current move, queue, property order/count/width and separator, swallow/vault counters, visible regions, inclusive stasis countdown and turn wording, display, destroy, and ECMD_OK order. The property list is canonical generated data; the live window route is displayTtyMenuTextWindow. The only unported callee is the discarded impossible() diagnostic inside kind_name(), recorded as note_unported('pline.c impossible').",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extcmdlist #timeout row at 1904 and doextcmd invokes the selected function at 516"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/wiz-timeout-lit-lamp-wizard.session.json",
+              "recordings/timeout.c/wiz-timeout-visible-region-valkyrie.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-timeout-queue",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 66,
+                "source": "cmd.c:extcmdlist #timeout row → doextcmd → timeout.c:wiz_timeout_queue; covers queue/property output and command completion"
+              }
+            ],
+            "checkedAt": "390b9d828842483e0505d4316a6f4c82568b1adb"
+          },
+          {
+            "name": "start_timer",
+            "implementation": "js/timeout.js",
+            "symbol": "start_timer",
+            "sourceReview": "Read the complete timeout.c start_timer() at lines 2247-2292. Preserved kind/function validation and its kind_name diagnostic, duplicate matching by kind/function/argument identity, id increment, absolute timeout calculation, ordered insertion, object timed-count increment, and success/failure results. Existing callers remain wired; the B187 change replaces the generic invalid-kind text with kind_name().",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "begin_burn",
+                "source": "timeout.c:begin_burn schedules BURN_OBJECT with start_timer, lines 1776-1777"
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "wiz_timeout_queue",
+                "source": "timeout.c:wiz_timeout_queue displays the timer created by begin_burn, lines 2055-2056"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/wiz-timeout-lit-lamp-wizard.session.json",
+              "recordings/timeout.c/c116-phaze-five-turn-warning.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-timeout-queue",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 66,
+                "source": "timeout.c timer insertion feeds the live #timeout diagnostic queue"
+              }
+            ],
+            "checkedAt": "390b9d828842483e0505d4316a6f4c82568b1adb"
+          },
+          {
+            "name": "any_visible_region",
+            "implementation": "js/region.js",
+            "symbol": "any_visible_region",
+            "sourceReview": "Read the complete region.c any_visible_region() at lines 660-670. It scans current regions in order, skips invisible and ttl == -2 entries, and returns at the first remaining region; it has no RNG, output, or mutation.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "wiz_timeout_queue",
+                "source": "timeout.c:wiz_timeout_queue guards visible_region_summary with any_visible_region(), lines 2100-2101"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/region.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "region.c",
+            "synthetic": [],
+            "checkedAt": "390b9d828842483e0505d4316a6f4c82568b1adb"
+          },
+          {
+            "name": "visible_region_summary",
+            "implementation": "js/region.js",
+            "symbol": "visible_region_summary",
+            "sourceReview": "Read the complete region.c visible_region_summary() at lines 674-711. Preserved region order and visibility/expiration filtering, lazy header insertion, ttl+1 display, poison-gas versus vapor label, menu-tab separator choice, field widths, and bounding-box order. Output is appended to the timeout window's source-ordered line buffer.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "wiz_timeout_queue",
+                "source": "timeout.c:wiz_timeout_queue invokes visible_region_summary(win), lines 2100-2101"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/region.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/wiz-timeout-visible-region-valkyrie.session.json"
+            ],
+            "sourceFile": "region.c",
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-timeout-queue",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 66,
+                "source": "timeout.c:wiz_timeout_queue → region.c:any_visible_region → visible_region_summary (empty visible-region list)"
+              }
+            ],
+            "checkedAt": "390b9d828842483e0505d4316a6f4c82568b1adb"
+          },
+          {
+            "name": "doextcmd",
+            "implementation": "js/cmd.js",
+            "symbol": "doextcmd",
+            "sourceReview": "Read cmd.c doextcmd() lines 493-519 and the extcmdlist registration for #timeout at line 1904. Added the scoped wiz_timeout_queue dispatcher arm, retaining the source loop behavior that repeats only for doextlist and returning the selected command's ECMD result. This evidence covers the #timeout path, not unrelated extcmd rows.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c command registry maps # to doextcmd at line 1669; the command loop assigns/dispatches the selected function at lines 3732-3749"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/wiz-timeout-lit-lamp-wizard.session.json",
+              "recordings/timeout.c/wiz-timeout-visible-region-valkyrie.session.json"
+            ],
+            "sourceFile": "cmd.c",
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-timeout-queue",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 66,
+                "source": "cmd.c:rhack # input → doextcmd → extcmdlist #timeout row → timeout.c:wiz_timeout_queue"
+              }
+            ],
+            "checkedAt": "390b9d828842483e0505d4316a6f4c82568b1adb"
+          },
+          {
+            "name": "wiz_intrinsic",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_intrinsic",
+            "sourceReview": "Read the complete wizcmds.c wiz_intrinsic() at lines 949-1096, including the wizard gate, property menu traversal, timed-value update, each property-specific arm, and the final redraw. Replaced the prior private duplicated property list with timeout.c:property_by_index while preserving selection values and order. The source-discarded return from pooleffects(FALSE) is not used as data by this port; existing effect behavior is unchanged.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extcmdlist #wizintrinsic row at 1966, dispatched from doextcmd()"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizcmds.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/c116-phaze-five-turn-warning.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [],
+            "checkedAt": "390b9d828842483e0505d4316a6f4c82568b1adb"
+          }
+        ],
+        "entryPointReview": "The selected range exposes #timeout through the cmd.c extcmdlist row, doextcmd's selected-function call, and cmd.c's command-loop handling of #. It also consumes property_by_index from the separately registered #wizintrinsic command. The timeout output path creates/displays/destroys an NHW_MENU window, prints the current time and queue, traverses all property rows twice, then conditionally adds swallow/vault/visible-region/stasis diagnostics. begin_burn is a natural active-timer producer and the light-source recipe reaches it through wish/use; timed intrinsic setup reaches start_timer through the existing timer machinery. No selected caller is compiled out in the recorder build. The only deliberately unported callee in these functions is the impossible() diagnostic for TIMER_NONE; the C discards its value, and JS records the gap via note_unported('pline.c impossible').",
+        "entryPoints": [
+          {
+            "name": "#timeout",
+            "functions": [
+              "wiz_timeout_queue",
+              "print_queue",
+              "kind_name",
+              "property_by_index",
+              {
+                "sourceFile": "region.c",
+                "name": "any_visible_region"
+              },
+              {
+                "sourceFile": "region.c",
+                "name": "visible_region_summary"
+              },
+              {
+                "sourceFile": "cmd.c",
+                "name": "doextcmd"
+              }
+            ],
+            "recordings": [
+              "recordings/timeout.c/wiz-timeout-lit-lamp-wizard.session.json",
+              "recordings/timeout.c/wiz-timeout-visible-region-valkyrie.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-timeout-queue",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 66,
+                "source": "cmd.c # command → doextcmd → extcmdlist #timeout → timeout.c:wiz_timeout_queue, including print_queue and both property traversals"
+              }
+            ]
+          },
+          {
+            "name": "#wizintrinsic",
+            "functions": [
+              {
+                "sourceFile": "wizcmds.c",
+                "name": "wiz_intrinsic"
+              },
+              "property_by_index",
+              "start_timer"
+            ],
+            "recordings": [
+              "recordings/timeout.c/c116-phaze-five-turn-warning.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "f1a081f4f39b9b572ca485d241c1acadca456bb6",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

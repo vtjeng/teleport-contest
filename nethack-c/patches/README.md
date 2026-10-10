@@ -1,6 +1,6 @@
 # NetHack 5.0 recorder patches
 
-Six patches that turn upstream NetHack 5.0 into a deterministic,
+Seven patches that turn upstream NetHack 5.0 into a deterministic,
 reproducible "recorder" build whose run-to-run behavior is exactly
 what the JS port has to match.
 
@@ -12,6 +12,7 @@ what the JS port has to match.
 | 004 | `rng-log-lua-context` | Tag Lua-side PRNG calls with their `<file>:<line>` source location | Lua scripts (special levels) use the same PRNG; need to know which call is which |
 | 005 | `rng-display-logging` | Log the third PRNG context (display/hallucination) to `NETHACK_RNGLOG_DISP` | Hallucination uses a separate stream so it doesn't perturb gameplay RNG |
 | 006 | `nomux-capture` | Replace `tty` curses output with deterministic 24×80 capture, raw-print routing, and input-boundary snapshots | Need exact terminal contents at every input boundary |
+| 007 | `stable-pointer-format` | Replace native diagnostic pointer spellings with stable null/non-null tokens | `%p` output varies with ASLR, allocators, and C implementations, so JavaScript cannot reproduce it |
 
 ## Apply
 

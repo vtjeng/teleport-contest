@@ -1150,6 +1150,14 @@ test('minimal_monnam and distant_monnam preserve diagnostic branches', () => {
     monst_globals_init(state);
     assert.equal(minimal_monnam(null, false, state), '[Null monster]');
     assert.equal(minimal_monnam({ data: null }, false, state), '[Null mon->data]');
+    assert.equal(
+        minimal_monnam({ data: { pmidx: -1 } }, false, state),
+        '[Invalid mon->data <ptr> < <ptr>]',
+    );
+    assert.equal(
+        minimal_monnam({ data: { pmidx: NUMMONS } }, false, state),
+        '[Invalid mon->data <ptr> >= <ptr>]',
+    );
     const worm = {
         data: state.mons[PM_LONG_WORM],
         mx: 4,

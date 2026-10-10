@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked independent direct wizard load of Tou-loca.lua; `makemon_create.js shopkeeperCall` / C `makemon(MM_ESHK)` in `wiz_load_splua` is outside C176's natural makelevel entry. Retained as a named blocker, not passing runtime evidence.",
+  "segments": [
+    {
+      "seed": 70831057,
+      "datetime": "20590918112943",
+      "nethackrc": "OPTIONS=name:TouLocateF,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizloaddes\nTou-loca.lua\n "
+    }
+  ]
+}
