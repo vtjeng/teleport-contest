@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source candidate: nethack-c/upstream/dat/soko2-2.lua top-level generation via wizcmds.c:wiz_load_splua -> nhlua.c:load_special. C accepts the Sokoban level 2-2 source name, executes this whole Lua program, completes level finalization, and exposes its generated topology, features, monsters, and/or objects through #wizmap.",
+  "segments": [
+    {
+      "seed": 42042108,
+      "datetime": "20511212121212",
+      "nethackrc": "OPTIONS=name:V42S8,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nsoko2-2.lua\n#wizmap\n"
+    }
+  ]
+}

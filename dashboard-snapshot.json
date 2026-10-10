@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T19:59:34.957Z",
+  "capturedAt": "2026-10-10T20:51:16.138Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -83521,30 +83521,187 @@
         "type": "accepted",
         "at": "2026-10-10T19:58:56.484Z",
         "task": "C-v41-underwater-coin-flip-drops-coin-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v41-underwater-coin-flip-drops-coin-investigation-20261010-f6cbf8e1c8853cfb7350ba99b8fde9a51d5e6bf5",
+        "type": "published",
+        "at": "2026-10-10T19:59:44.151Z",
+        "task": "C-v41-underwater-coin-flip-drops-coin-investigation-20261010",
+        "commit": "f6cbf8e1c8853cfb7350ba99b8fde9a51d5e6bf5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v41-underwater-set-apparxy-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T20:00:34.007Z",
+        "task": "C-v41-underwater-monmove-set-apparxy-investigation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-v41-set-apparxy-investigation-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T20:00:41.139Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is tracing the later monster-appearance RNG mismatch exposed after the underwater-coin fix."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-integrating-B227-cb6349b9-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T20:16:57.948Z",
+        "task": "B227-investigation-v40-opening-wand-expels-swallowed-hero-20261010",
+        "integration": "cb6349b9dc1000ec9d12a1f2854867715249b552"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v41-underwater-vision-apparxy-20261010",
+        "type": "implement",
+        "at": "2026-10-10T20:17:27.220Z",
+        "task": "C-v41-underwater-monmove-set-apparxy-investigation-20261010",
+        "goal": "fix-underwater-vision-apparxy-v41-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-v41-underwater-vision-apparxy-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T20:19:38.340Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is correcting underwater vision so monster location guesses use the same adjacent-pool visibility as C."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-9833b587ad74ea80f508e7e881e97d519aae875c",
+        "type": "ready",
+        "at": "2026-10-10T20:23:54.366Z",
+        "task": "C-v41-underwater-monmove-set-apparxy-investigation-20261010",
+        "delivery": "9833b587ad74ea80f508e7e881e97d519aae875c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-underwater-vision-ready-idle-20261010",
+        "type": "turn",
+        "at": "2026-10-10T20:24:17.453Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C submitted the underwater vision fix with a full matching v41 replay; no independent candidate remains in the saved queue until Main refreshes it."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-validated-B227-cb6349b9-20261010",
+        "type": "validated",
+        "at": "2026-10-10T20:27:02.847Z",
+        "task": "B227-investigation-v40-opening-wand-expels-swallowed-hero-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B227-investigation-v40-opening-wand-expels-swallowed-hero-20261010-cb6349b9dc1000ec9d12a1f2854867715249b552-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T20:29:14.982Z",
+        "task": "B227-investigation-v40-opening-wand-expels-swallowed-hero-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-resume-after-B227-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T20:29:26.060Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B227 is accepted; syncing Main and checking for an independent saved-queue candidate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B227-investigation-v40-opening-wand-expels-swallowed-hero-20261010-111bb702604fe8c05ea8ec8cd4a5c49dbd9e60ca",
+        "type": "published",
+        "at": "2026-10-10T20:29:57.714Z",
+        "task": "B227-investigation-v40-opening-wand-expels-swallowed-hero-20261010",
+        "commit": "111bb702604fe8c05ea8ec8cd4a5c49dbd9e60ca"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-after-B227-idle-C-vision-reservation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T20:30:26.760Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "The only remaining queue candidate is C’s v41 underwater session, reserved by its submitted vision_recalc task. B has no independent source task until C releases it or the queue refreshes."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coordinator-integrating-Prep6-9ae5dc54-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T20:36:05.300Z",
+        "task": "Prep6",
+        "integration": "9ae5dc54e9612042ec2e3c39db36e20050cb8972"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-Prep6-9ae5dc54-38084524538",
+        "type": "validated",
+        "at": "2026-10-10T20:43:09.722Z",
+        "task": "Prep6",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep6-review-20261010",
+        "type": "activity",
+        "at": "2026-10-10T20:43:13.866Z",
+        "task": "Prep6",
+        "phase": "review",
+        "reason": "Reviewing Prep6 mission plan, case replay evidence, overlap analysis, and immutable manifest after its passing checkpoint."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep6-9ae5dc54e9612042ec2e3c39db36e20050cb8972-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T20:43:27.702Z",
+        "task": "Prep6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep6-admission-v42",
+        "type": "activity",
+        "at": "2026-10-10T20:43:34.465Z",
+        "task": "Prep6",
+        "phase": "admission",
+        "reason": "Admitting the accepted v42 batch at the tested commit before creating its first saved evaluation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep6-baseline-v42-3bbc354f",
+        "type": "activity",
+        "at": "2026-10-10T20:44:01.352Z",
+        "task": "Prep6",
+        "phase": "baseline",
+        "reason": "Measuring and recording v42 at its committed manifest before opening its mismatches for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-idle-wait-baseline-20261010",
+        "type": "turn",
+        "at": "2026-10-10T20:44:36.241Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep6 is synced and idle while Main admits v42 and records its first baseline."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "B227-investigation-v40-opening-wand-expels-swallowed-hero-20261010",
-        "worker": "B",
-        "goal": "port-mhitu-expels-v40-20261010",
+        "task": "C-v41-underwater-monmove-set-apparxy-investigation-20261010",
+        "worker": "C",
+        "goal": "fix-underwater-vision-apparxy-v41-20261010",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "a78b8838709b5d78358edd3d1cc2920a8e8fb738",
-        "since": "2026-10-10T18:53:25.453Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "Prep6",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "bc6577ba13f0b0e5a008fa00d862efade1e2157b",
-        "since": "2026-10-10T18:56:53.770Z",
+        "delivery": "9833b587ad74ea80f508e7e881e97d519aae875c",
+        "since": "2026-10-10T20:23:54.366Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -83884,8 +84041,8 @@
     ]
   },
   "development": {
-    "executionCommit": "9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b",
-    "measuredAt": "2026-10-10T19:57:28.478Z",
+    "executionCommit": "14c63da6500123635019e13e47541578340806ba",
+    "measuredAt": "2026-10-10T20:50:50.381Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

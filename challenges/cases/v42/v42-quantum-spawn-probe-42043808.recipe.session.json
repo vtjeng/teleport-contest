@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42043808,
+      "datetime": "20520315151800",
+      "nethackrc": "OPTIONS=name:QProbe8,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0007peaceful quantum mechanic\n"
+    }
+  ],
+  "comment": "C-only setup probe for the rare m_initinv quantum-mechanic box roll; retained even when the rn2(20) branch misses."
+}

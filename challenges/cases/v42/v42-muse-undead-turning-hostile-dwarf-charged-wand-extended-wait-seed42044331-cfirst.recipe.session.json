@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42044331,
+      "datetime": "20520321120000",
+      "nethackrc": "OPTIONS=name:V42UnturnProbe,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": " #wizwish\ncorpse of lichen\n#wizwish\nwand of undead turning (0:3)\n#wizidentify\n\t\n#wizgenesis\nhostile dwarf\n#wizmap\ndfhm.m.m.m.m."
+    }
+  ],
+  "comment": "C-first extended wait probe from the identical seed and confirmed pickup prefix. Several source-directed forced no-op turns check whether the hostile dwarf selects the charged undead-turning wand after pickup; preserve as diagnostic evidence if it instead stays passive."
+}

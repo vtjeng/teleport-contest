@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source candidate: fire_levels.js fire; dat/fire.lua. C executes the Fire-plane source map and its fire-specific terrain, objects, and monsters, then exposes the generated map.",
+  "segments": [
+    {
+      "seed": 42042304,
+      "datetime": "20511214151617",
+      "nethackrc": "OPTIONS=name:V42C4,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nfire.lua\n#wizmap\n"
+    }
+  ]
+}

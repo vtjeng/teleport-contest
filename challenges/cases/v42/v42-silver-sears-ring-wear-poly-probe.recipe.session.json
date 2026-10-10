@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation from the observed inventory letter p: wear the wished teleportation ring, polymorph into a one-claw stone golem, and inspect the result before creating the silver-hating target. No JavaScript comparison is run during this C-first phase.",
+  "segments": [
+    {
+      "seed": 42043401,
+      "datetime": "20520314151617",
+      "nethackrc": "OPTIONS=name:V42Silver,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " .#wizwish\nring of teleportation\nPpr#polyself\nstone golem\ni"
+    }
+  ]
+}

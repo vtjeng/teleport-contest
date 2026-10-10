@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only slot correction for the left-hand uncursed ring probe: this same-seed recording showed the ring at inventory slot n and the put-on prompt `[d e n or ?*]`; it also established the initial dot was an unnecessary refused wait. Keep every earlier probe and continue to the same natural-claw/man/manes target without JS comparison.",
+  "segments": [
+    {
+      "seed": 42043403,
+      "datetime": "20520314151619",
+      "nethackrc": "OPTIONS=name:V42Silver,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nuncursed ring of teleportation\nPnl#polyself\nstone golem\nw-\u0007manes\nFh     Fl     Fk     Fj     Fy     Fu     Fb     Fn     Fh     Fl     Fk     Fj     Fy     Fu     Fb     Fn     "
+    }
+  ]
+}

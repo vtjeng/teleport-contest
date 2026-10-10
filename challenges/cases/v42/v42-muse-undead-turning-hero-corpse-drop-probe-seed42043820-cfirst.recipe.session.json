@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42043820,
+      "datetime": "20520321120000",
+      "nethackrc": "OPTIONS=name:V42UnturnProbe,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": " #wizwish\ncorpse of lichen\n#wizwish\nwand of undead turning\n#wizgenesis\nhostile zombie\n#wizmap\ndfj"
+    }
+  ],
+  "comment": "C-first monster wand pickup probe. Preserves the independent setup and map route, drops the known wand onto the monster pursuit tile, and steps south once to inspect pickup and turn behavior."
+}

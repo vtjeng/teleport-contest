@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42044331,
+      "datetime": "20520321120000",
+      "nethackrc": "OPTIONS=name:V42UnturnProbe,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": " #wizwish\ncorpse of lichen\n#wizwish\nwand of undead turning (0:3)\n#wizidentify\n\t\n#wizgenesis\nhostile dwarf\n#wizmap\ndfhm.m.m.m.m. "
+    }
+  ],
+  "comment": "C-first reached candidate for muse.c:find_offensive -> use_offensive(MUSE_WAN_UNDEAD_TURNING) -> zap.c:unturn_you -> unturn_dead. The hero carries a lichen corpse; a hostile dwarf picks up the explicitly charged (0:3) wand, then uses it after three forced no-op waits. One trailing space dismisses the confirmed wand-use pager and captures the corpse revival. This file is the minimal reached route; earlier shorter and overlong probes remain preserved."
+}

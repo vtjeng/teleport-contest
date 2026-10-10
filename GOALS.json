@@ -257570,7 +257570,7 @@
     {
       "id": "port-mhitu-expels-v40-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port complete swallowed expulsion messages, relocation, and direct callers.",
       "cFile": "mhitu.c",
       "sessions": [
@@ -257584,15 +257584,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "cb6349b9dc1000ec9d12a1f2854867715249b552",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "expels",
           "line": 264,
           "endLine": 309,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -257805,7 +257808,123 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "expels",
+            "implementation": "js/mhitu.js",
+            "symbol": "expels",
+            "sourceReview": "Read the whole upstream mhitu.c:expels() definition (264-309). The port now preserves its initial disp.botl update; message=TRUE selection for digests(), enfolds(), and the AT_ENGL/AD_ANY attack; electricity/frost suffixes for whirly engulfer attacks; the non-whirly squelch suffix; then the common unstuck(), mnexto(RLOC_NOMSG), hero-square newsym(), um_dist() landing message, and spoteffects(TRUE) order. The false-message path remains unchanged. Existing callers pass mtmp->data (or u.ustuck->data); rawEnv.mdat preserves the C helper’s separate mdat value when supplied. Existing callees digests, enfolds, attacktype_fordmg, is_whirly, unstuck, mnexto, newsym, um_dist, and spoteffects are implemented. The diagnostic-only pline.c:impossible call is still recorded as note_unported only for a malformed engulfer with no AT_ENGL attack; its result is discarded by C.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhitm",
+                "source": "zap.c:bhitm calls expels(mtmp, mtmp->data, TRUE) when WAN_SLOW_MONSTER or SPE_SLOW_MONSTER disrupts a whirly engulfer; JavaScript awaits the same helper after its two source messages."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "release_hold",
+                "source": "zap.c:release_hold calls expels(mtmp, mtmp->data, TRUE) after the digesting mouth cue for opening or unlocking magic; zapyourself and dozap reach this caller."
+              },
+              {
+                "path": "js/dog.js",
+                "symbol": "tamedog",
+                "source": "dog.c:tamedog calls expels(mtmp, mtmp->data, TRUE) when the target currently engulfs the hero; JavaScript uses the injected helper when provided and otherwise imports the canonical owner."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "release_hero",
+                "source": "monmove.c:release_hero calls expels(mon, mon->data, TRUE) for a swallowed hero; the helper completes before the monster-movement caller continues."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "savelife",
+                "source": "end.c:savelife calls expels(u.ustuck, u.ustuck->data, TRUE) after restoring the hero and before its remaining life-saving state updates."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "polymon",
+                "source": "polyself.c:polymon calls expels(u.ustuck, u.ustuck->data, expels_mesg); JavaScript preserves the FALSE case after the unsolid-form message and routes TRUE through the shared formatter."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "dospinweb",
+                "source": "polyself.c:dospinweb calls expels(u.ustuck, u.ustuck->data, TRUE) after the web-fluid message when the swallower is an animal."
+              },
+              {
+                "path": "js/wizard.js",
+                "symbol": "tactics",
+                "source": "wizard.c:tactics calls expels(mtmp, mtmp->data, TRUE) when a swallowed hero’s covetous monster selects STRAT_HEAL; JavaScript awaits relocation before choose_stairs()."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_dig",
+                "source": "dig.c:zap_dig calls expels(mtmp, mtmp->data, !digests(mtmp->data)) after piercing a non-whirly swallowed hero; JavaScript passes the equivalent !digestive flag after the damage update."
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "openit",
+                "source": "detect.c:openit calls expels(u.ustuck, u.ustuck->data, TRUE) and returns -1 for opening magic used while swallowed; JavaScript keeps the digestive mouth cue first."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "gulpmu",
+                "source": "mhitu.c:gulpmu has two FALSE-message expels calls after its own source-ordered swallowed output; the JavaScript owner remains wired to expels() for both branches."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "vamprises",
+                "source": "mon.c:vamprises calls expels(mtmp, mtmp->data, FALSE) when a revived shifted vampire is holding the swallowed hero."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "vamp_stone",
+                "source": "mon.c:vamp_stone calls expels(mtmp, mtmp->data, FALSE) when the hero is inside an engulfer that returns to its innate form."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "newcham",
+                "source": "mon.c:newcham calls expels(mtmp, olddata, FALSE) when a swallowed monster changes into a form that cannot engulf the hero."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs",
+              "scripts/zapyourself.test.mjs",
+              "scripts/zap-ray.test.mjs",
+              "scripts/dothrow-thitmonst.test.mjs",
+              "scripts/monmove.test.mjs",
+              "scripts/end-lifesaved.test.mjs",
+              "scripts/polyself.test.mjs",
+              "scripts/wizard.test.mjs",
+              "scripts/detect.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/expels-ice-vortex.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-opening-wand-expels-swallowed-hero",
+                "segment": 0,
+                "fromStep": 50,
+                "throughStep": 50,
+                "source": "cmd.c:rhack -> zap.c:dozap -> zap.c:zapyourself -> zap.c:release_hold -> mhitu.c:expels(TRUE)"
+              }
+            ],
+            "checkedAt": "cb6349b9dc1000ec9d12a1f2854867715249b552"
+          }
+        ],
+        "entryPointReview": "mhitu.c:expels is a shared helper rather than an independent command or monster action, so entryPoints is empty. The whole direct-call inventory is wired: zap.c:bhitm, zap.c:release_hold, dog.c:tamedog, monmove.c:release_hero, end.c:savelife, polyself.c:polymon, polyself.c:dospinweb, wizard.c:tactics, dig.c:zap_dig, detect.c:openit, mhitu.c:gulpmu, mon.c:vamprises, mon.c:vamp_stone, and mon.c:newcham. The first ten may pass TRUE; the remaining callers pass FALSE and remain unchanged. The admitted v40 opening-wand range executes the TRUE path through zap.c:release_hold and the whole common transition; recordings/mhitu.c/expels-ice-vortex.session.json is the existing gulpmu FALSE-path recording. mon.c:xkilled uses spoteffects(TRUE) directly as a poor-man expulsion and is not a direct caller of expels().",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "cb6349b9dc1000ec9d12a1f2854867715249b552",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

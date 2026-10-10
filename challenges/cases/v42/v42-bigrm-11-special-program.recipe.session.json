@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source candidate: nethack-c/upstream/dat/bigrm-11.lua selects level_init(style=maze, corrwid=3+rn2(3), wallthick=1, deadends=t_or_f()), then replaces maze walls with boulders. The C observation must establish that the named whole big-room program runs through wizard special-level loading and exposes its generated maze.",
+  "segments": [
+    {
+      "seed": 42042113,
+      "datetime": "20511213131415",
+      "nethackrc": "OPTIONS=name:V42BigRoom11,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nbigrm-11.lua\n#wizmap\n"
+    }
+  ]
+}

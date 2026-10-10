@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrects the seed-specific initial intro pager in the prior preserved C-only probe, then follows the Castle drawbridge approach. Target classification still requires a reached C drawbridge branch.",
+  "segments": [
+    {
+      "seed": 42043912,
+      "datetime": "20520315190100",
+      "nethackrc": "OPTIONS=name:V42CastleStrike,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017uncursed wand of striking\n#wizlevelport\ncastle\n #wizmap\nkkkkkkllllllllll"
+    }
+  ]
+}

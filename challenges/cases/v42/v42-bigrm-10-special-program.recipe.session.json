@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate source: nethack-c/upstream/dat/bigrm-10.lua. Fog and corridor maze: Percent-controlled source branches keep or replace repeating C terrain in the fog-motif maze. Reachability must be established in patched C before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 42042210,
+      "datetime": "20511213131415",
+      "nethackrc": "OPTIONS=name:V42bigrm10specialprogram,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizloaddes\nbigrm-10.lua\n#wizmap\n"
+    }
+  ]
+}

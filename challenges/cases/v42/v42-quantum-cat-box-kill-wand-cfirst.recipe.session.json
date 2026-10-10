@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42043821,
+      "datetime": "20520315181800",
+      "nethackrc": "OPTIONS=name:QBoxReach,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\n\u0007peaceful quantum mechanic\n#wizwish\nuncursed wand of death\nzny"
+    }
+  ],
+  "comment": "C-first route continues the source-confirmed rn2(20)=0 special box spawn, wishes a wand of death, then zaps the adjacent quantum mechanic without the duplicate wizard-kill dispatch."
+}

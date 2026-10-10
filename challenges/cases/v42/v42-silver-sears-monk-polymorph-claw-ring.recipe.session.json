@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42043408,
+      "datetime": "20520314151624",
+      "nethackrc": "OPTIONS=name:V42SilverClaw,role:Monk,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizwish\nuncursed silver ring\nRaPll#polyself\nstone golem\n\u0007manes\nFhFlFk"
+    }
+  ],
+  "comment": "The fresh-game Monk begins without gloves, wishes for an uncursed silver ring, polymorphs to stone golem, creates manes, then attacks bare-handed with a natural claw while the silver ring remains worn. C-first recipe; normalized from preserved attempt v42-silver-sears-monk-ring-claw-cfirst.recipe.session.json."
+}

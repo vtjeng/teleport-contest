@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42044203,
+      "datetime": "20520323150619",
+      "nethackrc": "OPTIONS=name:V42AcidBreath3,role:Samurai,race=human,gender=male,align=lawful,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": "#levelchange\n10\n         #wizgenesis\nhostile yellow dragon\n#wizwish\nuncursed potion of water\nFkhh "
+    }
+  ],
+  "comment": "C-first source candidate for zap.c:zhitu(ZT_ACID) -> trap.c:acid_damage(uwep) -> erode_obj. Preserve the already reached yellow-dragon spawn geometry, wish one ordinary potion after spawn as a valid game action, then take the corrected F-k-h-h route. Do not compare with JavaScript unless C reaches the weapon-acid erosion gate; preserve any miss as setup evidence."
+}
