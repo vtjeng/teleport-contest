@@ -258175,7 +258175,7 @@
     {
       "id": "port-spell-cursed-book-effects-v42-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port cursed spellbook reading effects and their active callers.",
       "cFile": "spell.c",
       "sessions": [
@@ -258192,8 +258192,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "8a92dbad299eaf18f0d8f3e18e58f45bb5cc0e7a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "cursed_book",
@@ -259194,6 +259197,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8a92dbad299eaf18f0d8f3e18e58f45bb5cc0e7a",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
