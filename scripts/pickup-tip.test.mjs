@@ -8,6 +8,7 @@ import {
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
     OBJ_CONTAINED,
+    OBJ_DELETED,
     OBJ_FLOOR,
     OBJ_INVENT,
 } from '../js/const.js';
@@ -15,21 +16,23 @@ import {
     BAG_OF_TRICKS,
     CHEST,
     COIN_CLASS,
+    CORPSE,
     DAGGER,
     HORN_OF_PLENTY,
     LARGE_BOX,
     POTION_CLASS,
     WEAPON_CLASS,
 } from '../js/objects.js';
-import { dotip, tip_ok } from '../js/pickup.js';
+import { PM_HOUSECAT } from '../js/monsters.js';
+import { dotip, tip_ok, use_container } from '../js/pickup.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { newObject } from '../js/obj.js';
 
-async function heroOnCleanSquare() {
+async function heroOnCleanSquare(seed = 83001621) {
     await runSegment({
-        seed: 83001621,
+        seed,
         datetime: '20290911101500',
         nethackrc: 'OPTIONS=name:Tipper,role:Valkyrie,race:human,'
             + 'gender:female,align:neutral,!legacy,!tutorial,'
@@ -38,6 +41,34 @@ async function heroOnCleanSquare() {
     });
     clearTtyMessageWindow(game);
     return game;
+}
+
+function quantumCatBox(state) {
+    const { ux, uy } = state.u;
+    const corpse = newObject({
+        otyp: CORPSE,
+        oclass: state.objects[CORPSE].oc_class,
+        corpsenm: PM_HOUSECAT,
+        quan: 1,
+        where: OBJ_CONTAINED,
+        ox: ux,
+        oy: uy,
+        owt: 20,
+    });
+    const box = newObject({
+        otyp: LARGE_BOX,
+        oclass: state.objects[LARGE_BOX].oc_class,
+        quan: 1,
+        spe: 1,
+        where: OBJ_FLOOR,
+        ox: ux,
+        oy: uy,
+        owt: 120,
+        cobj: corpse,
+    });
+    corpse.ocontainer = box;
+    state.level.objects[ux][uy] = box;
+    return { box, corpse };
 }
 
 // C ref: pickup.c tip_ok() (3395-3410). Its source has no RNG, output, or
@@ -161,6 +192,58 @@ test('pickup.c tipcontainer identifies a cursed spill on an altar', async () => 
     assert.equal(state.u.uconduct.gnostic, 1);
     assert.match(state.nhDisplay.toplines, /black flash as a dagger hits the altar/u);
 });
+
+test('pickup.c tipcontainer resolves a quantum cat before checking its contents',
+    async () => {
+        // This seed reaches the live-cat branch after startup. The observer
+        // must create the cat silently, consume the stored corpse, and leave
+        // tipcontainer_checks with an empty, known box.
+        const state = await heroOnCleanSquare(83001622);
+        const { box, corpse } = quantumCatBox(state);
+        clearTtyMessageWindow(state);
+
+        state.nhDisplay.pushKey('y'.charCodeAt(0));
+        state.nhDisplay.pushKey('-'.charCodeAt(0));
+        for (let i = 0; i < 30; ++i) state.nhDisplay.pushKey(32);
+
+        assert.equal(await dotip(state), ECMD_TIME);
+        assert.equal(box.spe, 0);
+        assert.equal(box.cknown, 1);
+        assert.equal(box.cobj, null,
+            'the live observation consumes the corpse from the box');
+        assert.equal(corpse.where, OBJ_DELETED);
+        let cat = null;
+        for (let mon = state.level.monlist; mon; mon = mon.nmon) {
+            if (mon.mnum === PM_HOUSECAT) cat = mon;
+        }
+        assert.ok(cat, 'makemon creates the live housecat');
+        assert.equal(cat.mpeaceful, true);
+        assert.equal(cat.minvent, null);
+        assert.match(state.nhDisplay.toplines,
+            /housecat inside the box is still alive/u);
+        assert.deepEqual([...(state.unported ?? [])], []);
+    });
+
+test('pickup.c use_container observes a quantum box before opening its prompt',
+    async () => {
+        const state = await heroOnCleanSquare(83001622);
+        const { box, corpse } = quantumCatBox(state);
+        clearTtyMessageWindow(state);
+
+        // Dismiss the source observation message, then quit its container
+        // prompt. The observer still consumes this turn and marks the box
+        // known before use_container enters the ordinary prompt loop.
+        state.nhDisplay.pushKey(32);
+        state.nhDisplay.pushKey('q'.charCodeAt(0));
+
+        assert.equal(await use_container(box, false, false, state), ECMD_TIME);
+        assert.equal(box.spe, 0);
+        assert.equal(box.cknown, 1);
+        assert.equal(box.cobj, null);
+        assert.equal(corpse.where, OBJ_DELETED);
+        assert.equal(state.gc.current_container, null);
+        assert.deepEqual([...(state.unported ?? [])], []);
+    });
 
 test('pickup.c passes drop operations to the tipped horn floor path', async () => {
     const state = await heroOnCleanSquare();
