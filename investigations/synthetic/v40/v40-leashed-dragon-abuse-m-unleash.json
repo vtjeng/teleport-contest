@@ -1,0 +1,157 @@
+{
+  "session": "synthetic/v40/v40-leashed-dragon-abuse-m-unleash",
+  "corpus": "synthetic",
+  "batch": "v40",
+  "caseId": "v40-leashed-dragon-abuse-m-unleash",
+  "manifestPath": "challenges/manifests/v40.json",
+  "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+  "recordingPath": "challenges/cases/v40/v40-leashed-dragon-abuse-m_unleash-five-hits-cfirst.session.json",
+  "recordingSha256": "12e9f5d99d9ab3435957801bcd9b378679ecf6b29d2a9c73c9c7186d91d15ada",
+  "replayInputSha256": "6cb64d6043c89be8f4a240ec976ad46e616623502892884afe204eef3cbb722a",
+  "evaluationPath": "challenges/evaluations/accepted-5bb7bbae79d5d14f8de04d0ebbd933e7a241a699-v40.json",
+  "evaluationCommit": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699",
+  "remainingScreens": 2,
+  "recordedSteps": 55,
+  "status": "complete",
+  "commit": "07a1245f5de828d5bd3a34bb837184414be0cde9",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v40",
+    "caseId": "v40-leashed-dragon-abuse-m-unleash",
+    "session": "synthetic/v40/v40-leashed-dragon-abuse-m-unleash",
+    "manifestPath": "challenges/manifests/v40.json",
+    "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+    "recording": "challenges/cases/v40/v40-leashed-dragon-abuse-m_unleash-five-hits-cfirst.session.json",
+    "recordingPath": "challenges/cases/v40/v40-leashed-dragon-abuse-m_unleash-five-hits-cfirst.session.json",
+    "recordingSha256": "12e9f5d99d9ab3435957801bcd9b378679ecf6b29d2a9c73c9c7186d91d15ada",
+    "recipe": "challenges/cases/v40/v40-leashed-dragon-abuse-m_unleash-five-hits-cfirst.recipe.session.json",
+    "recipeSha256": "b85b27cf5bde6dec5e25253bb31bf97d189cb5bcf0a81cc38dc3f72b52ce37b0",
+    "replayInputSha256": "6cb64d6043c89be8f4a240ec976ad46e616623502892884afe204eef3cbb722a",
+    "evaluationPath": "challenges/evaluations/accepted-5bb7bbae79d5d14f8de04d0ebbd933e7a241a699-v40.json",
+    "evaluationCommit": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699",
+    "evaluationArtifact": "challenges/evaluations/accepted-5bb7bbae79d5d14f8de04d0ebbd933e7a241a699-v40.json",
+    "evaluationUtc": "2026-10-10T12:45:53.165Z",
+    "remainingScreens": 2,
+    "recordedSteps": 55,
+    "previousScreensMatched": 53,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 53,
+        "total": 55
+      },
+      "rng": {
+        "matched": 6531,
+        "total": 6531
+      },
+      "cursors": {
+        "matched": 53,
+        "total": 55
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero move: abuse_dog() unleashing a pet that stopped being tame",
+      "step": 53
+    },
+    "step": 53,
+    "kind": "stop",
+    "sourceFile": "dog.c",
+    "function": "abuse_dog",
+    "message": "unsupported hero move: abuse_dog() unleashing a pet that stopped being tame",
+    "cFile": "dog.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The v40 replay stops in dog.c:abuse_dog when abuse reduces a leashed pet’s tame value to zero. The C path calls apply.c:m_unleash(mtmp, TRUE), which emits visible or unseen feedback, clears the inventory leash and mleashed state, then lets abuse_dog continue to growl and redraw. The complete helper has 11 existing JavaScript direct-caller branches; three C-only branches remain documented. Banishment also forwards through mon.c:migrate_mon to dog.c:migrate_to_level, so its stale leashed-migration refusal is removed.",
+  "source": {
+    "file": "apply.c",
+    "branch": "Port the whole m_unleash helper, including visible/unseen feedback and inventory attachment ordering, and wire every existing JavaScript caller branch at its C source site.",
+    "functions": [
+      "m_unleash"
+    ],
+    "callers": [
+      "dog.c:abuse_dog -> dokick.c:dokick -> js/dokick.js:do_kick",
+      "dog.c:wary_dog -> js/dog.js:wary_dog",
+      "dog.c:keepdogs -> js/dog.js:keepdogs (slack-leash branch)",
+      "dog.c:migrate_to_level -> js/dog.js:migrate_to_level",
+      "mon.c:m_detach -> js/mon.js:m_detach",
+      "mon.c:newcham -> js/mon.js:newcham",
+      "teleport.c:teleport_pet -> js/teleport.js:teleport_pet",
+      "dogmove.c:dog_move -> js/dogmove.js:dog_move",
+      "dogmove.c:quickmimic -> js/dogmove.js:quickmimic",
+      "steed.c:mount_steed -> js/steed.js:mount_steed",
+      "steed.c:kick_steed -> js/steed.js:kick_steed"
+    ],
+    "unportedCallSites": [
+      {
+        "source": "apply.c:check_leash:973",
+        "reason": "No JavaScript check_leash implementation or corresponding call branch exists."
+      },
+      {
+        "source": "dog.c:mon_catchup_elapsed_time:715",
+        "reason": "The JavaScript function is partial and currently omits the C tail containing this call; adding only the call would place it before omitted tameness/starvation logic."
+      },
+      {
+        "source": "dog.c:keepdogs:849",
+        "reason": "The C stay-behind branch is not represented in JavaScript; the existing JavaScript leash-slack branch at the later callsite is wired."
+      }
+    ],
+    "dependencies": [
+      "pline.c:pline_mon",
+      "apply.c:get_mleash",
+      "invent.c:update_inventory",
+      "display.c:canseemon",
+      "do_name.c:Monnam",
+      "you.h:mhis",
+      "sound.c:growl/yelp",
+      "display.c:newsym",
+      "worm.c:redraw_worm (existing discarded-result gap)"
+    ],
+    "indirectCallers": [
+      {
+        "source": "artifact.c:invoke_banish:1997 -> mon.c:migrate_mon:3855 -> dog.c:migrate_to_level:899-900 -> apply.c:m_unleash:726-745",
+        "javascript": "js/artifacts.js:invoke_banish -> js/mon.js:migrate_mon -> js/dog.js:migrate_to_level -> js/apply.js:m_unleash",
+        "reason": "The existing banishment owner discarded this source path behind a named leashed-migration note; the complete dog migration path now clears both leash attachments before moving the target."
+      }
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved v40 queue entry and accepted evaluation challenges/evaluations/accepted-5bb7bbae79d5d14f8de04d0ebbd933e7a241a699-v40.json: 53/55 screens and cursors, 6531/6531 RNG calls, first stop at step 53. Queue case, manifest corpus digest, recipe/recording hashes, and evaluation provenance were rechecked after accepted Main 2742030c1e6b68c098598aef3789567aed93b5a1 was merged.",
+    "Upstream nethack-c/upstream/src/apply.c:726-745 defines the complete m_unleash helper: conditional feedback via canseemon/pline_mon or Your, matching leash lookup, leashmon clear and inventory update before the final mleashed clear.",
+    "Upstream nethack-c/upstream/src/pline.c:138-152 defines pline_mon; js/muse.js had a private messageAt-based helper that will move to the canonical js/pline.js owner.",
+    "The triggering source is dog.c:abuse_dog:1362-1396, called from dokick.c:dokick on the admitted v40 kick sequence. It must finish leash cleanup before growl and newsym.",
+    "The complete C source inventory has 14 m_unleash call sites. Eleven correspond to existing JavaScript caller branches and are reserved for wiring. The remaining C-only branches are apply.c:check_leash:973, dog.c:mon_catchup_elapsed_time:715, and dog.c:keepdogs:849; each is recorded as unported rather than synthesized.",
+    "The saved implementation scope was expanded before edits to reserve artifact.c:invoke_banish and mon.c:migrate_mon. Their JS chain previously skipped a leashed demon after the destination draw; invoke_banish now always uses the existing migration owner, which awaits dog.c:migrate_to_level and apply.c:m_unleash."
+  ],
+  "implementationScope": {
+    "goal": "port-apply-m-unleash-v40-leashed-dog-20261010",
+    "primary": [
+      "apply.c:m_unleash",
+      "pline.c:pline_mon"
+    ],
+    "callerReservations": [
+      "dog.c:keepdogs",
+      "dog.c:migrate_to_level",
+      "dog.c:wary_dog",
+      "dog.c:abuse_dog",
+      "mon.c:m_detach",
+      "mon.c:newcham",
+      "teleport.c:teleport_pet",
+      "dogmove.c:dog_move",
+      "dogmove.c:quickmimic",
+      "steed.c:mount_steed",
+      "steed.c:kick_steed",
+      "artifact.c:invoke_banish",
+      "mon.c:migrate_mon"
+    ],
+    "sourceScopeClaimedBeforeEdits": true,
+    "additionalEvidence": [
+      "scripts/artifact-banish.test.mjs verifies a leashed imp follows the C migration and m_unleash path, including destination RNG, leash cleanup and off-map state.",
+      "scripts/dogmove-quickmimic.test.mjs and scripts/dogmove.test.mjs verify leashed mimic pets reach the C leashability/release branch; only the steed dismount remains unported."
+    ]
+  }
+}
