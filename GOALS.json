@@ -253266,7 +253266,7 @@
     {
       "id": "fix-wizcmds-makemap-remove-mons-v41-tower2-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port wizard special-level monster cleanup and arrival message delivery",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -253280,22 +253280,25 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "makemap_unmakemon",
           "line": 73,
           "endLine": 109,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "makemap_remove_mons",
           "line": 110,
           "endLine": 155,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -253309,7 +253312,7 @@
           "endLine": 1088,
           "declared": true,
           "sourceFile": "cmd.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "deliver_splev_message",
@@ -253317,7 +253320,7 @@
           "endLine": 669,
           "declared": true,
           "sourceFile": "questpgr.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -253570,7 +253573,243 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "makemap_unmakemon",
+            "implementation": "js/wizcmds.js",
+            "symbol": "makemap_unmakemon",
+            "sourceReview": "Read wizcmds.c:73-107 in full. Preserved the unique-species G_EXTINCT clear and born decrement before the vault-guard/dead/shopkeeper branches; the isgd case falls through after clearing isgd, while a dead non-guard returns. The migratory arm marks MON_OFFMAP, clears MON_MIGRATING | MON_LIMBO | MON_ENDGAME_MIGR, links the monster into fmon, then calls mongone. setpaid and mongone are existing ports. The function has no random calls; its state mutations make it impure.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "makemap_remove_mons",
+                "source": "wizcmds.c:makemap_remove_mons calls makemap_unmakemon for each live fmon resident with FALSE and for each migrating monster whose shopkeeper, priest, or guard home is the current level with TRUE."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/makemap-remove-mons.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/makemap-ordinary.session.json",
+              "recordings/wizcmds.c/makemap-repeat-variation.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-tower2-special-program-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "cmd.c command registry (#wizloaddes) -> wizcmds.c:wiz_load_splua -> sp_lev.c:lspo_reset_level -> cmd.c:makemap_prepost(TRUE) -> wizcmds.c:makemap_remove_mons -> wizcmds.c:makemap_unmakemon; the later level finalization reaches makemap_prepost(FALSE)."
+              }
+            ],
+            "checkedAt": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d"
+          },
+          {
+            "name": "makemap_remove_mons",
+            "implementation": "js/wizcmds.js",
+            "symbol": "makemap_remove_mons",
+            "sourceReview": "Read wizcmds.c:109-150 in full. Preserved source order: the discarded keepdogs(TRUE) call precedes the fmon scan; live current-level monsters are unmade; migrating monsters with current-level shopkeeper/priest/guard extras are unlinked and unmade; dmonsfree releases the resulting list and the final fmon check reports an impossible leftover. dog.c:keepdogs remains explicitly unported and is recorded with note_unported; that separate source unit remains unported, and this caller discards its result. No other function in dog.c was changed.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "makemap_prepost",
+                "source": "cmd.c:makemap_prepost(TRUE, ...) calls makemap_remove_mons() as its first pre-reset action; both wiz_makemap and lspo_reset_level reach this caller."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/makemap-remove-mons.test.mjs",
+              "scripts/sp-lev-reset-finalize-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/makemap-ordinary.session.json",
+              "recordings/wizcmds.c/makemap-repeat-variation.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-tower2-special-program-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "cmd.c command registry (#wizloaddes) -> wizcmds.c:wiz_load_splua -> sp_lev.c:lspo_reset_level -> cmd.c:makemap_prepost(TRUE) -> wizcmds.c:makemap_remove_mons -> wizcmds.c:makemap_unmakemon; the later level finalization reaches makemap_prepost(FALSE)."
+              }
+            ],
+            "checkedAt": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d"
+          },
+          {
+            "name": "makemap_prepost",
+            "implementation": "js/cmd.js",
+            "symbol": "makemap_prepost",
+            "sourceReview": "Read cmd.c:986-1088 in full and verified the integration at the pre branch: makemap_remove_mons is awaited before rm_mapseen and the remaining level-reset work. The post branch retains the existing arrival sequence. This task replaced only the old wizcmds.c makemap_remove_mons gap; other pre-existing cmd.c callee gaps remain explicitly represented by their existing note_unported calls.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_makemap",
+                "source": "wizcmds.c:156-168 calls makemap_prepost(TRUE, was_in_W_tower), creates the replacement level, then calls makemap_prepost(FALSE, was_in_W_tower)."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "lspo_reset_level",
+                "source": "sp_lev.c:lspo_reset_level calls makemap_prepost(TRUE, wtower) before special-level generation; wizcmds.c:wiz_load_splua reaches this production path through load_special."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "lspo_finalize_level",
+                "source": "sp_lev.c:lspo_finalize_level calls makemap_prepost(FALSE, wtower) after special-level generation."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/makemap-remove-mons.test.mjs",
+              "scripts/sp-lev-reset-finalize-level.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/makemap-ordinary.session.json",
+              "recordings/wizcmds.c/makemap-repeat-variation.session.json"
+            ],
+            "sourceFile": "cmd.c",
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-tower2-special-program-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "cmd.c command registry (#wizloaddes) -> wizcmds.c:wiz_load_splua -> sp_lev.c:lspo_reset_level -> cmd.c:makemap_prepost(TRUE) -> wizcmds.c:makemap_remove_mons -> wizcmds.c:makemap_unmakemon; the later level finalization reaches makemap_prepost(FALSE)."
+              }
+            ],
+            "checkedAt": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d"
+          },
+          {
+            "name": "deliver_splev_message",
+            "implementation": "js/questpgr.js",
+            "symbol": "deliver_splev_message",
+            "sourceReview": "Read questpgr.c:655-664 in full. If gl.lev_message is non-NULL, deliver_by_pline converts each newline-delimited source line with convert_line and emits each through pline, then frees the message and clears gl.lev_message. The JavaScript function retains that output-before-clear order, does not emit a phantom line for a trailing newline, and clears a non-NULL empty string without output. It is impure because it emits messages and mutates gl.lev_message. The recorded special-true endgame variation reaches the non-NULL arrival-message branch and emits the custom Astral messages through do.c:goto_level.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "makemap_prepost",
+                "source": "cmd.c:1061 calls deliver_splev_message() after arrival rendering and flush_screen(1), before check_special_room(FALSE)."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "goto_level",
+                "source": "do.c:1858 calls deliver_splev_message() after destination rendering and flush_screen(-1), before level-transition follow-up effects."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/questpgr.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/makemap-ordinary.session.json",
+              "recordings/wizcmds.c/makemap-repeat-variation.session.json",
+              "recordings/do.c/goto-level-mines-independent.session.json",
+              "recordings/mplayer.c/special-true-endgame-cfirst.session.json"
+            ],
+            "sourceFile": "questpgr.c",
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-tower2-special-program-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "cmd.c command registry (#wizloaddes) -> wizcmds.c:wiz_load_splua -> sp_lev.c:lspo_reset_level -> cmd.c:makemap_prepost(TRUE) -> wizcmds.c:makemap_remove_mons -> wizcmds.c:makemap_unmakemon; the later level finalization reaches makemap_prepost(FALSE)."
+              }
+            ],
+            "checkedAt": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d"
+          }
+        ],
+        "entryPointReview": "The active production entries reaching this scope are (1) the cmd.c command registry entry for wiz_load_splua -> wizcmds.c:wiz_load_splua -> load_special -> sp_lev.c:lspo_reset_level -> cmd.c:makemap_prepost(TRUE), with lspo_finalize_level reaching the post branch and delivering any custom arrival text; (2) the cmd.c registry entry for wiz_makemap -> wizcmds.c:wiz_makemap -> cmd.c:makemap_prepost(TRUE/FALSE); and (3) ordinary level transitions through do.c:goto_level -> questpgr.c:deliver_splev_message. All three have matching runtime evidence below. The only intentionally skipped source call is keepdogs(TRUE), whose result is discarded; its pets-only side effects remain an explicit unported dog.c:keepdogs dependency.",
+        "entryPoints": [
+          {
+            "name": "wiz_load_splua special-level load",
+            "functions": [
+              {
+                "sourceFile": "wizcmds.c",
+                "name": "makemap_unmakemon"
+              },
+              {
+                "sourceFile": "wizcmds.c",
+                "name": "makemap_remove_mons"
+              },
+              {
+                "sourceFile": "cmd.c",
+                "name": "makemap_prepost"
+              },
+              {
+                "sourceFile": "questpgr.c",
+                "name": "deliver_splev_message"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-tower2-special-program-generation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "cmd.c command registry (#wizloaddes) -> wizcmds.c:wiz_load_splua -> sp_lev.c:lspo_reset_level -> cmd.c:makemap_prepost(TRUE) -> wizcmds.c:makemap_remove_mons -> wizcmds.c:makemap_unmakemon; the later level finalization reaches makemap_prepost(FALSE)."
+              }
+            ]
+          },
+          {
+            "name": "wiz_makemap level replacement",
+            "functions": [
+              {
+                "sourceFile": "wizcmds.c",
+                "name": "makemap_unmakemon"
+              },
+              {
+                "sourceFile": "wizcmds.c",
+                "name": "makemap_remove_mons"
+              },
+              {
+                "sourceFile": "cmd.c",
+                "name": "makemap_prepost"
+              },
+              {
+                "sourceFile": "questpgr.c",
+                "name": "deliver_splev_message"
+              }
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/makemap-ordinary.session.json",
+              "recordings/wizcmds.c/makemap-repeat-variation.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "goto_level destination arrival message delivery",
+            "functions": [
+              {
+                "sourceFile": "questpgr.c",
+                "name": "deliver_splev_message"
+              }
+            ],
+            "recordings": [
+              "recordings/do.c/goto-level-mines-independent.session.json",
+              "recordings/mplayer.c/special-true-endgame-cfirst.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
