@@ -47,6 +47,9 @@ import {
     FLYING,
     HOLE,
     TRAPDOOR,
+    IN_SIGHT,
+    LANDMINE,
+    PIT,
     P_BASIC,
     P_RIDING,
     FUMBLING,
@@ -84,10 +87,12 @@ import {
     LL_CONDUCT,
     LEFT_SIDE,
     LEVITATION,
+    LEVEL_TELEP,
     MAX_CARR_CAP,
     MAGICAL_BREATHING,
     MAX_TYPE,
     MELT_ICE_AWAY,
+    MIGR_RANDOM,
     M_AP_FURNITURE,
     M_AP_OBJECT,
     M_AP_TYPE,
@@ -120,12 +125,15 @@ import {
     SHOPBASE,
     SLEEP_RES,
     SLT_ENCUMBER,
+    SPIKED_PIT,
     STAIRS,
     STEALTH,
     STONE,
     STUNNED,
     SWIMMING,
     TELEPORT,
+    TELEP_TRAP,
+    ROLLING_BOULDER_TRAP,
     TELEPORT_CONTROL,
     TEST_TRAV,
     TEST_TRAP,
@@ -220,7 +228,7 @@ import {
 } from './command_bindings.js';
 import { clear_kickedloc } from './dokick.js';
 import { drag_ball, move_bc } from './ball.js';
-import { buried_ball, buried_ball_to_punishment, dig_typ, use_pick_axe2, watch_dig } from './dig.js';
+import { buried_ball, buried_ball_to_punishment, bury_objs, dig_typ, use_pick_axe2, watch_dig } from './dig.js';
 import {
     Amonnam,
     a_monnam,
@@ -235,6 +243,8 @@ import {
 import {
     assign_level,
     ceiling,
+    depth,
+    get_level,
     Invocation_lev,
     on_level,
     surface,
@@ -262,7 +272,15 @@ import { game } from './gstate.js';
 import { breaktest } from './dothrow.js';
 import { hit_bars } from './mthrowu.js';
 import { setuwep } from './wield.js';
-import { carrying, delobj, freeinv, sobj_at } from './invent.js';
+import {
+    carrying,
+    delobj,
+    freeinv,
+    INVLET_BASIC,
+    obj_extract_self,
+    sobj_at,
+    useupf,
+} from './invent.js';
 import { doopen_indir } from './lock.js';
 import {
     amorphous,
@@ -301,6 +319,7 @@ import {
     verysmall,
 } from './mondata.js';
 import {
+    add_to_migration,
     is_pick,
     splitobj,
     is_weptool,
@@ -319,6 +338,8 @@ import {
     donameFresh,
     UnsupportedObjectNameError,
     xnameFresh,
+    Tobjnam,
+    otense,
 } from './objnam.js';
 import {
     BOULDER,
@@ -382,6 +403,7 @@ import {
 } from './monmove.js';
 import {
     encumber_msg,
+    autopick_testobj,
     pickup,
     loot_mon,
     preflight_describe_decor_at,
@@ -405,7 +427,14 @@ import {
 } from './dbridge.js';
 import { waterbody_name } from './pager.js';
 import { Cold_resistance } from './zap.js';
-import { enexto, goodpos, rloc, rloc_to } from './teleport.js';
+import {
+    enexto,
+    goodpos,
+    random_teleport_level,
+    rloco,
+    rloc,
+    rloc_to,
+} from './teleport.js';
 import { inside_room } from './room_coordinates.js';
 import { check_special_room, in_rooms } from './rooms.js';
 import {
@@ -425,6 +454,7 @@ import {
     onshopbill,
     preflight_shop_transition,
     shop_keeper,
+    stolen_value,
     subfrombill,
     UnsupportedShopError,
 } from './shk.js';
@@ -449,9 +479,12 @@ import {
     back_on_ground,
     b_trapped,
     climb_pit,
+    deltrap,
     drown,
+    Flying,
     lava_effects,
     float_up,
+    fill_pit,
     reset_utrap,
     t_at,
     uteetering_at_seen_pit,
@@ -459,7 +492,14 @@ import {
     into_vs_onto,
     immune_to_trap,
 } from './trap.js';
-import { dotrap, feeltrap, mintrap, preflight_dotrap } from './trap_effects.js';
+import {
+    blow_up_landmine,
+    dotrap,
+    feeltrap,
+    mintrap,
+    preflight_dotrap,
+    seetrap,
+} from './trap_effects.js';
 import {
     ttyNorep, ttyPline, ttyUrgentPline,
 } from './tty_message.js';
@@ -471,6 +511,7 @@ import { select_menu } from './windows.js';
 import { do_attack, explum, is_safemon, stumble_onto_mimic } from './uhitm.js';
 import {
     block_point,
+    cansee,
     couldsee,
     recalc_block_point,
     vision_recalc,
@@ -1836,13 +1877,13 @@ function boulderVisionEnv(state) {
             blockPoint: (x, y, env) => block_point(x, y, env.state),
             recalcBlockPoint:
                 (x, y, env) => recalc_block_point(x, y, env.state),
+            extractExternalObject: remove_object,
         },
     };
 }
 
-// C ref: hack.c cannot_push_msg() (247-256). This is the ordinary unmounted
-// arm: name the boulder, report the failed push, and feel its square only when
-// blind. The mounted result-producing arm remains an explicit boundary.
+// C ref: hack.c cannot_push_msg() (247-256). This helper remains partial for
+// mounted output; moverock_core records that void callee gap when needed.
 async function cannot_push_msg(otmp, sx, sy, state, env) {
     const what = the(xnameFresh(otmp, state), state);
     if (state.u.usteed) {
@@ -1855,22 +1896,53 @@ async function cannot_push_msg(otmp, sx, sy, state, env) {
     if (heroIsBlind(state)) feel_location(sx, sy, state);
 }
 
-// C ref: hack.c cannot_push() (262-310). The selected normal-sized, unmounted
-// hero is not a giant and cannot squeeze onto the boulder square, so C returns
-// -1 without a message, movement, or randomness. Other result-producing arms
-// remain deferred with the boundaries that predate this slice.
-function cannot_push(otmp, sx, sy, state) {
+// C ref: hack.c cannot_push() (262-312). A failed push can instead let giants
+// step onto the boulder or let a small/light hero squeeze beside it; those
+// results are consumed by moverock_core() to decide whether movement proceeds.
+async function cannot_push(otmp, sx, sy, state, env) {
     if (throws_rocks(state.youmonst?.data)) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'giant boulder push failure',
+        const canpickup = !In_sokoban(state.u?.uz)
+            && (inv_cnt(false, state) < INVLET_BASIC
+                || !carrying(BOULDER, state));
+        const willpickup = canpickup
+            && Boolean(state.flags?.pickup)
+            && !state.context?.nopick
+            && autopick_testobj(otmp, true, state);
+
+        const message = requiredMessageOperation(
+            env, 'failed giant boulder push',
         );
+        if (state.u.usteed && P_SKILL(P_RIDING, state) < P_BASIC) {
+            const what = the(xnameFresh(otmp, state), state);
+            await message(
+                `You aren't skilled enough to ${willpickup
+                    ? 'pick up' : 'push aside'} ${what} from `
+                    + `${y_monnam(state.u.usteed, state)}.`,
+                state,
+            );
+        } else {
+            await message(
+                `However, you ${willpickup
+                    ? 'easily pick it up' : 'maneuver over it'}`
+                    + `${canpickup && !willpickup
+                        ? ' and could pick it up' : ''}.`,
+                state,
+            );
+            note_unported('trap.c sokoban_guilt');
+        }
+        return 0;
     }
     if (could_move_onto_boulder(
         sx, sy, state.u.dx, state.u.dy, state,
     )) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'boulder squeeze after failed push',
+        const message = requiredMessageOperation(
+            env, 'failed boulder push squeeze',
         );
+        await message(
+            'However, you can squeeze yourself into a small opening.', state,
+        );
+        note_unported('trap.c sokoban_guilt');
+        return 0;
     }
     return -1;
 }
@@ -2237,15 +2309,38 @@ async function moverock(state, env) {
     return ret;
 }
 
-// C ref: hack.c moverock_core() (347-638). Its while loop walks every boulder
-// on <sx,sy>. The source-order trap, pool/lava, shop, and several special
-// mobility branches remain partial; their return-valued result is therefore
-// not completion evidence for test_move().
-//
-// The return value is C's: 0 lets the hero advance onto <sx,sy>, -1 refuses
-// the step. The selected failed-destination arm returns -1 after its message.
+// C ref: hack.c moverock_core() (348-638). The while loop handles each boulder
+// on <sx,sy>, preserving the source return value: 0 lets the hero advance
+// onto <sx,sy>, while -1 refuses the step.
 async function moverock_core(sx, sy, state, env) {
+    env ??= {};
     const u = state.u;
+    const message = env.message ?? ttyPline;
+    const random = {
+        d: env.random?.d ?? d,
+        rn1: env.random?.rn1 ?? rn1,
+        rn2: env.random?.rn2 ?? rn2,
+        rnd: env.random?.rnd ?? rnd,
+        rne: env.random?.rne ?? rne,
+    };
+    const baseObjectEnv = boulderVisionEnv(state);
+    const objectEnv = {
+        ...baseObjectEnv,
+        ...env,
+        state,
+        hooks: { ...baseObjectEnv.hooks, ...env.hooks },
+    };
+    const redraw = env.newsym
+        ?? ((x, y) => newsym(x, y, state));
+    const effectEnv = {
+        ...env,
+        state,
+        message,
+        random,
+        newsym: redraw,
+        redraw,
+        hooks: objectEnv.hooks,
+    };
     let firstboulder = true;
     let otmp;
 
@@ -2275,28 +2370,52 @@ async function moverock_core(sx, sy, state, env) {
         const ry = u.uy + 2 * u.dy;
         nomul(0, state);
 
-        // 384-410. The 'm' prefix steps onto or squeezes past a boulder;
-        // moverock_core() has not ported sokoban_guilt() and its companion
-        // state writes, so keep this return-valued branch explicit.
+        // 384-410. The 'm' prefix steps onto or squeezes past a boulder.
         if (state.context?.nopick) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'a boulder step without a push',
-            );
+            const oldglyph = glyph_at(sx, sy, state);
+            feel_location(sx, sy, state);
+            if (throws_rocks(state.youmonst?.data)) {
+                await message(
+                    `You ${u_locomotion('step', state)} over a boulder here.`,
+                    state,
+                );
+                note_unported('trap.c sokoban_guilt');
+                return 0;
+            }
+            if (could_move_onto_boulder(sx, sy, u.dx, u.dy, state)) {
+                await message(
+                    `You squeeze yourself ${Flying(state)
+                        ? 'over' : 'against'} the boulder.`,
+                    state,
+                );
+                note_unported('trap.c sokoban_guilt');
+                return 0;
+            }
+            await message('There is a boulder in your way.', state);
+            if (glyph_at(sx, sy, state) !== oldglyph) {
+                state.context.door_opened = true;
+                state.context.move = true;
+            }
+            return -1;
         }
         // 412-421. Levitation and the air level have distinct source feedback
         // and are not interchangeable with the ordinary push transaction.
         if (propertyActiveUnblocked(state, LEVITATION)
             || Is_airlevel(state.u?.uz)) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'a boulder push without leverage',
+            if (heroIsBlind(state)) feel_location(sx, sy, state);
+            await message(
+                `You don't have enough leverage to push ${the(xnameFresh(otmp, state), state)}.`,
+                state,
             );
+            return -1;
         }
-        // 422-427. The tiny-hero message and return are owned by this C
-        // function, but their successful squeeze path is not yet ported.
         if (verysmall(state.youmonst?.data) && !u.usteed) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'a boulder push by a tiny hero',
+            if (heroIsBlind(state)) feel_location(sx, sy, state);
+            await message(
+                `You're too small to push that ${xnameFresh(otmp, state)}.`,
+                state,
             );
+            return await cannot_push(otmp, sx, sy, state, effectEnv);
         }
         const destination = isok(rx, ry) ? state.level?.at(rx, ry) : null;
         if (!destination
@@ -2305,33 +2424,32 @@ async function moverock_core(sx, sy, state, env) {
             || (IS_DOOR(destination.typ) && u.dx && u.dy
                 && !doorless_door(destination, state))
             || sobj_at(BOULDER, rx, ry, state)) {
-            // hack.c:486-487. nomul(0) and next_boulder bookkeeping precede
-            // this failed-destination check. No trap, monster, or push-side
-            // effect is reached when the boulder's destination is blocked.
-            await cannot_push_msg(otmp, sx, sy, state, env);
-            return cannot_push(otmp, sx, sy, state);
+            if (u.usteed) note_unported('hack.c cannot_push_msg');
+            else await cannot_push_msg(otmp, sx, sy, state, effectEnv);
+            return await cannot_push(otmp, sx, sy, state, effectEnv);
         }
 
         const ttmp = t_at(rx, ry, state);
+        const mtmp = m_at(rx, ry, state);
+        const costly = Boolean(
+            costly_spot(sx, sy, state)
+            && shop_keeper(in_rooms(sx, sy, SHOPBASE, state)[0] ?? 0, state),
+        );
 
-        // 437-443. Sokoban's diagonal rule is local to moverock_core(); the
+        // 443-448. Sokoban's diagonal rule is local to moverock_core(); the
         // result of cannot_push() remains the source return value.
         if (In_sokoban(state.u?.uz) && u.dx && u.dy) {
             if (heroIsBlind(state)) feel_location(sx, sy, state);
-            const message = requiredMessageOperation(
-                env, 'diagonal Sokoban boulder push',
-            );
             await message(
                 `${The(xnameFresh(otmp, state), state)} won't roll diagonally `
                 + `on this ${surface(sx, sy, state)}.`,
                 state,
             );
-            return cannot_push(otmp, sx, sy, state);
+            return await cannot_push(otmp, sx, sy, state, effectEnv);
         }
         if (await revive_nasty(
             rx, ry, 'You sense movement on the other side.', state,
         )) return -1;
-        const mtmp = m_at(rx, ry, state);
 
         // 455-483, a corporeal monster standing where the boulder would land,
         // unless it is already trapped in the pit under it. C reports the
@@ -2339,10 +2457,6 @@ async function moverock_core(sx, sy, state, env) {
         if (mtmp && !noncorporeal(mtmp.data)
             && (!mtmp.mtrapped || !(ttmp && is_pit(ttmp.ttyp)))) {
             let deliver_part1 = false;
-            const message = requiredMessageOperation(
-                env, 'monster behind the boulder',
-            );
-
             // 459-460, the Blind arm, remains a source-backed map-memory gap.
             if (canspotmon(mtmp, state)) {
                 await message(
@@ -2378,27 +2492,139 @@ async function moverock_core(sx, sy, state, env) {
                     state,
                 );
             }
-            return cannot_push(otmp, sx, sy, state);
+            return await cannot_push(otmp, sx, sy, state, effectEnv);
         }
 
         // 485-488. A closed destination door blocks the push after the
         // monster check, including the orthogonal case omitted by the
         // destination-shape conjunction above.
         if (closed_door(rx, ry, state)) {
-            await cannot_push_msg(otmp, sx, sy, state, env);
-            return cannot_push(otmp, sx, sy, state);
+            if (u.usteed) note_unported('hack.c cannot_push_msg');
+            else await cannot_push_msg(otmp, sx, sy, state, effectEnv);
+            return await cannot_push(otmp, sx, sy, state, effectEnv);
         }
 
         // hack.c:494. The push disturbs buried zombies before trap or liquid
         // effects are considered.
         disturb_buried_zombies(sx, sy, state);
 
-        // 496-618 remains the local trap-effect boundary; do not silently move
-        // a boulder through an unported trap handler.
         if (ttmp) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'hack.c moverock_core boulder trap effect',
-            );
+            switch (ttmp.ttyp) {
+            case LANDMINE:
+                if (random.rn2(10)) {
+                    obj_extract_self(otmp, objectEnv);
+                    place_object(otmp, rx, ry, objectEnv);
+                    redraw(sx, sy, state);
+                    await message(
+                        `${(!heroIsDeaf(state) || !heroIsBlind(state))
+                            ? 'KAABLAMM!!' : 'Gadzooks'}  `
+                            + `${Tobjnam(otmp, 'trigger', state)} `
+                            + `${ttmp.madeby_u ? 'your' : 'a'} land mine.`,
+                        state,
+                    );
+                    await blow_up_landmine(ttmp, effectEnv);
+                    fill_pit(u.ux, u.uy, state);
+                    if (cansee(rx, ry, state)) redraw(rx, ry, state);
+                    return sobj_at(BOULDER, sx, sy, state) ? -1 : 0;
+                }
+                break;
+            case SPIKED_PIT:
+            case PIT: {
+                obj_extract_self(otmp, objectEnv);
+                if (!heroIsBlind(state) && state.viz_array?.[ry])
+                    state.viz_array[ry][rx] |= IN_SIGHT;
+                const { flooreffects } = await import('./do.js');
+                if (!await flooreffects(otmp, rx, ry, 'fall', effectEnv))
+                    place_object(otmp, rx, ry, objectEnv);
+                if (mtmp && !heroIsBlind(state)) redraw(rx, ry, state);
+                return sobj_at(BOULDER, sx, sy, state) ? -1 : 0;
+            }
+            case HOLE:
+            case TRAPDOOR:
+                if (heroIsBlind(state)) {
+                    await message(
+                        `Kerplunk!  You no longer feel `
+                            + `${the(xnameFresh(otmp, state), state)}.`,
+                        state,
+                    );
+                } else {
+                    await message(
+                        `${Tobjnam(otmp, ttmp.ttyp === TRAPDOOR
+                            ? 'trigger' : 'fall', state)}`
+                        + `${ttmp.ttyp === TRAPDOOR ? '' : ' into'}`
+                        + ` and ${otense(otmp, 'plug', state)} a `
+                        + `${ttmp.ttyp === TRAPDOOR ? 'trap door' : 'hole'} `
+                        + `in the ${surface(rx, ry, state)}!`,
+                        state,
+                    );
+                }
+                try {
+                    deltrap(ttmp, state);
+                } catch (error) {
+                    if (!(error instanceof UnsupportedHeroMoveBoundaryError)
+                        || error.reason
+                            !== 'maybe_finish_sokoban() after removing a Sokoban pit or hole')
+                        throw error;
+                    note_unported('trap.c maybe_finish_sokoban');
+                }
+                await useupf(otmp, 1, objectEnv);
+                await bury_objs(rx, ry, state, effectEnv);
+                state.level.at(rx, ry).wall_info &= ~W_NONDIGGABLE;
+                state.level.at(rx, ry).candig = 1;
+                if (cansee(rx, ry, state)) redraw(rx, ry, state);
+                return sobj_at(BOULDER, sx, sy, state) ? -1 : 0;
+            case LEVEL_TELEP: {
+                const newlev = random_teleport_level(state);
+                if (newlev === depth(u.uz, state)) {
+                    await dopush(sx, sy, rx, ry, otmp, state, {
+                        ...effectEnv,
+                        costly,
+                    });
+                    continue;
+                }
+                // C falls through to the shared TELEP_TRAP arm.
+                await rock_disappear_msg(otmp, state);
+                otmp.next_boulder = 0;
+                if (costly)
+                    await stolen_value(otmp, rx, ry, !ttmp.tseen, false, state);
+                obj_extract_self(otmp, objectEnv);
+                add_to_migration(otmp, state);
+                const dest = {};
+                get_level(dest, newlev, state);
+                otmp.ox = dest.dnum;
+                otmp.oy = dest.dlevel;
+                otmp.owornmask = MIGR_RANDOM;
+                seetrap(ttmp, { ...effectEnv, redraw });
+                return sobj_at(BOULDER, sx, sy, state) ? -1 : 0;
+            }
+            case TELEP_TRAP:
+                await rock_disappear_msg(otmp, state);
+                otmp.next_boulder = 0;
+                await rloco(otmp, effectEnv);
+                seetrap(ttmp, { ...effectEnv, redraw });
+                return sobj_at(BOULDER, sx, sy, state) ? -1 : 0;
+            case ROLLING_BOULDER_TRAP: {
+                let tox = rx;
+                let toy = ry;
+                while (isok(tox + u.dx, toy + u.dy)) {
+                    tox += u.dx;
+                    toy += u.dy;
+                    if ((tox === ttmp.launch?.x && toy === ttmp.launch?.y)
+                        || (tox === ttmp.launch2?.x
+                            && toy === ttmp.launch2?.y)) break;
+                }
+                await message(
+                    `${Tobjnam(otmp, 'suddenly roll', state)} away from you!`,
+                    state,
+                );
+                await feeltrap(ttmp, { ...effectEnv, redraw });
+                // trap.c:launch_obj() is not ported; C discards its result.
+                note_unported('trap.c launch_obj');
+                return sobj_at(BOULDER, sx, sy, state) ? -1 : 0;
+            }
+            default:
+                break;
+            }
         }
         if (is_pool_or_lava(rx, ry, state)) {
             // hack.c:620-621. This Boolean is consumed: TRUE means the
@@ -2406,7 +2632,7 @@ async function moverock_core(sx, sy, state, env) {
             // restarts the source-square pile scan instead of dopush().
             const { boulder_hits_pool } = await import('./do.js');
             const helperEnv = {
-                ...env,
+                ...effectEnv,
                 state,
                 hooks: {
                     ...boulderVisionEnv(state).hooks,
@@ -2429,12 +2655,8 @@ async function moverock_core(sx, sy, state, env) {
             remove_object(otmp, boulderVisionEnv(state));
             place_object(otmp, otmp.ox, otmp.oy, boulderVisionEnv(state));
         }
-        const costly = Boolean(
-            costly_spot(sx, sy, state)
-            && shop_keeper(in_rooms(sx, sy, SHOPBASE, state)[0] ?? 0, state),
-        );
         await dopush(sx, sy, rx, ry, otmp, state, {
-            ...env,
+            ...effectEnv,
             costly,
         });
     }
