@@ -424,7 +424,7 @@ import { quest_stat_check, quest_talk } from './quest.js';
 import { create_gas_cloud, m_in_out_region, visible_region_at } from './region.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import { in_rooms } from './rooms.js';
-import { wormhitu } from './worm.js';
+import { worm_move, wormhitu } from './worm.js';
 import { after_shk_move, inhishop, shk_move } from './shk.js';
 import { findgold, mdrop_obj, mpickobj } from './steal.js';
 import { stairway_at, stairway_find_dir } from './stairs.js';
@@ -4218,8 +4218,6 @@ export async function m_move(monster, rawEnv = {}) {
 
     remove_monster(oldX, oldY, state);
     place_monster(monster, nextX, nextY, state);
-    if (monster.wormno)
-        note_unported('worm.c worm_move');
     // C ref: monmove.c:2053. msg_mon_movement() is async because it may
     // deliver a message. Avoid an unconditional microtask boundary for the
     // common case where the accessibility flag is off or the monster is not
@@ -4229,6 +4227,10 @@ export async function m_move(monster, rawEnv = {}) {
         const msgFn = rawEnv.message ?? ttyPline;
         await msgFn(movementMsg, state, env);
     }
+    // C ref: monmove.c:2058. Reconnect the moved head to its tail after the
+    // movement message, before the concealment update and movement tracking.
+    if (monster.wormno)
+        worm_move(monster, env);
     // C ref: monmove.c:2060. A concealed hider that leaves its object pile
     // is revealed before movement tracking and postmov()'s re-hide roll.
     // C calls maybe_unhide_at() for every move.  Its only stateful arms are

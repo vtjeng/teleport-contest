@@ -316,6 +316,7 @@ import { welded } from './wield.js';
 import { mpickobj, remove_worn_item, unresponsive } from './steal.js';
 import { money2mon } from './shk.js';
 import { tele_restrict, rloc } from './teleport.js';
+import { worm_move } from './worm.js';
 
 // C ref: mhitu.c u_slow_down() (163-171).  The self-zap and monster-action
 // callers share this owner: HFast is cleared in one operation, leaving any
@@ -1595,8 +1596,8 @@ export function mtrapped_in_pit(mtmp, state = game) {
 // C ref: mhitu.c mattacku() (491–951). Returns an attacker-death flag.
 // All dispatch branches use the canonical combat/relocation owners and retain
 // those owners' documented admission limits. Planning uses the same state and
-// RNG order with silent display operations. The discarded worm_move call is
-// still a named gap; no tail movement is invented here.
+// RNG order with silent display operations. Long-worm relocation updates its
+// tail before the hero's destination is checked, as in C.
 export async function mattacku(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const u = state.u;
@@ -1703,8 +1704,8 @@ export async function mattacku(monster, rawEnv = {}) {
             redraw(monster.mx, monster.my, state);
             place_monster(monster, u.ux, u.uy, state);
             if (monster.wormno) {
-                note_unported('worm.c worm_move');
-                // C's retry tests occupancy after its discarded worm_move.
+                worm_move(monster, env);
+                // C's retry tests occupancy after worm_move relocates the tail.
                 if (state.level.monsters[cc.x]?.[cc.y]) {
                     const retry = enexto(u.ux, u.uy, state.youmonst.data, env);
                     // C discards this retry result; a failure keeps cc intact.

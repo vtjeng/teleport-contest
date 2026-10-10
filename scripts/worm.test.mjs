@@ -10,6 +10,7 @@ import {
     initworm,
     remove_worm,
     wseg_at,
+    worm_move,
     wormhitu,
 } from '../js/worm.js';
 import { game } from '../js/gstate.js';
@@ -59,6 +60,134 @@ test('count_wsegs excludes the hidden head node stored at the list end', () => {
     assert.equal(count_wsegs(monster, state), 3);
     // C returns zero before consulting the worm list when wormno is zero.
     assert.equal(count_wsegs({ wormno: 0 }, state), 0);
+});
+
+test('worm_move exposes the old head, grows, and applies segment HP growth', () => {
+    const state = wormState();
+    // Ten is an arbitrary current turn; the source adds rnd(5) to this value.
+    state.moves = 10;
+    const worm = {
+        wormno: 1,
+        // Three coordinates distinguish the old tail, hidden head, and moved head.
+        mx: 4,
+        my: 2,
+        // A level-1 worm gives C's initial segment HP cap of 8 + 8 per segment.
+        m_lev: 1,
+        mhp: 10,
+        mhpmax: 10,
+    };
+    const segments = [{ x: 2, y: 2 }, { x: 3, y: 2 }];
+    state.level.worms[1] = { segments, growtime: 0 };
+    state.level.monsters[2][2] = worm;
+    state.level.monsters[4][2] = worm;
+    const calls = [];
+    const redraws = [];
+
+    worm_move(worm, {
+        state,
+        random: {
+            // These callbacks are present for the shared RNG adapter; C's
+            // initial-growth branch does not call rn2 or rn1.
+            rn2: (...args) => { calls.push(['rn2', ...args]); return 0; },
+            rn1: (...args) => { calls.push(['rn1', ...args]); return 2; },
+            // Source input 2 makes the first growth clock 10 + rnd(5) = 12.
+            rnd: (...args) => { calls.push(['rnd', ...args]); return 2; },
+            // Source d(2,2)=3 raises this under-cap worm from 10 HP to 13.
+            d: (...args) => { calls.push(['d', ...args]); return 3; },
+        },
+        newsym: (x, y) => redraws.push([x, y]),
+    });
+
+    // C adds the former hidden head at (4,2) to the visible segment count.
+    assert.deepEqual(state.level.worms[1].segments, [
+        { x: 2, y: 2 },
+        { x: 3, y: 2 },
+        { x: 4, y: 2 },
+    ]);
+    assert.equal(state.level.monsters[3][2], worm);
+    assert.equal(state.level.monsters[4][2], worm);
+    assert.equal(state.level.worms[1].growtime, 12);
+    assert.equal(worm.mhp, 13);
+    assert.equal(worm.mhpmax, 13);
+    assert.deepEqual(calls, [['rnd', 5], ['d', 2, 2]]);
+    assert.deepEqual(redraws, [[3, 2]]);
+});
+
+test('worm_move scales later growth time by source monster movement speed', () => {
+    const state = wormState();
+    // The current turn has reached a nonzero growth deadline.
+    state.moves = 20;
+    const worm = {
+        wormno: 1,
+        mx: 4,
+        my: 2,
+        m_lev: 1,
+        // C's long-worm speed is 3; NORMAL_SPEED 12 scales an rn1 result of 7
+        // into the next growth interval 7 * 12 / 3 = 28.
+        data: { mmove: 3 },
+        mhp: 10,
+        mhpmax: 10,
+    };
+    state.level.worms[1] = {
+        segments: [{ x: 2, y: 2 }, { x: 3, y: 2 }],
+        // 19 is due at move 20 but nonzero, selecting C's mcalcmove/rn1 arm.
+        growtime: 19,
+    };
+    state.level.monsters[2][2] = worm;
+    state.level.monsters[4][2] = worm;
+    const calls = [];
+
+    worm_move(worm, {
+        state,
+        random: {
+            rn2: (...args) => { calls.push(['rn2', ...args]); return 0; },
+            rn1: (...args) => { calls.push(['rn1', ...args]); return 7; },
+            rnd: (...args) => { calls.push(['rnd', ...args]); return 1; },
+            d: (...args) => { calls.push(['d', ...args]); return 3; },
+        },
+        newsym: () => {},
+    });
+
+    assert.equal(state.level.worms[1].growtime, 48);
+    assert.equal(worm.mhp, 13);
+    assert.equal(worm.mhpmax, 13);
+    assert.deepEqual(calls, [['rn1', 10, 2], ['d', 2, 2]]);
+});
+
+test('worm_move shifts the tail and redraws it when the growth clock is ahead', () => {
+    const state = wormState();
+    // A current turn of 10 and growth deadline 11 select C's shrink branch.
+    state.moves = 10;
+    // These positions let C move the old hidden head then remove the oldest tail.
+    const worm = { wormno: 1, mx: 4, my: 2, m_lev: 1, mhp: 10, mhpmax: 10 };
+    state.level.worms[1] = {
+        segments: [{ x: 2, y: 2 }, { x: 3, y: 2 }],
+        growtime: 11,
+    };
+    state.level.monsters[2][2] = worm;
+    state.level.monsters[4][2] = worm;
+    const redraws = [];
+
+    worm_move(worm, {
+        state,
+        random: {
+            rn2: () => { throw new Error('shrink path must not call rn2'); },
+            rn1: () => { throw new Error('shrink path must not call rn1'); },
+            rnd: () => { throw new Error('shrink path must not call rnd'); },
+            d: () => { throw new Error('shrink path must not call d'); },
+        },
+        newsym: (x, y) => redraws.push([x, y]),
+    });
+
+    assert.deepEqual(state.level.worms[1].segments, [
+        { x: 3, y: 2 },
+        { x: 4, y: 2 },
+    ]);
+    assert.equal(state.level.monsters[2][2], null);
+    assert.equal(state.level.monsters[3][2], worm);
+    assert.equal(state.level.monsters[4][2], worm);
+    assert.equal(worm.mhp, 10);
+    assert.deepEqual(redraws, [[3, 2], [2, 2]]);
 });
 
 test('create_worm_tail makes num_segs plus one zeroed linked-list nodes', () => {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked source probe for munslime fire-trap relocation -> worm.c:worm_move. munslime() places fire-trap search and relocation inside `!is_animal(mptr)` (muse.c:3060-3097); `muse_unslime()` labels its worm_move arm unreachable (muse.c:3131). The input attempts: Create a green slime and a long worm, then allow their turns.",
+  "segments": [
+    {
+      "seed": 173025628,
+      "datetime": "21051117104000",
+      "nethackrc": "OPTIONS=name:WormTrap173025628,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#wizgenesis\nhostile green slime\n#wizgenesis\nhostile long worm\n#wizwish\nfire trap\nh..."
+    }
+  ]
+}
