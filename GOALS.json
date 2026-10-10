@@ -254250,7 +254250,7 @@
     {
       "id": "port-do-wear-ring-off-or-gone-v41-invisibility-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port invisibility ring removal feedback",
       "cFile": "do_wear.c",
       "sessions": [
@@ -254264,15 +254264,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ffd2d10394fbb3c06612668aeaa38762cdfb84c1",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Ring_off_or_gone",
           "line": 1347,
           "endLine": 1448,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -254444,7 +254447,81 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Ring_off_or_gone",
+            "implementation": "js/do_wear.js",
+            "symbol": "Ring_off_or_gone",
+            "sourceReview": "Read the complete do_wear.c:Ring_off_or_gone() body at lines 1347-1446. Preserved takeoff-mask clearing, the ring-extrinsic invariant check, the gone/setnotworn versus ordinary-off/setworn order, and every source switch arm. The unsupported impossible() diagnostic is recorded with note_unported('pline.c impossible') because C discards its void result; the same applies to set_mimic_blocking() in the RIN_SEE_INVISIBLE arm. Kept the existing source-ordered float_down(), float_vs_flight(), learnring(), attribute, and monster-visibility effects. The RIN_INVISIBILITY arm models Invis, BInvis, Blind, and See_invisible from their property state; when the first three permit the C branch, it redraws, selects the source suffix, prints the unfade message, then calls learnring(). Removed the UnsupportedTakeOffError refusal.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Ring_off",
+                "source": "do_wear.c:Ring_off() at lines 1449-1452 calls Ring_off_or_gone(obj, FALSE). The selected route is cmd.c key 'R' -> do_wear.c:doremring() -> Ring_off()."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Ring_gone",
+                "source": "do_wear.c:Ring_gone() at lines 1455-1458 calls Ring_off_or_gone(obj, TRUE). Existing JavaScript routes call this wrapper from steal.js:steal() (steal.c:steal), eat.js:eataccessory() (eat.c:eataccessory), read.js:recharge() (read.c:recharge), zap_destroy_items.js:destroy_items() (zap.c:destroy_items), and mhitu.js:doseduce() ring handling (mhitu.c:doseduce)."
+              },
+              {
+                "path": "js/steal.js",
+                "symbol": "steal",
+                "source": "steal.c:steal() calls Ring_gone(obj) when a worn ring leaves the hero's inventory; js/steal.js routes that case through do_wear.js:Ring_gone()."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "eataccessory",
+                "source": "eat.c:eataccessory() calls Ring_gone(otmp) before consuming a worn ring; js/eat.js calls do_wear.js:Ring_gone()."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "recharge",
+                "source": "read.c:recharge() calls Ring_gone(obj) when a worn charged ring explodes; js/read.js calls do_wear.js:Ring_gone()."
+              },
+              {
+                "path": "js/zap_destroy_items.js",
+                "symbol": "destroy_items",
+                "source": "zap.c:destroy_items() calls Ring_gone(obj) when it destroys a worn ring; js/zap_destroy_items.js calls do_wear.js:Ring_gone()."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "doremring",
+                "source": "do_wear.c:doremring() selects the accessory and calls armor_or_accessory_off(), which reaches Ring_off(). The command table in cmd.c binds 'R' to doremring()."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runRemoveCommand",
+                "source": "cmd.c binds key 'R' to doremring(); js/cmd.js:runRemoveCommand() forwards the admitted command to js/do_wear.js:doremring()."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-ring-of-invisibility-removed",
+                "segment": 0,
+                "fromStep": 37,
+                "throughStep": 38,
+                "source": "cmd.c key 'R' -> do_wear.c:doremring -> Ring_off -> do_wear.c:Ring_off_or_gone"
+              }
+            ],
+            "checkedAt": "ffd2d10394fbb3c06612668aeaa38762cdfb84c1"
+          }
+        ],
+        "entryPointReview": "Ring_off_or_gone() is a private helper, so entryPoints is empty and this review names its production routes. Its direct wrappers Ring_off() and Ring_gone() retain the source FALSE/setworn and TRUE/setnotworn paths. The selected capital-R command reaches it through cmd.c -> doremring() -> Ring_off(), and the admitted v41 replay exercises the new invisibility arm through that route. Existing Ring_gone() routes from theft, ring consumption, charged-ring explosion, item destruction, and the now-ported mhitu.c:doseduce ring-handling path remain wired. The admitted range establishes the complete helper through the ordinary ring-removal entry; the other production callers share the same canonical wrapper.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ffd2d10394fbb3c06612668aeaa38762cdfb84c1",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
