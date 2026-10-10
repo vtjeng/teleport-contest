@@ -135,6 +135,37 @@ test('dofire and doapply both dispatch a wielded bullwhip', async () => {
     assert.equal(game._pending_message, 'Snap!');
 });
 
+// These source-pinned sites cover apply.c:use_whip's lava-wall target and
+// standing-in-lava branches, where fire_damage's boolean is discarded but its
+// object effects and RNG calls still run.
+test('use_whip runs fire_damage at both source lava call sites', () => {
+    const cSource = readFileSync(new URL(
+        '../nethack-c/upstream/src/apply.c', import.meta.url,
+    ), 'utf8');
+    const jsSource = readFileSync(new URL('../js/apply.js', import.meta.url),
+        'utf8');
+    const cStart = cSource.indexOf('\nuse_whip(struct obj *obj)');
+    const cEnd = cSource.indexOf('\nstatic const char\n    not_enough_room[]', cStart);
+    const cUseWhip = cSource.slice(cStart, cEnd);
+    const jsStart = jsSource.indexOf('export async function use_whip(');
+    const jsEnd = jsSource.indexOf('\n// C ref: apply.c use_whip()', jsStart);
+    const jsUseWhip = jsSource.slice(jsStart, jsEnd);
+
+    assert.ok(cStart >= 0 && cEnd > cStart,
+        'the C source slice must contain the complete use_whip body');
+    assert.ok(jsStart >= 0 && jsEnd > jsStart,
+        'the JavaScript source slice must contain the complete use_whip body');
+    assert.match(cUseWhip,
+        /if \(levl\[rx\]\[ry\]\.typ == LAVAWALL\)\s*\(void\) fire_damage\(uwep, FALSE, rx, ry\);/u);
+    assert.match(cUseWhip,
+        /if \(is_lava\(u\.ux, u\.uy\)\)\s*\(void\) fire_damage\(uwep, FALSE, u\.ux, u\.uy\);/u);
+    assert.match(jsUseWhip,
+        /await fire_damage\(obj, false, rx, ry, \{ \.\.\.env, state \}\);/u);
+    assert.match(jsUseWhip,
+        /await fire_damage\(obj, false, u\.ux, u\.uy, \{ \.\.\.env, state \}\);/u);
+    assert.doesNotMatch(jsUseWhip, /note_unported\('trap\.c fire_damage'\)/u);
+});
+
 test('doapply wields the Knight lance and runs polearm targeting', async () => {
     await runSegment(applyPole);
 

@@ -245867,6 +245867,309 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-apply-use-whip-lava-fire-damage-v38-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete apply.c use_whip by wiring both discarded-return fire_damage calls for a lava wall target and a hero standing in lava.",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v38/v38-levitating-whip-over-lava"
+      ],
+      "selectionReason": "The admitted v38 case has 48 of 48 screens and cursors but diverges at segment 0 step 47 when C fire_damage calls rn2(20) and JavaScript skips the call. Source review identifies both apply.c use_whip fire_damage sites as the missing effects.",
+      "detail": "C apply.c use_whip discards fire_damage return values at its adjacent lava-wall and standing-in-lava branches. JavaScript recorded note_unported at both sites although js/trap_water_damage.js already implements the callee.",
+      "openedAt": "d3e20990373d295141834469edf511580343091c",
+      "openStanding": {
+        "sha": "151a267386062542bb297b399bd4ce5473bcbde4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "2ed3aaf3696d0c9e6d324562479153cc300b743f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "use_whip",
+          "line": 2955,
+          "endLine": 3283,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2955,
+        "to": 3283
+      },
+      "syntheticProvenance": {
+        "synthetic/v38/v38-levitating-whip-over-lava": {
+          "session": "synthetic/v38/v38-levitating-whip-over-lava",
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-levitating-whip-over-lava",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recordingPath": "challenges/cases/v38/v38-levitating-whip-over-lava.session.json",
+          "recordingSha256": "1dc269ad559690e3696ccff94a2b9846fd6f4e99ed181a52a224c791425597a3",
+          "evaluationPath": "challenges/evaluations/accepted-151a267386062542bb297b399bd4ce5473bcbde4-v38.json",
+          "evaluationCommit": "151a267386062542bb297b399bd4ce5473bcbde4"
+        }
+      },
+      "activeStanding": {
+        "sha": "151a267386062542bb297b399bd4ce5473bcbde4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-levitating-whip-over-lava",
+          "session": "synthetic/v38/v38-levitating-whip-over-lava",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recording": "challenges/cases/v38/v38-levitating-whip-over-lava.session.json",
+          "recordingPath": "challenges/cases/v38/v38-levitating-whip-over-lava.session.json",
+          "recordingSha256": "1dc269ad559690e3696ccff94a2b9846fd6f4e99ed181a52a224c791425597a3",
+          "recipe": "challenges/cases/v38/v38-levitating-whip-over-lava.recipe.session.json",
+          "recipeSha256": "26c70b4e5f1b5a69c4397559665d9b57e1fa4549213551c5272c3555af4ff6f6",
+          "replayInputSha256": "6a15bb3134547e4effe2639bb5356c968bf1b33c8411496d52de9531a605f466",
+          "evaluationPath": "challenges/evaluations/accepted-151a267386062542bb297b399bd4ce5473bcbde4-v38.json",
+          "evaluationCommit": "151a267386062542bb297b399bd4ce5473bcbde4",
+          "evaluationArtifact": "challenges/evaluations/accepted-151a267386062542bb297b399bd4ce5473bcbde4-v38.json",
+          "evaluationUtc": "2026-10-10T04:14:16.465Z",
+          "remainingScreens": 0,
+          "recordedSteps": 48,
+          "previousScreensMatched": 48,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 48,
+              "total": 48
+            },
+            "rng": {
+              "matched": 3089,
+              "total": 3097
+            },
+            "cursors": {
+              "matched": 48,
+              "total": 48
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 3089,
+              "cEntry": "rn2(20)=2",
+              "cCaller": "fire_damage(trap.c:4507)",
+              "jsEntry": "rn2(5)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 47,
+                "key": "."
+              },
+              "stepIndex": 47
+            },
+            "cursor": null
+          },
+          "step": 47,
+          "kind": "rng",
+          "sourceFile": "trap.c",
+          "function": "fire_damage",
+          "message": null,
+          "cFile": "trap.c",
+          "luaFile": null,
+          "line": 4507,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v38/v38-levitating-whip-over-lava.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v38",
+              "caseId": "v38-levitating-whip-over-lava",
+              "session": "synthetic/v38/v38-levitating-whip-over-lava",
+              "manifestPath": "challenges/manifests/v38.json",
+              "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+              "recordingPath": "challenges/cases/v38/v38-levitating-whip-over-lava.session.json",
+              "recordingSha256": "1dc269ad559690e3696ccff94a2b9846fd6f4e99ed181a52a224c791425597a3",
+              "recipe": "challenges/cases/v38/v38-levitating-whip-over-lava.recipe.session.json",
+              "recipeSha256": "26c70b4e5f1b5a69c4397559665d9b57e1fa4549213551c5272c3555af4ff6f6",
+              "replayInputSha256": "6a15bb3134547e4effe2639bb5356c968bf1b33c8411496d52de9531a605f466",
+              "evaluationPath": "challenges/evaluations/accepted-151a267386062542bb297b399bd4ce5473bcbde4-v38.json",
+              "evaluationCommit": "151a267386062542bb297b399bd4ce5473bcbde4",
+              "remainingScreens": 0,
+              "recordedSteps": 48,
+              "status": "complete",
+              "commit": "428b2b96fb3cfe5d52c37c76b17ee5136f6a0e1e",
+              "summary": "The v38 RNG mismatch comes from two skipped calls in apply.c:use_whip, not from a missing fire_damage implementation. When a wielded bullwhip is flicked at an adjacent LAVAWALL, or while the hero stands in lava and flicks without a horizontal direction, C discards fire_damage’s boolean but keeps its object effects and random draw. JavaScript recorded note_unported at both call sites. The existing js/trap_water_damage.js implementation supplies the missing rn2(20) draw at segment 0 step 47; wiring both calls completes the whole source function.",
+              "source": {
+                "file": "apply.c",
+                "branch": "wielded bullwhip; after direction handling and proficiency setup, either target tile is LAVAWALL with dz==0, or dz>=0 with no horizontal direction and the hero tile is lava. Both branches splash, invoke fire_damage, discard its boolean, and return ECMD_TIME.",
+                "functions": [
+                  "use_whip"
+                ],
+                "callers": [
+                  "apply.c:4266 doapply BULLWHIP case calls use_whip; js/apply.js:4889 forwards the bullwhip through doapply.",
+                  "dothrow.c:517 dofire calls use_whip when the wielded bullwhip is the automatic fire action; js/dothrow.js:1986 forwards it through dofire."
+                ],
+                "dependencies": [
+                  "trap.c:4455-4542 fire_damage is already implemented by js/trap_water_damage.js:355; use its side effects and RNG while discarding the return value at both C call sites.",
+                  "kick_steed is implemented in js/steed.js. The other calls in use_whip remain explicit gaps: weapon.c:possibly_unwield and trap.c:instapetrify are not changed by this task."
+                ]
+              },
+              "goalKind": "file-port",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v38",
+                "caseId": "v38-levitating-whip-over-lava",
+                "session": "synthetic/v38/v38-levitating-whip-over-lava",
+                "manifestPath": "challenges/manifests/v38.json",
+                "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+                "recording": "challenges/cases/v38/v38-levitating-whip-over-lava.session.json",
+                "recordingPath": "challenges/cases/v38/v38-levitating-whip-over-lava.session.json",
+                "recordingSha256": "1dc269ad559690e3696ccff94a2b9846fd6f4e99ed181a52a224c791425597a3",
+                "recipe": "challenges/cases/v38/v38-levitating-whip-over-lava.recipe.session.json",
+                "recipeSha256": "26c70b4e5f1b5a69c4397559665d9b57e1fa4549213551c5272c3555af4ff6f6",
+                "replayInputSha256": "6a15bb3134547e4effe2639bb5356c968bf1b33c8411496d52de9531a605f466",
+                "evaluationPath": "challenges/evaluations/accepted-151a267386062542bb297b399bd4ce5473bcbde4-v38.json",
+                "evaluationCommit": "151a267386062542bb297b399bd4ce5473bcbde4",
+                "evaluationArtifact": "challenges/evaluations/accepted-151a267386062542bb297b399bd4ce5473bcbde4-v38.json",
+                "evaluationUtc": "2026-10-10T04:14:16.465Z",
+                "remainingScreens": 0,
+                "recordedSteps": 48,
+                "previousScreensMatched": 48,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 48,
+                    "total": 48
+                  },
+                  "rng": {
+                    "matched": 3089,
+                    "total": 3097
+                  },
+                  "cursors": {
+                    "matched": 48,
+                    "total": 48
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 3089,
+                    "cEntry": "rn2(20)=2",
+                    "cCaller": "fire_damage(trap.c:4507)",
+                    "jsEntry": "rn2(5)=2",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 47,
+                      "key": "."
+                    },
+                    "stepIndex": 47
+                  },
+                  "cursor": null
+                },
+                "step": 47,
+                "kind": "rng",
+                "sourceFile": "trap.c",
+                "function": "fire_damage",
+                "line": 4507
+              },
+              "evidence": [
+                "Queue SHA-256 b9c11158f727865211bf58b47b122f03200c3410c8d91a66b9edc9f6f158442a identifies v38-levitating-whip-over-lava with remainingScreens 0, 48 recorded steps, 48/48 screens and cursors, and 3089/3097 RNG calls. Its saved first mismatch is segment 0 step 47, key \".\": C rn2(20)=2 from fire_damage(trap.c:4507), while JS next calls rn2(5)=2.",
+                "Read nethack-c/upstream/src/apply.c:2954-3271 and confirmed the adjacent LAVAWALL branch calls fire_damage(uwep,FALSE,rx,ry), and the standing-lava branch calls fire_damage(uwep,FALSE,u.ux,u.uy); both results are explicitly discarded before returning ECMD_TIME.",
+                "js/apply.js:823 and :836 previously called note_unported(\"trap.c fire_damage\"). js/trap_water_damage.js:355 implements the C trap.c:fire_damage body and consumes rn2(20) for ordinary objects after catch_lit.",
+                "Production callers are apply.c:4266 doapply and dothrow.c:517 dofire, wired by js/apply.js:4889 and js/dothrow.js:1986. The existing source test file exercises both command dispatches; new assertions pin the two C/JS fire_damage call sites."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "use_whip",
+            "implementation": "js/apply.js",
+            "symbol": "use_whip",
+            "sourceReview": "Compared the complete apply.c:use_whip definition (2954-3271), including weapon-reselection queuing, direction cancellation and coordinate selection, proficiency calculation, swallow/underwater/ceiling branches, lava and water splashes, floor snaring, self-hit, slipping and dropping, pit escape selection, concealed-monster reveal, disarm and wielded-object branches, corpse petrification, mimic handling, force_attack, and air/water messages. Checked branch order, random calls, messages, state changes, and return values. Both lava fire_damage call expressions cast the result to void, so JavaScript now invokes the existing trap.c:fire_damage implementation for its state, output, and RNG effects while ignoring its boolean. kick_steed is implemented in js/steed.js; weapon.c:possibly_unwield and trap.c:instapetrify remain explicit note_unported gaps in their respective unported branches.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:4266 doapply case BULLWHIP calls use_whip(obj); js/apply.js:4889 dispatches that arm to use_whip(obj, state, env)."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "dofire",
+                "source": "dothrow.c:517 dofire calls use_whip(uwep) when the wielded bullwhip is the fallback fire action; js/dothrow.js:1986 dispatches that branch to use_whip(state.uwep, state)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-pole-whip.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/apply-wielded-whip-independent.session.json",
+              "recordings/dothrow.c/dofire-wielded-whip-entry.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v38",
+                "caseId": "v38-levitating-whip-over-lava",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 47,
+                "source": "apply.c:doapply -> apply.c:use_whip standing-in-lava branch -> trap.c:fire_damage; the matched prefix covers the missing rn2(20) call at step 47."
+              }
+            ],
+            "checkedAt": "2ed3aaf3696d0c9e6d324562479153cc300b743f"
+          }
+        ],
+        "entryPointReview": "The upstream use_whip function has two active command callers: apply.c:doapply at 4266 and dothrow.c:dofire at 517. js/apply.js:doapply and js/dothrow.js:dofire preserve both dispatches. Existing matching apply and dofire recordings reach the two callers; the admitted v38 range additionally exercises doapply through the standing-in-lava fire_damage branch through step 47. Source-pinned assertions cover both fire_damage call sites, including adjacent LAVAWALL, which the v38 replay does not reach.",
+        "entryPoints": [
+          {
+            "name": "doapply with a wielded bullwhip",
+            "functions": [
+              "use_whip"
+            ],
+            "recordings": [
+              "recordings/apply.c/apply-wielded-whip-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v38",
+                "caseId": "v38-levitating-whip-over-lava",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 47,
+                "source": "apply.c:doapply -> apply.c:use_whip -> trap.c:fire_damage standing-in-lava branch."
+              }
+            ]
+          },
+          {
+            "name": "dofire automatic wielded-bullwhip action",
+            "functions": [
+              "use_whip"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/dofire-wielded-whip-entry.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2ed3aaf3696d0c9e6d324562479153cc300b743f",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

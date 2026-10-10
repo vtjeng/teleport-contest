@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T04:54:41.890Z",
+  "capturedAt": "2026-10-10T05:19:03.416Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -78582,6 +78582,134 @@
         "task": "B208-investigation-v38-levitating-whip-over-lava",
         "worker": "B",
         "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-boots-differential-20261010T0455Z",
+        "type": "turn",
+        "at": "2026-10-10T04:56:11.584Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has nine approved distinct C-first mismatches; the sink levitation-boots candidate is at replay/differential verification."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-after-main-95a9-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:58:03.300Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 is available for the first independent v39 source task after Prep3 admission; B owns the remaining v38 RNG investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-available-for-v39-after-admission-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:58:04.771Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 is available for the first independent v39 source task after Prep3 admission; B owns the remaining v38 RNG investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-idle-after-main-95a9-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:58:11.160Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C is available for the first independent v39 source task after Prep3 admits and evaluates the batch. B owns the remaining v38 RNG investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-sink-boots-approved-20261010T0500Z",
+        "type": "turn",
+        "at": "2026-10-10T04:59:19.253Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has ten approved distinct C-first mismatches; two remain."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-B208-implement-20261010",
+        "type": "turn",
+        "at": "2026-10-10T05:02:06.625Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing both apply.c:use_whip lava fire-damage call sites and validating the v38 RNG trace."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B208-use-whip-fire-damage-20261010",
+        "type": "implement",
+        "at": "2026-10-10T05:02:26.504Z",
+        "task": "B208-investigation-v38-levitating-whip-over-lava",
+        "goal": "port-apply-use-whip-lava-fire-damage-v38-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-70c2fe82859695ae9dee932eecfbaea77a59ee3b",
+        "type": "ready",
+        "at": "2026-10-10T05:05:53.320Z",
+        "task": "B208-investigation-v38-levitating-whip-over-lava",
+        "delivery": "70c2fe82859695ae9dee932eecfbaea77a59ee3b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-after-B208-submit-v38-exhausted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T05:06:16.263Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B208 is submitted; the only saved v38 candidate is its reserved session, and Prep3 owns the v39 batch. B is idle pending a refreshed admitted queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-main-B208-70c2fe828-20261010",
+        "type": "received",
+        "at": "2026-10-10T05:06:36.255Z",
+        "task": "B208-investigation-v38-levitating-whip-over-lava",
+        "delivery": "70c2fe82859695ae9dee932eecfbaea77a59ee3b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-main-B208-review-20261010",
+        "type": "activity",
+        "at": "2026-10-10T05:06:39.753Z",
+        "task": "B208-investigation-v38-levitating-whip-over-lava",
+        "phase": "review",
+        "reason": "Reviewing the v38 whip lava fire_damage delivery and source evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-B208-2ed3aaf369-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T05:07:14.224Z",
+        "task": "B208-investigation-v38-levitating-whip-over-lava",
+        "integration": "2ed3aaf3696d0c9e6d324562479153cc300b743f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-main-B208-2ed3aaf369-20261010",
+        "type": "validated",
+        "at": "2026-10-10T05:12:36.259Z",
+        "task": "B208-investigation-v38-levitating-whip-over-lava",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B208-investigation-v38-levitating-whip-over-lava-2ed3aaf3696d0c9e6d324562479153cc300b743f-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T05:18:20.465Z",
+        "task": "B208-investigation-v38-levitating-whip-over-lava"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-after-B208-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T05:18:43.223Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B208 is accepted; syncing Main and checking for independent source work."
       }
     ]
   },
@@ -78889,8 +79017,8 @@
     ]
   },
   "development": {
-    "executionCommit": "151a267386062542bb297b399bd4ce5473bcbde4",
-    "measuredAt": "2026-10-10T04:15:16.714Z",
+    "executionCommit": "2ed3aaf3696d0c9e6d324562479153cc300b743f",
+    "measuredAt": "2026-10-10T05:12:03.283Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
