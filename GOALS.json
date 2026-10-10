@@ -255154,7 +255154,7 @@
     {
       "id": "port-worm-move-tail-tracking-v40-20261010",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Port whole worm_move and wire every production relocation caller so long-worm tail placement, growth timing, healing, and shrink behavior follow C.",
       "cFile": "worm.c",
       "sessions": [
@@ -255162,8 +255162,12 @@
       ],
       "selectionReason": "The refreshed v40 queue has one remaining screen at step 32; C enters worm.c:worm_move and draws rnd(5), while JavaScript leaves the former head square empty and advances to a later rn2(5).",
       "detail": "Port worm.c:worm_move lines 196-278 and replace the six source-positioned gaps in monmove.c:m_move, mhitu.c:mattacku, and muse.c use_defensive/use_misc/muse_unslime. Existing count_wsegs, shrink_worm, mcalcmove, redraw, and RNG helpers provide the required closure. Admitted v40 covers ordinary movement; an independent recording covers mattacku. Source guards prove the four MUSE paths inactive for a valid long worm, with blocked recipes retained.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "79d9b823f8b360e1425016f97cab031cc8329ee7",
+      "openStanding": {
+        "sha": "ab8908874e1e9d75514e41091f87203999314ce0",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "worm_move",
@@ -255182,7 +255186,233 @@
           "evaluationPath": "challenges/evaluations/accepted-ab8908874e1e9d75514e41091f87203999314ce0-v40.json",
           "evaluationCommit": "ab8908874e1e9d75514e41091f87203999314ce0"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "ab8908874e1e9d75514e41091f87203999314ce0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-hostile-long-worm-head-move-updates-tail",
+          "session": "synthetic/v40/v40-hostile-long-worm-head-move-updates-tail",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recording": "challenges/cases/v40/v40-worm-head-move-tail-shift-two-turns-cfirst.session.json",
+          "recordingPath": "challenges/cases/v40/v40-worm-head-move-tail-shift-two-turns-cfirst.session.json",
+          "recordingSha256": "9b87f92c0b07205f5ec0d16b4e6245232cdc13d280d984838e4d70bff21d141c",
+          "recipe": "challenges/cases/v40/v40-worm-head-move-tail-shift-two-turns-cfirst.recipe.session.json",
+          "recipeSha256": "04f552d272b4dea030f7594b8c6a5b4d0f8daa23c7fc6db744e33821eac09737",
+          "replayInputSha256": "fb15edb69f933bedd245b41a3575aea5a2f979ec44a33f6bebfc57a5640f5fd8",
+          "evaluationPath": "challenges/evaluations/accepted-ab8908874e1e9d75514e41091f87203999314ce0-v40.json",
+          "evaluationCommit": "ab8908874e1e9d75514e41091f87203999314ce0",
+          "evaluationArtifact": "challenges/evaluations/accepted-ab8908874e1e9d75514e41091f87203999314ce0-v40.json",
+          "evaluationUtc": "2026-10-10T16:52:38.630Z",
+          "remainingScreens": 1,
+          "recordedSteps": 33,
+          "previousScreensMatched": 32,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 33
+            },
+            "rng": {
+              "matched": 2656,
+              "total": 2671
+            },
+            "cursors": {
+              "matched": 33,
+              "total": 33
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 4,
+              "column": 18,
+              "cCell": {
+                "ch": "~",
+                "color": 3,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": ".",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2655,
+              "cEntry": "rnd(5)=1",
+              "cCaller": "worm_move(worm.c:224)",
+              "jsEntry": "rn2(5)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "l"
+              },
+              "stepIndex": 32
+            },
+            "cursor": null
+          },
+          "step": 32,
+          "kind": "rng",
+          "sourceFile": "worm.c",
+          "function": "worm_move",
+          "message": null,
+          "cFile": "worm.c",
+          "luaFile": null,
+          "line": 224,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v40/v40-hostile-long-worm-head-move-updates-tail.json",
+            "result": {
+              "session": "synthetic/v40/v40-hostile-long-worm-head-move-updates-tail",
+              "remainingScreens": 1,
+              "recordedSteps": 33,
+              "corpus": "synthetic",
+              "batch": "v40",
+              "caseId": "v40-hostile-long-worm-head-move-updates-tail",
+              "manifestPath": "challenges/manifests/v40.json",
+              "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+              "recordingSha256": "9b87f92c0b07205f5ec0d16b4e6245232cdc13d280d984838e4d70bff21d141c",
+              "evaluationPath": "challenges/evaluations/accepted-38d270ae4309c9d36dccf097fb299afadb180f0a-v40.json",
+              "evaluationCommit": "38d270ae4309c9d36dccf097fb299afadb180f0a",
+              "status": "complete",
+              "commit": "c7d54e26678cf40ee190cfe19a5e0248e153672a",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v40",
+                "caseId": "v40-hostile-long-worm-head-move-updates-tail",
+                "session": "synthetic/v40/v40-hostile-long-worm-head-move-updates-tail",
+                "manifestPath": "challenges/manifests/v40.json",
+                "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+                "recording": "challenges/cases/v40/v40-worm-head-move-tail-shift-two-turns-cfirst.session.json",
+                "recordingPath": "challenges/cases/v40/v40-worm-head-move-tail-shift-two-turns-cfirst.session.json",
+                "recordingSha256": "9b87f92c0b07205f5ec0d16b4e6245232cdc13d280d984838e4d70bff21d141c",
+                "recipe": "challenges/cases/v40/v40-worm-head-move-tail-shift-two-turns-cfirst.recipe.session.json",
+                "recipeSha256": "04f552d272b4dea030f7594b8c6a5b4d0f8daa23c7fc6db744e33821eac09737",
+                "replayInputSha256": "03a87ef34ec6d141de5a25d5a0e6ed24708f687cafa5cb82f8d1d41c90b88325",
+                "evaluationPath": "challenges/evaluations/accepted-38d270ae4309c9d36dccf097fb299afadb180f0a-v40.json",
+                "evaluationCommit": "38d270ae4309c9d36dccf097fb299afadb180f0a",
+                "evaluationArtifact": "challenges/evaluations/accepted-38d270ae4309c9d36dccf097fb299afadb180f0a-v40.json",
+                "evaluationUtc": "2026-10-10T15:21:55.315Z",
+                "remainingScreens": 1,
+                "recordedSteps": 33,
+                "previousScreensMatched": 32,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 32,
+                    "total": 33
+                  },
+                  "rng": {
+                    "matched": 2656,
+                    "total": 2671
+                  },
+                  "cursors": {
+                    "matched": 33,
+                    "total": 33
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "l"
+                    },
+                    "kind": "ch",
+                    "row": 4,
+                    "column": 18,
+                    "cCell": {
+                      "ch": "~",
+                      "color": 3,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": ".",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2655,
+                    "cEntry": "rnd(5)=1",
+                    "cCaller": "worm_move(worm.c:224)",
+                    "jsEntry": "rn2(5)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "l"
+                    },
+                    "stepIndex": 32
+                  },
+                  "cursor": null
+                },
+                "step": 32,
+                "kind": "rng",
+                "sourceFile": "worm.c",
+                "function": "worm_move",
+                "message": null,
+                "cFile": "worm.c",
+                "luaFile": null,
+                "line": 224
+              },
+              "summary": "The v40 mismatch is the missing whole worm.c:worm_move behavior after a long-worm head has moved. C inserts a visible segment at the previous head square, appends the new hidden head, updates the growth clock, and either grows/heals or drops the oldest tail segment. JS monmove.js:m_move currently records note_unported after moving the head, so it leaves the old tail coordinates and skips worm_move’s rnd/rn1/d calls. The same C function is called by mattacku, use_defensive, use_misc, and munslime; their existing JS adapters also record this same missing helper.",
+              "source": {
+                "file": "worm.c",
+                "branch": "A monster with nonzero wormno has had its head moved; worm_move inserts the old-head segment, appends the new hidden head, and updates growth time and HP when wgrowtime[wormno] <= svm.moves, otherwise removing the oldest visible tail segment.",
+                "functions": [
+                  "worm_move"
+                ],
+                "callers": [
+                  "monmove.c:m_move() calls worm_move(mtmp) after remove_monster/place_monster and msg_mon_movement at 2051-2058; js/monmove.js:m_move currently records note_unported at 4221-4222.",
+                  "mhitu.c:mattacku() calls worm_move(mtmp) after moving a ceiling-hiding long worm onto the hero square and before retrying enexto when the tail occupies the candidate square at 584-590; js/mhitu.js:mattacku currently records note_unported at 1642-1645.",
+                  "muse.c:use_defensive() calls worm_move after moving a worm onto a trapdoor at 1054-1059 and a teleport trap at 1150-1155; js/muse.js:use_defensive has matching note_unported sites at 1004-1005 and 1106-1107.",
+                  "muse.c:use_misc() calls worm_move after moving a worm onto a polymorph trap at 2534-2540; js/muse.js:use_misc records note_unported at 1627-1628.",
+                  "muse.c:munslime() retains a guarded worm_move after forced relocation to a trap at 3128-3132 (commented as normally unreachable for worms); js/muse.js:munslime retains the corresponding guarded note_unported at 3261-3263."
+                ],
+                "dependencies": [
+                  "worm.c:count_wsegs() supplies the current hidden-head-inclusive segment count; js/worm.js:count_wsegs() already implements the count.",
+                  "worm.c:shrink_worm() is the non-growing branch callee; js/worm.js:shrink_worm() already removes the oldest tail node and redraws it.",
+                  "mon.c:mcalcmove(worm, FALSE) supplies the existing-speed divisor when a nonzero growth clock is reset; js/mon.js:mcalcmove() already implements this source function.",
+                  "rm.h:place_worm_seg is the source macro that writes the worm into level.monsters[x][y]; js/worm.js owns the same level-local monster grid and ordered segment array.",
+                  "display.c:newsym redraws the newly placed tail segment; js/display.js:newsym() is already used by worm.js redraw helpers.",
+                  "rng.c:rnd(), rn1(), and d() supply the growth-clock and HP draws; js/rng.js already exposes all three operations."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Queue provenance was refreshed after accepted prayer revival at game commit ab8908874e1e9d75514e41091f87203999314ce0: v40/v40-hostile-long-worm-head-move-updates-tail remains in .cache/latest-saved-combined-queue.json at SHA-256 18de1c6a12f9efefe0537a4b0f8c6de1425ad2f5674e62d4b772877570bc2caf with 1 remaining screen and earliest mismatch step 32. The accepted evaluation records 32/33 screens, 2656/2671 RNG calls, and 33/33 cursors; it still reports C rnd(5)=1 from worm_move(worm.c:224) while JavaScript next draws rn2(5)=0.",
+                "The saved v40 evaluation first diverges at segment 0, step 32, key l: C draws rnd(5)=1 from worm_move(worm.c:224), while JavaScript next draws rn2(5)=0; the same frame has C tail glyph ~ and JavaScript floor glyph . at row 4, column 18. The prior 32 screens and all 33 cursor positions match.",
+                "Upstream worm.c:worm_move() at lines 196-278 first places a segment at the previous head coordinate and redraws it (204-206), appends a hidden node at the current head coordinate (211-216), then checks wgrowtime <= svm.moves (218). For a newly initialized worm it sets wgrowtime to svm.moves + rnd(5) (222-224); for later growth it uses mcalcmove(worm,FALSE), rn1(10,2), integer division by max(mmove,1), and svm.moves (225-238). It then computes the segment-based HP limit, draws d(2,2), and applies the previous-max/limit cap branches (240-270); otherwise it calls shrink_worm (271-276).",
+                "The selected recording is challenges/cases/v40/v40-worm-head-move-tail-shift-two-turns-cfirst.session.json. It creates a hostile long worm with #wizgenesis, then moves it twice east. At the second move, the C worm_move redraw and RNG entries are missing from JS because js/monmove.js:m_move only records note_unported after moving the head.",
+                "The direct C call inventory is six sites across monmove.c:m_move, mhitu.c:mattacku, muse.c:use_defensive (two trap types), muse.c:use_misc, and muse.c:munslime. Each corresponding current JS site has a note_unported(\"worm.c worm_move\") placeholder; full-function completion must wire the shared helper at each source-ordered site. The munslime caller remains guarded and carries the source comment that worms normally do not reach it.",
+                "The existing worm state uses level.worms[wormno] = {segments, growtime}; initworm initializes growtime to zero, count_wsegs and shrink_worm are already present, and source-positioned JS helper calls can own the same movement and HP changes without expanding into worm_nomove or unrelated worm functions."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
