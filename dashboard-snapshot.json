@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T00:01:08.601Z",
+  "capturedAt": "2026-10-10T00:05:45.875Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -77180,6 +77180,31 @@
         "at": "2026-10-10T00:01:03.367Z",
         "worker": "Prep",
         "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B168-b57781e4c6deb583d00c76711cb372363d2c8962",
+        "type": "published",
+        "at": "2026-10-10T00:03:48.894Z",
+        "task": "B168",
+        "commit": "b57781e4c6deb583d00c76711cb372363d2c8962"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B187-timeout-diagnostic-family-20261010",
+        "type": "implement",
+        "at": "2026-10-10T00:05:07.826Z",
+        "task": "B187",
+        "goal": "port-timeout-diagnostic-family-v35-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B187-active-after-B168-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T00:05:11.927Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B187 is implementing the timeout diagnostic family and its shared region/property callers from the accepted boundary."
       }
     ]
   },
