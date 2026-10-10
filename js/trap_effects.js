@@ -2351,22 +2351,29 @@ async function trapeffect_fire_trap(mtmp, trap, _trflags, env) {
 // C ref: trap.c trapeffect_magic_trap() (2293-2320), both arms.
 //
 // The hero arm calls seetrap(), rolls rn2(30) for a 1/30 magical-explosion
-// branch, and otherwise dispatches to domagictrap(). The 1/30 explosion
-// branch calls deltrap() and is refused.
+// branch, and otherwise dispatches to domagictrap(). The explosion deletes
+// the trap before its message and damage, then restores the hero's energy.
 //
 async function trapeffect_magic_trap(mtmp, trap, _trflags, env) {
     const { state } = env;
     const random = env.random;
-    const unsupported = requireTrapOperation(env, 'unsupported');
-
     if (mtmp === state.youmonst) {
         seetrap(trap, env);
         if (!random.rn2(30)) {
-            // C: deltrap(trap), newsym(), "You are caught in a magical
-            // explosion!", losehp(rnd(10)), "Your body absorbs some of the
-            // magical energy!", u.uen = (u.uenmax += 2), uenpeak update.
-            // deltrap() is not ported.
-            unsupported('magic trap explosion');
+            deltrap(trap, state);
+            requireTrapOperation(env, 'redraw')(state.u.ux, state.u.uy);
+            const message = requireTrapOperation(env, 'message');
+            await message('You are caught in a magical explosion!', state, env);
+            await losehp(
+                random.rnd(10), 'magical explosion', KILLED_BY_AN, state, env,
+            );
+            await message(
+                'Your body absorbs some of the magical energy!', state, env,
+            );
+            state.u.uen = (state.u.uenmax += 2);
+            if (state.u.uenmax > state.u.uenpeak)
+                state.u.uenpeak = state.u.uenmax;
+            return Trap_Effect_Finished;
         } else {
             await domagictrap(env);
         }
@@ -3917,6 +3924,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
     // trap.c:3035-3043 has a live seen-bear branch for its escape roll/effect.
     if (trap.tseen && !forcetrap && trap.ttyp !== ARROW_TRAP
         && trap.ttyp !== BEAR_TRAP
+        && trap.ttyp !== MAGIC_TRAP
         && trap.ttyp !== WEB
         && trap.ttyp !== LANDMINE && trap.ttyp !== ROCKTRAP
         && trap.ttyp !== ANTI_MAGIC && trap.ttyp !== STATUE_TRAP
