@@ -243699,6 +243699,206 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-pickup-zero-capacity-carry-count-v38-20261010",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Port pickup carry-count refusal at maximum capacity",
+      "cFile": "pickup.c",
+      "sessions": [
+        "synthetic/v38/v38-single-boulder-pickup-refusal"
+      ],
+      "selectionReason": "The admitted v38 single-boulder pickup case reaches pickup.c carry_count and stops at the JavaScript failed-lift preflight before the source refusal message.",
+      "detail": "Allow the exact ordinary single-object zero-lift path through preflight, preserve floor state, and emit carry_count partial and zero-lift messages in source order.",
+      "openedAt": "f1590cd6e8223f4237a4e742d88499381307db93",
+      "openStanding": {
+        "sha": "4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "carry_count",
+      "session": "synthetic/v38/v38-single-boulder-pickup-refusal",
+      "step": 19,
+      "syntheticProvenance": {
+        "synthetic/v38/v38-single-boulder-pickup-refusal": {
+          "session": "synthetic/v38/v38-single-boulder-pickup-refusal",
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-single-boulder-pickup-refusal",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recordingPath": "challenges/cases/v38/v38-single-boulder-pickup-refusal.session.json",
+          "recordingSha256": "0958de31510bbf25456ee12eb6d9f3693b89dc5472d48a2b393be5af773feec0",
+          "evaluationPath": "challenges/evaluations/accepted-4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99-v38.json",
+          "evaluationCommit": "4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99"
+        }
+      },
+      "activeStanding": {
+        "sha": "4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-single-boulder-pickup-refusal",
+          "session": "synthetic/v38/v38-single-boulder-pickup-refusal",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recording": "challenges/cases/v38/v38-single-boulder-pickup-refusal.session.json",
+          "recordingPath": "challenges/cases/v38/v38-single-boulder-pickup-refusal.session.json",
+          "recordingSha256": "0958de31510bbf25456ee12eb6d9f3693b89dc5472d48a2b393be5af773feec0",
+          "recipe": "challenges/cases/v38/v38-single-boulder-pickup-refusal.recipe.session.json",
+          "recipeSha256": "16790bbdea1940fc829397dd16d6dffb99395072f28fce7df45218500b23403c",
+          "replayInputSha256": "c89c89c911048d9c73a359da1ec33f6541faf51eb2b1a2f65bc7b5b463b554f7",
+          "evaluationPath": "challenges/evaluations/accepted-4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99-v38.json",
+          "evaluationCommit": "4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99",
+          "evaluationArtifact": "challenges/evaluations/accepted-4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99-v38.json",
+          "evaluationUtc": "2026-10-10T02:46:52.634Z",
+          "remainingScreens": 2,
+          "recordedSteps": 21,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 21
+            },
+            "rng": {
+              "matched": 4310,
+              "total": 4313
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 21
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup() requiring a partial or failed lift",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "pickup.c",
+          "function": "pickup",
+          "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup() requiring a partial or failed lift",
+          "cFile": "pickup.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v38/v38-single-boulder-pickup-refusal.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v38",
+              "caseId": "v38-single-boulder-pickup-refusal",
+              "session": "synthetic/v38/v38-single-boulder-pickup-refusal",
+              "manifestPath": "challenges/manifests/v38.json",
+              "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+              "recordingPath": "challenges/cases/v38/v38-single-boulder-pickup-refusal.session.json",
+              "recordingSha256": "0958de31510bbf25456ee12eb6d9f3693b89dc5472d48a2b393be5af773feec0",
+              "replayInputSha256": "b71bf3fbcb07fcfb0eb0ae1f4a4851cee6588d354239d49084516f65d1ad7577",
+              "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+              "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+              "remainingScreens": 2,
+              "recordedSteps": 21,
+              "status": "complete",
+              "commit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v38",
+                "caseId": "v38-single-boulder-pickup-refusal",
+                "session": "synthetic/v38/v38-single-boulder-pickup-refusal",
+                "manifestPath": "challenges/manifests/v38.json",
+                "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+                "recording": "challenges/cases/v38/v38-single-boulder-pickup-refusal.session.json",
+                "recordingPath": "challenges/cases/v38/v38-single-boulder-pickup-refusal.session.json",
+                "recordingSha256": "0958de31510bbf25456ee12eb6d9f3693b89dc5472d48a2b393be5af773feec0",
+                "recipe": "challenges/cases/v38/v38-single-boulder-pickup-refusal.recipe.session.json",
+                "recipeSha256": "16790bbdea1940fc829397dd16d6dffb99395072f28fce7df45218500b23403c",
+                "replayInputSha256": "b71bf3fbcb07fcfb0eb0ae1f4a4851cee6588d354239d49084516f65d1ad7577",
+                "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+                "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8",
+                "evaluationArtifact": "challenges/evaluations/20261010014622-v38.json",
+                "evaluationUtc": "2026-10-10T01:46:34.186Z",
+                "remainingScreens": 2,
+                "recordedSteps": 21,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 21
+                  },
+                  "rng": {
+                    "matched": 4310,
+                    "total": 4313
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 21
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup() requiring a partial or failed lift",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "pickup.c",
+                "function": "pickup",
+                "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup() requiring a partial or failed lift",
+                "cFile": "pickup.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At command step 19, JavaScript preflight refuses a selected boulder before pickup_object runs. C reaches lift_object and carry_count; for one non-gold object whose weight reaches max_capacity, carry_count reports that it cannot be lifted and returns zero, so pickup ends normally with the object still on the floor. Port that complete message branch and bypass preflight only when one ordinary quantity-one object is certainly unliftable. Automatic random-arrival projection must continue to treat that object as remaining on the floor.",
+              "source": {
+                "file": "pickup.c",
+                "branch": "For an ordinary non-gold object with count 1, when max_capacity() + obj->owt >= 0, the preliminary weight check does not return count; the single-object branch sets qq to 0, emits the cannot-lift message, and returns 0. The selected boulder is not in Sokoban, is not a loadstone, and the hero is not a giant, so lift_object reaches carry_count.",
+                "functions": [
+                  "carry_count",
+                  "lift_object",
+                  "pickup_object"
+                ],
+                "callers": [
+                  "cmd.c:1800 comma command row invokes dopickup",
+                  "hack.c:3876-3891 dopickup calls pickup(-count)",
+                  "pickup.c:pickup single-object query path calls pickup_object",
+                  "pickup.c:lift_object calls carry_count and consumes its returned count",
+                  "pickup.c:pickup_object scare-scroll branch calls carry_count directly"
+                ],
+                "dependencies": [
+                  "pickup.c:pickup selection and pickup_object dispatch",
+                  "pickup.c:lift_object special-case ordering and return handling",
+                  "hack.c:max_capacity",
+                  "pickup.c:weight and delta_cwt",
+                  "objnam.c:doname, xname, otense",
+                  "pline.c:There output"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved v38 queue entry at challenges/evaluations/20261010014622-v38.json identifies synthetic/v38/v38-single-boulder-pickup-refusal, manifest SHA-256 2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05, recording SHA-256 0958de31510bbf25456ee12eb6d9f3693b89dc5472d48a2b393be5af773feec0, replay input SHA-256 b71bf3fbcb07fcfb0eb0ae1f4a4851cee6588d354239d49084516f65d1ad7577, and the first stop mismatch at zero-based segment 0 step 19. Baseline fresh scan at e2a08814ab03e27c9cd538cbe79526e43c1232f8 stopped with UnsupportedPickupError after 19 of 21 recorded steps; diagnostic output is /tmp/teleport-validation-1000/run-d8URmr.",
+                "Upstream pickup.c:carry_count (1570-1701) computes iw=max_capacity(); when wt is not negative and the object is non-gold with count equal to its quantity of one, it selects qq=0, builds the name and location, emits There(...) at 1685-1699, and returns zero. This is an impure source function because it writes a message.",
+                "Upstream pickup.c:lift_object (1705-1794) handles Sokoban boulders, loadstones, and giant boulders before carry_count; on the selected ordinary boulder path it consumes carry_count’s result and returns -1 when the count is zero. Upstream pickup.c:pickup_object (1803-1888) invokes lift_object after observation and special-object checks; its scare-scroll branch separately consumes carry_count before mutating a scroll.",
+                "Production entry path is nethack-c/upstream/src/cmd.c:1800 comma binding to dopickup, nethack-c/upstream/src/hack.c:3876-3891 calling pickup(-count), then pickup.c:pickup single-item selection and pickup_object. JavaScript js/cmd.js:3424-3425 dispatches to js/hack.js:dopickup, which calls js/pickup.js:pickup.",
+                "JavaScript js/pickup.js:preflightPickupObjects currently rejects when inv_weight(state)+addedWeight >= 2*weight_cap(state), before the source-ordered pickup_object call. For a sole ordinary quantity-one object this is equivalent to carry_count’s no-lift preliminary condition, but source behavior is to let pickup_object reach carry_count, print the message, and return normally. Automatic floor-pickup planning also uses this preflight, so its remaining-object projection must retain the unliftable object for check_here."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
