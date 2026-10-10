@@ -248916,7 +248916,7 @@
     {
       "id": "fix-trap-seen-magic-trap-preflight-v39-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete the seen magic trap escape and explosion path",
       "cFile": "trap.c",
       "sessions": [
@@ -248930,8 +248930,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9576b4f8da10054320739b6775b11284c33b01ed",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "trapeffect_magic_trap",
       "session": "synthetic/v39/v39-magic-trap-explosion",
       "step": 24,
@@ -249101,7 +249104,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9576b4f8da10054320739b6775b11284c33b01ed",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
