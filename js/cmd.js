@@ -57,6 +57,7 @@ import {
     IS_ALTAR,
     IS_FOUNTAIN,
     IS_SINK,
+    I_SPECIAL,
     IS_STWALL,
     IS_THRONE,
     In_tutorial,
@@ -338,6 +339,8 @@ import {
     spe_Unknown,
     spelleffects,
     UnsupportedSpellCastError,
+    TPORT_SPELL_ACTION,
+    tport_spell,
 } from './spell.js';
 import {
     UnsupportedWeaponSkillError,
@@ -6383,144 +6386,235 @@ export async function rhack(key, state = game) {
         }
         if (command === 'teleport') {
             // C ref: teleport.c dotelecmd() → dotele().
-            const trap = t_at(state.u.ux, state.u.uy, state);
-            if (trap?.tseen
-                && (trap.ttyp === TELEP_TRAP || trap.ttyp === LEVEL_TELEP)) {
-                throw new UnsupportedHeroCommandBranchBoundaryError(
-                    'dotelecmd: teleport trap interaction unported',
-                    key,
-                );
-            }
-            // C ref: dotelecmd() wizard path. Without 'm' prefix,
-            // ignore_restrictions=TRUE → dotele(TRUE) skips all checks.
-            if (state.wizard && !state.iflags?.menu_requested) {
-                if (next_to_u(state)) {
-                    if (state.iflags)
-                        state.iflags.travelcc = { x: 0, y: 0 };
-                    await tele(state);
-                    next_to_u(state);
-                } else {
-                    await ttyPline(
-                        'You shudder for a moment.',
-                        state,
-                    );
-                    resetCommandVars(state);
-                    return;
-                }
-                await morehungry(100, state, {
-                    message: ttyPline,
-                    statusRefresh: () => bot(),
-                    endRunning: (s) => end_running(true, s),
+            let selectedTeleportMode = null;
+            if (state.wizard && state.iflags?.menu_requested) {
+                // C teleport.c:dotelecmd() offers the four mode rows with w
+                // preselected. A committed empty list is C's toggled-off
+                // preselection (which still means w); Escape is a no-op.
+                const selected = await select_menu(state, {
+                    items: [
+                        {
+                            selector: 'n',
+                            label: 'normal ^T on demand; no spell, obey restrictions',
+                            value: 'n',
+                        },
+                        {
+                            selector: 's',
+                            label: 'via spellcast; no intrinsic teleport',
+                            value: 's',
+                        },
+                        {
+                            selector: 't',
+                            label: 'try ^T without having it; no spell',
+                            value: 't',
+                        },
+                        {
+                            selector: 'w',
+                            label: 'debug mode; ignore restrictions',
+                            value: 'w',
+                            selected: true,
+                        },
+                    ],
+                    how: PICK_ONE,
+                    returnSelections: true,
+                    cancelValue: null,
+                    title: 'Which way do you want to teleport?',
+                    behavior: MENU_BEHAVE_STANDARD,
+                    ...menuTitleStyle(state),
                 });
-                resetCommandVars(state);
-                // C ref: teleport.c dotelecmd() returns ECMD_TIME after
-                // dotele(TRUE) succeeds; rhack() restores context.move
-                // after reset_cmd_vars().
-                commandTookTime(state);
-                state.go.occupation = null;
-                return;
-            }
-            const prop = state.u?.uprops?.[TELEPORT];
-            const hasTeleportation = Boolean(
-                (prop?.intrinsic || prop?.extrinsic) && !prop?.blocked,
-            );
-            const levelOk = state.u.ulevel
-                >= (state.urole?.mnum === PM_WIZARD ? 8 : 12);
-            const formOk = can_teleport(state.youmonst?.data);
-            if (hasTeleportation && (levelOk || formOk)) {
-                // C ref: teleport.c dotele() intrinsic teleport path.
-                // energy = 5 * objects[SPE_TELEPORT_AWAY].oc_level
-                const spellLevel = Math.trunc(
-                    state.objects?.[SPE_TELEPORT_AWAY]?.oc_level ?? 6,
-                );
-                const energy = 5 * spellLevel;
-                state.u.uen -= energy;
-                state.disp = state.disp || {};
-                state.disp.botl = true;
-                if (next_to_u(state)) {
-                    if (state.iflags)
-                        state.iflags.travelcc = { x: 0, y: 0 };
-                    await tele(state);
-                    next_to_u(state);
-                } else {
-                    await ttyPline(
-                        'You shudder for a moment.',
-                        state,
-                    );
+                if (selected === null) {
                     resetCommandVars(state);
                     return;
                 }
-                await morehungry(100, state, {
-                    message: ttyPline,
-                    statusRefresh: () => bot(),
-                    endRunning: (s) => end_running(true, s),
-                });
-                resetCommandVars(state);
-                // C ref: dotele(FALSE) returns 1 after an intrinsic
-                // teleport, which dotelecmd() turns into ECMD_TIME.
-                commandTookTime(state);
-                state.go.occupation = null;
-                return;
+                const modes = selected.map((entry) => entry.value);
+                selectedTeleportMode = modes.length ? modes[0] : 'w';
+                // C may return its preselected w plus one explicit choice.
+                if (modes.length > 1 && selectedTeleportMode === 'w')
+                    selectedTeleportMode = modes[1];
             }
-            const knownsp = known_spell(SPE_TELEPORT_AWAY, state);
-            const confusion = Boolean(
-                state.u?.uprops?.[CONFUSION]?.intrinsic
-                || state.u?.uprops?.[CONFUSION]?.extrinsic,
-            );
-            if (knownsp >= spe_Fresh && !confusion) {
-                // C ref: teleport.c dotele() (1090-1137), spell-casting path.
-                const spellLevel = Math.trunc(
-                    state.objects?.[SPE_TELEPORT_AWAY]?.oc_level ?? 6,
-                );
-                const energy = 5 * spellLevel;
-                let cantdoit = null;
-                if ((state.u?.uhunger ?? 901) <= 10)
-                    cantdoit = 'are too weak from hunger';
-                else if (acurr(state, A_STR) < 4)
-                    cantdoit = 'lack the strength';
-                else if (energy > state.u.uen)
-                    cantdoit = 'lack the energy';
-                if (cantdoit) {
-                    await ttyPline(
-                        `You ${cantdoit} for a teleport spell.`, state,
-                    );
-                    resetCommandVars(state);
-                    return;
+
+            let teleportProperty;
+            let savedTeleportation;
+            let spellRestore = TPORT_SPELL_ACTION.NOOP;
+            try {
+                if (selectedTeleportMode !== null) {
+                    teleportProperty = state.u.uprops[TELEPORT] ??= {
+                        intrinsic: 0,
+                        extrinsic: 0,
+                        blocked: 0,
+                    };
+                    savedTeleportation = {
+                        intrinsic: teleportProperty.intrinsic,
+                        extrinsic: teleportProperty.extrinsic,
+                    };
+                    if (selectedTeleportMode === 'n') {
+                        teleportProperty.intrinsic =
+                            (Number(teleportProperty.intrinsic) || 0) | I_SPECIAL;
+                        spellRestore = tport_spell(
+                            TPORT_SPELL_ACTION.HIDE, state,
+                        );
+                    } else if (selectedTeleportMode === 's') {
+                        teleportProperty.intrinsic = 0;
+                        teleportProperty.extrinsic = 0;
+                        spellRestore = tport_spell(
+                            TPORT_SPELL_ACTION.ADD, state,
+                        );
+                    } else if (selectedTeleportMode === 't') {
+                        teleportProperty.intrinsic = 0;
+                        teleportProperty.extrinsic = 0;
+                        spellRestore = tport_spell(
+                            TPORT_SPELL_ACTION.HIDE, state,
+                        );
+                    }
                 }
-                if (await check_capacity(
-                    'Your concentration falters from carrying so much.',
-                    state,
-                )) {
+
+                const trap = t_at(state.u.ux, state.u.uy, state);
+                if (trap?.tseen
+                    && (trap.ttyp === TELEP_TRAP || trap.ttyp === LEVEL_TELEP)) {
+                    throw new UnsupportedHeroCommandBranchBoundaryError(
+                        'dotelecmd: teleport trap interaction unported',
+                        key,
+                    );
+                }
+                // C ref: dotelecmd() wizard path. Without 'm' prefix,
+                // ignore_restrictions=TRUE → dotele(TRUE) skips all checks.
+                if (state.wizard && (!state.iflags?.menu_requested
+                    || selectedTeleportMode === 'w')) {
+                    if (next_to_u(state)) {
+                        if (state.iflags)
+                            state.iflags.travelcc = { x: 0, y: 0 };
+                        await tele(state);
+                        next_to_u(state);
+                    } else {
+                        await ttyPline(
+                            'You shudder for a moment.',
+                            state,
+                        );
+                        resetCommandVars(state);
+                        return;
+                    }
+                    await morehungry(100, state, {
+                        message: ttyPline,
+                        statusRefresh: () => bot(),
+                        endRunning: (s) => end_running(true, s),
+                    });
+                    resetCommandVars(state);
+                    // C ref: teleport.c dotelecmd() returns ECMD_TIME after
+                    // dotele(TRUE) succeeds; rhack() restores context.move
+                    // after reset_cmd_vars().
                     commandTookTime(state);
-                    resetCommandVars(state);
                     state.go.occupation = null;
                     return;
                 }
-                await exercise(A_WIS, true, state);
-                if (await spelleffects(
-                    SPE_TELEPORT_AWAY, true, false, state,
-                ) & ECMD_TIME) {
-                    commandTookTime(state);
+                const prop = state.u?.uprops?.[TELEPORT];
+                const hasTeleportation = Boolean(
+                    (prop?.intrinsic || prop?.extrinsic) && !prop?.blocked,
+                );
+                const levelOk = state.u.ulevel
+                    >= (state.urole?.mnum === PM_WIZARD ? 8 : 12);
+                const formOk = can_teleport(state.youmonst?.data);
+                if (hasTeleportation && (levelOk || formOk)) {
+                    // C ref: teleport.c dotele() intrinsic teleport path.
+                    // energy = 5 * objects[SPE_TELEPORT_AWAY].oc_level
+                    const spellLevel = Math.trunc(
+                        state.objects?.[SPE_TELEPORT_AWAY]?.oc_level ?? 6,
+                    );
+                    const energy = 5 * spellLevel;
+                    state.u.uen -= energy;
+                    state.disp = state.disp || {};
+                    state.disp.botl = true;
+                    if (next_to_u(state)) {
+                        if (state.iflags)
+                            state.iflags.travelcc = { x: 0, y: 0 };
+                        await tele(state);
+                        next_to_u(state);
+                    } else {
+                        await ttyPline(
+                            'You shudder for a moment.',
+                            state,
+                        );
+                        resetCommandVars(state);
+                        return;
+                    }
+                    await morehungry(100, state, {
+                        message: ttyPline,
+                        statusRefresh: () => bot(),
+                        endRunning: (s) => end_running(true, s),
+                    });
                     resetCommandVars(state);
+                    // C ref: dotele(FALSE) returns 1 after an intrinsic
+                    // teleport, which dotelecmd() turns into ECMD_TIME.
+                    commandTookTime(state);
                     state.go.occupation = null;
                     return;
                 }
+                const knownsp = known_spell(SPE_TELEPORT_AWAY, state);
+                const confusion = Boolean(
+                    state.u?.uprops?.[CONFUSION]?.intrinsic
+                    || state.u?.uprops?.[CONFUSION]?.extrinsic,
+                );
+                if (knownsp >= spe_Fresh && !confusion) {
+                    // C ref: teleport.c dotele() (1090-1137), spell-casting path.
+                    const spellLevel = Math.trunc(
+                        state.objects?.[SPE_TELEPORT_AWAY]?.oc_level ?? 6,
+                    );
+                    const energy = 5 * spellLevel;
+                    let cantdoit = null;
+                    if ((state.u?.uhunger ?? 901) <= 10)
+                        cantdoit = 'are too weak from hunger';
+                    else if (acurr(state, A_STR) < 4)
+                        cantdoit = 'lack the strength';
+                    else if (energy > state.u.uen)
+                        cantdoit = 'lack the energy';
+                    if (cantdoit) {
+                        await ttyPline(
+                            `You ${cantdoit} for a teleport spell.`, state,
+                        );
+                        resetCommandVars(state);
+                        return;
+                    }
+                    if (await check_capacity(
+                        'Your concentration falters from carrying so much.',
+                        state,
+                    )) {
+                        commandTookTime(state);
+                        resetCommandVars(state);
+                        state.go.occupation = null;
+                        return;
+                    }
+                    await exercise(A_WIS, true, state);
+                    if (await spelleffects(
+                        SPE_TELEPORT_AWAY, true, false, state,
+                    ) & ECMD_TIME) {
+                        commandTookTime(state);
+                        resetCommandVars(state);
+                        state.go.occupation = null;
+                        return;
+                    }
+                    resetCommandVars(state);
+                    return;
+                }
+                if (!hasTeleportation) {
+                    if (knownsp !== spe_Unknown)
+                        await ttyPline("You can't cast that spell.", state);
+                    else
+                        await ttyPline("You don't know that spell.", state);
+                } else {
+                    await ttyPline(
+                        'You are not able to teleport at will.',
+                        state,
+                    );
+                }
                 resetCommandVars(state);
                 return;
+            } finally {
+                if (savedTeleportation) {
+                    teleportProperty.intrinsic = savedTeleportation.intrinsic;
+                    teleportProperty.extrinsic = savedTeleportation.extrinsic;
+                    if (spellRestore !== TPORT_SPELL_ACTION.NOOP)
+                        tport_spell(spellRestore, state);
+                }
             }
-            if (!hasTeleportation) {
-                if (knownsp !== spe_Unknown)
-                    await ttyPline("You can't cast that spell.", state);
-                else
-                    await ttyPline("You don't know that spell.", state);
-            } else {
-                await ttyPline(
-                    'You are not able to teleport at will.',
-                    state,
-                );
-            }
-            resetCommandVars(state);
-            return;
         }
         if (command === 'save') {
             // C ref: save.c dosave():43-70. dosave() always returns ECMD_OK;
