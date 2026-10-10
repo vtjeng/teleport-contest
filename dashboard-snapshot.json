@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T03:27:39.176Z",
+  "capturedAt": "2026-10-10T03:43:33.473Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -78256,33 +78256,82 @@
         "type": "accepted",
         "at": "2026-10-10T03:27:11.728Z",
         "task": "B207-investigation-v38-quick-glance-lootabc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B207-investigation-v38-quick-glance-lootabc-031910d2dcfefb1e6685a921b15052e7841166f2",
+        "type": "published",
+        "at": "2026-10-10T03:27:47.357Z",
+        "task": "B207-investigation-v38-quick-glance-lootabc",
+        "commit": "031910d2dcfefb1e6685a921b15052e7841166f2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-main-A2-water-dip-77b56d95c-20261010",
+        "type": "received",
+        "at": "2026-10-10T03:29:34.085Z",
+        "task": "A2-v38-water-dip-acid-potion-investigation-20261010",
+        "delivery": "77b56d95c0d6504d182d39ad6c9fcffc293384b8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-resume-20261010T0330Z",
+        "type": "turn",
+        "at": "2026-10-10T03:30:46.743Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Continuing v39 preparation toward 12 distinct C-first mismatches."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-A2-water-dip-7c3b5e696-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T03:34:37.263Z",
+        "task": "A2-v38-water-dip-acid-potion-investigation-20261010",
+        "integration": "7c3b5e6961e7f3b2b616d0911ff59748678b1321"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-main-C184-entry-evidence-20261010",
+        "type": "feedback",
+        "at": "2026-10-10T03:37:28.843Z",
+        "task": "C184",
+        "delivery": "d7d86ee902e0b6cca2d5be15e3d98b0ba4a95609"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C184-correction-turn-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T03:38:55.099Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C184-correction-resume-20261010",
+        "type": "resume",
+        "at": "2026-10-10T03:39:13.208Z",
+        "task": "C184"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-main-A2-water-dip-7c3b5e696-20261010",
+        "type": "validated",
+        "at": "2026-10-10T03:41:38.749Z",
+        "task": "A2-v38-water-dip-acid-potion-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-v38-water-dip-acid-potion-investigation-20261010-7c3b5e6961e7f3b2b616d0911ff59748678b1321-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T03:42:37.672Z",
+        "task": "A2-v38-water-dip-acid-potion-investigation-20261010"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "A2-v38-water-dip-acid-potion-investigation-20261010",
-        "worker": "A2",
-        "goal": "port-trap-pot-acid-damage-v38-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "77b56d95c0d6504d182d39ad6c9fcffc293384b8",
-        "since": "2026-10-10T02:30:07.769Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "C184",
-        "worker": "C",
-        "goal": "port-trap-fire-damage-chain-v38-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "d7d86ee902e0b6cca2d5be15e3d98b0ba4a95609",
-        "since": "2026-10-10T02:38:07.101Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "B206-investigation-v38-bear-trap",
         "worker": "B",
@@ -78597,8 +78646,8 @@
     ]
   },
   "development": {
-    "executionCommit": "c863f395deb587c11a1121b76cb0ab9093392a15",
-    "measuredAt": "2026-10-10T03:25:55.378Z",
+    "executionCommit": "7c3b5e6961e7f3b2b616d0911ff59748678b1321",
+    "measuredAt": "2026-10-10T03:41:08.203Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

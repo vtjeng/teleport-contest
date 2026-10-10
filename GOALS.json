@@ -244755,7 +244755,7 @@
     {
       "id": "port-trap-pot-acid-damage-v38-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port trap.c pot_acid_damage",
       "cFile": "trap.c",
       "sessions": [
@@ -244769,15 +244769,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7c3b5e6961e7f3b2b616d0911ff59748678b1321",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "pot_acid_damage",
           "line": 4657,
           "endLine": 4711,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -245047,7 +245050,76 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "pot_acid_damage",
+            "implementation": "js/trap_water_damage.js",
+            "symbol": "pot_acid_damage",
+            "sourceReview": "Read the complete trap.c:4656-4707 function. Preserved the quantity-based singular/plural split, blind floor-object dknown clearing, valid acid-context known/unknown explosion selection and counter update, described versus undescribed message branches, setnotworn -> delobj -> carried-inventory refresh order. Removed the injected env.potAcidDamage substitute and note_unported fallback; all callees are already ported.",
+            "callers": [
+              {
+                "path": "js/trap_water_damage.js",
+                "symbol": "water_damage",
+                "source": "trap.c:water_damage() calls pot_acid_damage() in the grease-wash acid branch (4744-4748) and potion-class acid branch (4824-4827)."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "H2Opotion_dip",
+                "source": "potion.c:H2Opotion_dip() calls water_damage() for a carried target (1538-1545); potion.c:dodip() invokes H2Opotion_dip() after #dip selection (2460-2464). js/potion.js:dodip() is the corresponding production command owner."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runDipCommand",
+                "source": "cmd.c:1702 registers the dip extended command to dodip(); js/cmd.js:runDipCommand() dispatches the registered dodip handler to js/potion.js:dodip()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-water-damage.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v38",
+                "caseId": "v38-water-dip-destroys-acid-potion",
+                "segment": 0,
+                "fromStep": 59,
+                "throughStep": 59,
+                "source": "the recorded #dip command calls potion.c:dodip() -> H2Opotion_dip() -> trap.c:water_damage() -> pot_acid_damage(); JS uses cmd.js -> potion.js:dodip()/H2Opotion_dip() -> trap_water_damage.js:water_damage()/pot_acid_damage()"
+              }
+            ],
+            "checkedAt": "7c3b5e6961e7f3b2b616d0911ff59748678b1321"
+          }
+        ],
+        "entryPointReview": "This helper-only source unit is reached through trap.c:water_damage(). The cited live entry point is the #dip extended command: potion.c:dodip() selects the water potion and carried acid potion, H2Opotion_dip() calls water_damage(), and the acid branch calls pot_acid_damage(). The recipe and recording select an uncursed acid potion and uncursed water potion, issue #dip, and select the acid target. The same helper also serves the existing grease-wash and other water_damage() routes; they share the implementation and callee chain rather than separate JavaScript entry functions.",
+        "entryPoints": [
+          {
+            "name": "#dip a carried acid potion into uncursed water",
+            "functions": [
+              "pot_acid_damage"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v38",
+                "caseId": "v38-water-dip-destroys-acid-potion",
+                "segment": 0,
+                "fromStep": 59,
+                "throughStep": 59,
+                "source": "the recorded #dip command calls potion.c:dodip() -> H2Opotion_dip() -> trap.c:water_damage() -> pot_acid_damage(); JS uses cmd.js -> potion.js:dodip()/H2Opotion_dip() -> trap_water_damage.js:water_damage()/pot_acid_damage()"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7c3b5e6961e7f3b2b616d0911ff59748678b1321",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
