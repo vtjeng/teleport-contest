@@ -345,7 +345,7 @@ import {
     u_safe_from_fatal_corpse,
 } from './pickup.js';
 import { ok_to_quest, onquest } from './quest.js';
-import { com_pager, convertLine } from './questpgr.js';
+import { com_pager, deliver_splev_message } from './questpgr.js';
 import { gain_guardian_angel } from './minion.js';
 import { in_out_region, visible_region_at } from './region.js';
 import { getlev } from './restore.js';
@@ -3299,18 +3299,6 @@ async function u_collide_m(mtmp, state = game) {
         // the level to return later. The wizard-mode message is not ported.
         await m_into_limbo(m_at(state.u.ux, state.u.uy, state), state);
     }
-}
-
-// C ref: questpgr.c deliver_splev_message() and deliver_by_pline(). A special
-// level's Lua des.message() calls are joined with newlines, then delivered as
-// separate ordinary plines during arrival. Keeping the split here preserves
-// the source's message-history and top-line handling for each line.
-async function deliver_splev_message(state = game) {
-    const message = state.gl?.lev_message;
-    if (!message) return;
-    for (const line of message.split('\n'))
-        await ttyPline(convertLine(line, state), state);
-    state.gl.lev_message = null;
 }
 
 // C ref: do.c hellish_smoke_mesg() and temperature_change_msg(). The Fire
