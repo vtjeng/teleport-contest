@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T02:50:17.718Z",
+  "capturedAt": "2026-10-10T05:45:33.783Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -78103,85 +78103,698 @@
         "type": "accepted",
         "at": "2026-10-10T02:49:36.205Z",
         "task": "A2-v38-broken-undead-wand-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-v38-broken-undead-wand-investigation-20261010-e1f8f3c861f0313e34d4057afde4579e0213241b",
+        "type": "published",
+        "at": "2026-10-10T02:50:25.776Z",
+        "task": "A2-v38-broken-undead-wand-investigation-20261010",
+        "commit": "e1f8f3c861f0313e34d4057afde4579e0213241b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-4ea-queue-cd929374-20261010",
+        "type": "turn",
+        "at": "2026-10-10T02:51:58.940Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "No independent source mismatch is free in the refreshed queue; waiting for Main to integrate the A2 water-dip delivery and publish the next queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-main-C182-553ca4538-20261010",
+        "type": "received",
+        "at": "2026-10-10T02:52:06.607Z",
+        "task": "C182",
+        "delivery": "553ca453878cd07da2d13138597e984396a0206e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-v39-20261010T0252Z",
+        "type": "turn",
+        "at": "2026-10-10T02:52:40.005Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Starting v39 preparation after the combined queue reached 12 unmatched sessions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep3-v39-20261010T0252Z",
+        "type": "assign",
+        "at": "2026-10-10T02:52:49.646Z",
+        "task": "Prep3",
+        "worker": "Prep",
+        "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-C182-4da7886eb-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T02:53:41.017Z",
+        "task": "C182",
+        "integration": "4da7886ebee2489278141ddd7eba55370ed35601"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-main-C182-4da7886eb-hosted-38018662922",
+        "type": "validated",
+        "at": "2026-10-10T02:59:35.513Z",
+        "task": "C182",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C182-4da7886ebee2489278141ddd7eba55370ed35601-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T03:00:41.322Z",
+        "task": "C182"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C182-91aa540391e774c0f3e632949cef585d562c9c0f",
+        "type": "published",
+        "at": "2026-10-10T03:01:29.259Z",
+        "task": "C182",
+        "commit": "91aa540391e774c0f3e632949cef585d562c9c0f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-main-B205-0cfb5d4ca-20261010",
+        "type": "received",
+        "at": "2026-10-10T03:04:02.006Z",
+        "task": "B205",
+        "delivery": "0cfb5d4ca92f9c1a96cd0ea8fa50c377be281ea3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-C182-publication-f5552e69-20261010",
+        "type": "turn",
+        "at": "2026-10-10T03:04:36.517Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "No independent source task is eligible in the refreshed queue; waiting for Main to integrate the A2 water-dip delivery and refresh selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-B205-36aedf0ef-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T03:06:02.396Z",
+        "task": "B205",
+        "integration": "36aedf0efa51725346d44932c0e5cff80a38bb01"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-main-B205-36aedf0ef-hosted-38019422969",
+        "type": "validated",
+        "at": "2026-10-10T03:11:42.647Z",
+        "task": "B205",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B205-36aedf0efa51725346d44932c0e5cff80a38bb01-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T03:12:55.031Z",
+        "task": "B205"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B205-1f06dbe974c6dcdaee63d73991a5c4dfdfc169c8",
+        "type": "published",
+        "at": "2026-10-10T03:13:35.427Z",
+        "task": "B205",
+        "commit": "1f06dbe974c6dcdaee63d73991a5c4dfdfc169c8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-main-B207-b944bbeac-20261010",
+        "type": "received",
+        "at": "2026-10-10T03:15:32.428Z",
+        "task": "B207-investigation-v38-quick-glance-lootabc",
+        "delivery": "b944bbeac6a0e895cc123954e02157b986cf6b1e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-B207-c863f395d-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T03:18:58.898Z",
+        "task": "B207-investigation-v38-quick-glance-lootabc",
+        "integration": "c863f395deb587c11a1121b76cb0ab9093392a15"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-main-B207-c863f395d-hosted-38020284101",
+        "type": "validated",
+        "at": "2026-10-10T03:26:17.938Z",
+        "task": "B207-investigation-v38-quick-glance-lootabc",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B207-investigation-v38-quick-glance-lootabc-c863f395deb587c11a1121b76cb0ab9093392a15-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T03:27:11.728Z",
+        "task": "B207-investigation-v38-quick-glance-lootabc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B207-investigation-v38-quick-glance-lootabc-031910d2dcfefb1e6685a921b15052e7841166f2",
+        "type": "published",
+        "at": "2026-10-10T03:27:47.357Z",
+        "task": "B207-investigation-v38-quick-glance-lootabc",
+        "commit": "031910d2dcfefb1e6685a921b15052e7841166f2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-main-A2-water-dip-77b56d95c-20261010",
+        "type": "received",
+        "at": "2026-10-10T03:29:34.085Z",
+        "task": "A2-v38-water-dip-acid-potion-investigation-20261010",
+        "delivery": "77b56d95c0d6504d182d39ad6c9fcffc293384b8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-resume-20261010T0330Z",
+        "type": "turn",
+        "at": "2026-10-10T03:30:46.743Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Continuing v39 preparation toward 12 distinct C-first mismatches."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-A2-water-dip-7c3b5e696-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T03:34:37.263Z",
+        "task": "A2-v38-water-dip-acid-potion-investigation-20261010",
+        "integration": "7c3b5e6961e7f3b2b616d0911ff59748678b1321"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-main-C184-entry-evidence-20261010",
+        "type": "feedback",
+        "at": "2026-10-10T03:37:28.843Z",
+        "task": "C184",
+        "delivery": "d7d86ee902e0b6cca2d5be15e3d98b0ba4a95609"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C184-correction-turn-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T03:38:55.099Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C184-correction-resume-20261010",
+        "type": "resume",
+        "at": "2026-10-10T03:39:13.208Z",
+        "task": "C184"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-main-A2-water-dip-7c3b5e696-20261010",
+        "type": "validated",
+        "at": "2026-10-10T03:41:38.749Z",
+        "task": "A2-v38-water-dip-acid-potion-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-v38-water-dip-acid-potion-investigation-20261010-7c3b5e6961e7f3b2b616d0911ff59748678b1321-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T03:42:37.672Z",
+        "task": "A2-v38-water-dip-acid-potion-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-v38-water-dip-acid-potion-investigation-20261010-967246aaee09f3c1533956b488611a8e207155ae",
+        "type": "published",
+        "at": "2026-10-10T03:43:41.426Z",
+        "task": "A2-v38-water-dip-acid-potion-investigation-20261010",
+        "commit": "967246aaee09f3c1533956b488611a8e207155ae"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-after-water-accept-20261010",
+        "type": "turn",
+        "at": "2026-10-10T03:44:43.813Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Resuming selection after the water-dip fix was accepted; checking for the next independent source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-water-accept-queue-6b1d1900-20261010",
+        "type": "turn",
+        "at": "2026-10-10T03:44:45.379Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "The remaining actionable source cases are reserved by B206 and C184; the other candidates are parked blockers or have zero mismatches, so I am idle pending a new queue or released scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-main-B206-bear-trap-31d65b94e-20261010",
+        "type": "received",
+        "at": "2026-10-10T03:45:53.899Z",
+        "task": "B206-investigation-v38-bear-trap",
+        "delivery": "31d65b94e42037fc58309647e19957a9af0b096c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-B206-bear-trap-83aba82e9-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T03:51:05.980Z",
+        "task": "B206-investigation-v38-bear-trap",
+        "integration": "83aba82e9fb63b93f4fda8cf74a8ee6d049e3cb1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4e388f06e17dfab0643c8cb6e6dc1f52b3cc7434",
+        "type": "ready",
+        "at": "2026-10-10T03:58:47.444Z",
+        "task": "C184",
+        "delivery": "4e388f06e17dfab0643c8cb6e6dc1f52b3cc7434"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-main-B206-bear-trap-83aba82e9-20261010",
+        "type": "validated",
+        "at": "2026-10-10T03:58:53.351Z",
+        "task": "B206-investigation-v38-bear-trap",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C184-correction-submitted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T03:58:58.795Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "The C184 correction adds independent matching runtime evidence for the digging and monster liquid callers; focused checks pass and the worktree is ready for integration review."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-v39-20261010T0405Z",
+        "type": "turn",
+        "at": "2026-10-10T03:59:20.186Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Continuing v39 toward 12 distinct C-first mismatches."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B206-investigation-v38-bear-trap-83aba82e9fb63b93f4fda8cf74a8ee6d049e3cb1-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T03:59:49.925Z",
+        "task": "B206-investigation-v38-bear-trap"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B206-investigation-v38-bear-trap-0e161e367594bd7a61d9af200907aabc85d981af",
+        "type": "published",
+        "at": "2026-10-10T04:00:37.811Z",
+        "task": "B206-investigation-v38-bear-trap",
+        "commit": "0e161e367594bd7a61d9af200907aabc85d981af"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-main-C184-fire-chain-4e388f06e-20261010",
+        "type": "received",
+        "at": "2026-10-10T04:02:45.716Z",
+        "task": "C184",
+        "delivery": "4e388f06e17dfab0643c8cb6e6dc1f52b3cc7434"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-C184-fire-chain-151a26738-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T04:08:07.249Z",
+        "task": "C184",
+        "integration": "151a267386062542bb297b399bd4ce5473bcbde4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-after-B206-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:11:45.418Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B206 is accepted; syncing published Main and selecting the next independent source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-after-refresh-current-queue-blocker-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:15:03.176Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Queue refreshed; only remaining source mismatch is reserved by C184 during integration. No independent source task is currently eligible."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-main-C184-fire-chain-151a26738-20261010",
+        "type": "validated",
+        "at": "2026-10-10T04:16:28.355Z",
+        "task": "C184",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C184-151a267386062542bb297b399bd4ce5473bcbde4-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T04:17:28.316Z",
+        "task": "C184"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C184-9d6319fc652eedc8b8c7d772c75811e3f6d3ac76",
+        "type": "published",
+        "at": "2026-10-10T04:18:09.382Z",
+        "task": "C184",
+        "commit": "9d6319fc652eedc8b8c7d772c75811e3f6d3ac76"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-main-C184-original-d7d86ee90-20261010",
+        "type": "received",
+        "at": "2026-10-10T04:20:17.301Z",
+        "task": "C184",
+        "delivery": "d7d86ee902e0b6cca2d5be15e3d98b0ba4a95609"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-main-Prep3-wait-v39-after-C184-20261010",
+        "type": "activity",
+        "at": "2026-10-10T04:20:40.738Z",
+        "task": "Prep3",
+        "phase": "waiting",
+        "reason": "v38 source work is exhausted; waiting for the active v39 preparation delivery before admission and new implementation assignments."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-after-C184-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:20:58.538Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "C184 is accepted; syncing Main and checking for remaining independent source work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-after-C184-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:22:16.906Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Resuming source-task selection after C184 acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-C184-v38-exhausted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:22:18.421Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "v38 source work is exhausted. Prep3 owns v39 preparation; remaining older queue entries are known recorder or platform-provenance blockers. Waiting for the next batch evaluation before selecting source work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-v38-exhausted-prep3-v39-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:22:43.008Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "All remaining v38 source mismatches are resolved; Prep3 is preparing v39. The open queue items are recorder/provenance issues or have no mismatches, so B is idle."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-idle-published-9d6319-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:27:01.282Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "No independent source task is eligible: remaining v35/v32 cases depend on known recorder or build-provenance owners, and the v38 whip case has zero mismatches. Prep3 owns v39."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-nine-of-twelve-20261010T0430Z",
+        "type": "turn",
+        "at": "2026-10-10T04:27:58.848Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has nine approved distinct C-first mismatches; three remain."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-bell-search-20261010T0436Z",
+        "type": "turn",
+        "at": "2026-10-10T04:33:00.932Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has nine approved distinct C-first mismatches; three remain."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-bell-overlap-20261010T0442Z",
+        "type": "turn",
+        "at": "2026-10-10T04:35:12.484Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has nine approved distinct C-first mismatches; three remain."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-v38-whip-investigation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:54:09.501Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating a remaining v38 lava-whip RNG divergence from the published Main boundary."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B208-v38-whip-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T04:54:33.942Z",
+        "task": "B208-investigation-v38-levitating-whip-over-lava",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-boots-differential-20261010T0455Z",
+        "type": "turn",
+        "at": "2026-10-10T04:56:11.584Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has nine approved distinct C-first mismatches; the sink levitation-boots candidate is at replay/differential verification."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-after-main-95a9-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:58:03.300Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 is available for the first independent v39 source task after Prep3 admission; B owns the remaining v38 RNG investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-available-for-v39-after-admission-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:58:04.771Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 is available for the first independent v39 source task after Prep3 admission; B owns the remaining v38 RNG investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-idle-after-main-95a9-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:58:11.160Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C is available for the first independent v39 source task after Prep3 admits and evaluates the batch. B owns the remaining v38 RNG investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-sink-boots-approved-20261010T0500Z",
+        "type": "turn",
+        "at": "2026-10-10T04:59:19.253Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has ten approved distinct C-first mismatches; two remain."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-B208-implement-20261010",
+        "type": "turn",
+        "at": "2026-10-10T05:02:06.625Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing both apply.c:use_whip lava fire-damage call sites and validating the v38 RNG trace."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B208-use-whip-fire-damage-20261010",
+        "type": "implement",
+        "at": "2026-10-10T05:02:26.504Z",
+        "task": "B208-investigation-v38-levitating-whip-over-lava",
+        "goal": "port-apply-use-whip-lava-fire-damage-v38-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-70c2fe82859695ae9dee932eecfbaea77a59ee3b",
+        "type": "ready",
+        "at": "2026-10-10T05:05:53.320Z",
+        "task": "B208-investigation-v38-levitating-whip-over-lava",
+        "delivery": "70c2fe82859695ae9dee932eecfbaea77a59ee3b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-after-B208-submit-v38-exhausted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T05:06:16.263Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B208 is submitted; the only saved v38 candidate is its reserved session, and Prep3 owns the v39 batch. B is idle pending a refreshed admitted queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-main-B208-70c2fe828-20261010",
+        "type": "received",
+        "at": "2026-10-10T05:06:36.255Z",
+        "task": "B208-investigation-v38-levitating-whip-over-lava",
+        "delivery": "70c2fe82859695ae9dee932eecfbaea77a59ee3b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-main-B208-review-20261010",
+        "type": "activity",
+        "at": "2026-10-10T05:06:39.753Z",
+        "task": "B208-investigation-v38-levitating-whip-over-lava",
+        "phase": "review",
+        "reason": "Reviewing the v38 whip lava fire_damage delivery and source evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-B208-2ed3aaf369-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T05:07:14.224Z",
+        "task": "B208-investigation-v38-levitating-whip-over-lava",
+        "integration": "2ed3aaf3696d0c9e6d324562479153cc300b743f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-main-B208-2ed3aaf369-20261010",
+        "type": "validated",
+        "at": "2026-10-10T05:12:36.259Z",
+        "task": "B208-investigation-v38-levitating-whip-over-lava",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B208-investigation-v38-levitating-whip-over-lava-2ed3aaf3696d0c9e6d324562479153cc300b743f-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T05:18:20.465Z",
+        "task": "B208-investigation-v38-levitating-whip-over-lava"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-after-B208-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T05:18:43.223Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B208 is accepted; syncing Main and checking for independent source work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B208-investigation-v38-levitating-whip-over-lava-36d4e9d5e5814d20f230a798cd465f27ea0241bb",
+        "type": "published",
+        "at": "2026-10-10T05:19:11.413Z",
+        "task": "B208-investigation-v38-levitating-whip-over-lava",
+        "commit": "36d4e9d5e5814d20f230a798cd465f27ea0241bb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-B208-accepted-queue-empty-20261010",
+        "type": "turn",
+        "at": "2026-10-10T05:19:16.836Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Accepted B208 Main is synced. The refreshed queue has no fixed or synthetic candidates; Prep3 owns v39, so B is idle until admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-idle-after-main-36d4-20261010",
+        "type": "turn",
+        "at": "2026-10-10T05:19:45.928Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "The admitted queue is empty. C is available for the first independent source task after Prep3 admits and evaluates v39."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-after-main-36d4-20261010",
+        "type": "turn",
+        "at": "2026-10-10T05:19:48.017Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Resuming to sync Main and verify the queue after B208 acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-awaiting-v39-after-b208-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T05:19:49.510Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "The combined queue is empty after B208 acceptance. Prep3 owns v39 preparation; A2 is available for the first independent v39 task after admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-v39-eleven-approved-20261010T0520Z",
+        "type": "turn",
+        "at": "2026-10-10T05:23:54.435Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has eleven approved distinct C-first mismatches; one remains."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-v39-twelve-approved-packaging-20261010T0534Z",
+        "type": "turn",
+        "at": "2026-10-10T05:30:16.068Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has twelve approved distinct C-first mismatches; packaging the manifest and validation evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-v39-eleven-overlap-review-20261010T0545Z",
+        "type": "turn",
+        "at": "2026-10-10T05:37:13.082Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has eleven approved distinct C-first mismatches; searching for a distinct replacement after a throne overlap check."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-v39-twelve-after-pickup-20261010T0550Z",
+        "type": "turn",
+        "at": "2026-10-10T05:44:43.325Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has twelve approved distinct C-first mismatches; packaging the manifest and validation evidence."
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "C182",
-        "worker": "C",
-        "goal": "fix-pickup-zero-capacity-carry-count-v38-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "553ca453878cd07da2d13138597e984396a0206e",
-        "since": "2026-10-10T02:08:14.355Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
-      {
-        "task": "B205",
-        "worker": "B",
-        "goal": "port-do-dodown-v38-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "0cfb5d4ca92f9c1a96cd0ea8fa50c377be281ea3",
-        "since": "2026-10-10T02:21:48.961Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
-      {
-        "task": "A2-v38-water-dip-acid-potion-investigation-20261010",
-        "worker": "A2",
-        "goal": "port-trap-pot-acid-damage-v38-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "77b56d95c0d6504d182d39ad6c9fcffc293384b8",
-        "since": "2026-10-10T02:30:07.769Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B207-investigation-v38-quick-glance-lootabc",
-        "worker": "B",
-        "goal": "fix-pager-quick-glance-lootabc-v38-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "b944bbeac6a0e895cc123954e02157b986cf6b1e",
-        "since": "2026-10-10T02:32:09.780Z",
-        "blockedBy": [
-          "B205"
-        ],
-        "unblocks": 0
-      },
-      {
-        "task": "C184",
-        "worker": "C",
-        "goal": "port-trap-fire-damage-chain-v38-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "d7d86ee902e0b6cca2d5be15e3d98b0ba4a95609",
-        "since": "2026-10-10T02:38:07.101Z",
-        "blockedBy": [
-          "C182"
-        ],
-        "unblocks": 0
-      },
-      {
-        "task": "B206-investigation-v38-bear-trap",
-        "worker": "B",
-        "goal": "port-apply-set-trap-dotrap-callback-v38-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "31d65b94e42037fc58309647e19957a9af0b096c",
-        "since": "2026-10-10T02:41:41.587Z",
-        "blockedBy": [
-          "B205",
-          "B207-investigation-v38-quick-glance-lootabc"
-        ],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -78484,8 +79097,8 @@
     ]
   },
   "development": {
-    "executionCommit": "4ea7a3cdae9d0ecdcada4ed5386f5e2887d27e99",
-    "measuredAt": "2026-10-10T02:47:53.779Z",
+    "executionCommit": "2ed3aaf3696d0c9e6d324562479153cc300b743f",
+    "measuredAt": "2026-10-10T05:12:03.283Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

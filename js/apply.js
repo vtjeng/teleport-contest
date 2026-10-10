@@ -111,6 +111,7 @@ import {
     DISP_BEAM,
     DISP_END,
     FLYING,
+    FORCEBUNGLE,
     HALF_PHDAM,
     INTRINSIC,
     INVIS,
@@ -765,9 +766,9 @@ export function snickersnee_used_dist_attk(obj, state = game) {
         && state.context?.snickersnee_turn === state.moves);
 }
 
-// C ref: apply.c use_whip() (2955-3279). The source's fire_damage(),
-// kick_steed(), possibly_unwield(), and instapetrify() results are discarded;
-// record those unported void boundaries without substituting a result.
+// C ref: apply.c use_whip() (2954-3271). The source's possibly_unwield() and
+// instapetrify() calls remain explicit gaps where their results are discarded;
+// kick_steed() and fire_damage() are wired for their effects.
 export async function use_whip(obj, state = game, env = {}) {
     let monster;
     let rx;
@@ -818,8 +819,10 @@ export async function use_whip(obj, state = game, env = {}) {
     } else if (!u.dz && (IS_WATERWALL(state.level.at(rx, ry).typ)
         || state.level.at(rx, ry).typ === LAVAWALL)) {
         await ttyPline('You cause a small splash.', state);
-        if (state.level.at(rx, ry).typ === LAVAWALL)
-            note_unported('trap.c fire_damage');
+        if (state.level.at(rx, ry).typ === LAVAWALL) {
+            const { fire_damage } = await import('./trap_water_damage.js');
+            await fire_damage(obj, false, rx, ry, { ...env, state });
+        }
         return ECMD_TIME;
     } else if ((!u.dx && !u.dy) || u.dz > 0) {
         if (u.usteed && !rn2(proficient + 2)) {
@@ -831,8 +834,10 @@ export async function use_whip(obj, state = game, env = {}) {
             || IS_WATERWALL(state.level.at(rx, ry).typ)
             || state.level.at(rx, ry).typ === LAVAWALL) {
             await ttyPline('You cause a small splash.', state);
-            if (is_lava(u.ux, u.uy, state))
-                note_unported('trap.c fire_damage');
+            if (is_lava(u.ux, u.uy, state)) {
+                const { fire_damage } = await import('./trap_water_damage.js');
+                await fire_damage(obj, false, u.ux, u.uy, { ...env, state });
+            }
             return ECMD_TIME;
         }
         if (Levitation(state) || u.usteed || applyPropertyActive(FLYING, state)) {
@@ -1943,9 +1948,13 @@ export async function set_trap(state = game, env = {}) {
         if (((obj.cursed || trapSettingFumbling(state))
             && (env.random?.rnl ?? rnl)(10) > 5)
             || trapinfo.force_bungle) {
-            // C discards dotrap()'s result. Its complete trigger chain is not
-            // in this task, so retain the named gap and skip its partial port.
-            note_unported('trap.c dotrap');
+            // C discards dotrap()'s return value but preserves its effects.
+            await dotrap(
+                trap,
+                trapinfo.force_bungle ? FORCEBUNGLE : 0,
+                state,
+                env,
+            );
         }
     } else {
         await ttyPline('Your trap setting attempt fails.', state);

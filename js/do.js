@@ -63,6 +63,8 @@ import {
     IS_ALTAR,
     IS_WATERWALL,
     IS_SINK,
+    Is_airlevel,
+    Is_waterlevel,
     In_endgame,
     In_mines,
     In_quest,
@@ -111,6 +113,7 @@ import {
     TELEDS_NO_FLAGS,
     TT_PIT,
     TRAPDOOR,
+    TOOKPLUNGE,
     UNENCUMBERED,
     UTOTYPE_NONE,
     UTOTYPE_ATSTAIRS,
@@ -200,6 +203,7 @@ import {
     maxledgerno,
     next_level,
     on_level,
+    surface,
     print_level_annotation,
     recbranch_mapseen,
     prev_level,
@@ -210,6 +214,8 @@ import {
     u_on_rndspot,
 } from './dungeon.js';
 import { more_experienced, newexplevel } from './exper.js';
+import { floating_above } from './fountain.js';
+import { artifact_has_invprop } from './artifacts.js';
 import { record_achievement } from './insight.js';
 import { game } from './gstate.js';
 import { livelog_printf } from './pline.js';
@@ -225,6 +231,7 @@ import {
     switch_terrain,
     u_locomotion,
     u_rooted,
+    pooleffects,
 } from './hack.js';
 import {
     any_obj_ok,
@@ -253,6 +260,7 @@ import { gulp_blnd_check } from './mhitu.js';
 import {
     dmgtype, is_whirly, olfaction, passes_walls, sticks, touch_petrifies,
     throws_rocks, is_reviver, is_rider, is_displacer, locomotion,
+    ceiling_hider,
 } from './mondata.js';
 import { youHear } from './monmove.js';
 import {
@@ -264,6 +272,7 @@ import {
     PM_CROESUS,
     PM_GREEN_SLIME,
     PM_NURSE,
+    MZ_HUGE,
     PM_ROGUE,
     PM_TOURIST,
     PM_WRAITH,
@@ -364,12 +373,15 @@ import {
     maketrap,
     Flying,
     Levitation,
+    clamp_hole_destination,
+    float_down,
     reset_utrap,
     t_at,
     uescaped_shaft,
     uteetering_at_seen_pit,
 } from './trap.js';
-import { seetrap } from './trap_effects.js';
+import { dotrap, seetrap } from './trap_effects.js';
+import { glyph_to_cmap } from './glyphs.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { note_unported } from './unported.js';
@@ -380,6 +392,7 @@ import { bimanual, bypass_objlist, nxt_unbypassed_obj, setnotworn, setuqwep, set
 import { resurrect } from './wizard.js';
 import {
     assign_graphics, S_altar, S_fountain, S_grave, S_room, S_sink, S_throne,
+    S_dnstair, S_dnladder,
 } from './symbols.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { done } from './end.js';
@@ -2317,11 +2330,8 @@ async function u_stuck_cannot_go(updn, state = game) {
     return false;
 }
 
-// C ref: do.c dodown() (1129-1294), the '>' command.
-//
-// Five of its arms stop rather than run, each named at the throw. What remains
-// is the ordinary answer for a hero standing where there is no way down:
-// "You can't go down here." with no turn spent.
+// C ref: do.c dodown() (1131-1294), the '>' command. This keeps the order of
+// the levitation, ceiling-hider, seen-hole, Valley-gate, and descent arms.
 export async function dodown(state = game, env = {}) {
     const u = state.u;
     let trap = null;
@@ -2340,31 +2350,82 @@ export async function dodown(state = game, env = {}) {
         ladder_down = !stairs_down;
     }
 
-    // do.c:1154-1201. The whole levitation arm, which ends controlled
-    // levitation through float_down() and rnz(), and otherwise reports what
-    // the hero is floating above through surface() and floating_above().
-    // Nothing is ported. js/worn.js setworn() is the port's only writer of an
-    // extrinsic property and no starting inventory grants LEVITATION, and
-    // js/u_init_inventory_attrs.js grants only JUMPING intrinsically, so
-    // neither field can be nonzero here.
-    const levitation = u.uprops?.[LEVITATION];
-    if (levitation?.intrinsic || levitation?.extrinsic) {
-        throw new UnsupportedLevelChangeError(
-            'dodown() with a levitating hero',
-        );
+    // do.c:1154-1201. HLevitation and ELevitation are the intrinsic and
+    // extrinsic masks in youprop.h. Controlled levitation clears only the
+    // special timeout and artifact sources before the ordinary floating arm.
+    const levitation = u.uprops?.[LEVITATION] ?? {};
+    const hlevitation = levitation.intrinsic ?? 0;
+    const elevitation = levitation.extrinsic ?? 0;
+    if (hlevitation || elevitation) {
+        if ((hlevitation & I_SPECIAL) || (elevitation & W_ARTI)) {
+            if (elevitation & W_ARTI) {
+                for (let obj = state.invent; obj; obj = obj.nobj) {
+                    if (obj.oartifact
+                        && artifact_has_invprop(obj, LEVITATION, state)) {
+                        if (obj.age < state.moves) obj.age = state.moves;
+                        obj.age += rnz(100);
+                    }
+                }
+            }
+            if (await float_down(I_SPECIAL | TIMEOUT, W_ARTI, state))
+                return ECMD_TIME;
+            if (!levitation.intrinsic && !levitation.extrinsic) {
+                await ttyPline('Your latent levitation ceases.', state);
+                return ECMD_TIME;
+            }
+        }
+
+        // do.c:1180-1190 checks the displayed cmap glyph only when the hero
+        // is blind and levitation is not blocked; unknown stairs stay hidden.
+        if (!levitation.blocked && heroIsBlind(state)) {
+            const glyph = state.level?.at(u.ux, u.uy)?.glyph;
+            if (stairs_down)
+                stairs_down = glyph_to_cmap(glyph) === S_dnstair;
+            else if (ladder_down)
+                ladder_down = glyph_to_cmap(glyph) === S_dnladder;
+        }
+
+        if (Is_airlevel(u.uz)) {
+            await ttyPline(`You are floating in the ${surface(u.ux, u.uy, state)}.`, state);
+        } else if (Is_waterlevel(u.uz)) {
+            await ttyPline(
+                `You are floating in ${is_pool(u.ux, u.uy, state)
+                    ? 'the water' : 'a bubble of air'}.`,
+                state,
+            );
+        } else {
+            await floating_above(
+                stairs_down ? 'stairs'
+                    : ladder_down ? 'ladder'
+                        : surface(u.ux, u.uy, state),
+                state,
+                env,
+            );
+        }
+        return ECMD_OK;
     }
 
-    // do.c:1204-1218, the arm that drops a hiding polymorphed hero out of the
-    // ceiling. It needs mondata.c ceiling_hider(), and its piercer branch
-    // reaches pooleffects(), pickup() and dotrap(). The guard is wider than
-    // C's three-term test on purpose: js/u_init.js is the port's only writer
-    // of u.umonnum and it sets u.umonnum === u.umonster, so Upolyd() is false
-    // for every hero the port can build and the extra terms would only make
-    // the stop harder to reach.
-    if (Upolyd(u)) {
-        throw new UnsupportedLevelChangeError(
-            'dodown() with a polymorphed hero',
-        );
+    // do.c:1204-1218. A polymorphed ceiling hider drops out of hiding; a
+    // flying form uses the other arm and spends the same turn.
+    if (Upolyd(u) && ceiling_hider(state.mons?.[u.umonnum])
+        && u.uundetected) {
+        u.uundetected = 0;
+        if (Flying(state)) {
+            await ttyPline('You fly out of hiding.', state);
+        } else {
+            await ttyPline(
+                `You drop to the ${surface(u.ux, u.uy, state)}.`,
+                state,
+            );
+            if (is_pool_or_lava(u.ux, u.uy, state)) {
+                await pooleffects(false, state, env);
+            } else {
+                await pickup(1, state);
+                if ((trap = t_at(u.ux, u.uy, state)))
+                    await dotrap(trap, TOOKPLUNGE, state, env);
+            }
+        }
+        return ECMD_TIME;
     }
 
     if (await u_stuck_cannot_go('down', state)) return ECMD_TIME;
@@ -2373,12 +2434,10 @@ export async function dodown(state = game, env = {}) {
         trap = t_at(u.ux, u.uy, state);
         if (trap && (uteetering_at_seen_pit(trap, state)
                      || uescaped_shaft(trap, state))) {
-            // do.c:1227. dotrap(trap, TOOKPLUNGE) drops the hero down a pit
-            // she is teetering on or through a hole she is standing over;
-            // both end in a level change or a trap effect this slice excludes.
-            throw new UnsupportedLevelChangeError(
-                'dodown() plunging into a pit, hole or trap door',
-            );
+            // do.c:1227 passes TOOKPLUNGE so dotrap() bypasses its ordinary
+            // seen-trap escape check and applies the plunge effect.
+            await dotrap(trap, TOOKPLUNGE, state, env);
+            return ECMD_TIME;
         } else if (!trap || !is_hole(trap.ttyp)
                    || !Can_fall_thru(u.uz, state) || !trap.tseen) {
             if (state.flags?.autodig && !state.context?.nopick
@@ -2396,13 +2455,18 @@ export async function dodown(state = game, env = {}) {
         }
     }
 
-    // do.c:1242-1249. The Valley is the gate to Gehennom and asks for
-    // confirmation through y_n(); no level this port generates is the Valley.
+    // do.c:1242-1249. The Valley gate asks once and records acceptance in
+    // u.uevent before the descent can proceed.
     if (state.valley_level && on_level(state.valley_level, u.uz)
         && !u.uevent?.gehennom_entered) {
-        throw new UnsupportedLevelChangeError(
-            'dodown() at the gate to Gehennom',
-        );
+        await ttyPline('You are standing at the gate to Gehennom.', state);
+        await ttyPline('Unspeakable cruelty and harm lurk down there.', state);
+        if (await y_n('Are you sure you want to enter?', state)
+            !== 'y'.charCodeAt(0))
+            return ECMD_OK;
+        await ttyPline('So be it.', state);
+        u.uevent ??= {};
+        u.uevent.gehennom_entered = 1;
     }
 
     if (!next_to_u(state)) {
@@ -2411,22 +2475,62 @@ export async function dodown(state = game, env = {}) {
     }
 
     if (trap) {
-        // do.c:1256-1280. A hole or trap door prints "You jump through the
-        // trap door." through u_locomotion(), and asks a huge hero to squeeze
-        // through with y_n(), rn2(3) and losehp(). None of that is ported, and
-        // do.c:1281-1287's goto_hell() and clamp_hole_destination() arms sit
-        // behind the same trap.
-        throw new UnsupportedLevelChangeError(
-            'dodown() through a hole or trap door',
+        // do.c:1256-1280. Large heroes must confirm a squeeze; a failed
+        // attempt consumes rn2(3), and a successful one takes rnd(4) damage.
+        const down_or_thru = trap.ttyp === HOLE ? 'down' : 'through';
+        let actn = u_locomotion('jump', state);
+        if (state.youmonst.data.msize >= MZ_HUGE) {
+            await ttyPline(`You don't fit ${down_or_thru} easily.`, state);
+            if (await y_n(`Try to squeeze ${down_or_thru}?`, state)
+                === 'y'.charCodeAt(0)) {
+                if (!rn2(3)) {
+                    actn = 'manage to squeeze';
+                    let damage = rnd(4);
+                    const halfPhysical = u.uprops?.[HALF_PHDAM];
+                    if (halfPhysical?.intrinsic || halfPhysical?.extrinsic)
+                        damage = Math.trunc((damage + 1) / 2);
+                    await losehp(
+                        damage,
+                        'contusion from a small passage',
+                        KILLED_BY,
+                        state,
+                    );
+                    if (state.program_state?.gameover) return ECMD_TIME;
+                } else {
+                    await ttyPline(
+                        `You were unable to fit ${down_or_thru}.`,
+                        state,
+                    );
+                    return ECMD_OK;
+                }
+            } else {
+                return ECMD_OK;
+            }
+        }
+        await ttyPline(
+            `You ${actn} ${down_or_thru} the ${trap.ttyp === HOLE
+                ? 'hole' : 'trap door'}.`,
+            state,
         );
     }
 
-    // do.c:1288-1291. `trap` is null on every admitted path above, so this is
-    // the arm that runs and next_level() is called with at_stairs TRUE.
-    state.ga ??= {};
-    state.ga.at_ladder = state.level?.at(u.ux, u.uy)?.typ === LADDER;
-    await next_level(!trap, state, { gotoLevel: goto_level });
-    state.ga.at_ladder = false;
+    // do.c:1281-1291. The Stronghold gap is recorded because C discards
+    // goto_hell()'s result; other traps either use their assigned destination
+    // or descend through next_level() as a hole/trap door would.
+    if (trap && state.stronghold_level
+        && on_level(state.stronghold_level, u.uz)) {
+        note_unported('dungeon.c goto_hell');
+    } else if (trap && trap.dst && trap.dst.dlevel !== -1) {
+        const tdst = {};
+        assign_level(tdst, trap.dst);
+        clamp_hole_destination(tdst, state);
+        await goto_level(tdst, false, false, false, state);
+    } else {
+        state.ga ??= {};
+        state.ga.at_ladder = state.level?.at(u.ux, u.uy)?.typ === LADDER;
+        await next_level(!trap, state, { gotoLevel: goto_level });
+        state.ga.at_ladder = false;
+    }
     return ECMD_TIME;
 }
 

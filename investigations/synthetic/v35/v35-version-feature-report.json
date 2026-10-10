@@ -109,22 +109,9 @@
     "The earlier v32-version-build-options diagnosis in the shared ledger independently identifies the same Unix/MacOS PORT_ID and DEV_RANDOM configuration conflict and is parked pending the general build/evaluation contract. This v35 session adds another observed call path but no independent code scope.",
     "A one-sided edit to the C or JS version literal would make one platform correct and the other wrong. Do not claim source completion until the coordinator resolves a source-faithful build-provenance contract."
   ],
-  "proposal": {
-    "dependencyReady": false,
-    "blocker": "Shared PORT_ID/build provenance is not represented in replay inputs. The same conflict blocks the prior v32 version-build-options case; coordinator adjudication is required before an implementation task.",
-    "proposedReservations": [
-      "session:synthetic/v35/v35-version-feature-report",
-      "source:version.c:getversionstring",
-      "source:version.c:doextversion",
-      "contract:version-port-id-provenance"
-    ],
-    "proposedPaths": [
-      "js/version.js",
-      "scripts/version*.test.mjs",
-      "recipes/version.c/",
-      "recordings/version.c/",
-      "investigations/synthetic/v35/v35-version-feature-report.json",
-      ".cache/"
-    ]
+  "resolution": {
+    "kind": "build-provenance",
+    "reason": "This repeats the v32 Linux recorder versus Darwin judge compile-time platform label mismatch and adds no independent portable game behavior or source scope.",
+    "disposition": "Retain the Darwin judge profile and preserve the admitted v35 recording, manifest, and evaluations unchanged. Exclude this duplicate platform-only mismatch from JavaScript implementation work."
   }
 }

@@ -3914,7 +3914,9 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
     // nomul(0), so compute the same pure predicate without applying that write.
     const forcetrap = (trflags & (FORCETRAP | FAILEDUNTRAP)) !== 0
         || fixed_tele_trap(trap);
+    // trap.c:3035-3043 has a live seen-bear branch for its escape roll/effect.
     if (trap.tseen && !forcetrap && trap.ttyp !== ARROW_TRAP
+        && trap.ttyp !== BEAR_TRAP
         && trap.ttyp !== WEB
         && trap.ttyp !== LANDMINE && trap.ttyp !== ROCKTRAP
         && trap.ttyp !== ANTI_MAGIC && trap.ttyp !== STATUE_TRAP

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first natural dig.c entry to trap.c:fire_damage_chain. A debug Barbarian sets levitation, moves one square west off the starting stair to a plain center tile, wishes a digging wand, creates a seven-square neighboring lava ring, returns to center, drops a wished blank scroll, and zaps down. C source predicts fillholetyp selects lava, dighole calls dig.c:liquid_flow, and its floor-object branch reaches fire_damage_chain before hero pooleffects.",
+  "segments": [
+    {
+      "seed": 11091824,
+      "datetime": "20520721084411",
+      "nethackrc": "OPTIONS=name:LavaFlowDig,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizintrinsic\nq\n h#wizwish\nwand of digging\nk#wizwish\nlava\nju#wizwish\nlava\nbl#wizwish\nlava\nhn#wizwish\nlava\nyj#wizwish\nlava\nkh#wizwish\nlava\nly#wizwish\nlava\nn#wizwish\nscroll of blank paper\ndgzf> "
+    }
+  ]
+}

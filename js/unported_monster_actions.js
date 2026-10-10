@@ -1749,9 +1749,14 @@ async function planSimpleMonsterScan(monster, env) {
                     }),
                 },
             ),
-            fireDamageChain: () => note_unported(
-                'trap.c fire_damage_chain',
-            ),
+            fireDamageChain: async (
+                chain, force, here, x, y, effectEnv,
+            ) => {
+                const { fire_damage_chain } = await import('./trap.js');
+                await fire_damage_chain(
+                    chain, force, here, x, y, effectEnv,
+                );
+            },
             // C ignores this return value. The level-transition body remains
             // outside the selected span, so record its actual discarded call
             // and let the source caller continue.

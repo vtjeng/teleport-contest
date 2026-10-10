@@ -75,6 +75,7 @@ test('malformed or misassigned results cannot masquerade as completed investigat
         { ...record, evidence: [] },
         { ...record, source: { ...record.source, callers: [] } },
         { ...record, mismatch: { ...entry, remainingScreensUpperBound: 9 } }, // Inconsistent provenance.
+        { ...record, resolution: { kind: 'recorder-defect', reason: 'bounded buffer' } },
     ]) {
         put(broken);
         assert.equal(readInvestigation(root, entry).status, 'invalid');
@@ -105,6 +106,14 @@ test('synthetic investigations use qualified identity and screen debt', t => {
     const { root, put } = fixture(t);
     put(syntheticRecord, 'investigations/synthetic/v1/case-one.json');
     assert.equal(readInvestigation(root, syntheticEntry).status, 'complete');
+
+    for (const kind of ['recorder-defect', 'build-provenance']) {
+        put({ ...syntheticRecord, resolution: { kind,
+            reason: 'The mismatch comes from non-game recording provenance.',
+            disposition: 'Preserve the historical evidence and exclude it from source work.' } },
+        'investigations/synthetic/v1/case-one.json');
+        assert.equal(readInvestigation(root, syntheticEntry).status, 'complete');
+    }
 
     // A replacement evaluation artifact is replay provenance, not source
     // provenance, so it must not stale the investigation by itself.

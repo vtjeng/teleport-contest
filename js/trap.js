@@ -340,7 +340,9 @@ import {
 import { stumble_onto_mimic } from './uhitm.js';
 import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
-import { unblock_point, recalc_block_point, vision_recalc, cansee } from './vision.js';
+import {
+    unblock_point, recalc_block_point, vision_recalc, cansee, couldsee,
+} from './vision.js';
 import { welded } from './wield.js';
 import { bimanual } from './worn.js';
 import { newsym, bot, shieldeff } from './display.js';
@@ -1756,6 +1758,48 @@ export async function lava_effects(state = game) {
     const { ignite_items } = await import('./apply_catch_lit.js');
     await ignite_items(state.invent, { state, random });
     return false;
+}
+
+// C ref: trap.c fire_damage_chain() (4550-4573). `here` selects nexthere
+// instead of nobj, and the saved next pointer lets fire_damage() unlink the
+// current object without skipping the rest of the chain. C leaves bhitpos at
+// the supplied square for floor-object erosion and feedback.
+export async function fire_damage_chain(
+    chain, force, here, x, y, rawEnv = {},
+) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? (await import('./rng.js'));
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const hooks = {
+        ...(rawEnv.hooks ?? {}),
+        extractExternalObject:
+            rawEnv.hooks?.extractExternalObject ?? remove_object,
+    };
+    state.gb ??= {};
+    state.gb.bhitpos ??= { x: 0, y: 0 };
+    state.gb.bhitpos.x = x;
+    state.gb.bhitpos.y = y;
+
+    const { fire_damage } = await import('./trap_water_damage.js');
+    let count = 0;
+    for (let obj = chain; obj;) {
+        const next = here ? obj.nexthere : obj.nobj;
+        if (await fire_damage(obj, force, x, y, {
+            ...rawEnv,
+            state,
+            random,
+            message,
+            hooks,
+        })) {
+            ++count;
+        }
+        obj = next;
+    }
+    if (count && heroIsBlindForLava(state) && !couldsee(x, y, state)) {
+        await message('You smell smoke.', state);
+    }
+    return count;
 }
 
 function heroIsBlindForLava(state) {
