@@ -242773,6 +242773,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-spell-tport-spell-wizard-teleport-v38-20261010",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port wizard teleport spell-slot toggling and wire dotelecmd menu modes",
+      "cFile": "spell.c",
+      "sessions": [
+        "synthetic/v38/v38-wizard-spell-teleport-energy-refusal"
+      ],
+      "selectionReason": "The admitted v38 wizard teleport energy-refusal case reaches teleport.c dotelecmd mode s, whose temporary Teleport Away spell requires spell.c tport_spell.",
+      "detail": "Port whole spell.c tport_spell lines 1707-1756 and wire teleport.c dotelecmd wizard menu modes n, s, t, and w through the existing command dispatcher. Preserve temporary intrinsic and spell-slot restoration and the existing teleport refusal behavior.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "tport_spell",
+          "line": 1707,
+          "endLine": 1762,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1707,
+        "to": 1762
+      },
+      "syntheticProvenance": {
+        "synthetic/v38/v38-wizard-spell-teleport-energy-refusal": {
+          "session": "synthetic/v38/v38-wizard-spell-teleport-energy-refusal",
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-wizard-spell-teleport-energy-refusal",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recordingPath": "challenges/cases/v38/v38-wizard-spell-teleport-energy-refusal.session.json",
+          "recordingSha256": "432023c55d5b9b0d4032f1035f521489563cd5ec9be41cfa7b028974f34d5c50",
+          "evaluationPath": "challenges/evaluations/20261010014622-v38.json",
+          "evaluationCommit": "e2a08814ab03e27c9cd538cbe79526e43c1232f8"
+        }
+      }
     }
   ]
 }
