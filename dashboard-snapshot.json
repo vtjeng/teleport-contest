@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T14:07:13.802Z",
+  "capturedAt": "2026-10-10T14:22:44.642Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -81627,22 +81627,109 @@
         "type": "accepted",
         "at": "2026-10-10T14:06:31.106Z",
         "task": "B219-investigation-v40-water-plane-levelport-generation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B219-investigation-v40-water-plane-levelport-generation-20261010-88aa02a2787d3e51de5058298352508e28660543",
+        "type": "published",
+        "at": "2026-10-10T14:07:22.207Z",
+        "task": "B219-investigation-v40-water-plane-levelport-generation-20261010",
+        "commit": "88aa02a2787d3e51de5058298352508e28660543"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-review-C-wish-20261010T1410Z",
+        "type": "activity",
+        "at": "2026-10-10T14:09:47.539Z",
+        "task": "C-v40-wizard-wish-assistance-investigation-20261010",
+        "phase": "review",
+        "reason": "Reviewing the dependency-clearing wizard wish assistance delivery against the refreshed v40 mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-901fa67d34550869a3628e46a003604b81512c12",
+        "type": "ready",
+        "at": "2026-10-10T14:10:54.585Z",
+        "task": "B221-investigation-v41-minetown3-special-program-generation-20261010",
+        "delivery": "901fa67d34550869a3628e46a003604b81512c12"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-integrating-C-wish-80ea59cc5-20261010T1414Z",
+        "type": "integrating",
+        "at": "2026-10-10T14:14:09.032Z",
+        "task": "C-v40-wizard-wish-assistance-investigation-20261010",
+        "integration": "80ea59cc5def2fbf4019977110084cad10dd5518"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B222-v41-incubus-seduction-20261010",
+        "type": "assign",
+        "at": "2026-10-10T14:14:37.692Z",
+        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B222-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T14:14:42.521Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-received-B221-20261010T1417Z",
+        "type": "received",
+        "at": "2026-10-10T14:16:23.320Z",
+        "task": "B221-investigation-v41-minetown3-special-program-generation-20261010",
+        "delivery": "901fa67d34550869a3628e46a003604b81512c12"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B222-mhitu-mayberem-20261010",
+        "type": "implement",
+        "at": "2026-10-10T14:19:09.404Z",
+        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010",
+        "goal": "port-mhitu-mayberem-v41-incubus-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "coord-validated-C-wish-80ea59cc5-20261010T1421Z",
+        "type": "validated",
+        "at": "2026-10-10T14:20:50.870Z",
+        "task": "C-v40-wizard-wish-assistance-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v41-tower2-questpgr-evidence-20261010",
+        "type": "turn",
+        "at": "2026-10-10T14:20:52.685Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is packaging source-backed Tower2 changes and matching replay evidence. The discarded keepdogs dependency remains assigned to B220."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v40-wizard-wish-assistance-investigation-20261010-80ea59cc5def2fbf4019977110084cad10dd5518-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T14:22:14.148Z",
+        "task": "C-v40-wizard-wish-assistance-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-da7e40e4280310e3eca2c66daeb84624f9b542e8",
+        "type": "ready",
+        "at": "2026-10-10T14:22:31.747Z",
+        "task": "C-v41-tower2-special-program-generation-investigation-20261010",
+        "delivery": "da7e40e4280310e3eca2c66daeb84624f9b542e8"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C-v40-wizard-wish-assistance-investigation-20261010",
-        "worker": "C",
-        "goal": "fix-wishcmdassist-display-v40-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "84825b279932627cb54c181fe75622060c38070f",
-        "since": "2026-10-10T13:01:09.203Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010",
         "worker": "B",
@@ -81662,8 +81749,30 @@
         "status": "ready",
         "delivery": "5567a2a32b06b1d121b54af55cb63bf627398de2",
         "since": "2026-10-10T13:42:49.161Z",
+        "blockedBy": [],
+        "unblocks": 1
+      },
+      {
+        "task": "B221-investigation-v41-minetown3-special-program-generation-20261010",
+        "worker": "B",
+        "goal": "divergence-minetown-special-room-shopkeeper-makemon-v41-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "901fa67d34550869a3628e46a003604b81512c12",
+        "since": "2026-10-10T14:10:54.585Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-v41-tower2-special-program-generation-investigation-20261010",
+        "worker": "C",
+        "goal": "fix-wizcmds-makemap-remove-mons-v41-tower2-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "da7e40e4280310e3eca2c66daeb84624f9b542e8",
+        "since": "2026-10-10T14:22:31.747Z",
         "blockedBy": [
-          "C-v40-wizard-wish-assistance-investigation-20261010"
+          "C-v41-anger-prayer-god-zaps-hero-investigation-20261010"
         ],
         "unblocks": 0
       }
@@ -81981,8 +82090,8 @@
     ]
   },
   "development": {
-    "executionCommit": "10b2dc61ddff793aef1185581dff8f3c576097e0",
-    "measuredAt": "2026-10-10T14:03:55.672Z",
+    "executionCommit": "80ea59cc5def2fbf4019977110084cad10dd5518",
+    "measuredAt": "2026-10-10T14:20:22.971Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

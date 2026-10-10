@@ -251873,7 +251873,7 @@
     {
       "id": "fix-wishcmdassist-display-v40-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Display the complete wish assistance text window before retrying a wizard wish.",
       "cFile": "zap.c",
       "sessions": [
@@ -251887,8 +251887,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "80ea59cc5def2fbf4019977110084cad10dd5518",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "wishcmdassist",
       "session": "synthetic/v40/v40-wizard-wish-assistance",
       "step": 6,
@@ -252141,7 +252144,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "80ea59cc5def2fbf4019977110084cad10dd5518",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

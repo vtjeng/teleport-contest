@@ -1,0 +1,954 @@
+{
+  "version": 1,
+  "batch": "v27",
+  "manifestPath": "challenges/manifests/v27.json",
+  "sha": "80ea59cc5def2fbf4019977110084cad10dd5518",
+  "utc": "2026-10-10T14:17:49.315Z",
+  "status": "complete",
+  "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "0fa78adc6edcd2939bbc9a7b0b45c55e15ebe58f0fb185e75ac95de1d9a3bbe8",
+  "inputFiles": [
+    "challenges/cases/v27/v27-cancel-crystal-ball.recipe.session.json",
+    "challenges/cases/v27/v27-cancel-crystal-ball.session.json",
+    "challenges/cases/v27/v27-cancel-self.recipe.session.json",
+    "challenges/cases/v27/v27-cancel-self.session.json",
+    "challenges/cases/v27/v27-cast-force-bolt.recipe.session.json",
+    "challenges/cases/v27/v27-cast-force-bolt.session.json",
+    "challenges/cases/v27/v27-cast-magic-missile.recipe.session.json",
+    "challenges/cases/v27/v27-cast-magic-missile.session.json",
+    "challenges/cases/v27/v27-cockatrice-gloves-off.recipe.session.json",
+    "challenges/cases/v27/v27-cockatrice-gloves-off.session.json",
+    "challenges/cases/v27/v27-confused-genocide.recipe.session.json",
+    "challenges/cases/v27/v27-confused-genocide.session.json",
+    "challenges/cases/v27/v27-confused-light.recipe.session.json",
+    "challenges/cases/v27/v27-confused-light.session.json",
+    "challenges/cases/v27/v27-cream-pie-face.recipe.session.json",
+    "challenges/cases/v27/v27-cream-pie-face.session.json",
+    "challenges/cases/v27/v27-crystal-ball-ghost-detection.recipe.session.json",
+    "challenges/cases/v27/v27-crystal-ball-ghost-detection.session.json",
+    "challenges/cases/v27/v27-crystal-ball-object.recipe.session.json",
+    "challenges/cases/v27/v27-crystal-ball-object.session.json",
+    "challenges/cases/v27/v27-cursed-genocide.recipe.session.json",
+    "challenges/cases/v27/v27-cursed-genocide.session.json",
+    "challenges/cases/v27/v27-destroy-worn-armor.recipe.session.json",
+    "challenges/cases/v27/v27-destroy-worn-armor.session.json",
+    "challenges/cases/v27/v27-drop-glob.recipe.session.json",
+    "challenges/cases/v27/v27-drop-glob.session.json",
+    "challenges/cases/v27/v27-drop-on-engraving.recipe.session.json",
+    "challenges/cases/v27/v27-drop-on-engraving.session.json",
+    "challenges/cases/v27/v27-earthquake.recipe.session.json",
+    "challenges/cases/v27/v27-earthquake.session.json",
+    "challenges/cases/v27/v27-figurine-wall.recipe.session.json",
+    "challenges/cases/v27/v27-figurine-wall.session.json",
+    "challenges/cases/v27/v27-grapple-floor.recipe.session.json",
+    "challenges/cases/v27/v27-grapple-floor.session.json",
+    "challenges/cases/v27/v27-helm-telepathy.recipe.session.json",
+    "challenges/cases/v27/v27-helm-telepathy.session.json",
+    "challenges/cases/v27/v27-leash-empty-square.recipe.session.json",
+    "challenges/cases/v27/v27-leash-empty-square.session.json",
+    "challenges/cases/v27/v27-leash-tame-dog.recipe.session.json",
+    "challenges/cases/v27/v27-leash-tame-dog.session.json",
+    "challenges/cases/v27/v27-merge-lit-candles.recipe.session.json",
+    "challenges/cases/v27/v27-merge-lit-candles.session.json",
+    "challenges/cases/v27/v27-neutral-vampire-prayer.recipe.session.json",
+    "challenges/cases/v27/v27-neutral-vampire-prayer.session.json",
+    "challenges/cases/v27/v27-pray-undead.recipe.session.json",
+    "challenges/cases/v27/v27-pray-undead.session.json",
+    "challenges/cases/v27/v27-punished-pit.recipe.session.json",
+    "challenges/cases/v27/v27-punished-pit.session.json",
+    "challenges/cases/v27/v27-sting-orc-warning.recipe.session.json",
+    "challenges/cases/v27/v27-sting-orc-warning.session.json",
+    "challenges/cases/v27/v27-sunsword-unwield.recipe.session.json",
+    "challenges/cases/v27/v27-sunsword-unwield.session.json",
+    "challenges/cases/v27/v27-turn-undead.recipe.session.json",
+    "challenges/cases/v27/v27-turn-undead.session.json",
+    "challenges/cases/v27/v27-whip-self.recipe.session.json",
+    "challenges/cases/v27/v27-whip-self.session.json",
+    "challenges/cases/v27/v27-write-scroll.recipe.session.json",
+    "challenges/cases/v27/v27-write-scroll.session.json",
+    "challenges/manifests/v27.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/alloc.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/astral_level_data.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cav_goal_level_data.js",
+    "js/cav_loca_level_data.js",
+    "js/cav_strt_level_data.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd_isok.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hea_goal_level_data.js",
+    "js/hea_loca_level_data.js",
+    "js/hea_strt_level_data.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/kni_loca_level_data.js",
+    "js/kni_strt_level_data.js",
+    "js/knox_level_data.js",
+    "js/knox_levels.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkobj_hornoplenty.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon_goal_level_data.js",
+    "js/mon_loca_level_data.js",
+    "js/mon_strt_level_data.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mplayer.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlsel.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself_bodyparts.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/ran_goal_level_data.js",
+    "js/ran_loca_level_data.js",
+    "js/ran_strt_level_data.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read_text_data.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rng.js",
+    "js/rog_goal_level_data.js",
+    "js/rog_loca_level_data.js",
+    "js/rog_strt_level_data.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/rumors.js",
+    "js/sam_goal_level_data.js",
+    "js/sam_loca_level_data.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/sp_lev.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/status_field_data.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/strutil.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout_property_data.js",
+    "js/timeout.js",
+    "js/topten.js",
+    "js/tou_goal_level_data.js",
+    "js/tou_loca_level_data.js",
+    "js/tou_strt_level_data.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/val_goal_level_data.js",
+    "js/val_loca_level_data.js",
+    "js/val_strt_level_data.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/water_levels.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizard3_levels.js",
+    "js/wizcmds_data.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "v27-drop-on-engraving",
+      "recordingSha256": "5209e9361c287eab8bad2bb68a5edbd68bad669a3b03e83357a6dbe91acc85ca",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 39,
+          "total": 39
+        },
+        "rng": {
+          "matched": 2648,
+          "total": 2648
+        },
+        "cursors": {
+          "matched": 39,
+          "total": 39
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-merge-lit-candles",
+      "recordingSha256": "495c8bcef6195c633ad26a27bc3fc8ea1c64ac4abb02e6f8cda16ea806795478",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 65,
+          "total": 65
+        },
+        "rng": {
+          "matched": 2676,
+          "total": 2676
+        },
+        "cursors": {
+          "matched": 65,
+          "total": 65
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-drop-glob",
+      "recordingSha256": "703db60d24f69952868510c8dea90bc11324ea3d53a61897ba77766e5f471021",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 40,
+          "total": 40
+        },
+        "rng": {
+          "matched": 2631,
+          "total": 2631
+        },
+        "cursors": {
+          "matched": 40,
+          "total": 40
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-sunsword-unwield",
+      "recordingSha256": "d8e0f16762baf12b3972afbe9ce3835367905dfd7e388b43dcf974dcdfbaf514",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 23,
+          "total": 23
+        },
+        "rng": {
+          "matched": 2646,
+          "total": 2646
+        },
+        "cursors": {
+          "matched": 23,
+          "total": 23
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-cast-force-bolt",
+      "recordingSha256": "5faf4ce96a6f5f5b61607eccc24eaa8738c6f57594de415cd74e8936e01272c2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 32,
+          "total": 32
+        },
+        "rng": {
+          "matched": 2704,
+          "total": 2704
+        },
+        "cursors": {
+          "matched": 32,
+          "total": 32
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-cast-magic-missile",
+      "recordingSha256": "f64f5907051f2ff4e1cce9d552cbdd6cd2387eb87a1f292146a538f524ffa2f3",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 92,
+          "total": 92
+        },
+        "rng": {
+          "matched": 3122,
+          "total": 3122
+        },
+        "cursors": {
+          "matched": 92,
+          "total": 92
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-cream-pie-face",
+      "recordingSha256": "7c56dec7ca5ecefda849fb497d6840dd1f25248380c13ff36f1a4a2c8d067737",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 39,
+          "total": 39
+        },
+        "rng": {
+          "matched": 2642,
+          "total": 2642
+        },
+        "cursors": {
+          "matched": 39,
+          "total": 39
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-leash-tame-dog",
+      "recordingSha256": "37d4924ca751615d45cd7f3e3fd85c52f32e7ea5d6d757bbf9e2bbc11c2c8591",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 56,
+          "total": 56
+        },
+        "rng": {
+          "matched": 2758,
+          "total": 2758
+        },
+        "cursors": {
+          "matched": 56,
+          "total": 56
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-figurine-wall",
+      "recordingSha256": "378f106611eaa8f2f6281b8826331f87fc58f5e87887fb4429bfcd250965e63b",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 52,
+          "total": 52
+        },
+        "rng": {
+          "matched": 2777,
+          "total": 2777
+        },
+        "cursors": {
+          "matched": 52,
+          "total": 52
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-whip-self",
+      "recordingSha256": "40aedd8a0aed0a6f079ede6bf0842122fc449b81b7491adb1e50efc0322a3602",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 30,
+          "total": 30
+        },
+        "rng": {
+          "matched": 2644,
+          "total": 2644
+        },
+        "cursors": {
+          "matched": 30,
+          "total": 30
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-grapple-floor",
+      "recordingSha256": "de77954a48c4aec430d47a166c63b535d221117b715f8d242923af23a02b7128",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 46,
+          "total": 46
+        },
+        "rng": {
+          "matched": 2641,
+          "total": 2641
+        },
+        "cursors": {
+          "matched": 46,
+          "total": 46
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-crystal-ball-object",
+      "recordingSha256": "b51cfb91376945de594e32bd66d4e151322427028fc268ee92214f5f1b990447",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 63,
+          "total": 63
+        },
+        "rng": {
+          "matched": 2633,
+          "total": 2633
+        },
+        "cursors": {
+          "matched": 63,
+          "total": 63
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-confused-genocide",
+      "recordingSha256": "49e14eebb21cfa632392d55bb00a2efc12be334bf96de89f69ec094212585f63",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 77,
+          "total": 77
+        },
+        "rng": {
+          "matched": 2647,
+          "total": 2647
+        },
+        "cursors": {
+          "matched": 77,
+          "total": 77
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-cursed-genocide",
+      "recordingSha256": "b31c92a79c81732f4b23fdd7104edb797b993d27edb5832d815fd919338907ac",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 51,
+          "total": 51
+        },
+        "rng": {
+          "matched": 2926,
+          "total": 2926
+        },
+        "cursors": {
+          "matched": 51,
+          "total": 51
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-confused-light",
+      "recordingSha256": "8efa69a81b93b1fe67dfde36aa199ca24539ac932ebd009c1a5c12578f6ddb36",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 67,
+          "total": 67
+        },
+        "rng": {
+          "matched": 2888,
+          "total": 2888
+        },
+        "cursors": {
+          "matched": 67,
+          "total": 67
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-destroy-worn-armor",
+      "recordingSha256": "a9d330b68f2e78060eb12ee28b98a816dc118b375c972f159ad56a47dfd7add6",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 43,
+          "total": 43
+        },
+        "rng": {
+          "matched": 2637,
+          "total": 2637
+        },
+        "cursors": {
+          "matched": 43,
+          "total": 43
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-write-scroll",
+      "recordingSha256": "7d0427c703335f9a86b95c189cd5c5eeda1d0f286cae092863a4017bbb918d5e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 79,
+          "total": 79
+        },
+        "rng": {
+          "matched": 2637,
+          "total": 2637
+        },
+        "cursors": {
+          "matched": 79,
+          "total": 79
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-cancel-self",
+      "recordingSha256": "5bd2c7a78df0bd7953bcad43162e805304f57726bb48e7e662877dbe4e644426",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 48,
+          "total": 48
+        },
+        "rng": {
+          "matched": 2631,
+          "total": 2631
+        },
+        "cursors": {
+          "matched": 48,
+          "total": 48
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-cancel-crystal-ball",
+      "recordingSha256": "263ad9264f4fdc7e908a0caadcc34fc4aa749a1fb5d12ab3d19e35f9907814a3",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 99,
+          "total": 99
+        },
+        "rng": {
+          "matched": 2677,
+          "total": 2677
+        },
+        "cursors": {
+          "matched": 99,
+          "total": 99
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-turn-undead",
+      "recordingSha256": "a30da656cd07d98562c3ad259b8ec3c79e6e1fc679ee49a905eeaddfe047edd0",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 53,
+          "total": 53
+        },
+        "rng": {
+          "matched": 2739,
+          "total": 2739
+        },
+        "cursors": {
+          "matched": 53,
+          "total": 53
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-pray-undead",
+      "recordingSha256": "c1b55a3b8bfa997d98cb4ae826642727fb1f6b4c0ef4336f6ee121032714128e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 52,
+          "total": 52
+        },
+        "rng": {
+          "matched": 2656,
+          "total": 2656
+        },
+        "cursors": {
+          "matched": 52,
+          "total": 52
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-earthquake",
+      "recordingSha256": "0ef66286b89397b762c749c5899939a40c8869402cbeae3d9bd1140fdc047b30",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 46,
+          "total": 46
+        },
+        "rng": {
+          "matched": 2660,
+          "total": 2660
+        },
+        "cursors": {
+          "matched": 46,
+          "total": 46
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-punished-pit",
+      "recordingSha256": "c1d759f15f374de315e50ab7a78c299a3bb6f60b2c62b4ee2be0e4bf02f5af8d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 53,
+          "total": 53
+        },
+        "rng": {
+          "matched": 2681,
+          "total": 2681
+        },
+        "cursors": {
+          "matched": 53,
+          "total": 53
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-cockatrice-gloves-off",
+      "recordingSha256": "b5571be76f62341645ce9db7d26aced9549b5c9b420a938a56cf45421ac2bbb6",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 81,
+          "total": 81
+        },
+        "rng": {
+          "matched": 2701,
+          "total": 2701
+        },
+        "cursors": {
+          "matched": 81,
+          "total": 81
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-sting-orc-warning",
+      "recordingSha256": "6173806f06b5b15d55c7f01e75bb1034d777c6d670515e72c5d688d69445b4a5",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 33,
+          "total": 33
+        },
+        "rng": {
+          "matched": 2695,
+          "total": 2695
+        },
+        "cursors": {
+          "matched": 33,
+          "total": 33
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-helm-telepathy",
+      "recordingSha256": "fe3e219056ec5efcc8a2af38ed8ae0ab4a869cc37ed1c2509f416c68ba04469d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 39,
+          "total": 39
+        },
+        "rng": {
+          "matched": 2632,
+          "total": 2632
+        },
+        "cursors": {
+          "matched": 39,
+          "total": 39
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-leash-empty-square",
+      "recordingSha256": "db37fac44b37be7104054b6993c508a1885aa3510ae8606eef9e719336bfde1b",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 56,
+          "total": 56
+        },
+        "rng": {
+          "matched": 2813,
+          "total": 2813
+        },
+        "cursors": {
+          "matched": 56,
+          "total": 56
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-crystal-ball-ghost-detection",
+      "recordingSha256": "72cc1caa990f73d8f39d8a8db9e8b6d41c1409380d149d1559b4b8c6ecaeed13",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 61,
+          "total": 61
+        },
+        "rng": {
+          "matched": 2626,
+          "total": 2626
+        },
+        "cursors": {
+          "matched": 61,
+          "total": 61
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v27-neutral-vampire-prayer",
+      "recordingSha256": "9f45c0b95f7892e58c4ab2b268fd426ce79f65288625b75892e0911985506901",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 52,
+          "total": 52
+        },
+        "rng": {
+          "matched": 2675,
+          "total": 2675
+        },
+        "cursors": {
+          "matched": 52,
+          "total": 52
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 29,
+      "total": 29
+    },
+    "screens": {
+      "matched": 1567,
+      "total": 1567
+    },
+    "rng": {
+      "matched": 78443,
+      "total": 78443
+    },
+    "cursors": {
+      "matched": 1567,
+      "total": 1567
+    }
+  }
+}
