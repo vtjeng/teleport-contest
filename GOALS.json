@@ -247780,6 +247780,303 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-zap-cancel-monst-clay-golem-kill-v39-20261010",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port monster cancellation and its clay-golem kill path",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v39/v39-cancellation-clay-golem-reached"
+      ],
+      "selectionReason": "The current admitted v39 cancellation case has two unmatched screens at zap.c:cancel_monst and reaches the clay-golem allow_cancel_kill branch.",
+      "detail": "Port the complete zap.c:cancel_monst function and wire its existing production callers, including the result-discarding muse.c:mbhitm cancellation branch.",
+      "openedAt": "b9165c3a9af82fabd1b947fe8b23b79cd96906b9",
+      "openStanding": {
+        "sha": "7a54ede871b0a32bf11496495532a9bbde5c46f3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "cancel_monst",
+          "line": 3150,
+          "endLine": 3218,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3150,
+        "to": 3218
+      },
+      "syntheticProvenance": {
+        "synthetic/v39/v39-cancellation-clay-golem-reached": {
+          "session": "synthetic/v39/v39-cancellation-clay-golem-reached",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-cancellation-clay-golem-reached",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-cancellation-clay-golem-reached.session.json",
+          "recordingSha256": "1fd70e2ae94287633942e820222c28c160eb531c5cd300aabecdd299771e45c1",
+          "evaluationPath": "challenges/evaluations/accepted-7a54ede871b0a32bf11496495532a9bbde5c46f3-v39.json",
+          "evaluationCommit": "7a54ede871b0a32bf11496495532a9bbde5c46f3"
+        }
+      },
+      "activeStanding": {
+        "sha": "7a54ede871b0a32bf11496495532a9bbde5c46f3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-cancellation-clay-golem-reached",
+          "session": "synthetic/v39/v39-cancellation-clay-golem-reached",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-cancellation-clay-golem-reached.session.json",
+          "recordingPath": "challenges/cases/v39/v39-cancellation-clay-golem-reached.session.json",
+          "recordingSha256": "1fd70e2ae94287633942e820222c28c160eb531c5cd300aabecdd299771e45c1",
+          "recipe": "challenges/cases/v39/v39-cancellation-clay-golem-reached.recipe.session.json",
+          "recipeSha256": "c8e729b435568a277050cec71405a891ddf0fc4444320a52f3fec92542ef8b08",
+          "replayInputSha256": "39326f5709f0a83e7ef430814cd20890a6012f2f479a7593070c217e41b52957",
+          "evaluationPath": "challenges/evaluations/accepted-7a54ede871b0a32bf11496495532a9bbde5c46f3-v39.json",
+          "evaluationCommit": "7a54ede871b0a32bf11496495532a9bbde5c46f3",
+          "evaluationArtifact": "challenges/evaluations/accepted-7a54ede871b0a32bf11496495532a9bbde5c46f3-v39.json",
+          "evaluationUtc": "2026-10-10T07:39:05.102Z",
+          "remainingScreens": 2,
+          "recordedSteps": 49,
+          "previousScreensMatched": 47,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 47,
+              "total": 49
+            },
+            "rng": {
+              "matched": 2227,
+              "total": 2242
+            },
+            "cursors": {
+              "matched": 48,
+              "total": 49
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 47,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 47,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 49,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2227,
+              "cEntry": "rn2(6)=0",
+              "cCaller": "xkilled(mon.c:3587)",
+              "jsEntry": "rn2(5)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 48,
+                "key": " "
+              },
+              "stepIndex": 48
+            },
+            "cursor": {
+              "index": 47,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 47,
+                "key": "l"
+              },
+              "cCursor": [
+                57,
+                0,
+                1
+              ],
+              "jsCursor": [
+                38,
+                16,
+                1
+              ]
+            }
+          },
+          "step": 47,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-cancellation-clay-golem-reached.json",
+            "result": {
+              "session": "synthetic/v39/v39-cancellation-clay-golem-reached",
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-cancellation-clay-golem-reached",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recordingSha256": "1fd70e2ae94287633942e820222c28c160eb531c5cd300aabecdd299771e45c1",
+              "evaluationPath": "challenges/evaluations/accepted-7a54ede871b0a32bf11496495532a9bbde5c46f3-v39.json",
+              "evaluationCommit": "7a54ede871b0a32bf11496495532a9bbde5c46f3",
+              "remainingScreens": 2,
+              "recordedSteps": 49,
+              "status": "complete",
+              "commit": "48e67da6816db6267bf1739fa6116f8336fd39a6",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v39",
+                "caseId": "v39-cancellation-clay-golem-reached",
+                "session": "synthetic/v39/v39-cancellation-clay-golem-reached",
+                "manifestPath": "challenges/manifests/v39.json",
+                "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+                "recording": "challenges/cases/v39/v39-cancellation-clay-golem-reached.session.json",
+                "recordingPath": "challenges/cases/v39/v39-cancellation-clay-golem-reached.session.json",
+                "recordingSha256": "1fd70e2ae94287633942e820222c28c160eb531c5cd300aabecdd299771e45c1",
+                "recipe": "challenges/cases/v39/v39-cancellation-clay-golem-reached.recipe.session.json",
+                "recipeSha256": "c8e729b435568a277050cec71405a891ddf0fc4444320a52f3fec92542ef8b08",
+                "evaluationPath": "challenges/evaluations/accepted-bc442e36ad933de77a8051a6ae641fac42ab6780-v39.json",
+                "evaluationCommit": "bc442e36ad933de77a8051a6ae641fac42ab6780",
+                "evaluationUtc": "2026-10-10T06:34:43.125Z",
+                "remainingScreens": 2,
+                "recordedSteps": 49,
+                "previousScreensMatched": 47,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 47,
+                    "total": 49
+                  },
+                  "rng": {
+                    "matched": 2227,
+                    "total": 2242
+                  },
+                  "cursors": {
+                    "matched": 48,
+                    "total": 49
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 47,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 47,
+                      "key": "l"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 49,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2227,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 48,
+                      "key": " "
+                    },
+                    "cEntry": "rn2(6)=0",
+                    "cCaller": "xkilled(mon.c:3587)",
+                    "jsEntry": "rn2(5)=4"
+                  },
+                  "cursor": {
+                    "index": 47,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 47,
+                      "key": "l"
+                    },
+                    "cCursor": [
+                      57,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      38,
+                      16,
+                      1
+                    ]
+                  }
+                },
+                "kind": "rng",
+                "sourceFile": "zap.c",
+                "function": "cancel_monst",
+                "summary": "At C zap.c:cancel_monst step 47, cancellation of the targeted clay golem enters its allow_cancel_kill branch. C calls killed(mdef), which reaches mon.c:xkilled and its treasure-drop rn2(6) at PRNG call 2228. JavaScript instead records note_unported(\"zap.c cancel_monst kill path\") and skips the death path; by step 48 it draws rn2(5)=4 at a later site. This omission accounts for the two unmatched screens and one cursor."
+              },
+              "summary": "The visible cancellation-wand path reaches zap.c:cancel_monst with a clay golem and allow_cancel_kill enabled. C chooses killed(mdef) for a hero attack, which runs the existing mon.c:killed/xkilled path. JavaScript leaves that branch as note_unported and skips the kill; the first C-only RNG event is xkilled’s rn2(6) treasure-drop draw.",
+              "source": {
+                "file": "zap.c",
+                "branch": "When cancellation is not resisted and the target remains PM_CLAY_GOLEM after normal_shape(), the function displays the writing-vanishes message if visible. If allow_cancel_kill is true, a hero attack calls killed(mdef); a non-hero attack calls monkilled(mdef, \"\", AD_SPEL). Magicbane passes allow_cancel_kill false and must keep skipping this kill path.",
+                "functions": [
+                  "cancel_monst"
+                ],
+                "callers": [
+                  "zap.c:bhitm lines 335-340 calls cancel_monst(mtmp, otmp, TRUE, TRUE, FALSE) for WAN_CANCELLATION and SPE_CANCELLATION after revealing a disguised mimic.",
+                  "js/zap.js:bhitm lines 3326-3327 calls cancel_monst for cancellation wands/spells; js/zap.js:cancel_monst contains the matching clay-golem branch.",
+                  "The admitted v39 wizard recording dispatches the zap command through the normal command path, hits a wished clay golem, and reaches the cancellation branch."
+                ],
+                "dependencies": [
+                  "mon.c:killed and mon.c:xkilled are already ported in js/mon.js; zap.js already imports killed, monkilled, and AD_SPEL will be imported from monsters.js for the non-hero branch.",
+                  "mon.c:monkilled is already ported in js/mon.js; its AD_SPEL path is the C non-hero cancellation call."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The authoritative saved queue /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json has SHA-256 e153a1e0869be21cb7a70ad69de92d64fced50b7a39196a9515a6760416d7d0d; its v39 candidate has 2 remaining screens and first mismatch at step 47. The evaluation’s admitted case-membership digest is 02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0 and the evaluation is keyed to bc442e36ad933de77a8051a6ae641fac42ab6780.",
+                "The v39 manifest names zap.c:cancel_monst -> mon.c:xkilled. Its saved comparison locates the C-only rn2(6)=0 in xkilled(mon.c:3587), call 2228; JavaScript instead consumes rn2(5)=4 after the cancellation branch records the kill path as unported.",
+                "Direct replay of the admitted C recording through runJsSession reproduces the screen/cursor mismatch at segment 0 step 47 (key l), then the RNG mismatch at step 48 (space). C cursor is [57,0,1], JavaScript is [38,16,1].",
+                "Upstream zap.c:cancel_monst lines 3150-3215 makes the player-killed versus monster-killed call explicit. Its production zap.c:bhitm caller is already ported in js/zap.js and dispatches cancellation into cancel_monst.",
+                "JS js/zap.js currently mirrors resistance, inventory cancellation, normal_shape, message, and allow_cancel_kill gates, but marks the selected kill branch note_unported. The existing killed, monkilled, and xkilled implementations are imported from js/mon.js; this task only wires those C callees from the owning cancel_monst source function."
+              ],
+              "queueSnapshot": {
+                "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+                "sha256": "e153a1e0869be21cb7a70ad69de92d64fced50b7a39196a9515a6760416d7d0d"
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }
