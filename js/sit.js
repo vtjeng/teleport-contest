@@ -191,7 +191,7 @@ function sit_water_random(rawEnv) {
 // C ref: sit.c take_gold() (14-35). Save the next inventory link before
 // delobj() frees a coin stack; invent.c delobj_core() still consumes the
 // zap.c obj_resists() draw before removing ordinary coins.
-async function take_gold(state, rawEnv = {}) {
+export async function take_gold(state, rawEnv = {}) {
     const random = sit_water_random(rawEnv);
     const message = rawEnv.message
         ?? (await import('./tty_message.js')).ttyPline;

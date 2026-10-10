@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T21:17:00.852Z",
+  "capturedAt": "2026-10-10T21:47:53.834Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -83932,30 +83932,350 @@
         "worker": "B",
         "state": "active",
         "reason": "Investigating the v42 rust-monster mismatch after submitting the cursed-book fix."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v41-underwater-monmove-set-apparxy-investigation-20261010-1c607f7995d70cb3a128c864407059440f3e1233",
+        "type": "published",
+        "at": "2026-10-10T21:17:09.623Z",
+        "task": "C-v41-underwater-monmove-set-apparxy-investigation-20261010",
+        "commit": "1c607f7995d70cb3a128c864407059440f3e1233"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v42-silver-sears-monk-polymorph-claw-ring-20261010",
+        "type": "assign",
+        "at": "2026-10-10T21:18:11.267Z",
+        "task": "C-v42-silver-sears-monk-polymorph-claw-ring-investigation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v42-silver-sears-investigation-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T21:18:16.961Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is investigating the v42 silver-versus-polymorph visibility mismatch from its production source path."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A2-bigrm-create-maze-bounded-evidence-20261010",
+        "type": "feedback",
+        "at": "2026-10-10T21:18:22.943Z",
+        "task": "A2-investigation-v42-bigrm-11-special-program-20261010",
+        "delivery": "b10903003169ef7e212f002f7443a7dfed563261"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-v42-bigrm11-evidence-correction-20261010",
+        "type": "resume",
+        "at": "2026-10-10T21:18:30.303Z",
+        "task": "A2-investigation-v42-bigrm-11-special-program-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4622757dc009cb30a8d9a6513971d7f8545dfe05",
+        "type": "ready",
+        "at": "2026-10-10T21:19:18.729Z",
+        "task": "A2-investigation-v42-bigrm-11-special-program-20261010",
+        "delivery": "4622757dc009cb30a8d9a6513971d7f8545dfe05"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-v42-cursed-book-f16c0db4-20261010",
+        "type": "received",
+        "at": "2026-10-10T21:20:11.282Z",
+        "task": "B-v42-cursed-book-case0-teleport-investigation-20261010",
+        "delivery": "f16c0db428f07c40fc95aed94193f2455e904728"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v42-quantum-cat-investigation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T21:21:15.636Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 submitted the BigRM-11 correction and is investigating the v42 quantum-cat box-tip mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-v42-rust-monster-implement-20261010",
+        "type": "implement",
+        "at": "2026-10-10T21:21:21.287Z",
+        "task": "B-v42-rust-monster-still-chewing-bars-investigation-20261010",
+        "goal": "port-hack-still-chewing-v42-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-rust-implementation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T21:21:25.146Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Porting the v42 rust-monster iron-bars chew branch and checking both movement and eat-command entry points."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v42-quantum-cat-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T21:21:27.525Z",
+        "task": "A2-v42-observe-quantum-cat-box-tip-floor-investigation-20261010",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B-v42-cursed-book-7429e9476-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T21:21:53.842Z",
+        "task": "B-v42-cursed-book-case0-teleport-investigation-20261010",
+        "integration": "7429e947668d48e44a4d7aa3574c4365395802f9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v42-silver-source-traced-20261010",
+        "type": "turn",
+        "at": "2026-10-10T21:22:53.379Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C traced the v42 silver-versus-polymorph mismatch to the unported silver-searing message and is claiming its four hmonas call sites."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v42-silver-sears-20261010",
+        "type": "implement",
+        "at": "2026-10-10T21:24:26.958Z",
+        "task": "C-v42-silver-sears-monk-polymorph-claw-ring-investigation-20261010",
+        "goal": "port-weapon-silver-sears-v42-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v42-quantum-cat-tip-checks-20261010",
+        "type": "implement",
+        "at": "2026-10-10T21:25:56.916Z",
+        "task": "A2-v42-observe-quantum-cat-box-tip-floor-investigation-20261010",
+        "goal": "port-pickup-quantum-cat-tip-checks-v42-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-v42-cursed-book-7429e947-failed-38087376530",
+        "type": "validated",
+        "at": "2026-10-10T21:28:12.052Z",
+        "task": "B-v42-cursed-book-case0-teleport-investigation-20261010",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4a36afb879a93f87d5eacaa3a06468733f2ad059",
+        "type": "ready",
+        "at": "2026-10-10T21:28:37.498Z",
+        "task": "C-v42-silver-sears-monk-polymorph-claw-ring-investigation-20261010",
+        "delivery": "4a36afb879a93f87d5eacaa3a06468733f2ad059"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-B-v42-cursed-book-hosted-tests-20261010",
+        "type": "feedback",
+        "at": "2026-10-10T21:28:41.697Z",
+        "task": "B-v42-cursed-book-case0-teleport-investigation-20261010",
+        "delivery": "f16c0db428f07c40fc95aed94193f2455e904728"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-v42-silver-sears-4a36afb8",
+        "type": "received",
+        "at": "2026-10-10T21:28:54.156Z",
+        "task": "C-v42-silver-sears-monk-polymorph-claw-ring-investigation-20261010",
+        "delivery": "4a36afb879a93f87d5eacaa3a06468733f2ad059"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-20261010-after-silver-submit",
+        "type": "turn",
+        "at": "2026-10-10T21:29:33.132Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C submitted the silver-searing fix and is starting the next independent v42 investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v42-monster-undead-turning-lichen-20261010",
+        "type": "assign",
+        "at": "2026-10-10T21:29:41.009Z",
+        "task": "C-v42-monster-undead-turning-lichen-corpse-investigation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-69175aaa3697bb8e09a6f33f881dcd0c4b9b430f",
+        "type": "ready",
+        "at": "2026-10-10T21:34:34.654Z",
+        "task": "B-v42-rust-monster-still-chewing-bars-investigation-20261010",
+        "delivery": "69175aaa3697bb8e09a6f33f881dcd0c4b9b430f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-v42-still-chewing-69175aaa",
+        "type": "received",
+        "at": "2026-10-10T21:35:01.971Z",
+        "task": "B-v42-rust-monster-still-chewing-bars-investigation-20261010",
+        "delivery": "69175aaa3697bb8e09a6f33f881dcd0c4b9b430f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B-v42-cursed-book-correction-20261010",
+        "type": "resume",
+        "at": "2026-10-10T21:35:52.006Z",
+        "task": "B-v42-cursed-book-case0-teleport-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v42-cursed-book-correction-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T21:35:55.466Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Correcting the cursed spellbook teleport tests after integration feedback; the source implementation remains unchanged."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d5bc949ae0ed0e34830f7d42e99995b8bfa709d2",
+        "type": "ready",
+        "at": "2026-10-10T21:37:43.065Z",
+        "task": "A2-v42-observe-quantum-cat-box-tip-floor-investigation-20261010",
+        "delivery": "d5bc949ae0ed0e34830f7d42e99995b8bfa709d2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-v42-quantum-cat-d5bc949a",
+        "type": "received",
+        "at": "2026-10-10T21:37:56.352Z",
+        "task": "A2-v42-observe-quantum-cat-box-tip-floor-investigation-20261010",
+        "delivery": "d5bc949ae0ed0e34830f7d42e99995b8bfa709d2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-20261010-post-quantum-1",
+        "type": "turn",
+        "at": "2026-10-10T21:39:07.423Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 is investigating an independent v42 mismatch after submitting its previous delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-assign-v42-baalz-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T21:39:12.580Z",
+        "task": "A2-investigation-v42-baalz-special-program-20261010",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-29b8ca07368969b69a474693a21dbbec9a8ae67f",
+        "type": "ready",
+        "at": "2026-10-10T21:40:46.845Z",
+        "task": "B-v42-cursed-book-case0-teleport-investigation-20261010",
+        "delivery": "29b8ca07368969b69a474693a21dbbec9a8ae67f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-v42-cursed-book-correction-29b8ca07",
+        "type": "received",
+        "at": "2026-10-10T21:40:56.594Z",
+        "task": "B-v42-cursed-book-case0-teleport-investigation-20261010",
+        "delivery": "29b8ca07368969b69a474693a21dbbec9a8ae67f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B-v42-cursed-book-correction-8a92dbad",
+        "type": "integrating",
+        "at": "2026-10-10T21:41:10.298Z",
+        "task": "B-v42-cursed-book-case0-teleport-investigation-20261010",
+        "integration": "8a92dbad299eaf18f0d8f3e18e58f45bb5cc0e7a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-v42-post-correction-queued-idle-20261010",
+        "type": "turn",
+        "at": "2026-10-10T21:42:11.076Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B has submitted two v42 deliveries. The only currently unreserved mismatch, yellow-dragon acid damage to dual-wielded weapons, reaches uhitm.c:passive/passive_obj and js/uhitm.js, which remains reserved by C’s queued silver-searing delivery; other queue candidates are owned or reserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v42-lichen-source-trace-20261010",
+        "type": "turn",
+        "at": "2026-10-10T21:46:03.347Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C traced the v42 lichen-corpse mismatch to missing monster wand effects in muse.c:mbhitm."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B-v42-cursed-book-correction-8a92dbad-pass-38088581391",
+        "type": "validated",
+        "at": "2026-10-10T21:46:16.353Z",
+        "task": "B-v42-cursed-book-case0-teleport-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-v42-cursed-book-case0-teleport-investigation-20261010-8a92dbad299eaf18f0d8f3e18e58f45bb5cc0e7a-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T21:47:19.028Z",
+        "task": "B-v42-cursed-book-case0-teleport-investigation-20261010"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "B-v42-cursed-book-case0-teleport-investigation-20261010",
-        "worker": "B",
-        "goal": "port-spell-cursed-book-effects-v42-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "f16c0db428f07c40fc95aed94193f2455e904728",
-        "since": "2026-10-10T21:14:50.476Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
         "task": "A2-investigation-v42-bigrm-11-special-program-20261010",
         "worker": "A2",
         "goal": "port-bigrm-11-special-level-v42-20261010",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "b10903003169ef7e212f002f7443a7dfed563261",
-        "since": "2026-10-10T21:16:44.630Z",
+        "delivery": "4622757dc009cb30a8d9a6513971d7f8545dfe05",
+        "since": "2026-10-10T21:19:18.729Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-v42-silver-sears-monk-polymorph-claw-ring-investigation-20261010",
+        "worker": "C",
+        "goal": "port-weapon-silver-sears-v42-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "4a36afb879a93f87d5eacaa3a06468733f2ad059",
+        "since": "2026-10-10T21:28:37.498Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-v42-rust-monster-still-chewing-bars-investigation-20261010",
+        "worker": "B",
+        "goal": "port-hack-still-chewing-v42-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "69175aaa3697bb8e09a6f33f881dcd0c4b9b430f",
+        "since": "2026-10-10T21:34:34.654Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-v42-observe-quantum-cat-box-tip-floor-investigation-20261010",
+        "worker": "A2",
+        "goal": "port-pickup-quantum-cat-tip-checks-v42-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "d5bc949ae0ed0e34830f7d42e99995b8bfa709d2",
+        "since": "2026-10-10T21:37:43.065Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -84295,8 +84615,8 @@
     ]
   },
   "development": {
-    "executionCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
-    "measuredAt": "2026-10-10T21:09:26.432Z",
+    "executionCommit": "8a92dbad299eaf18f0d8f3e18e58f45bb5cc0e7a",
+    "measuredAt": "2026-10-10T21:45:41.726Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
