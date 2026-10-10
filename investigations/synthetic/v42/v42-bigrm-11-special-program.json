@@ -29,7 +29,7 @@
     "recordingPath": "challenges/cases/v42/v42-bigrm-11-special-program.session.json",
     "session": "synthetic/v42/v42-bigrm-11-special-program"
   },
-  "summary": "The C bigrm-11.lua program originally hit a JavaScript refusal. Its complete port now matches the admitted replay after fixing two caller contracts: mkmaze.js:create_maze() passes reduced bounds to maze_remove_deadends(), and the Lua wall callback receives frame-relative selection coordinates.",
+  "summary": "The C bigrm-11.lua program originally hit a JavaScript refusal. Its complete port now matches the admitted replay after fixing the BigRM maze caller contract: create_maze() must pass reduced bounds under the field names maze_remove_deadends() reads, and Lua wall callbacks must receive frame-relative selection coordinates. The separate procedural mkmaze.c:makemaz fallback remains unported.",
   "source": {
     "file": "dat/bigrm-11.lua",
     "branch": "Runs when #wizloaddes names bigrm-11.lua or mkmaze.c:makemaz selects bigroom variant 11. The program sets mazelevel and noflip, chooses corridor width 3 + rn2(3), fixes wall thickness at 1, randomly enables dead-end removal, then places boulders, stairs, objects, rolling-boulder traps, and monsters.",
@@ -42,7 +42,7 @@
       "Runtime evidence exercises the wizard caller; the regular mkmaze.c:makemaz caller selects the same registered bigrm-11 program through mklev.js:load_special."
     ],
     "dependencies": [
-      "mkmaze.c:create_maze -> maze_remove_deadends -> maze_inbounds uses reduced gx/gy bounds; JavaScript now passes xMazeMax/yMazeMax to the helper.",
+      "BigRM dat/bigrm-11.lua reaches mkmaze.c:create_maze through sp_lev.c:lspo_level_init -> splev_initlev(LVLINIT_MAZE); the bounded JS caller correction supplies xMazeMax/yMazeMax for maze_remove_deadends -> maze_inbounds. The separate direct procedural call at mkmaze.c:makemaz lines 1201-1203 remains behind the UnsupportedLevelChangeError refusal in js/mklev.js:makemaz and is outside this goal.",
       "nhlsel.c:l_selection_iterate converts absolute selection points with cvt_to_relcoord() before the Lua callback; JavaScript now supplies the level frame origin to ThemeroomSelection.iterate().",
       "sp_lev.c:lspo_terrain and lspo_object add the active frame origin when resolving explicit Lua-relative coordinates."
     ]
@@ -54,8 +54,9 @@
     "Upstream dat/bigrm-11.lua:7-38 defines t_or_f(), sets mazelevel/noflip and level_init(style=\"maze\", corrwid=3+nh.rn2(3), wallthick=1, deadends=t_or_f()), marks the map lit and non-diggable, replaces horizontal and vertical interior walls with floor plus boulders, adds stairs, and generates 15 objects, 6 rolling-boulder traps, and 28 monsters.",
     "At the examined commit, js/bigrm.js:643-650 maps the registered bigrm-11 loader to an UnsupportedLevelChangeError before issuing any level API calls. js/mklev.js:1754-1815 imports BIGRM_LOADERS and implements load_special; js/wizcmds.js:wiz_load_splua awaits that loader and finalizes the level.",
     "The initialization dependency is already wired: sp_lev.c:lspo_level_init and splev_initlev dispatch LVLINIT_MAZE to mkmaze.c:create_maze; JavaScript js/mklev.js:lspo_level_init dispatches the same style to js/mkmaze.js:create_maze. The diagnosis therefore scopes the implementation to the whole dat/bigrm-11.lua program in js/bigrm.js, its existing BIGRM_LOADERS registration, and focused bigroom level-generation coverage.",
-    "Source trace at mkmaze.c:950-1041 and JavaScript js/mkmaze.js:create_maze found that the reduced bounds object used by okay() had xMax/yMax fields, while maze_remove_deadends() passed it to maze_inbounds(), which reads xMazeMax/yMazeMax. The JS helper therefore skipped every dead-end candidate; the caller now supplies those reduced field names.",
+    "Source trace at mkmaze.c:950-1039 and JavaScript js/mkmaze.js:create_maze found that the reduced bounds object used by okay() had xMax/yMax fields, while maze_remove_deadends() passed it to maze_inbounds(), which reads xMazeMax/yMazeMax. The JS helper therefore skipped every dead-end candidate; the caller now supplies those reduced field names.",
     "Source trace at nhlsel.c:925-945 and sp_lev.c:4793-4807 found that C converts absolute selection points to map-relative coordinates before invoking the Lua callback. The JavaScript wall replacement now supplies state.xstart/ystart to selection.iterate(), so lspo_terrain/lspo_object restore the origin exactly once.",
-    "After both corrections, node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json matched the admitted v42 BigRM-11 replay through segment 0 step 34."
+    "After both corrections, node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json matched the admitted v42 BigRM-11 replay through segment 0 step 34.",
+    "The bounded mkmaze.c:create_maze correction covers the BigRM LVLINIT_MAZE caller only. The direct procedural fallback in mkmaze.c:makemaz at lines 1201-1203 is a separate unported caller and remains refused by js/mklev.js:makemaz."
   ]
 }
