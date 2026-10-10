@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T15:43:17.572Z",
+  "capturedAt": "2026-10-10T15:57:32.887Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -82154,22 +82154,77 @@
         "type": "accepted",
         "at": "2026-10-10T15:41:51.360Z",
         "task": "C-v41-tower2-special-program-generation-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v41-tower2-special-program-generation-investigation-20261010-c55634db09f335857850c556e79a4e0ea3304cc7",
+        "type": "published",
+        "at": "2026-10-10T15:43:25.551Z",
+        "task": "C-v41-tower2-special-program-generation-investigation-20261010",
+        "commit": "c55634db09f335857850c556e79a4e0ea3304cc7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B222-b843ad9e2743",
+        "type": "received",
+        "at": "2026-10-10T15:45:38.970Z",
+        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010",
+        "delivery": "b843ad9e2743aa3e6d895fe45e243db421a80329"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B224-turn-blocked-wait-B222-mhitu-release-20261010",
+        "type": "turn",
+        "at": "2026-10-10T15:46:17.506Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "B224 traced the v40 leash page to gulp-time unleash_all. Waiting for B222 to release js/mhitu.js before implementing the corrected scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B222-9b38c7216cfd",
+        "type": "integrating",
+        "at": "2026-10-10T15:48:12.914Z",
+        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010",
+        "integration": "9b38c7216cfd3143b81177c48bfb6b718806f17f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B222-9b38c7216cfd",
+        "type": "validated",
+        "at": "2026-10-10T15:53:55.265Z",
+        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B222-investigation-v41-incubus-mayberem-seduction-20261010-9b38c7216cfd3143b81177c48bfb6b718806f17f-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T15:55:14.311Z",
+        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B224-turn-active-unleash-all-after-B222-20261010",
+        "type": "turn",
+        "at": "2026-10-10T15:56:43.376Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing the recorded gulp-time leash release through unleash_all and its active JavaScript callers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-resume-worm-after-B222-acceptance-20261010",
+        "type": "turn",
+        "at": "2026-10-10T15:56:49.380Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "B222 acceptance cleared the shared-module dependency. C is syncing accepted Main before claiming worm_move and its caller paths."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010",
-        "worker": "B",
-        "goal": "port-mhitu-mayberem-v41-incubus-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "b843ad9e2743aa3e6d895fe45e243db421a80329",
-        "since": "2026-10-10T14:29:55.912Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "B223-investigation-v40-earth-plane-levelport-20261010",
         "worker": "B",
@@ -82178,9 +82233,7 @@
         "status": "ready",
         "delivery": "9886401eb6cff2cf12e0f705b6056ffa9915369d",
         "since": "2026-10-10T14:57:17.431Z",
-        "blockedBy": [
-          "B222-investigation-v41-incubus-mayberem-seduction-20261010"
-        ],
+        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -82532,8 +82585,8 @@
     ]
   },
   "development": {
-    "executionCommit": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d",
-    "measuredAt": "2026-10-10T15:39:45.655Z",
+    "executionCommit": "9b38c7216cfd3143b81177c48bfb6b718806f17f",
+    "measuredAt": "2026-10-10T15:53:32.409Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
