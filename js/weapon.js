@@ -1,6 +1,6 @@
-// weapon.js -- Monster weapon selection and wield state.
-// C refs: weapon.c oselect(), select_rwep(), select_hwep(), mon_wield_item(),
-// mwepgone(), setmnotwielded().
+// weapon.js -- Monster weapon selection, wield state and silver-hit feedback.
+// C refs: weapon.c silver_sears(), oselect(), select_rwep(), select_hwep(),
+// mon_wield_item(), mwepgone() and setmnotwielded().
 
 import {
     ART_SNICKERSNEE,
@@ -202,6 +202,7 @@ import {
     SILVER_MACE,
     SILVER_SABER,
     SILVER_SPEAR,
+    STRANGE_OBJECT,
     OBJ_NAME,
     SLING,
     SPEAR,
@@ -242,7 +243,7 @@ import { cansee, couldsee } from './vision.js';
 import { mwelded } from './wield.js';
 import {
     The, Tobjnam, Yname2, Yobjnam2, donameFresh, is_plural, otense, the,
-    xnameFresh,
+    vtense, xnameFresh,
 } from './objnam.js';
 import { mbodypart } from './polyself.js';
 import { bimanual, which_armor } from './worn.js';
@@ -670,6 +671,44 @@ export function special_dmgval(magr, mdef, armask, out, state = game, env = {}) 
 
     if (out) out.silverhit = silverhit;
     return bonus;
+}
+
+// C ref: weapon.c silver_sears() (433-466). Report which worn ring supplied
+// silver damage. C distinguishes known silver from a not-yet-identified ring,
+// and uses the two worn slots to choose singular or plural wording.
+export async function silver_sears(
+    magr,
+    mdef,
+    silverhit,
+    state = game,
+    env = {},
+) {
+    const left = state.uleft;
+    const right = state.uright;
+    const ltyp = left && (silverhit & W_RINGL) !== 0
+        ? left.otyp : STRANGE_OBJECT;
+    const rtyp = right && (silverhit & W_RINGR) !== 0
+        ? right.otyp : STRANGE_OBJECT;
+    const l_dknown = Boolean(left && left.dknown);
+    const r_dknown = Boolean(right && right.dknown);
+    const l_ag = state.objects[ltyp].oc_material === SILVER && l_dknown;
+    const r_ag = state.objects[rtyp].oc_material === SILVER && r_dknown;
+
+    if ((silverhit & (W_RINGL | W_RINGR)) !== 0) {
+        const both = (ltyp === rtyp && l_dknown === r_dknown)
+            || (l_ag && r_ag);
+        const rings = `ring${both ? 's' : ''}`;
+        const prefix = (l_ag || r_ag) ? 'silver '
+            : both ? ''
+                : (silverhit & W_RINGL) !== 0 ? 'left ' : 'right ';
+        const message = env.message ?? ttyPline;
+        await message(
+            `Your ${prefix}${rings} ${vtense(rings, 'sear')} `
+                + `${mon_nam(mdef, state, env)}!`,
+            state,
+            env,
+        );
+    }
 }
 
 // C ref: mon.c can_touch_safely(). Artifact acceptance remains with

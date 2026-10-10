@@ -259430,6 +259430,1031 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-weapon-silver-sears-v42-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port weapon.c silver_sears and wire every active hmonas caller",
+      "cFile": "weapon.c",
+      "sessions": [
+        "synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring"
+      ],
+      "selectionReason": "The admitted v42 silver-ring polymorph case diverges at the source silver_sears message path, and all active hmonas call sites can be wired in the same bounded source task.",
+      "detail": "The investigation traces hack.c:domove_core through uhitm.c:hmonas to weapon.c:silver_sears; the complete helper is lines 436-466 and writes feedback without RNG or state mutation.",
+      "openedAt": "c695337cd79684138af1d86349f620f7fae86525",
+      "openStanding": {
+        "sha": "37044eda52fe8b08877c9f10c3aa300bee7c5291",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "silver_sears",
+          "line": 436,
+          "endLine": 475,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 436,
+        "to": 475
+      },
+      "syntheticProvenance": {
+        "synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring": {
+          "session": "synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring",
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-silver-sears-monk-polymorph-claw-ring",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recordingPath": "challenges/cases/v42/v42-silver-sears-monk-polymorph-claw-ring.session.json",
+          "recordingSha256": "90c23f842e66c1a9828e85c6ec844d2f548c60e58b6eb081977d15a63d67fded",
+          "evaluationPath": "challenges/evaluations/accepted-37044eda52fe8b08877c9f10c3aa300bee7c5291-v42.json",
+          "evaluationCommit": "37044eda52fe8b08877c9f10c3aa300bee7c5291"
+        }
+      },
+      "activeStanding": {
+        "sha": "37044eda52fe8b08877c9f10c3aa300bee7c5291",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-silver-sears-monk-polymorph-claw-ring",
+          "session": "synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recording": "challenges/cases/v42/v42-silver-sears-monk-polymorph-claw-ring.session.json",
+          "recordingPath": "challenges/cases/v42/v42-silver-sears-monk-polymorph-claw-ring.session.json",
+          "recordingSha256": "90c23f842e66c1a9828e85c6ec844d2f548c60e58b6eb081977d15a63d67fded",
+          "recipe": "challenges/cases/v42/v42-silver-sears-monk-polymorph-claw-ring.recipe.session.json",
+          "recipeSha256": "2d9b2a0d91e039b4e9ddf75260bc1929ac7091074bb27827c068eac34aeb235d",
+          "replayInputSha256": "71f8dfeb7da7c208ce50657e94ba83730a35ca2506a1b12b854cc25f504b3d43",
+          "evaluationPath": "challenges/evaluations/accepted-37044eda52fe8b08877c9f10c3aa300bee7c5291-v42.json",
+          "evaluationCommit": "37044eda52fe8b08877c9f10c3aa300bee7c5291",
+          "evaluationArtifact": "challenges/evaluations/accepted-37044eda52fe8b08877c9f10c3aa300bee7c5291-v42.json",
+          "evaluationUtc": "2026-10-10T21:57:40.859Z",
+          "remainingScreens": 1,
+          "recordedSteps": 72,
+          "previousScreensMatched": 71,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 71,
+              "total": 72
+            },
+            "rng": {
+              "matched": 2512,
+              "total": 2512
+            },
+            "cursors": {
+              "matched": 71,
+              "total": 72
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 71,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 71,
+                "key": "k"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 23,
+              "cCell": {
+                "ch": "r",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2512,
+              "cCaller": null,
+              "jsEntry": "rn2(6)=2",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 71,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 71,
+                "key": "k"
+              },
+              "cCursor": [
+                61,
+                0,
+                1
+              ],
+              "jsCursor": [
+                5,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 71,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v42",
+              "caseId": "v42-silver-sears-monk-polymorph-claw-ring",
+              "remainingScreens": 1,
+              "status": "complete",
+              "commit": "3789ea8a86afba7e326d8cc3e3bcd0440cc42268",
+              "mismatch": {
+                "kind": "synthetic",
+                "corpus": "synthetic",
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "session": "synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring",
+                "sessions": [
+                  "synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring"
+                ],
+                "remainingScreens": 1,
+                "remainingScreensUpperBound": null,
+                "earliestStep": 71,
+                "caseId": "v42-silver-sears-monk-polymorph-claw-ring",
+                "batch": "v42",
+                "recordingPath": "challenges/cases/v42/v42-silver-sears-monk-polymorph-claw-ring.session.json"
+              },
+              "summary": "At the final bare-handed claw attack, C reports that the silver ring sears the manes and waits for the message pager. JavaScript skips the missing weapon.c:silver_sears call, omits that message, and continues the turn; the manes die and the final screen and cursor diverge.",
+              "source": {
+                "file": "weapon.c",
+                "branch": "When a polymorphed hero's landed attack earns silver-ring damage and verbose messages are enabled, hmonas calls silver_sears with the worn-ring mask. The helper names the left or right ring, uses plural wording when both ring slots qualify, and emits the searing message.",
+                "functions": [
+                  "silver_sears"
+                ],
+                "callers": [
+                  "uhitm.c:do_attack() selects hmonas() for Upolyd at lines 565-568; hmonas() calls silver_sears() in its claw/touch and hug branches at lines 5662, 5726, 5744, and 5756.",
+                  "hack.c:domove_core() calls do_attack(); the JavaScript production route is hack.js:domove_core() -> uhitm.js:do_attack() -> hmonas()."
+                ],
+                "dependencies": [
+                  "weapon.c:special_dmgval() supplies the silverhit ring mask and is already implemented in js/weapon.js.",
+                  "The hmonas attack and damage branches are already implemented in js/uhitm.js; four corresponding silver_sears call sites still use note_unported().",
+                  "do_name.c:mon_nam(), objnam.c:vtense(), and the existing message operation provide the helper's naming, agreement, and output behavior."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The authoritative saved queue has SHA-256 6889a7ab6f060b3cf8f6536df5fe921c893bc9abb7bb34f67702818e4b845e61 and selects this v42 case with one remaining screen at step 71. Its recording SHA-256 is 90c23f842e66c1a9828e85c6ec844d2f548c60e58b6eb081977d15a63d67fded; its recipe SHA-256 is 2d9b2a0d91e039b4e9ddf75260bc1929ac7091074bb27827c068eac34aeb235d; the accepted evaluation is challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json at commit 2634fa9f632f0bd97556887204d19f3fdb2645f2, with manifest SHA-256 85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418.",
+                "A fresh C-versus-JavaScript replay of the admitted recipe at accepted Main 2634fa9 showed 2512 matching RNG calls before the final input boundary. At segment 0, step 71, key k, C's message is 'You hit the manes. Your silver ring sears the manes!--More--' and its map retains the manes; JavaScript instead prints 'You hit the manes. You destroy the manes!' and removes them. The missing pager lets JavaScript continue and consume four extra RNG calls, beginning with rn2(6)=2.",
+                "Upstream weapon.c:silver_sears() at lines 436-466 selects ring types from uleft, uright, and silverhit; its both, l_ag, and r_ag expressions preserve left/right identification, plural agreement, and whether the silver material is known. It writes one message through Your() and makes no random draw or game-state mutation.",
+                "The complete source search rg -n '\\bsilver_sears\\s*\\(' nethack-c/upstream/src js found the four active C call sites in uhitm.c:hmonas() at lines 5662, 5726, 5744, and 5756. js/uhitm.js has a matching note_unported('weapon.c silver_sears') at each corresponding branch; no other C caller exists in the checked source tree."
+              ],
+              "session": "synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring",
+              "manifestPath": "challenges/manifests/v42.json",
+              "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+              "recordingSha256": "90c23f842e66c1a9828e85c6ec844d2f548c60e58b6eb081977d15a63d67fded",
+              "evaluationPath": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+              "evaluationCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+              "recordedSteps": 72
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "silver_sears",
+            "implementation": "js/weapon.js",
+            "symbol": "silver_sears",
+            "sourceReview": "Read the complete weapon.c:silver_sears() body at lines 436-466. It derives left and right ring types from uleft, uright, and the W_RINGL/W_RINGR silverhit bits; reads dknown and silver material; computes both using equal ring type plus equal identification state or two identified silver rings; selects the silver, no-adjective, left, or right prefix; forms singular/plural ring and sear words; and writes the target message. It makes no RNG call and changes no game state, but writes a message, so it is impure. The magr parameter is explicitly UNUSED in C. Its consumed callees are Your(), vtense(), and mon_nam(), all already implemented; no unported return-bearing or discarded callee remains. The previous note_unported placeholders at all four hmonas branches were replaced by awaited calls to this helper.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmonas",
+                "source": "uhitm.c:hmonas calls silver_sears(&gy.youmonst, mon, silverhit) after the hit message in the claw/touch branch and in the corresponding hug branches at lines 5662, 5726, 5744, and 5756. JS hmonas now awaits the same helper at each branch. Its production route is hack.c:domove_core -> uhitm.c:do_attack -> uhitm.c:hmonas."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-hmon.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-silver-sears-monk-polymorph-claw-ring",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 71,
+                "source": "hack.c:domove_core -> uhitm.c:do_attack -> uhitm.c:hmonas -> weapon.c:silver_sears"
+              }
+            ],
+            "checkedAt": "6152b107e8bbb15c62228d16ed04d093986994ee"
+          }
+        ],
+        "entryPointReview": "The active entry point exercised here is a polymorphed hero melee attack that lands a silver-ring hit. The source route is hack.c:domove_core -> uhitm.c:do_attack -> uhitm.c:hmonas -> weapon.c:silver_sears. The admitted v42 replay reaches the helper at segment 0 step 71 and pauses on its searing message. The same source helper is called at four active hmonas attack branches; all four JS call sites are wired. The source-pinned focused test separately covers left/right identity, identified silver, plural same-ring behavior, unidentified plural behavior, and the no-ring-mask branch.",
+        "entryPoints": [
+          {
+            "name": "Polymorphed hero melee hit sears a target with a worn silver ring",
+            "functions": [
+              "silver_sears"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-silver-sears-monk-polymorph-claw-ring",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 71,
+                "source": "hack.c:domove_core -> uhitm.c:do_attack -> uhitm.c:hmonas -> weapon.c:silver_sears"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-hack-still-chewing-v42-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port hack.c still_chewing and its active movement and eat-command callers",
+      "cFile": "hack.c",
+      "sessions": [
+        "synthetic/v42/v42-rust-monster-still-chewing-bars"
+      ],
+      "selectionReason": "The admitted v42 rust-monster case diverges in the complete hack.c still_chewing iron-bars path, and an independent eat-command recording covers its second active entry point.",
+      "detail": "The investigation traces test_move and doeat to still_chewing, including source-ordered hunger, dissolve_bars, messages, vision cleanup, and explicit discarded-result shopkeeper gaps.",
+      "openedAt": "660106be814a482edebb0edac126892a14b92d28",
+      "openStanding": {
+        "sha": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "still_chewing",
+          "line": 647,
+          "endLine": 824,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 647,
+        "to": 824
+      },
+      "syntheticProvenance": {
+        "synthetic/v42/v42-rust-monster-still-chewing-bars": {
+          "session": "synthetic/v42/v42-rust-monster-still-chewing-bars",
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-rust-monster-still-chewing-bars",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recordingPath": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+          "recordingSha256": "98420bc4f2f166ec2b04fd8b821ec5f61a058c2d4b74a1a3f7b76bf2158e8c8d",
+          "evaluationPath": "challenges/evaluations/accepted-652e8fdd055a766d10f1bb0f6cc3e60a89f42185-v42.json",
+          "evaluationCommit": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185"
+        }
+      },
+      "activeStanding": {
+        "sha": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-rust-monster-still-chewing-bars",
+          "session": "synthetic/v42/v42-rust-monster-still-chewing-bars",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recording": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+          "recordingPath": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+          "recordingSha256": "98420bc4f2f166ec2b04fd8b821ec5f61a058c2d4b74a1a3f7b76bf2158e8c8d",
+          "recipe": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.recipe.session.json",
+          "recipeSha256": "d1e5d18da934784573199c9a45e3f4e27f8e0f9dae60128c0f1e7105c921736c",
+          "replayInputSha256": "a0ebdffc55cfd79ac3cba91bbd812210a8fe9adbc2ee01e3fdd911fae59dfdad",
+          "evaluationPath": "challenges/evaluations/accepted-652e8fdd055a766d10f1bb0f6cc3e60a89f42185-v42.json",
+          "evaluationCommit": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185",
+          "evaluationArtifact": "challenges/evaluations/accepted-652e8fdd055a766d10f1bb0f6cc3e60a89f42185-v42.json",
+          "evaluationUtc": "2026-10-10T22:10:51.681Z",
+          "remainingScreens": 1,
+          "recordedSteps": 53,
+          "previousScreensMatched": 52,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 52,
+              "total": 53
+            },
+            "rng": {
+              "matched": 2849,
+              "total": 2849
+            },
+            "cursors": {
+              "matched": 53,
+              "total": 53
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 52,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 52,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 23,
+              "column": 39,
+              "cCell": {
+                "ch": "S",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 52,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v42/v42-rust-monster-still-chewing-bars.json",
+            "result": {
+              "session": "synthetic/v42/v42-rust-monster-still-chewing-bars",
+              "corpus": "synthetic",
+              "batch": "v42",
+              "caseId": "v42-rust-monster-still-chewing-bars",
+              "manifestPath": "challenges/manifests/v42.json",
+              "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+              "recordingPath": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+              "recordingSha256": "98420bc4f2f166ec2b04fd8b821ec5f61a058c2d4b74a1a3f7b76bf2158e8c8d",
+              "evaluationPath": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+              "evaluationCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+              "remainingScreens": 1,
+              "recordedSteps": 53,
+              "status": "complete",
+              "commit": "9b53af69f281954a8b21636768fbe759a7d888ce",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v42",
+                "caseId": "v42-rust-monster-still-chewing-bars",
+                "session": "synthetic/v42/v42-rust-monster-still-chewing-bars",
+                "manifestPath": "challenges/manifests/v42.json",
+                "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+                "recording": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+                "recordingPath": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+                "recordingSha256": "98420bc4f2f166ec2b04fd8b821ec5f61a058c2d4b74a1a3f7b76bf2158e8c8d",
+                "recipe": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.recipe.session.json",
+                "recipeSha256": "d1e5d18da934784573199c9a45e3f4e27f8e0f9dae60128c0f1e7105c921736c",
+                "replayInputSha256": "a2722a4583f3fb4253c59de8d17926e6d6909913e67d4d98a882594af946eb4a",
+                "evaluationPath": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+                "evaluationCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+                "evaluationArtifact": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+                "evaluationUtc": "2026-10-10T21:08:15.151Z",
+                "remainingScreens": 1,
+                "recordedSteps": 53,
+                "previousScreensMatched": 52,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 52,
+                    "total": 53
+                  },
+                  "rng": {
+                    "matched": 2849,
+                    "total": 2849
+                  },
+                  "cursors": {
+                    "matched": 53,
+                    "total": 53
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 52,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 52,
+                      "key": "l"
+                    },
+                    "kind": "ch",
+                    "row": 23,
+                    "column": 39,
+                    "cCell": {
+                      "ch": "S",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 52,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The final completed iron-bars chew by a wizard polymorphed into a rust monster leaves all RNG, cursors, and earlier screens matched, but C changes the hunger status to Satiated while JavaScript omits that status. hack.c:still_chewing calls eat.c:morehungry(-nut) for metallivorous iron-bar eating and monmove.c:dissolve_bars after chewing; js/hack.js still_chewing currently has note_unported placeholders at both call sites. The missing morehungry side effect explains the exact final status mismatch; both existing canonical helpers must be wired to port this source path fully.",
+              "source": {
+                "file": "hack.c",
+                "branch": "test_move(DO_MOVE) targets IRONBARS and the current monster is metallivorous; after the chew effort exceeds 100, still_chewing awards rnd(20), then the IRONBARS branch grants iron nutrition with morehungry(-nut) and removes the bars with dissolve_bars.",
+                "functions": [
+                  "still_chewing"
+                ],
+                "callers": [
+                  "test_move (hack.c:991-1265)",
+                  "doeat (eat.c:2852)"
+                ],
+                "dependencies": [
+                  "eat.c:morehungry",
+                  "monmove.c:dissolve_bars"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v42 baseline 2634fa9f632f0bd97556887204d19f3fdb2645f2: 52/53 screens, 2849/2849 RNG calls, and 53/53 cursors; the only mismatch is final step 52, key \"l\", at screen row 23 column 39 where C prints 'S' and JS prints a blank.",
+                "The independently decoded final C/JS status rows are respectively `Dlvl:1 $:0 HP:26(26) Pw:6(6) AC:2 HD:5 Satiated` and `Dlvl:1 $:0 HP:26(26) Pw:6(6) AC:2 HD:5`; all 8 changed cells form the missing `Satiated` status text.",
+                "upstream/src/hack.c:647-822 implements the entire still_chewing function; lines 769-784 award metallivorous iron-bar nutrition with morehungry(-nut), select the completion text, and call dissolve_bars before final vision/redraw cleanup. Its production call sites are all in upstream/src/hack.c:test_move at lines 1029, 1040, 1090, and 1227.",
+                "js/hack.js:1978-2082 has the corresponding still_chewing port. Its IRONBARS branch at lines 2078-2081 calls note_unported('eat.c morehungry') and note_unported('trap.c dissolve_bars') instead of existing canonical JS implementations.",
+                "The required helpers are already implemented: upstream/src/eat.c:3281-3285 / js/eat.js:1902-1917 implement morehungry and newuhs; upstream/src/monmove.c:2170-2180 / js/monmove.js:4322-4334 implement dissolve_bars. Wire these existing owners from hack.js without duplicating their state logic.",
+                "A second direct C caller is upstream/src/eat.c:doeat (the `&hands_obj` arm at line 2852), which calls still_chewing on the hero’s current square and then prints “You pause to swallow.” while IRONBARS remain. js/eat.js:doeat at lines 4238-4244 already wires this caller to the canonical hack.js still_chewing implementation. No matching `recordings/` entry covers this `e`-command branch, so it needs its own matching recipe/recording as an entry point in addition to the admitted movement case."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "still_chewing",
+            "implementation": "js/hack.js",
+            "symbol": "still_chewing",
+            "sourceReview": "Read the complete upstream hack.c:still_chewing() definition (647-822), including every early refusal, initial and continued effort threshold, conduct/hunger update, boulder blocking return, and each terrain completion arm (wall, tree, iron bars, secret door, door, rock). Checked expression/RNG and side-effect order through the final recalc_block_point/newsym/messages/reset sequence. The IRONBARS branch reads objects[HEAVY_IRON_BALL].oc_weight, calls morehungry(-nut) only for metallivorous forms, chooses the hero-sensitive completion text, then calls dissolve_bars before common vision/redraw cleanup. The JavaScript branch now calls canonical eat.js:morehungry and monmove.js:dissolve_bars in that order and removes both stale note_unported placeholders. The remaining note_unported calls are only for discarded-result shopkeeper helpers shk.c:add_damage and shk.c:pay_for_damage; their side effects are not fabricated.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "test_move",
+                "source": "hack.c:test_move() (991-1265) reaches still_chewing() from its four DO_MOVE obstacle arms at 1029, 1040, 1090 and 1227 (iron bars, tunnels, doors, and boulders); JavaScript's production chew callback resolves to still_chewing() and consumes the same Boolean to refuse movement while chewing continues."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "doeat",
+                "source": "eat.c:doeat() (2852) calls still_chewing(u.ux,u.uy) when floorfood('eat') returns &hands_obj on iron bars, then pauses to swallow while the bars remain; JavaScript preserves this production call and message order."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hack.test.mjs"
+            ],
+            "recordings": [
+              "recordings/hack.c/rust-monster-eat-bars-command.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-rust-monster-still-chewing-bars",
+                "segment": 0,
+                "fromStep": 50,
+                "throughStep": 52,
+                "source": "hack.c:domove_core -> hack.c:test_move(DO_MOVE, iron bars) -> hack.c:still_chewing(IRONBARS) -> eat.c:morehungry -> monmove.c:dissolve_bars"
+              }
+            ],
+            "checkedAt": "f43ad434ac6a39c975ef8acdf621b03ae91bb1fa"
+          }
+        ],
+        "entryPointReview": "The complete still_chewing source range has two active production entry paths. Movement calls still_chewing from four hack.c:test_move DO_MOVE obstacle arms (iron bars, tunnelable wall/rock, closed door, and boulder); JS test_move's shared chew callback is the corresponding caller. The admitted v42 rust-monster case executes the iron-bars movement entry through step 52, including morehungry and dissolve_bars. The independent C-first recording executes the eat command through eat.c:doeat's &hands_obj branch while the hero stands on iron bars, reaches still_chewing three times, pauses after the first two calls, then awards iron nutrition and dissolves the bars. A source search found no other direct C callers of still_chewing. Other callees in the selected function are implemented or explicitly skipped only where C discards their void result: the remaining shopkeeper add_damage/pay_for_damage gaps are outside this task's iron-bars path.",
+        "entryPoints": [
+          {
+            "name": "Move into iron bars while metallivorous",
+            "functions": [
+              "still_chewing"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-rust-monster-still-chewing-bars",
+                "segment": 0,
+                "fromStep": 50,
+                "throughStep": 52,
+                "source": "hack.c:domove_core -> hack.c:test_move(DO_MOVE) -> hack.c:still_chewing"
+              }
+            ]
+          },
+          {
+            "name": "Eat iron bars with the eat command while metallivorous",
+            "functions": [
+              "still_chewing"
+            ],
+            "recordings": [
+              "recordings/hack.c/rust-monster-eat-bars-command.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-pickup-quantum-cat-tip-checks-v42-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port the complete quantum-box tip checks and validate the shared quantum-cat observer.",
+      "cFile": "pickup.c",
+      "sessions": [
+        "synthetic/v42/v42-observe-quantum-cat-box-tip-floor"
+      ],
+      "selectionReason": "Open the selected v42 quantum-box source port after validating the current one-screen mismatch and its complete investigation.",
+      "detail": "The current queue retains one unmatched screen at step 73 with matching v42 manifest and recording identity. C pickup.c:tipcontainer_checks calls observe_quantum_cat before spill checks; the observer consumes rn2(2), resolves the cat state, and uses makemon with NO_MINVENT|MM_ADJACENTOK|MM_NOMSG for the live branch.",
+      "openedAt": "012f6c9b6d85984df1adcff15256fd0fe52686a6",
+      "openStanding": {
+        "sha": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "81769a199b1df6e6234f7dbbe5654ec6270af878",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "tipcontainer_checks",
+          "line": 3954,
+          "endLine": 4058,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3954,
+        "to": 4058
+      },
+      "requiredFunctions": [
+        {
+          "name": "observe_quantum_cat",
+          "line": 2826,
+          "endLine": 2902,
+          "declared": true,
+          "sourceFile": "pickup.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v42/v42-observe-quantum-cat-box-tip-floor": {
+          "session": "synthetic/v42/v42-observe-quantum-cat-box-tip-floor",
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-observe-quantum-cat-box-tip-floor",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recordingPath": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+          "recordingSha256": "698292fe14ee943d9b961dabc5631661efd08314845b78fcac57c9b8ed299786",
+          "evaluationPath": "challenges/evaluations/accepted-990f9bc4c2964447a9adac4f0e54ea90728ee2cb-v42.json",
+          "evaluationCommit": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb"
+        }
+      },
+      "activeStanding": {
+        "sha": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-observe-quantum-cat-box-tip-floor",
+          "session": "synthetic/v42/v42-observe-quantum-cat-box-tip-floor",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recording": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+          "recordingPath": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+          "recordingSha256": "698292fe14ee943d9b961dabc5631661efd08314845b78fcac57c9b8ed299786",
+          "recipe": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.recipe.session.json",
+          "recipeSha256": "9638bc8902bbdeddc1313bb7dd0e65ae4ceda0d4b99034d5cdbce3dd3765cf8b",
+          "replayInputSha256": "6718936003b34b91a086a286f3820b272b5717b71dbaf50b35231d5070c00b67",
+          "evaluationPath": "challenges/evaluations/accepted-990f9bc4c2964447a9adac4f0e54ea90728ee2cb-v42.json",
+          "evaluationCommit": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb",
+          "evaluationArtifact": "challenges/evaluations/accepted-990f9bc4c2964447a9adac4f0e54ea90728ee2cb-v42.json",
+          "evaluationUtc": "2026-10-10T22:52:33.241Z",
+          "remainingScreens": 1,
+          "recordedSteps": 74,
+          "previousScreensMatched": 73,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 73,
+              "total": 74
+            },
+            "rng": {
+              "matched": 4840,
+              "total": 4851
+            },
+            "cursors": {
+              "matched": 73,
+              "total": 74
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 73,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 73,
+                "key": "-"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "A",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 4840,
+              "cEntry": "rn2(2)=1",
+              "cCaller": "observe_quantum_cat(pickup.c:2832)",
+              "jsEntry": "rn2(12)=5",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 73,
+                "key": "-"
+              },
+              "stepIndex": 73
+            },
+            "cursor": {
+              "index": 73,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 73,
+                "key": "-"
+              },
+              "cCursor": [
+                76,
+                0,
+                1
+              ],
+              "jsCursor": [
+                48,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 73,
+          "kind": "rng",
+          "sourceFile": "pickup.c",
+          "function": "observe_quantum_cat",
+          "message": null,
+          "cFile": "pickup.c",
+          "luaFile": null,
+          "line": 2832,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v42/v42-observe-quantum-cat-box-tip-floor.json",
+            "result": {
+              "session": "synthetic/v42/v42-observe-quantum-cat-box-tip-floor",
+              "corpus": "synthetic",
+              "batch": "v42",
+              "caseId": "v42-observe-quantum-cat-box-tip-floor",
+              "manifestPath": "challenges/manifests/v42.json",
+              "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+              "recording": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+              "recordingPath": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+              "recordingSha256": "698292fe14ee943d9b961dabc5631661efd08314845b78fcac57c9b8ed299786",
+              "recipe": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.recipe.session.json",
+              "recipeSha256": "9638bc8902bbdeddc1313bb7dd0e65ae4ceda0d4b99034d5cdbce3dd3765cf8b",
+              "replayInputSha256": "a2722a4583f3fb4253c59de8d17926e6d6909913e67d4d98a882594af946eb4a",
+              "evaluationPath": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+              "evaluationCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+              "evaluationUtc": "2026-10-10T21:08:15.151Z",
+              "remainingScreens": 1,
+              "recordedSteps": 74,
+              "status": "complete",
+              "commit": "f31623b6f35e2a273d9b9c96548967e19fa232dc",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v42",
+                "caseId": "v42-observe-quantum-cat-box-tip-floor",
+                "session": "synthetic/v42/v42-observe-quantum-cat-box-tip-floor",
+                "manifestPath": "challenges/manifests/v42.json",
+                "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+                "recording": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+                "recordingPath": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+                "recordingSha256": "698292fe14ee943d9b961dabc5631661efd08314845b78fcac57c9b8ed299786",
+                "recipe": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.recipe.session.json",
+                "recipeSha256": "9638bc8902bbdeddc1313bb7dd0e65ae4ceda0d4b99034d5cdbce3dd3765cf8b",
+                "replayInputSha256": "a2722a4583f3fb4253c59de8d17926e6d6909913e67d4d98a882594af946eb4a",
+                "evaluationPath": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+                "evaluationCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+                "evaluationArtifact": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+                "evaluationUtc": "2026-10-10T21:08:15.151Z",
+                "remainingScreens": 1,
+                "recordedSteps": 74,
+                "previousScreensMatched": 73,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 73,
+                    "total": 74
+                  },
+                  "rng": {
+                    "matched": 4840,
+                    "total": 4851
+                  },
+                  "cursors": {
+                    "matched": 73,
+                    "total": 74
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 73,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 73,
+                      "key": "-"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "A",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 4840,
+                    "cEntry": "rn2(2)=1",
+                    "cCaller": "observe_quantum_cat(pickup.c:2832)",
+                    "jsEntry": "rn2(12)=5",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 73,
+                      "key": "-"
+                    },
+                    "stepIndex": 73
+                  },
+                  "cursor": {
+                    "index": 73,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 73,
+                      "key": "-"
+                    },
+                    "cCursor": [
+                      76,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      48,
+                      6,
+                      1
+                    ]
+                  }
+                },
+                "step": 73,
+                "kind": "rng",
+                "sourceFile": "pickup.c",
+                "function": "observe_quantum_cat",
+                "message": null,
+                "cFile": "pickup.c",
+                "luaFile": null,
+                "line": 2832
+              },
+              "summary": "The first mismatch is the unported Schrödinger box observation on the #tip floor path. C observes the box before spilling its contents; JavaScript skips the observer in tipcontainer_checks. Wiring the existing observer also exposed an unsupported makemon runtime call shape in its live-cat arm.",
+              "source": {
+                "file": "pickup.c",
+                "branch": "When a LARGE_BOX with spe == 1 is tipped, pickup.c:tipcontainer_checks recognizes SchroedingersBox(box) and calls observe_quantum_cat(box, TRUE, TRUE) before the remaining-content check. For a dead result, the observer clears spe, prints the dead-cat message, resets the contained corpse age and corpsenm (starting its rot timer), and awards experience when the hero is not monster-moving. The same observer is called from use_container before its action prompt.",
+                "functions": [
+                  "observe_quantum_cat",
+                  "tipcontainer_checks"
+                ],
+                "callers": [
+                  "C pickup.c:dotip -> tipcontainer -> tipcontainer_checks -> observe_quantum_cat; JavaScript cmd.js #tip dispatch -> pickup.js:dotip -> tipcontainer -> tipcontainer_checks.",
+                  "C pickup.c:use_container -> observe_quantum_cat; JavaScript pickup.js:use_container has a fail-closed UnsupportedPickupError at the matching LARGE_BOX/spe branch.",
+                  "C end.c:disclose_to_monlist -> observe_quantum_cat(obj, FALSE, FALSE); JavaScript end.js already calls pickup.js:observe_quantum_cat with the same flags."
+                ],
+                "dependencies": [
+                  "makemon.c:makemon creates the live housecat at the box coordinates with NO_MINVENT | MM_ADJACENTOK | MM_NOMSG. C relocates a hero-square request with enexto_core and uses MM_ADJACENTOK if the requested square is occupied. JS must run this through makemon_runtime so its asynchronous source tail completes; js/makemon_create.js currently rejects this explicit-coordinate flag shape outside mklev. The correction is bounded to this source call shape and does not claim whole makemon.c:makemon completion.",
+                  "pickup.c:observe_quantum_cat calls get_obj_location, makemon, set_malign, visibility/message helpers, corpse extraction/freeing, weight, experience/newexplevel, set_corpsenm, and oname. Its JS owner is js/pickup.js:1910; source-aligned helper contracts are part of this caller path.",
+                  "obj.c:set_corpsenm/start_corpse_timeout supplies the corpse-aging RNG after a dead observation; its call must receive the complete random interface and preserve source order."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved combined queue SHA-256 6889a7ab6f060b3cf8f6536df5fe921c893bc9abb7bb34f67702818e4b845e61 selects this v42 case with 1 unmatched screen at step 73. Its accepted evaluation at 2634fa9f632f0bd97556887204d19f3fdb2645f2 reports 73/74 screens, 4,840/4,851 RNG calls, and 73/74 cursors. The C and JavaScript outputs first diverge on segment 0, step 73, key '-'; C calls rn2(2)=1 from pickup.c:observe_quantum_cat:2832 while JavaScript calls rn2(12)=5. The first screen cell differs at row 0, column 0 (C 'T', JS 'A').",
+                "The admitted recording challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json has 74 steps. Its independent recipe creates a peaceful quantum mechanic, wishes an uncursed wand of death, kills the monster, enters #tip, confirms the large box, and chooses the preselected floor destination. The first 73 screens match, demonstrating that box creation and command setup reach the C observer only after the floor target is selected.",
+                "Upstream pickup.c:2826-2897 evaluates its rn2(2) coin flip before looking up the box location. On a dead result it clears box->spe, reports that the housecat is dead, sets deadcat->age to current moves, calls set_corpsenm(PM_HOUSECAT) to start the corpse timer, names the corpse, and awards experience/new level outside monster movement.",
+                "Upstream pickup.c:3953-4055 has the missing active #tip call in tipcontainer_checks: the SchroedingersBox branch calls observe_quantum_cat(box, TRUE, TRUE), then examines the now-resolved contents and sets cknown. JavaScript js/pickup.js:3959-3972 instead records note_unported(\"pickup.c observe_quantum_cat\") and proceeds with the floor spill.",
+                "The second active pickup caller is upstream pickup.c:3021-3024 in use_container. JavaScript js/pickup.js:2134-2139 throws UnsupportedPickupError for LARGE_BOX with spe===1 rather than invoking its existing observe_quantum_cat implementation. End-game disclosure is already wired at upstream end.c:1268-1271 and js/end.js:1091-1092.",
+                "The selected implementation scope is the complete pickup.c:observe_quantum_cat source function and source-aligned wiring at both active pickup callers. Complete the Schroedinger-box branch inside the whole pickup.c:tipcontainer_checks function and replace the matching use_container refusal with the observer call; preserve the already-wired end-disclosure path. The caller functions have other unrelated behaviors and are not claimed as whole-function ports.",
+                "The observed setup helper is upstream makemon.c:makemon S_QUANTMECH at lines 775-793, which creates the flagged large box and contained nonrotting housecat corpse. It is not the first mismatch owner and does not need expansion based on this recording.",
+                "The C live-cat call in pickup.c:2834-2835 passes the box coordinates and NO_MINVENT | MM_ADJACENTOK | MM_NOMSG to makemon(), then consumes the returned monster to set peacefulness, name it, remove the contained dead corpse, and update box weight. Upstream makemon.c:1147-1200 handles explicit coordinates, hero-square relocation, and the MM_ADJACENTOK occupied-square fallback. JS js/pickup.js passed a synchronous makemon() call without a runtime continuation; a focused #tip reproduction at seed 83001622 reaches UnsupportedMonsterCreationError: outside mklev. js/makemon_create.js:1277 currently admits explicit runtime NO_MINVENT only without the two additional flags, while makemon_runtime at 3315 owns the source-ordered asynchronous runtime tail.",
+                "Source-aligned observer wiring exposed two additional JS call-contract gaps before the live-cat path: set_corpsenm requires rn2/rnd/rn1/rne, so the observer must supply its full random interface; newexplevel can level the hero from the award and requires the tty message owner. The implementation now uses the full RNG bundle and passes {message: ttyPline, random}."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "tipcontainer_checks",
+            "implementation": "js/pickup.js",
+            "symbol": "tipcontainer_checks",
+            "sourceReview": "Read the complete pickup.c:3954-4055 definition and compared branch and call order with js/pickup.js:3866-3984. Preserved target bag-of-tricks handling before source-container checks; lknown and carried inventory refresh; locked and trapped exits; bag/horn special handling and repeat loop; the Schrödinger box observation before remaining-content check; and the empty-container exit. Replaced the observer note_unported gap with the awaitable observer call, then preserves C hasContents/allowempty result and cknown mutation. The only remaining note_unported in this function represents shk.c:check_unpaid_usage, whose C return is void and discarded; the existing guard records the gap and skips its effects. Other unrelated source branches remain as before.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "tipcontainer",
+                "source": "C pickup.c:dotip calls tipcontainer for a selected floor or inventory container; tipcontainer calls tipcontainer_checks before the spill loop. JS cmd.js dispatches #tip to pickup.js:dotip, then pickup.js:tipcontainer calls tipcontainer_checks."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "The #tip extended command is queued/dispatched to pickup.c:dotip; JavaScript command dispatch calls pickup.js:dotip."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup-tip.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-observe-quantum-cat-box-tip-floor",
+                "segment": 0,
+                "fromStep": 73,
+                "throughStep": 73,
+                "source": "pickup.c:dotip -> tipcontainer -> tipcontainer_checks -> observe_quantum_cat -> makemon( PM_HOUSECAT, NO_MINVENT|MM_ADJACENTOK|MM_NOMSG )"
+              }
+            ],
+            "checkedAt": "6668b1c9650c4e6050659727bf1328de0e282945"
+          },
+          {
+            "name": "observe_quantum_cat",
+            "implementation": "js/pickup.js",
+            "symbol": "observe_quantum_cat",
+            "sourceReview": "Read the complete pickup.c:2826-2897 function and preserved coin-flip-before-location order; makecat/givemsg gates; live-cat creation and peaceful/malign/message/name transitions; corpse extraction/freeing; box weight/spe updates; dead-cat message, corpse age, set_corpsenm and naming order; and both experience/newexplevel paths outside monster movement. JS now supplies the complete random interface required by set_corpsenm and the tty message owner required by newexplevel. The live C call consumes makemon’s returned pointer, so the task uses makemon_runtime and extends existing js/makemon_create.js preflight only for the exact explicit NO_MINVENT|MM_ADJACENTOK|MM_NOMSG call shape from this source site. Focused source-pinned coverage verifies this call shape; the whole makemon.c:makemon function is not claimed complete. Existing end.js disclosure wiring remains unchanged.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "tipcontainer_checks",
+                "source": "C pickup.c:4038 calls observe_quantum_cat(box, TRUE, TRUE) before testing the resolved box contents; JavaScript pickup.js:tipcontainer_checks now awaits the same call."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "use_container",
+                "source": "C pickup.c:3023 calls observe_quantum_cat(gc.current_container, TRUE, TRUE); JavaScript pickup.js:use_container now awaits the same call before its action prompt. scripts/pickup-tip.test.mjs exercises the caller and cleanup."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "identifyInventoryForDisclosure",
+                "source": "C end.c:really_done:1268-1271 loops over unresolved inventory quantum boxes and calls observe_quantum_cat(obj, FALSE, FALSE); JavaScript end.js:identifyInventoryForDisclosure owns and awaits this existing observer call."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup-tip.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-observe-quantum-cat-box-tip-floor",
+                "segment": 0,
+                "fromStep": 73,
+                "throughStep": 73,
+                "source": "pickup.c:dotip -> tipcontainer -> tipcontainer_checks -> observe_quantum_cat -> makemon( PM_HOUSECAT, NO_MINVENT|MM_ADJACENTOK|MM_NOMSG )"
+              }
+            ],
+            "checkedAt": "6668b1c9650c4e6050659727bf1328de0e282945"
+          }
+        ],
+        "entryPointReview": "This task ports the complete pickup.c:tipcontainer_checks source unit and validates its existing pickup.c:observe_quantum_cat dependency. The selected active entry point is #tip on a LARGE_BOX with spe==1: pickup.c:dotip -> tipcontainer -> tipcontainer_checks -> observe_quantum_cat. The admitted v42 case v42-observe-quantum-cat-box-tip-floor matches segment 0 through step 73, including the formerly divergent live observation, corpse consumption, and #tip caller result. The same observer is now wired at pickup.c:use_container and remains wired at end.c:disclose_to_monlist; the secondary pickup caller is exercised by a focused JS test, while no separate end-disclosure source change or completion claim is made. The makemon.c:makemon correction is limited to the exact source call shape used by observe_quantum_cat and is not a whole-function completion claim. Pure function coverage is not applicable because both selected pickup functions consume RNG and mutate or print game state.",
+        "entryPoints": [
+          {
+            "name": "#tip resolves a floor quantum box before spill checks",
+            "functions": [
+              "tipcontainer_checks",
+              "observe_quantum_cat"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-observe-quantum-cat-box-tip-floor",
+                "segment": 0,
+                "fromStep": 73,
+                "throughStep": 73,
+                "source": "pickup.c:dotip -> tipcontainer -> tipcontainer_checks -> observe_quantum_cat -> makemon( PM_HOUSECAT, NO_MINVENT|MM_ADJACENTOK|MM_NOMSG )"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "81769a199b1df6e6234f7dbbe5654ec6270af878",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

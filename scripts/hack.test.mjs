@@ -132,6 +132,8 @@ import { planningState } from '../js/unported_monster_actions.js';
 
 const HACK_SOURCE = readFileSync('nethack-c/upstream/src/hack.c', 'utf8');
 const HACK_JS_SOURCE = readFileSync('js/hack.js', 'utf8');
+const EAT_SOURCE = readFileSync('nethack-c/upstream/src/eat.c', 'utf8');
+const EAT_JS_SOURCE = readFileSync('js/eat.js', 'utf8');
 const DO_WEAR_JS_SOURCE = readFileSync('js/do_wear.js', 'utf8');
 
 test('planned losehp stops after source-ordered lethal state writes', async () => {
@@ -878,6 +880,64 @@ test('moverock_core and cannot_push keep the complete C return paths', async () 
     assert.match(coreC, /case PIT:[\s\S]*?flooreffects\(otmp, rx, ry, "fall"\)/u);
     assert.match(coreJs, /case PIT:[\s\S]*?flooreffects\(otmp, rx, ry, 'fall', effectEnv\)/u);
     assert.doesNotMatch(coreJs, /throw new UnsupportedHeroMoveBoundaryError/u);
+});
+
+test('still_chewing awards iron nutrition before dissolving bars at both callers', () => {
+    const cStart = HACK_SOURCE.indexOf(
+        'still_chewing(coordxy x, coordxy y)\n{',
+    );
+    const cEnd = HACK_SOURCE.indexOf('\nvoid\nmovobj(', cStart);
+    const jsStart = HACK_JS_SOURCE.indexOf(
+        'export async function still_chewing(x, y, state = game) {',
+    );
+    const jsEnd = HACK_JS_SOURCE.indexOf(
+        '\n// C ref: hack.c movobj', jsStart,
+    );
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+
+    const cBody = HACK_SOURCE.slice(cStart, cEnd);
+    const jsBody = HACK_JS_SOURCE.slice(jsStart, jsEnd);
+    const cBarsStart = cBody.indexOf('} else if (lev->typ == IRONBARS)');
+    const cBarsEnd = cBody.indexOf('} else if (lev->typ == SDOOR)', cBarsStart);
+    const jsBarsStart = jsBody.indexOf('} else if (lev.typ === IRONBARS)');
+    const jsBarsEnd = jsBody.indexOf('} else if (lev.typ === SDOOR)', jsBarsStart);
+    const cBars = cBody.slice(cBarsStart, cBarsEnd);
+    const jsBars = jsBody.slice(jsBarsStart, jsBarsEnd);
+    assert.match(cBars,
+        /int nut = \(int\) objects\[HEAVY_IRON_BALL\]\.oc_weight;[\s\S]*?morehungry\(-nut\);[\s\S]*?dissolve_bars\(x, y\);/u);
+    assert.match(jsBars,
+        /const nut = Math\.trunc\(state\.objects\[HEAVY_IRON_BALL\]\.oc_weight\);[\s\S]*?await morehungry\(-nut, state\);[\s\S]*?await dissolve_bars\(x, y, state\);/u);
+    assert.doesNotMatch(jsBars, /note_unported/u);
+
+    const testMoveCStart = HACK_SOURCE.indexOf(
+        'test_move(\n    coordxy ux, coordxy uy,',
+    );
+    const testMoveCEnd = HACK_SOURCE.indexOf(
+        '\nstaticfn boolean\nfindtravelpath', testMoveCStart,
+    );
+    const testMoveC = HACK_SOURCE.slice(testMoveCStart, testMoveCEnd);
+    const testMoveJSStart = HACK_JS_SOURCE.indexOf(
+        'export async function test_move(',
+    );
+    const testMoveJSEnd = HACK_JS_SOURCE.indexOf(
+        '\n// C ref: hack.c crawl_destination', testMoveJSStart,
+    );
+    const testMoveJS = HACK_JS_SOURCE.slice(testMoveJSStart, testMoveJSEnd);
+    assert.equal((testMoveC.match(/still_chewing\(x, y\)/gu) ?? []).length, 4);
+    assert.match(testMoveJS,
+        /typeof env\.stillChewing === 'function'[\s\S]*?still_chewing\(targetX, targetY, state\)/u);
+
+    const doeatCStart = EAT_SOURCE.indexOf('doeat(void)\n{');
+    const doeatCEnd = EAT_SOURCE.indexOf('\nstaticfn ', doeatCStart);
+    const doeatC = EAT_SOURCE.slice(doeatCStart, doeatCEnd);
+    const doeatJSStart = EAT_JS_SOURCE.indexOf('export async function doeat(');
+    const doeatJSEnd = EAT_JS_SOURCE.indexOf('\n// C ref:', doeatJSStart + 10);
+    const doeatJS = EAT_JS_SOURCE.slice(doeatJSStart, doeatJSEnd);
+    assert.match(doeatC,
+        /if \(otmp == &hands_obj\)[\s\S]*?still_chewing\(u\.ux, u\.uy\)[\s\S]*?IRONBARS/u);
+    assert.match(doeatJS,
+        /if \(otmp === hands_obj\)[\s\S]*?still_chewing\(u\.ux, u\.uy, state\)[\s\S]*?IRONBARS/u);
 });
 
 test('a blocked boulder can be stepped over and picked up by a giant', async () => {

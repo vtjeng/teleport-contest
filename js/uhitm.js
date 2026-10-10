@@ -614,6 +614,7 @@ import {
     hitval,
     martial_bonus,
     special_dmgval,
+    silver_sears,
     use_skill,
     uwep_skill_type,
     weapon_dam_bonus,
@@ -1942,7 +1943,10 @@ export async function hmonas(mon, state = game, env = {}) {
                             if (mattk.aatyp === AT_CLAW) verb = 'hit';
                             await message(`You ${verb} ${mon_nam(mon, state, env)}.`, state);
                             if (silverHit.silverhit && state.flags?.verbose)
-                                note_unported('weapon.c silver_sears');
+                                await silver_sears(
+                                    state.youmonst, mon, silverHit.silverhit,
+                                    state, attackEnv,
+                                );
                         }
                         sums[i] = await damageum(mon, mattk, specialDamage, state, attackEnv);
                     }
@@ -1994,7 +1998,10 @@ export async function hmonas(mon, state = game, env = {}) {
                             state,
                         );
                         if (silverHit.silverhit && state.flags?.verbose)
-                            note_unported('weapon.c silver_sears');
+                            await silver_sears(
+                                state.youmonst, mon, silverHit.silverhit,
+                                state, attackEnv,
+                            );
                         sums[i] = await damageum(mon, mattk, specialDamage, state, attackEnv);
                     } else {
                         await message(`Your ${verb} passes harmlessly through ${mon_nam(mon, state, env)}.`, state);
@@ -2010,7 +2017,10 @@ export async function hmonas(mon, state = game, env = {}) {
                         state,
                     );
                     if (silverHit.silverhit && state.flags?.verbose)
-                        note_unported('weapon.c silver_sears');
+                        await silver_sears(
+                            state.youmonst, mon, silverHit.silverhit,
+                            state, attackEnv,
+                        );
                     sums[i] = await damageum(mon, mattk, specialDamage, state, attackEnv);
                 } else if (i >= 2 && sums[i - 1] > M_ATTK_MISS
                     && sums[i - 2] > M_ATTK_MISS) {
@@ -2019,7 +2029,10 @@ export async function hmonas(mon, state = game, env = {}) {
                     await message(`You grab ${mon_nam(mon, state, env)}!`, state);
                     set_ustuck(mon, state);
                     if (silverHit.silverhit && state.flags?.verbose)
-                        note_unported('weapon.c silver_sears');
+                        await silver_sears(
+                            state.youmonst, mon, silverHit.silverhit,
+                            state, attackEnv,
+                        );
                     sums[i] = await damageum(mon, mattk, specialDamage, state, attackEnv);
                 }
                 break;

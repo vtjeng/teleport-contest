@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T22:00:26.804Z",
+  "capturedAt": "2026-10-10T23:09:06.987Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -84295,41 +84295,272 @@
         "type": "accepted",
         "at": "2026-10-10T21:59:51.132Z",
         "task": "A2-investigation-v42-bigrm-11-special-program-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v42-bigrm-11-special-program-20261010-14a37e2c12bf5955315486bf68f1f77ce826feed",
+        "type": "published",
+        "at": "2026-10-10T22:00:35.529Z",
+        "task": "A2-investigation-v42-bigrm-11-special-program-20261010",
+        "commit": "14a37e2c12bf5955315486bf68f1f77ce826feed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-21d0bfb8be99a2198d35bfbdb2ebd8393a30ec7f",
+        "type": "ready",
+        "at": "2026-10-10T22:01:40.689Z",
+        "task": "C-v42-monster-undead-turning-lichen-corpse-investigation-20261010",
+        "delivery": "21d0bfb8be99a2198d35bfbdb2ebd8393a30ec7f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v42-post-lichen-submit-20261010",
+        "type": "turn",
+        "at": "2026-10-10T22:02:43.083Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C submitted the v42 monster undead-turning fix and is checking for independent follow-on work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-after-lichen-submit-20261010",
+        "type": "turn",
+        "at": "2026-10-10T22:04:30.665Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C is idle until the queued silver-searing delivery releases uhitm.js ownership; A2 and B own the other remaining v42 cases."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "a2-baalz-active-accepted-main-14a37-20261010",
+        "type": "turn",
+        "at": "2026-10-10T22:04:52.635Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 is investigating the v42 Baalz special-level mismatch; C and JS differ in finalization ordering, and the exact bounded correction is being verified."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-active-20261010c",
+        "type": "turn",
+        "at": "2026-10-10T22:06:46.593Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep7/v43 C-first work has reached monster teleport relocation and the Dark One nemesis-death callback; Lua probes continue after overlap review. No JavaScript comparisons have started."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-c-silver-652e8fdd055a766d10f1bb0f6cc3e60a89f42185",
+        "type": "integrating",
+        "at": "2026-10-10T22:06:49.602Z",
+        "task": "C-v42-silver-sears-monk-polymorph-claw-ring-investigation-20261010",
+        "integration": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "a2-baalz-implement-source-order-20261010",
+        "type": "implement",
+        "at": "2026-10-10T22:07:28.379Z",
+        "task": "A2-investigation-v42-baalz-special-program-20261010",
+        "goal": "div-v42-baalz-wizloaddes-topology-finalization-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-active-20261010d",
+        "type": "turn",
+        "at": "2026-10-10T22:10:46.501Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep7/v43 has a dozen prospective source-distinct C behaviors after the first overlap review; independent C replays and the remaining crosswalk are under way. No JavaScript comparisons have started."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2990f7cfc6d3503eb2d040ce30ed2034095a98de",
+        "type": "ready",
+        "at": "2026-10-10T22:11:56.673Z",
+        "task": "A2-investigation-v42-baalz-special-program-20261010",
+        "delivery": "2990f7cfc6d3503eb2d040ce30ed2034095a98de"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validate-c-silver-652e8fdd",
+        "type": "validated",
+        "at": "2026-10-10T22:12:15.337Z",
+        "task": "C-v42-silver-sears-monk-polymorph-claw-ring-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "a2-baalz-ready-idle-queue-6b7666-20261010",
+        "type": "turn",
+        "at": "2026-10-10T22:12:49.183Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A2 submitted the Baalz correction. The remaining v42 sessions are reserved or overlap C uhitm scope; A2 is available when an independent session opens."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v42-silver-sears-monk-polymorph-claw-ring-investigation-20261010-652e8fdd055a766d10f1bb0f6cc3e60a89f42185-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T22:13:09.680Z",
+        "task": "C-v42-silver-sears-monk-polymorph-claw-ring-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v42-silver-sears-monk-polymorph-claw-ring-investigation-20261010-8ff38f105cd2b5a343f14a930050c099645dfbf4",
+        "type": "published",
+        "at": "2026-10-10T22:13:53.782Z",
+        "task": "C-v42-silver-sears-monk-polymorph-claw-ring-investigation-20261010",
+        "commit": "8ff38f105cd2b5a343f14a930050c099645dfbf4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-active-pre-sync-differential-20261010",
+        "type": "turn",
+        "at": "2026-10-10T22:15:52.873Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v43 C-first replays are ready; the first case matched on the assigned base. Waiting for accepted Main sync before remaining differentials."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-active-synced-8ff38f10-20261010",
+        "type": "turn",
+        "at": "2026-10-10T22:17:11.769Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v43 C-first slate and independent replays are ready; fresh differentials now use accepted Main 8ff38f10."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-b-still-chewing-990f9bc4c",
+        "type": "integrating",
+        "at": "2026-10-10T22:32:40.394Z",
+        "task": "B-v42-rust-monster-still-chewing-bars-investigation-20261010",
+        "integration": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-active-source-crosswalk-wizloca-20261010",
+        "type": "turn",
+        "at": "2026-10-10T22:49:18.186Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v43 has two approved C-first mismatches; source review is checking a distinct mklev.c stair-selection divergence in the Wizard locate case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-active-four-approved-leprechaun-20261010",
+        "type": "turn",
+        "at": "2026-10-10T22:53:16.291Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v43 has four approved distinct C-first mismatches; continuing candidate search."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-b-still-chewing-990f9bc4c",
+        "type": "validated",
+        "at": "2026-10-10T22:54:00.022Z",
+        "task": "B-v42-rust-monster-still-chewing-bars-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-v42-rust-monster-still-chewing-bars-investigation-20261010-990f9bc4c2964447a9adac4f0e54ea90728ee2cb-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T22:55:00.274Z",
+        "task": "B-v42-rust-monster-still-chewing-bars-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-v42-zhitu-acid-claim-20261010",
+        "type": "assign",
+        "at": "2026-10-10T22:56:02.609Z",
+        "task": "B-v42-zhitu-acid-damage-dual-wield-investigation-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-v42-zhitu-acid-investigation-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T22:56:06.929Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B is investigating the remaining v42 yellow-dragon acid damage mismatch, starting from its admitted dual-wield session and tracing the passive attack path in C."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-v42-rust-monster-still-chewing-bars-investigation-20261010-433e8fd8ffdfad0273ad2ad20115357a0a34c0bd",
+        "type": "published",
+        "at": "2026-10-10T22:56:39.841Z",
+        "task": "B-v42-rust-monster-still-chewing-bars-investigation-20261010",
+        "commit": "433e8fd8ffdfad0273ad2ad20115357a0a34c0bd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-a-quantum-81769a199",
+        "type": "integrating",
+        "at": "2026-10-10T23:01:39.882Z",
+        "task": "A2-v42-observe-quantum-cat-box-tip-floor-investigation-20261010",
+        "integration": "81769a199b1df6e6234f7dbbe5654ec6270af878"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep7-v43-active-five-angry-priest-20261010",
+        "type": "turn",
+        "at": "2026-10-10T23:03:26.698Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v43 has five approved distinct C-first mismatches; continuing source-based candidate search."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-v42-zhitu-implementation-scope-20261010",
+        "type": "implement",
+        "at": "2026-10-10T23:06:39.226Z",
+        "task": "B-v42-zhitu-acid-damage-dual-wield-investigation-20261010",
+        "goal": "port-trap-acid-damage-v42-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-a-quantum-81769a199",
+        "type": "validated",
+        "at": "2026-10-10T23:06:55.090Z",
+        "task": "A2-v42-observe-quantum-cat-box-tip-floor-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-v42-observe-quantum-cat-box-tip-floor-investigation-20261010-81769a199b1df6e6234f7dbbe5654ec6270af878-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T23:07:51.369Z",
+        "task": "A2-v42-observe-quantum-cat-box-tip-floor-investigation-20261010"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "C-v42-silver-sears-monk-polymorph-claw-ring-investigation-20261010",
+        "task": "C-v42-monster-undead-turning-lichen-corpse-investigation-20261010",
         "worker": "C",
-        "goal": "port-weapon-silver-sears-v42-20261010",
+        "goal": "port-muse-mbhitm-undead-turning-v42-20261010",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "4a36afb879a93f87d5eacaa3a06468733f2ad059",
-        "since": "2026-10-10T21:28:37.498Z",
+        "delivery": "21d0bfb8be99a2198d35bfbdb2ebd8393a30ec7f",
+        "since": "2026-10-10T22:01:40.689Z",
         "blockedBy": [],
         "unblocks": 0
       },
       {
-        "task": "B-v42-rust-monster-still-chewing-bars-investigation-20261010",
-        "worker": "B",
-        "goal": "port-hack-still-chewing-v42-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "69175aaa3697bb8e09a6f33f881dcd0c4b9b430f",
-        "since": "2026-10-10T21:34:34.654Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-v42-observe-quantum-cat-box-tip-floor-investigation-20261010",
+        "task": "A2-investigation-v42-baalz-special-program-20261010",
         "worker": "A2",
-        "goal": "port-pickup-quantum-cat-tip-checks-v42-20261010",
+        "goal": "div-v42-baalz-wizloaddes-topology-finalization-20261010",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "d5bc949ae0ed0e34830f7d42e99995b8bfa709d2",
-        "since": "2026-10-10T21:37:43.065Z",
+        "delivery": "2990f7cfc6d3503eb2d040ce30ed2034095a98de",
+        "since": "2026-10-10T22:11:56.673Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -84669,8 +84900,8 @@
     ]
   },
   "development": {
-    "executionCommit": "37044eda52fe8b08877c9f10c3aa300bee7c5291",
-    "measuredAt": "2026-10-10T21:57:52.918Z",
+    "executionCommit": "81769a199b1df6e6234f7dbbe5654ec6270af878",
+    "measuredAt": "2026-10-10T23:06:35.335Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

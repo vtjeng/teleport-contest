@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42109117,
+      "datetime": "20570423112745",
+      "nethackrc": "OPTIONS=name:IronBarSnack,role:Healer,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics",
+      "moves": "#wizwish\niron bars\n #polyself\nxorn\n#polyself\nrust monster\neyeyey"
+    }
+  ],
+  "comment": "Independent C recipe for the separate eat-command caller. Wish for iron bars underfoot, become a Xorn and then a Rust Monster in place, then use e to reach eat.c:doeat -> hack.c:still_chewing."
+}
