@@ -1510,7 +1510,7 @@ async function already_wearing2(cc1, cc2, state) {
 
 // C ref: do_wear.c off_msg() (67-72). armoroff() calls this only after the
 // item has left its slot, so doname() adds no "(being worn)" suffix.
-async function off_msg(otmp, state, message = ttyPline) {
+export async function off_msg(otmp, state, message = ttyPline) {
     if (state.flags.verbose)
         await message(`You were wearing ${donameFresh(otmp, state)}.`, state);
 }

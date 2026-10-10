@@ -130,6 +130,7 @@ import { planningState } from '../js/unported_monster_actions.js';
 
 const HACK_SOURCE = readFileSync('nethack-c/upstream/src/hack.c', 'utf8');
 const HACK_JS_SOURCE = readFileSync('js/hack.js', 'utf8');
+const DO_WEAR_JS_SOURCE = readFileSync('js/do_wear.js', 'utf8');
 
 test('planned losehp stops after source-ordered lethal state writes', async () => {
     assert.match(
@@ -691,6 +692,28 @@ test('a sink only disturbs active, unblocked levitation', async () => {
     levitationOnly.u.uprops[LEVITATION].intrinsic = 1;
     levitationOnly.level.objects = [];
     await spoteffects(false, levitationOnly);
+});
+
+test('dosinkfall removes levitation gear and reports it in C order', () => {
+    const cStart = HACK_SOURCE.indexOf('\ndosinkfall(void)');
+    const cEnd = HACK_SOURCE.indexOf('\n/* intended to be called only on ROCKs', cStart);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    const cDosinkfall = HACK_SOURCE.slice(cStart, cEnd);
+    assert.match(cDosinkfall,
+        /Ring_off\(obj\);\s*off_msg\(obj\);/u);
+    assert.match(cDosinkfall,
+        /Boots_off\(\);\s*off_msg\(obj\);/u);
+
+    const jsStart = HACK_JS_SOURCE.indexOf('export async function dosinkfall(');
+    const jsEnd = HACK_JS_SOURCE.indexOf('\n// C ref: hack.c dopush', jsStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    const jsDosinkfall = HACK_JS_SOURCE.slice(jsStart, jsEnd);
+    assert.match(jsDosinkfall,
+        /await Ring_off\(ring, state\);\s*await off_msg\(ring, state\);/u);
+    assert.match(jsDosinkfall,
+        /await Boots_off\(state\);\s*await off_msg\(boots, state\);/u);
+    assert.match(DO_WEAR_JS_SOURCE,
+        /export async function off_msg\(otmp, state, message = ttyPline\)/u);
 });
 
 test('anything converters reuse and overwrite the shared C union', () => {
