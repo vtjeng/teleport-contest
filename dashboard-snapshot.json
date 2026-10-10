@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T15:57:32.887Z",
+  "capturedAt": "2026-10-10T16:15:33.451Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -82220,6 +82220,97 @@
         "worker": "C",
         "state": "active",
         "reason": "B222 acceptance cleared the shared-module dependency. C is syncing accepted Main before claiming worm_move and its caller paths."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B222-investigation-v41-incubus-mayberem-seduction-20261010-01a6ae28ca1427498af51ff27264fbd55f81288a",
+        "type": "published",
+        "at": "2026-10-10T15:57:40.625Z",
+        "task": "B222-investigation-v41-incubus-mayberem-seduction-20261010",
+        "commit": "01a6ae28ca1427498af51ff27264fbd55f81288a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-assign-20261010",
+        "type": "assign",
+        "at": "2026-10-10T15:58:28.388Z",
+        "task": "Prep6",
+        "worker": "Prep",
+        "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T15:58:30.117Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "The 12-session preparation trigger fired; v42 is claimed and C-first candidate planning is underway."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-ring-invisibility-20261010",
+        "type": "received",
+        "at": "2026-10-10T15:59:37.377Z",
+        "task": "C-v41-ring-invisibility-removed-investigation-20261010",
+        "delivery": "caccbf4858d3dbc47ee6195f4641ab9d24c587c0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C-ring-invisibility-ffd2d10394",
+        "type": "integrating",
+        "at": "2026-10-10T16:04:50.118Z",
+        "task": "C-v41-ring-invisibility-removed-investigation-20261010",
+        "integration": "ffd2d10394fbb3c06612668aeaa38762cdfb84c1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-worm-move-tail-v40-20261010",
+        "type": "implement",
+        "at": "2026-10-10T16:05:05.794Z",
+        "task": "C-v40-hostile-long-worm-head-tail-investigation-20261010",
+        "goal": "port-worm-move-tail-tracking-v40-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-v42-c-first-complete-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:05:09.460Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v42’s first C-first slate has one mismatch and eleven matches; source review and new candidate work continue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C-ring-invisibility-38066391423",
+        "type": "validated",
+        "at": "2026-10-10T16:12:26.450Z",
+        "task": "C-v41-ring-invisibility-removed-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2196247cfc60aa4c18ea634f74a17bf7d6de05f1",
+        "type": "ready",
+        "at": "2026-10-10T16:13:41.084Z",
+        "task": "B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010",
+        "delivery": "2196247cfc60aa4c18ea634f74a17bf7d6de05f1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-v41-ring-invisibility-removed-investigation-20261010-ffd2d10394fbb3c06612668aeaa38762cdfb84c1-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T16:13:49.096Z",
+        "task": "C-v41-ring-invisibility-removed-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B224-turn-idle-after-submit-20261010",
+        "type": "turn",
+        "at": "2026-10-10T16:14:55.656Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B224 is ready to merge; waiting for a current queue before selecting the next independent task."
       }
     ]
   },
@@ -82237,17 +82328,6 @@
         "unblocks": 0
       },
       {
-        "task": "C-v41-ring-invisibility-removed-investigation-20261010",
-        "worker": "C",
-        "goal": "port-do-wear-ring-off-or-gone-v41-invisibility-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "caccbf4858d3dbc47ee6195f4641ab9d24c587c0",
-        "since": "2026-10-10T15:05:31.054Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
-      {
         "task": "C-v40-coaligned-prayer-revives-tame-pet-corpse-investigation-20261010",
         "worker": "C",
         "goal": "port-pray-revive-tame-pet-v40-20261010",
@@ -82255,9 +82335,18 @@
         "status": "ready",
         "delivery": "c7d54e26678cf40ee190cfe19a5e0248e153672a",
         "since": "2026-10-10T15:26:36.041Z",
-        "blockedBy": [
-          "C-v41-ring-invisibility-removed-investigation-20261010"
-        ],
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B224-investigation-v40-snuffed-lit-lamp-leash-followup-20261010",
+        "worker": "B",
+        "goal": "divergence-apply-check-leash-v40-snuffed-lit-lamp-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "2196247cfc60aa4c18ea634f74a17bf7d6de05f1",
+        "since": "2026-10-10T16:13:41.084Z",
+        "blockedBy": [],
         "unblocks": 0
       }
     ],
@@ -82585,8 +82674,8 @@
     ]
   },
   "development": {
-    "executionCommit": "9b38c7216cfd3143b81177c48bfb6b718806f17f",
-    "measuredAt": "2026-10-10T15:53:32.409Z",
+    "executionCommit": "ffd2d10394fbb3c06612668aeaa38762cdfb84c1",
+    "measuredAt": "2026-10-10T16:12:01.328Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
