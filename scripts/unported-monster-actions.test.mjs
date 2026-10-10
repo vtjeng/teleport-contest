@@ -91,6 +91,7 @@ import {
     AT_NONE,
     AT_WEAP,
     PM_COBRA,
+    PM_CAVE_SPIDER,
     PM_CHAMELEON,
     PM_DISPLACER_BEAST,
     PM_EARTH_ELEMENTAL,
@@ -1934,6 +1935,30 @@ test('hideunder conceals an unseen eel in an ordinary pool', async () => {
     assert.equal(await hideunder(target.monster, env), true);
     assert.equal(target.monster.mundetected, 1);
     assert.deepEqual(redraws, [[target.monsterX, target.heroY]]);
+});
+
+test('hideunder updates hero concealment under a coverable floor object', async () => {
+    await prepareSelectedAction();
+    const { ux, uy } = game.u;
+    game.youmonst.data = game.mons[PM_CAVE_SPIDER];
+    game.u.umonnum = PM_CAVE_SPIDER;
+    const object = floorObject(ux, uy, 9301, ROCK);
+    installObject({}, object);
+    const redraws = [];
+    const env = { state: game, redraw: (x, y) => redraws.push([x, y]) };
+
+    assert.equal(await hideunder(game.youmonst, env), true);
+    assert.equal(game.u.uundetected, 1);
+    assert.deepEqual(redraws, [[ux, uy]]);
+
+    assert.equal(await hideunder(game.youmonst, env), true);
+    assert.deepEqual(redraws, [[ux, uy]],
+        'repeating an unchanged hero concealment does not redraw');
+
+    game.level.objects[ux][uy] = null;
+    assert.equal(await hideunder(game.youmonst, env), false);
+    assert.equal(game.u.uundetected, 0);
+    assert.deepEqual(redraws, [[ux, uy], [ux, uy]]);
 });
 
 // Each term of mon.c:4738-4747 that can answer FALSE, plus the two that keep
