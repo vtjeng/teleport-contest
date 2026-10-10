@@ -260025,6 +260025,742 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-pickup-quantum-cat-tip-checks-v42-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port the complete quantum-box tip checks and validate the shared quantum-cat observer.",
+      "cFile": "pickup.c",
+      "sessions": [
+        "synthetic/v42/v42-observe-quantum-cat-box-tip-floor"
+      ],
+      "selectionReason": "Open the selected v42 quantum-box source port after validating the current one-screen mismatch and its complete investigation.",
+      "detail": "The current queue retains one unmatched screen at step 73 with matching v42 manifest and recording identity. C pickup.c:tipcontainer_checks calls observe_quantum_cat before spill checks; the observer consumes rn2(2), resolves the cat state, and uses makemon with NO_MINVENT|MM_ADJACENTOK|MM_NOMSG for the live branch.",
+      "openedAt": "012f6c9b6d85984df1adcff15256fd0fe52686a6",
+      "openStanding": {
+        "sha": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "81769a199b1df6e6234f7dbbe5654ec6270af878",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "tipcontainer_checks",
+          "line": 3954,
+          "endLine": 4058,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3954,
+        "to": 4058
+      },
+      "requiredFunctions": [
+        {
+          "name": "observe_quantum_cat",
+          "line": 2826,
+          "endLine": 2902,
+          "declared": true,
+          "sourceFile": "pickup.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v42/v42-observe-quantum-cat-box-tip-floor": {
+          "session": "synthetic/v42/v42-observe-quantum-cat-box-tip-floor",
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-observe-quantum-cat-box-tip-floor",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recordingPath": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+          "recordingSha256": "698292fe14ee943d9b961dabc5631661efd08314845b78fcac57c9b8ed299786",
+          "evaluationPath": "challenges/evaluations/accepted-990f9bc4c2964447a9adac4f0e54ea90728ee2cb-v42.json",
+          "evaluationCommit": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb"
+        }
+      },
+      "activeStanding": {
+        "sha": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-observe-quantum-cat-box-tip-floor",
+          "session": "synthetic/v42/v42-observe-quantum-cat-box-tip-floor",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recording": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+          "recordingPath": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+          "recordingSha256": "698292fe14ee943d9b961dabc5631661efd08314845b78fcac57c9b8ed299786",
+          "recipe": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.recipe.session.json",
+          "recipeSha256": "9638bc8902bbdeddc1313bb7dd0e65ae4ceda0d4b99034d5cdbce3dd3765cf8b",
+          "replayInputSha256": "6718936003b34b91a086a286f3820b272b5717b71dbaf50b35231d5070c00b67",
+          "evaluationPath": "challenges/evaluations/accepted-990f9bc4c2964447a9adac4f0e54ea90728ee2cb-v42.json",
+          "evaluationCommit": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb",
+          "evaluationArtifact": "challenges/evaluations/accepted-990f9bc4c2964447a9adac4f0e54ea90728ee2cb-v42.json",
+          "evaluationUtc": "2026-10-10T22:52:33.241Z",
+          "remainingScreens": 1,
+          "recordedSteps": 74,
+          "previousScreensMatched": 73,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 73,
+              "total": 74
+            },
+            "rng": {
+              "matched": 4840,
+              "total": 4851
+            },
+            "cursors": {
+              "matched": 73,
+              "total": 74
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 73,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 73,
+                "key": "-"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "A",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 4840,
+              "cEntry": "rn2(2)=1",
+              "cCaller": "observe_quantum_cat(pickup.c:2832)",
+              "jsEntry": "rn2(12)=5",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 73,
+                "key": "-"
+              },
+              "stepIndex": 73
+            },
+            "cursor": {
+              "index": 73,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 73,
+                "key": "-"
+              },
+              "cCursor": [
+                76,
+                0,
+                1
+              ],
+              "jsCursor": [
+                48,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 73,
+          "kind": "rng",
+          "sourceFile": "pickup.c",
+          "function": "observe_quantum_cat",
+          "message": null,
+          "cFile": "pickup.c",
+          "luaFile": null,
+          "line": 2832,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v42/v42-observe-quantum-cat-box-tip-floor.json",
+            "result": {
+              "session": "synthetic/v42/v42-observe-quantum-cat-box-tip-floor",
+              "corpus": "synthetic",
+              "batch": "v42",
+              "caseId": "v42-observe-quantum-cat-box-tip-floor",
+              "manifestPath": "challenges/manifests/v42.json",
+              "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+              "recording": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+              "recordingPath": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+              "recordingSha256": "698292fe14ee943d9b961dabc5631661efd08314845b78fcac57c9b8ed299786",
+              "recipe": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.recipe.session.json",
+              "recipeSha256": "9638bc8902bbdeddc1313bb7dd0e65ae4ceda0d4b99034d5cdbce3dd3765cf8b",
+              "replayInputSha256": "a2722a4583f3fb4253c59de8d17926e6d6909913e67d4d98a882594af946eb4a",
+              "evaluationPath": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+              "evaluationCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+              "evaluationUtc": "2026-10-10T21:08:15.151Z",
+              "remainingScreens": 1,
+              "recordedSteps": 74,
+              "status": "complete",
+              "commit": "f31623b6f35e2a273d9b9c96548967e19fa232dc",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v42",
+                "caseId": "v42-observe-quantum-cat-box-tip-floor",
+                "session": "synthetic/v42/v42-observe-quantum-cat-box-tip-floor",
+                "manifestPath": "challenges/manifests/v42.json",
+                "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+                "recording": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+                "recordingPath": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+                "recordingSha256": "698292fe14ee943d9b961dabc5631661efd08314845b78fcac57c9b8ed299786",
+                "recipe": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.recipe.session.json",
+                "recipeSha256": "9638bc8902bbdeddc1313bb7dd0e65ae4ceda0d4b99034d5cdbce3dd3765cf8b",
+                "replayInputSha256": "a2722a4583f3fb4253c59de8d17926e6d6909913e67d4d98a882594af946eb4a",
+                "evaluationPath": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+                "evaluationCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+                "evaluationArtifact": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+                "evaluationUtc": "2026-10-10T21:08:15.151Z",
+                "remainingScreens": 1,
+                "recordedSteps": 74,
+                "previousScreensMatched": 73,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 73,
+                    "total": 74
+                  },
+                  "rng": {
+                    "matched": 4840,
+                    "total": 4851
+                  },
+                  "cursors": {
+                    "matched": 73,
+                    "total": 74
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 73,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 73,
+                      "key": "-"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "A",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 4840,
+                    "cEntry": "rn2(2)=1",
+                    "cCaller": "observe_quantum_cat(pickup.c:2832)",
+                    "jsEntry": "rn2(12)=5",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 73,
+                      "key": "-"
+                    },
+                    "stepIndex": 73
+                  },
+                  "cursor": {
+                    "index": 73,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 73,
+                      "key": "-"
+                    },
+                    "cCursor": [
+                      76,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      48,
+                      6,
+                      1
+                    ]
+                  }
+                },
+                "step": 73,
+                "kind": "rng",
+                "sourceFile": "pickup.c",
+                "function": "observe_quantum_cat",
+                "message": null,
+                "cFile": "pickup.c",
+                "luaFile": null,
+                "line": 2832
+              },
+              "summary": "The first mismatch is the unported Schrödinger box observation on the #tip floor path. C observes the box before spilling its contents; JavaScript skips the observer in tipcontainer_checks. Wiring the existing observer also exposed an unsupported makemon runtime call shape in its live-cat arm.",
+              "source": {
+                "file": "pickup.c",
+                "branch": "When a LARGE_BOX with spe == 1 is tipped, pickup.c:tipcontainer_checks recognizes SchroedingersBox(box) and calls observe_quantum_cat(box, TRUE, TRUE) before the remaining-content check. For a dead result, the observer clears spe, prints the dead-cat message, resets the contained corpse age and corpsenm (starting its rot timer), and awards experience when the hero is not monster-moving. The same observer is called from use_container before its action prompt.",
+                "functions": [
+                  "observe_quantum_cat",
+                  "tipcontainer_checks"
+                ],
+                "callers": [
+                  "C pickup.c:dotip -> tipcontainer -> tipcontainer_checks -> observe_quantum_cat; JavaScript cmd.js #tip dispatch -> pickup.js:dotip -> tipcontainer -> tipcontainer_checks.",
+                  "C pickup.c:use_container -> observe_quantum_cat; JavaScript pickup.js:use_container has a fail-closed UnsupportedPickupError at the matching LARGE_BOX/spe branch.",
+                  "C end.c:disclose_to_monlist -> observe_quantum_cat(obj, FALSE, FALSE); JavaScript end.js already calls pickup.js:observe_quantum_cat with the same flags."
+                ],
+                "dependencies": [
+                  "makemon.c:makemon creates the live housecat at the box coordinates with NO_MINVENT | MM_ADJACENTOK | MM_NOMSG. C relocates a hero-square request with enexto_core and uses MM_ADJACENTOK if the requested square is occupied. JS must run this through makemon_runtime so its asynchronous source tail completes; js/makemon_create.js currently rejects this explicit-coordinate flag shape outside mklev. The correction is bounded to this source call shape and does not claim whole makemon.c:makemon completion.",
+                  "pickup.c:observe_quantum_cat calls get_obj_location, makemon, set_malign, visibility/message helpers, corpse extraction/freeing, weight, experience/newexplevel, set_corpsenm, and oname. Its JS owner is js/pickup.js:1910; source-aligned helper contracts are part of this caller path.",
+                  "obj.c:set_corpsenm/start_corpse_timeout supplies the corpse-aging RNG after a dead observation; its call must receive the complete random interface and preserve source order."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved combined queue SHA-256 6889a7ab6f060b3cf8f6536df5fe921c893bc9abb7bb34f67702818e4b845e61 selects this v42 case with 1 unmatched screen at step 73. Its accepted evaluation at 2634fa9f632f0bd97556887204d19f3fdb2645f2 reports 73/74 screens, 4,840/4,851 RNG calls, and 73/74 cursors. The C and JavaScript outputs first diverge on segment 0, step 73, key '-'; C calls rn2(2)=1 from pickup.c:observe_quantum_cat:2832 while JavaScript calls rn2(12)=5. The first screen cell differs at row 0, column 0 (C 'T', JS 'A').",
+                "The admitted recording challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json has 74 steps. Its independent recipe creates a peaceful quantum mechanic, wishes an uncursed wand of death, kills the monster, enters #tip, confirms the large box, and chooses the preselected floor destination. The first 73 screens match, demonstrating that box creation and command setup reach the C observer only after the floor target is selected.",
+                "Upstream pickup.c:2826-2897 evaluates its rn2(2) coin flip before looking up the box location. On a dead result it clears box->spe, reports that the housecat is dead, sets deadcat->age to current moves, calls set_corpsenm(PM_HOUSECAT) to start the corpse timer, names the corpse, and awards experience/new level outside monster movement.",
+                "Upstream pickup.c:3953-4055 has the missing active #tip call in tipcontainer_checks: the SchroedingersBox branch calls observe_quantum_cat(box, TRUE, TRUE), then examines the now-resolved contents and sets cknown. JavaScript js/pickup.js:3959-3972 instead records note_unported(\"pickup.c observe_quantum_cat\") and proceeds with the floor spill.",
+                "The second active pickup caller is upstream pickup.c:3021-3024 in use_container. JavaScript js/pickup.js:2134-2139 throws UnsupportedPickupError for LARGE_BOX with spe===1 rather than invoking its existing observe_quantum_cat implementation. End-game disclosure is already wired at upstream end.c:1268-1271 and js/end.js:1091-1092.",
+                "The selected implementation scope is the complete pickup.c:observe_quantum_cat source function and source-aligned wiring at both active pickup callers. Complete the Schroedinger-box branch inside the whole pickup.c:tipcontainer_checks function and replace the matching use_container refusal with the observer call; preserve the already-wired end-disclosure path. The caller functions have other unrelated behaviors and are not claimed as whole-function ports.",
+                "The observed setup helper is upstream makemon.c:makemon S_QUANTMECH at lines 775-793, which creates the flagged large box and contained nonrotting housecat corpse. It is not the first mismatch owner and does not need expansion based on this recording.",
+                "The C live-cat call in pickup.c:2834-2835 passes the box coordinates and NO_MINVENT | MM_ADJACENTOK | MM_NOMSG to makemon(), then consumes the returned monster to set peacefulness, name it, remove the contained dead corpse, and update box weight. Upstream makemon.c:1147-1200 handles explicit coordinates, hero-square relocation, and the MM_ADJACENTOK occupied-square fallback. JS js/pickup.js passed a synchronous makemon() call without a runtime continuation; a focused #tip reproduction at seed 83001622 reaches UnsupportedMonsterCreationError: outside mklev. js/makemon_create.js:1277 currently admits explicit runtime NO_MINVENT only without the two additional flags, while makemon_runtime at 3315 owns the source-ordered asynchronous runtime tail.",
+                "Source-aligned observer wiring exposed two additional JS call-contract gaps before the live-cat path: set_corpsenm requires rn2/rnd/rn1/rne, so the observer must supply its full random interface; newexplevel can level the hero from the award and requires the tty message owner. The implementation now uses the full RNG bundle and passes {message: ttyPline, random}."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "tipcontainer_checks",
+            "implementation": "js/pickup.js",
+            "symbol": "tipcontainer_checks",
+            "sourceReview": "Read the complete pickup.c:3954-4055 definition and compared branch and call order with js/pickup.js:3866-3984. Preserved target bag-of-tricks handling before source-container checks; lknown and carried inventory refresh; locked and trapped exits; bag/horn special handling and repeat loop; the Schrödinger box observation before remaining-content check; and the empty-container exit. Replaced the observer note_unported gap with the awaitable observer call, then preserves C hasContents/allowempty result and cknown mutation. The only remaining note_unported in this function represents shk.c:check_unpaid_usage, whose C return is void and discarded; the existing guard records the gap and skips its effects. Other unrelated source branches remain as before.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "tipcontainer",
+                "source": "C pickup.c:dotip calls tipcontainer for a selected floor or inventory container; tipcontainer calls tipcontainer_checks before the spill loop. JS cmd.js dispatches #tip to pickup.js:dotip, then pickup.js:tipcontainer calls tipcontainer_checks."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "The #tip extended command is queued/dispatched to pickup.c:dotip; JavaScript command dispatch calls pickup.js:dotip."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup-tip.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-observe-quantum-cat-box-tip-floor",
+                "segment": 0,
+                "fromStep": 73,
+                "throughStep": 73,
+                "source": "pickup.c:dotip -> tipcontainer -> tipcontainer_checks -> observe_quantum_cat -> makemon( PM_HOUSECAT, NO_MINVENT|MM_ADJACENTOK|MM_NOMSG )"
+              }
+            ],
+            "checkedAt": "6668b1c9650c4e6050659727bf1328de0e282945"
+          },
+          {
+            "name": "observe_quantum_cat",
+            "implementation": "js/pickup.js",
+            "symbol": "observe_quantum_cat",
+            "sourceReview": "Read the complete pickup.c:2826-2897 function and preserved coin-flip-before-location order; makecat/givemsg gates; live-cat creation and peaceful/malign/message/name transitions; corpse extraction/freeing; box weight/spe updates; dead-cat message, corpse age, set_corpsenm and naming order; and both experience/newexplevel paths outside monster movement. JS now supplies the complete random interface required by set_corpsenm and the tty message owner required by newexplevel. The live C call consumes makemon’s returned pointer, so the task uses makemon_runtime and extends existing js/makemon_create.js preflight only for the exact explicit NO_MINVENT|MM_ADJACENTOK|MM_NOMSG call shape from this source site. Focused source-pinned coverage verifies this call shape; the whole makemon.c:makemon function is not claimed complete. Existing end.js disclosure wiring remains unchanged.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "tipcontainer_checks",
+                "source": "C pickup.c:4038 calls observe_quantum_cat(box, TRUE, TRUE) before testing the resolved box contents; JavaScript pickup.js:tipcontainer_checks now awaits the same call."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "use_container",
+                "source": "C pickup.c:3023 calls observe_quantum_cat(gc.current_container, TRUE, TRUE); JavaScript pickup.js:use_container now awaits the same call before its action prompt. scripts/pickup-tip.test.mjs exercises the caller and cleanup."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "identifyInventoryForDisclosure",
+                "source": "C end.c:really_done:1268-1271 loops over unresolved inventory quantum boxes and calls observe_quantum_cat(obj, FALSE, FALSE); JavaScript end.js:identifyInventoryForDisclosure owns and awaits this existing observer call."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup-tip.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-observe-quantum-cat-box-tip-floor",
+                "segment": 0,
+                "fromStep": 73,
+                "throughStep": 73,
+                "source": "pickup.c:dotip -> tipcontainer -> tipcontainer_checks -> observe_quantum_cat -> makemon( PM_HOUSECAT, NO_MINVENT|MM_ADJACENTOK|MM_NOMSG )"
+              }
+            ],
+            "checkedAt": "6668b1c9650c4e6050659727bf1328de0e282945"
+          }
+        ],
+        "entryPointReview": "This task ports the complete pickup.c:tipcontainer_checks source unit and validates its existing pickup.c:observe_quantum_cat dependency. The selected active entry point is #tip on a LARGE_BOX with spe==1: pickup.c:dotip -> tipcontainer -> tipcontainer_checks -> observe_quantum_cat. The admitted v42 case v42-observe-quantum-cat-box-tip-floor matches segment 0 through step 73, including the formerly divergent live observation, corpse consumption, and #tip caller result. The same observer is now wired at pickup.c:use_container and remains wired at end.c:disclose_to_monlist; the secondary pickup caller is exercised by a focused JS test, while no separate end-disclosure source change or completion claim is made. The makemon.c:makemon correction is limited to the exact source call shape used by observe_quantum_cat and is not a whole-function completion claim. Pure function coverage is not applicable because both selected pickup functions consume RNG and mutate or print game state.",
+        "entryPoints": [
+          {
+            "name": "#tip resolves a floor quantum box before spill checks",
+            "functions": [
+              "tipcontainer_checks",
+              "observe_quantum_cat"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-observe-quantum-cat-box-tip-floor",
+                "segment": 0,
+                "fromStep": 73,
+                "throughStep": 73,
+                "source": "pickup.c:dotip -> tipcontainer -> tipcontainer_checks -> observe_quantum_cat -> makemon( PM_HOUSECAT, NO_MINVENT|MM_ADJACENTOK|MM_NOMSG )"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "81769a199b1df6e6234f7dbbe5654ec6270af878",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-muse-mbhitm-undead-turning-v42-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port monster beam-hit undead-turning effects and validate the shared hero unturn helper.",
+      "cFile": "muse.c",
+      "sessions": [
+        "synthetic/v42/v42-monster-undead-turning-lichen-corpse"
+      ],
+      "selectionReason": "Open the selected v42 monster undead-turning source port after validating the current four-screen mismatch and its complete investigation.",
+      "detail": "The current queue retains four unmatched screens with the same v42 manifest and recording identity. Source tracing shows the earlier monster wand hit omits mbhitm's WAN_UNDEAD_TURNING calls to unturn_you or unturn_dead, leaving future revived-corpse state and RNG out of sync before the visible teleport mismatch.",
+      "openedAt": "bb4c11caead5e9a32926abf67e1aa04bb63634e4",
+      "openStanding": {
+        "sha": "81769a199b1df6e6234f7dbbe5654ec6270af878",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "19f6a43d2e0643e804a1fc100a7fccb76e5d2577",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "mbhitm",
+          "line": 1597,
+          "endLine": 1706,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1597,
+        "to": 1706
+      },
+      "requiredFunctions": [
+        {
+          "name": "unturn_you",
+          "line": 1225,
+          "endLine": 1238,
+          "declared": true,
+          "sourceFile": "zap.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v42/v42-monster-undead-turning-lichen-corpse": {
+          "session": "synthetic/v42/v42-monster-undead-turning-lichen-corpse",
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-monster-undead-turning-lichen-corpse",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recordingPath": "challenges/cases/v42/v42-monster-undead-turning-carries-lichen-corpse-seed42044331-cfirst.session.json",
+          "recordingSha256": "eb20bba7b5aee1ae11159ab68138ee0567c0099fba9d644d2b7a0f67f642ec87",
+          "evaluationPath": "challenges/evaluations/accepted-81769a199b1df6e6234f7dbbe5654ec6270af878-v42.json",
+          "evaluationCommit": "81769a199b1df6e6234f7dbbe5654ec6270af878"
+        }
+      },
+      "activeStanding": {
+        "sha": "81769a199b1df6e6234f7dbbe5654ec6270af878",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-monster-undead-turning-lichen-corpse",
+          "session": "synthetic/v42/v42-monster-undead-turning-lichen-corpse",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recording": "challenges/cases/v42/v42-monster-undead-turning-carries-lichen-corpse-seed42044331-cfirst.session.json",
+          "recordingPath": "challenges/cases/v42/v42-monster-undead-turning-carries-lichen-corpse-seed42044331-cfirst.session.json",
+          "recordingSha256": "eb20bba7b5aee1ae11159ab68138ee0567c0099fba9d644d2b7a0f67f642ec87",
+          "recipe": "challenges/cases/v42/v42-monster-undead-turning-carries-lichen-corpse-seed42044331-cfirst.recipe.session.json",
+          "recipeSha256": "a78776c0ce0ddc6e167990adbd1ef694bf248d17b4b13815ff773a28876b84f7",
+          "replayInputSha256": "c97b6cc3b6e4e56011c7484beca4fd86a27a4f06f6b68f4ae2aa89e81c45b9f2",
+          "evaluationPath": "challenges/evaluations/accepted-81769a199b1df6e6234f7dbbe5654ec6270af878-v42.json",
+          "evaluationCommit": "81769a199b1df6e6234f7dbbe5654ec6270af878",
+          "evaluationArtifact": "challenges/evaluations/accepted-81769a199b1df6e6234f7dbbe5654ec6270af878-v42.json",
+          "evaluationUtc": "2026-10-10T23:05:38.673Z",
+          "remainingScreens": 4,
+          "recordedSteps": 129,
+          "previousScreensMatched": 125,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 125,
+              "total": 129
+            },
+            "rng": {
+              "matched": 2675,
+              "total": 2734
+            },
+            "cursors": {
+              "matched": 126,
+              "total": 129
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 125,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 125,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 40,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2673,
+              "cEntry": "rn2(8)=0",
+              "cCaller": "collect_coords(teleport.c:700)",
+              "jsEntry": "rn2(5)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 125,
+                "key": "."
+              },
+              "stepIndex": 125
+            },
+            "cursor": {
+              "index": 125,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 125,
+                "key": "."
+              },
+              "cCursor": [
+                48,
+                0,
+                1
+              ],
+              "jsCursor": [
+                14,
+                4,
+                1
+              ]
+            }
+          },
+          "step": 125,
+          "kind": "rng",
+          "sourceFile": "teleport.c",
+          "function": "collect_coords",
+          "message": null,
+          "cFile": "teleport.c",
+          "luaFile": null,
+          "line": 700,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v42/v42-monster-undead-turning-lichen-corpse.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v42",
+              "caseId": "v42-monster-undead-turning-lichen-corpse",
+              "remainingScreens": 4,
+              "status": "complete",
+              "commit": "43f41f739f63b04d8fc28be32dc1e265af6a9bbd",
+              "mismatch": {
+                "kind": "synthetic",
+                "corpus": "synthetic",
+                "sourceFile": "teleport.c",
+                "cFile": "teleport.c",
+                "luaFile": null,
+                "session": "synthetic/v42/v42-monster-undead-turning-lichen-corpse",
+                "sessions": [
+                  "synthetic/v42/v42-monster-undead-turning-lichen-corpse"
+                ],
+                "remainingScreens": 4,
+                "earliestStep": 125,
+                "caseId": "v42-monster-undead-turning-lichen-corpse",
+                "batch": "v42",
+                "recordingPath": "challenges/cases/v42/v42-monster-undead-turning-carries-lichen-corpse-seed42044331-cfirst.session.json"
+              },
+              "summary": "A hostile dwarf's wand of undead turning hits the hero, who carries a lichen corpse. C revives the corpse before the next turn boundary; JavaScript skips zap.c:unturn_you from muse.c:mbhitm, so revival and the resulting monster placement never occur.",
+              "source": {
+                "file": "muse.c",
+                "branch": "In mbhitm's WAN_UNDEAD_TURNING arm, a hit on the hero calls unturn_you(). A hit on another monster calls unturn_dead(mtmp); its nonzero result sets wake before undead resistance and wakeup handling.",
+                "functions": [
+                  "mbhitm"
+                ],
+                "callers": [
+                  "The selected recording reaches mhitu.c:mattacku() -> muse.c:use_offensive() -> mbhit() -> mbhitm() for a monster's wand of undead turning. The JavaScript route is unported_monster_actions.js:useOffensiveItem() -> muse.js:use_offensive() -> mbhit() -> mbhitm().",
+                  "The active defensive route is monmove.c:dochug()/monmove() -> muse.c:use_defensive() -> mbhit() -> mbhitm(); the JavaScript routes are monmove.js:use_defensive() and unported_monster_actions.js:usePreMoveItems() -> muse.js:use_defensive()."
+                ],
+                "dependencies": [
+                  "zap.c:unturn_you() already has a JavaScript implementation in js/zap.js, but it is private and muse.js currently records note_unported('zap.c unturn_you'). Exporting and calling it will reuse that implementation.",
+                  "zap.c:unturn_dead() already returns the revived-corpse count in js/zap.js. muse.js currently records note_unported('zap.c unturn_dead') instead of using that result to gate wakeup.",
+                  "zap.c:revive() and its makemon_revival() call shape already exist in the accepted-base JavaScript implementation. A2 currently owns source:makemon.c:makemon; the replay must not prompt edits to that scope without fresh evidence of a separate placement defect."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved combined queue has SHA-256 6889a7ab6f060b3cf8f6536df5fe921c893bc9abb7bb34f67702818e4b845e61. Its v42 entry identifies 4 unmatched screens from 129 and an earliest mismatch at step 125. The manifest SHA-256 is 85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418; the recording SHA-256 is eb20bba7b5aee1ae11159ab68138ee0567c0099fba9d644d2b7a0f67f642ec87; the recipe SHA-256 is a78776c0ce0ddc6e167990adbd1ef694bf248d17b4b13815ff773a28876b84f7. The saved evaluation is challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json at source commit 2634fa9f632f0bd97556887204d19f3fdb2645f2.",
+                "A fresh differential at worker base 43f41f739f63b04d8fc28be32dc1e265af6a9bbd (run-unC5um) reaches step 126, segment 1, key '.'. C makes rn2(8)=0 in teleport.c:collect_coords, while JavaScript makes rn2(5)=2. The C screen then shows the lichen corpse's revival; JavaScript does not. The mismatch queue attributes the accepted recording's boundary to step 125 because it records the preceding screen boundary.",
+                "The complete source comparison of muse.c:mbhitm() at lines 1597-1704 confirms two missing branches in js/muse.js: the hero-hit branch at lines 2291-2294 skips zap.c:unturn_you(), and the monster-hit branch at lines 2295-2302 skips zap.c:unturn_dead(mtmp) even though C uses its result to decide whether to wake the monster. js/zap.js already implements both helpers and revive(); the skipped calls explain why JavaScript never reaches the later makemon placement that produces the queue's collect_coords draw.",
+                "The C caller search finds three mbhitm call sites in muse.c: use_defensive() invokes it for WAN_TELEPORTATION and WAN_UNDEAD_TURNING at lines 864 and 978, and use_offensive() invokes it for teleportation, undead turning and striking at line 1884. The selected v42 replay exercises the offensive undead-turning arm. C's use_offensive caller is mhitu.c:mattacku() at lines 758-762; C's defensive callers are monmove.c:dochug() and monmove(). JavaScript has corresponding defensive wiring in muse.js:809 and :939 and offensive wiring at :2703, reached by the dispatchers named above. No caller wiring change is indicated by the source trace; the callback's two skipped effects are the missing behavior."
+              ],
+              "session": "synthetic/v42/v42-monster-undead-turning-lichen-corpse",
+              "manifestPath": "challenges/manifests/v42.json",
+              "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+              "recordingSha256": "eb20bba7b5aee1ae11159ab68138ee0567c0099fba9d644d2b7a0f67f642ec87",
+              "evaluationPath": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+              "evaluationCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+              "recordedSteps": 129
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mbhitm",
+            "implementation": "js/muse.js",
+            "symbol": "mbhitm",
+            "sourceReview": "Read the complete muse.c:mbhitm() definition at lines 1596-1703. The callback preserves its wakeup-before-resistance order, hero versus monster target split, undead/vampshifter resistance branch, discovery timing, and invisible-map update. Its WAN_UNDEAD_TURNING hero arm now calls zap.c:unturn_you(); its monster arm uses zap.c:unturn_dead()'s result to gate wakeup. The JS callback passes its invocation random stream and message operation through both helpers. The remaining calls used by this function are implemented; no return-bearing unported callee remains. The separate bhito callback is outside mbhitm and remains the existing source gap at its callers.",
+            "callers": [
+              {
+                "path": "js/muse.js",
+                "symbol": "mbhitm",
+                "source": "muse.c:use_defensive() calls mbhit() with mbhitm for WAN_UNDEAD_TURNING at line 978; muse.c:use_offensive() calls mbhit() with the same callback for WAN_UNDEAD_TURNING at line 1884. JS use_defensive() and use_offensive() pass this callback to mbhit(). The selected recording reaches the offensive call through mhitu.c:mattacku() -> muse.c:use_offensive() -> mbhit() -> mbhitm(); JavaScript reaches it through unported_monster_actions.js:useOffensiveItem() -> muse.js:use_offensive() -> mbhit() -> mbhitm()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/muse.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-monster-undead-turning-lichen-corpse",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 128,
+                "source": "mhitu.c:mattacku -> muse.c:use_offensive -> muse.c:mbhitm -> zap.c:unturn_you -> zap.c:unturn_dead -> zap.c:revive -> makemon.c:makemon"
+              }
+            ],
+            "checkedAt": "37e6562d0e540cb5f4838e2be7590cb18aa83f9c"
+          },
+          {
+            "name": "unturn_you",
+            "implementation": "js/zap.js",
+            "symbol": "unturn_you",
+            "sourceReview": "Read the complete zap.c:unturn_you() definition at lines 1224-1235. It first calls unturn_dead() and discards the result; then undead heroes receive the frightened/stunned message and rnd(30) is added to the existing stun timeout before make_stunned(), while other heroes shudder in dread. The JS helper starts with the full live random API needed by corpse revival, then overlays any caller-supplied random functions. Direct self-zaps therefore retain live defaults, while muse.c:mbhitm preserves its cloned action RNG.",
+            "callers": [
+              {
+                "path": "js/muse.js",
+                "symbol": "mbhitm",
+                "source": "muse.c:mbhitm() calls unturn_you() when the wand hits the hero at line 1671; js/muse.js:mbhitm now awaits the existing helper with its callback random stream and message operation."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zapyourself",
+                "source": "zap.c:zapyourself() calls unturn_you() for WAN_UNDEAD_TURNING and SPE_TURN_UNDEAD; js/zap.js:zapyourself retains that direct call and uses the helper's live-RNG default."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/muse.test.mjs",
+              "scripts/zap-ray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/bhitm-self-unturn-revive-witness-b53.session.json"
+            ],
+            "sourceFile": "zap.c",
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-monster-undead-turning-lichen-corpse",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 128,
+                "source": "mhitu.c:mattacku -> muse.c:use_offensive -> muse.c:mbhitm -> zap.c:unturn_you"
+              }
+            ],
+            "checkedAt": "37e6562d0e540cb5f4838e2be7590cb18aa83f9c"
+          }
+        ],
+        "entryPointReview": "This task ports helper functions called during monster beam hits. The active monster-item entry sites are muse.c:use_defensive() line 978 and use_offensive() line 1884; both pass mbhitm to mbhit for a wand of undead turning. zap.c:zapyourself() is the existing direct caller of unturn_you(). The selected admitted v42 recording exercises the offensive caller with a hostile dwarf's wand hitting a hero carrying a lichen corpse. The defensive caller remains wired to the same callback, and the whole mbhitm source body is compared branch by branch. The direct zapyourself -> unturn_you route is exercised by recordings/zap.c/bhitm-self-unturn-revive-witness-b53.session.json; the correction preserves full live RNG defaults for revival and lets injected action functions override them.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "19f6a43d2e0643e804a1fc100a7fccb76e5d2577",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

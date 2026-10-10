@@ -1,0 +1,153 @@
+{
+  "session": "synthetic/v42/v42-observe-quantum-cat-box-tip-floor",
+  "corpus": "synthetic",
+  "batch": "v42",
+  "caseId": "v42-observe-quantum-cat-box-tip-floor",
+  "manifestPath": "challenges/manifests/v42.json",
+  "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+  "recording": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+  "recordingPath": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+  "recordingSha256": "698292fe14ee943d9b961dabc5631661efd08314845b78fcac57c9b8ed299786",
+  "recipe": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.recipe.session.json",
+  "recipeSha256": "9638bc8902bbdeddc1313bb7dd0e65ae4ceda0d4b99034d5cdbce3dd3765cf8b",
+  "replayInputSha256": "a2722a4583f3fb4253c59de8d17926e6d6909913e67d4d98a882594af946eb4a",
+  "evaluationPath": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+  "evaluationCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+  "evaluationUtc": "2026-10-10T21:08:15.151Z",
+  "remainingScreens": 1,
+  "recordedSteps": 74,
+  "status": "complete",
+  "commit": "f31623b6f35e2a273d9b9c96548967e19fa232dc",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v42",
+    "caseId": "v42-observe-quantum-cat-box-tip-floor",
+    "session": "synthetic/v42/v42-observe-quantum-cat-box-tip-floor",
+    "manifestPath": "challenges/manifests/v42.json",
+    "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+    "recording": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+    "recordingPath": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json",
+    "recordingSha256": "698292fe14ee943d9b961dabc5631661efd08314845b78fcac57c9b8ed299786",
+    "recipe": "challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.recipe.session.json",
+    "recipeSha256": "9638bc8902bbdeddc1313bb7dd0e65ae4ceda0d4b99034d5cdbce3dd3765cf8b",
+    "replayInputSha256": "a2722a4583f3fb4253c59de8d17926e6d6909913e67d4d98a882594af946eb4a",
+    "evaluationPath": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+    "evaluationCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+    "evaluationArtifact": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+    "evaluationUtc": "2026-10-10T21:08:15.151Z",
+    "remainingScreens": 1,
+    "recordedSteps": 74,
+    "previousScreensMatched": 73,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 73,
+        "total": 74
+      },
+      "rng": {
+        "matched": 4840,
+        "total": 4851
+      },
+      "cursors": {
+        "matched": 73,
+        "total": 74
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 73,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 73,
+          "key": "-"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "A",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 4840,
+        "cEntry": "rn2(2)=1",
+        "cCaller": "observe_quantum_cat(pickup.c:2832)",
+        "jsEntry": "rn2(12)=5",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 73,
+          "key": "-"
+        },
+        "stepIndex": 73
+      },
+      "cursor": {
+        "index": 73,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 73,
+          "key": "-"
+        },
+        "cCursor": [
+          76,
+          0,
+          1
+        ],
+        "jsCursor": [
+          48,
+          6,
+          1
+        ]
+      }
+    },
+    "step": 73,
+    "kind": "rng",
+    "sourceFile": "pickup.c",
+    "function": "observe_quantum_cat",
+    "message": null,
+    "cFile": "pickup.c",
+    "luaFile": null,
+    "line": 2832
+  },
+  "summary": "The first mismatch is the unported Schrödinger box observation on the #tip floor path. C observes the box before spilling its contents; JavaScript skips the observer in tipcontainer_checks. Wiring the existing observer also exposed an unsupported makemon runtime call shape in its live-cat arm.",
+  "source": {
+    "file": "pickup.c",
+    "branch": "When a LARGE_BOX with spe == 1 is tipped, pickup.c:tipcontainer_checks recognizes SchroedingersBox(box) and calls observe_quantum_cat(box, TRUE, TRUE) before the remaining-content check. For a dead result, the observer clears spe, prints the dead-cat message, resets the contained corpse age and corpsenm (starting its rot timer), and awards experience when the hero is not monster-moving. The same observer is called from use_container before its action prompt.",
+    "functions": [
+      "observe_quantum_cat",
+      "tipcontainer_checks"
+    ],
+    "callers": [
+      "C pickup.c:dotip -> tipcontainer -> tipcontainer_checks -> observe_quantum_cat; JavaScript cmd.js #tip dispatch -> pickup.js:dotip -> tipcontainer -> tipcontainer_checks.",
+      "C pickup.c:use_container -> observe_quantum_cat; JavaScript pickup.js:use_container has a fail-closed UnsupportedPickupError at the matching LARGE_BOX/spe branch.",
+      "C end.c:disclose_to_monlist -> observe_quantum_cat(obj, FALSE, FALSE); JavaScript end.js already calls pickup.js:observe_quantum_cat with the same flags."
+    ],
+    "dependencies": [
+      "makemon.c:makemon creates the live housecat at the box coordinates with NO_MINVENT | MM_ADJACENTOK | MM_NOMSG. C relocates a hero-square request with enexto_core and uses MM_ADJACENTOK if the requested square is occupied. JS must run this through makemon_runtime so its asynchronous source tail completes; js/makemon_create.js currently rejects this explicit-coordinate flag shape outside mklev. The correction is bounded to this source call shape and does not claim whole makemon.c:makemon completion.",
+      "pickup.c:observe_quantum_cat calls get_obj_location, makemon, set_malign, visibility/message helpers, corpse extraction/freeing, weight, experience/newexplevel, set_corpsenm, and oname. Its JS owner is js/pickup.js:1910; source-aligned helper contracts are part of this caller path.",
+      "obj.c:set_corpsenm/start_corpse_timeout supplies the corpse-aging RNG after a dead observation; its call must receive the complete random interface and preserve source order."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved combined queue SHA-256 6889a7ab6f060b3cf8f6536df5fe921c893bc9abb7bb34f67702818e4b845e61 selects this v42 case with 1 unmatched screen at step 73. Its accepted evaluation at 2634fa9f632f0bd97556887204d19f3fdb2645f2 reports 73/74 screens, 4,840/4,851 RNG calls, and 73/74 cursors. The C and JavaScript outputs first diverge on segment 0, step 73, key '-'; C calls rn2(2)=1 from pickup.c:observe_quantum_cat:2832 while JavaScript calls rn2(12)=5. The first screen cell differs at row 0, column 0 (C 'T', JS 'A').",
+    "The admitted recording challenges/cases/v42/v42-quantum-cat-box-tip-floor-cfirst.session.json has 74 steps. Its independent recipe creates a peaceful quantum mechanic, wishes an uncursed wand of death, kills the monster, enters #tip, confirms the large box, and chooses the preselected floor destination. The first 73 screens match, demonstrating that box creation and command setup reach the C observer only after the floor target is selected.",
+    "Upstream pickup.c:2826-2897 evaluates its rn2(2) coin flip before looking up the box location. On a dead result it clears box->spe, reports that the housecat is dead, sets deadcat->age to current moves, calls set_corpsenm(PM_HOUSECAT) to start the corpse timer, names the corpse, and awards experience/new level outside monster movement.",
+    "Upstream pickup.c:3953-4055 has the missing active #tip call in tipcontainer_checks: the SchroedingersBox branch calls observe_quantum_cat(box, TRUE, TRUE), then examines the now-resolved contents and sets cknown. JavaScript js/pickup.js:3959-3972 instead records note_unported(\"pickup.c observe_quantum_cat\") and proceeds with the floor spill.",
+    "The second active pickup caller is upstream pickup.c:3021-3024 in use_container. JavaScript js/pickup.js:2134-2139 throws UnsupportedPickupError for LARGE_BOX with spe===1 rather than invoking its existing observe_quantum_cat implementation. End-game disclosure is already wired at upstream end.c:1268-1271 and js/end.js:1091-1092.",
+    "The selected implementation scope is the complete pickup.c:observe_quantum_cat source function and source-aligned wiring at both active pickup callers. Complete the Schroedinger-box branch inside the whole pickup.c:tipcontainer_checks function and replace the matching use_container refusal with the observer call; preserve the already-wired end-disclosure path. The caller functions have other unrelated behaviors and are not claimed as whole-function ports.",
+    "The observed setup helper is upstream makemon.c:makemon S_QUANTMECH at lines 775-793, which creates the flagged large box and contained nonrotting housecat corpse. It is not the first mismatch owner and does not need expansion based on this recording.",
+    "The C live-cat call in pickup.c:2834-2835 passes the box coordinates and NO_MINVENT | MM_ADJACENTOK | MM_NOMSG to makemon(), then consumes the returned monster to set peacefulness, name it, remove the contained dead corpse, and update box weight. Upstream makemon.c:1147-1200 handles explicit coordinates, hero-square relocation, and the MM_ADJACENTOK occupied-square fallback. JS js/pickup.js passed a synchronous makemon() call without a runtime continuation; a focused #tip reproduction at seed 83001622 reaches UnsupportedMonsterCreationError: outside mklev. js/makemon_create.js:1277 currently admits explicit runtime NO_MINVENT only without the two additional flags, while makemon_runtime at 3315 owns the source-ordered asynchronous runtime tail.",
+    "Source-aligned observer wiring exposed two additional JS call-contract gaps before the live-cat path: set_corpsenm requires rn2/rnd/rn1/rne, so the observer must supply its full random interface; newexplevel can level the hero from the award and requires the tty message owner. The implementation now uses the full RNG bundle and passes {message: ttyPline, random}."
+  ]
+}

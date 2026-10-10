@@ -1,0 +1,55 @@
+{
+  "corpus": "synthetic",
+  "batch": "v42",
+  "caseId": "v42-monster-undead-turning-lichen-corpse",
+  "remainingScreens": 4,
+  "status": "complete",
+  "commit": "43f41f739f63b04d8fc28be32dc1e265af6a9bbd",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "sourceFile": "teleport.c",
+    "cFile": "teleport.c",
+    "luaFile": null,
+    "session": "synthetic/v42/v42-monster-undead-turning-lichen-corpse",
+    "sessions": [
+      "synthetic/v42/v42-monster-undead-turning-lichen-corpse"
+    ],
+    "remainingScreens": 4,
+    "earliestStep": 125,
+    "caseId": "v42-monster-undead-turning-lichen-corpse",
+    "batch": "v42",
+    "recordingPath": "challenges/cases/v42/v42-monster-undead-turning-carries-lichen-corpse-seed42044331-cfirst.session.json"
+  },
+  "summary": "A hostile dwarf's wand of undead turning hits the hero, who carries a lichen corpse. C revives the corpse before the next turn boundary; JavaScript skips zap.c:unturn_you from muse.c:mbhitm, so revival and the resulting monster placement never occur.",
+  "source": {
+    "file": "muse.c",
+    "branch": "In mbhitm's WAN_UNDEAD_TURNING arm, a hit on the hero calls unturn_you(). A hit on another monster calls unturn_dead(mtmp); its nonzero result sets wake before undead resistance and wakeup handling.",
+    "functions": [
+      "mbhitm"
+    ],
+    "callers": [
+      "The selected recording reaches mhitu.c:mattacku() -> muse.c:use_offensive() -> mbhit() -> mbhitm() for a monster's wand of undead turning. The JavaScript route is unported_monster_actions.js:useOffensiveItem() -> muse.js:use_offensive() -> mbhit() -> mbhitm().",
+      "The active defensive route is monmove.c:dochug()/monmove() -> muse.c:use_defensive() -> mbhit() -> mbhitm(); the JavaScript routes are monmove.js:use_defensive() and unported_monster_actions.js:usePreMoveItems() -> muse.js:use_defensive()."
+    ],
+    "dependencies": [
+      "zap.c:unturn_you() already has a JavaScript implementation in js/zap.js, but it is private and muse.js currently records note_unported('zap.c unturn_you'). Exporting and calling it will reuse that implementation.",
+      "zap.c:unturn_dead() already returns the revived-corpse count in js/zap.js. muse.js currently records note_unported('zap.c unturn_dead') instead of using that result to gate wakeup.",
+      "zap.c:revive() and its makemon_revival() call shape already exist in the accepted-base JavaScript implementation. A2 currently owns source:makemon.c:makemon; the replay must not prompt edits to that scope without fresh evidence of a separate placement defect."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved combined queue has SHA-256 6889a7ab6f060b3cf8f6536df5fe921c893bc9abb7bb34f67702818e4b845e61. Its v42 entry identifies 4 unmatched screens from 129 and an earliest mismatch at step 125. The manifest SHA-256 is 85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418; the recording SHA-256 is eb20bba7b5aee1ae11159ab68138ee0567c0099fba9d644d2b7a0f67f642ec87; the recipe SHA-256 is a78776c0ce0ddc6e167990adbd1ef694bf248d17b4b13815ff773a28876b84f7. The saved evaluation is challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json at source commit 2634fa9f632f0bd97556887204d19f3fdb2645f2.",
+    "A fresh differential at worker base 43f41f739f63b04d8fc28be32dc1e265af6a9bbd (run-unC5um) reaches step 126, segment 1, key '.'. C makes rn2(8)=0 in teleport.c:collect_coords, while JavaScript makes rn2(5)=2. The C screen then shows the lichen corpse's revival; JavaScript does not. The mismatch queue attributes the accepted recording's boundary to step 125 because it records the preceding screen boundary.",
+    "The complete source comparison of muse.c:mbhitm() at lines 1597-1704 confirms two missing branches in js/muse.js: the hero-hit branch at lines 2291-2294 skips zap.c:unturn_you(), and the monster-hit branch at lines 2295-2302 skips zap.c:unturn_dead(mtmp) even though C uses its result to decide whether to wake the monster. js/zap.js already implements both helpers and revive(); the skipped calls explain why JavaScript never reaches the later makemon placement that produces the queue's collect_coords draw.",
+    "The C caller search finds three mbhitm call sites in muse.c: use_defensive() invokes it for WAN_TELEPORTATION and WAN_UNDEAD_TURNING at lines 864 and 978, and use_offensive() invokes it for teleportation, undead turning and striking at line 1884. The selected v42 replay exercises the offensive undead-turning arm. C's use_offensive caller is mhitu.c:mattacku() at lines 758-762; C's defensive callers are monmove.c:dochug() and monmove(). JavaScript has corresponding defensive wiring in muse.js:809 and :939 and offensive wiring at :2703, reached by the dispatchers named above. No caller wiring change is indicated by the source trace; the callback's two skipped effects are the missing behavior."
+  ],
+  "session": "synthetic/v42/v42-monster-undead-turning-lichen-corpse",
+  "manifestPath": "challenges/manifests/v42.json",
+  "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+  "recordingSha256": "eb20bba7b5aee1ae11159ab68138ee0567c0099fba9d644d2b7a0f67f642ec87",
+  "evaluationPath": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+  "evaluationCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+  "recordedSteps": 129
+}
