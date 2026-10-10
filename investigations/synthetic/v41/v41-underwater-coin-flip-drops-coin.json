@@ -89,22 +89,20 @@
     "luaFile": null,
     "line": 4771
   },
-  "summary": "The source-derived fix sends underwater coin loss through the same generic dropx/flooreffects route as other lost coins and admits ordinary non-boulder objects on pool or lava terrain. The selected v41 replay now matches all 82 screens and cursors; its first RNG mismatch has moved past apply.c:flip_coin to a later monmove.c:set_apparxy draw during the monster phase after the action. The independent production recipe and recording fully match C across 2541 RNG calls, 55 screens, and 55 cursors.",
+  "summary": "After the accepted underwater coin fix, the selected v41 replay has no screen or cursor mismatches; its first remaining RNG divergence is at step 81 in monmove.c:set_apparxy. That function matches source. C vision.c:vision_recalc restricts underwater COULD_SEE to adjacent pool squares, while JS vision_recalc still uses ordinary view_from. The first guessed square is adjacent ordinary floor, so JS accepts it and skips the C retry draw.",
   "source": {
-    "file": "apply.c",
-    "branch": "When Underwater is true, flip_coin reports that the coin tumbles away, splits one coin if the stack has more than one, calls dropx, and returns ECMD_TIME without the ordinary coin-face RNG.",
+    "file": "vision.c",
+    "branch": "When the hero is underwater outside the water level, vision_recalc suppresses night vision and marks only valid pool squares in the surrounding 3-by-3 area as both IN_SIGHT and COULD_SEE. The preceding Blind and Rogue-level branches retain precedence. The subsequent x-ray overlay still applies.",
     "functions": [
-      "flip_coin"
+      "vision_recalc"
     ],
     "callers": [
-      "apply.c:doapply() dispatches a COIN_CLASS object to flip_coin() at upstream src/apply.c:4241.",
-      "apply.c:flip_coin() at upstream src/apply.c:4527-4556 calls do.c:dropx() at src/apply.c:4544; C discards dropx()’s return because it is void.",
-      "do.c:dropx() -> dropy() -> dropz() -> flooreffects(); the source flooreffects() pool arm calls water_damage(obj, NULL, FALSE) at upstream src/do.c:315-327 and consumes its ER_DESTROYED result.",
-      "JS apply.js:doapply() dispatches to flip_coin(); its underwater arm currently calls note_unported(\"do.c dropx underwater\") at js/apply.js:5171-5174. Existing js/do.js:dropx(), dropz(), and flooreffects() implement the downstream path, but preflight_dropx() currently refuses underwater state and pool landing.",
-      "The independent C recipe uses doapply COIN_CLASS dispatch -> flip_coin -> dropx -> dropz -> flooreffects -> water_damage; JavaScript follows js/apply.js:doapply -> flip_coin -> js/do.js:dropx -> dropz -> flooreffects -> js/trap_water_damage.js:water_damage."
+      "allmain.c:moveloop() builds the initial visibility map with vision_recalc(0); JS allmain.js:moveloop() does the same.",
+      "allmain.c:moveloop_core() recalculates after commands when vision_full_recalc is set (lines 471 and 542); JS allmain.js:moveloop_core() recalculates at its corresponding turn boundaries.",
+      "monmove.c:dochug() and m_move() call set_apparxy(); JS monmove.js:dochug() and m_move() call set_apparxy(), which reads couldsee from the published vision array."
     ],
     "dependencies": [
-      "The existing do.c dropx/dropz/flooreffects JavaScript port and trap.c water_damage implementation are downstream behavior dependencies; this investigation found no competing active reservation for js/apply.js or js/do.js."
+      "The existing vision bitmap, dbridge.c:is_pool port, and monmove.c:set_apparxy implementation. No set_apparxy implementation change is required."
     ]
   },
   "goalKind": "divergence-fix",
@@ -121,7 +119,33 @@
   "manifestPath": "challenges/manifests/v41.json",
   "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
   "recordingSha256": "eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79",
-  "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
-  "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
-  "recordedSteps": 82
+  "evaluationPath": "challenges/evaluations/accepted-9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b-v41.json",
+  "evaluationCommit": "9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b",
+  "recordedSteps": 82,
+  "priorAcceptedWork": {
+    "delivery": "fc15824f344fcb1636f5e8bbe51182ca721e291a",
+    "acceptedMain": "9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b",
+    "summary": "The earlier apply.c:flip_coin fix and test correction are accepted. This follow-up investigates the later RNG mismatch exposed after that fix."
+  },
+  "followupEvidence": [
+    "Saved queue SHA-256 7fe4c4f5d1d0efa7adc3cd87e577bff05524109dea78c72d19e02fc572c62676 identifies synthetic/v41/v41-underwater-coin-flip-drops-coin, recording challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json (SHA-256 eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79), manifest challenges/manifests/v41.json (SHA-256 7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69), and accepted evaluation at 9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b.",
+    "The accepted v41 queue result has 82/82 screens and 82/82 cursors matching, with 2668/2720 RNG calls matched. At segment 0, step 81, key \"$\", the first remaining mismatch is call 2664: C rn2(3)=2 from monmove.c:set_apparxy:2258 while JavaScript calls rn2(5)=0 in distfleeck.",
+    "Source trace of monmove.c:set_apparxy (2198 onward) and js/monmove.js:set_apparxy (2252 onward) shows the same underwater radius-one x/y draws, accessibility checks, and final couldsee rejection. The first chosen coordinate is (11,2) for hero position (11,3).",
+    "A temporary runtime trace on the accepted JavaScript implementation confirms couldsee(11,2) returns true with terrain type 25 (not a pool) and COULD_SEE|IN_SIGHT bits set. C vision.c:589-610 instead enters its Underwater branch and assigns visibility only when is_pool(col,row) is true, so C rejects this candidate and consumes the retry draw.",
+    "JS vision.js:727-789 contains a source comment identifying underwater vision as unported; vision_recalc computes underwaterOutsideWaterLevel but then still calls view_from. Its later night-vision guard already suppresses night vision underwater. C vision.c:512-622 establishes branch precedence: swallowed/control 2, Blind, Rogue level, underwater, then ordinary view_from."
+  ],
+  "followup": {
+    "task": "C-v41-underwater-monmove-set-apparxy-investigation-20261010",
+    "status": "source cause confirmed; implementation scope not yet claimed",
+    "source": "vision.c:vision_recalc",
+    "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+    "remainingMismatch": {
+      "step": 81,
+      "key": "$",
+      "rngIndex": 2664,
+      "c": "rn2(3)=2 @ monmove.c:set_apparxy:2258",
+      "js": "rn2(5)=0 @ monmove.js:distfleeck"
+    },
+    "nextAction": "Claim vision.c:vision_recalc with js/vision.js and scripts/vision.test.mjs; port the underwater bitmap branch and verify the selected recording."
+  }
 }
