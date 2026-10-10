@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first probe of pickup.c:fatal_corpse_mistake: obtain gloves and a cockatrice corpse, wear the gloves, drop the corpse onto the floor, remove the gloves, then manually pick up the corpse bare-handed. The C trace must reach the pickup caller before comparison.",
+  "segments": [
+    {
+      "seed": 39139240,
+      "datetime": "20420501111400",
+      "nethackrc": "OPTIONS=name:V39PickupCorpse,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017leather gloves\nPn\u0017cockatrice corpse\ndoTn,",
+      "recorderIsDst": true
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first corrected levitation-removal path: the previous attempt did not dismiss Ring_on’s observed pager, so its lava wish was typed into that page. Dismiss the page, wish lava while levitating, then remove the ring and dismiss Ring_off’s page to enter lava_effects.",
+  "segments": [
+    {
+      "seed": 39139078,
+      "datetime": "20420315132000",
+      "nethackrc": "OPTIONS=name:V39LavaRingDrop,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".\u0017ring of levitation\nPpl \u0017lava\nR ",
+      "recorderIsDst": true
+    }
+  ]
+}

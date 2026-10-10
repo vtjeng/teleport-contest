@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first survival setup for the knockoff mission. Blessed full-healing increases both current and maximum HP by eight on its source peffect_full_healing/ healup path; test a small stack before the hostile titan so the rider can survive repeated knockback checks. Preserve selector corrections.",
+  "segments": [
+    {
+      "seed": 39139026,
+      "datetime": "20420315122000",
+      "nethackrc": "OPTIONS=name:V39RideHP,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".\u00173 blessed potions of full healing\nq",
+      "recorderIsDst": true
+    }
+  ]
+}

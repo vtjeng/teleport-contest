@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "v39 C-first setup probe for cursed ordinary bell behavior: wish item and inspect exact inventory selector before ringing.",
+  "segments": [
+    {
+      "seed": 39139008,
+      "datetime": "20420315100600",
+      "nethackrc": "OPTIONS=name:V39Bell,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed bell\n",
+      "recorderIsDst": true
+    }
+  ]
+}

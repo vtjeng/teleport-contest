@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Mounted Knight with its source-defined saddled pony. C’s opening map placed the pony southwest; select b and confirm the mount, move one tile west to open floor, create a polymorph trap beneath the rider, step east off it, and return west. The final space dismisses the trap message so the recording ends at a stable prompt.",
+  "segments": [
+    {
+      "seed": 39139081,
+      "datetime": "20420315141100",
+      "nethackrc": "OPTIONS=name:V39MountedPoly,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#ride\nbyh\u0017polymorph trap\nlh ",
+      "recorderIsDst": true
+    }
+  ]
+}

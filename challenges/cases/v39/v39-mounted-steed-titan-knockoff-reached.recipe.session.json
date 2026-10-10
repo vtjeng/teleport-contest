@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first completion of the hostile-titan knockoff. The trace reaches uhitm.c:mhitm_knockback with a huge Titan’s physical hit, passes the 1-in-6 chance, calls steed.c:dismount_steed(DISMOUNT_KNOCKED), selects a landing spot, and clears Ride. Dismiss the C message page to capture all landing/fall messages before independent replay and JS comparison.",
+  "segments": [
+    {
+      "seed": 39139026,
+      "datetime": "20420315122000",
+      "nethackrc": "OPTIONS=name:V39RideHP,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".\u00173 blessed potions of full healing\nqoqoqo\u0007tame saddled pony\n#ride\nny\u0007hostile titan\n.. ",
+      "recorderIsDst": true
+    }
+  ]
+}

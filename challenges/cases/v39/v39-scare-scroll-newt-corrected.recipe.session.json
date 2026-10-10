@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Corrected v39 read.c seffect_scare_monster C-first recipe: the prior probe identified the wished scroll in slot n and its attempted apply was cancelled; read it with a visible hostile newt next to the hero.",
+  "segments": [
+    {
+      "seed": 39139226,
+      "datetime": "20420401111000",
+      "nethackrc": "OPTIONS=name:V39ScareRead,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed scroll of scare monster\n\u0007newt\nrn",
+      "recorderIsDst": true
+    }
+  ]
+}

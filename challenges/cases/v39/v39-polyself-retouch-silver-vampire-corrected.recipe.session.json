@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Corrected the wield selector from the C-observed inventory letter p; preserve the preceding blindfold selection setup miss.",
+  "segments": [
+    {
+      "seed": 39139016,
+      "datetime": "20420315101600",
+      "nethackrc": "OPTIONS=name:V39SilverTouch,role=Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017silver dagger\nwp#polyself\nvampire\n ",
+      "recorderIsDst": true
+    }
+  ]
+}

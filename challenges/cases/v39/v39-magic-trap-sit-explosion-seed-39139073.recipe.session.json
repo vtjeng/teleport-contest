@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Magic-trap rare-branch seed trial 39139073: use the north-floor route, wish a magic trap, then sit; preserve the C result while seeking rn2(30)==0 in trap.c:trapeffect_magic_trap.",
+  "segments": [
+    {
+      "seed": 39139073,
+      "datetime": "20420315131200",
+      "nethackrc": "OPTIONS=name:V39MagicTrapTrial39139073,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": "k.\u0017magic trap\n#sit\n",
+      "recorderIsDst": true
+    }
+  ]
+}

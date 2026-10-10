@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first sink levitation setup probe. Wizard terrain wish creates a sink beneath the hero, then a levitation ring is wished and worn to test the do_wear.c Ring_on -> hack.c spoteffects -> dosinkfall route. Preserve this setup even if the wear selector needs correction.",
+  "segments": [
+    {
+      "seed": 39139019,
+      "datetime": "20420315110000",
+      "nethackrc": "OPTIONS=name:V39SinkRing,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017sink\n\u0017ring of levitation\nP",
+      "recorderIsDst": true
+    }
+  ]
+}
