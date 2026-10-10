@@ -249111,6 +249111,39 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "divergence-v39-mounted-steed-knockoff-20261010",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Port mounted knockback dismount and landing selection",
+      "cFile": "steed.c",
+      "sessions": [
+        "synthetic/v39/v39-mounted-steed-knockoff"
+      ],
+      "selectionReason": "Oldest dependency-ready synthetic v39 mismatch, with steed.c source scope isolated by investigation.",
+      "detail": "Source route uhitm.c:mhitm_knockback -> steed.c:dismount_steed(DISMOUNT_KNOCKED) -> landing_spot.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "landing_spot",
+      "session": "synthetic/v39/v39-mounted-steed-knockoff",
+      "step": 87,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-mounted-steed-knockoff": {
+          "session": "synthetic/v39/v39-mounted-steed-knockoff",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-mounted-steed-knockoff",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-mounted-steed-knockoff.session.json",
+          "recordingSha256": "5ee5f9ca6524671540995d4361175b0a74e109b59897ff89df3efaeac7eec484",
+          "evaluationPath": "challenges/evaluations/accepted-9576b4f8da10054320739b6775b11284c33b01ed-v39.json",
+          "evaluationCommit": "9576b4f8da10054320739b6775b11284c33b01ed"
+        }
+      }
     }
   ]
 }
