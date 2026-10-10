@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent B218 C-first matching route through mhitu.c:mattacku AT_ENGL -> gulpmu -> apply.c:snuff_lit. The Wizard wishes a lit oil lamp, a hostile purple worm is created nearby, and the input ends after the first gulp message extinguishes the lamp. Seed 5172938 and clock 20480809142500 were chosen independently from the admitted v40 recipe; the short input stops before the later mon.c:unstuck mismatch from the longer probe.",
+  "segments": [
+    {
+      "seed": 5172938,
+      "datetime": "20480809142500",
+      "nethackrc": "OPTIONS=name:SnuffWormB218,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!tips,!verbose,!debug_mongen,!safe_wait\n",
+      "moves": " \u0017lit oil lamp\n\u0007hostile purple worm\n m. m. "
+    }
+  ]
+}

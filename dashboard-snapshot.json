@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T13:15:24.432Z",
+  "capturedAt": "2026-10-10T13:40:16.035Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -81315,22 +81315,146 @@
         "task": "Prep5",
         "phase": "baseline",
         "reason": "Recorded the v41 baseline: 3 of 15 sessions and 553 of 615 screens match; 12 mismatches are available to implementation workers."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep5-6caa1e6cb7a07dd811726f8e7b22b1c3b9b8e6ad",
+        "type": "published",
+        "at": "2026-10-10T13:15:51.029Z",
+        "task": "Prep5",
+        "commit": "6caa1e6cb7a07dd811726f8e7b22b1c3b9b8e6ad"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-turn-trigger-check-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:16:58.301Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Accepted Main is synced; the saved queue has 22 unmatched sessions, so Prep is checking the coordinator’s v42 assignment basis before claiming a batch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep6-idle-trigger-not-met-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:18:01.745Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep is idle: 22 actionable unmatched sessions remain, so v42 is not claimed; waiting for the preparation trigger."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B220-implement-m-unleash-callers-20261010",
+        "type": "implement",
+        "at": "2026-10-10T13:18:44.993Z",
+        "task": "B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010",
+        "goal": "port-apply-m-unleash-v40-leashed-dog-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B220-turn-expanded-implementation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:18:56.365Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Implementing apply.c:m_unleash and wiring its 11 existing JavaScript callers; three C-only caller branches remain documented as unported."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B218-d8e908fd3-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T13:21:21.538Z",
+        "task": "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010",
+        "integration": "d8e908fd38f29d36670a2c460103fa2417892e09"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B218-5c157f8e4-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T13:24:02.694Z",
+        "task": "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010",
+        "integration": "5c157f8e4976371080be6ac735788f14f6c6e136"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v41-anger-prayer-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:28:11.927Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is investigating the next independent v41 prayer and retaliation mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v41-anger-prayer-god-zaps-hero-20261010",
+        "type": "assign",
+        "at": "2026-10-10T13:28:13.504Z",
+        "task": "C-v41-anger-prayer-god-zaps-hero-investigation-20261010",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B218-5c157f8e4-38055712489",
+        "type": "validated",
+        "at": "2026-10-10T13:31:37.712Z",
+        "task": "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v41-anger-prayer-trace-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:33:07.278Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Tracing and implementing the v41 anger-prayer lightning and disintegration branch in pray.c."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-40dafcefebb93644d94e3282e6c2ff297c81df0c",
+        "type": "ready",
+        "at": "2026-10-10T13:33:37.011Z",
+        "task": "B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010",
+        "delivery": "40dafcefebb93644d94e3282e6c2ff297c81df0c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B220-turn-post-submit-accepted-main-sync-block-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:34:57.404Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "B220 is ready for integration; next task selection is waiting on the rejected accepted-Main sync."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v41-anger-god-zaps-source-20261010",
+        "type": "implement",
+        "at": "2026-10-10T13:35:13.467Z",
+        "task": "C-v41-anger-prayer-god-zaps-hero-investigation-20261010",
+        "goal": "port-pray-god-zaps-you-v41-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010-5c157f8e4976371080be6ac735788f14f6c6e136-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T13:39:19.723Z",
+        "task": "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B220-turn-resume-after-B218-acceptance-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:39:52.675Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B220 is ready for integration; B is synced to accepted Main and selecting the next independent queue task."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010",
-        "worker": "B",
-        "goal": "fix-mhitu-gulpmu-snuff-lit-v40-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "97ce9a471a925ec6968a14b5a16a56dd8089aeaa",
-        "since": "2026-10-10T12:47:49.113Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "C-v40-wizard-wish-assistance-investigation-20261010",
         "worker": "C",
@@ -81350,8 +81474,19 @@
         "status": "ready",
         "delivery": "e4ae2349acbc7654db226caf6ae0004f22cb61e9",
         "since": "2026-10-10T13:01:12.289Z",
+        "blockedBy": [],
+        "unblocks": 1
+      },
+      {
+        "task": "B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010",
+        "worker": "B",
+        "goal": "port-apply-m-unleash-v40-leashed-dog-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "40dafcefebb93644d94e3282e6c2ff297c81df0c",
+        "since": "2026-10-10T13:33:37.011Z",
         "blockedBy": [
-          "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010"
+          "B219-investigation-v40-water-plane-levelport-generation-20261010"
         ],
         "unblocks": 0
       }
@@ -81658,8 +81793,8 @@
     ]
   },
   "development": {
-    "executionCommit": "d055edb9a7625276ca8b8194dd647864ae12cdf6",
-    "measuredAt": "2026-10-10T13:13:28.381Z",
+    "executionCommit": "5c157f8e4976371080be6ac735788f14f6c6e136",
+    "measuredAt": "2026-10-10T13:30:38.146Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

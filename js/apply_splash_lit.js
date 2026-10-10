@@ -1,4 +1,4 @@
-// Water extinguishing monster-carried light sources.
+// Light extinguishing and water splashes for hero- and monster-carried objects.
 // C refs: apply.c snuff_candle(), snuff_lit(), and splash_lit().
 
 import { OBJ_MINVENT } from './const.js';
@@ -23,7 +23,7 @@ import {
     OIL_LAMP,
     POT_OIL,
 } from './objects.js';
-import { xnameFresh } from './objnam.js';
+import { otense, xnameFresh, Yname2 } from './objnam.js';
 import { Shk_Your } from './shk.js';
 import { end_burn } from './timeout.js';
 
@@ -61,10 +61,6 @@ function monsterInventoryLocation(obj, state) {
         );
     }
     return get_obj_location(obj, 0, state);
-}
-
-function singularVerb(obj, singular, plural) {
-    return Math.trunc(obj.quan ?? 1) === 1 ? singular : plural;
 }
 
 function objectSubject(obj, env) {
@@ -118,26 +114,41 @@ export async function snuff_candle(obj, env = {}) {
     return true;
 }
 
-export async function snuff_monster_light(obj, env) {
-    if (!obj.lamplit) return false;
+// C ref: apply.c snuff_lit() (1497-1514). Keep the source order for the
+// swallowed-hero inventory branch in mhitu.c gulpmu(): a visible message is
+// emitted before end_burn() stops the object's timer and light source.
+export async function snuff_lit(obj, env = {}) {
+    const state = env.state ?? game;
+    const context = { ...env, state };
+    if (!obj?.lamplit) return false;
     if (obj.otyp === OIL_LAMP
         || obj.otyp === MAGIC_LAMP
         || obj.otyp === BRASS_LANTERN
         || obj.otyp === POT_OIL) {
-        const location = monsterInventoryLocation(obj, env.state);
-        const squareVisible = splashOperation(env, 'squareVisible', cansee);
-        const message = splashOperation(env, 'message', ttyPline);
-        if (location && squareVisible(location.x, location.y, env.state)) {
+        const location = get_obj_location(obj, 0, state);
+        const visible = obj.where === OBJ_MINVENT
+            ? Boolean(location && splashOperation(
+                context, 'squareVisible', cansee,
+            )(location.x, location.y, state))
+            : !(context.heroBlind ?? heroIsBlind)(state);
+        if (visible) {
+            const message = splashOperation(context, 'message', ttyPline);
+            const objectYname = splashOperation(
+                context,
+                'objectYname',
+                (target) => Yname2(target, state),
+            );
             await message(
-                `${objectSubject(obj, env)} `
-                + `${singularVerb(obj, 'goes', 'go')} out!`,
-                env.state,
+                `${objectYname(obj, state, context)} `
+                + `${otense(obj, 'go', state)} out!`,
+                state,
+                context,
             );
         }
-        await stopBurn(obj, env);
+        await stopBurn(obj, context);
         return true;
     }
-    return snuff_candle(obj, env);
+    return snuff_candle(obj, context);
 }
 
 export async function splash_monster_light(obj, env) {
@@ -186,7 +197,7 @@ export async function splash_monster_light(obj, env) {
         }
     }
 
-    const result = await snuff_monster_light(obj, env);
+    const result = await snuff_lit(obj, env);
     if (dunk) {
         const age = Math.trunc(obj.age ?? 0);
         obj.age = age - (age > 200 ? 100 : Math.trunc(age / 2));
