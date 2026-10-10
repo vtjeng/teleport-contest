@@ -253262,6 +253262,74 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-wizcmds-makemap-remove-mons-v41-tower2-20261010",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port wizard special-level monster cleanup and arrival message delivery",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v41/v41-tower2-special-program-generation"
+      ],
+      "selectionReason": "The accepted v41 Tower2 replay first diverges at step 24 because the wizard special-level reset omits wizcmds.c:makemap_remove_mons before Lua alignment shuffling.",
+      "detail": "Port the complete wizcmds.c makemap_unmakemon and makemap_remove_mons family, its cmd.c makemap_prepost caller path, and questpgr.c deliver_splev_message required by destination arrival; preserve the dog.c keepdogs gap because its return is discarded.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "makemap_unmakemon",
+          "line": 73,
+          "endLine": 109,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "makemap_remove_mons",
+          "line": 110,
+          "endLine": 155,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 73,
+        "to": 155
+      },
+      "requiredFunctions": [
+        {
+          "name": "makemap_prepost",
+          "line": 986,
+          "endLine": 1088,
+          "declared": true,
+          "sourceFile": "cmd.c",
+          "complete": false
+        },
+        {
+          "name": "deliver_splev_message",
+          "line": 655,
+          "endLine": 669,
+          "declared": true,
+          "sourceFile": "questpgr.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v41/v41-tower2-special-program-generation": {
+          "session": "synthetic/v41/v41-tower2-special-program-generation",
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-tower2-special-program-generation",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recordingPath": "challenges/cases/v41/v41-tower2-wizloaddes-cfirst.session.json",
+          "recordingSha256": "f7ae5cff28ccd236fc296514843ce62728f470833b82630b4111a5860b1961e7",
+          "evaluationPath": "challenges/evaluations/accepted-38d270ae4309c9d36dccf097fb299afadb180f0a-v41.json",
+          "evaluationCommit": "38d270ae4309c9d36dccf097fb299afadb180f0a"
+        }
+      }
     }
   ]
 }
