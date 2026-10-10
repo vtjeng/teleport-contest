@@ -247806,7 +247806,7 @@
           "line": 3150,
           "endLine": 3218,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -248076,7 +248076,80 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "cancel_monst",
+            "implementation": "js/zap.js",
+            "symbol": "cancel_monst",
+            "sourceReview": "Read the complete C definition zap.c:cancel_monst at lines 3150-3215. It checks hero Antimagic or monster resist first and returns FALSE on resistance; optionally walks the selected inventory chain through cancel_item and updates hero AC; for the hero it handles polymorph cancellation, clay-golem writing/death state, Unchanging, and rehumanize; for monsters it sets mcan, calls normal_shape, and handles visible clay-golem writing. When allow_cancel_kill is true, C calls killed(mdef) for youattack or monkilled(mdef, \"\", AD_SPEL) otherwise. JavaScript now calls those existing functions and returns true afterward. The C kill functions return void, so no returned data is consumed. zap.c:bhitm is the selected cancellation-wand caller. The existing muse.c:mbhitm callsite explicitly discards cancel_monst's Boolean result; JavaScript now awaits the call and preserves its result-discarding behavior. This wires only that branch of the already-partial mbhitm callback; it does not claim the rest of mbhitm complete.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhitm",
+                "source": "zap.c:bhitm lines 335-339 calls cancel_monst(mtmp, otmp, TRUE, TRUE, FALSE) for a cancellation wand or spell after revealing disguised mimics."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zapyourself",
+                "source": "zap.c:zapyourself lines 2812-2815 calls cancel_monst(&gy.youmonst, obj, TRUE, TRUE, TRUE) for a hero self-zap."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "Mb_hit",
+                "source": "artifact.c:Mb_hit line 1321 calls cancel_monst with allow_cancel_kill FALSE and consumes its Boolean resistance result."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "dozap",
+                "source": "cmd.c extended command entry dispatches to zap.c:dozap; the JavaScript command table dispatches to js/zap.js:dozap before the recorded wand ray."
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "mbhitm",
+                "source": "muse.c:mbhitm lines 1665-1668 dispatch WAN_CANCELLATION and SPE_CANCELLATION to cancel_monst(mtmp, otmp, FALSE, TRUE, FALSE) and explicitly discard its Boolean return. A focused test invokes the callback branch directly; this additional branch does not replace the admitted hero-zap runtime evidence."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/muse.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v39",
+                "caseId": "v39-cancellation-clay-golem-reached",
+                "segment": 0,
+                "fromStep": 47,
+                "throughStep": 48,
+                "source": "cmd.c:dozap -> zap.c:dozap -> zap.c:weffects -> zap.c:bhit -> zap.c:bhitm -> zap.c:cancel_monst -> mon.c:killed -> mon.c:xkilled"
+              }
+            ],
+            "checkedAt": "84312ccb8315efd63349f4d9ec0e63d2783b2601"
+          }
+        ],
+        "entryPointReview": "The selected runtime entrypoint is the hero zapping a cancellation wand at a wished clay golem. C dispatches the z command through zap.c:dozap -> weffects -> bhit -> bhitm -> cancel_monst; the admitted v39 recording reaches allow_cancel_kill and killed -> xkilled. JavaScript dispatches through cmd.js to dozap, weffects passes bhitm as the ray callback, and bhitm calls cancel_monst. Other already wired C callsites include hero self-zap and artifact.c:Mb_hit. The additional muse.c:mbhitm cancellation branch is wired and tested directly in scripts/muse.test.mjs; C currently does not select cancellation items through find_offensive(), so this callback branch is not a separate naturally selected runtime entry point. No muse.c:use_defensive cancellation call exists in the upstream source range.",
+        "entryPoints": [
+          {
+            "name": "Hero zaps a cancellation wand at a clay golem",
+            "functions": [
+              "cancel_monst"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v39",
+                "caseId": "v39-cancellation-clay-golem-reached",
+                "segment": 0,
+                "fromStep": 47,
+                "throughStep": 48,
+                "source": "cmd.c:dozap -> zap.c:dozap -> zap.c:weffects -> zap.c:bhit -> zap.c:bhitm -> zap.c:cancel_monst -> mon.c:killed -> mon.c:xkilled"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
