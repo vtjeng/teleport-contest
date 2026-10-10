@@ -8,10 +8,10 @@
   "manifestPath": "challenges/manifests/v40.json",
   "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
   "recordingSha256": "a002883b9c47c5151fbe3c6e7d8a8484e9f8f836b1cf3d829351fc90b7dca2c4",
-  "evaluationPath": "challenges/evaluations/accepted-fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7-v40.json",
-  "evaluationCommit": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7",
+  "evaluationPath": "challenges/evaluations/accepted-10b2dc61ddff793aef1185581dff8f3c576097e0-v40.json",
+  "evaluationCommit": "10b2dc61ddff793aef1185581dff8f3c576097e0",
   "status": "complete",
-  "commit": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7",
+  "commit": "10b2dc61ddff793aef1185581dff8f3c576097e0",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v40",
@@ -24,11 +24,11 @@
     "recordingSha256": "a002883b9c47c5151fbe3c6e7d8a8484e9f8f836b1cf3d829351fc90b7dca2c4",
     "recipe": "challenges/cases/v40/v40-wizard-wish-assistance-cfirst.recipe.session.json",
     "recipeSha256": "d7469c501ab338befa7376ca81a8102578ebb127e97c07fb2d68ea010160913a",
-    "replayInputSha256": "303dbdc19975a2f0a7a735252a75d735893cc040bf8fd97486e49a62241ba8d0",
-    "evaluationPath": "challenges/evaluations/accepted-fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7-v40.json",
-    "evaluationCommit": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7",
-    "evaluationArtifact": "challenges/evaluations/accepted-fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7-v40.json",
-    "evaluationUtc": "2026-10-10T12:26:03.474Z",
+    "replayInputSha256": "8558a5e81c1172786b98403ff215e1acf892a18dd994627ed6e6b2c3f5575acf",
+    "evaluationPath": "challenges/evaluations/accepted-10b2dc61ddff793aef1185581dff8f3c576097e0-v40.json",
+    "evaluationCommit": "10b2dc61ddff793aef1185581dff8f3c576097e0",
+    "evaluationArtifact": "challenges/evaluations/accepted-10b2dc61ddff793aef1185581dff8f3c576097e0-v40.json",
+    "evaluationUtc": "2026-10-10T14:03:06.126Z",
     "remainingScreens": 9,
     "recordedSteps": 16,
     "previousScreensMatched": 7,
@@ -100,7 +100,11 @@
     "message": null,
     "cFile": null,
     "luaFile": null,
-    "line": null
+    "line": null,
+    "investigation": {
+      "status": "missing",
+      "path": "investigations/synthetic/v40/v40-wizard-wish-assistance.json"
+    }
   },
   "summary": "The admitted help response diverges because zap.c:makewish calls wishcmdassist() to display the wish guidance text window before retrying, while js/zap.js records that helper as unported and retries immediately. Port the whole helper in js/zap.js and replace the placeholder with the existing TTY text-window API; makewish and its production callers already share that path.",
   "source": {
@@ -121,11 +125,11 @@
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    "The authoritative combined queue SHA-256 08ae55da31ec32a2d37e780be36d84163330605cfea728cbb189708dcf8b5b37 identifies synthetic/v40/v40-wizard-wish-assistance, with 9 remaining screens, 16 recorded steps, and 7/16 screen/cursor matches. Its first mismatch is segment 0, step 6, key newline: C cursor [8,23,1] on the Wish details text window versus JS cursor [22,0,1] at the retried wish prompt; all 2152/2152 RNG calls match.",
+    "The authoritative combined queue SHA-256 b521bb87540b2a1399a0c331b429c561a587eb7c22e1c79b534e47ff3f40ae59 identifies synthetic/v40/v40-wizard-wish-assistance, with 9 remaining screens, 16 recorded steps, and 7/16 screen/cursor matches. Its first mismatch is segment 0, step 6, key newline: C cursor [8,23,1] on the Wish details text window versus JS cursor [22,0,1] at the retried wish prompt; all 2152/2152 RNG calls match.",
     "The admitted recipe is challenges/cases/v40/v40-wizard-wish-assistance-cfirst.recipe.session.json; it enters Ctrl-W, types help, dismisses the guidance, then explicitly answers nothing. Its C recording is challenges/cases/v40/v40-wizard-wish-assistance-cfirst.session.json. A fresh C/JS differential on the assigned branch reproduced the same boundary and full RNG parity (run-QjUnfH).",
     "Upstream nethack-c/upstream/src/zap.c:6165-6221 defines the complete wishcmdassist() window content and conditionals. Lines 6348-6352 in makewish() call it only for the normalized help line and retry without consuming an attempt.",
     "Upstream nethack-c/upstream/include/hack.h:1520 defines plur(x), used in the retry sentence. The helper takes remaining tries as an argument and does not mutate game state or make RNG calls, but it writes and waits on an NHW_TEXT window, so matching recorded play is its runtime evidence.",
-    "At accepted Main fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7, js/zap.js:1847-1852 handles help with note_unported(\"zap.c wishcmdassist\") and immediately retries. The C caller behavior is therefore present, while the source helper’s visible output and blocking input are absent.",
+    "At accepted game commit 10b2dc61ddff793aef1185581dff8f3c576097e0, js/zap.js:1847-1852 handles help with note_unported(\"zap.c wishcmdassist\") and immediately retries. The C caller behavior is therefore present, while the source helper’s visible output and blocking input are absent.",
     "The existing displayTtyTextWindow implementation at js/tty_menu.js:880-970 is the TTY text-window path used by other source ports and provides the exact synchronous wait boundary required by display_nhwindow(win, TRUE)."
   ]
 }
