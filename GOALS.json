@@ -257925,6 +257925,252 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-underwater-vision-apparxy-v41-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Fix underwater vision used by monster apparent-position guesses.",
+      "cFile": "vision.c",
+      "sessions": [
+        "synthetic/v41/v41-underwater-coin-flip-drops-coin"
+      ],
+      "selectionReason": "The admitted v41 underwater case reaches monmove.c:set_apparxy after vision_recalc and diverges because ordinary floor squares incorrectly retain COULD_SEE underwater.",
+      "detail": "Port vision.c:vision_recalc lines 589-606 so only adjacent pool squares receive IN_SIGHT and COULD_SEE underwater outside the water level, while preserving Blind and Rogue precedence and the later x-ray overlay.",
+      "openedAt": "2ecbd92bd8a9f38ee13625d490bea10e24c1a74b",
+      "openStanding": {
+        "sha": "cb6349b9dc1000ec9d12a1f2854867715249b552",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "vision_recalc",
+      "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+      "step": 81,
+      "syntheticProvenance": {
+        "synthetic/v41/v41-underwater-coin-flip-drops-coin": {
+          "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-underwater-coin-flip-drops-coin",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recordingPath": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+          "recordingSha256": "eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79",
+          "evaluationPath": "challenges/evaluations/accepted-cb6349b9dc1000ec9d12a1f2854867715249b552-v41.json",
+          "evaluationCommit": "cb6349b9dc1000ec9d12a1f2854867715249b552"
+        }
+      },
+      "activeStanding": {
+        "sha": "cb6349b9dc1000ec9d12a1f2854867715249b552",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-underwater-coin-flip-drops-coin",
+          "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recording": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+          "recordingPath": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+          "recordingSha256": "eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79",
+          "recipe": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.recipe.session.json",
+          "recipeSha256": "9907e98a55cca2e37dae5d4db1d6c3e0c2810bf2ba841149534a3d7d4538af33",
+          "replayInputSha256": "0d190965a59540bf2308166bd01491a008ef978d8d846eb7e9c2ba285c4373d7",
+          "evaluationPath": "challenges/evaluations/accepted-cb6349b9dc1000ec9d12a1f2854867715249b552-v41.json",
+          "evaluationCommit": "cb6349b9dc1000ec9d12a1f2854867715249b552",
+          "evaluationArtifact": "challenges/evaluations/accepted-cb6349b9dc1000ec9d12a1f2854867715249b552-v41.json",
+          "evaluationUtc": "2026-10-10T20:25:20.667Z",
+          "remainingScreens": 0,
+          "recordedSteps": 82,
+          "previousScreensMatched": 82,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 82,
+              "total": 82
+            },
+            "rng": {
+              "matched": 2668,
+              "total": 2720
+            },
+            "cursors": {
+              "matched": 82,
+              "total": 82
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2664,
+              "cEntry": "rn2(3)=2",
+              "cCaller": "set_apparxy(monmove.c:2258)",
+              "jsEntry": "rn2(5)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 81,
+                "key": "$"
+              },
+              "stepIndex": 81
+            },
+            "cursor": null
+          },
+          "step": 81,
+          "kind": "rng",
+          "sourceFile": "monmove.c",
+          "function": "set_apparxy",
+          "message": null,
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 2258,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v41/v41-underwater-coin-flip-drops-coin.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v41",
+              "caseId": "v41-underwater-coin-flip-drops-coin",
+              "remainingScreens": 0,
+              "status": "complete",
+              "commit": "9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v41",
+                "caseId": "v41-underwater-coin-flip-drops-coin",
+                "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+                "manifestPath": "challenges/manifests/v41.json",
+                "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+                "recording": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+                "recordingPath": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+                "recordingSha256": "eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79",
+                "recipe": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.recipe.session.json",
+                "recipeSha256": "9907e98a55cca2e37dae5d4db1d6c3e0c2810bf2ba841149534a3d7d4538af33",
+                "replayInputSha256": "4fc3c05fb685b03b2475453e1a4f65d463eb24d470153562570e139e76657c2e",
+                "evaluationPath": "challenges/evaluations/accepted-9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b-v41.json",
+                "evaluationCommit": "9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b",
+                "evaluationArtifact": "challenges/evaluations/accepted-9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b-v41.json",
+                "evaluationUtc": "2026-10-10T19:56:17.874Z",
+                "remainingScreens": 0,
+                "recordedSteps": 82,
+                "previousScreensMatched": 81,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 82,
+                    "total": 82
+                  },
+                  "rng": {
+                    "matched": 2668,
+                    "total": 2720
+                  },
+                  "cursors": {
+                    "matched": 82,
+                    "total": 82
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 2664,
+                    "cEntry": "rn2(3)=2",
+                    "cCaller": "set_apparxy(monmove.c:2258)",
+                    "jsEntry": "rn2(5)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 81,
+                      "key": "$"
+                    },
+                    "stepIndex": 81
+                  },
+                  "cursor": null
+                },
+                "step": 81,
+                "kind": "rng",
+                "sourceFile": "monmove.c",
+                "function": "set_apparxy",
+                "message": null,
+                "cFile": "monmove.c",
+                "luaFile": null,
+                "line": 2258
+              },
+              "summary": "After the accepted underwater coin fix, the selected v41 replay has no screen or cursor mismatches; its first remaining RNG divergence is at step 81 in monmove.c:set_apparxy. That function matches source. C vision.c:vision_recalc restricts underwater COULD_SEE to adjacent pool squares, while JS vision_recalc still uses ordinary view_from. The first guessed square is adjacent ordinary floor, so JS accepts it and skips the C retry draw.",
+              "source": {
+                "file": "vision.c",
+                "branch": "When the hero is underwater outside the water level, vision_recalc suppresses night vision and marks only valid pool squares in the surrounding 3-by-3 area as both IN_SIGHT and COULD_SEE. The preceding Blind and Rogue-level branches retain precedence. The subsequent x-ray overlay still applies.",
+                "functions": [
+                  "vision_recalc"
+                ],
+                "callers": [
+                  "allmain.c:moveloop() builds the initial visibility map with vision_recalc(0); JS allmain.js:moveloop() does the same.",
+                  "allmain.c:moveloop_core() recalculates after commands when vision_full_recalc is set (lines 471 and 542); JS allmain.js:moveloop_core() recalculates at its corresponding turn boundaries.",
+                  "monmove.c:dochug() and m_move() call set_apparxy(); JS monmove.js:dochug() and m_move() call set_apparxy(), which reads couldsee from the published vision array."
+                ],
+                "dependencies": [
+                  "The existing vision bitmap, dbridge.c:is_pool port, and monmove.c:set_apparxy implementation. No set_apparxy implementation change is required."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved queue SHA-256 7fe4c4f5d1d0efa7adc3cd87e577bff05524109dea78c72d19e02fc572c62676 identifies synthetic/v41/v41-underwater-coin-flip-drops-coin, recording challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json (SHA-256 eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79), manifest challenges/manifests/v41.json (SHA-256 7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69), and accepted evaluation at 9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b.",
+                "The accepted v41 queue result has 82/82 screens and 82/82 cursors matching, with 2668/2720 RNG calls matched. At segment 0, step 81, key \"$\", the first remaining mismatch is call 2664: C rn2(3)=2 from monmove.c:set_apparxy:2258 while JavaScript calls rn2(5)=0 in distfleeck.",
+                "Source trace of monmove.c:set_apparxy (2198 onward) and js/monmove.js:set_apparxy (2252 onward) shows the same underwater radius-one x/y draws, accessibility checks, and final couldsee rejection. The first chosen coordinate is (11,2) for hero position (11,3).",
+                "A temporary runtime trace on the accepted JavaScript implementation confirms couldsee(11,2) returns true with terrain type 25 (not a pool) and COULD_SEE|IN_SIGHT bits set. C vision.c:589-610 instead enters its Underwater branch and assigns visibility only when is_pool(col,row) is true, so C rejects this candidate and consumes the retry draw.",
+                "JS vision.js:727-789 contains a source comment identifying underwater vision as unported; vision_recalc computes underwaterOutsideWaterLevel but then still calls view_from. Its later night-vision guard already suppresses night vision underwater. C vision.c:512-622 establishes branch precedence: swallowed/control 2, Blind, Rogue level, underwater, then ordinary view_from."
+              ],
+              "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+              "manifestPath": "challenges/manifests/v41.json",
+              "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+              "recordingSha256": "eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79",
+              "evaluationPath": "challenges/evaluations/accepted-9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b-v41.json",
+              "evaluationCommit": "9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b",
+              "recordedSteps": 82,
+              "priorAcceptedWork": {
+                "delivery": "fc15824f344fcb1636f5e8bbe51182ca721e291a",
+                "acceptedMain": "9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b",
+                "summary": "The earlier apply.c:flip_coin fix and test correction are accepted. This follow-up investigates the later RNG mismatch exposed after that fix."
+              },
+              "followupEvidence": [
+                "Saved queue SHA-256 7fe4c4f5d1d0efa7adc3cd87e577bff05524109dea78c72d19e02fc572c62676 identifies synthetic/v41/v41-underwater-coin-flip-drops-coin, recording challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json (SHA-256 eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79), manifest challenges/manifests/v41.json (SHA-256 7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69), and accepted evaluation at 9c5253b9dcd9d1469e4f5a8cf3a73c04694bbd8b.",
+                "The accepted v41 queue result has 82/82 screens and 82/82 cursors matching, with 2668/2720 RNG calls matched. At segment 0, step 81, key \"$\", the first remaining mismatch is call 2664: C rn2(3)=2 from monmove.c:set_apparxy:2258 while JavaScript calls rn2(5)=0 in distfleeck.",
+                "Source trace of monmove.c:set_apparxy (2198 onward) and js/monmove.js:set_apparxy (2252 onward) shows the same underwater radius-one x/y draws, accessibility checks, and final couldsee rejection. The first chosen coordinate is (11,2) for hero position (11,3).",
+                "A temporary runtime trace on the accepted JavaScript implementation confirms couldsee(11,2) returns true with terrain type 25 (not a pool) and COULD_SEE|IN_SIGHT bits set. C vision.c:589-610 instead enters its Underwater branch and assigns visibility only when is_pool(col,row) is true, so C rejects this candidate and consumes the retry draw.",
+                "JS vision.js:727-789 contains a source comment identifying underwater vision as unported; vision_recalc computes underwaterOutsideWaterLevel but then still calls view_from. Its later night-vision guard already suppresses night vision underwater. C vision.c:512-622 establishes branch precedence: swallowed/control 2, Blind, Rogue level, underwater, then ordinary view_from."
+              ],
+              "followup": {
+                "task": "C-v41-underwater-monmove-set-apparxy-investigation-20261010",
+                "status": "implementation scope claimed",
+                "source": "vision.c:vision_recalc",
+                "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+                "remainingMismatch": {
+                  "step": 81,
+                  "key": "$",
+                  "rngIndex": 2664,
+                  "c": "rn2(3)=2 @ monmove.c:set_apparxy:2258",
+                  "js": "rn2(5)=0 @ monmove.js:distfleeck"
+                },
+                "nextAction": "Port the upstream underwater visibility branch in vision_recalc and verify the selected recording."
+              }
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
