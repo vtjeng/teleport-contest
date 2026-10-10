@@ -69,19 +69,22 @@
       "path": "investigations/synthetic/v41/v41-minetown3-special-program-generation.json"
     }
   },
-  "summary": "The v41 replay reaches an implemented minetn-3 loader, but JS preflight rejects its shopkeeper while lspo_finalize_level fills rooms after level_finalize_topology clears in_mklev. C explicitly calls fill_special_room after that clear, and shknam.c:shkinit creates the shopkeeper with MM_ESHK. The JS caller already marks this path as _specialRoomFill; makemon preflight fails to honor that marker for MM_ESHK.",
+  "summary": "The v41 replay reaches an implemented minetn-3 loader, but JS preflight rejects its PM_SHOPKEEPER/MM_ESHK creation after level_finalize_topology clears in_mklev. A second v41 replay loads Astral while the hero remains on D:1 and rejects the explicit PM_HIGH_CLERIC/MM_EPRI created by priestini. Both are C makemon paths with explicit, source-owned creation markers; a narrow admission contract will accept the existing special-room marker for MM_ESHK and a priestini marker only for PM_HIGH_CLERIC/MM_EPRI.",
   "source": {
     "file": "makemon.c",
     "branch": "shknam.c:shkinit creates PM_SHOPKEEPER with MM_ESHK while filling a special level after sp_lev.c:lspo_finalize_level has called level_finalize_topology and cleared gi.in_mklev.",
     "functions": [
-      "makemon() explicit MM_ESHK shopkeeper creation"
+      "makemon.c:makemon",
+      "priest.c:priestini"
     ],
     "callers": [
       "sp_lev.c:lspo_finalize_level: calls level_finalize_topology() and then fill_special_room() for each room",
-      "shknam.c:stock_room -> shkinit: calls makemon(&mons[PM_SHOPKEEPER], sx, sy, MM_ESHK)"
+      "shknam.c:stock_room -> shkinit: calls makemon(&mons[PM_SHOPKEEPER], sx, sy, MM_ESHK)",
+      "sp_lev.c:lspo_altar -> sp_lev.c:create_altar -> priest.c:priestini -> makemon.c:makemon (PM_HIGH_CLERIC 276, MM_EPRI)"
     ],
     "dependencies": [
-      "mklev.c:level_finalize_topology clears gi.in_mklev before the special-room fill loop; the JS fill_special_room caller passes _specialRoomFill through stock_room and shkinit."
+      "mklev.c:level_finalize_topology clears gi.in_mklev before the special-room fill loop; the JS fill_special_room caller passes _specialRoomFill through stock_room and shkinit.",
+      "C investigation report investigations/synthetic/v41/v41-astral-special-program-generation.json, committed by C as b9d8eb55a1aa1487ddbcf52532e7adb9c5023a11"
     ]
   },
   "goalKind": "divergence-fix",
@@ -90,6 +93,11 @@
     "The queue annotation says the top-level dat/minetn-3.lua program is reached by wiz_load_splua/load_special, but this source is already ported: js/mines_levels.js:minetn3 implements the program and MINES_LEVEL_LOADERS registers minetn-3; js/mklev.js:ensureSpecialLevelLoaders includes that registry. The missing program/loader diagnosis is stale for the examined tree.",
     "C source order is explicit: sp_lev.c:lspo_finalize_level calls level_finalize_topology() and then fill_special_room() for each room (sp_lev.c:6055-6058). mklev.c:level_finalize_topology sets gi.in_mklev = FALSE before returning. shknam.c:shkinit then calls makemon(&mons[PM_SHOPKEEPER], sx, sy, MM_ESHK) (shknam.c:663-665); makemon.c allocates ESHK for MM_ESHK without an in_mklev restriction (makemon.c:1242).",
     "The JS path preserves the source context: mklev.js:fill_special_room creates normalized env with _specialRoomFill=true before calling stock_room; shknam.js:shkinit passes MM_ESHK and the normalized env to makemon. makemon_create.js:preflightCreation recognizes _specialRoomFill for calls after topology finalization, but shopkeeperCall at the MM_ESHK gate requires state.in_mklev, so the valid post-finalization shopkeeper call is refused.",
-    "The minimal source-backed divergence scope is makemon.c:makemon behavior represented by js/makemon_create.js:preflightCreation: admit the exact PM_SHOPKEEPER/MM_ESHK shape when either in_mklev is true or the existing _specialRoomFill caller marker is true. No loader-registry edit is needed; B219 owns that shared contract, but minetn-3 is already registered in the examined tree."
-  ]
+    "The minimal source-backed divergence scope is makemon.c:makemon behavior represented by js/makemon_create.js:preflightCreation: admit the exact PM_SHOPKEEPER/MM_ESHK shape when either in_mklev is true or the existing _specialRoomFill caller marker is true. No loader-registry edit is needed; B219 owns that shared contract, but minetn-3 is already registered in the examined tree.",
+    "The independently committed C investigation b9d8eb55a1aa1487ddbcf52532e7adb9c5023a11 records the Astral stop at step 24 and traces wiz_load_splua -> lspo_altar -> create_altar -> priestini -> makemon(PM_HIGH_CLERIC, MM_EPRI). Its report is included at investigations/synthetic/v41/v41-astral-special-program-generation.json.",
+    "The canonical admission correction covers two exact source call shapes: shkinit PM_SHOPKEEPER/MM_ESHK with the existing _specialRoomFill marker after topology finalization, and sanctum priestini PM_HIGH_CLERIC/MM_EPRI with a source-specific marker; unmarked calls remain subject to existing admission gates.",
+    "B221 implementation validation: fresh C/JavaScript differential for challenges/cases/v41/v41-shop-sellobj-minetown3-map.recipe.session.json passes all 36 screens/cursors and all 4814 RNG calls. The shopkeeper pointer now completes makemon -> shkinit -> stock_room -> fill_special_room side effects in C order.",
+    "B221 combined Astral validation: the prefix through zero-based step 23 matches and reaches High Cleric creation. At step 24 C displays the special-level arrival message while JS is blank. C cmd.c:makemap_prepost(FALSE) calls questpgr.c:deliver_splev_message() after flush_screen(1), then check_special_room(FALSE); JS cmd.js:makemap_prepost(false) currently records that call as note_unported before check_special_room(false). The delivery helper/caller correction is a separate C-owned dependency and is outside B221 scope. The later #wizmap path separately adds rn2(19)=3 in JS at detect.c:do_mapping -> attrib.c:exercise(A_WIS)."
+  ],
+  "residualBoundary": "Astral matches through step 23. Step 24 is the missing special-level arrival message from questpgr.c:deliver_splev_message and remains a C-owned dependency, outside B221 scope. After arrival delivery, the later #wizmap exercise(A_WIS) RNG divergence also remains outside B221."
 }

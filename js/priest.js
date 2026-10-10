@@ -288,7 +288,11 @@ export function priestini(lvl, sroom, sx, sy, sanctum, env = {}) {
     const blocker = m_at(px, py, state);
     if (blocker) rloc(blocker, RLOC_NOMSG, env);
 
-    const priest = makemon(prim, px, py, MM_EPRI, env);
+    // C priestini() passes MM_EPRI for both aligned priests and the Astral
+    // High Cleric. Carry an exact caller marker only for the sanctum species so
+    // makemon's initial-level gate can admit its explicit source call.
+    const priestEnv = { ...env, _priestiniHighCleric: Boolean(sanctum) };
+    const priest = makemon(prim, px, py, MM_EPRI, priestEnv);
     if (!priest) return;
 
     const epri = priest.mextra.epri;

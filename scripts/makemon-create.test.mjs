@@ -17,6 +17,8 @@ import {
     MM_ANGRY,
     MM_ASLEEP,
     MM_FEMALE,
+    MM_ESHK,
+    MM_EPRI,
     MM_IGNOREWATER,
     MM_MALE,
     MM_MINVIS,
@@ -134,6 +136,7 @@ import {
     PM_GIANT_EEL,
     PM_GIANT_ZOMBIE,
     PM_GOBLIN,
+    PM_HIGH_CLERIC,
     PM_GRID_BUG,
     PM_HILL_GIANT,
     PM_HOMUNCULUS,
@@ -178,6 +181,7 @@ import {
     PM_SKELETON,
     PM_SMALL_MIMIC,
     PM_SOLDIER,
+    PM_SHOPKEEPER,
     PM_STALKER,
     PM_STONE_GIANT,
     PM_FROST_GIANT,
@@ -6943,6 +6947,117 @@ test('Mausoleum preflight admits every reachable species and rejects its boundar
         );
         random.assertExhausted();
     }
+});
+
+test('special-level caller markers admit only their explicit shopkeeper and High Cleric shapes', async () => {
+    const shopkeeperState = initialLevelState();
+    shopkeeperState.in_mklev = false;
+    const shopkeeperRandom = recordingRandom();
+    const shopkeeper = await makemon(
+        shopkeeperState.mons[PM_SHOPKEEPER],
+        MON_X,
+        MON_Y,
+        MM_ESHK,
+        {
+            state: shopkeeperState,
+            random: shopkeeperRandom.random,
+            _specialRoomFill: true,
+        },
+    );
+    assert.equal(shopkeeper.data.pmidx, PM_SHOPKEEPER);
+    assert.ok(shopkeeper.mextra.eshk);
+
+    const unmarkedShopkeeperState = initialLevelState();
+    unmarkedShopkeeperState.in_mklev = false;
+    const unmarkedShopkeeperRandom = recordingRandom();
+    assert.throws(
+        () => makemon(
+            unmarkedShopkeeperState.mons[PM_SHOPKEEPER],
+            MON_X,
+            MON_Y,
+            MM_ESHK,
+            {
+                state: unmarkedShopkeeperState,
+                random: unmarkedShopkeeperRandom.random,
+            },
+        ),
+        (error) => error instanceof UnsupportedMonsterCreationError
+            && error.operation === 'shopkeeper extension outside shkinit',
+    );
+    assert.deepEqual(unmarkedShopkeeperRandom.calls, []);
+
+    const misflaggedShopkeeperState = initialLevelState();
+    misflaggedShopkeeperState.in_mklev = false;
+    const misflaggedShopkeeperRandom = recordingRandom();
+    assert.throws(
+        () => makemon(
+            misflaggedShopkeeperState.mons[PM_SHOPKEEPER],
+            MON_X,
+            MON_Y,
+            MM_ESHK | MM_NOMSG,
+            {
+                state: misflaggedShopkeeperState,
+                random: misflaggedShopkeeperRandom.random,
+                _specialRoomFill: true,
+            },
+        ),
+        (error) => error instanceof UnsupportedMonsterCreationError
+            && error.operation === 'shopkeeper extension outside shkinit',
+    );
+    assert.deepEqual(misflaggedShopkeeperRandom.calls, []);
+
+    const highClericState = initialLevelState();
+    const highClericRandom = recordingRandom();
+    const highCleric = await makemon(
+        highClericState.mons[PM_HIGH_CLERIC],
+        MON_X,
+        MON_Y,
+        MM_EPRI,
+        {
+            state: highClericState,
+            random: highClericRandom.random,
+            _priestiniHighCleric: true,
+        },
+    );
+    assert.equal(highCleric.data.pmidx, PM_HIGH_CLERIC);
+    assert.ok(highCleric.mextra.epri);
+
+    const unmarkedHighClericState = initialLevelState();
+    const unmarkedHighClericRandom = recordingRandom();
+    assert.throws(
+        () => makemon(
+            unmarkedHighClericState.mons[PM_HIGH_CLERIC],
+            MON_X,
+            MON_Y,
+            MM_EPRI,
+            {
+                state: unmarkedHighClericState,
+                random: unmarkedHighClericRandom.random,
+            },
+        ),
+        (error) => error instanceof UnsupportedMonsterCreationError
+            && error.operation === `makemon() monster ${PM_HIGH_CLERIC}`,
+    );
+    assert.deepEqual(unmarkedHighClericRandom.calls, []);
+
+    const misflaggedHighClericState = initialLevelState();
+    const misflaggedHighClericRandom = recordingRandom();
+    assert.throws(
+        () => makemon(
+            misflaggedHighClericState.mons[PM_HIGH_CLERIC],
+            MON_X,
+            MON_Y,
+            MM_EPRI | MM_NOMSG,
+            {
+                state: misflaggedHighClericState,
+                random: misflaggedHighClericRandom.random,
+                _priestiniHighCleric: true,
+            },
+        ),
+        (error) => error instanceof UnsupportedMonsterCreationError
+            && error.operation === `makemon() monster ${PM_HIGH_CLERIC}`,
+    );
+    assert.deepEqual(misflaggedHighClericRandom.calls, []);
 });
 
 test('explicit-coordinate runtime creation on a non-main-dungeon level fails before RNG or state', () => {

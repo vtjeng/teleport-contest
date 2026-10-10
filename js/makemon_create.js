@@ -1126,6 +1126,11 @@ function isMausoleumSpecies(species) {
 
 function assertSupportedSpecies(species, env = {}) {
     const createParticular = env._createParticular === true;
+    // priest.c:priestini() explicitly requests the Astral sanctum High Cleric
+    // with MM_EPRI. C makemon() has no generated-species allowlist for that
+    // explicit call; keep this exception tied to the caller marker and species.
+    const priestHighCleric = env._priestiniHighCleric === true
+        && species?.pmidx === PM_HIGH_CLERIC;
     const guardianRoamer = env._mkRoamer === true
         && species?.pmidx === PM_ANGEL;
     // The four throne-room rulers are the whole range of mkroom.c
@@ -1226,6 +1231,7 @@ function assertSupportedSpecies(species, env = {}) {
             // the Astral guardian appears; keep this exact runtime call out
             // of the ordinary generated-species set.
             && !guardianRoamer
+            && !priestHighCleric
             // makemon.c:1147-1512 has no species admission gate. The
             // minotaur's explicit m_initinv() arm is complete, so read.c's
             // create_particular_creation() and sp_lev.c's fill_empty_maze()
@@ -1273,6 +1279,15 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     // fill_zoo() makemon calls are still level-generation calls, so admit the
     // explicit marker without changing in_mklev-dependent initialization.
     const specialRoomCall = normalized._specialRoomFill === true;
+    // priest.c:priestini()'s only species outside the main-dungeon allowlist
+    // is the sanctum High Cleric, passed at explicit coordinates with MM_EPRI.
+    // Normalize the marker against that whole source call shape before the
+    // species gate sees it; a stray marker cannot authorize another call.
+    normalized._priestiniHighCleric = state.in_mklev
+        && normalized._priestiniHighCleric === true
+        && ptr?.pmidx === PM_HIGH_CLERIC
+        && !randomCoordinates
+        && mmflags === MM_EPRI;
     const runtimeRandomCall = !state.in_mklev
         && randomCoordinates
         && !ptr
@@ -1539,7 +1554,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             'runtime creation while an occupation lacks stopOccupation',
         );
     }
-    const shopkeeperCall = (state.in_mklev
+    const shopkeeperCall = ((state.in_mklev || specialRoomCall)
         && ptr?.pmidx === PM_SHOPKEEPER
         && !randomCoordinates
         && mmflags === MM_ESHK)
