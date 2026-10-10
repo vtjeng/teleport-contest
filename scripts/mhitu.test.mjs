@@ -66,6 +66,7 @@ import {
     set_occupation,
 } from '../js/cmd.js';
 import { game } from '../js/gstate.js';
+import { add_to_minv } from '../js/invent.js';
 import { near_capacity, spoteffects, weight_cap } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import {
@@ -200,6 +201,7 @@ import {
     LONG_SWORD,
     LOW_BOOTS,
     ORCISH_DAGGER,
+    SHORT_SWORD,
     SILVER_DAGGER,
     objects_globals_init,
 } from '../js/objects.js';
@@ -4212,15 +4214,20 @@ test('passiveum runs the source acid and physical counterattack arms',
             ...ordinary.mattk.slice(1),
         ],
     };
+    const sword = mksobj(SHORT_SWORD, false, false, { state });
+    add_to_minv(bug, sword, { state });
+    bug.mw = sword;
     const acid = meleeEnv(state, [1], {
-        rn2: (bound) => bound === 2 ? 0 : 1,
+        rn2: (bound) => bound === 2 ? 0 : bound === 6 ? 0 : 1,
     });
     assert.equal(await mattacku(bug, acid.env), false);
     assert.equal(bug.mhp, 9, 'acid damage reaches assess_dmg');
-    assert.deepEqual(acid.lines.slice(-1),
-        ['The grid bug is splashed by your acid!']);
+    assert.ok(acid.lines.includes('The grid bug is splashed by your acid!'));
+    assert.ok(acid.lines.includes("The grid bug's short sword corrodes!"));
     assert.deepEqual(acid.bounds.filter((bound) => bound.startsWith('rn2(')).slice(-3),
         ['rn2(2)', 'rn2(30)', 'rn2(6)']);
+    assert.equal(sword.oeroded2, 1);
+    assert.ok(acid.lines.some(line => line.includes('short sword corrodes!')));
 
     // C's ordinary polymorphed physical arm retains its rolled damage and
     // spends the tail rn2(3), whereas an unpolymorphed AT_NONE form returns

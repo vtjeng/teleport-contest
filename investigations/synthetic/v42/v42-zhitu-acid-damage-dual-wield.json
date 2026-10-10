@@ -15,7 +15,7 @@
   "remainingScreens": 1,
   "recordedSteps": 84,
   "commit": "9cdea202af88c860df94f59755ea1cbc5e70eba7",
-  "summary": "The v42 yellow dragon's acid breath reaches zap.c:zhitu's dual-wield off-hand corrosion gate. The C and JavaScript RNG streams match through step 83, but C prints 'Your wakizashi corrodes!' and waits at the final message page while JavaScript skips the effect. The missing callee is trap.c:acid_damage(uswapwep), represented in js/zap.js by note_unported('trap.c acid_damage').",
+  "summary": "The selected dual-wield acid-breath mismatch was caused by the missing trap.c:acid_damage() helper. The full erode_obj(), grease_protect(), and acid_damage() family is now implemented in js/trap_erode_obj.js; zap.c:zhitu and zhitm plus mhitu.c:passiveum call the canonical helper, and the v42 replay now matches through step 83. Fresh C-first Zhitu, zhitm, passiveum, and greased acid-dip cases provide independent matching evidence. The armed monster-vs-monster passivemm caller is wired and source-pinned but its production entry remains blocked before passivemm at JavaScript step 132.",
   "mismatch": {
     "firstMismatch": {
       "segment": 0,
@@ -41,26 +41,148 @@
   },
   "source": {
     "file": "trap.c",
-    "functions": ["acid_damage"],
+    "functions": [
+      "acid_damage"
+    ],
     "branch": "acid_damage returns on a null object or acid-resistant hero inventory; grease absorbs the effect; nonblank scrolls become blank paper; other objects are passed to erode_obj with ERODE_CORRODE and EF_GREASE|EF_VERBOSE.",
     "callers": [
-      "zap.c:zhitu calls acid_damage(uwep) and acid_damage(uswapwep) under distinct dual-wield probability gates; js/zap.js has matching unported calls.",
-      "zap.c:zhitm calls acid_damage(MON_WEP(mon)); js/zap.js has a matching unported call.",
-      "mhitu.c:passiveum calls acid_damage(MON_WEP(mtmp)); js/mhitu.js has a matching unported call.",
-      "mhitm.c:mhitm_ad_acid calls acid_damage(MON_WEP(magr)); js/mhitm.js has a matching unported call.",
-      "uhitm.c:mhitm_ad_acid also calls acid_damage(MON_WEP(mdef)); js/uhitm.js currently refuses the whole mhitm_ad_acid caller branch, so that call remains behind a documented unported boundary."
+      "zap.c:zhitu calls acid_damage(uwep) and acid_damage(uswapwep) under distinct weapon gates; js/zap.js now passes the canonical state.uwep and state.uswapwep slots to trap_erode_obj.js:acid_damage.",
+      "zap.c:zhitm calls acid_damage(MON_WEP(mon)); js/zap.js calls the same helper after the source rn2(6) gate.",
+      "mhitu.c:passiveum calls acid_damage(MON_WEP(mtmp)); js/mhitu.js now calls the same helper after the source rn2(6) gate.",
+      "mhitm.c:passivemm calls acid_damage(MON_WEP(magr)); js/mhitm.js now calls the helper and has source-pinned coverage, but the selected production route stops earlier in the existing armed monster-vs-monster mattackm path.",
+      "uhitm.c:mhitm_ad_acid also calls acid_damage(MON_WEP(mdef)); the existing js/uhitm.js dispatch still marks this caller unported and it is outside this task."
     ],
     "dependencies": [
-      "trap.c:erode_obj is already implemented in js/trap_erode_obj.js, including the EF_GREASE and EF_VERBOSE behavior acid_damage needs.",
+      "trap.c:erode_obj, grease_protect, and acid_damage share the canonical js/trap_erode_obj.js implementation; acid_damage retains the source order for hero acid resistance, grease, scroll blanking, then ERODE_CORRODE.",
       "zap.c:inventory_resistance_check is already implemented in js/zap.js.",
-      "The current one-screen defect is the skipped trap.c:acid_damage call from zap.c:zhitu; no RNG call is missing."
+      "The dual-wield production fix uses the canonical top-level state.uwep and state.uswapwep slots that correspond to C u.uwep and u.uswapwep."
     ]
   },
   "evidence": [
-    "The saved queue SHA-256 is acd623dbdaf757c62d59919167f5997850d5e3316fb49e2782320882aa8695a9. It selected this case with one remaining screen at step 83.",
-    "The accepted evaluation at 990f9bc4c2964447a9adac4f0e54ea90728ee2cb reports 83/84 screens, 3005/3005 RNG values, and 83/84 cursors. The final C step records the off-hand rn2(3)=0 corrosion gate and the wakizashi message; JavaScript takes the same random branch but omits the helper's object effect.",
-    "Upstream trap.c:acid_damage at lines 4618-4653 explicitly protects carried objects only when inventory_resistance_check(AD_ACID) succeeds; otherwise it consumes grease, blanks eligible scrolls, or calls erode_obj(obj, NULL, ERODE_CORRODE, EF_GREASE|EF_VERBOSE). The existing JavaScript owner js/trap_erode_obj.js provides erode_obj and its inlined grease_protect branch.",
-    "A full source search found acid_damage callers at zap.c:zhitm, zap.c:zhitu (two object slots), mhitu.c:passiveum, mhitm.c:mhitm_ad_acid, and uhitm.c:mhitm_ad_acid. JavaScript has matching skipped calls in zap.js, mhitu.js, and mhitm.js; uhitm.js still refuses its whole mhitm_ad_acid branch and remains explicitly unported.",
-    "The existing v42 yellow-dragon acid-breath control reaches zhitu but misses the off-hand corrosion gate. It is not evidence for the dual-wield object effect exercised by this selected case."
-  ]
+    "The saved v42 queue selected this session at the final weapon-corrosion message. The accepted baseline at 990f9bc4c2964447a9adac4f0e54ea90728ee2cb had 83/84 screens, 3005/3005 RNG values, and 83/84 cursors; its first mismatch was step 83.",
+    "Upstream trap.c:acid_damage() (4618-4654) checks a null object, carried hero acid resistance, grease, blank-paper/mail exceptions, then erode_obj(obj, NULL, ERODE_CORRODE, EF_GREASE|EF_VERBOSE). The port preserves that order and maps carried objects to the canonical hero inventory state.",
+    "Upstream trap.c:grease_protect() (360-386) prints the source visibility-dependent message, rolls rn2(2), clears grease only on zero, and refreshes inventory only for a carried object. The port keeps this as one canonical helper shared by erode_obj() and acid_damage().",
+    "Upstream trap.c:erode_obj() (171-353) uses the source erosion tables, victim selection, inventory-resistance draw, grease guard, vulnerability and erosion-proof checks, message ordering, destruction cleanup, and return codes. The B42 changes retain the existing whole-function implementation and use it from acid_damage().",
+    "The matching fresh Zhitu dual-wield recording reaches zap.c:zhitu at step 81: the main-hand rn2(3) gate succeeds, the off-hand gate fails, and the katana corrodes. Its complete 82-step C-first recipe replay matches PRNG, screens, cursors, and animation frames.",
+    "The matching fresh zhitm recording reaches zap.c:zhitm at step 103, passes the source rn2(6) acid_damage gate, and matches the complete 104-step C-first replay. This recording does not show weapon corrosion, so it is evidence for the caller path only.",
+    "The matching fresh passiveum recording reaches mhitu.c:passiveum at step 65, including the successful rn2(6) acid_damage gate, and matches the complete 66-step C-first replay. The visible output does not establish an erode_obj effect for that call.",
+    "The matching fresh acid-dip recording reaches trap.c:grease_protect at step 61 (rn2(2)=0), reports grease protection, then dissolves the grease at step 62. Its complete 66-step C-first replay matches PRNG, screens, and cursors.",
+    "The preserved passivemm recipe records a C path through mhitm.c:passivemm: at step 135, rn2(30)=4 and rn2(6)=0 select acid_damage, followed by pick-axe corrosion at step 137. The JavaScript replay stops at step 132 with the existing UnsupportedTurnBoundaryError for an armed monster attacking another monster, before passivemm executes. Do not count that recipe or its removed nonmatching recording as runtime evidence."
+  ],
+  "implementation": {
+    "status": "ready-for-delivery",
+    "sourceFunctions": [
+      "erode_obj",
+      "grease_protect",
+      "acid_damage"
+    ],
+    "behavior": "Implemented the complete trap.c source family in js/trap_erode_obj.js and wired zap.c:zhitu, zap.c:zhitm, mhitu.c:passiveum, and mhitm.c:passivemm callers. The dual-wield caller reads state.uwep and state.uswapwep, matching C u.uwep and u.uswapwep.",
+    "passivemmBoundary": "passivemm is source-aligned and source-pinned, but it is not a completed runtime entry point. The independent recipe reaches C corrosion at steps 135 and 137, while JavaScript halts at step 132 in mhitm.c:mattackm’s armed AT_WEAP branch before mhitm.c:passivemm. The related weapon.c:possibly_unwield path is also unported and remains outside this task.",
+    "tests": [
+      "scripts/trap-erode-obj.test.mjs",
+      "scripts/zap-ray.test.mjs",
+      "scripts/zap-zhitu.test.mjs",
+      "scripts/mhitu.test.mjs",
+      "scripts/mhitm.test.mjs"
+    ],
+    "freshReplayLogs": [
+      "/tmp/teleport-validation-1000/run-wNcY22/stdout.log",
+      "/tmp/teleport-validation-1000/run-oXiqNx/stdout.log",
+      "/tmp/teleport-validation-1000/run-uGD5IR/stdout.log",
+      "/tmp/teleport-validation-1000/run-fbgVo7/stdout.log",
+      "/tmp/teleport-validation-1000/run-6xtmSI/stdout.log"
+    ]
+  },
+  "runtimeEvidence": [
+    {
+      "name": "Admitted v42 Zhitu case",
+      "batch": "v42",
+      "caseId": "v42-zhitu-acid-damage-dual-wield",
+      "segment": 0,
+      "fromStep": 0,
+      "throughStep": 83,
+      "recordingPath": "challenges/cases/v42/v42-yellow-dragon-weapon-acid-damage-dual-wield-west-seed42044203-cfirst.session.json",
+      "recordingSha256": "50dae38203aeac670cf78b9b2deeafba38ca1ddecce804b23fcb13bb8a873a48",
+      "source": "zap.c:dobuzz -> zap.c:zap_hit -> zap.c:zhitu -> trap.c:acid_damage -> trap.c:erode_obj",
+      "result": "The current JavaScript replay matches this complete recorded prefix, including the final acid corrosion message."
+    },
+    {
+      "name": "Fresh dual-wield Zhitu",
+      "recipePath": "recipes/trap.c/acid-damage-zhitu-dual-wield.session.json",
+      "recipeSha256": "5aaedf508df612a96f20306a2f1aa1e0e3a5f7e43c7b7f96b51ad0e84f2ab013",
+      "recordingPath": "recordings/trap.c/acid-damage-zhitu-dual-wield.session.json",
+      "recordingSha256": "be859227df353183c9f9b35ab8098d7a6d6f65010a1b428fd1710a6127d496e2",
+      "segment": 0,
+      "fromStep": 0,
+      "throughStep": 81,
+      "source": "zap.c:dobuzz -> zap.c:zap_hit -> zap.c:zhitu -> trap.c:acid_damage -> trap.c:erode_obj",
+      "result": "The main-hand gate corrodes the katana; the off-hand gate declines. Full 82-step C-first replay matches."
+    },
+    {
+      "name": "Fresh monster-targeted zhitm",
+      "recipePath": "recipes/trap.c/acid-damage-zhitm-monster-weapon.session.json",
+      "recipeSha256": "4dced9bbb317a3d49db8629cd2a7c527c1296cc94b97beeea0d71da62dc4d241",
+      "recordingPath": "recordings/trap.c/acid-damage-zhitm-monster-weapon.session.json",
+      "recordingSha256": "be6c05b2a9a59f534be798fb3c4d198e9c1a7299f3c4977a0ec357172508b68f",
+      "segment": 0,
+      "fromStep": 0,
+      "throughStep": 103,
+      "source": "zap.c:dobuzz -> zap.c:zap_hit -> zap.c:zhitm -> trap.c:acid_damage",
+      "result": "The source acid_damage gate executes; no visible weapon corrosion occurs in this recording. Full 104-step C-first replay matches."
+    },
+    {
+      "name": "Fresh passiveum hero-form acid",
+      "recipePath": "recipes/trap.c/acid-damage-passiveum-hero-form.session.json",
+      "recipeSha256": "f6145ba979474b32e48d1b3fd91b2257ed41218dcf9e5e1c4826c88369d4fbb2",
+      "recordingPath": "recordings/trap.c/acid-damage-passiveum-hero-form.session.json",
+      "recordingSha256": "322ba5c10e11c6a8b0bf5cf3de4b3ecc5dce70f9a48c4e54587f5b6cd6f3335c",
+      "segment": 0,
+      "fromStep": 0,
+      "throughStep": 65,
+      "source": "mhitu.c:mhitu -> mhitu.c:passiveum -> trap.c:acid_damage",
+      "result": "The successful rn2(6) call is reached and the full 66-step C-first replay matches. The visible screen does not establish an erode_obj effect for this call."
+    },
+    {
+      "name": "Fresh greased acid dip",
+      "recipePath": "recipes/potion.c/acid-dip-greased-daggers.session.json",
+      "recipeSha256": "115591e27bada743f04264b85876fc21a3a98d3289e5c98830de784be7ba2be6",
+      "recordingPath": "recordings/potion.c/acid-dip-greased-daggers.session.json",
+      "recordingSha256": "33e2edf4c6b1b4d055376cc6814b105c3151af6de808dd9063837af8760df419",
+      "segment": 0,
+      "fromStep": 0,
+      "throughStep": 62,
+      "source": "potion.c acid dip -> trap.c:erode_obj -> trap.c:grease_protect",
+      "result": "The rn2(2)=0 protection gate and grease-dissolve message match; full 66-step C-first replay matches."
+    }
+  ],
+  "blockedRuntimeEvidence": {
+    "name": "passivemm armed monster-vs-monster acid passive",
+    "recipePath": "recipes/trap.c/acid-damage-passivemm-acid-blob-conflict.session.json",
+    "recipeSha256": "77b56bb88d1ee006c9e55d2e6687edd13a9dba4811f9561d2de55642487ee8c8",
+    "cObservation": {
+      "step": 135,
+      "rng": [
+        "rn2(30)=4 @ passivemm(mhitm.c:1345)",
+        "rn2(6)=0 @ passivemm(mhitm.c:1347)"
+      ],
+      "visibleCorrosionStep": 137,
+      "message": "The dwarf's pick-axe corrodes!"
+    },
+    "javascriptBoundary": {
+      "step": 132,
+      "owner": "mhitm.c:mattackm AT_WEAP armed monster-vs-monster branch",
+      "error": "UnsupportedTurnBoundaryError: simple monster action requires an armed monster attacking another monster"
+    },
+    "dependency": "mhitm.c:mattackm plus weapon.c:possibly_unwield",
+    "scope": "Do not expand this task into armed monster-vs-monster handling. passivemm remains source-aligned and source-pinned, with no completed runtime entry-point claim."
+  },
+  "recipeHashes": {
+    "recipes/trap.c/acid-damage-zhitu-dual-wield.session.json": "5aaedf508df612a96f20306a2f1aa1e0e3a5f7e43c7b7f96b51ad0e84f2ab013",
+    "recordings/trap.c/acid-damage-zhitu-dual-wield.session.json": "be859227df353183c9f9b35ab8098d7a6d6f65010a1b428fd1710a6127d496e2",
+    "recipes/trap.c/acid-damage-zhitm-monster-weapon.session.json": "4dced9bbb317a3d49db8629cd2a7c527c1296cc94b97beeea0d71da62dc4d241",
+    "recordings/trap.c/acid-damage-zhitm-monster-weapon.session.json": "be6c05b2a9a59f534be798fb3c4d198e9c1a7299f3c4977a0ec357172508b68f",
+    "recipes/trap.c/acid-damage-passiveum-hero-form.session.json": "f6145ba979474b32e48d1b3fd91b2257ed41218dcf9e5e1c4826c88369d4fbb2",
+    "recordings/trap.c/acid-damage-passiveum-hero-form.session.json": "322ba5c10e11c6a8b0bf5cf3de4b3ecc5dce70f9a48c4e54587f5b6cd6f3335c",
+    "recipes/trap.c/acid-damage-passivemm-acid-blob-conflict.session.json": "77b56bb88d1ee006c9e55d2e6687edd13a9dba4811f9561d2de55642487ee8c8"
+  }
 }

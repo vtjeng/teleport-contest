@@ -69,7 +69,8 @@ import {
 } from '../js/glyph_offsets.js';
 import { game } from '../js/gstate.js';
 import { GameMap } from '../js/game.js';
-import { newObject } from '../js/obj.js';
+import { add_to_minv } from '../js/invent.js';
+import { mksobj, newObject } from '../js/obj.js';
 import { runSegment } from '../js/jsmain.js';
 import { find_delayed_killer } from '../js/end.js';
 import { make_stoned } from '../js/potion.js';
@@ -94,6 +95,7 @@ import {
     SPE_FINGER_OF_DEATH,
     SPE_MAGIC_MISSILE,
     SPE_STONE_TO_FLESH,
+    SHORT_SWORD,
     TOOL_CLASS,
     TOWEL,
     WAN_COLD,
@@ -2388,6 +2390,46 @@ test('zhitm() ZT_FIRE deals d(nd,6) damage to a non-fire-resistant monster', asy
     assert.equal(result.damage, 10,
         'fire damage is d(nd,6) from the stub');
     assert.equal(mon.mhp, 90, '100 - 10 = 90 HP remaining');
+});
+
+test('zhitm() acid branch corrodes the monster weapon before its armor gate',
+    async () => {
+    // This independent startup gives object naming and resistance state; the
+    // unplaced giant rat isolates the zhitm() source branch from ray movement.
+    await runSegment({
+        ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+    });
+    const state = game;
+    const mon = {
+        data: state.mons[PM_GIANT_RAT],
+        m_lev: 1,
+        mhp: 20,
+        mhpmax: 20,
+        minvent: null,
+    };
+    const sword = mksobj(SHORT_SWORD, false, false, { state });
+    add_to_minv(mon, sword, { state });
+    mon.mw = sword;
+    const calls = [];
+    let acidGate = true;
+    const result = await zhitm(mon, 7, 1, state, {
+        d: (n, sides) => { calls.push(`d(${n},${sides})`); return 4; },
+        rn2: bound => {
+            calls.push(`rn2(${bound})`);
+            if (bound === 6 && acidGate) {
+                acidGate = false;
+                return 0;
+            }
+            return bound === 6 ? 1 : bound - 1;
+        },
+    }, { message: async () => {} });
+
+    assert.equal(result.damage, 4);
+    assert.equal(sword.oeroded2, 1);
+    // The final 111 bound is resist()'s 100 + wand level 12 - monster level 1.
+    assert.deepEqual(calls.slice(0, 4), [
+        'd(1,6)', 'rn2(6)', 'rn2(6)', 'rn2(111)',
+    ]);
 });
 
 // ---------------------------------------------------------------------------

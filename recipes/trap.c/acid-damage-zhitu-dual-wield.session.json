@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent fresh replay of zap.c:zhitu's acid-breath path into trap.c:acid_damage on a dual-wield Samurai. Seed 92877603, datetime 20420302093817, and level 12 were selected before recording. The Samurai enables the starting katana/wakizashi pair, creates a hostile yellow dragon, and uses the source-observed southwest target and northward retreat to put the hero on the dragon's vertical breath line. The spaces after the breath dismiss the message page and continue through zhitu's corrosion result.",
+  "segments": [
+    {
+      "seed": 92877603,
+      "datetime": "20420302093817",
+      "nethackrc": "OPTIONS=name:FreshAcidB2,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,rest_on_space\n",
+      "moves": " #levelchange\n12\n           #twoweapon\n         \u0007hostile yellow dragon\nFby       "
+    }
+  ]
+}
