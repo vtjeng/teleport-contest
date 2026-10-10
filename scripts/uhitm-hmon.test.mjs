@@ -39,6 +39,8 @@ import {
     DOOR,
     P_BASIC,
     P_KNIFE,
+    W_RINGL,
+    W_RINGR,
     P_BARE_HANDED_COMBAT,
     P_LANCE,
     P_SKILLED,
@@ -130,7 +132,7 @@ import { setuwep } from '../js/wield.js';
 import { setwornEnv } from '../js/do_wear.js';
 import { attacktype, monsndx, sticks } from '../js/mondata.js';
 import { P_ADVANCE, skillSlot } from '../js/startup_skills.js';
-import { uwep_skill_type } from '../js/weapon.js';
+import { silver_sears, uwep_skill_type } from '../js/weapon.js';
 import {
     hmon,
     hmon_hitmon_msg_silver,
@@ -154,6 +156,10 @@ import { will_hurtle } from '../js/dothrow.js';
 
 const UHITM_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/uhitm.c', import.meta.url),
+    'utf8',
+);
+const WEAPON_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/weapon.c', import.meta.url),
     'utf8',
 );
 const DOTHROW_SOURCE = readFileSync(
@@ -1940,6 +1946,52 @@ test('silver weapon feedback reaches the canonical common hit caller', async () 
     await hmon(target(PM_SHADE), saber, HMON_MELEE, 10, game, env);
     assert.ok(env.lines.includes('Your silver saber sears the shade!'));
     assert.deepEqual(env.bounds, ['rnd(8)', 'rnd(20)']);
+});
+
+test('silver_sears follows weapon.c ring identity and plural rules', async () => {
+    await hero();
+    const state = {
+        ...game,
+        objects: game.objects.map((object) => ({ ...object })),
+    };
+    const targetMonster = target(PM_VAMPIRE);
+    const feedback = async (silverhit) => {
+        const env = hitEnv();
+        await silver_sears(state.youmonst, targetMonster, silverhit, state, env);
+        return env.lines;
+    };
+    state.objects[RIN_ADORNMENT].oc_material = SILVER;
+    state.uleft = { otyp: RIN_ADORNMENT, dknown: true };
+    state.uright = null;
+    assert.deepEqual(await feedback(W_RINGL), [
+        'Your silver ring sears the vampire!',
+    ]);
+
+    state.uright = { otyp: RIN_ADORNMENT, dknown: true };
+    assert.deepEqual(await feedback(W_RINGL | W_RINGR), [
+        'Your silver rings sear the vampire!',
+    ]);
+
+    state.objects[RIN_PROTECTION].oc_material = 0;
+    state.uleft = { otyp: RIN_PROTECTION, dknown: false };
+    state.uright = null;
+    assert.deepEqual(await feedback(W_RINGL), [
+        'Your left ring sears the vampire!',
+    ]);
+
+    state.uleft = { otyp: RIN_ADORNMENT, dknown: false };
+    state.uright = { otyp: RIN_ADORNMENT, dknown: false };
+    assert.deepEqual(await feedback(W_RINGL | W_RINGR), [
+        'Your rings sear the vampire!',
+    ]);
+    assert.deepEqual(await feedback(0), []);
+
+    const start = WEAPON_SOURCE.indexOf('silver_sears(struct monst *magr');
+    const end = WEAPON_SOURCE.indexOf('staticfn struct obj *oselect', start);
+    const cFunction = WEAPON_SOURCE.slice(start, end);
+    assert.match(cFunction,
+        /both = \(\(ltyp == rtyp && l_dknown == r_dknown\) \|\| \(l_ag && r_ag\)\)/u);
+    assert.match(cFunction, /Your\("%s%s %s %s!"/u);
 });
 
 // Each row pins a branch of uhitm.c1663–1700; synthetic and independent play

@@ -1372,6 +1372,12 @@ export function create_maze(corrwid, wallthick, rmDeadends, frame, state) {
 
     // Temporarily reduce bounds for maze carving.
     const bounds = { xMax: rdx * 2, yMax: rdy * 2 };
+    // `okay()` uses xMax/yMax, while maze_remove_deadends() passes this
+    // frame to maze_inbounds(), which uses the source gx/gy field names.
+    const deadendBounds = {
+        xMazeMax: bounds.xMax,
+        yMazeMax: bounds.yMax,
+    };
 
     const mm = maze0xy(bounds.xMax, bounds.yMax);
     walkfrom(mm.x, mm.y, 0, state, bounds);
@@ -1379,7 +1385,7 @@ export function create_maze(corrwid, wallthick, rmDeadends, frame, state) {
     if (rmDeadends) {
         maze_remove_deadends(
             state.level.flags.corrmaze ? CORR : ROOM,
-            bounds,
+            deadendBounds,
             state,
         );
     }

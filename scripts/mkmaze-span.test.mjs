@@ -25,10 +25,11 @@ import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { MONSTER_TEMPLATES, PM_LONG_WORM } from '../js/monsters.js';
 import { newMonster, place_monster } from '../js/monst.js';
-import { initRng } from '../js/rng.js';
+import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import {
     baalz_fixup,
     check_ransacked,
+    create_maze,
     fixup_special,
     is_solid,
     iswall,
@@ -324,6 +325,34 @@ test('mkmaze.c maze_remove_deadends() opens one eligible wall toward a corridor'
 
     assert.equal(state.level.at(5, 4).typ, ROOM);
     assert.equal(state.level.at(4, 5).typ, STONE);
+});
+
+test('mkmaze.c create_maze() removes dead ends within its reduced bounds', () => {
+    // Seed 1 produces two eligible dead ends in this deliberately small map;
+    // it tests create_maze() -> maze_remove_deadends() without a session.
+    const seed = 1;
+    const frame = { xMazeMax: 20, yMazeMax: 12 };
+    const runMaze = (removeDeadends) => {
+        const state = mazeState();
+        state.level.flags.corrmaze = false;
+        initRng(seed);
+        enableRngLog();
+        // BigRM-11 fixes these source settings: corridor width 3, wall 1.
+        create_maze(3, 1, removeDeadends, frame, state);
+        return [...getRngLog()];
+    };
+
+    const withoutDeadends = runMaze(false);
+    const withDeadends = runMaze(true);
+
+    assert.deepEqual(withDeadends.slice(0, withoutDeadends.length),
+        withoutDeadends);
+    // The generated maze has two eligible openings; each C rn2(1) draw
+    // chooses the sole direction and proves reduced-bound scanning ran.
+    assert.deepEqual(withDeadends.slice(withoutDeadends.length), [
+        'rn2(1)=0',
+        'rn2(1)=0',
+    ]);
 });
 
 test('mkmaze.c mazexy() falls back in x-major, then y-major order', () => {

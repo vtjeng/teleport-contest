@@ -258175,7 +258175,7 @@
     {
       "id": "port-spell-cursed-book-effects-v42-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port cursed spellbook reading effects and their active callers.",
       "cFile": "spell.c",
       "sessions": [
@@ -258192,8 +258192,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "8a92dbad299eaf18f0d8f3e18e58f45bb5cc0e7a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "cursed_book",
@@ -259194,6 +259197,833 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8a92dbad299eaf18f0d8f3e18e58f45bb5cc0e7a",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-bigrm-11-special-level-v42-20261010",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the complete BigRM-11 special-level program and its source-defined level-generation sequence.",
+      "luaFile": "bigrm-11.lua",
+      "sessions": [
+        "synthetic/v42/v42-bigrm-11-special-program"
+      ],
+      "selectionReason": "The completed v42 investigation traces the first mismatch to the registered bigrm-11 loader refusing level_init style maze; the whole Lua program and its source-ordered level generation are the responsible source unit.",
+      "detail": "",
+      "openedAt": "feb8f45926aca8abdbe1a22a91640a17dc8193ac",
+      "openStanding": {
+        "sha": "8a92dbad299eaf18f0d8f3e18e58f45bb5cc0e7a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "37044eda52fe8b08877c9f10c3aa300bee7c5291",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "bigrm-11.lua",
+          "line": 1,
+          "endLine": 39,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v42/v42-bigrm-11-special-program": {
+          "session": "synthetic/v42/v42-bigrm-11-special-program",
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-bigrm-11-special-program",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recordingPath": "challenges/cases/v42/v42-bigrm-11-special-program.session.json",
+          "recordingSha256": "a6e85ad50b4c44962572e9a7b8504baf7711c43e0af3eaae53e0a5f3b1217378",
+          "evaluationPath": "challenges/evaluations/accepted-8a92dbad299eaf18f0d8f3e18e58f45bb5cc0e7a-v42.json",
+          "evaluationCommit": "8a92dbad299eaf18f0d8f3e18e58f45bb5cc0e7a"
+        }
+      },
+      "activeStanding": {
+        "sha": "8a92dbad299eaf18f0d8f3e18e58f45bb5cc0e7a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-bigrm-11-special-program",
+          "session": "synthetic/v42/v42-bigrm-11-special-program",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recording": "challenges/cases/v42/v42-bigrm-11-special-program.session.json",
+          "recordingPath": "challenges/cases/v42/v42-bigrm-11-special-program.session.json",
+          "recordingSha256": "a6e85ad50b4c44962572e9a7b8504baf7711c43e0af3eaae53e0a5f3b1217378",
+          "recipe": "challenges/cases/v42/v42-bigrm-11-special-program.recipe.session.json",
+          "recipeSha256": "9b5b6a798126e59da7a825ae0787de021fef35a170b1d2bf8654daeecff599d6",
+          "replayInputSha256": "4f44621ce8717a3ad3272a5bbb2e96086fcb012df4b96f0f4acc1d3f83088afa",
+          "evaluationPath": "challenges/evaluations/accepted-8a92dbad299eaf18f0d8f3e18e58f45bb5cc0e7a-v42.json",
+          "evaluationCommit": "8a92dbad299eaf18f0d8f3e18e58f45bb5cc0e7a",
+          "evaluationArtifact": "challenges/evaluations/accepted-8a92dbad299eaf18f0d8f3e18e58f45bb5cc0e7a-v42.json",
+          "evaluationUtc": "2026-10-10T21:44:52.189Z",
+          "remainingScreens": 9,
+          "recordedSteps": 35,
+          "previousScreensMatched": 26,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 26,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2137,
+              "total": 3449
+            },
+            "cursors": {
+              "matched": 26,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported level change: bigrm-11: level_init({style:\"maze\"}) not yet ported",
+            "step": 26
+          },
+          "step": 26,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported level change: bigrm-11: level_init({style:\"maze\"}) not yet ported",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v42/v42-bigrm-11-special-program.json",
+            "result": {
+              "session": "synthetic/v42/v42-bigrm-11-special-program",
+              "remainingScreens": 9,
+              "recordedSteps": 35,
+              "corpus": "synthetic",
+              "batch": "v42",
+              "caseId": "v42-bigrm-11-special-program",
+              "manifestPath": "challenges/manifests/v42.json",
+              "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+              "recordingSha256": "a6e85ad50b4c44962572e9a7b8504baf7711c43e0af3eaae53e0a5f3b1217378",
+              "evaluationPath": "challenges/evaluations/v42-baseline-3bbc354f.json",
+              "evaluationCommit": "3bbc354f045f514a4f99c36ada7c39fdd58ed236",
+              "status": "complete",
+              "commit": "e052795a65af27c8ed652cee31e54ee98f6250c2",
+              "mismatch": {
+                "kind": "synthetic",
+                "corpus": "synthetic",
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "sessions": [
+                  "synthetic/v42/v42-bigrm-11-special-program"
+                ],
+                "remainingScreens": 9,
+                "remainingScreensUpperBound": null,
+                "earliestStep": 26,
+                "caseId": "v42-bigrm-11-special-program",
+                "batch": "v42",
+                "recordingPath": "challenges/cases/v42/v42-bigrm-11-special-program.session.json",
+                "session": "synthetic/v42/v42-bigrm-11-special-program"
+              },
+              "summary": "Loading bigrm-11.lua through #wizloaddes reaches a registered JavaScript loader that throws before building the level. The C Lua program is the missing source unit; its maze initializer and level API calls already have JavaScript implementations.",
+              "source": {
+                "file": "dat/bigrm-11.lua",
+                "branch": "Runs when #wizloaddes names bigrm-11.lua or mkmaze.c:makemaz selects bigroom variant 11. The program sets mazelevel and noflip, chooses corridor width 3 + rn2(3), fixes wall thickness at 1, randomly enables dead-end removal, then places boulders, stairs, objects, rolling-boulder traps, and monsters.",
+                "functions": [
+                  "bigrm-11"
+                ],
+                "callers": [
+                  "wizcmds.c:wiz_load_splua -> sp_lev.c:load_special -> dat/bigrm-11.lua; JavaScript: cmd.js dispatch -> wizcmds.js:wiz_load_splua -> mklev.js:load_special -> BIGRM_LOADERS[\"bigrm-11\"].",
+                  "mkmaze.c:makemaz selects the bigrm-11 protofile and calls sp_lev.c:load_special; JavaScript: mklev.js:makemaz calls load_special with the selected protofile."
+                ],
+                "dependencies": []
+              },
+              "goalKind": "lua-port",
+              "evidence": [
+                "The saved v42 queue SHA-256 is ec8f819f1f56c99be47f89359d3b71599a2b7025a292b0a39578cec4dd9f15e1. Its original entry ranks v42-bigrm-11-special-program with 9 unmatched screens at step 26; the entry cites recording challenges/cases/v42/v42-bigrm-11-special-program.session.json.",
+                "The saved baseline evaluation challenges/evaluations/v42-baseline-3bbc354f.json records 26/35 screens, 26/35 cursors, and 2137/3449 RNG calls for this case. The C recording has 35 steps; step 26 follows filename entry and records 1,313 RNG calls with the generated maze visible, showing the program runs in the reference.",
+                "Upstream dat/bigrm-11.lua:7-38 defines t_or_f(), sets mazelevel/noflip and level_init(style=\"maze\", corrwid=3+nh.rn2(3), wallthick=1, deadends=t_or_f()), marks the map lit and non-diggable, replaces horizontal and vertical interior walls with floor plus boulders, adds stairs, and generates 15 objects, 6 rolling-boulder traps, and 28 monsters.",
+                "At the examined commit, js/bigrm.js:643-650 maps the registered bigrm-11 loader to an UnsupportedLevelChangeError before issuing any level API calls. js/mklev.js:1754-1815 imports BIGRM_LOADERS and implements load_special; js/wizcmds.js:wiz_load_splua awaits that loader and finalizes the level.",
+                "The initialization dependency is already wired: sp_lev.c:lspo_level_init and splev_initlev dispatch LVLINIT_MAZE to mkmaze.c:create_maze; JavaScript js/mklev.js:lspo_level_init dispatches the same style to js/mkmaze.js:create_maze. The diagnosis therefore scopes the implementation to the whole dat/bigrm-11.lua program in js/bigrm.js, its existing BIGRM_LOADERS registration, and focused bigroom level-generation coverage."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "bigrm-11.lua",
+            "implementation": "js/bigrm.js",
+            "symbol": "bigrm11",
+            "sourceReview": "Read the complete nethack-c/upstream/dat/bigrm-11.lua:1-39, including helpers t_or_f() and replace_wall_boulder(). Preserved level_flags before level_init; Lua table evaluation consumes rn2(3) for corrwid before percent(50) consumes rn2(100) for deadends. Then the program marks the 0,0..75,18 area lit, marks walls non-diggable, unions the horizontal .w. and vertical .\\nw\\n. selections in source order, visits selected cells y-major, sets each to floor before creating its boulder, runs the leftover horizontal pass after those mutations, creates up/down stairs, then 15 default objects, 6 rolling-boulder traps and 28 default monsters. The asynchronous JS helper snapshots the same y-major selection and awaits each terrain/object pair in order. Removed the UnsupportedLevelChangeError placeholder. Checked the called special-level APIs against sp_lev.c lspo_level_flags, lspo_level_init, lspo_region, lspo_non_diggable, lspo_terrain, lspo_object, lspo_stair, lspo_trap, and lspo_monster; selection matching and union use the existing nhlsel/selection implementations, and maze initialization dispatches through the existing mkmaze.c create_maze port. No unported dependency remains on the exercised program path. The admitted runtime trace exposed two existing caller defects required by this program: JavaScript create_maze() passed {xMax,yMax} to maze_remove_deadends(), which expects {xMazeMax,yMazeMax} for maze_inbounds(); it now passes the reduced source bounds under those fields. C nhlsel.c:l_selection_iterate() converts absolute map points to frame-relative Lua callback coordinates, so replaceWallBoulders() now passes {x:state.xstart,y:state.ystart} to selection.iterate() before lspo_terrain/lspo_object add the frame origin. The reduced-bounds correction is limited to the existing mkmaze.js:create_maze() branch reached by dat/bigrm-11.lua through sp_lev.c:lspo_level_init -> splev_initlev(LVLINIT_MAZE); it does not claim whole-function completion. The separate mkmaze.c:makemaz procedural fallback caller remains refused by js/mklev.js:makemaz before create_maze() is called.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "Production level generation: mkmaze.c:makemaz selects bigrm-11 and calls sp_lev.c:load_special; load_special dispatches the registered bigrm-11 program."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_load_splua",
+                "source": "Wizard command: wizcmds.c:wiz_load_splua prompts for the Lua filename and calls sp_lev.c:load_special; JavaScript calls mklev.js:load_special before finalizing the level."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/bigrm-level-generation.test.mjs",
+              "scripts/mkmaze-span.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-bigrm-11-special-program",
+                "segment": 0,
+                "fromStep": 26,
+                "throughStep": 34,
+                "source": "The recorded #wizloaddes command runs wizcmds.c:wiz_load_splua -> sp_lev.c:load_special -> dat/bigrm-11.lua:level_init/create_maze/maze_remove_deadends, then source-ordered wall selection iteration, terrain and boulder replacement, stairs, objects, traps, monsters, and level finalization. The full segment also includes the final #wizmap redraw."
+              }
+            ],
+            "checkedAt": "c14734d08727bed3d4c4b05bea0d277dc5193d51"
+          }
+        ],
+        "entryPointReview": "The whole dat/bigrm-11.lua program has two active C callers: mkmaze.c:makemaz selects the named bigroom variant and calls sp_lev.c:load_special, while wizcmds.c:wiz_load_splua loads the named Lua script from the wizard command. Both use the existing JavaScript mklev.js:load_special registry and BIGRM_LOADERS[\"bigrm-11\"]. The admitted v42 replay exercises the wizard entry point through the full program and final map redraw. Its style=\"maze\" request calls sp_lev.c:lspo_level_init -> splev_initlev -> mkmaze.c:create_maze; the bounded caller correction supplies create_maze() reduced bounds under the xMazeMax/yMazeMax fields used by maze_inbounds(). The separate mkmaze.c:makemaz procedural fallback also calls create_maze() at lines 1201-1203, but js/mklev.js:makemaz still refuses before that unported call. This task covers the BigRM special-level caller only and makes no whole-function or procedural-fallback completion claim.",
+        "entryPoints": [
+          {
+            "name": "BigRM-11 special-level generation through load_special",
+            "functions": [
+              "bigrm-11.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-bigrm-11-special-program",
+                "segment": 0,
+                "fromStep": 26,
+                "throughStep": 34,
+                "source": "The recorded #wizloaddes command runs wizcmds.c:wiz_load_splua -> sp_lev.c:load_special -> dat/bigrm-11.lua:level_init/create_maze/maze_remove_deadends, then source-ordered wall selection iteration, terrain and boulder replacement, stairs, objects, traps, monsters, and level finalization. The full segment also includes the final #wizmap redraw."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "37044eda52fe8b08877c9f10c3aa300bee7c5291",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-weapon-silver-sears-v42-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port weapon.c silver_sears and wire every active hmonas caller",
+      "cFile": "weapon.c",
+      "sessions": [
+        "synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring"
+      ],
+      "selectionReason": "The admitted v42 silver-ring polymorph case diverges at the source silver_sears message path, and all active hmonas call sites can be wired in the same bounded source task.",
+      "detail": "The investigation traces hack.c:domove_core through uhitm.c:hmonas to weapon.c:silver_sears; the complete helper is lines 436-466 and writes feedback without RNG or state mutation.",
+      "openedAt": "c695337cd79684138af1d86349f620f7fae86525",
+      "openStanding": {
+        "sha": "37044eda52fe8b08877c9f10c3aa300bee7c5291",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "silver_sears",
+          "line": 436,
+          "endLine": 475,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 436,
+        "to": 475
+      },
+      "syntheticProvenance": {
+        "synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring": {
+          "session": "synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring",
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-silver-sears-monk-polymorph-claw-ring",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recordingPath": "challenges/cases/v42/v42-silver-sears-monk-polymorph-claw-ring.session.json",
+          "recordingSha256": "90c23f842e66c1a9828e85c6ec844d2f548c60e58b6eb081977d15a63d67fded",
+          "evaluationPath": "challenges/evaluations/accepted-37044eda52fe8b08877c9f10c3aa300bee7c5291-v42.json",
+          "evaluationCommit": "37044eda52fe8b08877c9f10c3aa300bee7c5291"
+        }
+      },
+      "activeStanding": {
+        "sha": "37044eda52fe8b08877c9f10c3aa300bee7c5291",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-silver-sears-monk-polymorph-claw-ring",
+          "session": "synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recording": "challenges/cases/v42/v42-silver-sears-monk-polymorph-claw-ring.session.json",
+          "recordingPath": "challenges/cases/v42/v42-silver-sears-monk-polymorph-claw-ring.session.json",
+          "recordingSha256": "90c23f842e66c1a9828e85c6ec844d2f548c60e58b6eb081977d15a63d67fded",
+          "recipe": "challenges/cases/v42/v42-silver-sears-monk-polymorph-claw-ring.recipe.session.json",
+          "recipeSha256": "2d9b2a0d91e039b4e9ddf75260bc1929ac7091074bb27827c068eac34aeb235d",
+          "replayInputSha256": "71f8dfeb7da7c208ce50657e94ba83730a35ca2506a1b12b854cc25f504b3d43",
+          "evaluationPath": "challenges/evaluations/accepted-37044eda52fe8b08877c9f10c3aa300bee7c5291-v42.json",
+          "evaluationCommit": "37044eda52fe8b08877c9f10c3aa300bee7c5291",
+          "evaluationArtifact": "challenges/evaluations/accepted-37044eda52fe8b08877c9f10c3aa300bee7c5291-v42.json",
+          "evaluationUtc": "2026-10-10T21:57:40.859Z",
+          "remainingScreens": 1,
+          "recordedSteps": 72,
+          "previousScreensMatched": 71,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 71,
+              "total": 72
+            },
+            "rng": {
+              "matched": 2512,
+              "total": 2512
+            },
+            "cursors": {
+              "matched": 71,
+              "total": 72
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 71,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 71,
+                "key": "k"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 23,
+              "cCell": {
+                "ch": "r",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2512,
+              "cCaller": null,
+              "jsEntry": "rn2(6)=2",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 71,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 71,
+                "key": "k"
+              },
+              "cCursor": [
+                61,
+                0,
+                1
+              ],
+              "jsCursor": [
+                5,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 71,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v42",
+              "caseId": "v42-silver-sears-monk-polymorph-claw-ring",
+              "remainingScreens": 1,
+              "status": "complete",
+              "commit": "3789ea8a86afba7e326d8cc3e3bcd0440cc42268",
+              "mismatch": {
+                "kind": "synthetic",
+                "corpus": "synthetic",
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "session": "synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring",
+                "sessions": [
+                  "synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring"
+                ],
+                "remainingScreens": 1,
+                "remainingScreensUpperBound": null,
+                "earliestStep": 71,
+                "caseId": "v42-silver-sears-monk-polymorph-claw-ring",
+                "batch": "v42",
+                "recordingPath": "challenges/cases/v42/v42-silver-sears-monk-polymorph-claw-ring.session.json"
+              },
+              "summary": "At the final bare-handed claw attack, C reports that the silver ring sears the manes and waits for the message pager. JavaScript skips the missing weapon.c:silver_sears call, omits that message, and continues the turn; the manes die and the final screen and cursor diverge.",
+              "source": {
+                "file": "weapon.c",
+                "branch": "When a polymorphed hero's landed attack earns silver-ring damage and verbose messages are enabled, hmonas calls silver_sears with the worn-ring mask. The helper names the left or right ring, uses plural wording when both ring slots qualify, and emits the searing message.",
+                "functions": [
+                  "silver_sears"
+                ],
+                "callers": [
+                  "uhitm.c:do_attack() selects hmonas() for Upolyd at lines 565-568; hmonas() calls silver_sears() in its claw/touch and hug branches at lines 5662, 5726, 5744, and 5756.",
+                  "hack.c:domove_core() calls do_attack(); the JavaScript production route is hack.js:domove_core() -> uhitm.js:do_attack() -> hmonas()."
+                ],
+                "dependencies": [
+                  "weapon.c:special_dmgval() supplies the silverhit ring mask and is already implemented in js/weapon.js.",
+                  "The hmonas attack and damage branches are already implemented in js/uhitm.js; four corresponding silver_sears call sites still use note_unported().",
+                  "do_name.c:mon_nam(), objnam.c:vtense(), and the existing message operation provide the helper's naming, agreement, and output behavior."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The authoritative saved queue has SHA-256 6889a7ab6f060b3cf8f6536df5fe921c893bc9abb7bb34f67702818e4b845e61 and selects this v42 case with one remaining screen at step 71. Its recording SHA-256 is 90c23f842e66c1a9828e85c6ec844d2f548c60e58b6eb081977d15a63d67fded; its recipe SHA-256 is 2d9b2a0d91e039b4e9ddf75260bc1929ac7091074bb27827c068eac34aeb235d; the accepted evaluation is challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json at commit 2634fa9f632f0bd97556887204d19f3fdb2645f2, with manifest SHA-256 85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418.",
+                "A fresh C-versus-JavaScript replay of the admitted recipe at accepted Main 2634fa9 showed 2512 matching RNG calls before the final input boundary. At segment 0, step 71, key k, C's message is 'You hit the manes. Your silver ring sears the manes!--More--' and its map retains the manes; JavaScript instead prints 'You hit the manes. You destroy the manes!' and removes them. The missing pager lets JavaScript continue and consume four extra RNG calls, beginning with rn2(6)=2.",
+                "Upstream weapon.c:silver_sears() at lines 436-466 selects ring types from uleft, uright, and silverhit; its both, l_ag, and r_ag expressions preserve left/right identification, plural agreement, and whether the silver material is known. It writes one message through Your() and makes no random draw or game-state mutation.",
+                "The complete source search rg -n '\\bsilver_sears\\s*\\(' nethack-c/upstream/src js found the four active C call sites in uhitm.c:hmonas() at lines 5662, 5726, 5744, and 5756. js/uhitm.js has a matching note_unported('weapon.c silver_sears') at each corresponding branch; no other C caller exists in the checked source tree."
+              ],
+              "session": "synthetic/v42/v42-silver-sears-monk-polymorph-claw-ring",
+              "manifestPath": "challenges/manifests/v42.json",
+              "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+              "recordingSha256": "90c23f842e66c1a9828e85c6ec844d2f548c60e58b6eb081977d15a63d67fded",
+              "evaluationPath": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+              "evaluationCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+              "recordedSteps": 72
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "silver_sears",
+            "implementation": "js/weapon.js",
+            "symbol": "silver_sears",
+            "sourceReview": "Read the complete weapon.c:silver_sears() body at lines 436-466. It derives left and right ring types from uleft, uright, and the W_RINGL/W_RINGR silverhit bits; reads dknown and silver material; computes both using equal ring type plus equal identification state or two identified silver rings; selects the silver, no-adjective, left, or right prefix; forms singular/plural ring and sear words; and writes the target message. It makes no RNG call and changes no game state, but writes a message, so it is impure. The magr parameter is explicitly UNUSED in C. Its consumed callees are Your(), vtense(), and mon_nam(), all already implemented; no unported return-bearing or discarded callee remains. The previous note_unported placeholders at all four hmonas branches were replaced by awaited calls to this helper.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmonas",
+                "source": "uhitm.c:hmonas calls silver_sears(&gy.youmonst, mon, silverhit) after the hit message in the claw/touch branch and in the corresponding hug branches at lines 5662, 5726, 5744, and 5756. JS hmonas now awaits the same helper at each branch. Its production route is hack.c:domove_core -> uhitm.c:do_attack -> uhitm.c:hmonas."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-hmon.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-silver-sears-monk-polymorph-claw-ring",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 71,
+                "source": "hack.c:domove_core -> uhitm.c:do_attack -> uhitm.c:hmonas -> weapon.c:silver_sears"
+              }
+            ],
+            "checkedAt": "6152b107e8bbb15c62228d16ed04d093986994ee"
+          }
+        ],
+        "entryPointReview": "The active entry point exercised here is a polymorphed hero melee attack that lands a silver-ring hit. The source route is hack.c:domove_core -> uhitm.c:do_attack -> uhitm.c:hmonas -> weapon.c:silver_sears. The admitted v42 replay reaches the helper at segment 0 step 71 and pauses on its searing message. The same source helper is called at four active hmonas attack branches; all four JS call sites are wired. The source-pinned focused test separately covers left/right identity, identified silver, plural same-ring behavior, unidentified plural behavior, and the no-ring-mask branch.",
+        "entryPoints": [
+          {
+            "name": "Polymorphed hero melee hit sears a target with a worn silver ring",
+            "functions": [
+              "silver_sears"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-silver-sears-monk-polymorph-claw-ring",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 71,
+                "source": "hack.c:domove_core -> uhitm.c:do_attack -> uhitm.c:hmonas -> weapon.c:silver_sears"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-hack-still-chewing-v42-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port hack.c still_chewing and its active movement and eat-command callers",
+      "cFile": "hack.c",
+      "sessions": [
+        "synthetic/v42/v42-rust-monster-still-chewing-bars"
+      ],
+      "selectionReason": "The admitted v42 rust-monster case diverges in the complete hack.c still_chewing iron-bars path, and an independent eat-command recording covers its second active entry point.",
+      "detail": "The investigation traces test_move and doeat to still_chewing, including source-ordered hunger, dissolve_bars, messages, vision cleanup, and explicit discarded-result shopkeeper gaps.",
+      "openedAt": "660106be814a482edebb0edac126892a14b92d28",
+      "openStanding": {
+        "sha": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "still_chewing",
+          "line": 647,
+          "endLine": 824,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 647,
+        "to": 824
+      },
+      "syntheticProvenance": {
+        "synthetic/v42/v42-rust-monster-still-chewing-bars": {
+          "session": "synthetic/v42/v42-rust-monster-still-chewing-bars",
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-rust-monster-still-chewing-bars",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recordingPath": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+          "recordingSha256": "98420bc4f2f166ec2b04fd8b821ec5f61a058c2d4b74a1a3f7b76bf2158e8c8d",
+          "evaluationPath": "challenges/evaluations/accepted-652e8fdd055a766d10f1bb0f6cc3e60a89f42185-v42.json",
+          "evaluationCommit": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185"
+        }
+      },
+      "activeStanding": {
+        "sha": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v42",
+          "caseId": "v42-rust-monster-still-chewing-bars",
+          "session": "synthetic/v42/v42-rust-monster-still-chewing-bars",
+          "manifestPath": "challenges/manifests/v42.json",
+          "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+          "recording": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+          "recordingPath": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+          "recordingSha256": "98420bc4f2f166ec2b04fd8b821ec5f61a058c2d4b74a1a3f7b76bf2158e8c8d",
+          "recipe": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.recipe.session.json",
+          "recipeSha256": "d1e5d18da934784573199c9a45e3f4e27f8e0f9dae60128c0f1e7105c921736c",
+          "replayInputSha256": "a0ebdffc55cfd79ac3cba91bbd812210a8fe9adbc2ee01e3fdd911fae59dfdad",
+          "evaluationPath": "challenges/evaluations/accepted-652e8fdd055a766d10f1bb0f6cc3e60a89f42185-v42.json",
+          "evaluationCommit": "652e8fdd055a766d10f1bb0f6cc3e60a89f42185",
+          "evaluationArtifact": "challenges/evaluations/accepted-652e8fdd055a766d10f1bb0f6cc3e60a89f42185-v42.json",
+          "evaluationUtc": "2026-10-10T22:10:51.681Z",
+          "remainingScreens": 1,
+          "recordedSteps": 53,
+          "previousScreensMatched": 52,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 52,
+              "total": 53
+            },
+            "rng": {
+              "matched": 2849,
+              "total": 2849
+            },
+            "cursors": {
+              "matched": 53,
+              "total": 53
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 52,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 52,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 23,
+              "column": 39,
+              "cCell": {
+                "ch": "S",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 52,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v42/v42-rust-monster-still-chewing-bars.json",
+            "result": {
+              "session": "synthetic/v42/v42-rust-monster-still-chewing-bars",
+              "corpus": "synthetic",
+              "batch": "v42",
+              "caseId": "v42-rust-monster-still-chewing-bars",
+              "manifestPath": "challenges/manifests/v42.json",
+              "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+              "recordingPath": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+              "recordingSha256": "98420bc4f2f166ec2b04fd8b821ec5f61a058c2d4b74a1a3f7b76bf2158e8c8d",
+              "evaluationPath": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+              "evaluationCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+              "remainingScreens": 1,
+              "recordedSteps": 53,
+              "status": "complete",
+              "commit": "9b53af69f281954a8b21636768fbe759a7d888ce",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v42",
+                "caseId": "v42-rust-monster-still-chewing-bars",
+                "session": "synthetic/v42/v42-rust-monster-still-chewing-bars",
+                "manifestPath": "challenges/manifests/v42.json",
+                "manifestSha256": "85916baefe4e96ff6383406c28c71cf8761955fbf503dce1ad4a92723dc95418",
+                "recording": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+                "recordingPath": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.session.json",
+                "recordingSha256": "98420bc4f2f166ec2b04fd8b821ec5f61a058c2d4b74a1a3f7b76bf2158e8c8d",
+                "recipe": "challenges/cases/v42/v42-rust-monster-wished-iron-bars-polyself-pager-corrected-cfirst.recipe.session.json",
+                "recipeSha256": "d1e5d18da934784573199c9a45e3f4e27f8e0f9dae60128c0f1e7105c921736c",
+                "replayInputSha256": "a2722a4583f3fb4253c59de8d17926e6d6909913e67d4d98a882594af946eb4a",
+                "evaluationPath": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+                "evaluationCommit": "2634fa9f632f0bd97556887204d19f3fdb2645f2",
+                "evaluationArtifact": "challenges/evaluations/accepted-2634fa9f632f0bd97556887204d19f3fdb2645f2-v42.json",
+                "evaluationUtc": "2026-10-10T21:08:15.151Z",
+                "remainingScreens": 1,
+                "recordedSteps": 53,
+                "previousScreensMatched": 52,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 52,
+                    "total": 53
+                  },
+                  "rng": {
+                    "matched": 2849,
+                    "total": 2849
+                  },
+                  "cursors": {
+                    "matched": 53,
+                    "total": 53
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 52,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 52,
+                      "key": "l"
+                    },
+                    "kind": "ch",
+                    "row": 23,
+                    "column": 39,
+                    "cCell": {
+                      "ch": "S",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 52,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The final completed iron-bars chew by a wizard polymorphed into a rust monster leaves all RNG, cursors, and earlier screens matched, but C changes the hunger status to Satiated while JavaScript omits that status. hack.c:still_chewing calls eat.c:morehungry(-nut) for metallivorous iron-bar eating and monmove.c:dissolve_bars after chewing; js/hack.js still_chewing currently has note_unported placeholders at both call sites. The missing morehungry side effect explains the exact final status mismatch; both existing canonical helpers must be wired to port this source path fully.",
+              "source": {
+                "file": "hack.c",
+                "branch": "test_move(DO_MOVE) targets IRONBARS and the current monster is metallivorous; after the chew effort exceeds 100, still_chewing awards rnd(20), then the IRONBARS branch grants iron nutrition with morehungry(-nut) and removes the bars with dissolve_bars.",
+                "functions": [
+                  "still_chewing"
+                ],
+                "callers": [
+                  "test_move (hack.c:991-1265)",
+                  "doeat (eat.c:2852)"
+                ],
+                "dependencies": [
+                  "eat.c:morehungry",
+                  "monmove.c:dissolve_bars"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v42 baseline 2634fa9f632f0bd97556887204d19f3fdb2645f2: 52/53 screens, 2849/2849 RNG calls, and 53/53 cursors; the only mismatch is final step 52, key \"l\", at screen row 23 column 39 where C prints 'S' and JS prints a blank.",
+                "The independently decoded final C/JS status rows are respectively `Dlvl:1 $:0 HP:26(26) Pw:6(6) AC:2 HD:5 Satiated` and `Dlvl:1 $:0 HP:26(26) Pw:6(6) AC:2 HD:5`; all 8 changed cells form the missing `Satiated` status text.",
+                "upstream/src/hack.c:647-822 implements the entire still_chewing function; lines 769-784 award metallivorous iron-bar nutrition with morehungry(-nut), select the completion text, and call dissolve_bars before final vision/redraw cleanup. Its production call sites are all in upstream/src/hack.c:test_move at lines 1029, 1040, 1090, and 1227.",
+                "js/hack.js:1978-2082 has the corresponding still_chewing port. Its IRONBARS branch at lines 2078-2081 calls note_unported('eat.c morehungry') and note_unported('trap.c dissolve_bars') instead of existing canonical JS implementations.",
+                "The required helpers are already implemented: upstream/src/eat.c:3281-3285 / js/eat.js:1902-1917 implement morehungry and newuhs; upstream/src/monmove.c:2170-2180 / js/monmove.js:4322-4334 implement dissolve_bars. Wire these existing owners from hack.js without duplicating their state logic.",
+                "A second direct C caller is upstream/src/eat.c:doeat (the `&hands_obj` arm at line 2852), which calls still_chewing on the hero’s current square and then prints “You pause to swallow.” while IRONBARS remain. js/eat.js:doeat at lines 4238-4244 already wires this caller to the canonical hack.js still_chewing implementation. No matching `recordings/` entry covers this `e`-command branch, so it needs its own matching recipe/recording as an entry point in addition to the admitted movement case."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "still_chewing",
+            "implementation": "js/hack.js",
+            "symbol": "still_chewing",
+            "sourceReview": "Read the complete upstream hack.c:still_chewing() definition (647-822), including every early refusal, initial and continued effort threshold, conduct/hunger update, boulder blocking return, and each terrain completion arm (wall, tree, iron bars, secret door, door, rock). Checked expression/RNG and side-effect order through the final recalc_block_point/newsym/messages/reset sequence. The IRONBARS branch reads objects[HEAVY_IRON_BALL].oc_weight, calls morehungry(-nut) only for metallivorous forms, chooses the hero-sensitive completion text, then calls dissolve_bars before common vision/redraw cleanup. The JavaScript branch now calls canonical eat.js:morehungry and monmove.js:dissolve_bars in that order and removes both stale note_unported placeholders. The remaining note_unported calls are only for discarded-result shopkeeper helpers shk.c:add_damage and shk.c:pay_for_damage; their side effects are not fabricated.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "test_move",
+                "source": "hack.c:test_move() (991-1265) reaches still_chewing() from its four DO_MOVE obstacle arms at 1029, 1040, 1090 and 1227 (iron bars, tunnels, doors, and boulders); JavaScript's production chew callback resolves to still_chewing() and consumes the same Boolean to refuse movement while chewing continues."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "doeat",
+                "source": "eat.c:doeat() (2852) calls still_chewing(u.ux,u.uy) when floorfood('eat') returns &hands_obj on iron bars, then pauses to swallow while the bars remain; JavaScript preserves this production call and message order."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hack.test.mjs"
+            ],
+            "recordings": [
+              "recordings/hack.c/rust-monster-eat-bars-command.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-rust-monster-still-chewing-bars",
+                "segment": 0,
+                "fromStep": 50,
+                "throughStep": 52,
+                "source": "hack.c:domove_core -> hack.c:test_move(DO_MOVE, iron bars) -> hack.c:still_chewing(IRONBARS) -> eat.c:morehungry -> monmove.c:dissolve_bars"
+              }
+            ],
+            "checkedAt": "f43ad434ac6a39c975ef8acdf621b03ae91bb1fa"
+          }
+        ],
+        "entryPointReview": "The complete still_chewing source range has two active production entry paths. Movement calls still_chewing from four hack.c:test_move DO_MOVE obstacle arms (iron bars, tunnelable wall/rock, closed door, and boulder); JS test_move's shared chew callback is the corresponding caller. The admitted v42 rust-monster case executes the iron-bars movement entry through step 52, including morehungry and dissolve_bars. The independent C-first recording executes the eat command through eat.c:doeat's &hands_obj branch while the hero stands on iron bars, reaches still_chewing three times, pauses after the first two calls, then awards iron nutrition and dissolves the bars. A source search found no other direct C callers of still_chewing. Other callees in the selected function are implemented or explicitly skipped only where C discards their void result: the remaining shopkeeper add_damage/pay_for_damage gaps are outside this task's iron-bars path.",
+        "entryPoints": [
+          {
+            "name": "Move into iron bars while metallivorous",
+            "functions": [
+              "still_chewing"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-rust-monster-still-chewing-bars",
+                "segment": 0,
+                "fromStep": 50,
+                "throughStep": 52,
+                "source": "hack.c:domove_core -> hack.c:test_move(DO_MOVE) -> hack.c:still_chewing"
+              }
+            ]
+          },
+          {
+            "name": "Eat iron bars with the eat command while metallivorous",
+            "functions": [
+              "still_chewing"
+            ],
+            "recordings": [
+              "recordings/hack.c/rust-monster-eat-bars-command.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "990f9bc4c2964447a9adac4f0e54ea90728ee2cb",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
