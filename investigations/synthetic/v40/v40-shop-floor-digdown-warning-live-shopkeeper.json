@@ -1,0 +1,58 @@
+{
+  "session": "synthetic/v40/v40-shop-floor-digdown-warning-live-shopkeeper",
+  "remainingScreens": 1,
+  "recordedSteps": 53,
+  "corpus": "synthetic",
+  "batch": "v40",
+  "caseId": "v40-shop-floor-digdown-warning-live-shopkeeper",
+  "manifestPath": "challenges/manifests/v40.json",
+  "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+  "recordingSha256": "bb4ccfe19457e1a185556d86fc992be63305137125098ee45a0e1ac85437c099",
+  "evaluationPath": "challenges/evaluations/accepted-ffd2d10394fbb3c06612668aeaa38762cdfb84c1-v40.json",
+  "evaluationCommit": "ffd2d10394fbb3c06612668aeaa38762cdfb84c1",
+  "status": "complete",
+  "commit": "1493efa2d7c3728ef8123ffeceaf243e9dc56159",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "sourceFile": null,
+    "cFile": null,
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v40/v40-shop-floor-digdown-warning-live-shopkeeper"
+    ],
+    "remainingScreens": 1,
+    "remainingScreensUpperBound": null,
+    "earliestStep": 52,
+    "caseId": "v40-shop-floor-digdown-warning-live-shopkeeper",
+    "batch": "v40",
+    "recordingPath": "challenges/cases/v40/v40-shop-floor-digdown-warning-cfirst.session.json"
+  },
+  "summary": "The admitted v40 shop-floor case reaches dig.c:dig -> shk.c:shopdig(0) when the hero starts digging down inside a shop with a live keeper. C sets the keeper voice and prints “Madam, do not damage the floor here!”; JavaScript records shk.c:shopdig as unported and omits the warning. The canonical source scope is shk.c:shopdig plus its existing dig.c:dig, dig.c:digactualhole, and trap.c:fall_through call sites. The caller’s following shk.c:add_damage gap is a separate void helper and remains outside this diagnosis.",
+  "source": {
+    "file": "shk.c",
+    "branch": "shopdig first returns if shop_keeper(*u.ushops) finds no keeper, or if the keeper is not inside the shop (with the Knight alignment branch). It computes the keeper language from helplessness, silence, and msound. With fall == 0, a speaking, non-Deaf hero hears the keeper warning when muteshk is false; TT_PIT selects the careful-floor warning, otherwise the floor-damage warning. With fall != 0, a nearby nonhelpless keeper with an active bill or debit attempts to move next to the hero and take eligible inventory, while preserving worn, wielded, leashed, and current-wand exclusions.",
+    "functions": [
+      "shopdig"
+    ],
+    "callers": [
+      "dig.c:dig calls shopdig(0) at line 1350 when the hero starts downward digging in a shop; js/dig.js:dig currently records note_unported(\"shk.c shopdig\") at line 1147.",
+      "dig.c:digactualhole calls shopdig(1) at line 782 when a hero-caused hole falls through a shop; js/dig.js:digactualhole currently records note_unported(\"shk.c shopdig\") at line 1464.",
+      "trap.c:fall_through calls shopdig(1) at line 668 when the hero falls through a hole or trapdoor while in a shop; js/trap.js:fall_through currently records note_unported(\"shk.c shopdig\") at line 718."
+    ],
+    "dependencies": [
+      "shop_keeper(), inhishop(), muteshk(), and rile_shk() are implemented in js/shk.js; the source shopdig branches consume their returned keeper or Boolean state.",
+      "m_next2u() is implemented in js/mhitu.js; shopdig consumes its Boolean result before and after the discarded mnexto() relocation call.",
+      "verbalize(), set_voice(), adjalign(), inventory operations, and shop billing helpers already have JavaScript implementations; shopdig must preserve their source order.",
+      "dig.c:dig calls shk.c:add_damage after shopdig(0), but that is a separate void helper and its existing note_unported remains outside this source diagnosis."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved queue /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json has SHA-256 476cfed81c5d0a21a6ea2664cecd3404b45eb6b765ee7d9ccfc94436edb0bc2c; selected synthetic/v40/v40-shop-floor-digdown-warning-live-shopkeeper from the v40 batch at accepted evaluation ffd2d10394fbb3c06612668aeaa38762cdfb84c1. The case has one remaining screen mismatch at zero-based step 52, the “Madam, do not damage the floor here!” warning.",
+    "Manifest challenges/manifests/v40.json has SHA-256 32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b; case recording challenges/cases/v40/v40-shop-floor-digdown-warning-cfirst.session.json has SHA-256 bb4ccfe19457e1a185556d86fc992be63305137125098ee45a0e1ac85437c099 and an independently reproduced C recording. The saved evaluation challenges/evaluations/accepted-ffd2d10394fbb3c06612668aeaa38762cdfb84c1-v40.json reports 52/53 screens, 5442/5442 RNG calls, and 52/53 cursors.",
+    "Read the complete upstream shk.c:shopdig definition at lines 5019-5110. Its fall==0 branch emits the warning after shop_keeper, inhishop, helpless/silence/language, Deaf, and muteshk checks; its fall!=0 branch conditionally relocates an indebted shopkeeper and transfers eligible inventory.",
+    "Cross-checked every C shopdig call site: dig.c:dig line 1350, dig.c:digactualhole line 782, and trap.c:fall_through line 668. The matching JavaScript functions exist and each currently records the corresponding shk.c shopdig gap.",
+    "The fresh mismatch source trace is explicit in the admitted manifest: dig.c:dig -> shk.c:shopdig(0), with the live keeper greeting as the first visual difference. The current source mismatch is missing implementation, not a screen-rendering or RNG-order defect."
+  ]
+}
