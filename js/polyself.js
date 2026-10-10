@@ -180,7 +180,7 @@ import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { youhiding } from './insight.js';
 import { livelog_printf } from './pline.js';
 import {
-    deltrap, maketrap, reset_utrap, set_utrap, t_at, unconscious } from './trap.js';
+    deltrap, maketrap, reset_utrap, set_utrap, selftouch, t_at, unconscious } from './trap.js';
 import { dotrap, feeltrap } from './trap_effects.js';
 import {
     make_blinded, make_glib, make_sick, make_slimed, make_stoned,
@@ -1697,7 +1697,7 @@ export async function newman(state = game, env = {}) {
 
     note_unported('artifact.c retouch_equipment');
     if (!state.uarmg)
-        note_unported('trap.c selftouch');
+        await selftouch('No longer petrify-resistant, you', state, env);
 }
 
 // ---------- polyself ----------------------------------------------------

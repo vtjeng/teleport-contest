@@ -359,3 +359,48 @@ test('trap.c lava_effects awaits burn_away_slime before lava handling', () => {
     assert.deepEqual(jsOrder, [...jsOrder].sort((a, b) => a - b));
     assert.doesNotMatch(jsLava, /note_unported\(['"]timeout\.c burn_away_slime/u);
 });
+
+test('float_down runs lava effects immediately and removes a worn cloak before destruction', () => {
+    const cFloatDown = cFunction(
+        C_TRAP,
+        'float_down(\n    long hmask,',
+        '\n/* shared code for climbing out of a pit */',
+    );
+    assert.match(cFloatDown,
+        /if \(is_lava\(u\.ux, u\.uy\) && !iflags\.in_lava_effects\)\s*\{\s*\(void\) lava_effects\(\);\s*no_msg = TRUE;/u);
+
+    const jsFloatStart = JS_TRAP.indexOf('export async function float_down(');
+    const jsFloatEnd = JS_TRAP.indexOf(
+        '\n}\n\n// C ref: trap.c climb_pit()', jsFloatStart,
+    ) + 3;
+    assert.ok(jsFloatStart >= 0 && jsFloatEnd > jsFloatStart);
+    const jsFloatDown = JS_TRAP.slice(jsFloatStart, jsFloatEnd);
+    assert.match(jsFloatDown,
+        /if \(is_lava\(u\.ux, u\.uy, state\) && !state\.iflags\?\.in_lava_effects\)\s*\{[\s\S]*?await lava_effects\(state\);\s*noMsg = true;/u);
+    assert.doesNotMatch(jsFloatDown, /note_unported\(['"]trap\.c lava_effects/u);
+
+    const cLava = cFunction(
+        C_TRAP,
+        'lava_effects(void)',
+        '\n/* called each turn when trapped in lava */',
+    );
+    const cWornRemoval = cLava.slice(
+        cLava.indexOf('for (obj = gi.invent; obj; obj = obj2)'),
+        cLava.indexOf('if (usurvive && burncount > burnmesgcount)'),
+    );
+    assert.match(cWornRemoval,
+        /if \(obj->owornmask\)\s*\{[\s\S]*?remove_worn_item\(obj, TRUE\);\s*\}\s*useupall\(obj\);/u);
+
+    const jsLavaStart = JS_TRAP.indexOf('export async function lava_effects(');
+    const jsLavaEnd = JS_TRAP.indexOf(
+        '\n}\n\n// C ref: trap.c fire_damage_chain()', jsLavaStart,
+    ) + 3;
+    assert.ok(jsLavaStart >= 0 && jsLavaEnd > jsLavaStart);
+    const jsLava = JS_TRAP.slice(jsLavaStart, jsLavaEnd);
+    const cloakCheck = jsLava.indexOf('const supportedCloak = obj === state.uarmc');
+    const helperCall = jsLava.indexOf('await remove_worn_item(obj, true, state);', cloakCheck);
+    const destroyCall = jsLava.indexOf('await useupall(obj, { state });', helperCall);
+    assert.ok(cloakCheck >= 0 && helperCall > cloakCheck && destroyCall > helperCall);
+    assert.match(jsLava.slice(cloakCheck, helperCall),
+        /Boolean\(mask & W_ARMOR\) && !supportedCloak/u);
+});
