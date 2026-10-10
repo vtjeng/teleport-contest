@@ -29,6 +29,109 @@
       "objnam.c:3664 calls it for the floor chain after wizterrainwish changes terrain to lava and before returning from the wish.",
       "JS adapters are js/dig.js:liquid_flow, js/mon.js:liquidDamageInventory, js/allmain.js:elapsedTurnMinLiquid, js/unported_monster_actions.js:planSimpleMonsterScan, and js/objnam_readobjnam.js:apply_wizterrainwish."
     ],
-    "callee": "trap.c:fire_damage is already ported in js/trap_water_damage.js and its return controls the destroyed-object count. It may consume random draws through zap.c:obj_resists inside invent.c:delobj; fire_damage_chain itself adds none. Floor deletion uses the existing mkobj.c remove_object owner."
-  }
+    "callee": "trap.c:fire_damage is already ported in js/trap_water_damage.js and its return controls the destroyed-object count. It may consume random draws through zap.c:obj_resists inside invent.c:delobj; fire_damage_chain itself adds none. Floor deletion uses the existing mkobj.c remove_object owner.",
+    "functions": [
+      "fire_damage_chain"
+    ],
+    "branch": "Set gb.bhitpos to x,y; traverse the supplied nexthere pile when here is true or nobj chain otherwise; save the successor before fire_damage can unlink the current object; increment num only on a true fire_damage result; print You smell smoke when an object was destroyed while the hero is blind and couldsee is false; return num.",
+    "callers": [
+      "trap.c:4550-4573 defines the complete chain helper.",
+      "dig.c:869 calls it for floor objects after a hole or pit fills with lava; dighole and pit_flow are the production routes into liquid_flow.",
+      "mon.c:1059 calls it for a surviving, non-flying/non-lava-loving monster inventory after minliquid_core handles the lava damage.",
+      "objnam.c:3664 calls it for the floor chain after wizterrainwish changes terrain to lava and before returning from the wish.",
+      "JS adapters are js/dig.js:liquid_flow, js/mon.js:liquidDamageInventory, js/allmain.js:elapsedTurnMinLiquid, js/unported_monster_actions.js:planSimpleMonsterScan, and js/objnam_readobjnam.js:apply_wizterrainwish."
+    ],
+    "dependencies": [
+      "trap.c:fire_damage is already ported in js/trap_water_damage.js and its return controls the destroyed-object count. It may consume random draws through zap.c:obj_resists inside invent.c:delobj; fire_damage_chain itself adds none. Floor deletion uses the existing mkobj.c remove_object owner."
+    ]
+  },
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v38",
+    "caseId": "v38-lava-wish-burns-floor-scroll",
+    "session": "synthetic/v38/v38-lava-wish-burns-floor-scroll",
+    "manifestPath": "challenges/manifests/v38.json",
+    "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+    "recording": "challenges/cases/v38/v38-lava-wish-burns-floor-scroll.session.json",
+    "recordingPath": "challenges/cases/v38/v38-lava-wish-burns-floor-scroll.session.json",
+    "recordingSha256": "af4bf58c19a89ea17fee8ee75b9d4c51fde3077198dd10b343f965c6820ca4f8",
+    "recipe": "challenges/cases/v38/v38-lava-wish-burns-floor-scroll.recipe.session.json",
+    "recipeSha256": "6c73bae1f91a82f9c34071435eafc2340044ea6df6460e1302040560bae41d61",
+    "replayInputSha256": "7cb99af9eeee647eae732feaaa7a6b2f993e3eaed1b0904b2cdc80b149641fb4",
+    "evaluationPath": "challenges/evaluations/accepted-83aba82e9fb63b93f4fda8cf74a8ee6d049e3cb1-v38.json",
+    "evaluationCommit": "83aba82e9fb63b93f4fda8cf74a8ee6d049e3cb1",
+    "evaluationArtifact": "challenges/evaluations/accepted-83aba82e9fb63b93f4fda8cf74a8ee6d049e3cb1-v38.json",
+    "evaluationUtc": "2026-10-10T03:57:10.967Z",
+    "remainingScreens": 1,
+    "recordedSteps": 58,
+    "previousScreensMatched": 57,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 57,
+        "total": 58
+      },
+      "rng": {
+        "matched": 2450,
+        "total": 2451
+      },
+      "cursors": {
+        "matched": 58,
+        "total": 58
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 57,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 57,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 24,
+        "cCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2450,
+        "cEntry": "rn2(100)=84",
+        "cCaller": "obj_resists(zap.c:1469)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 57,
+          "key": "\n"
+        },
+        "stepIndex": 57
+      },
+      "cursor": null
+    },
+    "step": 57,
+    "kind": "rng",
+    "sourceFile": "zap.c",
+    "function": "obj_resists",
+    "message": null,
+    "cFile": "zap.c",
+    "luaFile": null,
+    "line": 1469
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The accepted v38 case has one remaining screen at step 57 after a wizard terrain wish creates lava under the hero; C enters trap.c:fire_damage_chain while JavaScript stops at the named gap.",
+    "The full trap.c:4550-4573 source trace covers floor and inventory chains, deletion-safe successor ordering, destroyed-object counting, and the blind off-screen smoke message.",
+    "Active callers are objnam.c:wizterrainwish, dig.c:liquid_flow, and mon.c:minliquid_core; the file-port task must wire all three and provide runtime evidence for each."
+  ]
 }

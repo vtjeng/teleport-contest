@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T03:27:39.176Z",
+  "capturedAt": "2026-10-10T04:00:30.002Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -78256,41 +78256,173 @@
         "type": "accepted",
         "at": "2026-10-10T03:27:11.728Z",
         "task": "B207-investigation-v38-quick-glance-lootabc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B207-investigation-v38-quick-glance-lootabc-031910d2dcfefb1e6685a921b15052e7841166f2",
+        "type": "published",
+        "at": "2026-10-10T03:27:47.357Z",
+        "task": "B207-investigation-v38-quick-glance-lootabc",
+        "commit": "031910d2dcfefb1e6685a921b15052e7841166f2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-main-A2-water-dip-77b56d95c-20261010",
+        "type": "received",
+        "at": "2026-10-10T03:29:34.085Z",
+        "task": "A2-v38-water-dip-acid-potion-investigation-20261010",
+        "delivery": "77b56d95c0d6504d182d39ad6c9fcffc293384b8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-resume-20261010T0330Z",
+        "type": "turn",
+        "at": "2026-10-10T03:30:46.743Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Continuing v39 preparation toward 12 distinct C-first mismatches."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-A2-water-dip-7c3b5e696-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T03:34:37.263Z",
+        "task": "A2-v38-water-dip-acid-potion-investigation-20261010",
+        "integration": "7c3b5e6961e7f3b2b616d0911ff59748678b1321"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-main-C184-entry-evidence-20261010",
+        "type": "feedback",
+        "at": "2026-10-10T03:37:28.843Z",
+        "task": "C184",
+        "delivery": "d7d86ee902e0b6cca2d5be15e3d98b0ba4a95609"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C184-correction-turn-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T03:38:55.099Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C184-correction-resume-20261010",
+        "type": "resume",
+        "at": "2026-10-10T03:39:13.208Z",
+        "task": "C184"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-main-A2-water-dip-7c3b5e696-20261010",
+        "type": "validated",
+        "at": "2026-10-10T03:41:38.749Z",
+        "task": "A2-v38-water-dip-acid-potion-investigation-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-v38-water-dip-acid-potion-investigation-20261010-7c3b5e6961e7f3b2b616d0911ff59748678b1321-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T03:42:37.672Z",
+        "task": "A2-v38-water-dip-acid-potion-investigation-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-v38-water-dip-acid-potion-investigation-20261010-967246aaee09f3c1533956b488611a8e207155ae",
+        "type": "published",
+        "at": "2026-10-10T03:43:41.426Z",
+        "task": "A2-v38-water-dip-acid-potion-investigation-20261010",
+        "commit": "967246aaee09f3c1533956b488611a8e207155ae"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-after-water-accept-20261010",
+        "type": "turn",
+        "at": "2026-10-10T03:44:43.813Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Resuming selection after the water-dip fix was accepted; checking for the next independent source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-water-accept-queue-6b1d1900-20261010",
+        "type": "turn",
+        "at": "2026-10-10T03:44:45.379Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "The remaining actionable source cases are reserved by B206 and C184; the other candidates are parked blockers or have zero mismatches, so I am idle pending a new queue or released scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-main-B206-bear-trap-31d65b94e-20261010",
+        "type": "received",
+        "at": "2026-10-10T03:45:53.899Z",
+        "task": "B206-investigation-v38-bear-trap",
+        "delivery": "31d65b94e42037fc58309647e19957a9af0b096c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-main-B206-bear-trap-83aba82e9-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T03:51:05.980Z",
+        "task": "B206-investigation-v38-bear-trap",
+        "integration": "83aba82e9fb63b93f4fda8cf74a8ee6d049e3cb1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4e388f06e17dfab0643c8cb6e6dc1f52b3cc7434",
+        "type": "ready",
+        "at": "2026-10-10T03:58:47.444Z",
+        "task": "C184",
+        "delivery": "4e388f06e17dfab0643c8cb6e6dc1f52b3cc7434"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-main-B206-bear-trap-83aba82e9-20261010",
+        "type": "validated",
+        "at": "2026-10-10T03:58:53.351Z",
+        "task": "B206-investigation-v38-bear-trap",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C184-correction-submitted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T03:58:58.795Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "The C184 correction adds independent matching runtime evidence for the digging and monster liquid callers; focused checks pass and the worktree is ready for integration review."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-v39-20261010T0405Z",
+        "type": "turn",
+        "at": "2026-10-10T03:59:20.186Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Continuing v39 toward 12 distinct C-first mismatches."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B206-investigation-v38-bear-trap-83aba82e9fb63b93f4fda8cf74a8ee6d049e3cb1-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T03:59:49.925Z",
+        "task": "B206-investigation-v38-bear-trap"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "A2-v38-water-dip-acid-potion-investigation-20261010",
-        "worker": "A2",
-        "goal": "port-trap-pot-acid-damage-v38-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "77b56d95c0d6504d182d39ad6c9fcffc293384b8",
-        "since": "2026-10-10T02:30:07.769Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
         "task": "C184",
         "worker": "C",
         "goal": "port-trap-fire-damage-chain-v38-20261010",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "d7d86ee902e0b6cca2d5be15e3d98b0ba4a95609",
-        "since": "2026-10-10T02:38:07.101Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B206-investigation-v38-bear-trap",
-        "worker": "B",
-        "goal": "port-apply-set-trap-dotrap-callback-v38-20261010",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "31d65b94e42037fc58309647e19957a9af0b096c",
-        "since": "2026-10-10T02:41:41.587Z",
+        "delivery": "4e388f06e17dfab0643c8cb6e6dc1f52b3cc7434",
+        "since": "2026-10-10T03:58:47.444Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -78597,8 +78729,8 @@
     ]
   },
   "development": {
-    "executionCommit": "c863f395deb587c11a1121b76cb0ab9093392a15",
-    "measuredAt": "2026-10-10T03:25:55.378Z",
+    "executionCommit": "83aba82e9fb63b93f4fda8cf74a8ee6d049e3cb1",
+    "measuredAt": "2026-10-10T03:58:29.708Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
