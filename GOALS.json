@@ -256238,7 +256238,7 @@
     {
       "id": "port-mon-hideunder-v41-polymorphed-hider-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port mon.c hideunder and wire all active concealment callers.",
       "cFile": "mon.c",
       "sessions": [
@@ -256252,15 +256252,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "d9907b003bab45aa255af21cd2fe9cedb7abfa9c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "hideunder",
           "line": 4726,
           "endLine": 4805,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -256501,7 +256504,132 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "hideunder",
+            "implementation": "js/mon.js",
+            "symbol": "hideunder",
+            "sourceReview": "Read and ported the complete upstream mon.c:hideunder body at 4726-4801. Checked the is_u coordinate selection, ustuck short-circuit, hero/monster trapped state, non-pit trap rejection, eel water/plane/underwater visibility branch, hider object pile eligibility, pet cursed-pile exclusion, pool/lava exclusion, stone-resistant cockatrice-corpse skipping, hero u.uundetected versus monster mundetected writes, visible-monster naming/message/last_msg/last_hider side effects, and newsym only when the concealment boolean changes. Preserved source branch and short-circuit order. The JavaScript implementation calls the corresponding existing source helpers and has no unported callee; removed UnsupportedHideError and replaced all former hero hideunder gaps at the audited callers.",
+            "callers": [
+              {
+                "path": "js/allmain.js",
+                "symbol": "moveElapsedTurnMonster",
+                "source": "mon.c:movemon_singlemon():1295-1303 reaches hideunder(mtmp) for its hidden-eel retry; the live turn dispatcher supplies the hideUnder callback to js/mon.js:movemon_singlemon."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "maybe_unhide_at",
+                "source": "mon.c:maybe_unhide_at():4696-4720 calls hideunder(mtmp) after its concealed-object/eel exposure guard, including the u.uundetected hero case."
+              },
+              {
+                "path": "js/restore.js",
+                "symbol": "hide_monst",
+                "source": "mon.c:hide_monst():4806-4826 calls hideunder(mon) after temporarily overriding vision while a hider is restored."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "newcham",
+                "source": "mon.c:newcham():5410 calls hideunder(mtmp) after the monster changes form while already mundetected."
+              },
+              {
+                "path": "js/makemon_create.js",
+                "symbol": "makemon",
+                "source": "makemon.c:makemon():1312 and :1324 call hideunder(mtmp) for level-created spiders/snakes and eels."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move",
+                "source": "monmove.c:m_move():1697 calls hideunder(mtmp) after an under-hider/eel moves or remains concealed."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "pickup",
+                "source": "pickup.c:pickup():896 calls hideunder(&youmonst) after a non-swallowed pickup when the hero form hides under objects."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "useupf",
+                "source": "invent.c:useupf():4782 calls hideunder(&youmonst) after deleting the object under a concealed hero."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "polymon",
+                "source": "polyself.c:polymon():894 calls hideunder(&youmonst) to reevaluate concealment after a hero form change when already hiding."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "bhito",
+                "source": "zap.c:bhito():2216 calls hideunder(&youmonst) when an object zap may have blown the hero's cover."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_updown",
+                "source": "zap.c:zap_updown():3404 calls hideunder(&youmonst) after a floor object is hit by the upward zap path."
+              },
+              {
+                "path": "js/explode.js",
+                "symbol": "explode",
+                "source": "explode.c:explode():940 calls hideunder(&youmonst) after the explosion changes the hero's floor pile."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "domove_core",
+                "source": "hack.c:domove_core():2950-2952 calls hideunder(&youmonst) after movement and buried-zombie disturbance when the form hides under objects, is an eel, or has movement direction."
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "teleds",
+                "source": "teleport.c:teleds():493 consumes hideunder(&youmonst)'s boolean and clears m_ap_type for a mimic only when concealment is false."
+              },
+              {
+                "path": "js/restore.js",
+                "symbol": "dorestore",
+                "source": "restore.c:restore_level():1197 calls hideunder(mtmp) when a restored under-hider is still concealed."
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "hatch_egg",
+                "source": "timeout.c:hatch_egg():1183 calls hideunder(mon) after removing a hatched egg from the floor, and uses the result to decide whether the visible square needs redrawing."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/unported-monster-actions.test.mjs",
+              "scripts/hack.test.mjs",
+              "scripts/teleport.test.mjs",
+              "scripts/sit-command.test.mjs",
+              "scripts/dig.test.mjs",
+              "scripts/makemon-create.test.mjs",
+              "scripts/pickup.test.mjs",
+              "scripts/zap-ray.test.mjs",
+              "scripts/polyself.test.mjs",
+              "scripts/restore-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-polymorphed-hider-under-remaining-floor-object",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "pickup.c:pickup() -> mon.c:hideunder(&youmonst); the admitted replay continues through monmove.c:m_move() after the hero's u.uundetected state is recomputed"
+              }
+            ],
+            "checkedAt": "d9907b003bab45aa255af21cd2fe9cedb7abfa9c"
+          }
+        ],
+        "entryPointReview": "Helper-only source range. The complete active C call-site audit is: mon.c:movemon_singlemon (eel retry) -> js/allmain.js:moveElapsedTurnMonster supplies the hideUnder operation to js/mon.js:movemon_singlemon; mon.c:maybe_unhide_at -> js/mon.js:maybe_unhide_at; mon.c:hide_monst -> js/restore.js:hide_monst; mon.c:newcham -> js/mon.js:newcham; makemon.c:makemon -> js/makemon_create.js:makemon; monmove.c:m_move -> js/monmove.js:m_move; pickup.c:pickup -> js/pickup.js:pickup; invent.c:useupf -> js/invent.js:useupf; polyself.c:polymon -> js/polyself.js:polymon; zap.c:bhito and zap_updown -> js/zap.js:bhito and zap_updown; explode.c:explode -> js/explode.js:explode; hack.c:domove_core -> js/hack.js:domove_core; teleport.c:teleds -> js/teleport.js:teleds; restore.c:restore_level -> js/restore.js:dorestore; timeout.c:hatch_egg -> js/timeout.js:hatch_egg. Each source call is wired to the canonical js/mon.js:hideunder helper. The teleport caller awaits the return value and clears m_ap_type only when hideunder returns false for a mimic, matching C order. The admitted v41 replay exercises pickup.c:pickup through mon.c:hideunder for the polymorphed hero. Focused runtime tests also exercise hack.c:domove_core and teleport.c:teleds callers. This helper-only range has no standalone command, monster action, level feature, or startup entry point of its own; entryPoints is empty.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "d9907b003bab45aa255af21cd2fe9cedb7abfa9c",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
