@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 39139032,
+      "datetime": "20420316123200",
+      "nethackrc": "OPTIONS=name:WandMimic,role=Valkyrie,race=human,gender=female,align=lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017wand of create monster\nzpmimic\n"
+    }
+  ],
+  "comment": "Independent zap.c:weffects WAN_CREATE_MONSTER caller witness. Wish a create-monster wand, zap it, and name a mimic at the wizard create-particular prompt to exercise the natural wand-to-makemon object-generation path."
+}

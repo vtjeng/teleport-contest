@@ -1,0 +1,55 @@
+{
+  "session": "synthetic/v39/v39-wield-cockatrice-instapetrify",
+  "corpus": "synthetic",
+  "batch": "v39",
+  "caseId": "v39-wield-cockatrice-instapetrify",
+  "manifestPath": "challenges/manifests/v39.json",
+  "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+  "recordingPath": "challenges/cases/v39/v39-wield-cockatrice-instapetrify.session.json",
+  "recordingSha256": "d19262fe01979f62e392993d6347eecf9e28d060418aeb921b4a9d6a4fc980ac",
+  "evaluationPath": "challenges/evaluations/accepted-998c20cf771d23d6f5faed181eee05f270b73b58-v39.json",
+  "evaluationCommit": "998c20cf771d23d6f5faed181eee05f270b73b58",
+  "remainingScreens": 4,
+  "recordedSteps": 52,
+  "status": "complete",
+  "commit": "c849eb955ab487a30f2edd282ba9c3adf9cbf5a1",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "sourceFile": null,
+    "cFile": null,
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v39/v39-wield-cockatrice-instapetrify"
+    ],
+    "remainingScreens": 4,
+    "remainingScreensUpperBound": null,
+    "earliestStep": 48,
+    "caseId": "v39-wield-cockatrice-instapetrify",
+    "batch": "v39",
+    "recordingPath": "challenges/cases/v39/v39-wield-cockatrice-instapetrify.session.json",
+    "session": "synthetic/v39/v39-wield-cockatrice-instapetrify"
+  },
+  "summary": "When a hero with no gloves wields a cockatrice corpse, the C path reports “You wield the cockatrice corpse in your bare hands.” and calls instapetrify(); the JavaScript helper reports the wield message but records note_unported instead of calling the existing instapetrify implementation. This is the first mismatch at step 48. The actionable source owner is wield.c:cant_wield_corpse().",
+  "source": {
+    "file": "wield.c",
+    "branch": "If the hero lacks gloves, the object is a corpse, its species touch-petrifies, and Stone_resistance is false, print the bare-handed wield message, name the cause, call instapetrify(), then return TRUE.",
+    "functions": [
+      "cant_wield_corpse"
+    ],
+    "callers": [
+      "wield.c:ready_weapon() calls cant_wield_corpse(wep) for a corpse before wielding it (line 183).",
+      "wield.c:can_twoweapon() contains a secondary-corpse call at line 794, but the preceding !TWOWEAPOK(uswapwep) guard makes that branch unreachable for corpses, as its source comment states."
+    ],
+    "dependencies": [
+      "trap.c:instapetrify() (existing JavaScript implementation in js/trap.js)"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Fresh replay at examined commit c849eb955ab487a30f2edd282ba9c3adf9cbf5a1: C/JS RNG calls match 2227/2227 and screens count 52/52; first screen and cursor mismatch is zero-based step 48, key “o”: C displays “--More--” after “You wield the cockatrice corpse in your bare hands.” while JS has no pager, with cursor C [59,0,1] and JS [39,19,1].",
+    "wield.c:cant_wield_corpse() (137-153) checks gloves, CORPSE type, touch_petrifies(), and Stone_resistance in C short-circuit order; it prints the bare-hand wield message, calls instapetrify(kbuf), then returns TRUE.",
+    "The production route is cmd.c wield dispatch -> wield.c:dowield() -> ready_weapon() -> cant_wield_corpse(). The JS helper exists at js/wield.js:cant_wield_corpse() and currently reaches note_unported('trap.c instapetrify') instead of awaiting the existing js/trap.js:instapetrify() call.",
+    "The only other direct C caller is the unreachable can_twoweapon() corpse branch; source line 794 explicitly says TWOWEAPOK() prevents it from being reached for corpses."
+  ]
+}

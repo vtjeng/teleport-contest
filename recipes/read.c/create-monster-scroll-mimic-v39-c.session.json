@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 39139031,
+      "datetime": "20420316123100",
+      "nethackrc": "OPTIONS=name:ScrollMimic,role=Ranger,race=human,gender=male,align=neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017scroll of create monster\nromimic\n"
+    }
+  ],
+  "comment": "Independent read.c:seffect_create_monster caller witness. Wish a create-monster scroll, read it, and name a mimic at the wizard create-particular prompt to exercise the natural scroll-to-makemon object-generation path."
+}

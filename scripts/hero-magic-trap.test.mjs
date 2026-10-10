@@ -20,12 +20,12 @@ import {
 import { at_dgn_entrance, on_level } from '../js/dungeon.js';
 import { game } from '../js/gstate.js';
 import { acurr } from '../js/attrib.js';
-import { UnsupportedHeroMoveBoundaryError } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { PM_GIANT_RAT } from '../js/monsters.js';
 import { body_part } from '../js/polyself.js';
 import {
+    dotrap,
     preflight_dotrap,
     trapeffect_selector,
 } from '../js/trap_effects.js';
@@ -65,13 +65,15 @@ function makeTrap(state) {
     };
 }
 
-// Build a controlled env for trapeffect_selector(). The hero arm of
-// trapeffect_magic_trap() reads several injected PRNG methods plus message,
-// redraw, and the existing unsupported explosion boundary. The stub makes
-// the rn2(30) gate and rnd(20) fate explicit while keeping other draws stable.
-function heroEnv(state, rn2_30, rnd_20) {
+// Build a controlled env for trap effects. The stub makes the rn2(30) gate,
+// rnd(10) explosion damage, rnd(20) fate and dotrap()'s seen-trap escape roll
+// explicit while keeping other draws stable.
+function heroEnv(state, rn2_30, rnd_20, rn2_seen = 1) {
     const messages = [];
     const randomCalls = [];
+    const redrawCalls = [];
+    const trapCountsAtRedraw = [];
+    const operations = [];
     let rn2Called = false;
     let rndCalled = false;
     return {
@@ -79,14 +81,19 @@ function heroEnv(state, rn2_30, rnd_20) {
         random: {
             rn2(n) {
                 randomCalls.push(`rn2(${n})`);
+                operations.push(`rn2(${n})`);
                 // rn2(30) is the explosion gate in trapeffect_magic_trap().
                 if (n === 30) { rn2Called = true; return rn2_30; }
+                // dotrap()'s already-seen escape check is rn2(5).
+                if (n === 5) return rn2_seen;
                 return 1; // default nonzero; no other rn2 in the ported path
             },
             rnd(n) {
                 randomCalls.push(`rnd(${n})`);
+                operations.push(`rnd(${n})`);
                 // rnd(20) is the fate roll in domagictrap().
                 if (n === 20) { rndCalled = true; return rnd_20; }
+                if (n === 10) return 4; // explosion damage
                 return 1;
             },
             rn1(x, y) {
@@ -100,13 +107,20 @@ function heroEnv(state, rn2_30, rnd_20) {
                 return n;
             },
         },
-        message: async (text) => messages.push(text),
-        redraw: () => {},
-        unsupported: (reason) => {
-            throw new UnsupportedHeroMoveBoundaryError(reason);
+        message: async (text) => {
+            messages.push(text);
+            operations.push(`message:${text}`);
+        },
+        redraw: (x, y) => {
+            redrawCalls.push([x, y]);
+            trapCountsAtRedraw.push(state.level.traps?.length);
+            operations.push(`redraw(${x},${y})`);
         },
         messages,
         randomCalls,
+        redrawCalls,
+        trapCountsAtRedraw,
+        operations,
         get rn2Called() { return rn2Called; },
         get rndCalled() { return rndCalled; },
     };
@@ -131,14 +145,25 @@ test('preflight_dotrap admits an unseen MAGIC_TRAP', async () => {
     assert.doesNotThrow(() => preflight_dotrap(trap, state));
 });
 
-test('preflight_dotrap refuses a seen MAGIC_TRAP', async () => {
-    // A seen trap requires trapname() for the escape message.
+test('preflight_dotrap admits a seen MAGIC_TRAP for dotrap escape handling', async () => {
+    // C dotrap() handles the seen trap with an escape roll; preflight must not
+    // refuse before that source branch runs.
     const state = await preflightState();
     const trap = { ttyp: MAGIC_TRAP, tseen: true };
-    assert.throws(
-        () => preflight_dotrap(trap, state),
-        (error) => error.reason === 'a trap the hero has already seen',
-    );
+    assert.doesNotThrow(() => preflight_dotrap(trap, state));
+});
+
+test('dotrap runs the seen MAGIC_TRAP escape roll before its effect', async () => {
+    const state = await initState();
+    const trap = makeTrap(state);
+    trap.tseen = true;
+    state.level.traps = [trap];
+    const env = heroEnv(state, 6, 10, 3);
+
+    await dotrap(trap, 0, state, env);
+
+    assert.deepEqual(env.randomCalls, ['rn2(5)', 'rn2(30)', 'rnd(20)']);
+    assert.deepEqual(env.messages, []);
 });
 
 test('preflight_dotrap admits MAGIC_TRAP with a steed', async () => {
@@ -153,20 +178,41 @@ test('preflight_dotrap admits MAGIC_TRAP with a steed', async () => {
 // Each test calls trapeffect_selector() with MAGIC_TRAP and the hero as the
 // monster, controlling the PRNG through the env.
 
-test('trapeffect_magic_trap: rn2(30)=0 refuses (explosion needs deltrap)',
+test('dotrap resolves a seen MAGIC_TRAP explosion in C source order',
     async () => {
-        // rn2(30)=0 means the 1/30 explosion branch fires. It calls deltrap()
-        // which is not ported, so the port refuses.
-        // Breaking: remove the `!random.rn2(30)` guard.
         const state = await initState();
         const trap = makeTrap(state);
-        const env = heroEnv(state, 0, /* fate unused */ 13);
-        await assert.rejects(
-            () => trapeffect_selector(state.youmonst, trap, 0, env),
-            (error) => error.reason === 'magic trap explosion',
-        );
-        assert.ok(env.rn2Called, 'rn2(30) explosion gate was called');
-        assert.ok(!env.rndCalled, 'rnd(20) fate roll not reached on explosion');
+        trap.tseen = true;
+        state.level.traps = [trap];
+        state.u.uen = 5;
+        state.u.uenmax = 10;
+        state.u.uenpeak = 11;
+        const hp = state.u.uhp;
+        const env = heroEnv(state, 0, /* fate unused */ 13, 3);
+
+        await dotrap(trap, 0, state, env);
+
+        assert.deepEqual(env.randomCalls, ['rn2(5)', 'rn2(30)', 'rnd(10)']);
+        assert.deepEqual(env.messages, [
+            'You are caught in a magical explosion!',
+            'Your body absorbs some of the magical energy!',
+        ]);
+        assert.deepEqual(env.redrawCalls, [[state.u.ux, state.u.uy]]);
+        assert.deepEqual(env.trapCountsAtRedraw, [0],
+            'deltrap removes the trap before newsym redraws the square');
+        assert.deepEqual(state.level.traps, []);
+        assert.equal(state.u.uhp, hp - 4);
+        assert.equal(state.u.uenmax, 12);
+        assert.equal(state.u.uen, 12);
+        assert.equal(state.u.uenpeak, 12);
+        assert.deepEqual(env.operations, [
+            'rn2(5)',
+            'rn2(30)',
+            `redraw(${state.u.ux},${state.u.uy})`,
+            'message:You are caught in a magical explosion!',
+            'rnd(10)',
+            'message:Your body absorbs some of the magical energy!',
+        ]);
     });
 
 test('trapeffect_magic_trap: rn2(30) nonzero, fate 10 no-op', async () => {

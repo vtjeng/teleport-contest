@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    KILLED_BY,
     ECMD_FAIL,
     LEFT_HANDED,
     STONE_RES,
@@ -15,10 +16,12 @@ import {
     LAST_PROP,
     OBJ_INVENT,
     RIGHT_HANDED,
+    STONING,
     W_ARMS,
     W_SWAPWEP,
     W_WEP,
 } from '../js/const.js';
+import { HeroDeathPlanningError } from '../js/hack.js';
 import {
     PM_GRID_BUG,
     PM_COCKATRICE,
@@ -370,7 +373,19 @@ test('cant_wield_corpse reads the source stone resistance even when blocked', as
     state.uarmg = {}; // C's first disjunct prevents unsafe bare-hand handling
     assert.equal(await cant_wield_corpse(corpse, state), false);
     state.uarmg = null;
-    assert.equal(await cant_wield_corpse(corpse, state), true);
+    const urgentMessages = [];
+    await assert.rejects(cant_wield_corpse(corpse, state, {
+        planning: true,
+        message: async line => urgentMessages.push(line),
+    }), error => {
+        assert.ok(error instanceof HeroDeathPlanningError);
+        assert.equal(error.how, STONING);
+        assert.equal(error.killerFormat, KILLED_BY);
+        assert.match(error.killerName, /^wielding .* bare-handed$/u);
+        return true;
+    });
     assert.equal(drain(state), 'You wield the cockatrice corpse in your bare hands.');
+    assert.deepEqual(urgentMessages, ['You turn to stone...']);
+    assert.equal(state.killer.format, KILLED_BY);
     assert.equal(state.uwep, null); // ready_weapon does not install unsafe corpse
 });
