@@ -249718,6 +249718,39 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-artifact-retouch-equipment-v39-20261010",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Port artifact equipment retouch after form and alignment changes",
+      "cFile": "artifact.c",
+      "sessions": [
+        "synthetic/v39/v39-polyself-retouch-silver-vampire-complete"
+      ],
+      "selectionReason": "Oldest dependency-ready v39 mismatch after pickup acceptance; source review covers artifact.c:retouch_object, untouchable, and retouch_equipment with all live callers.",
+      "detail": "Source routes polyself.c form changes, eat.c cpostfx, attrib.c uchangealign, and uhitm.c were infection through artifact.c:retouch_equipment -> untouchable -> retouch_object.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "retouch_equipment",
+      "session": "synthetic/v39/v39-polyself-retouch-silver-vampire-complete",
+      "step": 36,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-polyself-retouch-silver-vampire-complete": {
+          "session": "synthetic/v39/v39-polyself-retouch-silver-vampire-complete",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-polyself-retouch-silver-vampire-complete",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-polyself-retouch-silver-vampire-complete.session.json",
+          "recordingSha256": "11a999889dda2afd48b78b1df9d61442e8330da737e1587625c0d0747c1fa227",
+          "evaluationPath": "challenges/evaluations/accepted-60c8754be3b41237ce63db1b0bf71203c99b32bb-v39.json",
+          "evaluationCommit": "60c8754be3b41237ce63db1b0bf71203c99b32bb"
+        }
+      }
     }
   ]
 }
