@@ -37,7 +37,7 @@ import { fixup_level_locations } from './dungeon.js';
 import { game } from './gstate.js';
 import { l_nhcore_init } from './mklev.js';
 import { restore_waterlevel } from './mkmaze.js';
-import { restrap, restore_cham } from './mon.js';
+import { hideunder, restrap, restore_cham } from './mon.js';
 import { hides_under, is_hider } from './mondata.js';
 import { S_EEL, S_MIMIC } from './monsters.js';
 import { init_oclass_probs } from './o_init.js';
@@ -686,10 +686,8 @@ function mon_catchup_elapsed_time(mtmp, nmv) {
 // calls restrap() for ceiling hiders, retries for mimics, restores vision,
 // and calls hideunder() for under-hiders.
 //
-// restrap() is already ported (js/mon.js). hideunder() is not fully ported;
-// the port defers it. The restrap env needs setMimicSym for mimics; the
-// getlev caller supplies a stub that defers mimic disguise selection to the
-// first turn the game processes the monster.
+// The restrap env needs setMimicSym for mimics; getlev supplies a stub that
+// defers mimic disguise selection to the first turn that processes the monster.
 function hide_monst(mon, state = game) {
     const hider_under = hides_under(mon.data) || mon.data?.mlet === S_EEL;
 
@@ -720,10 +718,9 @@ function hide_monst(mon, state = game) {
             state.viz_array[y][x] = save_viz;
         }
         if (hider_under) {
-            // hideunder() is not fully ported. For the level-return path, it
-            // sets mundetected on monsters that can hide under objects or in
-            // water. Defer for now; the witness case doesn't reach here.
-            hideunder_stub(mon, state);
+            // getlev() clears vision for this square first, so hideunder()
+            // takes its message-free source path and updates state immediately.
+            hideunder(mon, { state });
         }
     }
 }
@@ -733,26 +730,4 @@ function hide_monst(mon, state = game) {
 // mimics on their next turn.
 function deferredSetMimicSym(_monster, _env) {
     // No-op: the mimic will pick a disguise on its next move.
-}
-
-// A stub for hideunder() that sets mundetected for simple cases and defers
-// the complex ones.
-function hideunder_stub(mon, state) {
-    // C ref: mon.c hideunder() (4726-4801). The full function checks traps,
-    // eel/pool conditions, object piles, and cockatrice corpses. For the
-    // level-return path, the simplest case is a hides_under monster on a
-    // square with objects on the floor.
-    if (mon === state.u?.ustuck) return;
-    if (mon.mtrapped) return;
-    if (mon.data?.mlet === S_EEL) {
-        // Aquatic hiding: only in pools, not on the Plane of Water.
-        // Defer the full check.
-        return;
-    }
-    if (hides_under(mon.data)) {
-        const obj = state.level?.objects?.[mon.mx]?.[mon.my];
-        if (obj) {
-            mon.mundetected = 1;
-        }
-    }
 }

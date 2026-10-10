@@ -262,7 +262,7 @@ import { in_rooms } from './rooms.js';
 import { destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 import {
-    counter_were, egg_type_from_parent, killed, set_ustuck,
+    counter_were, egg_type_from_parent, hideunder, killed, set_ustuck,
     setmangry, wakeup,
 } from './mon.js';
 import { were_beastie, were_summon } from './were.js';
@@ -1173,11 +1173,8 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
     await drop_weapon(1, state, env);
     find_ac(state);
 
-    // polyself.c:887-890. hideunder()'s return is discarded; its hero arm is
-    // not ported, so keep the source call as an explicit gap only when the
-    // old form was actually hiding under something.
     if (wasHidingUnder)
-        note_unported('mon.c hideunder hero');
+        hideunder(state.youmonst, env);
 
     if (u.utrap && u.utraptype === TT_PIT) {
         set_utrap(random.rn1(6, 2), TT_PIT, state);
