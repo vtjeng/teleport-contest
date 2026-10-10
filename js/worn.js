@@ -13,6 +13,7 @@ import {
     ACID_RES,
     ANTIMAGIC,
     COLD_RES,
+    DISMOUNT_FELL,
     DISINT_RES,
     DISPLACED,
     FAST,
@@ -71,6 +72,7 @@ import { Monnam, mon_nam, hcolor } from './do_name.js';
 import { obj_extract_self, update_inventory } from './invent.js';
 import { check_gear_next_turn } from './mon.js';
 import { can_saddle } from './dog.js';
+import { dismount_steed } from './steed.js';
 import {
     M1_ANIMAL,
     M1_MINDLESS,
@@ -726,13 +728,7 @@ function updateMonsterExtrinsicsCore(monster, obj, on, env) {
 
     const first = apply(primary);
     const second = alternate && alternate !== primary ? apply(alternate) : null;
-    if (!on && monster === state.u?.usteed && obj.otyp === SADDLE) {
-        // worn.c:708-709 discards dismount_steed(DISMOUNT_FELL)'s result.
-        // Its fall-specific implementation remains an explicit unported
-        // steed.c boundary, so record the call and continue the worn update.
-        note_unported('steed.c dismount_steed DISMOUNT_FELL');
-    }
-    const finish = () => {
+    const finishDisplay = () => {
         const blocked = blockedProperty(obj, W_ARMOR | W_TOOL, state);
         if (blocked === INVIS) {
             monster.invis_blkd = Boolean(on);
@@ -741,9 +737,17 @@ function updateMonsterExtrinsicsCore(monster, obj, on, env) {
         if (!env.silent && wasUnseen !== !canseemon(monster, state))
             newsym(monster.mx, monster.my, state);
     };
+    const finish = () => {
+        // worn.c:707-708 calls dismount_steed() before its final redraw.
+        if (!on && monster === state.u?.usteed && obj.otyp === SADDLE) {
+            const dismount = dismount_steed(DISMOUNT_FELL, state);
+            if (dismount?.then) return dismount.then(finishDisplay);
+        }
+        return finishDisplay();
+    };
     if (first?.then || second?.then)
         return Promise.all([first, second]).then(finish);
-    finish();
+    return finish();
 }
 
 export function update_mon_extrinsics(monster, obj, on, rawEnv = {}) {
@@ -1478,9 +1482,8 @@ async function mon_break_armor_effects(monster, polyspot, env) {
             await message(`You touch ${mon_nam(steed, state)}.`, state, env);
             note_unported('trap.c instapetrify');
         }
-        // steed.c dismount_steed(DISMOUNT_FELL) discards no value, but its
-        // fall damage and wounded-leg path are still source-blocked here.
-        note_unported('steed.c dismount_steed DISMOUNT_FELL');
+        // worn.c:1332 calls dismount_steed() after the polymorph gear checks.
+        await dismount_steed(DISMOUNT_FELL, state);
     }
 }
 

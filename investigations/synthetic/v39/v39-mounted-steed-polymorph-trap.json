@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v39.json",
   "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
   "recordingSha256": "1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997",
-  "evaluationPath": "challenges/evaluations/20261009230658-v39.json",
-  "evaluationCommit": "30d1b7936740e5f611781c85242eb860218d9e5d",
-  "remainingScreens": 29,
+  "evaluationPath": "challenges/evaluations/accepted-2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba-v39.json",
+  "evaluationCommit": "2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba",
+  "remainingScreens": 0,
   "recordedSteps": 29,
   "status": "complete",
-  "commit": "f2313efbd87a4d3eb2d49d95f0468c22d2703a0a",
+  "commit": "12243fba8c4684bdec098e2358b04d76d0efd8f2",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v39",
@@ -24,72 +24,86 @@
     "recordingSha256": "1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997",
     "recipe": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.recipe.session.json",
     "recipeSha256": "e2f5f7d33e071f8e837389af982cdfe8fb6754549295fac5ff069e3fea8df5d8",
-    "replayInputSha256": "938dd44564a49459a54ba4ef8fe7d579c3f64eafbfef8f1e25fd9ef82dde4e3c",
-    "evaluationPath": "challenges/evaluations/20261009230658-v39.json",
-    "evaluationCommit": "30d1b7936740e5f611781c85242eb860218d9e5d",
-    "evaluationArtifact": "challenges/evaluations/20261009230658-v39.json",
-    "evaluationUtc": "2026-10-10T06:07:16.397Z",
-    "remainingScreens": 29,
+    "replayInputSha256": "2bf4dc7e0729004df85af9effb24878853df0d379fb0ee975dc1655e941f8566",
+    "evaluationPath": "challenges/evaluations/accepted-2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba-v39.json",
+    "evaluationCommit": "2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba",
+    "evaluationArtifact": "challenges/evaluations/accepted-2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba-v39.json",
+    "evaluationUtc": "2026-10-10T09:08:35.094Z",
+    "remainingScreens": 0,
     "recordedSteps": 29,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 29,
     "regression": false,
     "passed": false,
-    "error": "ARTICLE_YOUR is not defined",
+    "error": null,
     "metrics": {
       "screens": {
-        "matched": 0,
+        "matched": 29,
         "total": 29
       },
       "rng": {
-        "matched": 0,
+        "matched": 2640,
         "total": 2642
       },
       "cursors": {
-        "matched": 0,
+        "matched": 29,
         "total": 29
       }
     },
     "firstMismatch": {
-      "kind": "stop",
-      "message": "Replay error: ARTICLE_YOUR is not defined",
-      "step": null
+      "kind": "rng",
+      "rng": {
+        "index": 2640,
+        "cEntry": "rn2(3)=2",
+        "cCaller": "landing_spot(steed.c:543)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 28,
+          "key": " "
+        },
+        "stepIndex": 28
+      },
+      "screen": null,
+      "cursor": null
     },
-    "step": null,
-    "kind": "stop",
-    "sourceFile": null,
-    "function": null,
-    "message": "Replay error: ARTICLE_YOUR is not defined",
-    "cFile": null,
+    "step": 28,
+    "kind": "rng",
+    "sourceFile": "steed.c",
+    "function": "landing_spot",
+    "message": null,
+    "cFile": "steed.c",
     "luaFile": null,
-    "line": null
+    "line": 543
   },
-  "summary": "The original stop was a JavaScript binding defect: mon.c:newcham’s tame old-name path uses ARTICLE_YOUR, but js/mon.js did not import it. That import fix is committed and clears all 29 recorded screens and cursors. The new first mismatch is a separate missing steed effect: C reaches steed.c:landing_spot through newcham’s poly_steed call, while JS still records note_unported(\"steed.c poly_steed\"), leaving two RNG calls missing. That source gap is outside this bounded naming fix.",
+  "summary": "All screens and cursors match after the accepted naming fix, but C records two additional RNG calls when the polymorph trap removes the pony’s saddle. mon.c:newcham reaches worn.c:mon_break_armor, which drops the saddle through m_lose_armor; worn.c:update_mon_extrinsics then calls steed.c:dismount_steed(DISMOUNT_FELL). JS currently records a note_unported gap at the equivalent worn.js call sites, so it skips landing_spot, leaving the mount attached and later reaches a JS-only poly_steed gap. The mounted polymorph needs the FELL dismount and both of its worn.c caller sites wired.",
   "source": {
-    "file": "mon.c",
-    "branch": "When NC_SHOW_MSG is set, newcham captures the old tame monster name before changing form by calling x_monnam(mtmp, ARTICLE_YOUR, NULL, SUPPRESS_SADDLE, FALSE); this branch is reached when a mounted tame steed is polymorphed by a trap and is sighted or sensed.",
+    "file": "steed.c",
+    "branch": "A mounted pony polymorphs to a form that cannot be saddled. mon.c:newcham calls worn.c:mon_break_armor after changing its form; mon_break_armor drops the saddle with m_lose_armor, which removes its monster extrinsics. worn.c:update_mon_extrinsics then sees the mount losing its saddle and calls dismount_steed(DISMOUNT_FELL). The C dismount initializes have_spot with landing_spot before the reason switch, scans adjacent positions and uses rn2(viable) to break equal-distance ties. The successful dismount clears u.usteed, so mon.c:newcham skips its later poly_steed call.",
     "functions": [
-      "newcham"
+      "dismount_steed"
     ],
     "callers": [
-      "trap.c:trapeffect_poly_trap",
+      "worn.c:update_mon_extrinsics",
+      "worn.c:mon_break_armor",
+      "mon.c:newcham",
       "trap.c:steedintrap"
     ],
     "dependencies": [
-      "do_name.c:x_monnam",
-      "const.h:ARTICLE_YOUR",
-      "steed.c:poly_steed -> steed.c:dismount_steed -> steed.c:landing_spot (separate follow-up gap; outside this delivery)"
+      "steed.c:landing_spot",
+      "hack.c:losehp",
+      "attrib.c:set_wounded_legs",
+      "worn.c:update_mon_extrinsics",
+      "worn.c:mon_break_armor"
     ]
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    "Saved queue provenance: v39 manifest SHA-256 02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0; recording SHA-256 1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997; evaluation challenges/evaluations/20261009230658-v39.json from 30d1b7936740e5f611781c85242eb860218d9e5d. The selected case is the highest remaining independent mount/polymorph candidate after C claimed the first case and B claimed the second.",
-    "The admitted recipe is independently C-replay byte-identical (manifest v39 sourceTrace cReplay outputSha256 equals the recording hash). Its C result names the tame mount as “Your pony” when a polymorph trap changes the mount; the manifest identifies reported segment 1 step 28 (one-based) as the first JS failure, before steed.c:poly_steed.",
-    "Upstream nethack-c/upstream/src/trap.c:steedintrap (around 3154-3156) calls newcham(steed, NULL, NC_SHOW_MSG) for a mounted steed hit by a polymorph trap; trap.c:trapeffect_poly_trap also calls newcham for a non-hero trapped tame monster. Upstream mon.c:newcham (5278-5534; old-name construction around 5308-5315) passes ARTICLE_YOUR for mtmp->mtame and suppresses the saddle. The later call to poly_steed is at mon.c:5518.",
-    "The naming callee is defined in do_name.c:x_monnam at 827. It retains ARTICLE_YOUR only for tame monsters and formats it as “your ”; the JS counterpart js/do_name.js imports ARTICLE_YOUR and has the corresponding article branch. The v39 manifest labels this pointer objnam.c, but the actual C definition is in do_name.c.",
-    "js/mon.js:shapeOldNames at 2758 references ARTICLE_YOUR without importing it. js/const.js exports ARTICLE_YOUR, while js/mon.js imports ARTICLE_A, ARTICLE_NONE, and ARTICLE_THE only. Fresh-process replay `node frozen/ps_test_runner.mjs --worker-session=challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json` stopped at moves 28 with error `ARTICLE_YOUR is not defined`; its JSON result is saved in .cache/a2-v39-mounted-steed.before.log (0/29 screens, 0/2642 RNG calls, 0/29 cursors because replay aborts).",
-    "Bounded implementation scope: the existing x_monnam handles ARTICLE_YOUR; this fix imports the constant into js/mon.js and source-pins newcham with NC_SHOW_MSG on a tame monster. Trap behavior, mounted steed behavior, naming implementation, and session data were outside the fix.",
-    "Implemented in commit bf1569ae1ef20b1ea98df7b8964afe45b1877e06: js/mon.js imports the existing ARTICLE_YOUR constant; scripts/mon.test.mjs pins the mon.c:newcham tame old-name call and message, and asserts the complete mocked draw sequence. The focused bounded test passes 53/53 and npm run lint passes.",
-    "Post-fix fresh differential and fresh-process replay: .cache/A2-v39-mounted-steed-diff.log reports all 29/29 screens and cursors matching, but 2640/2642 RNG calls; the first missing call is C rn2(3)=2 at segment 1 step 29 in steed.c:landing_spot. .cache/A2-v39-mounted-steed-after.log confirms the same 29/29 screens/cursors, 2640/2642 RNG calls, with no error. This is the separate unported poly_steed/dismount path described above.",
-    "Independent unmounted production reproduction committed in 2044459f4acd8a5277ef7cb1ba443d47f9fca460: recipes/mon.c/tame-pet-polymorph-trap.session.json (SHA-256 ddd3fb44d41fbf7b4416af8c576b216020728850899561daacf3c6fd4983ec40) keeps the default tame kitten, creates a polymorph trap away from the starting stair, and waits for the pet to enter it; recordings/mon.c/tame-pet-polymorph-trap.session.json (SHA-256 1f46d2509d2d4751101a93fe19e12854a2dc8758529d3240754f6235d02cf404) matches C and JS for 25/25 screens, 2850/2850 RNG calls, and 25/25 cursors. The fresh C/JS log is .cache/A2-v39-tame-pet-diff.log and the fresh-process replay .cache/A2-v39-tame-pet-replay.log reports passed:true."
+    "Saved accepted evaluation challenges/evaluations/accepted-2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba-v39.json at 2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba; v39 manifest SHA-256 02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0, recording SHA-256 1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997; 29/29 screens, 2640/2642 RNG calls, 29/29 cursors.",
+    "Fresh focused differential `node scripts/diff-fresh.mjs challenges/cases/v39/v39-mounted-steed-polymorph-trap.recipe.session.json` reproduces the same failure: screen and cursor streams match; C has 2642 RNG calls and JS has 2640; first missing call is rn2(3)=2 from steed.c:landing_spot at segment 0 step 28 (CLI prints segment 1 step 29). Bounded receipt: /tmp/teleport-validation-1000/run-BHW5cy/receipt.json.",
+    "Source path: trap.c:steedintrap calls newcham(steed, NULL, NC_SHOW_MSG). In mon.c:newcham (5278-5545), the changed form reaches mon_break_armor(mtmp, polyspot) before the later `if (mtmp == u.usteed) poly_steed(mtmp, olddata)` check.",
+    "Source path: worn.c:mon_break_armor (1177-1338) identifies the mount as unable to keep its saddle and calls m_lose_armor. m_lose_armor removes the saddle and calls update_mon_extrinsics with on=FALSE. worn.c:update_mon_extrinsics at 707-708 calls dismount_steed(DISMOUNT_FELL) when the removed saddle belonged to u.usteed. This earlier dismount clears u.usteed, so the later poly_steed call in mon.c:newcham is skipped; the JS poly_steed note is secondary to the skipped FELL call.",
+    "Source path: steed.c:dismount_steed (576-826) evaluates landing_spot(&cc, reason, 0) in its initializer before the reason switch. DISMOUNT_FELL shares the fall branch: print the fall message, request the forced landing fallback if needed, apply riding-accident damage and wounded legs when not flying or levitating, release and place the steed, move the hero, and run the shared float-down/status tail. landing_spot at line 543 breaks equal-distance ties with rn2(viable), consistent with the first missing call.",
+    "Likely JS gaps: js/worn.js:update_mon_extrinsics and js/worn.js:mon_break_armor_effects both currently record note_unported(\"steed.c dismount_steed DISMOUNT_FELL\") instead of calling dismount_steed; js/steed.js:dismount_steed still refuses DISMOUNT_FELL. The later js/mon.js poly_steed note is not on the C path after the dismount succeeds.",
+    "The earlier ARTICLE_YOUR binding defect in mon.c:newcham was corrected and independently accepted. It accounts for the prior 0/29 replay stop; this report supersedes that old count and earlier poly_steed source attribution.",
+    "An independent unmounted pet-polymorph recording remains in recipes/mon.c/tame-pet-polymorph-trap.session.json and recordings/mon.c/tame-pet-polymorph-trap.session.json; it matches 25/25 screens, 2850/2850 RNG calls, and 25/25 cursors, proving the separate mon.c:newcham tame-naming path."
   ]
 }

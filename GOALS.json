@@ -250028,7 +250028,7 @@
     {
       "id": "fix-mimic-absorb-item-lockpick-rng-v39-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Port mimic item absorption after lock-pick reveal",
       "cFile": "steal.c",
       "sessions": [
@@ -250042,8 +250042,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "d385af23ff14452feaff464fb82ad499ba63ccb3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "maybe_absorb_item",
       "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
       "step": 113,
@@ -250237,7 +250240,238 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "d385af23ff14452feaff464fb82ad499ba63ccb3",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "A2-v39-mounted-steed-poly-steed-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Implement mounted fall dismount after saddle loss",
+      "cFile": "steed.c",
+      "sessions": [],
+      "selectionReason": "The admitted v39 mounted pony polymorph case matches screens and cursors but misses two RNG calls when the new form loses its saddle; the traced path reaches steed.c dismount_steed with DISMOUNT_FELL through worn.c update_mon_extrinsics.",
+      "detail": "",
+      "openedAt": "32bf1c608c83ca195f5b06539752ded64898ac6f",
+      "openStanding": {
+        "sha": "d385af23ff14452feaff464fb82ad499ba63ccb3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "97b84cc6b58a15fd2a536c0d8caaa2e86be47335",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "dismount_steed",
+      "session": "synthetic/v39/v39-mounted-steed-polymorph-trap",
+      "step": 28,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-mounted-steed-polymorph-trap": {
+          "session": "synthetic/v39/v39-mounted-steed-polymorph-trap",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-mounted-steed-polymorph-trap",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json",
+          "recordingSha256": "1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997",
+          "evaluationPath": "challenges/evaluations/accepted-d385af23ff14452feaff464fb82ad499ba63ccb3-v39.json",
+          "evaluationCommit": "d385af23ff14452feaff464fb82ad499ba63ccb3"
+        }
+      },
+      "activeStanding": {
+        "sha": "d385af23ff14452feaff464fb82ad499ba63ccb3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-mounted-steed-polymorph-trap",
+          "session": "synthetic/v39/v39-mounted-steed-polymorph-trap",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json",
+          "recordingPath": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json",
+          "recordingSha256": "1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997",
+          "recipe": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.recipe.session.json",
+          "recipeSha256": "e2f5f7d33e071f8e837389af982cdfe8fb6754549295fac5ff069e3fea8df5d8",
+          "replayInputSha256": "a15e8b69cb6584b1fcd3f8ec8d12ca9f21a525e94b71a45917114ba945388973",
+          "evaluationPath": "challenges/evaluations/accepted-d385af23ff14452feaff464fb82ad499ba63ccb3-v39.json",
+          "evaluationCommit": "d385af23ff14452feaff464fb82ad499ba63ccb3",
+          "evaluationArtifact": "challenges/evaluations/accepted-d385af23ff14452feaff464fb82ad499ba63ccb3-v39.json",
+          "evaluationUtc": "2026-10-10T09:57:55.603Z",
+          "remainingScreens": 0,
+          "recordedSteps": 29,
+          "previousScreensMatched": 29,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 29,
+              "total": 29
+            },
+            "rng": {
+              "matched": 2640,
+              "total": 2642
+            },
+            "cursors": {
+              "matched": 29,
+              "total": 29
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2640,
+              "cEntry": "rn2(3)=2",
+              "cCaller": "landing_spot(steed.c:543)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 28,
+                "key": " "
+              },
+              "stepIndex": 28
+            },
+            "cursor": null
+          },
+          "step": 28,
+          "kind": "rng",
+          "sourceFile": "steed.c",
+          "function": "landing_spot",
+          "message": null,
+          "cFile": "steed.c",
+          "luaFile": null,
+          "line": 543,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v39/v39-mounted-steed-polymorph-trap.json",
+            "result": {
+              "session": "synthetic/v39/v39-mounted-steed-polymorph-trap",
+              "corpus": "synthetic",
+              "batch": "v39",
+              "caseId": "v39-mounted-steed-polymorph-trap",
+              "manifestPath": "challenges/manifests/v39.json",
+              "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+              "recordingSha256": "1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997",
+              "evaluationPath": "challenges/evaluations/accepted-2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba-v39.json",
+              "evaluationCommit": "2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba",
+              "remainingScreens": 0,
+              "recordedSteps": 29,
+              "status": "complete",
+              "commit": "12243fba8c4684bdec098e2358b04d76d0efd8f2",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v39",
+                "caseId": "v39-mounted-steed-polymorph-trap",
+                "session": "synthetic/v39/v39-mounted-steed-polymorph-trap",
+                "manifestPath": "challenges/manifests/v39.json",
+                "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+                "recording": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json",
+                "recordingPath": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.session.json",
+                "recordingSha256": "1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997",
+                "recipe": "challenges/cases/v39/v39-mounted-steed-polymorph-trap.recipe.session.json",
+                "recipeSha256": "e2f5f7d33e071f8e837389af982cdfe8fb6754549295fac5ff069e3fea8df5d8",
+                "replayInputSha256": "2bf4dc7e0729004df85af9effb24878853df0d379fb0ee975dc1655e941f8566",
+                "evaluationPath": "challenges/evaluations/accepted-2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba-v39.json",
+                "evaluationCommit": "2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba",
+                "evaluationArtifact": "challenges/evaluations/accepted-2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba-v39.json",
+                "evaluationUtc": "2026-10-10T09:08:35.094Z",
+                "remainingScreens": 0,
+                "recordedSteps": 29,
+                "previousScreensMatched": 29,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 29,
+                    "total": 29
+                  },
+                  "rng": {
+                    "matched": 2640,
+                    "total": 2642
+                  },
+                  "cursors": {
+                    "matched": 29,
+                    "total": 29
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "rng",
+                  "rng": {
+                    "index": 2640,
+                    "cEntry": "rn2(3)=2",
+                    "cCaller": "landing_spot(steed.c:543)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 28,
+                      "key": " "
+                    },
+                    "stepIndex": 28
+                  },
+                  "screen": null,
+                  "cursor": null
+                },
+                "step": 28,
+                "kind": "rng",
+                "sourceFile": "steed.c",
+                "function": "landing_spot",
+                "message": null,
+                "cFile": "steed.c",
+                "luaFile": null,
+                "line": 543
+              },
+              "summary": "All screens and cursors match after the accepted naming fix, but C records two additional RNG calls when the polymorph trap removes the pony’s saddle. mon.c:newcham reaches worn.c:mon_break_armor, which drops the saddle through m_lose_armor; worn.c:update_mon_extrinsics then calls steed.c:dismount_steed(DISMOUNT_FELL). JS currently records a note_unported gap at the equivalent worn.js call sites, so it skips landing_spot, leaving the mount attached and later reaches a JS-only poly_steed gap. The mounted polymorph needs the FELL dismount and both of its worn.c caller sites wired.",
+              "source": {
+                "file": "steed.c",
+                "branch": "A mounted pony polymorphs to a form that cannot be saddled. mon.c:newcham calls worn.c:mon_break_armor after changing its form; mon_break_armor drops the saddle with m_lose_armor, which removes its monster extrinsics. worn.c:update_mon_extrinsics then sees the mount losing its saddle and calls dismount_steed(DISMOUNT_FELL). The C dismount initializes have_spot with landing_spot before the reason switch, scans adjacent positions and uses rn2(viable) to break equal-distance ties. The successful dismount clears u.usteed, so mon.c:newcham skips its later poly_steed call.",
+                "functions": [
+                  "dismount_steed"
+                ],
+                "callers": [
+                  "worn.c:update_mon_extrinsics",
+                  "worn.c:mon_break_armor",
+                  "mon.c:newcham",
+                  "trap.c:steedintrap"
+                ],
+                "dependencies": [
+                  "steed.c:landing_spot",
+                  "hack.c:losehp",
+                  "attrib.c:set_wounded_legs",
+                  "worn.c:update_mon_extrinsics",
+                  "worn.c:mon_break_armor"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved accepted evaluation challenges/evaluations/accepted-2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba-v39.json at 2b9c8c0ca07c0bef46254ff825aa31ef3a2956ba; v39 manifest SHA-256 02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0, recording SHA-256 1a61a52d42ce5f5596e73f970f91b94ef2b87d33b7740bc2eb6a2735dfb63997; 29/29 screens, 2640/2642 RNG calls, 29/29 cursors.",
+                "Fresh focused differential `node scripts/diff-fresh.mjs challenges/cases/v39/v39-mounted-steed-polymorph-trap.recipe.session.json` reproduces the same failure: screen and cursor streams match; C has 2642 RNG calls and JS has 2640; first missing call is rn2(3)=2 from steed.c:landing_spot at segment 0 step 28 (CLI prints segment 1 step 29). Bounded receipt: /tmp/teleport-validation-1000/run-BHW5cy/receipt.json.",
+                "Source path: trap.c:steedintrap calls newcham(steed, NULL, NC_SHOW_MSG). In mon.c:newcham (5278-5545), the changed form reaches mon_break_armor(mtmp, polyspot) before the later `if (mtmp == u.usteed) poly_steed(mtmp, olddata)` check.",
+                "Source path: worn.c:mon_break_armor (1177-1338) identifies the mount as unable to keep its saddle and calls m_lose_armor. m_lose_armor removes the saddle and calls update_mon_extrinsics with on=FALSE. worn.c:update_mon_extrinsics at 707-708 calls dismount_steed(DISMOUNT_FELL) when the removed saddle belonged to u.usteed. This earlier dismount clears u.usteed, so the later poly_steed call in mon.c:newcham is skipped; the JS poly_steed note is secondary to the skipped FELL call.",
+                "Source path: steed.c:dismount_steed (576-826) evaluates landing_spot(&cc, reason, 0) in its initializer before the reason switch. DISMOUNT_FELL shares the fall branch: print the fall message, request the forced landing fallback if needed, apply riding-accident damage and wounded legs when not flying or levitating, release and place the steed, move the hero, and run the shared float-down/status tail. landing_spot at line 543 breaks equal-distance ties with rn2(viable), consistent with the first missing call.",
+                "Likely JS gaps: js/worn.js:update_mon_extrinsics and js/worn.js:mon_break_armor_effects both currently record note_unported(\"steed.c dismount_steed DISMOUNT_FELL\") instead of calling dismount_steed; js/steed.js:dismount_steed still refuses DISMOUNT_FELL. The later js/mon.js poly_steed note is not on the C path after the dismount succeeds.",
+                "The earlier ARTICLE_YOUR binding defect in mon.c:newcham was corrected and independently accepted. It accounts for the prior 0/29 replay stop; this report supersedes that old count and earlier poly_steed source attribution.",
+                "An independent unmounted pet-polymorph recording remains in recipes/mon.c/tame-pet-polymorph-trap.session.json and recordings/mon.c/tame-pet-polymorph-trap.session.json; it matches 25/25 screens, 2850/2850 RNG calls, and 25/25 cursors, proving the separate mon.c:newcham tame-naming path."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "97b84cc6b58a15fd2a536c0d8caaa2e86be47335",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
