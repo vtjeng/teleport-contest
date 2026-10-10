@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T04:29:41.334Z",
+  "capturedAt": "2026-10-10T04:54:41.890Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -78546,6 +78546,42 @@
         "worker": "Prep",
         "state": "active",
         "reason": "v39 has nine approved distinct C-first mismatches; three remain."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-bell-search-20261010T0436Z",
+        "type": "turn",
+        "at": "2026-10-10T04:33:00.932Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has nine approved distinct C-first mismatches; three remain."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-active-bell-overlap-20261010T0442Z",
+        "type": "turn",
+        "at": "2026-10-10T04:35:12.484Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has nine approved distinct C-first mismatches; three remain."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-resume-v38-whip-investigation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T04:54:09.501Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating a remaining v38 lava-whip RNG divergence from the published Main boundary."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B208-v38-whip-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T04:54:33.942Z",
+        "task": "B208-investigation-v38-levitating-whip-over-lava",
+        "worker": "B",
+        "kind": "investigation"
       }
     ]
   },
