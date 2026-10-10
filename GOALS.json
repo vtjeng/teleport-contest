@@ -253065,14 +253065,18 @@
     {
       "id": "divergence-minetown-special-room-shopkeeper-makemon-v41-20261010",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Admit source-defined special-level shopkeepers and High Clerics",
       "cFile": "makemon.c",
       "sessions": [],
       "selectionReason": "The fresh queue stops Minetown at the explicit MM_ESHK shopkeeper call after topology finalization; C makemon admits that source call.",
       "detail": "Implement the exact makemon admission and preserve the synchronous pointer-consuming caller chain through priestini, shkinit, stock_room, and fill_special_room. The implementation also carries independent Astral High Cleric prefix evidence.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "c67adb44d6461c0971e9a048959fdefc015fe506",
+      "openStanding": {
+        "sha": "2e5a22fcb59f677d8f21f487546440d26850930c",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "makemon",
@@ -253091,7 +253095,164 @@
           "evaluationPath": "challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v41.json",
           "evaluationCommit": "2e5a22fcb59f677d8f21f487546440d26850930c"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "2e5a22fcb59f677d8f21f487546440d26850930c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-minetown3-special-program-generation",
+          "session": "synthetic/v41/v41-minetown3-special-program-generation",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recording": "challenges/cases/v41/v41-shop-sellobj-minetown3-map.session.json",
+          "recordingPath": "challenges/cases/v41/v41-shop-sellobj-minetown3-map.session.json",
+          "recordingSha256": "dc249560ba2c73c04834f24418965d8d18b1318af88353ec54a50ecbec35e846",
+          "recipe": "challenges/cases/v41/v41-shop-sellobj-minetown3-map.recipe.session.json",
+          "recipeSha256": "14f60545712d9fb5c88f9fc7cbd504758ed9ab4ef0b9a66ee212062d1fc346ca",
+          "replayInputSha256": "3a8607442a4db9da0a044ecb1fbd686a944e2c52497a9d21d1ba96df0c8f14b2",
+          "evaluationPath": "challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v41.json",
+          "evaluationCommit": "2e5a22fcb59f677d8f21f487546440d26850930c",
+          "evaluationArtifact": "challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v41.json",
+          "evaluationUtc": "2026-10-10T14:51:09.023Z",
+          "remainingScreens": 10,
+          "recordedSteps": 36,
+          "previousScreensMatched": 26,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 26,
+              "total": 36
+            },
+            "rng": {
+              "matched": 4464,
+              "total": 4814
+            },
+            "cursors": {
+              "matched": 26,
+              "total": 36
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: shopkeeper extension outside shkinit",
+            "step": 26
+          },
+          "step": 26,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: shopkeeper extension outside shkinit",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v41/v41-minetown3-special-program-generation.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v41",
+              "caseId": "v41-minetown3-special-program-generation",
+              "session": "synthetic/v41/v41-minetown3-special-program-generation",
+              "manifestPath": "challenges/manifests/v41.json",
+              "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+              "recordingPath": "challenges/cases/v41/v41-shop-sellobj-minetown3-map.session.json",
+              "recordingSha256": "dc249560ba2c73c04834f24418965d8d18b1318af88353ec54a50ecbec35e846",
+              "evaluationPath": "challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v41.json",
+              "evaluationCommit": "2e5a22fcb59f677d8f21f487546440d26850930c",
+              "replayInputSha256": "3a8607442a4db9da0a044ecb1fbd686a944e2c52497a9d21d1ba96df0c8f14b2",
+              "remainingScreens": 10,
+              "recordedSteps": 36,
+              "status": "complete",
+              "commit": "2e5a22fcb59f677d8f21f487546440d26850930c",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v41",
+                "caseId": "v41-minetown3-special-program-generation",
+                "session": "synthetic/v41/v41-minetown3-special-program-generation",
+                "manifestPath": "challenges/manifests/v41.json",
+                "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+                "recording": "challenges/cases/v41/v41-shop-sellobj-minetown3-map.session.json",
+                "recordingPath": "challenges/cases/v41/v41-shop-sellobj-minetown3-map.session.json",
+                "recordingSha256": "dc249560ba2c73c04834f24418965d8d18b1318af88353ec54a50ecbec35e846",
+                "recipe": "challenges/cases/v41/v41-shop-sellobj-minetown3-map.recipe.session.json",
+                "recipeSha256": "14f60545712d9fb5c88f9fc7cbd504758ed9ab4ef0b9a66ee212062d1fc346ca",
+                "replayInputSha256": "3a8607442a4db9da0a044ecb1fbd686a944e2c52497a9d21d1ba96df0c8f14b2",
+                "evaluationPath": "challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v41.json",
+                "evaluationCommit": "2e5a22fcb59f677d8f21f487546440d26850930c",
+                "evaluationArtifact": "challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v41.json",
+                "evaluationUtc": "2026-10-10T14:51:09.023Z",
+                "remainingScreens": 10,
+                "recordedSteps": 36,
+                "previousScreensMatched": 26,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 26,
+                    "total": 36
+                  },
+                  "rng": {
+                    "matched": 4464,
+                    "total": 4814
+                  },
+                  "cursors": {
+                    "matched": 26,
+                    "total": 36
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: shopkeeper extension outside shkinit",
+                  "step": 26
+                },
+                "step": 26,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: shopkeeper extension outside shkinit",
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "investigation": {
+                  "status": "missing",
+                  "path": "investigations/synthetic/v41/v41-minetown3-special-program-generation.json"
+                }
+              },
+              "summary": "The v41 replay reaches an implemented minetn-3 loader, but JS preflight rejects its shopkeeper while lspo_finalize_level fills rooms after level_finalize_topology clears in_mklev. C explicitly calls fill_special_room after that clear, and shknam.c:shkinit creates the shopkeeper with MM_ESHK. The JS caller already marks this path as _specialRoomFill; makemon preflight fails to honor that marker for MM_ESHK.",
+              "source": {
+                "file": "makemon.c",
+                "branch": "shknam.c:shkinit creates PM_SHOPKEEPER with MM_ESHK while filling a special level after sp_lev.c:lspo_finalize_level has called level_finalize_topology and cleared gi.in_mklev.",
+                "functions": [
+                  "makemon() explicit MM_ESHK shopkeeper creation"
+                ],
+                "callers": [
+                  "sp_lev.c:lspo_finalize_level: calls level_finalize_topology() and then fill_special_room() for each room",
+                  "shknam.c:stock_room -> shkinit: calls makemon(&mons[PM_SHOPKEEPER], sx, sy, MM_ESHK)"
+                ],
+                "dependencies": [
+                  "mklev.c:level_finalize_topology clears gi.in_mklev before the special-room fill loop; the JS fill_special_room caller passes _specialRoomFill through stock_room and shkinit."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The authoritative saved queue entry at .cache/latest-saved-combined-queue.json (SHA-256 bfaeeff70f6ec230b5a26c1b99df918a8391aaa0f54a280b71c0c2dcb00a165e), evaluation challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v41.json, and recording challenges/cases/v41/v41-shop-sellobj-minetown3-map.session.json identify 10 remaining screens of 36, 26/36 cursors, 4464/4814 RNG calls, and a stop at step 26: unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: shopkeeper extension outside shkinit. Queue case, manifest corpus digest, recipe and recording hashes, and evaluation provenance were rechecked at accepted game commit 2e5a22fcb59f677d8f21f487546440d26850930c.",
+                "The queue annotation says the top-level dat/minetn-3.lua program is reached by wiz_load_splua/load_special, but this source is already ported: js/mines_levels.js:minetn3 implements the program and MINES_LEVEL_LOADERS registers minetn-3; js/mklev.js:ensureSpecialLevelLoaders includes that registry. The missing program/loader diagnosis is stale for the examined tree.",
+                "C source order is explicit: sp_lev.c:lspo_finalize_level calls level_finalize_topology() and then fill_special_room() for each room (sp_lev.c:6055-6058). mklev.c:level_finalize_topology sets gi.in_mklev = FALSE before returning. shknam.c:shkinit then calls makemon(&mons[PM_SHOPKEEPER], sx, sy, MM_ESHK) (shknam.c:663-665); makemon.c allocates ESHK for MM_ESHK without an in_mklev restriction (makemon.c:1242).",
+                "The JS path preserves the source context: mklev.js:fill_special_room creates normalized env with _specialRoomFill=true before calling stock_room; shknam.js:shkinit passes MM_ESHK and the normalized env to makemon. makemon_create.js:preflightCreation recognizes _specialRoomFill for calls after topology finalization, but shopkeeperCall at the MM_ESHK gate requires state.in_mklev, so the valid post-finalization shopkeeper call is refused.",
+                "The minimal source-backed divergence scope is makemon.c:makemon behavior represented by js/makemon_create.js:preflightCreation: admit the exact PM_SHOPKEEPER/MM_ESHK shape when either in_mklev is true or the existing _specialRoomFill caller marker is true. No loader-registry edit is needed; B219 owns that shared contract, but minetn-3 is already registered in the examined tree."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
