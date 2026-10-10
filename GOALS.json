@@ -259208,7 +259208,7 @@
     {
       "id": "port-bigrm-11-special-level-v42-20261010",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete BigRM-11 special-level program and its source-defined level-generation sequence.",
       "luaFile": "bigrm-11.lua",
       "sessions": [
@@ -259222,8 +259222,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "37044eda52fe8b08877c9f10c3aa300bee7c5291",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "bigrm-11.lua",
@@ -259420,6 +259423,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "37044eda52fe8b08877c9f10c3aa300bee7c5291",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
