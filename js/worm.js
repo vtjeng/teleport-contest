@@ -1,13 +1,16 @@
 // Long-worm segment management and splitting.
 // C ref: worm.c get_wormno(), initworm(), toss_wsegs(), shrink_worm(),
+// worm_move(),
 // wormgone(), cutworm(), place_wsegs(), remove_worm(),
 // place_worm_tail_randomly(), count_wsegs(), create_worm_tail(), worm_known(),
 // wseg_at().
 
 import { memoryLayout } from './wizcmds_data.js';
 import {
+    MHPMAX,
     has_mcorpsenm,
     MAX_NUM_WORMS,
+    NORMAL_SPEED,
     NON_PM,
 } from './const.js';
 import { game } from './gstate.js';
@@ -25,6 +28,7 @@ import { rnd_nextto_goodpos } from './trap.js';
 import { note_unported } from './unported.js';
 import { mattacku } from './mhitu.js';
 import { canspotmon } from './display.js';
+import { mcalcmove } from './mon.js';
 
 function wormSlots(state) {
     if (!state.level)
@@ -171,6 +175,71 @@ function shrink_worm(wnum, rawEnv = {}) {
     const tail = segments[0];
     wormSlots(env.state)[wnum].segments = segments.slice(1);
     toss_wsegs([tail], true, env);
+}
+
+// C ref: worm.c worm_move(). Call after the head has moved in the monster map.
+// The final node in level.worms[wormno].segments is the hidden head tracker;
+// moving it exposes the old head square as a new tail segment.
+export function worm_move(worm, rawEnv = {}) {
+    const env = wormEnvironment(rawEnv);
+    const { state, random } = env;
+    const wnum = worm.wormno;
+    const slots = wormSlots(state);
+    const record = slots[wnum];
+    const segments = record?.segments;
+    if (!wnum || !segments?.length)
+        throw new Error('worm_move requires an initialized long-worm tail');
+
+    // C place_worm_seg() writes the worm into the old hidden-head square. The
+    // movement caller has already moved the real head and cleared its old map
+    // coordinate; tail coordinates remain in the segment list.
+    const oldHead = segments[segments.length - 1];
+    state.level.monsters[oldHead.x][oldHead.y] = worm;
+    redrawWormSquare(oldHead.x, oldHead.y, env);
+
+    segments.push({ x: worm.mx, y: worm.my });
+
+    if (record.growtime <= state.moves) {
+        let wsegs = count_wsegs(worm, state);
+        if (!record.growtime) {
+            record.growtime = state.moves + random.rnd(5);
+        } else {
+            const mmove = mcalcmove(worm, false, state, random.rn2);
+            let incr = random.rn1(10, 2);
+            incr = Math.trunc((incr * NORMAL_SPEED) / Math.max(mmove, 1));
+            record.growtime = state.moves + incr;
+        }
+
+        let whplimit = !worm.m_lev ? 4 : 8 * worm.m_lev;
+        if (wsegs > 33) {
+            whplimit += 2 * (wsegs - 33);
+            wsegs = 33;
+        }
+        if (wsegs > 22) {
+            whplimit += 4 * (wsegs - 22);
+            wsegs = 22;
+        }
+        if (wsegs > 11) {
+            whplimit += 6 * (wsegs - 11);
+            wsegs = 11;
+        }
+        whplimit += 8 * wsegs;
+        whplimit = Math.min(whplimit, MHPMAX);
+
+        const previousMhp = worm.mhp;
+        worm.mhp += random.d(2, 2);
+        const whpcap = Math.max(whplimit, worm.mhpmax);
+        if (worm.mhp < whpcap) {
+            if (worm.mhp > whplimit)
+                worm.mhp = Math.max(previousMhp, whplimit);
+            if (worm.mhp > worm.mhpmax)
+                worm.mhpmax = worm.mhp;
+        } else if (worm.mhp > worm.mhpmax) {
+            worm.mhp = worm.mhpmax;
+        }
+    } else {
+        shrink_worm(wnum, env);
+    }
 }
 
 // C ref: worm.c place_wsegs(). Coordinates in each segment remain the sole

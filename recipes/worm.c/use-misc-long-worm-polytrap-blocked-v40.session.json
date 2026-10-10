@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked source probe for use_misc(MUSE_POLY_TRAP) -> worm.c:worm_move. find_misc() returns before its trap scan for animals (muse.c:2108-2109); its scan also requires difficulty < 6 (muse.c:2120-2121), while PM_LONG_WORM has difficulty 10 (monsters.h:1134-1137). The input attempts: Use polymorph trap.",
+  "segments": [
+    {
+      "seed": 902100318,
+      "datetime": "21051117103000",
+      "nethackrc": "OPTIONS=name:WormTrap902100318,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#wizgenesis\nhostile long worm\nh#wizwish\npolymorph trap\nh..."
+    }
+  ]
+}
