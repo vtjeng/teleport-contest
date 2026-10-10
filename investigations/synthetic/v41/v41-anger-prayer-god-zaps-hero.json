@@ -113,7 +113,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The accepted replay stops at the source-selected default angry-god reaction: pray.c:angrygods() calls the already represented gods_angry() voice and then god_zaps_you(), while js/pray.js records god_zaps_you as unported. Port the whole lightning/disintegration helper and its fry_by_god helper, then wire the existing JS angrygods route. The separate C-only desecrate_altar caller has no JavaScript implementation or caller path and remains outside this case.",
+  "summary": "The accepted replay stops at the missing pray.c:god_zaps_you source function: pray.c:angrygods() already selects and voices the default retaliation, but js/pray.js records the helper as unported. Port the whole lightning/disintegration helper, its same-file fry_by_god helper, and the full angrygods caller unit. The separate C-only desecrate_altar caller has no JavaScript implementation or caller path and remains outside this task.",
   "source": {
     "file": "pray.c",
     "branch": "After prayer_done() resolves an unforced too-soon prayer (p_type 0), gods_upset() increments anger and calls angrygods(). Its rn2(maxanger) result must be in the default arm (> 8) after the cap to 15; this case source-records rn2(15)=10. That arm calls gods_angry(resp_god), then god_zaps_you(resp_god), before angrygods() updates ublesscnt with rnz(300). In god_zaps_you(), an unswallowed hero without shock resistance reaches fry_by_god() for lightning; a surviving wizard then receives the not-deterred line, wide-angle disintegration, worn cloak destruction, and the disintegration fry path. The direct C desecrate_altar() caller is a distinct absent JS path.",
@@ -133,7 +133,7 @@
       "mon.c:xkilled(), end.c:done(), display.c:shieldeff(), muse.c:ureflects(), mondata.c:monstseesu()/monstunseesu(), sounds.c:SetVoice(), pline.c:verbalize(), and minion.c:summon_minion() have existing JS implementations used for corresponding effects."
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
     "The authoritative saved queue (SHA-256 b862fac251967d96e4bff7773c93cfbc0eeabdc19d15a43374e735d057c33376) identifies synthetic/v41/v41-anger-prayer-god-zaps-hero at 13 remaining screens of 48; C/JS currently match 35 screens, 2994 RNG calls, and 36 cursors. The first mismatch is segment 0, step 35, key space: C cursor [60,0,1] after the quoted divine anger voice; JS cursor [5,8,1] because the helper is absent.",
     "The admitted recipe is challenges/cases/v41/v41-prayer-too-soon-angrygod-zap-cfirst-precise.recipe.session.json and the C recording is challenges/cases/v41/v41-prayer-too-soon-angrygod-zap-cfirst-precise.session.json. Three too-soon prayers reach prayer_done() p_type 0; the third C selector is rn2(15)=10. C then records lightning, the Wizard survival query, a disintegration beam, cloak destruction, a second survival query, and continued play through step 47.",
