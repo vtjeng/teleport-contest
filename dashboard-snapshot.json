@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T12:53:53.479Z",
+  "capturedAt": "2026-10-10T13:15:24.432Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -81173,22 +81173,153 @@
         "at": "2026-10-10T12:53:08.649Z",
         "task": "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010",
         "delivery": "97ce9a471a925ec6968a14b5a16a56dd8089aeaa"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B217-investigation-v40-shop-exit-kops-residual-20261010-7a9d9fca0ff339187ebaa48f39c440894a663ed8",
+        "type": "published",
+        "at": "2026-10-10T12:54:01.524Z",
+        "task": "B217-investigation-v40-shop-exit-kops-residual-20261010",
+        "commit": "7a9d9fca0ff339187ebaa48f39c440894a663ed8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B219-implement-water-lua-v40-20261010",
+        "type": "implement",
+        "at": "2026-10-10T12:54:04.370Z",
+        "task": "B219-investigation-v40-water-plane-levelport-generation-20261010",
+        "goal": "port-water-plane-lua-v40-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B219-water-lua-implementation-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T12:54:13.763Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B219 is implementing the Plane of Water Lua program and registering its special-level loader, using the admitted v40 levelport case as runtime evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep5-received-16e1c7f16f8321c293b21a9bafa7b2f77738c19e",
+        "type": "received",
+        "at": "2026-10-10T12:55:56.985Z",
+        "task": "Prep5",
+        "delivery": "16e1c7f16f8321c293b21a9bafa7b2f77738c19e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep5-integrating-2742030c1e6b68c098598aef3789567aed93b5a1",
+        "type": "integrating",
+        "at": "2026-10-10T12:58:04.261Z",
+        "task": "Prep5",
+        "integration": "2742030c1e6b68c098598aef3789567aed93b5a1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v40-wishcmdassist-implementation-validated-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:00:52.907Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C completed the wizard wish help window; focused tests, lint, and both C replays match while the immutable packet is prepared."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-84825b279932627cb54c181fe75622060c38070f",
+        "type": "ready",
+        "at": "2026-10-10T13:01:09.203Z",
+        "task": "C-v40-wizard-wish-assistance-investigation-20261010",
+        "delivery": "84825b279932627cb54c181fe75622060c38070f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e4ae2349acbc7654db226caf6ae0004f22cb61e9",
+        "type": "ready",
+        "at": "2026-10-10T13:01:12.289Z",
+        "task": "B219-investigation-v40-water-plane-levelport-generation-20261010",
+        "delivery": "e4ae2349acbc7654db226caf6ae0004f22cb61e9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B219-received-e4ae2349acbc7654db226caf6ae0004f22cb61e9",
+        "type": "received",
+        "at": "2026-10-10T13:02:05.065Z",
+        "task": "B219-investigation-v40-water-plane-levelport-generation-20261010",
+        "delivery": "e4ae2349acbc7654db226caf6ae0004f22cb61e9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-wish-received-84825b279932627cb54c181fe75622060c38070f",
+        "type": "received",
+        "at": "2026-10-10T13:02:14.037Z",
+        "task": "C-v40-wizard-wish-assistance-investigation-20261010",
+        "delivery": "84825b279932627cb54c181fe75622060c38070f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-after-B219-submit-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:02:40.884Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B219 is ready for integration. B is investigating an unreserved v40 pet-unleashing case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B220-assign-v40-leashed-dragon-abuse-20261010",
+        "type": "assign",
+        "at": "2026-10-10T13:02:49.782Z",
+        "task": "B220-investigation-v40-leashed-dragon-abuse-m-unleash-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep5-validated-hosted-38054067980",
+        "type": "validated",
+        "at": "2026-10-10T13:05:57.738Z",
+        "task": "Prep5",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep5-2742030c1e6b68c098598aef3789567aed93b5a1-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T13:06:17.125Z",
+        "task": "Prep5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B220-turn-main-sync-20261010",
+        "type": "turn",
+        "at": "2026-10-10T13:07:46.827Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B220 is tracing the v40 leashed pet failure at dog.c:abuse_dog; accepted Main is synced and implementation scope is still unclaimed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep5-v41-admitted-20261010",
+        "type": "activity",
+        "at": "2026-10-10T13:08:33.208Z",
+        "task": "Prep5",
+        "phase": "admission",
+        "reason": "Admitted v41 with 15 independently recorded cases after the accepted preparation checkpoint passed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep5-v41-baseline-20261010",
+        "type": "activity",
+        "at": "2026-10-10T13:08:43.251Z",
+        "task": "Prep5",
+        "phase": "baseline",
+        "reason": "Recorded the v41 baseline: 3 of 15 sessions and 553 of 615 screens match; 12 mismatches are available to implementation workers."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "Prep5",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "16e1c7f16f8321c293b21a9bafa7b2f77738c19e",
-        "since": "2026-10-10T12:38:08.656Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010",
         "worker": "B",
@@ -81198,6 +81329,30 @@
         "delivery": "97ce9a471a925ec6968a14b5a16a56dd8089aeaa",
         "since": "2026-10-10T12:47:49.113Z",
         "blockedBy": [],
+        "unblocks": 1
+      },
+      {
+        "task": "C-v40-wizard-wish-assistance-investigation-20261010",
+        "worker": "C",
+        "goal": "fix-wishcmdassist-display-v40-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "84825b279932627cb54c181fe75622060c38070f",
+        "since": "2026-10-10T13:01:09.203Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B219-investigation-v40-water-plane-levelport-generation-20261010",
+        "worker": "B",
+        "goal": "port-water-plane-lua-v40-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "e4ae2349acbc7654db226caf6ae0004f22cb61e9",
+        "since": "2026-10-10T13:01:12.289Z",
+        "blockedBy": [
+          "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010"
+        ],
         "unblocks": 0
       }
     ],
@@ -81503,8 +81658,8 @@
     ]
   },
   "development": {
-    "executionCommit": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699",
-    "measuredAt": "2026-10-10T12:47:00.234Z",
+    "executionCommit": "d055edb9a7625276ca8b8194dd647864ae12cdf6",
+    "measuredAt": "2026-10-10T13:13:28.381Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
