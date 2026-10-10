@@ -259455,8 +259455,8 @@
           "name": "silver_sears",
           "line": 436,
           "endLine": 475,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -259638,7 +259638,60 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "silver_sears",
+            "implementation": "js/weapon.js",
+            "symbol": "silver_sears",
+            "sourceReview": "Read the complete weapon.c:silver_sears() body at lines 436-466. It derives left and right ring types from uleft, uright, and the W_RINGL/W_RINGR silverhit bits; reads dknown and silver material; computes both using equal ring type plus equal identification state or two identified silver rings; selects the silver, no-adjective, left, or right prefix; forms singular/plural ring and sear words; and writes the target message. It makes no RNG call and changes no game state, but writes a message, so it is impure. The magr parameter is explicitly UNUSED in C. Its consumed callees are Your(), vtense(), and mon_nam(), all already implemented; no unported return-bearing or discarded callee remains. The previous note_unported placeholders at all four hmonas branches were replaced by awaited calls to this helper.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmonas",
+                "source": "uhitm.c:hmonas calls silver_sears(&gy.youmonst, mon, silverhit) after the hit message in the claw/touch branch and in the corresponding hug branches at lines 5662, 5726, 5744, and 5756. JS hmonas now awaits the same helper at each branch. Its production route is hack.c:domove_core -> uhitm.c:do_attack -> uhitm.c:hmonas."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-hmon.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-silver-sears-monk-polymorph-claw-ring",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 71,
+                "source": "hack.c:domove_core -> uhitm.c:do_attack -> uhitm.c:hmonas -> weapon.c:silver_sears"
+              }
+            ],
+            "checkedAt": "6152b107e8bbb15c62228d16ed04d093986994ee"
+          }
+        ],
+        "entryPointReview": "The active entry point exercised here is a polymorphed hero melee attack that lands a silver-ring hit. The source route is hack.c:domove_core -> uhitm.c:do_attack -> uhitm.c:hmonas -> weapon.c:silver_sears. The admitted v42 replay reaches the helper at segment 0 step 71 and pauses on its searing message. The same source helper is called at four active hmonas attack branches; all four JS call sites are wired. The source-pinned focused test separately covers left/right identity, identified silver, plural same-ring behavior, unidentified plural behavior, and the no-ring-mask branch.",
+        "entryPoints": [
+          {
+            "name": "Polymorphed hero melee hit sears a target with a worn silver ring",
+            "functions": [
+              "silver_sears"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v42",
+                "caseId": "v42-silver-sears-monk-polymorph-claw-ring",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 71,
+                "source": "hack.c:domove_core -> uhitm.c:do_attack -> uhitm.c:hmonas -> weapon.c:silver_sears"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
