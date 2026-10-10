@@ -42,6 +42,7 @@ import {
     DB_FLOOR,
     DB_ICE,
     DB_UNDER,
+    DISMOUNT_GENERIC,
     DISMOUNT_FELL,
     DROWNING,
     BURNING,
@@ -349,7 +350,7 @@ import { bimanual } from './worn.js';
 import { newsym, bot, shieldeff } from './display.js';
 import { m_next2u } from './mhitu.js';
 import { destroy_items } from './zap_destroy_items.js';
-import { costly_spot, shop_keeper, shk_your } from './shk.js';
+import { costly_spot, shop_keeper, shk_your, shopdig } from './shk.js';
 import { quest_info } from './questpgr.js';
 import { mon_has_amulet } from './wizard.js';
 import { canspotmon } from './display.js';
@@ -715,7 +716,7 @@ export async function fall_through(td, ftflags, state = game) {
         );
     }
 
-    if (u.ushops) note_unported('shk.c shopdig');
+    if (u.ushops[0]) await shopdig(1, state);
 
     const destination = { dnum: u.uz.dnum, dlevel: nextLevel };
     if (state.stronghold_level
@@ -1394,7 +1395,7 @@ export async function drown(state = game) {
     const amphibiousHero = heroAmphibious(state);
     let inpoolOk = false;
 
-    note_unported('display.c feel_newsym');
+    feel_newsym(u.ux, u.uy, state);
     if (u.uinwater && is_pool(u.ux - u.dx, u.uy - u.dy, state)
         && (swimming || amphibiousHero || breathlessHero)) {
         if (!rn2(5)) inpoolOk = true;
@@ -1481,10 +1482,9 @@ export async function drown(state = game) {
         }
     }
     if (u.usteed) {
-        // C discards dismount_steed()'s result. Its generic water-displacement
-        // branch is still outside the steed port, so keep the gap at this
-        // source call and continue with drown()'s post-dismount location test.
-        note_unported('steed.c dismount_steed generic');
+        // C discards the void helper's result. Await its state changes before
+        // drown() checks whether the hero was displaced from the pool.
+        await dismount_steed(DISMOUNT_GENERIC, state);
         if (!is_pool(u.ux, u.uy, state)) return true;
     }
     if (u.usleep) await unmul('Suddenly you wake up!', state);
@@ -1885,8 +1885,8 @@ export function reset_utrap(msg, state = game) {
 
 // C ref: trap.c float_up() (3937-4009). Start the levitation message and
 // resolve any trap, engulfing, steed, flight, and encumbrance effects in C
-// order. C discards dismount_steed()'s return; its unported effect is recorded
-// and skipped at that exact source call.
+// order. C discards the void helper's result; await its effects before
+// continuing across the JavaScript async boundary.
 export async function float_up(state = game) {
     const { u } = state;
     state.disp ??= {};
@@ -1965,7 +1965,7 @@ export async function float_up(state = game) {
             await ttyPline(`${Monnam(u.usteed, state)} magically floats up!`, state);
         } else {
             await ttyPline(`You cannot stay on ${mon_nam(u.usteed, state)}.`, state);
-            note_unported('steed.c dismount_steed');
+            await dismount_steed(DISMOUNT_GENERIC, state);
         }
     }
     if (Flying(state))

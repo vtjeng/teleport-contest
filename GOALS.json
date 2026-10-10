@@ -256234,6 +256234,1252 @@
         "rng": 792838
       },
       "parkedReason": "The complete cannot_push and moverock_core implementations, their production caller chain, the v41 pit-push entry, and the independent blocked-push route are verified. The selected C-order range also contains rock_disappear_msg, moverock_done, and moverock. Their existing implementations were not included in the delivery completion evidence, and rock_disappear_msg still lacks matching runtime evidence for a boulder entering a teleport trap. Resume after an independent teleport-trap boulder recipe covers that message, then source-review and record completion evidence for all three remaining units."
+    },
+    {
+      "id": "port-mon-hideunder-v41-polymorphed-hider-20261010",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port mon.c hideunder and wire all active concealment callers.",
+      "cFile": "mon.c",
+      "sessions": [
+        "synthetic/v41/v41-polymorphed-hider-under-remaining-floor-object"
+      ],
+      "selectionReason": "The accepted v41 mismatch enters mon.c:hideunder through pickup.c:pickup; the worker delivery covers the complete helper and every active caller.",
+      "detail": "Port the complete mon.c:hideunder function and wire every active JavaScript caller, including the teleport caller that consumes its return value.",
+      "openedAt": "54a0d1891cfa6fb2f1c7df89dd55572e7aa512b3",
+      "openStanding": {
+        "sha": "74c1c3969bad5b5c7ce7f19150a347466b056d24",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "d9907b003bab45aa255af21cd2fe9cedb7abfa9c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "hideunder",
+          "line": 4726,
+          "endLine": 4805,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 4726,
+        "to": 4805
+      },
+      "syntheticProvenance": {
+        "synthetic/v41/v41-polymorphed-hider-under-remaining-floor-object": {
+          "session": "synthetic/v41/v41-polymorphed-hider-under-remaining-floor-object",
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-polymorphed-hider-under-remaining-floor-object",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recordingPath": "challenges/cases/v41/v41-hideunder-remaining-cloak-pickup-cfirst.session.json",
+          "recordingSha256": "ce4f14368b0a3fb3090960d66c766a851af9ce10c9066f93660aaf3d31a664fe",
+          "evaluationPath": "challenges/evaluations/accepted-74c1c3969bad5b5c7ce7f19150a347466b056d24-v41.json",
+          "evaluationCommit": "74c1c3969bad5b5c7ce7f19150a347466b056d24"
+        }
+      },
+      "activeStanding": {
+        "sha": "74c1c3969bad5b5c7ce7f19150a347466b056d24",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-polymorphed-hider-under-remaining-floor-object",
+          "session": "synthetic/v41/v41-polymorphed-hider-under-remaining-floor-object",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recording": "challenges/cases/v41/v41-hideunder-remaining-cloak-pickup-cfirst.session.json",
+          "recordingPath": "challenges/cases/v41/v41-hideunder-remaining-cloak-pickup-cfirst.session.json",
+          "recordingSha256": "ce4f14368b0a3fb3090960d66c766a851af9ce10c9066f93660aaf3d31a664fe",
+          "recipe": "challenges/cases/v41/v41-hideunder-remaining-cloak-pickup-cfirst.recipe.session.json",
+          "recipeSha256": "78e87a23c760a7be3a880737fe5f1b557f2bd7e5ad37ed6b19e8c84c239871cb",
+          "replayInputSha256": "625c803c1047f7108c38d0b8b9af57d9dd3d6786af2ae20c0b55c46c991ef48d",
+          "evaluationPath": "challenges/evaluations/accepted-74c1c3969bad5b5c7ce7f19150a347466b056d24-v41.json",
+          "evaluationCommit": "74c1c3969bad5b5c7ce7f19150a347466b056d24",
+          "evaluationArtifact": "challenges/evaluations/accepted-74c1c3969bad5b5c7ce7f19150a347466b056d24-v41.json",
+          "evaluationUtc": "2026-10-10T18:11:23.125Z",
+          "remainingScreens": 1,
+          "recordedSteps": 60,
+          "previousScreensMatched": 59,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 59,
+              "total": 60
+            },
+            "rng": {
+              "matched": 3101,
+              "total": 3108
+            },
+            "cursors": {
+              "matched": 60,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 59,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 59,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 13,
+              "column": 38,
+              "cCell": {
+                "ch": "[",
+                "color": 15,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "s",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3100,
+              "cEntry": "rn2(1)=0",
+              "cCaller": "m_move(monmove.c:1978)",
+              "jsEntry": "rn2(8)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 59,
+                "key": "\n"
+              },
+              "stepIndex": 59
+            },
+            "cursor": null
+          },
+          "step": 59,
+          "kind": "rng",
+          "sourceFile": "monmove.c",
+          "function": "m_move",
+          "message": null,
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 1978,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v41/v41-polymorphed-hider-under-remaining-floor-object.json",
+            "result": {
+              "session": "synthetic/v41/v41-polymorphed-hider-under-remaining-floor-object",
+              "remainingScreens": 1,
+              "recordedSteps": 60,
+              "corpus": "synthetic",
+              "batch": "v41",
+              "caseId": "v41-polymorphed-hider-under-remaining-floor-object",
+              "manifestPath": "challenges/manifests/v41.json",
+              "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+              "recordingSha256": "ce4f14368b0a3fb3090960d66c766a851af9ce10c9066f93660aaf3d31a664fe",
+              "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+              "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+              "status": "complete",
+              "commit": "6818fe9b759b2ef8ae3d470f38c30808a0734640",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v41",
+                "caseId": "v41-polymorphed-hider-under-remaining-floor-object",
+                "session": "synthetic/v41/v41-polymorphed-hider-under-remaining-floor-object",
+                "manifestPath": "challenges/manifests/v41.json",
+                "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+                "recording": "challenges/cases/v41/v41-hideunder-remaining-cloak-pickup-cfirst.session.json",
+                "recordingPath": "challenges/cases/v41/v41-hideunder-remaining-cloak-pickup-cfirst.session.json",
+                "recordingSha256": "ce4f14368b0a3fb3090960d66c766a851af9ce10c9066f93660aaf3d31a664fe",
+                "recipe": "challenges/cases/v41/v41-hideunder-remaining-cloak-pickup-cfirst.recipe.session.json",
+                "recipeSha256": "78e87a23c760a7be3a880737fe5f1b557f2bd7e5ad37ed6b19e8c84c239871cb",
+                "replayInputSha256": "a6dcd789e15a13fb210cfc99141576f8eb53a394de6422c724147c15682e49fd",
+                "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+                "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+                "evaluationArtifact": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+                "evaluationUtc": "2026-10-10T17:31:28.509Z",
+                "remainingScreens": 1,
+                "recordedSteps": 60,
+                "previousScreensMatched": 59,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 59,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 3101,
+                    "total": 3108
+                  },
+                  "cursors": {
+                    "matched": 60,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 59,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 59,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 13,
+                    "column": 38,
+                    "cCell": {
+                      "ch": "[",
+                      "color": 15,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "s",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3100,
+                    "cEntry": "rn2(1)=0",
+                    "cCaller": "m_move(monmove.c:1978)",
+                    "jsEntry": "rn2(8)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 59,
+                      "key": "\n"
+                    },
+                    "stepIndex": 59
+                  },
+                  "cursor": null
+                },
+                "step": 59,
+                "kind": "rng",
+                "sourceFile": "monmove.c",
+                "function": "m_move",
+                "message": null,
+                "cFile": "monmove.c",
+                "luaFile": null,
+                "line": 1978
+              },
+              "summary": "The accepted v41 replay leaves the cave-spider hero visible after the hero selects the apples, although the remaining cloak covers the hero. pickup.c:pickup() calls mon.c:hideunder(&youmonst) after processing the floor pile; that source branch sets u.uundetected when a non-trapped M1_CONCEAL hero stands on a coverable floor object. js/pickup.js records this call as unported, and js/mon.js:hideunder() rejects the hero. The missing flag changes the later monster m_move() approach branch and its random calls.",
+              "source": {
+                "file": "mon.c",
+                "branch": "After the floor-item loop, pickup.c:pickup() calls hideunder(&youmonst) when the hero is not swallowed and the current form hides under objects. For a cave spider on an untrapped square with a coverable floor object, mon.c:hideunder() sets u.uundetected; it clears the flag when the hero cannot hide. A remaining cloak is a valid cover, so the source redraws the hero square with the cloak glyph. The later monmove.c:m_move() sees u.uundetected and sets appr to 0, which changes its position-selection RNG.",
+                "functions": [
+                  "hideunder"
+                ],
+                "callers": [
+                  "Admitted route: pickup.c:pickup() (672-909) finishes selecting floor objects, then calls hideunder(&gy.youmonst) at 894-896; the v41 recording selects only the apples and leaves the cloak under the cave-spider hero.",
+                  "Downstream effect: monmove.c:m_move() (1861-1872) forces appr to 0 when u.uundetected is set; the accepted evaluation first differs at step 59 during this monster move."
+                ],
+                "dependencies": [
+                  "monmove.c:can_hide_under_obj() checks whether the floor pile can cover a hider and rejects non-pit traps.",
+                  "mondata.c:hides_under() identifies the cave-spider concealment trait.",
+                  "mondata.c:Resists_Elem() supplies the hero stone-resistance result when the top of the pile is a petrifying corpse.",
+                  "dbridge.c:is_pool_or_lava() excludes hiding under floor objects in pools or lava.",
+                  "display.c:newsym() redraws the square when u.uundetected changes."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved queue /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json has SHA-256 7505fb24cd01792c8cb781d651dd66ffaa451361e46f7c456fd2705afde0a43a. Its v41 entry reports 1 remaining screen across 60 steps: 59/60 screens, 3101/3108 RNG calls, and 60/60 cursors matched. At segment 0, step 59, key Enter, C displays '[' at row 13, column 38 while JavaScript displays 's'; the same step first diverges at RNG index 3100, C rn2(1)=0 and JavaScript rn2(8)=1, attributed to m_move(monmove.c:1978).",
+                "The recorded setup is challenges/cases/v41/v41-hideunder-remaining-cloak-pickup-cfirst.session.json. It polymorphs the hero into a cave spider, wishes and drops two apples on the hero square, opens floor pickup, and selects the apples while leaving the cloak. The recipe comment identifies this as pickup.c:pickup’s post-loop hideunder call.",
+                "Upstream nethack-c/upstream/src/pickup.c:894-900 calls hideunder(&gy.youmonst) after the selection loop whenever the hero is not swallowed and hides_under(youmonst.data) is true. Upstream mon.c:4726-4801 contains the complete helper: its hero arm uses u.ux/u.uy and u.utrap, tests the floor pile and terrain, writes u.uundetected at 4775-4780, and redraws at 4799-4800 when the flag changes.",
+                "At the examined accepted source commit 6818fe9b759b2ef8ae3d470f38c30808a0734640, js/pickup.js:1686-1695 replaces the source call with note_unported(\"mon.c hideunder\"), and js/mon.js:6540-6544 throws UnsupportedHideError for state.youmonst. This leaves u.uundetected false and renders the hero glyph instead of the cloak glyph. js/monmove.js:3957-3971 then consumes that incorrect flag in m_move’s approach branch, explaining the later RNG divergence.",
+                "The same hero-helper gap appears at js/dig.js:2110-2112, js/invent.js:3446-3447, js/polyself.js:1176-1180, js/zap.js:3082-3085 and 6422-6425, and js/mon.js:6677-6680. A complete helper port must wire these supported callers. js/teleport.js:teleds() still refuses the larger hero-as-mimic relocation path before its C hideunder call and remains outside this mismatch’s supported route."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "hideunder",
+            "implementation": "js/mon.js",
+            "symbol": "hideunder",
+            "sourceReview": "Read and ported the complete upstream mon.c:hideunder body at 4726-4801. Checked the is_u coordinate selection, ustuck short-circuit, hero/monster trapped state, non-pit trap rejection, eel water/plane/underwater visibility branch, hider object pile eligibility, pet cursed-pile exclusion, pool/lava exclusion, stone-resistant cockatrice-corpse skipping, hero u.uundetected versus monster mundetected writes, visible-monster naming/message/last_msg/last_hider side effects, and newsym only when the concealment boolean changes. Preserved source branch and short-circuit order. The JavaScript implementation calls the corresponding existing source helpers and has no unported callee; removed UnsupportedHideError and replaced all former hero hideunder gaps at the audited callers.",
+            "callers": [
+              {
+                "path": "js/allmain.js",
+                "symbol": "moveElapsedTurnMonster",
+                "source": "mon.c:movemon_singlemon():1295-1303 reaches hideunder(mtmp) for its hidden-eel retry; the live turn dispatcher supplies the hideUnder callback to js/mon.js:movemon_singlemon."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "maybe_unhide_at",
+                "source": "mon.c:maybe_unhide_at():4696-4720 calls hideunder(mtmp) after its concealed-object/eel exposure guard, including the u.uundetected hero case."
+              },
+              {
+                "path": "js/restore.js",
+                "symbol": "hide_monst",
+                "source": "mon.c:hide_monst():4806-4826 calls hideunder(mon) after temporarily overriding vision while a hider is restored."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "newcham",
+                "source": "mon.c:newcham():5410 calls hideunder(mtmp) after the monster changes form while already mundetected."
+              },
+              {
+                "path": "js/makemon_create.js",
+                "symbol": "makemon",
+                "source": "makemon.c:makemon():1312 and :1324 call hideunder(mtmp) for level-created spiders/snakes and eels."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move",
+                "source": "monmove.c:m_move():1697 calls hideunder(mtmp) after an under-hider/eel moves or remains concealed."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "pickup",
+                "source": "pickup.c:pickup():896 calls hideunder(&youmonst) after a non-swallowed pickup when the hero form hides under objects."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "useupf",
+                "source": "invent.c:useupf():4782 calls hideunder(&youmonst) after deleting the object under a concealed hero."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "polymon",
+                "source": "polyself.c:polymon():894 calls hideunder(&youmonst) to reevaluate concealment after a hero form change when already hiding."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "bhito",
+                "source": "zap.c:bhito():2216 calls hideunder(&youmonst) when an object zap may have blown the hero's cover."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_updown",
+                "source": "zap.c:zap_updown():3404 calls hideunder(&youmonst) after a floor object is hit by the upward zap path."
+              },
+              {
+                "path": "js/explode.js",
+                "symbol": "explode",
+                "source": "explode.c:explode():940 calls hideunder(&youmonst) after the explosion changes the hero's floor pile."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "domove_core",
+                "source": "hack.c:domove_core():2950-2952 calls hideunder(&youmonst) after movement and buried-zombie disturbance when the form hides under objects, is an eel, or has movement direction."
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "teleds",
+                "source": "teleport.c:teleds():493 consumes hideunder(&youmonst)'s boolean and clears m_ap_type for a mimic only when concealment is false."
+              },
+              {
+                "path": "js/restore.js",
+                "symbol": "dorestore",
+                "source": "restore.c:restore_level():1197 calls hideunder(mtmp) when a restored under-hider is still concealed."
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "hatch_egg",
+                "source": "timeout.c:hatch_egg():1183 calls hideunder(mon) after removing a hatched egg from the floor, and uses the result to decide whether the visible square needs redrawing."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/unported-monster-actions.test.mjs",
+              "scripts/hack.test.mjs",
+              "scripts/teleport.test.mjs",
+              "scripts/sit-command.test.mjs",
+              "scripts/dig.test.mjs",
+              "scripts/makemon-create.test.mjs",
+              "scripts/pickup.test.mjs",
+              "scripts/zap-ray.test.mjs",
+              "scripts/polyself.test.mjs",
+              "scripts/restore-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v41",
+                "caseId": "v41-polymorphed-hider-under-remaining-floor-object",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 59,
+                "source": "pickup.c:pickup() -> mon.c:hideunder(&youmonst); the admitted replay continues through monmove.c:m_move() after the hero's u.uundetected state is recomputed"
+              }
+            ],
+            "checkedAt": "d9907b003bab45aa255af21cd2fe9cedb7abfa9c"
+          }
+        ],
+        "entryPointReview": "Helper-only source range. The complete active C call-site audit is: mon.c:movemon_singlemon (eel retry) -> js/allmain.js:moveElapsedTurnMonster supplies the hideUnder operation to js/mon.js:movemon_singlemon; mon.c:maybe_unhide_at -> js/mon.js:maybe_unhide_at; mon.c:hide_monst -> js/restore.js:hide_monst; mon.c:newcham -> js/mon.js:newcham; makemon.c:makemon -> js/makemon_create.js:makemon; monmove.c:m_move -> js/monmove.js:m_move; pickup.c:pickup -> js/pickup.js:pickup; invent.c:useupf -> js/invent.js:useupf; polyself.c:polymon -> js/polyself.js:polymon; zap.c:bhito and zap_updown -> js/zap.js:bhito and zap_updown; explode.c:explode -> js/explode.js:explode; hack.c:domove_core -> js/hack.js:domove_core; teleport.c:teleds -> js/teleport.js:teleds; restore.c:restore_level -> js/restore.js:dorestore; timeout.c:hatch_egg -> js/timeout.js:hatch_egg. Each source call is wired to the canonical js/mon.js:hideunder helper. The teleport caller awaits the return value and clears m_ap_type only when hideunder returns false for a mimic, matching C order. The admitted v41 replay exercises pickup.c:pickup through mon.c:hideunder for the polymorphed hero. Focused runtime tests also exercise hack.c:domove_core and teleport.c:teleds callers. This helper-only range has no standalone command, monster action, level feature, or startup entry point of its own; entryPoints is empty.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "d9907b003bab45aa255af21cd2fe9cedb7abfa9c",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "div-v41-steed-death-dismount-pool-20261010",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Complete generic dead-steed dismount and pool fall behavior.",
+      "cFile": "steed.c",
+      "sessions": [],
+      "selectionReason": "The current saved v41 mismatch stops when mon.c m_detach must call steed.c dismount_steed for a drowned mounted steed.",
+      "detail": "Wire the generic dead-steed dismount through m_detach, float_down, drown, and active callers in C source order.",
+      "openedAt": "222e58d55383c6a34421ec3f260ea76b95e1dd3d",
+      "openStanding": {
+        "sha": "d9907b003bab45aa255af21cd2fe9cedb7abfa9c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "d84b56ca399bd6cf8b3a529a46d3d5c96fcd2c43",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "dismount_steed",
+      "session": "synthetic/v41/v41-forced-steed-dismount-at-pool",
+      "step": 41,
+      "syntheticProvenance": {
+        "synthetic/v41/v41-forced-steed-dismount-at-pool": {
+          "session": "synthetic/v41/v41-forced-steed-dismount-at-pool",
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-forced-steed-dismount-at-pool",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recordingPath": "challenges/cases/v41/v41-steed-pool-dismount-reached.session.json",
+          "recordingSha256": "1300226f97b106ebc10bc7a28cc89483dbbf738c66c7ef7cbf67652e5defdeca",
+          "evaluationPath": "challenges/evaluations/accepted-d9907b003bab45aa255af21cd2fe9cedb7abfa9c-v41.json",
+          "evaluationCommit": "d9907b003bab45aa255af21cd2fe9cedb7abfa9c"
+        }
+      },
+      "activeStanding": {
+        "sha": "d9907b003bab45aa255af21cd2fe9cedb7abfa9c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-forced-steed-dismount-at-pool",
+          "session": "synthetic/v41/v41-forced-steed-dismount-at-pool",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recording": "challenges/cases/v41/v41-steed-pool-dismount-reached.session.json",
+          "recordingPath": "challenges/cases/v41/v41-steed-pool-dismount-reached.session.json",
+          "recordingSha256": "1300226f97b106ebc10bc7a28cc89483dbbf738c66c7ef7cbf67652e5defdeca",
+          "recipe": "challenges/cases/v41/v41-steed-pool-dismount-reached.recipe.session.json",
+          "recipeSha256": "50e739f249342125c0b20071ebea68ee52451f6fa1d35bbbc338a4410b94ddb7",
+          "replayInputSha256": "3681638aafc71402c7b2fcb31aba3cccc3828d696bcc9928cd0a78e442ab14a4",
+          "evaluationPath": "challenges/evaluations/accepted-d9907b003bab45aa255af21cd2fe9cedb7abfa9c-v41.json",
+          "evaluationCommit": "d9907b003bab45aa255af21cd2fe9cedb7abfa9c",
+          "evaluationArtifact": "challenges/evaluations/accepted-d9907b003bab45aa255af21cd2fe9cedb7abfa9c-v41.json",
+          "evaluationUtc": "2026-10-10T18:54:42.597Z",
+          "remainingScreens": 2,
+          "recordedSteps": 43,
+          "previousScreensMatched": 41,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 41,
+              "total": 43
+            },
+            "rng": {
+              "matched": 3337,
+              "total": 3339
+            },
+            "cursors": {
+              "matched": 41,
+              "total": 43
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires the death of the hero's steed",
+            "step": 41
+          },
+          "step": 41,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires the death of the hero's steed",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v41/v41-forced-steed-dismount-at-pool.json",
+            "result": {
+              "session": "synthetic/v41/v41-forced-steed-dismount-at-pool",
+              "corpus": "synthetic",
+              "batch": "v41",
+              "caseId": "v41-forced-steed-dismount-at-pool",
+              "manifestPath": "challenges/manifests/v41.json",
+              "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+              "recording": "challenges/cases/v41/v41-steed-pool-dismount-reached.session.json",
+              "recordingPath": "challenges/cases/v41/v41-steed-pool-dismount-reached.session.json",
+              "recordingSha256": "1300226f97b106ebc10bc7a28cc89483dbbf738c66c7ef7cbf67652e5defdeca",
+              "recipe": "challenges/cases/v41/v41-steed-pool-dismount-reached.recipe.session.json",
+              "recipeSha256": "50e739f249342125c0b20071ebea68ee52451f6fa1d35bbbc338a4410b94ddb7",
+              "replayInputSha256": "a6dcd789e15a13fb210cfc99141576f8eb53a394de6422c724147c15682e49fd",
+              "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+              "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+              "evaluationUtc": "2026-10-10T17:31:28.509Z",
+              "remainingScreens": 2,
+              "recordedSteps": 43,
+              "status": "complete",
+              "commit": "08cf040c4c5c9aca7e24071f1e5ded2825d08390",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v41",
+                "caseId": "v41-forced-steed-dismount-at-pool",
+                "session": "synthetic/v41/v41-forced-steed-dismount-at-pool",
+                "manifestPath": "challenges/manifests/v41.json",
+                "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+                "recording": "challenges/cases/v41/v41-steed-pool-dismount-reached.session.json",
+                "recordingPath": "challenges/cases/v41/v41-steed-pool-dismount-reached.session.json",
+                "recordingSha256": "1300226f97b106ebc10bc7a28cc89483dbbf738c66c7ef7cbf67652e5defdeca",
+                "recipe": "challenges/cases/v41/v41-steed-pool-dismount-reached.recipe.session.json",
+                "recipeSha256": "50e739f249342125c0b20071ebea68ee52451f6fa1d35bbbc338a4410b94ddb7",
+                "replayInputSha256": "a6dcd789e15a13fb210cfc99141576f8eb53a394de6422c724147c15682e49fd",
+                "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+                "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+                "evaluationArtifact": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+                "evaluationUtc": "2026-10-10T17:31:28.509Z",
+                "remainingScreens": 2,
+                "recordedSteps": 43,
+                "previousScreensMatched": 41,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 41,
+                    "total": 43
+                  },
+                  "rng": {
+                    "matched": 3337,
+                    "total": 3339
+                  },
+                  "cursors": {
+                    "matched": 41,
+                    "total": 43
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires the death of the hero's steed",
+                  "step": 41
+                },
+                "step": 41,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "simple monster action requires the death of the hero's steed",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v41 forced-steed death route is now source-wired through mon.c:m_detach, steed.c:dismount_steed(DISMOUNT_GENERIC), trap.c:float_down, and trap.c:drown. Monster-turn preflight stops at the dead-steed dismount so its display and hero-inventory effects replay only on live state. The canonical feel_newsym call redraws the hero square after the dead steed leaves. A fresh C/JavaScript differential now matches all 43 screens, 3339 RNG calls, and 43 cursors.",
+              "source": {
+                "file": "mon.c",
+                "branch": "When a grounded steed drowns during monster movement, mon.c:minliquid_core calls mondead, which reaches m_detach after removing the monster from the map. m_detach clears its death state and calls dismount_steed(DISMOUNT_GENERIC) when the removed monster is u.usteed. The dismount computes its landing spot before checking whether the steed is dead, releases the mount, skips placement for the dead monster, then calls float_down. The planner reaches the same route on a cloned state, but the float_down/drown tail writes messages, redraws the hero square and applies hero-inventory water damage. m_detach therefore requests live replay before that dismount in preflight; the live call carries its movement RNG through landing_spot. drown() uses the already implemented display.c:feel_newsym() at entry, clearing the departed steed glyph before the screen is captured.",
+                "functions": [
+                  "mon.c:minliquid_core",
+                  "mon.c:mondead",
+                  "mon.c:m_detach",
+                  "steed.c:dismount_steed"
+                ],
+                "callers": [
+                  "mon.c:minliquid_core -> mon.c:mondead",
+                  "mon.c:mondead -> mon.c:m_detach",
+                  "mon.c:m_detach -> steed.c:dismount_steed(DISMOUNT_GENERIC)",
+                  "trap.c:float_down -> trap.c:drown",
+                  "trap.c:float_up -> steed.c:dismount_steed(DISMOUNT_GENERIC)",
+                  "trap.c:drown -> steed.c:dismount_steed(DISMOUNT_GENERIC)",
+                  "hack.c:pooleffects -> steed.c:dismount_steed(DISMOUNT_GENERIC)",
+                  "dog.c:keepdogs -> steed.c:dismount_steed(DISMOUNT_GENERIC) after impossible()"
+                ],
+                "dependencies": [
+                  "steed.c:landing_spot",
+                  "trap.c:float_down",
+                  "trap.c:drown",
+                  "mon.c:mondead"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved combined queue /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json has SHA-256 7505fb24cd01792c8cb781d651dd66ffaa451361e46f7c456fd2705afde0a43a. Its v41 entry cites evaluation challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json at 0acc8a59f86065f8ff2d90ca1decab45701746e8, with 41/43 screens, 3337/3339 RNG calls, and 41/43 cursors matched. The first stop is step 41: simple monster action requires the death of the hero's steed.",
+                "The recorded C case shows step 41 printing “You kick the saddled pony. The saddled pony gallops!” and step 42 printing “The saddled pony drowns. You fall into the pool of water!” C records rn2(20)=11 at trap.c:water_damage and rn2(3)=1 at steed.c:landing_spot during that later step.",
+                "Upstream mon.c:minliquid_core (around lines 1058-1100) handles a non-amphibious monster in a pool and calls mondead when monster movement is active. mon.c:mondead reaches m_detach; mon.c:m_detach (2734-2803) removes the steed, sets its hit points to zero, and calls dismount_steed(DISMOUNT_GENERIC) at lines 2800-2801 when the departing monster equals u.usteed.",
+                "The planner's first dead-steed simulation used the live terminal and RNG through the generic dismount tail. The clone was discarded, so the real steed remained mounted. The fix makes m_detach request the existing live-replay boundary for this branch, preserving C's live source order instead of running the full dismount in the clone.",
+                "The v41 live replay then exposed the remaining display gap: trap.c:drown begins with feel_newsym(u.ux,u.uy), but JS had only note_unported('display.c feel_newsym'). Replacing that gap with the existing display.js feel_newsym() redraws the hero tile after generic dismount and makes the final screen match. trap.js:float_up and drown both call the canonical dismount helper; hack.js:pooleffects was already wired. dog.c:keepdogs still reaches generic dismount only after impossible() and remains a separate caller gap.",
+                "Fresh differential on the B225 implementation: C and JS match all 3339 RNG values, 43 screens, and 43 cursors for the admitted v41 forced-steed pool recipe; animation frames are empty on both sides."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "d84b56ca399bd6cf8b3a529a46d3d5c96fcd2c43",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-shk-shopdig-v40-shop-floor-digdown-warning-20261010",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port shop-floor digging response and the canonical hero-distance helper.",
+      "cFile": "shk.c",
+      "sessions": [
+        "synthetic/v40/v40-shop-floor-digdown-warning-live-shopkeeper"
+      ],
+      "selectionReason": "The current saved v40 mismatch stops at dig.c:dig -> shk.c:shopdig(0), where the live shopkeeper warning is absent.",
+      "detail": "Port whole shk.c:shopdig and pure apply.c:um_dist; wire dig.c:dig, dig.c:digactualhole, and trap.c:fall_through in source order. Runtime evidence covers shopdig(0); the two shopdig(1) fall-time entries remain unrecorded.",
+      "openedAt": "aa45d00c4a78dc103ceb96a5f3d942290d2b64d2",
+      "openStanding": {
+        "sha": "d84b56ca399bd6cf8b3a529a46d3d5c96fcd2c43",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "shopdig",
+          "line": 5019,
+          "endLine": 5112,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 5019,
+        "to": 5112
+      },
+      "requiredFunctions": [
+        {
+          "name": "um_dist",
+          "line": 692,
+          "endLine": 697,
+          "declared": true,
+          "sourceFile": "apply.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v40/v40-shop-floor-digdown-warning-live-shopkeeper": {
+          "session": "synthetic/v40/v40-shop-floor-digdown-warning-live-shopkeeper",
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-shop-floor-digdown-warning-live-shopkeeper",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recordingPath": "challenges/cases/v40/v40-shop-floor-digdown-warning-cfirst.session.json",
+          "recordingSha256": "bb4ccfe19457e1a185556d86fc992be63305137125098ee45a0e1ac85437c099",
+          "evaluationPath": "challenges/evaluations/accepted-d84b56ca399bd6cf8b3a529a46d3d5c96fcd2c43-v40.json",
+          "evaluationCommit": "d84b56ca399bd6cf8b3a529a46d3d5c96fcd2c43"
+        }
+      },
+      "activeStanding": {
+        "sha": "d84b56ca399bd6cf8b3a529a46d3d5c96fcd2c43",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-shop-floor-digdown-warning-live-shopkeeper",
+          "session": "synthetic/v40/v40-shop-floor-digdown-warning-live-shopkeeper",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recording": "challenges/cases/v40/v40-shop-floor-digdown-warning-cfirst.session.json",
+          "recordingPath": "challenges/cases/v40/v40-shop-floor-digdown-warning-cfirst.session.json",
+          "recordingSha256": "bb4ccfe19457e1a185556d86fc992be63305137125098ee45a0e1ac85437c099",
+          "recipe": "challenges/cases/v40/v40-shop-floor-digdown-warning-cfirst.recipe.session.json",
+          "recipeSha256": "32a706fb7a184e67c2e0ba7789a9386d4549e96575fca8871bb146c0bef13965",
+          "replayInputSha256": "a76647ce21caa06e42cce80d247eb4194cc685eb4fb4dfcf3c20ce60d5f2dc05",
+          "evaluationPath": "challenges/evaluations/accepted-d84b56ca399bd6cf8b3a529a46d3d5c96fcd2c43-v40.json",
+          "evaluationCommit": "d84b56ca399bd6cf8b3a529a46d3d5c96fcd2c43",
+          "evaluationArtifact": "challenges/evaluations/accepted-d84b56ca399bd6cf8b3a529a46d3d5c96fcd2c43-v40.json",
+          "evaluationUtc": "2026-10-10T19:11:13.054Z",
+          "remainingScreens": 1,
+          "recordedSteps": 53,
+          "previousScreensMatched": 52,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 52,
+              "total": 53
+            },
+            "rng": {
+              "matched": 5442,
+              "total": 5442
+            },
+            "cursors": {
+              "matched": 52,
+              "total": 53
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 52,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 52,
+                "key": ">"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 29,
+              "cCell": {
+                "ch": "\"",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 5442,
+              "cCaller": null,
+              "jsEntry": "rn2(4)=1",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 52,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 52,
+                "key": ">"
+              },
+              "cCursor": [
+                75,
+                0,
+                1
+              ],
+              "jsCursor": [
+                66,
+                10,
+                1
+              ]
+            }
+          },
+          "step": 52,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v40/v40-shop-floor-digdown-warning-live-shopkeeper.json",
+            "result": {
+              "session": "synthetic/v40/v40-shop-floor-digdown-warning-live-shopkeeper",
+              "remainingScreens": 1,
+              "recordedSteps": 53,
+              "corpus": "synthetic",
+              "batch": "v40",
+              "caseId": "v40-shop-floor-digdown-warning-live-shopkeeper",
+              "manifestPath": "challenges/manifests/v40.json",
+              "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+              "recordingSha256": "bb4ccfe19457e1a185556d86fc992be63305137125098ee45a0e1ac85437c099",
+              "evaluationPath": "challenges/evaluations/accepted-ffd2d10394fbb3c06612668aeaa38762cdfb84c1-v40.json",
+              "evaluationCommit": "ffd2d10394fbb3c06612668aeaa38762cdfb84c1",
+              "status": "complete",
+              "commit": "1493efa2d7c3728ef8123ffeceaf243e9dc56159",
+              "mismatch": {
+                "session": "synthetic/v40/v40-shop-floor-digdown-warning-live-shopkeeper",
+                "kind": "synthetic",
+                "corpus": "synthetic",
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "sessions": [
+                  "synthetic/v40/v40-shop-floor-digdown-warning-live-shopkeeper"
+                ],
+                "remainingScreens": 1,
+                "remainingScreensUpperBound": null,
+                "earliestStep": 52,
+                "caseId": "v40-shop-floor-digdown-warning-live-shopkeeper",
+                "batch": "v40",
+                "recordingPath": "challenges/cases/v40/v40-shop-floor-digdown-warning-cfirst.session.json"
+              },
+              "summary": "The admitted v40 shop-floor case reaches dig.c:dig -> shk.c:shopdig(0) when the hero starts digging down inside a shop with a live keeper. C sets the keeper voice and prints “Madam, do not damage the floor here!”; JavaScript records shk.c:shopdig as unported and omits the warning. The canonical source scope is shk.c:shopdig plus its existing dig.c:dig, dig.c:digactualhole, and trap.c:fall_through call sites. The caller’s following shk.c:add_damage gap is a separate void helper and remains outside this diagnosis.",
+              "source": {
+                "file": "shk.c",
+                "branch": "shopdig first returns if shop_keeper(*u.ushops) finds no keeper, or if the keeper is not inside the shop (with the Knight alignment branch). It computes the keeper language from helplessness, silence, and msound. With fall == 0, a speaking, non-Deaf hero hears the keeper warning when muteshk is false; TT_PIT selects the careful-floor warning, otherwise the floor-damage warning. With fall != 0, a nearby nonhelpless keeper with an active bill or debit attempts to move next to the hero and take eligible inventory, while preserving worn, wielded, leashed, and current-wand exclusions.",
+                "functions": [
+                  "shopdig"
+                ],
+                "callers": [
+                  "dig.c:dig calls shopdig(0) at line 1350 when the hero starts downward digging in a shop; js/dig.js:dig currently records note_unported(\"shk.c shopdig\") at line 1147.",
+                  "dig.c:digactualhole calls shopdig(1) at line 782 when a hero-caused hole falls through a shop; js/dig.js:digactualhole currently records note_unported(\"shk.c shopdig\") at line 1464.",
+                  "trap.c:fall_through calls shopdig(1) at line 668 when the hero falls through a hole or trapdoor while in a shop; js/trap.js:fall_through currently records note_unported(\"shk.c shopdig\") at line 718."
+                ],
+                "dependencies": [
+                  "apply.c:um_dist is pure and must be the sole JavaScript implementation in js/apply.js; existing private copies in js/mon.js and js/vault.js will import it.",
+                  "shop_keeper(), inhishop(), muteshk(), rile_shk(), m_next2u(), mnexto(), verbalize(), set_voice(), growl(), inventory operations, and shop billing helpers are already ported and must be called in C source order.",
+                  "dig.c:dig calls shk.c:add_damage after shopdig(0); this discarded void helper remains an explicit gap outside scope."
+                ],
+                "requiredFunctions": [
+                  {
+                    "file": "apply.c",
+                    "name": "um_dist",
+                    "lines": "692-695",
+                    "behavior": "Return true exactly when the hero differs from the target by more than n on either axis; shopdig consumes this Boolean to gate its fall-time theft branch."
+                  }
+                ],
+                "callerScope": [
+                  {
+                    "source": "dig.c:dig",
+                    "js": "js/dig.js:dig",
+                    "call": "shopdig(0)",
+                    "branch": "hero begins digging downward while inside a shop"
+                  },
+                  {
+                    "source": "dig.c:digactualhole",
+                    "js": "js/dig.js:digactualhole",
+                    "call": "shopdig(1)",
+                    "branch": "hero-caused hole falls through a shop"
+                  },
+                  {
+                    "source": "trap.c:fall_through",
+                    "js": "js/trap.js:fall_through",
+                    "call": "shopdig(1)",
+                    "branch": "hero falls through an existing hole or trapdoor while inside a shop"
+                  }
+                ],
+                "contract": "canonical-hero-distance-helper"
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved queue /home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json has SHA-256 476cfed81c5d0a21a6ea2664cecd3404b45eb6b765ee7d9ccfc94436edb0bc2c; selected synthetic/v40/v40-shop-floor-digdown-warning-live-shopkeeper from the v40 batch at accepted evaluation ffd2d10394fbb3c06612668aeaa38762cdfb84c1. The case has one remaining screen mismatch at zero-based step 52, the “Madam, do not damage the floor here!” warning.",
+                "Manifest challenges/manifests/v40.json has SHA-256 32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b; case recording challenges/cases/v40/v40-shop-floor-digdown-warning-cfirst.session.json has SHA-256 bb4ccfe19457e1a185556d86fc992be63305137125098ee45a0e1ac85437c099 and an independently reproduced C recording. The saved evaluation challenges/evaluations/accepted-ffd2d10394fbb3c06612668aeaa38762cdfb84c1-v40.json reports 52/53 screens, 5442/5442 RNG calls, and 52/53 cursors.",
+                "Read the complete upstream shk.c:shopdig definition at lines 5019-5110. Its fall==0 branch emits the warning after shop_keeper, inhishop, helpless/silence/language, Deaf, and muteshk checks; its fall!=0 branch conditionally relocates an indebted shopkeeper and transfers eligible inventory.",
+                "Cross-checked every C shopdig call site: dig.c:dig line 1350, dig.c:digactualhole line 782, and trap.c:fall_through line 668. The matching JavaScript functions exist and each currently records the corresponding shk.c shopdig gap.",
+                "The fresh mismatch source trace is explicit in the admitted manifest: dig.c:dig -> shk.c:shopdig(0), with the live keeper greeting as the first visual difference. The current source mismatch is missing implementation, not a screen-rendering or RNG-order defect.",
+                "After accepted Main 6818fe9b759b2ef8ae3d470f38c30808a0734640, the refreshed queue hash is 7505fb24cd01792c8cb781d651dd66ffaa451361e46f7c456fd2705afde0a43a. The exact v40 evaluation named by accepted Main remains at 52/53 screens, 5442/5442 RNG calls, and 52/53 cursors, with the step-52 shopdig(0) warning unmatched.",
+                "After implementation, a fresh C/JavaScript differential using the admitted v40 input-only recipe passed strict parity across all 53 screens, 53 cursor positions, and 5442 RNG calls. Its zero-based step 52 executes dig.c:dig -> shk.c:shopdig(0), including the restored keeper warning.",
+                "Focused source-pinned coverage also executes shopdig(fall=1) against an initialized game and checks that an eligible dart transfers while an attached leash, the current wand, and worn armor remain in hero inventory. A targeted search of existing recordings and admitted challenge cases found no matching fall-time shopdig trace."
+              ],
+              "currentQueue": {
+                "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+                "sha256": "7505fb24cd01792c8cb781d651dd66ffaa451361e46f7c456fd2705afde0a43a"
+              },
+              "revalidatedAtAcceptedMain": {
+                "acceptedMain": "6818fe9b759b2ef8ae3d470f38c30808a0734640",
+                "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v40.json",
+                "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+                "caseId": "v40-shop-floor-digdown-warning-live-shopkeeper",
+                "metrics": {
+                  "screens": {
+                    "matched": 52,
+                    "total": 53
+                  },
+                  "rng": {
+                    "matched": 5442,
+                    "total": 5442
+                  },
+                  "cursors": {
+                    "matched": 52,
+                    "total": 53
+                  }
+                },
+                "stillUnmatched": true
+              },
+              "implementationScope": {
+                "goal": "port-shk-shopdig-v40-shop-floor-digdown-warning-20261010",
+                "kind": "file-port",
+                "cFile": "shk.c",
+                "functions": [
+                  "shopdig"
+                ],
+                "requiredFunctions": [
+                  {
+                    "sourceFile": "apply.c",
+                    "name": "um_dist",
+                    "line": 692,
+                    "endLine": 695,
+                    "jsFile": "js/apply.js"
+                  }
+                ],
+                "sourceReservations": [
+                  "source:shk.c:shopdig",
+                  "source:apply.c:um_dist",
+                  "source:dig.c:dig",
+                  "source:dig.c:digactualhole",
+                  "source:trap.c:fall_through",
+                  "contract:canonical-hero-distance-helper"
+                ]
+              },
+              "implementationValidation": {
+                "differential": {
+                  "recipe": "challenges/cases/v40/v40-shop-floor-digdown-warning-cfirst.recipe.session.json",
+                  "screens": {
+                    "matched": 53,
+                    "total": 53
+                  },
+                  "rng": {
+                    "matched": 5442,
+                    "total": 5442
+                  },
+                  "cursors": {
+                    "matched": 53,
+                    "total": 53
+                  },
+                  "sourceRange": {
+                    "batch": "v40",
+                    "caseId": "v40-shop-floor-digdown-warning-live-shopkeeper",
+                    "segment": 0,
+                    "fromStep": 52,
+                    "throughStep": 52,
+                    "source": "dig.c:dig -> shk.c:shopdig(0)"
+                  }
+                },
+                "focusedInventoryBranch": {
+                  "test": "scripts/shk.test.mjs:shopdig takes only inventory the source leaves eligible",
+                  "callerRuntimeRecording": null,
+                  "note": "Direct helper behavior is source-pinned; no matching recording for the fall-time branch was found."
+                }
+              }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "um_dist",
+            "implementation": "js/apply.js",
+            "symbol": "um_dist",
+            "sourceReview": "Read the complete apply.c:um_dist() definition (692-695). It performs no RNG, output, or state mutation and returns TRUE exactly when abs(u.ux-x)>n or abs(u.uy-y)>n. The canonical helper now resides in js/apply.js and replaces the private copies in js/mon.js and js/vault.js; shk.c:shopdig consumes the same return value.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "shopdig",
+                "source": "shk.c:shopdig checks !um_dist(shkp->mx, shkp->my, 5) before the fall-time shopkeeper relocation and inventory transfer branch."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "m_respond",
+                "source": "mon.c:m_respond uses um_dist for shrieker proximity; the caller imports the canonical apply.c helper."
+              },
+              {
+                "path": "js/vault.js",
+                "symbol": "gd_move",
+                "source": "vault.c:gd_move uses um_dist in the hero-distance conditions; the caller imports the canonical apply.c helper."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/apply.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "apply.c",
+            "synthetic": [],
+            "checkedAt": "cfc1d11b531810c2645a6318fe1a63f8eb37970d"
+          }
+        ],
+        "entryPointReview": "This helper-only completion range covers the pure apply.c:um_dist function. Its production callers are shk.c:shopdig via js/shk.js:shopdig, mon.c:m_respond via js/mon.js:m_respond, and vault.c:gd_move via js/vault.js:gd_move. The whole shk.c:shopdig function is excluded because its two active shopdig(1) fall-time entry points through dig.c:digactualhole and trap.c:fall_through do not yet have matching runtime evidence.",
+        "entryPoints": []
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "cfc1d11b531810c2645a6318fe1a63f8eb37970d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "shopdig(1) remains without matching runtime evidence through dig.c:digactualhole and trap.c:fall_through; shopdig(0) and pure apply.c:um_dist are validated."
+    },
+    {
+      "id": "fix-underwater-coin-drop-v41-20261010",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Route underwater lost coins through ordinary liquid floor effects.",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v41/v41-underwater-coin-flip-drops-coin"
+      ],
+      "selectionReason": "The dependency-ready C delivery is next in the shared integration ledger and addresses the selected v41 underwater coin mismatch.",
+      "detail": "Port the underwater lose_coin path through dropx and admit ordinary non-boulder objects to the existing pool/lava flooreffects path while preserving the pool-boulder exception.",
+      "openedAt": "13ba70d836be74eabef1df9509beb7df33727a65",
+      "openStanding": {
+        "sha": "cfc1d11b531810c2645a6318fe1a63f8eb37970d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "flip_coin",
+      "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+      "step": 81,
+      "syntheticProvenance": {
+        "synthetic/v41/v41-underwater-coin-flip-drops-coin": {
+          "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-underwater-coin-flip-drops-coin",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recordingPath": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+          "recordingSha256": "eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79",
+          "evaluationPath": "challenges/evaluations/accepted-cfc1d11b531810c2645a6318fe1a63f8eb37970d-v41.json",
+          "evaluationCommit": "cfc1d11b531810c2645a6318fe1a63f8eb37970d"
+        }
+      },
+      "activeStanding": {
+        "sha": "cfc1d11b531810c2645a6318fe1a63f8eb37970d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-underwater-coin-flip-drops-coin",
+          "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recording": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+          "recordingPath": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+          "recordingSha256": "eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79",
+          "recipe": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.recipe.session.json",
+          "recipeSha256": "9907e98a55cca2e37dae5d4db1d6c3e0c2810bf2ba841149534a3d7d4538af33",
+          "replayInputSha256": "39b4e56c94bc079712b1c73be2ff64dacdd6fdc9a4693138b36b44c0c0c7d92e",
+          "evaluationPath": "challenges/evaluations/accepted-cfc1d11b531810c2645a6318fe1a63f8eb37970d-v41.json",
+          "evaluationCommit": "cfc1d11b531810c2645a6318fe1a63f8eb37970d",
+          "evaluationArtifact": "challenges/evaluations/accepted-cfc1d11b531810c2645a6318fe1a63f8eb37970d-v41.json",
+          "evaluationUtc": "2026-10-10T19:25:29.613Z",
+          "remainingScreens": 1,
+          "recordedSteps": 82,
+          "previousScreensMatched": 81,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 81,
+              "total": 82
+            },
+            "rng": {
+              "matched": 2664,
+              "total": 2720
+            },
+            "cursors": {
+              "matched": 82,
+              "total": 82
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 81,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 81,
+                "key": "$"
+              },
+              "kind": "ch",
+              "row": 23,
+              "column": 9,
+              "cCell": {
+                "ch": "0",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "1",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2661,
+              "cEntry": "rn2(20)=5",
+              "cCaller": "water_damage(trap.c:4771)",
+              "jsEntry": "rn2(3)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 81,
+                "key": "$"
+              },
+              "stepIndex": 81
+            },
+            "cursor": null
+          },
+          "step": 81,
+          "kind": "rng",
+          "sourceFile": "trap.c",
+          "function": "water_damage",
+          "message": null,
+          "cFile": "trap.c",
+          "luaFile": null,
+          "line": 4771,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v41/v41-underwater-coin-flip-drops-coin.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v41",
+              "caseId": "v41-underwater-coin-flip-drops-coin",
+              "remainingScreens": 1,
+              "status": "complete",
+              "commit": "5d1a4c1e745982ef54feccfb7ecd83bd3aa6a6f6",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v41",
+                "caseId": "v41-underwater-coin-flip-drops-coin",
+                "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+                "manifestPath": "challenges/manifests/v41.json",
+                "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+                "recording": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+                "recordingPath": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+                "recordingSha256": "eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79",
+                "recipe": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.recipe.session.json",
+                "recipeSha256": "9907e98a55cca2e37dae5d4db1d6c3e0c2810bf2ba841149534a3d7d4538af33",
+                "replayInputSha256": "a6dcd789e15a13fb210cfc99141576f8eb53a394de6422c724147c15682e49fd",
+                "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+                "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+                "evaluationArtifact": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+                "evaluationUtc": "2026-10-10T17:31:28.509Z",
+                "remainingScreens": 1,
+                "recordedSteps": 82,
+                "previousScreensMatched": 81,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 81,
+                    "total": 82
+                  },
+                  "rng": {
+                    "matched": 2664,
+                    "total": 2720
+                  },
+                  "cursors": {
+                    "matched": 82,
+                    "total": 82
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 81,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 81,
+                      "key": "$"
+                    },
+                    "kind": "ch",
+                    "row": 23,
+                    "column": 9,
+                    "cCell": {
+                      "ch": "0",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "1",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2661,
+                    "cEntry": "rn2(20)=5",
+                    "cCaller": "water_damage(trap.c:4771)",
+                    "jsEntry": "rn2(3)=2",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 81,
+                      "key": "$"
+                    },
+                    "stepIndex": 81
+                  },
+                  "cursor": null
+                },
+                "step": 81,
+                "kind": "rng",
+                "sourceFile": "trap.c",
+                "function": "water_damage",
+                "message": null,
+                "cFile": "trap.c",
+                "luaFile": null,
+                "line": 4771
+              },
+              "summary": "Flipping a gold piece underwater enters apply.c:flip_coin’s lose_coin arm. C calls do.c:dropx, whose pool floor-effects path calls trap.c:water_damage and consumes one Luck check; JavaScript still records note_unported(\"do.c dropx underwater\") and leaves the coin in inventory. The selected C route is the whole flip_coin function and its existing coin dispatch, with a narrowly admitted ordinary-pool coin landing through the existing drop/flooreffects path.",
+              "source": {
+                "file": "apply.c",
+                "branch": "When Underwater is true, flip_coin reports that the coin tumbles away, splits one coin if the stack has more than one, calls dropx, and returns ECMD_TIME without the ordinary coin-face RNG.",
+                "functions": [
+                  "flip_coin"
+                ],
+                "callers": [
+                  "apply.c:doapply() dispatches a COIN_CLASS object to flip_coin() at upstream src/apply.c:4241.",
+                  "apply.c:flip_coin() at upstream src/apply.c:4527-4556 calls do.c:dropx() at src/apply.c:4544; C discards dropx()’s return because it is void.",
+                  "do.c:dropx() -> dropy() -> dropz() -> flooreffects(); the source flooreffects() pool arm calls water_damage(obj, NULL, FALSE) at upstream src/do.c:315-327 and consumes its ER_DESTROYED result.",
+                  "JS apply.js:doapply() dispatches to flip_coin(); its underwater arm currently calls note_unported(\"do.c dropx underwater\") at js/apply.js:5171-5174. Existing js/do.js:dropx(), dropz(), and flooreffects() implement the downstream path, but preflight_dropx() currently refuses underwater state and pool landing."
+                ],
+                "dependencies": [
+                  "The existing do.c dropx/dropz/flooreffects JavaScript port and trap.c water_damage implementation are downstream behavior dependencies; this investigation found no competing active reservation for js/apply.js or js/do.js."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved queue entry at .cache/latest-saved-combined-queue.json (SHA-256 7505fb24cd01792c8cb781d651dd66ffaa451361e46f7c456fd2705afde0a43a) identifies batch v41, case v41-underwater-coin-flip-drops-coin, recording challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json (SHA-256 eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79), manifest challenges/manifests/v41.json (SHA-256 7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69), and evaluation challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json at 0acc8a59f86065f8ff2d90ca1decab45701746e8.",
+                "At step 81 (key \"$\"), the C recording calls rn2(20)=5 from trap.c:water_damage line 4771 before the monster action. The original evaluation has 81/82 screens and 2664/2720 RNG matches with 82/82 cursors; the first screen mismatch is the gold total, C 0 versus JavaScript 1.",
+                "Fresh run run-zsLkLx of node scripts/diff-fresh.mjs challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.recipe.session.json reproduces the same step-81 boundary: C has 2720 RNG calls and JavaScript has 2675; C’s first call is rn2(20)=5 from trap.c:water_damage:4771 while JavaScript’s next call is rn2(3)=2. Screens are 81/82 with the differing gold count, and cursors are 82/82.",
+                "Upstream src/apply.c:4527-4556 establishes that Underwater selects lose_coin, prints “It tumbles away.”, calls dropx(otmp), and returns before the ordinary face-flip draw. Upstream src/do.c:789-797 passes an ordinary non-swallowed drop through dropy/dropz; src/do.c:161-357 handles a pool landing by calling water_damage(obj, NULL, FALSE) and returns whether it was destroyed.",
+                "The missing call is explicit in js/apply.js:5171-5174: the underwater lose_coin branch records note_unported(\"do.c dropx underwater\") instead of invoking dropx. The ordinary downstream implementations already exist in js/do.js, but preflight_dropx rejects underwater state at line 1925 and pool terrain at lines 1973-1975. This source trace identifies the needed implementation as removing the underwater coin-flip refusal and admitting that specific ordinary pool landing through the existing drop/flooreffects route."
+              ],
+              "session": "synthetic/v41/v41-underwater-coin-flip-drops-coin",
+              "manifestPath": "challenges/manifests/v41.json",
+              "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+              "recordingSha256": "eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79",
+              "evaluationPath": "challenges/evaluations/accepted-0acc8a59f86065f8ff2d90ca1decab45701746e8-v41.json",
+              "evaluationCommit": "0acc8a59f86065f8ff2d90ca1decab45701746e8",
+              "recordedSteps": 82
+            }
+          }
+        }
+      ]
     }
   ]
 }

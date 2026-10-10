@@ -40,6 +40,7 @@ import {
     number_leashed,
     o_unleash,
     touchstone_ok,
+    um_dist,
     unleash_all,
     use_towel,
 } from '../js/apply.js';
@@ -74,6 +75,34 @@ const APPLY_C = readFileSync(
     new URL('../nethack-c/upstream/src/apply.c', import.meta.url), 'utf8',
 );
 const APPLY_JS = readFileSync(new URL('../js/apply.js', import.meta.url), 'utf8');
+const MON_JS = readFileSync(new URL('../js/mon.js', import.meta.url), 'utf8');
+const VAULT_JS = readFileSync(new URL('../js/vault.js', import.meta.url), 'utf8');
+
+test('um_dist keeps the strict Chebyshev boundary in one apply.c owner', () => {
+    const cStart = APPLY_C.indexOf('\num_dist(');
+    const cEnd = APPLY_C.indexOf('\n}\n', cStart) + 2;
+    assert.notEqual(cStart, -1, 'apply.c must contain um_dist');
+    assert.ok(cEnd > cStart, 'um_dist must have a complete C body');
+    assert.match(APPLY_C.slice(cStart, cEnd),
+        /abs\(u\.ux - x\) > n \|\| abs\(u\.uy - y\) > n/u);
+
+    const jsStart = APPLY_JS.indexOf('export function um_dist(');
+    const jsEnd = APPLY_JS.indexOf('\n}\n', jsStart) + 2;
+    assert.notEqual(jsStart, -1, 'js/apply.js must contain um_dist');
+    assert.ok(jsEnd > jsStart, 'um_dist must have a complete JS body');
+    assert.match(APPLY_JS.slice(jsStart, jsEnd),
+        /Math\.abs\(state\.u\.ux - x\) > n \|\| Math\.abs\(state\.u\.uy - y\) > n/u);
+
+    assert.match(MON_JS, /import \{[^}]*\bum_dist\b[^}]*\} from '\.\/apply\.js';/u);
+    assert.match(VAULT_JS, /import \{ um_dist \} from '\.\/apply\.js';/u);
+    assert.doesNotMatch(MON_JS, /function um_dist\(/u);
+    assert.doesNotMatch(VAULT_JS, /function um_dist\(/u);
+
+    const state = { u: { ux: 10, uy: 12 } };
+    assert.equal(um_dist(12, 14, 2, state), false, 'points exactly on both axes pass');
+    assert.equal(um_dist(13, 14, 2, state), true, 'either axis outside the radius fails');
+    assert.equal(um_dist(10, 9, 2, state), true, 'the vertical axis uses the same strict test');
+});
 
 test('use_towel awaits gulp_blnd_check before restoring blindness', () => {
     // apply.c:154 consumes the Boolean after cream removal; the helper became
