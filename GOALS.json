@@ -242174,7 +242174,7 @@
         "synthetic/v35/v35-timeout-queue"
       ],
       "selectionReason": "Selected synthetic/v35/v35-timeout-queue after accepted alloc.c:fmt_ptr removed its final source dependency. Port the whole timeout diagnostic family, its generated property table, visible-region helpers, and the bounded command callers.",
-      "detail": "Port timeout.c property_by_index through wiz_timeout_queue in source order, generate the canonical propertynames table from C, preserve start_timer kind validation, and wire region.c visibility summaries plus cmd.c and wizcmds.c callers. Matching evidence covers the admitted timeout queue, a lit object timer, a visible poison-cloud region, and the existing wizard intrinsic entry.",
+      "detail": "Port timeout.c kind_name through wiz_timeout_queue in source order, generate the canonical propertynames table through required property_by_index, preserve start_timer kind validation, and wire region.c visibility summaries plus cmd.c and wizcmds.c callers. Matching evidence covers the admitted timeout queue, a lit object timer, a visible poison-cloud region, and the existing wizard intrinsic entry.",
       "openedAt": "a835f98c89801adf0c1c44f6cabb63e7dcb0952f",
       "openStanding": {
         "sha": "fbdf8d8de27f6c5bfed2bd01c794b0c46bbcb4f8",
@@ -242185,251 +242185,63 @@
       "delivered": null,
       "functions": [
         {
-          "name": "property_by_index",
-          "line": 117,
-          "endLine": 136,
-          "declared": false,
-          "complete": false
-        },
-        {
-          "name": "stoned_dialogue",
-          "line": 137,
-          "endLine": 196,
-          "declared": true,
-          "complete": true
-        },
-        {
-          "name": "vomiting_dialogue",
-          "line": 197,
-          "endLine": 267,
-          "declared": true,
-          "complete": true
-        },
-        {
-          "name": "sleep_dialogue",
-          "line": 268,
-          "endLine": 294,
-          "declared": true,
-          "complete": false
-        },
-        {
-          "name": "choke_dialogue",
-          "line": 295,
-          "endLine": 322,
-          "declared": true,
-          "complete": true
-        },
-        {
-          "name": "sickness_dialogue",
-          "line": 323,
-          "endLine": 352,
-          "declared": true,
-          "complete": true
-        },
-        {
-          "name": "levitation_dialogue",
-          "line": 353,
-          "endLine": 388,
-          "declared": true,
-          "complete": true
-        },
-        {
-          "name": "slime_dialogue",
-          "line": 389,
-          "endLine": 447,
-          "declared": true,
-          "complete": true
-        },
-        {
-          "name": "burn_away_slime",
-          "line": 448,
-          "endLine": 456,
-          "declared": true,
-          "complete": false
-        },
-        {
-          "name": "slimed_to_death",
-          "line": 457,
-          "endLine": 533,
-          "declared": true,
-          "complete": true
-        },
-        {
-          "name": "phaze_dialogue",
-          "line": 534,
-          "endLine": 553,
-          "declared": true,
-          "complete": true
-        },
-        {
-          "name": "region_dialogue",
-          "line": 554,
-          "endLine": 574,
-          "declared": true,
-          "complete": true
-        },
-        {
-          "name": "done_timeout",
-          "line": 575,
-          "endLine": 587,
-          "declared": true,
-          "complete": true
-        },
-        {
-          "name": "nh_timeout",
-          "line": 588,
-          "endLine": 950,
-          "declared": true,
-          "complete": true
-        },
-        {
-          "name": "fall_asleep",
-          "line": 951,
-          "endLine": 980,
-          "declared": true,
-          "complete": false
-        },
-        {
-          "name": "attach_egg_hatch_timeout",
-          "line": 981,
-          "endLine": 1008,
-          "declared": true,
-          "complete": false
-        },
-        {
-          "name": "kill_egg",
-          "line": 1009,
-          "endLine": 1016,
-          "declared": false,
-          "complete": false
-        },
-        {
-          "name": "hatch_egg",
-          "line": 1017,
-          "endLine": 1192,
-          "declared": true,
-          "complete": false
-        },
-        {
-          "name": "learn_egg_type",
-          "line": 1193,
-          "endLine": 1203,
-          "declared": true,
-          "complete": true
-        },
-        {
-          "name": "attach_fig_transform_timeout",
-          "line": 1204,
-          "endLine": 1221,
-          "declared": true,
-          "complete": false
-        },
-        {
-          "name": "slip_or_trip",
-          "line": 1222,
-          "endLine": 1344,
-          "declared": true,
-          "complete": true
-        },
-        {
-          "name": "see_lamp_flicker",
-          "line": 1345,
-          "endLine": 1359,
-          "declared": true,
-          "complete": true
-        },
-        {
-          "name": "lantern_message",
-          "line": 1360,
-          "endLine": 1382,
-          "declared": true,
-          "complete": true
-        },
-        {
-          "name": "burn_object",
-          "line": 1383,
-          "endLine": 1711,
-          "declared": true,
-          "complete": true
-        },
-        {
-          "name": "begin_burn",
-          "line": 1712,
-          "endLine": 1803,
-          "declared": true,
-          "complete": false
-        },
-        {
-          "name": "end_burn",
-          "line": 1804,
-          "endLine": 1827,
-          "declared": true,
-          "complete": false
-        },
-        {
-          "name": "cleanup_burn",
-          "line": 1828,
-          "endLine": 1846,
-          "declared": false,
-          "complete": false
-        },
-        {
-          "name": "do_storms",
-          "line": 1847,
-          "endLine": 1994,
-          "declared": false,
-          "complete": false
-        },
-        {
           "name": "kind_name",
           "line": 1995,
           "endLine": 2013,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "print_queue",
           "line": 2014,
           "endLine": 2040,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "wiz_timeout_queue",
           "line": 2041,
           "endLine": 2129,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
-        "from": 117,
+        "from": 1995,
         "to": 2129
       },
       "requiredFunctions": [
+        {
+          "name": "property_by_index",
+          "line": 117,
+          "endLine": 136,
+          "declared": true,
+          "sourceFile": "timeout.c",
+          "complete": true
+        },
         {
           "name": "start_timer",
           "line": 2247,
           "endLine": 2298,
           "declared": true,
           "sourceFile": "timeout.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "any_visible_region",
           "line": 660,
           "endLine": 673,
-          "declared": false,
+          "declared": true,
           "sourceFile": "region.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "visible_region_summary",
           "line": 674,
           "endLine": 717,
-          "declared": false,
+          "declared": true,
           "sourceFile": "region.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "doextcmd",
@@ -242437,7 +242249,7 @@
           "endLine": 523,
           "declared": true,
           "sourceFile": "cmd.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "wiz_intrinsic",
@@ -242445,7 +242257,7 @@
           "endLine": 1101,
           "declared": true,
           "sourceFile": "wizcmds.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -242621,7 +242433,337 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "property_by_index",
+            "implementation": "js/timeout.js",
+            "symbol": "property_by_index",
+            "sourceReview": "Read timeout.c propertynames[] and the complete property_by_index(int idx, int *propertynum) implementation at lines 30-125. Preserved source-order enumeration, the zero-valued sentinel, out-of-range fallback to that sentinel, and the optional output-parameter write. The fixed table is generated from the C initializer by scripts/generate-timeout-property-data.mjs and checked byte-for-byte by --check.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "wiz_timeout_queue",
+                "source": "timeout.c:wiz_timeout_queue propertynames traversal, lines 2058-2094"
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_intrinsic",
+                "source": "wizcmds.c:wiz_intrinsic menu traversal and selected-item lookup, lines 976-1022"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "390b9d828842483e0505d4316a6f4c82568b1adb"
+          },
+          {
+            "name": "kind_name",
+            "implementation": "js/timeout.js",
+            "symbol": "kind_name",
+            "sourceReview": "Read timeout.c kind_name(short kind) completely. Preserved all five defined labels and the unknown fallback. TIMER_NONE calls impossible() and then returns none; the JavaScript records the deliberately unported discarded diagnostic with note_unported('pline.c impossible') and returns the C value. The source has no RNG or ordinary game-state mutation, but this exceptional branch records the gap, so it is listed as impure.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "print_queue",
+                "source": "timeout.c:print_queue, lines 2013-2037"
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "start_timer",
+                "source": "timeout.c:start_timer validation and duplicate diagnostic, lines 2258-2272"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/wiz-timeout-lit-lamp-wizard.session.json",
+              "recordings/timeout.c/wiz-timeout-visible-region-valkyrie.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-timeout-queue",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 66,
+                "source": "cmd.c:extcmdlist #timeout row → doextcmd → timeout.c:wiz_timeout_queue → print_queue → kind_name"
+              }
+            ],
+            "checkedAt": "390b9d828842483e0505d4316a6f4c82568b1adb"
+          },
+          {
+            "name": "print_queue",
+            "implementation": "js/timeout.js",
+            "symbol": "print_queue",
+            "sourceReview": "Read the complete timeout.c print_queue(winid, timer_element *) at lines 2013-2037, including empty and nonempty queues, both VERBOSE_TIMER formatting branches, linked-list order, kind_name(), the timeout callback name/index, and fmt_ptr() of the timer argument. This build uses the non-VERBOSE_TIMER branch. The implementation uses accepted alloc.c:fmt_ptr and buffers the same ordered rows for the NHW_MENU display path.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "wiz_timeout_queue",
+                "source": "timeout.c:wiz_timeout_queue calls print_queue(win, gt.timer_base), lines 2055-2056"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/wiz-timeout-lit-lamp-wizard.session.json",
+              "recordings/timeout.c/wiz-timeout-visible-region-valkyrie.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-timeout-queue",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 66,
+                "source": "cmd.c:extcmdlist #timeout row → doextcmd → timeout.c:wiz_timeout_queue → print_queue"
+              }
+            ],
+            "checkedAt": "390b9d828842483e0505d4316a6f4c82568b1adb"
+          },
+          {
+            "name": "wiz_timeout_queue",
+            "implementation": "js/timeout.js",
+            "symbol": "wiz_timeout_queue",
+            "sourceReview": "Read the whole timeout.c wiz_timeout_queue() at lines 2039-2127. Preserved create-window failure return, current move, queue, property order/count/width and separator, swallow/vault counters, visible regions, inclusive stasis countdown and turn wording, display, destroy, and ECMD_OK order. The property list is canonical generated data; the live window route is displayTtyMenuTextWindow. The only unported callee is the discarded impossible() diagnostic inside kind_name(), recorded as note_unported('pline.c impossible').",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extcmdlist #timeout row at 1904 and doextcmd invokes the selected function at 516"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/wiz-timeout-lit-lamp-wizard.session.json",
+              "recordings/timeout.c/wiz-timeout-visible-region-valkyrie.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-timeout-queue",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 66,
+                "source": "cmd.c:extcmdlist #timeout row → doextcmd → timeout.c:wiz_timeout_queue; covers queue/property output and command completion"
+              }
+            ],
+            "checkedAt": "390b9d828842483e0505d4316a6f4c82568b1adb"
+          },
+          {
+            "name": "start_timer",
+            "implementation": "js/timeout.js",
+            "symbol": "start_timer",
+            "sourceReview": "Read the complete timeout.c start_timer() at lines 2247-2292. Preserved kind/function validation and its kind_name diagnostic, duplicate matching by kind/function/argument identity, id increment, absolute timeout calculation, ordered insertion, object timed-count increment, and success/failure results. Existing callers remain wired; the B187 change replaces the generic invalid-kind text with kind_name().",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "begin_burn",
+                "source": "timeout.c:begin_burn schedules BURN_OBJECT with start_timer, lines 1776-1777"
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "wiz_timeout_queue",
+                "source": "timeout.c:wiz_timeout_queue displays the timer created by begin_burn, lines 2055-2056"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/wiz-timeout-lit-lamp-wizard.session.json",
+              "recordings/timeout.c/c116-phaze-five-turn-warning.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-timeout-queue",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 66,
+                "source": "timeout.c timer insertion feeds the live #timeout diagnostic queue"
+              }
+            ],
+            "checkedAt": "390b9d828842483e0505d4316a6f4c82568b1adb"
+          },
+          {
+            "name": "any_visible_region",
+            "implementation": "js/region.js",
+            "symbol": "any_visible_region",
+            "sourceReview": "Read the complete region.c any_visible_region() at lines 660-670. It scans current regions in order, skips invisible and ttl == -2 entries, and returns at the first remaining region; it has no RNG, output, or mutation.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "wiz_timeout_queue",
+                "source": "timeout.c:wiz_timeout_queue guards visible_region_summary with any_visible_region(), lines 2100-2101"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/region.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "region.c",
+            "synthetic": [],
+            "checkedAt": "390b9d828842483e0505d4316a6f4c82568b1adb"
+          },
+          {
+            "name": "visible_region_summary",
+            "implementation": "js/region.js",
+            "symbol": "visible_region_summary",
+            "sourceReview": "Read the complete region.c visible_region_summary() at lines 674-711. Preserved region order and visibility/expiration filtering, lazy header insertion, ttl+1 display, poison-gas versus vapor label, menu-tab separator choice, field widths, and bounding-box order. Output is appended to the timeout window's source-ordered line buffer.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "wiz_timeout_queue",
+                "source": "timeout.c:wiz_timeout_queue invokes visible_region_summary(win), lines 2100-2101"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/region.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/wiz-timeout-visible-region-valkyrie.session.json"
+            ],
+            "sourceFile": "region.c",
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-timeout-queue",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 66,
+                "source": "timeout.c:wiz_timeout_queue → region.c:any_visible_region → visible_region_summary (empty visible-region list)"
+              }
+            ],
+            "checkedAt": "390b9d828842483e0505d4316a6f4c82568b1adb"
+          },
+          {
+            "name": "doextcmd",
+            "implementation": "js/cmd.js",
+            "symbol": "doextcmd",
+            "sourceReview": "Read cmd.c doextcmd() lines 493-519 and the extcmdlist registration for #timeout at line 1904. Added the scoped wiz_timeout_queue dispatcher arm, retaining the source loop behavior that repeats only for doextlist and returning the selected command's ECMD result. This evidence covers the #timeout path, not unrelated extcmd rows.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c command registry maps # to doextcmd at line 1669; the command loop assigns/dispatches the selected function at lines 3732-3749"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/wiz-timeout-lit-lamp-wizard.session.json",
+              "recordings/timeout.c/wiz-timeout-visible-region-valkyrie.session.json"
+            ],
+            "sourceFile": "cmd.c",
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-timeout-queue",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 66,
+                "source": "cmd.c:rhack # input → doextcmd → extcmdlist #timeout row → timeout.c:wiz_timeout_queue"
+              }
+            ],
+            "checkedAt": "390b9d828842483e0505d4316a6f4c82568b1adb"
+          },
+          {
+            "name": "wiz_intrinsic",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_intrinsic",
+            "sourceReview": "Read the complete wizcmds.c wiz_intrinsic() at lines 949-1096, including the wizard gate, property menu traversal, timed-value update, each property-specific arm, and the final redraw. Replaced the prior private duplicated property list with timeout.c:property_by_index while preserving selection values and order. The source-discarded return from pooleffects(FALSE) is not used as data by this port; existing effect behavior is unchanged.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extcmdlist #wizintrinsic row at 1966, dispatched from doextcmd()"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizcmds.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/c116-phaze-five-turn-warning.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [],
+            "checkedAt": "390b9d828842483e0505d4316a6f4c82568b1adb"
+          }
+        ],
+        "entryPointReview": "The selected range exposes #timeout through the cmd.c extcmdlist row, doextcmd's selected-function call, and cmd.c's command-loop handling of #. It also consumes property_by_index from the separately registered #wizintrinsic command. The timeout output path creates/displays/destroys an NHW_MENU window, prints the current time and queue, traverses all property rows twice, then conditionally adds swallow/vault/visible-region/stasis diagnostics. begin_burn is a natural active-timer producer and the light-source recipe reaches it through wish/use; timed intrinsic setup reaches start_timer through the existing timer machinery. No selected caller is compiled out in the recorder build. The only deliberately unported callee in these functions is the impossible() diagnostic for TIMER_NONE; the C discards its value, and JS records the gap via note_unported('pline.c impossible').",
+        "entryPoints": [
+          {
+            "name": "#timeout",
+            "functions": [
+              "wiz_timeout_queue",
+              "print_queue",
+              "kind_name",
+              "property_by_index",
+              {
+                "sourceFile": "region.c",
+                "name": "any_visible_region"
+              },
+              {
+                "sourceFile": "region.c",
+                "name": "visible_region_summary"
+              },
+              {
+                "sourceFile": "cmd.c",
+                "name": "doextcmd"
+              }
+            ],
+            "recordings": [
+              "recordings/timeout.c/wiz-timeout-lit-lamp-wizard.session.json",
+              "recordings/timeout.c/wiz-timeout-visible-region-valkyrie.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v35",
+                "caseId": "v35-timeout-queue",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 66,
+                "source": "cmd.c # command → doextcmd → extcmdlist #timeout → timeout.c:wiz_timeout_queue, including print_queue and both property traversals"
+              }
+            ]
+          },
+          {
+            "name": "#wizintrinsic",
+            "functions": [
+              {
+                "sourceFile": "wizcmds.c",
+                "name": "wiz_intrinsic"
+              },
+              "property_by_index",
+              "start_timer"
+            ],
+            "recordings": [
+              "recordings/timeout.c/c116-phaze-five-turn-warning.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
