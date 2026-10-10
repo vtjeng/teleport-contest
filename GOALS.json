@@ -251869,6 +251869,39 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-wishcmdassist-display-v40-20261010",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Display the complete wish assistance text window before retrying a wizard wish.",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v40/v40-wizard-wish-assistance"
+      ],
+      "selectionReason": "The refreshed admitted v40 case first differs at step 6 because zap.c:makewish calls wishcmdassist while JavaScript records the helper as unported and immediately retries.",
+      "detail": "Port zap.c:wishcmdassist lines 6165-6226 in source order, wire the existing makewish help branch, preserve the conditional wishless and cmdassist lines and retry wording, and use the existing blocking TTY text-window owner.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "wishcmdassist",
+      "session": "synthetic/v40/v40-wizard-wish-assistance",
+      "step": 6,
+      "syntheticProvenance": {
+        "synthetic/v40/v40-wizard-wish-assistance": {
+          "session": "synthetic/v40/v40-wizard-wish-assistance",
+          "corpus": "synthetic",
+          "batch": "v40",
+          "caseId": "v40-wizard-wish-assistance",
+          "manifestPath": "challenges/manifests/v40.json",
+          "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+          "recordingPath": "challenges/cases/v40/v40-wizard-wish-assistance-cfirst.session.json",
+          "recordingSha256": "a002883b9c47c5151fbe3c6e7d8a8484e9f8f836b1cf3d829351fc90b7dca2c4",
+          "evaluationPath": "challenges/evaluations/accepted-10b2dc61ddff793aef1185581dff8f3c576097e0-v40.json",
+          "evaluationCommit": "10b2dc61ddff793aef1185581dff8f3c576097e0"
+        }
+      }
     }
   ]
 }
