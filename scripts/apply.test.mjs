@@ -38,6 +38,7 @@ import {
     number_leashed,
     o_unleash,
     touchstone_ok,
+    unleash_all,
     use_towel,
 } from '../js/apply.js';
 import { c_obj_colors } from '../js/do_name.js';
@@ -191,6 +192,41 @@ test('number_leashed counts only active inventory leash objects', () => {
     const second = { otyp: LEASH, leashmon: 27, nobj: active };
     assert.equal(number_leashed({ invent: second }), 2);
     assert.equal(number_leashed({ invent: inactive }), 0);
+});
+
+test('apply.c unleash_all clears inventory and monster leash state in order', () => {
+    const cStart = APPLY_C.indexOf('\nunleash_all(void)');
+    const cEnd = APPLY_C.indexOf('\n}\n', cStart) + 2;
+    assert.ok(cStart >= 0 && cEnd > cStart,
+        'apply.c must contain the complete unleash_all definition');
+    const cBody = APPLY_C.slice(cStart, cEnd);
+    assert.match(cBody,
+        /for \(otmp = gi\.invent; otmp; otmp = otmp->nobj\)\s*if \(otmp->otyp == LEASH\)\s*otmp->leashmon = 0;/u);
+    assert.match(cBody,
+        /for \(mtmp = fmon; mtmp; mtmp = mtmp->nmon\)\s*mtmp->mleashed = 0;/u);
+
+    // The first and last inventory nodes are leashes; the middle node proves
+    // the C filter leaves other object types alone. The monster chain covers
+    // both a leashed pet and an already-unleashed monster.
+    const first = { otyp: LEASH, leashmon: 27, nobj: null };
+    const unrelated = { otyp: 99, leashmon: 41, nobj: null };
+    const last = { otyp: LEASH, leashmon: 52, nobj: null };
+    first.nobj = unrelated;
+    unrelated.nobj = last;
+    const secondMonster = { mleashed: 0, nmon: null };
+    const firstMonster = { mleashed: 1, nmon: secondMonster };
+    const state = {
+        invent: first,
+        level: { monlist: firstMonster },
+    };
+
+    unleash_all(state);
+
+    assert.deepEqual(
+        [first.leashmon, unrelated.leashmon, last.leashmon],
+        [0, 41, 0],
+    );
+    assert.deepEqual([firstMonster.mleashed, secondMonster.mleashed], [0, 0]);
 });
 
 test('apply.c o_unleash clears the matching monster before refreshing inventory', () => {

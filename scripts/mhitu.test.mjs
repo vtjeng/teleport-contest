@@ -1302,6 +1302,27 @@ test('gulpmu AD_DREN awaits drain_en after its source probability gate', () => {
     assert.doesNotMatch(jsArm, /note_unported\([^)]*drain_en/u);
 });
 
+test('gulpmu clears leash state after the swallowed leash message', () => {
+    const cStart = MHITU_C.indexOf(
+        'gulpmu(struct monst *mtmp, struct attack *mattk)',
+    );
+    const cLeash = MHITU_C.indexOf('i = number_leashed();', cStart);
+    assert.ok(cStart >= 0 && cLeash > cStart,
+        'mhitu.c must contain the leash branch in gulpmu');
+    assert.match(MHITU_C.slice(cLeash, cLeash + 300),
+        /i = number_leashed\(\);\s*if \(i > 0\) \{[\s\S]*?pline_The\([\s\S]*?unleash_all\(\);/u);
+
+    const jsStart = MHITU_JS.indexOf('async function gulpmu(');
+    const jsLeash = MHITU_JS.indexOf('const leashed = number_leashed(state);', jsStart);
+    assert.ok(jsStart >= 0 && jsLeash > jsStart,
+        'js/mhitu.js must contain the leash branch in gulpmu');
+    assert.match(MHITU_JS.slice(jsLeash, jsLeash + 350),
+        /const leashed = number_leashed\(state\);[\s\S]*?await message\([\s\S]*?unleash_all\(state\);/u);
+    assert.match(MHITU_JS, /import \{ number_leashed, unleash_all \} from '\.\/apply\.js';/u);
+    assert.doesNotMatch(MHITU_JS.slice(jsLeash, jsLeash + 350),
+        /note_unported\('apply\.c unleash_all'\)/u);
+});
+
 test('an ice vortex swallows, freezes, and expels an ordinary hero',
     async () => {
     // mhitu.c:848-850 and gulpmu():1292, 1392-1393, 1502-1508. The first

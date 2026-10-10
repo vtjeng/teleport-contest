@@ -232,7 +232,7 @@ import {
 } from './dungeon.js';
 import { schedule_goto } from './do.js';
 import { next_to_u } from './apply_next_to_u.js';
-import { number_leashed } from './apply.js';
+import { number_leashed, unleash_all } from './apply.js';
 import { done } from './end.js';
 import {
     canseemon, feel_newsym, rank_of, map_invisible, under_water,
@@ -1435,7 +1435,7 @@ export async function drown(state = game) {
             `The leash${leashed > 1 ? 'es' : ''} slip${leashed > 1 ? '' : 's'} loose.`,
             state,
         );
-        note_unported('apply.c unleash_all');
+        unleash_all(state);
     }
 
     if (amphibiousHero || breathlessHero || swimming) {

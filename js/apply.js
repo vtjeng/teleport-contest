@@ -1126,6 +1126,19 @@ export function number_leashed(state = game) {
     return count;
 }
 
+// C ref: apply.c unleash_all() (748-755). Clear every carried leash link,
+// then every current-level monster's leash bit, in source order.
+// shk.c:finish_paybill() also calls this C helper; js/shk.js has no matching
+// function to wire yet.
+export function unleash_all(state = game) {
+    for (let object = state.invent; object; object = object.nobj) {
+        if (object.otyp === LEASH)
+            object.leashmon = 0;
+    }
+    for (let monster = state.level.monlist; monster; monster = monster.nmon)
+        monster.mleashed = 0;
+}
+
 // C ref: apply.c o_unleash() (711-724). The object owns the attachment id;
 // clear it even when its monster is no longer on this level.
 export function o_unleash(object, env = {}) {
