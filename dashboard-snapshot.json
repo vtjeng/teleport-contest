@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T05:19:03.416Z",
+  "capturedAt": "2026-10-10T05:45:33.783Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -78710,6 +78710,86 @@
         "worker": "B",
         "state": "active",
         "reason": "B208 is accepted; syncing Main and checking for independent source work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B208-investigation-v38-levitating-whip-over-lava-36d4e9d5e5814d20f230a798cd465f27ea0241bb",
+        "type": "published",
+        "at": "2026-10-10T05:19:11.413Z",
+        "task": "B208-investigation-v38-levitating-whip-over-lava",
+        "commit": "36d4e9d5e5814d20f230a798cd465f27ea0241bb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-B208-accepted-queue-empty-20261010",
+        "type": "turn",
+        "at": "2026-10-10T05:19:16.836Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Accepted B208 Main is synced. The refreshed queue has no fixed or synthetic candidates; Prep3 owns v39, so B is idle until admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-idle-after-main-36d4-20261010",
+        "type": "turn",
+        "at": "2026-10-10T05:19:45.928Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "The admitted queue is empty. C is available for the first independent source task after Prep3 admits and evaluates v39."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-after-main-36d4-20261010",
+        "type": "turn",
+        "at": "2026-10-10T05:19:48.017Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Resuming to sync Main and verify the queue after B208 acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-awaiting-v39-after-b208-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T05:19:49.510Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "The combined queue is empty after B208 acceptance. Prep3 owns v39 preparation; A2 is available for the first independent v39 task after admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-v39-eleven-approved-20261010T0520Z",
+        "type": "turn",
+        "at": "2026-10-10T05:23:54.435Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has eleven approved distinct C-first mismatches; one remains."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-v39-twelve-approved-packaging-20261010T0534Z",
+        "type": "turn",
+        "at": "2026-10-10T05:30:16.068Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has twelve approved distinct C-first mismatches; packaging the manifest and validation evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-v39-eleven-overlap-review-20261010T0545Z",
+        "type": "turn",
+        "at": "2026-10-10T05:37:13.082Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has eleven approved distinct C-first mismatches; searching for a distinct replacement after a throne overlap check."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep3-v39-twelve-after-pickup-20261010T0550Z",
+        "type": "turn",
+        "at": "2026-10-10T05:44:43.325Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v39 has twelve approved distinct C-first mismatches; packaging the manifest and validation evidence."
       }
     ]
   },

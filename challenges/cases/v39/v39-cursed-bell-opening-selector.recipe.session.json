@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first charged Bell of Opening setup probe. Wish a cursed charged Bell of Opening and inspect C's inventory/apply selectors before claiming the cursed use_bell -> mkundead branch. Preserve any object wish or selector miss.",
+  "segments": [
+    {
+      "seed": 39139024,
+      "datetime": "20420315120000",
+      "nethackrc": "OPTIONS=name:V39BellUndead,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed charged Bell of Opening\na",
+      "recorderIsDst": true
+    }
+  ]
+}

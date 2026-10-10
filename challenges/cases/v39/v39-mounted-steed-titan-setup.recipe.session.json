@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first source setup for uhitm.c:mhitm_knockback -> steed.c:dismount_steed(DISMOUNT_KNOCKED). Create a tame saddled pony independently, then inspect its actual location before #ride; preserve the route if its direction differs.",
+  "segments": [
+    {
+      "seed": 39139025,
+      "datetime": "20420315121000",
+      "nethackrc": "OPTIONS=name:V39Knockoff,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0007tame saddled pony\n#ride\n",
+      "recorderIsDst": true
+    }
+  ]
+}

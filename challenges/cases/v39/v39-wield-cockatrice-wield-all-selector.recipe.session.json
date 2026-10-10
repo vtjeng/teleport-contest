@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first wield menu exploration: source item is carried but filtered as downplayed because a corpse is not a weapon; use the C-prompted all-inventory selector without changing the target behavior.",
+  "segments": [
+    {
+      "seed": 39139023,
+      "datetime": "20420315115000",
+      "nethackrc": "OPTIONS=name:V39WieldGloves,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017leather gloves\nPn\u0017cockatrice corpse\n,Tnyes\nw*",
+      "recorderIsDst": true
+    }
+  ]
+}

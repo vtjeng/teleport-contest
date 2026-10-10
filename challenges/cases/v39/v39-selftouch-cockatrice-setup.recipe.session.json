@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "v39 C-first selftouch setup under stone-golem resistance: use #polyself to get stone resistance, wish a cockatrice corpse so it can be kept safely in inventory, and inspect its wield slot before changing back to human.",
+  "segments": [
+    {
+      "seed": 39139014,
+      "datetime": "20420315101200",
+      "nethackrc": "OPTIONS=name:V39Selftouch,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#polyself\nstone golem\n\u0017cockatrice corpse\ni",
+      "recorderIsDst": true
+    }
+  ]
+}

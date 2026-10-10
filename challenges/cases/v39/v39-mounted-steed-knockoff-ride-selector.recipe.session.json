@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first mounted-steed knockoff setup probe: an independent Knight start is used to check the actual steed location and #ride direction before summoning a huge hostile attacker. Preserve this selector boundary if the starting pony or direction differs from the planned route.",
+  "segments": [
+    {
+      "seed": 39139021,
+      "datetime": "20420315113000",
+      "nethackrc": "OPTIONS=name:V39Ride,role:Knight,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#ride\n",
+      "recorderIsDst": true
+    }
+  ]
+}

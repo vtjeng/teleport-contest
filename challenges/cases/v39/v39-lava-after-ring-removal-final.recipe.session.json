@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Complete C-first levitation-removal-to-lava case. After the actual wizard-mode death confirmation, decline optional possession identification at its displayed prompt so the independent recording ends deterministically.",
+  "segments": [
+    {
+      "seed": 39139078,
+      "datetime": "20420315132000",
+      "nethackrc": "OPTIONS=name:V39LavaRingDrop,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".\u0017ring of levitation\nPpl \u0017lava\nR     yn",
+      "recorderIsDst": true
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "v39 C-first polymorph retouch with one pager dismissal appended to capture post-polymorph weapon handling after the observed initial floating-eye message.",
+  "segments": [
+    {
+      "seed": 39139012,
+      "datetime": "20420315101000",
+      "nethackrc": "OPTIONS=name:V39Retouch,role=Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed long sword\nwo#polyself\nfloating eye\n ",
+      "recorderIsDst": true
+    }
+  ]
+}

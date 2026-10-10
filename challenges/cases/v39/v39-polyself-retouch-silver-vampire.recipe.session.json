@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first retouch probe: a silver dagger is wielded before wizard polymorph to vampire. This distinguishes the retouch_equipment silver-hate path from the prior ordinary-weapon floating-eye control.",
+  "segments": [
+    {
+      "seed": 39139015,
+      "datetime": "20420315101400",
+      "nethackrc": "OPTIONS=name:V39SilverTouch,role=Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017silver dagger\nwo#polyself\nvampire\n ",
+      "recorderIsDst": true
+    }
+  ]
+}

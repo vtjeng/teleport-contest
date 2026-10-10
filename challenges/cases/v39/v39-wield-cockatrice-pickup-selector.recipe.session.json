@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first corrected pickup setup: the wizard wish creates the cockatrice corpse on the floor at the hero’s tile, so pick it up before attempting wield.c:cant_wield_corpse. Preserve the earlier empty-inventory selector attempt.",
+  "segments": [
+    {
+      "seed": 39139022,
+      "datetime": "20420315114000",
+      "nethackrc": "OPTIONS=name:V39WieldStone,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cockatrice corpse\n,",
+      "recorderIsDst": true
+    }
+  ]
+}
