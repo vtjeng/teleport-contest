@@ -245124,7 +245124,7 @@
     {
       "id": "port-apply-set-trap-dotrap-callback-v38-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port apply.c set_trap and wire the cursed trap dotrap callback",
       "cFile": "apply.c",
       "sessions": [
@@ -245138,8 +245138,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "83aba82e9fb63b93f4fda8cf74a8ee6d049e3cb1",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "set_trap",
@@ -245420,7 +245423,67 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "set_trap",
+            "implementation": "js/apply.js",
+            "symbol": "set_trap",
+            "sourceReview": "Compared the full apply.c:set_trap body and its control flow. It resets an interrupted occupation, decrements the setup timer, creates and marks the trap, calls feeltrap, records the existing unported shop add_damage gap, emits the finish message unless force_bungle is active, and then calls dotrap when a cursed or fumbling roll exceeds five or when force_bungle is set. The C call discards dotrap's status but relies on its state, message, RNG, and screen effects. JavaScript now invokes dotrap and forwards FORCEBUNGLE only for the forced branch, then consumes the object and resets the trap state. The called dotrap path admits a seen BEAR_TRAP so C's rn2(5) escape/effect branch can run; unrelated fail-closed paths and the accepted arrow-trap path remain unchanged.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_trap",
+                "source": "apply.c:use_trap passes set_trap to set_occupation after setting the trap target and occupation timer; the occupation engine invokes this callback on following turns"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-trap.test.mjs",
+              "scripts/hero-bear-trap.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v38",
+                "caseId": "v38-cursed-bear-trap-bungle",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 44,
+                "source": "apply.c:use_trap starts the cursed bear-trap occupation; apply.c:set_trap reaches rnl(10)=6 at step 43 and calls trap.c:dotrap; trap.c:3035-3043 draws rn2(5)=3 and dispatches the hero BEAR_TRAP effect"
+              }
+            ],
+            "checkedAt": "83aba82e9fb63b93f4fda8cf74a8ee6d049e3cb1"
+          }
+        ],
+        "entryPointReview": "The production entry point is applying a cursed bear trap and completing its occupation. apply.c:use_trap schedules set_trap, which calls dotrap after the source roll succeeds. Since feeltrap has just revealed the trap, C's seen-trap escape branch is reached before the bear-trap effect; the JavaScript preflight now admits that source-supported BEAR_TRAP branch. The admitted v38 case matches through its final step.",
+        "entryPoints": [
+          {
+            "name": "setting a cursed bear trap that bungles",
+            "functions": [
+              "set_trap"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v38",
+                "caseId": "v38-cursed-bear-trap-bungle",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 44,
+                "source": "apply.c:use_trap -> apply.c:set_trap at step 43 -> trap.c:dotrap seen-BEAR_TRAP escape gate -> trap.c:trapeffect_bear_trap"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "83aba82e9fb63b93f4fda8cf74a8ee6d049e3cb1",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
