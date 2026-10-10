@@ -256848,7 +256848,7 @@
     {
       "id": "port-shk-shopdig-v40-shop-floor-digdown-warning-20261010",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port shop-floor digging response and the canonical hero-distance helper.",
       "cFile": "shk.c",
       "sessions": [
@@ -257213,7 +257213,17 @@
         ],
         "entryPointReview": "This helper-only completion range covers the pure apply.c:um_dist function. Its production callers are shk.c:shopdig via js/shk.js:shopdig, mon.c:m_respond via js/mon.js:m_respond, and vault.c:gd_move via js/vault.js:gd_move. The whole shk.c:shopdig function is excluded because its two active shopdig(1) fall-time entry points through dig.c:digactualhole and trap.c:fall_through do not yet have matching runtime evidence.",
         "entryPoints": []
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "cfc1d11b531810c2645a6318fe1a63f8eb37970d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "shopdig(1) remains without matching runtime evidence through dig.c:digactualhole and trap.c:fall_through; shopdig(0) and pure apply.c:um_dist are validated."
     }
   ]
 }
