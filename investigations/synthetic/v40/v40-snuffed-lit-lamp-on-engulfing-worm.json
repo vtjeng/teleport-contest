@@ -147,11 +147,11 @@
       },
       "replay": {
         "command": "node scripts/diff-fresh.mjs challenges/cases/v40/v40-engulf-snuff-lit-lamp-inventory-check-corrected-cfirst.recipe.session.json",
-        "runId": "run-8h79lV",
+        "runId": "run-gJksQ7",
         "result": "fail",
         "metrics": {
           "rng": "C 2825, JS 2821",
-          "screens": "C 79, JS 79",
+          "screens": "C 79, JS 79; first cell mismatch at boundary 77",
           "cursors": "79/79 match"
         },
         "firstRngMismatch": {
@@ -173,41 +173,41 @@
             "c": "4",
             "js": "5"
           }
-        }
+        },
+        "traceCorrection": "The step-75 leash page is produced by mhitu.c:gulpmu calling apply.c:unleash_all; apply.c:check_leash remains unreached by this input path."
       },
       "sourceTrace": {
-        "file": "apply.c",
-        "function": "check_leash",
-        "branch": "After hero movement increases its distance from an attached pet, an uncursed leash snaps and check_leash calls m_unleash; the helper clears leashmon and mleashed before the next pet turn.",
+        "file": "mhitu.c",
+        "function": "gulpmu",
+        "helper": "apply.c:unleash_all",
+        "branch": "On the first swallow, gulpmu emits the swallow message, handles release from a trap, then counts attached leashes. When at least one exists it prints \u201cThe leash snaps loose.\u201d and calls unleash_all(), which clears every inventory leashmon and every monster mleashed flag. This page is not produced by apply.c:check_leash.",
         "callers": [
-          "allmain.c:moveloop_core calls check_leash(old_ux, old_uy) after a successful periodic teleport when next_to_u() is false (line 314).",
-          "hack.c:domove_core calls check_leash(u.ux0, u.uy0) after hero movement (line 2962).",
-          "trap.c:move_into_trap calls check_leash(u.ux0, u.uy0) after its forced hero move (line 5413)."
+          "mhitu.c:gulpmu calls number_leashed() and unleash_all() at lines 1349–1355 after the swallow transition.",
+          "apply.c:unleash_all() (746–754) clears leashmon for every inventory leash, then mleashed for every monster in fmon.",
+          "Other C call sites are trap.c (5103), shk.c (2745), and bones.c (435); they are outside this recorded gulp path."
         ],
         "jsGaps": [
-          "js/allmain.js has note_unported('dog.c check_leash') in the teleport branch.",
-          "js/trap.js:move_into_trap has note_unported('apply.c check_leash').",
-          "js/hack.js:domove_core omits the direct C call."
+          "js/mhitu.js:gulpmu reproduces the count and message but replaces the state transition with note_unported('apply.c unleash_all') at lines 2315–2320.",
+          "There is no canonical js/apply.js:unleash_all implementation yet.",
+          "apply.c:check_leash has no call in mhitu.c:gulpmu. Its direct C callers are hack.c:domove_core, trap.c:move_into_trap, and allmain.c:moveloop_core; none produces this gulp page."
         ],
-        "evidence": "The admitted replay emits the C leash-snap transition before the next pet turn. A post-B220 JS replay through 76 input characters leaves the tame dog (m_id 48 at 73,3) mleashed; the next C draw comes from dogfood calling obj_resists while JS advances to dog_move candidate tie-breaking. This attributes the residual to the missing check_leash release, not to the already accepted dog_move source unit."
+        "evidence": "In the admitted recording, step 74 (key \u201c.\u201d) reaches the purple-worm gulp and records \u201cThe purple worm swallows you whole!--More--\u201d. Step 75 (key space) acknowledges the pending page and displays \u201cThe leash snaps loose.--More--\u201d with no RNG calls. The source order places the leash message and unleash_all call in gulpmu. JS currently prints the same page but leaves the pet attached, which explains why the next turn enters a different dog_move path. The previous check_leash attribution was incorrect."
       },
       "proposedImplementationScope": {
         "reservations": [
-          "source:apply.c:check_leash",
-          "source:allmain.c:moveloop_core",
-          "source:hack.c:domove_core",
-          "source:trap.c:move_into_trap"
+          "session:synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm",
+          "source:apply.c:unleash_all",
+          "source:mhitu.c:gulpmu"
         ],
         "paths": [
+          "investigations/synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm.json",
+          ".cache/",
           "js/apply.js",
-          "js/allmain.js",
-          "js/hack.js",
-          "js/trap.js",
+          "js/mhitu.js",
           "scripts/apply.test.mjs",
-          "scripts/allmain-turn.test.mjs",
-          "scripts/hack.test.mjs",
-          "scripts/untrap-command.test.mjs"
-        ]
+          "scripts/mhitu.test.mjs"
+        ],
+        "blocker": "B222 currently reserves js/mhitu.js while its incubus task is queued for integration. Wait for B222 acceptance and release before expanding this scope or editing game code."
       }
     }
   ]
