@@ -245120,6 +245120,307 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-apply-set-trap-dotrap-callback-v38-20261010",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port apply.c set_trap and wire the cursed trap dotrap callback",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v38/v38-cursed-bear-trap-bungle"
+      ],
+      "selectionReason": "Resume the admitted v38 cursed bear-trap mismatch after the bounded arrow-trap prerequisite; apply.c:set_trap discards dotrap's return but depends on its source-ordered RNG, messages, and state effects.",
+      "detail": "At step 43, C apply.c:set_trap reaches rnl(10)=6 and calls dotrap(ttmp, 0). feeltrap has revealed the BEAR_TRAP, so trap.c:dotrap enters its already-seen rn2(5) escape/effect branch. Wire the callback and admit that bounded implemented bear-trap path while keeping unrelated preflight refusals.",
+      "openedAt": "286a1e36f6c2d30d43f66a1cbdc0be298905a4fa",
+      "openStanding": {
+        "sha": "7c3b5e6961e7f3b2b616d0911ff59748678b1321",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "set_trap",
+          "line": 2916,
+          "endLine": 2954,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2916,
+        "to": 2954
+      },
+      "syntheticProvenance": {
+        "synthetic/v38/v38-cursed-bear-trap-bungle": {
+          "session": "synthetic/v38/v38-cursed-bear-trap-bungle",
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-cursed-bear-trap-bungle",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recordingPath": "challenges/cases/v38/v38-cursed-bear-trap-bungle.session.json",
+          "recordingSha256": "aa5453a90e0b0924452ccf80dbbdffc1fd6ba8cc04ff7d55f4d3e3daf784f9c1",
+          "evaluationPath": "challenges/evaluations/accepted-7c3b5e6961e7f3b2b616d0911ff59748678b1321-v38.json",
+          "evaluationCommit": "7c3b5e6961e7f3b2b616d0911ff59748678b1321"
+        }
+      },
+      "activeStanding": {
+        "sha": "7c3b5e6961e7f3b2b616d0911ff59748678b1321",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v38",
+          "caseId": "v38-cursed-bear-trap-bungle",
+          "session": "synthetic/v38/v38-cursed-bear-trap-bungle",
+          "manifestPath": "challenges/manifests/v38.json",
+          "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+          "recording": "challenges/cases/v38/v38-cursed-bear-trap-bungle.session.json",
+          "recordingPath": "challenges/cases/v38/v38-cursed-bear-trap-bungle.session.json",
+          "recordingSha256": "aa5453a90e0b0924452ccf80dbbdffc1fd6ba8cc04ff7d55f4d3e3daf784f9c1",
+          "recipe": "challenges/cases/v38/v38-cursed-bear-trap-bungle.recipe.session.json",
+          "recipeSha256": "f9bec2a03a4b4e1dff29e2d4fa4829ea015e585ffb314f5ebbb8c33444c84832",
+          "replayInputSha256": "98326534f1d7a0f1dced4de565d6b84f2e9513672a76cd47dc494c76ef59c7ce",
+          "evaluationPath": "challenges/evaluations/accepted-7c3b5e6961e7f3b2b616d0911ff59748678b1321-v38.json",
+          "evaluationCommit": "7c3b5e6961e7f3b2b616d0911ff59748678b1321",
+          "evaluationArtifact": "challenges/evaluations/accepted-7c3b5e6961e7f3b2b616d0911ff59748678b1321-v38.json",
+          "evaluationUtc": "2026-10-10T03:40:05.880Z",
+          "remainingScreens": 2,
+          "recordedSteps": 45,
+          "previousScreensMatched": 43,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 43,
+              "total": 45
+            },
+            "rng": {
+              "matched": 2875,
+              "total": 2893
+            },
+            "cursors": {
+              "matched": 44,
+              "total": 45
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 43,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 43,
+                "key": "n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 67,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2875,
+              "cEntry": "d(2,4)=7",
+              "cCaller": "trapeffect_bear_trap(trap.c:1490)",
+              "jsEntry": "rn2(12)=7",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 43,
+                "key": "n"
+              },
+              "stepIndex": 43
+            },
+            "cursor": {
+              "index": 43,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 43,
+                "key": "n"
+              },
+              "cCursor": [
+                75,
+                0,
+                1
+              ],
+              "jsCursor": [
+                76,
+                13,
+                1
+              ]
+            }
+          },
+          "step": 43,
+          "kind": "rng",
+          "sourceFile": "trap.c",
+          "function": "trapeffect_bear_trap",
+          "message": null,
+          "cFile": "trap.c",
+          "luaFile": null,
+          "line": 1490,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v38/v38-cursed-bear-trap-bungle.json",
+            "result": {
+              "session": "synthetic/v38/v38-cursed-bear-trap-bungle",
+              "corpus": "synthetic",
+              "batch": "v38",
+              "caseId": "v38-cursed-bear-trap-bungle",
+              "manifestPath": "challenges/manifests/v38.json",
+              "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+              "recordingSha256": "aa5453a90e0b0924452ccf80dbbdffc1fd6ba8cc04ff7d55f4d3e3daf784f9c1",
+              "evaluationPath": "challenges/evaluations/accepted-5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0-v38.json",
+              "evaluationCommit": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0",
+              "remainingScreens": 2,
+              "recordedSteps": 45,
+              "status": "complete",
+              "commit": "0cfb5d4ca92f9c1a96cd0ea8fa50c377be281ea3",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v38",
+                "caseId": "v38-cursed-bear-trap-bungle",
+                "session": "synthetic/v38/v38-cursed-bear-trap-bungle",
+                "manifestPath": "challenges/manifests/v38.json",
+                "manifestSha256": "2951de1f50cdb2364113ac5847dc3268781465359191c2bc6ee669c22d2fbe05",
+                "recording": "challenges/cases/v38/v38-cursed-bear-trap-bungle.session.json",
+                "recordingPath": "challenges/cases/v38/v38-cursed-bear-trap-bungle.session.json",
+                "recordingSha256": "aa5453a90e0b0924452ccf80dbbdffc1fd6ba8cc04ff7d55f4d3e3daf784f9c1",
+                "recipe": "challenges/cases/v38/v38-cursed-bear-trap-bungle.recipe.session.json",
+                "recipeSha256": "f9bec2a03a4b4e1dff29e2d4fa4829ea015e585ffb314f5ebbb8c33444c84832",
+                "replayInputSha256": "99b9ea18042feeef02df123c8f0e7d05f3fe0ed35e990ecdb577c1153d0a92aa",
+                "evaluationPath": "challenges/evaluations/accepted-5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0-v38.json",
+                "evaluationCommit": "5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0",
+                "evaluationArtifact": "challenges/evaluations/accepted-5e20fb15440a1b3cf46cdb4e61b822b8b6d50ed0-v38.json",
+                "evaluationUtc": "2026-10-10T02:16:24.381Z",
+                "remainingScreens": 2,
+                "recordedSteps": 45,
+                "previousScreensMatched": 43,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 43,
+                    "total": 45
+                  },
+                  "rng": {
+                    "matched": 2875,
+                    "total": 2893
+                  },
+                  "cursors": {
+                    "matched": 44,
+                    "total": 45
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 43,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 43,
+                      "key": "n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 67,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2875,
+                    "cEntry": "d(2,4)=7",
+                    "cCaller": "trapeffect_bear_trap(trap.c:1490)",
+                    "jsEntry": "rn2(12)=7",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 43,
+                      "key": "n"
+                    },
+                    "stepIndex": 43
+                  },
+                  "cursor": {
+                    "index": 43,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 43,
+                      "key": "n"
+                    },
+                    "cCursor": [
+                      75,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      76,
+                      13,
+                      1
+                    ]
+                  }
+                },
+                "step": 43,
+                "kind": "rng",
+                "sourceFile": "trap.c",
+                "function": "trapeffect_bear_trap",
+                "message": null,
+                "cFile": "trap.c",
+                "luaFile": null,
+                "line": 1490
+              },
+              "goalKind": "file-port",
+              "summary": "The v38 mismatch first exposes a skipped apply.c:set_trap call to trap.c:dotrap. After that caller is connected, the accepted JavaScript dotrap preflight still rejects the freshly seen BEAR_TRAP before the source rn2(5) escape check and bear-trap effect; B206 now claims both exact behaviors.",
+              "source": {
+                "file": "apply.c",
+                "functions": [
+                  "set_trap"
+                ],
+                "branch": "When the occupation finishes, a cursed bear trap or fumbling hero triggers the armed trap if rnl(10) > 5; force_bungle triggers it unconditionally. The return from dotrap is discarded, but its state and output side effects are required.",
+                "callers": [
+                  "apply.c:doapply selects the bear trap and calls use_trap.",
+                  "allmain.c occupation processing invokes set_trap once per occupied turn.",
+                  "apply.c:set_trap calls trap.c:dotrap after maketrap and arming messages; trap.c:dotrap dispatches the hero BEAR_TRAP to trapeffect_bear_trap."
+                ],
+                "dependencies": [
+                  "B204 is accepted at f1a0e5e9c6e7a91fe74ef79047cc33da7d7cab21 and supplies bounded arrow-trap behavior. Its accepted preflight still fails closed for an ordinary seen BEAR_TRAP; B206 claims source:trap.c:dotrap and contract:hero-trap-preflight-admission to admit the source-implemented seen-bear branch without changing the arrow path.",
+                  "A2 delivery d3cd4eb4bbda75918fc8b46a92e62a319ef4d4e7 edits js/apply.js only inside do_break_wand; B206 set_trap changes a separate function and uses a separate test path."
+                ]
+              },
+              "evidence": [
+                "The current queue reports the first mismatch at segment 0 step 43, key n: C RNG starts with d(2,4)=7 from trap.c:trapeffect_bear_trap; JS instead continues the monster turn with rn2(12)=7. The admitted case has 45 steps and two remaining screens.",
+                "The recorded step 43 C trace is rnl(10)=6 @ set_trap(apply.c:2941), rn2(5)=3 @ dotrap(trap.c:3038), d(2,4)=7 and rn2(4)=3 @ trapeffect_bear_trap. At step 44, C records the trap-close result and the recovery/exercise calls.",
+                "Upstream nethack-c/upstream/src/apply.c:2916-2952 shows set_trap creating and arming the trap, then calling dotrap(ttmp, force_bungle ? FORCEBUNGLE : 0) when the cursed/Fumbling roll succeeds or force_bungle is set. The function discards dotrap’s return value.",
+                "Current js/apply.js:1917-1958 mirrors the occupation and arming logic but substitutes note_unported(\"trap.c dotrap\") at the trigger call. Current js/trap_effects.js:3952 onward owns dotrap; its hero bear-trap path dispatches to the existing trapeffect_bear_trap implementation at :1183.",
+                "The task scope is source:apply.c:set_trap plus its trigger caller wiring after B204 acceptance; do not reimplement or edit B204’s dotrap or bear-trap effect owners.",
+                "After wiring set_trap to dotrap, JS stops at preflight_dotrap with “a trap the hero has already seen”. C trap.c:3035-3043 permits this BEAR_TRAP branch to evaluate rn2(5) and then dispatch the effect; the task scope includes that preflight admission and preserves B204’s arrow behavior."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
