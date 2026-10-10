@@ -1,0 +1,142 @@
+{
+  "session": "synthetic/v40/v40-coaligned-prayer-revives-tame-pet-corpse",
+  "corpus": "synthetic",
+  "batch": "v40",
+  "caseId": "v40-coaligned-prayer-revives-tame-pet-corpse",
+  "manifestPath": "challenges/manifests/v40.json",
+  "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+  "recordingSha256": "c00c965e693b24d7b5fdf90398f24830c3c3bb0a0bfff0801cd37ad53510f674",
+  "evaluationPath": "challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v40.json",
+  "evaluationCommit": "2e5a22fcb59f677d8f21f487546440d26850930c",
+  "remainingScreens": 2,
+  "recordedSteps": 43,
+  "status": "complete",
+  "commit": "6e94e579a70f690ef900b60df41decc274b9a67e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v40",
+    "caseId": "v40-coaligned-prayer-revives-tame-pet-corpse",
+    "session": "synthetic/v40/v40-coaligned-prayer-revives-tame-pet-corpse",
+    "manifestPath": "challenges/manifests/v40.json",
+    "manifestSha256": "32177b16c4e84ecd535832de60e1a0758e5722ba68cb65fb5741a468a071915b",
+    "recording": "challenges/cases/v40/v40-coaligned-prayer-revives-tame-pet-corpse.session.json",
+    "recordingPath": "challenges/cases/v40/v40-coaligned-prayer-revives-tame-pet-corpse.session.json",
+    "recordingSha256": "c00c965e693b24d7b5fdf90398f24830c3c3bb0a0bfff0801cd37ad53510f674",
+    "recipe": "challenges/cases/v40/v40-coaligned-prayer-revives-tame-pet-corpse.recipe.session.json",
+    "recipeSha256": "d6bd6f34b273998fbab6e4d36860c7df960125e0b19f4f76b4a333c4afb1278d",
+    "replayInputSha256": "7f7d0d6ed7ecd3895a4d297125152bfc9f29c01872c501ac97dc9f807a1adf88",
+    "evaluationPath": "challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v40.json",
+    "evaluationCommit": "2e5a22fcb59f677d8f21f487546440d26850930c",
+    "evaluationArtifact": "challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v40.json",
+    "evaluationUtc": "2026-10-10T14:51:09.023Z",
+    "remainingScreens": 2,
+    "recordedSteps": 43,
+    "previousScreensMatched": 41,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 41,
+        "total": 43
+      },
+      "rng": {
+        "matched": 2605,
+        "total": 2655
+      },
+      "cursors": {
+        "matched": 42,
+        "total": 43
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 41,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 41,
+          "key": "y"
+        },
+        "kind": "ch",
+        "row": 8,
+        "column": 53,
+        "cCell": {
+          "ch": "d",
+          "color": 15,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": ".",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2605,
+        "cEntry": "rn2(8)=3",
+        "cCaller": "collect_coords(teleport.c:700)",
+        "jsEntry": "rn2(3)=0",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 41,
+          "key": "y"
+        },
+        "stepIndex": 41
+      },
+      "cursor": {
+        "index": 42,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 42,
+          "key": " "
+        },
+        "cCursor": [
+          49,
+          0,
+          1
+        ],
+        "jsCursor": [
+          54,
+          8,
+          1
+        ]
+      }
+    },
+    "step": 41,
+    "kind": "rng",
+    "sourceFile": "teleport.c",
+    "function": "collect_coords",
+    "message": null,
+    "cFile": "teleport.c",
+    "luaFile": null,
+    "line": 700
+  },
+  "summary": "The first mismatch is attributed to teleport.c:collect_coords, but C reaches that RNG only after the coaligned altar prayer invokes pray_revive() and restores the tame pet from its corpse. JS prayer_done still skips this source branch with note_unported, so later prayer RNG is consumed where C revives the dog. The actionable owner is the whole pray.c:pray_revive helper and its prayer_done caller wiring.",
+  "source": {
+    "file": "pray.c",
+    "branch": "In prayer_done() p_type == 3 on a coaligned altar, the floor pile at the hero coordinates contains a corpse or statue with saved monster traits marked tame and not a minion.",
+    "functions": [
+      "pray_revive"
+    ],
+    "callers": [
+      "pray.c:prayer_done() p_type-3 altar arm calls (void) pray_revive() before (void) water_prayer(TRUE) at 2336-2338.",
+      "pray.c:dopray() installs prayer_done as the delayed prayer callback; the #pray command reaches it through the negative-multi countdown and hack.c:unmul()."
+    ],
+    "dependencies": [
+      "zap.c:revive() returns a monster pointer consumed by pray_revive() to produce its boolean result; the existing JS owner is zap.js:revive().",
+      "zap.c:montraits() restores saved corpse traits and returns the revived monster; JS zap.js:montraits() delegates creation through makemon_create.js:makemon_revival().",
+      "trap.c:animate_statue() is the other consumed-return callee for the statue arm; the existing JS owner is trap.js:animate_statue().",
+      "makemon.c:makemon() is reached beneath saved-trait restoration and its result is consumed by montraits(); worker B currently owns that whole-function reservation, so C scope remains pray.c:pray_revive unless source verification demonstrates that dependency needs expansion."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved v40 evaluation at challenges/evaluations/accepted-2e5a22fcb59f677d8f21f487546440d26850930c-v40.json first mismatches at segment 0, step 41, key y. It reports C rn2(8)=3 from collect_coords(teleport.c:700), JS rn2(3)=0, and a C dog glyph where JS shows the floor. The saved queue records 2 remaining screens, 43 recorded steps, and the exact manifest and recording hashes retained in this report.",
+    "C pray.c:pray_revive() (2177-2196) scans svl.level.objects[u.ux][u.uy] in linked-list order and accepts only CORPSE or STATUE objects with saved OMONST traits whose monster is tame and not a minion. The corpse arm returns revive(otmp, TRUE) != NULL; the statue arm returns animate_statue(otmp, u.ux, u.uy, ANIMATE_SPELL, NULL) != NULL.",
+    "C pray.c:prayer_done() (2336-2338) reaches pray_revive only in the p_type-3 coaligned arm when on_altar() is true, discards its boolean result, then calls water_prayer(TRUE). JS pray.js:prayer_done() currently records note_unported('pray.c pray_revive') at the same position before water_prayer(true), identifying the missing behavior and safe caller replacement.",
+    "The C step-41 random log continues after collect_coords with next_ident(mkobj.c:521), newmonhp(makemon.c:1042), makemon(makemon.c:1279), montraits(zap.c:750), and wary_dog(dog.c:1313). This is the source path for restoring the saved pet; collect_coords is reached inside revival placement rather than being the defective selection algorithm. The JS branch skips revival, then consumes rn2(3) in later prayer handling.",
+    "The independent JS implementations already present for the selected helper callees are zap.js:revive(), zap.js:montraits(), makemon_create.js:makemon_revival(), and trap.js:animate_statue(). B currently reserves source:makemon.c:makemon; the C task can remain bounded to pray.c:pray_revive and js/pray.js while declaring that existing caller dependency, unless focused source/runtime validation proves the makemon owner must change."
+  ]
+}
