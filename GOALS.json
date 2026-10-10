@@ -250907,7 +250907,7 @@
     {
       "id": "port-shk-call-kops-makekops-v40-20261010",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port the shop alarm's Keystone Kops response and its rank-ordered Kops spawning helper.",
       "cFile": "shk.c",
       "sessions": [
@@ -250915,17 +250915,24 @@
       ],
       "selectionReason": "Continue the accepted B216 replay at its next source boundary: unpaid shop departure reaches shk.c call_kops and makekops, while choose_stairs and enexto are already ported.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699",
+      "openStanding": {
+        "sha": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "call_kops",
           "line": 510,
           "endLine": 567,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -250937,9 +250944,9 @@
           "name": "makekops",
           "line": 5113,
           "endLine": 5137,
-          "declared": false,
+          "declared": true,
           "sourceFile": "shk.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -250955,6 +250962,121 @@
           "evaluationPath": "challenges/evaluations/accepted-fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7-v40.json",
           "evaluationCommit": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7"
         }
+      },
+      "activeStanding": {
+        "sha": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "call_kops",
+            "implementation": "js/shk.js",
+            "symbol": "call_kops",
+            "sourceReview": "Read all of upstream shk.c:call_kops (510-567). Preserved the null-shopkeeper return, alarm and Deaf output ordering, all-four-species G_GONE checks, angry_guards result branch, verbose refusal text, unconditional choose_stairs call, nearshop swarm at the hero, and the non-nearshop stair then shopkeeper swarms. Removed both choose_stairs/makekops note_unported sites; Soundeffect is a no-op in the recorder nosound backend.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "u_left_shop",
+                "source": "C shk.c:u_left_shop invokes call_kops after an uncovered balance remains at 623; JS does so after rob_shop returns true. The selected wizard level-port enters u_left_shop from teleport.c:level_tele:1329 and js/teleport.js:level_tele:2080."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "remote_burglary",
+                "source": "C shk.c:remote_burglary invokes call_kops(shkp, FALSE) after rob_shop at 680; JS pickup.js:pick_obj reaches js/shk.js:remote_burglary:1390."
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "level_tele",
+                "source": "C teleport.c:level_tele calls u_left_shop(u.ushops0, TRUE) for a negative wizard level-port at 1329; JS preserves that call before clearing shop state."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "pick_obj",
+                "source": "C pickup.c:pickup calls remote_burglary after a remote shop theft at 1939; JS pick_obj calls remote_burglary at 1390."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shop-billing.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 47,
+                "source": "teleport.c:level_tele -> shk.c:u_left_shop -> shk.c:call_kops -> wizard.c:choose_stairs -> shk.c:makekops -> teleport.c:enexto -> makemon.c:makemon(MM_NOMSG)"
+              }
+            ],
+            "checkedAt": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699"
+          },
+          {
+            "name": "makekops",
+            "implementation": "js/shk.js",
+            "symbol": "makekops",
+            "sourceReview": "Read the complete upstream shk.c:makekops (5113-5137). Preserved abs(depth(&u.uz))+rnd(5), integer rank counts, the zero-count break, extinct-rank skip, enexto retry loop, coordinate mutation through the shared coord pointer, and the discarded makemon return with MM_NOMSG. The existing wizard.c:choose_stairs, teleport.c:enexto, and Kops makemon/m_initweap paths supply the reached helpers; JS awaits makemon_runtime so the complete runtime creation tail executes.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "call_kops",
+                "source": "C shk.c:call_kops calls makekops around the hero for nearshop, and around the selected stairs then shopkeeper otherwise (510-567); JS call_kops awaits the same helper at each reached site."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "u_left_shop",
+                "source": "C teleport.c:level_tele -> shk.c:u_left_shop -> shk.c:call_kops -> shk.c:makekops; JS preserves this negative level-port chain."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shop-billing.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 47,
+                "source": "teleport.c:level_tele -> shk.c:u_left_shop -> shk.c:call_kops -> wizard.c:choose_stairs -> shk.c:makekops -> teleport.c:enexto -> makemon.c:makemon(MM_NOMSG)"
+              }
+            ],
+            "checkedAt": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699"
+          }
+        ],
+        "entryPointReview": "The selected active entry point is an unpaid shop robbery during a negative wizard level-port. It reaches call_kops with nearshop false, calls choose_stairs, and then reaches makekops around the selected stair and shopkeeper; the C/JS replay matches all 48 screens, RNG calls, and cursors through step 47. scripts/shop-billing.test.mjs also executes the nearshop true branch through u_left_shop and verifies that the helper spawns Kops. The alternative remote_burglary production caller remains wired to the same call_kops(FALSE) helper; the distinct rob_shop hot_pursuit gap is outside this Kops generation source scope.",
+        "entryPoints": [
+          {
+            "name": "Negative wizard level-port leaves a shop with debt",
+            "functions": [
+              "call_kops",
+              "makekops"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v40",
+                "caseId": "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 47,
+                "source": "teleport.c:level_tele -> shk.c:u_left_shop -> shk.c:call_kops -> wizard.c:choose_stairs -> shk.c:makekops -> teleport.c:enexto -> makemon.c:makemon(MM_NOMSG)"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

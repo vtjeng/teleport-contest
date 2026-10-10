@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T12:33:37.375Z",
+  "capturedAt": "2026-10-10T12:53:53.479Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -81048,19 +81048,155 @@
         "worker": "Prep",
         "state": "active",
         "reason": "v41 has twelve approved distinct C-first mismatches; packaging the manifest and replay evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-v40-fort-ludios-knox-wizloaddes-generation-20261010-8d770e5de218113d9c2c0b6136eeb8ee4ffc4221",
+        "type": "published",
+        "at": "2026-10-10T12:33:45.810Z",
+        "task": "C-v40-fort-ludios-knox-wizloaddes-generation-20261010",
+        "commit": "8d770e5de218113d9c2c0b6136eeb8ee4ffc4221"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-v40-wish-assistance-resume-after-knox-accepted-20261010",
+        "type": "turn",
+        "at": "2026-10-10T12:37:08.616Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is fixing the wizard wish help window from the v40 source trace and admitted replay."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-16e1c7f16f8321c293b21a9bafa7b2f77738c19e",
+        "type": "ready",
+        "at": "2026-10-10T12:38:08.656Z",
+        "task": "Prep5",
+        "delivery": "16e1c7f16f8321c293b21a9bafa7b2f77738c19e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep5-idle-after-submit-20261010",
+        "type": "turn",
+        "at": "2026-10-10T12:38:30.185Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep5 v41 is submitted with twelve distinct mismatches; waiting for Main validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B217-40d9c7a7",
+        "type": "received",
+        "at": "2026-10-10T12:38:34.451Z",
+        "task": "B217-investigation-v40-shop-exit-kops-residual-20261010",
+        "delivery": "40d9c7a70d0b3d097e124782460d5054458a6ffd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B217-5bb7bbae",
+        "type": "integrating",
+        "at": "2026-10-10T12:40:48.554Z",
+        "task": "B217-investigation-v40-shop-exit-kops-residual-20261010",
+        "integration": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B218-turn-finalize-20261010",
+        "type": "turn",
+        "at": "2026-10-10T12:41:56.294Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B218 fixes lamp snuffing and wires apply.c:snuff_lit through its direct callers; validating runtime evidence before submission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v40-wishcmdassist-20261010",
+        "type": "implement",
+        "at": "2026-10-10T12:43:08.063Z",
+        "task": "C-v40-wizard-wish-assistance-investigation-20261010",
+        "goal": "fix-wishcmdassist-display-v40-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B217-validated-hosted-38052951559",
+        "type": "validated",
+        "at": "2026-10-10T12:47:41.934Z",
+        "task": "B217-investigation-v40-shop-exit-kops-residual-20261010",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-97ce9a471a925ec6968a14b5a16a56dd8089aeaa",
+        "type": "ready",
+        "at": "2026-10-10T12:47:49.113Z",
+        "task": "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010",
+        "delivery": "97ce9a471a925ec6968a14b5a16a56dd8089aeaa"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-after-B218-submit-20261010",
+        "type": "turn",
+        "at": "2026-10-10T12:48:23.333Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B218 is ready for integration. B is syncing accepted Main and checking the refreshed queue for an independent source task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B219-assign-water-plane-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T12:49:13.359Z",
+        "task": "B219-investigation-v40-water-plane-levelport-generation-20261010",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-B219-water-plane-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T12:49:17.399Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B is investigating the v40 Water-plane level-arrival mismatch under B219 after submitting B218."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B217-investigation-v40-shop-exit-kops-residual-20261010-5bb7bbae79d5d14f8de04d0ebbd933e7a241a699-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T12:52:53.900Z",
+        "task": "B217-investigation-v40-shop-exit-kops-residual-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B218-received-97ce9a471a925ec6968a14b5a16a56dd8089aeaa",
+        "type": "received",
+        "at": "2026-10-10T12:53:08.649Z",
+        "task": "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010",
+        "delivery": "97ce9a471a925ec6968a14b5a16a56dd8089aeaa"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "B217-investigation-v40-shop-exit-kops-residual-20261010",
+        "task": "Prep5",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "16e1c7f16f8321c293b21a9bafa7b2f77738c19e",
+        "since": "2026-10-10T12:38:08.656Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B218-investigation-v40-snuffed-lit-lamp-on-engulfing-worm-20261010",
         "worker": "B",
-        "goal": "port-shk-call-kops-makekops-v40-20261010",
+        "goal": "fix-mhitu-gulpmu-snuff-lit-v40-20261010",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "40d9c7a70d0b3d097e124782460d5054458a6ffd",
-        "since": "2026-10-10T12:21:00.275Z",
+        "delivery": "97ce9a471a925ec6968a14b5a16a56dd8089aeaa",
+        "since": "2026-10-10T12:47:49.113Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -81367,8 +81503,8 @@
     ]
   },
   "development": {
-    "executionCommit": "fb78eff776d1e8c045a3a3fd8ab3fbed24204ff7",
-    "measuredAt": "2026-10-10T12:27:01.179Z",
+    "executionCommit": "5bb7bbae79d5d14f8de04d0ebbd933e7a241a699",
+    "measuredAt": "2026-10-10T12:47:00.234Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
