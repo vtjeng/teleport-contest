@@ -1,0 +1,2316 @@
+{
+  "version": 1,
+  "batch": "v41",
+  "status": "prepared-awaiting-main",
+  "comparisonBase": "65fc1e73533e98312bdc0b056b8e1f3c4ffc21f1",
+  "preparationAssignmentBase": "b2d0bdd8c056aea5fb95cd4dbd5a3df0e82a63dd",
+  "priorBatch": "v40",
+  "priorBatchManifestEvidence": {
+    "path": "challenges/manifests/v40.json",
+    "sha256": "5bd356a637a37d0a8c9b51a6446c123ce67e101ab2f1042f5a50d5ea25fdc790"
+  },
+  "priorBatchCaseIds": [
+    "v40-physical-knight-jump-clear-path",
+    "v40-bugle-improvisation-awakens-soldier",
+    "v40-chat-tame-dog-bark-response",
+    "v40-pet-dog-eats-dropped-ration",
+    "v40-lizard-corpse-cures-active-stoning",
+    "v40-kick-closed-locked-door",
+    "v40-earth-plane-levelport-generation",
+    "v40-air-plane-levelport-generation",
+    "v40-wand-slow-hostile-newt-zap",
+    "v40-identify-unknown-potion-scroll",
+    "v40-remove-curse-scroll-targets-inventory",
+    "v40-finger-engraves-elbereth",
+    "v40-ordinary-prayer-at-chaotic-altar",
+    "v40-coaligned-prayer-revives-tame-pet-corpse",
+    "v40-wizard-detects-sanctum-secret-door",
+    "v40-wizard-wish-assistance",
+    "v40-opening-wand-expels-swallowed-hero",
+    "v40-fire-plane-levelport-generation",
+    "v40-water-plane-levelport-generation",
+    "v40-leashed-dragon-abuse-m-unleash",
+    "v40-hostile-long-worm-head-move-updates-tail",
+    "v40-shop-floor-digdown-warning-live-shopkeeper",
+    "v40-fort-ludios-knox-wizloaddes-generation",
+    "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+    "v40-tower-one-direct-special-level-program",
+    "v40-pool-drowning-unleash-all-pet-state",
+    "v40-leashed-pet-unleashed-by-engulfing-worm",
+    "v40-snuffed-lit-lamp-on-engulfing-worm"
+  ],
+  "currentUnresolvedQueueEvidence": {
+    "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+    "sha256": "5943c7589ed17bc79c79f8eb5ce26173498e1301ce17ea080e6f0b5563201262",
+    "sessionCount": 12,
+    "caseIds": [
+      "v40-fort-ludios-knox-wizloaddes-generation",
+      "v40-wizard-wish-assistance",
+      "v40-snuffed-lit-lamp-on-engulfing-worm",
+      "v40-water-plane-levelport-generation",
+      "v40-earth-plane-levelport-generation",
+      "v40-coaligned-prayer-revives-tame-pet-corpse",
+      "v40-leashed-dragon-abuse-m-unleash",
+      "v40-pool-drowning-unleash-all-pet-state",
+      "v40-hostile-long-worm-head-move-updates-tail",
+      "v40-opening-wand-expels-swallowed-hero",
+      "v40-shop-floor-digdown-warning-live-shopkeeper",
+      "v40-shop-exit-rob-shop-unpaid-gem-levelport"
+    ],
+    "status": "actionable-at-assignment",
+    "currentFileSha256": "08ae55da31ec32a2d37e780be36d84163330605cfea728cbb189708dcf8b5b37",
+    "currentQueueSessionIds": [
+      "v40-wizard-wish-assistance",
+      "v40-snuffed-lit-lamp-on-engulfing-worm",
+      "v40-water-plane-levelport-generation",
+      "v40-earth-plane-levelport-generation",
+      "v40-coaligned-prayer-revives-tame-pet-corpse",
+      "v40-leashed-dragon-abuse-m-unleash",
+      "v40-pool-drowning-unleash-all-pet-state",
+      "v40-hostile-long-worm-head-move-updates-tail",
+      "v40-opening-wand-expels-swallowed-hero",
+      "v40-shop-floor-digdown-warning-live-shopkeeper",
+      "v40-shop-exit-rob-shop-unpaid-gem-levelport"
+    ],
+    "note": "The preparation uses the immutable assignment-time snapshot recorded in candidate-plan.json; concurrent queue updates are retained as later observation only."
+  },
+  "unresolvedOlderCaseIds": [
+    "v32-version-build-options",
+    "v35-gehennom-juiblex",
+    "v35-version-feature-report"
+  ],
+  "candidatePlan": {
+    "path": ".cache/prep-delivery/Prep5-v41/candidate-plan.json",
+    "sha256": "d027b6e79b71c2381b7a4c6cf51def68a17e3e09cb5556d0d39acbcb5f47681c"
+  },
+  "cases": [
+    {
+      "id": "v41-anger-prayer-god-zaps-hero",
+      "title": "Repeated too-soon prayer reaches the angry-god zap",
+      "mission": "Create the source-defined angry-prayer condition through a misaligned altar or documented anger trigger, then pray once.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/pray.c:prayer_done -> gods_upset -> angrygods -> god_zaps_you"
+      ],
+      "sourceTrace": "C source path: nethack-c/upstream/src/pray.c:prayer_done -> gods_upset -> angrygods -> god_zaps_you. C observation: After three too-soon ordinary-floor prayers, C accepts the confirmation and reaches angrygods default response: rn2(15)=10 at pray.c:725, lightning, then the disintegration effect; final survival message is captured.",
+      "cOutcome": "Reached by patched C; an independent patched-C replay was byte-identical; fresh JavaScript differential: mismatch.",
+      "actualTargetMiss": null,
+      "selectionRationale": "v40 ordinary cooldown prayer and pleased coaligned prayer/revival do not reach the anger zap. Parent review confirms no admitted prayer case reaches this repeated-too-soon default god_zaps_you path.",
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 41040170,
+        "datetime": "20511111111111",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "name": "V41AngryPray",
+        "playmode": "debug",
+        "nethackrc": "OPTIONS=name:V41AngryPray,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+        "keyCount": 47,
+        "segmentCount": 1,
+        "boundaries": [
+          null
+        ]
+      },
+      "recipe": "challenges/cases/v41/v41-prayer-too-soon-angrygod-zap-cfirst-precise.recipe.session.json",
+      "recipeSha256": "c398eb9c1ae4343f9995872f28937c99389ab86e912291311809ea79585064fe",
+      "recording": "challenges/cases/v41/v41-prayer-too-soon-angrygod-zap-cfirst-precise.session.json",
+      "recordingSha256": "4a19c08212339e1e84343d3d7a94fd1c93379f9314964e2f5ca1d30fced3ff6b",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v41-anger-prayer-god-zaps-hero",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/record-session.mjs",
+          "challenges/cases/v41/v41-prayer-too-soon-angrygod-zap-cfirst-precise.recipe.session.json",
+          ".cache/prep-delivery/Prep5-v41/replays/anger-prayer-god-zaps-hero.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/replays/anger-prayer-god-zaps-hero.log",
+        "logSha256": "574c80c27b9dbcd6c9e3504cbe797a0f4f246188612372ce9e9c3060d5ba046a",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v41/v41-prayer-too-soon-angrygod-zap-cfirst-precise.session.json",
+        "output": ".cache/prep-delivery/Prep5-v41/replays/anger-prayer-god-zaps-hero.session.json",
+        "outputSha256": "4a19c08212339e1e84343d3d7a94fd1c93379f9314964e2f5ca1d30fced3ff6b",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v41-anger-prayer-god-zaps-hero",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/diff-fresh.mjs",
+          "challenges/cases/v41/v41-prayer-too-soon-angrygod-zap-cfirst-precise.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/differentials/anger-prayer-god-zaps-hero.log",
+        "logSha256": "af95297adbf868c33ace46678cd5981fe3b1392ea0ac42e8f4fc4b763f9e57a6",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 36,
+          "key": "\" \"",
+          "channel": "screen",
+          "sourceBehavior": "The repeated too-soon prayer reaches prayer_done -> gods_upset -> angrygods -> god_zaps_you; C proceeds through the lightning and disintegration response, while JavaScript diverges before the response completes.",
+          "owner": "nethack-c/upstream/src/pray.c:prayer_done -> gods_upset -> angrygods -> god_zaps_you",
+          "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+          "details": "The ordinary cooldown and pleased-revival prayer cases in v40 do not enter the default angry-god zap path. The first visible divergence occurs during the third too-soon prayer; the later obj_resists(zap.c:1469) draw confirms the reached zap sequence.",
+          "rng": null,
+          "screenBoundary": 36
+        }
+      },
+      "firstMismatch": {
+        "reportedSegment": 1,
+        "reportedStep": 36,
+        "key": "\" \"",
+        "channel": "screen",
+        "sourceBehavior": "The repeated too-soon prayer reaches prayer_done -> gods_upset -> angrygods -> god_zaps_you; C proceeds through the lightning and disintegration response, while JavaScript diverges before the response completes.",
+        "owner": "nethack-c/upstream/src/pray.c:prayer_done -> gods_upset -> angrygods -> god_zaps_you",
+        "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+        "details": "The ordinary cooldown and pleased-revival prayer cases in v40 do not enter the default angry-god zap path. The first visible divergence occurs during the third too-soon prayer; the later obj_resists(zap.c:1469) draw confirms the reached zap sequence.",
+        "rng": null,
+        "screenBoundary": 36
+      },
+      "distinctMismatch": {
+        "behavior": "The repeated too-soon prayer reaches prayer_done -> gods_upset -> angrygods -> god_zaps_you; C proceeds through the lightning and disintegration response, while JavaScript diverges before the response completes.",
+        "owner": "nethack-c/upstream/src/pray.c:prayer_done -> gods_upset -> angrygods -> god_zaps_you",
+        "distinctness": "The ordinary cooldown and pleased-revival prayer cases in v40 do not enter the default angry-god zap path. The first visible divergence occurs during the third too-soon prayer; the later obj_resists(zap.c:1469) draw confirms the reached zap sequence."
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v40 crosswalk",
+          "distinction": "v40 ordinary cooldown prayer and pleased coaligned prayer/revival do not reach the anger zap. Parent review confirms no admitted prayer case reaches this repeated-too-soon default god_zaps_you path."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v40",
+        "caseIds": [
+          "v40-physical-knight-jump-clear-path",
+          "v40-bugle-improvisation-awakens-soldier",
+          "v40-chat-tame-dog-bark-response",
+          "v40-pet-dog-eats-dropped-ration",
+          "v40-lizard-corpse-cures-active-stoning",
+          "v40-kick-closed-locked-door",
+          "v40-earth-plane-levelport-generation",
+          "v40-air-plane-levelport-generation",
+          "v40-wand-slow-hostile-newt-zap",
+          "v40-identify-unknown-potion-scroll",
+          "v40-remove-curse-scroll-targets-inventory",
+          "v40-finger-engraves-elbereth",
+          "v40-ordinary-prayer-at-chaotic-altar",
+          "v40-coaligned-prayer-revives-tame-pet-corpse",
+          "v40-wizard-detects-sanctum-secret-door",
+          "v40-wizard-wish-assistance",
+          "v40-opening-wand-expels-swallowed-hero",
+          "v40-fire-plane-levelport-generation",
+          "v40-water-plane-levelport-generation",
+          "v40-leashed-dragon-abuse-m-unleash",
+          "v40-hostile-long-worm-head-move-updates-tail",
+          "v40-shop-floor-digdown-warning-live-shopkeeper",
+          "v40-fort-ludios-knox-wizloaddes-generation",
+          "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "v40-tower-one-direct-special-level-program",
+          "v40-pool-drowning-unleash-all-pet-state",
+          "v40-leashed-pet-unleashed-by-engulfing-worm",
+          "v40-snuffed-lit-lamp-on-engulfing-worm"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v40.json",
+          "sha256": "5bd356a637a37d0a8c9b51a6446c123ce67e101ab2f1042f5a50d5ea25fdc790"
+        },
+        "result": "Crosswalked this reached behavior against every v40 case. v40 ordinary cooldown prayer and pleased coaligned prayer/revival do not reach the anger zap. Parent review confirms no admitted prayer case reaches this repeated-too-soon default god_zaps_you path."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "08ae55da31ec32a2d37e780be36d84163330605cfea728cbb189708dcf8b5b37",
+        "sessionCount": 3,
+        "unresolvedOlderCaseIds": [
+          "v32-version-build-options",
+          "v35-gehennom-juiblex",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared with the three unresolved older source/history entries retained by v40; no duplicate first behavior was identified."
+      }
+    },
+    {
+      "id": "v41-boulder-fills-pit-from-hero-action",
+      "title": "Push a boulder into a pit",
+      "mission": "Set or reach a pit, place the boulder on the C-observed pushing line, and push it into the pit.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/hack.c:moverock_core -> nethack-c/upstream/src/do.c:flooreffects -> fill_pit"
+      ],
+      "sourceTrace": "C source path: nethack-c/upstream/src/hack.c:moverock_core -> nethack-c/upstream/src/do.c:flooreffects -> fill_pit. C observation: C screen says “The boulder fills a pit.” on the final eastward move. The preceding #kick attempt is retained as setup evidence; dokick.c:really_kick_object intentionally returns 0 for a boulder, so #kick cannot push it.",
+      "cOutcome": "Reached by patched C; an independent patched-C replay was byte-identical; fresh JavaScript differential: mismatch.",
+      "actualTargetMiss": null,
+      "selectionRationale": "v38 boulder pickup/kick interactions and v40 pet-trapped boulder/pit probes do not exercise hack.c:moverock_core pushing a boulder into a pit.",
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 41040173,
+        "datetime": "20511212121213",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "name": "V41PitKick",
+        "playmode": "debug",
+        "nethackrc": "OPTIONS=name:V41PitKick,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+        "keyCount": 51,
+        "segmentCount": 1,
+        "boundaries": [
+          null
+        ]
+      },
+      "recipe": "challenges/cases/v41/v41-boulder-push-into-pit-cfirst.recipe.session.json",
+      "recipeSha256": "319d616c033adc3ecc38d7bec7e49ce9b0a64c02387ebc8134487a044e78db2f",
+      "recording": "challenges/cases/v41/v41-boulder-push-into-pit-cfirst.session.json",
+      "recordingSha256": "2ba8ae8e20ef339fe14198ce24ec4d728e714a2cb581da4085b21cf62039efa9",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v41-boulder-fills-pit-from-hero-action",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/record-session.mjs",
+          "challenges/cases/v41/v41-boulder-push-into-pit-cfirst.recipe.session.json",
+          ".cache/prep-delivery/Prep5-v41/replays/boulder-fills-pit-from-hero-action.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/replays/boulder-fills-pit-from-hero-action.log",
+        "logSha256": "f9b0485ff11ef3b64e6ffc1564bb77222b71f7086585bb5aa2dde566201e482c",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v41/v41-boulder-push-into-pit-cfirst.session.json",
+        "output": ".cache/prep-delivery/Prep5-v41/replays/boulder-fills-pit-from-hero-action.session.json",
+        "outputSha256": "2ba8ae8e20ef339fe14198ce24ec4d728e714a2cb581da4085b21cf62039efa9",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v41-boulder-fills-pit-from-hero-action",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/diff-fresh.mjs",
+          "challenges/cases/v41/v41-boulder-push-into-pit-cfirst.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/differentials/boulder-fills-pit-from-hero-action.log",
+        "logSha256": "4c53961e8795390dd7c0cba0bfa4718752a4531f90996df5c4c3076f84b5009a",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 52,
+          "key": "\"l\"",
+          "channel": "screen",
+          "sourceBehavior": "The hero pushes a boulder into a pit through moverock_core -> flooreffects -> fill_pit; C reports that the boulder fills the pit.",
+          "owner": "nethack-c/upstream/src/hack.c:moverock_core -> nethack-c/upstream/src/do.c:flooreffects -> fill_pit",
+          "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+          "details": "The closest v38 and v40 cases concern boulder pickup, kicking, or a pet near a pit. This recording reaches the separate directional-push and pit-fill path.",
+          "rng": null,
+          "screenBoundary": 52
+        }
+      },
+      "firstMismatch": {
+        "reportedSegment": 1,
+        "reportedStep": 52,
+        "key": "\"l\"",
+        "channel": "screen",
+        "sourceBehavior": "The hero pushes a boulder into a pit through moverock_core -> flooreffects -> fill_pit; C reports that the boulder fills the pit.",
+        "owner": "nethack-c/upstream/src/hack.c:moverock_core -> nethack-c/upstream/src/do.c:flooreffects -> fill_pit",
+        "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+        "details": "The closest v38 and v40 cases concern boulder pickup, kicking, or a pet near a pit. This recording reaches the separate directional-push and pit-fill path.",
+        "rng": null,
+        "screenBoundary": 52
+      },
+      "distinctMismatch": {
+        "behavior": "The hero pushes a boulder into a pit through moverock_core -> flooreffects -> fill_pit; C reports that the boulder fills the pit.",
+        "owner": "nethack-c/upstream/src/hack.c:moverock_core -> nethack-c/upstream/src/do.c:flooreffects -> fill_pit",
+        "distinctness": "The closest v38 and v40 cases concern boulder pickup, kicking, or a pet near a pit. This recording reaches the separate directional-push and pit-fill path."
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v40 crosswalk",
+          "distinction": "v38 boulder pickup/kick interactions and v40 pet-trapped boulder/pit probes do not exercise hack.c:moverock_core pushing a boulder into a pit."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v40",
+        "caseIds": [
+          "v40-physical-knight-jump-clear-path",
+          "v40-bugle-improvisation-awakens-soldier",
+          "v40-chat-tame-dog-bark-response",
+          "v40-pet-dog-eats-dropped-ration",
+          "v40-lizard-corpse-cures-active-stoning",
+          "v40-kick-closed-locked-door",
+          "v40-earth-plane-levelport-generation",
+          "v40-air-plane-levelport-generation",
+          "v40-wand-slow-hostile-newt-zap",
+          "v40-identify-unknown-potion-scroll",
+          "v40-remove-curse-scroll-targets-inventory",
+          "v40-finger-engraves-elbereth",
+          "v40-ordinary-prayer-at-chaotic-altar",
+          "v40-coaligned-prayer-revives-tame-pet-corpse",
+          "v40-wizard-detects-sanctum-secret-door",
+          "v40-wizard-wish-assistance",
+          "v40-opening-wand-expels-swallowed-hero",
+          "v40-fire-plane-levelport-generation",
+          "v40-water-plane-levelport-generation",
+          "v40-leashed-dragon-abuse-m-unleash",
+          "v40-hostile-long-worm-head-move-updates-tail",
+          "v40-shop-floor-digdown-warning-live-shopkeeper",
+          "v40-fort-ludios-knox-wizloaddes-generation",
+          "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "v40-tower-one-direct-special-level-program",
+          "v40-pool-drowning-unleash-all-pet-state",
+          "v40-leashed-pet-unleashed-by-engulfing-worm",
+          "v40-snuffed-lit-lamp-on-engulfing-worm"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v40.json",
+          "sha256": "5bd356a637a37d0a8c9b51a6446c123ce67e101ab2f1042f5a50d5ea25fdc790"
+        },
+        "result": "Crosswalked this reached behavior against every v40 case. v38 boulder pickup/kick interactions and v40 pet-trapped boulder/pit probes do not exercise hack.c:moverock_core pushing a boulder into a pit."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "08ae55da31ec32a2d37e780be36d84163330605cfea728cbb189708dcf8b5b37",
+        "sessionCount": 3,
+        "unresolvedOlderCaseIds": [
+          "v32-version-build-options",
+          "v35-gehennom-juiblex",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared with the three unresolved older source/history entries retained by v40; no duplicate first behavior was identified."
+      }
+    },
+    {
+      "id": "v41-forced-steed-dismount-at-pool",
+      "title": "Steed drowning forces a pool dismount",
+      "mission": "Mount the wished steed, move to the C-confirmed pool edge, and trigger one source-valid forced dismount.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/steed.c:kick_steed -> nethack-c/upstream/src/trap.c:drown -> steed.c:dismount_steed(DISMOUNT_GENERIC)"
+      ],
+      "sourceTrace": "C source path: nethack-c/upstream/src/steed.c:kick_steed -> nethack-c/upstream/src/trap.c:drown -> steed.c:dismount_steed(DISMOUNT_GENERIC). C observation: C-observed southeast mount succeeds; terrain wish places a pool under the mounted pair; the kick advances C to the drowning path. The reached screen is “The saddled pony drowns. You fall into the pool of water!” with landing_spot at steed.c:543.",
+      "cOutcome": "Reached by patched C; an independent patched-C replay was byte-identical; fresh JavaScript differential: mismatch.",
+      "actualTargetMiss": null,
+      "selectionRationale": "v39 mounted-steed-knockoff reaches uhitm.c:mhitm_knockback -> DISMOUNT_KNOCKED on ordinary floor. v40 pool drowning concerns leashed-pet unleash_all state, while this state has a mounted saddled pony and reaches the steed drowning/dismount branch.",
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 41040174,
+        "datetime": "20511212121415",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "name": "V41Steed",
+        "playmode": "debug",
+        "nethackrc": "OPTIONS=name:V41Steed,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+        "keyCount": 42,
+        "segmentCount": 1,
+        "boundaries": [
+          null
+        ]
+      },
+      "recipe": "challenges/cases/v41/v41-steed-pool-dismount-reached.recipe.session.json",
+      "recipeSha256": "50e739f249342125c0b20071ebea68ee52451f6fa1d35bbbc338a4410b94ddb7",
+      "recording": "challenges/cases/v41/v41-steed-pool-dismount-reached.session.json",
+      "recordingSha256": "1300226f97b106ebc10bc7a28cc89483dbbf738c66c7ef7cbf67652e5defdeca",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v41-forced-steed-dismount-at-pool",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/record-session.mjs",
+          "challenges/cases/v41/v41-steed-pool-dismount-reached.recipe.session.json",
+          ".cache/prep-delivery/Prep5-v41/replays/forced-steed-dismount-at-pool.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/replays/forced-steed-dismount-at-pool.log",
+        "logSha256": "1907aca955e99495a8ad2ab883aa48b53f7c1d8232bab66f85c8373dc001615b",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v41/v41-steed-pool-dismount-reached.session.json",
+        "output": ".cache/prep-delivery/Prep5-v41/replays/forced-steed-dismount-at-pool.session.json",
+        "outputSha256": "1300226f97b106ebc10bc7a28cc89483dbbf738c66c7ef7cbf67652e5defdeca",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v41-forced-steed-dismount-at-pool",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/diff-fresh.mjs",
+          "challenges/cases/v41/v41-steed-pool-dismount-reached.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/differentials/forced-steed-dismount-at-pool.log",
+        "logSha256": "9f9fce9a4fa4946ae898f6f4e10565eb7f866e3458c4ae2eea9319b836ff98fd",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 42,
+          "key": "\"y\"",
+          "channel": "screen",
+          "sourceBehavior": "The mounted, saddled pony drowns at the pool after kick_steed advances a turn, then dismount_steed runs with DISMOUNT_GENERIC.",
+          "owner": "nethack-c/upstream/src/steed.c:kick_steed -> nethack-c/upstream/src/trap.c:drown -> nethack-c/upstream/src/steed.c:dismount_steed(DISMOUNT_GENERIC)",
+          "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+          "details": "v39 covers a knocked-off steed on ordinary floor. v40 pool cases cover leash release, not the mounted hero and steed drowning/dismount state.",
+          "rng": null,
+          "screenBoundary": 42
+        }
+      },
+      "firstMismatch": {
+        "reportedSegment": 1,
+        "reportedStep": 42,
+        "key": "\"y\"",
+        "channel": "screen",
+        "sourceBehavior": "The mounted, saddled pony drowns at the pool after kick_steed advances a turn, then dismount_steed runs with DISMOUNT_GENERIC.",
+        "owner": "nethack-c/upstream/src/steed.c:kick_steed -> nethack-c/upstream/src/trap.c:drown -> nethack-c/upstream/src/steed.c:dismount_steed(DISMOUNT_GENERIC)",
+        "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+        "details": "v39 covers a knocked-off steed on ordinary floor. v40 pool cases cover leash release, not the mounted hero and steed drowning/dismount state.",
+        "rng": null,
+        "screenBoundary": 42
+      },
+      "distinctMismatch": {
+        "behavior": "The mounted, saddled pony drowns at the pool after kick_steed advances a turn, then dismount_steed runs with DISMOUNT_GENERIC.",
+        "owner": "nethack-c/upstream/src/steed.c:kick_steed -> nethack-c/upstream/src/trap.c:drown -> nethack-c/upstream/src/steed.c:dismount_steed(DISMOUNT_GENERIC)",
+        "distinctness": "v39 covers a knocked-off steed on ordinary floor. v40 pool cases cover leash release, not the mounted hero and steed drowning/dismount state."
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v40 crosswalk",
+          "distinction": "v39 mounted-steed-knockoff reaches uhitm.c:mhitm_knockback -> DISMOUNT_KNOCKED on ordinary floor. v40 pool drowning concerns leashed-pet unleash_all state, while this state has a mounted saddled pony and reaches the steed drowning/dismount branch."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v40",
+        "caseIds": [
+          "v40-physical-knight-jump-clear-path",
+          "v40-bugle-improvisation-awakens-soldier",
+          "v40-chat-tame-dog-bark-response",
+          "v40-pet-dog-eats-dropped-ration",
+          "v40-lizard-corpse-cures-active-stoning",
+          "v40-kick-closed-locked-door",
+          "v40-earth-plane-levelport-generation",
+          "v40-air-plane-levelport-generation",
+          "v40-wand-slow-hostile-newt-zap",
+          "v40-identify-unknown-potion-scroll",
+          "v40-remove-curse-scroll-targets-inventory",
+          "v40-finger-engraves-elbereth",
+          "v40-ordinary-prayer-at-chaotic-altar",
+          "v40-coaligned-prayer-revives-tame-pet-corpse",
+          "v40-wizard-detects-sanctum-secret-door",
+          "v40-wizard-wish-assistance",
+          "v40-opening-wand-expels-swallowed-hero",
+          "v40-fire-plane-levelport-generation",
+          "v40-water-plane-levelport-generation",
+          "v40-leashed-dragon-abuse-m-unleash",
+          "v40-hostile-long-worm-head-move-updates-tail",
+          "v40-shop-floor-digdown-warning-live-shopkeeper",
+          "v40-fort-ludios-knox-wizloaddes-generation",
+          "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "v40-tower-one-direct-special-level-program",
+          "v40-pool-drowning-unleash-all-pet-state",
+          "v40-leashed-pet-unleashed-by-engulfing-worm",
+          "v40-snuffed-lit-lamp-on-engulfing-worm"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v40.json",
+          "sha256": "5bd356a637a37d0a8c9b51a6446c123ce67e101ab2f1042f5a50d5ea25fdc790"
+        },
+        "result": "Crosswalked this reached behavior against every v40 case. v39 mounted-steed-knockoff reaches uhitm.c:mhitm_knockback -> DISMOUNT_KNOCKED on ordinary floor. v40 pool drowning concerns leashed-pet unleash_all state, while this state has a mounted saddled pony and reaches the steed drowning/dismount branch."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "08ae55da31ec32a2d37e780be36d84163330605cfea728cbb189708dcf8b5b37",
+        "sessionCount": 3,
+        "unresolvedOlderCaseIds": [
+          "v32-version-build-options",
+          "v35-gehennom-juiblex",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared with the three unresolved older source/history entries retained by v40; no duplicate first behavior was identified."
+      }
+    },
+    {
+      "id": "v41-incubus-seduction-removes-worn-armor",
+      "title": "Incubus seduction removes worn armor",
+      "mission": "Create the seducer adjacent to the hero, then allow its seduction attack while keeping the hero in place.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/mhitu.c:doseduce -> nethack-c/upstream/src/mhitu.c:mayberem"
+      ],
+      "sourceTrace": "C source path: nethack-c/upstream/src/mhitu.c:doseduce -> nethack-c/upstream/src/mhitu.c:mayberem. C observation: C enters doseduce, emits the attraction and undressing messages, and may remove a specific worn item through mayberem with its item state and follow-up messages.",
+      "cOutcome": "Reached by patched C; an independent patched-C replay was byte-identical; fresh JavaScript differential: mismatch.",
+      "actualTargetMiss": null,
+      "selectionRationale": "The old nymph theft cases use steal.c item removal; v17 succubus cases cover ordinary melee hits. This candidate reaches the incubus/succubus armor-removal caller.",
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 41040131,
+        "datetime": "20510213141517",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "name": "V41Incubus",
+        "playmode": "debug",
+        "nethackrc": "OPTIONS=name:V41Incubus,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+        "keyCount": 45,
+        "segmentCount": 1,
+        "boundaries": [
+          null
+        ]
+      },
+      "recipe": "challenges/cases/v41/v41-incubus-mayberem-pager-corrected.recipe.session.json",
+      "recipeSha256": "22cc5ba7776b87e776653784885669a25e4132ef229a2fc74ef2f470c14546b9",
+      "recording": "challenges/cases/v41/v41-incubus-mayberem-pager-corrected.session.json",
+      "recordingSha256": "eeff21fe87bec9c6dd84419df9e734f5a7bf35f57cb71c5098f124c85e26163d",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v41-incubus-seduction-removes-worn-armor",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/record-session.mjs",
+          "challenges/cases/v41/v41-incubus-mayberem-pager-corrected.recipe.session.json",
+          ".cache/prep-delivery/Prep5-v41/replays/incubus-seduction-removes-worn-armor.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/replays/incubus-seduction-removes-worn-armor.log",
+        "logSha256": "7e36527ca489265e9e204edc53a2f828112496f7fbb02aa5470a464ebda67f6f",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v41/v41-incubus-mayberem-pager-corrected.session.json",
+        "output": ".cache/prep-delivery/Prep5-v41/replays/incubus-seduction-removes-worn-armor.session.json",
+        "outputSha256": "eeff21fe87bec9c6dd84419df9e734f5a7bf35f57cb71c5098f124c85e26163d",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v41-incubus-seduction-removes-worn-armor",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/diff-fresh.mjs",
+          "challenges/cases/v41/v41-incubus-mayberem-pager-corrected.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/differentials/incubus-seduction-removes-worn-armor.log",
+        "logSha256": "965e95ad0280cc8a23382c6c0c4533102f835b9b91b14bf65acfc29c78e80169",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 43,
+          "key": "\" \"",
+          "channel": "screen",
+          "sourceBehavior": "The incubus seduction path reaches doseduce -> mayberem and removes worn armor.",
+          "owner": "nethack-c/upstream/src/mhitu.c:doseduce -> mayberem",
+          "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+          "details": "Prior nymph cases use steal.c item removal; admitted succubus cases cover ordinary melee hits. This case reaches the seduction armor-removal caller.",
+          "rng": null,
+          "screenBoundary": 43
+        }
+      },
+      "firstMismatch": {
+        "reportedSegment": 1,
+        "reportedStep": 43,
+        "key": "\" \"",
+        "channel": "screen",
+        "sourceBehavior": "The incubus seduction path reaches doseduce -> mayberem and removes worn armor.",
+        "owner": "nethack-c/upstream/src/mhitu.c:doseduce -> mayberem",
+        "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+        "details": "Prior nymph cases use steal.c item removal; admitted succubus cases cover ordinary melee hits. This case reaches the seduction armor-removal caller.",
+        "rng": null,
+        "screenBoundary": 43
+      },
+      "distinctMismatch": {
+        "behavior": "The incubus seduction path reaches doseduce -> mayberem and removes worn armor.",
+        "owner": "nethack-c/upstream/src/mhitu.c:doseduce -> mayberem",
+        "distinctness": "Prior nymph cases use steal.c item removal; admitted succubus cases cover ordinary melee hits. This case reaches the seduction armor-removal caller."
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v40 crosswalk",
+          "distinction": "The old nymph theft cases use steal.c item removal; v17 succubus cases cover ordinary melee hits. This candidate reaches the incubus/succubus armor-removal caller."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v40",
+        "caseIds": [
+          "v40-physical-knight-jump-clear-path",
+          "v40-bugle-improvisation-awakens-soldier",
+          "v40-chat-tame-dog-bark-response",
+          "v40-pet-dog-eats-dropped-ration",
+          "v40-lizard-corpse-cures-active-stoning",
+          "v40-kick-closed-locked-door",
+          "v40-earth-plane-levelport-generation",
+          "v40-air-plane-levelport-generation",
+          "v40-wand-slow-hostile-newt-zap",
+          "v40-identify-unknown-potion-scroll",
+          "v40-remove-curse-scroll-targets-inventory",
+          "v40-finger-engraves-elbereth",
+          "v40-ordinary-prayer-at-chaotic-altar",
+          "v40-coaligned-prayer-revives-tame-pet-corpse",
+          "v40-wizard-detects-sanctum-secret-door",
+          "v40-wizard-wish-assistance",
+          "v40-opening-wand-expels-swallowed-hero",
+          "v40-fire-plane-levelport-generation",
+          "v40-water-plane-levelport-generation",
+          "v40-leashed-dragon-abuse-m-unleash",
+          "v40-hostile-long-worm-head-move-updates-tail",
+          "v40-shop-floor-digdown-warning-live-shopkeeper",
+          "v40-fort-ludios-knox-wizloaddes-generation",
+          "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "v40-tower-one-direct-special-level-program",
+          "v40-pool-drowning-unleash-all-pet-state",
+          "v40-leashed-pet-unleashed-by-engulfing-worm",
+          "v40-snuffed-lit-lamp-on-engulfing-worm"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v40.json",
+          "sha256": "5bd356a637a37d0a8c9b51a6446c123ce67e101ab2f1042f5a50d5ea25fdc790"
+        },
+        "result": "Crosswalked this reached behavior against every v40 case. The old nymph theft cases use steal.c item removal; v17 succubus cases cover ordinary melee hits. This candidate reaches the incubus/succubus armor-removal caller."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "08ae55da31ec32a2d37e780be36d84163330605cfea728cbb189708dcf8b5b37",
+        "sessionCount": 3,
+        "unresolvedOlderCaseIds": [
+          "v32-version-build-options",
+          "v35-gehennom-juiblex",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared with the three unresolved older source/history entries retained by v40; no duplicate first behavior was identified."
+      }
+    },
+    {
+      "id": "v41-leashed-pet-quickmimic-from-mimic-corpse",
+      "title": "Leashed pet reacts to a mimic corpse",
+      "mission": "Wish or obtain a small-mimic corpse, place it on a clear adjacent square, move away from the leash tile, and let the pet finish eating it.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/mon.c:m_consume_obj -> nethack-c/upstream/src/dogmove.c:quickmimic"
+      ],
+      "sourceTrace": "C source path: nethack-c/upstream/src/mon.c:m_consume_obj -> nethack-c/upstream/src/dogmove.c:quickmimic. C observation: C consumes the mimic corpse, selects a quick-mimic appearance, changes the pet's glyph or description, and may slacken the leash when that appearance is not leashable.",
+      "cOutcome": "Reached by patched C; an independent patched-C replay was byte-identical; fresh JavaScript differential: mismatch.",
+      "actualTargetMiss": null,
+      "selectionRationale": "v40-pet-dog-eats-dropped-ration reaches dog_eat but consumes ordinary ration food without the deadmimic condition that calls quickmimic; v40 leash cases change leash state through abuse or drowning instead.",
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 41040127,
+        "datetime": "20510112131416",
+        "role": "Barbarian",
+        "race": "human",
+        "gender": "female",
+        "name": "V41LittleDog",
+        "playmode": "debug",
+        "nethackrc": "OPTIONS=name:V41LittleDog,role:Barbarian,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+        "keyCount": 34,
+        "segmentCount": 1,
+        "boundaries": [
+          null
+        ]
+      },
+      "recipe": "challenges/cases/v41/v41-leashed-little-dog-quickmimic-corpse-cfirst.recipe.session.json",
+      "recipeSha256": "fc05886c9556777fc3822734112734ab16eb4a46dbd1098a55b73d40ee3aadb8",
+      "recording": "challenges/cases/v41/v41-leashed-little-dog-quickmimic-corpse-cfirst.session.json",
+      "recordingSha256": "93376458001337d2cbdf1adfdddd42039d3955f6c614aae5939d0811a841cd69",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v41-leashed-pet-quickmimic-from-mimic-corpse",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/record-session.mjs",
+          "challenges/cases/v41/v41-leashed-little-dog-quickmimic-corpse-cfirst.recipe.session.json",
+          ".cache/prep-delivery/Prep5-v41/replays/leashed-pet-quickmimic-from-mimic-corpse.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/replays/leashed-pet-quickmimic-from-mimic-corpse.log",
+        "logSha256": "ebefa5804f361271949acaa178eb0f30f7172bbd6e44d93593767bf4fc266006",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v41/v41-leashed-little-dog-quickmimic-corpse-cfirst.session.json",
+        "output": ".cache/prep-delivery/Prep5-v41/replays/leashed-pet-quickmimic-from-mimic-corpse.session.json",
+        "outputSha256": "93376458001337d2cbdf1adfdddd42039d3955f6c614aae5939d0811a841cd69",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v41-leashed-pet-quickmimic-from-mimic-corpse",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/diff-fresh.mjs",
+          "challenges/cases/v41/v41-leashed-little-dog-quickmimic-corpse-cfirst.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/differentials/leashed-pet-quickmimic-from-mimic-corpse.log",
+        "logSha256": "175dd1f3106892002c15c5019d1e4ed13781bcc580a833e7d69474ad92564a28",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 35,
+          "key": "\"l\"",
+          "channel": "screen",
+          "sourceBehavior": "A leashed starting dog consumes a small-mimic corpse, reaches quickmimic, and reports leash slack.",
+          "owner": "nethack-c/upstream/src/mon.c:m_consume_obj -> nethack-c/upstream/src/dogmove.c:quickmimic",
+          "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+          "details": "v40 pet-food cases consume ordinary ration food, while its leash cases change leash state through abuse or drowning. This case combines deadmimic consumption with an attached leash and reaches quickmimic.",
+          "rng": null,
+          "screenBoundary": 35
+        }
+      },
+      "firstMismatch": {
+        "reportedSegment": 1,
+        "reportedStep": 35,
+        "key": "\"l\"",
+        "channel": "screen",
+        "sourceBehavior": "A leashed starting dog consumes a small-mimic corpse, reaches quickmimic, and reports leash slack.",
+        "owner": "nethack-c/upstream/src/mon.c:m_consume_obj -> nethack-c/upstream/src/dogmove.c:quickmimic",
+        "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+        "details": "v40 pet-food cases consume ordinary ration food, while its leash cases change leash state through abuse or drowning. This case combines deadmimic consumption with an attached leash and reaches quickmimic.",
+        "rng": null,
+        "screenBoundary": 35
+      },
+      "distinctMismatch": {
+        "behavior": "A leashed starting dog consumes a small-mimic corpse, reaches quickmimic, and reports leash slack.",
+        "owner": "nethack-c/upstream/src/mon.c:m_consume_obj -> nethack-c/upstream/src/dogmove.c:quickmimic",
+        "distinctness": "v40 pet-food cases consume ordinary ration food, while its leash cases change leash state through abuse or drowning. This case combines deadmimic consumption with an attached leash and reaches quickmimic."
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v40 crosswalk",
+          "distinction": "v40-pet-dog-eats-dropped-ration reaches dog_eat but consumes ordinary ration food without the deadmimic condition that calls quickmimic; v40 leash cases change leash state through abuse or drowning instead."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v40",
+        "caseIds": [
+          "v40-physical-knight-jump-clear-path",
+          "v40-bugle-improvisation-awakens-soldier",
+          "v40-chat-tame-dog-bark-response",
+          "v40-pet-dog-eats-dropped-ration",
+          "v40-lizard-corpse-cures-active-stoning",
+          "v40-kick-closed-locked-door",
+          "v40-earth-plane-levelport-generation",
+          "v40-air-plane-levelport-generation",
+          "v40-wand-slow-hostile-newt-zap",
+          "v40-identify-unknown-potion-scroll",
+          "v40-remove-curse-scroll-targets-inventory",
+          "v40-finger-engraves-elbereth",
+          "v40-ordinary-prayer-at-chaotic-altar",
+          "v40-coaligned-prayer-revives-tame-pet-corpse",
+          "v40-wizard-detects-sanctum-secret-door",
+          "v40-wizard-wish-assistance",
+          "v40-opening-wand-expels-swallowed-hero",
+          "v40-fire-plane-levelport-generation",
+          "v40-water-plane-levelport-generation",
+          "v40-leashed-dragon-abuse-m-unleash",
+          "v40-hostile-long-worm-head-move-updates-tail",
+          "v40-shop-floor-digdown-warning-live-shopkeeper",
+          "v40-fort-ludios-knox-wizloaddes-generation",
+          "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "v40-tower-one-direct-special-level-program",
+          "v40-pool-drowning-unleash-all-pet-state",
+          "v40-leashed-pet-unleashed-by-engulfing-worm",
+          "v40-snuffed-lit-lamp-on-engulfing-worm"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v40.json",
+          "sha256": "5bd356a637a37d0a8c9b51a6446c123ce67e101ab2f1042f5a50d5ea25fdc790"
+        },
+        "result": "Crosswalked this reached behavior against every v40 case. v40-pet-dog-eats-dropped-ration reaches dog_eat but consumes ordinary ration food without the deadmimic condition that calls quickmimic; v40 leash cases change leash state through abuse or drowning instead."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "08ae55da31ec32a2d37e780be36d84163330605cfea728cbb189708dcf8b5b37",
+        "sessionCount": 3,
+        "unresolvedOlderCaseIds": [
+          "v32-version-build-options",
+          "v35-gehennom-juiblex",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared with the three unresolved older source/history entries retained by v40; no duplicate first behavior was identified."
+      }
+    },
+    {
+      "id": "v41-minetown3-special-program-generation",
+      "title": "Load the Minetown-3 special-level program",
+      "mission": "Dismiss the startup pager, invoke #wizloaddes, select minetn-3.lua, and map the generated level.",
+      "sourcePointers": [
+        "nethack-c/upstream/dat/minetn-3.lua top-level level generation via wiz_load_splua/load_special"
+      ],
+      "sourceTrace": "C source path: nethack-c/upstream/dat/minetn-3.lua top-level level generation via wiz_load_splua/load_special. C observation: C loads and finalizes the minetn-3.lua alley-town program and displays its generated map with its fixed room layout.",
+      "cOutcome": "Reached by patched C; an independent patched-C replay was byte-identical; fresh JavaScript differential: mismatch.",
+      "actualTargetMiss": null,
+      "selectionRationale": "No v38-v40 recipe loads this program; v40 Knox and tower1 plus v41 tower2/tower3 execute separately sourced levels with different maps and room contracts.",
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 41040158,
+        "datetime": "20520105152637",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "name": "V41ShopMinetownThree",
+        "playmode": "debug",
+        "nethackrc": "OPTIONS=name:V41ShopMinetownThree,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+        "keyCount": 35,
+        "segmentCount": 1,
+        "boundaries": [
+          null
+        ]
+      },
+      "recipe": "challenges/cases/v41/v41-shop-sellobj-minetown3-map.recipe.session.json",
+      "recipeSha256": "14f60545712d9fb5c88f9fc7cbd504758ed9ab4ef0b9a66ee212062d1fc346ca",
+      "recording": "challenges/cases/v41/v41-shop-sellobj-minetown3-map.session.json",
+      "recordingSha256": "dc249560ba2c73c04834f24418965d8d18b1318af88353ec54a50ecbec35e846",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v41-minetown3-special-program-generation",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/record-session.mjs",
+          "challenges/cases/v41/v41-shop-sellobj-minetown3-map.recipe.session.json",
+          ".cache/prep-delivery/Prep5-v41/replays/minetown3-special-program-generation.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/replays/minetown3-special-program-generation.log",
+        "logSha256": "51f2dd1c12a1e8e51742d1d05d86169106635aaf2afd09eb5a8ad2b21a2e04dd",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v41/v41-shop-sellobj-minetown3-map.session.json",
+        "output": ".cache/prep-delivery/Prep5-v41/replays/minetown3-special-program-generation.session.json",
+        "outputSha256": "dc249560ba2c73c04834f24418965d8d18b1318af88353ec54a50ecbec35e846",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v41-minetown3-special-program-generation",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/diff-fresh.mjs",
+          "challenges/cases/v41/v41-shop-sellobj-minetown3-map.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/differentials/minetown3-special-program-generation.log",
+        "logSha256": "871b4045aefb8a1a058946d626031918e117d5130b0852ff9a8f09140697114a",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 27,
+          "key": "\"\\n\"",
+          "channel": "screen",
+          "sourceBehavior": "The direct wizloaddes selection reaches the top-level dat/minetn-3.lua generation program; JavaScript has no loader entry for this source unit.",
+          "owner": "nethack-c/upstream/dat/minetn-3.lua top-level generation via wiz_load_splua/load_special",
+          "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+          "details": "This is a separate Lua source program and alley-town topology from the v40 Knox, tower1, Earth, and Water programs. The first JS difference is the missing program path before the next_ident(mkobj.c:521) draw.",
+          "rng": null,
+          "screenBoundary": 27
+        }
+      },
+      "firstMismatch": {
+        "reportedSegment": 1,
+        "reportedStep": 27,
+        "key": "\"\\n\"",
+        "channel": "screen",
+        "sourceBehavior": "The direct wizloaddes selection reaches the top-level dat/minetn-3.lua generation program; JavaScript has no loader entry for this source unit.",
+        "owner": "nethack-c/upstream/dat/minetn-3.lua top-level generation via wiz_load_splua/load_special",
+        "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+        "details": "This is a separate Lua source program and alley-town topology from the v40 Knox, tower1, Earth, and Water programs. The first JS difference is the missing program path before the next_ident(mkobj.c:521) draw.",
+        "rng": null,
+        "screenBoundary": 27
+      },
+      "distinctMismatch": {
+        "behavior": "The direct wizloaddes selection reaches the top-level dat/minetn-3.lua generation program; JavaScript has no loader entry for this source unit.",
+        "owner": "nethack-c/upstream/dat/minetn-3.lua top-level generation via wiz_load_splua/load_special",
+        "distinctness": "This is a separate Lua source program and alley-town topology from the v40 Knox, tower1, Earth, and Water programs. The first JS difference is the missing program path before the next_ident(mkobj.c:521) draw."
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v40 crosswalk",
+          "distinction": "No v38-v40 recipe loads this program; v40 Knox and tower1 plus v41 tower2/tower3 execute separately sourced levels with different maps and room contracts."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v40",
+        "caseIds": [
+          "v40-physical-knight-jump-clear-path",
+          "v40-bugle-improvisation-awakens-soldier",
+          "v40-chat-tame-dog-bark-response",
+          "v40-pet-dog-eats-dropped-ration",
+          "v40-lizard-corpse-cures-active-stoning",
+          "v40-kick-closed-locked-door",
+          "v40-earth-plane-levelport-generation",
+          "v40-air-plane-levelport-generation",
+          "v40-wand-slow-hostile-newt-zap",
+          "v40-identify-unknown-potion-scroll",
+          "v40-remove-curse-scroll-targets-inventory",
+          "v40-finger-engraves-elbereth",
+          "v40-ordinary-prayer-at-chaotic-altar",
+          "v40-coaligned-prayer-revives-tame-pet-corpse",
+          "v40-wizard-detects-sanctum-secret-door",
+          "v40-wizard-wish-assistance",
+          "v40-opening-wand-expels-swallowed-hero",
+          "v40-fire-plane-levelport-generation",
+          "v40-water-plane-levelport-generation",
+          "v40-leashed-dragon-abuse-m-unleash",
+          "v40-hostile-long-worm-head-move-updates-tail",
+          "v40-shop-floor-digdown-warning-live-shopkeeper",
+          "v40-fort-ludios-knox-wizloaddes-generation",
+          "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "v40-tower-one-direct-special-level-program",
+          "v40-pool-drowning-unleash-all-pet-state",
+          "v40-leashed-pet-unleashed-by-engulfing-worm",
+          "v40-snuffed-lit-lamp-on-engulfing-worm"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v40.json",
+          "sha256": "5bd356a637a37d0a8c9b51a6446c123ce67e101ab2f1042f5a50d5ea25fdc790"
+        },
+        "result": "Crosswalked this reached behavior against every v40 case. No v38-v40 recipe loads this program; v40 Knox and tower1 plus v41 tower2/tower3 execute separately sourced levels with different maps and room contracts."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "08ae55da31ec32a2d37e780be36d84163330605cfea728cbb189708dcf8b5b37",
+        "sessionCount": 3,
+        "unresolvedOlderCaseIds": [
+          "v32-version-build-options",
+          "v35-gehennom-juiblex",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared with the three unresolved older source/history entries retained by v40; no duplicate first behavior was identified."
+      }
+    },
+    {
+      "id": "v41-polymorphed-hider-under-remaining-floor-object",
+      "title": "Hero hider stays under a remaining floor object",
+      "mission": "Create a small stack of eligible floor objects, move onto it while in a hider form, and pick up only part of the stack.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/pickup.c:pickup_object -> nethack-c/upstream/src/mon.c:hideunder hero branch"
+      ],
+      "sourceTrace": "C source path: nethack-c/upstream/src/pickup.c:pickup_object -> nethack-c/upstream/src/mon.c:hideunder hero branch. C observation: C picks only the apple stack while the cloak remains beneath the cave-spider hero; the post-pickup hero glyph changes to the cloak concealment glyph.",
+      "cOutcome": "Reached by patched C; an independent patched-C replay was byte-identical; fresh JavaScript differential: mismatch.",
+      "actualTargetMiss": null,
+      "selectionRationale": "v40 object and floor-item cases do not use a hero hider form or leave an object under the hero; monster concealment is a separate hideunder caller.",
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 41040166,
+        "datetime": "20511010101014",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "name": "V41HidePick",
+        "playmode": "debug",
+        "nethackrc": "OPTIONS=name:V41HidePick,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+        "keyCount": 59,
+        "segmentCount": 1,
+        "boundaries": [
+          null
+        ]
+      },
+      "recipe": "challenges/cases/v41/v41-hideunder-remaining-cloak-pickup-cfirst.recipe.session.json",
+      "recipeSha256": "78e87a23c760a7be3a880737fe5f1b557f2bd7e5ad37ed6b19e8c84c239871cb",
+      "recording": "challenges/cases/v41/v41-hideunder-remaining-cloak-pickup-cfirst.session.json",
+      "recordingSha256": "ce4f14368b0a3fb3090960d66c766a851af9ce10c9066f93660aaf3d31a664fe",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v41-polymorphed-hider-under-remaining-floor-object",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/record-session.mjs",
+          "challenges/cases/v41/v41-hideunder-remaining-cloak-pickup-cfirst.recipe.session.json",
+          ".cache/prep-delivery/Prep5-v41/replays/polymorphed-hider-under-remaining-floor-object.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/replays/polymorphed-hider-under-remaining-floor-object.log",
+        "logSha256": "d49dcd1df73a3ed4e4ff93d357c8c10735fac16ec543839f5a26a1c59878c87f",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v41/v41-hideunder-remaining-cloak-pickup-cfirst.session.json",
+        "output": ".cache/prep-delivery/Prep5-v41/replays/polymorphed-hider-under-remaining-floor-object.session.json",
+        "outputSha256": "ce4f14368b0a3fb3090960d66c766a851af9ce10c9066f93660aaf3d31a664fe",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v41-polymorphed-hider-under-remaining-floor-object",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/diff-fresh.mjs",
+          "challenges/cases/v41/v41-hideunder-remaining-cloak-pickup-cfirst.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/differentials/polymorphed-hider-under-remaining-floor-object.log",
+        "logSha256": "d45e7dcf5c507f1da5da7f892a56d38295b791e46810fd20725fb3ac77a8b18c",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 60,
+          "key": "\"\\n\"",
+          "channel": "screen",
+          "sourceBehavior": "After partial pickup leaves the cloak beneath the polymorphed cave spider hero, C executes the hero hideunder branch on the next monster move.",
+          "owner": "nethack-c/upstream/src/pickup.c:pickup_object -> nethack-c/upstream/src/mon.c:hideunder hero branch -> nethack-c/upstream/src/monmove.c:m_move",
+          "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+          "details": "Earlier floor-object and concealment cases do not combine the polymorphed hero form with a remaining object under the hero. C confirms the hidden glyph after the move.",
+          "rng": null,
+          "screenBoundary": 60
+        }
+      },
+      "firstMismatch": {
+        "reportedSegment": 1,
+        "reportedStep": 60,
+        "key": "\"\\n\"",
+        "channel": "screen",
+        "sourceBehavior": "After partial pickup leaves the cloak beneath the polymorphed cave spider hero, C executes the hero hideunder branch on the next monster move.",
+        "owner": "nethack-c/upstream/src/pickup.c:pickup_object -> nethack-c/upstream/src/mon.c:hideunder hero branch -> nethack-c/upstream/src/monmove.c:m_move",
+        "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+        "details": "Earlier floor-object and concealment cases do not combine the polymorphed hero form with a remaining object under the hero. C confirms the hidden glyph after the move.",
+        "rng": null,
+        "screenBoundary": 60
+      },
+      "distinctMismatch": {
+        "behavior": "After partial pickup leaves the cloak beneath the polymorphed cave spider hero, C executes the hero hideunder branch on the next monster move.",
+        "owner": "nethack-c/upstream/src/pickup.c:pickup_object -> nethack-c/upstream/src/mon.c:hideunder hero branch -> nethack-c/upstream/src/monmove.c:m_move",
+        "distinctness": "Earlier floor-object and concealment cases do not combine the polymorphed hero form with a remaining object under the hero. C confirms the hidden glyph after the move."
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v40 crosswalk",
+          "distinction": "v40 object and floor-item cases do not use a hero hider form or leave an object under the hero; monster concealment is a separate hideunder caller."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v40",
+        "caseIds": [
+          "v40-physical-knight-jump-clear-path",
+          "v40-bugle-improvisation-awakens-soldier",
+          "v40-chat-tame-dog-bark-response",
+          "v40-pet-dog-eats-dropped-ration",
+          "v40-lizard-corpse-cures-active-stoning",
+          "v40-kick-closed-locked-door",
+          "v40-earth-plane-levelport-generation",
+          "v40-air-plane-levelport-generation",
+          "v40-wand-slow-hostile-newt-zap",
+          "v40-identify-unknown-potion-scroll",
+          "v40-remove-curse-scroll-targets-inventory",
+          "v40-finger-engraves-elbereth",
+          "v40-ordinary-prayer-at-chaotic-altar",
+          "v40-coaligned-prayer-revives-tame-pet-corpse",
+          "v40-wizard-detects-sanctum-secret-door",
+          "v40-wizard-wish-assistance",
+          "v40-opening-wand-expels-swallowed-hero",
+          "v40-fire-plane-levelport-generation",
+          "v40-water-plane-levelport-generation",
+          "v40-leashed-dragon-abuse-m-unleash",
+          "v40-hostile-long-worm-head-move-updates-tail",
+          "v40-shop-floor-digdown-warning-live-shopkeeper",
+          "v40-fort-ludios-knox-wizloaddes-generation",
+          "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "v40-tower-one-direct-special-level-program",
+          "v40-pool-drowning-unleash-all-pet-state",
+          "v40-leashed-pet-unleashed-by-engulfing-worm",
+          "v40-snuffed-lit-lamp-on-engulfing-worm"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v40.json",
+          "sha256": "5bd356a637a37d0a8c9b51a6446c123ce67e101ab2f1042f5a50d5ea25fdc790"
+        },
+        "result": "Crosswalked this reached behavior against every v40 case. v40 object and floor-item cases do not use a hero hider form or leave an object under the hero; monster concealment is a separate hideunder caller."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "08ae55da31ec32a2d37e780be36d84163330605cfea728cbb189708dcf8b5b37",
+        "sessionCount": 3,
+        "unresolvedOlderCaseIds": [
+          "v32-version-build-options",
+          "v35-gehennom-juiblex",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared with the three unresolved older source/history entries retained by v40; no duplicate first behavior was identified."
+      }
+    },
+    {
+      "id": "v41-ring-of-invisibility-removed",
+      "title": "Remove a ring of invisibility",
+      "mission": "Wish and wear an uncursed ring of invisibility, confirm the hero becomes invisible, then take off that ring.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/do_wear.c:Ring_off RIN_INVISIBILITY branch"
+      ],
+      "sourceTrace": "C source path: nethack-c/upstream/src/do_wear.c:Ring_off RIN_INVISIBILITY branch. C observation: C clears the ring extrinsic, redraws the hero, and records the source message or glyph change caused by losing invisibility.",
+      "cOutcome": "Reached by patched C; an independent patched-C replay was byte-identical; fresh JavaScript differential: mismatch.",
+      "actualTargetMiss": null,
+      "selectionRationale": "v39-lava-after-ring-removal removes levitation from Ring_off and enters float_down; this candidate removes invisibility through the separate Ring_off property and visibility branch.",
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 41040119,
+        "datetime": "20491012131416",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "name": "V41InvisRing",
+        "playmode": "debug",
+        "nethackrc": "OPTIONS=name:V41InvisRing,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+        "keyCount": 38,
+        "segmentCount": 1,
+        "boundaries": [
+          null
+        ]
+      },
+      "recipe": "challenges/cases/v41/v41-ring-invisibility-removal-reached.recipe.session.json",
+      "recipeSha256": "109e6a98ab4ff39f11901c782d364070e23c0b7c13ca2d93069dbaafa4176dcc",
+      "recording": "challenges/cases/v41/v41-ring-invisibility-removal-reached.session.json",
+      "recordingSha256": "54728a7f830ba59d5e63b95d301511ab03511ffbebd49a99ebdf75a04f56d7ae",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v41-ring-of-invisibility-removed",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/record-session.mjs",
+          "challenges/cases/v41/v41-ring-invisibility-removal-reached.recipe.session.json",
+          ".cache/prep-delivery/Prep5-v41/replays/ring-of-invisibility-removed.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/replays/ring-of-invisibility-removed.log",
+        "logSha256": "d0333ea77ad8e9bc747ddf0dc59804ab67b6998d1e53eadb85db701aac2bb020",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v41/v41-ring-invisibility-removal-reached.session.json",
+        "output": ".cache/prep-delivery/Prep5-v41/replays/ring-of-invisibility-removed.session.json",
+        "outputSha256": "54728a7f830ba59d5e63b95d301511ab03511ffbebd49a99ebdf75a04f56d7ae",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v41-ring-of-invisibility-removed",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/diff-fresh.mjs",
+          "challenges/cases/v41/v41-ring-invisibility-removal-reached.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/differentials/ring-of-invisibility-removed.log",
+        "logSha256": "e3e018327676a1db45ac2f4da460afa17c5e3dc95c82ebda431dd7672f3d9994",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 38,
+          "key": "\"R\"",
+          "channel": "screen",
+          "sourceBehavior": "Ring_off removes the active invisibility source and updates the visible hero state and screen.",
+          "owner": "nethack-c/upstream/src/do_wear.c:Ring_off RIN_INVISIBILITY branch",
+          "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+          "details": "v39 ring removal concerns levitation and the float_down caller; this case removes invisibility through a separate property and visibility branch. PRNG values match, but the first screen differs at the removal action.",
+          "rng": null,
+          "screenBoundary": 38
+        }
+      },
+      "firstMismatch": {
+        "reportedSegment": 1,
+        "reportedStep": 38,
+        "key": "\"R\"",
+        "channel": "screen",
+        "sourceBehavior": "Ring_off removes the active invisibility source and updates the visible hero state and screen.",
+        "owner": "nethack-c/upstream/src/do_wear.c:Ring_off RIN_INVISIBILITY branch",
+        "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+        "details": "v39 ring removal concerns levitation and the float_down caller; this case removes invisibility through a separate property and visibility branch. PRNG values match, but the first screen differs at the removal action.",
+        "rng": null,
+        "screenBoundary": 38
+      },
+      "distinctMismatch": {
+        "behavior": "Ring_off removes the active invisibility source and updates the visible hero state and screen.",
+        "owner": "nethack-c/upstream/src/do_wear.c:Ring_off RIN_INVISIBILITY branch",
+        "distinctness": "v39 ring removal concerns levitation and the float_down caller; this case removes invisibility through a separate property and visibility branch. PRNG values match, but the first screen differs at the removal action."
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v40 crosswalk",
+          "distinction": "v39-lava-after-ring-removal removes levitation from Ring_off and enters float_down; this candidate removes invisibility through the separate Ring_off property and visibility branch."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v40",
+        "caseIds": [
+          "v40-physical-knight-jump-clear-path",
+          "v40-bugle-improvisation-awakens-soldier",
+          "v40-chat-tame-dog-bark-response",
+          "v40-pet-dog-eats-dropped-ration",
+          "v40-lizard-corpse-cures-active-stoning",
+          "v40-kick-closed-locked-door",
+          "v40-earth-plane-levelport-generation",
+          "v40-air-plane-levelport-generation",
+          "v40-wand-slow-hostile-newt-zap",
+          "v40-identify-unknown-potion-scroll",
+          "v40-remove-curse-scroll-targets-inventory",
+          "v40-finger-engraves-elbereth",
+          "v40-ordinary-prayer-at-chaotic-altar",
+          "v40-coaligned-prayer-revives-tame-pet-corpse",
+          "v40-wizard-detects-sanctum-secret-door",
+          "v40-wizard-wish-assistance",
+          "v40-opening-wand-expels-swallowed-hero",
+          "v40-fire-plane-levelport-generation",
+          "v40-water-plane-levelport-generation",
+          "v40-leashed-dragon-abuse-m-unleash",
+          "v40-hostile-long-worm-head-move-updates-tail",
+          "v40-shop-floor-digdown-warning-live-shopkeeper",
+          "v40-fort-ludios-knox-wizloaddes-generation",
+          "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "v40-tower-one-direct-special-level-program",
+          "v40-pool-drowning-unleash-all-pet-state",
+          "v40-leashed-pet-unleashed-by-engulfing-worm",
+          "v40-snuffed-lit-lamp-on-engulfing-worm"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v40.json",
+          "sha256": "5bd356a637a37d0a8c9b51a6446c123ce67e101ab2f1042f5a50d5ea25fdc790"
+        },
+        "result": "Crosswalked this reached behavior against every v40 case. v39-lava-after-ring-removal removes levitation from Ring_off and enters float_down; this candidate removes invisibility through the separate Ring_off property and visibility branch."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "08ae55da31ec32a2d37e780be36d84163330605cfea728cbb189708dcf8b5b37",
+        "sessionCount": 3,
+        "unresolvedOlderCaseIds": [
+          "v32-version-build-options",
+          "v35-gehennom-juiblex",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared with the three unresolved older source/history entries retained by v40; no duplicate first behavior was identified."
+      }
+    },
+    {
+      "id": "v41-shirt-wear-after-cloak-removal",
+      "title": "Wear a shirt after removing the cloak",
+      "mission": "Wish a T-shirt, remove the cloak with the observed armor selector, then wear the T-shirt through the source armor command.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/do_wear.c:Shirt_on"
+      ],
+      "sourceTrace": "C source path: nethack-c/upstream/src/do_wear.c:Shirt_on. C observation: C reports that the hero is now wearing a T-shirt and updates the inventory suffix.",
+      "cOutcome": "Reached by patched C; an independent patched-C replay was byte-identical; fresh JavaScript differential: full match.",
+      "actualTargetMiss": null,
+      "selectionRationale": "Earlier batches exercise other armor and accessory slots; this reaches do_wear.c:Shirt_on after the initial cloak is removed.",
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 41040117,
+        "datetime": "20491011121315",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "name": "V41Shirt",
+        "playmode": "debug",
+        "nethackrc": "OPTIONS=name:V41Shirt,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+        "keyCount": 14,
+        "segmentCount": 1,
+        "boundaries": [
+          null
+        ]
+      },
+      "recipe": "challenges/cases/v41/v41-shirt-wear-control-cloak-off.recipe.session.json",
+      "recipeSha256": "3d3aa4300a84e058c861f9d6a7cf9f605cde45e0eb65effc3eee243d1db1f379",
+      "recording": "challenges/cases/v41/v41-shirt-wear-control-cloak-off.session.json",
+      "recordingSha256": "94fb376fe7aed36529c8e3cb4c7e56eaead3c408398e8d5d5a5ebd87eb3d5100",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v41-shirt-wear-after-cloak-removal",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/record-session.mjs",
+          "challenges/cases/v41/v41-shirt-wear-control-cloak-off.recipe.session.json",
+          ".cache/prep-delivery/Prep5-v41/replays/shirt-wear-after-cloak-removal.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/replays/shirt-wear-after-cloak-removal.log",
+        "logSha256": "c2f98b39a2c9000bb71d4d5c973c45f9cedef26947b8bc28f54f2268087a993a",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v41/v41-shirt-wear-control-cloak-off.session.json",
+        "output": ".cache/prep-delivery/Prep5-v41/replays/shirt-wear-after-cloak-removal.session.json",
+        "outputSha256": "94fb376fe7aed36529c8e3cb4c7e56eaead3c408398e8d5d5a5ebd87eb3d5100",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v41-shirt-wear-after-cloak-removal",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/diff-fresh.mjs",
+          "challenges/cases/v41/v41-shirt-wear-control-cloak-off.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "MATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/differentials/shirt-wear-after-cloak-removal.log",
+        "logSha256": "57d140c2c03f06054f2405d69782f5dd8859dacd2063d8409f8b5af00b302ab3",
+        "firstMismatch": null
+      },
+      "firstMismatch": null,
+      "distinctMismatch": null,
+      "closestEarlierCases": [
+        {
+          "id": "v40 crosswalk",
+          "distinction": "Earlier batches exercise other armor and accessory slots; this reaches do_wear.c:Shirt_on after the initial cloak is removed."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v40",
+        "caseIds": [
+          "v40-physical-knight-jump-clear-path",
+          "v40-bugle-improvisation-awakens-soldier",
+          "v40-chat-tame-dog-bark-response",
+          "v40-pet-dog-eats-dropped-ration",
+          "v40-lizard-corpse-cures-active-stoning",
+          "v40-kick-closed-locked-door",
+          "v40-earth-plane-levelport-generation",
+          "v40-air-plane-levelport-generation",
+          "v40-wand-slow-hostile-newt-zap",
+          "v40-identify-unknown-potion-scroll",
+          "v40-remove-curse-scroll-targets-inventory",
+          "v40-finger-engraves-elbereth",
+          "v40-ordinary-prayer-at-chaotic-altar",
+          "v40-coaligned-prayer-revives-tame-pet-corpse",
+          "v40-wizard-detects-sanctum-secret-door",
+          "v40-wizard-wish-assistance",
+          "v40-opening-wand-expels-swallowed-hero",
+          "v40-fire-plane-levelport-generation",
+          "v40-water-plane-levelport-generation",
+          "v40-leashed-dragon-abuse-m-unleash",
+          "v40-hostile-long-worm-head-move-updates-tail",
+          "v40-shop-floor-digdown-warning-live-shopkeeper",
+          "v40-fort-ludios-knox-wizloaddes-generation",
+          "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "v40-tower-one-direct-special-level-program",
+          "v40-pool-drowning-unleash-all-pet-state",
+          "v40-leashed-pet-unleashed-by-engulfing-worm",
+          "v40-snuffed-lit-lamp-on-engulfing-worm"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v40.json",
+          "sha256": "5bd356a637a37d0a8c9b51a6446c123ce67e101ab2f1042f5a50d5ea25fdc790"
+        },
+        "result": "Crosswalked this reached behavior against every v40 case. Earlier batches exercise other armor and accessory slots; this reaches do_wear.c:Shirt_on after the initial cloak is removed."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "08ae55da31ec32a2d37e780be36d84163330605cfea728cbb189708dcf8b5b37",
+        "sessionCount": 3,
+        "unresolvedOlderCaseIds": [
+          "v32-version-build-options",
+          "v35-gehennom-juiblex",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared with the three unresolved older source/history entries retained by v40; no duplicate first behavior was identified."
+      }
+    },
+    {
+      "id": "v41-tower2-special-program-generation",
+      "title": "Load the Tower-2 special-level program",
+      "mission": "Dismiss the startup pager, run #wizloaddes, select tower2.lua, then map the loaded level.",
+      "sourcePointers": [
+        "nethack-c/upstream/dat/tower2.lua top-level level generation via wiz_load_splua/load_special"
+      ],
+      "sourceTrace": "C source path: nethack-c/upstream/dat/tower2.lua top-level level generation via wiz_load_splua/load_special. C observation: C loads tower2.lua and the resulting mapped maze shows the tower2 level; its special-region placements are visible in the C trace.",
+      "cOutcome": "Reached by patched C; an independent patched-C replay was byte-identical; fresh JavaScript differential: mismatch.",
+      "actualTargetMiss": null,
+      "selectionRationale": "v40-tower-one-wizloaddes-cfirst loads dat/tower1.lua; this case executes the separately sourced dat/tower2.lua program and a distinct level layout.",
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 41040141,
+        "datetime": "20510415161719",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "name": "V41TowerTwo",
+        "playmode": "debug",
+        "nethackrc": "OPTIONS=name:V41TowerTwo,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+        "keyCount": 32,
+        "segmentCount": 1,
+        "boundaries": [
+          null
+        ]
+      },
+      "recipe": "challenges/cases/v41/v41-tower2-wizloaddes-cfirst.recipe.session.json",
+      "recipeSha256": "2538cff56993da9051400713aa5769281826be84a1b34af55a5daca848071c5b",
+      "recording": "challenges/cases/v41/v41-tower2-wizloaddes-cfirst.session.json",
+      "recordingSha256": "f7ae5cff28ccd236fc296514843ce62728f470833b82630b4111a5860b1961e7",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v41-tower2-special-program-generation",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/record-session.mjs",
+          "challenges/cases/v41/v41-tower2-wizloaddes-cfirst.recipe.session.json",
+          ".cache/prep-delivery/Prep5-v41/replays/tower2-special-program-generation.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/replays/tower2-special-program-generation.log",
+        "logSha256": "2a13a182742780eea0ceb8bea2ddfab6f54d693a911d0bdac55bb0a5c1d47611",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v41/v41-tower2-wizloaddes-cfirst.session.json",
+        "output": ".cache/prep-delivery/Prep5-v41/replays/tower2-special-program-generation.session.json",
+        "outputSha256": "f7ae5cff28ccd236fc296514843ce62728f470833b82630b4111a5860b1961e7",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v41-tower2-special-program-generation",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/diff-fresh.mjs",
+          "challenges/cases/v41/v41-tower2-wizloaddes-cfirst.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/differentials/tower2-special-program-generation.log",
+        "logSha256": "e726e413ac22641f0b0f1d3a74696cfa620d2abc7f0dc628be57aabd24555cee",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 25,
+          "key": "\"\\n\"",
+          "channel": "screen",
+          "sourceBehavior": "The direct wizloaddes selection executes the top-level dat/tower2.lua program and its mapped tower maze.",
+          "owner": "nethack-c/upstream/dat/tower2.lua top-level generation via wiz_load_splua/load_special",
+          "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+          "details": "The prior tower1 program and this slate’s tower3 program are separate source units with different map layouts. This case first diverges while loading tower2; the later missing obj_resists(zap.c:1469) draw is secondary evidence.",
+          "rng": null,
+          "screenBoundary": 25
+        }
+      },
+      "firstMismatch": {
+        "reportedSegment": 1,
+        "reportedStep": 25,
+        "key": "\"\\n\"",
+        "channel": "screen",
+        "sourceBehavior": "The direct wizloaddes selection executes the top-level dat/tower2.lua program and its mapped tower maze.",
+        "owner": "nethack-c/upstream/dat/tower2.lua top-level generation via wiz_load_splua/load_special",
+        "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+        "details": "The prior tower1 program and this slate’s tower3 program are separate source units with different map layouts. This case first diverges while loading tower2; the later missing obj_resists(zap.c:1469) draw is secondary evidence.",
+        "rng": null,
+        "screenBoundary": 25
+      },
+      "distinctMismatch": {
+        "behavior": "The direct wizloaddes selection executes the top-level dat/tower2.lua program and its mapped tower maze.",
+        "owner": "nethack-c/upstream/dat/tower2.lua top-level generation via wiz_load_splua/load_special",
+        "distinctness": "The prior tower1 program and this slate’s tower3 program are separate source units with different map layouts. This case first diverges while loading tower2; the later missing obj_resists(zap.c:1469) draw is secondary evidence."
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v40 crosswalk",
+          "distinction": "v40-tower-one-wizloaddes-cfirst loads dat/tower1.lua; this case executes the separately sourced dat/tower2.lua program and a distinct level layout."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v40",
+        "caseIds": [
+          "v40-physical-knight-jump-clear-path",
+          "v40-bugle-improvisation-awakens-soldier",
+          "v40-chat-tame-dog-bark-response",
+          "v40-pet-dog-eats-dropped-ration",
+          "v40-lizard-corpse-cures-active-stoning",
+          "v40-kick-closed-locked-door",
+          "v40-earth-plane-levelport-generation",
+          "v40-air-plane-levelport-generation",
+          "v40-wand-slow-hostile-newt-zap",
+          "v40-identify-unknown-potion-scroll",
+          "v40-remove-curse-scroll-targets-inventory",
+          "v40-finger-engraves-elbereth",
+          "v40-ordinary-prayer-at-chaotic-altar",
+          "v40-coaligned-prayer-revives-tame-pet-corpse",
+          "v40-wizard-detects-sanctum-secret-door",
+          "v40-wizard-wish-assistance",
+          "v40-opening-wand-expels-swallowed-hero",
+          "v40-fire-plane-levelport-generation",
+          "v40-water-plane-levelport-generation",
+          "v40-leashed-dragon-abuse-m-unleash",
+          "v40-hostile-long-worm-head-move-updates-tail",
+          "v40-shop-floor-digdown-warning-live-shopkeeper",
+          "v40-fort-ludios-knox-wizloaddes-generation",
+          "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "v40-tower-one-direct-special-level-program",
+          "v40-pool-drowning-unleash-all-pet-state",
+          "v40-leashed-pet-unleashed-by-engulfing-worm",
+          "v40-snuffed-lit-lamp-on-engulfing-worm"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v40.json",
+          "sha256": "5bd356a637a37d0a8c9b51a6446c123ce67e101ab2f1042f5a50d5ea25fdc790"
+        },
+        "result": "Crosswalked this reached behavior against every v40 case. v40-tower-one-wizloaddes-cfirst loads dat/tower1.lua; this case executes the separately sourced dat/tower2.lua program and a distinct level layout."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "08ae55da31ec32a2d37e780be36d84163330605cfea728cbb189708dcf8b5b37",
+        "sessionCount": 3,
+        "unresolvedOlderCaseIds": [
+          "v32-version-build-options",
+          "v35-gehennom-juiblex",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared with the three unresolved older source/history entries retained by v40; no duplicate first behavior was identified."
+      }
+    },
+    {
+      "id": "v41-tower3-special-program-generation",
+      "title": "Load the Tower-3 special-level program",
+      "mission": "Dismiss the startup pager, run #wizloaddes, select tower3.lua, then map the loaded level.",
+      "sourcePointers": [
+        "nethack-c/upstream/dat/tower3.lua top-level level generation via wiz_load_splua/load_special"
+      ],
+      "sourceTrace": "C source path: nethack-c/upstream/dat/tower3.lua top-level level generation via wiz_load_splua/load_special. C observation: C loads tower3.lua and the resulting mapped maze shows the tower3 level; its special-region placements are visible in the C trace.",
+      "cOutcome": "Reached by patched C; an independent patched-C replay was byte-identical; fresh JavaScript differential: full match.",
+      "actualTargetMiss": null,
+      "selectionRationale": "v40-tower-one-wizloaddes-cfirst and this slate's tower2 case execute different source programs; this case reaches the separately sourced dat/tower3.lua and its level layout.",
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 41040143,
+        "datetime": "20510516171820",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "name": "V41TowerThree",
+        "playmode": "debug",
+        "nethackrc": "OPTIONS=name:V41TowerThree,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+        "keyCount": 32,
+        "segmentCount": 1,
+        "boundaries": [
+          null
+        ]
+      },
+      "recipe": "challenges/cases/v41/v41-tower3-wizloaddes-cfirst.recipe.session.json",
+      "recipeSha256": "bee37fffd676ecddca4909be89854d02ec04c408d33d808164f930b8b3012ea5",
+      "recording": "challenges/cases/v41/v41-tower3-wizloaddes-cfirst.session.json",
+      "recordingSha256": "b67dd72752a317cf71f7b68ec6d996cd4aa2a9945b1f658f48f519ecc119667c",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v41-tower3-special-program-generation",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/record-session.mjs",
+          "challenges/cases/v41/v41-tower3-wizloaddes-cfirst.recipe.session.json",
+          ".cache/prep-delivery/Prep5-v41/replays/tower3-special-program-generation.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/replays/tower3-special-program-generation.log",
+        "logSha256": "e6fe184a81ef91ee3341192c17318b573c6d91342abe246ed8ae68963c5e9648",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v41/v41-tower3-wizloaddes-cfirst.session.json",
+        "output": ".cache/prep-delivery/Prep5-v41/replays/tower3-special-program-generation.session.json",
+        "outputSha256": "b67dd72752a317cf71f7b68ec6d996cd4aa2a9945b1f658f48f519ecc119667c",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v41-tower3-special-program-generation",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/diff-fresh.mjs",
+          "challenges/cases/v41/v41-tower3-wizloaddes-cfirst.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "MATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/differentials/tower3-special-program-generation.log",
+        "logSha256": "f3ba66103be713be23ad2649b462b68cdac66410d78c22f2d616953103063483",
+        "firstMismatch": null
+      },
+      "firstMismatch": null,
+      "distinctMismatch": null,
+      "closestEarlierCases": [
+        {
+          "id": "v40 crosswalk",
+          "distinction": "v40-tower-one-wizloaddes-cfirst and this slate's tower2 case execute different source programs; this case reaches the separately sourced dat/tower3.lua and its level layout."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v40",
+        "caseIds": [
+          "v40-physical-knight-jump-clear-path",
+          "v40-bugle-improvisation-awakens-soldier",
+          "v40-chat-tame-dog-bark-response",
+          "v40-pet-dog-eats-dropped-ration",
+          "v40-lizard-corpse-cures-active-stoning",
+          "v40-kick-closed-locked-door",
+          "v40-earth-plane-levelport-generation",
+          "v40-air-plane-levelport-generation",
+          "v40-wand-slow-hostile-newt-zap",
+          "v40-identify-unknown-potion-scroll",
+          "v40-remove-curse-scroll-targets-inventory",
+          "v40-finger-engraves-elbereth",
+          "v40-ordinary-prayer-at-chaotic-altar",
+          "v40-coaligned-prayer-revives-tame-pet-corpse",
+          "v40-wizard-detects-sanctum-secret-door",
+          "v40-wizard-wish-assistance",
+          "v40-opening-wand-expels-swallowed-hero",
+          "v40-fire-plane-levelport-generation",
+          "v40-water-plane-levelport-generation",
+          "v40-leashed-dragon-abuse-m-unleash",
+          "v40-hostile-long-worm-head-move-updates-tail",
+          "v40-shop-floor-digdown-warning-live-shopkeeper",
+          "v40-fort-ludios-knox-wizloaddes-generation",
+          "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "v40-tower-one-direct-special-level-program",
+          "v40-pool-drowning-unleash-all-pet-state",
+          "v40-leashed-pet-unleashed-by-engulfing-worm",
+          "v40-snuffed-lit-lamp-on-engulfing-worm"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v40.json",
+          "sha256": "5bd356a637a37d0a8c9b51a6446c123ce67e101ab2f1042f5a50d5ea25fdc790"
+        },
+        "result": "Crosswalked this reached behavior against every v40 case. v40-tower-one-wizloaddes-cfirst and this slate's tower2 case execute different source programs; this case reaches the separately sourced dat/tower3.lua and its level layout."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "08ae55da31ec32a2d37e780be36d84163330605cfea728cbb189708dcf8b5b37",
+        "sessionCount": 3,
+        "unresolvedOlderCaseIds": [
+          "v32-version-build-options",
+          "v35-gehennom-juiblex",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared with the three unresolved older source/history entries retained by v40; no duplicate first behavior was identified."
+      }
+    },
+    {
+      "id": "v41-underwater-coin-flip-drops-coin",
+      "title": "Flip a coin underwater",
+      "mission": "Reach a C-confirmed underwater state, apply the coin, and finish the flip action.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c:flip_coin -> nethack-c/upstream/src/do.c:dropx underwater floor-effects path"
+      ],
+      "sourceTrace": "C source path: nethack-c/upstream/src/apply.c:flip_coin -> nethack-c/upstream/src/do.c:dropx underwater floor-effects path. C observation: C prints the underwater coin messages, drops the coin through dropx, and records the resulting floor or underwater item state.",
+      "cOutcome": "Reached by patched C; an independent patched-C replay was byte-identical; fresh JavaScript differential: mismatch.",
+      "actualTargetMiss": null,
+      "selectionRationale": "v35-coin-flip covers an ordinary surface coin flip; v23-underwater-display-on-pool-entry covers only the entry display and does not flip or drop a coin.",
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 41040137,
+        "datetime": "20510314151618",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "name": "V41WetCoin",
+        "playmode": "debug",
+        "nethackrc": "OPTIONS=name:V41WetCoin,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+        "keyCount": 81,
+        "segmentCount": 1,
+        "boundaries": [
+          null
+        ]
+      },
+      "recipe": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.recipe.session.json",
+      "recipeSha256": "9907e98a55cca2e37dae5d4db1d6c3e0c2810bf2ba841149534a3d7d4538af33",
+      "recording": "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+      "recordingSha256": "eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v41-underwater-coin-flip-drops-coin",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/record-session.mjs",
+          "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.recipe.session.json",
+          ".cache/prep-delivery/Prep5-v41/replays/underwater-coin-flip-drops-coin.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/replays/underwater-coin-flip-drops-coin.log",
+        "logSha256": "1e61d9d675c73bdf5c659961c478a0002967adac45ae2415e1a6bbe68ace6e50",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.session.json",
+        "output": ".cache/prep-delivery/Prep5-v41/replays/underwater-coin-flip-drops-coin.session.json",
+        "outputSha256": "eb1f3e6ac92b42a22c4387ccea87b1bc168e7ba597c68f92035ff4534c48ce79",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v41-underwater-coin-flip-drops-coin",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/diff-fresh.mjs",
+          "challenges/cases/v41/v41-underwater-coin-water-nymph-seven-pages-corrected.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/differentials/underwater-coin-flip-drops-coin.log",
+        "logSha256": "e27f140accabef9f2fb7ee153a582b213dcd5e74cc57b9f90326797ccbdc44bb",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 82,
+          "key": "\"$\"",
+          "channel": "screen",
+          "sourceBehavior": "The underwater flip_coin action drops the coin and enters the water floor-effect path.",
+          "owner": "nethack-c/upstream/src/apply.c:flip_coin -> nethack-c/upstream/src/do.c:dropx underwater floor-effects path",
+          "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+          "details": "v35 coin flipping is on ordinary floor, and v23 underwater coverage stops at pool entry. This action flips and drops the coin while the hero is underwater, then reaches water_damage(trap.c:4771).",
+          "rng": null,
+          "screenBoundary": 82
+        }
+      },
+      "firstMismatch": {
+        "reportedSegment": 1,
+        "reportedStep": 82,
+        "key": "\"$\"",
+        "channel": "screen",
+        "sourceBehavior": "The underwater flip_coin action drops the coin and enters the water floor-effect path.",
+        "owner": "nethack-c/upstream/src/apply.c:flip_coin -> nethack-c/upstream/src/do.c:dropx underwater floor-effects path",
+        "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+        "details": "v35 coin flipping is on ordinary floor, and v23 underwater coverage stops at pool entry. This action flips and drops the coin while the hero is underwater, then reaches water_damage(trap.c:4771).",
+        "rng": null,
+        "screenBoundary": 82
+      },
+      "distinctMismatch": {
+        "behavior": "The underwater flip_coin action drops the coin and enters the water floor-effect path.",
+        "owner": "nethack-c/upstream/src/apply.c:flip_coin -> nethack-c/upstream/src/do.c:dropx underwater floor-effects path",
+        "distinctness": "v35 coin flipping is on ordinary floor, and v23 underwater coverage stops at pool entry. This action flips and drops the coin while the hero is underwater, then reaches water_damage(trap.c:4771)."
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v40 crosswalk",
+          "distinction": "v35-coin-flip covers an ordinary surface coin flip; v23-underwater-display-on-pool-entry covers only the entry display and does not flip or drop a coin."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v40",
+        "caseIds": [
+          "v40-physical-knight-jump-clear-path",
+          "v40-bugle-improvisation-awakens-soldier",
+          "v40-chat-tame-dog-bark-response",
+          "v40-pet-dog-eats-dropped-ration",
+          "v40-lizard-corpse-cures-active-stoning",
+          "v40-kick-closed-locked-door",
+          "v40-earth-plane-levelport-generation",
+          "v40-air-plane-levelport-generation",
+          "v40-wand-slow-hostile-newt-zap",
+          "v40-identify-unknown-potion-scroll",
+          "v40-remove-curse-scroll-targets-inventory",
+          "v40-finger-engraves-elbereth",
+          "v40-ordinary-prayer-at-chaotic-altar",
+          "v40-coaligned-prayer-revives-tame-pet-corpse",
+          "v40-wizard-detects-sanctum-secret-door",
+          "v40-wizard-wish-assistance",
+          "v40-opening-wand-expels-swallowed-hero",
+          "v40-fire-plane-levelport-generation",
+          "v40-water-plane-levelport-generation",
+          "v40-leashed-dragon-abuse-m-unleash",
+          "v40-hostile-long-worm-head-move-updates-tail",
+          "v40-shop-floor-digdown-warning-live-shopkeeper",
+          "v40-fort-ludios-knox-wizloaddes-generation",
+          "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "v40-tower-one-direct-special-level-program",
+          "v40-pool-drowning-unleash-all-pet-state",
+          "v40-leashed-pet-unleashed-by-engulfing-worm",
+          "v40-snuffed-lit-lamp-on-engulfing-worm"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v40.json",
+          "sha256": "5bd356a637a37d0a8c9b51a6446c123ce67e101ab2f1042f5a50d5ea25fdc790"
+        },
+        "result": "Crosswalked this reached behavior against every v40 case. v35-coin-flip covers an ordinary surface coin flip; v23-underwater-display-on-pool-entry covers only the entry display and does not flip or drop a coin."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "08ae55da31ec32a2d37e780be36d84163330605cfea728cbb189708dcf8b5b37",
+        "sessionCount": 3,
+        "unresolvedOlderCaseIds": [
+          "v32-version-build-options",
+          "v35-gehennom-juiblex",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared with the three unresolved older source/history entries retained by v40; no duplicate first behavior was identified."
+      }
+    },
+    {
+      "id": "v41-astral-special-program-generation",
+      "title": "Load the Astral special-level program",
+      "mission": "Use the independent C recipe listed in this manifest to select and generate the named source program.",
+      "sourcePointers": [
+        "nethack-c/upstream/dat/astral.lua top-level generation via wizcmds.c:wiz_load_splua -> sp_lev.c:load_special"
+      ],
+      "sourceTrace": "C source path: nethack-c/upstream/dat/astral.lua top-level generation via wizcmds.c:wiz_load_splua -> sp_lev.c:load_special. C observation: C loads Astral and reaches dat/astral.lua messages “You arrive on the Astral Plane!” and “Here the High Temple of Thoth is located.”; 5,602 RNG calls and 33 screen/cursor boundaries. The remaining typed #wizmap characters dismiss More pages, so map rendering is not claimed.",
+      "cOutcome": "Reached by patched C; an independent patched-C replay was byte-identical; fresh JavaScript differential: mismatch.",
+      "actualTargetMiss": null,
+      "selectionRationale": "Earth and Water enter through #wizlevelport and run separate plane programs. Knox, Minetown-3, Minetown-5, and Astral each select a different whole Lua program. The first Astral program-only draw is next_ident(mkobj.c:521).",
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 41040177,
+        "datetime": "20510415161721",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "name": "V41astral",
+        "playmode": "debug",
+        "nethackrc": "OPTIONS=name:V41astral,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+        "keyCount": 32,
+        "segmentCount": 1,
+        "boundaries": [
+          null
+        ]
+      },
+      "recipe": "challenges/cases/v41/v41-astral-wizloaddes-cfirst.recipe.session.json",
+      "recipeSha256": "933b8ac142f2a916263f7883f95b0d09b9015baf8bc320bc37f660116db9eda2",
+      "recording": "challenges/cases/v41/v41-astral-wizloaddes-cfirst.session.json",
+      "recordingSha256": "3ed3c0749ec0b1ce7af6395a0d98877b1dc80f391b20201d699df60dfd2eeb69",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v41-astral-special-program-generation",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/record-session.mjs",
+          "challenges/cases/v41/v41-astral-wizloaddes-cfirst.recipe.session.json",
+          ".cache/prep-delivery/Prep5-v41/replays/astral-special-program-generation.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/replays/astral-special-program-generation.log",
+        "logSha256": "4e78369e4c492496249e8ed618e6e2a1dcc2ec40c2005e866bbda0436543c215",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v41/v41-astral-wizloaddes-cfirst.session.json",
+        "output": ".cache/prep-delivery/Prep5-v41/replays/astral-special-program-generation.session.json",
+        "outputSha256": "3ed3c0749ec0b1ce7af6395a0d98877b1dc80f391b20201d699df60dfd2eeb69",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v41-astral-special-program-generation",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/diff-fresh.mjs",
+          "challenges/cases/v41/v41-astral-wizloaddes-cfirst.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/differentials/astral-special-program-generation.log",
+        "logSha256": "238759cffe473b8d25e98f3fc9fb33682cb886289bb140b36dc3f455702308a7",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 25,
+          "key": "\"\\n\"",
+          "channel": "screen",
+          "sourceBehavior": "The direct wizloaddes selection enters the separate top-level dat/astral.lua generation program; JavaScript retains its file prompt and does not execute the program.",
+          "owner": "nethack-c/upstream/dat/astral.lua top-level generation via wiz_load_splua/load_special",
+          "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+          "details": "Earth and Water enter through #wizlevelport and run separate plane programs. Knox, Minetown-3, Minetown-5, and Astral each select a different whole Lua program. The first Astral program-only draw is next_ident(mkobj.c:521).",
+          "rng": null,
+          "screenBoundary": 25
+        }
+      },
+      "firstMismatch": {
+        "reportedSegment": 1,
+        "reportedStep": 25,
+        "key": "\"\\n\"",
+        "channel": "screen",
+        "sourceBehavior": "The direct wizloaddes selection enters the separate top-level dat/astral.lua generation program; JavaScript retains its file prompt and does not execute the program.",
+        "owner": "nethack-c/upstream/dat/astral.lua top-level generation via wiz_load_splua/load_special",
+        "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+        "details": "Earth and Water enter through #wizlevelport and run separate plane programs. Knox, Minetown-3, Minetown-5, and Astral each select a different whole Lua program. The first Astral program-only draw is next_ident(mkobj.c:521).",
+        "rng": null,
+        "screenBoundary": 25
+      },
+      "distinctMismatch": {
+        "behavior": "The direct wizloaddes selection enters the separate top-level dat/astral.lua generation program; JavaScript retains its file prompt and does not execute the program.",
+        "owner": "nethack-c/upstream/dat/astral.lua top-level generation via wiz_load_splua/load_special",
+        "distinctness": "Earth and Water enter through #wizlevelport and run separate plane programs. Knox, Minetown-3, Minetown-5, and Astral each select a different whole Lua program. The first Astral program-only draw is next_ident(mkobj.c:521)."
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v40 crosswalk",
+          "distinction": "Earth and Water enter through #wizlevelport and run separate plane programs. Knox, Minetown-3, Minetown-5, and Astral each select a different whole Lua program. The first Astral program-only draw is next_ident(mkobj.c:521)."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v40",
+        "caseIds": [
+          "v40-physical-knight-jump-clear-path",
+          "v40-bugle-improvisation-awakens-soldier",
+          "v40-chat-tame-dog-bark-response",
+          "v40-pet-dog-eats-dropped-ration",
+          "v40-lizard-corpse-cures-active-stoning",
+          "v40-kick-closed-locked-door",
+          "v40-earth-plane-levelport-generation",
+          "v40-air-plane-levelport-generation",
+          "v40-wand-slow-hostile-newt-zap",
+          "v40-identify-unknown-potion-scroll",
+          "v40-remove-curse-scroll-targets-inventory",
+          "v40-finger-engraves-elbereth",
+          "v40-ordinary-prayer-at-chaotic-altar",
+          "v40-coaligned-prayer-revives-tame-pet-corpse",
+          "v40-wizard-detects-sanctum-secret-door",
+          "v40-wizard-wish-assistance",
+          "v40-opening-wand-expels-swallowed-hero",
+          "v40-fire-plane-levelport-generation",
+          "v40-water-plane-levelport-generation",
+          "v40-leashed-dragon-abuse-m-unleash",
+          "v40-hostile-long-worm-head-move-updates-tail",
+          "v40-shop-floor-digdown-warning-live-shopkeeper",
+          "v40-fort-ludios-knox-wizloaddes-generation",
+          "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "v40-tower-one-direct-special-level-program",
+          "v40-pool-drowning-unleash-all-pet-state",
+          "v40-leashed-pet-unleashed-by-engulfing-worm",
+          "v40-snuffed-lit-lamp-on-engulfing-worm"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v40.json",
+          "sha256": "5bd356a637a37d0a8c9b51a6446c123ce67e101ab2f1042f5a50d5ea25fdc790"
+        },
+        "result": "Crosswalked this reached behavior against every v40 case. Earth and Water enter through #wizlevelport and run separate plane programs. Knox, Minetown-3, Minetown-5, and Astral each select a different whole Lua program. The first Astral program-only draw is next_ident(mkobj.c:521)."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "08ae55da31ec32a2d37e780be36d84163330605cfea728cbb189708dcf8b5b37",
+        "sessionCount": 3,
+        "unresolvedOlderCaseIds": [
+          "v32-version-build-options",
+          "v35-gehennom-juiblex",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared with the three unresolved older source/history entries retained by v40; no duplicate first behavior was identified."
+      }
+    },
+    {
+      "id": "v41-minetn5-special-program-generation",
+      "title": "Load the Grotto Town special-level program",
+      "mission": "Use the independent C recipe listed in this manifest to select and generate the named source program.",
+      "sourcePointers": [
+        "nethack-c/upstream/dat/minetn-5.lua top-level generation via wizcmds.c:wiz_load_splua -> sp_lev.c:load_special"
+      ],
+      "sourceTrace": "C source path: nethack-c/upstream/dat/minetn-5.lua top-level generation via wizcmds.c:wiz_load_splua -> sp_lev.c:load_special. C observation: C loads dat/minetn-5.lua and displays its fixed Grotto Town map; the recording contains 3,624 RNG calls and 35 screen/cursor boundaries.",
+      "cOutcome": "Reached by patched C; an independent patched-C replay was byte-identical; fresh JavaScript differential: mismatch.",
+      "actualTargetMiss": null,
+      "selectionRationale": "The missing Astral and Minetown-5 entries lead to separately scoped whole-program ports with different source files and topology. Although both first expose next_ident(mkobj.c:521), the C-fixed Grotto Town program is distinct from Astral. Parent review approved Minetown-5 as replacement #12.",
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 41050183,
+        "datetime": "20510516171823",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "name": "V41min5",
+        "playmode": "debug",
+        "nethackrc": "OPTIONS=name:V41min5,role=Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+        "keyCount": 34,
+        "segmentCount": 1,
+        "boundaries": [
+          null
+        ]
+      },
+      "recipe": "challenges/cases/v41/v41-minetn5-wizloaddes-cfirst.recipe.session.json",
+      "recipeSha256": "7504298e9418918f05732085e37f4b9a02884493407ca4e2398686c41c127269",
+      "recording": "challenges/cases/v41/v41-minetn5-wizloaddes-cfirst.session.json",
+      "recordingSha256": "48c68ea940d8199cfa4b2a43e99a2643f90ded9d0bc0e24acda3899f96da6f4e",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v41-minetn5-special-program-generation",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/record-session.mjs",
+          "challenges/cases/v41/v41-minetn5-wizloaddes-cfirst.recipe.session.json",
+          ".cache/prep-delivery/Prep5-v41/replays/minetn5-special-program-generation.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/replays/minetn5-special-program-generation.log",
+        "logSha256": "ee0f58c23cc7d6957d53d4541317afa3a28f9e74cc2c0d58a5ee0b4e80eb9a3a",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v41/v41-minetn5-wizloaddes-cfirst.session.json",
+        "output": ".cache/prep-delivery/Prep5-v41/replays/minetn5-special-program-generation.session.json",
+        "outputSha256": "48c68ea940d8199cfa4b2a43e99a2643f90ded9d0bc0e24acda3899f96da6f4e",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v41-minetn5-special-program-generation",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/diff-fresh.mjs",
+          "challenges/cases/v41/v41-minetn5-wizloaddes-cfirst.recipe.session.json"
+        ],
+        "exitCode": 1,
+        "result": "MISMATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/differentials/minetn5-special-program-generation.log",
+        "logSha256": "1ad5a6a3b7ea06ed9b3c3b6865c278471b4e25281381373478dac2742d5e1cb5",
+        "firstMismatch": {
+          "reportedSegment": 1,
+          "reportedStep": 27,
+          "key": "\"\\n\"",
+          "channel": "screen",
+          "sourceBehavior": "The direct wizloaddes selection enters dat/minetn-5.lua and generates the Grotto Town topology; JavaScript has no loader entry for this program.",
+          "owner": "nethack-c/upstream/dat/minetn-5.lua top-level generation via wiz_load_splua/load_special",
+          "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+          "details": "The missing Astral and Minetown-5 entries lead to separately scoped whole-program ports with different source files and topology. Although both first expose next_ident(mkobj.c:521), the C-fixed Grotto Town program is distinct from Astral. Parent review approved Minetown-5 as replacement #12.",
+          "rng": null,
+          "screenBoundary": 27
+        }
+      },
+      "firstMismatch": {
+        "reportedSegment": 1,
+        "reportedStep": 27,
+        "key": "\"\\n\"",
+        "channel": "screen",
+        "sourceBehavior": "The direct wizloaddes selection enters dat/minetn-5.lua and generates the Grotto Town topology; JavaScript has no loader entry for this program.",
+        "owner": "nethack-c/upstream/dat/minetn-5.lua top-level generation via wiz_load_splua/load_special",
+        "directCTrace": "The PRNG values match; the first divergence is visible output at the reported screen boundary.",
+        "details": "The missing Astral and Minetown-5 entries lead to separately scoped whole-program ports with different source files and topology. Although both first expose next_ident(mkobj.c:521), the C-fixed Grotto Town program is distinct from Astral. Parent review approved Minetown-5 as replacement #12.",
+        "rng": null,
+        "screenBoundary": 27
+      },
+      "distinctMismatch": {
+        "behavior": "The direct wizloaddes selection enters dat/minetn-5.lua and generates the Grotto Town topology; JavaScript has no loader entry for this program.",
+        "owner": "nethack-c/upstream/dat/minetn-5.lua top-level generation via wiz_load_splua/load_special",
+        "distinctness": "The missing Astral and Minetown-5 entries lead to separately scoped whole-program ports with different source files and topology. Although both first expose next_ident(mkobj.c:521), the C-fixed Grotto Town program is distinct from Astral. Parent review approved Minetown-5 as replacement #12."
+      },
+      "closestEarlierCases": [
+        {
+          "id": "v40 crosswalk",
+          "distinction": "The missing Astral and Minetown-5 entries lead to separately scoped whole-program ports with different source files and topology. Although both first expose next_ident(mkobj.c:521), the C-fixed Grotto Town program is distinct from Astral. Parent review approved Minetown-5 as replacement #12."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v40",
+        "caseIds": [
+          "v40-physical-knight-jump-clear-path",
+          "v40-bugle-improvisation-awakens-soldier",
+          "v40-chat-tame-dog-bark-response",
+          "v40-pet-dog-eats-dropped-ration",
+          "v40-lizard-corpse-cures-active-stoning",
+          "v40-kick-closed-locked-door",
+          "v40-earth-plane-levelport-generation",
+          "v40-air-plane-levelport-generation",
+          "v40-wand-slow-hostile-newt-zap",
+          "v40-identify-unknown-potion-scroll",
+          "v40-remove-curse-scroll-targets-inventory",
+          "v40-finger-engraves-elbereth",
+          "v40-ordinary-prayer-at-chaotic-altar",
+          "v40-coaligned-prayer-revives-tame-pet-corpse",
+          "v40-wizard-detects-sanctum-secret-door",
+          "v40-wizard-wish-assistance",
+          "v40-opening-wand-expels-swallowed-hero",
+          "v40-fire-plane-levelport-generation",
+          "v40-water-plane-levelport-generation",
+          "v40-leashed-dragon-abuse-m-unleash",
+          "v40-hostile-long-worm-head-move-updates-tail",
+          "v40-shop-floor-digdown-warning-live-shopkeeper",
+          "v40-fort-ludios-knox-wizloaddes-generation",
+          "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "v40-tower-one-direct-special-level-program",
+          "v40-pool-drowning-unleash-all-pet-state",
+          "v40-leashed-pet-unleashed-by-engulfing-worm",
+          "v40-snuffed-lit-lamp-on-engulfing-worm"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v40.json",
+          "sha256": "5bd356a637a37d0a8c9b51a6446c123ce67e101ab2f1042f5a50d5ea25fdc790"
+        },
+        "result": "Crosswalked this reached behavior against every v40 case. The missing Astral and Minetown-5 entries lead to separately scoped whole-program ports with different source files and topology. Although both first expose next_ident(mkobj.c:521), the C-fixed Grotto Town program is distinct from Astral. Parent review approved Minetown-5 as replacement #12."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "08ae55da31ec32a2d37e780be36d84163330605cfea728cbb189708dcf8b5b37",
+        "sessionCount": 3,
+        "unresolvedOlderCaseIds": [
+          "v32-version-build-options",
+          "v35-gehennom-juiblex",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared with the three unresolved older source/history entries retained by v40; no duplicate first behavior was identified."
+      }
+    },
+    {
+      "id": "v41-unleashed-pet-mimic-corpse-control",
+      "title": "Unleashed pet consumes a mimic corpse",
+      "mission": "Give the pet a small-mimic corpse and let it complete the meal on ordinary floor.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/mon.c:m_consume_obj -> nethack-c/upstream/src/dogmove.c:quickmimic"
+      ],
+      "sourceTrace": "C source path: nethack-c/upstream/src/mon.c:m_consume_obj -> nethack-c/upstream/src/dogmove.c:quickmimic. C observation: C log reaches dogmove.c:quickmimic and says Idefix eats a small mimic corpse with no leash present.",
+      "cOutcome": "Reached by patched C; an independent patched-C replay was byte-identical; fresh JavaScript differential: full match.",
+      "actualTargetMiss": null,
+      "selectionRationale": "v40-pet-dog-eats-dropped-ration uses ordinary food; this control isolates quickmimic from the separate leashed-pet effect.",
+      "outcome": "reached-C-behavior",
+      "inputs": {
+        "seed": 41040175,
+        "datetime": "20510112131417",
+        "role": "Barbarian",
+        "race": "human",
+        "gender": "female",
+        "name": "V41UnleashedDog",
+        "playmode": "debug",
+        "nethackrc": "OPTIONS=name:V41UnleashedDog,role:Barbarian,race:human,gender=female,align=neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+        "keyCount": 24,
+        "segmentCount": 1,
+        "boundaries": [
+          null
+        ]
+      },
+      "recipe": "challenges/cases/v41/v41-unleashed-dog-quickmimic-control-cfirst.recipe.session.json",
+      "recipeSha256": "d6e58d55c07f4f15c47443181e8a94c020bddc719c9e7b9031e89e756190aa68",
+      "recording": "challenges/cases/v41/v41-unleashed-dog-quickmimic-control-cfirst.session.json",
+      "recordingSha256": "d639f482dd81beb95436b0ea382eaca8ae1819506cfc25a8bc80a866b00728b8",
+      "reproducibility": "independent-byte-identical-C-replay",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v41-unleashed-pet-mimic-corpse-control",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/record-session.mjs",
+          "challenges/cases/v41/v41-unleashed-dog-quickmimic-control-cfirst.recipe.session.json",
+          ".cache/prep-delivery/Prep5-v41/replays/unleashed-pet-mimic-corpse-control.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/replays/unleashed-pet-mimic-corpse-control.log",
+        "logSha256": "c5a9b2c932472cab040891fe73783190cf8211bd105b6648bd0d8d2b5a2f6942",
+        "originalOutput": "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v41/v41-unleashed-dog-quickmimic-control-cfirst.session.json",
+        "output": ".cache/prep-delivery/Prep5-v41/replays/unleashed-pet-mimic-corpse-control.session.json",
+        "outputSha256": "d639f482dd81beb95436b0ea382eaca8ae1819506cfc25a8bc80a866b00728b8",
+        "byteIdentical": true
+      },
+      "localComparison": {
+        "caseId": "v41-unleashed-pet-mimic-corpse-control",
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-prep-20261008/scripts/diff-fresh.mjs",
+          "challenges/cases/v41/v41-unleashed-dog-quickmimic-control-cfirst.recipe.session.json"
+        ],
+        "exitCode": 0,
+        "result": "MATCH",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/differentials/unleashed-pet-mimic-corpse-control.log",
+        "logSha256": "6c6ba76287d29c8ce376bdbbaa72f5d3e97ec6a8526ab198dc9f44bb736a4b3a",
+        "firstMismatch": null
+      },
+      "firstMismatch": null,
+      "distinctMismatch": null,
+      "closestEarlierCases": [
+        {
+          "id": "v40 crosswalk",
+          "distinction": "v40-pet-dog-eats-dropped-ration uses ordinary food; this control isolates quickmimic from the separate leashed-pet effect."
+        }
+      ],
+      "priorBatchComparison": {
+        "batch": "v40",
+        "caseIds": [
+          "v40-physical-knight-jump-clear-path",
+          "v40-bugle-improvisation-awakens-soldier",
+          "v40-chat-tame-dog-bark-response",
+          "v40-pet-dog-eats-dropped-ration",
+          "v40-lizard-corpse-cures-active-stoning",
+          "v40-kick-closed-locked-door",
+          "v40-earth-plane-levelport-generation",
+          "v40-air-plane-levelport-generation",
+          "v40-wand-slow-hostile-newt-zap",
+          "v40-identify-unknown-potion-scroll",
+          "v40-remove-curse-scroll-targets-inventory",
+          "v40-finger-engraves-elbereth",
+          "v40-ordinary-prayer-at-chaotic-altar",
+          "v40-coaligned-prayer-revives-tame-pet-corpse",
+          "v40-wizard-detects-sanctum-secret-door",
+          "v40-wizard-wish-assistance",
+          "v40-opening-wand-expels-swallowed-hero",
+          "v40-fire-plane-levelport-generation",
+          "v40-water-plane-levelport-generation",
+          "v40-leashed-dragon-abuse-m-unleash",
+          "v40-hostile-long-worm-head-move-updates-tail",
+          "v40-shop-floor-digdown-warning-live-shopkeeper",
+          "v40-fort-ludios-knox-wizloaddes-generation",
+          "v40-shop-exit-rob-shop-unpaid-gem-levelport",
+          "v40-tower-one-direct-special-level-program",
+          "v40-pool-drowning-unleash-all-pet-state",
+          "v40-leashed-pet-unleashed-by-engulfing-worm",
+          "v40-snuffed-lit-lamp-on-engulfing-worm"
+        ],
+        "manifest": {
+          "path": "challenges/manifests/v40.json",
+          "sha256": "5bd356a637a37d0a8c9b51a6446c123ce67e101ab2f1042f5a50d5ea25fdc790"
+        },
+        "result": "Crosswalked this reached behavior against every v40 case. v40-pet-dog-eats-dropped-ration uses ordinary food; this control isolates quickmimic from the separate leashed-pet effect."
+      },
+      "unresolvedOlderComparison": {
+        "basis": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/latest-saved-combined-queue.json",
+        "sha256": "08ae55da31ec32a2d37e780be36d84163330605cfea728cbb189708dcf8b5b37",
+        "sessionCount": 3,
+        "unresolvedOlderCaseIds": [
+          "v32-version-build-options",
+          "v35-gehennom-juiblex",
+          "v35-version-feature-report"
+        ],
+        "result": "Compared with the three unresolved older source/history entries retained by v40; no duplicate first behavior was identified."
+      }
+    }
+  ],
+  "excludedOverlaps": [
+    {
+      "id": "fakewiz2-special-program-generation",
+      "priorCaseId": "v40-fort-ludios-knox-wizloaddes-generation",
+      "source": "nethack-c/upstream/dat/fakewiz2.lua",
+      "cObservation": "C accepts the direct fakewiz2.lua selection, generates its mazegrid program map, and #wizmap shows the level. Recording has 3,961 RNG calls and 35 screen/cursor boundaries.",
+      "independentReplay": {
+        "byteIdentical": true,
+        "recordingSha256": "a6dee4e8c69db053fddca683982256303f3340a53b6e60b68ef610d9e855b1d7",
+        "replaySha256": "a6dee4e8c69db053fddca683982256303f3340a53b6e60b68ef610d9e855b1d7",
+        "log": ".cache/prep-delivery/Prep5-v41/replays/fakewiz2-special-program-generation.session.json"
+      },
+      "differential": {
+        "result": "mismatch",
+        "firstGap": "JS has no fakewiz2 program loader; wiz_load_splua discards load_special false and finalization reaches mkmaze.js:place_lregion type 3. C reaches fakewiz2.lua top-level des.levregion placements.",
+        "log": ".cache/prep-delivery/Prep5-v41/differentials/fakewiz2-special-program-generation.log",
+        "logSha256": "bd8db7c858e0a1557c43454e61b287bb128b35e4ac10cc6d6f0bac720817fdfd"
+      },
+      "disposition": "Excluded from the counted manifest. Its first JS failure is the same place_lregion type 3 behavior represented by v40 Knox, before fakewiz2 establishes an independent program-specific first divergence."
+    },
+    {
+      "id": "minetn4-special-program-generation",
+      "priorCaseId": "v40-minetown-special-program-generation",
+      "source": "nethack-c/upstream/dat/minetn-4.lua",
+      "recipe": "challenges/cases/v41/v41-minetn4-wizloaddes-cfirst.recipe.session.json",
+      "recipeSha256": "c0ce1b5f92891a9f64a5532680f1bf9d2901245a7f8449067f0691900d5700d4",
+      "recording": "challenges/cases/v41/v41-minetn4-wizloaddes-cfirst.session.json",
+      "recordingSha256": "2da77079721d6ebd5fc09019ff18640c3dfd46861248c3d62b2e4cafa27717e5",
+      "independentReplay": {
+        "byteIdentical": true,
+        "recordingSha256": "2da77079721d6ebd5fc09019ff18640c3dfd46861248c3d62b2e4cafa27717e5",
+        "replaySha256": "2da77079721d6ebd5fc09019ff18640c3dfd46861248c3d62b2e4cafa27717e5",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/replays/minetn4-special-program-generation.log"
+      },
+      "postSyncDifferential": {
+        "result": "overlap/stale",
+        "firstGap": "The first C-only obj_resists(zap.c:1469) draw appears during wiz_load_splua -> lspo_reset_level -> makemap_prepost, before a Minetown-4-specific source branch.",
+        "log": "/tmp/teleport-loop-worker-prep-20261008/.cache/prep-delivery/Prep5-v41/differentials/minetn4-special-program-generation-post-main-sync.log",
+        "logSha256": "88267f565710b33c622b14a6de1c208b69afe34939c5b56df0e7bcd08af6baed"
+      },
+      "disposition": "Preserve as a reset-state overlap probe; do not count it as a Minetown-4 program mismatch. The first divergence is the already represented level-reset behavior, not the selected Lua source unit."
+    },
+    {
+      "id": "medusa-special-program-generation",
+      "priorCaseId": "v37-medusa-special-level",
+      "disposition": "The valid C program probe is substantively covered by the admitted v37 Medusa level-port case; excluded from v41 counted cases."
+    }
+  ],
+  "excludedSetupMisses": [
+    {
+      "candidate": "vampire-tower-special-program-generation",
+      "status": "target-miss",
+      "recording": "challenges/cases/v41/v41-vampire1-wizloaddes-cfirst.session.json",
+      "notes": "C reports nhl_loadlua: Error opening (vampire1.lua); source file is absent. Preserve the recorder evidence.",
+      "cStatus": "target-miss"
+    },
+    {
+      "candidate": "shopkeeper-buys-dropped-player-item",
+      "status": "deferred-target-blocked",
+      "recording": "challenges/cases/v41/v41-shop-sellobj-minetown3-entered-shop-cfirst.session.json",
+      "notes": "After loading minetn-3.lua and trying the observed west-door exit/re-entry, C did not produce a shop welcome, sale quote, keeper response, or sellobj trace. D4 random-level probes also found no shop. Exact setup files are listed under deferredCandidates."
+    },
+    {
+      "candidate": "apply-unpaid-trap-object-in-shop",
+      "status": "deferred-shared-shop-state-blocker",
+      "notes": "The required live shop/keeper ownership precondition remained unavailable in the source-distinct sellobj setup attempts; do not invent unpaid state or claim a reached unpaid trap callback."
+    },
+    {
+      "candidate": "boulder-fills-pit-from-hero-action",
+      "status": "setup-probe",
+      "recipe": "challenges/cases/v41/v41-kick-boulder-levitated-pit-pages-corrected.recipe.session.json",
+      "recording": "challenges/cases/v41/v41-kick-boulder-levitated-pit-pages-corrected.session.json",
+      "notes": "C reaches the aligned pit/boulder geometry but #kick cannot move a boulder: dokick.c:really_kick_object returns 0 for BOULDER; the resulting kick_ouch is retained as a source-explained failed action."
+    },
+    {
+      "candidate": "forced-steed-dismount-at-pool",
+      "status": "setup-probe",
+      "recipe": "challenges/cases/v41/v41-steed-pool-mount-probe.recipe.session.json",
+      "recording": "challenges/cases/v41/v41-steed-pool-mount-probe.session.json",
+      "notes": "C map shows pony southeast (n); preserve initial no-direction and subsequent wrong-west attempts before correction."
+    },
+    {
+      "candidate": "forced-steed-dismount-at-pool",
+      "status": "setup-probe",
+      "recipe": "challenges/cases/v41/v41-steed-pool-kick-dismount-cfirst.recipe.session.json",
+      "recording": "challenges/cases/v41/v41-steed-pool-kick-dismount-cfirst.session.json",
+      "notes": "Wrong west mount direction led to “I see nobody there”; subsequent y was parsed as kick direction and fell into the pool. Preserved as setup evidence."
+    },
+    {
+      "candidate": "forced-steed-dismount-at-pool",
+      "status": "setup-probe",
+      "recipe": "challenges/cases/v41/v41-steed-pool-kick-dismount-cfirst-corrected.recipe.session.json",
+      "recording": "challenges/cases/v41/v41-steed-pool-kick-dismount-cfirst-corrected.session.json",
+      "notes": "Correct southeast mount reached and first kick galloped; preserved partial recording used to determine required post-message continuation."
+    },
+    {
+      "candidate": "forced-steed-dismount-at-pool",
+      "status": "setup-probe",
+      "recipe": "challenges/cases/v41/v41-steed-pool-kick-dismount-second-kick.recipe.session.json",
+      "recording": "challenges/cases/v41/v41-steed-pool-kick-dismount-second-kick.session.json",
+      "notes": "C reached steed drowning on the first More dismissal; later #kick text was buffered while pagers remained and caused extra water effects, so the final recipe ends at the precise target boundary."
+    }
+  ],
+  "searchSummary": {
+    "plannedBehaviorCandidatesBeforeJavascriptComparison": 12,
+    "additionalWholeProgramCandidates": "Astral and Minetown-5 were added during distinctness review; Minetown-5 replaced the excluded fakewiz2 overlap.",
+    "independentReplayCaseCount": 15,
+    "independentReplayPassed": true,
+    "freshDifferentialCaseCount": 15,
+    "differentialRunnerFailures": false,
+    "qualifyingDistinctMismatchCount": 12,
+    "matchingCaseCount": 3,
+    "retainedCaseCount": 15
+  },
+  "decision": "Prepared for Main validation. This worker did not admit or score v41.",
+  "preservedProbeEvidencePath": ".cache/prep-delivery/Prep5-v41/overlap-crosswalk.json"
+}
