@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first touchstone/glass target after c99: C showed the wished touchstone in slot n and the worthless white-glass gem in slot o. Apply n and rub it on o to reach apply.c:use_stone's GLASS-material branch.",
+  "segments": [
+    {
+      "seed": 39091017,
+      "datetime": "20420410090000",
+      "nethackrc": "OPTIONS=name:V38GlassStone,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizwish\ntouchstone\n#wizwish\nworthless piece of white glass\nano"
+    }
+  ]
+}

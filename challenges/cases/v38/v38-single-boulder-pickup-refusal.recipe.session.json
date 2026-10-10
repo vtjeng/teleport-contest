@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent v38 C-first probe for pickup.c:pickup_object -> lift_object -> carry_count. Wish a single boulder onto ordinary floor and attempt pickup. C must show the singleton lift refusal and leave the boulder on the floor; seed and clock are fixed before JS comparison.",
+  "segments": [
+    {
+      "seed": 38146001,
+      "datetime": "20391010090000",
+      "nethackrc": "OPTIONS=name:V38LiftProbe,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizwish\nboulder\n,b"
+    }
+  ]
+}

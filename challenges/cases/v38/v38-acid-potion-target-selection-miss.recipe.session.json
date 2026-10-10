@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first v38 c141 probe of potion.c:H2Opotion_dip -> trap.c:water_damage -> pot_acid_damage. Wish an uncursed potion of acid followed by uncursed water, then use #dip to dip the acid potion into the carried water potion. Keep as a valid reached probe only if C shows pot_acid_damage exploding and removing the acid potion; replay independently before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 38147001,
+      "datetime": "20410120123456",
+      "nethackrc": "OPTIONS=name:V38AcidWaterDip,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed potion of acid\n\u0017uncursed potion of water\n#dip\npq",
+      "recorderIsDst": true
+    }
+  ]
+}

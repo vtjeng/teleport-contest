@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only pager correction after c111: after selecting the C-observed cloak b, send ten spaces to dismiss the takeoff --More-- page(s), then read the wished scroll in its C-observed slot o. The resulting message must confirm the no-armor source branch.",
+  "segments": [
+    {
+      "seed": 39095021,
+      "datetime": "20420708091537",
+      "nethackrc": "OPTIONS=name:V38NoArmorScroll,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017blessed scroll of enchant armor\nAa\nb\n          ro\n"
+    }
+  ]
+}

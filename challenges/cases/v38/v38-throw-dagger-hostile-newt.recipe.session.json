@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first throw target after c102: C shows the hostile newt (`:`) immediately north of the hero, and the wished dagger is at inventory n. Select n then k to throw north at the newt.",
+  "segments": [
+    {
+      "seed": 39091022,
+      "datetime": "20420411091010",
+      "nethackrc": "OPTIONS=name:V38DaggerProbe,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizwish\ndagger\n.#wizgenesis\nhostile newt\ntnk"
+    }
+  ]
+}

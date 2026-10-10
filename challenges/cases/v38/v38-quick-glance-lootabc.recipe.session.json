@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source behavior for pager.c:doquickwhatis -> do_look(1). With lootabc enabled, semicolon enters the quick cursor picker without building the whatis selection menu. The selection prompt is the recorded target behavior.",
+  "segments": [
+    {
+      "seed": 38114001,
+      "datetime": "20391013101112",
+      "nethackrc": "OPTIONS=name:V38QuickGlance,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,lootabc,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ";"
+    }
+  ]
+}

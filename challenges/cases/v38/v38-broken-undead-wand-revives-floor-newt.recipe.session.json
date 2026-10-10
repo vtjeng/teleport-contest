@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first v38 c145 replay of c144: append a second space to dismiss C’s observed magical-blast pager. Confirm the Wizard remains at the dropped newt corpse and inspect whether apply.c:do_break_wand now reaches zap.c:bhito before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 38148001,
+      "datetime": "20420215131415",
+      "nethackrc": "OPTIONS=name:V38BrokenTurn,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed wand of undead turning\n\u0017newt corpse\ndpaoy  ",
+      "recorderIsDst": true
+    }
+  ]
+}

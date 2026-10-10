@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first v38 c155 reaches the untrapped sit trap arm. c154 established that Rogue seed 38149231, moving west off the initial stair, allows a wish-created arrow trap on ordinary floor; reentry fires and hits the hero, destroying the arrow and leaving no pile while u.utrap remains zero. This recipe then issues #sit without moving to exercise sit.c:dosit -> trap.c:dotrap(VIASITTING).",
+  "segments": [
+    {
+      "seed": 38149231,
+      "datetime": "20411012112233",
+      "nethackrc": "OPTIONS=name:V38SitTrap,role:Rogue,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\nh\u0017arrow trap\nlh#sit\n",
+      "recorderIsDst": true
+    }
+  ]
+}
