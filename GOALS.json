@@ -246174,7 +246174,7 @@
     {
       "id": "fix-counted-wizgenesis-v39-20261010",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix counted direct wizard Genesis dispatch",
       "cFile": "cmd.c",
       "sessions": [
@@ -246188,8 +246188,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "bc442e36ad933de77a8051a6ae641fac42ab6780",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "rhack",
       "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
       "step": 85,
@@ -246359,7 +246362,70 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-counted-wizgenesis-mimic-population",
+          "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recording": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+          "recipe": "challenges/cases/v39/v39-lockpick-mimic-door-west.recipe.session.json",
+          "recipeSha256": "586d722289ff28f4435cd1a96a3d7478034ecf4efc5ec3535df1c690cf2ffaa8",
+          "replayInputSha256": "9c849123a3d6d04f02b60b84dadcf1b460de318a7ca2ce052b1ffa6dbb7ce224",
+          "evaluationPath": "challenges/evaluations/accepted-bc442e36ad933de77a8051a6ae641fac42ab6780-v39.json",
+          "evaluationCommit": "bc442e36ad933de77a8051a6ae641fac42ab6780",
+          "evaluationArtifact": "challenges/evaluations/accepted-bc442e36ad933de77a8051a6ae641fac42ab6780-v39.json",
+          "evaluationUtc": "2026-10-10T06:34:43.125Z",
+          "remainingScreens": 20,
+          "recordedSteps": 114,
+          "previousScreensMatched": 85,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 94,
+              "total": 114
+            },
+            "rng": {
+              "matched": 6232,
+              "total": 6551
+            },
+            "cursors": {
+              "matched": 94,
+              "total": 114
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: monsterObject is not available",
+            "step": 94
+          },
+          "step": 94,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: monsterObject is not available",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v39/v39-counted-wizgenesis-mimic-population.json",
+            "previousRemainingScreens": 29
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "bc442e36ad933de77a8051a6ae641fac42ab6780",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

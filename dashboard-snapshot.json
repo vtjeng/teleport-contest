@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-10T06:12:10.825Z",
+  "capturedAt": "2026-10-10T06:37:44.315Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -78954,11 +78954,314 @@
         "task": "B209-investigation-v39-counted-wizgenesis",
         "worker": "B",
         "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v39-mounted-steed-polymorph-trap-investigation-20261010",
+        "type": "assign",
+        "at": "2026-10-10T06:12:45.476Z",
+        "task": "A2-v39-mounted-steed-polymorph-trap-investigation-20261010",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "c-v39-kill-egg-active-20261010",
+        "type": "turn",
+        "at": "2026-10-10T06:16:49.185Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B209-counted-wizgenesis-20261010",
+        "type": "implement",
+        "at": "2026-10-10T06:17:19.906Z",
+        "task": "B209-investigation-v39-counted-wizgenesis",
+        "goal": "fix-counted-wizgenesis-v39-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "c-v39-kill-egg-implement-20261010",
+        "type": "implement",
+        "at": "2026-10-10T06:19:24.153Z",
+        "task": "C-v39-cursed-jelly-nosafewait-20261010",
+        "goal": "port-kill-egg-timer-cancellation-v39-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v39-mounted-steed-polymorph-trap-20261010",
+        "type": "implement",
+        "at": "2026-10-10T06:20:34.953Z",
+        "task": "A2-v39-mounted-steed-polymorph-trap-investigation-20261010",
+        "goal": "divergence-v39-mounted-steed-polymorph-trap-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-42af7e0dffb44fbb43703f17cefc43929bfc93f0",
+        "type": "ready",
+        "at": "2026-10-10T06:22:49.511Z",
+        "task": "B209-investigation-v39-counted-wizgenesis",
+        "delivery": "42af7e0dffb44fbb43703f17cefc43929bfc93f0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-after-B209-20261010",
+        "type": "turn",
+        "at": "2026-10-10T06:23:07.987Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B209-42af7e0d-20261010",
+        "type": "received",
+        "at": "2026-10-10T06:23:42.479Z",
+        "task": "B209-investigation-v39-counted-wizgenesis",
+        "delivery": "42af7e0dffb44fbb43703f17cefc43929bfc93f0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-review-B209-42af7e0d-20261010",
+        "type": "activity",
+        "at": "2026-10-10T06:23:43.697Z",
+        "task": "B209-investigation-v39-counted-wizgenesis",
+        "phase": "review",
+        "reason": "Reviewing counted wizgenesis source scope, synthetic provenance, focused evidence, and delivery ancestry before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B210-v39-lava-after-ring-removal",
+        "type": "assign",
+        "at": "2026-10-10T06:24:22.164Z",
+        "task": "B210-investigation-v39-lava-after-ring-removal",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B210-lava-investigation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T06:24:30.060Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-v39-mounted-steed-implement-20261010",
+        "type": "turn",
+        "at": "2026-10-10T06:24:55.447Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 is fixing the v39 mounted-steed polymorph name path; the initial naming failure is gone, and a later steed RNG gap remains under source review."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep4-v40-active-20261010T0700Z",
+        "type": "turn",
+        "at": "2026-10-10T06:25:26.697Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has four independently replayed full-match controls; the pet-food path reached dog_eat and matched JavaScript. Continuing the source-based slate with zero qualifying mismatches so far."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B209-bc442e36a-20261010",
+        "type": "integrating",
+        "at": "2026-10-10T06:28:08.737Z",
+        "task": "B209-investigation-v39-counted-wizgenesis",
+        "integration": "bc442e36ad933de77a8051a6ae641fac42ab6780"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-53d97686375899b982364527f1e74b2c55ae2dd7",
+        "type": "ready",
+        "at": "2026-10-10T06:30:23.252Z",
+        "task": "C-v39-cursed-jelly-nosafewait-20261010",
+        "delivery": "53d97686375899b982364527f1e74b2c55ae2dd7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-v39-kill-egg-submitted-idle-20261010",
+        "type": "turn",
+        "at": "2026-10-10T06:30:35.806Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C176 is submitted; C will resume when Main accepts it or requests a correction."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B210-lava-effects-20261010",
+        "type": "implement",
+        "at": "2026-10-10T06:31:07.518Z",
+        "task": "B210-investigation-v39-lava-after-ring-removal",
+        "goal": "fix-trap-float-down-lava-effects-order-v39-20261010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C176-53d97686-20261010",
+        "type": "received",
+        "at": "2026-10-10T06:31:45.579Z",
+        "task": "C-v39-cursed-jelly-nosafewait-20261010",
+        "delivery": "53d97686375899b982364527f1e74b2c55ae2dd7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-review-C176-53d97686-20261010",
+        "type": "activity",
+        "at": "2026-10-10T06:31:46.793Z",
+        "task": "C-v39-cursed-jelly-nosafewait-20261010",
+        "phase": "review",
+        "reason": "Previewing kill_egg source closure, three production caller routes, recordings, and immutable evidence while B209 checkpoint runs."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep4-v40-active-20261010T0735Z",
+        "type": "turn",
+        "at": "2026-10-10T06:32:01.686Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has six independently replayed full-match controls. The cursed-whistle target overlaps a v39 setup miss; the next C-first candidate targets Earth-plane pickaxe digging."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a32daf664bb995a1405c33407f5a339a017004cc",
+        "type": "ready",
+        "at": "2026-10-10T06:33:58.880Z",
+        "task": "A2-v39-mounted-steed-polymorph-trap-investigation-20261010",
+        "delivery": "a32daf664bb995a1405c33407f5a339a017004cc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B210-v39-implementation-20261010",
+        "type": "turn",
+        "at": "2026-10-10T06:34:58.723Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B210 restores immediate lava effects and worn-cloak removal; focused tests and the full v39 replay pass."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-730b2417130fc0c0bf5193cf26ce0028156a7e55",
+        "type": "ready",
+        "at": "2026-10-10T06:35:09.852Z",
+        "task": "B210-investigation-v39-lava-after-ring-removal",
+        "delivery": "730b2417130fc0c0bf5193cf26ce0028156a7e55"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep4-v40-active-20261010T0741Z",
+        "type": "turn",
+        "at": "2026-10-10T06:35:20.045Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "v40 has six independently replayed C-first controls; the Earth-plane candidate remains unresolved and the next source behavior is in exploration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-v39-sink-20261010-active",
+        "type": "turn",
+        "at": "2026-10-10T06:35:37.916Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "A2 is investigating the next unreserved v39 mismatch: sink levitation boots pickup. Source ownership is not yet known."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-assign-v39-sink-levitation-boots-pickup-20261010",
+        "type": "assign",
+        "at": "2026-10-10T06:35:39.405Z",
+        "task": "A2-investigation-v39-sink-levitation-boots-pickup-20261010",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-a2-a32daf664bb9",
+        "type": "received",
+        "at": "2026-10-10T06:36:00.549Z",
+        "task": "A2-v39-mounted-steed-polymorph-trap-investigation-20261010",
+        "delivery": "a32daf664bb995a1405c33407f5a339a017004cc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-b210-730b2417130f",
+        "type": "received",
+        "at": "2026-10-10T06:36:01.955Z",
+        "task": "B210-investigation-v39-lava-after-ring-removal",
+        "delivery": "730b2417130fc0c0bf5193cf26ce0028156a7e55"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B211-select-v39-selftouch-20261010",
+        "type": "turn",
+        "at": "2026-10-10T06:36:18.987Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B210 is submitted; investigating an unreserved v39 self-touch case with a final screen/cursor mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B209-investigation-v39-counted-wizgenesis-bc442e36ad933de77a8051a6ae641fac42ab6780-validated",
+        "type": "validated",
+        "at": "2026-10-10T06:36:22.989Z",
+        "task": "B209-investigation-v39-counted-wizgenesis",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B211-v39-selftouch-cockatrice-human-final",
+        "type": "assign",
+        "at": "2026-10-10T06:36:24.483Z",
+        "task": "B211-investigation-v39-selftouch-cockatrice-human-final",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B209-investigation-v39-counted-wizgenesis-bc442e36ad933de77a8051a6ae641fac42ab6780-accepted",
+        "type": "accepted",
+        "at": "2026-10-10T06:37:12.623Z",
+        "task": "B209-investigation-v39-counted-wizgenesis"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [],
+    "deliveries": [
+      {
+        "task": "C-v39-cursed-jelly-nosafewait-20261010",
+        "worker": "C",
+        "goal": "port-kill-egg-timer-cancellation-v39-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "53d97686375899b982364527f1e74b2c55ae2dd7",
+        "since": "2026-10-10T06:30:23.252Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-v39-mounted-steed-polymorph-trap-investigation-20261010",
+        "worker": "A2",
+        "goal": "divergence-v39-mounted-steed-polymorph-trap-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "a32daf664bb995a1405c33407f5a339a017004cc",
+        "since": "2026-10-10T06:33:58.880Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B210-investigation-v39-lava-after-ring-removal",
+        "worker": "B",
+        "goal": "fix-trap-float-down-lava-effects-order-v39-20261010",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "730b2417130fc0c0bf5193cf26ce0028156a7e55",
+        "since": "2026-10-10T06:35:09.852Z",
+        "blockedBy": [],
+        "unblocks": 0
+      }
+    ],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -79261,8 +79564,8 @@
     ]
   },
   "development": {
-    "executionCommit": "3eecb35969ddbbd8e2b5278d49fb748de8442d5b",
-    "measuredAt": "2026-10-10T06:04:25.793Z",
+    "executionCommit": "bc442e36ad933de77a8051a6ae641fac42ab6780",
+    "measuredAt": "2026-10-10T06:35:21.083Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
