@@ -253814,7 +253814,7 @@
     {
       "id": "port-mhitu-mayberem-v41-incubus-20261010",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port seduction armor removal",
       "cFile": "mhitu.c",
       "sessions": [
@@ -253822,8 +253822,12 @@
       ],
       "selectionReason": "The accepted v41 incubus replay first diverges when mhitu.c:mayberem consumes rn2(20), verbalizes the cloak removal, and removes the worn cloak while JavaScript records an unported gap.",
       "detail": "Port the complete private mhitu.c mayberem helper and wire every existing doseduce call in source order, reusing steal.c remove_worn_item.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "2e2ecfca5031c18f0e351d915a544f1ed28ba2c2",
+      "openStanding": {
+        "sha": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -253862,7 +253866,271 @@
           "evaluationPath": "challenges/evaluations/accepted-8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d-v41.json",
           "evaluationCommit": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v41",
+          "caseId": "v41-incubus-seduction-removes-worn-armor",
+          "session": "synthetic/v41/v41-incubus-seduction-removes-worn-armor",
+          "manifestPath": "challenges/manifests/v41.json",
+          "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+          "recording": "challenges/cases/v41/v41-incubus-mayberem-pager-corrected.session.json",
+          "recordingPath": "challenges/cases/v41/v41-incubus-mayberem-pager-corrected.session.json",
+          "recordingSha256": "eeff21fe87bec9c6dd84419df9e734f5a7bf35f57cb71c5098f124c85e26163d",
+          "recipe": "challenges/cases/v41/v41-incubus-mayberem-pager-corrected.recipe.session.json",
+          "recipeSha256": "22cc5ba7776b87e776653784885669a25e4132ef229a2fc74ef2f470c14546b9",
+          "replayInputSha256": "b49bbb5a41c55e8d8696ee6c8da33a16560a07ce51f91533ed3a8f4a54ee77a8",
+          "evaluationPath": "challenges/evaluations/accepted-8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d-v41.json",
+          "evaluationCommit": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d",
+          "evaluationArtifact": "challenges/evaluations/accepted-8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d-v41.json",
+          "evaluationUtc": "2026-10-10T15:38:45.097Z",
+          "remainingScreens": 4,
+          "recordedSteps": 46,
+          "previousScreensMatched": 42,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 42,
+              "total": 46
+            },
+            "rng": {
+              "matched": 6335,
+              "total": 6338
+            },
+            "cursors": {
+              "matched": 42,
+              "total": 46
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 42,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 42,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 1,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 6335,
+              "cEntry": "rn2(20)=14",
+              "cCaller": "mayberem(mhitu.c:2325)",
+              "jsEntry": "rnd(79)=19",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 40,
+                "key": " "
+              },
+              "stepIndex": 40
+            },
+            "cursor": {
+              "index": 42,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 42,
+                "key": " "
+              },
+              "cCursor": [
+                47,
+                0,
+                1
+              ],
+              "jsCursor": [
+                43,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 40,
+          "kind": "rng",
+          "sourceFile": "mhitu.c",
+          "function": "mayberem",
+          "message": null,
+          "cFile": "mhitu.c",
+          "luaFile": null,
+          "line": 2325,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v41/v41-incubus-seduction-removes-worn-armor.json",
+            "result": {
+              "session": "synthetic/v41/v41-incubus-seduction-removes-worn-armor",
+              "corpus": "synthetic",
+              "batch": "v41",
+              "caseId": "v41-incubus-seduction-removes-worn-armor",
+              "manifestPath": "challenges/manifests/v41.json",
+              "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+              "recordingPath": "challenges/cases/v41/v41-incubus-mayberem-pager-corrected.session.json",
+              "recordingSha256": "eeff21fe87bec9c6dd84419df9e734f5a7bf35f57cb71c5098f124c85e26163d",
+              "evaluationPath": "challenges/evaluations/accepted-8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d-v41.json",
+              "evaluationCommit": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d",
+              "remainingScreens": 4,
+              "recordedSteps": 46,
+              "status": "complete",
+              "commit": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v41",
+                "caseId": "v41-incubus-seduction-removes-worn-armor",
+                "session": "synthetic/v41/v41-incubus-seduction-removes-worn-armor",
+                "manifestPath": "challenges/manifests/v41.json",
+                "manifestSha256": "7f6627032def2f88334c51f8372f9b61e908665fa995f5d24b06af89532acc69",
+                "recording": "challenges/cases/v41/v41-incubus-mayberem-pager-corrected.session.json",
+                "recordingPath": "challenges/cases/v41/v41-incubus-mayberem-pager-corrected.session.json",
+                "recordingSha256": "eeff21fe87bec9c6dd84419df9e734f5a7bf35f57cb71c5098f124c85e26163d",
+                "recipe": "challenges/cases/v41/v41-incubus-mayberem-pager-corrected.recipe.session.json",
+                "recipeSha256": "22cc5ba7776b87e776653784885669a25e4132ef229a2fc74ef2f470c14546b9",
+                "replayInputSha256": "b49bbb5a41c55e8d8696ee6c8da33a16560a07ce51f91533ed3a8f4a54ee77a8",
+                "evaluationPath": "challenges/evaluations/accepted-8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d-v41.json",
+                "evaluationCommit": "8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d",
+                "evaluationArtifact": "challenges/evaluations/accepted-8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d-v41.json",
+                "evaluationUtc": "2026-10-10T15:38:45.097Z",
+                "remainingScreens": 4,
+                "recordedSteps": 46,
+                "previousScreensMatched": 42,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 42,
+                    "total": 46
+                  },
+                  "rng": {
+                    "matched": 6335,
+                    "total": 6338
+                  },
+                  "cursors": {
+                    "matched": 42,
+                    "total": 46
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 42,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 42,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 1,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 6335,
+                    "cEntry": "rn2(20)=14",
+                    "cCaller": "mayberem(mhitu.c:2325)",
+                    "jsEntry": "rnd(79)=19",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 40,
+                      "key": " "
+                    },
+                    "stepIndex": 40
+                  },
+                  "cursor": {
+                    "index": 42,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 42,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      47,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      43,
+                      6,
+                      1
+                    ]
+                  }
+                },
+                "step": 40,
+                "kind": "rng",
+                "sourceFile": "mhitu.c",
+                "function": "mayberem",
+                "message": null,
+                "cFile": "mhitu.c",
+                "luaFile": null,
+                "line": 2325,
+                "investigation": {
+                  "status": "missing",
+                  "path": "investigations/synthetic/v41/v41-incubus-seduction-removes-worn-armor.json"
+                }
+              },
+              "summary": "The v41 hostile incubus reaches mhitu.c:doseduce and calls the private mayberem helper for the hero’s worn cloak. In the recorded branch, rn2(20)=14 is not below charisma 10, so C calls SetVoice, verbalizes “Take off your cloak; it’s in the way.”, and removes the cloak with remove_worn_item. JavaScript currently replaces every doseduce mayberem call with note_unported, skipping the RNG, message/pause, and armor state change; the first differing C RNG call is mayberem and screen/cursor output diverges immediately after it. Port the complete void helper and wire all existing doseduce call sites in C source order.",
+              "source": {
+                "file": "mhitu.c",
+                "branch": "doseduce reaches mayberem with a worn armor object while no transport is pending and the monster remains adjacent; mayberem chooses the deaf path, charisma prompt path, or verbalized removal path, then removes the item unless the player declines.",
+                "functions": [
+                  "doseduce",
+                  "mayberem"
+                ],
+                "callers": [
+                  "mhitu.c:doseduce -> mayberem",
+                  "uhitm.c:hitmu -> mhitu.c:doseduce",
+                  "sounds.c:domonnoise -> mhitu.c:doseduce"
+                ],
+                "dependencies": [
+                  "rnd.c:rn2",
+                  "sounds.c:SetVoice",
+                  "cmd.c:y_n",
+                  "pline.c:verbalize",
+                  "polyself.c:body_part",
+                  "steal.c:remove_worn_item"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "nethack-c/upstream/src/mhitu.c:2309-2350 defines mayberem as a void helper. It first skips absent/unworn items and refuses after transport or loss of adjacency; then Deaf emits a direct pline, high charisma draws rn2(20) and may ask a y_n question using short-circuited rn2(2) terms, and the other path calls SetVoice and verbalize before remove_worn_item(obj, TRUE).",
+                "nethack-c/upstream/src/mhitu.c:doseduce calls mayberem for gloves during ring handling and then for cloak, suit, boots, gloves, shield, helm, and shirt in that exact order. Its void result is ignored; side effects and pauses determine subsequent behavior.",
+                "challenges/cases/v41/v41-incubus-mayberem-pager-corrected.session.json, segment 0, zero-based step 40 records rn2(20)=14 at mayberem(mhitu.c:2325); step 42 records the C line “Take off your cloak; it’s in the way.” The session reaches the helper through #wizgenesis hostile incubus and wait actions.",
+                "challenges/evaluations/accepted-8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d-v41.json from accepted game commit 8cc0a33bda69c973d58d6bfa01b2bb17ee96b44d records 42/46 matching screens, 6335/6338 matching RNG calls, and 42/46 matching cursors. Saved queue SHA-256 e13363035a8e7a3b6bdb38611b40f692b155bb781fc7c7bfb6e7553b345e572a; the first C RNG call remains rn2(20)=14 from mayberem at step 40.",
+                "js/mhitu.js: doseduce defines mayberem as note_unported and invokes that no-op at every corresponding call site. scripts/mhitu-doseduce.test.mjs explicitly pins the gap. js/steal.js already contains the remove_worn_item armor-removal path used by C, so the bounded implementation is the complete mhitu.c helper and its doseduce caller wiring."
+              ],
+              "replayInputSha256": "b49bbb5a41c55e8d8696ee6c8da33a16560a07ce51f91533ed3a8f4a54ee77a8"
+            }
+          }
+        }
+      ]
     }
   ]
 }
