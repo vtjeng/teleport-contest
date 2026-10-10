@@ -250024,6 +250024,39 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-mimic-absorb-item-lockpick-rng-v39-20261010",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Port mimic item absorption after lock-pick reveal",
+      "cFile": "steal.c",
+      "sessions": [
+        "synthetic/v39/v39-counted-wizgenesis-mimic-population"
+      ],
+      "selectionReason": "Oldest ready v39 mismatch after artifact retouch acceptance; the source trace reaches steal.c:maybe_absorb_item through the door-mimic lock-pick branch.",
+      "detail": "Source routes cmd.c:rhack through apply.c:doapply and lock.c:pick_lock, which reveals the door mimic before calling steal.c:maybe_absorb_item(mtmp, pick, 50, 10).",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "maybe_absorb_item",
+      "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+      "step": 113,
+      "syntheticProvenance": {
+        "synthetic/v39/v39-counted-wizgenesis-mimic-population": {
+          "session": "synthetic/v39/v39-counted-wizgenesis-mimic-population",
+          "corpus": "synthetic",
+          "batch": "v39",
+          "caseId": "v39-counted-wizgenesis-mimic-population",
+          "manifestPath": "challenges/manifests/v39.json",
+          "manifestSha256": "02e1d34e578b14e273a1916991d10e6ce67e585118338a2c2d45f322b63e81d0",
+          "recordingPath": "challenges/cases/v39/v39-lockpick-mimic-door-west.session.json",
+          "recordingSha256": "45df279d7e37dddc222b2a05cf8906f942c07797eaed8f930f6892d4d997942e",
+          "evaluationPath": "challenges/evaluations/accepted-23d07ff38df570228278bc8af9679db5ae6fdab7-v39.json",
+          "evaluationCommit": "23d07ff38df570228278bc8af9679db5ae6fdab7"
+        }
+      }
     }
   ]
 }
