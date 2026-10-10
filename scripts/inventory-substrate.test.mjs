@@ -3580,9 +3580,21 @@ test('ordinary drop preflight refuses excluded floor effects before mutation',
         );
         state.u.uprops[HALLUC].intrinsic = 0;
         state.u.uinwater = true;
-        assert.throws(
-            () => preflight_dropx(ball, { state, hooks }),
-            /underwater/u,
+        const beforeUnderwaterAdmission = {
+            inventory: state.invent,
+            ownership: ball.where,
+            floor: state.level.objects[10][5],
+        };
+        const underwaterAdmission = preflight_dropx(ball, { state, hooks });
+        assert.equal(underwaterAdmission.object, ball);
+        assert.equal(underwaterAdmission.state, state);
+        assert.equal(underwaterAdmission.initialWhere, OBJ_INVENT);
+        assert.equal(underwaterAdmission.consumed, false);
+        assert.equal(state.invent, beforeUnderwaterAdmission.inventory);
+        assert.equal(ball.where, beforeUnderwaterAdmission.ownership);
+        assert.equal(
+            state.level.objects[10][5],
+            beforeUnderwaterAdmission.floor,
         );
         state.u.uinwater = false;
         state.head_engr = { engr_x: 10, engr_y: 5, nxt_engr: null };
@@ -3664,9 +3676,6 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
             ['seen pit-edge effects', /trap/u, ({ state }) => {
                 state.level.traps.push({ tx: 10, ty: 5, ttyp: PIT, tseen: true });
             }],
-            ['liquid effects', /liquid/u, ({ state }) => {
-                state.level.at(10, 5).typ = LAVAPOOL;
-            }],
             ['other terrain', /non-ordinary/u, ({ state }) => {
                 state.level.at(10, 5).typ = FOUNTAIN;
             }],
@@ -3709,6 +3718,29 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
             );
             assert.deepEqual(lines, [], `${name}: output`);
         }
+
+        const lava = ordinaryDropFixture();
+        lava.state.level.at(10, 5).typ = LAVAPOOL;
+        const beforeLiquidAdmission = {
+            inventory: lava.state.invent,
+            ownership: lava.obj.where,
+            floor: lava.state.level.objects[10][5],
+        };
+        const liquidAdmission = preflight_dropx(lava.obj, {
+            state: lava.state,
+            hooks: lava.hooks,
+        });
+        assert.equal(liquidAdmission.object, lava.obj);
+        assert.equal(liquidAdmission.state, lava.state);
+        assert.equal(liquidAdmission.initialWhere, OBJ_INVENT);
+        assert.equal(liquidAdmission.consumed, false);
+        assert.equal(lava.state.invent, beforeLiquidAdmission.inventory);
+        assert.equal(lava.obj.where, beforeLiquidAdmission.ownership);
+        assert.equal(
+            lava.state.level.objects[10][5],
+            beforeLiquidAdmission.floor,
+        );
+        assert.deepEqual(lava.lines, []);
 
         const altar = ordinaryDropFixture();
         altar.state.level.at(10, 5).typ = ALTAR;
