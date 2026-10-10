@@ -40,6 +40,7 @@ import {
     SPE_BOOK_OF_THE_DEAD,
     SPE_HEALING,
     SPE_STONE_TO_FLESH,
+    SPE_TELEPORT_AWAY,
     OBJ_NAME,
 } from '../js/objects.js';
 import { roles } from '../js/roles.js';
@@ -54,6 +55,10 @@ import {
     spellet,
     spellretention,
     spelltypemnemonic,
+    known_spell,
+    spe_Fresh,
+    tport_spell,
+    TPORT_SPELL_ACTION,
 } from '../js/spell.js';
 import { SPELL_KNOWLEDGE_KEEN } from '../js/startup_skills.js';
 
@@ -83,6 +88,49 @@ test('age_spells decrements contiguous nonzero spell knowledge once', () => {
 test('age_spells accepts an empty initialized spellbook', () => {
     const state = { svs: { spl_book: [] } };
     assert.doesNotThrow(() => age_spells(state));
+});
+
+test('tport_spell adds, removes, hides, and restores the complete saved slot', () => {
+    const state = spellState();
+    const slot = state.svs.spl_book[0];
+    const empty = structuredClone(slot);
+
+    assert.equal(
+        tport_spell(TPORT_SPELL_ACTION.ADD, state),
+        TPORT_SPELL_ACTION.REMOVE,
+    );
+    assert.deepEqual(state.svs.spl_book[0], {
+        ...empty,
+        sp_id: SPE_TELEPORT_AWAY,
+        sp_lev: state.objects[SPE_TELEPORT_AWAY].oc_level,
+        sp_know: SPELL_KNOWLEDGE_KEEN,
+    });
+    assert.equal(known_spell(SPE_TELEPORT_AWAY, state), spe_Fresh);
+    assert.equal(
+        tport_spell(TPORT_SPELL_ACTION.REMOVE, state),
+        TPORT_SPELL_ACTION.NOOP,
+    );
+    assert.deepEqual(state.svs.spl_book[0], empty);
+
+    const known = {
+        sp_id: SPE_TELEPORT_AWAY,
+        sp_lev: state.objects[SPE_TELEPORT_AWAY].oc_level,
+        sp_know: 12345,
+    };
+    state.svs.spl_book[0] = { ...known };
+    assert.equal(
+        tport_spell(TPORT_SPELL_ACTION.HIDE, state),
+        TPORT_SPELL_ACTION.UNHIDE,
+    );
+    assert.deepEqual(state.svs.spl_book[0], {
+        ...known,
+        sp_id: NO_SPELL,
+    });
+    assert.equal(
+        tport_spell(TPORT_SPELL_ACTION.UNHIDE, state),
+        TPORT_SPELL_ACTION.NOOP,
+    );
+    assert.deepEqual(state.svs.spl_book[0], known);
 });
 
 test('mkobj.c curse interrupts only the Book of the Dead being studied', async () => {
