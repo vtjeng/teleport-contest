@@ -3879,8 +3879,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //   a fixed-destination teleport trap with a monster standing on the
 //     destination -- teleport.c:1516's rloc_to(), whose port covers only a
 //     monster that is not yet on the map;
-//   a seen trap except ARROW_TRAP, WEB, LANDMINE, ROCKTRAP, ANTI_MAGIC,
-//     STATUE_TRAP, SQKY_BOARD and pits/holes -- the "You escape ..." line
+//   a seen trap except ARROW_TRAP, MAGIC_TRAP, WEB, LANDMINE, ROCKTRAP,
+//     ANTI_MAGIC, STATUE_TRAP, SQKY_BOARD and pits/holes -- the "You escape ..." line
 //     at trap.c:3039
 //     is outside those effects;
 //   a mounted hero where the effect has no corresponding source arm --
@@ -3921,7 +3921,8 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
     // nomul(0), so compute the same pure predicate without applying that write.
     const forcetrap = (trflags & (FORCETRAP | FAILEDUNTRAP)) !== 0
         || fixed_tele_trap(trap);
-    // trap.c:3035-3043 has a live seen-bear branch for its escape roll/effect.
+    // trap.c:3035-3043 has live seen-bear and seen-magic branches for the
+    // escape roll and their effects.
     if (trap.tseen && !forcetrap && trap.ttyp !== ARROW_TRAP
         && trap.ttyp !== BEAR_TRAP
         && trap.ttyp !== MAGIC_TRAP
