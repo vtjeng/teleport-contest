@@ -15,6 +15,11 @@ test('doseduce wires the source-ordered mayberem armor path', () => {
     assert.ok(doseduceC, 'mhitu.c contains the complete doseduce body');
     assert.match(doseduceC,
         /if \(mon->mcan \|\| mon->mspec_used\)[\s\S]*?return 0;[\s\S]*?if \(unresponsive\(\)\)[\s\S]*?return 0;[\s\S]*?stop_donning\([\s\S]*?for \(ring = gi\.invent; ring; ring = nring\)[\s\S]*?naked = \(!uarmc && !uarmf && !uarmg && !uarms && !uarmh && !uarmu\);[\s\S]*?mayberem\(mon, Who, uarmc,[\s\S]*?if \(uarm \|\| uarmc\)[\s\S]*?return 1;[\s\S]*?rn2\(35\)[\s\S]*?switch \(rn2\(5\)\)[\s\S]*?rn2\(20\)[\s\S]*?if \(!rn2\(25\)\)[\s\S]*?rloc\(mon, RLOC_MSG\)[\s\S]*?return 1;/u);
+    // The C early break and two replacement arms establish why its final
+    // impossible("ring replacement") call remains an explicitly named gap.
+    assert.match(doseduceC,
+        /if \(uleft && uright && uleft->otyp == RIN_ADORNMENT\s*&& uright->otyp == RIN_ADORNMENT\)\s*break;[\s\S]*?if \(ring == uleft \|\| ring == uright\)\s*continue;[\s\S]*?else if \(uright && uright->otyp != RIN_ADORNMENT\)[\s\S]*?else if \(uleft && uleft->otyp != RIN_ADORNMENT\)[\s\S]*?else\s*impossible\("ring replacement"\);/u,
+    );
 
     const mayberemC = MHITU_C.match(
         /staticfn void\s+mayberem\(struct monst \*mon,[\s\S]*?\n\}/u,
@@ -41,6 +46,10 @@ test('doseduce wires the source-ordered mayberem armor path', () => {
     assert.match(doseduceJs,
         /await adjattrib\(A_CON, 1, true, state, effectEnv\);/u,
         'the C adjattrib caller receives the callback-bearing environment',
+    );
+    // Match the same ring-slot guards around JS's retained void impossible gap.
+    assert.match(doseduceJs,
+        /if \(state\.uleft && state\.uright[\s\S]*?&& state\.uright\.otyp === RIN_ADORNMENT\)\s*\{\s*break;\s*\}[\s\S]*?if \(ring === state\.uleft \|\| ring === state\.uright\)[\s\S]*?else if \(state\.uright[\s\S]*?state\.uright\.otyp !== RIN_ADORNMENT\)[\s\S]*?else if \(state\.uleft[\s\S]*?state\.uleft\.otyp !== RIN_ADORNMENT\)[\s\S]*?note_unported\('pline\.c impossible'\)/u,
     );
 
     const mayberemJs = MHITU_JS.match(
