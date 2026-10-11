@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "BLOCKED: apply.c:mleashed_next2u() calls mnexto() and may clear the leash with a paged You_feel() message. js/apply_next_to_u.js still refuses the active leashed-companion branch because next_to_u() is synchronous across its callers. This C-first probe attaches a leash to a tamed dog, moves the hero away, and attempts a stair transition; it is not a matching recording.",
+  "segments": [
+    {
+      "seed": 1493149,
+      "datetime": "20931114124500",
+      "nethackrc": "OPTIONS=name:LeashedNextA2,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0007tame dog\n\u0017leash\nannann\n#wizteleport\n>"
+    }
+  ]
+}

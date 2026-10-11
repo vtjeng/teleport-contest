@@ -4,14 +4,18 @@ import test from 'node:test';
 import {
     MIGR_EXACT_XY,
     MIGR_RANDOM,
+    MON_LIMBO,
     MON_MIGRATING,
+    MON_STILL_ARRIVING,
+    STRAT_ARRIVE,
 } from '../js/const.js';
 import { ledger_no } from '../js/dungeon.js';
-import { keepdogs, migrate_to_level } from '../js/dog.js';
+import { keepdogs, losedogs, migrate_to_level } from '../js/dog.js';
 import { GameMap } from '../js/game.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
     PM_KITTEN,
+    PM_PONY,
     PM_SEWER_RAT,
     PM_YELLOW_LIGHT,
     monst_globals_init,
@@ -279,6 +283,44 @@ test('keepdogs takes an adjacent pet off the level onto gm.mydogs', async () => 
     assert.deepEqual([pet.mx, pet.my], [0, 0]);
     assert.equal(pet.wormno, 0);
     assert.equal(pet.mlstmv, MIGRATION_TURN);
+});
+
+test('keepdogs and losedogs carry the mounted steed through a level change', async () => {
+    const state = migrationState();
+    state.gm.mydogs = null;
+    // dog.c:827-866 clears a steed's eating state, moves it to gm.mydogs, and
+    // keeps its source coordinates only until u_on_newpos() sets the arrival.
+    const steed = heroAdjacentMonster(state, PM_PONY, {
+        mtame: 10,
+        meating: 3,
+    });
+    state.u.usteed = steed;
+
+    await keepdogs(false, { newsym: () => {}, state });
+
+    assert.equal(state.gm.mydogs, steed);
+    assert.equal(state.level.monlist, null);
+    assert.equal(steed.mtrapped, false);
+    assert.equal(steed.meating, 0);
+    assert.deepEqual([steed.mx, steed.my], [0, 0]);
+    assert.equal(steed.mlstmv, MIGRATION_TURN);
+
+    // dungeon.c:u_on_newpos() updates the ridden steed before do.c calls
+    // losedogs(); dog.c:mon_arrive() returns without putting it on a tile.
+    state.u.ux = HERO_X + 2;
+    state.u.uy = HERO_Y;
+    steed.mx = state.u.ux;
+    steed.my = state.u.uy;
+    await losedogs({ newsym: () => {}, state });
+
+    assert.equal(state.gm.mydogs, null);
+    assert.equal(state.level.monlist, steed);
+    assert.equal(state.u.usteed, steed);
+    assert.deepEqual([steed.mx, steed.my], [state.u.ux, state.u.uy]);
+    assert.equal(steed.mstate & MON_MIGRATING, 0);
+    assert.equal(steed.mstate & MON_LIMBO, 0);
+    assert.equal(steed.mstate & MON_STILL_ARRIVING, MON_STILL_ARRIVING);
+    assert.equal(steed.mstrategy & STRAT_ARRIVE, STRAT_ARRIVE);
 });
 
 test('keepdogs leaves an ordinary monster on the level', async () => {
