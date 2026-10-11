@@ -268,6 +268,7 @@ import {
     engr_at,
     wipe_engr_at,
 } from './engrave.js';
+import { check_leash } from './apply.js';
 import { game } from './gstate.js';
 import { breaktest } from './dothrow.js';
 import { hit_bars } from './mthrowu.js';
@@ -4467,6 +4468,10 @@ async function domove_core(state = game) {
         || u.dx || u.dy) {
         hideunder(state.youmonst, { state });
     }
+
+    // C ref: hack.c domove_core():2962. The leash response precedes redraw,
+    // vision refresh, and the destination's spot effects.
+    await check_leash(u.ux0, u.uy0, { state });
 
     newsym(oldx, oldy);
     vision_recalc(1);
