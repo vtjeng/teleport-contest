@@ -5669,6 +5669,19 @@ export async function rhack(key, state = game) {
             if (res & ECMD_TIME) commandTookTime(state);
             return;
         }
+        // C ref: iactions.c itemactions_pushkeys() queues adjust_split's
+        // function pointer for IA_ADJUST_STACK, and cmd.c rhack() invokes that
+        // pointer before getobj() consumes the following inventory letter.
+        if (queuedExtcmdEntry?.ef_funct === 'adjust_split') {
+            const res = await failClosedCommand(
+                key, state, () => adjust_split(state),
+            );
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
         // C end.c fuzzer_savelife() queues this function after repeated
         // debug deaths; rhack invokes the queued row without another prompt.
         if (queuedExtcmdEntry?.ef_funct === 'wiz_makemap') {
