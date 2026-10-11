@@ -269495,7 +269495,7 @@
     {
       "id": "port-ball-drop-ball-v45-ironball-longlane-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port complete punished iron ball landing relocation and wire both active drop and throw callers.",
       "cFile": "ball.c",
       "sessions": [
@@ -269509,8 +269509,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "cfead60783b397097e20e05274512010fec57464",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "drop_ball",
@@ -269842,6 +269845,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "cfead60783b397097e20e05274512010fec57464",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
