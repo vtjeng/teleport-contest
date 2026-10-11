@@ -275867,15 +275867,15 @@
           "name": "theft_petrifies",
           "line": 2148,
           "endLine": 2173,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "steal_it",
           "line": 2174,
           "endLine": 2280,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -276154,7 +276154,161 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "theft_petrifies",
+            "implementation": "js/uhitm.js",
+            "symbol": "theft_petrifies",
+            "sourceReview": "Read all of nethack-c/upstream/src/uhitm.c:2148-2173. Preserve the early false gate for worn gloves, non-corpse items, non-petrifying species, and stone resistance; the disabled poly_when_stoned block; then instapetrify(corpse_xname(...)) and TRUE even if the hero survives. JS theft_petrifies matches those predicates and awaits instapetrify with the source-form “stolen” corpse name. steal_it consumes this boolean to stop subsequent inventory theft. The independent wand recording and admitted shield route call this helper after hold_another_object, taking its non-petrifying return.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "steal_it",
+                "source": "uhitm.c:steal_it() lines 2246-2252 calls theft_petrifies() after hold_another_object() confirms the item remains in OBJ_INVENT; JavaScript follows the same sequence."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-steal-it.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/hero-succubus-steals-monster-item-v46-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-succubus-steals-monster-item-attempt2",
+                "segment": 0,
+                "fromStep": 54,
+                "throughStep": 54,
+                "source": "do_attack -> hmonas -> damageum -> mhitm_adtyping(AD_SEDU) -> mhitm_ad_sedu(hero attacker) -> steal_it -> hold_another_object -> theft_petrifies"
+              }
+            ],
+            "checkedAt": "d48d039c07d6744d83841770904171612bc595c6"
+          },
+          {
+            "name": "steal_it",
+            "implementation": "js/uhitm.js",
+            "symbol": "steal_it",
+            "sourceReview": "Read all of nethack-c/upstream/src/uhitm.c:2174-2280. Preserve the no-inventory/coin-only exit; could_seduce plus movable-target armor extraction/reinsertion; gold isolation and mpickobj restoration; Upolyd stop; artifact discovery before extraction; source-ordered monster extraction, final-suit output, hold_another_object transfer and inventory-location guard; petrification stop; W_WEP unwield and W_ARMG self-touch handling; one-item versus all-possession continuation; and final gold restoration. The JS call supplies pickup.c:encumber_msg through invent.c:hold_another_object’s required hook, so a real theft reaches the C inventory and burden continuation. C discards mselftouch()’s void result; because its minstapetrify path is incomplete, JS records note_unported('trap.c mselftouch') and skips that call without using the note result. The recorded wand route avoids W_ARMG, while the assigned shield route reaches the transferred-item path.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_sedu",
+                "source": "uhitm.c:mhitm_ad_sedu() line 4631 calls steal_it(mdef, mattk) in the hero-attacker arm; JavaScript awaits steal_it() before setting mhm.damage to zero."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-steal-it.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/hero-succubus-steals-monster-item-v46-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-succubus-steals-monster-item-attempt2",
+                "segment": 0,
+                "fromStep": 54,
+                "throughStep": 54,
+                "source": "do_attack -> hmonas -> damageum -> mhitm_adtyping(AD_SEDU) -> mhitm_ad_sedu(hero attacker) -> steal_it -> hold_another_object -> theft_petrifies"
+              }
+            ],
+            "checkedAt": "d48d039c07d6744d83841770904171612bc595c6"
+          },
+          {
+            "name": "mhitm_ad_sedu",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_sedu",
+            "sourceReview": "Read the complete nethack-c/upstream/src/uhitm.c:mhitm_ad_sedu() definition at 4623-4748. Preserve the hero-attacker call to steal_it and zero-damage write; the monster-versus-hero animal, hero-species seduction/brag, canceled-attacker, steal, teleport and fleeing branches; and the monster-versus-monster canceled-attacker gate, tame cursed-object selection, naming before extraction, saddle dismount boundary, inventory transfer/message, unwield, wait-strategy clear, self-touch, defender death/grow-up result, nymph relocation, and final damage clear. Only the formerly missing hero-attacker steal_it call is newly implemented here; the other arms remain as previously ported. The discarded void trap.c:mselftouch() call in steal_it is explicitly skipped with note_unported; no callee return is substituted.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping() lines 4798-4799 dispatches AD_SITM and AD_SEDU to mhitm_ad_sedu(); JavaScript mirrors those cases."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_ssex",
+                "source": "uhitm.c:mhitm_ad_ssex() lines 4754-4758 and 4773-4777 delegates its hero-attacker and monster-versus-monster arms to mhitm_ad_sedu(); the JavaScript wrapper preserves those calls."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:damageum() line 4854 dispatches hero attacks through mhitm_adtyping(). The selected polymorphed hero path reaches that production caller before the hero-attacker arm."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:hitmu() dispatches monster-versus-hero attack effects through uhitm.c:mhitm_adtyping(); the matching JS entry is mhitu.js:hitmu()."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem() dispatches monster-versus-monster attack effects through uhitm.c:mhitm_adtyping(); the matching JS entry is mhitm.js:mdamagem()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-steal-it.test.mjs",
+              "scripts/uhitm-ad-ssex.test.mjs",
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/hero-succubus-steals-monster-item-v46-cfirst.session.json",
+              "recordings/mhitm.c/monster-nymph-seduction-boundary.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-succubus-steals-monster-item-attempt2",
+                "segment": 0,
+                "fromStep": 54,
+                "throughStep": 54,
+                "source": "do_attack -> hmonas -> damageum -> mhitm_adtyping(AD_SEDU) -> mhitm_ad_sedu(hero attacker) -> steal_it -> hold_another_object -> theft_petrifies"
+              }
+            ],
+            "checkedAt": "d48d039c07d6744d83841770904171612bc595c6"
+          }
+        ],
+        "entryPointReview": "The newly restored active entry is a polymorphed hero landing AD_SEDU on an item-carrying monster: hack.c do_attack -> uhitm.c hmonas -> damageum -> mhitm_adtyping -> mhitm_ad_sedu(hero arm) -> steal_it -> hold_another_object -> theft_petrifies. The admitted v46 case matches through segment 0 step 54 and reaches the shield transfer; the independent C-first recipe matches all 55 steps and steals a curved wand at step 54. Both execute theft_petrifies after the inventory transfer. The same complete mhitm_ad_sedu function also serves the existing monster-to-hero and monster-to-monster paths; those arms were already present before this task, and the accepted `port-uhitm-mhitm-ad-sedu` evidence retains the matching monster-nymph recording for the monster-to-monster arm. This task changes only the hero-attacker arm and its inventory continuation. The W_ARMG branch’s discarded trap.c:mselftouch call remains the explicit unported void gap and is not exercised by these two item choices.",
+        "entryPoints": [
+          {
+            "name": "Polymorphed hero lands AD_SEDU and transfers one monster item",
+            "functions": [
+              "theft_petrifies",
+              "steal_it",
+              "mhitm_ad_sedu"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/hero-succubus-steals-monster-item-v46-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v46",
+                "caseId": "v46-succubus-steals-monster-item-attempt2",
+                "segment": 0,
+                "fromStep": 54,
+                "throughStep": 54,
+                "source": "do_attack -> hmonas -> damageum -> mhitm_adtyping(AD_SEDU) -> mhitm_ad_sedu(hero attacker) -> steal_it -> hold_another_object -> theft_petrifies"
+              }
+            ]
+          },
+          {
+            "name": "Monster-versus-monster seduction arm (pre-existing port)",
+            "functions": [
+              "mhitm_ad_sedu"
+            ],
+            "recordings": [
+              "recordings/mhitm.c/monster-nymph-seduction-boundary.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
