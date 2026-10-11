@@ -277629,14 +277629,18 @@
     {
       "id": "div-monshoot-hallucinated-display-rng-v47-20261011",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Keep hallucinated monster missile naming and projectile glyphs on the injected display RNG in live and planned callers.",
       "cFile": "mthrowu.c",
       "sessions": [],
       "selectionReason": "The current v47 evaluation still first differs at step 106 while gameplay RNG and cursors fully match. The refreshed investigation traces the screen-only mismatch to mthrowu.c:monshoot naming and m_throw projectile glyphs losing the cloned display RNG in the shared JavaScript missile adapter; both thrwmu and thrwmm callers are exercised.",
       "detail": "Pass the caller-owned display RNG through monshoot target naming, m_throw object glyph selection, and the pet mattackm adapter. This is a bounded divergence correction; m_throw remains incomplete for whole-source completion because its active spitmm caller lacks matching runtime evidence.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "4c479a3cbaa79606869513990133a18758182f6f",
+      "openStanding": {
+        "sha": "7cc02025d9f19e27d502479f27b5458ca3249a89",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "monshoot",
@@ -277655,7 +277659,207 @@
           "evaluationPath": "challenges/evaluations/accepted-7cc02025d9f19e27d502479f27b5458ca3249a89-v47.json",
           "evaluationCommit": "7cc02025d9f19e27d502479f27b5458ca3249a89"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "7cc02025d9f19e27d502479f27b5458ca3249a89",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v47",
+          "caseId": "v47-hallucinated-monster-missile-name",
+          "session": "synthetic/v47/v47-hallucinated-monster-missile-name",
+          "manifestPath": "challenges/manifests/v47.json",
+          "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+          "recording": "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.session.json",
+          "recordingPath": "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.session.json",
+          "recordingSha256": "1631f5a7c1ff2e11a7a30fc0a833bf5a75fcbc26d72f77ef189a3af4acb44cf2",
+          "recipe": "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.recipe.session.json",
+          "recipeSha256": "c0ac53348e193efabe631b3236de434743b423994b19f9014b8257c12fe00ff0",
+          "replayInputSha256": "6bc731e836ab03eb03f780f9eeec2d63994ab35dded835c7ecef5fd3a290d09a",
+          "evaluationPath": "challenges/evaluations/accepted-7cc02025d9f19e27d502479f27b5458ca3249a89-v47.json",
+          "evaluationCommit": "7cc02025d9f19e27d502479f27b5458ca3249a89",
+          "evaluationArtifact": "challenges/evaluations/accepted-7cc02025d9f19e27d502479f27b5458ca3249a89-v47.json",
+          "evaluationUtc": "2026-10-11T22:49:06.037Z",
+          "remainingScreens": 15,
+          "recordedSteps": 121,
+          "previousScreensMatched": 106,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 106,
+              "total": 121
+            },
+            "rng": {
+              "matched": 5548,
+              "total": 5548
+            },
+            "cursors": {
+              "matched": 121,
+              "total": 121
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 106,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 106,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "D",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 106,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v47/v47-hallucinated-monster-missile-name.json",
+            "result": {
+              "session": "synthetic/v47/v47-hallucinated-monster-missile-name",
+              "remainingScreens": 15,
+              "recordedSteps": 121,
+              "corpus": "synthetic",
+              "batch": "v47",
+              "caseId": "v47-hallucinated-monster-missile-name",
+              "manifestPath": "challenges/manifests/v47.json",
+              "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+              "recordingPath": "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.session.json",
+              "recordingSha256": "1631f5a7c1ff2e11a7a30fc0a833bf5a75fcbc26d72f77ef189a3af4acb44cf2",
+              "evaluationPath": "challenges/evaluations/accepted-7cc02025d9f19e27d502479f27b5458ca3249a89-v47.json",
+              "evaluationCommit": "7cc02025d9f19e27d502479f27b5458ca3249a89",
+              "status": "complete",
+              "commit": "005e9b1af7ebb16e47a3d57d7eed0523584fe7df",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v47",
+                "caseId": "v47-hallucinated-monster-missile-name",
+                "session": "synthetic/v47/v47-hallucinated-monster-missile-name",
+                "manifestPath": "challenges/manifests/v47.json",
+                "manifestSha256": "b2ac7c3343f7e6fadd7d4e1c9fa090c162858739e1259555965cfa81d01cb608",
+                "recording": "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.session.json",
+                "recordingPath": "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.session.json",
+                "recordingSha256": "1631f5a7c1ff2e11a7a30fc0a833bf5a75fcbc26d72f77ef189a3af4acb44cf2",
+                "recipe": "challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.recipe.session.json",
+                "recipeSha256": "c0ac53348e193efabe631b3236de434743b423994b19f9014b8257c12fe00ff0",
+                "replayInputSha256": "6bc731e836ab03eb03f780f9eeec2d63994ab35dded835c7ecef5fd3a290d09a",
+                "evaluationPath": "challenges/evaluations/accepted-7cc02025d9f19e27d502479f27b5458ca3249a89-v47.json",
+                "evaluationCommit": "7cc02025d9f19e27d502479f27b5458ca3249a89",
+                "evaluationArtifact": "challenges/evaluations/accepted-7cc02025d9f19e27d502479f27b5458ca3249a89-v47.json",
+                "evaluationUtc": "2026-10-11T22:49:06.037Z",
+                "remainingScreens": 15,
+                "recordedSteps": 121,
+                "previousScreensMatched": 106,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 106,
+                    "total": 121
+                  },
+                  "rng": {
+                    "matched": 5548,
+                    "total": 5548
+                  },
+                  "cursors": {
+                    "matched": 121,
+                    "total": 121
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 106,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 106,
+                      "key": "l"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "D",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 106,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch is the hallucinated attacker name in mthrowu.c:monshoot. C calls Monnam(mtmp), whose x_monnam path uses rndmonnam() and the display RNG. The existing JavaScript monsterMissileEnv adapter calls capitalizedMonsterName() without the displayRandom supplied by the planned monster scan, so it names the same missile action from the live display stream instead of the clone. Both direct monshoot callers are active and independently exercised: thrwmu against the hero in the selected case, and thrwmm against another monster in a fresh C probe.",
+              "source": {
+                "file": "mthrowu.c",
+                "branch": "When canseemon(mtmp) is true, monshoot() prints Monnam(mtmp). Under Hallucination, do_name.c:x_monnam() calls rndmonnam(), which draws from rn2_on_display_rng(). The JavaScript caller adapter must supply the display RNG clone when it names a planned missile action.",
+                "functions": [
+                  "monshoot"
+                ],
+                "callers": [
+                  "mthrowu.c:thrwmu() calls monshoot() for the monster-to-hero missile path; mhitu.c:mattacku() dispatches to thrwmu() at line 886.",
+                  "mthrowu.c:thrwmm() calls monshoot() for a monster-to-monster missile path; mhitm.c:mattackm() dispatches to thrwmm() for an AT_WEAP attack when distmin() is greater than one at line 396.",
+                  "dogmove.c:pet_ranged_attk() calls mattackm() for a selected nonhero target at line 923, establishing the active production route into thrwmm()."
+                ],
+                "dependencies": []
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved v47 evaluation at challenges/evaluations/accepted-7cc02025d9f19e27d502479f27b5458ca3249a89-v47.json for v47-hallucinated-monster-missile-name records 106 of 121 matching screens, all 5,548 gameplay RNG calls, and all 121 cursors. The first mismatch is segment 0 step 106 on key l: C prints “Dudley throws a dart!” while JavaScript prints “The imp throws a dart!”. The selected recipe and recording are preserved at challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.recipe.session.json and challenges/cases/v47/v47-hallucinatory-fountain-water-snakes-attempt9.session.json.",
+                "Upstream mthrowu.c:260-314 implements monshoot(). Its visible arm calls Monnam(mtmp) before announcing the selected projectile. mthrowu.c:1174-1263 shows thrwmu() calling monshoot() at line 1262; the selected C recording reaches this route from mhitu.c:mattacku() at line 886.",
+                "Upstream mthrowu.c:968-1012 shows thrwmm() calling monshoot() at line 1005. mhitm.c:396-404 calls thrwmm() for an AT_WEAP attack when the target is farther than one square. dogmove.c:889-967 reaches that arm through pet_ranged_attk() line 923 when a pet chooses a nonhero target.",
+                "A separate C-only probe at .cache/c47-thrwmm-hallu-probe27.recipe.session.json and .cache/c47-thrwmm-hallu-probe27.session.json (seed 47000754) exercises the pet route under hallucination. At steps 81-85, C announces “The sergeant throws a crude dagger at the lag monster!”; the step records score_targ(dogmove.c:830), m_throw(mthrowu.c:798), and ohitmon(mthrowu.c:350), matching the source route through mattackm(), thrwmm(), and monshoot().",
+                "In js/unported_monster_actions.js:1263-1360, monsterMissileEnv() adapts monshoot() naming with monsterName: subject => capitalizedMonsterName(subject, env.state), which omits env.displayRandom. do_name.c:946-955 establishes that hallucinated x_monnam() consumes rn2_on_display_rng(). js/do_name.js:1396-1401 expects x_monnam() to receive env.displayRandom, and js/unported_monster_actions.js:1964-1970 supplies a cloned displayRandom to planned monster scans. The faulty adapter drops that clone for both missile callers."
+              ],
+              "selectionRefresh": {
+                "queueSha256": "5cff7cc860424ffc8294a2096623d85f0f1698cb425f41772fb0df725d44fb3e",
+                "evaluatedAt": "7cc02025d9f19e27d502479f27b5458ca3249a89",
+                "note": "The same step-106 display mismatch remains actionable after the accepted shop-drop integration."
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }
