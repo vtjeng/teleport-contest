@@ -27,8 +27,15 @@ function mleashed_next2u(monster) {
 export function next_to_u(state = game) {
     if (get_iter_mons(mleashed_next2u, state)) return false;
 
-    // C ref: apply.c:924-927. The steed may leave the level unless it
-    // carries the Amulet; dog.c:keepdogs() and mon_arrive() preserve the mount.
-    if (state.u.usteed && mon_has_amulet(state.u.usteed)) return false;
+    // C ref: apply.c:922-924, "no pack mules for the Amulet". A steed reaches
+    // the rest of goto_level() through keepdogs()'s u.usteed arm, which is
+    // unported, so this refuses the mount. Answering TRUE would carry a steed
+    // into that arm.
+    if (state.u.usteed) {
+        if (mon_has_amulet(state.u.usteed)) return false;
+        throw new UnsupportedHeroMoveBoundaryError(
+            'next_to_u() with a steed',
+        );
+    }
     return true;
 }

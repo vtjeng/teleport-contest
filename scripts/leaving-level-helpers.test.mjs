@@ -283,13 +283,13 @@ test('next_to_u lets an unencumbered hero leave and refuses a leash', () => {
     assert.throws(() => next_to_u(state), /leashed companion/u);
 });
 
-test('next_to_u allows a steed without the Amulet and blocks its carrier',
+test('next_to_u refuses a mounted hero and blocks a steed with the Amulet',
     () => {
-    // apply.c:922-927. A steed may descend unless it carries the Amulet;
-    // this false return is the source's no-pack-mules guard.
+    // apply.c:922-923. The Amulet arm is the one that answers FALSE; every
+    // other steed reaches keepdogs()'s unported u.usteed branch, so it stops.
     const state = heroState();
     state.u.usteed = monsterOf(state, PM_SEWER_RAT);
-    assert.equal(next_to_u(state), true);
+    assert.throws(() => next_to_u(state), /with a steed/u);
 
     state.u.usteed.minvent = { otyp: AMULET_OF_YENDOR, nobj: null };
     assert.equal(next_to_u(state), false);

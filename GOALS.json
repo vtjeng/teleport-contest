@@ -263393,7 +263393,7 @@
     {
       "id": "fix-v43-mounted-steed-stair-descent-pager-2-cfirst-20261011",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port mounted steed transfer across level descent",
       "cFile": "apply.c",
       "sessions": [
@@ -263618,7 +263618,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "e73625ecb2d254fe9147c1d1d402f857b87e976c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Whole-source review found next_to_u, keepdogs, and mon_arrive cannot be completed independently: they require incomplete leash, mon_leave, mon_catchup_elapsed_time, migration placement, and active caller families. Resume only after those source families are selected with complete caller and entry evidence."
     }
   ]
 }

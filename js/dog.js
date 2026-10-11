@@ -133,7 +133,6 @@ import { growl, yelp } from './sounds.js';
 import { ttyPline } from './tty_message.js';
 import { cansee } from './vision.js';
 import { note_unported } from './unported.js';
-import { mdrop_special_objs } from './steal.js';
 import { finish_meating } from './dogmove.js';
 import { body_part } from './polyself.js';
 
@@ -911,25 +910,24 @@ export async function keepdogs(pets_only, rawEnv = {}) {
 
         if (follows) {
             if (mtmp.mtrapped) {
-                if (mtmp === u.usteed) {
-                    // C calls mintrap() and discards its return value. Its
-                    // monster-side effects remain outside this branch.
-                    note_unported('trap.c mintrap');
-                } else {
-                    // C tries once, then leaves a trapped non-steed behind;
-                    // this path still needs mintrap() and canseemon().
-                    throw new UnsupportedHeroMoveBoundaryError(
-                        'keepdogs() with a trapped follower',
-                    );
-                }
+                // C gives a trapped follower one mintrap() escape attempt at
+                // dog.c:815, then leaves it behind with "%s is still trapped."
+                // if that fails. Both need mintrap()'s monster arm and
+                // canseemon(), and a pet standing in a trap beside the stairs
+                // is rare enough to defer.
+                throw new UnsupportedHeroMoveBoundaryError(
+                    'keepdogs() with a trapped follower',
+                );
             }
             if (mtmp === u.usteed) {
-                // dog.c:827-831 keeps the mount with the hero, clears the
-                // departing trap/eating state, and drops special inventory.
-                mtmp.mtrapped = false;
-                mtmp.meating = 0;
-                mdrop_special_objs(mtmp, { ...env, state });
-            } else if (mtmp.meating) {
+                // mdrop_special_objs() and the dismount bookkeeping at
+                // dog.c:817-821 belong with the steed work; apply.c
+                // next_to_u() refuses a mounted hero before this runs.
+                throw new UnsupportedHeroMoveBoundaryError(
+                    'keepdogs() with the hero mounted',
+                );
+            }
+            if (mtmp.meating) {
                 // "%s is still eating." at dog.c:823-826, which leaves the
                 // eater behind. It needs canseemon() and Monnam(), and pet
                 // eating is not ported.
@@ -1033,9 +1031,11 @@ async function mon_arrive(monster, when, env) {
     await restore_cham(monster, state, env);
 
     if (monster === u.usteed) {
-        // dog.c:466-467 leaves the ridden steed in the destination monster
-        // chain but does not place it on the map or clear MON_STILL_ARRIVING.
-        return;
+        // js/apply_next_to_u.js refuses a mounted hero before the descent, so
+        // no steed reaches gm.mydogs; C returns here without placing it.
+        throw new UnsupportedHeroMoveBoundaryError(
+            'mon_arrive() with the hero\'s steed',
+        );
     }
 
     // "When a monster accompanies you, sometimes it will arrive at your
