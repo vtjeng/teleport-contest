@@ -125,7 +125,7 @@
       "dig.c:digactualhole",
       "pray.c:offer_negative_valued",
       "pray.c:sacrifice_your_race",
-      "pray.c:dosacrifice"
+      "pray.c:offer_corpse"
     ],
     "dependencies": [
       "attrib.c:adjalign (existing js/attrib.js owner)",
@@ -138,7 +138,7 @@
   "evidence": [
     "The saved v47 baseline evaluation at challenges/evaluations/baseline-a6e3a17cc-v47.json records the first screen mismatch at segment 0, step 195 (row 0, column 37: C \"-\", JS space) for case v47-earthquake-desecrates-generated-altar; its first RNG mismatch is at step 197, where C reports rn2(4)=2 from pray.c:godvoice while JS reports rn2(13)=3.",
     "nethack-c/upstream/src/music.c:do_earthquake (ALTAR arm, around lines 419-430) calls desecrate_altar(FALSE, algn) before creating the pit. nethack-c/upstream/src/pray.c:desecrate_altar (lines 1501-1522) conditionally calls adjalign(-20), increments u.ugangr, emits the charged-air and noticed messages, calls godvoice, and calls god_zaps_you.",
-    "The active direct callers are music.c:do_earthquake, dig.c:digactualhole (around line 721), pray.c:offer_negative_valued (around line 1595), pray.c:sacrifice_your_race (around line 1715), and pray.c:dosacrifice (around line 2021). Their JS source sites currently call note_unported for pray.c:desecrate_altar in music.js, dig.js, and pray.js; implementation must replace all those active placeholders.",
-    "The return value of no dependency is consumed by desecrate_altar. Existing JS owners provide adjalign, align_gname, godvoice, and god_zaps_you. The selected v47 recording covers the earthquake call with highaltar=false; separate matching recordings are still needed for the dig caller and a qualifying high-altar sacrifice route before claiming all impure entry-point evidence."
+    "The active direct callers are music.c:do_earthquake, dig.c:digactualhole (around line 721), pray.c:offer_negative_valued (around line 1595), pray.c:sacrifice_your_race (around line 1715), and pray.c:offer_corpse (around line 2021). Their JS source sites now call desecrate_altar from music.js, dig.js, and pray.js.",
+    "The return value of no dependency is consumed by desecrate_altar. Existing JS owners provide adjalign, align_gname, godvoice, and god_zaps_you. The v47 recording covers the earthquake caller with highaltar=false; an independent dig.c recording covers hero-caused altar destruction; and three high-temple offerings cover offer_negative_valued, sacrifice_your_race, and offer_corpse with highaltar=true. Each recording ends at an exact C/JS matching boundary after the helper's retaliation message."
   ]
 }
