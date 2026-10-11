@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47111304,
+      "datetime": "20400305112233",
+      "nethackrc": "OPTIONS=name:ItemDropWitness,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,playmode:debug\n",
+      "moves": "ibd",
+      "comment": "Exercise IA_DROP_OBJ from an independent Knight start: open inventory, select the alternate lance, choose its drop action, and let the queued dodrop run."
+    }
+  ]
+}
