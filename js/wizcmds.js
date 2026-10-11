@@ -68,7 +68,7 @@ import { done } from './end.js';
 import { minimal_monnam, mon_nam, x_monnam } from './do_name.js';
 import { dmonsfree, makemon_runtime } from './makemon_create.js';
 import { rndmonst } from './makemon.js';
-import { migrate_to_level } from './dog.js';
+import { keepdogs, migrate_to_level } from './dog.js';
 import { AD_PHYS, G_UNIQ, PM_GRID_BUG, PM_SAMURAI } from './monsters.js';
 import { note_unported } from './unported.js';
 import { load_lua } from './nhlua.js';
@@ -111,9 +111,7 @@ import { m_at } from './monst.js';
 import { monsndx, nonliving, olfaction } from './mondata.js';
 import { setpaid } from './shk.js';
 
-// C refs: wizcmds.c makemap_unmakemon() and makemap_remove_mons(). The
-// discarded keepdogs(TRUE) call is still an explicit gap because dog.js does
-// not implement keepdogs()'s pets-only branch.
+// C refs: wizcmds.c makemap_unmakemon() and makemap_remove_mons().
 async function makemap_unmakemon(monster, migratory, state) {
     const mndx = monsndx(monster.data);
     const mvitals = state.svm?.mvitals ?? state.mvitals;
@@ -154,10 +152,8 @@ export async function makemap_remove_mons(state = game) {
     state.level.monlist ??= null;
     state.gm ??= {};
 
-    // C keepdogs(TRUE) has side effects but returns no value. Its pets-only
-    // arm is not implemented in dog.js, so retain the documented gap and skip
-    // the unsupported call, following the unported-callee rule.
-    note_unported('dog.c keepdogs');
+    // C keepdogs(TRUE) transfers tame pets before replacing the level.
+    await keepdogs(true, { state });
 
     for (let monster = state.level.monlist; monster;) {
         const next = monster.nmon;

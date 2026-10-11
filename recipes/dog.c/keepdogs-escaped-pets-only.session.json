@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent end.c really_done(ESCAPED) witness: the starting pet is transferred by dog.c:keepdogs(TRUE) when a fresh hero climbs out from the first dungeon level.",
+  "segments": [
+    {
+      "seed": 5849039,
+      "datetime": "20490211071326",
+      "nethackrc": "OPTIONS=name:EscapedPet5849039,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:dog,!autopickup,!acoustics\n",
+      "moves": "<"
+    }
+  ]
+}

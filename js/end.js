@@ -206,6 +206,7 @@ import { hidden_gold } from './u_init_inventory_attrs.js';
 import { shkname, shkname_is_pname } from './shknam.js';
 import { accessible } from './monmove.js';
 import { note_unported } from './unported.js';
+import { keepdogs } from './dog.js';
 import { setwornEnv } from './do_wear.js';
 import { setnotworn } from './worn.js';
 import { make_sick, set_itimeout } from './potion.js';
@@ -1338,12 +1339,10 @@ async function really_done(how, state) {
         livelog_printf(LL_DUMP, deathBuf || deaths[how] || '', state);
     }
 
-    // C ref: end.c:1297-1298 keepdogs for ESCAPED/ASCENDED.  Its result is
-    // discarded here; the existing dog.c owner still has unported follower
-    // branches, so preserve this exact source boundary without invoking a
-    // partial owner through a swallowed refusal.
+    // C ref: end.c:1297-1298 keepdogs for ESCAPED/ASCENDED. The call's result
+    // is discarded, but its pet transfer and state updates precede cleanup.
     if (how === ESCAPED || how === ASCENDED)
-        note_unported('dog.c keepdogs');
+        await keepdogs(true, { state });
 
     // C ref: end.c:1300-1302 finish_paybill() when bones_ok && taken.
     // taken is always false here: js/shk.js inherits() refuses every arm

@@ -266385,7 +266385,7 @@
     {
       "id": "port-artifact-mb-hit-probe-v44-20261011",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Complete artifact.c Mb_hit and wire Magicbane probing",
       "cFile": "artifact.c",
       "sessions": [
@@ -266393,17 +266393,24 @@
       ],
       "selectionReason": "The highest-ranked unreserved v44 mismatch has five remaining screens and reaches artifact.c:Mb_hit's omitted probe_monster call.",
       "detail": "The admitted v44 baseline matches 103/108 screens and all 5192 expected RNG calls. Port the whole Mb_hit function, reuse zap.c:probe_monster from js/zap.js, preserve artifact_hit and uhitm.hmon production wiring, and avoid duplicating the zap implementation.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "b567b6d2f72f23031b3f83d8996be9856dc36db9",
+      "openStanding": {
+        "sha": "b567b6d2f72f23031b3f83d8996be9856dc36db9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "b567b6d2f72f23031b3f83d8996be9856dc36db9",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Mb_hit",
           "line": 1249,
           "endLine": 1446,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -266423,6 +266430,635 @@
           "evaluationPath": "challenges/evaluations/v44-baseline-542873573.json",
           "evaluationCommit": "5428735736684d2c3a4a286d3a124f2887dfb547"
         }
+      },
+      "activeStanding": {
+        "sha": "b567b6d2f72f23031b3f83d8996be9856dc36db9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Mb_hit",
+            "implementation": "js/artifacts.js",
+            "symbol": "Mb_hit",
+            "sourceReview": "Read the complete artifact.c:Mb_hit function (lines 1249-1446) and compared every selector branch, the source-ordered random draws, messages, state changes, and return value. The probe feedback now calls the canonical zap.c:probe_monster implementation after the insight message; its pre-damage mstatusline and inventory/no-inventory output remain owned by js/zap.js and js/insight.js. The earlier visible-feedback path now preserves C's canspotmon guard and map_invisible side effect through existing display.js helpers. The only retained unported callee in Mb_hit is timeout.c:make_confused in the youdefend branch; C discards its void result, so no replacement state change was invented. The artifacts.js <-> zap.js and artifacts.js <-> display.js import edges already existed; the added bindings are called only at runtime and do not add a new module cycle.",
+            "callers": [
+              {
+                "path": "js/artifacts.js",
+                "symbol": "artifact_hit",
+                "source": "artifact.c:artifact_hit dispatches AD_STUN attacks with dieroll <= MB_MAX_DIEROLL to Mb_hit."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon",
+                "source": "uhitm.c:hmon calls artifact_hit for the hero's hand-to-hand weapon attack; this is the admitted Magicbane probe path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/artifacts.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v44",
+                "caseId": "v44-magicbane-monster-probe-cfirst",
+                "segment": 0,
+                "fromStep": 102,
+                "throughStep": 107,
+                "source": "uhitm.c:hmon -> artifact.c:artifact_hit -> artifact.c:Mb_hit -> zap.c:probe_monster -> insight.c:mstatusline, then the no-inventory message"
+              }
+            ],
+            "checkedAt": "b567b6d2f72f23031b3f83d8996be9856dc36db9"
+          }
+        ],
+        "entryPointReview": "Mb_hit is a static helper called by artifact.c:artifact_hit's AD_STUN/dieroll dispatch. The selected active entry point is a hero hand-to-hand attack with Magicbane; uhitm.c:hmon reaches that dispatcher and is covered by the admitted v44 range. Other artifact_hit callers (monster melee and thrown-artifact paths in uhitm.c, dothrow.c, and mthrowu.c) share the existing dispatcher but do not satisfy Mb_hit's youattack condition, so they do not invoke probe_monster. The optional canspotmon/map_invisible feedback arm is ported in source order using the existing display helpers; the selected v44 target is already spotted, so the case exercises the probe branch rather than the invisible-marker sub-branch. The youdefend confusion arm retains the explicit void timeout.c:make_confused gap.",
+        "entryPoints": [
+          {
+            "name": "Hero melee Magicbane probe",
+            "functions": [
+              "Mb_hit"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v44",
+                "caseId": "v44-magicbane-monster-probe-cfirst",
+                "segment": 0,
+                "fromStep": 102,
+                "throughStep": 107,
+                "source": "uhitm.c:hmon -> artifact.c:artifact_hit -> artifact.c:Mb_hit -> zap.c:probe_monster -> insight.c:mstatusline and no-inventory output"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b567b6d2f72f23031b3f83d8996be9856dc36db9",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-dog-keepdogs-v43-20261011",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port dog.c monster departure and keepdogs transfer handling",
+      "cFile": "dog.c",
+      "sessions": [
+        "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst"
+      ],
+      "selectionReason": "The current combined queue has one mismatching session; its complete source investigation attributes the step-165 stop to dog.c:keepdogs after the accepted apply.c work.",
+      "detail": "Port whole dog.c mon_leave, keep_mon_accessible, and keepdogs; wire do.c, end.c, and wizcmds.c callers; preserve mon_leave's returned worm count in migrate_to_level. dog.c losedogs and mon_arrive remain a downstream task.",
+      "openedAt": "61ad0c2ff0d4cbd1e1d5ed0555e7550c6d34d983",
+      "openStanding": {
+        "sha": "61ad0c2ff0d4cbd1e1d5ed0555e7550c6d34d983",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "61ad0c2ff0d4cbd1e1d5ed0555e7550c6d34d983",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "mon_leave",
+          "line": 729,
+          "endLine": 767,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "keep_mon_accessible",
+          "line": 768,
+          "endLine": 788,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "keepdogs",
+          "line": 789,
+          "endLine": 886,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 729,
+        "to": 886
+      },
+      "syntheticProvenance": {
+        "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst": {
+          "session": "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recordingPath": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json",
+          "recordingSha256": "bf2a99be1ce7847f948069f91419902d39e85ebb259933e2e8588791f1141472",
+          "evaluationPath": "challenges/evaluations/accepted-b567b6d2f72f23031b3f83d8996be9856dc36db9-v43.json",
+          "evaluationCommit": "b567b6d2f72f23031b3f83d8996be9856dc36db9"
+        }
+      },
+      "activeStanding": {
+        "sha": "61ad0c2ff0d4cbd1e1d5ed0555e7550c6d34d983",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "session": "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recording": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json",
+          "recordingPath": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json",
+          "recordingSha256": "bf2a99be1ce7847f948069f91419902d39e85ebb259933e2e8588791f1141472",
+          "recipe": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.recipe.session.json",
+          "recipeSha256": "4611748f3c7306188dcfdc6e07b89c010771192735e1b5fd4b320fea6c0c06ad",
+          "replayInputSha256": "4db51544737195b8e2c8a8ccb0d210ebaa471bbcf8cda4198cf9930d9f0f1ba4",
+          "evaluationPath": "challenges/evaluations/accepted-61ad0c2ff0d4cbd1e1d5ed0555e7550c6d34d983-v43.json",
+          "evaluationCommit": "61ad0c2ff0d4cbd1e1d5ed0555e7550c6d34d983",
+          "evaluationArtifact": "challenges/evaluations/accepted-61ad0c2ff0d4cbd1e1d5ed0555e7550c6d34d983-v43.json",
+          "evaluationUtc": "2026-10-11T07:09:13.925Z",
+          "remainingScreens": 1,
+          "recordedSteps": 166,
+          "previousScreensMatched": 165,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 165,
+              "total": 166
+            },
+            "rng": {
+              "matched": 6320,
+              "total": 6320
+            },
+            "cursors": {
+              "matched": 165,
+              "total": 166
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: mon_arrive() with the hero's steed",
+            "step": 165
+          },
+          "step": 165,
+          "kind": "stop",
+          "sourceFile": "dog.c",
+          "function": "mon_arrive",
+          "message": "unsupported hero move: mon_arrive() with the hero's steed",
+          "cFile": "dog.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.json",
+            "result": {
+              "session": "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst",
+              "corpus": "synthetic",
+              "batch": "v43",
+              "caseId": "v43-mounted-steed-stair-descent-pager-2-cfirst",
+              "manifestPath": "challenges/manifests/v43.json",
+              "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+              "recordingSha256": "bf2a99be1ce7847f948069f91419902d39e85ebb259933e2e8588791f1141472",
+              "recipeSha256": "4611748f3c7306188dcfdc6e07b89c010771192735e1b5fd4b320fea6c0c06ad",
+              "evaluationPath": "challenges/evaluations/accepted-9768280e52603cd8a6a3848dfd0557ea699ab3ed-v43.json",
+              "evaluationCommit": "9768280e52603cd8a6a3848dfd0557ea699ab3ed",
+              "remainingScreens": 1,
+              "recordedSteps": 166,
+              "status": "complete",
+              "commit": "9768280e52603cd8a6a3848dfd0557ea699ab3ed",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v43",
+                "caseId": "v43-mounted-steed-stair-descent-pager-2-cfirst",
+                "session": "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst",
+                "manifestPath": "challenges/manifests/v43.json",
+                "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+                "recording": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json",
+                "recordingPath": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json",
+                "recordingSha256": "bf2a99be1ce7847f948069f91419902d39e85ebb259933e2e8588791f1141472",
+                "recipe": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.recipe.session.json",
+                "recipeSha256": "4611748f3c7306188dcfdc6e07b89c010771192735e1b5fd4b320fea6c0c06ad",
+                "replayInputSha256": "bfca62422f56a632b6eb437442de6e18721f75a8e1b9c7f545ec936531aef779",
+                "evaluationPath": "challenges/evaluations/accepted-9768280e52603cd8a6a3848dfd0557ea699ab3ed-v43.json",
+                "evaluationCommit": "9768280e52603cd8a6a3848dfd0557ea699ab3ed",
+                "evaluationArtifact": "challenges/evaluations/accepted-9768280e52603cd8a6a3848dfd0557ea699ab3ed-v43.json",
+                "evaluationUtc": "2026-10-11T06:10:26.622Z",
+                "remainingScreens": 1,
+                "recordedSteps": 166,
+                "previousScreensMatched": 165,
+                "regression": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 165,
+                    "total": 166
+                  },
+                  "rng": {
+                    "matched": 3913,
+                    "total": 6320
+                  },
+                  "cursors": {
+                    "matched": 165,
+                    "total": 166
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: keepdogs() with the hero mounted",
+                  "step": 165
+                },
+                "step": 165,
+                "kind": "stop",
+                "sourceFile": "dog.c",
+                "function": "keepdogs",
+                "message": "unsupported hero move: keepdogs() with the hero mounted",
+                "passed": false
+              },
+              "summary": "The current saved queue identifies synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst at step 165, now stopping in dog.c:keepdogs() because JavaScript refuses the mounted branch. The source goal is a whole dog.c file-port of mon_leave(), keep_mon_accessible(), and keepdogs(), with every keepdogs caller wired. The selected C step reaches the non-Amulet steed transfer path: clear trap/eating state, drop special carried items, call mon_leave(), move the steed from fmon to gm.mydogs, then restore it after the level changes. This goal covers keepdogs only; dog.c:losedogs() and mon_arrive(With_you) remain separate downstream mounted-transfer blockers, so do not claim this delivery completes the selected screen.",
+              "source": {
+                "file": "dog.c",
+                "range": "729-885",
+                "functions": [
+                  "dog.c:mon_leave() (729-762), shared departing-monster bookkeeping; its returned worm segment count is used by both keepdogs() and migrate_to_level().",
+                  "dog.c:keep_mon_accessible() (768-785), pure classification of the Wizard and level-attached shopkeeper, priest, or vault guard.",
+                  "dog.c:keepdogs() (789-885), complete departure traversal for both pets_only values, including follower selection, trap/eating/Amulet disposition, steed special-object drop, mydogs transfer, migration routing, and leash cleanup."
+                ],
+                "branch": "In the selected recording, the saddled pony is u.usteed, adjacent to the hero, eligible through levl_follower(), not helpless under keepdogs()’s explicit steed exception, and not marked STRAT_WAITFORU. C clears mtrapped and meating, calls mdrop_special_objs(), calls mon_leave(), moves the monster from fmon to gm.mydogs via relmon(), clears mx/my, stores the returned worm segment count in wormno, and records mlstmv. The function then returns to do.c:goto_level(), which continues through the separate losedogs()/mon_arrive(With_you) arrival stage.",
+                "callers": [
+                  "do.c:goto_level() (1624) -> js/do.js:goto_level() (2820), already awaits keepdogs(false) during an ordinary level change.",
+                  "end.c:really_done() (1298) -> js/end.js:really_done() (1346), currently records note_unported(\"dog.c keepdogs\") for ESCAPED/ASCENDED; wire and await keepdogs(true).",
+                  "wizcmds.c:makemap_remove_mons() (116) -> js/wizcmds.js:makemap_remove_mons() (160), currently records note_unported(\"dog.c keepdogs\"); wire and await keepdogs(true).",
+                  "dog.c:migrate_to_level() (904) also calls mon_leave() and stores its return in wormno. js/dog.js:migrate_to_level() currently calls mon_leave() but hardcodes wormno=0; preserve the returned segment count at this caller without claiming the rest of migrate_to_level() complete."
+                ],
+                "dependencies": [
+                  "Direct returned-value helpers already have JavaScript owners: monmove.c:monnear() in js/monmove.js, mondata.c:levl_follower() in js/mondata.js, monst.h:helpless() in js/const.js, wizard.c:mon_has_amulet() in js/wizard.js, and worm.c:count_wsegs() in js/worm.js. count_wsegs() is the only direct helper in mon_leave() whose result is used; its hidden-head exclusion is pinned in scripts/worm.test.mjs.",
+                  "Direct state-changing helpers have current owners: trap.c:mintrap() in js/trap_effects.js (async, so await it even though C discards its result), apply.c:m_unleash() in js/apply.js, steal.c:mdrop_special_objs() in js/steal.js, worm.c:wormgone() in js/worm.js, monst.c:place_monster() in js/monst.js, and shk.c:set_residency()/picked_container() in js/shk.js.",
+                  "C relmon() is a void mon.c callee. js/dog.js currently carries the migration-specific adapter for removing ordinary monsters from the live level list and linking them to gm.mydogs or gm.migrating_mons. Keep that existing boundary explicit; mon.c:mon_leaving_level() has broader unstuck, mimic reveal, worm, pit, and redraw effects that are not all represented by the adapter.",
+                  "keepdogs() calls dog.c:migrate_to_level() as a void result for inaccessible monsters. Its JavaScript implementation is partial; do not claim that function complete in this goal. Preserve an explicit note_unported gap and skip unsupported migration branches instead of treating a partial helper as complete.",
+                  "The next level-arrival call chain is separate: do.c:goto_level() calls dog.c:losedogs(), which calls dog.c:mon_arrive(With_you). Current js/dog.js rejects a mounted steed in mon_arrive(). Keep this as a downstream blocker; do not widen this goal to losedogs() or the other mon_arrive modes."
+                ],
+                "tests": [
+                  "scripts/dog-migrate.test.mjs: keepdogs follower selection, list transfer, accessible-monster routing, and leash branch tests; add direct C-result coverage for keep_mon_accessible() because it is pure.",
+                  "scripts/dodown.test.mjs: source caller / goto_level ordinary level-change wiring.",
+                  "scripts/makemap-remove-mons.test.mjs and scripts/wizcmds.test.mjs: pets_only=true map-removal caller wiring.",
+                  "scripts/end-really-done.test.mjs: ESCAPED/ASCENDED caller wiring."
+                ],
+                "runtimeEvidencePlan": [
+                  "The directly listed recordings/dog.c files are B119 corpse-revival recordings; recipes/dog.c additionally has the blocked C112 object-fed pet routes. Neither directory has keepdogs() or migrate_to_level() evidence.",
+                  "Keepdogs(FALSE): the selected v43 case is the recorded mounted-steed route after downstream dog-arrival stages are implemented. Add an independent ordinary pet level-transfer recording so the keepdogs departure behavior can match before the separate steed arrival stage is complete.",
+                  "keepdogs(TRUE): reuse the prepared C-first recipe recipes/wizcmds.c/makemap-pet-transfer-outside-limit.session.json (seed 1464604, debug Valkyrie, pettype:dog, #wizmakemap). It specifically reaches wizcmds.c:makemap_remove_mons -> dog.c:keepdogs(TRUE), has no matching recordings/wizcmds.c output yet, and its comment marks the current discarded keepdogs gap. Record it after this goal wires the branch.",
+                  "mon_leave(): add an independent C recording for dog.c:migrate_to_level() if validation treats that direct call as a distinct entry point; preserve the returned worm segment count in the existing JS caller. Keep end.c:really_done() wired and its JavaScript call covered by scripts/end-really-done.test.mjs; only add a separate escape/ascension C recipe if the validator requires that caller route as distinct runtime evidence."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Queue snapshot SHA-256 e511b9616ed87949f86a4146256e74f8b2413368ddebdee27790f0932d45297a; selected entry synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst is batch v43, case v43-mounted-steed-stair-descent-pager-2-cfirst, manifest challenges/manifests/v43.json (SHA-256 a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400), recording challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json (SHA-256 bf2a99be1ce7847f948069f91419902d39e85ebb259933e2e8588791f1141472), recipe challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.recipe.session.json (SHA-256 4611748f3c7306188dcfdc6e07b89c010771192735e1b5fd4b320fea6c0c06ad), evaluated at 9768280e52603cd8a6a3848dfd0557ea699ab3ed.",
+                "The accepted evaluation reports 165/166 screens, 165/166 cursors, and 3913/6320 RNG calls; JavaScript stops at step 165 with unsupported hero move: keepdogs() with the hero mounted. The C recording's step 165 is the input '>' and produces “You descend the stairs.--More--” while the hero remains mounted.",
+                "The selected case independently creates and tames a saddled pony with #wizgenesis, mounts it with #ride, reaches a down staircase with #wizmap, then descends. The C source path is do.c:goto_level() -> dog.c:keepdogs(FALSE); current JavaScript throws exactly in the u.usteed branch before the C steed transfer.",
+                "Upstream dog.c:729-885 was read as a contiguous source unit. Source call search found keepdogs() at do.c:1624, end.c:1298, and wizcmds.c:116; mon_leave() is additionally called at dog.c:904 by migrate_to_level().",
+                "The current JavaScript owner is js/dog.js:mon_leave()/keep_mon_accessible()/keepdogs(). The active do.js caller already awaits keepdogs(false), while end.js and wizcmds.js still record note_unported gaps for keepdogs(true). The v43 trace does not reach a matching JS screen after the step because downstream js/dog.js:mon_arrive() still refuses the steed.",
+                "The directly listed recordings/dog.c contain B119 revival cases and recipes/dog.c contain B119 plus blocked C112 pet routes, with no keepdogs or migrate_to_level record. A reusable, unrecorded pets-only recipe already exists at recipes/wizcmds.c/makemap-pet-transfer-outside-limit.session.json; the focused source tests are scripts/dog-migrate.test.mjs, scripts/dodown.test.mjs, scripts/makemap-remove-mons.test.mjs, scripts/wizcmds.test.mjs, and scripts/end-really-done.test.mjs."
+              ],
+              "replayInputSha256": "bfca62422f56a632b6eb437442de6e18721f75a8e1b9c7f545ec936531aef779",
+              "evaluationArtifact": "challenges/evaluations/accepted-9768280e52603cd8a6a3848dfd0557ea699ab3ed-v43.json",
+              "evaluationUtc": "2026-10-11T06:10:26.622Z",
+              "queueSha256": "e511b9616ed87949f86a4146256e74f8b2413368ddebdee27790f0932d45297a",
+              "investigationTaskId": "A2-investigation-v43-dog-keepdogs-20261011",
+              "priorAcceptedMismatch": {
+                "source": "apply.c:next_to_u",
+                "acceptedImplementation": "9768280e52603cd8a6a3848dfd0557ea699ab3ed",
+                "priorReportEvaluation": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+                "step": 165,
+                "message": "unsupported hero move: next_to_u() with a steed",
+                "outcome": "The apply.c refusal was removed by accepted A2; the same recorded descent now reaches dog.c:keepdogs()."
+              }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mon_leave",
+            "implementation": "js/dog.js",
+            "symbol": "mon_leave",
+            "sourceReview": "Read the complete dog.c:mon_leave definition (727-763). It clears no_charge on every carried object, calls picked_container for containers with contents, clears shopkeeper residency, counts worm segments and caps the returned value at MAX_NUM_WORMS - 1 before wormgone(), restores the worm head with place_monster() when the saved x coordinate is nonzero, and returns the segment count. keepdogs() consumes the return for gm.mydogs; the existing migrate_to_level() caller also preserves it in wormno. picked_container() and set_residency() results are discarded. The existing relmon departure-list adapter remains an established mon.c boundary and is not claimed as a mon.c source port.",
+            "callers": [
+              {
+                "path": "js/dog.js",
+                "symbol": "keepdogs",
+                "source": "dog.c:861 calls mon_leave(mtmp) before relmon() moves the follower to gm.mydogs."
+              },
+              {
+                "path": "js/dog.js",
+                "symbol": "migrate_to_level",
+                "source": "dog.c:904 calls mon_leave(mtmp) and stores its returned worm-segment count in mtmp->wormno."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dog-migrate.test.mjs",
+              "scripts/worm.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dog.c/keepdogs-starting-pet-levelport.session.json",
+              "recordings/dog.c/keepdogs-escaped-pets-only.session.json",
+              "recordings/wizcmds.c/makemap-pet-transfer-outside-limit.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "61ad0c2ff0d4cbd1e1d5ed0555e7550c6d34d983"
+          },
+          {
+            "name": "keep_mon_accessible",
+            "implementation": "js/dog.js",
+            "symbol": "keep_mon_accessible",
+            "sourceReview": "Read the complete dog.c:keep_mon_accessible definition (768-785). The Wizard always returns TRUE; otherwise the helper requires mextra and returns TRUE only for a shopkeeper, priest, or vault guard whose saved home level differs from u.uz. All other monsters return FALSE. The helper reads state only and calls no RNG or output function.",
+            "callers": [
+              {
+                "path": "js/dog.js",
+                "symbol": "keepdogs",
+                "source": "dog.c:867 calls keep_mon_accessible(mtmp) after the follower branch."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/dog-migrate.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "61ad0c2ff0d4cbd1e1d5ed0555e7550c6d34d983"
+          },
+          {
+            "name": "keepdogs",
+            "implementation": "js/dog.js",
+            "symbol": "keepdogs",
+            "sourceReview": "Read the complete dog.c:keepdogs definition (789-884). Preserve dead-monster filtering; pets_only rejection and movement-state reset; the monnear()/levl_follower() plus Wizard/Amulet selection; helpless/steed and STRAT_WAITFORU guards; mintrap before transfer; steed cleanup and mdrop_special_objs ordering; visible trapped/eating and Amulet-carrier stay-behind messages; leash release for stay-behind and non-following monsters; mon_leave()/relmon() order; worm count, off-map coordinates, and mlstmv updates. dog.c discards migrate_to_level() result in the accessible-monster branch, and that separate partial source owner remains an explicit note_unported gap rather than being called through its refusal. Existing steal.c:mdrop_special_objs supplies the exercised no-drop RNG path; its internal protected/quest-object gap is not claimed as steal.c completion. The existing relmon adapter remains the established mon.c boundary. losedogs()/mon_arrive(With_you) remain separate downstream mounted-arrival blockers.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "goto_level",
+                "source": "do.c:1624 calls keepdogs(FALSE) during the level departure sequence."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "really_done",
+                "source": "end.c:1297 calls keepdogs(TRUE) for ESCAPED or ASCENDED."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "makemap_remove_mons",
+                "source": "wizcmds.c:116 calls keepdogs(TRUE) before dmonsfree() while replacing a wizard-made map."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dog-migrate.test.mjs",
+              "scripts/dodown.test.mjs",
+              "scripts/end-really-done.test.mjs",
+              "scripts/makemap-remove-mons.test.mjs",
+              "scripts/sp-lev-reset-finalize-level.test.mjs",
+              "scripts/wizcmds.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dog.c/keepdogs-starting-pet-levelport.session.json",
+              "recordings/dog.c/keepdogs-escaped-pets-only.session.json",
+              "recordings/wizcmds.c/makemap-pet-transfer-outside-limit.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "61ad0c2ff0d4cbd1e1d5ed0555e7550c6d34d983"
+          }
+        ],
+        "entryPointReview": "The source caller inventory contains three active keepdogs call sites and all are wired: do.c:goto_level passes FALSE; end.c:really_done passes TRUE for ESCAPED/ASCENDED; wizcmds.c:makemap_remove_mons passes TRUE before dmonsfree. The independent ordinary-pet level-port recording covers the do.c departure path; the admitted v43 mounted stair case is the originating mismatch; after this port it proceeds to the separate unported mon_arrive(With_you) branch and stops there, so no matching synthetic prefix is claimed; the independent ESCAPED recording and wizard map-replacement recording cover both pets_only production callers. keep_mon_accessible is pure and is pinned in scripts/dog-migrate.test.mjs. The accessible-special-monster branch records note_unported('dog.c migrate_to_level') and is not represented as successful migration; that separate call remains blocked by its existing partial implementation. The selected task closes no dog.c:losedogs or mon_arrive behavior: the mounted-arrival portion after keepdogs remains a separately named blocker. The steed caller also reaches existing steal.c:mdrop_special_objs; its protected/quest-object drop branches remain that owner's explicit gap and are outside this task.",
+        "entryPoints": [
+          {
+            "name": "Tame follower leaves the current level through a level change",
+            "functions": [
+              "mon_leave",
+              "keepdogs"
+            ],
+            "recordings": [
+              "recordings/dog.c/keepdogs-starting-pet-levelport.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Pets accompany an escaped ending",
+            "functions": [
+              "keepdogs"
+            ],
+            "recordings": [
+              "recordings/dog.c/keepdogs-escaped-pets-only.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Tame pets are transferred before wizard map replacement",
+            "functions": [
+              "keepdogs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/makemap-pet-transfer-outside-limit.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v43",
+          "caseId": "v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "session": "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst",
+          "manifestPath": "challenges/manifests/v43.json",
+          "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+          "recording": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json",
+          "recordingPath": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json",
+          "recordingSha256": "bf2a99be1ce7847f948069f91419902d39e85ebb259933e2e8588791f1141472",
+          "recipe": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.recipe.session.json",
+          "recipeSha256": "4611748f3c7306188dcfdc6e07b89c010771192735e1b5fd4b320fea6c0c06ad",
+          "replayInputSha256": "4db51544737195b8e2c8a8ccb0d210ebaa471bbcf8cda4198cf9930d9f0f1ba4",
+          "evaluationPath": "challenges/evaluations/accepted-61ad0c2ff0d4cbd1e1d5ed0555e7550c6d34d983-v43.json",
+          "evaluationCommit": "61ad0c2ff0d4cbd1e1d5ed0555e7550c6d34d983",
+          "evaluationArtifact": "challenges/evaluations/accepted-61ad0c2ff0d4cbd1e1d5ed0555e7550c6d34d983-v43.json",
+          "evaluationUtc": "2026-10-11T07:09:13.925Z",
+          "remainingScreens": 1,
+          "recordedSteps": 166,
+          "previousScreensMatched": 165,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 165,
+              "total": 166
+            },
+            "rng": {
+              "matched": 6320,
+              "total": 6320
+            },
+            "cursors": {
+              "matched": 165,
+              "total": 166
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: mon_arrive() with the hero's steed",
+            "step": 165
+          },
+          "step": 165,
+          "kind": "stop",
+          "sourceFile": "dog.c",
+          "function": "mon_arrive",
+          "message": "unsupported hero move: mon_arrive() with the hero's steed",
+          "cFile": "dog.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.json",
+            "result": {
+              "session": "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst",
+              "corpus": "synthetic",
+              "batch": "v43",
+              "caseId": "v43-mounted-steed-stair-descent-pager-2-cfirst",
+              "manifestPath": "challenges/manifests/v43.json",
+              "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+              "recordingSha256": "bf2a99be1ce7847f948069f91419902d39e85ebb259933e2e8588791f1141472",
+              "recipeSha256": "4611748f3c7306188dcfdc6e07b89c010771192735e1b5fd4b320fea6c0c06ad",
+              "evaluationPath": "challenges/evaluations/accepted-9768280e52603cd8a6a3848dfd0557ea699ab3ed-v43.json",
+              "evaluationCommit": "9768280e52603cd8a6a3848dfd0557ea699ab3ed",
+              "remainingScreens": 1,
+              "recordedSteps": 166,
+              "status": "complete",
+              "commit": "9768280e52603cd8a6a3848dfd0557ea699ab3ed",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v43",
+                "caseId": "v43-mounted-steed-stair-descent-pager-2-cfirst",
+                "session": "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst",
+                "manifestPath": "challenges/manifests/v43.json",
+                "manifestSha256": "a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400",
+                "recording": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json",
+                "recordingPath": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json",
+                "recordingSha256": "bf2a99be1ce7847f948069f91419902d39e85ebb259933e2e8588791f1141472",
+                "recipe": "challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.recipe.session.json",
+                "recipeSha256": "4611748f3c7306188dcfdc6e07b89c010771192735e1b5fd4b320fea6c0c06ad",
+                "replayInputSha256": "bfca62422f56a632b6eb437442de6e18721f75a8e1b9c7f545ec936531aef779",
+                "evaluationPath": "challenges/evaluations/accepted-9768280e52603cd8a6a3848dfd0557ea699ab3ed-v43.json",
+                "evaluationCommit": "9768280e52603cd8a6a3848dfd0557ea699ab3ed",
+                "evaluationArtifact": "challenges/evaluations/accepted-9768280e52603cd8a6a3848dfd0557ea699ab3ed-v43.json",
+                "evaluationUtc": "2026-10-11T06:10:26.622Z",
+                "remainingScreens": 1,
+                "recordedSteps": 166,
+                "previousScreensMatched": 165,
+                "regression": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 165,
+                    "total": 166
+                  },
+                  "rng": {
+                    "matched": 3913,
+                    "total": 6320
+                  },
+                  "cursors": {
+                    "matched": 165,
+                    "total": 166
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: keepdogs() with the hero mounted",
+                  "step": 165
+                },
+                "step": 165,
+                "kind": "stop",
+                "sourceFile": "dog.c",
+                "function": "keepdogs",
+                "message": "unsupported hero move: keepdogs() with the hero mounted",
+                "passed": false
+              },
+              "summary": "The current saved queue identifies synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst at step 165, now stopping in dog.c:keepdogs() because JavaScript refuses the mounted branch. The source goal is a whole dog.c file-port of mon_leave(), keep_mon_accessible(), and keepdogs(), with every keepdogs caller wired. The selected C step reaches the non-Amulet steed transfer path: clear trap/eating state, drop special carried items, call mon_leave(), move the steed from fmon to gm.mydogs, then restore it after the level changes. This goal covers keepdogs only; dog.c:losedogs() and mon_arrive(With_you) remain separate downstream mounted-transfer blockers, so do not claim this delivery completes the selected screen.",
+              "source": {
+                "file": "dog.c",
+                "range": "729-885",
+                "functions": [
+                  "dog.c:mon_leave() (729-762), shared departing-monster bookkeeping; its returned worm segment count is used by both keepdogs() and migrate_to_level().",
+                  "dog.c:keep_mon_accessible() (768-785), pure classification of the Wizard and level-attached shopkeeper, priest, or vault guard.",
+                  "dog.c:keepdogs() (789-885), complete departure traversal for both pets_only values, including follower selection, trap/eating/Amulet disposition, steed special-object drop, mydogs transfer, migration routing, and leash cleanup."
+                ],
+                "branch": "In the selected recording, the saddled pony is u.usteed, adjacent to the hero, eligible through levl_follower(), not helpless under keepdogs()’s explicit steed exception, and not marked STRAT_WAITFORU. C clears mtrapped and meating, calls mdrop_special_objs(), calls mon_leave(), moves the monster from fmon to gm.mydogs via relmon(), clears mx/my, stores the returned worm segment count in wormno, and records mlstmv. The function then returns to do.c:goto_level(), which continues through the separate losedogs()/mon_arrive(With_you) arrival stage.",
+                "callers": [
+                  "do.c:goto_level() (1624) -> js/do.js:goto_level() (2820), already awaits keepdogs(false) during an ordinary level change.",
+                  "end.c:really_done() (1298) -> js/end.js:really_done() (1346), currently records note_unported(\"dog.c keepdogs\") for ESCAPED/ASCENDED; wire and await keepdogs(true).",
+                  "wizcmds.c:makemap_remove_mons() (116) -> js/wizcmds.js:makemap_remove_mons() (160), currently records note_unported(\"dog.c keepdogs\"); wire and await keepdogs(true).",
+                  "dog.c:migrate_to_level() (904) also calls mon_leave() and stores its return in wormno. js/dog.js:migrate_to_level() currently calls mon_leave() but hardcodes wormno=0; preserve the returned segment count at this caller without claiming the rest of migrate_to_level() complete."
+                ],
+                "dependencies": [
+                  "Direct returned-value helpers already have JavaScript owners: monmove.c:monnear() in js/monmove.js, mondata.c:levl_follower() in js/mondata.js, monst.h:helpless() in js/const.js, wizard.c:mon_has_amulet() in js/wizard.js, and worm.c:count_wsegs() in js/worm.js. count_wsegs() is the only direct helper in mon_leave() whose result is used; its hidden-head exclusion is pinned in scripts/worm.test.mjs.",
+                  "Direct state-changing helpers have current owners: trap.c:mintrap() in js/trap_effects.js (async, so await it even though C discards its result), apply.c:m_unleash() in js/apply.js, steal.c:mdrop_special_objs() in js/steal.js, worm.c:wormgone() in js/worm.js, monst.c:place_monster() in js/monst.js, and shk.c:set_residency()/picked_container() in js/shk.js.",
+                  "C relmon() is a void mon.c callee. js/dog.js currently carries the migration-specific adapter for removing ordinary monsters from the live level list and linking them to gm.mydogs or gm.migrating_mons. Keep that existing boundary explicit; mon.c:mon_leaving_level() has broader unstuck, mimic reveal, worm, pit, and redraw effects that are not all represented by the adapter.",
+                  "keepdogs() calls dog.c:migrate_to_level() as a void result for inaccessible monsters. Its JavaScript implementation is partial; do not claim that function complete in this goal. Preserve an explicit note_unported gap and skip unsupported migration branches instead of treating a partial helper as complete.",
+                  "The next level-arrival call chain is separate: do.c:goto_level() calls dog.c:losedogs(), which calls dog.c:mon_arrive(With_you). Current js/dog.js rejects a mounted steed in mon_arrive(). Keep this as a downstream blocker; do not widen this goal to losedogs() or the other mon_arrive modes."
+                ],
+                "tests": [
+                  "scripts/dog-migrate.test.mjs: keepdogs follower selection, list transfer, accessible-monster routing, and leash branch tests; add direct C-result coverage for keep_mon_accessible() because it is pure.",
+                  "scripts/dodown.test.mjs: source caller / goto_level ordinary level-change wiring.",
+                  "scripts/makemap-remove-mons.test.mjs and scripts/wizcmds.test.mjs: pets_only=true map-removal caller wiring.",
+                  "scripts/end-really-done.test.mjs: ESCAPED/ASCENDED caller wiring."
+                ],
+                "runtimeEvidencePlan": [
+                  "The directly listed recordings/dog.c files are B119 corpse-revival recordings; recipes/dog.c additionally has the blocked C112 object-fed pet routes. Neither directory has keepdogs() or migrate_to_level() evidence.",
+                  "Keepdogs(FALSE): the selected v43 case is the recorded mounted-steed route after downstream dog-arrival stages are implemented. Add an independent ordinary pet level-transfer recording so the keepdogs departure behavior can match before the separate steed arrival stage is complete.",
+                  "keepdogs(TRUE): reuse the prepared C-first recipe recipes/wizcmds.c/makemap-pet-transfer-outside-limit.session.json (seed 1464604, debug Valkyrie, pettype:dog, #wizmakemap). It specifically reaches wizcmds.c:makemap_remove_mons -> dog.c:keepdogs(TRUE), has no matching recordings/wizcmds.c output yet, and its comment marks the current discarded keepdogs gap. Record it after this goal wires the branch.",
+                  "mon_leave(): add an independent C recording for dog.c:migrate_to_level() if validation treats that direct call as a distinct entry point; preserve the returned worm segment count in the existing JS caller. Keep end.c:really_done() wired and its JavaScript call covered by scripts/end-really-done.test.mjs; only add a separate escape/ascension C recipe if the validator requires that caller route as distinct runtime evidence."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Queue snapshot SHA-256 e511b9616ed87949f86a4146256e74f8b2413368ddebdee27790f0932d45297a; selected entry synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst is batch v43, case v43-mounted-steed-stair-descent-pager-2-cfirst, manifest challenges/manifests/v43.json (SHA-256 a4b2899d882bbae4e7283f771df1cab2f78dd6a32d7c0b19378a6d8cc5ab7400), recording challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.session.json (SHA-256 bf2a99be1ce7847f948069f91419902d39e85ebb259933e2e8588791f1141472), recipe challenges/cases/v43/v43-mounted-steed-stair-descent-pager-2-cfirst.recipe.session.json (SHA-256 4611748f3c7306188dcfdc6e07b89c010771192735e1b5fd4b320fea6c0c06ad), evaluated at 9768280e52603cd8a6a3848dfd0557ea699ab3ed.",
+                "The accepted evaluation reports 165/166 screens, 165/166 cursors, and 3913/6320 RNG calls; JavaScript stops at step 165 with unsupported hero move: keepdogs() with the hero mounted. The C recording's step 165 is the input '>' and produces “You descend the stairs.--More--” while the hero remains mounted.",
+                "The selected case independently creates and tames a saddled pony with #wizgenesis, mounts it with #ride, reaches a down staircase with #wizmap, then descends. The C source path is do.c:goto_level() -> dog.c:keepdogs(FALSE); current JavaScript throws exactly in the u.usteed branch before the C steed transfer.",
+                "Upstream dog.c:729-885 was read as a contiguous source unit. Source call search found keepdogs() at do.c:1624, end.c:1298, and wizcmds.c:116; mon_leave() is additionally called at dog.c:904 by migrate_to_level().",
+                "The current JavaScript owner is js/dog.js:mon_leave()/keep_mon_accessible()/keepdogs(). The active do.js caller already awaits keepdogs(false), while end.js and wizcmds.js still record note_unported gaps for keepdogs(true). The v43 trace does not reach a matching JS screen after the step because downstream js/dog.js:mon_arrive() still refuses the steed.",
+                "The directly listed recordings/dog.c contain B119 revival cases and recipes/dog.c contain B119 plus blocked C112 pet routes, with no keepdogs or migrate_to_level record. A reusable, unrecorded pets-only recipe already exists at recipes/wizcmds.c/makemap-pet-transfer-outside-limit.session.json; the focused source tests are scripts/dog-migrate.test.mjs, scripts/dodown.test.mjs, scripts/makemap-remove-mons.test.mjs, scripts/wizcmds.test.mjs, and scripts/end-really-done.test.mjs."
+              ],
+              "replayInputSha256": "bfca62422f56a632b6eb437442de6e18721f75a8e1b9c7f545ec936531aef779",
+              "evaluationArtifact": "challenges/evaluations/accepted-9768280e52603cd8a6a3848dfd0557ea699ab3ed-v43.json",
+              "evaluationUtc": "2026-10-11T06:10:26.622Z",
+              "queueSha256": "e511b9616ed87949f86a4146256e74f8b2413368ddebdee27790f0932d45297a",
+              "investigationTaskId": "A2-investigation-v43-dog-keepdogs-20261011",
+              "priorAcceptedMismatch": {
+                "source": "apply.c:next_to_u",
+                "acceptedImplementation": "9768280e52603cd8a6a3848dfd0557ea699ab3ed",
+                "priorReportEvaluation": "57c44fa48bff87c33541a147cedd6d9a0018a494",
+                "step": 165,
+                "message": "unsupported hero move: next_to_u() with a steed",
+                "outcome": "The apply.c refusal was removed by accepted A2; the same recorded descent now reaches dog.c:keepdogs()."
+              }
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "61ad0c2ff0d4cbd1e1d5ed0555e7550c6d34d983",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
