@@ -284,6 +284,64 @@ test('dosacrifice wires real and fake low-altar Amulet feedback', async () => {
     }
 });
 
+test('offer_real_amulet follows its whole high-altar source branch', () => {
+    const cStart = PRAY_C.indexOf('\noffer_real_amulet(');
+    const cEnd = PRAY_C.indexOf(
+        '\nstaticfn void\noffer_negative_valued',
+        cStart,
+    );
+    const cBody = PRAY_C.slice(cStart, cEnd);
+    const jsStart = PRAY_JS.indexOf('async function offer_real_amulet(');
+    const jsEnd = PRAY_JS.indexOf(
+        '// C ref: pray.c dosacrifice()',
+        jsStart,
+    );
+    const jsBody = PRAY_JS.slice(jsStart, jsEnd);
+
+    assert.ok(cStart >= 0);
+    assert.ok(cEnd > cStart);
+    assert.ok(jsStart >= 0);
+    assert.ok(jsEnd > jsStart);
+    assert.match(cBody, /if \(uamul == otmp\)\s*Amulet_off\(\)/u);
+    assert.match(cBody, /if \(carried\(otmp\)\)\s*useup\(otmp\)[\s\S]*useupf\(otmp, 1L\)/u);
+    assert.match(cBody, /You\("offer the Amulet of Yendor to %s\.\.\.", a_gname\(\)\)/u);
+    assert.match(cBody, /if \(altaralign == A_NONE\)[\s\S]*else if \(u\.ualign\.type != altaralign\)[\s\S]*else \{/u);
+    assert.match(cBody, /done\(DIED\);[\s\S]*fry_by_god\(A_NONE, TRUE\);[\s\S]*done\(ESCAPED\);/u);
+    assert.match(cBody, /u\.uevent\.ascended = 1;[\s\S]*done\(ASCENDED\);/u);
+
+    assert.match(jsBody, /if \(state\.uamul === otmp\) await Amulet_off\(state\)/u);
+    assert.match(jsBody, /if \(carried\(otmp\)\) useup\(otmp, \{ state \}\);[\s\S]*await useupf\(otmp, 1, \{ state \}\)/u);
+    assert.match(jsBody, /if \(altaralign === A_NONE\)[\s\S]*else if \(u\.ualign\.type !== altaralign\)[\s\S]*else \{/u);
+    assert.match(jsBody, /await done\(DIED, state\);[\s\S]*await fry_by_god\(A_NONE, true, state\);[\s\S]*await done\(ESCAPED, state\);/u);
+    assert.match(jsBody, /u\.uevent\.ascended = 1;[\s\S]*await done\(ASCENDED, state\);/u);
+    assert.match(PRAY_JS, /await offer_real_amulet\(otmp, altaralign, state\)/u);
+    assert.doesNotMatch(jsBody, /note_unported/u);
+});
+
+test('v45 Sanctum approach replay reaches the real-Amulet Moloch outcome',
+    async () => {
+    const session = JSON.parse(readFileSync(new URL(
+        '../challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.session.json',
+        import.meta.url,
+    ), 'utf8'));
+    const result = await runJsSession(session, process.cwd());
+    const comparison = compareSessionOutputs(session, result);
+    assert.equal(comparison.passed, true, JSON.stringify(comparison));
+});
+
+test('offer_real_amulet Moloch source range matches patched C',
+    async () => {
+    const recording = JSON.parse(readFileSync(new URL(
+        '../recordings/pray.c/offer-real-amulet-moloch-continuation.session.json',
+        import.meta.url,
+    ), 'utf8'));
+    // This recording ends at the source-range boundary before end.c's later
+    // conduct-report prompt, which is outside pray.c:offer_real_amulet().
+    const result = await runJsSession(recording, process.cwd());
+    const comparison = compareSessionOutputs(recording, result);
+    assert.equal(comparison.passed, true, JSON.stringify(comparison));
+});
+
 test('offer_fake_amulet reports the recorder-supported thunderclap and mistake',
     async () => {
     // pray.c:1610-1618. Soundeffect() is an empty macro in this build; the
@@ -1899,12 +1957,12 @@ test('active pray.c a_gname callers use the current-square wrapper', () => {
     const cCallSites = PRAY_C.match(/a_gname\(\)/gu) ?? [];
     const jsCallSites = PRAY_JS.match(/a_gname\(state\)/gu) ?? [];
     assert.equal(cCallSites.length, 7);
-    assert.equal(jsCallSites.length, 4);
-    // The four active source uses are offer_different_alignment_altar's three
-    // deity messages and offer_corpse's conduct message. The other three are
-    // inside the explicitly refused offer_real_amulet path.
+    assert.equal(jsCallSites.length, 7);
+    // Three messages in offer_real_amulet() now join the four existing
+    // offer_different_alignment_altar()/offer_corpse() callers.
     assert.match(PRAY_C, /offer_real_amulet\([\s\S]*?a_gname\(\)/u);
-    assert.match(PRAY_JS, /note_unported\('pray\.c offer_real_amulet'\)/u);
+    assert.match(PRAY_JS, /async function offer_real_amulet\([\s\S]*?a_gname\(state\)/u);
+    assert.doesNotMatch(PRAY_JS, /note_unported\('pray\.c offer_real_amulet'\)/u);
 });
 
 test('can_pray() refuses a demon whose god is not neutral', async () => {

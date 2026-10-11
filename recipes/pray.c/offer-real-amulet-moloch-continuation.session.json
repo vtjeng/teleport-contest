@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45024583,
+      "datetime": "20650607123456",
+      "nethackrc": "OPTIONS=name:MolochContinuation,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizlevelport\n?\n>v #wizwish\nAmulet of Yendor\n  potion of healing\n#teleport\n  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkk. #wizkill\n  ll. lj. \u001bll#offer\np           ",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "The established seed keeps the Sanctum layout and targeting coordinates stable; the player name and date are newly chosen, and added pager inputs continue into the Moloch response."
+}
